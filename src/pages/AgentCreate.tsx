@@ -1,83 +1,78 @@
 
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { ArrowLeft, CheckCircle2, Loader2 } from "lucide-react";
+import { ArrowLeft, Bot, CheckCircle2, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
+import AgentConfigSettings from "@/components/AgentConfigSettings";
 import { ThemeToggle } from "@/components/ThemeToggle";
-import TeacherConfigSettings from "@/components/AgentConfigSettings";
-import { AgentType } from "@/types/agent";
 
 const AgentCreate = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
-  // Create a mock agent for the configuration form
-  const [newAgent, setNewAgent] = useState<AgentType>({
-    id: "new-agent",
+  const [agentConfig, setAgentConfig] = useState({
+    id: "new-tutor",
     name: "New Tutor",
+    description: "A helpful AI tutor ready to assist students with their learning.",
+    type: "General Tutor",
+    status: "inactive" as const,
+    createdAt: new Date().toISOString().split('T')[0],
+    interactions: 0,
+    isPersonal: true,
+    model: "GPT-4",
+    channels: ["chat"] as string[],
+    channelConfigs: {
+      chat: {
+        enabled: true,
+        details: "Available for student chat"
+      }
+    },
+    avatar: `https://api.dicebear.com/7.x/bottts/svg?seed=new-tutor`,
+    purpose: "Help students learn and understand concepts clearly.",
+    prompt: "You are a friendly and knowledgeable AI tutor. Your job is to help students learn by explaining concepts clearly, asking questions to check understanding, and providing encouragement. Always be patient, supportive, and adapt to each student's learning pace.",
     subject: "",
     gradeLevel: "",
     teachingStyle: "",
-    purpose: "",
-    prompt: "",
-    model: "GPT-4",
+    customSubject: "",
     voice: "9BWtsMINqrJLrRacOk9x",
     voiceProvider: "Eleven Labs",
-    avatar: `https://api.dicebear.com/7.x/bottts/svg?seed=new-agent`,
-    type: "General Tutor",
-    status: "active",
-    email: "newtutor@school.edu",
     studentsSaved: 0,
-    helpfulnessScore: 0,
-    lastActive: new Date().toISOString(),
-    createdAt: new Date().toISOString()
+    helpfulnessScore: 0
   });
   
-  const handleAgentUpdate = (updatedAgent: AgentType) => {
-    setNewAgent(updatedAgent);
+  const handleAgentUpdate = (updatedAgent: any) => {
+    setAgentConfig(updatedAgent);
   };
   
   const handleCreateAgent = () => {
-    if (!newAgent.name || newAgent.name === "New Tutor") {
+    setIsSubmitting(true);
+    
+    // Validate required fields
+    if (!agentConfig.name.trim()) {
       toast({
-        title: "Tutor Name Required",
+        title: "Name Required",
         description: "Please enter a name for your tutor.",
         variant: "destructive",
       });
+      setIsSubmitting(false);
       return;
     }
-    
-    if (!newAgent.subject) {
-      toast({
-        title: "Subject Required",
-        description: "Please select a subject for your tutor.",
-        variant: "destructive",
-      });
-      return;
-    }
-    
-    setIsSubmitting(true);
     
     setTimeout(() => {
       toast({
         title: "Tutor Created!",
-        description: `${newAgent.name} has been successfully created.`,
+        description: `${agentConfig.name} has been successfully created.`,
       });
       setIsSubmitting(false);
       navigate("/agents");
     }, 1500);
   };
   
-  const showSuccessToast = (title: string, description: string) => {
-    // Don't show auto-save toasts during creation to avoid confusion
-  };
-  
   return (
-    <div className="flex-1 space-y-6 p-4 md:p-8">
-      <div className="flex items-center justify-between">
+    <div className="max-w-7xl mx-auto animate-fade-in">
+      <div className="flex items-center justify-between mb-8">
         <Link to="/agents" className="flex items-center text-muted-foreground hover:text-foreground transition-colors">
           <ArrowLeft className="h-4 w-4 mr-2" />
           Back to Tutors
@@ -85,48 +80,47 @@ const AgentCreate = () => {
         <ThemeToggle />
       </div>
       
-      <div className="flex items-center justify-between">
+      <div className="flex items-center space-x-3 mb-6">
+        <Bot className="h-8 w-8 text-primary" />
         <div>
           <h1 className="text-3xl font-semibold text-foreground">Create New Tutor</h1>
-          <p className="text-muted-foreground mt-1">Configure your AI tutor's settings and teaching style</p>
+          <p className="text-muted-foreground mt-1">Configure your AI tutor's personality, subject expertise, and teaching style</p>
         </div>
-        
-        <Button 
-          onClick={handleCreateAgent} 
-          disabled={isSubmitting}
-          className="gap-2"
-          variant="default"
-          size="lg"
-        >
-          {isSubmitting ? (
-            <>
-              <Loader2 className="h-4 w-4 animate-spin" />
-              Creating...
-            </>
-          ) : (
-            <>
-              <CheckCircle2 className="h-4 w-4" />
-              Create Tutor
-            </>
-          )}
-        </Button>
       </div>
       
-      <Card>
-        <CardHeader>
-          <CardTitle>Tutor Configuration</CardTitle>
-          <CardDescription>
-            Set up your AI tutor's identity, teaching approach, and instructions
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <TeacherConfigSettings 
-            agent={newAgent} 
-            onAgentUpdate={handleAgentUpdate}
-            showSuccessToast={showSuccessToast}
-          />
-        </CardContent>
-      </Card>
+      <div className="space-y-6">
+        <AgentConfigSettings 
+          agent={agentConfig} 
+          onAgentUpdate={handleAgentUpdate}
+          showSuccessToast={(title, description) => {
+            // Don't show auto-save messages during creation
+          }}
+        />
+        
+        <Card>
+          <CardFooter className="flex justify-end pt-6">
+            <Button 
+              onClick={handleCreateAgent} 
+              disabled={isSubmitting}
+              className="gap-2"
+              variant="contrast"
+              size="lg"
+            >
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Creating Tutor...
+                </>
+              ) : (
+                <>
+                  <CheckCircle2 className="h-4 w-4" />
+                  Create Tutor
+                </>
+              )}
+            </Button>
+          </CardFooter>
+        </Card>
+      </div>
     </div>
   );
 };

@@ -1,126 +1,171 @@
-import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import { Plus, Search, User } from "lucide-react";
-
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import {
-  Table,
-  TableBody,
-  TableCaption,
-  TableCell,
-  TableFooter,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { useAgents } from "@/hooks/useAgents";
-import { ThemeToggle } from "@/components/ThemeToggle";
+import React from 'react';
+import { Link } from 'react-router-dom';
+import { Plus, Bot, Users, TrendingUp, Clock, MoreVertical, ExternalLink } from 'lucide-react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { useAgents } from '@/hooks/useAgents';
+import { ThemeToggle } from '@/components/ThemeToggle';
 
 const TeacherDashboard = () => {
-  const [search, setSearch] = useState("");
-  const { agents, isLoading, error } = useAgents();
+  const { agents, isLoading } = useAgents();
+  
+  const activeAgents = agents.filter(agent => agent.status === 'active');
+  const totalStudents = agents.reduce((sum, agent) => sum + (agent.studentsSaved || 0), 0);
+  const avgHelpfulness = agents.length > 0 
+    ? agents.reduce((sum, agent) => sum + (agent.helpfulnessScore || 0), 0) / agents.length 
+    : 0;
 
-  const filteredAgents = agents.filter((agent) =>
-    agent.name.toLowerCase().includes(search.toLowerCase())
-  );
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
 
   return (
-    <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
-      <div className="flex items-center justify-between space-y-2">
-        <h2 className="text-3xl font-bold tracking-tight">AI Tutors</h2>
-        <div className="flex items-center space-x-2">
-          <ThemeToggle />
+    <div className="space-y-8">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">My AI Tutors</h1>
+          <p className="text-muted-foreground">
+            Manage and monitor your AI tutoring assistants
+          </p>
         </div>
+        <ThemeToggle />
       </div>
-      <div className="flex items-center space-x-2">
-        <Input
-          placeholder="Search tutors..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
-        <Button asChild>
-          <Link to="/agents/create" variant="brand">
-            <Plus className="mr-2 h-4 w-4" />
-            Create New
-          </Link>
-        </Button>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <Card>
+          <CardHeader>
+            <CardTitle>Active Tutors</CardTitle>
+            <CardDescription>Tutors currently available to students</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            <div className="text-2xl font-bold">{activeAgents.length}</div>
+            <p className="text-muted-foreground">
+              <TrendingUp className="h-4 w-4 inline-block mr-1" />
+              {Math.round((activeAgents.length / agents.length) * 100)}% active
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Students Impacted</CardTitle>
+            <CardDescription>Total students helped by your tutors</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            <div className="text-2xl font-bold">{totalStudents}</div>
+            <p className="text-muted-foreground">
+              <Users className="h-4 w-4 inline-block mr-1" />
+              Impacting student learning
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Avg. Helpfulness Score</CardTitle>
+            <CardDescription>Average rating from student feedback</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            <div className="text-2xl font-bold">{avgHelpfulness.toFixed(1)} / 10</div>
+            <p className="text-muted-foreground">
+              <TrendingUp className="h-4 w-4 inline-block mr-1" />
+              Positive student feedback
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Total Tutors</CardTitle>
+            <CardDescription>All AI tutors in your collection</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            <div className="text-2xl font-bold">{agents.length}</div>
+            <p className="text-muted-foreground">
+              <Bot className="h-4 w-4 inline-block mr-1" />
+              AI tutors configured
+            </p>
+          </CardContent>
+        </Card>
       </div>
+
       <Card>
         <CardHeader>
-          <CardTitle>Tutors List</CardTitle>
+          <CardTitle>Create New Tutor</CardTitle>
           <CardDescription>
-            Here's a list of all the AI tutors you've created.
+            Add a new AI tutor to your collection
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {isLoading ? (
-            <div>Loading tutors...</div>
-          ) : error ? (
-            <div>Error: {error}</div>
-          ) : (
-            <ScrollArea>
-              <Table>
-                <TableCaption>
-                  A list of your AI tutors. Click on a tutor to view details.
-                </TableCaption>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Tutor</TableHead>
-                    <TableHead>Email</TableHead>
-                    <TableHead>Type</TableHead>
-                    <TableHead>Subject</TableHead>
-                    <TableHead className="text-right">Students Saved</TableHead>
-                    <TableHead className="text-right">Helpfulness</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredAgents.map((agent) => (
-                    <TableRow key={agent.id}>
-                      <TableCell>
-                        <Link
-                          to={`/agents/${agent.id}`}
-                          className="flex items-center space-x-2"
-                        >
-                          <Avatar>
-                            <AvatarImage src={agent.avatar} />
-                            <AvatarFallback>
-                              <User className="h-4 w-4" />
-                            </AvatarFallback>
-                          </Avatar>
-                          <span>{agent.name}</span>
-                        </Link>
-                      </TableCell>
-                      <TableCell>{agent.email}</TableCell>
-                      <TableCell>
-                        <Badge variant="secondary">{agent.type}</Badge>
-                      </TableCell>
-                      <TableCell>{agent.subject}</TableCell>
-                      <TableCell className="text-right">
-                        {agent.studentsSaved}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        {agent.helpfulnessScore}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </ScrollArea>
-          )}
+          <p className="text-muted-foreground">
+            Click the button below to start creating a new AI tutor. You can
+            customize its name, subject, teaching style, and more.
+          </p>
+          <Button asChild className="mt-4" variant="outline">
+            <Link to="/agents/create" className="flex items-center gap-2">
+              <Plus className="h-4 w-4" />
+              Create New Tutor
+            </Link>
+          </Button>
         </CardContent>
       </Card>
+
+      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {agents.map((agent) => (
+          <Card key={agent.id}>
+            <CardHeader className="flex items-center space-x-4">
+              <Avatar>
+                <AvatarImage src={agent.avatar} alt={agent.name} />
+                <AvatarFallback>
+                  <Bot className="h-6 w-6" />
+                </AvatarFallback>
+              </Avatar>
+              <div className="flex-1">
+                <CardTitle className="line-clamp-1">{agent.name}</CardTitle>
+                <CardDescription className="text-xs text-muted-foreground">
+                  {agent.type}
+                </CardDescription>
+              </div>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="h-8 w-8 p-0">
+                    <span className="sr-only">Open menu</span>
+                    <MoreVertical className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem asChild>
+                    <Link to={`/agents/${agent.id}`} className="flex items-center gap-2">
+                      <ExternalLink className="h-4 w-4" />
+                      View Details
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem disabled>
+                    <Clock className="mr-2 h-4 w-4" />
+                    Coming Soon
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center justify-between text-sm text-muted-foreground">
+                <div className="flex items-center gap-2">
+                  <Users className="h-4 w-4" />
+                  {agent.studentsSaved} Students
+                </div>
+                <Badge variant="secondary">{agent.status}</Badge>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
     </div>
   );
 };
