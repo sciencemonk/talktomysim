@@ -1,218 +1,126 @@
-
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Plus, Users, MessageSquare, TrendingUp, BookOpen, Brain, GraduationCap } from "lucide-react";
+import { Plus, Search, User } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableFooter,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { useAgents } from "@/hooks/useAgents";
-import { AgentType } from "@/types/agent";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 const TeacherDashboard = () => {
-  const [filter, setFilter] = useState("all-agents");
-  const { agents, isLoading, error } = useAgents(filter);
+  const [search, setSearch] = useState("");
+  const { agents, isLoading, error } = useAgents();
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Loading your tutors...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="text-center">
-          <p className="text-destructive mb-4">{error}</p>
-          <Button onClick={() => window.location.reload()}>Try Again</Button>
-        </div>
-      </div>
-    );
-  }
-
-  const getSubjectIcon = (type: string) => {
-    switch (type.toLowerCase()) {
-      case 'math tutor':
-        return <Brain className="h-4 w-4" />;
-      case 'science tutor':
-        return <BookOpen className="h-4 w-4" />;
-      case 'reading assistant':
-        return <BookOpen className="h-4 w-4" />;
-      default:
-        return <GraduationCap className="h-4 w-4" />;
-    }
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'active':
-        return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
-      case 'inactive':
-        return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200';
-      case 'draft':
-        return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200';
-      default:
-        return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200';
-    }
-  };
-
-  const totalStudentsHelped = agents.reduce((sum, agent) => sum + (agent.studentsSaved || 0), 0);
-  const totalInteractions = agents.reduce((sum, agent) => sum + (agent.interactions || 0), 0);
-  const avgHelpfulness = agents.length > 0 
-    ? agents.reduce((sum, agent) => sum + (agent.helpfulnessScore || 0), 0) / agents.length 
-    : 0;
+  const filteredAgents = agents.filter((agent) =>
+    agent.name.toLowerCase().includes(search.toLowerCase())
+  );
 
   return (
-    <div className="space-y-8 animate-fade-in">
-      <div className="flex justify-between items-start">
-        <div>
-          <h1 className="text-3xl font-semibold text-foreground">My AI Tutors</h1>
-          <p className="text-muted-foreground mt-2">
-            Create and manage AI tutors to help your students learn
-          </p>
+    <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
+      <div className="flex items-center justify-between space-y-2">
+        <h2 className="text-3xl font-bold tracking-tight">AI Tutors</h2>
+        <div className="flex items-center space-x-2">
+          <ThemeToggle />
         </div>
-        <Link to="/agents/create">
-          <Button className="gap-2">
-            <Plus className="h-4 w-4" />
-            Create New Tutor
-          </Button>
-        </Link>
       </div>
-
-      {/* Stats Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Tutors</CardTitle>
-            <Brain className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{agents.filter(a => a.status === 'active').length}</div>
-            <p className="text-xs text-muted-foreground">
-              Ready to help students
-            </p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Students Helped</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{totalStudentsHelped}</div>
-            <p className="text-xs text-muted-foreground">
-              Across all tutors
-            </p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Interactions</CardTitle>
-            <MessageSquare className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{totalInteractions.toLocaleString()}</div>
-            <p className="text-xs text-muted-foreground">
-              Questions answered
-            </p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Helpfulness Score</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{avgHelpfulness.toFixed(1)}/10</div>
-            <p className="text-xs text-muted-foreground">
-              Average rating
-            </p>
-          </CardContent>
-        </Card>
+      <div className="flex items-center space-x-2">
+        <Input
+          placeholder="Search tutors..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+        <Button asChild>
+          <Link to="/agents/create" variant="brand">
+            <Plus className="mr-2 h-4 w-4" />
+            Create New
+          </Link>
+        </Button>
       </div>
-
-      {/* Tutors Grid */}
-      {agents.length === 0 ? (
-        <Card className="text-center py-12">
-          <CardContent>
-            <GraduationCap className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-            <h3 className="text-xl font-semibold mb-2">No tutors yet</h3>
-            <p className="text-muted-foreground mb-6">
-              Create your first AI tutor to start helping students learn
-            </p>
-            <Link to="/agents/create">
-              <Button className="gap-2">
-                <Plus className="h-4 w-4" />
-                Create Your First Tutor
-              </Button>
-            </Link>
-          </CardContent>
-        </Card>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {agents.map((agent: AgentType) => (
-            <Link key={agent.id} to={`/agents/${agent.id}`}>
-              <Card className="hover:shadow-md transition-all duration-200 cursor-pointer">
-                <CardHeader className="pb-3">
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-center space-x-3">
-                      <Avatar className="h-10 w-10">
-                        <AvatarImage 
-                          src={agent.avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${agent.id}`} 
-                          alt={agent.name} 
-                        />
-                        <AvatarFallback>
-                          {getSubjectIcon(agent.type)}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <CardTitle className="text-lg">{agent.name}</CardTitle>
-                        <CardDescription className="text-sm">
-                          {agent.type}
-                        </CardDescription>
-                      </div>
-                    </div>
-                    <Badge className={getStatusColor(agent.status)}>
-                      {agent.status}
-                    </Badge>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
-                    {agent.description || agent.purpose || "A helpful AI tutor for students"}
-                  </p>
-                  
-                  <div className="grid grid-cols-2 gap-4 text-sm">
-                    <div>
-                      <p className="font-medium text-foreground">{agent.studentsSaved || 0}</p>
-                      <p className="text-muted-foreground">Students Helped</p>
-                    </div>
-                    <div>
-                      <p className="font-medium text-foreground">{agent.interactions || 0}</p>
-                      <p className="text-muted-foreground">Interactions</p>
-                    </div>
-                  </div>
-                  
-                  {agent.helpfulnessScore && (
-                    <div className="mt-4 flex items-center justify-between">
-                      <span className="text-sm text-muted-foreground">Helpfulness</span>
-                      <span className="text-sm font-medium">{agent.helpfulnessScore}/10</span>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            </Link>
-          ))}
-        </div>
-      )}
+      <Card>
+        <CardHeader>
+          <CardTitle>Tutors List</CardTitle>
+          <CardDescription>
+            Here's a list of all the AI tutors you've created.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {isLoading ? (
+            <div>Loading tutors...</div>
+          ) : error ? (
+            <div>Error: {error}</div>
+          ) : (
+            <ScrollArea>
+              <Table>
+                <TableCaption>
+                  A list of your AI tutors. Click on a tutor to view details.
+                </TableCaption>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Tutor</TableHead>
+                    <TableHead>Email</TableHead>
+                    <TableHead>Type</TableHead>
+                    <TableHead>Subject</TableHead>
+                    <TableHead className="text-right">Students Saved</TableHead>
+                    <TableHead className="text-right">Helpfulness</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filteredAgents.map((agent) => (
+                    <TableRow key={agent.id}>
+                      <TableCell>
+                        <Link
+                          to={`/agents/${agent.id}`}
+                          className="flex items-center space-x-2"
+                        >
+                          <Avatar>
+                            <AvatarImage src={agent.avatar} />
+                            <AvatarFallback>
+                              <User className="h-4 w-4" />
+                            </AvatarFallback>
+                          </Avatar>
+                          <span>{agent.name}</span>
+                        </Link>
+                      </TableCell>
+                      <TableCell>{agent.email}</TableCell>
+                      <TableCell>
+                        <Badge variant="secondary">{agent.type}</Badge>
+                      </TableCell>
+                      <TableCell>{agent.subject}</TableCell>
+                      <TableCell className="text-right">
+                        {agent.studentsSaved}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        {agent.helpfulnessScore}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </ScrollArea>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 };
