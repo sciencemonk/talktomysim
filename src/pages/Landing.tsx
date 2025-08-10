@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,41 +7,32 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-
 const Landing = () => {
   const [isContactOpen, setIsContactOpen] = useState(false);
   const [isGeneralContactOpen, setIsGeneralContactOpen] = useState(false);
-
   const handleGoogleSignIn = () => {
     // TODO: Implement Google OAuth sign-in
     console.log("Google sign-in clicked");
   };
-
   const handleContactSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // TODO: Implement contact form submission
     console.log("Contact form submitted");
     setIsContactOpen(false);
   };
-
   const handleGeneralContactSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // TODO: Implement general contact form submission
     console.log("General contact form submitted");
     setIsGeneralContactOpen(false);
   };
-
-  return (
-    <div className="min-h-screen">
+  return <div className="min-h-screen">
       {/* Hero Section */}
       <div className="min-h-screen relative overflow-hidden">
         {/* Background Image - now contains the entire image */}
-        <div 
-          className="absolute inset-0 bg-contain bg-center bg-no-repeat" 
-          style={{
-            backgroundImage: `url('/lovable-uploads/f3a6789c-4ba5-4075-9d4f-b27c183eeadd.png')`
-          }} 
-        />
+        <div className="absolute inset-0 bg-contain bg-center bg-no-repeat" style={{
+        backgroundImage: `url('/lovable-uploads/f3a6789c-4ba5-4075-9d4f-b27c183eeadd.png')`
+      }} />
         
         {/* Lighter overlay for better readability */}
         <div className="absolute inset-0 bg-black/20" />
@@ -76,30 +66,12 @@ const Landing = () => {
               </Button>
 
               {/* Features Grid - now with light backgrounds */}
-              <div className="grid md:grid-cols-3 gap-6 mb-8 max-w-3xl mx-auto">
-                <div className="bg-white/90 backdrop-blur-sm rounded-lg p-4 text-gray-800 shadow-sm">
-                  <Brain className="h-8 w-8 mx-auto mb-2 text-brandPurple" />
-                  <h3 className="font-semibold mb-1">AI-Powered</h3>
-                  <p className="text-sm text-gray-600">Smart tutors that understand each student's needs</p>
-                </div>
-                <div className="bg-white/90 backdrop-blur-sm rounded-lg p-4 text-gray-800 shadow-sm">
-                  <Users className="h-8 w-8 mx-auto mb-2 text-brandPurple" />
-                  <h3 className="font-semibold mb-1">Personalized</h3>
-                  <p className="text-sm text-gray-600">Tailored learning paths for every student</p>
-                </div>
-                <div className="bg-white/90 backdrop-blur-sm rounded-lg p-4 text-gray-800 shadow-sm">
-                  <BookOpen className="h-8 w-8 mx-auto mb-2 text-brandPurple" />
-                  <h3 className="font-semibold mb-1">Easy Setup</h3>
-                  <p className="text-sm text-gray-600">Create your first tutor in under 5 minutes</p>
-                </div>
-              </div>
+              
 
               {/* Testimonial - now with light background */}
               <div className="bg-white/90 backdrop-blur-sm rounded-lg p-6 mb-8 max-w-2xl mx-auto shadow-sm">
                 <div className="flex justify-center mb-2">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="h-4 w-4 text-yellow-500 fill-current" />
-                  ))}
+                  {[...Array(5)].map((_, i) => <Star key={i} className="h-4 w-4 text-yellow-500 fill-current" />)}
                 </div>
                 <p className="text-gray-700 italic mb-2">
                   "AI Tutors transformed my classroom. My students are more engaged and receive personalized support when and where they need it."
@@ -486,8 +458,6 @@ const Landing = () => {
           </div>
         </div>
       </footer>
-    </div>
-  );
+    </div>;
 };
-
 export default Landing;
