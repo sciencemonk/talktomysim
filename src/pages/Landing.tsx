@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { GraduationCap, Users, BookOpen, Brain, Star, Mail, Phone, MapPin } from "lucide-react";
@@ -7,24 +6,19 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-
 const Landing = () => {
   const [isContactOpen, setIsContactOpen] = useState(false);
-
   const handleGoogleSignIn = () => {
     // TODO: Implement Google OAuth sign-in
     console.log("Google sign-in clicked");
   };
-
   const handleContactSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // TODO: Implement contact form submission
     console.log("Contact form submitted");
     setIsContactOpen(false);
   };
-
-  return (
-    <div className="min-h-screen bg-gray-100">
+  return <div className="min-h-screen bg-gray-100">
       {/* Hero Section - Facebook-inspired */}
       <div className="bg-white">
         <div className="max-w-7xl mx-auto px-6 py-12">
@@ -39,11 +33,7 @@ const Landing = () => {
                 Create personalized AI tutors for your students in seconds.
               </p>
               <div className="flex justify-center">
-                <Button 
-                  onClick={handleGoogleSignIn}
-                  variant="outline" 
-                  className="h-12 text-lg font-semibold bg-green-500 hover:bg-green-600 text-white border-green-500 px-8"
-                >
+                <Button onClick={handleGoogleSignIn} variant="outline" className="h-12 text-lg font-semibold bg-green-500 hover:bg-green-600 text-white border-green-500 px-8">
                   <img src="/lovable-uploads/36c4909a-6779-43ae-a435-5a07fbd668be.png" alt="Google" className="w-5 h-5 mr-3" />
                   Sign Up with Google
                 </Button>
@@ -53,11 +43,7 @@ const Landing = () => {
             {/* Right side - Student image */}
             <div className="flex justify-center">
               <div className="rounded-2xl overflow-hidden shadow-lg">
-                <img 
-                  src="/lovable-uploads/7d1d3b70-79f1-44e0-9bbe-9bf6ebab31a5.png" 
-                  alt="Students working together on computers" 
-                  className="w-full h-auto"
-                />
+                <img src="/lovable-uploads/7d1d3b70-79f1-44e0-9bbe-9bf6ebab31a5.png" alt="Students working together on computers" className="w-full h-auto" />
               </div>
             </div>
           </div>
@@ -86,7 +72,7 @@ const Landing = () => {
             <div className="bg-white rounded-lg p-6 text-center shadow-sm border">
               <BookOpen className="h-12 w-12 mx-auto mb-4 text-brandPurple" />
               <h3 className="text-xl font-semibold mb-2 text-gray-900">Easy Setup</h3>
-              <p className="text-gray-600">Create your first AI tutor in under 5 minutes</p>
+              <p className="text-gray-600">Create your first AI tutor in just seconds</p>
             </div>
           </div>
         </div>
@@ -97,9 +83,7 @@ const Landing = () => {
         <div className="max-w-4xl mx-auto px-6 text-center">
           <div className="bg-white rounded-lg p-8 shadow-sm border">
             <div className="flex justify-center mb-4">
-              {[...Array(5)].map((_, i) => (
-                <Star key={i} className="h-6 w-6 text-yellow-400 fill-current" />
-              ))}
+              {[...Array(5)].map((_, i) => <Star key={i} className="h-6 w-6 text-yellow-400 fill-current" />)}
             </div>
             <blockquote className="text-xl text-gray-700 italic mb-4">
               "AI Tutors transformed my classroom. My students are more engaged and receive personalized support exactly when and where they need it."
@@ -201,8 +185,6 @@ const Landing = () => {
           </div>
         </div>
       </footer>
-    </div>
-  );
+    </div>;
 };
-
 export default Landing;
