@@ -31,45 +31,33 @@ const Landing = () => {
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             {/* Left side - Brand and tagline */}
             <div>
-              <div className="flex items-center gap-3 mb-6">
+              <div className="flex items-center justify-center gap-3 mb-6">
                 <GraduationCap className="h-12 w-12 text-brandPurple" />
                 <span className="text-5xl font-bold text-brandPurple">AI Tutors</span>
               </div>
-              <p className="text-2xl text-gray-600 leading-relaxed">
-                Connect your students with personalized AI tutors that help every student succeed.
+              <p className="text-2xl text-gray-600 leading-relaxed mb-6 text-center">
+                Create personalized AI tutors for your students in seconds.
               </p>
+              <div className="flex justify-center">
+                <Button 
+                  onClick={handleGoogleSignIn}
+                  variant="outline" 
+                  className="h-12 text-lg font-semibold bg-green-500 hover:bg-green-600 text-white border-green-500 px-8"
+                >
+                  <img src="/lovable-uploads/36c4909a-6779-43ae-a435-5a07fbd668be.png" alt="Google" className="w-5 h-5 mr-3" />
+                  Sign Up with Google
+                </Button>
+              </div>
             </div>
 
-            {/* Right side - Sign up form */}
-            <div className="bg-white rounded-lg shadow-lg p-8 border">
-              <div className="space-y-4">
-                <Input 
-                  placeholder="Email or phone number" 
-                  className="h-12 text-lg border-gray-300"
+            {/* Right side - Student image */}
+            <div className="flex justify-center">
+              <div className="rounded-2xl overflow-hidden shadow-lg">
+                <img 
+                  src="/lovable-uploads/7d1d3b70-79f1-44e0-9bbe-9bf6ebab31a5.png" 
+                  alt="Students working together on computers" 
+                  className="w-full h-auto"
                 />
-                <Input 
-                  type="password" 
-                  placeholder="Password" 
-                  className="h-12 text-lg border-gray-300"
-                />
-                <Button 
-                  onClick={handleGoogleSignIn} 
-                  className="w-full h-12 text-lg font-semibold bg-blue-600 hover:bg-blue-700 text-white"
-                >
-                  Log In
-                </Button>
-                <div className="text-center">
-                  <a href="#" className="text-blue-600 hover:underline">Forgot password?</a>
-                </div>
-                <div className="border-t pt-4">
-                  <Button 
-                    variant="outline" 
-                    className="w-full h-12 text-lg font-semibold bg-green-500 hover:bg-green-600 text-white border-green-500"
-                  >
-                    <img src="/lovable-uploads/36c4909a-6779-43ae-a435-5a07fbd668be.png" alt="Google" className="w-5 h-5 mr-3" />
-                    Sign Up with Google
-                  </Button>
-                </div>
               </div>
             </div>
           </div>
