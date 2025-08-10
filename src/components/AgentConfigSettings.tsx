@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -87,8 +86,16 @@ const TeacherConfigSettings: React.FC<TeacherConfigSettingsProps> = ({ agent, on
     voiceProvider: agent.voiceProvider || 'Eleven Labs'
   });
 
+  const isCreationMode = agent.id.startsWith('temp-');
+
   const debouncedSave = React.useCallback(
     debounce(async (updatedData) => {
+      // Skip auto-save during creation mode
+      if (isCreationMode) {
+        console.log('Skipping auto-save during creation mode');
+        return;
+      }
+
       try {
         setIsSaving(true);
         const updatedAgent = await updateAgent(agent.id, updatedData);
@@ -113,7 +120,7 @@ const TeacherConfigSettings: React.FC<TeacherConfigSettingsProps> = ({ agent, on
         setIsSaving(false);
       }
     }, 1000),
-    [agent.id, onAgentUpdate, toast, showSuccessToast]
+    [agent.id, onAgentUpdate, toast, showSuccessToast, isCreationMode]
   );
 
   useEffect(() => {
@@ -132,11 +139,18 @@ const TeacherConfigSettings: React.FC<TeacherConfigSettingsProps> = ({ agent, on
       voiceProvider
     };
     
-    if (!isEqual(currentValues, prevValuesRef.current)) {
+    // Update the agent data immediately for creation mode
+    if (isCreationMode) {
+      onAgentUpdate({
+        ...agent,
+        ...currentValues
+      });
+    } else if (!isEqual(currentValues, prevValuesRef.current)) {
       debouncedSave(currentValues);
-      prevValuesRef.current = { ...currentValues };
     }
-  }, [name, avatar, purpose, prompt, subject, gradeLevel, teachingStyle, customSubject, model, voice, voiceProvider, debouncedSave]);
+    
+    prevValuesRef.current = { ...currentValues };
+  }, [name, avatar, purpose, prompt, subject, gradeLevel, teachingStyle, customSubject, model, voice, voiceProvider, debouncedSave, isCreationMode, agent, onAgentUpdate]);
 
   const generateRandomAvatar = () => {
     const seed = Math.random().toString(36).substring(2, 10);
@@ -375,7 +389,7 @@ Always be patient, supportive, and adapt to each student's learning pace. If a s
         </CardContent>
       </Card>
       
-      {isSaving && (
+      {isSaving && !isCreationMode && (
         <div className="fixed bottom-4 right-4 bg-secondary/80 text-foreground px-4 py-2 rounded-md text-sm animate-in fade-in slide-in-from-bottom-4">
           Saving changes...
         </div>
