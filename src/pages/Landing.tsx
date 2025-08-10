@@ -24,169 +24,195 @@ const Landing = () => {
   };
 
   return (
-    <div className="min-h-screen relative overflow-hidden">
-      {/* Background Image */}
-      <div 
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat" 
-        style={{
-          backgroundImage: `url('/lovable-uploads/4e33dacc-efa6-49c9-9841-697fdf3c46ea.png')`
-        }} 
-      />
-      
-      {/* Overlay */}
-      <div className="absolute inset-0 bg-black/40" />
-      
-      {/* Content */}
-      <div className="relative z-10 min-h-screen flex flex-col">
-        {/* Header */}
-        <header className="p-6">
-          <div className="flex items-center justify-center gap-2">
-            <GraduationCap className="h-8 w-8 text-white" />
-            <span className="text-xl font-bold text-white">AI Tutors</span>
-          </div>
-        </header>
-
-        {/* Main Content */}
-        <div className="flex-1 flex items-center justify-center px-6">
-          <div className="text-center max-w-4xl">
-            <h1 className="text-4xl md:text-6xl font-bold mb-6 text-white leading-tight">
-              Personalized AI Tutors for Your Students
-            </h1>
-
-            <p className="text-lg text-white/80 mb-8 max-w-2xl mx-auto">Empower your students with AI-powered tutors that help every student succeed.</p>
-            
-            <Button onClick={handleGoogleSignIn} size="lg" className="bg-white text-brandPurple hover:bg-gray-100 px-8 py-4 text-lg font-semibold mb-12">
-              <img src="/lovable-uploads/36c4909a-6779-43ae-a435-5a07fbd668be.png" alt="Google" className="w-5 h-5 mr-3" />
-              Sign Up with Google
-            </Button>
-
-            {/* Features Grid */}
-            <div className="grid md:grid-cols-3 gap-6 mb-8 max-w-3xl mx-auto">
-              <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 text-white">
-                <Brain className="h-8 w-8 mx-auto mb-2" />
-                <h3 className="font-semibold mb-1">AI-Powered</h3>
-                <p className="text-sm opacity-90">Smart tutors that understand each student's needs</p>
+    <div className="min-h-screen bg-gray-100">
+      {/* Hero Section - Facebook-inspired */}
+      <div className="bg-white">
+        <div className="max-w-7xl mx-auto px-6 py-12">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            {/* Left side - Brand and tagline */}
+            <div>
+              <div className="flex items-center gap-3 mb-6">
+                <GraduationCap className="h-12 w-12 text-brandPurple" />
+                <span className="text-5xl font-bold text-brandPurple">AI Tutors</span>
               </div>
-              <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 text-white">
-                <Users className="h-8 w-8 mx-auto mb-2" />
-                <h3 className="font-semibold mb-1">Personalized</h3>
-                <p className="text-sm opacity-90">Tailored learning paths for every student</p>
-              </div>
-              <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 text-white">
-                <BookOpen className="h-8 w-8 mx-auto mb-2" />
-                <h3 className="font-semibold mb-1">Easy Setup</h3>
-                <p className="text-sm opacity-90">Create your first tutor in under 5 minutes</p>
-              </div>
+              <p className="text-2xl text-gray-600 leading-relaxed">
+                Connect your students with personalized AI tutors that help every student succeed.
+              </p>
             </div>
 
-            {/* Testimonial */}
-            <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6 mb-8 max-w-2xl mx-auto">
-              <div className="flex justify-center mb-2">
-                {[...Array(5)].map((_, i) => (
-                  <Star key={i} className="h-4 w-4 text-yellow-400 fill-current" />
-                ))}
+            {/* Right side - Sign up form */}
+            <div className="bg-white rounded-lg shadow-lg p-8 border">
+              <div className="space-y-4">
+                <Input 
+                  placeholder="Email or phone number" 
+                  className="h-12 text-lg border-gray-300"
+                />
+                <Input 
+                  type="password" 
+                  placeholder="Password" 
+                  className="h-12 text-lg border-gray-300"
+                />
+                <Button 
+                  onClick={handleGoogleSignIn} 
+                  className="w-full h-12 text-lg font-semibold bg-blue-600 hover:bg-blue-700 text-white"
+                >
+                  Log In
+                </Button>
+                <div className="text-center">
+                  <a href="#" className="text-blue-600 hover:underline">Forgot password?</a>
+                </div>
+                <div className="border-t pt-4">
+                  <Button 
+                    variant="outline" 
+                    className="w-full h-12 text-lg font-semibold bg-green-500 hover:bg-green-600 text-white border-green-500"
+                  >
+                    <img src="/lovable-uploads/36c4909a-6779-43ae-a435-5a07fbd668be.png" alt="Google" className="w-5 h-5 mr-3" />
+                    Sign Up with Google
+                  </Button>
+                </div>
               </div>
-              <p className="text-white/90 italic mb-2">
-                "AI Tutors transformed my classroom. My students are more engaged and receive personalized support when and where they need it."
-              </p>
-              <p className="text-white/70 text-sm">— Sarah Johnson, 5th Grade Teacher</p>
             </div>
           </div>
         </div>
+      </div>
 
-        {/* Footer */}
-        <footer className="bg-black/60 backdrop-blur-sm text-white py-8 px-6">
-          <div className="max-w-6xl mx-auto">
-            <div className="grid md:grid-cols-4 gap-8">
-              <div>
-                <div className="flex items-center gap-2 mb-4">
-                  <GraduationCap className="h-6 w-6" />
-                  <span className="font-bold">AI Tutors</span>
-                </div>
-                <p className="text-white/80 text-sm">
-                  Empowering educators with AI-powered tutoring solutions for personalized student learning.
-                </p>
-              </div>
-              
-              <div>
-                <h4 className="font-semibold mb-4">Product</h4>
-                <ul className="space-y-2 text-sm text-white/80">
-                  <li><a href="#" className="hover:text-white transition-colors">Features</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Pricing</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Case Studies</a></li>
-                </ul>
-              </div>
-              
-              <div>
-                <h4 className="font-semibold mb-4">Support</h4>
-                <ul className="space-y-2 text-sm text-white/80">
-                  <li><a href="#" className="hover:text-white transition-colors">Help Center</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Documentation</a></li>
-                  <li>
-                    <Dialog open={isContactOpen} onOpenChange={setIsContactOpen}>
-                      <DialogTrigger asChild>
-                        <button className="hover:text-white transition-colors text-left">
-                          School Partnerships
-                        </button>
-                      </DialogTrigger>
-                      <DialogContent className="sm:max-w-md">
-                        <DialogHeader>
-                          <DialogTitle>School Partnership Inquiry</DialogTitle>
-                        </DialogHeader>
-                        <form onSubmit={handleContactSubmit} className="space-y-4">
-                          <div>
-                            <Label htmlFor="name">Name</Label>
-                            <Input id="name" placeholder="Your full name" required />
-                          </div>
-                          <div>
-                            <Label htmlFor="email">Email</Label>
-                            <Input id="email" type="email" placeholder="your.email@school.edu" required />
-                          </div>
-                          <div>
-                            <Label htmlFor="school">School/District</Label>
-                            <Input id="school" placeholder="School or district name" required />
-                          </div>
-                          <div>
-                            <Label htmlFor="students">Number of Students</Label>
-                            <Input id="students" type="number" placeholder="Estimated student count" />
-                          </div>
-                          <div>
-                            <Label htmlFor="message">Message</Label>
-                            <Textarea id="message" placeholder="Tell us about your partnership needs..." rows={4} />
-                          </div>
-                          <Button type="submit" className="w-full">Send Inquiry</Button>
-                        </form>
-                      </DialogContent>
-                    </Dialog>
-                  </li>
-                </ul>
-              </div>
-              
-              <div>
-                <h4 className="font-semibold mb-4">Contact</h4>
-                <div className="space-y-2 text-sm text-white/80">
-                  <div className="flex items-center gap-2">
-                    <Mail className="h-4 w-4" />
-                    <span>support@aitutors.com</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Phone className="h-4 w-4" />
-                    <span>1-800-AI-TUTOR</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <MapPin className="h-4 w-4" />
-                    <span>San Francisco, CA</span>
-                  </div>
-                </div>
-              </div>
+      {/* Features Section */}
+      <div className="py-16 bg-white">
+        <div className="max-w-6xl mx-auto px-6">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">Why Teachers Choose AI Tutors</h2>
+            <p className="text-xl text-gray-600">Powerful features designed for educators</p>
+          </div>
+          
+          <div className="grid md:grid-cols-3 gap-8">
+            <div className="bg-white rounded-lg p-6 text-center shadow-sm border">
+              <Brain className="h-12 w-12 mx-auto mb-4 text-brandPurple" />
+              <h3 className="text-xl font-semibold mb-2 text-gray-900">AI-Powered</h3>
+              <p className="text-gray-600">Smart tutors that understand each student's unique learning needs</p>
             </div>
-            
-            <div className="border-t border-white/20 mt-8 pt-8 text-center text-sm text-white/70">
-              <p>&copy; 2024 AI Tutors. All rights reserved. | Privacy Policy | Terms of Service</p>
+            <div className="bg-white rounded-lg p-6 text-center shadow-sm border">
+              <Users className="h-12 w-12 mx-auto mb-4 text-brandPurple" />
+              <h3 className="text-xl font-semibold mb-2 text-gray-900">Personalized</h3>
+              <p className="text-gray-600">Tailored learning paths that adapt to every student's pace</p>
+            </div>
+            <div className="bg-white rounded-lg p-6 text-center shadow-sm border">
+              <BookOpen className="h-12 w-12 mx-auto mb-4 text-brandPurple" />
+              <h3 className="text-xl font-semibold mb-2 text-gray-900">Easy Setup</h3>
+              <p className="text-gray-600">Create your first AI tutor in under 5 minutes</p>
             </div>
           </div>
-        </footer>
+        </div>
       </div>
+
+      {/* Testimonial */}
+      <div className="py-16 bg-gray-50">
+        <div className="max-w-4xl mx-auto px-6 text-center">
+          <div className="bg-white rounded-lg p-8 shadow-sm border">
+            <div className="flex justify-center mb-4">
+              {[...Array(5)].map((_, i) => (
+                <Star key={i} className="h-6 w-6 text-yellow-400 fill-current" />
+              ))}
+            </div>
+            <blockquote className="text-xl text-gray-700 italic mb-4">
+              "AI Tutors transformed my classroom. My students are more engaged and receive personalized support exactly when and where they need it."
+            </blockquote>
+            <cite className="text-gray-600 font-medium">— Sarah Johnson, 5th Grade Teacher</cite>
+          </div>
+        </div>
+      </div>
+
+      {/* Footer */}
+      <footer className="bg-white border-t py-12 px-6">
+        <div className="max-w-6xl mx-auto">
+          <div className="grid md:grid-cols-4 gap-8">
+            <div>
+              <div className="flex items-center gap-2 mb-4">
+                <GraduationCap className="h-6 w-6 text-brandPurple" />
+                <span className="font-bold text-gray-900">AI Tutors</span>
+              </div>
+              <p className="text-gray-600 text-sm">
+                Empowering educators with AI-powered tutoring solutions for personalized student learning.
+              </p>
+            </div>
+            
+            <div>
+              <h4 className="font-semibold mb-4 text-gray-900">Product</h4>
+              <ul className="space-y-2 text-sm text-gray-600">
+                <li><a href="#" className="hover:text-brandPurple transition-colors">Features</a></li>
+                <li><a href="#" className="hover:text-brandPurple transition-colors">Pricing</a></li>
+                <li><a href="#" className="hover:text-brandPurple transition-colors">Case Studies</a></li>
+              </ul>
+            </div>
+            
+            <div>
+              <h4 className="font-semibold mb-4 text-gray-900">Support</h4>
+              <ul className="space-y-2 text-sm text-gray-600">
+                <li><a href="#" className="hover:text-brandPurple transition-colors">Help Center</a></li>
+                <li><a href="#" className="hover:text-brandPurple transition-colors">Documentation</a></li>
+                <li>
+                  <Dialog open={isContactOpen} onOpenChange={setIsContactOpen}>
+                    <DialogTrigger asChild>
+                      <button className="hover:text-brandPurple transition-colors text-left">
+                        School Partnerships
+                      </button>
+                    </DialogTrigger>
+                    <DialogContent className="sm:max-w-md">
+                      <DialogHeader>
+                        <DialogTitle>School Partnership Inquiry</DialogTitle>
+                      </DialogHeader>
+                      <form onSubmit={handleContactSubmit} className="space-y-4">
+                        <div>
+                          <Label htmlFor="name">Name</Label>
+                          <Input id="name" placeholder="Your full name" required />
+                        </div>
+                        <div>
+                          <Label htmlFor="email">Email</Label>
+                          <Input id="email" type="email" placeholder="your.email@school.edu" required />
+                        </div>
+                        <div>
+                          <Label htmlFor="school">School/District</Label>
+                          <Input id="school" placeholder="School or district name" required />
+                        </div>
+                        <div>
+                          <Label htmlFor="students">Number of Students</Label>
+                          <Input id="students" type="number" placeholder="Estimated student count" />
+                        </div>
+                        <div>
+                          <Label htmlFor="message">Message</Label>
+                          <Textarea id="message" placeholder="Tell us about your partnership needs..." rows={4} />
+                        </div>
+                        <Button type="submit" className="w-full">Send Inquiry</Button>
+                      </form>
+                    </DialogContent>
+                  </Dialog>
+                </li>
+              </ul>
+            </div>
+            
+            <div>
+              <h4 className="font-semibold mb-4 text-gray-900">Contact</h4>
+              <div className="space-y-2 text-sm text-gray-600">
+                <div className="flex items-center gap-2">
+                  <Mail className="h-4 w-4" />
+                  <span>support@aitutors.com</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Phone className="h-4 w-4" />
+                  <span>1-800-AI-TUTOR</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <MapPin className="h-4 w-4" />
+                  <span>San Francisco, CA</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div className="border-t border-gray-200 mt-8 pt-8 text-center text-sm text-gray-500">
+            <p>&copy; 2024 AI Tutors. All rights reserved. | Privacy Policy | Terms of Service</p>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 };
