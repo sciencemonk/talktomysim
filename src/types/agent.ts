@@ -39,6 +39,9 @@ export interface AgentType {
   interactions?: number;
   studentsSaved?: number;
   helpfulnessScore?: number;
+  avmScore?: number;
+  csat?: number;
+  performance?: number;
   channels?: string[];
   channelConfigs?: Record<string, AgentChannelConfig>;
   isPersonal?: boolean;

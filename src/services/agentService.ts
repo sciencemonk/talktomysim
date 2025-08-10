@@ -1,13 +1,13 @@
 
 import { AgentType, AgentTypeCategory } from '@/types/agent';
 
-// Mock data for development
+// Mock data for development - updated to be education-focused
 const mockAgents: AgentType[] = [
   {
     id: "1",
-    name: "Customer Support Bot",
-    description: "Handles customer inquiries and support tickets automatically.",
-    type: "Customer Service",
+    name: "Math Helper Maya",
+    description: "Helps students with algebra, geometry, and basic math concepts.",
+    type: "Math Tutor",
     status: "active",
     createdAt: "2023-10-15",
     interactions: 1253,
@@ -15,14 +15,17 @@ const mockAgents: AgentType[] = [
     model: "GPT-4",
     channels: ["voice", "chat", "email"],
     avatar: "https://api.dicebear.com/7.x/bottts/svg?seed=1",
-    purpose: "Help users with their customer support questions and resolve issues.",
-    prompt: "You are a customer support bot. Your job is to help users solve their problems and answer their questions about our products and services."
+    purpose: "Help students understand math concepts and solve problems step by step.",
+    prompt: "You are Maya, a friendly math tutor. Help students learn by breaking down problems into simple steps.",
+    subject: "math",
+    gradeLevel: "6-8",
+    teachingStyle: "encouraging"
   },
   {
     id: "2",
-    name: "Sales Assistant",
-    description: "Guides customers through the sales process and answers product questions.",
-    type: "Sales & Marketing" as AgentTypeCategory, // Adding type assertion to ensure exact match
+    name: "Science Explorer Sam",
+    description: "Guides students through science experiments and explains scientific concepts.",
+    type: "Science Tutor",
     status: "active",
     createdAt: "2023-11-22",
     interactions: 876,
@@ -30,44 +33,56 @@ const mockAgents: AgentType[] = [
     model: "Claude-2",
     channels: ["voice", "chat", "whatsapp", "sms"],
     avatar: "https://api.dicebear.com/7.x/bottts/svg?seed=2",
-    purpose: "Help users find the right products and make purchasing decisions.",
-    prompt: "You are a sales assistant bot. Your job is to help users find the right products for their needs and guide them through the purchasing process."
+    purpose: "Help students explore science through hands-on learning and clear explanations.",
+    prompt: "You are Sam, an enthusiastic science tutor. Make science fun and engaging for students.",
+    subject: "science",
+    gradeLevel: "9-12",
+    teachingStyle: "interactive"
   },
   {
     id: "3",
-    name: "Knowledge Base Agent",
-    description: "Provides information from company documentation and knowledge base.",
-    type: "FAQ & Knowledge Base",
+    name: "Reading Buddy Riley",
+    description: "Helps students improve reading comprehension and vocabulary.",
+    type: "Reading Assistant",
     status: "inactive",
     createdAt: "2024-01-05",
     interactions: 432,
     isPersonal: true,
     model: "GPT-3.5 Turbo",
-    channels: ["voice", "chat"]
+    channels: ["voice", "chat"],
+    subject: "reading",
+    gradeLevel: "K-5",
+    teachingStyle: "patient"
   },
   {
     id: "4",
-    name: "Meeting Scheduler",
-    description: "Helps schedule and manage meetings with clients and team members.",
-    type: "Appointment Booking",
+    name: "Homework Helper Alex",
+    description: "Assists students with homework across multiple subjects.",
+    type: "Homework Helper",
     status: "active",
     createdAt: "2024-02-10",
     interactions: 198,
     isPersonal: false,
     model: "LLama-2",
-    channels: ["voice", "email", "sms"]
+    channels: ["voice", "email", "sms"],
+    subject: "other",
+    gradeLevel: "6-12",
+    teachingStyle: "supportive"
   },
   {
     id: "5",
-    name: "Document Analyzer",
-    description: "Analyzes documents and extracts key information automatically.",
-    type: "Technical Support", // Changed from "Other Function" to a valid category
+    name: "Writing Coach Willow",
+    description: "Helps students improve their writing skills and essay composition.",
+    type: "Writing Coach",
     status: "inactive",
     createdAt: "2024-03-01",
     interactions: 52,
     isPersonal: true,
     model: "GPT-4",
-    channels: ["voice"]
+    channels: ["voice"],
+    subject: "english",
+    gradeLevel: "9-12",
+    teachingStyle: "constructive"
   }
 ];
 

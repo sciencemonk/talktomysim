@@ -75,11 +75,11 @@ const AgentsDashboard = () => {
   
   const newlyCreatedAgent: AgentType = {
     id: "new123",
-    name: "New Agent",
-    description: "This agent was just created and needs configuration to be fully operational.",
-    purpose: "Help users with customer inquiries and provide assistance with common questions.",
+    name: "New Tutor",
+    description: "This tutor was just created and needs configuration to be fully operational.",
+    purpose: "Help students with their learning goals and provide educational support.",
     status: "inactive",
-    type: "Customer Service",
+    type: "General Tutor",
     createdAt: "Just now",
     interactions: 0,
     channelConfigs: {
@@ -560,4 +560,3 @@ const AgentsDashboard = () => {
 };
 
 export default AgentsDashboard;
-
