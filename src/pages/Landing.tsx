@@ -29,7 +29,7 @@ const Landing = () => {
       <div 
         className="absolute inset-0 bg-cover bg-center bg-no-repeat" 
         style={{
-          backgroundImage: `url('/lovable-uploads/f3a6789c-4ba5-4075-9d4f-b27c183eeadd.png')`
+          backgroundImage: `url('/lovable-uploads/4e33dacc-efa6-49c9-9841-697fdf3c46ea.png')`
         }} 
       />
       
@@ -40,7 +40,7 @@ const Landing = () => {
       <div className="relative z-10 min-h-screen flex flex-col">
         {/* Header */}
         <header className="p-6">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center justify-center gap-2">
             <GraduationCap className="h-8 w-8 text-white" />
             <span className="text-xl font-bold text-white">AI Tutors</span>
           </div>
@@ -49,10 +49,6 @@ const Landing = () => {
         {/* Main Content */}
         <div className="flex-1 flex items-center justify-center px-6">
           <div className="text-center max-w-4xl">
-            <Badge variant="secondary" className="mb-6 bg-brandPurple text-white border-white/30 text-lg px-6 py-2">
-              Get Three Free Tutors
-            </Badge>
-            
             <h1 className="text-4xl md:text-6xl font-bold mb-6 text-white leading-tight">
               Personalized AI Tutors for Your Students
             </h1>
