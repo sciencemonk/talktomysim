@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { ArrowLeft, Bot, Trash2, AlertCircle, Loader2, History, Cpu, Calendar, Mic, Volume2, MessageSquare, Plus, Play, Pause, Phone, Copy, PhoneOutgoing, PhoneIncoming, Mail, Send, MoreVertical, Archive, UserMinus, PenSquare, Cog } from "lucide-react";
+import { ArrowLeft, Bot, Trash2, AlertCircle, Loader2, History, Cpu, Calendar, Mic, Volume2, MessageSquare, Plus, Play, Pause, Phone, Copy, PhoneOutgoing, PhoneIncoming, Mail, Send, MoreVertical, Archive, UserMinus, PenSquare, Cog, BarChart3 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -30,6 +30,7 @@ import { UserPersonasSidebar } from "@/components/UserPersonasSidebar";
 import { CallInterface } from "@/components/CallInterface";
 import { Rocket } from "lucide-react";
 import { TestAgentSidebar } from "@/components/TestAgentSidebar";
+import { StudentUsageStats } from "@/components/StudentUsageStats";
 
 const SAMPLE_TEXT = "Hello, I'm an AI assistant and I'm here to help you with your questions.";
 
@@ -680,13 +681,13 @@ const AgentDetails = () => {
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="setup" className="text-sm">
             <span className="flex items-center gap-2">
-              <Cog className="h-4 w-4" />
-              Setup
+              <BarChart3 className="h-4 w-4" />
+              Student Usage
             </span>
           </TabsTrigger>
           <TabsTrigger value="settings" className="text-sm">
             <span className="flex items-center gap-2">
-              <Cpu className="h-4 w-4" />
+              <Cog className="h-4 w-4" />
               Settings
             </span>
           </TabsTrigger>
@@ -694,7 +695,7 @@ const AgentDetails = () => {
         
         <div className="mt-6">
           <TabsContent value="setup" className="space-y-6">
-            <AgentSetupStepper agent={agent} />
+            <StudentUsageStats agent={agent} />
           </TabsContent>
           
           <TabsContent value="settings" className="space-y-6">
