@@ -1,17 +1,16 @@
 
 export type AgentStatus = "active" | "inactive" | "draft";
 export type AgentTypeCategory = 
-  | "Customer Service" 
-  | "Sales & Marketing" 
-  | "Technical Support" 
-  | "IT Helpdesk" 
-  | "Lead Generation" 
-  | "Appointment Booking" 
-  | "FAQ & Knowledge Base" 
-  | "Customer Onboarding" 
-  | "Billing & Payments" 
-  | "Feedback Collection" 
-  | "Other Function";
+  | "Math Tutor" 
+  | "Science Tutor" 
+  | "Language Arts Tutor" 
+  | "History Tutor" 
+  | "Reading Assistant" 
+  | "Homework Helper" 
+  | "Study Buddy" 
+  | "Quiz Master" 
+  | "Writing Coach" 
+  | "General Tutor";
 
 export interface AgentChannelConfig {
   enabled: boolean;
@@ -37,10 +36,9 @@ export interface AgentType {
   voiceProvider?: string;
   customVoiceId?: string;
   voiceTraits?: VoiceTrait[];
-  avmScore?: number;
   interactions?: number;
-  csat?: number;
-  performance?: number;
+  studentsSaved?: number;
+  helpfulnessScore?: number;
   channels?: string[];
   channelConfigs?: Record<string, AgentChannelConfig>;
   isPersonal?: boolean;
@@ -49,8 +47,8 @@ export interface AgentType {
   avatar?: string;
   purpose?: string;
   prompt?: string;
-  industry?: string;
-  customIndustry?: string;
-  botFunction?: string;
-  customFunction?: string;
+  subject?: string;
+  gradeLevel?: string;
+  teachingStyle?: string;
+  customSubject?: string;
 }

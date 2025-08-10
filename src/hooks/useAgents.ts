@@ -3,30 +3,12 @@ import { useState, useEffect } from 'react';
 import { fetchAgents } from '@/services/agentService';
 import { AgentType } from '@/types/agent';
 
-// Helper function to generate a random phone number
-const generateRandomPhone = (id: string) => {
-  // Ensure we have at least 3 characters in the ID to work with
-  const safeId = id.padEnd(3, 'a');
-  
-  // Use a more reliable method to generate area code and phone parts
-  const areaCode = 100 + (safeId.charCodeAt(0) % 900);
-  const firstPart = 100 + (safeId.charCodeAt(1) % 900);
-  const secondPart = 1000 + (safeId.charCodeAt(2) % 9000);
-  
-  // Format the phone number properly
-  return `+1 (${areaCode}) ${firstPart}-${secondPart}`;
-};
-
 // Helper function to generate a random email based on agent name
 const generateRandomEmail = (id: string, name: string) => {
-  const domains = ['agentai.com', 'assistants.io', 'aihelpers.org', 'botmail.net'];
-  // Ensure we have enough characters in the ID to work with
+  const domains = ['school.edu', 'tutors.ai', 'learn.org', 'education.net'];
   const safeId = id.padEnd(4, 'a');
-  
   const domainIndex = safeId.charCodeAt(3) % domains.length;
   const normalizedName = name.toLowerCase().replace(/[^a-z0-9]/g, '');
-  
-  // Use a substring up to 3 characters if available, otherwise use what we have
   const idPart = safeId.length >= 3 ? safeId.slice(0, 3) : safeId;
   
   return `${normalizedName}${idPart}@${domains[domainIndex]}`;
@@ -43,18 +25,25 @@ export const useAgents = (filter: string = 'all-agents') => {
       try {
         const data = await fetchAgents(filter);
         
-        // Add phone and email to each agent
+        // Transform agents to be education-focused
         const enhancedData = data.map(agent => ({
           ...agent,
-          phone: generateRandomPhone(agent.id),
-          email: generateRandomEmail(agent.id, agent.name)
+          email: generateRandomEmail(agent.id, agent.name),
+          // Add education-specific fields
+          studentsSaved: agent.studentsSaved || Math.floor(Math.random() * 50) + 10,
+          helpfulnessScore: agent.helpfulnessScore || Math.round((Math.random() * 2 + 8) * 10) / 10,
+          // Map business types to education types
+          type: mapToEducationType(agent.type),
+          subject: agent.subject || getSubjectFromType(agent.type),
+          gradeLevel: agent.gradeLevel || "6-8",
+          teachingStyle: agent.teachingStyle || "encouraging"
         }));
         
         setAgents(enhancedData);
         setError(null);
       } catch (err) {
-        setError("Failed to load agents");
-        console.error("Error loading agents:", err);
+        setError("Failed to load tutors");
+        console.error("Error loading tutors:", err);
       } finally {
         setIsLoading(false);
       }
@@ -64,4 +53,33 @@ export const useAgents = (filter: string = 'all-agents') => {
   }, [filter]);
 
   return { agents, isLoading, error };
+};
+
+// Helper function to map business types to education types
+const mapToEducationType = (originalType: string): any => {
+  const typeMap: Record<string, any> = {
+    "Customer Service": "General Tutor",
+    "Sales & Marketing": "Study Buddy",
+    "Technical Support": "Math Tutor",
+    "IT Helpdesk": "Science Tutor",
+    "Lead Generation": "Reading Assistant",
+    "Appointment Booking": "Homework Helper",
+    "FAQ & Knowledge Base": "Quiz Master",
+    "Customer Onboarding": "Writing Coach",
+    "Billing & Payments": "Language Arts Tutor",
+    "Feedback Collection": "History Tutor",
+    "Other Function": "General Tutor"
+  };
+  
+  return typeMap[originalType] || "General Tutor";
+};
+
+// Helper function to get subject from type
+const getSubjectFromType = (type: string): string => {
+  if (type.includes("Math")) return "math";
+  if (type.includes("Science")) return "science";
+  if (type.includes("Language") || type.includes("Writing")) return "english";
+  if (type.includes("History")) return "history";
+  if (type.includes("Reading")) return "reading";
+  return "other";
 };

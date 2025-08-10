@@ -1,14 +1,15 @@
+
 import React, { useState } from "react";
-import { AgentTrainingCard } from "./AgentTrainingCard";
-import { WorkflowCard } from "./WorkflowCard";
-import { SimulationCard } from "./SimulationCard";
 import { Progress } from "@/components/ui/progress";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { CheckCircle2, Clock, BookOpen, MessageSquare, Users, Play } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
 interface AgentSetupStepperProps {
   agent: any;
 }
 
-// Define the status type for better TypeScript support
 type StepStatus = 'not-started' | 'in-progress' | 'completed';
 
 interface StepState {
@@ -19,19 +20,15 @@ interface StepState {
 export const AgentSetupStepper: React.FC<AgentSetupStepperProps> = ({ agent }) => {
   const [steps, setSteps] = useState({
     training: { status: 'not-started' as StepStatus, active: true },
-    workflow: { status: 'not-started' as StepStatus, active: false },
-    simulation: { status: 'not-started' as StepStatus, active: false }
+    testing: { status: 'not-started' as StepStatus, active: false },
+    deployment: { status: 'not-started' as StepStatus, active: false }
   });
 
-  // Track expanded state for each card
   const [expanded, setExpanded] = useState({
     training: true,
-    workflow: false,
-    simulation: false
+    testing: false,
+    deployment: false
   });
-  
-  // Track training records
-  const [trainingRecords, setTrainingRecords] = useState<any[]>([]);
 
   const toggleExpanded = (stepName: keyof typeof steps) => {
     setExpanded(prev => ({
@@ -83,175 +80,249 @@ export const AgentSetupStepper: React.FC<AgentSetupStepperProps> = ({ agent }) =
     }));
   };
 
-  const sampleTrainingRecords = [
-    {
-      id: '1',
-      title: 'Customer Support Call #1',
-      date: 'Feb 20, 2024',
-      time: '8:30 AM',
-      duration: '5:30',
-      type: 'call' as const
-    },
-    {
-      id: '2',
-      title: 'Role-Play Session #1',
-      date: 'Feb 21, 2024',
-      time: '3:15 PM',
-      duration: '3:45',
-      type: 'roleplay' as const
+  const getStepIcon = (stepName: string, status: StepStatus) => {
+    if (status === 'completed') return <CheckCircle2 className="h-5 w-5 text-green-600" />;
+    if (status === 'in-progress') return <Clock className="h-5 w-5 text-blue-600" />;
+    
+    switch (stepName) {
+      case 'training': return <BookOpen className="h-5 w-5 text-muted-foreground" />;
+      case 'testing': return <MessageSquare className="h-5 w-5 text-muted-foreground" />;
+      case 'deployment': return <Users className="h-5 w-5 text-muted-foreground" />;
+      default: return <Clock className="h-5 w-5 text-muted-foreground" />;
     }
-  ];
+  };
 
-  const sampleScenarios = [
-    { id: "1", name: "Product Information Requests", completed: true },
-    { id: "2", name: "Account Management", completed: true },
-    { id: "3", name: "Billing Questions", completed: true },
-    { id: "4", name: "Service Status Updates", completed: true }
-  ];
-
-  const sampleSimulations = [
-    {
-      id: "1",
-      name: "Basic Customer Inquiries",
-      date: "Feb 25, 2024",
-      coverage: 52,
-      performance: 68,
-      scenarios: 4,
-      tokens: "25.3k"
-    },
-    {
-      id: "2",
-      name: "Technical Support Basics",
-      date: "Feb 24, 2024",
-      coverage: 48,
-      performance: 65,
-      scenarios: 3,
-      tokens: "18.6k"
+  const getStatusBadge = (status: StepStatus) => {
+    switch (status) {
+      case 'completed': return <Badge className="bg-green-100 text-green-800">Completed</Badge>;
+      case 'in-progress': return <Badge className="bg-blue-100 text-blue-800">In Progress</Badge>;
+      default: return <Badge variant="outline">Not Started</Badge>;
     }
-  ];
-  
-  // Combine default training records with any new ones
-  const combinedTrainingRecords = [...sampleTrainingRecords, ...trainingRecords];
+  };
 
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="mb-8">
         <div className="flex justify-between items-center mb-2">
-          <h2 className="text-xl font-semibold text-fg">Agent Setup</h2>
+          <h2 className="text-xl font-semibold text-foreground">Tutor Setup</h2>
           <div className="flex items-center">
-            <span className="text-sm font-medium mr-2 text-fgMuted">{overallProgress}% Complete</span>
+            <span className="text-sm font-medium mr-2 text-muted-foreground">{overallProgress}% Complete</span>
             <Progress value={overallProgress} className="w-24 h-2" />
           </div>
         </div>
         
-        <p className="text-fgMuted">
-          Complete these steps in order to fully configure your agent for optimal performance
+        <p className="text-muted-foreground">
+          Complete these steps to prepare your AI tutor for students
         </p>
       </div>
       
-      <div className="space-y-4 mt-8">
-        {steps.training.status === 'not-started' && (
-          <AgentTrainingCard 
-            status="not-started" 
-            stepNumber={1}
-            isActive={steps.training.active}
-            onStart={() => handleStepStart('training')}
-            onComplete={() => handleStepComplete('training')}
-            isExpanded={expanded.training}
-            onToggleExpand={() => toggleExpanded('training')}
-          />
-        )}
-        
-        {steps.training.status === 'in-progress' && (
-          <AgentTrainingCard 
-            status="in-progress"
-            stepNumber={1}
-            voiceSamples={3}
-            voiceConfidence={65}
-            talkTime="45s"
-            trainingRecords={combinedTrainingRecords}
-            isActive={steps.training.active}
-            onComplete={() => handleStepComplete('training')}
-            isExpanded={expanded.training}
-            onToggleExpand={() => toggleExpanded('training')}
-          />
-        )}
-        
-        {steps.training.status === 'completed' && (
-          <AgentTrainingCard 
-            status="completed"
-            stepNumber={1}
-            voiceSamples={10}
-            totalSamples={10}
-            voiceConfidence={95}
-            talkTime="120s"
-            trainingRecords={combinedTrainingRecords}
-            isActive={steps.training.active}
-            isExpanded={expanded.training}
-            onToggleExpand={() => toggleExpanded('training')}
-          />
-        )}
-        
-        {steps.workflow.status === 'not-started' && (
-          <WorkflowCard 
-            status="not-started"
-            stepNumber={2}
-            onStart={() => handleStepStart('workflow')}
-            onComplete={() => handleStepComplete('workflow')}
-            isExpanded={expanded.workflow}
-            onToggleExpand={() => toggleExpanded('workflow')}
-          />
-        )}
-        
-        {steps.workflow.status === 'in-progress' && (
-          <WorkflowCard 
-            status="in-progress"
-            stepNumber={2}
-            onComplete={() => handleStepComplete('workflow')}
-            isExpanded={expanded.workflow}
-            onToggleExpand={() => toggleExpanded('workflow')}
-          />
-        )}
-        
-        {steps.workflow.status === 'completed' && (
-          <WorkflowCard 
-            status="completed"
-            stepNumber={2}
-            isExpanded={expanded.workflow}
-            onToggleExpand={() => toggleExpanded('workflow')}
-          />
-        )}
-        
-        {steps.simulation.status === 'not-started' && (
-          <SimulationCard 
-            status="not-started"
-            onStart={() => handleStepStart('simulation')}
-            onComplete={() => handleStepComplete('simulation')}
-            isExpanded={expanded.simulation}
-            onToggleExpand={() => toggleExpanded('simulation')}
-          />
-        )}
-        
-        {steps.simulation.status === 'in-progress' && (
-          <SimulationCard 
-            status="in-progress"
-            coverage={52}
-            performance={68}
-            scenarios={sampleScenarios}
-            simulations={sampleSimulations}
-            onComplete={() => handleStepComplete('simulation')}
-            isExpanded={expanded.simulation}
-            onToggleExpand={() => toggleExpanded('simulation')}
-          />
-        )}
-        
-        {steps.simulation.status === 'completed' && (
-          <SimulationCard 
-            status="completed"
-            isExpanded={expanded.simulation}
-            onToggleExpand={() => toggleExpanded('simulation')}
-          />
-        )}
+      <div className="space-y-4">
+        {/* Training Step */}
+        <Card>
+          <CardHeader className="cursor-pointer" onClick={() => toggleExpanded('training')}>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                {getStepIcon('training', steps.training.status)}
+                <div>
+                  <CardTitle className="text-lg">1. Train Your Tutor</CardTitle>
+                  <CardDescription>Provide examples and teaching materials</CardDescription>
+                </div>
+              </div>
+              <div className="flex items-center space-x-2">
+                {getStatusBadge(steps.training.status)}
+              </div>
+            </div>
+          </CardHeader>
+          
+          {expanded.training && (
+            <CardContent className="pt-0">
+              {steps.training.status === 'not-started' && (
+                <div className="space-y-4">
+                  <p className="text-muted-foreground">
+                    Upload teaching materials, example conversations, or subject content to help your tutor learn your teaching style and subject matter.
+                  </p>
+                  <div className="flex space-x-2">
+                    <Button onClick={() => handleStepStart('training')} className="gap-2">
+                      <BookOpen className="h-4 w-4" />
+                      Start Training
+                    </Button>
+                  </div>
+                </div>
+              )}
+              
+              {steps.training.status === 'in-progress' && (
+                <div className="space-y-4">
+                  <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
+                    <h4 className="font-medium mb-2">Training in Progress</h4>
+                    <p className="text-sm text-muted-foreground mb-3">
+                      Your tutor is learning from the materials you've provided. This typically takes 5-10 minutes.
+                    </p>
+                    <div className="flex items-center space-x-2">
+                      <Progress value={75} className="flex-1" />
+                      <span className="text-sm">75%</span>
+                    </div>
+                  </div>
+                  <Button onClick={() => handleStepComplete('training')} variant="outline">
+                    Complete Training
+                  </Button>
+                </div>
+              )}
+              
+              {steps.training.status === 'completed' && (
+                <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg">
+                  <h4 className="font-medium text-green-800 dark:text-green-200 mb-2">Training Complete!</h4>
+                  <p className="text-sm text-green-700 dark:text-green-300">
+                    Your tutor has been trained and is ready for testing with sample student interactions.
+                  </p>
+                </div>
+              )}
+            </CardContent>
+          )}
+        </Card>
+
+        {/* Testing Step */}
+        <Card>
+          <CardHeader className="cursor-pointer" onClick={() => toggleExpanded('testing')}>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                {getStepIcon('testing', steps.testing.status)}
+                <div>
+                  <CardTitle className="text-lg">2. Test with Sample Questions</CardTitle>
+                  <CardDescription>Try different student scenarios</CardDescription>
+                </div>
+              </div>
+              <div className="flex items-center space-x-2">
+                {getStatusBadge(steps.testing.status)}
+              </div>
+            </div>
+          </CardHeader>
+          
+          {expanded.testing && (
+            <CardContent className="pt-0">
+              {steps.testing.status === 'not-started' && (
+                <div className="space-y-4">
+                  <p className="text-muted-foreground">
+                    Test your tutor with various student questions and scenarios to ensure it responds appropriately.
+                  </p>
+                  <Button 
+                    onClick={() => handleStepStart('testing')} 
+                    disabled={steps.training.status !== 'completed'}
+                    className="gap-2"
+                  >
+                    <Play className="h-4 w-4" />
+                    Start Testing
+                  </Button>
+                </div>
+              )}
+              
+              {steps.testing.status === 'in-progress' && (
+                <div className="space-y-4">
+                  <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
+                    <h4 className="font-medium mb-2">Testing Scenarios</h4>
+                    <div className="space-y-2 text-sm">
+                      <div className="flex items-center justify-between">
+                        <span>Easy questions</span>
+                        <CheckCircle2 className="h-4 w-4 text-green-600" />
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span>Challenging problems</span>
+                        <CheckCircle2 className="h-4 w-4 text-green-600" />
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span>Student confusion scenarios</span>
+                        <Clock className="h-4 w-4 text-blue-600" />
+                      </div>
+                    </div>
+                  </div>
+                  <Button onClick={() => handleStepComplete('testing')} variant="outline">
+                    Complete Testing
+                  </Button>
+                </div>
+              )}
+              
+              {steps.testing.status === 'completed' && (
+                <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg">
+                  <h4 className="font-medium text-green-800 dark:text-green-200 mb-2">Testing Complete!</h4>
+                  <p className="text-sm text-green-700 dark:text-green-300">
+                    Your tutor performed well across different scenarios and is ready for students.
+                  </p>
+                </div>
+              )}
+            </CardContent>
+          )}
+        </Card>
+
+        {/* Deployment Step */}
+        <Card>
+          <CardHeader className="cursor-pointer" onClick={() => toggleExpanded('deployment')}>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                {getStepIcon('deployment', steps.deployment.status)}
+                <div>
+                  <CardTitle className="text-lg">3. Deploy to Students</CardTitle>
+                  <CardDescription>Make your tutor available to students</CardDescription>
+                </div>
+              </div>
+              <div className="flex items-center space-x-2">
+                {getStatusBadge(steps.deployment.status)}
+              </div>
+            </div>
+          </CardHeader>
+          
+          {expanded.deployment && (
+            <CardContent className="pt-0">
+              {steps.deployment.status === 'not-started' && (
+                <div className="space-y-4">
+                  <p className="text-muted-foreground">
+                    Share your tutor with students via a link, embed it in your learning management system, or provide direct access.
+                  </p>
+                  <Button 
+                    onClick={() => handleStepStart('deployment')} 
+                    disabled={steps.testing.status !== 'completed'}
+                    className="gap-2"
+                  >
+                    <Users className="h-4 w-4" />
+                    Deploy Tutor
+                  </Button>
+                </div>
+              )}
+              
+              {steps.deployment.status === 'in-progress' && (
+                <div className="space-y-4">
+                  <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
+                    <h4 className="font-medium mb-2">Deployment Options</h4>
+                    <div className="space-y-2 text-sm">
+                      <label className="flex items-center space-x-2">
+                        <input type="checkbox" className="rounded" />
+                        <span>Share via student link</span>
+                      </label>
+                      <label className="flex items-center space-x-2">
+                        <input type="checkbox" className="rounded" />
+                        <span>Embed in LMS</span>
+                      </label>
+                      <label className="flex items-center space-x-2">
+                        <input type="checkbox" className="rounded" />
+                        <span>Direct classroom access</span>
+                      </label>
+                    </div>
+                  </div>
+                  <Button onClick={() => handleStepComplete('deployment')} variant="outline">
+                    Complete Deployment
+                  </Button>
+                </div>
+              )}
+              
+              {steps.deployment.status === 'completed' && (
+                <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg">
+                  <h4 className="font-medium text-green-800 dark:text-green-200 mb-2">Tutor is Live!</h4>
+                  <p className="text-sm text-green-700 dark:text-green-300">
+                    Your AI tutor is now available to help students. Monitor usage and feedback in the analytics section.
+                  </p>
+                </div>
+              )}
+            </CardContent>
+          )}
+        </Card>
       </div>
     </div>
   );
