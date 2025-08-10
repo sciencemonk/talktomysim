@@ -6,24 +6,19 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-
 const Landing = () => {
   const [isContactOpen, setIsContactOpen] = useState(false);
-
   const handleGoogleSignIn = () => {
     // TODO: Implement Google OAuth sign-in
     console.log("Google sign-in clicked");
   };
-
   const handleContactSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // TODO: Implement contact form submission
     console.log("Contact form submitted");
     setIsContactOpen(false);
   };
-
-  return (
-    <div className="min-h-screen bg-white">
+  return <div className="min-h-screen bg-white">
       {/* Hero Section - Professional Facebook-inspired */}
       <div className="bg-white border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-6 py-16">
@@ -47,16 +42,8 @@ const Landing = () => {
                 </p>
                 
                 <div className="flex justify-center lg:justify-start">
-                  <Button 
-                    onClick={handleGoogleSignIn} 
-                    size="lg"
-                    className="h-14 text-lg font-semibold bg-white hover:bg-gray-50 text-gray-900 border-2 border-gray-200 hover:border-gray-300 px-8 shadow-sm"
-                  >
-                    <img 
-                      src="/lovable-uploads/36c4909a-6779-43ae-a435-5a07fbd668be.png" 
-                      alt="Google" 
-                      className="w-6 h-6 mr-3" 
-                    />
+                  <Button onClick={handleGoogleSignIn} size="lg" className="h-14 text-lg font-semibold bg-white hover:bg-gray-50 text-gray-900 border-2 border-gray-200 hover:border-gray-300 px-8 shadow-sm">
+                    <img src="/lovable-uploads/36c4909a-6779-43ae-a435-5a07fbd668be.png" alt="Google" className="w-6 h-6 mr-3" />
                     Get Started with Google
                   </Button>
                 </div>
@@ -84,11 +71,7 @@ const Landing = () => {
               <div className="relative">
                 <div className="absolute inset-0 bg-gradient-to-br from-brandPurple/20 to-brandBlue/20 rounded-2xl transform rotate-3"></div>
                 <div className="relative bg-white rounded-2xl overflow-hidden shadow-2xl border border-gray-100">
-                  <img 
-                    src="/lovable-uploads/7d1d3b70-79f1-44e0-9bbe-9bf6ebab31a5.png" 
-                    alt="Students working together on computers" 
-                    className="w-full h-auto max-w-md" 
-                  />
+                  <img src="/lovable-uploads/7d1d3b70-79f1-44e0-9bbe-9bf6ebab31a5.png" alt="Students working together on computers" className="w-full h-auto max-w-md" />
                 </div>
               </div>
             </div>
@@ -102,32 +85,16 @@ const Landing = () => {
           <p className="text-gray-600 mb-8 font-medium">Trusted by teachers from leading school districts</p>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 items-center">
             <div className="bg-white rounded-lg p-6 shadow-sm flex items-center justify-center h-20">
-              <img 
-                src="/lovable-uploads/3f54fe2a-24b7-434e-b847-d2eb033add7d.png" 
-                alt="Miami-Dade County Public Schools" 
-                className="max-h-12 max-w-full object-contain opacity-70 hover:opacity-100 transition-opacity"
-              />
+              <img src="/lovable-uploads/3f54fe2a-24b7-434e-b847-d2eb033add7d.png" alt="Miami-Dade County Public Schools" className="max-h-12 max-w-full object-contain opacity-70 hover:opacity-100 transition-opacity" />
             </div>
             <div className="bg-white rounded-lg p-6 shadow-sm flex items-center justify-center h-20">
-              <img 
-                src="/lovable-uploads/31a26b17-27fc-463a-9eb2-a5e764de804e.png" 
-                alt="Houston Independent School District" 
-                className="max-h-12 max-w-full object-contain opacity-70 hover:opacity-100 transition-opacity"
-              />
+              <img src="/lovable-uploads/31a26b17-27fc-463a-9eb2-a5e764de804e.png" alt="Houston Independent School District" className="max-h-12 max-w-full object-contain opacity-70 hover:opacity-100 transition-opacity" />
             </div>
             <div className="bg-white rounded-lg p-6 shadow-sm flex items-center justify-center h-20">
-              <img 
-                src="/lovable-uploads/48ab9ee7-6838-4523-8428-b278f5a9ed4d.png" 
-                alt="Chicago Public Schools" 
-                className="max-h-12 max-w-full object-contain opacity-70 hover:opacity-100 transition-opacity"
-              />
+              <img src="/lovable-uploads/48ab9ee7-6838-4523-8428-b278f5a9ed4d.png" alt="Chicago Public Schools" className="max-h-12 max-w-full object-contain opacity-70 hover:opacity-100 transition-opacity" />
             </div>
             <div className="bg-white rounded-lg p-6 shadow-sm flex items-center justify-center h-20">
-              <img 
-                src="/lovable-uploads/5c350f58-f5e5-4644-bb6f-2e03f06bacda.png" 
-                alt="Dallas Independent School District" 
-                className="max-h-12 max-w-full object-contain opacity-70 hover:opacity-100 transition-opacity"
-              />
+              <img src="/lovable-uploads/5c350f58-f5e5-4644-bb6f-2e03f06bacda.png" alt="Dallas Independent School District" className="max-h-12 max-w-full object-contain opacity-70 hover:opacity-100 transition-opacity" />
             </div>
           </div>
         </div>
@@ -184,9 +151,7 @@ const Landing = () => {
         <div className="max-w-4xl mx-auto px-6 text-center">
           <div className="bg-white rounded-2xl p-12 shadow-lg border border-gray-100">
             <div className="flex justify-center mb-6">
-              {[...Array(5)].map((_, i) => (
-                <Star key={i} className="h-6 w-6 text-yellow-400 fill-current" />
-              ))}
+              {[...Array(5)].map((_, i) => <Star key={i} className="h-6 w-6 text-yellow-400 fill-current" />)}
             </div>
             <blockquote className="text-2xl text-gray-700 font-medium mb-8 leading-relaxed">
               "AI Tutors transformed my classroom. My students are more engaged and receive personalized support exactly when and where they need it. It's like having a teaching assistant for every student."
@@ -281,9 +246,7 @@ const Landing = () => {
           </div>
           
           <div className="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center">
-            <p className="text-gray-400 text-sm mb-4 md:mb-0">
-              &copy; 2024 AI Tutors. All rights reserved.
-            </p>
+            <p className="text-gray-400 text-sm mb-4 md:mb-0">© 2025 AI Tutors. All rights reserved.</p>
             <div className="flex items-center gap-6 text-sm text-gray-400">
               <div className="flex items-center gap-2">
                 <Mail className="h-4 w-4" />
@@ -297,8 +260,6 @@ const Landing = () => {
           </div>
         </div>
       </footer>
-    </div>
-  );
+    </div>;
 };
-
 export default Landing;
