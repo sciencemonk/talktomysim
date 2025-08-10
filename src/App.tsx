@@ -8,7 +8,7 @@ import { ThemeProvider } from "@/hooks/useTheme";
 import AgentsLayout from "./layouts/AgentsLayout";
 import TeacherDashboard from "./pages/TeacherDashboard";
 import AgentDetails from "./pages/AgentDetails";
-import CreateTutor from "./pages/CreateTutor";
+import AgentCreate from "./pages/AgentCreate";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient({
@@ -36,7 +36,7 @@ const App = () => (
             <Route path="/" element={<Navigate to="/agents" replace />} />
             <Route path="/agents" element={<AgentsLayout />}>
               <Route index element={<TeacherDashboard />} />
-              <Route path="create" element={<CreateTutor />} />
+              <Route path="create" element={<AgentCreate />} />
               <Route path=":agentId" element={<AgentDetails />} />
             </Route>
             <Route path="*" element={<NotFound />} />
