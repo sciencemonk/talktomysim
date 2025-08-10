@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { GraduationCap, Users, BookOpen, Brain, Star, Mail, Phone, MapPin } from "lucide-react";
@@ -7,31 +6,23 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-
 const Landing = () => {
   const [isContactOpen, setIsContactOpen] = useState(false);
-
   const handleGoogleSignIn = () => {
     // TODO: Implement Google OAuth sign-in
     console.log("Google sign-in clicked");
   };
-
   const handleContactSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // TODO: Implement contact form submission
     console.log("Contact form submitted");
     setIsContactOpen(false);
   };
-
-  return (
-    <div className="min-h-screen relative overflow-hidden">
+  return <div className="min-h-screen relative overflow-hidden">
       {/* Background Image */}
-      <div 
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-        style={{
-          backgroundImage: `url('/lovable-uploads/f3a6789c-4ba5-4075-9d4f-b27c183eeadd.png')`
-        }}
-      />
+      <div className="absolute inset-0 bg-cover bg-center bg-no-repeat" style={{
+      backgroundImage: `url('/lovable-uploads/f3a6789c-4ba5-4075-9d4f-b27c183eeadd.png')`
+    }} />
       
       {/* Overlay */}
       <div className="absolute inset-0 bg-black/40" />
@@ -61,10 +52,7 @@ const Landing = () => {
               Create 3 for Free
             </p>
 
-            <p className="text-lg text-white/80 mb-8 max-w-2xl mx-auto">
-              Empower your students with AI-powered tutors that adapt to their learning style. 
-              Create personalized learning experiences that help every student succeed.
-            </p>
+            <p className="text-lg text-white/80 mb-8 max-w-2xl mx-auto">Empower your students with AI-powered tutors that help every student succeed.</p>
 
             {/* Features Grid */}
             <div className="grid md:grid-cols-3 gap-6 mb-8 max-w-3xl mx-auto">
@@ -88,9 +76,7 @@ const Landing = () => {
             {/* Testimonial */}
             <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6 mb-8 max-w-2xl mx-auto">
               <div className="flex justify-center mb-2">
-                {[...Array(5)].map((_, i) => (
-                  <Star key={i} className="h-4 w-4 text-yellow-400 fill-current" />
-                ))}
+                {[...Array(5)].map((_, i) => <Star key={i} className="h-4 w-4 text-yellow-400 fill-current" />)}
               </div>
               <p className="text-white/90 italic mb-2">
                 "AI Tutors transformed my classroom. My students are more engaged and their test scores have improved by 25%."
@@ -98,16 +84,8 @@ const Landing = () => {
               <p className="text-white/70 text-sm">— Sarah Johnson, 5th Grade Teacher</p>
             </div>
             
-            <Button 
-              onClick={handleGoogleSignIn}
-              size="lg" 
-              className="bg-white text-brandPurple hover:bg-gray-100 px-8 py-4 text-lg font-semibold"
-            >
-              <img 
-                src="/lovable-uploads/36c4909a-6779-43ae-a435-5a07fbd668be.png" 
-                alt="Google" 
-                className="w-5 h-5 mr-3"
-              />
+            <Button onClick={handleGoogleSignIn} size="lg" className="bg-white text-brandPurple hover:bg-gray-100 px-8 py-4 text-lg font-semibold">
+              <img src="/lovable-uploads/36c4909a-6779-43ae-a435-5a07fbd668be.png" alt="Google" className="w-5 h-5 mr-3" />
               Sign Up with Google
             </Button>
 
@@ -175,11 +153,7 @@ const Landing = () => {
                           </div>
                           <div>
                             <Label htmlFor="message">Message</Label>
-                            <Textarea 
-                              id="message" 
-                              placeholder="Tell us about your partnership needs..."
-                              rows={4}
-                            />
+                            <Textarea id="message" placeholder="Tell us about your partnership needs..." rows={4} />
                           </div>
                           <Button type="submit" className="w-full">Send Inquiry</Button>
                         </form>
@@ -214,8 +188,6 @@ const Landing = () => {
           </div>
         </footer>
       </div>
-    </div>
-  );
+    </div>;
 };
-
 export default Landing;
