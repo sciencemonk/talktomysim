@@ -9,6 +9,7 @@ import AgentsLayout from "./layouts/AgentsLayout";
 import TeacherDashboard from "./pages/TeacherDashboard";
 import AgentDetails from "./pages/AgentDetails";
 import AgentCreate from "./pages/AgentCreate";
+import Landing from "./pages/Landing";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient({
@@ -33,7 +34,8 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <Routes>
-            <Route path="/" element={<Navigate to="/agents" replace />} />
+            <Route path="/" element={<Landing />} />
+            <Route path="/dashboard" element={<Navigate to="/agents" replace />} />
             <Route path="/agents" element={<AgentsLayout />}>
               <Route index element={<TeacherDashboard />} />
               <Route path="create" element={<AgentCreate />} />
