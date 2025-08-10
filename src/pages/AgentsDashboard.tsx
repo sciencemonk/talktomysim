@@ -38,7 +38,6 @@ import { AgentToggle } from "@/components/AgentToggle";
 import { AgentChannels } from "@/components/AgentChannels";
 import { AgentStats } from "@/components/AgentStats";
 import { ThemeToggle } from "@/components/ThemeToggle";
-import { useTheme } from "@/hooks/useTheme";
 
 const randomNames = ["Aria", "Mike", "Yuki", "Misty", "Nova", "Zephyr", "Echo", "Luna", "Orion", "Iris"];
 
