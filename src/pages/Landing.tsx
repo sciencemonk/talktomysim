@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { GraduationCap, Users, BookOpen, Brain, Star, Mail, Phone, MapPin } from "lucide-react";
@@ -6,23 +7,31 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+
 const Landing = () => {
   const [isContactOpen, setIsContactOpen] = useState(false);
+
   const handleGoogleSignIn = () => {
     // TODO: Implement Google OAuth sign-in
     console.log("Google sign-in clicked");
   };
+
   const handleContactSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // TODO: Implement contact form submission
     console.log("Contact form submitted");
     setIsContactOpen(false);
   };
-  return <div className="min-h-screen relative overflow-hidden">
+
+  return (
+    <div className="min-h-screen relative overflow-hidden">
       {/* Background Image */}
-      <div className="absolute inset-0 bg-cover bg-center bg-no-repeat" style={{
-      backgroundImage: `url('/lovable-uploads/f3a6789c-4ba5-4075-9d4f-b27c183eeadd.png')`
-    }} />
+      <div 
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat" 
+        style={{
+          backgroundImage: `url('/lovable-uploads/f3a6789c-4ba5-4075-9d4f-b27c183eeadd.png')`
+        }} 
+      />
       
       {/* Overlay */}
       <div className="absolute inset-0 bg-black/40" />
@@ -40,19 +49,20 @@ const Landing = () => {
         {/* Main Content */}
         <div className="flex-1 flex items-center justify-center px-6">
           <div className="text-center max-w-4xl">
-            <Badge variant="secondary" className="mb-6 bg-white/20 text-white border-white/30">
-              Back to School Special
+            <Badge variant="secondary" className="mb-6 bg-brandPurple text-white border-white/30 text-lg px-6 py-2">
+              Get Three Free Tutors
             </Badge>
             
             <h1 className="text-4xl md:text-6xl font-bold mb-6 text-white leading-tight">
               Personalized AI Tutors for Your Students
             </h1>
-            
-            <p className="text-xl md:text-2xl text-white/90 mb-4 font-medium">
-              Create 3 for Free
-            </p>
 
             <p className="text-lg text-white/80 mb-8 max-w-2xl mx-auto">Empower your students with AI-powered tutors that help every student succeed.</p>
+            
+            <Button onClick={handleGoogleSignIn} size="lg" className="bg-white text-brandPurple hover:bg-gray-100 px-8 py-4 text-lg font-semibold mb-12">
+              <img src="/lovable-uploads/36c4909a-6779-43ae-a435-5a07fbd668be.png" alt="Google" className="w-5 h-5 mr-3" />
+              Sign Up with Google
+            </Button>
 
             {/* Features Grid */}
             <div className="grid md:grid-cols-3 gap-6 mb-8 max-w-3xl mx-auto">
@@ -76,22 +86,15 @@ const Landing = () => {
             {/* Testimonial */}
             <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6 mb-8 max-w-2xl mx-auto">
               <div className="flex justify-center mb-2">
-                {[...Array(5)].map((_, i) => <Star key={i} className="h-4 w-4 text-yellow-400 fill-current" />)}
+                {[...Array(5)].map((_, i) => (
+                  <Star key={i} className="h-4 w-4 text-yellow-400 fill-current" />
+                ))}
               </div>
               <p className="text-white/90 italic mb-2">
-                "AI Tutors transformed my classroom. My students are more engaged and their test scores have improved by 25%."
+                "AI Tutors transformed my classroom. My students are more engaged and receive personalized support when and where they need it."
               </p>
               <p className="text-white/70 text-sm">— Sarah Johnson, 5th Grade Teacher</p>
             </div>
-            
-            <Button onClick={handleGoogleSignIn} size="lg" className="bg-white text-brandPurple hover:bg-gray-100 px-8 py-4 text-lg font-semibold">
-              <img src="/lovable-uploads/36c4909a-6779-43ae-a435-5a07fbd668be.png" alt="Google" className="w-5 h-5 mr-3" />
-              Sign Up with Google
-            </Button>
-
-            <p className="text-white/70 text-sm mt-4">
-              Trusted by over 10,000 teachers worldwide
-            </p>
           </div>
         </div>
 
@@ -188,6 +191,8 @@ const Landing = () => {
           </div>
         </footer>
       </div>
-    </div>;
+    </div>
+  );
 };
+
 export default Landing;
