@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { GraduationCap, Users, BookOpen, Brain, Star, Mail, Phone, MapPin, CheckCircle, Shield, Award } from "lucide-react";
@@ -100,19 +99,35 @@ const Landing = () => {
       {/* Social proof section */}
       <div className="bg-gray-50 py-12">
         <div className="max-w-6xl mx-auto px-6 text-center">
-          <p className="text-gray-600 mb-8 font-medium">Trusted by educators at leading institutions</p>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 items-center opacity-60">
-            <div className="bg-white rounded-lg p-4 shadow-sm">
-              <div className="h-8 bg-gray-200 rounded"></div>
+          <p className="text-gray-600 mb-8 font-medium">Trusted by teachers from leading school districts</p>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 items-center">
+            <div className="bg-white rounded-lg p-6 shadow-sm flex items-center justify-center h-20">
+              <img 
+                src="/lovable-uploads/3f54fe2a-24b7-434e-b847-d2eb033add7d.png" 
+                alt="Miami-Dade County Public Schools" 
+                className="max-h-12 max-w-full object-contain opacity-70 hover:opacity-100 transition-opacity"
+              />
             </div>
-            <div className="bg-white rounded-lg p-4 shadow-sm">
-              <div className="h-8 bg-gray-200 rounded"></div>
+            <div className="bg-white rounded-lg p-6 shadow-sm flex items-center justify-center h-20">
+              <img 
+                src="/lovable-uploads/31a26b17-27fc-463a-9eb2-a5e764de804e.png" 
+                alt="Houston Independent School District" 
+                className="max-h-12 max-w-full object-contain opacity-70 hover:opacity-100 transition-opacity"
+              />
             </div>
-            <div className="bg-white rounded-lg p-4 shadow-sm">
-              <div className="h-8 bg-gray-200 rounded"></div>
+            <div className="bg-white rounded-lg p-6 shadow-sm flex items-center justify-center h-20">
+              <img 
+                src="/lovable-uploads/48ab9ee7-6838-4523-8428-b278f5a9ed4d.png" 
+                alt="Chicago Public Schools" 
+                className="max-h-12 max-w-full object-contain opacity-70 hover:opacity-100 transition-opacity"
+              />
             </div>
-            <div className="bg-white rounded-lg p-4 shadow-sm">
-              <div className="h-8 bg-gray-200 rounded"></div>
+            <div className="bg-white rounded-lg p-6 shadow-sm flex items-center justify-center h-20">
+              <img 
+                src="/lovable-uploads/5c350f58-f5e5-4644-bb6f-2e03f06bacda.png" 
+                alt="Dallas Independent School District" 
+                className="max-h-12 max-w-full object-contain opacity-70 hover:opacity-100 transition-opacity"
+              />
             </div>
           </div>
         </div>
