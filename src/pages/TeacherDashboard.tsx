@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Plus, Users, MessageSquare, TrendingUp, BookOpen, Brain, GraduationCap } from "lucide-react";
@@ -8,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAgents } from "@/hooks/useAgents";
 import { AgentType } from "@/types/agent";
+import { UserSettingsDropdown } from "@/components/UserSettingsDropdown";
 
 const TeacherDashboard = () => {
   const [filter, setFilter] = useState("all-agents");
@@ -76,12 +76,7 @@ const TeacherDashboard = () => {
             Create and manage AI tutors to help your students learn
           </p>
         </div>
-        <Link to="/agents/create">
-          <Button className="gap-2">
-            <Plus className="h-4 w-4" />
-            Create New Tutor
-          </Button>
-        </Link>
+        <UserSettingsDropdown />
       </div>
 
       {/* Stats Overview */}
@@ -158,6 +153,22 @@ const TeacherDashboard = () => {
         </Card>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {/* Create New Tutor Card - Integrated into main grid */}
+          <Link to="/agents/create">
+            <Card className="hover:shadow-md transition-all duration-200 cursor-pointer border-dashed border-2 border-primary/30 hover:border-primary/70 bg-transparent hover:bg-secondary/50">
+              <CardContent className="flex flex-col items-center justify-center h-full py-12">
+                <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center mb-4">
+                  <Plus className="h-6 w-6 text-primary" />
+                </div>
+                <h3 className="text-lg font-medium text-foreground mb-2">Create New Tutor</h3>
+                <p className="text-sm text-muted-foreground text-center">
+                  Add a new AI tutor to help your students
+                </p>
+              </CardContent>
+            </Card>
+          </Link>
+
+          {/* Existing Tutors */}
           {agents.map((agent: AgentType) => (
             <Link key={agent.id} to={`/agents/${agent.id}`}>
               <Card className="hover:shadow-md transition-all duration-200 cursor-pointer">

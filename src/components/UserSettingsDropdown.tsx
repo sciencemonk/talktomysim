@@ -1,0 +1,60 @@
+
+import { useState } from "react";
+import { Settings, CreditCard, User, Moon, Sun, DollarSign } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+  DropdownMenuLabel,
+} from "@/components/ui/dropdown-menu";
+import { useTheme } from "@/hooks/useTheme";
+
+export function UserSettingsDropdown() {
+  const { theme, setTheme } = useTheme();
+  const [creditsLeft] = useState(150); // Mock data - replace with actual credits
+
+  const toggleTheme = () => {
+    setTheme(theme === "dark" ? "light" : "dark");
+  };
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="ghost" size="icon" className="h-9 w-9">
+          <Settings className="h-5 w-5" />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-56 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800">
+        <DropdownMenuLabel className="font-medium">
+          <div className="flex items-center gap-2">
+            <CreditCard className="h-4 w-4" />
+            Credits: {creditsLeft}
+          </div>
+        </DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        
+        <DropdownMenuItem onClick={toggleTheme} className="cursor-pointer">
+          {theme === "dark" ? (
+            <Sun className="h-4 w-4 mr-2" />
+          ) : (
+            <Moon className="h-4 w-4 mr-2" />
+          )}
+          {theme === "dark" ? "Light Mode" : "Dark Mode"}
+        </DropdownMenuItem>
+        
+        <DropdownMenuItem className="cursor-pointer">
+          <DollarSign className="h-4 w-4 mr-2" />
+          Billing
+        </DropdownMenuItem>
+        
+        <DropdownMenuItem className="cursor-pointer">
+          <User className="h-4 w-4 mr-2" />
+          Settings
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
