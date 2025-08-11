@@ -71,7 +71,11 @@ const TeacherDashboard = () => {
     <div className="space-y-8 animate-fade-in">
       <div className="flex justify-between items-start">
         <div>
-          <h1 className="text-3xl font-semibold text-foreground">My AI Tutors</h1>
+          <img 
+            src="/lovable-uploads/d71f4004-b1e4-4bc5-bcde-077bb8581623.png" 
+            alt="MagicTutor" 
+            className="h-12 mb-2"
+          />
           <p className="text-muted-foreground mt-2">
             Create and manage AI tutors to help your students learn
           </p>
