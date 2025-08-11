@@ -10,8 +10,8 @@ import { AgentType } from "@/types/agent";
 import { UserSettingsDropdown } from "@/components/UserSettingsDropdown";
 
 const TeacherDashboard = () => {
-  const [filter, setFilter] = useState("all-agents");
-  const { agents, isLoading, error } = useAgents(filter);
+  const [filter, setFilter] = useState("all-tutors");
+  const { agents: tutors, isLoading, error } = useAgents(filter.replace('tutors', 'agents'));
 
   if (isLoading) {
     return (
@@ -61,10 +61,10 @@ const TeacherDashboard = () => {
     }
   };
 
-  const totalStudentsHelped = agents.reduce((sum, agent) => sum + (agent.studentsSaved || 0), 0);
-  const totalInteractions = agents.reduce((sum, agent) => sum + (agent.interactions || 0), 0);
-  const avgHelpfulness = agents.length > 0 
-    ? agents.reduce((sum, agent) => sum + (agent.helpfulnessScore || 0), 0) / agents.length 
+  const totalStudentsHelped = tutors.reduce((sum, tutor) => sum + (tutor.studentsSaved || 0), 0);
+  const totalInteractions = tutors.reduce((sum, tutor) => sum + (tutor.interactions || 0), 0);
+  const avgHelpfulness = tutors.length > 0 
+    ? tutors.reduce((sum, tutor) => sum + (tutor.helpfulnessScore || 0), 0) / tutors.length 
     : 0;
 
   return (
@@ -91,7 +91,7 @@ const TeacherDashboard = () => {
             <Brain className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{agents.filter(a => a.status === 'active').length}</div>
+            <div className="text-2xl font-bold">{tutors.filter(t => t.status === 'active').length}</div>
             <p className="text-xs text-muted-foreground">
               Ready to help students
             </p>
@@ -139,7 +139,7 @@ const TeacherDashboard = () => {
       </div>
 
       {/* Tutors Grid */}
-      {agents.length === 0 ? (
+      {tutors.length === 0 ? (
         <Card className="text-center py-12">
           <CardContent>
             <GraduationCap className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
@@ -147,7 +147,7 @@ const TeacherDashboard = () => {
             <p className="text-muted-foreground mb-6">
               Create your first AI tutor to start helping students learn
             </p>
-            <Link to="/agents/create">
+            <Link to="/tutors/create">
               <Button className="gap-2">
                 <Plus className="h-4 w-4" />
                 Create Your First Tutor
@@ -158,7 +158,7 @@ const TeacherDashboard = () => {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {/* Create New Tutor Card - Integrated into main grid */}
-          <Link to="/agents/create">
+          <Link to="/tutors/create">
             <Card className="hover:shadow-md transition-all duration-200 cursor-pointer border-dashed border-2 border-primary/30 hover:border-primary/70 bg-transparent hover:bg-secondary/50">
               <CardContent className="flex flex-col items-center justify-center h-full py-12">
                 <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center mb-4">
@@ -173,53 +173,53 @@ const TeacherDashboard = () => {
           </Link>
 
           {/* Existing Tutors */}
-          {agents.map((agent: AgentType) => (
-            <Link key={agent.id} to={`/agents/${agent.id}`}>
+          {tutors.map((tutor: AgentType) => (
+            <Link key={tutor.id} to={`/tutors/${tutor.id}`}>
               <Card className="hover:shadow-md transition-all duration-200 cursor-pointer">
                 <CardHeader className="pb-3">
                   <div className="flex items-start justify-between">
                     <div className="flex items-center space-x-3">
                       <Avatar className="h-10 w-10">
                         <AvatarImage 
-                          src={agent.avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${agent.id}`} 
-                          alt={agent.name} 
+                          src={tutor.avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${tutor.id}`} 
+                          alt={tutor.name} 
                         />
                         <AvatarFallback>
-                          {getSubjectIcon(agent.type)}
+                          {getSubjectIcon(tutor.type)}
                         </AvatarFallback>
                       </Avatar>
                       <div>
-                        <CardTitle className="text-lg">{agent.name}</CardTitle>
+                        <CardTitle className="text-lg">{tutor.name}</CardTitle>
                         <CardDescription className="text-sm">
-                          {agent.type}
+                          {tutor.type}
                         </CardDescription>
                       </div>
                     </div>
-                    <Badge className={getStatusColor(agent.status)}>
-                      {agent.status}
+                    <Badge className={getStatusColor(tutor.status)}>
+                      {tutor.status}
                     </Badge>
                   </div>
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
-                    {agent.description || agent.purpose || "A helpful AI tutor for students"}
+                    {tutor.description || tutor.purpose || "A helpful AI tutor for students"}
                   </p>
                   
                   <div className="grid grid-cols-2 gap-4 text-sm">
                     <div>
-                      <p className="font-medium text-foreground">{agent.studentsSaved || 0}</p>
+                      <p className="font-medium text-foreground">{tutor.studentsSaved || 0}</p>
                       <p className="text-muted-foreground">Students Helped</p>
                     </div>
                     <div>
-                      <p className="font-medium text-foreground">{agent.interactions || 0}</p>
+                      <p className="font-medium text-foreground">{tutor.interactions || 0}</p>
                       <p className="text-muted-foreground">Interactions</p>
                     </div>
                   </div>
                   
-                  {agent.helpfulnessScore && (
+                  {tutor.helpfulnessScore && (
                     <div className="mt-4 flex items-center justify-between">
                       <span className="text-sm text-muted-foreground">Helpfulness</span>
-                      <span className="text-sm font-medium">{agent.helpfulnessScore}/10</span>
+                      <span className="text-sm font-medium">{tutor.helpfulnessScore}/10</span>
                     </div>
                   )}
                 </CardContent>
