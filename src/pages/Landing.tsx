@@ -26,9 +26,7 @@ const Landing = () => {
   }}>
       {/* Main Content */}
       <div className="text-center max-w-5xl mx-auto">
-        <h1 className="text-4xl sm:text-6xl xl:text-9xl text-black leading-tight mb-8 sm:mb-12 lg:mb-16 px-2 text-center font-bold lg:text-6xl">
-          CREATE PERSONALIZED TUTORS FOR YOUR STUDENTS IN SECONDS.
-        </h1>
+        <h1 className="text-4xl sm:text-6xl xl:text-9xl text-black leading-tight mb-8 sm:mb-12 lg:mb-16 px-2 text-center font-bold lg:text-5xl">CREATE PERSONALIZED TUTORS FOR YOUR STUDENTS IN SECONDS.</h1>
         
         <div className="mb-4 sm:mb-6 lg:mb-8">
           <Button onClick={handleGoogleSignIn} size="lg" className="h-12 sm:h-14 lg:h-16 px-8 sm:px-10 lg:px-12 text-base sm:text-lg font-semibold bg-white hover:bg-gray-100 text-black rounded-full border border-gray-200">
