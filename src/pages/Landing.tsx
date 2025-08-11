@@ -23,33 +23,28 @@ const Landing = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-brandPurple to-brandBlue flex flex-col items-center justify-center px-6">
+    <div className="min-h-screen flex flex-col items-center justify-center px-6" style={{ backgroundColor: '#cfff3e' }}>
       {/* Main Content */}
       <div className="text-center max-w-4xl mx-auto">
-        <h1 className="text-5xl lg:text-7xl font-bold text-white leading-tight mb-12">
-          WE HELP<br />
-          TEACHERS<br />
-          CREATE AN<br />
-          ARMY OF<br />
-          PERSONALIZED<br />
-          TUTORS.
+        <h1 className="text-5xl lg:text-7xl font-bold text-black leading-tight mb-12">
+          CREATE PERSONALIZED TUTORS FOR YOUR STUDENTS IN SECONDS.
         </h1>
         
         <div className="mb-16">
           <Button 
             onClick={handleGoogleSignIn}
             size="lg" 
-            className="h-16 px-12 text-lg font-semibold bg-black hover:bg-gray-800 text-white rounded-full"
+            className="h-16 px-12 text-lg font-semibold bg-white hover:bg-gray-100 text-black rounded-full border border-gray-200"
           >
             <img src="/lovable-uploads/36c4909a-6779-43ae-a435-5a07fbd668be.png" alt="Google" className="w-6 h-6 mr-3" />
-            GET STARTED WITH GOOGLE
+            Start Free with Google
           </Button>
         </div>
 
         <div className="space-y-6">
           <Dialog open={isContactOpen} onOpenChange={setIsContactOpen}>
             <DialogTrigger asChild>
-              <button className="text-white/80 hover:text-white text-lg font-medium transition-colors">
+              <button className="text-black/80 hover:text-black text-lg font-medium transition-colors">
                 Partnerships
               </button>
             </DialogTrigger>
