@@ -23,20 +23,20 @@ const Landing = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center px-6" style={{ backgroundColor: '#cfff3e' }}>
+    <div className="min-h-screen flex flex-col items-center justify-center px-4 sm:px-6" style={{ backgroundColor: '#cfff3e' }}>
       {/* Main Content */}
-      <div className="text-center max-w-4xl mx-auto">
-        <h1 className="text-5xl lg:text-7xl font-bold text-black leading-tight mb-12">
+      <div className="text-center max-w-5xl mx-auto">
+        <h1 className="text-4xl sm:text-6xl lg:text-8xl xl:text-9xl font-bold text-black leading-tight mb-8 sm:mb-12 lg:mb-16 px-2">
           CREATE PERSONALIZED TUTORS FOR YOUR STUDENTS IN SECONDS.
         </h1>
         
-        <div className="mb-16">
+        <div className="mb-8 sm:mb-12 lg:mb-16">
           <Button 
             onClick={handleGoogleSignIn}
             size="lg" 
-            className="h-16 px-12 text-lg font-semibold bg-white hover:bg-gray-100 text-black rounded-full border border-gray-200"
+            className="h-12 sm:h-14 lg:h-16 px-8 sm:px-10 lg:px-12 text-base sm:text-lg font-semibold bg-white hover:bg-gray-100 text-black rounded-full border border-gray-200"
           >
-            <img src="/lovable-uploads/36c4909a-6779-43ae-a435-5a07fbd668be.png" alt="Google" className="w-6 h-6 mr-3" />
+            <img src="/lovable-uploads/36c4909a-6779-43ae-a435-5a07fbd668be.png" alt="Google" className="w-5 h-5 sm:w-6 sm:h-6 mr-2 sm:mr-3" />
             Start Free with Google
           </Button>
         </div>
@@ -44,7 +44,7 @@ const Landing = () => {
         <div className="space-y-6">
           <Dialog open={isContactOpen} onOpenChange={setIsContactOpen}>
             <DialogTrigger asChild>
-              <button className="text-black/80 hover:text-black text-lg font-medium transition-colors">
+              <button className="text-black/80 hover:text-black text-base sm:text-lg font-medium transition-colors">
                 Partnerships
               </button>
             </DialogTrigger>
