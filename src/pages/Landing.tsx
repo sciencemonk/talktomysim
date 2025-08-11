@@ -31,7 +31,7 @@ const Landing = () => {
     <div className="min-h-screen flex flex-col items-center justify-center px-4 sm:px-6" style={{ backgroundColor: '#cfff3e' }}>
       {/* Main Content */}
       <div className="text-center max-w-5xl mx-auto">
-        <h1 className="text-4xl sm:text-6xl lg:text-8xl xl:text-9xl font-bold text-black leading-tight mb-8 sm:mb-12 lg:mb-16 px-2">
+        <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold text-black leading-tight mb-8 sm:mb-12 lg:mb-16 px-2">
           CREATE PERSONALIZED TUTORS FOR YOUR STUDENTS IN SECONDS.
         </h1>
         

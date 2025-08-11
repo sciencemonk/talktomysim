@@ -42,17 +42,15 @@ const Billing = () => {
   return (
     <div className="container mx-auto p-6 space-y-8 max-w-6xl">
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Link to="/agents">
+        <div>
+          <h1 className="text-3xl font-bold">Billing & Usage</h1>
+          <p className="text-muted-foreground">Manage your subscription and view usage</p>
+          <Link to="/agents" className="mt-4 inline-block">
             <Button variant="ghost" size="sm" className="gap-2">
               <ArrowLeft className="h-4 w-4" />
               Back to Dashboard
             </Button>
           </Link>
-          <div>
-            <h1 className="text-3xl font-bold">Billing & Usage</h1>
-            <p className="text-muted-foreground">Manage your subscription and view usage</p>
-          </div>
         </div>
       </div>
 
