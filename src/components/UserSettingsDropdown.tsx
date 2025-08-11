@@ -10,11 +10,15 @@ import {
   DropdownMenuTrigger,
   DropdownMenuLabel,
 } from "@/components/ui/dropdown-menu";
+import { Progress } from "@/components/ui/progress";
 import { useTheme } from "@/hooks/useTheme";
 
 export function UserSettingsDropdown() {
   const { theme, setTheme } = useTheme();
-  const [creditsLeft] = useState(150); // Mock data - replace with actual credits
+  const [creditsLeft] = useState(75); // Mock data - replace with actual credits
+  const totalCredits = 100; // Default free credits
+  const creditsUsed = totalCredits - creditsLeft;
+  const progressPercentage = (creditsUsed / totalCredits) * 100;
 
   const toggleTheme = () => {
     setTheme(theme === "dark" ? "light" : "dark");
@@ -29,9 +33,12 @@ export function UserSettingsDropdown() {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800">
         <DropdownMenuLabel className="font-medium">
-          <div className="flex items-center gap-2">
-            <CreditCard className="h-4 w-4" />
-            Credits: {creditsLeft}
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <CreditCard className="h-4 w-4" />
+              Credits: {creditsLeft}/{totalCredits}
+            </div>
+            <Progress value={progressPercentage} className="h-2" />
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />

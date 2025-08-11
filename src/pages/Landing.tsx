@@ -15,6 +15,11 @@ const Landing = () => {
     console.log("Google sign-in clicked");
   };
 
+  const handleLogIn = () => {
+    // TODO: Implement log in functionality
+    console.log("Log in clicked");
+  };
+
   const handleContactSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // TODO: Implement contact form submission
@@ -30,7 +35,7 @@ const Landing = () => {
           CREATE PERSONALIZED TUTORS FOR YOUR STUDENTS IN SECONDS.
         </h1>
         
-        <div className="mb-8 sm:mb-12 lg:mb-16">
+        <div className="mb-4 sm:mb-6 lg:mb-8">
           <Button 
             onClick={handleGoogleSignIn}
             size="lg" 
@@ -39,6 +44,15 @@ const Landing = () => {
             <img src="/lovable-uploads/36c4909a-6779-43ae-a435-5a07fbd668be.png" alt="Google" className="w-5 h-5 sm:w-6 sm:h-6 mr-2 sm:mr-3" />
             Start Free with Google
           </Button>
+        </div>
+
+        <div className="mb-8 sm:mb-12 lg:mb-16">
+          <button 
+            onClick={handleLogIn}
+            className="text-black/70 hover:text-black text-sm sm:text-base font-medium transition-colors"
+          >
+            Already have an account? Log In
+          </button>
         </div>
 
         <div className="space-y-6">
