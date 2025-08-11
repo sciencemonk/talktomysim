@@ -11,6 +11,8 @@ import AgentDetails from "./pages/AgentDetails";
 import AgentCreate from "./pages/AgentCreate";
 import Landing from "./pages/Landing";
 import NotFound from "./pages/NotFound";
+import Billing from "./pages/Billing";
+import Settings from "./pages/Settings";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -41,6 +43,8 @@ const App = () => (
               <Route path="create" element={<AgentCreate />} />
               <Route path=":agentId" element={<AgentDetails />} />
             </Route>
+            <Route path="/billing" element={<Billing />} />
+            <Route path="/settings" element={<Settings />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

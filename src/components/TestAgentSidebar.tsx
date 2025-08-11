@@ -128,10 +128,10 @@ export const TestAgentSidebar: React.FC<TestAgentSidebarProps> = ({
           <SheetHeader className="space-y-2 p-6 pb-2">
             <SheetTitle className="flex items-center gap-2">
               <Rocket className="h-5 w-5 text-primary" />
-              Test Agent
+              Test Tutor
             </SheetTitle>
             <SheetDescription>
-              Choose how you want to test and interact with your agent.
+              Choose how you want to test and interact with your tutor.
             </SheetDescription>
           </SheetHeader>
 
@@ -153,10 +153,10 @@ export const TestAgentSidebar: React.FC<TestAgentSidebarProps> = ({
                   <Card className="p-4">
                     <div className="font-medium mb-2 flex items-center gap-2">
                       <PhoneIncoming className="h-4 w-4 text-green-500" />
-                      Call Your Agent
+                      Call Your Tutor
                     </div>
                     <p className="text-sm text-muted-foreground mb-4">
-                      Try your agent by calling them directly. Your agent will answer your call.
+                      Try your tutor by calling them directly. Your tutor will answer your call.
                     </p>
                     
                     <div className="space-y-3 mb-4">
@@ -201,10 +201,10 @@ export const TestAgentSidebar: React.FC<TestAgentSidebarProps> = ({
                   <Card className="p-4">
                     <div className="font-medium mb-2 flex items-center gap-2">
                       <PhoneOutgoing className="h-4 w-4 text-blue-500" />
-                      Get a Call from Your Agent
+                      Get a Call from Your Tutor
                     </div>
                     <p className="text-sm text-muted-foreground mb-4">
-                      Try your agent by having them call you at your preferred number.
+                      Try your tutor by having them call you at your preferred number.
                     </p>
                     
                     <div className="space-y-3 mb-4">

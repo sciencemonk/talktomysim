@@ -1,5 +1,6 @@
 
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Settings, CreditCard, User, Moon, Sun, DollarSign } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -14,6 +15,7 @@ import { Progress } from "@/components/ui/progress";
 import { useTheme } from "@/hooks/useTheme";
 
 export function UserSettingsDropdown() {
+  const navigate = useNavigate();
   const { theme, setTheme } = useTheme();
   const [creditsLeft] = useState(75); // Mock data - replace with actual credits
   const totalCredits = 100; // Default free credits
@@ -22,6 +24,14 @@ export function UserSettingsDropdown() {
 
   const toggleTheme = () => {
     setTheme(theme === "dark" ? "light" : "dark");
+  };
+
+  const handleBillingClick = () => {
+    navigate("/billing");
+  };
+
+  const handleSettingsClick = () => {
+    navigate("/settings");
   };
 
   return (
@@ -52,12 +62,12 @@ export function UserSettingsDropdown() {
           {theme === "dark" ? "Light Mode" : "Dark Mode"}
         </DropdownMenuItem>
         
-        <DropdownMenuItem className="cursor-pointer">
+        <DropdownMenuItem onClick={handleBillingClick} className="cursor-pointer">
           <DollarSign className="h-4 w-4 mr-2" />
           Billing
         </DropdownMenuItem>
         
-        <DropdownMenuItem className="cursor-pointer">
+        <DropdownMenuItem onClick={handleSettingsClick} className="cursor-pointer">
           <User className="h-4 w-4 mr-2" />
           Settings
         </DropdownMenuItem>
