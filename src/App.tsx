@@ -6,7 +6,6 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ThemeProvider } from "@/hooks/useTheme";
-import TutorsLayout from "./layouts/TutorsLayout";
 import TeacherDashboard from "./pages/TeacherDashboard";
 import TutorDetails from "./pages/TutorDetails";
 import TutorCreate from "./pages/TutorCreate";
@@ -38,11 +37,9 @@ const App = () => (
             <Route path="/" element={<Landing />} />
             <Route path="/dashboard" element={<Navigate to="/tutors" replace />} />
             <Route path="/agents" element={<Navigate to="/tutors" replace />} />
-            <Route path="/tutors" element={<TutorsLayout />}>
-              <Route index element={<TeacherDashboard />} />
-              <Route path="create" element={<TutorCreate />} />
-              <Route path=":tutorId" element={<TutorDetails />} />
-            </Route>
+            <Route path="/tutors" element={<TeacherDashboard />} />
+            <Route path="/tutors/create" element={<TutorCreate />} />
+            <Route path="/tutors/:tutorId" element={<TutorDetails />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
