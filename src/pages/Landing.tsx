@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -16,38 +15,13 @@ const Landing = () => {
   const { toast } = useToast();
 
   const handleGoogleSignIn = async () => {
-    try {
-      setIsLoading(true);
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: `${window.location.origin}/agents`
-        }
-      });
-
-      if (error) {
-        toast({
-          title: "Sign in failed",
-          description: error.message,
-          variant: "destructive"
-        });
-      }
-    } catch (error) {
-      console.error('Google sign-in error:', error);
-      toast({
-        title: "Sign in failed",
-        description: "An unexpected error occurred. Please try again.",
-        variant: "destructive"
-      });
-    } finally {
-      setIsLoading(false);
-    }
+    // Bypass authentication for testing - go directly to dashboard
+    navigate('/agents');
   };
 
   const handleLogIn = () => {
-    // Navigate to a login page or show login modal
-    // For now, we'll just trigger the Google sign-in
-    handleGoogleSignIn();
+    // Navigate directly to dashboard for testing
+    navigate('/agents');
   };
 
   const handleContactSubmit = (e: React.FormEvent) => {
