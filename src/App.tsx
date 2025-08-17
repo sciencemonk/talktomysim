@@ -6,14 +6,13 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ThemeProvider } from "@/hooks/useTheme";
 import { AuthProvider } from "@/hooks/useAuth";
-import AgentsLayout from "./layouts/AgentsLayout";
 import TeacherDashboard from "./pages/TeacherDashboard";
-import AgentDetails from "./pages/AgentDetails";
-import AgentCreate from "./pages/AgentCreate";
 import Landing from "./pages/Landing";
 import NotFound from "./pages/NotFound";
 import Billing from "./pages/Billing";
 import Settings from "./pages/Settings";
+import ProtectedRoute from "./components/ProtectedRoute";
+import { UserSettingsDropdown } from "./components/UserSettingsDropdown";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -29,6 +28,24 @@ const queryClient = new QueryClient({
   }
 });
 
+const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
+  return (
+    <ProtectedRoute>
+      <div className="min-h-screen flex flex-col bg-background">
+        <header className="flex items-center justify-between p-4 border-b">
+          <div className="flex items-center space-x-2">
+            <h1 className="text-xl font-semibold text-fg">Agent Hub</h1>
+          </div>
+          <UserSettingsDropdown />
+        </header>
+        <main className="flex-1 p-6">
+          {children}
+        </main>
+      </div>
+    </ProtectedRoute>
+  );
+};
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <ThemeProvider defaultTheme="system">
@@ -39,12 +56,12 @@ const App = () => (
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<Landing />} />
-              <Route path="/dashboard" element={<Navigate to="/agents" replace />} />
-              <Route path="/agents" element={<AgentsLayout />}>
-                <Route index element={<TeacherDashboard />} />
-                <Route path="create" element={<AgentCreate />} />
-                <Route path=":agentId" element={<AgentDetails />} />
-              </Route>
+              <Route path="/dashboard" element={
+                <DashboardLayout>
+                  <TeacherDashboard />
+                </DashboardLayout>
+              } />
+              <Route path="/agents" element={<Navigate to="/dashboard" replace />} />
               <Route path="/billing" element={<Billing />} />
               <Route path="/settings" element={<Settings />} />
               <Route path="*" element={<NotFound />} />
