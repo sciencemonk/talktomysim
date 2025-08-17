@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ThemeProvider } from "@/hooks/useTheme";
 import { AuthProvider } from "@/hooks/useAuth";
 import TeacherDashboard from "./pages/TeacherDashboard";
+import AgentCreate from "./pages/AgentCreate";
 import Landing from "./pages/Landing";
 import NotFound from "./pages/NotFound";
 import Billing from "./pages/Billing";
@@ -61,7 +62,11 @@ const App = () => (
                   <TeacherDashboard />
                 </DashboardLayout>
               } />
-              <Route path="/agents" element={<Navigate to="/dashboard" replace />} />
+              <Route path="/create-tutor" element={
+                <DashboardLayout>
+                  <AgentCreate />
+                </DashboardLayout>
+              } />
               <Route path="/billing" element={<Billing />} />
               <Route path="/settings" element={<Settings />} />
               <Route path="*" element={<NotFound />} />

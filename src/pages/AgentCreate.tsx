@@ -63,16 +63,16 @@ const AgentCreate = () => {
         description: `${tempAgent.name} has been successfully created.`,
       });
       setIsSubmitting(false);
-      navigate("/agents");
+      navigate("/dashboard");
     }, 1500);
   };
   
   return (
     <div className="max-w-4xl mx-auto animate-fade-in">
       <div className="mb-8">
-        <Link to="/agents" className="flex items-center text-muted-foreground hover:text-foreground transition-colors">
+        <Link to="/dashboard" className="flex items-center text-muted-foreground hover:text-foreground transition-colors">
           <ArrowLeft className="h-4 w-4 mr-2" />
-          Back to Tutors
+          Back to Dashboard
         </Link>
       </div>
       
