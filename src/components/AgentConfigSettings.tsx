@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -45,7 +46,6 @@ const TeacherConfigSettings: React.FC<TeacherConfigSettingsProps> = ({ agent, on
   const { toast } = useToast();
   const [name, setName] = useState(agent.name);
   const [avatar, setAvatar] = useState(agent.avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${agent.id}`);
-  const [purpose, setPurpose] = useState(agent.purpose || '');
   const [prompt, setPrompt] = useState(agent.prompt || '');
   const [subject, setSubject] = useState(agent.subject || '');
   const [gradeLevel, setGradeLevel] = useState(agent.gradeLevel || '');
@@ -56,7 +56,6 @@ const TeacherConfigSettings: React.FC<TeacherConfigSettingsProps> = ({ agent, on
   const prevValuesRef = useRef({
     name: agent.name,
     avatar: agent.avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${agent.id}`,
-    purpose: agent.purpose || '',
     prompt: agent.prompt || '',
     subject: agent.subject || '',
     gradeLevel: agent.gradeLevel || '',
@@ -106,7 +105,6 @@ const TeacherConfigSettings: React.FC<TeacherConfigSettingsProps> = ({ agent, on
     const currentValues = {
       name,
       avatar,
-      purpose,
       prompt,
       subject: finalSubject,
       gradeLevel,
@@ -124,7 +122,7 @@ const TeacherConfigSettings: React.FC<TeacherConfigSettingsProps> = ({ agent, on
     }
     
     prevValuesRef.current = { ...currentValues };
-  }, [name, avatar, purpose, prompt, subject, gradeLevel, learningObjective, customSubject, debouncedSave, isCreationMode, agent, onAgentUpdate]);
+  }, [name, avatar, prompt, subject, gradeLevel, learningObjective, customSubject, debouncedSave, isCreationMode, agent, onAgentUpdate]);
 
   const generateRandomAvatar = () => {
     const seed = Math.random().toString(36).substring(2, 10);
@@ -199,17 +197,6 @@ Always be patient, supportive, and adapt to each student's learning pace. If a s
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="e.g., Ms. Johnson, Mr. Smith"
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="tutor-purpose">What will this tutor help with?</Label>
-                <Textarea
-                  id="tutor-purpose"
-                  value={purpose}
-                  onChange={(e) => setPurpose(e.target.value)}
-                  placeholder="e.g., Help students with algebra homework and explain math concepts clearly"
-                  className="min-h-[80px]"
                 />
               </div>
             </div>
