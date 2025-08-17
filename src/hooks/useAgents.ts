@@ -3,17 +3,6 @@ import { useState, useEffect } from 'react';
 import { fetchAgents } from '@/services/agentService';
 import { AgentType } from '@/types/agent';
 
-// Helper function to generate a random email based on agent name
-const generateRandomEmail = (id: string, name: string) => {
-  const domains = ['school.edu', 'tutors.ai', 'learn.org', 'education.net'];
-  const safeId = id.padEnd(4, 'a');
-  const domainIndex = safeId.charCodeAt(3) % domains.length;
-  const normalizedName = name.toLowerCase().replace(/[^a-z0-9]/g, '');
-  const idPart = safeId.length >= 3 ? safeId.slice(0, 3) : safeId;
-  
-  return `${normalizedName}${idPart}@${domains[domainIndex]}`;
-};
-
 export const useAgents = (filter: string = 'all-agents') => {
   const [agents, setAgents] = useState<AgentType[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -24,25 +13,10 @@ export const useAgents = (filter: string = 'all-agents') => {
       setIsLoading(true);
       try {
         const data = await fetchAgents(filter);
-        
-        // Transform agents to be education-focused
-        const enhancedData = data.map(agent => ({
-          ...agent,
-          email: generateRandomEmail(agent.id, agent.name),
-          // Add education-specific fields
-          studentsSaved: agent.studentsSaved || Math.floor(Math.random() * 50) + 10,
-          helpfulnessScore: agent.helpfulnessScore || Math.round((Math.random() * 2 + 8) * 10) / 10,
-          // Map business types to education types
-          type: mapToEducationType(agent.type),
-          subject: agent.subject || getSubjectFromType(agent.type),
-          gradeLevel: agent.gradeLevel || "6-8",
-          teachingStyle: agent.teachingStyle || "encouraging"
-        }));
-        
-        setAgents(enhancedData);
+        setAgents(data);
         setError(null);
-      } catch (err) {
-        setError("Failed to load tutors");
+      } catch (err: any) {
+        setError(err.message || "Failed to load tutors");
         console.error("Error loading tutors:", err);
       } finally {
         setIsLoading(false);
@@ -53,33 +27,4 @@ export const useAgents = (filter: string = 'all-agents') => {
   }, [filter]);
 
   return { agents, isLoading, error };
-};
-
-// Helper function to map business types to education types
-const mapToEducationType = (originalType: string): any => {
-  const typeMap: Record<string, any> = {
-    "Customer Service": "General Tutor",
-    "Sales & Marketing": "Study Buddy",
-    "Technical Support": "Math Tutor",
-    "IT Helpdesk": "Science Tutor",
-    "Lead Generation": "Reading Assistant",
-    "Appointment Booking": "Homework Helper",
-    "FAQ & Knowledge Base": "Quiz Master",
-    "Customer Onboarding": "Writing Coach",
-    "Billing & Payments": "Language Arts Tutor",
-    "Feedback Collection": "History Tutor",
-    "Other Function": "General Tutor"
-  };
-  
-  return typeMap[originalType] || "General Tutor";
-};
-
-// Helper function to get subject from type
-const getSubjectFromType = (type: string): string => {
-  if (type.includes("Math")) return "math";
-  if (type.includes("Science")) return "science";
-  if (type.includes("Language") || type.includes("Writing")) return "english";
-  if (type.includes("History")) return "history";
-  if (type.includes("Reading")) return "reading";
-  return "other";
 };

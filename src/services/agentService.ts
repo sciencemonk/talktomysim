@@ -1,173 +1,282 @@
 
-import { AgentType, AgentTypeCategory } from '@/types/agent';
+import { supabase } from '@/integrations/supabase/client';
+import { AgentType } from '@/types/agent';
 
-// Mock data for development - updated to be education-focused
-const mockAgents: AgentType[] = [
-  {
-    id: "1",
-    name: "Math Helper Maya",
-    description: "Helps students with algebra, geometry, and basic math concepts.",
-    type: "Math Tutor",
-    status: "active",
-    createdAt: "2023-10-15",
-    interactions: 1253,
-    isPersonal: true,
-    model: "GPT-4",
-    channels: ["voice", "chat", "email"],
-    avatar: "https://api.dicebear.com/7.x/bottts/svg?seed=1",
-    purpose: "Help students understand math concepts and solve problems step by step.",
-    prompt: "You are Maya, a friendly math tutor. Help students learn by breaking down problems into simple steps.",
-    subject: "math",
-    gradeLevel: "6-8",
-    teachingStyle: "encouraging"
-  },
-  {
-    id: "2",
-    name: "Science Explorer Sam",
-    description: "Guides students through science experiments and explains scientific concepts.",
-    type: "Science Tutor",
-    status: "active",
-    createdAt: "2023-11-22",
-    interactions: 876,
-    isPersonal: false,
-    model: "Claude-2",
-    channels: ["voice", "chat", "whatsapp", "sms"],
-    avatar: "https://api.dicebear.com/7.x/bottts/svg?seed=2",
-    purpose: "Help students explore science through hands-on learning and clear explanations.",
-    prompt: "You are Sam, an enthusiastic science tutor. Make science fun and engaging for students.",
-    subject: "science",
-    gradeLevel: "9-12",
-    teachingStyle: "interactive"
-  },
-  {
-    id: "3",
-    name: "Reading Buddy Riley",
-    description: "Helps students improve reading comprehension and vocabulary.",
-    type: "Reading Assistant",
-    status: "inactive",
-    createdAt: "2024-01-05",
-    interactions: 432,
-    isPersonal: true,
-    model: "GPT-3.5 Turbo",
-    channels: ["voice", "chat"],
-    subject: "reading",
-    gradeLevel: "K-5",
-    teachingStyle: "patient"
-  },
-  {
-    id: "4",
-    name: "Homework Helper Alex",
-    description: "Assists students with homework across multiple subjects.",
-    type: "Homework Helper",
-    status: "active",
-    createdAt: "2024-02-10",
-    interactions: 198,
-    isPersonal: false,
-    model: "LLama-2",
-    channels: ["voice", "email", "sms"],
-    subject: "other",
-    gradeLevel: "6-12",
-    teachingStyle: "supportive"
-  },
-  {
-    id: "5",
-    name: "Writing Coach Willow",
-    description: "Helps students improve their writing skills and essay composition.",
-    type: "Writing Coach",
-    status: "inactive",
-    createdAt: "2024-03-01",
-    interactions: 52,
-    isPersonal: true,
-    model: "GPT-4",
-    channels: ["voice"],
-    subject: "english",
-    gradeLevel: "9-12",
-    teachingStyle: "constructive"
-  }
-];
-
-// Simulating API call to fetch agents
+// Fetch agents from Supabase
 export const fetchAgents = async (filter: string): Promise<AgentType[]> => {
-  // Simulate network delay
-  await new Promise(resolve => setTimeout(resolve, 800));
+  const { data: { user } } = await supabase.auth.getUser();
   
-  // Filter the mock data based on the filter parameter
+  if (!user) {
+    throw new Error('User not authenticated');
+  }
+
+  let query = supabase
+    .from('tutors')
+    .select('*')
+    .eq('user_id', user.id);
+
+  // Apply filters
   if (filter === 'my-agents') {
-    return mockAgents.filter(agent => agent.isPersonal);
+    query = query.eq('is_personal', true);
   } else if (filter === 'team-agents') {
-    return mockAgents.filter(agent => !agent.isPersonal);
+    query = query.eq('is_personal', false);
   }
-  
-  // Default: return all agents
-  return mockAgents;
+
+  const { data, error } = await query.order('created_at', { ascending: false });
+
+  if (error) {
+    console.error('Error fetching tutors:', error);
+    throw new Error('Failed to fetch tutors');
+  }
+
+  // Transform the data to match AgentType interface
+  return (data || []).map(tutor => ({
+    id: tutor.id,
+    name: tutor.name,
+    description: tutor.description || '',
+    type: tutor.type as any,
+    status: tutor.status as any,
+    createdAt: tutor.created_at.split('T')[0],
+    updatedAt: tutor.updated_at?.split('T')[0],
+    interactions: tutor.interactions || 0,
+    isPersonal: tutor.is_personal,
+    model: tutor.model || 'GPT-4',
+    channels: Array.isArray(tutor.channels) ? tutor.channels : [],
+    channelConfigs: tutor.channel_configs || {},
+    avatar: tutor.avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${tutor.id}`,
+    purpose: tutor.purpose || '',
+    prompt: tutor.prompt || '',
+    subject: tutor.subject || '',
+    gradeLevel: tutor.grade_level || '',
+    teachingStyle: tutor.teaching_style || '',
+    customSubject: tutor.custom_subject || '',
+    learningObjective: tutor.learning_objective || '',
+    voice: tutor.voice || '',
+    voiceProvider: tutor.voice_provider || '',
+    studentsSaved: tutor.students_saved || 0,
+    helpfulnessScore: tutor.helpfulness_score || 0,
+    email: tutor.email || `${tutor.name.toLowerCase().replace(/\s+/g, '')}@tutors.ai`,
+    phone: tutor.phone || ''
+  }));
 };
 
-// Simulating API call to fetch agent by ID
+// Fetch agent by ID from Supabase
 export const fetchAgentById = async (agentId: string): Promise<AgentType> => {
-  // Simulate network delay
-  await new Promise(resolve => setTimeout(resolve, 600));
+  const { data: { user } } = await supabase.auth.getUser();
   
-  const agent = mockAgents.find(a => a.id === agentId);
-  
-  if (!agent) {
-    throw new Error(`Agent with id ${agentId} not found`);
+  if (!user) {
+    throw new Error('User not authenticated');
   }
-  
-  return agent;
-};
 
-// Simulating API call to create a new agent
-export const createAgent = async (agentData: Omit<AgentType, 'id' | 'createdAt' | 'interactions'>): Promise<AgentType> => {
-  // Simulate network delay
-  await new Promise(resolve => setTimeout(resolve, 1000));
-  
-  // Create a new agent with mock data
-  const newAgent: AgentType = {
-    ...agentData,
-    id: Math.random().toString(36).substring(2, 9),
-    createdAt: new Date().toISOString().split('T')[0],
-    interactions: 0
+  const { data, error } = await supabase
+    .from('tutors')
+    .select('*')
+    .eq('id', agentId)
+    .eq('user_id', user.id)
+    .single();
+
+  if (error || !data) {
+    console.error('Error fetching tutor:', error);
+    throw new Error(`Tutor with id ${agentId} not found`);
+  }
+
+  // Transform the data to match AgentType interface
+  return {
+    id: data.id,
+    name: data.name,
+    description: data.description || '',
+    type: data.type as any,
+    status: data.status as any,
+    createdAt: data.created_at.split('T')[0],
+    updatedAt: data.updated_at?.split('T')[0],
+    interactions: data.interactions || 0,
+    isPersonal: data.is_personal,
+    model: data.model || 'GPT-4',
+    channels: Array.isArray(data.channels) ? data.channels : [],
+    channelConfigs: data.channel_configs || {},
+    avatar: data.avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${data.id}`,
+    purpose: data.purpose || '',
+    prompt: data.prompt || '',
+    subject: data.subject || '',
+    gradeLevel: data.grade_level || '',
+    teachingStyle: data.teaching_style || '',
+    customSubject: data.custom_subject || '',
+    learningObjective: data.learning_objective || '',
+    voice: data.voice || '',
+    voiceProvider: data.voice_provider || '',
+    studentsSaved: data.students_saved || 0,
+    helpfulnessScore: data.helpfulness_score || 0,
+    email: data.email || `${data.name.toLowerCase().replace(/\s+/g, '')}@tutors.ai`,
+    phone: data.phone || ''
   };
-  
-  // In a real app, you would add this to the database
-  // mockAgents.push(newAgent);
-  
-  return newAgent;
 };
 
-// Simulating API call to update an agent
+// Create a new agent in Supabase
+export const createAgent = async (agentData: Omit<AgentType, 'id' | 'createdAt' | 'interactions'>): Promise<AgentType> => {
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  if (!user) {
+    throw new Error('User not authenticated');
+  }
+
+  const tutorData = {
+    user_id: user.id,
+    name: agentData.name,
+    description: agentData.description,
+    type: agentData.type,
+    status: agentData.status || 'draft',
+    subject: agentData.subject,
+    grade_level: agentData.gradeLevel,
+    teaching_style: agentData.teachingStyle,
+    custom_subject: agentData.customSubject,
+    learning_objective: agentData.learningObjective,
+    purpose: agentData.purpose,
+    prompt: agentData.prompt,
+    model: agentData.model || 'GPT-4',
+    voice: agentData.voice,
+    voice_provider: agentData.voiceProvider,
+    avatar: agentData.avatar,
+    phone: agentData.phone,
+    email: agentData.email,
+    channels: agentData.channels || [],
+    channel_configs: agentData.channelConfigs || {},
+    is_personal: agentData.isPersonal !== false
+  };
+
+  const { data, error } = await supabase
+    .from('tutors')
+    .insert(tutorData)
+    .select()
+    .single();
+
+  if (error) {
+    console.error('Error creating tutor:', error);
+    throw new Error('Failed to create tutor');
+  }
+
+  // Transform the response back to AgentType
+  return {
+    id: data.id,
+    name: data.name,
+    description: data.description || '',
+    type: data.type as any,
+    status: data.status as any,
+    createdAt: data.created_at.split('T')[0],
+    updatedAt: data.updated_at?.split('T')[0],
+    interactions: 0,
+    isPersonal: data.is_personal,
+    model: data.model || 'GPT-4',
+    channels: Array.isArray(data.channels) ? data.channels : [],
+    channelConfigs: data.channel_configs || {},
+    avatar: data.avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${data.id}`,
+    purpose: data.purpose || '',
+    prompt: data.prompt || '',
+    subject: data.subject || '',
+    gradeLevel: data.grade_level || '',
+    teachingStyle: data.teaching_style || '',
+    customSubject: data.custom_subject || '',
+    learningObjective: data.learning_objective || '',
+    voice: data.voice || '',
+    voiceProvider: data.voice_provider || '',
+    studentsSaved: 0,
+    helpfulnessScore: 0,
+    email: data.email || `${data.name.toLowerCase().replace(/\s+/g, '')}@tutors.ai`,
+    phone: data.phone || ''
+  };
+};
+
+// Update an agent in Supabase
 export const updateAgent = async (agentId: string, agentData: Partial<AgentType>): Promise<AgentType> => {
-  // Simulate network delay
-  await new Promise(resolve => setTimeout(resolve, 800));
+  const { data: { user } } = await supabase.auth.getUser();
   
-  const agent = mockAgents.find(a => a.id === agentId);
-  
-  if (!agent) {
-    throw new Error(`Agent with id ${agentId} not found`);
+  if (!user) {
+    throw new Error('User not authenticated');
   }
+
+  const tutorData: any = {};
   
-  // Update the agent
-  const updatedAgent = { ...agent, ...agentData };
-  
-  // In a real app, you would update this in the database
-  // const index = mockAgents.findIndex(a => a.id === agentId);
-  // mockAgents[index] = updatedAgent;
-  
-  return updatedAgent;
+  // Map AgentType fields to database columns
+  if (agentData.name) tutorData.name = agentData.name;
+  if (agentData.description !== undefined) tutorData.description = agentData.description;
+  if (agentData.type) tutorData.type = agentData.type;
+  if (agentData.status) tutorData.status = agentData.status;
+  if (agentData.subject !== undefined) tutorData.subject = agentData.subject;
+  if (agentData.gradeLevel !== undefined) tutorData.grade_level = agentData.gradeLevel;
+  if (agentData.teachingStyle !== undefined) tutorData.teaching_style = agentData.teachingStyle;
+  if (agentData.customSubject !== undefined) tutorData.custom_subject = agentData.customSubject;
+  if (agentData.learningObjective !== undefined) tutorData.learning_objective = agentData.learningObjective;
+  if (agentData.purpose !== undefined) tutorData.purpose = agentData.purpose;
+  if (agentData.prompt !== undefined) tutorData.prompt = agentData.prompt;
+  if (agentData.model) tutorData.model = agentData.model;
+  if (agentData.voice !== undefined) tutorData.voice = agentData.voice;
+  if (agentData.voiceProvider !== undefined) tutorData.voice_provider = agentData.voiceProvider;
+  if (agentData.avatar !== undefined) tutorData.avatar = agentData.avatar;
+  if (agentData.phone !== undefined) tutorData.phone = agentData.phone;
+  if (agentData.email !== undefined) tutorData.email = agentData.email;
+  if (agentData.channels) tutorData.channels = agentData.channels;
+  if (agentData.channelConfigs) tutorData.channel_configs = agentData.channelConfigs;
+  if (agentData.isPersonal !== undefined) tutorData.is_personal = agentData.isPersonal;
+
+  const { data, error } = await supabase
+    .from('tutors')
+    .update(tutorData)
+    .eq('id', agentId)
+    .eq('user_id', user.id)
+    .select()
+    .single();
+
+  if (error || !data) {
+    console.error('Error updating tutor:', error);
+    throw new Error('Failed to update tutor');
+  }
+
+  // Transform the response back to AgentType
+  return {
+    id: data.id,
+    name: data.name,
+    description: data.description || '',
+    type: data.type as any,
+    status: data.status as any,
+    createdAt: data.created_at.split('T')[0],
+    updatedAt: data.updated_at?.split('T')[0],
+    interactions: data.interactions || 0,
+    isPersonal: data.is_personal,
+    model: data.model || 'GPT-4',
+    channels: Array.isArray(data.channels) ? data.channels : [],
+    channelConfigs: data.channel_configs || {},
+    avatar: data.avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${data.id}`,
+    purpose: data.purpose || '',
+    prompt: data.prompt || '',
+    subject: data.subject || '',
+    gradeLevel: data.grade_level || '',
+    teachingStyle: data.teaching_style || '',
+    customSubject: data.custom_subject || '',
+    learningObjective: data.learning_objective || '',
+    voice: data.voice || '',
+    voiceProvider: data.voice_provider || '',
+    studentsSaved: data.students_saved || 0,
+    helpfulnessScore: data.helpfulness_score || 0,
+    email: data.email || `${data.name.toLowerCase().replace(/\s+/g, '')}@tutors.ai`,
+    phone: data.phone || ''
+  };
 };
 
-// Simulating API call to delete an agent
+// Delete an agent from Supabase
 export const deleteAgent = async (agentId: string): Promise<void> => {
-  // Simulate network delay
-  await new Promise(resolve => setTimeout(resolve, 600));
+  const { data: { user } } = await supabase.auth.getUser();
   
-  const agent = mockAgents.find(a => a.id === agentId);
-  
-  if (!agent) {
-    throw new Error(`Agent with id ${agentId} not found`);
+  if (!user) {
+    throw new Error('User not authenticated');
   }
-  
-  // In a real app, you would remove this from the database
-  // const index = mockAgents.findIndex(a => a.id === agentId);
-  // mockAgents.splice(index, 1);
+
+  const { error } = await supabase
+    .from('tutors')
+    .delete()
+    .eq('id', agentId)
+    .eq('user_id', user.id);
+
+  if (error) {
+    console.error('Error deleting tutor:', error);
+    throw new Error('Failed to delete tutor');
+  }
 };

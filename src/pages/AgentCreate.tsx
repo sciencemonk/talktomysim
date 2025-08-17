@@ -5,6 +5,7 @@ import { ArrowLeft, CheckCircle2, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import AgentConfigSettings from "@/components/AgentConfigSettings";
+import { createAgent } from "@/services/agentService";
 import { AgentType } from "@/types/agent";
 
 const AgentCreate = () => {
@@ -31,7 +32,7 @@ const AgentCreate = () => {
     setTempAgent(updatedAgent);
   };
   
-  const handleCreateAgent = () => {
+  const handleCreateAgent = async () => {
     if (!tempAgent.name || tempAgent.name === "New Tutor") {
       toast({
         title: "Missing Information",
@@ -52,14 +53,37 @@ const AgentCreate = () => {
     
     setIsSubmitting(true);
     
-    setTimeout(() => {
+    try {
+      // Create the agent in Supabase
+      const createdAgent = await createAgent({
+        ...tempAgent,
+        status: "active", // Set to active when created
+        channels: ["chat"], // Default to chat channel
+        channelConfigs: {
+          chat: {
+            enabled: true,
+            details: "Available for student chat"
+          }
+        }
+      });
+      
       toast({
         title: "Tutor Created!",
-        description: `${tempAgent.name} has been successfully created.`,
+        description: `${createdAgent.name} has been successfully created.`,
       });
+      
+      // Navigate to the created tutor's detail page
+      navigate(`/tutors/${createdAgent.id}`);
+    } catch (error) {
+      console.error("Error creating tutor:", error);
+      toast({
+        title: "Creation Failed",
+        description: "There was an error creating your tutor. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
       setIsSubmitting(false);
-      navigate("/dashboard");
-    }, 1500);
+    }
   };
   
   return (

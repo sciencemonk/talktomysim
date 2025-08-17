@@ -436,6 +436,111 @@ export type Database = {
         }
         Relationships: []
       }
+      tutors: {
+        Row: {
+          avatar: string | null
+          avm_score: number | null
+          channel_configs: Json | null
+          channels: Json | null
+          created_at: string
+          csat: number | null
+          custom_subject: string | null
+          custom_voice_id: string | null
+          description: string | null
+          email: string | null
+          grade_level: string | null
+          helpfulness_score: number | null
+          id: string
+          interactions: number | null
+          is_personal: boolean | null
+          learning_objective: string | null
+          model: string | null
+          name: string
+          performance: number | null
+          phone: string | null
+          prompt: string | null
+          purpose: string | null
+          status: string
+          students_saved: number | null
+          subject: string | null
+          teaching_style: string | null
+          type: string
+          updated_at: string
+          user_id: string
+          voice: string | null
+          voice_provider: string | null
+          voice_traits: Json | null
+        }
+        Insert: {
+          avatar?: string | null
+          avm_score?: number | null
+          channel_configs?: Json | null
+          channels?: Json | null
+          created_at?: string
+          csat?: number | null
+          custom_subject?: string | null
+          custom_voice_id?: string | null
+          description?: string | null
+          email?: string | null
+          grade_level?: string | null
+          helpfulness_score?: number | null
+          id?: string
+          interactions?: number | null
+          is_personal?: boolean | null
+          learning_objective?: string | null
+          model?: string | null
+          name: string
+          performance?: number | null
+          phone?: string | null
+          prompt?: string | null
+          purpose?: string | null
+          status?: string
+          students_saved?: number | null
+          subject?: string | null
+          teaching_style?: string | null
+          type?: string
+          updated_at?: string
+          user_id: string
+          voice?: string | null
+          voice_provider?: string | null
+          voice_traits?: Json | null
+        }
+        Update: {
+          avatar?: string | null
+          avm_score?: number | null
+          channel_configs?: Json | null
+          channels?: Json | null
+          created_at?: string
+          csat?: number | null
+          custom_subject?: string | null
+          custom_voice_id?: string | null
+          description?: string | null
+          email?: string | null
+          grade_level?: string | null
+          helpfulness_score?: number | null
+          id?: string
+          interactions?: number | null
+          is_personal?: boolean | null
+          learning_objective?: string | null
+          model?: string | null
+          name?: string
+          performance?: number | null
+          phone?: string | null
+          prompt?: string | null
+          purpose?: string | null
+          status?: string
+          students_saved?: number | null
+          subject?: string | null
+          teaching_style?: string | null
+          type?: string
+          updated_at?: string
+          user_id?: string
+          voice?: string | null
+          voice_provider?: string | null
+          voice_traits?: Json | null
+        }
+        Relationships: []
+      }
       users: {
         Row: {
           addition_proficient: boolean | null

@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { fetchAgentById } from '@/services/agentService';
 import { AgentType } from '@/types/agent';
@@ -21,78 +22,15 @@ export const useAgentDetails = (agentId: string | undefined) => {
       return;
     }
 
-    // Special case for newly created agent (new123)
-    if (agentId === "new123") {
-      const newlyCreatedAgent: AgentType = {
-        id: "new123",
-        name: "New Tutor",
-        description: "This tutor was just created and needs configuration.",
-        type: "General Tutor",
-        status: "inactive",
-        createdAt: new Date().toISOString().split('T')[0],
-        interactions: 0,
-        isPersonal: true,
-        model: "GPT-4",
-        channels: [],
-        channelConfigs: {},
-        avatar: `https://api.dicebear.com/7.x/bottts/svg?seed=new123`,
-        purpose: "Your newly created tutor needs configuration.",
-        prompt: "You are a new AI tutor. Your configuration is incomplete.",
-        subject: "",
-        gradeLevel: "",
-        teachingStyle: "",
-        customSubject: "",
-        voice: "9BWtsMINqrJLrRacOk9x",
-        voiceProvider: "Eleven Labs",
-        studentsSaved: 0,
-        helpfulnessScore: 0
-      };
-      
-      setAgent(newlyCreatedAgent);
-      setError(null);
-      setIsLoading(false);
-      return;
-    }
-
     const loadAgentDetails = async () => {
       setIsLoading(true);
       try {
         const data = await fetchAgentById(agentId);
-        
-        // Add default stats if missing
-        const channelConfigs = data.channelConfigs || {};
-        
-        // Ensure chat channel is configured for student interactions
-        if (!channelConfigs.chat) {
-          channelConfigs.chat = {
-            enabled: true,
-            details: "Available for student chat"
-          };
-        }
-        
-        const enhancedData = {
-          ...data,
-          interactions: data.interactions || 0,
-          studentsSaved: data.studentsSaved || Math.floor(Math.random() * 50) + 10,
-          helpfulnessScore: data.helpfulnessScore || (Math.random() * 2 + 8),
-          channels: data.channels || ["chat"],
-          channelConfigs: channelConfigs,
-          avatar: data.avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${data.id}`,
-          purpose: data.purpose || "Help students learn and understand concepts clearly.",
-          prompt: data.prompt || `You are ${data.name}, an AI tutor. Your job is to help students learn by explaining concepts clearly, asking questions to check understanding, and providing encouragement.`,
-          subject: data.subject || "",
-          gradeLevel: data.gradeLevel || "",
-          teachingStyle: data.teachingStyle || "",
-          customSubject: data.customSubject || "",
-          voice: data.voice || "9BWtsMINqrJLrRacOk9x",
-          voiceProvider: data.voiceProvider || "Eleven Labs"
-        };
-        
-        setAgent(enhancedData);
+        setAgent(data);
         setError(null);
-      } catch (err) {
+      } catch (err: any) {
         console.error("Error loading tutor details:", err);
-        setError("Failed to load tutor details");
+        setError(err.message || "Failed to load tutor details");
       } finally {
         setIsLoading(false);
       }
@@ -139,6 +77,20 @@ export const useAgentDetails = (agentId: string | undefined) => {
     isDirectCallActive,
     directCallInfo,
     startDirectCall,
-    endDirectCall
+    endDirectCall,
+    // Add a method to refetch agent data after updates
+    refetchAgent: () => {
+      if (agentId) {
+        const loadAgentDetails = async () => {
+          try {
+            const data = await fetchAgentById(agentId);
+            setAgent(data);
+          } catch (err: any) {
+            console.error("Error refetching tutor details:", err);
+          }
+        };
+        loadAgentDetails();
+      }
+    }
   };
 };
