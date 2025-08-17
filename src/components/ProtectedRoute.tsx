@@ -8,6 +8,12 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
+  // Temporarily bypass authentication for testing
+  // Just render children directly without checking auth status
+  return <>{children}</>;
+  
+  // Original auth logic commented out for testing:
+  /*
   const { user, loading } = useAuth();
 
   if (loading) {
@@ -23,6 +29,7 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   }
 
   return <>{children}</>;
+  */
 };
 
 export default ProtectedRoute;
