@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -152,36 +151,37 @@ Always be patient, supportive, and adapt to each student's learning pace. If a s
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       <Card>
-        <CardHeader>
-          <CardTitle className="text-xl">Tutor Identity</CardTitle>
-          <CardDescription>
+        <CardHeader className="pb-4 sm:pb-6">
+          <CardTitle className="text-lg sm:text-xl">Tutor Identity</CardTitle>
+          <CardDescription className="text-sm sm:text-base">
             Set up your AI tutor's name and appearance
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="flex flex-col items-center space-y-4">
-              <Avatar className="h-24 w-24 border-2 border-primary/30">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+            <div className="flex flex-col items-center space-y-4 order-2 lg:order-1">
+              <Avatar className="h-20 w-20 sm:h-24 sm:w-24 border-2 border-primary/30">
                 <AvatarImage src={avatar} alt={name} />
                 <AvatarFallback>
-                  <Bot className="h-12 w-12" />
+                  <Bot className="h-10 w-10 sm:h-12 sm:w-12" />
                 </AvatarFallback>
               </Avatar>
               
               <div className="w-full space-y-3">
-                <Label htmlFor="tutor-avatar">Avatar URL</Label>
+                <Label htmlFor="tutor-avatar" className="text-sm">Avatar URL</Label>
                 <Input
                   id="tutor-avatar"
                   value={avatar}
                   onChange={(e) => setAvatar(e.target.value)}
                   placeholder="Enter avatar URL"
+                  className="text-sm"
                 />
                 <Button 
                   variant="outline" 
                   onClick={generateRandomAvatar} 
-                  className="w-full"
+                  className="w-full text-xs sm:text-sm"
                   size="sm"
                 >
                   Generate Random Avatar
@@ -189,14 +189,15 @@ Always be patient, supportive, and adapt to each student's learning pace. If a s
               </div>
             </div>
             
-            <div className="space-y-4">
+            <div className="space-y-4 order-1 lg:order-2">
               <div className="space-y-2">
-                <Label htmlFor="tutor-name">Tutor Name</Label>
+                <Label htmlFor="tutor-name" className="text-sm">Tutor Name</Label>
                 <Input
                   id="tutor-name"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="e.g., Ms. Johnson, Mr. Smith"
+                  className="text-sm"
                 />
               </div>
             </div>
@@ -205,24 +206,24 @@ Always be patient, supportive, and adapt to each student's learning pace. If a s
       </Card>
 
       <Card>
-        <CardHeader>
-          <CardTitle className="text-xl">Teaching Configuration</CardTitle>
-          <CardDescription>
+        <CardHeader className="pb-4 sm:pb-6">
+          <CardTitle className="text-lg sm:text-xl">Teaching Configuration</CardTitle>
+          <CardDescription className="text-sm sm:text-base">
             Configure what and how your tutor teaches
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-4 sm:space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
               <div className="space-y-2">
-                <Label>Subject</Label>
-                <div className="grid grid-cols-2 gap-2">
+                <Label className="text-sm">Subject</Label>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   {SUBJECTS.map((subj) => (
                     <Button
                       key={subj.id}
                       type="button"
                       variant={subject === subj.id ? "default" : "outline"}
-                      className="justify-start gap-2 text-sm"
+                      className="justify-start gap-2 text-xs sm:text-sm py-2 px-3"
                       onClick={() => setSubject(subj.id)}
                     >
                       {subj.icon}
@@ -236,20 +237,20 @@ Always be patient, supportive, and adapt to each student's learning pace. If a s
                     value={customSubject}
                     onChange={(e) => setCustomSubject(e.target.value)}
                     placeholder="Enter subject name"
-                    className="mt-2"
+                    className="mt-2 text-sm"
                   />
                 )}
               </div>
 
               <div className="space-y-2">
-                <Label>Grade Level</Label>
+                <Label className="text-sm">Grade Level</Label>
                 <Select value={gradeLevel} onValueChange={setGradeLevel}>
-                  <SelectTrigger>
+                  <SelectTrigger className="text-sm">
                     <SelectValue placeholder="Select grade level" />
                   </SelectTrigger>
                   <SelectContent>
                     {GRADE_LEVELS.map((grade) => (
-                      <SelectItem key={grade.id} value={grade.id}>
+                      <SelectItem key={grade.id} value={grade.id} className="text-sm">
                         {grade.name}
                       </SelectItem>
                     ))}
@@ -259,13 +260,13 @@ Always be patient, supportive, and adapt to each student's learning pace. If a s
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="learning-objective">Learning Objective</Label>
+              <Label htmlFor="learning-objective" className="text-sm">Learning Objective</Label>
               <Textarea
                 id="learning-objective"
                 value={learningObjective}
                 onChange={(e) => setLearningObjective(e.target.value)}
                 placeholder="e.g., Help students master solving quadratic equations and understand their real-world applications"
-                className="min-h-[80px]"
+                className="min-h-[80px] text-sm"
               />
               <p className="text-xs text-muted-foreground">
                 Describe what specific learning goals this tutor should help students achieve
@@ -276,9 +277,9 @@ Always be patient, supportive, and adapt to each student's learning pace. If a s
       </Card>
 
       <Card>
-        <CardHeader>
-          <CardTitle className="text-xl">Teaching Instructions</CardTitle>
-          <CardDescription>
+        <CardHeader className="pb-4 sm:pb-6">
+          <CardTitle className="text-lg sm:text-xl">Teaching Instructions</CardTitle>
+          <CardDescription className="text-sm sm:text-base">
             Customize how your tutor communicates with students
           </CardDescription>
         </CardHeader>
@@ -288,21 +289,23 @@ Always be patient, supportive, and adapt to each student's learning pace. If a s
               <Button 
                 onClick={generatePrompt}
                 variant="outline"
-                className="gap-2"
+                className="gap-2 text-xs sm:text-sm"
+                size="sm"
               >
                 <Brain className="h-4 w-4" />
-                Generate Instructions
+                <span className="hidden xs:inline">Generate Instructions</span>
+                <span className="xs:hidden">Generate</span>
               </Button>
             </div>
             
             <div>
-              <Label htmlFor="tutor-prompt">Teaching Instructions</Label>
+              <Label htmlFor="tutor-prompt" className="text-sm">Teaching Instructions</Label>
               <Textarea
                 id="tutor-prompt"
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}
                 placeholder="Enter detailed instructions for how your tutor should behave and teach..."
-                className="min-h-[200px] font-mono text-sm mt-2"
+                className="min-h-[150px] sm:min-h-[200px] font-mono text-xs sm:text-sm mt-2"
               />
               <p className="text-xs text-muted-foreground mt-2">
                 These instructions tell your AI tutor how to interact with students and what teaching approach to use

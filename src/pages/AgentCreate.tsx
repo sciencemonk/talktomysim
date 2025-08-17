@@ -64,23 +64,23 @@ const AgentCreate = () => {
   
   return (
     <div className="min-h-screen bg-gradient-to-br from-bg via-bg to-bgMuted/30">
-      <div className="max-w-4xl mx-auto px-6 py-8 animate-fade-in">
-        <div className="mb-8">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 py-4 sm:py-8 animate-fade-in">
+        <div className="mb-6 sm:mb-8">
           <Link to="/dashboard" className="inline-flex items-center text-fgMuted hover:text-fg transition-colors group">
             <ArrowLeft className="h-4 w-4 mr-2 group-hover:-translate-x-1 transition-transform" />
-            Back to Dashboard
+            <span className="text-sm sm:text-base">Back to Dashboard</span>
           </Link>
         </div>
         
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-fg mb-3">Create Your AI Tutor</h1>
-          <p className="text-lg text-fgMuted max-w-2xl mx-auto">
+        <div className="text-center mb-8 sm:mb-12">
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-fg mb-2 sm:mb-3 px-2">Create Your AI Tutor</h1>
+          <p className="text-base sm:text-lg text-fgMuted max-w-2xl mx-auto px-4">
             Set up a personalized AI tutor that adapts to your teaching style and helps students learn effectively
           </p>
         </div>
         
-        <div className="bg-bg/80 backdrop-blur-sm border border-border rounded-2xl shadow-xl overflow-hidden">
-          <div className="p-8">
+        <div className="bg-bg/80 backdrop-blur-sm border border-border rounded-xl sm:rounded-2xl shadow-xl overflow-hidden">
+          <div className="p-4 sm:p-6 lg:p-8">
             <AgentConfigSettings 
               agent={tempAgent}
               onAgentUpdate={handleAgentUpdate}
@@ -88,26 +88,28 @@ const AgentCreate = () => {
             />
           </div>
           
-          <div className="border-t border-border bg-bgMuted/30 px-8 py-6">
-            <div className="flex justify-between items-center">
-              <div className="text-sm text-fgMuted">
+          <div className="border-t border-border bg-bgMuted/30 p-4 sm:px-6 sm:py-6 lg:px-8">
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+              <div className="text-xs sm:text-sm text-fgMuted text-center sm:text-left">
                 Your tutor will be ready to help students immediately after creation
               </div>
               <Button 
                 onClick={handleCreateAgent} 
                 disabled={isSubmitting}
-                className="gap-2 px-8 py-3 text-base font-medium"
+                className="gap-2 px-6 sm:px-8 py-3 text-sm sm:text-base font-medium w-full sm:w-auto"
                 size="lg"
               >
                 {isSubmitting ? (
                   <>
-                    <Loader2 className="h-5 w-5 animate-spin" />
-                    Creating Tutor...
+                    <Loader2 className="h-4 w-4 sm:h-5 sm:w-5 animate-spin" />
+                    <span className="hidden xs:inline">Creating Tutor...</span>
+                    <span className="xs:hidden">Creating...</span>
                   </>
                 ) : (
                   <>
-                    <CheckCircle2 className="h-5 w-5" />
-                    Create Tutor
+                    <CheckCircle2 className="h-4 w-4 sm:h-5 sm:w-5" />
+                    <span className="hidden xs:inline">Create Tutor</span>
+                    <span className="xs:hidden">Create</span>
                   </>
                 )}
               </Button>
