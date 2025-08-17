@@ -5,6 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ThemeProvider } from "@/hooks/useTheme";
+import { AuthProvider } from "@/hooks/useAuth";
 import AgentsLayout from "./layouts/AgentsLayout";
 import TeacherDashboard from "./pages/TeacherDashboard";
 import AgentDetails from "./pages/AgentDetails";
@@ -31,24 +32,26 @@ const queryClient = new QueryClient({
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <ThemeProvider defaultTheme="system">
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Landing />} />
-            <Route path="/dashboard" element={<Navigate to="/agents" replace />} />
-            <Route path="/agents" element={<AgentsLayout />}>
-              <Route index element={<TeacherDashboard />} />
-              <Route path="create" element={<AgentCreate />} />
-              <Route path=":agentId" element={<AgentDetails />} />
-            </Route>
-            <Route path="/billing" element={<Billing />} />
-            <Route path="/settings" element={<Settings />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-      </TooltipProvider>
+      <AuthProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={<Landing />} />
+              <Route path="/dashboard" element={<Navigate to="/agents" replace />} />
+              <Route path="/agents" element={<AgentsLayout />}>
+                <Route index element={<TeacherDashboard />} />
+                <Route path="create" element={<AgentCreate />} />
+                <Route path=":agentId" element={<AgentDetails />} />
+              </Route>
+              <Route path="/billing" element={<Billing />} />
+              <Route path="/settings" element={<Settings />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+        </TooltipProvider>
+      </AuthProvider>
     </ThemeProvider>
   </QueryClientProvider>
 );
