@@ -54,4 +54,5 @@ export interface AgentType {
   gradeLevel?: string;
   teachingStyle?: string;
   customSubject?: string;
+  learningObjective?: string;
 }

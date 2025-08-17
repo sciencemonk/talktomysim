@@ -9,13 +9,12 @@ import { updateAgent } from '@/services/agentService';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { 
   Bot, Target, User, FileText, GraduationCap, BookOpen, Calculator, 
-  Microscope, PenTool, Globe, Volume2, ChevronDown, Brain
+  Microscope, PenTool, Globe, Brain
 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import debounce from 'lodash/debounce';
 import { useToast } from "@/components/ui/use-toast";
 import { isEqual } from 'lodash';
-import VoiceSelectionModal from './VoiceSelectionModal';
 
 const SUBJECTS = [
   { id: "math", name: "Mathematics", icon: <Calculator className="h-4 w-4" /> },
@@ -36,21 +35,6 @@ const GRADE_LEVELS = [
   { id: "adult", name: "Adult Education" }
 ];
 
-const TEACHING_STYLES = [
-  { id: "encouraging", name: "Encouraging & Supportive" },
-  { id: "socratic", name: "Socratic Method (Question-based)" },
-  { id: "patient", name: "Patient & Step-by-step" },
-  { id: "fun", name: "Fun & Engaging" },
-  { id: "structured", name: "Structured & Organized" },
-  { id: "adaptive", name: "Adaptive to Student Needs" }
-];
-
-const AI_MODELS = [
-  { id: "GPT-4", name: "GPT-4 (Recommended)" },
-  { id: "GPT-3.5", name: "GPT-3.5 (Faster)" },
-  { id: "Claude-3", name: "Claude 3" }
-];
-
 interface TeacherConfigSettingsProps {
   agent: AgentType;
   onAgentUpdate: (updatedAgent: AgentType) => void;
@@ -65,13 +49,9 @@ const TeacherConfigSettings: React.FC<TeacherConfigSettingsProps> = ({ agent, on
   const [prompt, setPrompt] = useState(agent.prompt || '');
   const [subject, setSubject] = useState(agent.subject || '');
   const [gradeLevel, setGradeLevel] = useState(agent.gradeLevel || '');
-  const [teachingStyle, setTeachingStyle] = useState(agent.teachingStyle || '');
+  const [learningObjective, setLearningObjective] = useState(agent.learningObjective || '');
   const [customSubject, setCustomSubject] = useState('');
-  const [model, setModel] = useState(agent.model || 'GPT-4');
-  const [voice, setVoice] = useState(agent.voice || '9BWtsMINqrJLrRacOk9x');
-  const [voiceProvider, setVoiceProvider] = useState(agent.voiceProvider || 'Eleven Labs');
   const [isSaving, setIsSaving] = useState(false);
-  const [voiceModalOpen, setVoiceModalOpen] = useState(false);
   
   const prevValuesRef = useRef({
     name: agent.name,
@@ -80,10 +60,7 @@ const TeacherConfigSettings: React.FC<TeacherConfigSettingsProps> = ({ agent, on
     prompt: agent.prompt || '',
     subject: agent.subject || '',
     gradeLevel: agent.gradeLevel || '',
-    teachingStyle: agent.teachingStyle || '',
-    model: agent.model || 'GPT-4',
-    voice: agent.voice || '9BWtsMINqrJLrRacOk9x',
-    voiceProvider: agent.voiceProvider || 'Eleven Labs'
+    learningObjective: agent.learningObjective || ''
   });
 
   const isCreationMode = agent.id.startsWith('temp-');
@@ -133,10 +110,7 @@ const TeacherConfigSettings: React.FC<TeacherConfigSettingsProps> = ({ agent, on
       prompt,
       subject: finalSubject,
       gradeLevel,
-      teachingStyle,
-      model,
-      voice,
-      voiceProvider
+      learningObjective
     };
     
     // Update the agent data immediately for creation mode
@@ -150,28 +124,18 @@ const TeacherConfigSettings: React.FC<TeacherConfigSettingsProps> = ({ agent, on
     }
     
     prevValuesRef.current = { ...currentValues };
-  }, [name, avatar, purpose, prompt, subject, gradeLevel, teachingStyle, customSubject, model, voice, voiceProvider, debouncedSave, isCreationMode, agent, onAgentUpdate]);
+  }, [name, avatar, purpose, prompt, subject, gradeLevel, learningObjective, customSubject, debouncedSave, isCreationMode, agent, onAgentUpdate]);
 
   const generateRandomAvatar = () => {
     const seed = Math.random().toString(36).substring(2, 10);
     setAvatar(`https://api.dicebear.com/7.x/bottts/svg?seed=${seed}`);
   };
 
-  const getCurrentVoiceDetails = () => {
-    return {
-      name: "Aria",
-      provider: "Eleven Labs"
-    };
-  };
-
-  const currentVoiceDetails = getCurrentVoiceDetails();
-
   const generatePrompt = () => {
     const subjectName = subject === 'other' ? customSubject : SUBJECTS.find(s => s.id === subject)?.name || 'the subject';
     const gradeName = GRADE_LEVELS.find(g => g.id === gradeLevel)?.name || 'students';
-    const styleName = TEACHING_STYLES.find(s => s.id === teachingStyle)?.name || 'helpful';
     
-    const basePrompt = `You are ${name}, a friendly and knowledgeable tutor specializing in ${subjectName} for ${gradeName}. Your teaching style is ${styleName.toLowerCase()}.
+    const basePrompt = `You are ${name}, a friendly and knowledgeable tutor specializing in ${subjectName} for ${gradeName}.
 
 Your main goals are to:
 - Help students understand concepts clearly
@@ -179,6 +143,10 @@ Your main goals are to:
 - Encourage students when they struggle
 - Ask questions to check understanding
 - Make learning engaging and fun
+
+${learningObjective ? `Learning Objective: ${learningObjective}
+
+Focus on helping students achieve this specific learning objective through your teaching.` : ''}
 
 Always be patient, supportive, and adapt to each student's learning pace. If a student seems confused, break down concepts into smaller steps. Celebrate their progress and effort!`;
 
@@ -304,49 +272,17 @@ Always be patient, supportive, and adapt to each student's learning pace. If a s
             </div>
 
             <div className="space-y-2">
-              <Label>Teaching Style</Label>
-              <Select value={teachingStyle} onValueChange={setTeachingStyle}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Choose teaching approach" />
-                </SelectTrigger>
-                <SelectContent>
-                  {TEACHING_STYLES.map((style) => (
-                    <SelectItem key={style.id} value={style.id}>
-                      {style.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>AI Model</Label>
-                <Select value={model} onValueChange={setModel}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select AI model" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {AI_MODELS.map((aiModel) => (
-                      <SelectItem key={aiModel.id} value={aiModel.id}>
-                        {aiModel.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              <div className="space-y-2">
-                <Label>Voice</Label>
-                <Button 
-                  variant="outline" 
-                  className="w-full justify-between"
-                  onClick={() => setVoiceModalOpen(true)}
-                >
-                  <span>{currentVoiceDetails.name} - {currentVoiceDetails.provider}</span>
-                  <ChevronDown className="h-4 w-4 opacity-50" />
-                </Button>
-              </div>
+              <Label htmlFor="learning-objective">Learning Objective</Label>
+              <Textarea
+                id="learning-objective"
+                value={learningObjective}
+                onChange={(e) => setLearningObjective(e.target.value)}
+                placeholder="e.g., Help students master solving quadratic equations and understand their real-world applications"
+                className="min-h-[80px]"
+              />
+              <p className="text-xs text-muted-foreground">
+                Describe what specific learning goals this tutor should help students achieve
+              </p>
             </div>
           </div>
         </CardContent>
@@ -394,15 +330,6 @@ Always be patient, supportive, and adapt to each student's learning pace. If a s
           Saving changes...
         </div>
       )}
-      
-      <VoiceSelectionModal
-        open={voiceModalOpen}
-        onOpenChange={setVoiceModalOpen}
-        selectedVoice={voice}
-        onVoiceSelect={(voiceId) => setVoice(voiceId)}
-        voiceProvider={voiceProvider}
-        onVoiceProviderChange={setVoiceProvider}
-      />
     </div>
   );
 };
