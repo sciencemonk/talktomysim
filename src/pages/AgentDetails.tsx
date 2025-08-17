@@ -98,7 +98,12 @@ const AgentDetails = () => {
       </div>
 
       {/* Stats Cards */}
-      <AgentStats agent={agent} />
+      <AgentStats 
+        avmScore={agent.avmScore}
+        interactionCount={agent.interactions || 0}
+        csat={agent.csat}
+        performance={agent.performance}
+      />
 
       {/* Main Content */}
       <Tabs defaultValue="settings" className="space-y-6">
@@ -184,19 +189,17 @@ const AgentDetails = () => {
 
       {/* Role Play Dialog */}
       <RolePlayDialog
-        isOpen={isRolePlayOpen}
-        onClose={closeRolePlay}
-        agent={agent}
-        onStartDirectCall={startDirectCall}
+        open={isRolePlayOpen}
+        onOpenChange={(open) => open ? openRolePlay() : closeRolePlay()}
       />
 
       {/* Direct Call Interface */}
       {isDirectCallActive && directCallInfo && (
         <CallInterface
-          agent={agent}
-          phoneNumber={directCallInfo.phoneNumber}
-          deviceSettings={directCallInfo.deviceSettings}
-          onEndCall={endDirectCall}
+          open={isDirectCallActive}
+          onOpenChange={(open) => !open && endDirectCall()}
+          persona={null}
+          directCallInfo={directCallInfo}
         />
       )}
     </div>
