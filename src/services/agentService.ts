@@ -1,6 +1,22 @@
 
 import { supabase } from '@/integrations/supabase/client';
-import { AgentType } from '@/types/agent';
+import { AgentType, AgentChannelConfig } from '@/types/agent';
+
+// Helper function to safely cast JSON arrays to string arrays
+const safeStringArray = (value: any): string[] => {
+  if (Array.isArray(value)) {
+    return value.filter(item => typeof item === 'string');
+  }
+  return [];
+};
+
+// Helper function to safely cast JSON objects to AgentChannelConfig records
+const safeChannelConfigs = (value: any): Record<string, AgentChannelConfig> => {
+  if (value && typeof value === 'object' && !Array.isArray(value)) {
+    return value as Record<string, AgentChannelConfig>;
+  }
+  return {};
+};
 
 // Fetch agents from Supabase
 export const fetchAgents = async (filter: string): Promise<AgentType[]> => {
@@ -41,8 +57,8 @@ export const fetchAgents = async (filter: string): Promise<AgentType[]> => {
     interactions: tutor.interactions || 0,
     isPersonal: tutor.is_personal,
     model: tutor.model || 'GPT-4',
-    channels: Array.isArray(tutor.channels) ? tutor.channels : [],
-    channelConfigs: tutor.channel_configs || {},
+    channels: safeStringArray(tutor.channels),
+    channelConfigs: safeChannelConfigs(tutor.channel_configs),
     avatar: tutor.avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${tutor.id}`,
     purpose: tutor.purpose || '',
     prompt: tutor.prompt || '',
@@ -92,8 +108,8 @@ export const fetchAgentById = async (agentId: string): Promise<AgentType> => {
     interactions: data.interactions || 0,
     isPersonal: data.is_personal,
     model: data.model || 'GPT-4',
-    channels: Array.isArray(data.channels) ? data.channels : [],
-    channelConfigs: data.channel_configs || {},
+    channels: safeStringArray(data.channels),
+    channelConfigs: safeChannelConfigs(data.channel_configs),
     avatar: data.avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${data.id}`,
     purpose: data.purpose || '',
     prompt: data.prompt || '',
@@ -138,8 +154,8 @@ export const createAgent = async (agentData: Omit<AgentType, 'id' | 'createdAt' 
     avatar: agentData.avatar,
     phone: agentData.phone,
     email: agentData.email,
-    channels: agentData.channels || [],
-    channel_configs: agentData.channelConfigs || {},
+    channels: JSON.stringify(agentData.channels || []),
+    channel_configs: JSON.stringify(agentData.channelConfigs || {}),
     is_personal: agentData.isPersonal !== false
   };
 
@@ -166,8 +182,8 @@ export const createAgent = async (agentData: Omit<AgentType, 'id' | 'createdAt' 
     interactions: 0,
     isPersonal: data.is_personal,
     model: data.model || 'GPT-4',
-    channels: Array.isArray(data.channels) ? data.channels : [],
-    channelConfigs: data.channel_configs || {},
+    channels: safeStringArray(data.channels),
+    channelConfigs: safeChannelConfigs(data.channel_configs),
     avatar: data.avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${data.id}`,
     purpose: data.purpose || '',
     prompt: data.prompt || '',
@@ -213,8 +229,8 @@ export const updateAgent = async (agentId: string, agentData: Partial<AgentType>
   if (agentData.avatar !== undefined) tutorData.avatar = agentData.avatar;
   if (agentData.phone !== undefined) tutorData.phone = agentData.phone;
   if (agentData.email !== undefined) tutorData.email = agentData.email;
-  if (agentData.channels) tutorData.channels = agentData.channels;
-  if (agentData.channelConfigs) tutorData.channel_configs = agentData.channelConfigs;
+  if (agentData.channels) tutorData.channels = JSON.stringify(agentData.channels);
+  if (agentData.channelConfigs) tutorData.channel_configs = JSON.stringify(agentData.channelConfigs);
   if (agentData.isPersonal !== undefined) tutorData.is_personal = agentData.isPersonal;
 
   const { data, error } = await supabase
@@ -242,8 +258,8 @@ export const updateAgent = async (agentId: string, agentData: Partial<AgentType>
     interactions: data.interactions || 0,
     isPersonal: data.is_personal,
     model: data.model || 'GPT-4',
-    channels: Array.isArray(data.channels) ? data.channels : [],
-    channelConfigs: data.channel_configs || {},
+    channels: safeStringArray(data.channels),
+    channelConfigs: safeChannelConfigs(data.channel_configs),
     avatar: data.avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${data.id}`,
     purpose: data.purpose || '',
     prompt: data.prompt || '',
