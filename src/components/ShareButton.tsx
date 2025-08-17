@@ -20,7 +20,7 @@ export const ShareButton = ({ tutorId, tutorName, className }: ShareButtonProps)
   const [copied, setCopied] = useState(false);
   const { toast } = useToast();
 
-  const shareUrl = `${window.location.origin}/tutors/${tutorId}/chat`;
+  const shareUrl = `${window.location.origin}/tutors/${tutorId}`;
 
   const handleCopyLink = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -51,8 +51,8 @@ export const ShareButton = ({ tutorId, tutorName, className }: ShareButtonProps)
     if (navigator.share) {
       try {
         await navigator.share({
-          title: `Chat with ${tutorName}`,
-          text: `Start learning with ${tutorName}, an AI tutor ready to help!`,
+          title: `Check out ${tutorName}`,
+          text: `Learn with ${tutorName}, an AI tutor ready to help!`,
           url: shareUrl,
         });
       } catch (error) {
