@@ -116,8 +116,8 @@ Always be patient, supportive, and adapt to each student's learning pace. If a s
         description: `${createdAgent.name} has been successfully created with auto-generated teaching instructions.`,
       });
       
-      // Navigate to the created tutor's detail page
-      navigate(`/tutors/${createdAgent.id}`);
+      // Navigate to the dashboard instead of the tutor detail page
+      navigate("/dashboard");
     } catch (error) {
       console.error("Error creating tutor:", error);
       toast({

@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Plus, Users, MessageSquare, TrendingUp, BookOpen, Brain, GraduationCap } from "lucide-react";
@@ -8,6 +9,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAgents } from "@/hooks/useAgents";
 import { AgentType } from "@/types/agent";
 import { UserSettingsDropdown } from "@/components/UserSettingsDropdown";
+import { ShareButton } from "@/components/ShareButton";
 
 const TeacherDashboard = () => {
   const [filter, setFilter] = useState("all-agents");
@@ -171,9 +173,16 @@ const TeacherDashboard = () => {
                         </CardDescription>
                       </div>
                     </div>
-                    <Badge className={getStatusColor(agent.status)}>
-                      {agent.status}
-                    </Badge>
+                    <div className="flex items-center gap-2">
+                      <ShareButton 
+                        tutorId={agent.id} 
+                        tutorName={agent.name}
+                        className="h-8"
+                      />
+                      <Badge className={getStatusColor(agent.status)}>
+                        {agent.status}
+                      </Badge>
+                    </div>
                   </div>
                 </CardHeader>
                 <CardContent>
