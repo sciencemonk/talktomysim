@@ -1,4 +1,3 @@
-
 import { useParams } from "react-router-dom";
 import { useAgentDetails } from "@/hooks/useAgentDetails";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,10 +7,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Bot, Phone, MessageCircle, Mail, User, Target, BarChart3, Settings, Loader2, AlertCircle } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import AgentConfigSettings from "@/components/AgentConfigSettings";
-import AgentStats from "@/components/AgentStats";
+import { AgentStats } from "@/components/AgentStats";
 import AnalyticsTab from "@/components/AnalyticsTab";
-import RolePlayDialog from "@/components/RolePlayDialog";
-import CallInterface from "@/components/CallInterface";
+import { RolePlayDialog } from "@/components/RolePlayDialog";
+import { CallInterface } from "@/components/CallInterface";
 
 const AgentDetails = () => {
   const { agentId } = useParams<{ agentId: string }>();
