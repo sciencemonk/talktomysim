@@ -1,6 +1,7 @@
+
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import { AuthProvider } from './contexts/AuthContext';
+import { AuthProvider } from './hooks/useAuth';
 import Landing from './pages/Landing';
 import TeacherDashboard from './pages/TeacherDashboard';
 import AgentDetails from './pages/AgentDetails';
@@ -9,7 +10,6 @@ import Settings from './pages/Settings';
 import Billing from './pages/Billing';
 import NotFound from './pages/NotFound';
 import ProtectedRoute from './components/ProtectedRoute';
-import DashboardLayout from './components/DashboardLayout';
 
 function App() {
   return (
@@ -21,38 +21,36 @@ function App() {
             <Route path="/" element={<Landing />} />
             
             {/* Protected routes */}
-            <Route element={<ProtectedRoute />}>
-              <Route path="/dashboard" element={
-                <DashboardLayout>
-                  <TeacherDashboard />
-                </DashboardLayout>
-              } />
-              <Route path="/tutors" element={
-                <DashboardLayout>
-                  <TeacherDashboard />
-                </DashboardLayout>
-              } />
-              <Route path="/tutors/:agentId" element={
-                <DashboardLayout>
-                  <AgentDetails />
-                </DashboardLayout>
-              } />
-              <Route path="/create-tutor" element={
-                <DashboardLayout>
-                  <AgentCreate />
-                </DashboardLayout>
-              } />
-              <Route path="/settings" element={
-                <DashboardLayout>
-                  <Settings />
-                </DashboardLayout>
-              } />
-              <Route path="/billing" element={
-                <DashboardLayout>
-                  <Billing />
-                </DashboardLayout>
-              } />
-            </Route>
+            <Route path="/dashboard" element={
+              <ProtectedRoute>
+                <TeacherDashboard />
+              </ProtectedRoute>
+            } />
+            <Route path="/tutors" element={
+              <ProtectedRoute>
+                <TeacherDashboard />
+              </ProtectedRoute>
+            } />
+            <Route path="/tutors/:agentId" element={
+              <ProtectedRoute>
+                <AgentDetails />
+              </ProtectedRoute>
+            } />
+            <Route path="/create-tutor" element={
+              <ProtectedRoute>
+                <AgentCreate />
+              </ProtectedRoute>
+            } />
+            <Route path="/settings" element={
+              <ProtectedRoute>
+                <Settings />
+              </ProtectedRoute>
+            } />
+            <Route path="/billing" element={
+              <ProtectedRoute>
+                <Billing />
+              </ProtectedRoute>
+            } />
             
             {/* Catch all route */}
             <Route path="*" element={<NotFound />} />
