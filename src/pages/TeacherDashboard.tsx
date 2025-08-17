@@ -8,33 +8,29 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAgents } from "@/hooks/useAgents";
 import { AgentType } from "@/types/agent";
 import { UserSettingsDropdown } from "@/components/UserSettingsDropdown";
-
 const TeacherDashboard = () => {
   const [filter, setFilter] = useState("all-agents");
-  const { agents, isLoading, error } = useAgents(filter);
-
+  const {
+    agents,
+    isLoading,
+    error
+  } = useAgents(filter);
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
+    return <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
           <p className="text-muted-foreground">Loading your tutors...</p>
         </div>
-      </div>
-    );
+      </div>;
   }
-
   if (error) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
+    return <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center">
           <p className="text-destructive mb-4">{error}</p>
           <Button onClick={() => window.location.reload()}>Try Again</Button>
         </div>
-      </div>
-    );
+      </div>;
   }
-
   const getSubjectIcon = (type: string) => {
     switch (type.toLowerCase()) {
       case 'math tutor':
@@ -47,7 +43,6 @@ const TeacherDashboard = () => {
         return <GraduationCap className="h-4 w-4" />;
     }
   };
-
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'active':
@@ -60,28 +55,11 @@ const TeacherDashboard = () => {
         return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200';
     }
   };
-
   const totalStudentsHelped = agents.reduce((sum, agent) => sum + (agent.studentsSaved || 0), 0);
   const totalInteractions = agents.reduce((sum, agent) => sum + (agent.interactions || 0), 0);
-  const avgHelpfulness = agents.length > 0 
-    ? agents.reduce((sum, agent) => sum + (agent.helpfulnessScore || 0), 0) / agents.length 
-    : 0;
-
-  return (
-    <div className="space-y-8 animate-fade-in">
-      <div className="flex justify-between items-start">
-        <div>
-          <img 
-            src="/lovable-uploads/d71f4004-b1e4-4bc5-bcde-077bb8581623.png" 
-            alt="MagicTutor" 
-            className="h-12 mb-2"
-          />
-          <p className="text-muted-foreground mt-2">
-            Create and manage AI tutors to help your students learn
-          </p>
-        </div>
-        <UserSettingsDropdown />
-      </div>
+  const avgHelpfulness = agents.length > 0 ? agents.reduce((sum, agent) => sum + (agent.helpfulnessScore || 0), 0) / agents.length : 0;
+  return <div className="space-y-8 animate-fade-in">
+      
 
       {/* Stats Overview */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
@@ -139,8 +117,7 @@ const TeacherDashboard = () => {
       </div>
 
       {/* Tutors Grid */}
-      {agents.length === 0 ? (
-        <Card className="text-center py-12">
+      {agents.length === 0 ? <Card className="text-center py-12">
           <CardContent>
             <GraduationCap className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
             <h3 className="text-xl font-semibold mb-2">No tutors yet</h3>
@@ -154,9 +131,7 @@ const TeacherDashboard = () => {
               </Button>
             </Link>
           </CardContent>
-        </Card>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        </Card> : <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {/* Create New Tutor Card - Integrated into main grid */}
           <Link to="/agents/create">
             <Card className="hover:shadow-md transition-all duration-200 cursor-pointer border-dashed border-2 border-primary/30 hover:border-primary/70 bg-transparent hover:bg-secondary/50">
@@ -173,17 +148,13 @@ const TeacherDashboard = () => {
           </Link>
 
           {/* Existing Tutors */}
-          {agents.map((agent: AgentType) => (
-            <Link key={agent.id} to={`/agents/${agent.id}`}>
+          {agents.map((agent: AgentType) => <Link key={agent.id} to={`/agents/${agent.id}`}>
               <Card className="hover:shadow-md transition-all duration-200 cursor-pointer">
                 <CardHeader className="pb-3">
                   <div className="flex items-start justify-between">
                     <div className="flex items-center space-x-3">
                       <Avatar className="h-10 w-10">
-                        <AvatarImage 
-                          src={agent.avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${agent.id}`} 
-                          alt={agent.name} 
-                        />
+                        <AvatarImage src={agent.avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${agent.id}`} alt={agent.name} />
                         <AvatarFallback>
                           {getSubjectIcon(agent.type)}
                         </AvatarFallback>
@@ -216,20 +187,14 @@ const TeacherDashboard = () => {
                     </div>
                   </div>
                   
-                  {agent.helpfulnessScore && (
-                    <div className="mt-4 flex items-center justify-between">
+                  {agent.helpfulnessScore && <div className="mt-4 flex items-center justify-between">
                       <span className="text-sm text-muted-foreground">Helpfulness</span>
                       <span className="text-sm font-medium">{agent.helpfulnessScore}/10</span>
-                    </div>
-                  )}
+                    </div>}
                 </CardContent>
               </Card>
-            </Link>
-          ))}
-        </div>
-      )}
-    </div>
-  );
+            </Link>)}
+        </div>}
+    </div>;
 };
-
 export default TeacherDashboard;
