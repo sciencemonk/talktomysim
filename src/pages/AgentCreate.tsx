@@ -8,6 +8,25 @@ import AgentConfigSettings from "@/components/AgentConfigSettings";
 import { createAgent } from "@/services/agentService";
 import { AgentType } from "@/types/agent";
 
+const SUBJECTS = [
+  { id: "math", name: "Mathematics" },
+  { id: "science", name: "Science" },
+  { id: "english", name: "English/Language Arts" },
+  { id: "history", name: "History/Social Studies" },
+  { id: "reading", name: "Reading" },
+  { id: "writing", name: "Writing" },
+  { id: "other", name: "Other Subject" }
+];
+
+const GRADE_LEVELS = [
+  { id: "k-2", name: "Kindergarten - 2nd Grade" },
+  { id: "3-5", name: "3rd - 5th Grade" },
+  { id: "6-8", name: "6th - 8th Grade" },
+  { id: "9-12", name: "9th - 12th Grade" },
+  { id: "college", name: "College Level" },
+  { id: "adult", name: "Adult Education" }
+];
+
 const AgentCreate = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -30,6 +49,27 @@ const AgentCreate = () => {
   
   const handleAgentUpdate = (updatedAgent: AgentType) => {
     setTempAgent(updatedAgent);
+  };
+
+  const generateTeachingInstructions = (agent: AgentType): string => {
+    const subjectName = agent.subject === 'other' ? agent.customSubject : 
+      SUBJECTS.find(s => s.id === agent.subject)?.name || 'the subject';
+    const gradeName = GRADE_LEVELS.find(g => g.id === agent.gradeLevel)?.name || 'students';
+    
+    return `You are ${agent.name}, a friendly and knowledgeable tutor specializing in ${subjectName} for ${gradeName}.
+
+Your main goals are to:
+- Help students understand concepts clearly
+- Provide step-by-step explanations
+- Encourage students when they struggle
+- Ask questions to check understanding
+- Make learning engaging and fun
+
+${agent.learningObjective ? `Learning Objective: ${agent.learningObjective}
+
+Focus on helping students achieve this specific learning objective through your teaching.` : ''}
+
+Always be patient, supportive, and adapt to each student's learning pace. If a student seems confused, break down concepts into smaller steps. Celebrate their progress and effort!`;
   };
   
   const handleCreateAgent = async () => {
@@ -54,9 +94,13 @@ const AgentCreate = () => {
     setIsSubmitting(true);
     
     try {
+      // Auto-generate teaching instructions
+      const generatedPrompt = generateTeachingInstructions(tempAgent);
+      
       // Create the agent in Supabase
       const createdAgent = await createAgent({
         ...tempAgent,
+        prompt: generatedPrompt,
         status: "active", // Set to active when created
         channels: ["chat"], // Default to chat channel
         channelConfigs: {
@@ -69,7 +113,7 @@ const AgentCreate = () => {
       
       toast({
         title: "Tutor Created!",
-        description: `${createdAgent.name} has been successfully created.`,
+        description: `${createdAgent.name} has been successfully created with auto-generated teaching instructions.`,
       });
       
       // Navigate to the created tutor's detail page
@@ -109,13 +153,14 @@ const AgentCreate = () => {
               agent={tempAgent}
               onAgentUpdate={handleAgentUpdate}
               showSuccessToast={() => {}} // Disable auto-save toasts during creation
+              showTeachingInstructions={false} // Hide teaching instructions during creation
             />
           </div>
           
           <div className="border-t border-border bg-bgMuted/30 p-4 sm:px-6 sm:py-6 lg:px-8">
             <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
               <div className="text-xs sm:text-sm text-fgMuted text-center sm:text-left">
-                Your tutor will be ready to help students immediately after creation
+                Teaching instructions will be automatically generated based on your tutor's configuration
               </div>
               <Button 
                 onClick={handleCreateAgent} 

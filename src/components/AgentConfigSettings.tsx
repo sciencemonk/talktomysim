@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -39,9 +40,15 @@ interface TeacherConfigSettingsProps {
   agent: AgentType;
   onAgentUpdate: (updatedAgent: AgentType) => void;
   showSuccessToast?: (title: string, description: string) => void;
+  showTeachingInstructions?: boolean;
 }
 
-const TeacherConfigSettings: React.FC<TeacherConfigSettingsProps> = ({ agent, onAgentUpdate, showSuccessToast }) => {
+const TeacherConfigSettings: React.FC<TeacherConfigSettingsProps> = ({ 
+  agent, 
+  onAgentUpdate, 
+  showSuccessToast,
+  showTeachingInstructions = false
+}) => {
   const { toast } = useToast();
   const [name, setName] = useState(agent.name);
   const [avatar, setAvatar] = useState(agent.avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${agent.id}`);
@@ -276,44 +283,46 @@ Always be patient, supportive, and adapt to each student's learning pace. If a s
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader className="pb-4 sm:pb-6">
-          <CardTitle className="text-lg sm:text-xl">Teaching Instructions</CardTitle>
-          <CardDescription className="text-sm sm:text-base">
-            Customize how your tutor communicates with students
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            <div className="flex justify-between items-center">
-              <Button 
-                onClick={generatePrompt}
-                variant="outline"
-                className="gap-2 text-xs sm:text-sm"
-                size="sm"
-              >
-                <Brain className="h-4 w-4" />
-                <span className="hidden xs:inline">Generate Instructions</span>
-                <span className="xs:hidden">Generate</span>
-              </Button>
+      {showTeachingInstructions && (
+        <Card>
+          <CardHeader className="pb-4 sm:pb-6">
+            <CardTitle className="text-lg sm:text-xl">Teaching Instructions</CardTitle>
+            <CardDescription className="text-sm sm:text-base">
+              Customize how your tutor communicates with students
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="flex justify-between items-center">
+                <Button 
+                  onClick={generatePrompt}
+                  variant="outline"
+                  className="gap-2 text-xs sm:text-sm"
+                  size="sm"
+                >
+                  <Brain className="h-4 w-4" />
+                  <span className="hidden xs:inline">Generate Instructions</span>
+                  <span className="xs:hidden">Generate</span>
+                </Button>
+              </div>
+              
+              <div>
+                <Label htmlFor="tutor-prompt" className="text-sm">Teaching Instructions</Label>
+                <Textarea
+                  id="tutor-prompt"
+                  value={prompt}
+                  onChange={(e) => setPrompt(e.target.value)}
+                  placeholder="Enter detailed instructions for how your tutor should behave and teach..."
+                  className="min-h-[150px] sm:min-h-[200px] font-mono text-xs sm:text-sm mt-2"
+                />
+                <p className="text-xs text-muted-foreground mt-2">
+                  These instructions tell your AI tutor how to interact with students and what teaching approach to use
+                </p>
+              </div>
             </div>
-            
-            <div>
-              <Label htmlFor="tutor-prompt" className="text-sm">Teaching Instructions</Label>
-              <Textarea
-                id="tutor-prompt"
-                value={prompt}
-                onChange={(e) => setPrompt(e.target.value)}
-                placeholder="Enter detailed instructions for how your tutor should behave and teach..."
-                className="min-h-[150px] sm:min-h-[200px] font-mono text-xs sm:text-sm mt-2"
-              />
-              <p className="text-xs text-muted-foreground mt-2">
-                These instructions tell your AI tutor how to interact with students and what teaching approach to use
-              </p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      )}
       
       {isSaving && !isCreationMode && (
         <div className="fixed bottom-4 right-4 bg-secondary/80 text-foreground px-4 py-2 rounded-md text-sm animate-in fade-in slide-in-from-bottom-4">
