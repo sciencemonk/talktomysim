@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { AuthProvider } from './hooks/useAuth';
@@ -9,7 +8,7 @@ import AgentCreate from './pages/AgentCreate';
 import Settings from './pages/Settings';
 import Billing from './pages/Billing';
 import NotFound from './pages/NotFound';
-import ProtectedRoute from './components/ProtectedRoute';
+import DashboardLayout from './layouts/DashboardLayout';
 
 function App() {
   return (
@@ -20,36 +19,47 @@ function App() {
             {/* Public routes */}
             <Route path="/" element={<Landing />} />
             
-            {/* Protected routes */}
+            {/* Protected routes with layout */}
             <Route path="/dashboard" element={
-              <ProtectedRoute>
+              <DashboardLayout>
                 <TeacherDashboard />
-              </ProtectedRoute>
+              </DashboardLayout>
             } />
             <Route path="/tutors" element={
-              <ProtectedRoute>
+              <DashboardLayout>
                 <TeacherDashboard />
-              </ProtectedRoute>
+              </DashboardLayout>
             } />
             <Route path="/tutors/:agentId" element={
-              <ProtectedRoute>
+              <DashboardLayout>
                 <AgentDetails />
-              </ProtectedRoute>
+              </DashboardLayout>
+            } />
+            {/* Keep agents routes for backward compatibility */}
+            <Route path="/agents" element={
+              <DashboardLayout>
+                <TeacherDashboard />
+              </DashboardLayout>
+            } />
+            <Route path="/agents/:agentId" element={
+              <DashboardLayout>
+                <AgentDetails />
+              </DashboardLayout>
             } />
             <Route path="/create-tutor" element={
-              <ProtectedRoute>
+              <DashboardLayout>
                 <AgentCreate />
-              </ProtectedRoute>
+              </DashboardLayout>
             } />
             <Route path="/settings" element={
-              <ProtectedRoute>
+              <DashboardLayout>
                 <Settings />
-              </ProtectedRoute>
+              </DashboardLayout>
             } />
             <Route path="/billing" element={
-              <ProtectedRoute>
+              <DashboardLayout>
                 <Billing />
-              </ProtectedRoute>
+              </DashboardLayout>
             } />
             
             {/* Catch all route */}
