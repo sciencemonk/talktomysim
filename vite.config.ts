@@ -10,7 +10,7 @@ export default defineConfig({
     port: 8080,
     proxy: {
       '/api': {
-        target: 'https://ekrmolktvqqpjmftdaed.supabase.co/functions/v1',
+        target: 'https://lcdrsupwwitlvrvfrgsl.supabase.co/functions/v1',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ''),
       },
