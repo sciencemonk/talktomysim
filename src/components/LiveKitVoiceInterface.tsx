@@ -1,7 +1,4 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Mic, MicOff, Volume2, VolumeX, AlertCircle } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { AgentType } from '@/types/agent';
 import { supabase } from '@/integrations/supabase/client';
@@ -10,19 +7,22 @@ interface LiveKitVoiceInterfaceProps {
   agent: AgentType;
   onTranscriptUpdate: (transcript: string, isFromUser: boolean) => void;
   onSpeakingChange: (speaking: boolean) => void;
+  onConnectionChange?: (connected: boolean) => void;
+  onConnectionStatusChange?: (status: string) => void;
+  autoStart?: boolean;
 }
 
 const LiveKitVoiceInterface: React.FC<LiveKitVoiceInterfaceProps> = ({ 
   agent, 
   onTranscriptUpdate, 
-  onSpeakingChange 
+  onSpeakingChange,
+  onConnectionChange,
+  onConnectionStatusChange,
+  autoStart = false
 }) => {
   const { toast } = useToast();
   const [isConnected, setIsConnected] = useState(false);
-  const [isRecording, setIsRecording] = useState(false);
-  const [isMuted, setIsMuted] = useState(false);
   const [connectionStatus, setConnectionStatus] = useState('disconnected');
-  const [error, setError] = useState<string | null>(null);
   
   const pcRef = useRef<RTCPeerConnection | null>(null);
   const dcRef = useRef<RTCDataChannel | null>(null);
@@ -150,19 +150,16 @@ The student should be talking at least 50% of the time about ${learningObjective
     }
 
     console.log('Triggering initial welcome response from AI');
-    
-    // Simply trigger a response - the AI will start with the welcome message as instructed in the system prompt
     dcRef.current.send(JSON.stringify({ type: 'response.create' }));
   };
 
   const connectToRealtime = async () => {
     try {
-      setError(null);
       setConnectionStatus('connecting');
+      onConnectionStatusChange?.('connecting');
 
       console.log('Getting ephemeral token...');
       
-      // Get ephemeral token from our Supabase Edge Function
       const { data: tokenData, error: tokenError } = await supabase.functions.invoke('realtime-chat', {
         body: { agent_id: agent.id }
       });
@@ -178,10 +175,8 @@ The student should be talking at least 50% of the time about ${learningObjective
       const ephemeralKey = tokenData.client_secret.value;
       console.log('Got ephemeral token, creating WebRTC connection...');
 
-      // Create peer connection
       pcRef.current = new RTCPeerConnection();
 
-      // Set up remote audio
       pcRef.current.ontrack = (e) => {
         console.log('Received remote audio track');
         if (!audioElementRef.current) {
@@ -191,7 +186,6 @@ The student should be talking at least 50% of the time about ${learningObjective
         audioElementRef.current.srcObject = e.streams[0];
       };
 
-      // Add local audio track
       const stream = await navigator.mediaDevices.getUserMedia({ 
         audio: {
           sampleRate: 24000,
@@ -204,7 +198,6 @@ The student should be talking at least 50% of the time about ${learningObjective
       
       pcRef.current.addTrack(stream.getTracks()[0]);
 
-      // Set up data channel for events
       dcRef.current = pcRef.current.createDataChannel("oai-events");
       
       dcRef.current.addEventListener("message", (e) => {
@@ -216,8 +209,13 @@ The student should be talking at least 50% of the time about ${learningObjective
             onTranscriptUpdate(event.delta, false);
           } else if (event.type === 'input_audio_buffer.speech_started') {
             console.log('User started speaking');
+            onSpeakingChange(false); // AI stops speaking when user starts
           } else if (event.type === 'input_audio_buffer.speech_stopped') {
             console.log('User stopped speaking');
+          } else if (event.type === 'response.audio.delta') {
+            onSpeakingChange(true); // AI is speaking
+          } else if (event.type === 'response.audio.done') {
+            onSpeakingChange(false); // AI finished speaking
           }
         } catch (error) {
           console.error('Error parsing data channel message:', error);
@@ -227,7 +225,6 @@ The student should be talking at least 50% of the time about ${learningObjective
       dcRef.current.addEventListener("open", () => {
         console.log('Data channel opened');
         
-        // Configure the session with improved instructions
         const sessionConfig = {
           type: 'session.update',
           session: {
@@ -252,17 +249,14 @@ The student should be talking at least 50% of the time about ${learningObjective
         
         dcRef.current?.send(JSON.stringify(sessionConfig));
         
-        // Send welcome message after a brief delay to ensure session is configured
         setTimeout(() => {
           sendWelcomeMessage();
         }, 1000);
       });
 
-      // Create and set local description
       const offer = await pcRef.current.createOffer();
       await pcRef.current.setLocalDescription(offer);
 
-      // Connect to OpenAI's Realtime API using WebRTC
       const baseUrl = "https://api.openai.com/v1/realtime";
       const model = "gpt-4o-realtime-preview-2024-12-17";
       
@@ -289,21 +283,17 @@ The student should be talking at least 50% of the time about ${learningObjective
       console.log("WebRTC connection established");
 
       setIsConnected(true);
-      setIsRecording(true);
       setConnectionStatus('connected');
+      onConnectionChange?.(true);
+      onConnectionStatusChange?.('connected');
       
-      toast({
-        title: "Connected",
-        description: "Voice chat is ready",
-      });
-
     } catch (error) {
       console.error('Error connecting to Realtime API:', error);
-      setError(error instanceof Error ? error.message : 'Connection failed');
       setConnectionStatus('error');
+      onConnectionStatusChange?.('error');
       toast({
-        title: "Error",
-        description: "Failed to start voice chat",
+        title: "Connection Error",
+        description: "Failed to start voice chat. Please try refreshing the page.",
         variant: "destructive",
       });
     }
@@ -321,22 +311,21 @@ The student should be talking at least 50% of the time about ${learningObjective
     }
     
     setIsConnected(false);
-    setIsRecording(false);
     setConnectionStatus('disconnected');
-    setError(null);
+    onConnectionChange?.(false);
+    onConnectionStatusChange?.('disconnected');
     onSpeakingChange(false);
   };
 
-  const toggleMute = () => {
-    setIsMuted(!isMuted);
-    if (audioElementRef.current) {
-      audioElementRef.current.muted = !isMuted;
+  useEffect(() => {
+    if (autoStart && !isConnected) {
+      const timer = setTimeout(() => {
+        connectToRealtime();
+      }, 1000); // Small delay to let UI render
+      
+      return () => clearTimeout(timer);
     }
-    toast({
-      title: isMuted ? "Unmuted" : "Muted",
-      description: isMuted ? "You can now hear responses" : "Audio responses are muted",
-    });
-  };
+  }, [autoStart, isConnected]);
 
   useEffect(() => {
     return () => {
@@ -344,56 +333,8 @@ The student should be talking at least 50% of the time about ${learningObjective
     };
   }, []);
 
-  return (
-    <Card className="fixed bottom-8 left-1/2 -translate-x-1/2 w-auto">
-      <CardContent className="p-4">
-        <div className="flex items-center gap-4">
-          {!isConnected ? (
-            <div className="flex items-center gap-3">
-              <Button 
-                onClick={connectToRealtime}
-                disabled={connectionStatus === 'connecting'}
-                className="bg-primary hover:bg-primary/90 text-primary-foreground"
-              >
-                {connectionStatus === 'connecting' ? 'Connecting...' : 'Start Voice Chat'}
-              </Button>
-              {error && (
-                <div className="flex items-center gap-2 text-destructive">
-                  <AlertCircle className="h-4 w-4" />
-                  <span className="text-sm">{error}</span>
-                </div>
-              )}
-            </div>
-          ) : (
-            <>
-              <div className="flex items-center gap-2">
-                <div className={`w-3 h-3 rounded-full ${isRecording ? 'bg-red-500 animate-pulse' : 'bg-gray-400'}`} />
-                <span className="text-sm font-medium">
-                  {isRecording ? 'Listening...' : 'Voice Ready'}
-                </span>
-              </div>
-              
-              <Button
-                onClick={toggleMute}
-                variant="outline"
-                size="sm"
-              >
-                {isMuted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
-              </Button>
-              
-              <Button 
-                onClick={disconnect}
-                variant="outline"
-                size="sm"
-              >
-                End Call
-              </Button>
-            </>
-          )}
-        </div>
-      </CardContent>
-    </Card>
-  );
+  // This component now runs invisibly in the background
+  return null;
 };
 
 export default LiveKitVoiceInterface;
