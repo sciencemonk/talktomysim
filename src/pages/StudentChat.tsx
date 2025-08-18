@@ -39,6 +39,7 @@ const StudentChat = () => {
       }
 
       try {
+        // Fetch agent data without any authentication requirements
         const data = await fetchAgentById(agentId);
         setAgent(data);
         
@@ -236,6 +237,9 @@ const StudentChat = () => {
                 <p className="text-sm text-muted-foreground mt-1">
                   {error}
                 </p>
+                <p className="text-xs text-muted-foreground mt-2">
+                  This link may be private or the tutor may have been removed.
+                </p>
               </div>
             </div>
           </CardContent>
@@ -261,6 +265,9 @@ const StudentChat = () => {
                 <h1 className="text-xl font-semibold">{agent.name}</h1>
                 <p className="text-sm text-muted-foreground">
                   {agent.type} • {agent.subject || 'General'}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  Free public chat session
                 </p>
               </div>
             </div>

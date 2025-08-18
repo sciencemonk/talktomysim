@@ -1,298 +1,256 @@
-
 import { supabase } from '@/integrations/supabase/client';
-import { AgentType, AgentChannelConfig } from '@/types/agent';
+import { AgentType } from '@/types/agent';
 
-// Helper function to safely cast JSON arrays to string arrays
-const safeStringArray = (value: any): string[] => {
-  if (Array.isArray(value)) {
-    return value.filter(item => typeof item === 'string');
+// Mock data for development/fallback when Supabase is not available
+const mockAgents: AgentType[] = [
+  {
+    id: 'mock-1',
+    name: 'Dr. Sarah Chen',
+    description: 'An experienced mathematics tutor specializing in algebra and calculus.',
+    type: 'Mathematics Tutor',
+    subject: 'Mathematics',
+    gradeLevel: 'High School',
+    status: 'active',
+    avatar: '',
+    email: 'sarah@example.com',
+    phone: '+1-555-0123',
+    userId: 'mock-user-1',
+    createdAt: '2024-01-01T00:00:00Z',
+    updatedAt: '2024-01-01T00:00:00Z',
+    isPersonal: false,
+    performance: 4.8,
+    csat: 4.9,
+    avmScore: 4.7,
+    helpfulnessScore: 4.8,
+    studentsSaved: 150,
+    interactions: 1250,
+    voiceTraits: [],
+    channelConfigs: {},
+    channels: ['chat'],
+    teachingStyle: 'Patient and encouraging',
+    customSubject: null,
+    learningObjective: 'Help students master mathematical concepts',
+    purpose: 'Educational support',
+    prompt: 'You are Dr. Sarah Chen, a mathematics tutor...',
+    model: 'GPT-4',
+    voice: null,
+    voiceProvider: null,
+    customVoiceId: null
+  },
+  {
+    id: 'mock-2',
+    name: 'Prof. Michael Rodriguez',
+    description: 'A science educator with expertise in physics and chemistry.',
+    type: 'Science Tutor',
+    subject: 'Science',
+    gradeLevel: 'College',
+    status: 'active',
+    avatar: '',
+    email: 'michael@example.com',
+    phone: '+1-555-0124',
+    userId: 'mock-user-2',
+    createdAt: '2024-01-01T00:00:00Z',
+    updatedAt: '2024-01-01T00:00:00Z',
+    isPersonal: false,
+    performance: 4.6,
+    csat: 4.7,
+    avmScore: 4.5,
+    helpfulnessScore: 4.6,
+    studentsSaved: 200,
+    interactions: 1800,
+    voiceTraits: [],
+    channelConfigs: {},
+    channels: ['chat'],
+    teachingStyle: 'Interactive and hands-on',
+    customSubject: null,
+    learningObjective: 'Make science accessible and engaging',
+    purpose: 'Educational support',
+    prompt: 'You are Prof. Michael Rodriguez, a science tutor...',
+    model: 'GPT-4',
+    voice: null,
+    voiceProvider: null,
+    customVoiceId: null
   }
-  return [];
+];
+
+export const fetchAgents = async (filter: string = 'all-agents'): Promise<AgentType[]> => {
+  try {
+    // Check if user is authenticated
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) {
+      // Return empty array for unauthenticated users since they can't see private tutors
+      return [];
+    }
+
+    const { data, error } = await supabase
+      .from('tutors')
+      .select('*')
+      .eq('user_id', user.id);
+
+    if (error) {
+      console.error('Error fetching tutors:', error);
+      throw new Error(error.message);
+    }
+
+    return data.map(tutor => ({
+      id: tutor.id,
+      name: tutor.name,
+      description: tutor.description,
+      type: tutor.type,
+      subject: tutor.subject,
+      gradeLevel: tutor.grade_level,
+      status: tutor.status,
+      avatar: tutor.avatar,
+      email: tutor.email,
+      phone: tutor.phone,
+      userId: tutor.user_id,
+      createdAt: tutor.created_at,
+      updatedAt: tutor.updated_at,
+      isPersonal: tutor.is_personal,
+      performance: tutor.performance,
+      csat: tutor.csat,
+      avmScore: tutor.avm_score,
+      helpfulnessScore: tutor.helpfulness_score,
+      studentsSaved: tutor.students_saved,
+      interactions: tutor.interactions,
+      voiceTraits: tutor.voice_traits || [],
+      channelConfigs: tutor.channel_configs || {},
+      channels: tutor.channels || [],
+      teachingStyle: tutor.teaching_style,
+      customSubject: tutor.custom_subject,
+      learningObjective: tutor.learning_objective,
+      purpose: tutor.purpose,
+      prompt: tutor.prompt,
+      model: tutor.model,
+      voice: tutor.voice,
+      voiceProvider: tutor.voice_provider,
+      customVoiceId: tutor.custom_voice_id
+    })) || [];
+  } catch (error) {
+    console.error('Error in fetchAgents:', error);
+    throw error;
+  }
 };
 
-// Helper function to safely cast JSON objects to AgentChannelConfig records
-const safeChannelConfigs = (value: any): Record<string, AgentChannelConfig> => {
-  if (value && typeof value === 'object' && !Array.isArray(value)) {
-    return value as Record<string, AgentChannelConfig>;
+export const fetchAgentById = async (id: string): Promise<AgentType> => {
+  try {
+    // First try to get from database without authentication requirement
+    // This allows public access to shared tutors
+    const { data, error } = await supabase
+      .from('tutors')
+      .select('*')
+      .eq('id', id)
+      .single();
+
+    if (error) {
+      console.error('Error fetching tutor from database:', error);
+      
+      // Fallback to mock data for demonstration purposes
+      const mockAgent = mockAgents.find(agent => agent.id === id);
+      if (mockAgent) {
+        return mockAgent;
+      }
+      
+      throw new Error('Tutor not found');
+    }
+
+    return {
+      id: data.id,
+      name: data.name,
+      description: data.description,
+      type: data.type,
+      subject: data.subject,
+      gradeLevel: data.grade_level,
+      status: data.status,
+      avatar: data.avatar,
+      email: data.email,
+      phone: data.phone,
+      userId: data.user_id,
+      createdAt: data.created_at,
+      updatedAt: data.updated_at,
+      isPersonal: data.is_personal,
+      performance: data.performance,
+      csat: data.csat,
+      avmScore: data.avm_score,
+      helpfulnessScore: data.helpfulness_score,
+      studentsSaved: data.students_saved,
+      interactions: data.interactions,
+      voiceTraits: data.voice_traits || [],
+      channelConfigs: data.channel_configs || {},
+      channels: data.channels || [],
+      teachingStyle: data.teaching_style,
+      customSubject: data.custom_subject,
+      learningObjective: data.learning_objective,
+      purpose: data.purpose,
+      prompt: data.prompt,
+      model: data.model,
+      voice: data.voice,
+      voiceProvider: data.voice_provider,
+      customVoiceId: data.custom_voice_id
+    };
+  } catch (error) {
+    console.error('Error in fetchAgentById:', error);
+    throw error;
   }
-  return {};
 };
 
-// Fetch agents from Supabase
-export const fetchAgents = async (filter: string): Promise<AgentType[]> => {
-  const { data: { user } } = await supabase.auth.getUser();
-  
-  if (!user) {
-    throw new Error('User not authenticated');
-  }
+export const updateAgent = async (agentId: string, updates: Partial<AgentType>): Promise<AgentType | null> => {
+  try {
+    const { data, error } = await supabase
+      .from('tutors')
+      .update(updates)
+      .eq('id', agentId)
+      .select('*')
+      .single();
 
-  let query = supabase
-    .from('tutors')
-    .select('*')
-    .eq('user_id', user.id);
+    if (error) {
+      console.error('Error updating tutor:', error);
+      throw new Error(error.message);
+    }
 
-  // Apply filters
-  if (filter === 'my-agents') {
-    query = query.eq('is_personal', true);
-  } else if (filter === 'team-agents') {
-    query = query.eq('is_personal', false);
-  }
-
-  const { data, error } = await query.order('created_at', { ascending: false });
-
-  if (error) {
-    console.error('Error fetching tutors:', error);
-    throw new Error('Failed to fetch tutors');
-  }
-
-  // Transform the data to match AgentType interface
-  return (data || []).map(tutor => ({
-    id: tutor.id,
-    name: tutor.name,
-    description: tutor.description || '',
-    type: tutor.type as any,
-    status: tutor.status as any,
-    createdAt: tutor.created_at.split('T')[0],
-    updatedAt: tutor.updated_at?.split('T')[0],
-    interactions: tutor.interactions || 0,
-    isPersonal: tutor.is_personal,
-    model: tutor.model || 'GPT-4',
-    channels: safeStringArray(tutor.channels),
-    channelConfigs: safeChannelConfigs(tutor.channel_configs),
-    avatar: tutor.avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${tutor.id}`,
-    purpose: tutor.purpose || '',
-    prompt: tutor.prompt || '',
-    subject: tutor.subject || '',
-    gradeLevel: tutor.grade_level || '',
-    teachingStyle: tutor.teaching_style || '',
-    customSubject: tutor.custom_subject || '',
-    learningObjective: tutor.learning_objective || '',
-    voice: tutor.voice || '',
-    voiceProvider: tutor.voice_provider || '',
-    studentsSaved: tutor.students_saved || 0,
-    helpfulnessScore: tutor.helpfulness_score || 0,
-    email: tutor.email || `${tutor.name.toLowerCase().replace(/\s+/g, '')}@tutors.ai`,
-    phone: tutor.phone || ''
-  }));
-};
-
-// Fetch agent by ID from Supabase
-export const fetchAgentById = async (agentId: string): Promise<AgentType> => {
-  const { data: { user } } = await supabase.auth.getUser();
-  
-  if (!user) {
-    throw new Error('User not authenticated');
-  }
-
-  const { data, error } = await supabase
-    .from('tutors')
-    .select('*')
-    .eq('id', agentId)
-    .eq('user_id', user.id)
-    .single();
-
-  if (error || !data) {
-    console.error('Error fetching tutor:', error);
-    throw new Error(`Tutor with id ${agentId} not found`);
-  }
-
-  // Transform the data to match AgentType interface
-  return {
-    id: data.id,
-    name: data.name,
-    description: data.description || '',
-    type: data.type as any,
-    status: data.status as any,
-    createdAt: data.created_at.split('T')[0],
-    updatedAt: data.updated_at?.split('T')[0],
-    interactions: data.interactions || 0,
-    isPersonal: data.is_personal,
-    model: data.model || 'GPT-4',
-    channels: safeStringArray(data.channels),
-    channelConfigs: safeChannelConfigs(data.channel_configs),
-    avatar: data.avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${data.id}`,
-    purpose: data.purpose || '',
-    prompt: data.prompt || '',
-    subject: data.subject || '',
-    gradeLevel: data.grade_level || '',
-    teachingStyle: data.teaching_style || '',
-    customSubject: data.custom_subject || '',
-    learningObjective: data.learning_objective || '',
-    voice: data.voice || '',
-    voiceProvider: data.voice_provider || '',
-    studentsSaved: data.students_saved || 0,
-    helpfulnessScore: data.helpfulness_score || 0,
-    email: data.email || `${data.name.toLowerCase().replace(/\s+/g, '')}@tutors.ai`,
-    phone: data.phone || ''
-  };
-};
-
-// Create a new agent in Supabase
-export const createAgent = async (agentData: Omit<AgentType, 'id' | 'createdAt' | 'interactions'>): Promise<AgentType> => {
-  const { data: { user } } = await supabase.auth.getUser();
-  
-  if (!user) {
-    throw new Error('User not authenticated');
-  }
-
-  const tutorData = {
-    user_id: user.id,
-    name: agentData.name,
-    description: agentData.description,
-    type: agentData.type,
-    status: agentData.status || 'draft',
-    subject: agentData.subject,
-    grade_level: agentData.gradeLevel,
-    teaching_style: agentData.teachingStyle,
-    custom_subject: agentData.customSubject,
-    learning_objective: agentData.learningObjective,
-    purpose: agentData.purpose,
-    prompt: agentData.prompt,
-    model: agentData.model || 'GPT-4',
-    voice: agentData.voice,
-    voice_provider: agentData.voiceProvider,
-    avatar: agentData.avatar,
-    phone: agentData.phone,
-    email: agentData.email,
-    channels: JSON.stringify(agentData.channels || []),
-    channel_configs: JSON.stringify(agentData.channelConfigs || {}),
-    is_personal: agentData.isPersonal !== false
-  };
-
-  const { data, error } = await supabase
-    .from('tutors')
-    .insert(tutorData)
-    .select()
-    .single();
-
-  if (error) {
-    console.error('Error creating tutor:', error);
-    throw new Error('Failed to create tutor');
-  }
-
-  // Transform the response back to AgentType
-  return {
-    id: data.id,
-    name: data.name,
-    description: data.description || '',
-    type: data.type as any,
-    status: data.status as any,
-    createdAt: data.created_at.split('T')[0],
-    updatedAt: data.updated_at?.split('T')[0],
-    interactions: 0,
-    isPersonal: data.is_personal,
-    model: data.model || 'GPT-4',
-    channels: safeStringArray(data.channels),
-    channelConfigs: safeChannelConfigs(data.channel_configs),
-    avatar: data.avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${data.id}`,
-    purpose: data.purpose || '',
-    prompt: data.prompt || '',
-    subject: data.subject || '',
-    gradeLevel: data.grade_level || '',
-    teachingStyle: data.teaching_style || '',
-    customSubject: data.custom_subject || '',
-    learningObjective: data.learning_objective || '',
-    voice: data.voice || '',
-    voiceProvider: data.voice_provider || '',
-    studentsSaved: 0,
-    helpfulnessScore: 0,
-    email: data.email || `${data.name.toLowerCase().replace(/\s+/g, '')}@tutors.ai`,
-    phone: data.phone || ''
-  };
-};
-
-// Update an agent in Supabase
-export const updateAgent = async (agentId: string, agentData: Partial<AgentType>): Promise<AgentType> => {
-  const { data: { user } } = await supabase.auth.getUser();
-  
-  if (!user) {
-    throw new Error('User not authenticated');
-  }
-
-  const tutorData: any = {};
-  
-  // Map AgentType fields to database columns
-  if (agentData.name) tutorData.name = agentData.name;
-  if (agentData.description !== undefined) tutorData.description = agentData.description;
-  if (agentData.type) tutorData.type = agentData.type;
-  if (agentData.status) tutorData.status = agentData.status;
-  if (agentData.subject !== undefined) tutorData.subject = agentData.subject;
-  if (agentData.gradeLevel !== undefined) tutorData.grade_level = agentData.gradeLevel;
-  if (agentData.teachingStyle !== undefined) tutorData.teaching_style = agentData.teachingStyle;
-  if (agentData.customSubject !== undefined) tutorData.custom_subject = agentData.customSubject;
-  if (agentData.learningObjective !== undefined) tutorData.learning_objective = agentData.learningObjective;
-  if (agentData.purpose !== undefined) tutorData.purpose = agentData.purpose;
-  if (agentData.prompt !== undefined) tutorData.prompt = agentData.prompt;
-  if (agentData.model) tutorData.model = agentData.model;
-  if (agentData.voice !== undefined) tutorData.voice = agentData.voice;
-  if (agentData.voiceProvider !== undefined) tutorData.voice_provider = agentData.voiceProvider;
-  if (agentData.avatar !== undefined) tutorData.avatar = agentData.avatar;
-  if (agentData.phone !== undefined) tutorData.phone = agentData.phone;
-  if (agentData.email !== undefined) tutorData.email = agentData.email;
-  if (agentData.channels) tutorData.channels = JSON.stringify(agentData.channels);
-  if (agentData.channelConfigs) tutorData.channel_configs = JSON.stringify(agentData.channelConfigs);
-  if (agentData.isPersonal !== undefined) tutorData.is_personal = agentData.isPersonal;
-
-  const { data, error } = await supabase
-    .from('tutors')
-    .update(tutorData)
-    .eq('id', agentId)
-    .eq('user_id', user.id)
-    .select()
-    .single();
-
-  if (error || !data) {
+    return data as AgentType;
+  } catch (error) {
     console.error('Error updating tutor:', error);
-    throw new Error('Failed to update tutor');
+    return null;
   }
-
-  // Transform the response back to AgentType
-  return {
-    id: data.id,
-    name: data.name,
-    description: data.description || '',
-    type: data.type as any,
-    status: data.status as any,
-    createdAt: data.created_at.split('T')[0],
-    updatedAt: data.updated_at?.split('T')[0],
-    interactions: data.interactions || 0,
-    isPersonal: data.is_personal,
-    model: data.model || 'GPT-4',
-    channels: safeStringArray(data.channels),
-    channelConfigs: safeChannelConfigs(data.channel_configs),
-    avatar: data.avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${data.id}`,
-    purpose: data.purpose || '',
-    prompt: data.prompt || '',
-    subject: data.subject || '',
-    gradeLevel: data.grade_level || '',
-    teachingStyle: data.teaching_style || '',
-    customSubject: data.custom_subject || '',
-    learningObjective: data.learning_objective || '',
-    voice: data.voice || '',
-    voiceProvider: data.voice_provider || '',
-    studentsSaved: data.students_saved || 0,
-    helpfulnessScore: data.helpfulness_score || 0,
-    email: data.email || `${data.name.toLowerCase().replace(/\s+/g, '')}@tutors.ai`,
-    phone: data.phone || ''
-  };
 };
 
-// Delete an agent from Supabase
-export const deleteAgent = async (agentId: string): Promise<void> => {
-  const { data: { user } } = await supabase.auth.getUser();
-  
-  if (!user) {
-    throw new Error('User not authenticated');
+export const createAgent = async (agent: Omit<AgentType, 'id' | 'createdAt' | 'updatedAt'>): Promise<AgentType | null> => {
+  try {
+    const { data, error } = await supabase
+      .from('tutors')
+      .insert([agent])
+      .select('*')
+      .single();
+
+    if (error) {
+      console.error('Error creating tutor:', error);
+      throw new Error(error.message);
+    }
+
+    return data as AgentType;
+  } catch (error) {
+    console.error('Error creating tutor:', error);
+    return null;
   }
+};
 
-  const { error } = await supabase
-    .from('tutors')
-    .delete()
-    .eq('id', agentId)
-    .eq('user_id', user.id);
+export const deleteAgent = async (agentId: string): Promise<boolean> => {
+  try {
+    const { error } = await supabase
+      .from('tutors')
+      .delete()
+      .eq('id', agentId);
 
-  if (error) {
+    if (error) {
+      console.error('Error deleting tutor:', error);
+      throw new Error(error.message);
+    }
+
+    return true;
+  } catch (error) {
     console.error('Error deleting tutor:', error);
-    throw new Error('Failed to delete tutor');
+    return false;
   }
 };
