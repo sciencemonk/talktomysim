@@ -1,99 +1,104 @@
 
-import { ReactNode } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { UserSettingsDropdown } from '@/components/UserSettingsDropdown';
-import { ThemeToggle } from '@/components/ThemeToggle';
-import { 
-  LayoutDashboard, 
-  Store, 
-  GraduationCap
-} from 'lucide-react';
+import { Link, useLocation } from "react-router-dom";
+import { UserSettingsDropdown } from "@/components/UserSettingsDropdown";
+import { NavigationMenu, NavigationMenuContent, NavigationMenuItem, NavigationMenuLink, NavigationMenuList, NavigationMenuTrigger } from "@/components/ui/navigation-menu";
+import ProtectedRoute from "@/components/ProtectedRoute";
 
 interface DashboardLayoutProps {
-  children: ReactNode;
+  children: React.ReactNode;
 }
 
 const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const location = useLocation();
 
-  const navigation = [
-    { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-    { name: 'Marketplace', href: '/marketplace', icon: Store },
-    { name: 'Professional Development', href: '/professional-development', icon: GraduationCap },
-  ];
+  const isActive = (path: string) => location.pathname === path;
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="bg-white dark:bg-gray-800 shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            {/* Logo */}
-            <div className="flex-shrink-0">
-              <Link to="/dashboard" className="text-2xl font-bold text-gray-900 dark:text-white">
-                Think With Me
-              </Link>
-            </div>
-
-            {/* Navigation */}
-            <nav className="hidden md:flex space-x-8">
-              {navigation.map((item) => {
-                const Icon = item.icon;
-                const isActive = location.pathname === item.href;
-                return (
-                  <Link
-                    key={item.name}
-                    to={item.href}
-                    className={`flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                      isActive
-                        ? 'text-blue-600 bg-blue-50 dark:bg-blue-900/20 dark:text-blue-400'
-                        : 'text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-700'
-                    }`}
-                  >
-                    <Icon className="h-4 w-4" />
-                    <span>{item.name}</span>
-                  </Link>
-                );
-              })}
-            </nav>
-
-            {/* Right side */}
-            <div className="flex items-center space-x-4">
-              <ThemeToggle />
+    <ProtectedRoute>
+      <div className="min-h-screen flex w-full bg-gray-50 dark:bg-gray-900 flex-col">
+        <main className="flex-1 flex flex-col">
+          <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-6 py-4">
+            <div className="flex items-center justify-between max-w-7xl mx-auto w-full">
+              <div className="flex items-center space-x-12">
+                <div className="flex items-center space-x-3 flex-shrink-0">
+                  <div className="p-2 rounded-lg flex items-center justify-center">
+                    <img 
+                      src="/lovable-uploads/1a618b3c-11e7-43e4-a2d5-c1e6f36e48ba.png" 
+                      alt="Think With Me Logo" 
+                      className="h-10 w-10"
+                    />
+                  </div>
+                  <div>
+                    <h1 className="text-lg font-semibold text-gray-900 dark:text-white">Think With Me</h1>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">Thinking Partners for Classrooms</p>
+                  </div>
+                </div>
+                
+                <NavigationMenu>
+                  <NavigationMenuList>
+                    <NavigationMenuItem>
+                      <NavigationMenuLink asChild>
+                        <Link 
+                          to="/dashboard" 
+                          className={`inline-flex h-10 w-max items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 ${
+                            isActive('/dashboard') ? 'bg-accent text-accent-foreground' : ''
+                          }`}
+                        >
+                          Home
+                        </Link>
+                      </NavigationMenuLink>
+                    </NavigationMenuItem>
+                    <NavigationMenuItem>
+                      <NavigationMenuLink asChild>
+                        <Link 
+                          to="/marketplace" 
+                          className={`inline-flex h-10 w-max items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 ${
+                            isActive('/marketplace') ? 'bg-accent text-accent-foreground' : ''
+                          }`}
+                        >
+                          Marketplace
+                        </Link>
+                      </NavigationMenuLink>
+                    </NavigationMenuItem>
+                    <NavigationMenuItem>
+                      <NavigationMenuLink asChild>
+                        <Link 
+                          to="/professional-development" 
+                          className={`inline-flex h-10 w-max items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 ${
+                            isActive('/professional-development') ? 'bg-accent text-accent-foreground' : ''
+                          }`}
+                        >
+                          Professional Development
+                        </Link>
+                      </NavigationMenuLink>
+                    </NavigationMenuItem>
+                  </NavigationMenuList>
+                </NavigationMenu>
+              </div>
               <UserSettingsDropdown />
             </div>
-          </div>
-        </div>
-      </header>
-
-      {/* Main content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {children}
-      </main>
-
-      {/* Footer */}
-      <footer className="bg-white dark:bg-gray-800 border-t mt-auto">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex justify-between items-center">
-            <p className="text-sm text-gray-600 dark:text-gray-400">
-              © 2024 Think With Me. All rights reserved.
-            </p>
-            <div className="flex space-x-6">
-              <Link to="/support" className="text-sm text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white">
-                Support
-              </Link>
-              <Link to="/privacy" className="text-sm text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white">
-                Privacy
-              </Link>
-              <Link to="/terms" className="text-sm text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white">
-                Terms
-              </Link>
+          </header>
+          <div className="flex-1 p-6">
+            <div className="max-w-7xl mx-auto">
+              {children}
             </div>
           </div>
-        </div>
-      </footer>
-    </div>
+        </main>
+        
+        <footer className="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 py-6">
+          <div className="max-w-7xl mx-auto px-6">
+            <div className="flex items-center justify-between">
+              <div className="text-sm text-gray-500 dark:text-gray-400">
+                © 2024 Think With Me. All rights reserved.
+              </div>
+              <div className="text-sm text-gray-500 dark:text-gray-400">
+                Thinking Partners for Classrooms
+              </div>
+            </div>
+          </div>
+        </footer>
+      </div>
+    </ProtectedRoute>
   );
 };
 

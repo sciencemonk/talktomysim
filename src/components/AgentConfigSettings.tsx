@@ -10,7 +10,7 @@ import { updateAgent } from '@/services/agentService';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { 
   Bot, Target, User, FileText, GraduationCap, BookOpen, Calculator, 
-  Microscope, PenTool, Globe, Brain, Upload
+  Microscope, PenTool, Globe, Brain
 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import debounce from 'lodash/debounce';
@@ -58,7 +58,6 @@ const TeacherConfigSettings: React.FC<TeacherConfigSettingsProps> = ({
   const [learningObjective, setLearningObjective] = useState(agent.learningObjective || '');
   const [customSubject, setCustomSubject] = useState('');
   const [isSaving, setIsSaving] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
   
   const prevValuesRef = useRef({
     name: agent.name,
@@ -136,27 +135,6 @@ const TeacherConfigSettings: React.FC<TeacherConfigSettingsProps> = ({
     setAvatar(`https://api.dicebear.com/7.x/bottts/svg?seed=${seed}`);
   };
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      if (file.size > 5 * 1024 * 1024) { // 5MB limit
-        toast({
-          title: "File too large",
-          description: "Please select an image smaller than 5MB.",
-          variant: "destructive"
-        });
-        return;
-      }
-
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const result = e.target?.result as string;
-        setAvatar(result);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
   const generatePrompt = () => {
     const subjectName = subject === 'other' ? customSubject : SUBJECTS.find(s => s.id === subject)?.name || 'the subject';
     const gradeName = GRADE_LEVELS.find(g => g.id === gradeLevel)?.name || 'students';
@@ -210,33 +188,22 @@ Always be patient, supportive, and adapt to each student's learning pace. If a s
               </Avatar>
               
               <div className="w-full max-w-md space-y-3">
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
-                  onChange={handleFileUpload}
-                  className="hidden"
+                <Label htmlFor="tutor-avatar" className="text-sm">Avatar URL</Label>
+                <Input
+                  id="tutor-avatar"
+                  value={avatar}
+                  onChange={(e) => setAvatar(e.target.value)}
+                  placeholder="Enter avatar URL"
+                  className="text-sm"
                 />
-                
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                  <Button 
-                    variant="outline" 
-                    onClick={generateRandomAvatar} 
-                    className="text-xs sm:text-sm"
-                    size="sm"
-                  >
-                    Generate Random Avatar
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    onClick={() => fileInputRef.current?.click()}
-                    className="gap-2 text-xs sm:text-sm"
-                    size="sm"
-                  >
-                    <Upload className="h-4 w-4" />
-                    Upload Image
-                  </Button>
-                </div>
+                <Button 
+                  variant="outline" 
+                  onClick={generateRandomAvatar} 
+                  className="w-full text-xs sm:text-sm"
+                  size="sm"
+                >
+                  Generate Random Avatar
+                </Button>
               </div>
             </div>
           </div>
