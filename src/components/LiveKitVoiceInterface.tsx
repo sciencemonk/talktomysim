@@ -203,19 +203,26 @@ The student should be talking at least 50% of the time about ${learningObjective
       dcRef.current.addEventListener("message", (e) => {
         try {
           const event = JSON.parse(e.data);
-          console.log("Received event:", event.type);
+          console.log("Received event:", event.type, event);
           
           if (event.type === 'response.audio_transcript.delta') {
+            console.log('AI transcript delta:', event.delta);
             onTranscriptUpdate(event.delta, false);
           } else if (event.type === 'input_audio_buffer.speech_started') {
             console.log('User started speaking');
             onSpeakingChange(false); // AI stops speaking when user starts
           } else if (event.type === 'input_audio_buffer.speech_stopped') {
             console.log('User stopped speaking');
+          } else if (event.type === 'conversation.item.input_audio_transcription.completed') {
+            console.log('User transcript completed:', event.transcript);
+            onTranscriptUpdate(event.transcript, true);
           } else if (event.type === 'response.audio.delta') {
             onSpeakingChange(true); // AI is speaking
           } else if (event.type === 'response.audio.done') {
             onSpeakingChange(false); // AI finished speaking
+          } else if (event.type === 'response.audio_transcript.done') {
+            console.log('AI transcript complete');
+            // Mark the current AI message as complete
           }
         } catch (error) {
           console.error('Error parsing data channel message:', error);

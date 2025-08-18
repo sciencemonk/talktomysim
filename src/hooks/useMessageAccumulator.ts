@@ -19,14 +19,18 @@ export const useMessageAccumulator = () => {
   const addMessageFragment = useCallback((fragment: string, isFromUser: boolean) => {
     const role = isFromUser ? 'user' : 'system';
     
+    console.log(`Adding ${role} fragment:`, fragment);
+    
     if (!currentMessage || currentMessage.role !== role) {
       // Start a new message
+      console.log(`Starting new ${role} message`);
       setCurrentMessage({
         role,
         content: fragment
       });
     } else {
       // Append to current message
+      console.log(`Appending to current ${role} message`);
       setCurrentMessage(prev => prev ? {
         ...prev,
         content: prev.content + fragment
@@ -35,9 +39,10 @@ export const useMessageAccumulator = () => {
   }, [currentMessage]);
 
   const completeCurrentMessage = useCallback(() => {
-    if (currentMessage) {
+    if (currentMessage && currentMessage.content.trim()) {
+      console.log('Completing current message:', currentMessage);
       const newMessage: Message = {
-        id: Date.now().toString(),
+        id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
         role: currentMessage.role,
         content: currentMessage.content.trim(),
         timestamp: new Date(),
@@ -50,7 +55,7 @@ export const useMessageAccumulator = () => {
   }, [currentMessage]);
 
   const getCurrentMessage = useCallback((): Message | null => {
-    if (!currentMessage) return null;
+    if (!currentMessage || !currentMessage.content.trim()) return null;
     
     return {
       id: 'current',
@@ -67,6 +72,7 @@ export const useMessageAccumulator = () => {
   }, [messages, getCurrentMessage]);
 
   const resetMessages = useCallback(() => {
+    console.log('Resetting all messages');
     setMessages([]);
     setCurrentMessage(null);
   }, []);
