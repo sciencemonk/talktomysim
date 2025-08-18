@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -38,14 +37,8 @@ const StudentChat = () => {
         const data = await fetchAgentById(agentId);
         setAgent(data);
         
-        // Add welcome message
-        const welcomeMessage: Message = {
-          id: 'welcome',
-          role: 'assistant',
-          content: `Hi! I'm ${data.name}, your ${data.type.toLowerCase()}. ${data.description || 'I\'m here to help you learn!'} How can I assist you today?`,
-          timestamp: new Date()
-        };
-        setMessages([welcomeMessage]);
+        // Generate personalized welcome message using OpenAI
+        await generateWelcomeMessage(data);
         
         setError(null);
       } catch (err: any) {
@@ -58,6 +51,53 @@ const StudentChat = () => {
 
     loadAgent();
   }, [agentId]);
+
+  const generateWelcomeMessage = async (agentData: AgentType) => {
+    try {
+      const welcomePrompt = `Generate a brief, friendly welcome message as ${agentData.name}. Introduce yourself and mention what you can help with based on your teaching focus. Keep it conversational and under 2 sentences.`;
+      
+      const response = await fetch('/api/chat-completion', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          messages: [{ role: 'user', content: welcomePrompt }],
+          agent: agentData
+        })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        const welcomeMessage: Message = {
+          id: 'welcome',
+          role: 'assistant',
+          content: data.content,
+          timestamp: new Date()
+        };
+        setMessages([welcomeMessage]);
+      } else {
+        // Fallback to generic message if OpenAI fails
+        const welcomeMessage: Message = {
+          id: 'welcome',
+          role: 'assistant',
+          content: `Hi! I'm ${agentData.name}, your ${agentData.type.toLowerCase()}. ${agentData.description || 'I\'m here to help you learn!'} How can I assist you today?`,
+          timestamp: new Date()
+        };
+        setMessages([welcomeMessage]);
+      }
+    } catch (error) {
+      console.error('Error generating welcome message:', error);
+      // Fallback to generic message
+      const welcomeMessage: Message = {
+        id: 'welcome',
+        role: 'assistant',
+        content: `Hi! I'm ${agentData.name}, your ${agentData.type.toLowerCase()}. ${agentData.description || 'I\'m here to help you learn!'} How can I assist you today?`,
+        timestamp: new Date()
+      };
+      setMessages([welcomeMessage]);
+    }
+  };
 
   useEffect(() => {
     scrollToBottom();
@@ -82,28 +122,35 @@ const StudentChat = () => {
     setIsSending(true);
 
     try {
-      // Simulate AI response - in a real app, this would call your AI service
-      await new Promise(resolve => setTimeout(resolve, 1000 + Math.random() * 2000));
-      
-      const responses = [
-        "That's a great question! Let me help you understand this concept better.",
-        "I can see you're working hard on this topic. Here's how I'd approach it...",
-        "Excellent thinking! Let me build on that idea...",
-        "That's a common question many students have. Let me explain it step by step.",
-        "I'm here to help you learn! Let me break this down for you.",
-        "Great question! This is an important concept to understand.",
-        "I can help you with that! Let's work through this together.",
-        "That's exactly the kind of question I love to answer! Here's what you need to know..."
-      ];
+      // Prepare conversation history for OpenAI
+      const conversationHistory = [...messages, userMessage].map(msg => ({
+        role: msg.role,
+        content: msg.content
+      }));
 
-      const assistantMessage: Message = {
-        id: `assistant-${Date.now()}`,
-        role: 'assistant',
-        content: responses[Math.floor(Math.random() * responses.length)],
-        timestamp: new Date()
-      };
+      const response = await fetch('/api/chat-completion', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          messages: conversationHistory,
+          agent: agent
+        })
+      });
 
-      setMessages(prev => [...prev, assistantMessage]);
+      if (response.ok) {
+        const data = await response.json();
+        const assistantMessage: Message = {
+          id: `assistant-${Date.now()}`,
+          role: 'assistant',
+          content: data.content,
+          timestamp: new Date()
+        };
+        setMessages(prev => [...prev, assistantMessage]);
+      } else {
+        throw new Error('Failed to get response from tutor');
+      }
     } catch (error) {
       console.error('Error sending message:', error);
       const errorMessage: Message = {
