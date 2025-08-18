@@ -1,3 +1,4 @@
+
 import { supabase } from '@/integrations/supabase/client';
 import { AgentType } from '@/types/agent';
 
@@ -7,14 +8,13 @@ const mockAgents: AgentType[] = [
     id: 'mock-1',
     name: 'Dr. Sarah Chen',
     description: 'An experienced mathematics tutor specializing in algebra and calculus.',
-    type: 'Mathematics Tutor',
+    type: 'Math Tutor',
     subject: 'Mathematics',
     gradeLevel: 'High School',
     status: 'active',
     avatar: '',
     email: 'sarah@example.com',
     phone: '+1-555-0123',
-    userId: 'mock-user-1',
     createdAt: '2024-01-01T00:00:00Z',
     updatedAt: '2024-01-01T00:00:00Z',
     isPersonal: false,
@@ -48,7 +48,6 @@ const mockAgents: AgentType[] = [
     avatar: '',
     email: 'michael@example.com',
     phone: '+1-555-0124',
-    userId: 'mock-user-2',
     createdAt: '2024-01-01T00:00:00Z',
     updatedAt: '2024-01-01T00:00:00Z',
     isPersonal: false,
@@ -97,14 +96,13 @@ export const fetchAgents = async (filter: string = 'all-agents'): Promise<AgentT
       id: tutor.id,
       name: tutor.name,
       description: tutor.description,
-      type: tutor.type,
+      type: tutor.type as AgentType['type'],
       subject: tutor.subject,
       gradeLevel: tutor.grade_level,
-      status: tutor.status,
+      status: tutor.status as AgentType['status'],
       avatar: tutor.avatar,
       email: tutor.email,
       phone: tutor.phone,
-      userId: tutor.user_id,
       createdAt: tutor.created_at,
       updatedAt: tutor.updated_at,
       isPersonal: tutor.is_personal,
@@ -114,9 +112,9 @@ export const fetchAgents = async (filter: string = 'all-agents'): Promise<AgentT
       helpfulnessScore: tutor.helpfulness_score,
       studentsSaved: tutor.students_saved,
       interactions: tutor.interactions,
-      voiceTraits: tutor.voice_traits || [],
-      channelConfigs: tutor.channel_configs || {},
-      channels: tutor.channels || [],
+      voiceTraits: Array.isArray(tutor.voice_traits) ? tutor.voice_traits : [],
+      channelConfigs: typeof tutor.channel_configs === 'object' && tutor.channel_configs ? tutor.channel_configs as Record<string, any> : {},
+      channels: Array.isArray(tutor.channels) ? tutor.channels as string[] : [],
       teachingStyle: tutor.teaching_style,
       customSubject: tutor.custom_subject,
       learningObjective: tutor.learning_objective,
@@ -159,14 +157,13 @@ export const fetchAgentById = async (id: string): Promise<AgentType> => {
       id: data.id,
       name: data.name,
       description: data.description,
-      type: data.type,
+      type: data.type as AgentType['type'],
       subject: data.subject,
       gradeLevel: data.grade_level,
-      status: data.status,
+      status: data.status as AgentType['status'],
       avatar: data.avatar,
       email: data.email,
       phone: data.phone,
-      userId: data.user_id,
       createdAt: data.created_at,
       updatedAt: data.updated_at,
       isPersonal: data.is_personal,
@@ -176,9 +173,9 @@ export const fetchAgentById = async (id: string): Promise<AgentType> => {
       helpfulnessScore: data.helpfulness_score,
       studentsSaved: data.students_saved,
       interactions: data.interactions,
-      voiceTraits: data.voice_traits || [],
-      channelConfigs: data.channel_configs || {},
-      channels: data.channels || [],
+      voiceTraits: Array.isArray(data.voice_traits) ? data.voice_traits : [],
+      channelConfigs: typeof data.channel_configs === 'object' && data.channel_configs ? data.channel_configs as Record<string, any> : {},
+      channels: Array.isArray(data.channels) ? data.channels as string[] : [],
       teachingStyle: data.teaching_style,
       customSubject: data.custom_subject,
       learningObjective: data.learning_objective,
@@ -197,9 +194,41 @@ export const fetchAgentById = async (id: string): Promise<AgentType> => {
 
 export const updateAgent = async (agentId: string, updates: Partial<AgentType>): Promise<AgentType | null> => {
   try {
+    // Convert AgentType updates to database schema
+    const dbUpdates: any = {
+      ...(updates.name && { name: updates.name }),
+      ...(updates.description && { description: updates.description }),
+      ...(updates.type && { type: updates.type }),
+      ...(updates.subject && { subject: updates.subject }),
+      ...(updates.gradeLevel && { grade_level: updates.gradeLevel }),
+      ...(updates.status && { status: updates.status }),
+      ...(updates.avatar && { avatar: updates.avatar }),
+      ...(updates.email && { email: updates.email }),
+      ...(updates.phone && { phone: updates.phone }),
+      ...(updates.isPersonal !== undefined && { is_personal: updates.isPersonal }),
+      ...(updates.performance && { performance: updates.performance }),
+      ...(updates.csat && { csat: updates.csat }),
+      ...(updates.avmScore && { avm_score: updates.avmScore }),
+      ...(updates.helpfulnessScore && { helpfulness_score: updates.helpfulnessScore }),
+      ...(updates.studentsSaved && { students_saved: updates.studentsSaved }),
+      ...(updates.interactions && { interactions: updates.interactions }),
+      ...(updates.voiceTraits && { voice_traits: updates.voiceTraits }),
+      ...(updates.channelConfigs && { channel_configs: updates.channelConfigs }),
+      ...(updates.channels && { channels: updates.channels }),
+      ...(updates.teachingStyle && { teaching_style: updates.teachingStyle }),
+      ...(updates.customSubject && { custom_subject: updates.customSubject }),
+      ...(updates.learningObjective && { learning_objective: updates.learningObjective }),
+      ...(updates.purpose && { purpose: updates.purpose }),
+      ...(updates.prompt && { prompt: updates.prompt }),
+      ...(updates.model && { model: updates.model }),
+      ...(updates.voice && { voice: updates.voice }),
+      ...(updates.voiceProvider && { voice_provider: updates.voiceProvider }),
+      ...(updates.customVoiceId && { custom_voice_id: updates.customVoiceId })
+    };
+
     const { data, error } = await supabase
       .from('tutors')
-      .update(updates)
+      .update(dbUpdates)
       .eq('id', agentId)
       .select('*')
       .single();
@@ -209,7 +238,40 @@ export const updateAgent = async (agentId: string, updates: Partial<AgentType>):
       throw new Error(error.message);
     }
 
-    return data as AgentType;
+    // Convert back to AgentType format
+    return {
+      id: data.id,
+      name: data.name,
+      description: data.description,
+      type: data.type as AgentType['type'],
+      subject: data.subject,
+      gradeLevel: data.grade_level,
+      status: data.status as AgentType['status'],
+      avatar: data.avatar,
+      email: data.email,
+      phone: data.phone,
+      createdAt: data.created_at,
+      updatedAt: data.updated_at,
+      isPersonal: data.is_personal,
+      performance: data.performance,
+      csat: data.csat,
+      avmScore: data.avm_score,
+      helpfulnessScore: data.helpfulness_score,
+      studentsSaved: data.students_saved,
+      interactions: data.interactions,
+      voiceTraits: Array.isArray(data.voice_traits) ? data.voice_traits : [],
+      channelConfigs: typeof data.channel_configs === 'object' && data.channel_configs ? data.channel_configs as Record<string, any> : {},
+      channels: Array.isArray(data.channels) ? data.channels as string[] : [],
+      teachingStyle: data.teaching_style,
+      customSubject: data.custom_subject,
+      learningObjective: data.learning_objective,
+      purpose: data.purpose,
+      prompt: data.prompt,
+      model: data.model,
+      voice: data.voice,
+      voiceProvider: data.voice_provider,
+      customVoiceId: data.custom_voice_id
+    };
   } catch (error) {
     console.error('Error updating tutor:', error);
     return null;
@@ -218,9 +280,48 @@ export const updateAgent = async (agentId: string, updates: Partial<AgentType>):
 
 export const createAgent = async (agent: Omit<AgentType, 'id' | 'createdAt' | 'updatedAt'>): Promise<AgentType | null> => {
   try {
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) {
+      throw new Error('User must be authenticated to create a tutor');
+    }
+
+    // Convert AgentType to database schema
+    const dbAgent = {
+      name: agent.name,
+      description: agent.description,
+      type: agent.type,
+      subject: agent.subject,
+      grade_level: agent.gradeLevel,
+      status: agent.status,
+      avatar: agent.avatar,
+      email: agent.email,
+      phone: agent.phone,
+      user_id: user.id,
+      is_personal: agent.isPersonal,
+      performance: agent.performance,
+      csat: agent.csat,
+      avm_score: agent.avmScore,
+      helpfulness_score: agent.helpfulnessScore,
+      students_saved: agent.studentsSaved,
+      interactions: agent.interactions,
+      voice_traits: agent.voiceTraits,
+      channel_configs: agent.channelConfigs,
+      channels: agent.channels,
+      teaching_style: agent.teachingStyle,
+      custom_subject: agent.customSubject,
+      learning_objective: agent.learningObjective,
+      purpose: agent.purpose,
+      prompt: agent.prompt,
+      model: agent.model,
+      voice: agent.voice,
+      voice_provider: agent.voiceProvider,
+      custom_voice_id: agent.customVoiceId
+    };
+
     const { data, error } = await supabase
       .from('tutors')
-      .insert([agent])
+      .insert([dbAgent])
       .select('*')
       .single();
 
@@ -229,7 +330,40 @@ export const createAgent = async (agent: Omit<AgentType, 'id' | 'createdAt' | 'u
       throw new Error(error.message);
     }
 
-    return data as AgentType;
+    // Convert back to AgentType format
+    return {
+      id: data.id,
+      name: data.name,
+      description: data.description,
+      type: data.type as AgentType['type'],
+      subject: data.subject,
+      gradeLevel: data.grade_level,
+      status: data.status as AgentType['status'],
+      avatar: data.avatar,
+      email: data.email,
+      phone: data.phone,
+      createdAt: data.created_at,
+      updatedAt: data.updated_at,
+      isPersonal: data.is_personal,
+      performance: data.performance,
+      csat: data.csat,
+      avmScore: data.avm_score,
+      helpfulnessScore: data.helpfulness_score,
+      studentsSaved: data.students_saved,
+      interactions: data.interactions,
+      voiceTraits: Array.isArray(data.voice_traits) ? data.voice_traits : [],
+      channelConfigs: typeof data.channel_configs === 'object' && data.channel_configs ? data.channel_configs as Record<string, any> : {},
+      channels: Array.isArray(data.channels) ? data.channels as string[] : [],
+      teachingStyle: data.teaching_style,
+      customSubject: data.custom_subject,
+      learningObjective: data.learning_objective,
+      purpose: data.purpose,
+      prompt: data.prompt,
+      model: data.model,
+      voice: data.voice,
+      voiceProvider: data.voice_provider,
+      customVoiceId: data.custom_voice_id
+    };
   } catch (error) {
     console.error('Error creating tutor:', error);
     return null;
