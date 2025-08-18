@@ -44,21 +44,29 @@ serve(async (req) => {
     }
   };
 
-  socket.onopen = () => {
+  socket.onopen = async () => {
     console.log('Client WebSocket connected');
     
     try {
-      // Connect to OpenAI Realtime API with proper headers
+      // Create a Request with proper headers for OpenAI
       const openAIUrl = `wss://api.openai.com/v1/realtime?model=${OPENAI_REALTIME_MODEL}`;
       console.log('Connecting to OpenAI:', openAIUrl);
       
-      // Create WebSocket with proper headers for Deno
-      openAISocket = new WebSocket(openAIUrl, [], {
+      const openAIRequest = new Request(openAIUrl, {
         headers: {
           "Authorization": `Bearer ${OPENAI_API_KEY}`,
-          "OpenAI-Beta": "realtime=v1"
+          "OpenAI-Beta": "realtime=v1",
+          "Upgrade": "websocket",
+          "Connection": "Upgrade"
         }
       });
+
+      // Use Deno.upgradeWebSocket to create the connection
+      const { socket: openAISocketConnection, response: openAIResponse } = Deno.upgradeWebSocket(openAIRequest);
+      openAISocket = openAISocketConnection;
+
+      // Perform the WebSocket handshake with proper headers
+      await fetch(openAIRequest, { upgrade: "websocket" });
 
       openAISocket.onopen = () => {
         console.log('Connected to OpenAI Realtime API');
