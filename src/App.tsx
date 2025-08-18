@@ -5,6 +5,8 @@ import { AuthProvider } from './hooks/useAuth';
 import Landing from './pages/Landing';
 import PublicTutorDetail from './pages/PublicTutorDetail';
 import TeacherDashboard from './pages/TeacherDashboard';
+import Marketplace from './pages/Marketplace';
+import ProfessionalDevelopment from './pages/ProfessionalDevelopment';
 import AgentDetails from './pages/AgentDetails';
 import AgentCreate from './pages/AgentCreate';
 import Settings from './pages/Settings';
@@ -30,6 +32,16 @@ function App() {
             <Route path="/dashboard" element={
               <DashboardLayout>
                 <TeacherDashboard />
+              </DashboardLayout>
+            } />
+            <Route path="/marketplace" element={
+              <DashboardLayout>
+                <Marketplace />
+              </DashboardLayout>
+            } />
+            <Route path="/professional-development" element={
+              <DashboardLayout>
+                <ProfessionalDevelopment />
               </DashboardLayout>
             } />
             <Route path="/agents/:agentId" element={
