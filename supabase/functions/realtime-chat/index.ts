@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
 const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY');
@@ -20,13 +19,34 @@ serve(async (req) => {
 
   const { socket, response } = Deno.upgradeWebSocket(req);
   let openAISocket: WebSocket | null = null;
+  let keepaliveInterval: number | null = null;
+  let isClosing = false;
+
+  const cleanup = () => {
+    if (keepaliveInterval) {
+      clearInterval(keepaliveInterval);
+      keepaliveInterval = null;
+    }
+  };
+
+  const closeConnections = (initiator: 'client' | 'openai') => {
+    if (isClosing) return;
+    isClosing = true;
+    
+    cleanup();
+    
+    if (initiator === 'client' && openAISocket && openAISocket.readyState === WebSocket.OPEN) {
+      openAISocket.close();
+    } else if (initiator === 'openai' && socket.readyState === WebSocket.OPEN) {
+      socket.close();
+    }
+  };
 
   socket.onopen = () => {
     console.log('Client WebSocket connected');
     
-    // Connect to OpenAI Realtime API with proper authentication
     try {
-      // Use the correct OpenAI Realtime API endpoint with authentication in headers
+      // Connect to OpenAI Realtime API with proper authentication
       openAISocket = new WebSocket("wss://api.openai.com/v1/realtime?model=gpt-4o-realtime-preview-2024-10-01", [], {
         headers: {
           "Authorization": `Bearer ${OPENAI_API_KEY}`,
@@ -36,42 +56,29 @@ serve(async (req) => {
 
       openAISocket.onopen = () => {
         console.log('Connected to OpenAI Realtime API');
+        
+        // Set up keepalive ping every 25 seconds
+        keepaliveInterval = setInterval(() => {
+          if (socket.readyState === WebSocket.OPEN) {
+            socket.ping();
+          }
+          if (openAISocket && openAISocket.readyState === WebSocket.OPEN) {
+            openAISocket.ping();
+          }
+        }, 25000);
       };
 
       openAISocket.onmessage = (event) => {
-        const data = JSON.parse(event.data);
-        console.log('Received from OpenAI:', data.type);
-        
-        // Send session.update after receiving session.created
-        if (data.type === 'session.created') {
-          console.log('Session created, sending configuration');
-          const sessionUpdate = {
-            type: 'session.update',
-            session: {
-              modalities: ['text', 'audio'],
-              instructions: 'You are a helpful AI tutor. Be encouraging, patient, and educational in your responses.',
-              voice: 'alloy',
-              input_audio_format: 'pcm16',
-              output_audio_format: 'pcm16',
-              input_audio_transcription: {
-                model: 'whisper-1'
-              },
-              turn_detection: {
-                type: 'server_vad',
-                threshold: 0.5,
-                prefix_padding_ms: 300,
-                silence_duration_ms: 1000
-              },
-              temperature: 0.8,
-              max_response_output_tokens: 'inf'
-            }
-          };
-          openAISocket?.send(JSON.stringify(sessionUpdate));
-        }
-
-        // Forward all messages to client
-        if (socket.readyState === WebSocket.OPEN) {
-          socket.send(event.data);
+        try {
+          const data = JSON.parse(event.data);
+          console.log('Received from OpenAI:', data.type);
+          
+          // Forward all messages to client
+          if (socket.readyState === WebSocket.OPEN) {
+            socket.send(event.data);
+          }
+        } catch (error) {
+          console.error('Error processing OpenAI message:', error);
         }
       };
 
@@ -84,10 +91,9 @@ serve(async (req) => {
 
       openAISocket.onclose = (event) => {
         console.log('OpenAI WebSocket closed:', event.code, event.reason);
-        if (socket.readyState === WebSocket.OPEN) {
-          socket.close();
-        }
+        closeConnections('openai');
       };
+
     } catch (error) {
       console.error('Error creating OpenAI WebSocket:', error);
       if (socket.readyState === WebSocket.OPEN) {
@@ -101,6 +107,7 @@ serve(async (req) => {
     try {
       const data = JSON.parse(event.data);
       console.log('Received from client:', data.type);
+      
       // Forward client messages to OpenAI
       if (openAISocket && openAISocket.readyState === WebSocket.OPEN) {
         openAISocket.send(event.data);
@@ -110,18 +117,13 @@ serve(async (req) => {
     }
   };
 
-  socket.onclose = () => {
-    console.log('Client WebSocket disconnected');
-    if (openAISocket && openAISocket.readyState === WebSocket.OPEN) {
-      openAISocket.close();
-    }
+  socket.onclose = (event) => {
+    console.log('Client WebSocket disconnected:', event.code, event.reason);
+    closeConnections('client');
   };
 
   socket.onerror = (error) => {
     console.error('Client WebSocket error:', error);
-    if (openAISocket && openAISocket.readyState === WebSocket.OPEN) {
-      openAISocket.close();
-    }
   };
 
   return response;
