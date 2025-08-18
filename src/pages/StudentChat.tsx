@@ -1,225 +1,48 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { useParams } from 'react-router-dom';
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Bot, Send, ArrowUp, Loader2, AlertCircle, Mic, MessageCircle } from 'lucide-react';
-import { fetchAgentById } from '@/services/agentService';
-import { AgentType } from '@/types/agent';
-import VoiceInterface from '@/components/VoiceInterface';
 
-interface Message {
-  id: string;
-  role: 'user' | 'assistant';
-  content: string;
-  timestamp: Date;
-  isVoice?: boolean;
-}
+import { useParams, useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Bot, MessageCircle, ArrowLeft, Mic, MicOff } from "lucide-react";
+import { useAgentDetails } from "@/hooks/useAgentDetails";
+import { Skeleton } from "@/components/ui/skeleton";
+import { VoiceInterface } from "@/components/VoiceInterface";
 
 const StudentChat = () => {
   const { agentId } = useParams<{ agentId: string }>();
-  const [agent, setAgent] = useState<AgentType | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [inputMessage, setInputMessage] = useState('');
-  const [isSending, setIsSending] = useState(false);
-  const [isVoiceModeEnabled, setIsVoiceModeEnabled] = useState(true); // Default to voice mode
-  const [isSpeaking, setIsSpeaking] = useState(false);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
+  const { agent, isLoading, error } = useAgentDetails(agentId);
+  const [isVoiceActive, setIsVoiceActive] = useState(false);
 
-  useEffect(() => {
-    const loadAgent = async () => {
-      if (!agentId) {
-        setError("Tutor ID is required");
-        setIsLoading(false);
-        return;
-      }
-
-      try {
-        // Fetch agent data without any authentication requirements
-        const data = await fetchAgentById(agentId);
-        setAgent(data);
-        
-        // Generate personalized welcome message using OpenAI
-        await generateWelcomeMessage(data);
-        
-        setError(null);
-      } catch (err: any) {
-        console.error("Error loading tutor:", err);
-        setError("This tutor is not available or doesn't exist.");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    loadAgent();
-  }, [agentId]);
-
-  const generateWelcomeMessage = async (agentData: AgentType) => {
-    try {
-      console.log('Generating welcome message for agent:', agentData.name);
-      const welcomePrompt = `Generate a brief, friendly welcome message as ${agentData.name}. Introduce yourself and mention what you can help with based on your teaching focus. Keep it conversational and under 2 sentences.`;
-      
-      const response = await fetch(`https://lcdrsupwwitlvrvfrgsl.supabase.co/functions/v1/chat-completion`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          messages: [{ role: 'user', content: welcomePrompt }],
-          agent: agentData
-        })
-      });
-
-      console.log('Welcome message response status:', response.status);
-      
-      if (response.ok) {
-        const data = await response.json();
-        const welcomeMessage: Message = {
-          id: 'welcome',
-          role: 'assistant',
-          content: data.content,
-          timestamp: new Date()
-        };
-        setMessages([welcomeMessage]);
-      } else {
-        const errorText = await response.text();
-        console.error('Welcome message error:', errorText);
-        // Fallback to generic message if OpenAI fails
-        const welcomeMessage: Message = {
-          id: 'welcome',
-          role: 'assistant',
-          content: `Hi! I'm ${agentData.name}, your ${agentData.type.toLowerCase()}. ${agentData.description || 'I\'m here to help you learn!'} How can I assist you today?`,
-          timestamp: new Date()
-        };
-        setMessages([welcomeMessage]);
-      }
-    } catch (error) {
-      console.error('Error generating welcome message:', error);
-      // Fallback to generic message
-      const welcomeMessage: Message = {
-        id: 'welcome',
-        role: 'assistant',
-        content: `Hi! I'm ${agentData.name}, your ${agentData.type.toLowerCase()}. ${agentData.description || 'I\'m here to help you learn!'} How can I assist you today?`,
-        timestamp: new Date()
-      };
-      setMessages([welcomeMessage]);
-    }
+  const handleBack = () => {
+    navigate('/');
   };
 
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
-
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  const handleViewDetails = () => {
+    navigate(`/tutors/${agentId}`);
   };
 
-  const sendMessage = async () => {
-    if (!inputMessage.trim() || isSending || !agent) return;
-
-    const userMessage: Message = {
-      id: `user-${Date.now()}`,
-      role: 'user',
-      content: inputMessage.trim(),
-      timestamp: new Date()
-    };
-
-    setMessages(prev => [...prev, userMessage]);
-    setInputMessage('');
-    setIsSending(true);
-
-    try {
-      console.log('Sending message to agent:', agent.name);
-      // Prepare conversation history for OpenAI
-      const conversationHistory = [...messages, userMessage].map(msg => ({
-        role: msg.role,
-        content: msg.content
-      }));
-
-      const response = await fetch(`https://lcdrsupwwitlvrvfrgsl.supabase.co/functions/v1/chat-completion`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          messages: conversationHistory,
-          agent: agent
-        })
-      });
-
-      console.log('Message response status:', response.status);
-
-      if (response.ok) {
-        const data = await response.json();
-        const assistantMessage: Message = {
-          id: `assistant-${Date.now()}`,
-          role: 'assistant',
-          content: data.content,
-          timestamp: new Date()
-        };
-        setMessages(prev => [...prev, assistantMessage]);
-      } else {
-        const errorText = await response.text();
-        console.error('Message error:', errorText);
-        throw new Error('Failed to get response from tutor');
-      }
-    } catch (error) {
-      console.error('Error sending message:', error);
-      const errorMessage: Message = {
-        id: `error-${Date.now()}`,
-        role: 'assistant',
-        content: "I'm sorry, I'm having trouble responding right now. Please try again in a moment.",
-        timestamp: new Date()
-      };
-      setMessages(prev => [...prev, errorMessage]);
-    } finally {
-      setIsSending(false);
-    }
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      sendMessage();
-    }
-  };
-
-  const handleTranscriptUpdate = (transcript: string, isFromUser: boolean) => {
-    if (!transcript.trim()) return;
-
-    const messageId = isFromUser ? `user-voice-${Date.now()}` : `assistant-voice-${Date.now()}`;
-    const newMessage: Message = {
-      id: messageId,
-      role: isFromUser ? 'user' : 'assistant',
-      content: transcript,
-      timestamp: new Date(),
-      isVoice: true
-    };
-
-    setMessages(prev => {
-      // Update existing message if it's the same voice session
-      const lastMessage = prev[prev.length - 1];
-      if (lastMessage && lastMessage.role === newMessage.role && lastMessage.isVoice) {
-        return [...prev.slice(0, -1), newMessage];
-      }
-      return [...prev, newMessage];
-    });
-  };
-
-  const handleSpeakingChange = (speaking: boolean) => {
-    setIsSpeaking(speaking);
+  const toggleVoice = () => {
+    setIsVoiceActive(!isVoiceActive);
   };
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="flex items-center gap-2">
-          <Loader2 className="h-6 w-6 animate-spin" />
-          <span>Loading tutor...</span>
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
+        <div className="container mx-auto px-4 py-8">
+          <div className="max-w-4xl mx-auto space-y-6">
+            <Skeleton className="h-10 w-32" />
+            <div className="flex items-center gap-6">
+              <Skeleton className="h-16 w-16 rounded-full" />
+              <div className="space-y-3">
+                <Skeleton className="h-6 w-48" />
+                <Skeleton className="h-4 w-32" />
+              </div>
+            </div>
+            <Skeleton className="h-96" />
+          </div>
         </div>
       </div>
     );
@@ -227,178 +50,147 @@ const StudentChat = () => {
 
   if (error || !agent) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center p-4">
-        <Card className="max-w-md w-full">
-          <CardContent className="pt-6">
-            <div className="flex flex-col items-center text-center space-y-4">
-              <AlertCircle className="h-12 w-12 text-destructive" />
-              <div>
-                <h3 className="font-semibold">Tutor Not Available</h3>
-                <p className="text-sm text-muted-foreground mt-1">
-                  {error}
-                </p>
-                <p className="text-xs text-muted-foreground mt-2">
-                  This link may be private or the tutor may have been removed.
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
+        <div className="container mx-auto px-4 py-8">
+          <div className="max-w-2xl mx-auto text-center">
+            <Bot className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+              Tutor Not Found
+            </h1>
+            <p className="text-gray-600 dark:text-gray-300 mb-6">
+              The tutor you're looking for doesn't exist or may have been removed.
+            </p>
+            <Button onClick={handleBack} variant="outline">
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back to Directory
+            </Button>
+          </div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
       {/* Header */}
-      <div className="border-b bg-card/50 backdrop-blur-sm">
-        <div className="max-w-4xl mx-auto px-4 py-4">
+      <header className="border-b bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm sticky top-0 z-10">
+        <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <Avatar className="h-12 w-12 border-2 border-primary/20">
-                <AvatarImage src={agent.avatar} alt={agent.name} />
-                <AvatarFallback>
-                  <Bot className="h-6 w-6" />
-                </AvatarFallback>
-              </Avatar>
-              <div>
-                <h1 className="text-xl font-semibold">{agent.name}</h1>
-                <p className="text-sm text-muted-foreground">
-                  {agent.type} • {agent.subject || 'General'}
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  Free public chat session
-                </p>
+            <div className="flex items-center gap-4">
+              <Button variant="ghost" size="sm" onClick={handleBack}>
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Back to Directory
+              </Button>
+              <div className="flex items-center space-x-3">
+                <Avatar className="h-12 w-12 border-2 border-blue-100">
+                  <AvatarImage src={agent.avatar} alt={agent.name} />
+                  <AvatarFallback>
+                    <Bot className="h-6 w-6" />
+                  </AvatarFallback>
+                </Avatar>
+                <div>
+                  <h1 className="text-lg font-semibold text-gray-900 dark:text-white">
+                    {agent.name}
+                  </h1>
+                  <div className="flex items-center gap-2">
+                    <Badge variant="secondary" className="text-xs">{agent.type}</Badge>
+                    {agent.subject && (
+                      <Badge variant="outline" className="text-xs">{agent.subject}</Badge>
+                    )}
+                  </div>
+                </div>
               </div>
             </div>
             
-            <div className="flex items-center gap-2">
-              {isSpeaking && (
-                <Badge variant="secondary" className="animate-pulse">
-                  <Bot className="h-3 w-3 mr-1" />
-                  Speaking...
-                </Badge>
-              )}
+            <div className="flex items-center gap-3">
+              <Button variant="outline" onClick={handleViewDetails}>
+                View Details
+              </Button>
               <Button
-                onClick={() => setIsVoiceModeEnabled(!isVoiceModeEnabled)}
-                variant={isVoiceModeEnabled ? "default" : "outline"}
-                size="sm"
+                onClick={toggleVoice}
+                className={`${
+                  isVoiceActive 
+                    ? "bg-red-600 hover:bg-red-700" 
+                    : "bg-blue-600 hover:bg-blue-700"
+                }`}
               >
-                {isVoiceModeEnabled ? (
+                {isVoiceActive ? (
                   <>
-                    <Mic className="h-4 w-4 mr-2" />
-                    Voice Chat
+                    <MicOff className="h-4 w-4 mr-2" />
+                    End Voice Chat
                   </>
                 ) : (
                   <>
-                    <MessageCircle className="h-4 w-4 mr-2" />
-                    Text Chat
+                    <Mic className="h-4 w-4 mr-2" />
+                    Voice Chat
                   </>
                 )}
               </Button>
             </div>
           </div>
         </div>
-      </div>
+      </header>
 
-      {/* Messages */}
-      <div className="flex-1 max-w-4xl mx-auto w-full px-4 py-6">
-        <div className="space-y-6">
-          {messages.map((message) => (
-            <div
-              key={message.id}
-              className={`flex gap-3 ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
-            >
-              {message.role === 'assistant' && (
-                <Avatar className="h-8 w-8 flex-shrink-0 mt-1">
-                  <AvatarImage src={agent.avatar} alt={agent.name} />
-                  <AvatarFallback>
-                    <Bot className="h-4 w-4" />
-                  </AvatarFallback>
-                </Avatar>
-              )}
-              
-              <div
-                className={`rounded-lg px-4 py-3 max-w-[80%] ${
-                  message.role === 'user'
-                    ? 'bg-primary text-primary-foreground'
-                    : 'bg-muted'
-                }`}
-              >
-                <div className="flex items-start justify-between">
-                  <p className="whitespace-pre-wrap">{message.content}</p>
-                  {message.isVoice && (
-                    <Mic className="h-3 w-3 ml-2 mt-1 opacity-50 flex-shrink-0" />
-                  )}
-                </div>
-                <div className="text-xs opacity-70 mt-1">
-                  {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                </div>
+      <div className="container mx-auto px-4 py-8">
+        <div className="max-w-4xl mx-auto">
+          {/* Chat Interface */}
+          <Card className="h-[calc(100vh-200px)]">
+            <CardHeader className="border-b">
+              <div className="flex items-center justify-between">
+                <CardTitle className="flex items-center gap-2">
+                  <MessageCircle className="h-5 w-5" />
+                  Free public chat session
+                </CardTitle>
               </div>
-            </div>
-          ))}
-          
-          {isSending && (
-            <div className="flex gap-3 justify-start">
-              <Avatar className="h-8 w-8 flex-shrink-0 mt-1">
-                <AvatarImage src={agent.avatar} alt={agent.name} />
-                <AvatarFallback>
-                  <Bot className="h-4 w-4" />
-                </AvatarFallback>
-              </Avatar>
-              <div className="bg-muted rounded-lg px-4 py-3">
-                <div className="flex items-center gap-2">
-                  <div className="flex gap-1">
-                    <div className="w-2 h-2 bg-muted-foreground/50 rounded-full animate-bounce" />
-                    <div className="w-2 h-2 bg-muted-foreground/50 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }} />
-                    <div className="w-2 h-2 bg-muted-foreground/50 rounded-full animate-bounce" style={{ animationDelay: '0.4s' }} />
+            </CardHeader>
+            
+            <CardContent className="p-0 h-full">
+              <div className="flex flex-col h-full">
+                {/* Chat Messages Area */}
+                <div className="flex-1 p-6 overflow-y-auto">
+                  <div className="space-y-4">
+                    {/* Welcome Message */}
+                    <div className="flex items-start gap-3">
+                      <Avatar className="h-8 w-8">
+                        <AvatarImage src={agent.avatar} alt={agent.name} />
+                        <AvatarFallback>
+                          <Bot className="h-4 w-4" />
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="bg-gray-100 dark:bg-gray-700 rounded-lg p-4 max-w-[80%]">
+                        <p className="text-gray-900 dark:text-white">
+                          Hey there! I'm {agent.name}, your friendly {agent.subject?.toLowerCase() || 'tutor'}, and I'm here to help you conquer all things {agent.subject?.toLowerCase() || 'learning'}, especially factorials and more. Let's dive in and make learning fun together!
+                        </p>
+                        <p className="text-xs text-gray-500 mt-2">07:45 AM</p>
+                      </div>
+                    </div>
                   </div>
                 </div>
+
+                {/* Voice Interface or Start Button */}
+                {isVoiceActive ? (
+                  <div className="p-6 border-t">
+                    <VoiceInterface agentId={agentId!} />
+                  </div>
+                ) : (
+                  <div className="p-6 border-t text-center">
+                    <Button 
+                      onClick={toggleVoice}
+                      className="bg-blue-600 hover:bg-blue-700"
+                      size="lg"
+                    >
+                      Start Voice Chat
+                    </Button>
+                    <p className="text-sm text-gray-500 mt-2">
+                      Click to start a voice conversation with {agent.name}
+                    </p>
+                  </div>
+                )}
               </div>
-            </div>
-          )}
-          
-          <div ref={messagesEndRef} />
+            </CardContent>
+          </Card>
         </div>
       </div>
-
-      {/* Text Input - only show when voice mode is disabled */}
-      {!isVoiceModeEnabled && (
-        <div className="border-t bg-card/50 backdrop-blur-sm">
-          <div className="max-w-4xl mx-auto px-4 py-4">
-            <div className="relative">
-              <Textarea
-                placeholder={`Ask ${agent.name} a question...`}
-                className="min-h-[60px] max-h-[120px] resize-none pr-12 py-3"
-                value={inputMessage}
-                onChange={(e) => setInputMessage(e.target.value)}
-                onKeyDown={handleKeyDown}
-                disabled={isSending}
-              />
-              <Button
-                size="icon"
-                className="absolute bottom-3 right-3 h-8 w-8 rounded-full"
-                onClick={sendMessage}
-                disabled={!inputMessage.trim() || isSending}
-              >
-                <ArrowUp className="h-4 w-4" />
-              </Button>
-            </div>
-            <div className="text-xs text-muted-foreground mt-2 text-center">
-              Press Enter to send • Shift + Enter for new line
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Voice Interface - show when voice mode is enabled */}
-      {isVoiceModeEnabled && agent && (
-        <VoiceInterface
-          agent={agent}
-          onTranscriptUpdate={handleTranscriptUpdate}
-          onSpeakingChange={handleSpeakingChange}
-        />
-      )}
     </div>
   );
 };
