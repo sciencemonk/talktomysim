@@ -302,37 +302,37 @@ export const createAgent = async (agent: Omit<AgentType, 'id' | 'createdAt' | 'u
       throw new Error('User must be authenticated to create a tutor');
     }
 
-    // Convert AgentType to database schema - single object, not array
+    // Convert AgentType to database schema with proper JSON casting
     const dbAgent = {
       name: agent.name,
       description: agent.description,
       type: agent.type,
-      subject: agent.subject,
-      grade_level: agent.gradeLevel,
+      subject: agent.subject || null,
+      grade_level: agent.gradeLevel || null,
       status: agent.status,
-      avatar: agent.avatar,
-      email: agent.email,
-      phone: agent.phone,
+      avatar: agent.avatar || null,
+      email: agent.email || null,
+      phone: agent.phone || null,
       user_id: user.id,
-      is_personal: agent.isPersonal,
-      performance: agent.performance,
-      csat: agent.csat,
-      avm_score: agent.avmScore,
-      helpfulness_score: agent.helpfulnessScore,
-      students_saved: agent.studentsSaved,
-      interactions: agent.interactions,
-      voice_traits: agent.voiceTraits || [],
-      channel_configs: agent.channelConfigs || {},
-      channels: agent.channels || [],
-      teaching_style: agent.teachingStyle,
-      custom_subject: agent.customSubject,
-      learning_objective: agent.learningObjective,
-      purpose: agent.purpose,
-      prompt: agent.prompt,
-      model: agent.model,
-      voice: agent.voice,
-      voice_provider: agent.voiceProvider,
-      custom_voice_id: agent.customVoiceId
+      is_personal: agent.isPersonal || true,
+      performance: agent.performance || null,
+      csat: agent.csat || null,
+      avm_score: agent.avmScore || null,
+      helpfulness_score: agent.helpfulnessScore || null,
+      students_saved: agent.studentsSaved || null,
+      interactions: agent.interactions || null,
+      voice_traits: JSON.stringify(agent.voiceTraits || []),
+      channel_configs: JSON.stringify(agent.channelConfigs || {}),
+      channels: JSON.stringify(agent.channels || []),
+      teaching_style: agent.teachingStyle || null,
+      custom_subject: agent.customSubject || null,
+      learning_objective: agent.learningObjective || null,
+      purpose: agent.purpose || null,
+      prompt: agent.prompt || null,
+      model: agent.model || null,
+      voice: agent.voice || null,
+      voice_provider: agent.voiceProvider || null,
+      custom_voice_id: agent.customVoiceId || null
     };
 
     const { data, error } = await supabase
