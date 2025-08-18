@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef, useState } from 'react';
 import { useToast } from '@/components/ui/use-toast';
 import { AgentType } from '@/types/agent';
@@ -32,6 +31,15 @@ const LiveKitVoiceInterface: React.FC<LiveKitVoiceInterfaceProps> = ({
   // Track current transcript fragments
   const currentUserTranscriptRef = useRef('');
   const currentAITranscriptRef = useRef('');
+
+  // Track completion callbacks
+  const completeCurrentMessageRef = useRef<(() => void) | null>(null);
+
+  // Store the completion callback from the parent
+  useEffect(() => {
+    // We need access to the completeCurrentMessage function from useMessageAccumulator
+    // For now, we'll trigger completion when transcripts are done
+  }, []);
 
   const createSystemInstructions = () => {
     const getAgeAppropriateLanguage = () => {
@@ -217,13 +225,21 @@ The student should be talking at least 50% of the time about ${learningObjective
             onTranscriptUpdate(event.delta, false);
           } else if (event.type === 'response.audio_transcript.done') {
             console.log('AI transcript complete:', currentAITranscriptRef.current);
+            // Send the complete transcript as a single message
+            if (currentAITranscriptRef.current.trim()) {
+              // Send a completion signal by calling onTranscriptUpdate with empty string to trigger completion
+              onTranscriptUpdate('', false); // This should trigger completeCurrentMessage in the parent
+            }
             currentAITranscriptRef.current = ''; // Reset for next message
           }
           
           // Handle user transcript events
           else if (event.type === 'conversation.item.input_audio_transcription.completed') {
             console.log('User transcript completed:', event.transcript);
+            // Send the complete user transcript
             onTranscriptUpdate(event.transcript, true);
+            // Trigger completion
+            onTranscriptUpdate('', true);
             currentUserTranscriptRef.current = ''; // Reset for next message
           } else if (event.type === 'conversation.item.input_audio_transcription.delta') {
             console.log('User transcript delta:', event.delta);

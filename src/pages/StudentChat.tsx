@@ -27,15 +27,18 @@ const StudentChat = () => {
   };
 
   const handleTranscriptUpdate = (transcript: string, isFromUser: boolean) => {
-    addMessageFragment(transcript, isFromUser);
+    if (transcript === '') {
+      // Empty string signals completion
+      console.log('Completing message due to empty transcript signal');
+      completeCurrentMessage();
+    } else {
+      // Add fragment to current message
+      addMessageFragment(transcript, isFromUser);
+    }
   };
 
   const handleSpeakingChange = (speaking: boolean) => {
     setIsSpeaking(speaking);
-    if (!speaking) {
-      // Complete the current message when speaking stops
-      completeCurrentMessage();
-    }
   };
 
   const handleConnectionChange = (connected: boolean) => {
