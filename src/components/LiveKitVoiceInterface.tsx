@@ -1,3 +1,4 @@
+
 import React, { useEffect, useRef, useState } from 'react';
 import { useToast } from '@/components/ui/use-toast';
 import { AgentType } from '@/types/agent';
@@ -27,6 +28,10 @@ const LiveKitVoiceInterface: React.FC<LiveKitVoiceInterfaceProps> = ({
   const pcRef = useRef<RTCPeerConnection | null>(null);
   const dcRef = useRef<RTCDataChannel | null>(null);
   const audioElementRef = useRef<HTMLAudioElement | null>(null);
+
+  // Track current transcript fragments
+  const currentUserTranscriptRef = useRef('');
+  const currentAITranscriptRef = useRef('');
 
   const createSystemInstructions = () => {
     const getAgeAppropriateLanguage = () => {
@@ -205,24 +210,46 @@ The student should be talking at least 50% of the time about ${learningObjective
           const event = JSON.parse(e.data);
           console.log("Received event:", event.type, event);
           
+          // Handle AI transcript events
           if (event.type === 'response.audio_transcript.delta') {
             console.log('AI transcript delta:', event.delta);
+            currentAITranscriptRef.current += event.delta;
             onTranscriptUpdate(event.delta, false);
-          } else if (event.type === 'input_audio_buffer.speech_started') {
+          } else if (event.type === 'response.audio_transcript.done') {
+            console.log('AI transcript complete:', currentAITranscriptRef.current);
+            currentAITranscriptRef.current = ''; // Reset for next message
+          }
+          
+          // Handle user transcript events
+          else if (event.type === 'conversation.item.input_audio_transcription.completed') {
+            console.log('User transcript completed:', event.transcript);
+            onTranscriptUpdate(event.transcript, true);
+            currentUserTranscriptRef.current = ''; // Reset for next message
+          } else if (event.type === 'conversation.item.input_audio_transcription.delta') {
+            console.log('User transcript delta:', event.delta);
+            currentUserTranscriptRef.current += event.delta;
+            onTranscriptUpdate(event.delta, true);
+          }
+          
+          // Handle speaking state changes
+          else if (event.type === 'input_audio_buffer.speech_started') {
             console.log('User started speaking');
             onSpeakingChange(false); // AI stops speaking when user starts
           } else if (event.type === 'input_audio_buffer.speech_stopped') {
             console.log('User stopped speaking');
-          } else if (event.type === 'conversation.item.input_audio_transcription.completed') {
-            console.log('User transcript completed:', event.transcript);
-            onTranscriptUpdate(event.transcript, true);
           } else if (event.type === 'response.audio.delta') {
             onSpeakingChange(true); // AI is speaking
           } else if (event.type === 'response.audio.done') {
             onSpeakingChange(false); // AI finished speaking
-          } else if (event.type === 'response.audio_transcript.done') {
-            console.log('AI transcript complete');
-            // Mark the current AI message as complete
+          }
+          
+          // Handle session events
+          else if (event.type === 'session.created') {
+            console.log('Session created, sending session update...');
+          } else if (event.type === 'session.updated') {
+            console.log('Session updated successfully');
+          } else if (event.type === 'error') {
+            console.error('Received error event:', event);
           }
         } catch (error) {
           console.error('Error parsing data channel message:', error);
@@ -254,8 +281,10 @@ The student should be talking at least 50% of the time about ${learningObjective
           }
         };
         
+        console.log('Sending session configuration:', sessionConfig);
         dcRef.current?.send(JSON.stringify(sessionConfig));
         
+        // Send welcome message after a short delay
         setTimeout(() => {
           sendWelcomeMessage();
         }, 1000);
@@ -316,6 +345,10 @@ The student should be talking at least 50% of the time about ${learningObjective
     if (audioElementRef.current) {
       audioElementRef.current.srcObject = null;
     }
+    
+    // Reset transcript refs
+    currentUserTranscriptRef.current = '';
+    currentAITranscriptRef.current = '';
     
     setIsConnected(false);
     setConnectionStatus('disconnected');
