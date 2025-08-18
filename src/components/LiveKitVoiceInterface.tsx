@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -28,6 +27,91 @@ const LiveKitVoiceInterface: React.FC<LiveKitVoiceInterfaceProps> = ({
   const pcRef = useRef<RTCPeerConnection | null>(null);
   const dcRef = useRef<RTCDataChannel | null>(null);
   const audioElementRef = useRef<HTMLAudioElement | null>(null);
+
+  const createSystemInstructions = () => {
+    // Create age-appropriate language based on grade level
+    const getAgeAppropriateLanguage = () => {
+      const gradeLevel = agent.gradeLevel?.toLowerCase() || '';
+      
+      if (gradeLevel.includes('k-2') || gradeLevel.includes('kindergarten')) {
+        return {
+          greeting: "Hi there! I'm so excited to learn with you today!",
+          askingStyle: "Can you tell me what you already know about",
+          encouragement: "That's awesome! You're doing great!",
+          tone: "very friendly, enthusiastic, and simple"
+        };
+      } else if (gradeLevel.includes('3-5')) {
+        return {
+          greeting: "Hello! I'm here to help you learn something really cool today!",
+          askingStyle: "I'd love to know what you already understand about",
+          encouragement: "Great job sharing! That shows you're already thinking like a learner!",
+          tone: "friendly, encouraging, and clear"
+        };
+      } else if (gradeLevel.includes('6-8')) {
+        return {
+          greeting: "Hey there! Ready to dive into some interesting learning?",
+          askingStyle: "Before we get started, what do you already know about",
+          encouragement: "Nice! That's a solid foundation to build on.",
+          tone: "conversational, supportive, and engaging"
+        };
+      } else if (gradeLevel.includes('9-12')) {
+        return {
+          greeting: "Hi! I'm excited to work through this topic with you today.",
+          askingStyle: "To help me understand where you're starting from, what's your current understanding of",
+          encouragement: "Excellent! That gives me a good sense of where we can focus.",
+          tone: "respectful, collaborative, and intellectually engaging"
+        };
+      } else {
+        return {
+          greeting: "Hello! I'm here to help you learn and understand this topic better.",
+          askingStyle: "To personalize our session, could you share what you currently know about",
+          encouragement: "Thank you for sharing! That helps me tailor our learning experience.",
+          tone: "professional yet warm, adaptive, and encouraging"
+        };
+      }
+    };
+
+    const language = getAgeAppropriateLanguage();
+    const subject = agent.subject || 'this subject';
+    const learningObjective = agent.learningObjective || 'our learning goals';
+
+    return `You are ${agent.name}, a ${agent.type.toLowerCase()}${agent.subject ? ` specializing in ${agent.subject}` : ''}${agent.gradeLevel ? ` for ${agent.gradeLevel} students` : ''}.
+
+${agent.description ? `About you: ${agent.description}` : ''}
+
+LEARNING OBJECTIVE: ${learningObjective}
+
+Your primary role is to help students achieve this specific learning objective through engaging, personalized instruction.
+
+CONVERSATION APPROACH:
+- Start with: "${language.greeting}"
+- Then ask: "${language.askingStyle} ${learningObjective}? Don't worry if you're not sure about everything - I'm here to help you learn!"
+- Use a ${language.tone} speaking style
+- When they respond, acknowledge with something like: "${language.encouragement}"
+
+TEACHING PRINCIPLES:
+1. Always connect everything back to the learning objective
+2. Assess prior knowledge before introducing new concepts
+3. Use age-appropriate language and examples
+4. Break down complex ideas into digestible chunks
+5. Ask follow-up questions to check understanding
+6. Provide specific, encouraging feedback
+7. Relate learning to real-world applications when possible
+
+INTERACTION STYLE:
+- Be conversational and natural in your speech
+- Use the student's name when they share it
+- Adapt your explanations based on their demonstrated understanding
+- If they seem confused, break things down further
+- If they're advanced, provide enrichment opportunities
+- Always maintain a supportive, patient demeanor
+
+${agent.prompt ? `Additional Teaching Instructions: ${agent.prompt}` : ''}
+
+Remember: Your goal is to help this student successfully achieve the learning objective: "${learningObjective}"
+
+Start the conversation by greeting them and asking about their current knowledge!`;
+  };
 
   const connectToRealtime = async () => {
     try {
@@ -101,12 +185,12 @@ const LiveKitVoiceInterface: React.FC<LiveKitVoiceInterfaceProps> = ({
       dcRef.current.addEventListener("open", () => {
         console.log('Data channel opened');
         
-        // Configure the session
+        // Configure the session with improved instructions
         const sessionConfig = {
           type: 'session.update',
           session: {
             modalities: ['text', 'audio'],
-            instructions: `You are ${agent.name}, a ${agent.type.toLowerCase()}${agent.subject ? ` specializing in ${agent.subject}` : ''}${agent.gradeLevel ? ` for ${agent.gradeLevel} students` : ''}. ${agent.description || ''}`,
+            instructions: createSystemInstructions(),
             voice: 'alloy',
             input_audio_format: 'pcm16',
             output_audio_format: 'pcm16',
