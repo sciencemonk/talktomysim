@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -211,25 +210,13 @@ const EfficientVoiceInterface: React.FC<EfficientVoiceInterfaceProps> = ({
         });
       };
       
-      // Process the audio data from the response
+      // The response.data should be an ArrayBuffer containing the audio
       const audioData = response.data;
+      console.log('Received audio data type:', typeof audioData);
+      console.log('Audio data is ArrayBuffer:', audioData instanceof ArrayBuffer);
       
-      // Convert the response data to a proper audio blob
-      let audioBlob: Blob;
-      if (audioData instanceof ArrayBuffer) {
-        audioBlob = new Blob([audioData], { type: 'audio/mpeg' });
-      } else if (typeof audioData === 'string') {
-        // If it's base64 encoded
-        const binaryString = atob(audioData);
-        const bytes = new Uint8Array(binaryString.length);
-        for (let i = 0; i < binaryString.length; i++) {
-          bytes[i] = binaryString.charCodeAt(i);
-        }
-        audioBlob = new Blob([bytes], { type: 'audio/mpeg' });
-      } else {
-        // Assume it's already a blob or can be converted to one
-        audioBlob = new Blob([audioData], { type: 'audio/mpeg' });
-      }
+      // Create blob directly from the ArrayBuffer
+      const audioBlob = new Blob([audioData], { type: 'audio/mpeg' });
       
       console.log('Created audio blob of size:', audioBlob.size);
       
