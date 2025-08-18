@@ -90,11 +90,57 @@ const mockAgents: AgentType[] = [
 
 export const fetchAgents = async (filter: string = 'all-agents'): Promise<AgentType[]> => {
   try {
-    // Check if user is authenticated
+    // For marketplace view, fetch all public tutors regardless of authentication
+    if (filter === 'all-agents') {
+      const { data, error } = await supabase
+        .from('tutors')
+        .select('*')
+        .eq('status', 'active'); // Only show active tutors in marketplace
+
+      if (error) {
+        console.error('Error fetching public tutors:', error);
+        throw new Error(error.message);
+      }
+
+      return data.map(tutor => ({
+        id: tutor.id,
+        name: tutor.name,
+        description: tutor.description,
+        type: tutor.type as AgentType['type'],
+        subject: tutor.subject,
+        gradeLevel: tutor.grade_level,
+        status: tutor.status as AgentType['status'],
+        avatar: tutor.avatar,
+        email: tutor.email,
+        phone: tutor.phone,
+        createdAt: tutor.created_at,
+        updatedAt: tutor.updated_at,
+        isPersonal: tutor.is_personal,
+        performance: tutor.performance,
+        csat: tutor.csat,
+        avmScore: tutor.avm_score,
+        helpfulnessScore: tutor.helpfulness_score,
+        studentsSaved: tutor.students_saved,
+        interactions: tutor.interactions,
+        voiceTraits: isVoiceTraitsArray(tutor.voice_traits) ? tutor.voice_traits : [],
+        channelConfigs: isChannelConfigsObject(tutor.channel_configs) ? tutor.channel_configs : {},
+        channels: isChannelsArray(tutor.channels) ? tutor.channels : [],
+        teachingStyle: tutor.teaching_style,
+        customSubject: tutor.custom_subject,
+        learningObjective: tutor.learning_objective,
+        purpose: tutor.purpose,
+        prompt: tutor.prompt,
+        model: tutor.model,
+        voice: tutor.voice,
+        voiceProvider: tutor.voice_provider,
+        customVoiceId: tutor.custom_voice_id
+      })) || [];
+    }
+
+    // For authenticated user's own tutors
     const { data: { user } } = await supabase.auth.getUser();
     
     if (!user) {
-      // Return empty array for unauthenticated users since they can't see private tutors
       return [];
     }
 
@@ -104,7 +150,7 @@ export const fetchAgents = async (filter: string = 'all-agents'): Promise<AgentT
       .eq('user_id', user.id);
 
     if (error) {
-      console.error('Error fetching tutors:', error);
+      console.error('Error fetching user tutors:', error);
       throw new Error(error.message);
     }
 

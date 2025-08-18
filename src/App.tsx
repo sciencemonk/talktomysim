@@ -1,8 +1,8 @@
-
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { AuthProvider } from './hooks/useAuth';
 import Landing from './pages/Landing';
+import PublicTutorDetail from './pages/PublicTutorDetail';
 import TeacherDashboard from './pages/TeacherDashboard';
 import AgentDetails from './pages/AgentDetails';
 import AgentCreate from './pages/AgentCreate';
@@ -20,6 +20,7 @@ function App() {
           <Routes>
             {/* Public routes */}
             <Route path="/" element={<Landing />} />
+            <Route path="/tutors/:agentId" element={<PublicTutorDetail />} />
             
             {/* Student chat route - public */}
             <Route path="/tutors/:agentId/chat" element={<StudentChat />} />
@@ -28,16 +29,6 @@ function App() {
             <Route path="/dashboard" element={
               <DashboardLayout>
                 <TeacherDashboard />
-              </DashboardLayout>
-            } />
-            <Route path="/tutors" element={
-              <DashboardLayout>
-                <TeacherDashboard />
-              </DashboardLayout>
-            } />
-            <Route path="/tutors/:agentId" element={
-              <DashboardLayout>
-                <AgentDetails />
               </DashboardLayout>
             } />
             {/* Keep agents routes for backward compatibility */}
