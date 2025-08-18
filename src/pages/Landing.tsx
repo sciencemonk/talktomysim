@@ -19,7 +19,7 @@ const Landing = () => {
   
   const { agents, isLoading } = useAgents('all-agents');
 
-  const handleSignIn = () => {
+  const handleSignInWithGoogle = () => {
     navigate("/dashboard");
   };
 
@@ -79,11 +79,8 @@ const Landing = () => {
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <Button variant="outline" onClick={handleSignIn}>
-                Sign In
-              </Button>
-              <Button onClick={handleSignIn} className="bg-blue-600 hover:bg-blue-700">
-                Get Started
+              <Button onClick={handleSignInWithGoogle} className="bg-blue-600 hover:bg-blue-700">
+                Sign in with Google
               </Button>
             </div>
           </div>
@@ -100,11 +97,11 @@ const Landing = () => {
             </div>
             <div className="flex items-center gap-2">
               <CheckCircle className="h-4 w-4" />
-              <span>Educator Verified</span>
+              <span>Built for Classrooms</span>
             </div>
             <div className="flex items-center gap-2">
               <Award className="h-4 w-4" />
-              <span>Trusted by 10,000+ Teachers</span>
+              <span>Free Google Sign In</span>
             </div>
           </div>
         </div>
@@ -114,11 +111,6 @@ const Landing = () => {
       <section className="container mx-auto px-6 py-8">
         {/* Search and Filters */}
         <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 mb-8">
-          <div className="mb-4">
-            <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-2">Find AI Tutors</h2>
-            <p className="text-gray-600 dark:text-gray-400 text-sm">Browse vetted AI tutoring agents created by certified educators</p>
-          </div>
-          
           <div className="flex flex-col md:flex-row gap-4 items-center">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
