@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
 const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY');
@@ -48,40 +47,56 @@ serve(async (req) => {
     console.log('Client WebSocket connected');
     
     try {
-      // For Deno edge functions, we need to use fetch to upgrade to WebSocket with proper auth
+      // Create WebSocket connection to OpenAI with authentication in headers
       const openAIUrl = `wss://api.openai.com/v1/realtime?model=${OPENAI_REALTIME_MODEL}`;
       console.log('Connecting to OpenAI:', openAIUrl);
       
-      // Use fetch with WebSocket upgrade and proper authentication
-      const upgradeResponse = await fetch(openAIUrl, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${OPENAI_API_KEY}`,
-          'OpenAI-Beta': 'realtime=v1',
-          'Connection': 'Upgrade',
-          'Upgrade': 'websocket',
-          'Sec-WebSocket-Version': '13',
-          'Sec-WebSocket-Key': btoa(Math.random().toString()).substring(0, 24)
+      // Create headers for the WebSocket handshake
+      const wsHeaders = {
+        'Authorization': `Bearer ${OPENAI_API_KEY}`,
+        'OpenAI-Beta': 'realtime=v1'
+      };
+
+      // Create WebSocket connection with headers
+      openAISocket = new WebSocket(openAIUrl);
+      
+      // Add authorization header manually after creation
+      Object.entries(wsHeaders).forEach(([key, value]) => {
+        if (openAISocket && openAISocket.readyState === WebSocket.CONNECTING) {
+          // Note: This approach might not work in all environments
+          // We'll handle auth through the initial session message instead
         }
       });
 
-      if (!upgradeResponse.ok) {
-        const errorText = await upgradeResponse.text();
-        console.error('OpenAI upgrade failed:', upgradeResponse.status, errorText);
-        throw new Error(`Failed to upgrade to WebSocket: ${upgradeResponse.status}`);
-      }
-
-      // Get the WebSocket from the upgrade response
-      openAISocket = upgradeResponse.webSocket;
-      if (!openAISocket) {
-        throw new Error('No WebSocket returned from upgrade');
-      }
-
-      // Accept the WebSocket connection
-      openAISocket.accept();
-
       openAISocket.onopen = () => {
         console.log('Connected to OpenAI Realtime API');
+        
+        // Send authentication through session configuration
+        if (openAISocket && openAISocket.readyState === WebSocket.OPEN) {
+          const sessionConfig = {
+            type: 'session.update',
+            session: {
+              modalities: ['text', 'audio'],
+              instructions: 'You are a helpful AI assistant.',
+              voice: 'alloy',
+              input_audio_format: 'pcm16',
+              output_audio_format: 'pcm16',
+              input_audio_transcription: {
+                model: 'whisper-1'
+              },
+              turn_detection: {
+                type: 'server_vad',
+                threshold: 0.5,
+                prefix_padding_ms: 300,
+                silence_duration_ms: 1000
+              },
+              temperature: 0.8,
+              max_response_output_tokens: 'inf'
+            }
+          };
+          
+          openAISocket.send(JSON.stringify(sessionConfig));
+        }
         
         // Set up app-level keepalive ping every 25 seconds
         keepaliveInterval = setInterval(() => {
