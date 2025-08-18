@@ -1,3 +1,4 @@
+
 import React, { useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -169,42 +170,76 @@ const EfficientVoiceInterface: React.FC<EfficientVoiceInterfaceProps> = ({
         throw new Error(response.error.message);
       }
       
-      console.log('Speech generation successful, playing audio');
+      console.log('Speech generation successful, processing audio data');
       
-      // Create or reuse audio element
-      if (!audioElementRef.current) {
-        audioElementRef.current = document.createElement("audio");
-        audioElementRef.current.onended = () => {
-          console.log('Audio playback ended');
-          setIsSpeaking(false);
-          onSpeakingChange(false);
-        };
-        audioElementRef.current.onerror = (e) => {
-          console.error('Audio playback error:', e);
-          setIsSpeaking(false);
-          onSpeakingChange(false);
-        };
+      // Clean up previous audio element if it exists
+      if (audioElementRef.current) {
+        audioElementRef.current.pause();
+        audioElementRef.current.currentTime = 0;
+        if (audioElementRef.current.src) {
+          URL.revokeObjectURL(audioElementRef.current.src);
+        }
       }
       
-      // Convert response data to audio blob and play
-      const audioData = response.data;
-      const audioBlob = new Blob([audioData], { type: 'audio/mpeg' });
-      const audioUrl = URL.createObjectURL(audioBlob);
+      // Create new audio element
+      audioElementRef.current = new Audio();
       
-      audioElementRef.current.src = audioUrl;
-      audioElementRef.current.volume = 0.8; // Set volume to 80%
-      
-      try {
-        await audioElementRef.current.play();
-        console.log('Audio started playing');
-      } catch (playError) {
-        console.error('Error playing audio:', playError);
+      // Set up event handlers before setting the source
+      audioElementRef.current.onended = () => {
+        console.log('Audio playback ended');
         setIsSpeaking(false);
         onSpeakingChange(false);
-        
-        // Clean up the URL if playback fails
-        URL.revokeObjectURL(audioUrl);
+      };
+      
+      audioElementRef.current.onerror = (e) => {
+        console.error('Audio playback error:', e);
+        setIsSpeaking(false);
+        onSpeakingChange(false);
+        toast({
+          title: "Playback Error",
+          description: "Failed to play audio response",
+          variant: "destructive",
+        });
+      };
+      
+      audioElementRef.current.oncanplaythrough = () => {
+        console.log('Audio can play through, starting playback');
+        audioElementRef.current?.play().catch(playError => {
+          console.error('Error starting playback:', playError);
+          setIsSpeaking(false);
+          onSpeakingChange(false);
+        });
+      };
+      
+      // Process the audio data from the response
+      const audioData = response.data;
+      
+      // Convert the response data to a proper audio blob
+      let audioBlob: Blob;
+      if (audioData instanceof ArrayBuffer) {
+        audioBlob = new Blob([audioData], { type: 'audio/mpeg' });
+      } else if (typeof audioData === 'string') {
+        // If it's base64 encoded
+        const binaryString = atob(audioData);
+        const bytes = new Uint8Array(binaryString.length);
+        for (let i = 0; i < binaryString.length; i++) {
+          bytes[i] = binaryString.charCodeAt(i);
+        }
+        audioBlob = new Blob([bytes], { type: 'audio/mpeg' });
+      } else {
+        // Assume it's already a blob or can be converted to one
+        audioBlob = new Blob([audioData], { type: 'audio/mpeg' });
       }
+      
+      console.log('Created audio blob of size:', audioBlob.size);
+      
+      // Create object URL and set as source
+      const audioUrl = URL.createObjectURL(audioBlob);
+      audioElementRef.current.src = audioUrl;
+      audioElementRef.current.volume = 0.8;
+      
+      // Load the audio
+      audioElementRef.current.load();
       
     } catch (error) {
       console.error('Error generating speech:', error);
@@ -243,6 +278,9 @@ const EfficientVoiceInterface: React.FC<EfficientVoiceInterfaceProps> = ({
       }
       if (audioElementRef.current) {
         audioElementRef.current.pause();
+        if (audioElementRef.current.src) {
+          URL.revokeObjectURL(audioElementRef.current.src);
+        }
         audioElementRef.current.src = '';
       }
     };
