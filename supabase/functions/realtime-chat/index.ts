@@ -48,44 +48,11 @@ serve(async (req) => {
     console.log('Client WebSocket connected');
     
     try {
-      // First, let's try to get an ephemeral token from OpenAI
-      console.log('Getting ephemeral token from OpenAI...');
-      const tokenResponse = await fetch('https://api.openai.com/v1/realtime/sessions', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${OPENAI_API_KEY}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          model: OPENAI_REALTIME_MODEL,
-          voice: 'alloy',
-        }),
-      });
+      // Connect directly to OpenAI Realtime API with API key in URL
+      const openAIUrl = `wss://api.openai.com/v1/realtime?model=${OPENAI_REALTIME_MODEL}&api_key=${OPENAI_API_KEY}`;
+      console.log('Connecting to OpenAI Realtime API');
 
-      if (!tokenResponse.ok) {
-        const errorText = await tokenResponse.text();
-        console.error('Failed to get ephemeral token:', errorText);
-        throw new Error(`Failed to get ephemeral token: ${tokenResponse.status}`);
-      }
-
-      const tokenData = await tokenResponse.json();
-      console.log('Got ephemeral token successfully');
-
-      if (!tokenData.client_secret?.value) {
-        throw new Error('No ephemeral token received');
-      }
-
-      const ephemeralKey = tokenData.client_secret.value;
-      const openAIUrl = `wss://api.openai.com/v1/realtime?model=${OPENAI_REALTIME_MODEL}`;
-      console.log('Connecting to OpenAI with ephemeral token:', openAIUrl);
-
-      // Now create WebSocket connection using the ephemeral token
-      openAISocket = new WebSocket(openAIUrl, [], {
-        headers: {
-          'Authorization': `Bearer ${ephemeralKey}`,
-          'OpenAI-Beta': 'realtime=v1'
-        }
-      });
+      openAISocket = new WebSocket(openAIUrl);
 
       openAISocket.onopen = () => {
         console.log('Connected to OpenAI Realtime API');
