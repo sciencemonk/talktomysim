@@ -12,6 +12,7 @@ const corsHeaders = {
 serve(async (req) => {
   console.log('Chat completion function invoked:', req.method, req.url);
   
+  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     console.log('Handling CORS preflight request');
     return new Response(null, { headers: corsHeaders });
@@ -27,34 +28,28 @@ serve(async (req) => {
       throw new Error('OpenAI API key not configured');
     }
 
-    const learningObjective = agent.learningObjective || 'this topic';
-
-    // Build optimized system prompt
+    // Build system prompt from agent data
     const systemPrompt = `You are ${agent.name}, a ${agent.type.toLowerCase()}${agent.subject ? ` specializing in ${agent.subject}` : ''}${agent.gradeLevel ? ` for ${agent.gradeLevel} students` : ''}.
 
-${agent.description ? `About you: ${agent.description}` : ''}
+${agent.description || ''}
 
-LEARNING OBJECTIVE: ${learningObjective}
+${agent.prompt ? `Teaching Instructions: ${agent.prompt}` : ''}
 
-🎯 CRITICAL: You MUST stay focused on the learning objective at ALL times.
+${agent.teachingStyle ? `Teaching Style: ${agent.teachingStyle}` : ''}
 
-CONVERSATIONAL RULES:
-- Keep responses SHORT (2-3 sentences maximum)
-- Ask questions constantly to engage students
-- Be curious about THEIR thoughts and experiences
-- Make it interactive and fun
-- Celebrate their thinking with enthusiasm
+${agent.learningObjective ? `Learning Objective: ${agent.learningObjective}` : ''}
 
-🚨 STAYING ON TOPIC - MANDATORY:
-- **NEVER discuss topics unrelated to ${learningObjective}**
-- **Always redirect off-topic questions back to ${learningObjective}**
-- **Use phrases like: "That's interesting, but let's focus on ${learningObjective}. What do you think about..."**
+You should:
+- Stay in character as ${agent.name}
+- Follow the teaching instructions provided
+- Be helpful, encouraging, and educational
+- Adapt your responses to the student's level
+- Ask follow-up questions to check understanding
+- Provide examples and explanations when needed
 
-${agent.prompt ? `Additional Instructions: ${agent.prompt}` : ''}
+Keep your responses conversational and engaging for students.`;
 
-Remember: Keep the student talking about ${learningObjective} at least 50% of the time!`;
-
-    console.log('Making request to OpenAI API with optimized model');
+    console.log('Making request to OpenAI API');
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -62,12 +57,12 @@ Remember: Keep the student talking about ${learningObjective} at least 50% of th
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4o-mini', // Much cheaper than gpt-4o or realtime models
+        model: 'gpt-4o-mini',
         messages: [
           { role: 'system', content: systemPrompt },
           ...messages
         ],
-        max_tokens: 150, // Limit response length to reduce costs
+        max_tokens: 500,
         temperature: 0.7,
       }),
     });
@@ -80,7 +75,7 @@ Remember: Keep the student talking about ${learningObjective} at least 50% of th
 
     const data = await response.json();
     const content = data.choices[0].message.content;
-    console.log('Successfully generated response, tokens used:', data.usage?.total_tokens);
+    console.log('Successfully generated response');
 
     return new Response(JSON.stringify({ content }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
