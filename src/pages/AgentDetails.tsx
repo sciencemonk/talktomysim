@@ -104,9 +104,9 @@ const AgentDetails = () => {
 
   return (
     <div className="min-h-screen bg-slate-50">
-      {/* Header with Back Navigation */}
+      {/* Compact Header with Back Navigation */}
       <div className="border-b bg-white shadow-sm">
-        <div className="container mx-auto px-6 py-4">
+        <div className="container mx-auto px-6 py-3">
           <div className="flex items-center justify-between">
             <Button 
               variant="ghost" 
@@ -116,9 +116,9 @@ const AgentDetails = () => {
               <ChevronLeft className="h-4 w-4" />
               Back to Dashboard
             </Button>
-            <div className="flex items-center gap-3">
-              <div className="bg-blue-600 p-1.5 rounded-lg">
-                <Bot className="h-4 w-4 text-white" />
+            <div className="flex items-center gap-2">
+              <div className="bg-blue-600 p-1 rounded">
+                <Bot className="h-3 w-3 text-white" />
               </div>
               <span className="text-sm font-medium text-slate-700">TeacherHub</span>
             </div>
@@ -126,37 +126,49 @@ const AgentDetails = () => {
         </div>
       </div>
 
-      <div className="container mx-auto px-6 py-8 space-y-8">
-        {/* Tutor Header */}
-        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-8">
-          <div className="flex flex-col sm:flex-row sm:items-center gap-6">
-            <Avatar className="h-20 w-20 sm:h-24 sm:w-24 border-4 border-blue-100 shadow-lg">
+      <div className="container mx-auto px-6 py-6 space-y-6">
+        {/* Compact Tutor Header */}
+        <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-6">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+            <Avatar className="h-16 w-16 border-2 border-blue-100 shadow-md">
               <AvatarImage src={agent.avatar} alt={agent.name} />
-              <AvatarFallback className="bg-gradient-to-br from-blue-500 to-blue-600 text-white">
-                <Bot className="h-10 w-10 sm:h-12 sm:w-12" />
+              <AvatarFallback className="bg-blue-500 text-white">
+                <Bot className="h-8 w-8" />
               </AvatarFallback>
             </Avatar>
             <div className="flex-1">
-              <h1 className="text-3xl font-bold text-slate-900 mb-2">{agent.name}</h1>
-              <div className="flex items-center gap-3 mb-4">
+              <h1 className="text-2xl font-bold text-slate-900 mb-2">{agent.name}</h1>
+              <div className="flex items-center gap-2 mb-3">
                 <Badge 
                   variant={agent.status === 'active' ? 'default' : 'secondary'}
                   className={agent.status === 'active' ? 'bg-green-100 text-green-800 border-green-200' : ''}
                 >
                   {agent.status}
                 </Badge>
-                <span className="text-slate-600 font-medium">
+                <span className="text-slate-600 font-medium text-sm">
                   {agent.type} • {agent.subject || 'General'}
                 </span>
               </div>
-              <p className="text-slate-600 leading-relaxed">
+              <p className="text-slate-600 text-sm leading-relaxed">
                 {agent.description || "A helpful AI tutor designed to support student learning"}
               </p>
+              
+              {agent.learningObjective && (
+                <div className="mt-3 p-3 bg-green-50 dark:bg-green-900/20 rounded-md border border-green-200 dark:border-green-800">
+                  <div className="flex items-center gap-2 mb-1">
+                    <Target className="h-4 w-4 text-green-600 dark:text-green-400" />
+                    <span className="text-sm font-medium text-green-700 dark:text-green-300">Learning Objective</span>
+                  </div>
+                  <p className="text-sm text-green-700 dark:text-green-300">
+                    {agent.learningObjective}
+                  </p>
+                </div>
+              )}
             </div>
           </div>
         </div>
 
-        {/* Stats Cards */}
+        {/* Compact Stats Cards */}
         <AgentStats 
           avmScore={agent.avmScore}
           interactionCount={agent.interactions || 0}
@@ -165,27 +177,27 @@ const AgentDetails = () => {
         />
 
         {/* Main Content */}
-        <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+        <div className="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden">
           <Tabs defaultValue="settings" className="w-full">
             <div className="border-b border-slate-200 bg-slate-50">
               <TabsList className="w-full bg-transparent border-none h-auto p-0">
                 <TabsTrigger 
                   value="settings" 
-                  className="flex-1 py-4 px-6 data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:border-b-2 data-[state=active]:border-blue-600 rounded-none border-b-2 border-transparent"
+                  className="flex-1 py-3 px-4 data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:border-b-2 data-[state=active]:border-blue-600 rounded-none border-b-2 border-transparent text-sm"
                 >
                   <Settings className="h-4 w-4 mr-2" />
                   Settings
                 </TabsTrigger>
                 <TabsTrigger 
                   value="channels" 
-                  className="flex-1 py-4 px-6 data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:border-b-2 data-[state=active]:border-blue-600 rounded-none border-b-2 border-transparent"
+                  className="flex-1 py-3 px-4 data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:border-b-2 data-[state=active]:border-blue-600 rounded-none border-b-2 border-transparent text-sm"
                 >
                   <MessageCircle className="h-4 w-4 mr-2" />
                   Channels
                 </TabsTrigger>
                 <TabsTrigger 
                   value="analytics" 
-                  className="flex-1 py-4 px-6 data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:border-b-2 data-[state=active]:border-blue-600 rounded-none border-b-2 border-transparent"
+                  className="flex-1 py-3 px-4 data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:border-b-2 data-[state=active]:border-blue-600 rounded-none border-b-2 border-transparent text-sm"
                 >
                   <BarChart3 className="h-4 w-4 mr-2" />
                   Analytics
@@ -193,7 +205,7 @@ const AgentDetails = () => {
               </TabsList>
             </div>
 
-            <TabsContent value="settings" className="p-8 space-y-6">
+            <TabsContent value="settings" className="p-6 space-y-4">
               <AgentConfigSettings 
                 agent={agent}
                 onAgentUpdate={handleAgentUpdate}
@@ -202,61 +214,61 @@ const AgentDetails = () => {
               />
             </TabsContent>
 
-            <TabsContent value="channels" className="p-8">
-              <div className="space-y-6">
+            <TabsContent value="channels" className="p-6">
+              <div className="space-y-4">
                 <div>
-                  <h3 className="text-lg font-semibold text-slate-900 mb-2">Communication Channels</h3>
-                  <p className="text-slate-600">Configure how students can interact with your tutor</p>
+                  <h3 className="text-lg font-semibold text-slate-900 mb-1">Communication Channels</h3>
+                  <p className="text-slate-600 text-sm">Configure how students can interact with your tutor</p>
                 </div>
                 
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between p-6 border border-slate-200 rounded-lg bg-slate-50">
-                    <div className="flex items-center gap-4">
-                      <div className="bg-blue-100 p-3 rounded-lg">
-                        <MessageCircle className="h-5 w-5 text-blue-600" />
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between p-4 border border-slate-200 rounded-lg bg-slate-50">
+                    <div className="flex items-center gap-3">
+                      <div className="bg-blue-100 p-2 rounded-lg">
+                        <MessageCircle className="h-4 w-4 text-blue-600" />
                       </div>
                       <div>
-                        <h4 className="font-medium text-slate-900">Chat Interface</h4>
-                        <p className="text-sm text-slate-600">Text-based conversations with students</p>
+                        <h4 className="font-medium text-slate-900 text-sm">Chat Interface</h4>
+                        <p className="text-xs text-slate-600">Text-based conversations with students</p>
                       </div>
                     </div>
-                    <Badge className="bg-green-100 text-green-800 border-green-200">Active</Badge>
+                    <Badge className="bg-green-100 text-green-800 border-green-200 text-xs">Active</Badge>
                   </div>
                   
                   {agent.phone && (
-                    <div className="flex items-center justify-between p-6 border border-slate-200 rounded-lg">
-                      <div className="flex items-center gap-4">
-                        <div className="bg-slate-100 p-3 rounded-lg">
-                          <Phone className="h-5 w-5 text-slate-600" />
+                    <div className="flex items-center justify-between p-4 border border-slate-200 rounded-lg">
+                      <div className="flex items-center gap-3">
+                        <div className="bg-slate-100 p-2 rounded-lg">
+                          <Phone className="h-4 w-4 text-slate-600" />
                         </div>
                         <div>
-                          <h4 className="font-medium text-slate-900">Phone</h4>
-                          <p className="text-sm text-slate-600">{agent.phone}</p>
+                          <h4 className="font-medium text-slate-900 text-sm">Phone</h4>
+                          <p className="text-xs text-slate-600">{agent.phone}</p>
                         </div>
                       </div>
-                      <Badge variant="secondary">Configured</Badge>
+                      <Badge variant="secondary" className="text-xs">Configured</Badge>
                     </div>
                   )}
                   
                   {agent.email && (
-                    <div className="flex items-center justify-between p-6 border border-slate-200 rounded-lg">
-                      <div className="flex items-center gap-4">
-                        <div className="bg-slate-100 p-3 rounded-lg">
-                          <Mail className="h-5 w-5 text-slate-600" />
+                    <div className="flex items-center justify-between p-4 border border-slate-200 rounded-lg">
+                      <div className="flex items-center gap-3">
+                        <div className="bg-slate-100 p-2 rounded-lg">
+                          <Mail className="h-4 w-4 text-slate-600" />
                         </div>
                         <div>
-                          <h4 className="font-medium text-slate-900">Email</h4>
-                          <p className="text-sm text-slate-600">{agent.email}</p>
+                          <h4 className="font-medium text-slate-900 text-sm">Email</h4>
+                          <p className="text-xs text-slate-600">{agent.email}</p>
                         </div>
                       </div>
-                      <Badge variant="secondary">Configured</Badge>
+                      <Badge variant="secondary" className="text-xs">Configured</Badge>
                     </div>
                   )}
                 </div>
               </div>
             </TabsContent>
 
-            <TabsContent value="analytics" className="p-8">
+            <TabsContent value="analytics" className="p-6">
               <AnalyticsTab agent={agent} />
             </TabsContent>
           </Tabs>
