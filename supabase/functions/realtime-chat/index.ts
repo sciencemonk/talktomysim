@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
 const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY');
@@ -48,44 +47,37 @@ serve(async (req) => {
     console.log('Client WebSocket connected');
     
     try {
-      // Connect to OpenAI Realtime API using fetch to establish WebSocket connection
+      // Connect to OpenAI Realtime API using fetch + Response.webSocket
       const openAIUrl = `wss://api.openai.com/v1/realtime?model=${OPENAI_REALTIME_MODEL}`;
       console.log('Connecting to OpenAI:', openAIUrl);
       
-      // Use fetch with WebSocket upgrade to properly send headers
-      const response = await fetch(openAIUrl, {
-        headers: {
-          "Authorization": `Bearer ${OPENAI_API_KEY}`,
-          "OpenAI-Beta": "realtime=v1",
-          "Upgrade": "websocket",
-          "Connection": "Upgrade",
-          "Sec-WebSocket-Version": "13",
-          "Sec-WebSocket-Key": btoa(crypto.getRandomValues(new Uint8Array(16)).join(''))
-        }
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-      }
-
-      // Create WebSocket connection after successful handshake
-      openAISocket = new WebSocket(openAIUrl, [], {
+      // Use fetch with proper headers for WebSocket upgrade
+      const openAIResp = await fetch(openAIUrl, {
         headers: {
           "Authorization": `Bearer ${OPENAI_API_KEY}`,
           "OpenAI-Beta": "realtime=v1"
-        }
+        },
+        upgrade: "websocket"
       });
+
+      openAISocket = openAIResp.webSocket;
+      if (!openAISocket) {
+        throw new Error("No WebSocket in response");
+      }
+
+      // Required by Deno to finalize the client-side upgrade
+      openAISocket.accept();
 
       openAISocket.onopen = () => {
         console.log('Connected to OpenAI Realtime API');
         
-        // Set up keepalive ping every 25 seconds
+        // Set up app-level keepalive ping every 25 seconds
         keepaliveInterval = setInterval(() => {
           if (socket.readyState === WebSocket.OPEN) {
-            socket.ping();
+            socket.send(JSON.stringify({type: "ping"}));
           }
           if (openAISocket && openAISocket.readyState === WebSocket.OPEN) {
-            openAISocket.ping();
+            openAISocket.send(JSON.stringify({type: "ping"}));
           }
         }, 25000);
       };
