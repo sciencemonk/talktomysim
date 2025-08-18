@@ -100,76 +100,10 @@ const Landing = () => {
         </div>
       </header>
 
-      {/* Hero Section */}
-      <section className="relative py-16 sm:py-24 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-600/5 to-purple-600/5 dark:from-blue-400/5 dark:to-purple-400/5" />
-        <div className="container mx-auto px-4 sm:px-6 relative">
-          <div className="text-center max-w-4xl mx-auto">
-            <h2 className="text-3xl sm:text-5xl lg:text-6xl font-bold mb-6 sm:mb-8">
-              <span className="bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 dark:from-blue-400 dark:via-purple-400 dark:to-blue-300 bg-clip-text text-transparent">
-                Welcome to the Future
-              </span>
-              <br />
-              <span className="text-gray-900 dark:text-white">of Learning</span>
-            </h2>
-            <p className="text-lg sm:text-xl text-gray-700 dark:text-gray-300 mb-4 leading-relaxed max-w-3xl mx-auto">
-              Empower teachers to differentiate in an entirely new way with <strong className="text-purple-600 dark:text-purple-400">Thinking Partners</strong>. 
-              Students can now have in-depth conversations and discussions with teacher-created AI.
-            </p>
-            <p className="text-lg sm:text-xl font-semibold text-blue-600 dark:text-blue-400 mb-12">
-              This isn't just AI augmentation — it's AI transformation.
-            </p>
-            
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6">
-              <Button 
-                size="lg"
-                onClick={handleSignInWithGoogle}
-                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-4 rounded-full font-semibold text-lg shadow-xl hover:shadow-2xl transform hover:-translate-y-1 transition-all duration-200"
-              >
-                Get Started Free
-              </Button>
-              <Button 
-                size="lg"
-                variant="outline"
-                className="border-2 border-gray-300 hover:border-blue-500 text-gray-700 dark:text-gray-300 px-8 py-4 rounded-full font-semibold text-lg bg-white/50 backdrop-blur hover:bg-white/80 transition-all duration-200"
-              >
-                Explore Tutors
-              </Button>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Trust Banner */}
-      <section className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-950/30 dark:to-purple-950/30 border-y border-blue-100 dark:border-blue-900">
-        <div className="container mx-auto px-4 sm:px-6 py-4 sm:py-6">
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-6 sm:gap-12 text-sm sm:text-base">
-            <div className="flex items-center gap-3 text-blue-700 dark:text-blue-300">
-              <div className="p-2 rounded-full bg-blue-100 dark:bg-blue-900/50">
-                <Shield className="h-4 w-4 sm:h-5 sm:w-5" />
-              </div>
-              <span className="font-semibold">COPPA Compliant</span>
-            </div>
-            <div className="flex items-center gap-3 text-green-700 dark:text-green-300">
-              <div className="p-2 rounded-full bg-green-100 dark:bg-green-900/50">
-                <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5" />
-              </div>
-              <span className="font-semibold">Built for Classrooms</span>
-            </div>
-            <div className="flex items-center gap-3 text-purple-700 dark:text-purple-300">
-              <div className="p-2 rounded-full bg-purple-100 dark:bg-purple-900/50">
-                <Award className="h-4 w-4 sm:h-5 sm:w-5" />
-              </div>
-              <span className="font-semibold">Free Google Sign In</span>
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* Main Content */}
-      <section className="container mx-auto px-4 sm:px-6 py-12 sm:py-16">
+      <section className="container mx-auto px-4 sm:px-6 py-8 sm:py-12">
         {/* Search and Filters */}
-        <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-lg rounded-2xl border border-gray-200/50 dark:border-gray-700/50 p-6 sm:p-8 mb-8 sm:mb-12 shadow-xl">
+        <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-lg rounded-2xl border border-gray-200/50 dark:border-gray-700/50 p-6 sm:p-8 mb-6 sm:mb-8 shadow-xl">
           <div className="flex flex-col gap-6">
             <div className="relative">
               <Search className="absolute left-4 top-4 h-5 w-5 text-gray-400" />
@@ -251,28 +185,61 @@ const Landing = () => {
           </div>
         </div>
 
+        {/* Trust Banner */}
+        <section className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-950/30 dark:to-purple-950/30 border border-blue-100 dark:border-blue-900 rounded-2xl mb-8">
+          <div className="container mx-auto px-4 sm:px-6 py-4 sm:py-6">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-6 sm:gap-12 text-sm sm:text-base">
+              <div className="flex items-center gap-3 text-blue-700 dark:text-blue-300">
+                <div className="p-2 rounded-full bg-blue-100 dark:bg-blue-900/50">
+                  <Shield className="h-4 w-4 sm:h-5 sm:w-5" />
+                </div>
+                <span className="font-semibold">COPPA Compliant</span>
+              </div>
+              <div className="flex items-center gap-3 text-green-700 dark:text-green-300">
+                <div className="p-2 rounded-full bg-green-100 dark:bg-green-900/50">
+                  <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5" />
+                </div>
+                <span className="font-semibold">Built for Classrooms</span>
+              </div>
+              <div className="flex items-center gap-3 text-purple-700 dark:text-purple-300">
+                <div className="p-2 rounded-full bg-purple-100 dark:bg-purple-900/50">
+                  <Award className="h-4 w-4 sm:h-5 sm:w-5" />
+                </div>
+                <span className="font-semibold">Free Google Sign In</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
         {/* Tutors Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
           {isLoading ? (
             // Loading skeleton
-            Array.from({ length: 6 }).map((_, i) => (
-              <Card key={i} className="animate-pulse border-gray-200 dark:border-gray-700 rounded-2xl overflow-hidden">
-                <CardHeader className="pb-4">
-                  <div className="flex items-center space-x-4">
-                    <div className="h-12 w-12 sm:h-14 sm:w-14 bg-gray-200 dark:bg-gray-700 rounded-full" />
-                    <div className="space-y-3 flex-1">
+            Array.from({ length: 8 }).map((_, i) => (
+              <Card key={i} className="animate-pulse border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden">
+                <CardHeader className="pb-3 p-4">
+                  <div className="flex items-center space-x-3">
+                    <div className="h-10 w-10 bg-gray-200 dark:bg-gray-700 rounded-full" />
+                    <div className="space-y-2 flex-1">
                       <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4" />
-                      <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-1/2" />
+                      <div className="flex gap-1">
+                        <div className="h-5 bg-gray-200 dark:bg-gray-700 rounded w-12" />
+                        <div className="h-5 bg-gray-200 dark:bg-gray-700 rounded w-16" />
+                      </div>
                     </div>
                   </div>
                 </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
+                <CardContent className="p-4 pt-0">
+                  <div className="space-y-3">
                     <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded" />
                     <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-4/5" />
+                    <div className="flex justify-between items-center">
+                      <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-12" />
+                      <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-8" />
+                    </div>
                     <div className="flex gap-2">
-                      <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-16" />
-                      <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-20" />
+                      <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded flex-1" />
+                      <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded flex-1" />
                     </div>
                   </div>
                 </CardContent>
@@ -282,30 +249,30 @@ const Landing = () => {
             filteredTutors.map((tutor) => (
               <Card 
                 key={tutor.id} 
-                className="cursor-pointer hover:shadow-2xl transition-all duration-300 border-gray-200/50 dark:border-gray-700/50 hover:border-blue-300 dark:hover:border-blue-600 rounded-2xl overflow-hidden bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm hover:-translate-y-2 group"
+                className="cursor-pointer hover:shadow-xl transition-all duration-300 border-gray-200/50 dark:border-gray-700/50 hover:border-blue-300 dark:hover:border-blue-600 rounded-xl overflow-hidden bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm hover:-translate-y-1 group"
                 onClick={() => handleTutorClick(tutor.id)}
               >
-                <CardHeader className="pb-4 p-6 sm:p-8">
-                  <div className="flex items-center space-x-4">
-                    <Avatar className="h-12 w-12 sm:h-14 sm:w-14 border-3 border-white shadow-lg group-hover:scale-110 transition-transform duration-200">
+                <CardHeader className="pb-3 p-4">
+                  <div className="flex items-center space-x-3">
+                    <Avatar className="h-10 w-10 border-2 border-white shadow-md group-hover:scale-105 transition-transform duration-200">
                       <AvatarImage src={tutor.avatar} alt={tutor.name} />
-                      <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white">
-                        <Bot className="h-6 w-6 sm:h-7 sm:w-7" />
+                      <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white text-sm">
+                        <Bot className="h-5 w-5" />
                       </AvatarFallback>
                     </Avatar>
                     <div className="flex-1 min-w-0">
-                      <CardTitle className="text-base sm:text-lg font-bold truncate text-gray-900 dark:text-white mb-2">
+                      <CardTitle className="text-sm font-bold truncate text-gray-900 dark:text-white mb-1 leading-tight">
                         {tutor.name}
                       </CardTitle>
-                      <div className="flex flex-wrap gap-2">
+                      <div className="flex flex-wrap gap-1">
                         {tutor.subject && (
-                          <Badge variant="secondary" className="text-xs font-medium rounded-full px-3 py-1">
+                          <Badge variant="secondary" className="text-xs font-medium rounded-full px-2 py-0.5 h-5">
                             {tutor.subject.charAt(0).toUpperCase() + tutor.subject.slice(1)}
                           </Badge>
                         )}
                         {tutor.gradeLevel && (
-                          <Badge variant="outline" className="text-xs rounded-full px-3 py-1">
-                            Grades {tutor.gradeLevel}
+                          <Badge variant="outline" className="text-xs rounded-full px-2 py-0.5 h-5">
+                            {tutor.gradeLevel}
                           </Badge>
                         )}
                       </div>
@@ -313,39 +280,39 @@ const Landing = () => {
                   </div>
                 </CardHeader>
                 
-                <CardContent className="pt-0 p-6 sm:p-8 sm:pt-0">
-                  <p className="text-sm sm:text-base text-gray-700 dark:text-gray-300 mb-4 sm:mb-6 line-clamp-2 leading-relaxed">
+                <CardContent className="pt-0 p-4">
+                  <p className="text-xs text-gray-700 dark:text-gray-300 mb-3 line-clamp-2 leading-relaxed">
                     {tutor.description}
                   </p>
 
-                  <div className="flex items-center justify-between text-xs sm:text-sm text-gray-500 dark:text-gray-400 mb-4 sm:mb-6">
-                    <div className="flex items-center gap-2">
-                      <Users className="h-4 w-4" />
-                      <span className="font-medium">{tutor.interactions || 0} uses</span>
+                  <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 mb-3">
+                    <div className="flex items-center gap-1">
+                      <Users className="h-3 w-3" />
+                      <span className="font-medium">{tutor.interactions || 0}</span>
                     </div>
                     {tutor.performance && (
-                      <div className="flex items-center gap-2">
-                        <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                      <div className="flex items-center gap-1">
+                        <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
                         <span className="font-medium">{tutor.performance.toFixed(1)}</span>
                       </div>
                     )}
                   </div>
 
-                  <div className="flex flex-col sm:flex-row gap-3">
+                  <div className="flex gap-2">
                     <Button 
                       size="sm" 
                       variant="outline"
-                      className="flex-1 text-sm font-semibold rounded-full border-2 hover:bg-gray-50 dark:hover:bg-gray-800"
+                      className="flex-1 text-xs font-semibold rounded-full border hover:bg-gray-50 dark:hover:bg-gray-800 h-8"
                       onClick={(e) => {
                         e.stopPropagation();
                         handleTutorClick(tutor.id);
                       }}
                     >
-                      View Details
+                      Details
                     </Button>
                     <Button 
                       size="sm" 
-                      className="flex-1 text-sm font-semibold bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 rounded-full shadow-lg hover:shadow-xl transition-all duration-200"
+                      className="flex-1 text-xs font-semibold bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 rounded-full shadow-md hover:shadow-lg transition-all duration-200 h-8"
                       onClick={(e) => handleDemoTutor(tutor.id, e)}
                     >
                       Try Demo
