@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { AuthProvider } from './hooks/useAuth';
@@ -27,12 +28,6 @@ function App() {
             
             {/* Protected routes with layout */}
             <Route path="/dashboard" element={
-              <DashboardLayout>
-                <TeacherDashboard />
-              </DashboardLayout>
-            } />
-            {/* Keep agents routes for backward compatibility */}
-            <Route path="/agents" element={
               <DashboardLayout>
                 <TeacherDashboard />
               </DashboardLayout>
