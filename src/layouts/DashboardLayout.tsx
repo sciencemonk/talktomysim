@@ -7,9 +7,7 @@ import { ThemeToggle } from '@/components/ThemeToggle';
 import { 
   LayoutDashboard, 
   Store, 
-  GraduationCap, 
-  Settings, 
-  CreditCard 
+  GraduationCap
 } from 'lucide-react';
 
 interface DashboardLayoutProps {
@@ -23,8 +21,6 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
     { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
     { name: 'Marketplace', href: '/marketplace', icon: Store },
     { name: 'Professional Development', href: '/professional-development', icon: GraduationCap },
-    { name: 'Settings', href: '/settings', icon: Settings },
-    { name: 'Billing', href: '/billing', icon: CreditCard },
   ];
 
   return (
@@ -35,13 +31,8 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
           <div className="flex justify-between items-center h-16">
             {/* Logo */}
             <div className="flex-shrink-0">
-              <Link to="/dashboard" className="text-2xl font-bold">
-                <span className="font-bold text-blue-600">T</span>
-                <span className="text-gray-900 dark:text-white">hink </span>
-                <span className="font-bold text-blue-600">W</span>
-                <span className="text-gray-900 dark:text-white">ith </span>
-                <span className="font-bold text-blue-600">M</span>
-                <span className="text-gray-900 dark:text-white">e</span>
+              <Link to="/dashboard" className="text-2xl font-bold text-gray-900 dark:text-white">
+                Think With Me
               </Link>
             </div>
 
