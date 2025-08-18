@@ -2,7 +2,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
 const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY');
-const OPENAI_REALTIME_MODEL = Deno.env.get('OPENAI_REALTIME_MODEL') ?? 'gpt-4o-realtime-preview';
+const OPENAI_REALTIME_MODEL = Deno.env.get('OPENAI_REALTIME_MODEL') ?? 'gpt-4o-realtime-preview-2024-10-01';
 
 serve(async (req) => {
   if (!OPENAI_API_KEY) {
@@ -48,7 +48,7 @@ serve(async (req) => {
     console.log('Client WebSocket connected');
     
     try {
-      // Connect to OpenAI Realtime API with proper authentication
+      // Connect to OpenAI Realtime API with correct URL and headers
       const openAIUrl = `wss://api.openai.com/v1/realtime?model=${OPENAI_REALTIME_MODEL}`;
       console.log('Connecting to OpenAI:', openAIUrl);
       
