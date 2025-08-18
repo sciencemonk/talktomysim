@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Bot, Send, ArrowUp, Loader2, AlertCircle, Mic } from 'lucide-react';
+import { Bot, Send, ArrowUp, Loader2, AlertCircle, Mic, MessageCircle } from 'lucide-react';
 import { fetchAgentById } from '@/services/agentService';
 import { AgentType } from '@/types/agent';
 import VoiceInterface from '@/components/VoiceInterface';
@@ -26,7 +26,7 @@ const StudentChat = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputMessage, setInputMessage] = useState('');
   const [isSending, setIsSending] = useState(false);
-  const [isVoiceModeEnabled, setIsVoiceModeEnabled] = useState(false);
+  const [isVoiceModeEnabled, setIsVoiceModeEnabled] = useState(true); // Default to voice mode
   const [isSpeaking, setIsSpeaking] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -277,8 +277,17 @@ const StudentChat = () => {
                 variant={isVoiceModeEnabled ? "default" : "outline"}
                 size="sm"
               >
-                <Mic className="h-4 w-4 mr-2" />
-                Voice Chat
+                {isVoiceModeEnabled ? (
+                  <>
+                    <Mic className="h-4 w-4 mr-2" />
+                    Voice Chat
+                  </>
+                ) : (
+                  <>
+                    <MessageCircle className="h-4 w-4 mr-2" />
+                    Text Chat
+                  </>
+                )}
               </Button>
             </div>
           </div>
@@ -346,7 +355,7 @@ const StudentChat = () => {
         </div>
       </div>
 
-      {/* Input - only show when voice mode is disabled */}
+      {/* Text Input - only show when voice mode is disabled */}
       {!isVoiceModeEnabled && (
         <div className="border-t bg-card/50 backdrop-blur-sm">
           <div className="max-w-4xl mx-auto px-4 py-4">
@@ -375,7 +384,7 @@ const StudentChat = () => {
         </div>
       )}
 
-      {/* Voice Interface */}
+      {/* Voice Interface - show when voice mode is enabled */}
       {isVoiceModeEnabled && agent && (
         <VoiceInterface
           agent={agent}
