@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
@@ -71,8 +70,8 @@ const Landing = () => {
                 <Bot className="h-6 w-6 text-white" />
               </div>
               <div>
-                <h1 className="text-xl font-semibold text-gray-900 dark:text-white">TeacherHub</h1>
-                <p className="text-sm text-gray-500 dark:text-gray-400">AI Tutoring Platform</p>
+                <h1 className="text-xl font-semibold text-gray-900 dark:text-white">Think With Me</h1>
+                <p className="text-sm text-gray-500 dark:text-gray-400">AI-Powered Learning Conversations</p>
               </div>
             </div>
             <div className="flex items-center gap-3">
@@ -383,12 +382,12 @@ const Landing = () => {
                 <Bot className="h-5 w-5 text-white" />
               </div>
               <div>
-                <h3 className="font-semibold text-gray-900 dark:text-white">TeacherHub</h3>
+                <h3 className="font-semibold text-gray-900 dark:text-white">Think With Me</h3>
                 <p className="text-xs text-gray-500 dark:text-gray-400">Empowering educators with AI</p>
               </div>
             </div>
             <div className="text-sm text-gray-500 dark:text-gray-400">
-              © 2024 TeacherHub. Built for educators, by educators.
+              © 2024 Think With Me. Built for educators, by educators.
             </div>
           </div>
         </div>

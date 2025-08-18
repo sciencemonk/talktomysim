@@ -19,8 +19,8 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                   <Bot className="h-5 w-5 text-white" />
                 </div>
                 <div>
-                  <h1 className="text-lg font-semibold text-gray-900 dark:text-white">TeacherHub</h1>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">AI Tutoring Dashboard</p>
+                  <h1 className="text-lg font-semibold text-gray-900 dark:text-white">Think With Me</h1>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">AI-Powered Learning Conversations</p>
                 </div>
               </div>
               <UserSettingsDropdown />
