@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
@@ -77,21 +78,21 @@ const Landing = () => {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-900 dark:to-blue-950">
       {/* Header */}
       <header className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-lg border-b border-gray-200/50 dark:border-gray-700/50 sticky top-0 z-50">
-        <div className="container mx-auto px-4 sm:px-6 py-4 sm:py-6">
+        <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3 sm:space-x-4">
-              <div className="p-2 sm:p-3 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center shadow-lg">
+            <div className="flex items-center space-x-3">
+              <div className="p-2 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center shadow-lg">
                 <img 
                   src="/lovable-uploads/1a618b3c-11e7-43e4-a2d5-c1e6f36e48ba.png" 
                   alt="Think With Me Logo" 
-                  className="h-8 w-8 sm:h-10 sm:w-10"
+                  className="h-8 w-8"
                 />
               </div>
               <div>
-                <h1 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 dark:from-white dark:to-gray-300 bg-clip-text text-transparent">
+                <h1 className="text-xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 dark:from-white dark:to-gray-300 bg-clip-text text-transparent">
                   Think With Me
                 </h1>
-                <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 font-medium">
+                <p className="text-sm text-gray-600 dark:text-gray-400 font-medium hidden sm:block">
                   Thinking Partners for Classrooms
                 </p>
               </div>
@@ -99,14 +100,15 @@ const Landing = () => {
             <div className="flex items-center gap-4">
               <Button 
                 onClick={handleSignInWithGoogle} 
-                className="bg-white hover:bg-gray-50 text-gray-900 border border-gray-300 rounded-full text-sm sm:text-base px-6 sm:px-8 py-2.5 sm:py-3 font-semibold flex items-center gap-3 shadow-lg hover:shadow-xl transition-all duration-200"
+                className="bg-white hover:bg-gray-50 text-gray-900 border border-gray-300 rounded-full text-sm px-4 sm:px-6 py-2 font-semibold flex items-center gap-2 shadow-lg hover:shadow-xl transition-all duration-200"
               >
                 <img 
                   src="/lovable-uploads/b0174e22-c5cc-4bc5-8b34-8df738173560.png" 
                   alt="Google" 
-                  className="h-5 w-5 sm:h-6 sm:w-6"
+                  className="h-4 w-4"
                 />
-                Sign in with Google
+                <span className="hidden sm:inline">Sign in with Google</span>
+                <span className="sm:hidden">Sign in</span>
               </Button>
             </div>
           </div>
@@ -114,80 +116,76 @@ const Landing = () => {
       </header>
 
       {/* Main Content */}
-      <section className="container mx-auto px-4 sm:px-6 py-8 sm:py-12">
-        {/* Trust Banner */}
-        <section className="bg-blue-50 dark:bg-blue-950/30 border border-blue-100 dark:border-blue-900 rounded-2xl mb-6 sm:mb-8">
-          <div className="px-4 sm:px-6 py-3 sm:py-4">
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8 text-xs sm:text-sm text-blue-700 dark:text-blue-300">
-              <div className="flex items-center gap-2">
-                <Shield className="h-3 w-3 sm:h-4 sm:w-4" />
+      <section className="container mx-auto px-4 py-6">
+        {/* Trust Banner - Compact */}
+        <section className="bg-blue-50 dark:bg-blue-950/30 border border-blue-100 dark:border-blue-900 rounded-xl mb-4">
+          <div className="px-4 py-2">
+            <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 text-xs text-blue-700 dark:text-blue-300">
+              <div className="flex items-center gap-1.5">
+                <Shield className="h-3 w-3" />
                 <span>COPPA Compliant</span>
               </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4" />
+              <div className="flex items-center gap-1.5">
+                <CheckCircle className="h-3 w-3" />
                 <span>Built for Classrooms</span>
               </div>
-              <div className="flex items-center gap-2">
-                <Award className="h-3 w-3 sm:h-4 sm:w-4" />
+              <div className="flex items-center gap-1.5">
+                <Award className="h-3 w-3" />
                 <span>Free Google Sign In</span>
               </div>
             </div>
           </div>
         </section>
 
-        {/* Search and Filters */}
-        <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-lg rounded-2xl border border-gray-200/50 dark:border-gray-700/50 p-6 sm:p-8 mb-6 sm:mb-8 shadow-xl">
-          <div className="flex flex-col gap-6">
+        {/* Search and Filters - Compact */}
+        <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-lg rounded-xl border border-gray-200/50 dark:border-gray-700/50 p-4 mb-6 shadow-xl">
+          <div className="flex flex-col gap-3">
             <div className="relative">
-              <Search className="absolute left-4 top-4 h-5 w-5 text-gray-400" />
+              <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
               <Input
                 placeholder="Search by subject, grade level, or tutor name..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-12 h-12 text-base border-gray-300 dark:border-gray-600 rounded-xl bg-white/80 dark:bg-gray-900/80 backdrop-blur focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="pl-10 h-10 text-sm border-gray-300 dark:border-gray-600 rounded-lg bg-white/80 dark:bg-gray-900/80 backdrop-blur focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
             </div>
             
-            <div className="grid grid-cols-2 sm:flex gap-3 sm:gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
               <Select value={sortBy} onValueChange={setSortBy}>
-                <SelectTrigger className="w-full sm:w-[160px] h-11 rounded-xl bg-white/80 dark:bg-gray-900/80 backdrop-blur border-gray-300 dark:border-gray-600">
+                <SelectTrigger className="h-9 rounded-lg bg-white/80 dark:bg-gray-900/80 backdrop-blur border-gray-300 dark:border-gray-600">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="trending">
                     <div className="flex items-center gap-2">
-                      <TrendingUp className="h-4 w-4" />
-                      <span className="hidden sm:inline">Most Used</span>
-                      <span className="sm:hidden">Popular</span>
+                      <TrendingUp className="h-3 w-3" />
+                      <span>Popular</span>
                     </div>
                   </SelectItem>
                   <SelectItem value="new">
                     <div className="flex items-center gap-2">
-                      <Clock className="h-4 w-4" />
-                      <span className="hidden sm:inline">Recently Added</span>
-                      <span className="sm:hidden">New</span>
+                      <Clock className="h-3 w-3" />
+                      <span>New</span>
                     </div>
                   </SelectItem>
                   <SelectItem value="top">
                     <div className="flex items-center gap-2">
-                      <Star className="h-4 w-4" />
-                      <span className="hidden sm:inline">Highest Rated</span>
-                      <span className="sm:hidden">Top</span>
+                      <Star className="h-3 w-3" />
+                      <span>Top Rated</span>
                     </div>
                   </SelectItem>
                   <SelectItem value="name">
                     <div className="flex items-center gap-2">
-                      <Filter className="h-4 w-4" />
-                      <span className="hidden sm:inline">Alphabetical</span>
-                      <span className="sm:hidden">A-Z</span>
+                      <Filter className="h-3 w-3" />
+                      <span>A-Z</span>
                     </div>
                   </SelectItem>
                 </SelectContent>
               </Select>
 
               <Select value={subjectFilter} onValueChange={setSubjectFilter}>
-                <SelectTrigger className="w-full sm:w-[160px] h-11 rounded-xl bg-white/80 dark:bg-gray-900/80 backdrop-blur border-gray-300 dark:border-gray-600">
-                  <SelectValue placeholder="Subject" />
+                <SelectTrigger className="h-9 rounded-lg bg-white/80 dark:bg-gray-900/80 backdrop-blur border-gray-300 dark:border-gray-600">
+                  <SelectValue placeholder="All Subjects" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Subjects</SelectItem>
@@ -199,27 +197,25 @@ const Landing = () => {
                 </SelectContent>
               </Select>
 
-              <div className="col-span-2 sm:col-span-1">
-                <Select value={gradeLevelFilter} onValueChange={setGradeLevelFilter}>
-                  <SelectTrigger className="w-full sm:w-[160px] h-11 rounded-xl bg-white/80 dark:bg-gray-900/80 backdrop-blur border-gray-300 dark:border-gray-600">
-                    <SelectValue placeholder="Grade Level" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Grades</SelectItem>
-                    {gradeLevels.map(grade => (
-                      <SelectItem key={grade} value={grade}>
-                        {grade}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+              <Select value={gradeLevelFilter} onValueChange={setGradeLevelFilter}>
+                <SelectTrigger className="h-9 rounded-lg bg-white/80 dark:bg-gray-900/80 backdrop-blur border-gray-300 dark:border-gray-600">
+                  <SelectValue placeholder="All Grades" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Grades</SelectItem>
+                  {gradeLevels.map(grade => (
+                    <SelectItem key={grade} value={grade}>
+                      {grade}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
         </div>
 
         {/* Tutors Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {isLoading ? (
             // Loading skeleton
             Array.from({ length: 6 }).map((_, i) => (
