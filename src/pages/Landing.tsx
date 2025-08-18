@@ -66,8 +66,12 @@ const Landing = () => {
         <div className="container mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
-              <div className="bg-blue-600 p-2 rounded-lg">
-                <Bot className="h-6 w-6 text-white" />
+              <div className="p-2 rounded-lg">
+                <img 
+                  src="/lovable-uploads/35810899-a91c-4acc-b8e9-c0868e320e3f.png" 
+                  alt="Think With Me Logo" 
+                  className="h-8 w-8"
+                />
               </div>
               <div>
                 <h1 className="text-xl font-semibold text-gray-900 dark:text-white">Think With Me</h1>
@@ -378,8 +382,12 @@ const Landing = () => {
         <div className="container mx-auto px-6">
           <div className="flex flex-col md:flex-row items-center justify-between">
             <div className="flex items-center space-x-3 mb-4 md:mb-0">
-              <div className="bg-blue-600 p-2 rounded-lg">
-                <Bot className="h-5 w-5 text-white" />
+              <div className="p-2 rounded-lg">
+                <img 
+                  src="/lovable-uploads/35810899-a91c-4acc-b8e9-c0868e320e3f.png" 
+                  alt="Think With Me Logo" 
+                  className="h-6 w-6"
+                />
               </div>
               <div>
                 <h3 className="font-semibold text-gray-900 dark:text-white">Think With Me</h3>
