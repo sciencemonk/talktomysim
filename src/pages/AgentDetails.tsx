@@ -4,13 +4,10 @@ import { useAgentDetails } from "@/hooks/useAgentDetails";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Bot, Phone, MessageCircle, Mail, User, Target, BarChart3, Settings, Loader2, AlertCircle, ArrowLeft, ChevronLeft } from "lucide-react";
+import { Bot, Phone, MessageCircle, Mail, Target, ChevronLeft, Users, TrendingUp, Clock, Star } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import AgentConfigSettings from "@/components/AgentConfigSettings";
-import { AgentStats } from "@/components/AgentStats";
-import AnalyticsTab from "@/components/AnalyticsTab";
 import { RolePlayDialog } from "@/components/RolePlayDialog";
 import { CallInterface } from "@/components/CallInterface";
 
@@ -48,16 +45,15 @@ const AgentDetails = () => {
         </div>
         <div className="container mx-auto px-6 py-8 space-y-6">
           <div className="flex items-center gap-4">
-            <Skeleton className="h-20 w-20 rounded-full" />
+            <Skeleton className="h-16 w-16 rounded-full" />
             <div className="space-y-2">
               <Skeleton className="h-8 w-64" />
               <Skeleton className="h-4 w-32" />
             </div>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <Skeleton className="h-32" />
-            <Skeleton className="h-32" />
-            <Skeleton className="h-32" />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <Skeleton className="h-96" />
+            <Skeleton className="h-96" />
           </div>
         </div>
       </div>
@@ -83,7 +79,7 @@ const AgentDetails = () => {
           <Card className="max-w-md mx-auto border-slate-200">
             <CardContent className="pt-6">
               <div className="flex flex-col items-center text-center space-y-4">
-                <AlertCircle className="h-12 w-12 text-red-500" />
+                <Bot className="h-12 w-12 text-red-500" />
                 <div>
                   <h3 className="font-semibold text-slate-900">Tutor Not Found</h3>
                   <p className="text-sm text-slate-600 mt-1">
@@ -104,7 +100,7 @@ const AgentDetails = () => {
 
   return (
     <div className="min-h-screen bg-slate-50">
-      {/* Compact Header with Back Navigation */}
+      {/* Header */}
       <div className="border-b bg-white shadow-sm">
         <div className="container mx-auto px-6 py-3">
           <div className="flex items-center justify-between">
@@ -127,9 +123,9 @@ const AgentDetails = () => {
       </div>
 
       <div className="container mx-auto px-6 py-6 space-y-6">
-        {/* Compact Tutor Header */}
+        {/* Tutor Header */}
         <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-6">
-          <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+          <div className="flex flex-col sm:flex-row sm:items-start gap-4">
             <Avatar className="h-16 w-16 border-2 border-blue-100 shadow-md">
               <AvatarImage src={agent.avatar} alt={agent.name} />
               <AvatarFallback className="bg-blue-500 text-white">
@@ -137,141 +133,193 @@ const AgentDetails = () => {
               </AvatarFallback>
             </Avatar>
             <div className="flex-1">
-              <h1 className="text-2xl font-bold text-slate-900 mb-2">{agent.name}</h1>
-              <div className="flex items-center gap-2 mb-3">
-                <Badge 
-                  variant={agent.status === 'active' ? 'default' : 'secondary'}
-                  className={agent.status === 'active' ? 'bg-green-100 text-green-800 border-green-200' : ''}
-                >
-                  {agent.status}
-                </Badge>
-                <span className="text-slate-600 font-medium text-sm">
-                  {agent.type} • {agent.subject || 'General'}
-                </span>
-              </div>
-              <p className="text-slate-600 text-sm leading-relaxed">
-                {agent.description || "A helpful AI tutor designed to support student learning"}
-              </p>
-              
-              {agent.learningObjective && (
-                <div className="mt-3 p-3 bg-green-50 dark:bg-green-900/20 rounded-md border border-green-200 dark:border-green-800">
-                  <div className="flex items-center gap-2 mb-1">
-                    <Target className="h-4 w-4 text-green-600 dark:text-green-400" />
-                    <span className="text-sm font-medium text-green-700 dark:text-green-300">Learning Objective</span>
+              <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+                <div>
+                  <h1 className="text-2xl font-bold text-slate-900 mb-2">{agent.name}</h1>
+                  <div className="flex items-center gap-2 mb-3">
+                    <Badge 
+                      variant={agent.status === 'active' ? 'default' : 'secondary'}
+                      className={agent.status === 'active' ? 'bg-green-100 text-green-800 border-green-200' : ''}
+                    >
+                      {agent.status}
+                    </Badge>
+                    <span className="text-slate-600 font-medium text-sm">
+                      {agent.type} • {agent.subject || 'General'}
+                    </span>
                   </div>
-                  <p className="text-sm text-green-700 dark:text-green-300">
-                    {agent.learningObjective}
+                  <p className="text-slate-600 text-sm leading-relaxed mb-3">
+                    {agent.description || "A helpful AI tutor designed to support student learning"}
                   </p>
+                  
+                  {agent.learningObjective && (
+                    <div className="p-3 bg-green-50 rounded-md border border-green-200">
+                      <div className="flex items-center gap-2 mb-1">
+                        <Target className="h-4 w-4 text-green-600" />
+                        <span className="text-sm font-medium text-green-700">Learning Objective</span>
+                      </div>
+                      <p className="text-sm text-green-700">
+                        {agent.learningObjective}
+                      </p>
+                    </div>
+                  )}
                 </div>
-              )}
+                
+                {/* Quick Stats */}
+                <div className="grid grid-cols-2 sm:grid-cols-1 gap-3 sm:min-w-[200px]">
+                  <div className="bg-slate-50 rounded-lg p-3 text-center">
+                    <Users className="h-5 w-5 text-slate-600 mx-auto mb-1" />
+                    <div className="text-lg font-semibold text-slate-900">{agent.interactions || 0}</div>
+                    <div className="text-xs text-slate-600">Student Interactions</div>
+                  </div>
+                  <div className="bg-slate-50 rounded-lg p-3 text-center">
+                    <Star className="h-5 w-5 text-yellow-500 mx-auto mb-1" />
+                    <div className="text-lg font-semibold text-slate-900">{agent.csat || 0}%</div>
+                    <div className="text-xs text-slate-600">Satisfaction</div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Compact Stats Cards */}
-        <AgentStats 
-          avmScore={agent.avmScore}
-          interactionCount={agent.interactions || 0}
-          csat={agent.csat}
-          performance={agent.performance}
-        />
+        {/* Main Content Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Tutor Configuration - Takes up 2 columns */}
+          <div className="lg:col-span-2">
+            <Card className="shadow-sm border-slate-200">
+              <CardHeader className="pb-4">
+                <CardTitle className="text-lg font-semibold text-slate-900">Tutor Configuration</CardTitle>
+                <CardDescription className="text-sm text-slate-600">
+                  Customize your tutor's behavior, voice, and teaching approach
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <AgentConfigSettings 
+                  agent={agent}
+                  onAgentUpdate={handleAgentUpdate}
+                  showSuccessToast={showSuccessToast}
+                  showTeachingInstructions={true}
+                />
+              </CardContent>
+            </Card>
+          </div>
 
-        {/* Main Content */}
-        <div className="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden">
-          <Tabs defaultValue="settings" className="w-full">
-            <div className="border-b border-slate-200 bg-slate-50">
-              <TabsList className="w-full bg-transparent border-none h-auto p-0">
-                <TabsTrigger 
-                  value="settings" 
-                  className="flex-1 py-3 px-4 data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:border-b-2 data-[state=active]:border-blue-600 rounded-none border-b-2 border-transparent text-sm"
-                >
-                  <Settings className="h-4 w-4 mr-2" />
-                  Settings
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="channels" 
-                  className="flex-1 py-3 px-4 data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:border-b-2 data-[state=active]:border-blue-600 rounded-none border-b-2 border-transparent text-sm"
-                >
-                  <MessageCircle className="h-4 w-4 mr-2" />
-                  Channels
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="analytics" 
-                  className="flex-1 py-3 px-4 data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:border-b-2 data-[state=active]:border-blue-600 rounded-none border-b-2 border-transparent text-sm"
-                >
-                  <BarChart3 className="h-4 w-4 mr-2" />
-                  Analytics
-                </TabsTrigger>
-              </TabsList>
-            </div>
-
-            <TabsContent value="settings" className="p-6 space-y-4">
-              <AgentConfigSettings 
-                agent={agent}
-                onAgentUpdate={handleAgentUpdate}
-                showSuccessToast={showSuccessToast}
-                showTeachingInstructions={true}
-              />
-            </TabsContent>
-
-            <TabsContent value="channels" className="p-6">
-              <div className="space-y-4">
-                <div>
-                  <h3 className="text-lg font-semibold text-slate-900 mb-1">Communication Channels</h3>
-                  <p className="text-slate-600 text-sm">Configure how students can interact with your tutor</p>
+          {/* Usage Overview - Takes up 1 column */}
+          <div className="space-y-6">
+            {/* Communication Channels */}
+            <Card className="shadow-sm border-slate-200">
+              <CardHeader className="pb-4">
+                <CardTitle className="text-lg font-semibold text-slate-900">Available Channels</CardTitle>
+                <CardDescription className="text-sm text-slate-600">
+                  How students can interact with this tutor
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div className="flex items-center justify-between p-3 border border-slate-200 rounded-lg bg-slate-50">
+                  <div className="flex items-center gap-3">
+                    <div className="bg-blue-100 p-2 rounded-lg">
+                      <MessageCircle className="h-4 w-4 text-blue-600" />
+                    </div>
+                    <div>
+                      <h4 className="font-medium text-slate-900 text-sm">Chat Interface</h4>
+                      <p className="text-xs text-slate-600">Text conversations</p>
+                    </div>
+                  </div>
+                  <Badge className="bg-green-100 text-green-800 border-green-200 text-xs">Active</Badge>
                 </div>
                 
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between p-4 border border-slate-200 rounded-lg bg-slate-50">
+                {agent.phone && (
+                  <div className="flex items-center justify-between p-3 border border-slate-200 rounded-lg">
                     <div className="flex items-center gap-3">
-                      <div className="bg-blue-100 p-2 rounded-lg">
-                        <MessageCircle className="h-4 w-4 text-blue-600" />
+                      <div className="bg-slate-100 p-2 rounded-lg">
+                        <Phone className="h-4 w-4 text-slate-600" />
                       </div>
                       <div>
-                        <h4 className="font-medium text-slate-900 text-sm">Chat Interface</h4>
-                        <p className="text-xs text-slate-600">Text-based conversations with students</p>
+                        <h4 className="font-medium text-slate-900 text-sm">Phone</h4>
+                        <p className="text-xs text-slate-600">{agent.phone}</p>
                       </div>
                     </div>
-                    <Badge className="bg-green-100 text-green-800 border-green-200 text-xs">Active</Badge>
+                    <Badge variant="secondary" className="text-xs">Available</Badge>
                   </div>
-                  
-                  {agent.phone && (
-                    <div className="flex items-center justify-between p-4 border border-slate-200 rounded-lg">
-                      <div className="flex items-center gap-3">
-                        <div className="bg-slate-100 p-2 rounded-lg">
-                          <Phone className="h-4 w-4 text-slate-600" />
-                        </div>
-                        <div>
-                          <h4 className="font-medium text-slate-900 text-sm">Phone</h4>
-                          <p className="text-xs text-slate-600">{agent.phone}</p>
-                        </div>
+                )}
+                
+                {agent.email && (
+                  <div className="flex items-center justify-between p-3 border border-slate-200 rounded-lg">
+                    <div className="flex items-center gap-3">
+                      <div className="bg-slate-100 p-2 rounded-lg">
+                        <Mail className="h-4 w-4 text-slate-600" />
                       </div>
-                      <Badge variant="secondary" className="text-xs">Configured</Badge>
-                    </div>
-                  )}
-                  
-                  {agent.email && (
-                    <div className="flex items-center justify-between p-4 border border-slate-200 rounded-lg">
-                      <div className="flex items-center gap-3">
-                        <div className="bg-slate-100 p-2 rounded-lg">
-                          <Mail className="h-4 w-4 text-slate-600" />
-                        </div>
-                        <div>
-                          <h4 className="font-medium text-slate-900 text-sm">Email</h4>
-                          <p className="text-xs text-slate-600">{agent.email}</p>
-                        </div>
+                      <div>
+                        <h4 className="font-medium text-slate-900 text-sm">Email</h4>
+                        <p className="text-xs text-slate-600">{agent.email}</p>
                       </div>
-                      <Badge variant="secondary" className="text-xs">Configured</Badge>
                     </div>
-                  )}
-                </div>
-              </div>
-            </TabsContent>
+                    <Badge variant="secondary" className="text-xs">Available</Badge>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
 
-            <TabsContent value="analytics" className="p-6">
-              <AnalyticsTab agent={agent} />
-            </TabsContent>
-          </Tabs>
+            {/* Recent Activity */}
+            <Card className="shadow-sm border-slate-200">
+              <CardHeader className="pb-4">
+                <CardTitle className="text-lg font-semibold text-slate-900">Recent Activity</CardTitle>
+                <CardDescription className="text-sm text-slate-600">
+                  Latest student interactions
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg">
+                  <Clock className="h-4 w-4 text-slate-500" />
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-slate-900">Math problem assistance</p>
+                    <p className="text-xs text-slate-600">2 minutes ago</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg">
+                  <Clock className="h-4 w-4 text-slate-500" />
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-slate-900">Study session</p>
+                    <p className="text-xs text-slate-600">15 minutes ago</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg">
+                  <Clock className="h-4 w-4 text-slate-500" />
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-slate-900">Homework help</p>
+                    <p className="text-xs text-slate-600">1 hour ago</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Performance Summary */}
+            <Card className="shadow-sm border-slate-200">
+              <CardHeader className="pb-4">
+                <CardTitle className="text-lg font-semibold text-slate-900">Performance</CardTitle>
+                <CardDescription className="text-sm text-slate-600">
+                  Key metrics for this tutor
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-slate-600">AVM Score</span>
+                  <div className="flex items-center gap-2">
+                    <div className="text-sm font-semibold text-slate-900">{agent.avmScore || 8.5}/10</div>
+                    <TrendingUp className="h-3 w-3 text-green-500" />
+                  </div>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-slate-600">Response Time</span>
+                  <div className="text-sm font-semibold text-slate-900">1.2s avg</div>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-slate-600">Success Rate</span>
+                  <div className="text-sm font-semibold text-slate-900">{agent.performance || 92}%</div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </div>
 
