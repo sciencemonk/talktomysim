@@ -1,3 +1,4 @@
+
 import React, { useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -210,13 +211,26 @@ const EfficientVoiceInterface: React.FC<EfficientVoiceInterfaceProps> = ({
         });
       };
       
-      // The response.data should be an ArrayBuffer containing the audio
+      // The response.data is a string (base64 or binary), but we need to handle it as binary audio data
       const audioData = response.data;
       console.log('Received audio data type:', typeof audioData);
       console.log('Audio data is ArrayBuffer:', audioData instanceof ArrayBuffer);
       
-      // Create blob directly from the ArrayBuffer
-      const audioBlob = new Blob([audioData], { type: 'audio/mpeg' });
+      // Since the data is coming as a string from the edge function, we need to convert it properly
+      // The edge function should be returning raw binary data, so we create a blob directly
+      let audioBlob: Blob;
+      
+      if (typeof audioData === 'string') {
+        // Convert the string to a Uint8Array (assuming it's binary data in string format)
+        const uint8Array = new Uint8Array(audioData.length);
+        for (let i = 0; i < audioData.length; i++) {
+          uint8Array[i] = audioData.charCodeAt(i);
+        }
+        audioBlob = new Blob([uint8Array], { type: 'audio/mpeg' });
+      } else {
+        // Fallback for other data types
+        audioBlob = new Blob([audioData], { type: 'audio/mpeg' });
+      }
       
       console.log('Created audio blob of size:', audioBlob.size);
       
