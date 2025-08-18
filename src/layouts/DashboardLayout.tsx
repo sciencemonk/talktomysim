@@ -25,11 +25,11 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                     <img 
                       src="/lovable-uploads/1a618b3c-11e7-43e4-a2d5-c1e6f36e48ba.png" 
                       alt="Think With Me Logo" 
-                      className="h-10 w-10"
+                      className="h-8 w-8"
                     />
                   </div>
                   <div>
-                    <h1 className="text-lg font-semibold text-gray-900 dark:text-white">Think With Me</h1>
+                    <h1 className="text-xl font-bold text-gray-900 dark:text-white">Think With Me</h1>
                     <p className="text-xs text-gray-500 dark:text-gray-400">Thinking Partners for Classrooms</p>
                   </div>
                 </div>
