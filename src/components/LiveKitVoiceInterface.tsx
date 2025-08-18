@@ -222,28 +222,26 @@ The student should be talking at least 50% of the time about ${learningObjective
           if (event.type === 'response.audio_transcript.delta') {
             console.log('AI transcript delta:', event.delta);
             currentAITranscriptRef.current += event.delta;
+            // Send each delta immediately for real-time display
             onTranscriptUpdate(event.delta, false);
           } else if (event.type === 'response.audio_transcript.done') {
             console.log('AI transcript complete:', currentAITranscriptRef.current);
-            // Send the complete transcript as a single message
-            if (currentAITranscriptRef.current.trim()) {
-              // Send a completion signal by calling onTranscriptUpdate with empty string to trigger completion
-              onTranscriptUpdate('', false); // This should trigger completeCurrentMessage in the parent
-            }
+            // Complete the current AI message
+            onTranscriptUpdate('', false); // Signal completion
             currentAITranscriptRef.current = ''; // Reset for next message
           }
           
           // Handle user transcript events
           else if (event.type === 'conversation.item.input_audio_transcription.completed') {
             console.log('User transcript completed:', event.transcript);
-            // Send the complete user transcript
+            // Send the complete user transcript at once
             onTranscriptUpdate(event.transcript, true);
-            // Trigger completion
+            // Signal completion immediately
             onTranscriptUpdate('', true);
-            currentUserTranscriptRef.current = ''; // Reset for next message
           } else if (event.type === 'conversation.item.input_audio_transcription.delta') {
             console.log('User transcript delta:', event.delta);
             currentUserTranscriptRef.current += event.delta;
+            // Send each delta immediately for real-time display
             onTranscriptUpdate(event.delta, true);
           }
           

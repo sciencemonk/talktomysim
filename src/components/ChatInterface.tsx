@@ -112,7 +112,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
 
       {/* Messages */}
       <ScrollArea className="flex-1 p-6">
-        <div className="space-y-6 max-w-4xl mx-auto">
+        <div className="space-y-6 max-w-5xl mx-auto">
           {messages.length === 0 && connectionStatus !== 'connected' ? (
             <div className="flex flex-col items-center justify-center h-64 text-center">
               <Bot className="h-16 w-16 mb-4 text-gray-400 dark:text-gray-600" />
@@ -134,39 +134,39 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
                   )}
                 >
                   {message.role === "system" && (
-                    <Avatar className="h-10 w-10 flex-shrink-0 mt-1">
+                    <Avatar className="h-12 w-12 flex-shrink-0 mt-1">
                       <AvatarImage src={agent.avatar} alt={agent.name} />
                       <AvatarFallback className="bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400">
-                        <Bot className="h-5 w-5" />
+                        <Bot className="h-6 w-6" />
                       </AvatarFallback>
                     </Avatar>
                   )}
                   
                   <div 
                     className={cn(
-                      "rounded-2xl py-4 px-5 max-w-[75%] shadow-sm",
+                      "rounded-2xl py-5 px-6 shadow-sm max-w-[80%]",
                       message.role === "system" 
                         ? "bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100" 
                         : "bg-blue-600 dark:bg-blue-700 text-white",
-                      !message.isComplete && "opacity-80"
+                      !message.isComplete && "opacity-90"
                     )}
                   >
-                    <p className="text-lg leading-relaxed font-medium">
+                    <p className="text-xl leading-relaxed font-medium whitespace-pre-wrap break-words">
                       {message.content}
                     </p>
                     {!message.isComplete && (
-                      <div className="flex items-center gap-1 mt-3">
-                        <div className="h-1.5 w-1.5 bg-current rounded-full animate-pulse" />
-                        <div className="h-1.5 w-1.5 bg-current rounded-full animate-pulse" style={{ animationDelay: '0.2s' }} />
-                        <div className="h-1.5 w-1.5 bg-current rounded-full animate-pulse" style={{ animationDelay: '0.4s' }} />
+                      <div className="flex items-center gap-1 mt-4">
+                        <div className="h-2 w-2 bg-current rounded-full animate-pulse" />
+                        <div className="h-2 w-2 bg-current rounded-full animate-pulse" style={{ animationDelay: '0.2s' }} />
+                        <div className="h-2 w-2 bg-current rounded-full animate-pulse" style={{ animationDelay: '0.4s' }} />
                       </div>
                     )}
                   </div>
                   
                   {message.role === "user" && (
-                    <Avatar className="h-10 w-10 flex-shrink-0 mt-1">
+                    <Avatar className="h-12 w-12 flex-shrink-0 mt-1">
                       <AvatarFallback className="bg-blue-600 dark:bg-blue-700 text-white">
-                        <User className="h-5 w-5" />
+                        <User className="h-6 w-6" />
                       </AvatarFallback>
                     </Avatar>
                   )}
