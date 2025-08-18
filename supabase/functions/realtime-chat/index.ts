@@ -22,6 +22,7 @@ serve(async (req) => {
   let openAISocket: WebSocket | null = null;
   let keepaliveInterval: number | null = null;
   let isClosing = false;
+  let sessionConfigured = false;
 
   const cleanup = () => {
     if (keepaliveInterval) {
@@ -47,56 +48,18 @@ serve(async (req) => {
     console.log('Client WebSocket connected');
     
     try {
-      // Create WebSocket connection to OpenAI with authentication in headers
       const openAIUrl = `wss://api.openai.com/v1/realtime?model=${OPENAI_REALTIME_MODEL}`;
       console.log('Connecting to OpenAI:', openAIUrl);
-      
-      // Create headers for the WebSocket handshake
-      const wsHeaders = {
-        'Authorization': `Bearer ${OPENAI_API_KEY}`,
-        'OpenAI-Beta': 'realtime=v1'
-      };
 
-      // Create WebSocket connection with headers
-      openAISocket = new WebSocket(openAIUrl);
-      
-      // Add authorization header manually after creation
-      Object.entries(wsHeaders).forEach(([key, value]) => {
-        if (openAISocket && openAISocket.readyState === WebSocket.CONNECTING) {
-          // Note: This approach might not work in all environments
-          // We'll handle auth through the initial session message instead
+      openAISocket = new WebSocket(openAIUrl, [], {
+        headers: {
+          'Authorization': `Bearer ${OPENAI_API_KEY}`,
+          'OpenAI-Beta': 'realtime=v1'
         }
       });
 
       openAISocket.onopen = () => {
         console.log('Connected to OpenAI Realtime API');
-        
-        // Send authentication through session configuration
-        if (openAISocket && openAISocket.readyState === WebSocket.OPEN) {
-          const sessionConfig = {
-            type: 'session.update',
-            session: {
-              modalities: ['text', 'audio'],
-              instructions: 'You are a helpful AI assistant.',
-              voice: 'alloy',
-              input_audio_format: 'pcm16',
-              output_audio_format: 'pcm16',
-              input_audio_transcription: {
-                model: 'whisper-1'
-              },
-              turn_detection: {
-                type: 'server_vad',
-                threshold: 0.5,
-                prefix_padding_ms: 300,
-                silence_duration_ms: 1000
-              },
-              temperature: 0.8,
-              max_response_output_tokens: 'inf'
-            }
-          };
-          
-          openAISocket.send(JSON.stringify(sessionConfig));
-        }
         
         // Set up app-level keepalive ping every 25 seconds
         keepaliveInterval = setInterval(() => {
@@ -111,19 +74,22 @@ serve(async (req) => {
 
       openAISocket.onmessage = (event) => {
         try {
-          // Handle both text and binary messages
           const messageData = typeof event.data === 'string' ? event.data : event.data;
           
-          // If it's text, try to parse and check for errors
           if (typeof event.data === 'string') {
             try {
               const data = JSON.parse(event.data);
               console.log('Received from OpenAI:', data.type || 'unknown');
               
+              // Handle session.created event - this is when we know the session is ready
+              if (data.type === 'session.created') {
+                console.log('OpenAI session created, ready for configuration');
+                sessionConfigured = true;
+              }
+              
               // Handle error events specifically
               if (data.type === 'error') {
                 console.error('OpenAI API Error:', JSON.stringify(data.error, null, 2));
-                // Forward the complete error object to client
                 if (socket.readyState === WebSocket.OPEN) {
                   socket.send(JSON.stringify({
                     type: 'error',
@@ -133,7 +99,6 @@ serve(async (req) => {
                 return;
               }
             } catch (parseError) {
-              // If JSON parsing fails, still forward the message
               console.log('Received non-JSON text from OpenAI');
             }
           }
@@ -182,7 +147,6 @@ serve(async (req) => {
 
   socket.onmessage = (event) => {
     try {
-      // Forward all messages (text and binary) to OpenAI without modification
       if (openAISocket && openAISocket.readyState === WebSocket.OPEN) {
         const messageData = typeof event.data === 'string' ? event.data : event.data;
         
@@ -190,6 +154,18 @@ serve(async (req) => {
           try {
             const data = JSON.parse(event.data);
             console.log('Received from client:', data.type || 'unknown');
+            
+            // Only forward session.update after session is created
+            if (data.type === 'session.update' && !sessionConfigured) {
+              console.log('Delaying session.update until session.created is received');
+              // Wait a bit and try again
+              setTimeout(() => {
+                if (sessionConfigured && openAISocket && openAISocket.readyState === WebSocket.OPEN) {
+                  openAISocket.send(event.data);
+                }
+              }, 100);
+              return;
+            }
           } catch {
             console.log('Received non-JSON text from client');
           }
