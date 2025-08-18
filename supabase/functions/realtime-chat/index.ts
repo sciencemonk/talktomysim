@@ -1,3 +1,4 @@
+
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
 const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY');
@@ -47,17 +48,37 @@ serve(async (req) => {
     console.log('Client WebSocket connected');
     
     try {
-      // Connect to OpenAI Realtime API using WebSocket constructor
+      // For Deno edge functions, we need to use fetch to upgrade to WebSocket with proper auth
       const openAIUrl = `wss://api.openai.com/v1/realtime?model=${OPENAI_REALTIME_MODEL}`;
       console.log('Connecting to OpenAI:', openAIUrl);
       
-      // Create WebSocket connection with proper headers
-      openAISocket = new WebSocket(openAIUrl, [], {
+      // Use fetch with WebSocket upgrade and proper authentication
+      const upgradeResponse = await fetch(openAIUrl, {
+        method: 'GET',
         headers: {
-          "Authorization": `Bearer ${OPENAI_API_KEY}`,
-          "OpenAI-Beta": "realtime=v1"
+          'Authorization': `Bearer ${OPENAI_API_KEY}`,
+          'OpenAI-Beta': 'realtime=v1',
+          'Connection': 'Upgrade',
+          'Upgrade': 'websocket',
+          'Sec-WebSocket-Version': '13',
+          'Sec-WebSocket-Key': btoa(Math.random().toString()).substring(0, 24)
         }
       });
+
+      if (!upgradeResponse.ok) {
+        const errorText = await upgradeResponse.text();
+        console.error('OpenAI upgrade failed:', upgradeResponse.status, errorText);
+        throw new Error(`Failed to upgrade to WebSocket: ${upgradeResponse.status}`);
+      }
+
+      // Get the WebSocket from the upgrade response
+      openAISocket = upgradeResponse.webSocket;
+      if (!openAISocket) {
+        throw new Error('No WebSocket returned from upgrade');
+      }
+
+      // Accept the WebSocket connection
+      openAISocket.accept();
 
       openAISocket.onopen = () => {
         console.log('Connected to OpenAI Realtime API');
