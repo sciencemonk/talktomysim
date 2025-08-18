@@ -48,10 +48,11 @@ serve(async (req) => {
     console.log('Client WebSocket connected');
     
     try {
-      // Connect to OpenAI Realtime API with correct URL and headers
+      // Connect to OpenAI Realtime API with proper headers
       const openAIUrl = `wss://api.openai.com/v1/realtime?model=${OPENAI_REALTIME_MODEL}`;
       console.log('Connecting to OpenAI:', openAIUrl);
       
+      // Create WebSocket with proper headers for Deno
       openAISocket = new WebSocket(openAIUrl, [], {
         headers: {
           "Authorization": `Bearer ${OPENAI_API_KEY}`,
