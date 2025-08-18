@@ -38,10 +38,10 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'tts-1', // Use the cheaper TTS model instead of tts-1-hd
+        model: 'tts-1',
         input: text,
         voice: voice,
-        speed: 1.1, // Slightly faster to feel more natural
+        speed: 1.1,
       }),
     });
 
@@ -51,6 +51,7 @@ serve(async (req) => {
       throw new Error(`Speech generation failed: ${response.status}`);
     }
 
+    // Return the audio directly as binary data, not as JSON
     const audioBuffer = await response.arrayBuffer();
     console.log('Speech generation successful');
     
