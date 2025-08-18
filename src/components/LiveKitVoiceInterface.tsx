@@ -29,7 +29,6 @@ const LiveKitVoiceInterface: React.FC<LiveKitVoiceInterfaceProps> = ({
   const audioElementRef = useRef<HTMLAudioElement | null>(null);
 
   const createSystemInstructions = () => {
-    // Create age-appropriate language based on grade level
     const getAgeAppropriateLanguage = () => {
       const gradeLevel = agent.gradeLevel?.toLowerCase() || '';
       
@@ -72,7 +71,6 @@ const LiveKitVoiceInterface: React.FC<LiveKitVoiceInterfaceProps> = ({
     };
 
     const language = getAgeAppropriateLanguage();
-    const subject = agent.subject || 'this subject';
     const learningObjective = agent.learningObjective || 'our learning goals';
 
     return `You are ${agent.name}, a ${agent.type.toLowerCase()}${agent.subject ? ` specializing in ${agent.subject}` : ''}${agent.gradeLevel ? ` for ${agent.gradeLevel} students` : ''}.
@@ -84,8 +82,7 @@ LEARNING OBJECTIVE: ${learningObjective}
 Your primary role is to help students achieve this specific learning objective through engaging, personalized instruction.
 
 CONVERSATION APPROACH:
-- Start with: "${language.greeting}"
-- Then ask: "${language.askingStyle} ${learningObjective}? Don't worry if you're not sure about everything - I'm here to help you learn!"
+- Start with: "Hello, my name is ${agent.name} and I'm here to help you learn ${learningObjective}. What do you currently know about this topic?"
 - Use a ${language.tone} speaking style
 - When they respond, acknowledge with something like: "${language.encouragement}"
 
@@ -108,9 +105,38 @@ INTERACTION STYLE:
 
 ${agent.prompt ? `Additional Teaching Instructions: ${agent.prompt}` : ''}
 
-Remember: Your goal is to help this student successfully achieve the learning objective: "${learningObjective}"
+Remember: Your goal is to help this student successfully achieve the learning objective: "${learningObjective}"`;
+  };
 
-Start the conversation by greeting them and asking about their current knowledge!`;
+  const sendWelcomeMessage = () => {
+    if (!dcRef.current || dcRef.current.readyState !== 'open') {
+      console.log('Data channel not ready for welcome message');
+      return;
+    }
+
+    const learningObjective = agent.learningObjective || 'this topic';
+    const welcomeText = `Hello, my name is ${agent.name} and I'm here to help you learn ${learningObjective}. What do you currently know about this topic?`;
+
+    console.log('Sending welcome message:', welcomeText);
+    
+    // Create a conversation item with the welcome message
+    const conversationItem = {
+      type: 'conversation.item.create',
+      item: {
+        type: 'message',
+        role: 'assistant',
+        content: [
+          {
+            type: 'text',
+            text: welcomeText
+          }
+        ]
+      }
+    };
+
+    // Send the conversation item and trigger response
+    dcRef.current.send(JSON.stringify(conversationItem));
+    dcRef.current.send(JSON.stringify({ type: 'response.create' }));
   };
 
   const connectToRealtime = async () => {
@@ -209,6 +235,11 @@ Start the conversation by greeting them and asking about their current knowledge
         };
         
         dcRef.current?.send(JSON.stringify(sessionConfig));
+        
+        // Send welcome message after a brief delay to ensure session is configured
+        setTimeout(() => {
+          sendWelcomeMessage();
+        }, 1000);
       });
 
       // Create and set local description
