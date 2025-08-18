@@ -10,7 +10,7 @@ import { updateAgent } from '@/services/agentService';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { 
   Bot, Target, User, FileText, GraduationCap, BookOpen, Calculator, 
-  Microscope, PenTool, Globe, Brain
+  Microscope, PenTool, Globe, Brain, Upload
 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import debounce from 'lodash/debounce';
@@ -58,6 +58,8 @@ const TeacherConfigSettings: React.FC<TeacherConfigSettingsProps> = ({
   const [learningObjective, setLearningObjective] = useState(agent.learningObjective || '');
   const [customSubject, setCustomSubject] = useState('');
   const [isSaving, setIsSaving] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   
   const prevValuesRef = useRef({
     name: agent.name,
@@ -135,6 +137,57 @@ const TeacherConfigSettings: React.FC<TeacherConfigSettingsProps> = ({
     setAvatar(`https://api.dicebear.com/7.x/bottts/svg?seed=${seed}`);
   };
 
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast({
+        title: "Invalid file type",
+        description: "Please select an image file (JPG, PNG, GIF, etc.)",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast({
+        title: "File too large",
+        description: "Please select an image smaller than 5MB",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsUploading(true);
+    
+    try {
+      // Convert file to base64 data URL for immediate preview
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const dataUrl = e.target?.result as string;
+        setAvatar(dataUrl);
+      };
+      reader.readAsDataURL(file);
+
+      toast({
+        title: "Image uploaded",
+        description: "Your custom avatar has been set successfully."
+      });
+    } catch (error) {
+      console.error("Error uploading avatar:", error);
+      toast({
+        title: "Upload failed",
+        description: "There was an error uploading your avatar. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
   const generatePrompt = () => {
     const subjectName = subject === 'other' ? customSubject : SUBJECTS.find(s => s.id === subject)?.name || 'the subject';
     const gradeName = GRADE_LEVELS.find(g => g.id === gradeLevel)?.name || 'students';
@@ -188,22 +241,35 @@ Always be patient, supportive, and adapt to each student's learning pace. If a s
               </Avatar>
               
               <div className="w-full max-w-md space-y-3">
-                <Label htmlFor="tutor-avatar" className="text-sm">Avatar URL</Label>
-                <Input
-                  id="tutor-avatar"
-                  value={avatar}
-                  onChange={(e) => setAvatar(e.target.value)}
-                  placeholder="Enter avatar URL"
-                  className="text-sm"
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileUpload}
+                  className="hidden"
                 />
-                <Button 
-                  variant="outline" 
-                  onClick={generateRandomAvatar} 
-                  className="w-full text-xs sm:text-sm"
-                  size="sm"
-                >
-                  Generate Random Avatar
-                </Button>
+                
+                <div className="grid grid-cols-2 gap-2">
+                  <Button 
+                    variant="outline" 
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={isUploading}
+                    className="text-xs sm:text-sm"
+                    size="sm"
+                  >
+                    <Upload className="h-4 w-4 mr-2" />
+                    {isUploading ? 'Uploading...' : 'Upload Image'}
+                  </Button>
+                  
+                  <Button 
+                    variant="outline" 
+                    onClick={generateRandomAvatar} 
+                    className="text-xs sm:text-sm"
+                    size="sm"
+                  >
+                    Generate Random
+                  </Button>
+                </div>
               </div>
             </div>
           </div>
