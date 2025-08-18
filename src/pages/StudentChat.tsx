@@ -2,7 +2,7 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Info, PhoneOff } from "lucide-react";
+import { ArrowLeft, Info, PhoneOff, Bot } from "lucide-react";
 import { useAgentDetails } from "@/hooks/useAgentDetails";
 import { Skeleton } from "@/components/ui/skeleton";
 import VoiceInterface from "@/components/VoiceInterface";
