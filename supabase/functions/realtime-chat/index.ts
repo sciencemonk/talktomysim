@@ -1,6 +1,8 @@
+
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
 const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY');
+const OPENAI_REALTIME_MODEL = Deno.env.get('OPENAI_REALTIME_MODEL') ?? 'gpt-4o-realtime-preview';
 
 serve(async (req) => {
   if (!OPENAI_API_KEY) {
@@ -47,7 +49,10 @@ serve(async (req) => {
     
     try {
       // Connect to OpenAI Realtime API with proper authentication
-      openAISocket = new WebSocket("wss://api.openai.com/v1/realtime?model=gpt-4o-realtime-preview-2024-10-01", [], {
+      const openAIUrl = `wss://api.openai.com/v1/realtime?model=${OPENAI_REALTIME_MODEL}`;
+      console.log('Connecting to OpenAI:', openAIUrl);
+      
+      openAISocket = new WebSocket(openAIUrl, [], {
         headers: {
           "Authorization": `Bearer ${OPENAI_API_KEY}`,
           "OpenAI-Beta": "realtime=v1"
@@ -70,40 +75,36 @@ serve(async (req) => {
 
       openAISocket.onmessage = (event) => {
         try {
-          const data = JSON.parse(event.data);
-          console.log('Received from OpenAI:', data.type);
+          // Handle both text and binary messages
+          const messageData = typeof event.data === 'string' ? event.data : event.data;
           
-          // If we receive session.created, send our session configuration
-          if (data.type === 'session.created') {
-            const sessionConfig = {
-              type: "session.update",
-              session: {
-                modalities: ["text", "audio"],
-                instructions: "You are a helpful AI tutor. Be conversational and engaging.",
-                voice: "alloy",
-                input_audio_format: "pcm16",
-                output_audio_format: "pcm16",
-                input_audio_transcription: {
-                  model: "whisper-1"
-                },
-                turn_detection: {
-                  type: "server_vad",
-                  threshold: 0.5,
-                  prefix_padding_ms: 300,
-                  silence_duration_ms: 1000
-                },
-                temperature: 0.8,
-                max_response_output_tokens: "inf"
+          // If it's text, try to parse and check for errors
+          if (typeof event.data === 'string') {
+            try {
+              const data = JSON.parse(event.data);
+              console.log('Received from OpenAI:', data.type || 'unknown');
+              
+              // Handle error events specifically
+              if (data.type === 'error') {
+                console.error('OpenAI API Error:', JSON.stringify(data.error, null, 2));
+                // Forward the complete error object to client
+                if (socket.readyState === WebSocket.OPEN) {
+                  socket.send(JSON.stringify({
+                    type: 'error',
+                    error: data.error
+                  }));
+                }
+                return;
               }
-            };
-            
-            openAISocket.send(JSON.stringify(sessionConfig));
-            console.log('Sent session configuration after session.created');
+            } catch (parseError) {
+              // If JSON parsing fails, still forward the message
+              console.log('Received non-JSON text from OpenAI');
+            }
           }
           
-          // Forward all messages to client
+          // Forward all messages to client (both text and binary)
           if (socket.readyState === WebSocket.OPEN) {
-            socket.send(event.data);
+            socket.send(messageData);
           }
         } catch (error) {
           console.error('Error processing OpenAI message:', error);
@@ -113,7 +114,13 @@ serve(async (req) => {
       openAISocket.onerror = (error) => {
         console.error('OpenAI WebSocket error:', error);
         if (socket.readyState === WebSocket.OPEN) {
-          socket.send(JSON.stringify({ type: 'error', message: 'OpenAI connection error' }));
+          socket.send(JSON.stringify({ 
+            type: 'error', 
+            error: { 
+              code: 'connection_error',
+              message: 'OpenAI connection error' 
+            }
+          }));
         }
       };
 
@@ -125,7 +132,13 @@ serve(async (req) => {
     } catch (error) {
       console.error('Error creating OpenAI WebSocket:', error);
       if (socket.readyState === WebSocket.OPEN) {
-        socket.send(JSON.stringify({ type: 'error', message: 'Failed to connect to OpenAI' }));
+        socket.send(JSON.stringify({ 
+          type: 'error', 
+          error: {
+            code: 'connection_failed',
+            message: 'Failed to connect to OpenAI'
+          }
+        }));
         socket.close();
       }
     }
@@ -133,12 +146,20 @@ serve(async (req) => {
 
   socket.onmessage = (event) => {
     try {
-      const data = JSON.parse(event.data);
-      console.log('Received from client:', data.type);
-      
-      // Forward client messages to OpenAI
+      // Forward all messages (text and binary) to OpenAI without modification
       if (openAISocket && openAISocket.readyState === WebSocket.OPEN) {
-        openAISocket.send(event.data);
+        const messageData = typeof event.data === 'string' ? event.data : event.data;
+        
+        if (typeof event.data === 'string') {
+          try {
+            const data = JSON.parse(event.data);
+            console.log('Received from client:', data.type || 'unknown');
+          } catch {
+            console.log('Received non-JSON text from client');
+          }
+        }
+        
+        openAISocket.send(messageData);
       }
     } catch (error) {
       console.error('Error processing client message:', error);
