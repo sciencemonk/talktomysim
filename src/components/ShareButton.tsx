@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Share2, Copy, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -20,7 +19,7 @@ export const ShareButton = ({ tutorId, tutorName, className }: ShareButtonProps)
   const [copied, setCopied] = useState(false);
   const { toast } = useToast();
 
-  const shareUrl = `${window.location.origin}/tutors/${tutorId}`;
+  const shareUrl = `${window.location.origin}/tutors/${tutorId}/chat`;
 
   const handleCopyLink = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -51,8 +50,8 @@ export const ShareButton = ({ tutorId, tutorName, className }: ShareButtonProps)
     if (navigator.share) {
       try {
         await navigator.share({
-          title: `Check out ${tutorName}`,
-          text: `Learn with ${tutorName}, an AI tutor ready to help!`,
+          title: `Chat with ${tutorName}`,
+          text: `Start learning with ${tutorName}, an AI tutor ready to help!`,
           url: shareUrl,
         });
       } catch (error) {

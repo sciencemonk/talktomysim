@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { AuthProvider } from './hooks/useAuth';
@@ -8,6 +9,7 @@ import AgentCreate from './pages/AgentCreate';
 import Settings from './pages/Settings';
 import Billing from './pages/Billing';
 import NotFound from './pages/NotFound';
+import StudentChat from './pages/StudentChat';
 import DashboardLayout from './layouts/DashboardLayout';
 
 function App() {
@@ -18,6 +20,9 @@ function App() {
           <Routes>
             {/* Public routes */}
             <Route path="/" element={<Landing />} />
+            
+            {/* Student chat route - public */}
+            <Route path="/tutors/:agentId/chat" element={<StudentChat />} />
             
             {/* Protected routes with layout */}
             <Route path="/dashboard" element={
