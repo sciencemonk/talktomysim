@@ -101,6 +101,26 @@ const Landing = () => {
 
       {/* Main Content */}
       <section className="container mx-auto px-4 sm:px-6 py-8 sm:py-12">
+        {/* Trust Banner */}
+        <section className="bg-blue-50 dark:bg-blue-950/30 border border-blue-100 dark:border-blue-900 rounded-2xl mb-6 sm:mb-8">
+          <div className="px-4 sm:px-6 py-3 sm:py-4">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8 text-xs sm:text-sm text-blue-700 dark:text-blue-300">
+              <div className="flex items-center gap-2">
+                <Shield className="h-3 w-3 sm:h-4 sm:w-4" />
+                <span>COPPA Compliant</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4" />
+                <span>Built for Classrooms</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Award className="h-3 w-3 sm:h-4 sm:w-4" />
+                <span>Free Google Sign In</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
         {/* Search and Filters */}
         <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-lg rounded-2xl border border-gray-200/50 dark:border-gray-700/50 p-6 sm:p-8 mb-6 sm:mb-8 shadow-xl">
           <div className="flex flex-col gap-6">
