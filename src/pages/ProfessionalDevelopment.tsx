@@ -1,19 +1,9 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { BookOpen, Users, Award, Clock, Bell, ArrowRight } from "lucide-react";
-
 const ProfessionalDevelopment = () => {
-  return (
-    <div className="space-y-8">
-      <div className="text-center">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
-          Professional Development
-        </h1>
-        <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-          Comprehensive training and resources for educators using AI in the classroom
-        </p>
-      </div>
+  return <div className="space-y-8">
+      
 
       {/* Coming Soon Banner */}
       <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 border-blue-200 dark:border-blue-800">
@@ -119,8 +109,6 @@ const ProfessionalDevelopment = () => {
           </div>
         </CardContent>
       </Card>
-    </div>
-  );
+    </div>;
 };
-
 export default ProfessionalDevelopment;
