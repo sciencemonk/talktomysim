@@ -1,4 +1,3 @@
-
 import { useParams, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
@@ -8,13 +7,15 @@ import { Badge } from "@/components/ui/badge";
 import { Bot, MessageCircle, ArrowLeft, Mic, MicOff } from "lucide-react";
 import { useAgentDetails } from "@/hooks/useAgentDetails";
 import { Skeleton } from "@/components/ui/skeleton";
-import { VoiceInterface } from "@/components/VoiceInterface";
+import VoiceInterface from "@/components/VoiceInterface";
 
 const StudentChat = () => {
   const { agentId } = useParams<{ agentId: string }>();
   const navigate = useNavigate();
   const { agent, isLoading, error } = useAgentDetails(agentId);
   const [isVoiceActive, setIsVoiceActive] = useState(false);
+  const [transcript, setTranscript] = useState('');
+  const [isSpeaking, setIsSpeaking] = useState(false);
 
   const handleBack = () => {
     navigate('/');
@@ -26,6 +27,14 @@ const StudentChat = () => {
 
   const toggleVoice = () => {
     setIsVoiceActive(!isVoiceActive);
+  };
+
+  const handleTranscriptUpdate = (newTranscript: string, isFromUser: boolean) => {
+    setTranscript(newTranscript);
+  };
+
+  const handleSpeakingChange = (speaking: boolean) => {
+    setIsSpeaking(speaking);
   };
 
   if (isLoading) {
@@ -164,15 +173,32 @@ const StudentChat = () => {
                         <p className="text-xs text-gray-500 mt-2">07:45 AM</p>
                       </div>
                     </div>
+
+                    {/* Display transcript if available */}
+                    {transcript && (
+                      <div className="flex items-start gap-3">
+                        <Avatar className="h-8 w-8">
+                          <AvatarFallback>U</AvatarFallback>
+                        </Avatar>
+                        <div className="bg-blue-100 dark:bg-blue-900 rounded-lg p-4 max-w-[80%]">
+                          <p className="text-gray-900 dark:text-white">{transcript}</p>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
 
-                {/* Voice Interface or Start Button */}
-                {isVoiceActive ? (
-                  <div className="p-6 border-t">
-                    <VoiceInterface agentId={agentId!} />
-                  </div>
-                ) : (
+                {/* Voice Interface */}
+                {isVoiceActive && agent && (
+                  <VoiceInterface 
+                    agent={agent}
+                    onTranscriptUpdate={handleTranscriptUpdate}
+                    onSpeakingChange={handleSpeakingChange}
+                  />
+                )}
+
+                {/* Start Voice Chat Button */}
+                {!isVoiceActive && (
                   <div className="p-6 border-t text-center">
                     <Button 
                       onClick={toggleVoice}
