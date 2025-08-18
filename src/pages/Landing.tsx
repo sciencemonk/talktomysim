@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { Bot, Users, BookOpen, BarChart, Search, Filter, Star, TrendingUp, Clock, User, CheckCircle, Shield, Award } from "lucide-react";
+import { Bot, Users, BookOpen, BarChart, Search, Filter, Star, TrendingUp, Clock, User, CheckCircle, Shield, Award, Lightbulb, Zap, Sparkles } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
@@ -332,47 +332,51 @@ const Landing = () => {
         <div className="container mx-auto px-4 sm:px-6">
           <div className="text-center mb-8 sm:mb-12">
             <h2 className="text-xl sm:text-2xl font-semibold text-gray-900 dark:text-white mb-3 sm:mb-4">
-              Trusted by Educators Worldwide
+              Welcome to the Future of Learning
             </h2>
-            <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 max-w-2xl mx-auto px-4">
-              Our platform is designed by teachers, for teachers. Every AI tutor is created and verified by certified educators.
+            <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 max-w-3xl mx-auto px-4 mb-2">
+              Empower teachers to differentiate in an entirely new way with <strong>Thinking Partners</strong>. 
+              Students can now have in-depth conversations and discussions with teacher-created AI.
+            </p>
+            <p className="text-sm sm:text-base text-blue-600 dark:text-blue-400 font-medium">
+              This isn't just AI augmentation — it's AI transformation.
             </p>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-8 max-w-4xl mx-auto">
             <div className="bg-white dark:bg-gray-900 p-6 sm:p-8 rounded-lg border border-gray-200 dark:border-gray-700 text-center">
-              <div className="bg-green-100 dark:bg-green-900/30 p-3 rounded-lg w-fit mx-auto mb-4">
-                <Users className="h-5 w-5 sm:h-6 sm:w-6 text-green-600 dark:text-green-400" />
+              <div className="bg-purple-100 dark:bg-purple-900/30 p-3 rounded-lg w-fit mx-auto mb-4">
+                <Lightbulb className="h-5 w-5 sm:h-6 sm:w-6 text-purple-600 dark:text-purple-400" />
               </div>
               <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white mb-3">
-                Educator Created
+                Thinking Partners
               </h3>
               <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
-                Every AI tutor is built by certified teachers who understand pedagogy and student learning needs.
+                AI tutors designed to engage students in deep, meaningful conversations that promote critical thinking and understanding.
+              </p>
+            </div>
+
+            <div className="bg-white dark:bg-gray-900 p-6 sm:p-8 rounded-lg border border-gray-200 dark:border-gray-700 text-center">
+              <div className="bg-green-100 dark:bg-green-900/30 p-3 rounded-lg w-fit mx-auto mb-4">
+                <Zap className="h-5 w-5 sm:h-6 sm:w-6 text-green-600 dark:text-green-400" />
+              </div>
+              <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white mb-3">
+                True Differentiation
+              </h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+                Every student gets personalized support that adapts to their learning style, pace, and needs in real-time.
               </p>
             </div>
 
             <div className="bg-white dark:bg-gray-900 p-6 sm:p-8 rounded-lg border border-gray-200 dark:border-gray-700 text-center">
               <div className="bg-blue-100 dark:bg-blue-900/30 p-3 rounded-lg w-fit mx-auto mb-4">
-                <Shield className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600 dark:text-blue-400" />
+                <Sparkles className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600 dark:text-blue-400" />
               </div>
               <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white mb-3">
-                Safe & Secure
+                Transformative Learning
               </h3>
               <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
-                COPPA compliant platform with privacy-first design and content moderation for classroom use.
-              </p>
-            </div>
-
-            <div className="bg-white dark:bg-gray-900 p-6 sm:p-8 rounded-lg border border-gray-200 dark:border-gray-700 text-center">
-              <div className="bg-purple-100 dark:bg-purple-900/30 p-3 rounded-lg w-fit mx-auto mb-4">
-                <BarChart className="h-5 w-5 sm:h-6 sm:w-6 text-purple-600 dark:text-purple-400" />
-              </div>
-              <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white mb-3">
-                Measurable Impact
-              </h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
-                Track student progress and engagement with detailed analytics and performance insights.
+                Move beyond traditional instruction to create dynamic, interactive learning experiences that inspire and engage.
               </p>
             </div>
           </div>
