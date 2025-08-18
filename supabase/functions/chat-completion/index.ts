@@ -10,15 +10,21 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
+  console.log('Chat completion function invoked:', req.method, req.url);
+  
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
+    console.log('Handling CORS preflight request');
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
+    console.log('Processing chat completion request');
     const { messages, agent } = await req.json();
+    console.log('Received messages:', messages?.length, 'Agent:', agent?.name);
 
     if (!openAIApiKey) {
+      console.error('OpenAI API key not configured');
       throw new Error('OpenAI API key not configured');
     }
 
@@ -43,6 +49,7 @@ You should:
 
 Keep your responses conversational and engaging for students.`;
 
+    console.log('Making request to OpenAI API');
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -68,6 +75,7 @@ Keep your responses conversational and engaging for students.`;
 
     const data = await response.json();
     const content = data.choices[0].message.content;
+    console.log('Successfully generated response');
 
     return new Response(JSON.stringify({ content }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },

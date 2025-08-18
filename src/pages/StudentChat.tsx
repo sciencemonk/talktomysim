@@ -54,9 +54,10 @@ const StudentChat = () => {
 
   const generateWelcomeMessage = async (agentData: AgentType) => {
     try {
+      console.log('Generating welcome message for agent:', agentData.name);
       const welcomePrompt = `Generate a brief, friendly welcome message as ${agentData.name}. Introduce yourself and mention what you can help with based on your teaching focus. Keep it conversational and under 2 sentences.`;
       
-      const response = await fetch('/api/chat-completion', {
+      const response = await fetch(`https://lcdrsupwwitlvrvfrgsl.supabase.co/functions/v1/chat-completion`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -67,6 +68,8 @@ const StudentChat = () => {
         })
       });
 
+      console.log('Welcome message response status:', response.status);
+      
       if (response.ok) {
         const data = await response.json();
         const welcomeMessage: Message = {
@@ -77,6 +80,8 @@ const StudentChat = () => {
         };
         setMessages([welcomeMessage]);
       } else {
+        const errorText = await response.text();
+        console.error('Welcome message error:', errorText);
         // Fallback to generic message if OpenAI fails
         const welcomeMessage: Message = {
           id: 'welcome',
@@ -122,13 +127,14 @@ const StudentChat = () => {
     setIsSending(true);
 
     try {
+      console.log('Sending message to agent:', agent.name);
       // Prepare conversation history for OpenAI
       const conversationHistory = [...messages, userMessage].map(msg => ({
         role: msg.role,
         content: msg.content
       }));
 
-      const response = await fetch('/api/chat-completion', {
+      const response = await fetch(`https://lcdrsupwwitlvrvfrgsl.supabase.co/functions/v1/chat-completion`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -138,6 +144,8 @@ const StudentChat = () => {
           agent: agent
         })
       });
+
+      console.log('Message response status:', response.status);
 
       if (response.ok) {
         const data = await response.json();
@@ -149,6 +157,8 @@ const StudentChat = () => {
         };
         setMessages(prev => [...prev, assistantMessage]);
       } else {
+        const errorText = await response.text();
+        console.error('Message error:', errorText);
         throw new Error('Failed to get response from tutor');
       }
     } catch (error) {
