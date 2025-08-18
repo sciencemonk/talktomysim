@@ -15,12 +15,12 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
 
   return (
     <ProtectedRoute>
-      <div className="min-h-screen flex w-full bg-gray-50 dark:bg-gray-900">
+      <div className="min-h-screen flex w-full bg-gray-50 dark:bg-gray-900 flex-col">
         <main className="flex-1 flex flex-col">
           <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-6 py-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-8">
-                <div className="flex items-center space-x-3">
+            <div className="flex items-center justify-between max-w-7xl mx-auto w-full">
+              <div className="flex items-center space-x-12">
+                <div className="flex items-center space-x-3 flex-shrink-0">
                   <div className="p-2 rounded-lg flex items-center justify-center">
                     <img 
                       src="/lovable-uploads/1a618b3c-11e7-43e4-a2d5-c1e6f36e48ba.png" 
@@ -84,6 +84,19 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
             </div>
           </div>
         </main>
+        
+        <footer className="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 py-6">
+          <div className="max-w-7xl mx-auto px-6">
+            <div className="flex items-center justify-between">
+              <div className="text-sm text-gray-500 dark:text-gray-400">
+                © 2024 Think With Me. All rights reserved.
+              </div>
+              <div className="text-sm text-gray-500 dark:text-gray-400">
+                Thinking Partners for Classrooms
+              </div>
+            </div>
+          </div>
+        </footer>
       </div>
     </ProtectedRoute>
   );
