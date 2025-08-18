@@ -4,15 +4,18 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Bot, Send, ArrowUp, Loader2, AlertCircle } from 'lucide-react';
+import { Badge } from "@/components/ui/badge";
+import { Bot, Send, ArrowUp, Loader2, AlertCircle, Mic } from 'lucide-react';
 import { fetchAgentById } from '@/services/agentService';
 import { AgentType } from '@/types/agent';
+import VoiceInterface from '@/components/VoiceInterface';
 
 interface Message {
   id: string;
   role: 'user' | 'assistant';
   content: string;
   timestamp: Date;
+  isVoice?: boolean;
 }
 
 const StudentChat = () => {
@@ -23,6 +26,8 @@ const StudentChat = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputMessage, setInputMessage] = useState('');
   const [isSending, setIsSending] = useState(false);
+  const [isVoiceModeEnabled, setIsVoiceModeEnabled] = useState(false);
+  const [isSpeaking, setIsSpeaking] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -182,6 +187,32 @@ const StudentChat = () => {
     }
   };
 
+  const handleTranscriptUpdate = (transcript: string, isFromUser: boolean) => {
+    if (!transcript.trim()) return;
+
+    const messageId = isFromUser ? `user-voice-${Date.now()}` : `assistant-voice-${Date.now()}`;
+    const newMessage: Message = {
+      id: messageId,
+      role: isFromUser ? 'user' : 'assistant',
+      content: transcript,
+      timestamp: new Date(),
+      isVoice: true
+    };
+
+    setMessages(prev => {
+      // Update existing message if it's the same voice session
+      const lastMessage = prev[prev.length - 1];
+      if (lastMessage && lastMessage.role === newMessage.role && lastMessage.isVoice) {
+        return [...prev.slice(0, -1), newMessage];
+      }
+      return [...prev, newMessage];
+    });
+  };
+
+  const handleSpeakingChange = (speaking: boolean) => {
+    setIsSpeaking(speaking);
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -218,18 +249,37 @@ const StudentChat = () => {
       {/* Header */}
       <div className="border-b bg-card/50 backdrop-blur-sm">
         <div className="max-w-4xl mx-auto px-4 py-4">
-          <div className="flex items-center gap-3">
-            <Avatar className="h-12 w-12 border-2 border-primary/20">
-              <AvatarImage src={agent.avatar} alt={agent.name} />
-              <AvatarFallback>
-                <Bot className="h-6 w-6" />
-              </AvatarFallback>
-            </Avatar>
-            <div>
-              <h1 className="text-xl font-semibold">{agent.name}</h1>
-              <p className="text-sm text-muted-foreground">
-                {agent.type} • {agent.subject || 'General'}
-              </p>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Avatar className="h-12 w-12 border-2 border-primary/20">
+                <AvatarImage src={agent.avatar} alt={agent.name} />
+                <AvatarFallback>
+                  <Bot className="h-6 w-6" />
+                </AvatarFallback>
+              </Avatar>
+              <div>
+                <h1 className="text-xl font-semibold">{agent.name}</h1>
+                <p className="text-sm text-muted-foreground">
+                  {agent.type} • {agent.subject || 'General'}
+                </p>
+              </div>
+            </div>
+            
+            <div className="flex items-center gap-2">
+              {isSpeaking && (
+                <Badge variant="secondary" className="animate-pulse">
+                  <Bot className="h-3 w-3 mr-1" />
+                  Speaking...
+                </Badge>
+              )}
+              <Button
+                onClick={() => setIsVoiceModeEnabled(!isVoiceModeEnabled)}
+                variant={isVoiceModeEnabled ? "default" : "outline"}
+                size="sm"
+              >
+                <Mic className="h-4 w-4 mr-2" />
+                Voice Chat
+              </Button>
             </div>
           </div>
         </div>
@@ -259,7 +309,12 @@ const StudentChat = () => {
                     : 'bg-muted'
                 }`}
               >
-                <p className="whitespace-pre-wrap">{message.content}</p>
+                <div className="flex items-start justify-between">
+                  <p className="whitespace-pre-wrap">{message.content}</p>
+                  {message.isVoice && (
+                    <Mic className="h-3 w-3 ml-2 mt-1 opacity-50 flex-shrink-0" />
+                  )}
+                </div>
                 <div className="text-xs opacity-70 mt-1">
                   {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                 </div>
@@ -291,32 +346,43 @@ const StudentChat = () => {
         </div>
       </div>
 
-      {/* Input */}
-      <div className="border-t bg-card/50 backdrop-blur-sm">
-        <div className="max-w-4xl mx-auto px-4 py-4">
-          <div className="relative">
-            <Textarea
-              placeholder={`Ask ${agent.name} a question...`}
-              className="min-h-[60px] max-h-[120px] resize-none pr-12 py-3"
-              value={inputMessage}
-              onChange={(e) => setInputMessage(e.target.value)}
-              onKeyDown={handleKeyDown}
-              disabled={isSending}
-            />
-            <Button
-              size="icon"
-              className="absolute bottom-3 right-3 h-8 w-8 rounded-full"
-              onClick={sendMessage}
-              disabled={!inputMessage.trim() || isSending}
-            >
-              <ArrowUp className="h-4 w-4" />
-            </Button>
-          </div>
-          <div className="text-xs text-muted-foreground mt-2 text-center">
-            Press Enter to send • Shift + Enter for new line
+      {/* Input - only show when voice mode is disabled */}
+      {!isVoiceModeEnabled && (
+        <div className="border-t bg-card/50 backdrop-blur-sm">
+          <div className="max-w-4xl mx-auto px-4 py-4">
+            <div className="relative">
+              <Textarea
+                placeholder={`Ask ${agent.name} a question...`}
+                className="min-h-[60px] max-h-[120px] resize-none pr-12 py-3"
+                value={inputMessage}
+                onChange={(e) => setInputMessage(e.target.value)}
+                onKeyDown={handleKeyDown}
+                disabled={isSending}
+              />
+              <Button
+                size="icon"
+                className="absolute bottom-3 right-3 h-8 w-8 rounded-full"
+                onClick={sendMessage}
+                disabled={!inputMessage.trim() || isSending}
+              >
+                <ArrowUp className="h-4 w-4" />
+              </Button>
+            </div>
+            <div className="text-xs text-muted-foreground mt-2 text-center">
+              Press Enter to send • Shift + Enter for new line
+            </div>
           </div>
         </div>
-      </div>
+      )}
+
+      {/* Voice Interface */}
+      {isVoiceModeEnabled && agent && (
+        <VoiceInterface
+          agent={agent}
+          onTranscriptUpdate={handleTranscriptUpdate}
+          onSpeakingChange={handleSpeakingChange}
+        />
+      )}
     </div>
   );
 };
