@@ -75,7 +75,7 @@ const Landing = () => {
               </div>
               <div>
                 <h1 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white">Think With Me</h1>
-                <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">AI-Powered Learning Conversations</p>
+                <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">Thinking Partners for Classrooms</p>
               </div>
             </div>
             <div className="flex items-center gap-3">
@@ -246,9 +246,18 @@ const Landing = () => {
                       <CardTitle className="text-sm sm:text-base font-semibold truncate text-gray-900 dark:text-white">
                         {tutor.name}
                       </CardTitle>
-                      <CardDescription className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
-                        {tutor.type}
-                      </CardDescription>
+                      <div className="flex flex-wrap gap-1 mt-1">
+                        {tutor.subject && (
+                          <Badge variant="secondary" className="text-xs font-medium">
+                            {tutor.subject.charAt(0).toUpperCase() + tutor.subject.slice(1)}
+                          </Badge>
+                        )}
+                        {tutor.gradeLevel && (
+                          <Badge variant="outline" className="text-xs">
+                            Grades {tutor.gradeLevel}
+                          </Badge>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </CardHeader>
@@ -257,19 +266,6 @@ const Landing = () => {
                   <p className="text-xs sm:text-sm text-gray-700 dark:text-gray-300 mb-3 sm:mb-4 line-clamp-2 leading-relaxed">
                     {tutor.description}
                   </p>
-                  
-                  <div className="flex flex-wrap gap-1 sm:gap-2 mb-3 sm:mb-4">
-                    {tutor.subject && (
-                      <Badge variant="secondary" className="text-xs font-medium">
-                        {tutor.subject}
-                      </Badge>
-                    )}
-                    {tutor.gradeLevel && (
-                      <Badge variant="outline" className="text-xs">
-                        {tutor.gradeLevel}
-                      </Badge>
-                    )}
-                  </div>
 
                   <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 mb-3 sm:mb-4">
                     <div className="flex items-center gap-1">
