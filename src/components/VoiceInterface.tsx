@@ -1,6 +1,6 @@
 
 import React from 'react';
-import LiveKitVoiceInterface from './LiveKitVoiceInterface';
+import EfficientVoiceInterface from './EfficientVoiceInterface';
 import { AgentType } from '@/types/agent';
 
 interface VoiceInterfaceProps {
@@ -10,7 +10,7 @@ interface VoiceInterfaceProps {
 }
 
 const VoiceInterface: React.FC<VoiceInterfaceProps> = (props) => {
-  return <LiveKitVoiceInterface {...props} />;
+  return <EfficientVoiceInterface {...props} />;
 };
 
 export default VoiceInterface;
