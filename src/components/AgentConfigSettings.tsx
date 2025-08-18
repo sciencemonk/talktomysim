@@ -167,8 +167,19 @@ Always be patient, supportive, and adapt to each student's learning pace. If a s
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-            <div className="flex flex-col items-center space-y-4 order-2 lg:order-1">
+          <div className="space-y-6">
+            <div className="space-y-2">
+              <Label htmlFor="tutor-name" className="text-sm">Tutor Name</Label>
+              <Input
+                id="tutor-name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="e.g., Ms. Johnson, Mr. Smith"
+                className="text-sm"
+              />
+            </div>
+            
+            <div className="flex flex-col items-center space-y-4">
               <Avatar className="h-20 w-20 sm:h-24 sm:w-24 border-2 border-primary/30">
                 <AvatarImage src={avatar} alt={name} />
                 <AvatarFallback>
@@ -176,7 +187,7 @@ Always be patient, supportive, and adapt to each student's learning pace. If a s
                 </AvatarFallback>
               </Avatar>
               
-              <div className="w-full space-y-3">
+              <div className="w-full max-w-md space-y-3">
                 <Label htmlFor="tutor-avatar" className="text-sm">Avatar URL</Label>
                 <Input
                   id="tutor-avatar"
@@ -193,19 +204,6 @@ Always be patient, supportive, and adapt to each student's learning pace. If a s
                 >
                   Generate Random Avatar
                 </Button>
-              </div>
-            </div>
-            
-            <div className="space-y-4 order-1 lg:order-2">
-              <div className="space-y-2">
-                <Label htmlFor="tutor-name" className="text-sm">Tutor Name</Label>
-                <Input
-                  id="tutor-name"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="e.g., Ms. Johnson, Mr. Smith"
-                  className="text-sm"
-                />
               </div>
             </div>
           </div>
