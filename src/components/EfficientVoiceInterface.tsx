@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -21,9 +20,10 @@ const EfficientVoiceInterface: React.FC<EfficientVoiceInterfaceProps> = ({
   const { toast } = useToast();
   const [isRecording, setIsRecording] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [voiceEnabled, setVoiceEnabled] = useState(true); // Default to enabled
+  const [voiceEnabled, setVoiceEnabled] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [hasGivenIntro, setHasGivenIntro] = useState(false);
+  const [isSpeaking, setIsSpeaking] = useState(false);
   
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
@@ -101,7 +101,9 @@ const EfficientVoiceInterface: React.FC<EfficientVoiceInterfaceProps> = ({
     setIsProcessing(true);
     
     try {
-      // Convert audio to text using Whisper API (much cheaper than Realtime)
+      console.log('Processing audio blob of size:', audioBlob.size);
+      
+      // Convert audio to text using Whisper API
       const formData = new FormData();
       formData.append('audio', audioBlob, 'audio.webm');
       
@@ -114,9 +116,10 @@ const EfficientVoiceInterface: React.FC<EfficientVoiceInterfaceProps> = ({
       }
       
       const userText = transcriptionResponse.data.text;
+      console.log('Transcribed text:', userText);
       onTranscriptUpdate(userText, true);
       
-      // Get AI response using cheaper chat completion API
+      // Get AI response using chat completion API
       const chatResponse = await supabase.functions.invoke('chat-completion', {
         body: {
           messages: [{ role: 'user', content: userText }],
@@ -129,10 +132,12 @@ const EfficientVoiceInterface: React.FC<EfficientVoiceInterfaceProps> = ({
       }
       
       const aiText = chatResponse.data.content;
+      console.log('AI response:', aiText);
       onTranscriptUpdate(aiText, false);
       
       // Always generate speech since this is a voice-first experience
       if (voiceEnabled) {
+        console.log('Generating speech for AI response');
         await generateSpeech(aiText);
       }
       
@@ -151,6 +156,8 @@ const EfficientVoiceInterface: React.FC<EfficientVoiceInterfaceProps> = ({
 
   const generateSpeech = async (text: string) => {
     try {
+      console.log('Starting speech generation for text:', text.substring(0, 50) + '...');
+      setIsSpeaking(true);
       onSpeakingChange(true);
       
       const response = await supabase.functions.invoke('text-to-speech', {
@@ -158,28 +165,70 @@ const EfficientVoiceInterface: React.FC<EfficientVoiceInterfaceProps> = ({
       });
       
       if (response.error) {
+        console.error('TTS error:', response.error);
         throw new Error(response.error.message);
       }
       
-      // Play the audio
+      console.log('Speech generation successful, playing audio');
+      
+      // Create or reuse audio element
       if (!audioElementRef.current) {
         audioElementRef.current = document.createElement("audio");
-        audioElementRef.current.onended = () => onSpeakingChange(false);
+        audioElementRef.current.onended = () => {
+          console.log('Audio playback ended');
+          setIsSpeaking(false);
+          onSpeakingChange(false);
+        };
+        audioElementRef.current.onerror = (e) => {
+          console.error('Audio playback error:', e);
+          setIsSpeaking(false);
+          onSpeakingChange(false);
+        };
       }
       
-      const audioBlob = new Blob([response.data], { type: 'audio/mpeg' });
+      // Convert response data to audio blob and play
+      const audioData = response.data;
+      const audioBlob = new Blob([audioData], { type: 'audio/mpeg' });
       const audioUrl = URL.createObjectURL(audioBlob);
+      
       audioElementRef.current.src = audioUrl;
-      audioElementRef.current.play();
+      audioElementRef.current.volume = 0.8; // Set volume to 80%
+      
+      try {
+        await audioElementRef.current.play();
+        console.log('Audio started playing');
+      } catch (playError) {
+        console.error('Error playing audio:', playError);
+        setIsSpeaking(false);
+        onSpeakingChange(false);
+        
+        // Clean up the URL if playback fails
+        URL.revokeObjectURL(audioUrl);
+      }
       
     } catch (error) {
       console.error('Error generating speech:', error);
+      setIsSpeaking(false);
       onSpeakingChange(false);
+      toast({
+        title: "Speech Error",
+        description: "Failed to generate speech",
+        variant: "destructive",
+      });
     }
   };
 
   const toggleVoice = () => {
     setVoiceEnabled(!voiceEnabled);
+    
+    // Stop current audio if disabling voice
+    if (voiceEnabled && audioElementRef.current) {
+      audioElementRef.current.pause();
+      audioElementRef.current.currentTime = 0;
+      setIsSpeaking(false);
+      onSpeakingChange(false);
+    }
+    
     toast({
       title: voiceEnabled ? "Voice Disabled" : "Voice Enabled",
       description: voiceEnabled ? "AI will respond with text only" : "AI will speak responses",
@@ -188,7 +237,10 @@ const EfficientVoiceInterface: React.FC<EfficientVoiceInterfaceProps> = ({
 
   useEffect(() => {
     return () => {
-      mediaRecorderRef.current?.stop();
+      // Cleanup on unmount
+      if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
+        mediaRecorderRef.current.stop();
+      }
       if (audioElementRef.current) {
         audioElementRef.current.pause();
         audioElementRef.current.src = '';
@@ -201,9 +253,17 @@ const EfficientVoiceInterface: React.FC<EfficientVoiceInterfaceProps> = ({
       <CardContent className="p-4">
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2">
-            <div className={`w-3 h-3 rounded-full ${isRecording ? 'bg-red-500 animate-pulse' : isProcessing ? 'bg-yellow-500 animate-pulse' : 'bg-gray-400'}`} />
+            <div className={`w-3 h-3 rounded-full ${
+              isRecording ? 'bg-red-500 animate-pulse' : 
+              isProcessing ? 'bg-yellow-500 animate-pulse' :
+              isSpeaking ? 'bg-blue-500 animate-pulse' :
+              'bg-gray-400'
+            }`} />
             <span className="text-sm font-medium">
-              {isRecording ? 'Recording...' : isProcessing ? 'Processing...' : 'Ready'}
+              {isRecording ? 'Recording...' : 
+               isProcessing ? 'Processing...' :
+               isSpeaking ? 'Speaking...' :
+               'Ready'}
             </span>
           </div>
           
@@ -212,7 +272,7 @@ const EfficientVoiceInterface: React.FC<EfficientVoiceInterfaceProps> = ({
             onMouseUp={stopRecording}
             onTouchStart={startRecording}
             onTouchEnd={stopRecording}
-            disabled={isProcessing}
+            disabled={isProcessing || isSpeaking}
             className="bg-primary hover:bg-primary/90 text-primary-foreground"
           >
             {isProcessing ? (
