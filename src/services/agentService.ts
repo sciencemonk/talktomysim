@@ -1,6 +1,22 @@
 
 import { supabase } from '@/integrations/supabase/client';
-import { AgentType } from '@/types/agent';
+import { AgentType, VoiceTrait, AgentChannelConfig } from '@/types/agent';
+
+// Type guard functions for safe JSON conversion
+const isVoiceTraitsArray = (value: any): value is VoiceTrait[] => {
+  return Array.isArray(value) && value.every(item => 
+    typeof item === 'object' && item !== null && 
+    typeof item.name === 'string'
+  );
+};
+
+const isChannelConfigsObject = (value: any): value is Record<string, AgentChannelConfig> => {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+};
+
+const isChannelsArray = (value: any): value is string[] => {
+  return Array.isArray(value) && value.every(item => typeof item === 'string');
+};
 
 // Mock data for development/fallback when Supabase is not available
 const mockAgents: AgentType[] = [
@@ -112,9 +128,9 @@ export const fetchAgents = async (filter: string = 'all-agents'): Promise<AgentT
       helpfulnessScore: tutor.helpfulness_score,
       studentsSaved: tutor.students_saved,
       interactions: tutor.interactions,
-      voiceTraits: Array.isArray(tutor.voice_traits) ? tutor.voice_traits : [],
-      channelConfigs: typeof tutor.channel_configs === 'object' && tutor.channel_configs ? tutor.channel_configs as Record<string, any> : {},
-      channels: Array.isArray(tutor.channels) ? tutor.channels as string[] : [],
+      voiceTraits: isVoiceTraitsArray(tutor.voice_traits) ? tutor.voice_traits : [],
+      channelConfigs: isChannelConfigsObject(tutor.channel_configs) ? tutor.channel_configs : {},
+      channels: isChannelsArray(tutor.channels) ? tutor.channels : [],
       teachingStyle: tutor.teaching_style,
       customSubject: tutor.custom_subject,
       learningObjective: tutor.learning_objective,
@@ -173,9 +189,9 @@ export const fetchAgentById = async (id: string): Promise<AgentType> => {
       helpfulnessScore: data.helpfulness_score,
       studentsSaved: data.students_saved,
       interactions: data.interactions,
-      voiceTraits: Array.isArray(data.voice_traits) ? data.voice_traits : [],
-      channelConfigs: typeof data.channel_configs === 'object' && data.channel_configs ? data.channel_configs as Record<string, any> : {},
-      channels: Array.isArray(data.channels) ? data.channels as string[] : [],
+      voiceTraits: isVoiceTraitsArray(data.voice_traits) ? data.voice_traits : [],
+      channelConfigs: isChannelConfigsObject(data.channel_configs) ? data.channel_configs : {},
+      channels: isChannelsArray(data.channels) ? data.channels : [],
       teachingStyle: data.teaching_style,
       customSubject: data.custom_subject,
       learningObjective: data.learning_objective,
@@ -259,9 +275,9 @@ export const updateAgent = async (agentId: string, updates: Partial<AgentType>):
       helpfulnessScore: data.helpfulness_score,
       studentsSaved: data.students_saved,
       interactions: data.interactions,
-      voiceTraits: Array.isArray(data.voice_traits) ? data.voice_traits : [],
-      channelConfigs: typeof data.channel_configs === 'object' && data.channel_configs ? data.channel_configs as Record<string, any> : {},
-      channels: Array.isArray(data.channels) ? data.channels as string[] : [],
+      voiceTraits: isVoiceTraitsArray(data.voice_traits) ? data.voice_traits : [],
+      channelConfigs: isChannelConfigsObject(data.channel_configs) ? data.channel_configs : {},
+      channels: isChannelsArray(data.channels) ? data.channels : [],
       teachingStyle: data.teaching_style,
       customSubject: data.custom_subject,
       learningObjective: data.learning_objective,
@@ -286,7 +302,7 @@ export const createAgent = async (agent: Omit<AgentType, 'id' | 'createdAt' | 'u
       throw new Error('User must be authenticated to create a tutor');
     }
 
-    // Convert AgentType to database schema
+    // Convert AgentType to database schema - single object, not array
     const dbAgent = {
       name: agent.name,
       description: agent.description,
@@ -305,9 +321,9 @@ export const createAgent = async (agent: Omit<AgentType, 'id' | 'createdAt' | 'u
       helpfulness_score: agent.helpfulnessScore,
       students_saved: agent.studentsSaved,
       interactions: agent.interactions,
-      voice_traits: agent.voiceTraits,
-      channel_configs: agent.channelConfigs,
-      channels: agent.channels,
+      voice_traits: agent.voiceTraits || [],
+      channel_configs: agent.channelConfigs || {},
+      channels: agent.channels || [],
       teaching_style: agent.teachingStyle,
       custom_subject: agent.customSubject,
       learning_objective: agent.learningObjective,
@@ -321,7 +337,7 @@ export const createAgent = async (agent: Omit<AgentType, 'id' | 'createdAt' | 'u
 
     const { data, error } = await supabase
       .from('tutors')
-      .insert([dbAgent])
+      .insert(dbAgent)
       .select('*')
       .single();
 
@@ -351,9 +367,9 @@ export const createAgent = async (agent: Omit<AgentType, 'id' | 'createdAt' | 'u
       helpfulnessScore: data.helpfulness_score,
       studentsSaved: data.students_saved,
       interactions: data.interactions,
-      voiceTraits: Array.isArray(data.voice_traits) ? data.voice_traits : [],
-      channelConfigs: typeof data.channel_configs === 'object' && data.channel_configs ? data.channel_configs as Record<string, any> : {},
-      channels: Array.isArray(data.channels) ? data.channels as string[] : [],
+      voiceTraits: isVoiceTraitsArray(data.voice_traits) ? data.voice_traits : [],
+      channelConfigs: isChannelConfigsObject(data.channel_configs) ? data.channel_configs : {},
+      channels: isChannelsArray(data.channels) ? data.channels : [],
       teachingStyle: data.teaching_style,
       customSubject: data.custom_subject,
       learningObjective: data.learning_objective,
