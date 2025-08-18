@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
@@ -205,27 +206,24 @@ const Landing = () => {
         </div>
 
         {/* Tutors Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {isLoading ? (
             // Loading skeleton
             Array.from({ length: 6 }).map((_, i) => (
               <Card key={i} className="animate-pulse border-gray-200 dark:border-gray-700 rounded-2xl overflow-hidden">
-                <CardHeader className="p-6 pb-4">
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-center space-x-4">
-                      <div className="h-16 w-16 bg-gray-200 dark:bg-gray-700 rounded-2xl" />
-                      <div className="space-y-2 flex-1">
-                        <div className="h-5 bg-gray-200 dark:bg-gray-700 rounded w-3/4" />
-                        <div className="flex gap-2">
-                          <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-16" />
-                          <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-20" />
-                        </div>
-                      </div>
-                    </div>
+                <div className="relative">
+                  <div className="h-32 bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600" />
+                  <div className="absolute -bottom-8 left-6">
+                    <div className="h-16 w-16 bg-gray-200 dark:bg-gray-700 rounded-2xl border-4 border-white dark:border-gray-800" />
                   </div>
-                </CardHeader>
-                <CardContent className="p-6 pt-0">
+                </div>
+                <CardContent className="pt-12 px-6 pb-6">
                   <div className="space-y-4">
+                    <div className="flex gap-2">
+                      <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded-full w-16" />
+                      <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded-full w-20" />
+                    </div>
+                    <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-3/4" />
                     <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded" />
                     <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-4/5" />
                     <div className="flex justify-between items-center">
@@ -244,76 +242,89 @@ const Landing = () => {
             filteredTutors.map((tutor) => (
               <Card 
                 key={tutor.id} 
-                className="cursor-pointer hover:shadow-xl transition-all duration-300 border-gray-200/50 dark:border-gray-700/50 hover:border-blue-300 dark:hover:border-blue-600 rounded-2xl overflow-hidden bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm hover:-translate-y-1 group"
+                className="cursor-pointer hover:shadow-2xl transition-all duration-500 border-0 rounded-3xl overflow-hidden bg-white dark:bg-gray-800 hover:-translate-y-2 group shadow-lg"
                 onClick={() => handleTutorClick(tutor.id)}
               >
-                <CardHeader className="p-6 pb-4">
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-center space-x-4 flex-1">
-                      <Avatar className="h-16 w-16 border-3 border-white shadow-lg rounded-2xl group-hover:scale-105 transition-transform duration-200">
-                        <AvatarImage src={tutor.avatar} alt={tutor.name} className="rounded-2xl" />
-                        <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white text-lg rounded-2xl">
-                          <Bot className="h-8 w-8" />
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="flex-1 min-w-0">
-                        <CardTitle className="text-lg font-bold text-gray-900 dark:text-white mb-2 leading-tight">
-                          {tutor.name}
-                        </CardTitle>
-                        <div className="flex flex-wrap gap-2 mb-2">
-                          {tutor.subject && (
-                            <Badge variant="secondary" className="text-xs font-medium rounded-full px-3 py-1 bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
-                              {tutor.subject}
-                            </Badge>
-                          )}
-                          {tutor.gradeLevel && (
-                            <Badge variant="outline" className="text-xs font-medium rounded-full px-3 py-1 border-gray-300 text-gray-600 dark:border-gray-600 dark:text-gray-300">
-                              {tutor.gradeLevel}
-                            </Badge>
-                          )}
+                {/* Hero Section */}
+                <div className="relative">
+                  <div className="h-32 bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 relative overflow-hidden">
+                    <div className="absolute inset-0 bg-gradient-to-br from-black/20 to-transparent" />
+                    <div className="absolute top-4 right-4 flex gap-2">
+                      {tutor.performance && (
+                        <div className="bg-white/20 backdrop-blur-sm rounded-full px-3 py-1 flex items-center gap-1">
+                          <Star className="h-3 w-3 fill-yellow-300 text-yellow-300" />
+                          <span className="text-white text-xs font-medium">{tutor.performance.toFixed(1)}</span>
                         </div>
-                        <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
-                          <User className="h-4 w-4" />
-                          <span>Created by Teacher Name</span>
-                        </div>
-                      </div>
+                      )}
                     </div>
                   </div>
-                </CardHeader>
-                
-                <CardContent className="p-6 pt-0">
-                  <p className="text-sm text-gray-700 dark:text-gray-300 mb-4 line-clamp-2 leading-relaxed">
+                  
+                  {/* Avatar positioned to overlap */}
+                  <div className="absolute -bottom-8 left-6">
+                    <Avatar className="h-16 w-16 border-4 border-white dark:border-gray-800 shadow-xl rounded-2xl group-hover:scale-110 transition-transform duration-300">
+                      <AvatarImage src={tutor.avatar} alt={tutor.name} className="rounded-2xl" />
+                      <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white text-lg rounded-2xl">
+                        <Bot className="h-8 w-8" />
+                      </AvatarFallback>
+                    </Avatar>
+                  </div>
+                </div>
+
+                <CardContent className="pt-12 px-6 pb-6">
+                  {/* Badges */}
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    {tutor.subject && (
+                      <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-200 dark:bg-blue-900/30 dark:text-blue-300 text-xs font-medium rounded-full px-3 py-1 border-0">
+                        {tutor.subject}
+                      </Badge>
+                    )}
+                    {tutor.gradeLevel && (
+                      <Badge variant="outline" className="text-xs font-medium rounded-full px-3 py-1 border-gray-300 text-gray-600 dark:border-gray-600 dark:text-gray-300">
+                        {tutor.gradeLevel}
+                      </Badge>
+                    )}
+                  </div>
+
+                  {/* Title */}
+                  <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3 leading-tight group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-200">
+                    {tutor.name}
+                  </h3>
+
+                  {/* Description */}
+                  <p className="text-gray-600 dark:text-gray-300 mb-4 line-clamp-2 leading-relaxed text-sm">
                     {tutor.description}
                   </p>
 
-                  <div className="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400 mb-6">
+                  {/* Creator Info */}
+                  <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-4">
+                    <User className="h-4 w-4" />
+                    <span>Created by Teacher Name</span>
+                  </div>
+
+                  {/* Stats */}
+                  <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400 mb-6">
                     <div className="flex items-center gap-2">
                       <Users className="h-4 w-4" />
                       <span className="font-medium">{tutor.interactions || 0} interactions</span>
                     </div>
-                    {tutor.performance && (
-                      <div className="flex items-center gap-2">
-                        <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                        <span className="font-medium">{tutor.performance.toFixed(1)}</span>
-                      </div>
-                    )}
                   </div>
 
+                  {/* Action Buttons */}
                   <div className="flex gap-3">
                     <Button 
                       size="sm" 
                       variant="outline"
-                      className="flex-1 text-sm font-semibold rounded-full border-2 hover:bg-gray-50 dark:hover:bg-gray-800 h-10 transition-all duration-200"
+                      className="flex-1 text-sm font-semibold rounded-full border-2 hover:bg-gray-50 dark:hover:bg-gray-800 h-11 transition-all duration-200 group-hover:border-blue-300"
                       onClick={(e) => {
                         e.stopPropagation();
                         handleTutorClick(tutor.id);
                       }}
                     >
-                      Details
+                      View Details
                     </Button>
                     <Button 
                       size="sm" 
-                      className="flex-1 text-sm font-semibold bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 h-10"
+                      className="flex-1 text-sm font-semibold bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 rounded-full shadow-lg hover:shadow-2xl transition-all duration-300 h-11 transform group-hover:scale-105"
                       onClick={(e) => handleDemoTutor(tutor.id, e)}
                     >
                       Try Demo
