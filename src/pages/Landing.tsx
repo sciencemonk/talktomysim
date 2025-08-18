@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
@@ -80,7 +79,15 @@ const Landing = () => {
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <Button onClick={handleSignInWithGoogle} className="bg-blue-600 hover:bg-blue-700 text-sm sm:text-base px-3 sm:px-4 py-2">
+              <Button 
+                onClick={handleSignInWithGoogle} 
+                className="bg-white hover:bg-gray-50 text-gray-900 border border-gray-300 rounded-full text-sm sm:text-base px-4 sm:px-6 py-2 flex items-center gap-2 shadow-sm"
+              >
+                <img 
+                  src="/lovable-uploads/b0174e22-c5cc-4bc5-8b34-8df738173560.png" 
+                  alt="Google" 
+                  className="h-4 w-4 sm:h-5 sm:w-5"
+                />
                 Sign in with Google
               </Button>
             </div>
