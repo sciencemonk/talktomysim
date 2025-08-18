@@ -80,19 +80,8 @@ const Landing = () => {
         </div>
       </header>
 
-      {/* Hero Section */}
+      {/* Main Content */}
       <section className="container mx-auto px-4 py-8">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">
-            Discover AI Tutors
-            <span className="block text-blue-600">Created by Teachers</span>
-          </h1>
-          <p className="text-xl text-gray-600 dark:text-gray-300 mb-8 max-w-3xl mx-auto">
-            Browse our marketplace of AI tutoring agents created by educators worldwide. 
-            Find the perfect tutor for your students or create your own.
-          </p>
-        </div>
-
         {/* Search and Filters */}
         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 mb-8">
           <div className="flex flex-col md:flex-row gap-4 items-center">
@@ -250,13 +239,26 @@ const Landing = () => {
                     )}
                   </div>
 
-                  <Button 
-                    size="sm" 
-                    className="w-full"
-                    onClick={(e) => handleDemoTutor(tutor.id, e)}
-                  >
-                    Try Demo
-                  </Button>
+                  <div className="flex gap-2">
+                    <Button 
+                      size="sm" 
+                      variant="outline"
+                      className="flex-1"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleTutorClick(tutor.id);
+                      }}
+                    >
+                      View Details
+                    </Button>
+                    <Button 
+                      size="sm" 
+                      className="flex-1"
+                      onClick={(e) => handleDemoTutor(tutor.id, e)}
+                    >
+                      Try Demo
+                    </Button>
+                  </div>
                 </CardContent>
               </Card>
             ))
