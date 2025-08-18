@@ -1,122 +1,103 @@
 
-import { Outlet, useNavigate, useLocation } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { UserSettingsDropdown } from "@/components/UserSettingsDropdown";
-import { ThemeToggle } from "@/components/ThemeToggle";
-import { Home, Users, BookOpen, Settings, TrendingUp, GraduationCap } from "lucide-react";
+import { ReactNode } from 'react';
+import { Link, useLocation } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import { UserSettingsDropdown } from '@/components/UserSettingsDropdown';
+import { ThemeToggle } from '@/components/ThemeToggle';
+import { 
+  LayoutDashboard, 
+  Store, 
+  GraduationCap, 
+  Settings, 
+  CreditCard 
+} from 'lucide-react';
 
-const DashboardLayout = () => {
-  const navigate = useNavigate();
+interface DashboardLayoutProps {
+  children: ReactNode;
+}
+
+const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const location = useLocation();
 
-  const navItems = [
-    { icon: Home, label: "Dashboard", path: "/dashboard" },
-    { icon: Users, label: "My Tutors", path: "/agents" },
-    { icon: TrendingUp, label: "Marketplace", path: "/marketplace" },
-    { icon: GraduationCap, label: "Professional Development", path: "/professional-development" },
-    { icon: Settings, label: "Settings", path: "/settings" },
+  const navigation = [
+    { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
+    { name: 'Marketplace', href: '/marketplace', icon: Store },
+    { name: 'Professional Development', href: '/professional-development', icon: GraduationCap },
+    { name: 'Settings', href: '/settings', icon: Settings },
+    { name: 'Billing', href: '/billing', icon: CreditCard },
   ];
-
-  const isActive = (path: string) => location.pathname === path;
 
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="bg-background border-b border-border">
-        <div className="container mx-auto px-4 sm:px-6 py-3 sm:py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4 flex-shrink-0">
-              <div className="p-1 sm:p-2 rounded-lg flex items-center justify-center flex-shrink-0">
-                <img 
-                  src="/lovable-uploads/1a618b3c-11e7-43e4-a2d5-c1e6f36e48ba.png" 
-                  alt="Think With Me Logo" 
-                  className="h-8 w-8 sm:h-10 sm:w-10"
-                />
-              </div>
-              <div className="flex-shrink-0">
-                <h1 className="text-lg sm:text-xl font-bold text-foreground">
-                  <span className="font-extrabold text-blue-600">T</span>hink{" "}
-                  <span className="font-extrabold text-blue-600">W</span>ith{" "}
-                  <span className="font-extrabold text-blue-600">M</span>e
-                </h1>
-                <p className="text-xs sm:text-sm text-muted-foreground font-medium">Thinking Partners for Classrooms</p>
-              </div>
+      <header className="bg-white dark:bg-gray-800 shadow-sm border-b">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            {/* Logo */}
+            <div className="flex-shrink-0">
+              <Link to="/dashboard" className="text-2xl font-bold">
+                <span className="font-bold text-blue-600">T</span>
+                <span className="text-gray-900 dark:text-white">hink </span>
+                <span className="font-bold text-blue-600">W</span>
+                <span className="text-gray-900 dark:text-white">ith </span>
+                <span className="font-bold text-blue-600">M</span>
+                <span className="text-gray-900 dark:text-white">e</span>
+              </Link>
             </div>
-            
+
             {/* Navigation */}
-            <nav className="hidden lg:flex items-center space-x-6">
-              {navItems.map((item) => {
+            <nav className="hidden md:flex space-x-8">
+              {navigation.map((item) => {
                 const Icon = item.icon;
+                const isActive = location.pathname === item.href;
                 return (
-                  <Button
-                    key={item.path}
-                    variant={isActive(item.path) ? "default" : "ghost"}
-                    size="sm"
-                    onClick={() => navigate(item.path)}
-                    className="flex items-center gap-2"
+                  <Link
+                    key={item.name}
+                    to={item.href}
+                    className={`flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                      isActive
+                        ? 'text-blue-600 bg-blue-50 dark:bg-blue-900/20 dark:text-blue-400'
+                        : 'text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-700'
+                    }`}
                   >
                     <Icon className="h-4 w-4" />
-                    {item.label}
-                  </Button>
+                    <span>{item.name}</span>
+                  </Link>
                 );
               })}
             </nav>
 
-            <div className="flex items-center gap-3">
+            {/* Right side */}
+            <div className="flex items-center space-x-4">
               <ThemeToggle />
               <UserSettingsDropdown />
             </div>
           </div>
-
-          {/* Mobile Navigation */}
-          <nav className="lg:hidden mt-4 flex flex-wrap gap-2">
-            {navItems.map((item) => {
-              const Icon = item.icon;
-              return (
-                <Button
-                  key={item.path}
-                  variant={isActive(item.path) ? "default" : "ghost"}
-                  size="sm"
-                  onClick={() => navigate(item.path)}
-                  className="flex items-center gap-2 text-xs"
-                >
-                  <Icon className="h-3 w-3" />
-                  {item.label}
-                </Button>
-              );
-            })}
-          </nav>
         </div>
       </header>
 
-      {/* Main Content */}
-      <main className="flex-1">
-        <Outlet />
+      {/* Main content */}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {children}
       </main>
 
       {/* Footer */}
-      <footer className="bg-background border-t border-border py-4 mt-auto">
-        <div className="container mx-auto px-4 sm:px-6">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div className="flex items-center space-x-3">
-              <div className="p-1 rounded-lg flex items-center justify-center">
-                <img 
-                  src="/lovable-uploads/1a618b3c-11e7-43e4-a2d5-c1e6f36e48ba.png" 
-                  alt="Think With Me Logo" 
-                  className="h-6 w-6"
-                />
-              </div>
-              <div>
-                <h3 className="text-sm font-bold text-foreground">
-                  <span className="font-extrabold text-blue-600">T</span>hink{" "}
-                  <span className="font-extrabold text-blue-600">W</span>ith{" "}
-                  <span className="font-extrabold text-blue-600">M</span>e
-                </h3>
-                <p className="text-xs text-muted-foreground">Empowering educators with AI</p>
-              </div>
-            </div>
-            <div className="text-xs text-muted-foreground text-center">
-              © 2024 Think With Me. Built for educators, by educators.
+      <footer className="bg-white dark:bg-gray-800 border-t mt-auto">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <div className="flex justify-between items-center">
+            <p className="text-sm text-gray-600 dark:text-gray-400">
+              © 2024 Think With Me. All rights reserved.
+            </p>
+            <div className="flex space-x-6">
+              <Link to="/support" className="text-sm text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white">
+                Support
+              </Link>
+              <Link to="/privacy" className="text-sm text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white">
+                Privacy
+              </Link>
+              <Link to="/terms" className="text-sm text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white">
+                Terms
+              </Link>
             </div>
           </div>
         </div>
