@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Bot, MessageCircle, Star, Users, Calendar, ArrowLeft, Share2, Heart } from "lucide-react";
+import { Bot, MessageCircle, Star, Users, Calendar, ArrowLeft, Share2, Heart, Shield, CheckCircle, Award } from "lucide-react";
 import { useAgentDetails } from "@/hooks/useAgentDetails";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ShareButton } from "@/components/ShareButton";
@@ -36,7 +36,45 @@ const PublicTutorDetail = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
+      <div className="min-h-screen bg-white dark:bg-gray-900">
+        {/* Header */}
+        <header className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
+          <div className="container mx-auto px-4 sm:px-6 py-3 sm:py-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2 sm:space-x-3">
+                <div className="p-1 sm:p-2 rounded-lg flex items-center justify-center">
+                  <img 
+                    src="/lovable-uploads/1a618b3c-11e7-43e4-a2d5-c1e6f36e48ba.png" 
+                    alt="Think With Me Logo" 
+                    className="h-8 w-8 sm:h-12 sm:w-12"
+                  />
+                </div>
+                <div>
+                  <h1 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white">Think With Me</h1>
+                  <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">Thinking Partners for Classrooms</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3">
+                <Button variant="ghost" size="sm" onClick={handleBack}>
+                  <ArrowLeft className="h-4 w-4 mr-2" />
+                  Back
+                </Button>
+                <Button 
+                  onClick={handleSignIn} 
+                  className="bg-white hover:bg-gray-50 text-gray-900 border border-gray-300 rounded-full text-sm sm:text-base px-4 sm:px-6 py-2 flex items-center gap-2 shadow-sm"
+                >
+                  <img 
+                    src="/lovable-uploads/b0174e22-c5cc-4bc5-8b34-8df738173560.png" 
+                    alt="Google" 
+                    className="h-4 w-4 sm:h-5 sm:w-5"
+                  />
+                  Sign in with Google
+                </Button>
+              </div>
+            </div>
+          </div>
+        </header>
+
         <div className="container mx-auto px-4 py-8">
           <div className="max-w-4xl mx-auto space-y-6">
             <Skeleton className="h-10 w-32" />
@@ -60,7 +98,41 @@ const PublicTutorDetail = () => {
 
   if (error || !agent) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
+      <div className="min-h-screen bg-white dark:bg-gray-900">
+        {/* Header */}
+        <header className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
+          <div className="container mx-auto px-4 sm:px-6 py-3 sm:py-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2 sm:space-x-3">
+                <div className="p-1 sm:p-2 rounded-lg flex items-center justify-center">
+                  <img 
+                    src="/lovable-uploads/1a618b3c-11e7-43e4-a2d5-c1e6f36e48ba.png" 
+                    alt="Think With Me Logo" 
+                    className="h-8 w-8 sm:h-12 sm:w-12"
+                  />
+                </div>
+                <div>
+                  <h1 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white">Think With Me</h1>
+                  <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">Thinking Partners for Classrooms</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3">
+                <Button 
+                  onClick={handleSignIn} 
+                  className="bg-white hover:bg-gray-50 text-gray-900 border border-gray-300 rounded-full text-sm sm:text-base px-4 sm:px-6 py-2 flex items-center gap-2 shadow-sm"
+                >
+                  <img 
+                    src="/lovable-uploads/b0174e22-c5cc-4bc5-8b34-8df738173560.png" 
+                    alt="Google" 
+                    className="h-4 w-4 sm:h-5 sm:w-5"
+                  />
+                  Sign in with Google
+                </Button>
+              </div>
+            </div>
+          </div>
+        </header>
+
         <div className="container mx-auto px-4 py-8">
           <div className="max-w-2xl mx-auto text-center">
             <Bot className="h-16 w-16 text-gray-400 mx-auto mb-4" />
@@ -81,27 +153,39 @@ const PublicTutorDetail = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
+    <div className="min-h-screen bg-white dark:bg-gray-900">
       {/* Header */}
-      <header className="border-b bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm sticky top-0 z-10">
-        <div className="container mx-auto px-4 py-4">
+      <header className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
+        <div className="container mx-auto px-4 sm:px-6 py-3 sm:py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
+            <div className="flex items-center space-x-2 sm:space-x-3">
+              <div className="p-1 sm:p-2 rounded-lg flex items-center justify-center">
+                <img 
+                  src="/lovable-uploads/1a618b3c-11e7-43e4-a2d5-c1e6f36e48ba.png" 
+                  alt="Think With Me Logo" 
+                  className="h-8 w-8 sm:h-12 sm:w-12"
+                />
+              </div>
+              <div>
+                <h1 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white">Think With Me</h1>
+                <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">Thinking Partners for Classrooms</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
               <Button variant="ghost" size="sm" onClick={handleBack}>
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 Back
               </Button>
-              <div className="flex items-center space-x-2">
-                <Bot className="h-6 w-6 text-blue-600" />
-                <span className="text-lg font-bold text-gray-900 dark:text-white">Agent Hub</span>
-              </div>
-            </div>
-            <div className="flex items-center gap-3">
-              <Button variant="outline" onClick={handleSignIn}>
-                Sign In with Google
-              </Button>
-              <Button onClick={handleSignIn} className="bg-blue-600 hover:bg-blue-700">
-                Create Your Own
+              <Button 
+                onClick={handleSignIn} 
+                className="bg-white hover:bg-gray-50 text-gray-900 border border-gray-300 rounded-full text-sm sm:text-base px-4 sm:px-6 py-2 flex items-center gap-2 shadow-sm"
+              >
+                <img 
+                  src="/lovable-uploads/b0174e22-c5cc-4bc5-8b34-8df738173560.png" 
+                  alt="Google" 
+                  className="h-4 w-4 sm:h-5 sm:w-5"
+                />
+                Sign in with Google
               </Button>
             </div>
           </div>
@@ -177,6 +261,26 @@ const PublicTutorDetail = () => {
               </div>
             </div>
           </div>
+
+          {/* Trust Banner */}
+          <section className="bg-blue-50 dark:bg-blue-950/30 border border-blue-100 dark:border-blue-900 rounded-lg mb-8">
+            <div className="px-4 sm:px-6 py-3 sm:py-4">
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8 text-xs sm:text-sm text-blue-700 dark:text-blue-300">
+                <div className="flex items-center gap-2">
+                  <Shield className="h-3 w-3 sm:h-4 sm:w-4" />
+                  <span>COPPA Compliant</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4" />
+                  <span>Built for Classrooms</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Award className="h-3 w-3 sm:h-4 sm:w-4" />
+                  <span>Free Google Sign In</span>
+                </div>
+              </div>
+            </div>
+          </section>
 
           {/* Stats and Details */}
           <div className="grid md:grid-cols-2 gap-8">
