@@ -36,31 +36,31 @@ const LiveKitVoiceInterface: React.FC<LiveKitVoiceInterfaceProps> = ({
         return {
           greeting: "Hi there! I'm so excited to chat with you today!",
           style: "Use simple words, be super enthusiastic, ask lots of 'what if' questions, and relate everything to things kids love like animals, games, or stories",
-          questions: "What's your favorite thing about...", "Can you guess what might happen if...", "Have you ever seen..."
+          questions: "What's your favorite thing about..., Can you guess what might happen if..., Have you ever seen..."
         };
       } else if (gradeLevel.includes('3-5')) {
         return {
           greeting: "Hey! I'm really looking forward to exploring this with you!",
           style: "Be curious and playful, ask them to share examples from their own life, use analogies they can relate to",
-          questions: "What do you think would happen if...", "Can you think of a time when...", "What's the coolest thing about..."
+          questions: "What do you think would happen if..., Can you think of a time when..., What's the coolest thing about..."
         };
       } else if (gradeLevel.includes('6-8')) {
         return {
           greeting: "Hi! I love learning about this stuff - let's figure it out together!",
           style: "Be conversational and slightly casual, ask for their opinions, connect to pop culture or their interests",
-          questions: "What's your take on...", "Have you noticed that...", "What would you do if..."
+          questions: "What's your take on..., Have you noticed that..., What would you do if..."
         };
       } else if (gradeLevel.includes('9-12')) {
         return {
           greeting: "Hey! This topic is actually pretty fascinating - want to dive in?",
           style: "Be respectful but friendly, ask thoughtful questions, encourage critical thinking and debate",
-          questions: "What do you think about...", "How would you approach...", "What's your perspective on..."
+          questions: "What do you think about..., How would you approach..., What's your perspective on..."
         };
       } else {
         return {
           greeting: "Hello! I'm excited to explore this topic with you!",
           style: "Be warm and engaging, adapt to their responses, ask open-ended questions",
-          questions: "What interests you most about...", "How do you see this connecting to...", "What questions do you have about..."
+          questions: "What interests you most about..., How do you see this connecting to..., What questions do you have about..."
         };
       }
     };
