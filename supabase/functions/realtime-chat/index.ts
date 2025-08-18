@@ -1,3 +1,4 @@
+
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
 const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY');
@@ -56,6 +57,32 @@ serve(async (req) => {
 
       openAISocket.onopen = () => {
         console.log('Connected to OpenAI Realtime API');
+        
+        // Send session configuration immediately after connection
+        const sessionConfig = {
+          type: "session.update",
+          session: {
+            modalities: ["text", "audio"],
+            instructions: "You are a helpful AI tutor. Be conversational and engaging.",
+            voice: "alloy",
+            input_audio_format: "pcm16",
+            output_audio_format: "pcm16",
+            input_audio_transcription: {
+              model: "whisper-1"
+            },
+            turn_detection: {
+              type: "server_vad",
+              threshold: 0.5,
+              prefix_padding_ms: 300,
+              silence_duration_ms: 1000
+            },
+            temperature: 0.8,
+            max_response_output_tokens: "inf"
+          }
+        };
+        
+        openAISocket.send(JSON.stringify(sessionConfig));
+        console.log('Sent session configuration');
         
         // Set up keepalive ping every 25 seconds
         keepaliveInterval = setInterval(() => {
