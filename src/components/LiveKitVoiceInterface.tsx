@@ -81,10 +81,14 @@ LEARNING OBJECTIVE: ${learningObjective}
 
 Your primary role is to help students achieve this specific learning objective through engaging, personalized instruction.
 
+IMPORTANT: This is the very first interaction with this student. You must begin by introducing yourself and asking about their prior knowledge.
+
+FIRST MESSAGE: You must start by saying exactly: "Hello, my name is ${agent.name} and I'm here to help you learn ${learningObjective}. What do you currently know about this topic?"
+
 CONVERSATION APPROACH:
-- Start with: "Hello, my name is ${agent.name} and I'm here to help you learn ${learningObjective}. What do you currently know about this topic?"
 - Use a ${language.tone} speaking style
-- When they respond, acknowledge with something like: "${language.encouragement}"
+- After they respond to your opening question, acknowledge with something like: "${language.encouragement}"
+- This is a new session, so don't assume any prior conversation context
 
 TEACHING PRINCIPLES:
 1. Always connect everything back to the learning objective
@@ -114,28 +118,9 @@ Remember: Your goal is to help this student successfully achieve the learning ob
       return;
     }
 
-    const learningObjective = agent.learningObjective || 'this topic';
-    const welcomeText = `Hello, my name is ${agent.name} and I'm here to help you learn ${learningObjective}. What do you currently know about this topic?`;
-
-    console.log('Sending welcome message:', welcomeText);
+    console.log('Triggering initial welcome response from AI');
     
-    // Create a conversation item with the welcome message
-    const conversationItem = {
-      type: 'conversation.item.create',
-      item: {
-        type: 'message',
-        role: 'assistant',
-        content: [
-          {
-            type: 'text',
-            text: welcomeText
-          }
-        ]
-      }
-    };
-
-    // Send the conversation item and trigger response
-    dcRef.current.send(JSON.stringify(conversationItem));
+    // Simply trigger a response - the AI will start with the welcome message as instructed in the system prompt
     dcRef.current.send(JSON.stringify({ type: 'response.create' }));
   };
 
