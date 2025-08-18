@@ -21,39 +21,30 @@ const EfficientVoiceInterface: React.FC<EfficientVoiceInterfaceProps> = ({
   const { toast } = useToast();
   const [isRecording, setIsRecording] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [voiceEnabled, setVoiceEnabled] = useState(false);
+  const [voiceEnabled, setVoiceEnabled] = useState(true); // Default to enabled
   const [error, setError] = useState<string | null>(null);
+  const [hasGivenIntro, setHasGivenIntro] = useState(false);
   
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const audioElementRef = useRef<HTMLAudioElement | null>(null);
 
-  const createSystemPrompt = () => {
-    const learningObjective = agent.learningObjective || 'this topic';
+  // Give introduction when component mounts
+  useEffect(() => {
+    if (!hasGivenIntro && voiceEnabled) {
+      giveIntroduction();
+      setHasGivenIntro(true);
+    }
+  }, [hasGivenIntro, voiceEnabled, agent]);
+
+  const giveIntroduction = async () => {
+    const introText = `Hello! I'm ${agent.name}, your ${agent.type.toLowerCase()}${agent.subject ? ` for ${agent.subject}` : ''}. ${agent.description} I'm here to help you learn about ${agent.learningObjective || 'this topic'}. What would you like to explore first?`;
     
-    return `You are ${agent.name}, a ${agent.type.toLowerCase()}${agent.subject ? ` specializing in ${agent.subject}` : ''}${agent.gradeLevel ? ` for ${agent.gradeLevel} students` : ''}.
-
-${agent.description ? `About you: ${agent.description}` : ''}
-
-LEARNING OBJECTIVE: ${learningObjective}
-
-🎯 CRITICAL: You MUST stay focused on the learning objective at ALL times.
-
-CONVERSATIONAL STYLE:
-- Keep responses SHORT (2-3 sentences max)
-- Ask questions constantly to keep students engaged
-- Be curious about THEIR thoughts
-- Make it interactive and fun
-- Celebrate their thinking
-
-🚨 STAYING ON TOPIC - MANDATORY RULES:
-- **NEVER discuss topics unrelated to the learning objective: ${learningObjective}**
-- **If the student asks about something off-topic, ALWAYS redirect them back**
-- **Use phrases like: "That's interesting, but let's focus on ${learningObjective}. How does that connect to..."**
-
-Your goal is to create an engaging conversation where the student talks at least 50% of the time about ${learningObjective}.
-
-${agent.prompt ? `Additional Instructions: ${agent.prompt}` : ''}`;
+    onTranscriptUpdate(introText, false);
+    
+    if (voiceEnabled) {
+      await generateSpeech(introText);
+    }
   };
 
   const startRecording = async () => {
@@ -140,7 +131,7 @@ ${agent.prompt ? `Additional Instructions: ${agent.prompt}` : ''}`;
       const aiText = chatResponse.data.content;
       onTranscriptUpdate(aiText, false);
       
-      // Only use TTS if voice is enabled
+      // Always generate speech since this is a voice-first experience
       if (voiceEnabled) {
         await generateSpeech(aiText);
       }
