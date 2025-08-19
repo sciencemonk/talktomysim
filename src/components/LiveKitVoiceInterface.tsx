@@ -39,8 +39,8 @@ const LiveKitVoiceInterface: React.FC<LiveKitVoiceInterfaceProps> = ({
   const isAccumulatingAiResponseRef = useRef(false);
   // Track if this is the first AI response (welcome message)
   const isFirstAiResponseRef = useRef(true);
-  // Track if user mic should be muted
-  const shouldMuteMicRef = useRef(true);
+  // Track if AI is currently speaking (audio output)
+  const isAiSpeakingRef = useRef(false);
 
   const muteUserMicrophone = () => {
     if (audioStreamRef.current) {
@@ -246,36 +246,55 @@ The student should be talking at least 50% of the time about ${learningObjective
               onAiMessageComplete();
               isAccumulatingAiResponseRef.current = false;
               
-              // If this was the first AI response (welcome message), unmute the user
+              // If this was the first AI response (welcome message), note it's complete
               if (isFirstAiResponseRef.current) {
-                console.log('Welcome message completed, unmuting user microphone');
+                console.log('Welcome message transcript completed');
                 isFirstAiResponseRef.current = false;
-                shouldMuteMicRef.current = false;
-                unmuteUserMicrophone();
               }
             }
           }
           
-          // Handle user transcript events (only process if mic is not muted)
+          // Handle AI audio output events - control microphone based on AI speaking
+          else if (event.type === 'response.audio.delta') {
+            if (!isAiSpeakingRef.current) {
+              console.log('AI started speaking - muting user microphone');
+              isAiSpeakingRef.current = true;
+              muteUserMicrophone();
+              onSpeakingChange(true);
+            }
+          } else if (event.type === 'response.audio.done') {
+            console.log('AI stopped speaking - unmuting user microphone');
+            isAiSpeakingRef.current = false;
+            // Only unmute if we're past the welcome message
+            if (!isFirstAiResponseRef.current) {
+              unmuteUserMicrophone();
+            }
+            onSpeakingChange(false);
+          }
+          
+          // Handle user transcript events (only process if mic is not muted and AI isn't speaking)
           else if (event.type === 'conversation.item.input_audio_transcription.completed') {
-            if (!shouldMuteMicRef.current) {
+            const shouldProcessUserInput = !isFirstAiResponseRef.current && !isAiSpeakingRef.current;
+            if (shouldProcessUserInput) {
               console.log('User transcript completed:', event.transcript);
               if (event.transcript.trim()) {
                 onUserMessage(event.transcript.trim());
               }
             } else {
-              console.log('Ignoring user transcript during welcome message:', event.transcript);
+              console.log('Ignoring user transcript - AI is speaking or welcome message not complete:', event.transcript);
             }
           }
           
           // Handle speaking state changes
           else if (event.type === 'input_audio_buffer.speech_started') {
-            if (!shouldMuteMicRef.current) {
+            const shouldProcessSpeech = !isFirstAiResponseRef.current && !isAiSpeakingRef.current;
+            if (shouldProcessSpeech) {
               console.log('User started speaking');
-              onSpeakingChange(false);
+            } else {
+              console.log('Ignoring user speech start - AI is speaking or welcome message not complete');
             }
           } else if (event.type === 'input_audio_buffer.speech_stopped') {
-            if (!shouldMuteMicRef.current) {
+            if (!isFirstAiResponseRef.current && !isAiSpeakingRef.current) {
               console.log('User stopped speaking');
             }
           } else if (event.type === 'response.audio.delta') {
@@ -394,7 +413,7 @@ The student should be talking at least 50% of the time about ${learningObjective
     
     isAccumulatingAiResponseRef.current = false;
     isFirstAiResponseRef.current = true;
-    shouldMuteMicRef.current = true;
+    isAiSpeakingRef.current = false;
     
     setIsConnected(false);
     setConnectionStatus('disconnected');
