@@ -21,6 +21,7 @@ interface ChatInterfaceProps {
   isConnected: boolean;
   isSpeaking: boolean;
   connectionStatus: string;
+  hideHeader?: boolean;
 }
 
 export const ChatInterface: React.FC<ChatInterfaceProps> = ({
@@ -28,7 +29,8 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
   messages,
   isConnected,
   isSpeaking,
-  connectionStatus
+  connectionStatus,
+  hideHeader = false
 }) => {
   const messagesEndRef = React.useRef<HTMLDivElement>(null);
 
@@ -54,74 +56,76 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
   const getConnectionStatusColor = () => {
     switch (connectionStatus) {
       case 'connecting':
-        return 'text-yellow-600 dark:text-yellow-400';
+        return 'text-yellow-600';
       case 'connected':
-        return isSpeaking ? 'text-green-600 dark:text-green-400' : 'text-blue-600 dark:text-blue-400';
+        return isSpeaking ? 'text-green-600' : 'text-brandBlue';
       case 'error':
-        return 'text-red-600 dark:text-red-400';
+        return 'text-red-600';
       default:
-        return 'text-gray-500 dark:text-gray-400';
+        return 'text-fgMuted';
     }
   };
 
   return (
-    <div className="flex flex-col h-full bg-gradient-to-br from-bg via-bgMuted to-bg">
-      {/* Header with connection status */}
-      <div className="flex-shrink-0 bg-bg/80 backdrop-blur-xl border-b border-border/20 p-6">
-        <div className="flex items-center justify-between max-w-4xl mx-auto">
-          <div className="flex items-center gap-4">
-            <div className="relative">
-              <Avatar className="h-16 w-16 ring-4 ring-brandBlue/20">
-                <AvatarImage src={agent.avatar} alt={agent.name} />
-                <AvatarFallback className="bg-gradient-to-br from-brandBlue to-brandPurple text-white">
-                  <Bot className="h-8 w-8" />
-                </AvatarFallback>
-              </Avatar>
-              {isConnected && (
-                <div className={cn(
-                  "absolute -bottom-1 -right-1 h-6 w-6 rounded-full border-2 border-bg transition-colors",
-                  isSpeaking ? "bg-green-500 animate-pulse" : "bg-blue-500"
-                )} />
-              )}
-            </div>
-            <div>
-              <h1 className="font-semibold text-fg text-xl">
-                {agent.name}
-              </h1>
-              <div className="flex items-center gap-3 mt-1">
-                <div className={cn(
-                  "h-2 w-2 rounded-full transition-colors",
-                  isConnected 
-                    ? (isSpeaking ? "bg-green-500 animate-pulse" : "bg-blue-500") 
-                    : "bg-gray-400"
-                )} />
-                <p className={cn("text-sm transition-colors font-medium", getConnectionStatusColor())}>
-                  {getConnectionStatusText()}
-                </p>
+    <div className="flex flex-col h-full">
+      {/* Header with connection status - only show if not hidden */}
+      {!hideHeader && (
+        <div className="flex-shrink-0 bg-bg/80 backdrop-blur-xl border-b border-border/20 p-6">
+          <div className="flex items-center justify-between max-w-4xl mx-auto">
+            <div className="flex items-center gap-4">
+              <div className="relative">
+                <Avatar className="h-16 w-16 ring-4 ring-brandBlue/20">
+                  <AvatarImage src={agent.avatar} alt={agent.name} />
+                  <AvatarFallback className="bg-gradient-to-br from-brandBlue to-brandPurple text-white">
+                    <Bot className="h-8 w-8" />
+                  </AvatarFallback>
+                </Avatar>
+                {isConnected && (
+                  <div className={cn(
+                    "absolute -bottom-1 -right-1 h-6 w-6 rounded-full border-2 border-bg transition-colors",
+                    isSpeaking ? "bg-green-500 animate-pulse" : "bg-brandBlue"
+                  )} />
+                )}
+              </div>
+              <div>
+                <h1 className="font-semibold text-fg text-xl">
+                  {agent.name}
+                </h1>
+                <div className="flex items-center gap-3 mt-1">
+                  <div className={cn(
+                    "h-2 w-2 rounded-full transition-colors",
+                    isConnected 
+                      ? (isSpeaking ? "bg-green-500 animate-pulse" : "bg-brandBlue") 
+                      : "bg-gray-400"
+                  )} />
+                  <p className={cn("text-sm transition-colors font-medium", getConnectionStatusColor())}>
+                    {getConnectionStatusText()}
+                  </p>
+                </div>
               </div>
             </div>
+            
+            {/* Audio Indicator */}
+            {isConnected && isSpeaking && (
+              <AudioIndicator isActive={isSpeaking} />
+            )}
+            
+            {/* Status Indicator */}
+            {isConnected && (
+              <div className="flex items-center gap-3 px-4 py-2 bg-bgMuted/50 backdrop-blur-sm rounded-full border border-border/50">
+                {isSpeaking ? (
+                  <MicOff className="h-5 w-5 text-red-500" />
+                ) : (
+                  <Mic className="h-5 w-5 text-green-500" />
+                )}
+                <span className="text-sm font-medium text-fg">
+                  {isSpeaking ? 'AI Speaking' : 'You can speak or type'}
+                </span>
+              </div>
+            )}
           </div>
-          
-          {/* Audio Indicator */}
-          {isConnected && isSpeaking && (
-            <AudioIndicator isActive={isSpeaking} />
-          )}
-          
-          {/* Status Indicator */}
-          {isConnected && (
-            <div className="flex items-center gap-3 px-4 py-2 bg-bgMuted/50 backdrop-blur-sm rounded-full border border-border/50">
-              {isSpeaking ? (
-                <MicOff className="h-5 w-5 text-red-500" />
-              ) : (
-                <Mic className="h-5 w-5 text-green-500" />
-              )}
-              <span className="text-sm font-medium text-fg">
-                {isSpeaking ? 'AI Speaking' : 'You can speak or type'}
-              </span>
-            </div>
-          )}
         </div>
-      </div>
+      )}
 
       {/* Messages */}
       <ScrollArea className="flex-1 p-6">

@@ -21,18 +21,18 @@ export const TextInput: React.FC<TextInputProps> = ({ onSendMessage, disabled })
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex gap-2 p-4 border-t border-border/20 bg-bg/80 backdrop-blur-xl">
+    <form onSubmit={handleSubmit} className="flex gap-3 p-6">
       <Input
         value={message}
         onChange={(e) => setMessage(e.target.value)}
-        placeholder="Type a message..."
+        placeholder={disabled ? "Connecting..." : "Type a message..."}
         disabled={disabled}
-        className="flex-1"
+        className="flex-1 bg-bg/50 border-border/50 focus:border-brandBlue/50 focus:ring-brandBlue/20"
       />
       <Button 
         type="submit" 
         disabled={!message.trim() || disabled}
-        className="px-4"
+        className="px-6 bg-gradient-to-r from-brandBlue to-brandPurple hover:from-brandBlue/90 hover:to-brandPurple/90"
       >
         <Send className="h-4 w-4" />
       </Button>
