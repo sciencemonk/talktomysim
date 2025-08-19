@@ -5,7 +5,6 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
-import { ThemeProvider } from "next-themes";
 
 // Pages
 import Index from "./pages/Index";
@@ -26,66 +25,67 @@ import NotFound from "./pages/NotFound";
 
 // Layouts
 import DashboardLayout from "./layouts/DashboardLayout";
-import SimpleDashboardLayout from "./layouts/SimpleDashboardLayout";
-import AgentsLayout from "./layouts/AgentsLayout";
 
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-      <TooltipProvider>
-        <AuthProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <Routes>
-              {/* Public routes */}
-              <Route path="/" element={<Index />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/tutors/:id" element={<PublicTutorDetail />} />
-              <Route path="/chat/:tutorId" element={<StudentChat />} />
-              
-              {/* Protected dashboard routes */}
-              <Route path="/dashboard" element={<DashboardLayout />}>
-                <Route index element={<TeacherDashboard />} />
-              </Route>
-              
-              <Route path="/simple-dashboard" element={<SimpleDashboardLayout />}>
-                <Route index element={<SimpleTeacherDashboard />} />
-              </Route>
-              
-              <Route path="/marketplace" element={<DashboardLayout />}>
-                <Route index element={<Marketplace />} />
-              </Route>
-              
-              <Route path="/professional-development" element={<DashboardLayout />}>
-                <Route index element={<ProfessionalDevelopment />} />
-              </Route>
-              
-              <Route path="/settings" element={<DashboardLayout />}>
-                <Route index element={<Settings />} />
-              </Route>
-              
-              <Route path="/billing" element={<DashboardLayout />}>
-                <Route index element={<Billing />} />
-              </Route>
-              
-              {/* Agents routes */}
-              <Route path="/agents" element={<AgentsLayout />}>
-                <Route index element={<AgentsDashboard />} />
-                <Route path="create" element={<AgentCreate />} />
-                <Route path=":id" element={<AgentDetails />} />
-                <Route path=":id/analytics" element={<AgentAnalytics />} />
-              </Route>
-              
-              {/* Catch all - redirect to home */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </BrowserRouter>
-        </AuthProvider>
-      </TooltipProvider>
-    </ThemeProvider>
+    <TooltipProvider>
+      <AuthProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <Routes>
+            {/* Public routes */}
+            <Route path="/" element={<Index />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/tutors/:id" element={<PublicTutorDetail />} />
+            <Route path="/chat/:tutorId" element={<StudentChat />} />
+            
+            {/* Protected dashboard routes - all use DashboardLayout */}
+            <Route path="/dashboard" element={<DashboardLayout />}>
+              <Route index element={<TeacherDashboard />} />
+            </Route>
+            
+            <Route path="/marketplace" element={<DashboardLayout />}>
+              <Route index element={<Marketplace />} />
+            </Route>
+            
+            <Route path="/professional-development" element={<DashboardLayout />}>
+              <Route index element={<ProfessionalDevelopment />} />
+            </Route>
+            
+            <Route path="/settings" element={<DashboardLayout />}>
+              <Route index element={<Settings />} />
+            </Route>
+            
+            <Route path="/billing" element={<DashboardLayout />}>
+              <Route index element={<Billing />} />
+            </Route>
+            
+            {/* Agents routes - now use DashboardLayout */}
+            <Route path="/agents" element={<DashboardLayout />}>
+              <Route index element={<AgentsDashboard />} />
+            </Route>
+            
+            <Route path="/agents/create" element={<DashboardLayout />}>
+              <Route index element={<AgentCreate />} />
+            </Route>
+            
+            <Route path="/agents/:id" element={<DashboardLayout />}>
+              <Route index element={<AgentDetails />} />
+            </Route>
+            
+            <Route path="/agents/:id/analytics" element={<DashboardLayout />}>
+              <Route index element={<AgentAnalytics />} />
+            </Route>
+            
+            {/* Catch all - redirect to home */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </AuthProvider>
+    </TooltipProvider>
   </QueryClientProvider>
 );
 
