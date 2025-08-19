@@ -2,6 +2,21 @@
 import { supabase } from "@/integrations/supabase/client";
 import { AgentType, VoiceTrait, AgentChannelConfig } from "@/types/agent";
 
+// Type guard functions for safe JSON conversion
+const isVoiceTraitArray = (value: any): value is VoiceTrait[] => {
+  return Array.isArray(value) && value.every(item => 
+    typeof item === 'object' && item !== null && typeof item.name === 'string'
+  );
+};
+
+const isStringArray = (value: any): value is string[] => {
+  return Array.isArray(value) && value.every(item => typeof item === 'string');
+};
+
+const isChannelConfigsRecord = (value: any): value is Record<string, AgentChannelConfig> => {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+};
+
 export const fetchAgents = async (filter: string = 'all-agents'): Promise<AgentType[]> => {
   console.log("Fetching tutors with filter:", filter);
   
@@ -50,15 +65,15 @@ export const fetchAgents = async (filter: string = 'all-agents'): Promise<AgentT
     voice: tutor.voice,
     voiceProvider: tutor.voice_provider,
     customVoiceId: tutor.custom_voice_id,
-    voiceTraits: Array.isArray(tutor.voice_traits) ? tutor.voice_traits as VoiceTrait[] : [],
+    voiceTraits: isVoiceTraitArray(tutor.voice_traits) ? tutor.voice_traits : [],
     interactions: tutor.interactions || 0,
     studentsSaved: tutor.students_saved || 0,
     helpfulnessScore: tutor.helpfulness_score || 0,
     avmScore: tutor.avm_score || 0,
     csat: tutor.csat || 0,
     performance: tutor.performance || 0,
-    channels: Array.isArray(tutor.channels) ? tutor.channels as string[] : [],
-    channelConfigs: typeof tutor.channel_configs === 'object' && tutor.channel_configs ? tutor.channel_configs as Record<string, AgentChannelConfig> : {},
+    channels: isStringArray(tutor.channels) ? tutor.channels : [],
+    channelConfigs: isChannelConfigsRecord(tutor.channel_configs) ? tutor.channel_configs : {},
     isPersonal: tutor.is_personal,
     phone: tutor.phone,
     email: tutor.email,
@@ -113,15 +128,15 @@ export const fetchAgentById = async (id: string): Promise<AgentType> => {
     voice: tutor.voice,
     voiceProvider: tutor.voice_provider,
     customVoiceId: tutor.custom_voice_id,
-    voiceTraits: Array.isArray(tutor.voice_traits) ? tutor.voice_traits as VoiceTrait[] : [],
+    voiceTraits: isVoiceTraitArray(tutor.voice_traits) ? tutor.voice_traits : [],
     interactions: tutor.interactions || 0,
     studentsSaved: tutor.students_saved || 0,
     helpfulnessScore: tutor.helpfulness_score || 0,
     avmScore: tutor.avm_score || 0,
     csat: tutor.csat || 0,
     performance: tutor.performance || 0,
-    channels: Array.isArray(tutor.channels) ? tutor.channels as string[] : [],
-    channelConfigs: typeof tutor.channel_configs === 'object' && tutor.channel_configs ? tutor.channel_configs as Record<string, AgentChannelConfig> : {},
+    channels: isStringArray(tutor.channels) ? tutor.channels : [],
+    channelConfigs: isChannelConfigsRecord(tutor.channel_configs) ? tutor.channel_configs : {},
     isPersonal: tutor.is_personal,
     phone: tutor.phone,
     email: tutor.email,
@@ -145,31 +160,31 @@ export const updateAgent = async (id: string, updates: Partial<AgentType>): Prom
     throw new Error("User must be authenticated to update tutor");
   }
 
-  // Transform the updates to match database column names
-  const tutorUpdates = {
-    ...(updates.name && { name: updates.name }),
-    ...(updates.description !== undefined && { description: updates.description }),
-    ...(updates.type && { type: updates.type }),
-    ...(updates.status && { status: updates.status }),
-    ...(updates.model && { model: updates.model }),
-    ...(updates.voice && { voice: updates.voice }),
-    ...(updates.voiceProvider && { voice_provider: updates.voiceProvider }),
-    ...(updates.customVoiceId && { custom_voice_id: updates.customVoiceId }),
-    ...(updates.voiceTraits && { voice_traits: updates.voiceTraits }),
-    ...(updates.avatar && { avatar: updates.avatar }),
-    ...(updates.phone && { phone: updates.phone }),
-    ...(updates.email && { email: updates.email }),
-    ...(updates.purpose && { purpose: updates.purpose }),
-    ...(updates.prompt !== undefined && { prompt: updates.prompt }),
-    ...(updates.subject && { subject: updates.subject }),
-    ...(updates.gradeLevel && { grade_level: updates.gradeLevel }),
-    ...(updates.teachingStyle && { teaching_style: updates.teachingStyle }),
-    ...(updates.customSubject && { custom_subject: updates.customSubject }),
-    ...(updates.learningObjective !== undefined && { learning_objective: updates.learningObjective }),
-    ...(updates.channels && { channels: updates.channels }),
-    ...(updates.channelConfigs && { channel_configs: updates.channelConfigs }),
-    ...(updates.isPersonal !== undefined && { is_personal: updates.isPersonal })
-  };
+  // Transform the updates to match database column names with proper JSON conversion
+  const tutorUpdates: any = {};
+  
+  if (updates.name) tutorUpdates.name = updates.name;
+  if (updates.description !== undefined) tutorUpdates.description = updates.description;
+  if (updates.type) tutorUpdates.type = updates.type;
+  if (updates.status) tutorUpdates.status = updates.status;
+  if (updates.model) tutorUpdates.model = updates.model;
+  if (updates.voice) tutorUpdates.voice = updates.voice;
+  if (updates.voiceProvider) tutorUpdates.voice_provider = updates.voiceProvider;
+  if (updates.customVoiceId) tutorUpdates.custom_voice_id = updates.customVoiceId;
+  if (updates.voiceTraits) tutorUpdates.voice_traits = updates.voiceTraits;
+  if (updates.avatar) tutorUpdates.avatar = updates.avatar;
+  if (updates.phone) tutorUpdates.phone = updates.phone;
+  if (updates.email) tutorUpdates.email = updates.email;
+  if (updates.purpose) tutorUpdates.purpose = updates.purpose;
+  if (updates.prompt !== undefined) tutorUpdates.prompt = updates.prompt;
+  if (updates.subject) tutorUpdates.subject = updates.subject;
+  if (updates.gradeLevel) tutorUpdates.grade_level = updates.gradeLevel;
+  if (updates.teachingStyle) tutorUpdates.teaching_style = updates.teachingStyle;
+  if (updates.customSubject) tutorUpdates.custom_subject = updates.customSubject;
+  if (updates.learningObjective !== undefined) tutorUpdates.learning_objective = updates.learningObjective;
+  if (updates.channels) tutorUpdates.channels = updates.channels;
+  if (updates.channelConfigs) tutorUpdates.channel_configs = updates.channelConfigs;
+  if (updates.isPersonal !== undefined) tutorUpdates.is_personal = updates.isPersonal;
 
   const { data: tutor, error } = await supabase
     .from('tutors')
@@ -203,15 +218,15 @@ export const updateAgent = async (id: string, updates: Partial<AgentType>): Prom
     voice: tutor.voice,
     voiceProvider: tutor.voice_provider,
     customVoiceId: tutor.custom_voice_id,
-    voiceTraits: Array.isArray(tutor.voice_traits) ? tutor.voice_traits as VoiceTrait[] : [],
+    voiceTraits: isVoiceTraitArray(tutor.voice_traits) ? tutor.voice_traits : [],
     interactions: tutor.interactions || 0,
     studentsSaved: tutor.students_saved || 0,
     helpfulnessScore: tutor.helpfulness_score || 0,
     avmScore: tutor.avm_score || 0,
     csat: tutor.csat || 0,
     performance: tutor.performance || 0,
-    channels: Array.isArray(tutor.channels) ? tutor.channels as string[] : [],
-    channelConfigs: typeof tutor.channel_configs === 'object' && tutor.channel_configs ? tutor.channel_configs as Record<string, AgentChannelConfig> : {},
+    channels: isStringArray(tutor.channels) ? tutor.channels : [],
+    channelConfigs: isChannelConfigsRecord(tutor.channel_configs) ? tutor.channel_configs : {},
     isPersonal: tutor.is_personal,
     phone: tutor.phone,
     email: tutor.email,
@@ -293,15 +308,15 @@ export const createAgent = async (agentData: Partial<AgentType>): Promise<AgentT
     voice: tutor.voice,
     voiceProvider: tutor.voice_provider,
     customVoiceId: tutor.custom_voice_id,
-    voiceTraits: Array.isArray(tutor.voice_traits) ? tutor.voice_traits as VoiceTrait[] : [],
+    voiceTraits: isVoiceTraitArray(tutor.voice_traits) ? tutor.voice_traits : [],
     interactions: tutor.interactions || 0,
     studentsSaved: tutor.students_saved || 0,
     helpfulnessScore: tutor.helpfulness_score || 0,
     avmScore: tutor.avm_score || 0,
     csat: tutor.csat || 0,
     performance: tutor.performance || 0,
-    channels: Array.isArray(tutor.channels) ? tutor.channels as string[] : [],
-    channelConfigs: typeof tutor.channel_configs === 'object' && tutor.channel_configs ? tutor.channel_configs as Record<string, AgentChannelConfig> : {},
+    channels: isStringArray(tutor.channels) ? tutor.channels : [],
+    channelConfigs: isChannelConfigsRecord(tutor.channel_configs) ? tutor.channel_configs : {},
     isPersonal: tutor.is_personal,
     phone: tutor.phone,
     email: tutor.email,
