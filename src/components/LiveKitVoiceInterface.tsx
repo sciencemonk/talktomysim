@@ -1,3 +1,4 @@
+
 import React, { useEffect, useRef, useState } from 'react';
 import { useToast } from '@/components/ui/use-toast';
 import { AgentType } from '@/types/agent';
@@ -36,7 +37,6 @@ const LiveKitVoiceInterface: React.FC<LiveKitVoiceInterfaceProps> = ({
 
   // Track if we're currently accumulating an AI response
   const isAccumulatingAiResponseRef = useRef(false);
-  const hasTriggeredWelcomeRef = useRef(false);
 
   const createSystemInstructions = () => {
     const getAgeAppropriateLanguage = () => {
@@ -86,9 +86,9 @@ LEARNING OBJECTIVE: ${learningObjective}
 
 🎯 CRITICAL: You MUST stay focused on the learning objective at ALL times. This is your primary responsibility.
 
-IMPORTANT: This is the very first interaction with this student. You must begin by introducing yourself and asking about their prior knowledge.
+IMPORTANT: This is the very first interaction with this student. Start the conversation immediately by introducing yourself and welcoming them to the learning session.
 
-FIRST MESSAGE: You must start by saying exactly: "Hello, my name is ${agent.name} and I'm here to help you learn ${learningObjective}. What do you currently know about this topic?"
+FIRST MESSAGE: You must begin by saying: "${language.greeting} My name is ${agent.name} and I'm here to help you learn about ${learningObjective}. What do you already know about this topic?"
 
 CONVERSATIONAL STYLE:
 ${language.style}
@@ -151,17 +151,6 @@ Remember: Your job is to guide discovery through questions about ${learningObjec
 ${agent.prompt ? `Additional Teaching Instructions: ${agent.prompt}` : ''}
 
 The student should be talking at least 50% of the time about ${learningObjective}. Keep them engaged, curious, and actively participating in learning about this specific topic!`;
-  };
-
-  const sendWelcomeMessage = () => {
-    if (!dcRef.current || dcRef.current.readyState !== 'open' || hasTriggeredWelcomeRef.current) {
-      console.log('Data channel not ready for welcome message or already triggered');
-      return;
-    }
-
-    console.log('Triggering initial welcome response from AI');
-    hasTriggeredWelcomeRef.current = true;
-    dcRef.current.send(JSON.stringify({ type: 'response.create' }));
   };
 
   const connectToRealtime = async () => {
@@ -257,7 +246,14 @@ The student should be talking at least 50% of the time about ${learningObjective
           else if (event.type === 'session.created') {
             console.log('Session created, sending session update...');
           } else if (event.type === 'session.updated') {
-            console.log('Session updated successfully');
+            console.log('Session updated successfully - now triggering welcome message');
+            // Trigger welcome message immediately after session is updated
+            setTimeout(() => {
+              if (dcRef.current && dcRef.current.readyState === 'open') {
+                console.log('Sending welcome response create event');
+                dcRef.current.send(JSON.stringify({ type: 'response.create' }));
+              }
+            }, 500);
           } else if (event.type === 'error') {
             console.error('Received error event:', event);
           }

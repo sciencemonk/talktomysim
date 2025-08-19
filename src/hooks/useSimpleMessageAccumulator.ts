@@ -24,7 +24,11 @@ export const useSimpleMessageAccumulator = () => {
         timestamp: new Date(),
         isComplete: true
       };
-      setMessages(prev => [...prev, newMessage]);
+      setMessages(prev => {
+        const updated = [...prev, newMessage];
+        console.log('Updated messages after adding user message:', updated.length);
+        return updated;
+      });
     }
   }, []);
 
@@ -56,7 +60,8 @@ export const useSimpleMessageAccumulator = () => {
       console.log('Adding completed AI message to permanent messages:', newMessage);
       setMessages(prev => {
         const updated = [...prev, newMessage];
-        console.log('Updated messages array:', updated);
+        console.log('Updated messages array after completing AI message:', updated.length);
+        console.log('All permanent messages:', updated.map(m => ({ role: m.role, content: m.content.substring(0, 50) + '...', isComplete: m.isComplete })));
         return updated;
       });
       
@@ -77,7 +82,8 @@ export const useSimpleMessageAccumulator = () => {
 
   // Get all messages including current partial ones - ALWAYS show completed messages
   const getAllMessages = useCallback((): Message[] => {
-    const allMessages = [...messages]; // Always include all completed messages
+    // ALWAYS start with all permanent completed messages - these should NEVER disappear
+    const allMessages = [...messages];
     
     // Add current AI message ONLY if it has content and we're actively streaming
     if (currentAiMessage.trim() && isAiSpeaking) {
@@ -88,13 +94,20 @@ export const useSimpleMessageAccumulator = () => {
         timestamp: new Date(),
         isComplete: false
       });
+      console.log('Added current streaming message to display list');
     }
     
     console.log('getAllMessages returning:', allMessages.length, 'total messages');
     console.log('Permanent completed messages:', messages.length);
     console.log('Current streaming AI message length:', currentAiMessage.length);
     console.log('Is AI currently speaking:', isAiSpeaking);
-    console.log('All messages content:', allMessages.map(m => ({ role: m.role, content: m.content.substring(0, 50) + '...', isComplete: m.isComplete })));
+    console.log('All messages being returned:', allMessages.map(m => ({ 
+      role: m.role, 
+      content: m.content.substring(0, 50) + '...', 
+      isComplete: m.isComplete,
+      id: m.id
+    })));
+    
     return allMessages;
   }, [messages, currentAiMessage, isAiSpeaking]);
 
