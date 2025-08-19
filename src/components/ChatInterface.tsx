@@ -99,12 +99,12 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
             {isConnected && (
               <div className="flex items-center gap-3 px-4 py-2 bg-gray-100 dark:bg-gray-800 rounded-full">
                 {isSpeaking ? (
-                  <Mic className="h-6 w-6 text-green-600 dark:text-green-400" />
+                  <MicOff className="h-6 w-6 text-red-600 dark:text-red-400" />
                 ) : (
-                  <MicOff className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+                  <Mic className="h-6 w-6 text-green-600 dark:text-green-400" />
                 )}
                 <span className="text-lg font-bold text-gray-700 dark:text-gray-300">
-                  {isSpeaking ? 'Speaking' : 'Listening'}
+                  {isSpeaking ? 'AI Speaking' : 'You can speak'}
                 </span>
               </div>
             )}
@@ -159,7 +159,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
                         {message.content}
                       </p>
                       
-                      {!message.isComplete && message.role === "system" && (
+                      {!message.isComplete && message.role === "system" && isSpeaking && (
                         <div className="flex items-center gap-2 mt-4">
                           <div className="h-4 w-4 bg-blue-500 rounded-full animate-bounce" />
                           <div className="h-4 w-4 bg-purple-500 rounded-full animate-bounce" style={{ animationDelay: '0.3s' }} />

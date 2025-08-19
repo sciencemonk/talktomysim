@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef, useState } from 'react';
 import { useToast } from '@/components/ui/use-toast';
 import { AgentType } from '@/types/agent';
@@ -48,7 +47,7 @@ const LiveKitVoiceInterface: React.FC<LiveKitVoiceInterfaceProps> = ({
       audioStreamRef.current.getAudioTracks().forEach(track => {
         track.enabled = false;
       });
-      console.log('User microphone muted');
+      console.log('🔇 User microphone muted');
     }
   };
 
@@ -57,7 +56,7 @@ const LiveKitVoiceInterface: React.FC<LiveKitVoiceInterfaceProps> = ({
       audioStreamRef.current.getAudioTracks().forEach(track => {
         track.enabled = true;
       });
-      console.log('User microphone unmuted');
+      console.log('🎤 User microphone unmuted');
     }
   };
 
@@ -258,20 +257,19 @@ The student should be talking at least 50% of the time about ${learningObjective
           // Handle AI audio output events - control microphone based on AI speaking
           else if (event.type === 'response.audio.delta') {
             if (!isAiSpeakingRef.current) {
-              console.log('AI started speaking - muting user microphone');
+              console.log('🗣️ AI started speaking - muting user microphone');
               isAiSpeakingRef.current = true;
               muteUserMicrophone();
               onSpeakingChange(true);
             }
           } else if (event.type === 'response.audio.done') {
-            console.log('AI stopped speaking - unmuting user microphone');
+            console.log('🔇 AI stopped speaking - unmuting user microphone');
             isAiSpeakingRef.current = false;
-            // Always unmute when AI finishes speaking (unless it's during the initial welcome)
-            if (!isFirstAiResponseRef.current) {
-              console.log('Unmuting user microphone - AI finished speaking');
-              unmuteUserMicrophone();
-            }
             onSpeakingChange(false);
+            
+            // ALWAYS unmute when AI finishes speaking (regardless of welcome message status)
+            console.log('🎤 Force unmuting user microphone - AI finished speaking');
+            unmuteUserMicrophone();
           }
           
           // Handle user transcript events (only process if appropriate conditions are met)
@@ -284,7 +282,11 @@ The student should be talking at least 50% of the time about ${learningObjective
                 onUserMessage(event.transcript.trim());
               }
             } else {
-              console.log('Ignoring user transcript - AI is speaking or welcome message not complete:', event.transcript);
+              console.log('Ignoring user transcript - conditions not met:', {
+                isFirstAiResponse: isFirstAiResponseRef.current,
+                isAiSpeaking: isAiSpeakingRef.current,
+                transcript: event.transcript
+              });
             }
           }
           
@@ -292,13 +294,13 @@ The student should be talking at least 50% of the time about ${learningObjective
           else if (event.type === 'input_audio_buffer.speech_started') {
             const shouldProcessSpeech = !isFirstAiResponseRef.current && !isAiSpeakingRef.current;
             if (shouldProcessSpeech) {
-              console.log('User started speaking');
+              console.log('👄 User started speaking');
             } else {
-              console.log('Ignoring user speech start - AI is speaking or welcome message not complete');
+              console.log('🚫 Ignoring user speech start - conditions not met');
             }
           } else if (event.type === 'input_audio_buffer.speech_stopped') {
             if (!isFirstAiResponseRef.current && !isAiSpeakingRef.current) {
-              console.log('User stopped speaking');
+              console.log('🤐 User stopped speaking');
             }
           }
           
