@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -20,58 +21,6 @@ interface ChatInterfaceProps {
   isSpeaking: boolean;
   connectionStatus: string;
 }
-
-const WordHighlighter: React.FC<{ text: string; isComplete: boolean }> = ({ text, isComplete }) => {
-  const [highlightedWordIndex, setHighlightedWordIndex] = React.useState(-1);
-  const words = text.split(' ');
-  
-  React.useEffect(() => {
-    if (isComplete) {
-      setHighlightedWordIndex(-1);
-      return;
-    }
-    
-    // Start highlighting from the beginning when text changes
-    setHighlightedWordIndex(0);
-    
-    // Much slower timing to match natural speech - approximately 60-80 words per minute
-    const interval = setInterval(() => {
-      setHighlightedWordIndex(prev => {
-        const nextIndex = prev + 1;
-        if (nextIndex >= words.length) {
-          clearInterval(interval);
-          return words.length - 1; // Keep the last word highlighted
-        }
-        return nextIndex;
-      });
-    }, 900); // 900ms per word (about 67 words per minute, very slow natural speech pace)
-    
-    return () => clearInterval(interval);
-  }, [text, isComplete, words.length]);
-  
-  return (
-    <span className="text-3xl leading-relaxed font-medium">
-      {words.map((word, index) => {
-        // Only highlight the current word being "spoken"
-        const isCurrentWord = !isComplete && index === highlightedWordIndex;
-        
-        return (
-          <span
-            key={index}
-            className={cn(
-              "inline-block mr-2 mb-1 transition-all duration-700 ease-in-out",
-              isCurrentWord
-                ? "bg-yellow-300 dark:bg-yellow-500 px-1 rounded shadow-sm transform scale-105" 
-                : ""
-            )}
-          >
-            {word}
-          </span>
-        );
-      })}
-    </span>
-  );
-};
 
 export const ChatInterface: React.FC<ChatInterfaceProps> = ({
   agent,
@@ -206,13 +155,9 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
                         !message.isComplete && message.role === "system" && "bg-gradient-to-r from-blue-50 to-purple-50 dark:from-gray-700 dark:to-gray-600"
                       )}
                     >
-                      {message.role === "system" ? (
-                        <WordHighlighter text={message.content} isComplete={message.isComplete} />
-                      ) : (
-                        <p className="text-3xl leading-relaxed font-medium whitespace-pre-wrap break-words">
-                          {message.content}
-                        </p>
-                      )}
+                      <p className="text-3xl leading-relaxed font-medium whitespace-pre-wrap break-words">
+                        {message.content}
+                      </p>
                       
                       {!message.isComplete && message.role === "system" && (
                         <div className="flex items-center gap-2 mt-4">

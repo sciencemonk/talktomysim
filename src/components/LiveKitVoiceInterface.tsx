@@ -1,3 +1,4 @@
+
 import React, { useEffect, useRef, useState } from 'react';
 import { useToast } from '@/components/ui/use-toast';
 import { AgentType } from '@/types/agent';
@@ -265,18 +266,20 @@ The student should be talking at least 50% of the time about ${learningObjective
           } else if (event.type === 'response.audio.done') {
             console.log('AI stopped speaking - unmuting user microphone');
             isAiSpeakingRef.current = false;
-            // Only unmute if we're past the welcome message
+            // Always unmute when AI finishes speaking (unless it's during the initial welcome)
             if (!isFirstAiResponseRef.current) {
+              console.log('Unmuting user microphone - AI finished speaking');
               unmuteUserMicrophone();
             }
             onSpeakingChange(false);
           }
           
-          // Handle user transcript events (only process if mic is not muted and AI isn't speaking)
+          // Handle user transcript events (only process if appropriate conditions are met)
           else if (event.type === 'conversation.item.input_audio_transcription.completed') {
             const shouldProcessUserInput = !isFirstAiResponseRef.current && !isAiSpeakingRef.current;
+            console.log('User transcript received:', event.transcript, 'Should process:', shouldProcessUserInput);
             if (shouldProcessUserInput) {
-              console.log('User transcript completed:', event.transcript);
+              console.log('Processing user message:', event.transcript);
               if (event.transcript.trim()) {
                 onUserMessage(event.transcript.trim());
               }
@@ -297,10 +300,6 @@ The student should be talking at least 50% of the time about ${learningObjective
             if (!isFirstAiResponseRef.current && !isAiSpeakingRef.current) {
               console.log('User stopped speaking');
             }
-          } else if (event.type === 'response.audio.delta') {
-            onSpeakingChange(true);
-          } else if (event.type === 'response.audio.done') {
-            onSpeakingChange(false);
           }
           
           // Handle session events
