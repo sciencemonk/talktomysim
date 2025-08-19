@@ -171,7 +171,7 @@ export const updateAgent = async (id: string, updates: Partial<AgentType>): Prom
   if (updates.voice) tutorUpdates.voice = updates.voice;
   if (updates.voiceProvider) tutorUpdates.voice_provider = updates.voiceProvider;
   if (updates.customVoiceId) tutorUpdates.custom_voice_id = updates.customVoiceId;
-  if (updates.voiceTraits) tutorUpdates.voice_traits = updates.voiceTraits;
+  if (updates.voiceTraits) tutorUpdates.voice_traits = updates.voiceTraits as any;
   if (updates.avatar) tutorUpdates.avatar = updates.avatar;
   if (updates.phone) tutorUpdates.phone = updates.phone;
   if (updates.email) tutorUpdates.email = updates.email;
@@ -182,8 +182,8 @@ export const updateAgent = async (id: string, updates: Partial<AgentType>): Prom
   if (updates.teachingStyle) tutorUpdates.teaching_style = updates.teachingStyle;
   if (updates.customSubject) tutorUpdates.custom_subject = updates.customSubject;
   if (updates.learningObjective !== undefined) tutorUpdates.learning_objective = updates.learningObjective;
-  if (updates.channels) tutorUpdates.channels = updates.channels;
-  if (updates.channelConfigs) tutorUpdates.channel_configs = updates.channelConfigs;
+  if (updates.channels) tutorUpdates.channels = updates.channels as any;
+  if (updates.channelConfigs) tutorUpdates.channel_configs = updates.channelConfigs as any;
   if (updates.isPersonal !== undefined) tutorUpdates.is_personal = updates.isPersonal;
 
   const { data: tutor, error } = await supabase
@@ -259,15 +259,15 @@ export const createAgent = async (agentData: Partial<AgentType>): Promise<AgentT
     voice: agentData.voice,
     voice_provider: agentData.voiceProvider,
     custom_voice_id: agentData.customVoiceId,
-    voice_traits: agentData.voiceTraits || [],
+    voice_traits: (agentData.voiceTraits || []) as any,
     interactions: agentData.interactions || 0,
     students_saved: agentData.studentsSaved || 0,
     helpfulness_score: agentData.helpfulnessScore || 0,
     avm_score: agentData.avmScore || 0,
     csat: agentData.csat || 0,
     performance: agentData.performance || 0,
-    channels: agentData.channels || [],
-    channel_configs: agentData.channelConfigs || {},
+    channels: (agentData.channels || []) as any,
+    channel_configs: (agentData.channelConfigs || {}) as any,
     is_personal: agentData.isPersonal ?? true,
     phone: agentData.phone,
     email: agentData.email,
