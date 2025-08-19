@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from "react";
-import { User, Baby, MapPin, Heart, Calendar, Smile } from "lucide-react";
+import { User, Baby, MapPin, Heart, Calendar, Smile, Target } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -18,9 +18,10 @@ const ChildProfile = () => {
     interests: "",
     hometown: "",
     favoriteSubjects: "",
-    learningStyle: "",
     personality: "",
-    goals: ""
+    communicationStyle: "",
+    goals: "",
+    values: ""
   });
 
   const updateProfile = (field: string, value: string) => {
@@ -159,45 +160,63 @@ const ChildProfile = () => {
         </CardContent>
       </Card>
 
-      {/* Learning Style */}
+      {/* Communication & Personality */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Baby className="h-5 w-5" />
-            Learning Style
+            <Smile className="h-5 w-5" />
+            Communication & Personality
           </CardTitle>
-          <CardDescription>How does your child learn best?</CardDescription>
+          <CardDescription>How does your child communicate and interact?</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="learningStyle">Learning Style</Label>
-            <Select value={profile.learningStyle} onValueChange={(value) => updateProfile('learningStyle', value)}>
-              <SelectTrigger>
-                <SelectValue placeholder="How does your child prefer to learn?" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="visual">Visual (pictures, diagrams, charts)</SelectItem>
-                <SelectItem value="auditory">Auditory (listening, discussing)</SelectItem>
-                <SelectItem value="kinesthetic">Kinesthetic (hands-on, movement)</SelectItem>
-                <SelectItem value="reading">Reading/Writing (text-based)</SelectItem>
-                <SelectItem value="mixed">Mixed (combination of styles)</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="personality">Personality & Communication Style</Label>
+            <Label htmlFor="personality">Personality Traits</Label>
             <Textarea
               id="personality"
               value={profile.personality}
               onChange={(e) => updateProfile('personality', e.target.value)}
-              placeholder="How would you describe your child's personality? Are they shy, outgoing, curious, etc.?"
+              placeholder="How would you describe your child's personality? Are they shy, outgoing, curious, analytical, creative, etc.?"
+              rows={3}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="communicationStyle">Communication Style</Label>
+            <Textarea
+              id="communicationStyle"
+              value={profile.communicationStyle}
+              onChange={(e) => updateProfile('communicationStyle', e.target.value)}
+              placeholder="How does your child prefer to communicate? Do they like detailed explanations, quick answers, visual examples, stories, etc.?"
               rows={3}
             />
           </div>
         </CardContent>
       </Card>
 
-      {/* Goals & Objectives */}
+      {/* Values & Character */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Target className="h-5 w-5" />
+            Values & Character Development
+          </CardTitle>
+          <CardDescription>What values do you want to instill in your child?</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="values">Core Values & Principles</Label>
+            <Textarea
+              id="values"
+              value={profile.values}
+              onChange={(e) => updateProfile('values', e.target.value)}
+              placeholder="What values are important to your family? (e.g., honesty, kindness, curiosity, perseverance, respect, critical thinking, empathy)"
+              rows={4}
+            />
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Learning Goals */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">

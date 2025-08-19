@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -279,54 +280,36 @@ Always be patient, supportive, and adapt to each child's learning pace. If a chi
         <CardHeader className="pb-6">
           <CardTitle className="text-xl text-fg">Teaching Configuration</CardTitle>
           <CardDescription className="text-fgMuted">
-            Configure what and how your thinking partner teaches
+            Configure what your thinking partner teaches
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-6">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <Label className="text-sm text-fg">Subject</Label>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                  {SUBJECTS.map((subj) => (
-                    <Button
-                      key={subj.id}
-                      type="button"
-                      variant={subject === subj.id ? "default" : "outline"}
-                      className="justify-start gap-2 text-sm py-2 px-3"
-                      onClick={() => setSubject(subj.id)}
-                    >
-                      {subj.icon}
-                      <span className="truncate">{subj.name}</span>
-                    </Button>
-                  ))}
-                </div>
-                
-                {subject === 'other' && (
-                  <Input
-                    value={customSubject}
-                    onChange={(e) => setCustomSubject(e.target.value)}
-                    placeholder="Enter subject name"
-                    className="mt-2 text-sm"
-                  />
-                )}
+            <div className="space-y-2">
+              <Label className="text-sm text-fg">Subject</Label>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                {SUBJECTS.map((subj) => (
+                  <Button
+                    key={subj.id}
+                    type="button"
+                    variant={subject === subj.id ? "default" : "outline"}
+                    className="justify-start gap-2 text-sm py-2 px-3"
+                    onClick={() => setSubject(subj.id)}
+                  >
+                    {subj.icon}
+                    <span className="truncate">{subj.name}</span>
+                  </Button>
+                ))}
               </div>
-
-              <div className="space-y-2">
-                <Label className="text-sm text-fg">Grade Level</Label>
-                <Select value={gradeLevel} onValueChange={setGradeLevel}>
-                  <SelectTrigger className="text-sm">
-                    <SelectValue placeholder="Select grade level" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {GRADE_LEVELS.map((grade) => (
-                      <SelectItem key={grade.id} value={grade.id} className="text-sm">
-                        {grade.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+              
+              {subject === 'other' && (
+                <Input
+                  value={customSubject}
+                  onChange={(e) => setCustomSubject(e.target.value)}
+                  placeholder="Enter subject name"
+                  className="mt-2 text-sm"
+                />
+              )}
             </div>
 
             <div className="space-y-2">
