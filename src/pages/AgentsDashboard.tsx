@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAgents } from "@/hooks/useAgents";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -18,30 +18,23 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { 
   Plus, 
   Search, 
-  Filter, 
   MoreVertical, 
   Bot, 
-  Users, 
-  TrendingUp, 
   Settings,
-  Share2,
-  Eye,
+  Play,
   ExternalLink
 } from "lucide-react";
 import { AgentType } from "@/types/agent";
-import { ShareButton } from "@/components/ShareButton";
 
 const ThinkingPartnersDashboard = () => {
   const navigate = useNavigate();
   const { agents, isLoading, error } = useAgents();
   const [searchQuery, setSearchQuery] = useState("");
-  const [filterStatus, setFilterStatus] = useState<string>("all");
 
   const filteredAgents = agents?.filter((agent) => {
     const matchesSearch = agent.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          agent.description?.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesFilter = filterStatus === "all" || agent.status === filterStatus;
-    return matchesSearch && matchesFilter;
+    return matchesSearch;
   }) || [];
 
   const handleCreateAgent = () => {
@@ -52,27 +45,23 @@ const ThinkingPartnersDashboard = () => {
     navigate(`/agents/${agentId}`);
   };
 
-  const handleViewPublic = (agentId: string) => {
-    window.open(`/tutors/${agentId}`, '_blank');
-  };
-
-  const handleChatDemo = (agentId: string) => {
+  const handleStartChat = (agentId: string) => {
     window.open(`/tutors/${agentId}/chat`, '_blank');
   };
 
   if (isLoading) {
     return (
-      <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
-        <div className="flex items-center justify-between space-y-2">
+      <div className="flex-1 space-y-6 p-4 md:p-8 pt-6">
+        <div className="flex items-center justify-between">
           <div>
-            <Skeleton className="h-8 w-48 mb-2" />
-            <Skeleton className="h-4 w-64" />
+            <Skeleton className="h-8 w-64 mb-2" />
+            <Skeleton className="h-4 w-80" />
           </div>
-          <Skeleton className="h-10 w-32" />
+          <Skeleton className="h-10 w-40" />
         </div>
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {[...Array(6)].map((_, i) => (
-            <Skeleton key={i} className="h-64" />
+            <Skeleton key={i} className="h-48" />
           ))}
         </div>
       </div>
@@ -100,27 +89,27 @@ const ThinkingPartnersDashboard = () => {
   }
 
   return (
-    <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
+    <div className="flex-1 space-y-6 p-4 md:p-8 pt-6">
       {/* Header */}
-      <div className="flex items-center justify-between space-y-2">
+      <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-3xl font-bold tracking-tight text-gray-900">My Child's Thinking Partners</h2>
-          <p className="text-gray-600">
-            Create and manage your child's AI learning assistants
+          <h2 className="text-3xl font-bold tracking-tight text-gray-900">Your Child's Thinking Partners</h2>
+          <p className="text-gray-600 mt-1">
+            AI learning assistants ready to help your child explore ideas and learn
           </p>
         </div>
         <Button 
           onClick={handleCreateAgent}
-          className="bg-blue-600 hover:bg-blue-700 text-white"
+          className="bg-blue-600 hover:bg-blue-700 text-white shadow-md"
         >
           <Plus className="mr-2 h-4 w-4" />
-          Create Thinking Partner
+          Add Thinking Partner
         </Button>
       </div>
 
-      {/* Search and Filter */}
-      <div className="flex items-center space-x-4">
-        <div className="relative flex-1 max-w-sm">
+      {/* Search */}
+      <div className="max-w-md">
+        <div className="relative">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
           <Input
             placeholder="Search thinking partners..."
@@ -129,93 +118,84 @@ const ThinkingPartnersDashboard = () => {
             className="pl-10 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
           />
         </div>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="border-gray-300 text-gray-700 hover:bg-gray-50">
-              <Filter className="mr-2 h-4 w-4" />
-              Filter
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="bg-white border-gray-200">
-            <DropdownMenuItem 
-              onClick={() => setFilterStatus("all")}
-              className="text-gray-700 hover:bg-gray-50"
-            >
-              All Status
-            </DropdownMenuItem>
-            <DropdownMenuItem 
-              onClick={() => setFilterStatus("active")}
-              className="text-gray-700 hover:bg-gray-50"
-            >
-              Active
-            </DropdownMenuItem>
-            <DropdownMenuItem 
-              onClick={() => setFilterStatus("draft")}
-              className="text-gray-700 hover:bg-gray-50"
-            >
-              Draft
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
       </div>
 
       {/* Thinking Partners Grid */}
       {filteredAgents.length === 0 ? (
         <Card className="border-gray-200">
-          <CardContent className="pt-6">
-            <div className="flex flex-col items-center text-center space-y-4">
-              <Bot className="h-12 w-12 text-gray-400" />
-              <div>
-                <h3 className="font-semibold text-gray-900">No thinking partners found</h3>
-                <p className="text-sm text-gray-600 mt-1">
-                  {searchQuery ? "Try adjusting your search criteria" : "Create your first AI thinking partner to get started"}
-                </p>
+          <CardContent className="pt-12 pb-12">
+            <div className="flex flex-col items-center text-center space-y-6">
+              <div className="w-24 h-24 bg-blue-50 rounded-full flex items-center justify-center">
+                <Bot className="h-12 w-12 text-blue-500" />
               </div>
-              {!searchQuery && (
-                <Button onClick={handleCreateAgent} className="bg-blue-600 hover:bg-blue-700 text-white">
-                  <Plus className="mr-2 h-4 w-4" />
-                  Create Your First Thinking Partner
-                </Button>
-              )}
+              <div className="max-w-sm">
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                  {searchQuery ? "No thinking partners found" : "Create your first thinking partner"}
+                </h3>
+                <p className="text-gray-600 mb-6">
+                  {searchQuery 
+                    ? "Try adjusting your search criteria" 
+                    : "Set up an AI learning assistant that's perfectly tailored to help your child learn and explore new ideas"
+                  }
+                </p>
+                {!searchQuery && (
+                  <Button 
+                    onClick={handleCreateAgent} 
+                    className="bg-blue-600 hover:bg-blue-700 text-white"
+                    size="lg"
+                  >
+                    <Plus className="mr-2 h-5 w-5" />
+                    Create First Thinking Partner
+                  </Button>
+                )}
+              </div>
             </div>
           </CardContent>
         </Card>
       ) : (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {filteredAgents.map((agent: AgentType) => (
             <Card 
               key={agent.id} 
-              className="border-gray-200 hover:shadow-md transition-shadow cursor-pointer"
-              onClick={() => handleAgentClick(agent.id)}
+              className="border-gray-200 hover:shadow-lg transition-all duration-200 group"
             >
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <div className="flex items-center space-x-3">
-                  <Avatar className="h-10 w-10 border border-gray-200">
+              <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-4">
+                <div className="flex items-center space-x-3 flex-1">
+                  <Avatar className="h-12 w-12 border-2 border-gray-100">
                     <AvatarImage src={agent.avatar} alt={agent.name} />
                     <AvatarFallback className="bg-blue-100 text-blue-600">
-                      <Bot className="h-5 w-5" />
+                      <Bot className="h-6 w-6" />
                     </AvatarFallback>
                   </Avatar>
-                  <div>
-                    <CardTitle className="text-lg text-gray-900">{agent.name}</CardTitle>
+                  <div className="flex-1 min-w-0">
+                    <CardTitle className="text-lg text-gray-900 truncate">{agent.name}</CardTitle>
+                    <div className="flex items-center gap-2 mt-1">
+                      <Badge 
+                        variant={agent.status === 'active' ? 'default' : 'secondary'}
+                        className={agent.status === 'active' ? 'bg-green-100 text-green-800 border-green-200' : 'bg-gray-100 text-gray-700 border-gray-200'}
+                      >
+                        {agent.status}
+                      </Badge>
+                      {agent.subject && (
+                        <span className="text-sm text-gray-500 truncate">
+                          {agent.subject}
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </div>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button 
                       variant="ghost" 
-                      className="h-8 w-8 p-0 text-gray-600 hover:bg-gray-100"
-                      onClick={(e) => e.stopPropagation()}
+                      className="h-8 w-8 p-0 text-gray-600 hover:bg-gray-100 opacity-0 group-hover:opacity-100 transition-opacity"
                     >
                       <MoreVertical className="h-4 w-4" />
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="bg-white border-gray-200">
                     <DropdownMenuItem 
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleAgentClick(agent.id);
-                      }}
+                      onClick={() => handleAgentClick(agent.id)}
                       className="text-gray-700 hover:bg-gray-50"
                     >
                       <Settings className="mr-2 h-4 w-4" />
@@ -223,65 +203,28 @@ const ThinkingPartnersDashboard = () => {
                     </DropdownMenuItem>
                     <DropdownMenuSeparator className="bg-gray-200" />
                     <DropdownMenuItem 
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleViewPublic(agent.id);
-                      }}
-                      className="text-gray-700 hover:bg-gray-50"
-                    >
-                      <Eye className="mr-2 h-4 w-4" />
-                      View Public Page
-                    </DropdownMenuItem>
-                    <DropdownMenuItem 
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleChatDemo(agent.id);
-                      }}
+                      onClick={() => window.open(`/tutors/${agent.id}`, '_blank')}
                       className="text-gray-700 hover:bg-gray-50"
                     >
                       <ExternalLink className="mr-2 h-4 w-4" />
-                      Try Chat Demo
+                      View Profile
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
               </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  <div className="flex items-center gap-2">
-                    <Badge 
-                      variant={agent.status === 'active' ? 'default' : 'secondary'}
-                      className={agent.status === 'active' ? 'bg-green-100 text-green-800 border-green-200' : 'bg-gray-100 text-gray-700 border-gray-200'}
-                    >
-                      {agent.status}
-                    </Badge>
-                    <span className="text-sm text-gray-600">
-                      {agent.type} • {agent.subject || 'General'}
-                    </span>
-                  </div>
-                  
-                  <CardDescription className="text-gray-600 text-sm line-clamp-2">
-                    {agent.description || "A helpful AI thinking partner designed to support your child's learning"}
-                  </CardDescription>
-                  
-                  <div className="flex items-center justify-between pt-2">
-                    <div className="flex items-center space-x-4 text-sm text-gray-500">
-                      <div className="flex items-center">
-                        <Users className="mr-1 h-3 w-3" />
-                        {agent.interactions || 0}
-                      </div>
-                      <div className="flex items-center">
-                        <TrendingUp className="mr-1 h-3 w-3" />
-                        {agent.performance || 0}%
-                      </div>
-                    </div>
-                    
-                    <ShareButton 
-                      tutorId={agent.id} 
-                      tutorName={agent.name}
-                      className="text-gray-600 hover:text-gray-900 hover:bg-gray-100"
-                    />
-                  </div>
-                </div>
+              <CardContent className="space-y-4">
+                <p className="text-gray-600 text-sm line-clamp-2 min-h-[2.5rem]">
+                  {agent.description || "A helpful AI thinking partner designed to support your child's learning and exploration"}
+                </p>
+                
+                <Button 
+                  onClick={() => handleStartChat(agent.id)}
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white group-hover:shadow-md transition-all"
+                  size="lg"
+                >
+                  <Play className="mr-2 h-4 w-4" />
+                  Start Learning Session
+                </Button>
               </CardContent>
             </Card>
           ))}
