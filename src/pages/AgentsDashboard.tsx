@@ -4,8 +4,6 @@ import { useNavigate } from "react-router-dom";
 import { useAgents } from "@/hooks/useAgents";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { 
   DropdownMenu, 
@@ -17,7 +15,6 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { 
   Plus, 
-  Search, 
   MoreVertical, 
   Bot, 
   Settings,
@@ -29,13 +26,6 @@ import { AgentType } from "@/types/agent";
 const ThinkingPartnersDashboard = () => {
   const navigate = useNavigate();
   const { agents, isLoading, error } = useAgents();
-  const [searchQuery, setSearchQuery] = useState("");
-
-  const filteredAgents = agents?.filter((agent) => {
-    const matchesSearch = agent.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         agent.description?.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesSearch;
-  }) || [];
 
   const handleCreateAgent = () => {
     navigate("/agents/create");
@@ -49,19 +39,20 @@ const ThinkingPartnersDashboard = () => {
     window.open(`/tutors/${agentId}/chat`, '_blank');
   };
 
+  const capitalizeFirst = (text: string) => {
+    if (!text) return "";
+    return text.charAt(0).toUpperCase() + text.slice(1);
+  };
+
   if (isLoading) {
     return (
-      <div className="flex-1 space-y-6 p-4 md:p-8 pt-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <Skeleton className="h-8 w-64 mb-2" />
-            <Skeleton className="h-4 w-80" />
-          </div>
-          <Skeleton className="h-10 w-40" />
+      <div className="flex-1 space-y-8 p-4 md:p-8 pt-6">
+        <div className="flex items-center justify-end">
+          <Skeleton className="h-11 w-48" />
         </div>
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {[...Array(6)].map((_, i) => (
-            <Skeleton key={i} className="h-48" />
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {[...Array(8)].map((_, i) => (
+            <Skeleton key={i} className="h-64 rounded-2xl" />
           ))}
         </div>
       </div>
@@ -71,13 +62,13 @@ const ThinkingPartnersDashboard = () => {
   if (error) {
     return (
       <div className="flex-1 flex items-center justify-center">
-        <Card className="w-full max-w-md mx-auto">
+        <Card className="w-full max-w-md mx-auto rounded-2xl border-border/30">
           <CardContent className="pt-6">
             <div className="flex flex-col items-center text-center space-y-4">
               <Bot className="h-12 w-12 text-red-500" />
               <div>
-                <h3 className="font-semibold text-gray-900">Failed to load thinking partners</h3>
-                <p className="text-sm text-gray-600 mt-1">
+                <h3 className="font-semibold text-fg">Failed to load thinking partners</h3>
+                <p className="text-sm text-fgMuted mt-1">
                   {error || "Something went wrong. Please try again."}
                 </p>
               </div>
@@ -89,122 +80,91 @@ const ThinkingPartnersDashboard = () => {
   }
 
   return (
-    <div className="flex-1 space-y-6 p-4 md:p-8 pt-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-3xl font-bold tracking-tight text-gray-900">Your Child's Thinking Partners</h2>
-          <p className="text-gray-600 mt-1">
-            AI learning assistants ready to help your child explore ideas and learn
-          </p>
-        </div>
+    <div className="flex-1 space-y-8 p-4 md:p-8 pt-6">
+      {/* Header with Create Button */}
+      <div className="flex justify-end">
         <Button 
           onClick={handleCreateAgent}
-          className="bg-blue-600 hover:bg-blue-700 text-white shadow-md"
+          className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-sm rounded-xl font-medium px-6"
+          size="lg"
         >
           <Plus className="mr-2 h-4 w-4" />
-          Add Thinking Partner
+          New Thinking Partner
         </Button>
       </div>
 
-      {/* Search */}
-      <div className="max-w-md">
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-          <Input
-            placeholder="Search thinking partners..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
-          />
-        </div>
-      </div>
-
       {/* Thinking Partners Grid */}
-      {filteredAgents.length === 0 ? (
-        <Card className="border-gray-200">
-          <CardContent className="pt-12 pb-12">
+      {agents.length === 0 ? (
+        <Card className="border-border/30 bg-card/50 rounded-2xl max-w-xl mx-auto">
+          <CardContent className="pt-16 pb-16">
             <div className="flex flex-col items-center text-center space-y-6">
-              <div className="w-24 h-24 bg-blue-50 rounded-full flex items-center justify-center">
-                <Bot className="h-12 w-12 text-blue-500" />
+              <div className="w-24 h-24 bg-primary/10 rounded-2xl flex items-center justify-center">
+                <Bot className="h-12 w-12 text-primary" />
               </div>
               <div className="max-w-sm">
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                  {searchQuery ? "No thinking partners found" : "Create your first thinking partner"}
+                <h3 className="text-xl font-medium text-fg mb-2">
+                  Create your first thinking partner
                 </h3>
-                <p className="text-gray-600 mb-6">
-                  {searchQuery 
-                    ? "Try adjusting your search criteria" 
-                    : "Set up an AI learning assistant that's perfectly tailored to help your child learn and explore new ideas"
-                  }
+                <p className="text-fgMuted mb-6 leading-relaxed">
+                  Set up an AI learning assistant that's perfectly tailored to help your child learn and explore new ideas
                 </p>
-                {!searchQuery && (
-                  <Button 
-                    onClick={handleCreateAgent} 
-                    className="bg-blue-600 hover:bg-blue-700 text-white"
-                    size="lg"
-                  >
-                    <Plus className="mr-2 h-5 w-5" />
-                    Create First Thinking Partner
-                  </Button>
-                )}
+                <Button 
+                  onClick={handleCreateAgent} 
+                  className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl font-medium"
+                  size="lg"
+                >
+                  <Plus className="mr-2 h-5 w-5" />
+                  Create First Thinking Partner
+                </Button>
               </div>
             </div>
           </CardContent>
         </Card>
       ) : (
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {filteredAgents.map((agent: AgentType) => (
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {agents.map((agent: AgentType) => (
             <Card 
               key={agent.id} 
-              className="border-gray-200 hover:shadow-lg transition-all duration-200 group"
+              className="border-border/30 hover:shadow-lg hover:border-border/50 transition-all duration-300 group rounded-2xl bg-card overflow-hidden"
             >
               <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-4">
-                <div className="flex items-center space-x-3 flex-1">
-                  <Avatar className="h-12 w-12 border-2 border-gray-100">
+                <div className="flex items-center space-x-3 flex-1 min-w-0">
+                  <Avatar className="h-12 w-12 border border-border/20 rounded-xl">
                     <AvatarImage src={agent.avatar} alt={agent.name} />
-                    <AvatarFallback className="bg-blue-100 text-blue-600">
+                    <AvatarFallback className="bg-primary/10 text-primary rounded-xl">
                       <Bot className="h-6 w-6" />
                     </AvatarFallback>
                   </Avatar>
                   <div className="flex-1 min-w-0">
-                    <CardTitle className="text-lg text-gray-900 truncate">{agent.name}</CardTitle>
-                    <div className="flex items-center gap-2 mt-1">
-                      <Badge 
-                        variant={agent.status === 'active' ? 'default' : 'secondary'}
-                        className={agent.status === 'active' ? 'bg-green-100 text-green-800 border-green-200' : 'bg-gray-100 text-gray-700 border-gray-200'}
-                      >
-                        {agent.status}
-                      </Badge>
-                      {agent.subject && (
-                        <span className="text-sm text-gray-500 truncate">
-                          {agent.subject}
-                        </span>
-                      )}
-                    </div>
+                    <CardTitle className="text-lg font-medium text-fg truncate leading-tight">{agent.name}</CardTitle>
+                    {agent.subject && (
+                      <p className="text-sm text-fgMuted truncate mt-1">
+                        {capitalizeFirst(agent.subject)}
+                      </p>
+                    )}
                   </div>
                 </div>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button 
                       variant="ghost" 
-                      className="h-8 w-8 p-0 text-gray-600 hover:bg-gray-100 opacity-0 group-hover:opacity-100 transition-opacity"
+                      className="h-8 w-8 p-0 text-fgMuted hover:bg-bgMuted opacity-0 group-hover:opacity-100 transition-all rounded-lg"
                     >
                       <MoreVertical className="h-4 w-4" />
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="bg-white border-gray-200">
+                  <DropdownMenuContent align="end" className="bg-card border-border/50 rounded-xl">
                     <DropdownMenuItem 
                       onClick={() => handleAgentClick(agent.id)}
-                      className="text-gray-700 hover:bg-gray-50"
+                      className="text-fg hover:bg-bgMuted rounded-lg"
                     >
                       <Settings className="mr-2 h-4 w-4" />
                       Edit Settings
                     </DropdownMenuItem>
-                    <DropdownMenuSeparator className="bg-gray-200" />
+                    <DropdownMenuSeparator className="bg-border/50" />
                     <DropdownMenuItem 
                       onClick={() => window.open(`/tutors/${agent.id}`, '_blank')}
-                      className="text-gray-700 hover:bg-gray-50"
+                      className="text-fg hover:bg-bgMuted rounded-lg"
                     >
                       <ExternalLink className="mr-2 h-4 w-4" />
                       View Profile
@@ -213,17 +173,21 @@ const ThinkingPartnersDashboard = () => {
                 </DropdownMenu>
               </CardHeader>
               <CardContent className="space-y-4">
-                <p className="text-gray-600 text-sm line-clamp-2 min-h-[2.5rem]">
-                  {agent.description || "A helpful AI thinking partner designed to support your child's learning and exploration"}
-                </p>
+                {/* Only show custom description if it exists and is not the default fallback */}
+                {agent.description && 
+                 agent.description !== "A helpful AI thinking partner designed to support your child's learning and exploration" && (
+                  <p className="text-fgMuted text-sm leading-relaxed line-clamp-2 min-h-[2.5rem]">
+                    {agent.description}
+                  </p>
+                )}
                 
                 <Button 
                   onClick={() => handleStartChat(agent.id)}
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white group-hover:shadow-md transition-all"
+                  className="w-full bg-primary hover:bg-primary/90 text-primary-foreground group-hover:shadow-md transition-all rounded-xl font-medium"
                   size="lg"
                 >
                   <Play className="mr-2 h-4 w-4" />
-                  Start Learning Session
+                  Let's Talk
                 </Button>
               </CardContent>
             </Card>
