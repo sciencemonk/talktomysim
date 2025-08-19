@@ -1,7 +1,7 @@
 
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { Bot, Shield, CheckCircle, Award, Lightbulb, Zap, Sparkles } from "lucide-react";
+import { Bot, Shield, CheckCircle, Award, Lightbulb, Zap, Sparkles, Mail, Building2 } from "lucide-react";
 
 const Landing = () => {
   const navigate = useNavigate();
@@ -164,6 +164,99 @@ const Landing = () => {
                   Move beyond traditional instruction to create dynamic, 
                   interactive learning experiences.
                 </p>
+              </div>
+            </div>
+
+            {/* Contact Form Section */}
+            <div className="max-w-2xl mx-auto mb-20">
+              <div className="bg-white/80 dark:bg-neutral-900/80 backdrop-blur-xl rounded-3xl border border-neutral-200/50 dark:border-neutral-800/50 p-8 shadow-2xl">
+                <div className="text-center mb-8">
+                  <div className="w-16 h-16 mx-auto mb-4 bg-blue-100 dark:bg-blue-900/30 rounded-2xl flex items-center justify-center">
+                    <Building2 className="h-8 w-8 text-blue-600 dark:text-blue-400" />
+                  </div>
+                  <h2 className="text-2xl font-semibold text-neutral-900 dark:text-white mb-2">
+                    Partner with Us
+                  </h2>
+                  <p className="text-neutral-600 dark:text-neutral-400">
+                    Transform learning in your school district. Let's explore how Think With Me can enhance education in your community.
+                  </p>
+                </div>
+
+                <form className="space-y-6">
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div>
+                      <label htmlFor="firstName" className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
+                        First Name
+                      </label>
+                      <input
+                        type="text"
+                        id="firstName"
+                        name="firstName"
+                        className="w-full px-4 py-3 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-white placeholder-neutral-500 dark:placeholder-neutral-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                        placeholder="Enter your first name"
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="lastName" className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
+                        Last Name
+                      </label>
+                      <input
+                        type="text"
+                        id="lastName"
+                        name="lastName"
+                        className="w-full px-4 py-3 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-white placeholder-neutral-500 dark:placeholder-neutral-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                        placeholder="Enter your last name"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label htmlFor="email" className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
+                      Email Address
+                    </label>
+                    <input
+                      type="email"
+                      id="email"
+                      name="email"
+                      className="w-full px-4 py-3 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-white placeholder-neutral-500 dark:placeholder-neutral-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                      placeholder="Enter your email address"
+                    />
+                  </div>
+
+                  <div>
+                    <label htmlFor="organization" className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
+                      School/Organization
+                    </label>
+                    <input
+                      type="text"
+                      id="organization"
+                      name="organization"
+                      className="w-full px-4 py-3 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-white placeholder-neutral-500 dark:placeholder-neutral-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                      placeholder="Enter your school or organization name"
+                    />
+                  </div>
+
+                  <div>
+                    <label htmlFor="message" className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
+                      Message
+                    </label>
+                    <textarea
+                      id="message"
+                      name="message"
+                      rows={4}
+                      className="w-full px-4 py-3 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-white placeholder-neutral-500 dark:placeholder-neutral-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 resize-none"
+                      placeholder="Tell us about your partnership interests, district size, or specific needs..."
+                    />
+                  </div>
+
+                  <Button 
+                    type="submit"
+                    className="w-full bg-neutral-900 hover:bg-neutral-800 text-white dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-100 rounded-xl px-6 py-3 text-base font-medium shadow-lg hover:shadow-xl transition-all duration-300 inline-flex items-center justify-center gap-3"
+                  >
+                    <Mail className="h-5 w-5" />
+                    <span>Send Message</span>
+                  </Button>
+                </form>
               </div>
             </div>
           </div>
