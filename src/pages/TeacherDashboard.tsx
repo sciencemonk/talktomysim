@@ -68,6 +68,11 @@ const ParentDashboard = () => {
     }
   };
 
+  const capitalizeFirst = (text: string) => {
+    if (!text) return "";
+    return text.charAt(0).toUpperCase() + text.slice(1);
+  };
+
   const truncateLearningObjective = (text: string) => {
     if (!text) return "";
     const sentences = text.split(/[.!?]+/);
@@ -138,13 +143,6 @@ const ParentDashboard = () => {
 
       {/* Thinking Partners Section */}
       <div className="space-y-8">
-        <div className="text-center space-y-4">
-          <h2 className="text-3xl font-light text-fg">Your Child's AI Thinking Partners</h2>
-          <p className="text-fgMuted max-w-xl mx-auto">
-            Manage and monitor your child's personalized learning assistants
-          </p>
-        </div>
-
         {agents.length === 0 ? (
           <Card className="text-center py-16 border-border/50 bg-card/50 max-w-xl mx-auto">
             <CardContent className="space-y-6">
@@ -160,120 +158,119 @@ const ParentDashboard = () => {
               <Link to="/agents/create">
                 <Button size="lg" className="font-normal">
                   <Plus className="h-4 w-4 mr-2" />
-                  Create Your First Thinking Partner
+                  New Thinking Partner
                 </Button>
               </Link>
             </CardContent>
           </Card>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
-            {/* Create New Thinking Partner Card */}
-            <Link to="/agents/create">
-              <Card className="hover:shadow-lg transition-all duration-200 cursor-pointer border-2 border-dashed border-border/50 hover:border-primary/30 bg-card/30 hover:bg-card/50 h-full min-h-[320px] flex items-center justify-center">
-                <CardContent className="text-center space-y-4 p-8">
-                  <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center mx-auto">
-                    <Plus className="h-6 w-6 text-primary" />
-                  </div>
-                  <div className="space-y-2">
-                    <h3 className="font-medium text-fg">Create New Thinking Partner</h3>
-                    <p className="text-sm text-fgMuted">
-                      Add a new AI thinking partner to help your child
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-            </Link>
+          <div className="space-y-6">
+            {/* New Thinking Partner Button */}
+            <div className="flex justify-end">
+              <Link to="/agents/create">
+                <Button size="lg" className="font-normal">
+                  <Plus className="h-4 w-4 mr-2" />
+                  New Thinking Partner
+                </Button>
+              </Link>
+            </div>
 
-            {/* Existing Tutors */}
-            {agents.map((agent: AgentType) => (
-              <Card key={agent.id} className="hover:shadow-lg transition-all duration-200 cursor-pointer border-border/50 hover:border-primary/30 bg-card/50 h-full min-h-[320px] group">
-                <CardHeader className="pb-3">
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-center space-x-3 flex-1 min-w-0">
-                      <Avatar className="h-10 w-10 border border-border/50">
-                        <AvatarImage src={agent.avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${agent.id}`} alt={agent.name} />
-                        <AvatarFallback className="bg-primary/10 text-primary">
-                          {getSubjectIcon(agent.type)}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="min-w-0 flex-1">
-                        <CardTitle className="text-base font-medium text-fg truncate">{agent.name}</CardTitle>
-                        <CardDescription className="text-sm text-fgMuted truncate">
-                          {agent.type}
-                        </CardDescription>
+            {/* Improved Apple-like Grid Layout */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {agents.map((agent: AgentType) => (
+                <Card key={agent.id} className="hover:shadow-md transition-all duration-200 cursor-pointer border-border/30 bg-card group rounded-2xl overflow-hidden">
+                  <CardHeader className="pb-3 space-y-0">
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="flex items-center space-x-3 flex-1 min-w-0">
+                        <Avatar className="h-12 w-12 border border-border/50 rounded-xl">
+                          <AvatarImage src={agent.avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${agent.id}`} alt={agent.name} />
+                          <AvatarFallback className="bg-primary/10 text-primary rounded-xl">
+                            {getSubjectIcon(agent.type)}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="min-w-0 flex-1">
+                          <CardTitle className="text-base font-medium text-fg truncate leading-tight">{agent.name}</CardTitle>
+                          <CardDescription className="text-sm text-fgMuted truncate mt-1">
+                            {capitalizeFirst(agent.type)}
+                          </CardDescription>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2 flex-shrink-0">
+                        <ShareButton 
+                          tutorId={agent.id} 
+                          tutorName={agent.name}
+                          className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity"
+                        />
+                        <Badge className={`${getStatusColor(agent.status)} text-xs border rounded-full px-2 py-0.5`}>
+                          {capitalizeFirst(agent.status)}
+                        </Badge>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2 flex-shrink-0">
-                      <ShareButton 
-                        tutorId={agent.id} 
-                        tutorName={agent.name}
-                        className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity"
-                      />
-                      <Badge className={`${getStatusColor(agent.status)} text-xs border rounded-full px-2 py-0.5`}>
-                        {agent.status}
-                      </Badge>
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent className="pt-0 space-y-4">
-                  <p className="text-sm text-fgMuted leading-relaxed line-clamp-2 min-h-[2.5rem]">
-                    {agent.description || agent.purpose || "A helpful AI thinking partner for your child"}
-                  </p>
+                  </CardHeader>
                   
-                  {agent.learningObjective && (
-                    <div className="p-3 bg-green-50 rounded-xl border border-green-200/50">
-                      <div className="flex items-center gap-2 mb-1">
-                        <Target className="h-3 w-3 text-green-600" />
-                        <span className="text-xs font-medium text-green-700">Learning Goal</span>
-                      </div>
-                      <p className="text-xs text-green-700/80 leading-relaxed">
-                        {truncateLearningObjective(agent.learningObjective)}
+                  <CardContent className="pt-0 space-y-4">
+                    {/* Only show description if it exists and is not the default fallback */}
+                    {agent.description && (
+                      <p className="text-sm text-fgMuted leading-relaxed line-clamp-2 min-h-[2.5rem]">
+                        {agent.description}
                       </p>
-                    </div>
-                  )}
-                  
-                  <div className="grid grid-cols-2 gap-3 text-sm">
-                    <div className="text-center p-2 bg-bgMuted rounded-lg">
-                      <p className="font-medium text-fg text-sm">{agent.studentsSaved || 0}</p>
-                      <p className="text-fgMuted text-xs">Children</p>
-                    </div>
-                    <div className="text-center p-2 bg-bgMuted rounded-lg">
-                      <p className="font-medium text-fg text-sm">{agent.interactions || 0}</p>
-                      <p className="text-fgMuted text-xs">Interactions</p>
-                    </div>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Button 
-                      onClick={() => window.open(`/tutors/${agent.id}/chat`, '_blank')}
-                      className="w-full font-normal"
-                      size="sm"
-                    >
-                      <Play className="w-4 h-4 mr-2" />
-                      Start Learning Session
-                    </Button>
+                    )}
                     
-                    <Link to={`/agents/${agent.id}`} className="block">
-                      <Button 
-                        variant="ghost" 
-                        size="sm"
-                        className="w-full text-fgMuted hover:text-fg hover:bg-bgMuted"
-                      >
-                        <Settings className="w-3 h-3 mr-2" />
-                        Customize Partner
-                      </Button>
-                    </Link>
-                  </div>
-                  
-                  {agent.helpfulnessScore && (
-                    <div className="flex items-center justify-between pt-3 border-t border-border/30">
-                      <span className="text-xs text-fgMuted">Rating</span>
-                      <span className="text-xs font-medium text-fg">{agent.helpfulnessScore}/10</span>
+                    {agent.learningObjective && (
+                      <div className="p-3 bg-green-50 rounded-xl border border-green-200/50">
+                        <div className="flex items-center gap-2 mb-1">
+                          <Target className="h-3 w-3 text-green-600" />
+                          <span className="text-xs font-medium text-green-700">Learning Goal</span>
+                        </div>
+                        <p className="text-xs text-green-700/80 leading-relaxed">
+                          {truncateLearningObjective(agent.learningObjective)}
+                        </p>
+                      </div>
+                    )}
+                    
+                    <div className="grid grid-cols-2 gap-3 text-sm">
+                      <div className="text-center p-2 bg-bgMuted rounded-lg">
+                        <p className="font-medium text-fg text-sm">{agent.studentsSaved || 0}</p>
+                        <p className="text-fgMuted text-xs">Children</p>
+                      </div>
+                      <div className="text-center p-2 bg-bgMuted rounded-lg">
+                        <p className="font-medium text-fg text-sm">{agent.interactions || 0}</p>
+                        <p className="text-fgMuted text-xs">Interactions</p>
+                      </div>
                     </div>
-                  )}
-                </CardContent>
-              </Card>
-            ))}
+                    
+                    <div className="space-y-2">
+                      <Button 
+                        onClick={() => window.open(`/tutors/${agent.id}/chat`, '_blank')}
+                        className="w-full font-normal rounded-xl"
+                        size="sm"
+                      >
+                        <Play className="w-4 h-4 mr-2" />
+                        Let's Talk
+                      </Button>
+                      
+                      <Link to={`/agents/${agent.id}`} className="block">
+                        <Button 
+                          variant="ghost" 
+                          size="sm"
+                          className="w-full text-fgMuted hover:text-fg hover:bg-bgMuted rounded-xl"
+                        >
+                          <Settings className="w-3 h-3 mr-2" />
+                          Customize Partner
+                        </Button>
+                      </Link>
+                    </div>
+                    
+                    {agent.helpfulnessScore && (
+                      <div className="flex items-center justify-between pt-3 border-t border-border/30">
+                        <span className="text-xs text-fgMuted">Rating</span>
+                        <span className="text-xs font-medium text-fg">{agent.helpfulnessScore}/10</span>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
           </div>
         )}
       </div>
