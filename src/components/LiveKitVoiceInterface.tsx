@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef, useState } from 'react';
 import { useToast } from '@/components/ui/use-toast';
 import { AgentType } from '@/types/agent';
@@ -34,9 +33,32 @@ const LiveKitVoiceInterface: React.FC<LiveKitVoiceInterfaceProps> = ({
   const pcRef = useRef<RTCPeerConnection | null>(null);
   const dcRef = useRef<RTCDataChannel | null>(null);
   const audioElementRef = useRef<HTMLAudioElement | null>(null);
+  const audioStreamRef = useRef<MediaStream | null>(null);
 
   // Track if we're currently accumulating an AI response
   const isAccumulatingAiResponseRef = useRef(false);
+  // Track if this is the first AI response (welcome message)
+  const isFirstAiResponseRef = useRef(true);
+  // Track if user mic should be muted
+  const shouldMuteMicRef = useRef(true);
+
+  const muteUserMicrophone = () => {
+    if (audioStreamRef.current) {
+      audioStreamRef.current.getAudioTracks().forEach(track => {
+        track.enabled = false;
+      });
+      console.log('User microphone muted');
+    }
+  };
+
+  const unmuteUserMicrophone = () => {
+    if (audioStreamRef.current) {
+      audioStreamRef.current.getAudioTracks().forEach(track => {
+        track.enabled = true;
+      });
+      console.log('User microphone unmuted');
+    }
+  };
 
   const createSystemInstructions = () => {
     const getAgeAppropriateLanguage = () => {
@@ -196,6 +218,10 @@ The student should be talking at least 50% of the time about ${learningObjective
         }
       });
       
+      // Store the stream reference and initially mute it
+      audioStreamRef.current = stream;
+      muteUserMicrophone();
+      
       pcRef.current.addTrack(stream.getTracks()[0]);
 
       dcRef.current = pcRef.current.createDataChannel("oai-events");
@@ -219,23 +245,39 @@ The student should be talking at least 50% of the time about ${learningObjective
             if (isAccumulatingAiResponseRef.current) {
               onAiMessageComplete();
               isAccumulatingAiResponseRef.current = false;
+              
+              // If this was the first AI response (welcome message), unmute the user
+              if (isFirstAiResponseRef.current) {
+                console.log('Welcome message completed, unmuting user microphone');
+                isFirstAiResponseRef.current = false;
+                shouldMuteMicRef.current = false;
+                unmuteUserMicrophone();
+              }
             }
           }
           
-          // Handle user transcript events
+          // Handle user transcript events (only process if mic is not muted)
           else if (event.type === 'conversation.item.input_audio_transcription.completed') {
-            console.log('User transcript completed:', event.transcript);
-            if (event.transcript.trim()) {
-              onUserMessage(event.transcript.trim());
+            if (!shouldMuteMicRef.current) {
+              console.log('User transcript completed:', event.transcript);
+              if (event.transcript.trim()) {
+                onUserMessage(event.transcript.trim());
+              }
+            } else {
+              console.log('Ignoring user transcript during welcome message:', event.transcript);
             }
           }
           
           // Handle speaking state changes
           else if (event.type === 'input_audio_buffer.speech_started') {
-            console.log('User started speaking');
-            onSpeakingChange(false);
+            if (!shouldMuteMicRef.current) {
+              console.log('User started speaking');
+              onSpeakingChange(false);
+            }
           } else if (event.type === 'input_audio_buffer.speech_stopped') {
-            console.log('User stopped speaking');
+            if (!shouldMuteMicRef.current) {
+              console.log('User stopped speaking');
+            }
           } else if (event.type === 'response.audio.delta') {
             onSpeakingChange(true);
           } else if (event.type === 'response.audio.done') {
@@ -346,8 +388,13 @@ The student should be talking at least 50% of the time about ${learningObjective
     if (audioElementRef.current) {
       audioElementRef.current.srcObject = null;
     }
+    if (audioStreamRef.current) {
+      audioStreamRef.current.getTracks().forEach(track => track.stop());
+    }
     
     isAccumulatingAiResponseRef.current = false;
+    isFirstAiResponseRef.current = true;
+    shouldMuteMicRef.current = true;
     
     setIsConnected(false);
     setConnectionStatus('disconnected');

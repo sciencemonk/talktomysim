@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -35,7 +34,7 @@ const WordHighlighter: React.FC<{ text: string; isComplete: boolean }> = ({ text
     // Start highlighting from the beginning when text changes
     setHighlightedWordIndex(0);
     
-    // Much slower timing to match natural speech - approximately 150 words per minute
+    // Much slower timing to match natural speech - approximately 60-80 words per minute
     const interval = setInterval(() => {
       setHighlightedWordIndex(prev => {
         const nextIndex = prev + 1;
@@ -45,7 +44,7 @@ const WordHighlighter: React.FC<{ text: string; isComplete: boolean }> = ({ text
         }
         return nextIndex;
       });
-    }, 400); // 400ms per word (about 150 words per minute, slower natural speech pace)
+    }, 900); // 900ms per word (about 67 words per minute, very slow natural speech pace)
     
     return () => clearInterval(interval);
   }, [text, isComplete, words.length]);
@@ -53,19 +52,16 @@ const WordHighlighter: React.FC<{ text: string; isComplete: boolean }> = ({ text
   return (
     <span className="text-3xl leading-relaxed font-medium">
       {words.map((word, index) => {
-        // Highlight the current word being "spoken" and a few words around it for context
+        // Only highlight the current word being "spoken"
         const isCurrentWord = !isComplete && index === highlightedWordIndex;
-        const isNearCurrentWord = !isComplete && index >= highlightedWordIndex - 1 && index <= highlightedWordIndex + 1;
         
         return (
           <span
             key={index}
             className={cn(
-              "inline-block mr-2 mb-1 transition-all duration-500 ease-in-out",
+              "inline-block mr-2 mb-1 transition-all duration-700 ease-in-out",
               isCurrentWord
                 ? "bg-yellow-300 dark:bg-yellow-500 px-1 rounded shadow-sm transform scale-105" 
-                : isNearCurrentWord
-                ? "bg-yellow-100 dark:bg-yellow-700 px-1 rounded"
                 : ""
             )}
           >
