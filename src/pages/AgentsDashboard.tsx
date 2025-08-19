@@ -253,9 +253,9 @@ const AgentsDashboard = () => {
   if (error) {
     return (
       <div className="flex flex-col items-center justify-center h-[80vh] space-y-4">
-        <CircleSlash className="h-16 w-16 text-agent-error opacity-80" />
-        <h2 className="text-2xl font-semibold text-foreground dark:text-white">Error Loading Agents</h2>
-        <p className="text-muted-foreground dark:text-gray-300">Please try again later.</p>
+        <CircleSlash className="h-16 w-16 text-red-500 opacity-80" />
+        <h2 className="text-2xl font-semibold text-gray-900">Error Loading Agents</h2>
+        <p className="text-gray-600">Please try again later.</p>
       </div>
     );
   }
@@ -297,24 +297,23 @@ const AgentsDashboard = () => {
 
       <div className="flex justify-between items-start">
         <div>
-          <h1 className="text-3xl font-semibold text-fg tracking-tight">
+          <h1 className="text-3xl font-semibold text-gray-900 tracking-tight">
             {getFilterTitle()}
           </h1>
-          <p className="text-fgMuted mt-1">
+          <p className="text-gray-600 mt-1">
             Create, customize, and manage your intelligent assistants all in one place
           </p>
         </div>
-        <ThemeToggle />
       </div>
       
       <Separator />
       
       <div className="flex flex-col md:flex-row gap-4 items-start md:items-center">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-fgMuted" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
           <Input
             placeholder="Search by name or purpose..."
-            className="pl-10 w-full"
+            className="pl-10 w-full bg-white border-gray-300 text-gray-900 placeholder-gray-500"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
@@ -322,10 +321,10 @@ const AgentsDashboard = () => {
 
         <div className="flex flex-wrap gap-2 items-center">
           <Select value={filterType} onValueChange={setFilterType}>
-            <SelectTrigger className="w-[180px] bg-bg border-border">
+            <SelectTrigger className="w-[180px] bg-white border-gray-300 text-gray-900">
               <SelectValue placeholder="Bot Function" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="bg-white border-gray-300">
               <SelectItem value="all">All Functions</SelectItem>
               <SelectItem value="Math Tutor">Math Tutor</SelectItem>
               <SelectItem value="Science Tutor">Science Tutor</SelectItem>
@@ -341,10 +340,10 @@ const AgentsDashboard = () => {
           </Select>
 
           <Select value={filterChannel} onValueChange={setFilterChannel}>
-            <SelectTrigger className="w-[140px] bg-bg border-border">
+            <SelectTrigger className="w-[140px] bg-white border-gray-300 text-gray-900">
               <SelectValue placeholder="Channel" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="bg-white border-gray-300">
               <SelectItem value="all">All Channels</SelectItem>
               <SelectItem value="voice">Voice</SelectItem>
               <SelectItem value="chat">Chat</SelectItem>
@@ -355,10 +354,10 @@ const AgentsDashboard = () => {
           </Select>
 
           <Select value={filterStatus} onValueChange={setFilterStatus}>
-            <SelectTrigger className="w-[140px] bg-bg border-border">
+            <SelectTrigger className="w-[140px] bg-white border-gray-300 text-gray-900">
               <SelectValue placeholder="Status" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="bg-white border-gray-300">
               <SelectItem value="all">All Status</SelectItem>
               <SelectItem value="active">Active</SelectItem>
               <SelectItem value="inactive">Inactive</SelectItem>
@@ -367,10 +366,10 @@ const AgentsDashboard = () => {
           </Select>
 
           <Select value={sortBy} onValueChange={setSortBy}>
-            <SelectTrigger className="w-[140px] bg-bg border-border">
+            <SelectTrigger className="w-[140px] bg-white border-gray-300 text-gray-900">
               <SelectValue placeholder="Sort by" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="bg-white border-gray-300">
               <SelectItem value="recent">Most Recent</SelectItem>
               <SelectItem value="oldest">Oldest First</SelectItem>
               <SelectItem value="most-used">Most Used</SelectItem>
@@ -382,17 +381,17 @@ const AgentsDashboard = () => {
 
       {isLoading ? (
         <div className="flex justify-center items-center h-64">
-          <Loader2 className="h-8 w-8 text-brandPurple animate-spin" />
+          <Loader2 className="h-8 w-8 text-blue-600 animate-spin" />
         </div>
       ) : filteredAgents.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-16 space-y-4">
-          <Bot className="h-16 w-16 text-fgMuted opacity-80" />
-          <h2 className="text-2xl font-semibold text-fg">No Agents Found</h2>
-          <p className="text-fgMuted">
+          <Bot className="h-16 w-16 text-gray-500 opacity-80" />
+          <h2 className="text-2xl font-semibold text-gray-900">No Agents Found</h2>
+          <p className="text-gray-600">
             {searchTerm ? "Try a different search term" : "Create your first agent to get started"}
           </p>
           {!searchTerm && (
-            <Link to="/agents/create" className="brand-button mt-2">
+            <Link to="/agents/create" className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">
               Create Your First Agent
             </Link>
           )}
@@ -400,13 +399,13 @@ const AgentsDashboard = () => {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           <Link to="/agents/create" className="block">
-            <Card className="h-full card-hover border-dashed border-2 border-agent-primary/30 hover:border-agent-primary/70 transition-all bg-transparent hover:bg-gray-50 dark:hover:bg-gray-900/30">
+            <Card className="h-full hover:shadow-lg transition-shadow border-dashed border-2 border-blue-300 hover:border-blue-500 bg-white">
               <div className="flex flex-col items-center justify-center h-full py-10">
-                <div className="h-12 w-12 rounded-full bg-agent-primary/10 flex items-center justify-center mb-4">
-                  <PlusCircle className="h-6 w-6 text-agent-primary" />
+                <div className="h-12 w-12 rounded-full bg-blue-100 flex items-center justify-center mb-4">
+                  <PlusCircle className="h-6 w-6 text-blue-600" />
                 </div>
-                <h3 className="text-lg font-medium text-foreground dark:text-white">Create New Agent</h3>
-                <p className="text-sm text-muted-foreground dark:text-gray-400 text-center mt-2 max-w-xs">
+                <h3 className="text-lg font-medium text-gray-900">Create New Agent</h3>
+                <p className="text-sm text-gray-600 text-center mt-2 max-w-xs">
                   Create a custom AI agent to help with teaching and tutoring tasks
                 </p>
               </div>
@@ -415,39 +414,39 @@ const AgentsDashboard = () => {
         
           {filteredAgents.map((agent) => (
             <Link to={`/agents/${agent.id}`} key={agent.id} className="block">
-              <Card className="h-full card-hover">
+              <Card className="h-full hover:shadow-lg transition-shadow bg-white border-gray-200">
                 <CardHeader className="pb-2">
                   <div className="flex justify-between items-start">
                     <div className="flex items-center gap-3">
-                      <Avatar className="h-12 w-12 border border-gray-200 dark:border-gray-800">
+                      <Avatar className="h-12 w-12 border border-gray-200">
                         <AvatarImage src={agent.avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${agent.id}`} alt={agent.name} />
-                        <AvatarFallback><UserCircle2 className="h-6 w-6" /></AvatarFallback>
+                        <AvatarFallback className="bg-gray-100"><UserCircle2 className="h-6 w-6 text-gray-600" /></AvatarFallback>
                       </Avatar>
                       <div>
-                        <h3 className="font-medium text-foreground dark:text-white">{agent.name}</h3>
-                        <p className="text-xs text-muted-foreground dark:text-gray-400">{agent.phone || 'No phone'}</p>
+                        <h3 className="font-medium text-gray-900">{agent.name}</h3>
+                        <p className="text-xs text-gray-500">{agent.phone || 'No phone'}</p>
                       </div>
                     </div>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild onClick={(e) => e.preventDefault()}>
-                        <Button variant="ghost" size="icon" className="h-8 w-8">
+                        <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-600 hover:text-gray-900">
                           <MoreVertical className="h-4 w-4" />
                         </Button>
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" className="w-48 bg-white dark:bg-gray-900 z-50">
-                        <DropdownMenuItem onClick={(e) => handleToggleStatus(e, agent.id, agent.status)}>
+                      <DropdownMenuContent align="end" className="w-48 bg-white border-gray-200 z-50">
+                        <DropdownMenuItem onClick={(e) => handleToggleStatus(e, agent.id, agent.status)} className="text-gray-700 hover:bg-gray-50">
                           <Power className="mr-2 h-4 w-4" />
                           {agent.status === "active" ? "Deactivate" : "Activate"}
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={(e) => handleEditAgent(e, agent.id)}>
+                        <DropdownMenuItem onClick={(e) => handleEditAgent(e, agent.id)} className="text-gray-700 hover:bg-gray-50">
                           <Edit className="mr-2 h-4 w-4" />
                           Edit Agent
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={(e) => handleViewDetails(e, agent.id)}>
+                        <DropdownMenuItem onClick={(e) => handleViewDetails(e, agent.id)} className="text-gray-700 hover:bg-gray-50">
                           <Eye className="mr-2 h-4 w-4" />
                           View Details
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={(e) => handleArchiveAgent(e, agent.id)}>
+                        <DropdownMenuItem onClick={(e) => handleArchiveAgent(e, agent.id)} className="text-gray-700 hover:bg-gray-50">
                           <Archive className="mr-2 h-4 w-4" />
                           Archive Agent
                         </DropdownMenuItem>
@@ -456,7 +455,7 @@ const AgentsDashboard = () => {
                   </div>
                   
                   <div className="mt-3">
-                    <CardDescription className="line-clamp-2 text-muted-foreground dark:text-gray-300 mb-2">
+                    <CardDescription className="line-clamp-2 text-gray-600 mb-2">
                       {agent.description}
                     </CardDescription>
                     
@@ -487,31 +486,31 @@ const AgentsDashboard = () => {
                     
                     <div className="flex flex-wrap gap-2 mt-2">
                       {filterType !== "all" && (
-                        <Badge variant="muted" className="w-fit">
+                        <Badge variant="secondary" className="w-fit bg-gray-100 text-gray-700">
                           Type: {agent.type}
                         </Badge>
                       )}
                       
                       {filterChannel !== "all" && agent.channels && (
-                        <Badge variant="muted" className="w-fit">
+                        <Badge variant="secondary" className="w-fit bg-gray-100 text-gray-700">
                           Channel: {filterChannel}
                         </Badge>
                       )}
                       
                       {filterStatus !== "all" && (
-                        <Badge variant="muted" className="w-fit">
+                        <Badge variant="secondary" className="w-fit bg-gray-100 text-gray-700">
                           Status: {agent.status}
                         </Badge>
                       )}
                       
                       {(sortBy === "recent" || sortBy === "oldest") && (
-                        <Badge variant="muted" className="w-fit">
+                        <Badge variant="secondary" className="w-fit bg-gray-100 text-gray-700">
                           {formatCreatedAt(agent.createdAt)}
                         </Badge>
                       )}
                       
                       {(sortBy === "most-used" || sortBy === "less-used") && (
-                        <Badge variant="muted" className="w-fit">
+                        <Badge variant="secondary" className="w-fit bg-gray-100 text-gray-700">
                           {agent.interactions} interactions
                         </Badge>
                       )}
@@ -519,12 +518,12 @@ const AgentsDashboard = () => {
                   </div>
                 </CardContent>
                 
-                <CardFooter className="border-t pt-4 flex justify-between items-center">
+                <CardFooter className="border-t pt-4 flex justify-between items-center bg-gray-50">
                   <AgentToggle 
                     isActive={agent.status === "active"} 
                     onToggle={(e) => handleToggleStatus(e, agent.id, agent.status)} 
                   />
-                  <div className="text-sm text-foreground dark:text-white font-medium">View Details &rarr;</div>
+                  <div className="text-sm text-gray-700 font-medium">View Details &rarr;</div>
                 </CardFooter>
               </Card>
             </Link>

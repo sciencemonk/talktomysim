@@ -10,14 +10,12 @@ import { AuthProvider } from "@/hooks/useAuth";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import TeacherDashboard from "./pages/TeacherDashboard";
-import SimpleTeacherDashboard from "./pages/SimpleTeacherDashboard";
 import AgentsDashboard from "./pages/AgentsDashboard";
 import AgentDetails from "./pages/AgentDetails";
 import AgentCreate from "./pages/AgentCreate";
 import AgentAnalytics from "./pages/AgentAnalytics";
 import StudentChat from "./pages/StudentChat";
 import PublicTutorDetail from "./pages/PublicTutorDetail";
-import Marketplace from "./pages/Marketplace";
 import ProfessionalDevelopment from "./pages/ProfessionalDevelopment";
 import Settings from "./pages/Settings";
 import Billing from "./pages/Billing";
@@ -42,13 +40,13 @@ const App = () => (
             <Route path="/tutors/:id" element={<PublicTutorDetail />} />
             <Route path="/chat/:tutorId" element={<StudentChat />} />
             
-            {/* Protected dashboard routes - all use DashboardLayout */}
+            {/* Protected dashboard routes - Tutors is now the default home */}
             <Route path="/dashboard" element={<DashboardLayout />}>
-              <Route index element={<TeacherDashboard />} />
+              <Route index element={<AgentsDashboard />} />
             </Route>
             
-            <Route path="/marketplace" element={<DashboardLayout />}>
-              <Route index element={<Marketplace />} />
+            <Route path="/tutors" element={<DashboardLayout />}>
+              <Route index element={<AgentsDashboard />} />
             </Route>
             
             <Route path="/professional-development" element={<DashboardLayout />}>
@@ -63,7 +61,7 @@ const App = () => (
               <Route index element={<Billing />} />
             </Route>
             
-            {/* Agents routes - now use DashboardLayout */}
+            {/* Agents routes */}
             <Route path="/agents" element={<DashboardLayout />}>
               <Route index element={<AgentsDashboard />} />
             </Route>
