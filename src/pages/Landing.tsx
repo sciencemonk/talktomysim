@@ -1,13 +1,85 @@
-
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { Bot, Shield, CheckCircle, Award, Lightbulb, Zap, Sparkles, Mail, Building2 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useState } from "react";
+import { useToast } from "@/hooks/use-toast";
+import { Loader2 } from "lucide-react";
 
 const Landing = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
+  const [isSigningIn, setIsSigningIn] = useState(false);
 
-  const handleSignInWithGoogle = () => {
-    navigate("/dashboard");
+  const handleSignInWithGoogle = async () => {
+    try {
+      setIsSigningIn(true);
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/dashboard`,
+        },
+      });
+
+      if (error) {
+        console.error('Google sign in error:', error);
+        toast({
+          title: "Sign In Failed",
+          description: error.message || "There was an error signing in with Google. Please try again.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error('Unexpected error during Google sign in:', error);
+      toast({
+        title: "Sign In Failed",
+        description: "An unexpected error occurred. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSigningIn(false);
+    }
+  };
+
+  const handleContactFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    
+    const contactData = {
+      first_name: formData.get('firstName') as string,
+      last_name: formData.get('lastName') as string,
+      email: formData.get('email') as string,
+      organization: formData.get('organization') as string,
+      message: formData.get('message') as string,
+    };
+
+    try {
+      const { error } = await supabase
+        .from('partnership_inquiries')
+        .insert({
+          contact_name: `${contactData.first_name} ${contactData.last_name}`,
+          email: contactData.email,
+          course_name: contactData.organization,
+          message: contactData.message,
+        });
+
+      if (error) throw error;
+
+      toast({
+        title: "Message Sent!",
+        description: "Thank you for your interest. We'll be in touch soon.",
+      });
+
+      // Reset form
+      (e.target as HTMLFormElement).reset();
+    } catch (error) {
+      console.error('Error submitting contact form:', error);
+      toast({
+        title: "Error",
+        description: "There was an error sending your message. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -71,15 +143,20 @@ const Landing = () => {
             <div className="mb-16">
               <Button 
                 onClick={handleSignInWithGoogle}
+                disabled={isSigningIn}
                 size="lg"
-                className="bg-neutral-900 hover:bg-neutral-800 text-white dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-100 rounded-full px-8 py-4 text-lg font-medium shadow-lg hover:shadow-xl transition-all duration-300 inline-flex items-center gap-3"
+                className="bg-neutral-900 hover:bg-neutral-800 text-white dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-100 rounded-full px-8 py-4 text-lg font-medium shadow-lg hover:shadow-xl transition-all duration-300 inline-flex items-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <img 
-                  src="/lovable-uploads/b0174e22-c5cc-4bc5-8b34-8df738173560.png" 
-                  alt="Google" 
-                  className="h-5 w-5"
-                />
-                <span>Get started with Google</span>
+                {isSigningIn ? (
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                ) : (
+                  <img 
+                    src="/lovable-uploads/b0174e22-c5cc-4bc5-8b34-8df738173560.png" 
+                    alt="Google" 
+                    className="h-5 w-5"
+                  />
+                )}
+                <span>{isSigningIn ? "Signing in..." : "Get started with Google"}</span>
               </Button>
               <p className="text-sm text-neutral-500 dark:text-neutral-400 mt-4">
                 No credit card required. Start teaching in minutes.
@@ -182,7 +259,7 @@ const Landing = () => {
                   </p>
                 </div>
 
-                <form className="space-y-6">
+                <form onSubmit={handleContactFormSubmit} className="space-y-6">
                   <div className="grid md:grid-cols-2 gap-4">
                     <div>
                       <label htmlFor="firstName" className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
@@ -192,6 +269,7 @@ const Landing = () => {
                         type="text"
                         id="firstName"
                         name="firstName"
+                        required
                         className="w-full px-4 py-3 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-white placeholder-neutral-500 dark:placeholder-neutral-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                         placeholder="Enter your first name"
                       />
@@ -204,6 +282,7 @@ const Landing = () => {
                         type="text"
                         id="lastName"
                         name="lastName"
+                        required
                         className="w-full px-4 py-3 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-white placeholder-neutral-500 dark:placeholder-neutral-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                         placeholder="Enter your last name"
                       />
@@ -218,6 +297,7 @@ const Landing = () => {
                       type="email"
                       id="email"
                       name="email"
+                      required
                       className="w-full px-4 py-3 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-white placeholder-neutral-500 dark:placeholder-neutral-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                       placeholder="Enter your email address"
                     />
@@ -231,6 +311,7 @@ const Landing = () => {
                       type="text"
                       id="organization"
                       name="organization"
+                      required
                       className="w-full px-4 py-3 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-white placeholder-neutral-500 dark:placeholder-neutral-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                       placeholder="Enter your school or organization name"
                     />
@@ -244,6 +325,7 @@ const Landing = () => {
                       id="message"
                       name="message"
                       rows={4}
+                      required
                       className="w-full px-4 py-3 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-white placeholder-neutral-500 dark:placeholder-neutral-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 resize-none"
                       placeholder="Tell us about your partnership interests, district size, or specific needs..."
                     />

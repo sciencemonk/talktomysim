@@ -1,77 +1,98 @@
 
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { Settings, CreditCard, User, Moon, Sun, DollarSign } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { LogOut, Settings, User } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-  DropdownMenuLabel,
 } from "@/components/ui/dropdown-menu";
-import { Progress } from "@/components/ui/progress";
-import { useTheme } from "@/hooks/useTheme";
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
+import { useNavigate } from "react-router-dom";
+import { useToast } from "@/hooks/use-toast";
 
-export function UserSettingsDropdown() {
+const UserSettingsDropdown = () => {
+  const { user } = useAuth();
   const navigate = useNavigate();
-  const { theme, setTheme } = useTheme();
-  const [creditsLeft] = useState(75); // Mock data - replace with actual credits
-  const totalCredits = 100; // Default free credits
-  const creditsUsed = totalCredits - creditsLeft;
-  const progressPercentage = (creditsUsed / totalCredits) * 100;
+  const { toast } = useToast();
 
-  const toggleTheme = () => {
-    setTheme(theme === "dark" ? "light" : "dark");
-  };
-
-  const handleBillingClick = () => {
-    navigate("/billing");
+  const handleSignOut = async () => {
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+      
+      toast({
+        title: "Signed out successfully",
+        description: "You have been signed out of your account.",
+      });
+      navigate("/");
+    } catch (error) {
+      console.error('Error signing out:', error);
+      toast({
+        title: "Error",
+        description: "There was an error signing out. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleSettingsClick = () => {
     navigate("/settings");
   };
 
+  if (!user) {
+    return null;
+  }
+
+  // Get user initials for avatar fallback
+  const getInitials = (email: string) => {
+    const name = email.split('@')[0];
+    return name.slice(0, 2).toUpperCase();
+  };
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" className="h-9 w-9">
-          <Settings className="h-5 w-5" />
+        <Button
+          variant="ghost"
+          className="relative h-8 w-8 rounded-full"
+        >
+          <Avatar className="h-8 w-8">
+            <AvatarImage 
+              src={user.user_metadata?.avatar_url} 
+              alt={user.email || 'User'} 
+            />
+            <AvatarFallback className="bg-primary text-primary-foreground">
+              {getInitials(user.email || 'U')}
+            </AvatarFallback>
+          </Avatar>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-56 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800">
-        <DropdownMenuLabel className="font-medium">
-          <div className="space-y-2">
-            <div className="flex items-center gap-2">
-              <CreditCard className="h-4 w-4" />
-              Credits: {creditsLeft}/{totalCredits}
-            </div>
-            <Progress value={progressPercentage} className="h-2" />
+      <DropdownMenuContent className="w-56" align="end" forceMount>
+        <div className="flex items-center justify-start gap-2 p-2">
+          <div className="flex flex-col space-y-1 leading-none">
+            <p className="font-medium">{user.user_metadata?.full_name || user.email?.split('@')[0]}</p>
+            <p className="w-[200px] truncate text-sm text-muted-foreground">
+              {user.email}
+            </p>
           </div>
-        </DropdownMenuLabel>
+        </div>
         <DropdownMenuSeparator />
-        
-        <DropdownMenuItem onClick={toggleTheme} className="cursor-pointer">
-          {theme === "dark" ? (
-            <Sun className="h-4 w-4 mr-2" />
-          ) : (
-            <Moon className="h-4 w-4 mr-2" />
-          )}
-          {theme === "dark" ? "Light Mode" : "Dark Mode"}
-        </DropdownMenuItem>
-        
-        <DropdownMenuItem onClick={handleBillingClick} className="cursor-pointer">
-          <DollarSign className="h-4 w-4 mr-2" />
-          Billing
-        </DropdownMenuItem>
-        
         <DropdownMenuItem onClick={handleSettingsClick} className="cursor-pointer">
-          <User className="h-4 w-4 mr-2" />
-          Settings
+          <Settings className="mr-2 h-4 w-4" />
+          <span>Settings</span>
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer text-red-600 focus:text-red-600">
+          <LogOut className="mr-2 h-4 w-4" />
+          <span>Sign out</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );
-}
+};
+
+export default UserSettingsDropdown;
