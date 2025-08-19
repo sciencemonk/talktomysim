@@ -40,7 +40,7 @@ const ThinkingPartnersDashboard = () => {
   };
 
   const handleCopyShareableLink = (agentId: string) => {
-    const shareableLink = `${window.location.origin}/tutors/${agentId}`;
+    const shareableLink = `${window.location.origin}/tutors/${agentId}/chat`;
     navigator.clipboard.writeText(shareableLink).then(() => {
       toast({
         title: "Link copied!",

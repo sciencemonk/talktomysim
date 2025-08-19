@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Plus, Users, MessageSquare, TrendingUp, BookOpen, Brain, GraduationCap, Target, Play, Settings } from "lucide-react";
+import { Plus, Users, MessageSquare, TrendingUp, BookOpen, Brain, GraduationCap, Target, Play, Settings, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -78,6 +78,35 @@ const ParentDashboard = () => {
     const sentences = text.split(/[.!?]+/);
     if (sentences.length <= 2) return text;
     return sentences.slice(0, 2).join('. ') + (sentences[0] && sentences[1] ? '...' : '');
+  };
+
+  const formatUsageStats = (interactions: number, studentsHelped: number) => {
+    if (interactions === 0 && studentsHelped === 0) {
+      return "No activity yet";
+    }
+    
+    const parts = [];
+    if (interactions > 0) {
+      parts.push(`${interactions} conversation${interactions !== 1 ? 's' : ''}`);
+    }
+    if (studentsHelped > 0) {
+      parts.push(`${studentsHelped} child${studentsHelped !== 1 ? 'ren' : ''} helped`);
+    }
+    
+    return parts.join(' • ');
+  };
+
+  const getLastActivityText = (createdAt: string, updatedAt?: string) => {
+    const lastUpdate = updatedAt || createdAt;
+    const date = new Date(lastUpdate);
+    const now = new Date();
+    const diffInDays = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24));
+    
+    if (diffInDays === 0) return "Active today";
+    if (diffInDays === 1) return "Active yesterday";
+    if (diffInDays < 7) return `Active ${diffInDays} days ago`;
+    if (diffInDays < 30) return `Active ${Math.floor(diffInDays / 7)} week${Math.floor(diffInDays / 7) !== 1 ? 's' : ''} ago`;
+    return `Active ${Math.floor(diffInDays / 30)} month${Math.floor(diffInDays / 30) !== 1 ? 's' : ''} ago`;
   };
 
   const totalChildrenHelped = agents.reduce((sum, agent) => sum + (agent.studentsSaved || 0), 0);
@@ -228,14 +257,20 @@ const ParentDashboard = () => {
                       </div>
                     )}
                     
-                    <div className="grid grid-cols-2 gap-3 text-sm">
-                      <div className="text-center p-2 bg-bgMuted rounded-lg">
-                        <p className="font-medium text-fg text-sm">{agent.studentsSaved || 0}</p>
-                        <p className="text-fgMuted text-xs">Children</p>
+                    {/* Usage Summary */}
+                    <div className="p-3 bg-blue-50 rounded-xl border border-blue-200/50">
+                      <div className="flex items-center gap-2 mb-1">
+                        <MessageSquare className="h-3 w-3 text-blue-600" />
+                        <span className="text-xs font-medium text-blue-700">Usage Summary</span>
                       </div>
-                      <div className="text-center p-2 bg-bgMuted rounded-lg">
-                        <p className="font-medium text-fg text-sm">{agent.interactions || 0}</p>
-                        <p className="text-fgMuted text-xs">Interactions</p>
+                      <p className="text-xs text-blue-700/80 leading-relaxed">
+                        {formatUsageStats(agent.interactions || 0, agent.studentsSaved || 0)}
+                      </p>
+                      <div className="flex items-center gap-1 mt-1">
+                        <Clock className="h-3 w-3 text-blue-600/60" />
+                        <span className="text-xs text-blue-600/60">
+                          {getLastActivityText(agent.createdAt, agent.updatedAt)}
+                        </span>
                       </div>
                     </div>
                     
