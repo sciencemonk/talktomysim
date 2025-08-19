@@ -35,7 +35,7 @@ const WordHighlighter: React.FC<{ text: string; isComplete: boolean }> = ({ text
     // Start highlighting from the beginning when text changes
     setHighlightedWordIndex(0);
     
-    // Create a more realistic speech timing - approximately 2-3 words per second
+    // Much slower timing to match natural speech - approximately 150 words per minute
     const interval = setInterval(() => {
       setHighlightedWordIndex(prev => {
         const nextIndex = prev + 1;
@@ -45,7 +45,7 @@ const WordHighlighter: React.FC<{ text: string; isComplete: boolean }> = ({ text
         }
         return nextIndex;
       });
-    }, 800); // 800ms per word (about 75 words per minute, natural speech pace)
+    }, 400); // 400ms per word (about 150 words per minute, slower natural speech pace)
     
     return () => clearInterval(interval);
   }, [text, isComplete, words.length]);
