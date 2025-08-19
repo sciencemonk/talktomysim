@@ -2,9 +2,10 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { AuthProvider } from './hooks/useAuth';
+import { ThemeProvider } from './hooks/useTheme';
 import Landing from './pages/Landing';
 import PublicTutorDetail from './pages/PublicTutorDetail';
-import TeacherDashboard from './pages/TeacherDashboard';
+import SimpleTeacherDashboard from './pages/SimpleTeacherDashboard';
 import Marketplace from './pages/Marketplace';
 import ProfessionalDevelopment from './pages/ProfessionalDevelopment';
 import AgentDetails from './pages/AgentDetails';
@@ -13,64 +14,66 @@ import Settings from './pages/Settings';
 import Billing from './pages/Billing';
 import NotFound from './pages/NotFound';
 import StudentChat from './pages/StudentChat';
-import DashboardLayout from './layouts/DashboardLayout';
+import SimpleDashboardLayout from './layouts/SimpleDashboardLayout';
 
 function App() {
   return (
-    <AuthProvider>
-      <Router>
-        <div className="min-h-screen bg-background">
-          <Routes>
-            {/* Public routes */}
-            <Route path="/" element={<Landing />} />
-            <Route path="/tutors/:agentId" element={<PublicTutorDetail />} />
-            
-            {/* Student chat route - public */}
-            <Route path="/tutors/:agentId/chat" element={<StudentChat />} />
-            
-            {/* Protected routes with layout */}
-            <Route path="/dashboard" element={
-              <DashboardLayout>
-                <TeacherDashboard />
-              </DashboardLayout>
-            } />
-            <Route path="/marketplace" element={
-              <DashboardLayout>
-                <Marketplace />
-              </DashboardLayout>
-            } />
-            <Route path="/professional-development" element={
-              <DashboardLayout>
-                <ProfessionalDevelopment />
-              </DashboardLayout>
-            } />
-            <Route path="/agents/:agentId" element={
-              <DashboardLayout>
-                <AgentDetails />
-              </DashboardLayout>
-            } />
-            <Route path="/create-tutor" element={
-              <DashboardLayout>
-                <AgentCreate />
-              </DashboardLayout>
-            } />
-            <Route path="/settings" element={
-              <DashboardLayout>
-                <Settings />
-              </DashboardLayout>
-            } />
-            <Route path="/billing" element={
-              <DashboardLayout>
-                <Billing />
-              </DashboardLayout>
-            } />
-            
-            {/* Catch all route */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </div>
-      </Router>
-    </AuthProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        <Router>
+          <div className="min-h-screen bg-bg font-system">
+            <Routes>
+              {/* Public routes */}
+              <Route path="/" element={<Landing />} />
+              <Route path="/tutors/:agentId" element={<PublicTutorDetail />} />
+              
+              {/* Student chat route - public */}
+              <Route path="/tutors/:agentId/chat" element={<StudentChat />} />
+              
+              {/* Protected routes with simplified layout */}
+              <Route path="/dashboard" element={
+                <SimpleDashboardLayout>
+                  <SimpleTeacherDashboard />
+                </SimpleDashboardLayout>
+              } />
+              <Route path="/marketplace" element={
+                <SimpleDashboardLayout>
+                  <Marketplace />
+                </SimpleDashboardLayout>
+              } />
+              <Route path="/professional-development" element={
+                <SimpleDashboardLayout>
+                  <ProfessionalDevelopment />
+                </SimpleDashboardLayout>
+              } />
+              <Route path="/agents/:agentId" element={
+                <SimpleDashboardLayout>
+                  <AgentDetails />
+                </SimpleDashboardLayout>
+              } />
+              <Route path="/create-tutor" element={
+                <SimpleDashboardLayout>
+                  <AgentCreate />
+                </SimpleDashboardLayout>
+              } />
+              <Route path="/settings" element={
+                <SimpleDashboardLayout>
+                  <Settings />
+                </SimpleDashboardLayout>
+              } />
+              <Route path="/billing" element={
+                <SimpleDashboardLayout>
+                  <Billing />
+                </SimpleDashboardLayout>
+              } />
+              
+              {/* Catch all route */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </div>
+        </Router>
+      </AuthProvider>
+    </ThemeProvider>
   );
 }
 
