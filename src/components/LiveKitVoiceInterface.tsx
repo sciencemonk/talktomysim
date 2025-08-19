@@ -1,3 +1,4 @@
+
 import React, { useEffect, useRef, useState } from 'react';
 import { useToast } from '@/components/ui/use-toast';
 import { AgentType } from '@/types/agent';
@@ -41,8 +42,8 @@ const LiveKitVoiceInterface: React.FC<LiveKitVoiceInterfaceProps> = ({
   const isFirstAiResponseRef = useRef(true);
   // Track if AI audio is currently playing (not just generating)
   const isAiAudioPlayingRef = useRef(false);
-  // Track if we're expecting audio to play
-  const isExpectingAudioRef = useRef(false);
+  // Track if we received any audio data in this response
+  const hasReceivedAudioInResponseRef = useRef(false);
 
   const muteUserMicrophone = () => {
     if (audioStreamRef.current) {
@@ -211,7 +212,6 @@ The student should be talking at least 50% of the time about ${learningObjective
           audioElementRef.current.addEventListener('play', () => {
             console.log('🔊 AI audio started playing');
             isAiAudioPlayingRef.current = true;
-            isExpectingAudioRef.current = false; // Audio is now playing
             muteUserMicrophone();
             onSpeakingChange(true);
           });
@@ -262,6 +262,7 @@ The student should be talking at least 50% of the time about ${learningObjective
             if (!isAccumulatingAiResponseRef.current) {
               console.log('Starting new AI message');
               isAccumulatingAiResponseRef.current = true;
+              hasReceivedAudioInResponseRef.current = false; // Reset for new response
               onAiMessageStart();
             }
             onAiTextDelta(event.delta);
@@ -281,24 +282,27 @@ The student should be talking at least 50% of the time about ${learningObjective
           
           // Track when audio output starts
           else if (event.type === 'response.audio.delta') {
-            if (!isExpectingAudioRef.current) {
-              console.log('🎵 AI audio generation started - expecting audio playback');
-              isExpectingAudioRef.current = true;
-              // Don't mute here - wait for actual audio playback
+            if (!hasReceivedAudioInResponseRef.current) {
+              console.log('🎵 AI audio generation started');
+              hasReceivedAudioInResponseRef.current = true;
             }
           }
           
           // Handle when response is completely done
           else if (event.type === 'response.done') {
             console.log('🏁 AI response completely done');
+            console.log('Has received audio in response:', hasReceivedAudioInResponseRef.current);
+            console.log('Is AI audio currently playing:', isAiAudioPlayingRef.current);
             
-            // If we were expecting audio but it never played, unmute the microphone
-            if (isExpectingAudioRef.current && !isAiAudioPlayingRef.current) {
-              console.log('⚠️ Expected audio but it never played - unmuting microphone');
-              isExpectingAudioRef.current = false;
+            // If no audio was received in this response, or if audio finished playing, unmute microphone
+            if (!hasReceivedAudioInResponseRef.current || !isAiAudioPlayingRef.current) {
+              console.log('✅ Unmuting microphone - response complete and no active audio');
               unmuteUserMicrophone();
               onSpeakingChange(false);
             }
+            
+            // Reset for next response
+            hasReceivedAudioInResponseRef.current = false;
           }
           
           // Handle user transcript events (only process if appropriate conditions are met)
@@ -444,7 +448,7 @@ The student should be talking at least 50% of the time about ${learningObjective
     isAccumulatingAiResponseRef.current = false;
     isFirstAiResponseRef.current = true;
     isAiAudioPlayingRef.current = false;
-    isExpectingAudioRef.current = false;
+    hasReceivedAudioInResponseRef.current = false;
     
     setIsConnected(false);
     setConnectionStatus('disconnected');
