@@ -37,15 +37,13 @@ const App = () => (
             {/* Public routes */}
             <Route path="/" element={<Index />} />
             <Route path="/login" element={<Login />} />
+            
+            {/* Public tutor share links - accessible by non-signed in users */}
             <Route path="/tutors/:agentId" element={<PublicTutorDetail />} />
             <Route path="/tutors/:agentId/chat" element={<StudentChat />} />
             
             {/* Protected dashboard routes - Tutors is now the default home */}
             <Route path="/dashboard" element={<DashboardLayout />}>
-              <Route index element={<AgentsDashboard />} />
-            </Route>
-            
-            <Route path="/tutors" element={<DashboardLayout />}>
               <Route index element={<AgentsDashboard />} />
             </Route>
             
@@ -61,7 +59,7 @@ const App = () => (
               <Route index element={<Billing />} />
             </Route>
             
-            {/* Agents routes - Fixed to use agentId parameter */}
+            {/* Protected agents routes */}
             <Route path="/agents" element={<DashboardLayout />}>
               <Route index element={<AgentsDashboard />} />
             </Route>
