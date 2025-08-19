@@ -68,25 +68,9 @@ const AgentsDashboard = () => {
     return saved === "true";
   });
   
-  const { agents: initialAgents, isLoading, error } = useAgents(filter);
+  const { agents: fetchedAgents, isLoading, error } = useAgents(filter);
   const [agents, setAgents] = useState<AgentType[]>([]);
   const [filteredAgents, setFilteredAgents] = useState<AgentType[]>([]);
-  
-  const newlyCreatedAgent: AgentType = {
-    id: "new123",
-    name: "New Tutor",
-    description: "This tutor was just created and needs configuration to be fully operational.",
-    purpose: "Help students with their learning goals and provide educational support.",
-    status: "inactive",
-    type: "General Tutor",
-    createdAt: "Just now",
-    interactions: 0,
-    channelConfigs: {
-      "web": { enabled: false },
-      "email": { enabled: false },
-      "voice": { enabled: false }
-    }
-  };
   
   const [sortBy, setSortBy] = useState<string>("recent");
   const [filterType, setFilterType] = useState<string>("all");
@@ -94,10 +78,10 @@ const AgentsDashboard = () => {
   const [filterStatus, setFilterStatus] = useState<string>("all");
 
   useEffect(() => {
-    if (initialAgents) {
-      let sorted = [newlyCreatedAgent, ...initialAgents];
+    if (fetchedAgents) {
+      let sorted = [...fetchedAgents];
       
-      sorted = [...sorted].sort((a, b) => {
+      sorted = sorted.sort((a, b) => {
         switch (sortBy) {
           case "oldest":
             return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
@@ -125,9 +109,10 @@ const AgentsDashboard = () => {
         return searchMatches && typeMatches && statusMatches && channelMatches;
       });
 
+      setAgents(fetchedAgents);
       setFilteredAgents(filtered);
     }
-  }, [initialAgents, searchTerm, sortBy, filterType, filterChannel, filterStatus]);
+  }, [fetchedAgents, searchTerm, sortBy, filterType, filterChannel, filterStatus]);
 
   const getFilterTitle = () => {
     switch (filter) {
@@ -202,11 +187,7 @@ const AgentsDashboard = () => {
     e.preventDefault();
     e.stopPropagation();
     
-    if (agentId === "new123") {
-      navigate(`/agents/${agentId}?tab=setup`);
-    } else {
-      navigate(`/agents/${agentId}?tab=settings`);
-    }
+    navigate(`/agents/${agentId}?tab=settings`);
   };
 
   const handleArchiveAgent = (e: React.MouseEvent, agentId: string) => {
@@ -225,11 +206,7 @@ const AgentsDashboard = () => {
     e.preventDefault();
     e.stopPropagation();
     
-    if (agentId === "new123") {
-      navigate(`/agents/${agentId}?tab=setup`);
-    } else {
-      navigate(`/agents/${agentId}`);
-    }
+    navigate(`/agents/${agentId}`);
   };
 
   const handleCopyToClipboard = (text: string, type: string) => {
@@ -350,17 +327,16 @@ const AgentsDashboard = () => {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Functions</SelectItem>
-              <SelectItem value="Customer Service">Customer Service</SelectItem>
-              <SelectItem value="Sales & Marketing">Sales & Marketing</SelectItem>
-              <SelectItem value="Technical Support">Technical Support</SelectItem>
-              <SelectItem value="IT Helpdesk">IT Helpdesk</SelectItem>
-              <SelectItem value="Lead Generation">Lead Generation</SelectItem>
-              <SelectItem value="Appointment Booking">Appointment Booking</SelectItem>
-              <SelectItem value="FAQ & Knowledge Base">FAQ & Knowledge Base</SelectItem>
-              <SelectItem value="Customer Onboarding">Customer Onboarding</SelectItem>
-              <SelectItem value="Billing & Payments">Billing & Payments</SelectItem>
-              <SelectItem value="Feedback Collection">Feedback Collection</SelectItem>
-              <SelectItem value="Other Function">Other Function</SelectItem>
+              <SelectItem value="Math Tutor">Math Tutor</SelectItem>
+              <SelectItem value="Science Tutor">Science Tutor</SelectItem>
+              <SelectItem value="Language Arts Tutor">Language Arts Tutor</SelectItem>
+              <SelectItem value="History Tutor">History Tutor</SelectItem>
+              <SelectItem value="Reading Assistant">Reading Assistant</SelectItem>
+              <SelectItem value="Homework Helper">Homework Helper</SelectItem>
+              <SelectItem value="Study Buddy">Study Buddy</SelectItem>
+              <SelectItem value="Quiz Master">Quiz Master</SelectItem>
+              <SelectItem value="Writing Coach">Writing Coach</SelectItem>
+              <SelectItem value="General Tutor">General Tutor</SelectItem>
             </SelectContent>
           </Select>
 
@@ -386,6 +362,7 @@ const AgentsDashboard = () => {
               <SelectItem value="all">All Status</SelectItem>
               <SelectItem value="active">Active</SelectItem>
               <SelectItem value="inactive">Inactive</SelectItem>
+              <SelectItem value="draft">Draft</SelectItem>
             </SelectContent>
           </Select>
 
@@ -430,25 +407,25 @@ const AgentsDashboard = () => {
                 </div>
                 <h3 className="text-lg font-medium text-foreground dark:text-white">Create New Agent</h3>
                 <p className="text-sm text-muted-foreground dark:text-gray-400 text-center mt-2 max-w-xs">
-                  Create a custom AI agent to help with customer support, sales, or other tasks
+                  Create a custom AI agent to help with teaching and tutoring tasks
                 </p>
               </div>
             </Card>
           </Link>
         
-          {filteredAgents.slice(1).map((agent) => (
+          {filteredAgents.map((agent) => (
             <Link to={`/agents/${agent.id}`} key={agent.id} className="block">
               <Card className="h-full card-hover">
                 <CardHeader className="pb-2">
                   <div className="flex justify-between items-start">
                     <div className="flex items-center gap-3">
                       <Avatar className="h-12 w-12 border border-gray-200 dark:border-gray-800">
-                        <AvatarImage src={`https://api.dicebear.com/7.x/bottts/svg?seed=${agent.id}`} alt={agent.name} />
+                        <AvatarImage src={agent.avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${agent.id}`} alt={agent.name} />
                         <AvatarFallback><UserCircle2 className="h-6 w-6" /></AvatarFallback>
                       </Avatar>
                       <div>
-                        <h3 className="font-medium text-foreground dark:text-white">{getRandomName(agent.id)}</h3>
-                        <p className="text-xs text-muted-foreground dark:text-gray-400">{agent.phone}</p>
+                        <h3 className="font-medium text-foreground dark:text-white">{agent.name}</h3>
+                        <p className="text-xs text-muted-foreground dark:text-gray-400">{agent.phone || 'No phone'}</p>
                       </div>
                     </div>
                     <DropdownMenu>

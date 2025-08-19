@@ -163,7 +163,7 @@ const TeacherDashboard = () => {
               <p className="text-gray-600 dark:text-gray-400 mb-6 max-w-md mx-auto">
                 Get started by creating a personalized AI tutor tailored to your students' needs.
               </p>
-              <Link to="/create-tutor">
+              <Link to="/agents/create">
                 <Button className="bg-blue-600 hover:bg-blue-700 text-white px-6">
                   <Plus className="h-4 w-4 mr-2" />
                   Create Your First Tutor
@@ -174,7 +174,7 @@ const TeacherDashboard = () => {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {/* Create New Tutor Card */}
-            <Link to="/create-tutor">
+            <Link to="/agents/create">
               <Card className="hover:shadow-md transition-all duration-200 cursor-pointer border-2 border-dashed border-blue-200 hover:border-blue-300 dark:border-blue-800 dark:hover:border-blue-700 bg-blue-50/30 hover:bg-blue-50/50 dark:bg-blue-950/20 dark:hover:bg-blue-950/30 h-full min-h-[200px]">
                 <CardContent className="flex flex-col items-center justify-center h-full py-8">
                   <div className="h-10 w-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center mb-3">
