@@ -1,13 +1,10 @@
-import { Link, useLocation } from "react-router-dom";
+
+import { Link, useLocation, Outlet } from "react-router-dom";
 import UserSettingsDropdown from "@/components/UserSettingsDropdown";
 import { NavigationMenu, NavigationMenuContent, NavigationMenuItem, NavigationMenuLink, NavigationMenuList, NavigationMenuTrigger } from "@/components/ui/navigation-menu";
 import ProtectedRoute from "@/components/ProtectedRoute";
 
-interface DashboardLayoutProps {
-  children: React.ReactNode;
-}
-
-const DashboardLayout = ({ children }: DashboardLayoutProps) => {
+const DashboardLayout = () => {
   const location = useLocation();
 
   const isActive = (path: string) => location.pathname === path;
@@ -79,7 +76,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
           </header>
           <div className="flex-1 p-6">
             <div className="max-w-7xl mx-auto">
-              {children}
+              <Outlet />
             </div>
           </div>
         </main>

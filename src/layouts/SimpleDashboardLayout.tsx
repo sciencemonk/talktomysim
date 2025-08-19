@@ -1,16 +1,12 @@
 
-import { ReactNode, useState } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useState } from "react";
+import { useNavigate, useLocation, Outlet } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Plus, MessageSquare, Settings, CreditCard, Menu, X } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 
-interface SimpleDashboardLayoutProps {
-  children: ReactNode;
-}
-
-const SimpleDashboardLayout = ({ children }: SimpleDashboardLayoutProps) => {
+const SimpleDashboardLayout = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const isMobile = useIsMobile();
@@ -115,7 +111,7 @@ const SimpleDashboardLayout = ({ children }: SimpleDashboardLayoutProps) => {
 
       {/* Main content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
-        {children}
+        <Outlet />
       </main>
     </div>
   );
