@@ -19,6 +19,7 @@ import PublicTutorDetail from "./pages/PublicTutorDetail";
 import ProfessionalDevelopment from "./pages/ProfessionalDevelopment";
 import Settings from "./pages/Settings";
 import Billing from "./pages/Billing";
+import ChildProfile from "./pages/ChildProfile";
 import NotFound from "./pages/NotFound";
 
 // Layouts
@@ -47,8 +48,8 @@ const App = () => (
               <Route index element={<AgentsDashboard />} />
             </Route>
             
-            <Route path="/professional-development" element={<DashboardLayout />}>
-              <Route index element={<ProfessionalDevelopment />} />
+            <Route path="/child-profile" element={<DashboardLayout />}>
+              <Route index element={<ChildProfile />} />
             </Route>
             
             <Route path="/settings" element={<DashboardLayout />}>

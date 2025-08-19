@@ -26,7 +26,7 @@ const DashboardLayout = () => {
                   </div>
                   <div>
                     <h1 className="text-xl font-bold text-gray-900">Think With Me</h1>
-                    <p className="text-xs text-gray-500">Thinking Partners for Classrooms</p>
+                    <p className="text-xs text-gray-500">Thinking Partners for Your Child</p>
                   </div>
                 </div>
                 
@@ -40,43 +40,19 @@ const DashboardLayout = () => {
                             isActive('/dashboard') || isActive('/tutors') || isActive('/agents') ? 'bg-accent text-accent-foreground' : 'text-gray-700'
                           }`}
                         >
-                          Tutors
+                          Thinking Partners
                         </Link>
                       </NavigationMenuLink>
                     </NavigationMenuItem>
                     <NavigationMenuItem>
                       <NavigationMenuLink asChild>
                         <Link 
-                          to="/professional-development" 
+                          to="/child-profile" 
                           className={`inline-flex h-10 w-max items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 ${
-                            isActive('/professional-development') ? 'bg-accent text-accent-foreground' : 'text-gray-700'
+                            isActive('/child-profile') ? 'bg-accent text-accent-foreground' : 'text-gray-700'
                           }`}
                         >
-                          Professional Development
-                        </Link>
-                      </NavigationMenuLink>
-                    </NavigationMenuItem>
-                    <NavigationMenuItem>
-                      <NavigationMenuLink asChild>
-                        <Link 
-                          to="/settings" 
-                          className={`inline-flex h-10 w-max items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 ${
-                            isActive('/settings') ? 'bg-accent text-accent-foreground' : 'text-gray-700'
-                          }`}
-                        >
-                          Settings
-                        </Link>
-                      </NavigationMenuLink>
-                    </NavigationMenuItem>
-                    <NavigationMenuItem>
-                      <NavigationMenuLink asChild>
-                        <Link 
-                          to="/billing" 
-                          className={`inline-flex h-10 w-max items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 ${
-                            isActive('/billing') ? 'bg-accent text-accent-foreground' : 'text-gray-700'
-                          }`}
-                        >
-                          Billing
+                          Child Profile
                         </Link>
                       </NavigationMenuLink>
                     </NavigationMenuItem>
@@ -100,7 +76,7 @@ const DashboardLayout = () => {
                 © 2024 Think With Me. All rights reserved.
               </div>
               <div className="text-sm text-gray-500">
-                Thinking Partners for Classrooms
+                Thinking Partners for Your Child
               </div>
             </div>
           </div>

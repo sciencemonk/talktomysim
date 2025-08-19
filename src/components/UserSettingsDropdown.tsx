@@ -1,5 +1,5 @@
 
-import { LogOut, User, Settings } from "lucide-react";
+import { LogOut, User, Settings, CreditCard } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -51,6 +51,10 @@ const UserSettingsDropdown = () => {
         <DropdownMenuItem onClick={() => navigate('/settings')}>
           <Settings className="mr-2 h-4 w-4" />
           Settings
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => navigate('/billing')}>
+          <CreditCard className="mr-2 h-4 w-4" />
+          Billing
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={handleSignOut}>
