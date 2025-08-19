@@ -1,4 +1,3 @@
-
 import { useParams, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
@@ -20,8 +19,10 @@ const StudentChat = () => {
   
   const { 
     messages, 
-    addUserMessage, 
-    addAiMessage, 
+    addUserMessage,
+    startAiMessage,
+    addAiTextDelta,
+    completeAiMessage,
     resetMessages 
   } = useSimpleMessageAccumulator();
 
@@ -39,16 +40,24 @@ const StudentChat = () => {
     resetMessages();
   };
 
-  const handleTranscriptUpdate = (transcript: string, isFromUser: boolean) => {
-    console.log('Received complete transcript:', { transcript, isFromUser });
-    
-    if (transcript.trim()) {
-      if (isFromUser) {
-        addUserMessage(transcript);
-      } else {
-        addAiMessage(transcript);
-      }
-    }
+  const handleUserMessage = (message: string) => {
+    console.log('Received user message:', message);
+    addUserMessage(message);
+  };
+
+  const handleAiMessageStart = () => {
+    console.log('AI message started');
+    startAiMessage();
+  };
+
+  const handleAiTextDelta = (delta: string) => {
+    console.log('AI text delta:', delta);
+    addAiTextDelta(delta);
+  };
+
+  const handleAiMessageComplete = () => {
+    console.log('AI message completed');
+    completeAiMessage();
   };
 
   const handleSpeakingChange = (speaking: boolean) => {
@@ -217,7 +226,10 @@ const StudentChat = () => {
       {agent && hasStarted && (
         <VoiceInterface 
           agent={agent}
-          onTranscriptUpdate={handleTranscriptUpdate}
+          onUserMessage={handleUserMessage}
+          onAiMessageStart={handleAiMessageStart}
+          onAiTextDelta={handleAiTextDelta}
+          onAiMessageComplete={handleAiMessageComplete}
           onSpeakingChange={handleSpeakingChange}
           onConnectionChange={handleConnectionChange}
           onConnectionStatusChange={handleConnectionStatusChange}

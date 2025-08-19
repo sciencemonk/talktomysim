@@ -13,6 +13,7 @@ export const useSimpleMessageAccumulator = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [currentUserMessage, setCurrentUserMessage] = useState('');
   const [currentAiMessage, setCurrentAiMessage] = useState('');
+  const [isAiSpeaking, setIsAiSpeaking] = useState(false);
 
   const addUserMessage = useCallback((content: string) => {
     console.log('Adding complete user message:', content);
@@ -28,47 +29,39 @@ export const useSimpleMessageAccumulator = () => {
     }
   }, []);
 
-  const addAiMessage = useCallback((content: string) => {
-    console.log('Adding complete AI message:', content);
-    if (content.trim()) {
+  const startAiMessage = useCallback(() => {
+    console.log('Starting AI message stream');
+    setCurrentAiMessage('');
+    setIsAiSpeaking(true);
+  }, []);
+
+  const addAiTextDelta = useCallback((delta: string) => {
+    console.log('Adding AI text delta:', delta);
+    setCurrentAiMessage(prev => prev + delta);
+  }, []);
+
+  const completeAiMessage = useCallback(() => {
+    console.log('Completing AI message:', currentAiMessage);
+    if (currentAiMessage.trim()) {
       const newMessage: Message = {
         id: Date.now().toString() + '_ai',
         role: 'system',
-        content: content.trim(),
+        content: currentAiMessage.trim(),
         timestamp: new Date(),
         isComplete: true
       };
       setMessages(prev => [...prev, newMessage]);
     }
-  }, []);
-
-  const updateCurrentUserMessage = useCallback((fragment: string) => {
-    setCurrentUserMessage(prev => prev + fragment);
-  }, []);
-
-  const updateCurrentAiMessage = useCallback((fragment: string) => {
-    setCurrentAiMessage(prev => prev + fragment);
-  }, []);
-
-  const completeCurrentUserMessage = useCallback(() => {
-    if (currentUserMessage.trim()) {
-      addUserMessage(currentUserMessage);
-      setCurrentUserMessage('');
-    }
-  }, [currentUserMessage, addUserMessage]);
-
-  const completeCurrentAiMessage = useCallback(() => {
-    if (currentAiMessage.trim()) {
-      addAiMessage(currentAiMessage);
-      setCurrentAiMessage('');
-    }
-  }, [currentAiMessage, addAiMessage]);
+    setCurrentAiMessage('');
+    setIsAiSpeaking(false);
+  }, [currentAiMessage]);
 
   const resetMessages = useCallback(() => {
     console.log('Resetting all messages');
     setMessages([]);
     setCurrentUserMessage('');
     setCurrentAiMessage('');
+    setIsAiSpeaking(false);
   }, []);
 
   // Get all messages including current partial ones
@@ -85,7 +78,7 @@ export const useSimpleMessageAccumulator = () => {
       });
     }
     
-    if (currentAiMessage.trim()) {
+    if (currentAiMessage.trim() && isAiSpeaking) {
       allMessages.push({
         id: 'current_ai',
         role: 'system',
@@ -96,16 +89,14 @@ export const useSimpleMessageAccumulator = () => {
     }
     
     return allMessages;
-  }, [messages, currentUserMessage, currentAiMessage]);
+  }, [messages, currentUserMessage, currentAiMessage, isAiSpeaking]);
 
   return {
     messages: getAllMessages(),
     addUserMessage,
-    addAiMessage,
-    updateCurrentUserMessage,
-    updateCurrentAiMessage,
-    completeCurrentUserMessage,
-    completeCurrentAiMessage,
+    startAiMessage,
+    addAiTextDelta,
+    completeAiMessage,
     resetMessages
   };
 };

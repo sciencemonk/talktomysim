@@ -5,7 +5,10 @@ import { AgentType } from '@/types/agent';
 
 interface VoiceInterfaceProps {
   agent: AgentType;
-  onTranscriptUpdate: (transcript: string, isFromUser: boolean) => void;
+  onUserMessage: (message: string) => void;
+  onAiMessageStart: () => void;
+  onAiTextDelta: (delta: string) => void;
+  onAiMessageComplete: () => void;
   onSpeakingChange: (speaking: boolean) => void;
   onConnectionChange?: (connected: boolean) => void;
   onConnectionStatusChange?: (status: string) => void;

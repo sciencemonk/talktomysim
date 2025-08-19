@@ -5,7 +5,10 @@ import { supabase } from '@/integrations/supabase/client';
 
 interface LiveKitVoiceInterfaceProps {
   agent: AgentType;
-  onTranscriptUpdate: (transcript: string, isFromUser: boolean) => void;
+  onUserMessage: (message: string) => void;
+  onAiMessageStart: () => void;
+  onAiTextDelta: (delta: string) => void;
+  onAiMessageComplete: () => void;
   onSpeakingChange: (speaking: boolean) => void;
   onConnectionChange?: (connected: boolean) => void;
   onConnectionStatusChange?: (status: string) => void;
@@ -13,8 +16,11 @@ interface LiveKitVoiceInterfaceProps {
 }
 
 const LiveKitVoiceInterface: React.FC<LiveKitVoiceInterfaceProps> = ({ 
-  agent, 
-  onTranscriptUpdate, 
+  agent,
+  onUserMessage,
+  onAiMessageStart,
+  onAiTextDelta,
+  onAiMessageComplete,
   onSpeakingChange,
   onConnectionChange,
   onConnectionStatusChange,
@@ -28,9 +34,8 @@ const LiveKitVoiceInterface: React.FC<LiveKitVoiceInterfaceProps> = ({
   const dcRef = useRef<RTCDataChannel | null>(null);
   const audioElementRef = useRef<HTMLAudioElement | null>(null);
 
-  // Track accumulated transcripts
-  const currentUserTranscriptRef = useRef('');
-  const currentAITranscriptRef = useRef('');
+  // Track if we're currently accumulating an AI response
+  const isAccumulatingAiResponseRef = useRef(false);
 
   const createSystemInstructions = () => {
     const getAgeAppropriateLanguage = () => {
@@ -209,38 +214,41 @@ The student should be talking at least 50% of the time about ${learningObjective
           const event = JSON.parse(e.data);
           console.log("Received event:", event.type, event);
           
-          // Handle AI transcript events - accumulate deltas
+          // Handle AI transcript events - send deltas as they arrive
           if (event.type === 'response.audio_transcript.delta') {
             console.log('AI transcript delta:', event.delta);
-            currentAITranscriptRef.current += event.delta;
-          } else if (event.type === 'response.audio_transcript.done') {
-            console.log('AI transcript complete:', currentAITranscriptRef.current);
-            // Send the complete AI message
-            if (currentAITranscriptRef.current.trim()) {
-              onTranscriptUpdate(currentAITranscriptRef.current.trim(), false);
+            if (!isAccumulatingAiResponseRef.current) {
+              console.log('Starting new AI message');
+              isAccumulatingAiResponseRef.current = true;
+              onAiMessageStart();
             }
-            currentAITranscriptRef.current = ''; // Reset for next message
+            onAiTextDelta(event.delta);
+          } else if (event.type === 'response.audio_transcript.done') {
+            console.log('AI transcript complete');
+            if (isAccumulatingAiResponseRef.current) {
+              onAiMessageComplete();
+              isAccumulatingAiResponseRef.current = false;
+            }
           }
           
           // Handle user transcript events
           else if (event.type === 'conversation.item.input_audio_transcription.completed') {
             console.log('User transcript completed:', event.transcript);
-            // Send the complete user transcript
             if (event.transcript.trim()) {
-              onTranscriptUpdate(event.transcript.trim(), true);
+              onUserMessage(event.transcript.trim());
             }
           }
           
           // Handle speaking state changes
           else if (event.type === 'input_audio_buffer.speech_started') {
             console.log('User started speaking');
-            onSpeakingChange(false); // AI stops speaking when user starts
+            onSpeakingChange(false);
           } else if (event.type === 'input_audio_buffer.speech_stopped') {
             console.log('User stopped speaking');
           } else if (event.type === 'response.audio.delta') {
-            onSpeakingChange(true); // AI is speaking
+            onSpeakingChange(true);
           } else if (event.type === 'response.audio.done') {
-            onSpeakingChange(false); // AI finished speaking
+            onSpeakingChange(false);
           }
           
           // Handle session events
@@ -284,7 +292,6 @@ The student should be talking at least 50% of the time about ${learningObjective
         console.log('Sending session configuration:', sessionConfig);
         dcRef.current?.send(JSON.stringify(sessionConfig));
         
-        // Send welcome message after a short delay
         setTimeout(() => {
           sendWelcomeMessage();
         }, 1000);
@@ -346,9 +353,7 @@ The student should be talking at least 50% of the time about ${learningObjective
       audioElementRef.current.srcObject = null;
     }
     
-    // Reset transcript refs
-    currentUserTranscriptRef.current = '';
-    currentAITranscriptRef.current = '';
+    isAccumulatingAiResponseRef.current = false;
     
     setIsConnected(false);
     setConnectionStatus('disconnected');
@@ -361,7 +366,7 @@ The student should be talking at least 50% of the time about ${learningObjective
     if (autoStart && !isConnected) {
       const timer = setTimeout(() => {
         connectToRealtime();
-      }, 1000); // Small delay to let UI render
+      }, 1000);
       
       return () => clearTimeout(timer);
     }
@@ -373,7 +378,6 @@ The student should be talking at least 50% of the time about ${learningObjective
     };
   }, []);
 
-  // This component now runs invisibly in the background
   return null;
 };
 
