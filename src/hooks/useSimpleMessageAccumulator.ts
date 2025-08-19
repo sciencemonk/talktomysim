@@ -75,11 +75,11 @@ export const useSimpleMessageAccumulator = () => {
     setIsAiSpeaking(false);
   }, []);
 
-  // Get all messages including current partial ones
+  // Get all messages including current partial ones - ALWAYS show completed messages
   const getAllMessages = useCallback((): Message[] => {
-    const allMessages = [...messages];
+    const allMessages = [...messages]; // Always include all completed messages
     
-    // Add current AI message if it has content and we're actively streaming
+    // Add current AI message ONLY if it has content and we're actively streaming
     if (currentAiMessage.trim() && isAiSpeaking) {
       allMessages.push({
         id: 'current_ai',
@@ -90,10 +90,11 @@ export const useSimpleMessageAccumulator = () => {
       });
     }
     
-    console.log('getAllMessages returning:', allMessages.length, 'messages');
-    console.log('Permanent messages:', messages.length);
-    console.log('Current AI message length:', currentAiMessage.length);
-    console.log('Is AI speaking:', isAiSpeaking);
+    console.log('getAllMessages returning:', allMessages.length, 'total messages');
+    console.log('Permanent completed messages:', messages.length);
+    console.log('Current streaming AI message length:', currentAiMessage.length);
+    console.log('Is AI currently speaking:', isAiSpeaking);
+    console.log('All messages content:', allMessages.map(m => ({ role: m.role, content: m.content.substring(0, 50) + '...', isComplete: m.isComplete })));
     return allMessages;
   }, [messages, currentAiMessage, isAiSpeaking]);
 

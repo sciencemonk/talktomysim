@@ -36,6 +36,7 @@ const LiveKitVoiceInterface: React.FC<LiveKitVoiceInterfaceProps> = ({
 
   // Track if we're currently accumulating an AI response
   const isAccumulatingAiResponseRef = useRef(false);
+  const hasTriggeredWelcomeRef = useRef(false);
 
   const createSystemInstructions = () => {
     const getAgeAppropriateLanguage = () => {
@@ -153,12 +154,13 @@ The student should be talking at least 50% of the time about ${learningObjective
   };
 
   const sendWelcomeMessage = () => {
-    if (!dcRef.current || dcRef.current.readyState !== 'open') {
-      console.log('Data channel not ready for welcome message');
+    if (!dcRef.current || dcRef.current.readyState !== 'open' || hasTriggeredWelcomeRef.current) {
+      console.log('Data channel not ready for welcome message or already triggered');
       return;
     }
 
     console.log('Triggering initial welcome response from AI');
+    hasTriggeredWelcomeRef.current = true;
     dcRef.current.send(JSON.stringify({ type: 'response.create' }));
   };
 
@@ -291,10 +293,6 @@ The student should be talking at least 50% of the time about ${learningObjective
         
         console.log('Sending session configuration:', sessionConfig);
         dcRef.current?.send(JSON.stringify(sessionConfig));
-        
-        setTimeout(() => {
-          sendWelcomeMessage();
-        }, 1000);
       });
 
       const offer = await pcRef.current.createOffer();
