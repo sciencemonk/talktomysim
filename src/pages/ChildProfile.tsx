@@ -1,8 +1,6 @@
 
-import { useState } from "react";
-import { User, Save, ArrowLeft, Baby, MapPin, Heart, Calendar, Smile } from "lucide-react";
-import { Link } from "react-router-dom";
-import { Button } from "@/components/ui/button";
+import { useState, useEffect } from "react";
+import { User, Baby, MapPin, Heart, Calendar, Smile } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -25,13 +23,6 @@ const ChildProfile = () => {
     goals: ""
   });
 
-  const handleSave = () => {
-    toast({
-      title: "Profile saved",
-      description: "Your child's profile has been updated successfully.",
-    });
-  };
-
   const updateProfile = (field: string, value: string) => {
     setProfile(prev => ({
       ...prev,
@@ -39,25 +30,24 @@ const ChildProfile = () => {
     }));
   };
 
+  // Auto-save functionality
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      // Only show toast if there's actual content to save
+      const hasContent = Object.values(profile).some(value => value.trim() !== "");
+      if (hasContent) {
+        toast({
+          title: "Profile saved",
+          description: "Your child's profile has been updated automatically.",
+        });
+      }
+    }, 1000); // Auto-save after 1 second of inactivity
+
+    return () => clearTimeout(timer);
+  }, [profile, toast]);
+
   return (
     <div className="container mx-auto p-6 space-y-8 max-w-4xl">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Child Profile</h1>
-          <p className="text-muted-foreground">Help us personalize your child's learning experience</p>
-          <Link to="/dashboard" className="mt-4 inline-block">
-            <Button variant="ghost" size="sm" className="gap-2">
-              <ArrowLeft className="h-4 w-4" />
-              Back to Dashboard
-            </Button>
-          </Link>
-        </div>
-        <Button onClick={handleSave} className="gap-2">
-          <Save className="h-4 w-4" />
-          Save Profile
-        </Button>
-      </div>
-
       {/* Basic Information */}
       <Card>
         <CardHeader>
