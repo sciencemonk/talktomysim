@@ -1,532 +1,289 @@
-import { useEffect, useState } from "react";
-import { Link, useSearchParams, useNavigate } from "react-router-dom";
-import { Bot, Search, CircleSlash, Loader2, UserCircle2, MoreVertical, Power, Edit, Eye, Archive, AlertCircle, Calendar, Phone, Mail, Copy, Sparkles, PlusCircle } from "lucide-react";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAgents } from "@/hooks/useAgents";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Separator } from "@/components/ui/separator";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { useToast } from "@/components/ui/use-toast";
 import { Badge } from "@/components/ui/badge";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { 
   DropdownMenu, 
   DropdownMenuContent, 
   DropdownMenuItem, 
-  DropdownMenuTrigger 
+  DropdownMenuTrigger,
+  DropdownMenuSeparator
 } from "@/components/ui/dropdown-menu";
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Skeleton } from "@/components/ui/skeleton";
 import { 
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle
-} from "@/components/ui/alert-dialog";
-import { AgentType, AgentStatus, AgentChannelConfig } from "@/types/agent";
-import { useAgents } from "@/hooks/useAgents";
-import { AgentToggle } from "@/components/AgentToggle";
-import { AgentChannels } from "@/components/AgentChannels";
-import { AgentStats } from "@/components/AgentStats";
-import { ThemeToggle } from "@/components/ThemeToggle";
-
-const randomNames = ["Aria", "Mike", "Yuki", "Misty", "Nova", "Zephyr", "Echo", "Luna", "Orion", "Iris"];
-
-const getRandomName = (id: string) => {
-  const lastChar = id.charAt(id.length - 1);
-  const index = parseInt(lastChar, 36) % randomNames.length;
-  return randomNames[index];
-};
-
-const getAgentAVMScore = (id: string): number => {
-  const charSum = id.split('').reduce((sum, char) => sum + char.charCodeAt(0), 0);
-  const baseScore = 1 + (charSum % 9);
-  const decimalPart = ((charSum * 13) % 100) / 100;
-  return parseFloat((baseScore + decimalPart).toFixed(2));
-};
+  Plus, 
+  Search, 
+  Filter, 
+  MoreVertical, 
+  Bot, 
+  Users, 
+  TrendingUp, 
+  Settings,
+  Share2,
+  Eye,
+  ExternalLink
+} from "lucide-react";
+import { AgentType } from "@/types/agent";
+import { ShareButton } from "@/components/ShareButton";
 
 const AgentsDashboard = () => {
-  const [searchParams] = useSearchParams();
-  const [searchTerm, setSearchTerm] = useState("");
-  const filter = searchParams.get("filter") || "all-agents";
-  const { toast } = useToast();
   const navigate = useNavigate();
-  
-  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
-  const [agentToDeactivate, setAgentToDeactivate] = useState<string | null>(null);
-  const [skipConfirmation, setSkipConfirmation] = useState(() => {
-    const saved = localStorage.getItem("skipAgentDeactivationConfirmation");
-    return saved === "true";
-  });
-  
-  const { agents: fetchedAgents, isLoading, error } = useAgents(filter);
-  const [agents, setAgents] = useState<AgentType[]>([]);
-  const [filteredAgents, setFilteredAgents] = useState<AgentType[]>([]);
-  
-  const [sortBy, setSortBy] = useState<string>("recent");
-  const [filterType, setFilterType] = useState<string>("all");
-  const [filterChannel, setFilterChannel] = useState<string>("all");
+  const { agents, isLoading, error } = useAgents();
+  const [searchQuery, setSearchQuery] = useState("");
   const [filterStatus, setFilterStatus] = useState<string>("all");
 
-  useEffect(() => {
-    if (fetchedAgents) {
-      let sorted = [...fetchedAgents];
-      
-      sorted = sorted.sort((a, b) => {
-        switch (sortBy) {
-          case "oldest":
-            return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
-          case "most-used":
-            return (b.interactions || 0) - (a.interactions || 0);
-          case "less-used":
-            return (a.interactions || 0) - (b.interactions || 0);
-          case "recent":
-          default:
-            return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-        }
-      });
+  const filteredAgents = agents?.filter((agent) => {
+    const matchesSearch = agent.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         agent.description?.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesFilter = filterStatus === "all" || agent.status === filterStatus;
+    return matchesSearch && matchesFilter;
+  }) || [];
 
-      let filtered = sorted.filter(agent => {
-        const nameMatch = agent.name.toLowerCase().includes(searchTerm.toLowerCase());
-        const purposeMatch = agent.purpose?.toLowerCase().includes(searchTerm.toLowerCase()) || false;
-        const searchMatches = nameMatch || purposeMatch;
-
-        const typeMatches = filterType === "all" || agent.type === filterType;
-        const statusMatches = filterStatus === "all" || agent.status === filterStatus;
-        const channelMatches = filterChannel === "all" || 
-          (agent.channels && agent.channels.includes(filterChannel)) ||
-          (agent.channelConfigs && agent.channelConfigs[filterChannel]?.enabled);
-
-        return searchMatches && typeMatches && statusMatches && channelMatches;
-      });
-
-      setAgents(fetchedAgents);
-      setFilteredAgents(filtered);
-    }
-  }, [fetchedAgents, searchTerm, sortBy, filterType, filterChannel, filterStatus]);
-
-  const getFilterTitle = () => {
-    switch (filter) {
-      case "my-agents":
-        return "Your Personal Agents";
-      case "team-agents":
-        return "Your Team's Agents";
-      default:
-        return "Your AI Agents";
-    }
+  const handleCreateAgent = () => {
+    navigate("/agents/create");
   };
 
-  const executeToggleStatus = (agentId: string, currentStatus: AgentStatus) => {
-    const newStatus: AgentStatus = currentStatus === "active" ? "inactive" : "active";
-    
-    setAgents(prevAgents => 
-      prevAgents.map(agent => 
-        agent.id === agentId ? { ...agent, status: newStatus } : agent
-      )
-    );
-    
-    setFilteredAgents(prevAgents => 
-      prevAgents.map(agent => 
-        agent.id === agentId ? { ...agent, status: newStatus } : agent
-      )
-    );
-    
-    toast({
-      title: `Agent ${newStatus === "active" ? "Activated" : "Deactivated"}`,
-      description: `The agent is now ${newStatus}.`,
-    });
-    
-    console.log(`Toggling agent ${agentId} to ${newStatus}`);
-  };
-
-  const handleToggleStatus = (e: React.MouseEvent, agentId: string, currentStatus: AgentStatus) => {
-    e.preventDefault();
-    e.stopPropagation();
-    
-    if (currentStatus === "inactive" || skipConfirmation) {
-      executeToggleStatus(agentId, currentStatus);
-      return;
-    }
-    
-    setAgentToDeactivate(agentId);
-    setConfirmDialogOpen(true);
-  };
-  
-  const handleSkipConfirmationChange = (checked: boolean) => {
-    setSkipConfirmation(checked);
-    localStorage.setItem("skipAgentDeactivationConfirmation", checked.toString());
-  };
-  
-  const handleConfirmDeactivation = () => {
-    if (agentToDeactivate) {
-      const agent = agents.find(a => a.id === agentToDeactivate);
-      if (agent) {
-        executeToggleStatus(agentToDeactivate, agent.status);
-      }
-    }
-    
-    setConfirmDialogOpen(false);
-    setAgentToDeactivate(null);
-  };
-
-  const handleCancelDeactivation = () => {
-    setConfirmDialogOpen(false);
-    setAgentToDeactivate(null);
-  };
-
-  const handleEditAgent = (e: React.MouseEvent, agentId: string) => {
-    e.preventDefault();
-    e.stopPropagation();
-    
-    navigate(`/agents/${agentId}?tab=settings`);
-  };
-
-  const handleArchiveAgent = (e: React.MouseEvent, agentId: string) => {
-    e.preventDefault();
-    e.stopPropagation();
-    toast({
-      title: "Archive Agent",
-      description: "The agent has been archived.",
-      variant: "destructive",
-    });
-    setAgents(prevAgents => prevAgents.filter(agent => agent.id !== agentId));
-    setFilteredAgents(prevAgents => prevAgents.filter(agent => agent.id !== agentId));
-  };
-
-  const handleViewDetails = (e: React.MouseEvent, agentId: string) => {
-    e.preventDefault();
-    e.stopPropagation();
-    
+  const handleAgentClick = (agentId: string) => {
     navigate(`/agents/${agentId}`);
   };
 
-  const handleCopyToClipboard = (text: string, type: string) => {
-    navigator.clipboard.writeText(text);
-    toast({
-      title: `${type} Copied`,
-      description: `The ${type.toLowerCase()} has been copied to clipboard.`,
-    });
+  const handleViewPublic = (agentId: string) => {
+    window.open(`/tutors/${agentId}`, '_blank');
   };
 
-  const handlePhoneCall = (phone: string) => {
-    window.location.href = `tel:${phone.replace(/[^\d+]/g, '')}`;
-    toast({
-      title: "Calling Agent",
-      description: `Initiating call to ${phone}`,
-    });
+  const handleChatDemo = (agentId: string) => {
+    window.open(`/tutors/${agentId}/chat`, '_blank');
   };
 
-  const formatCreatedAt = (dateStr: string): string => {
-    if (dateStr === "Just now") return dateStr;
-    
-    try {
-      const date = new Date(dateStr);
-      const now = new Date();
-      const diffTime = Math.abs(now.getTime() - date.getTime());
-      const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-      
-      if (diffDays === 0) {
-        return "Today";
-      } else if (diffDays === 1) {
-        return "Yesterday";
-      } else if (diffDays < 7) {
-        return `${diffDays} days ago`;
-      } else if (diffDays < 30) {
-        return `${Math.floor(diffDays / 7)} weeks ago`;
-      } else {
-        return date.toLocaleDateString();
-      }
-    } catch (e) {
-      return dateStr;
-    }
-  };
+  if (isLoading) {
+    return (
+      <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
+        <div className="flex items-center justify-between space-y-2">
+          <div>
+            <Skeleton className="h-8 w-48 mb-2" />
+            <Skeleton className="h-4 w-64" />
+          </div>
+          <Skeleton className="h-10 w-32" />
+        </div>
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {[...Array(6)].map((_, i) => (
+            <Skeleton key={i} className="h-64" />
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   if (error) {
     return (
-      <div className="flex flex-col items-center justify-center h-[80vh] space-y-4">
-        <CircleSlash className="h-16 w-16 text-red-500 opacity-80" />
-        <h2 className="text-2xl font-semibold text-gray-900">Error Loading Agents</h2>
-        <p className="text-gray-600">Please try again later.</p>
+      <div className="flex-1 flex items-center justify-center">
+        <Card className="w-full max-w-md mx-auto">
+          <CardContent className="pt-6">
+            <div className="flex flex-col items-center text-center space-y-4">
+              <Bot className="h-12 w-12 text-red-500" />
+              <div>
+                <h3 className="font-semibold text-gray-900">Failed to load tutors</h3>
+                <p className="text-sm text-gray-600 mt-1">
+                  {error || "Something went wrong. Please try again."}
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     );
   }
 
   return (
-    <div className="space-y-8 max-w-7xl mx-auto">
-      <AlertDialog open={confirmDialogOpen} onOpenChange={setConfirmDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle className="flex items-center gap-2">
-              <AlertCircle className="h-5 w-5 text-amber-500" />
-              Deactivate Agent?
-            </AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to deactivate this agent? It will no longer respond to user queries.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <div className="flex items-center space-x-2 py-3">
-            <Checkbox
-              id="skipConfirmation"
-              checked={skipConfirmation}
-              onCheckedChange={handleSkipConfirmationChange}
-            />
-            <label
-              htmlFor="skipConfirmation"
-              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-            >
-              Don't ask me again
-            </label>
-          </div>
-          <AlertDialogFooter>
-            <AlertDialogCancel onClick={handleCancelDeactivation}>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleConfirmDeactivation} className="bg-agent-primary">
-              Deactivate
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-
-      <div className="flex justify-between items-start">
+    <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
+      {/* Header */}
+      <div className="flex items-center justify-between space-y-2">
         <div>
-          <h1 className="text-3xl font-semibold text-gray-900 tracking-tight">
-            {getFilterTitle()}
-          </h1>
-          <p className="text-gray-600 mt-1">
-            Create, customize, and manage your intelligent assistants all in one place
+          <h2 className="text-3xl font-bold tracking-tight text-gray-900">My Tutors</h2>
+          <p className="text-gray-600">
+            Create and manage your AI tutoring assistants
           </p>
         </div>
+        <Button 
+          onClick={handleCreateAgent}
+          className="bg-blue-600 hover:bg-blue-700 text-white"
+        >
+          <Plus className="mr-2 h-4 w-4" />
+          Create Tutor
+        </Button>
       </div>
-      
-      <Separator />
-      
-      <div className="flex flex-col md:flex-row gap-4 items-start md:items-center">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
+
+      {/* Search and Filter */}
+      <div className="flex items-center space-x-4">
+        <div className="relative flex-1 max-w-sm">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
           <Input
-            placeholder="Search by name or purpose..."
-            className="pl-10 w-full bg-white border-gray-300 text-gray-900 placeholder-gray-500"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            placeholder="Search tutors..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-10 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
           />
         </div>
-
-        <div className="flex flex-wrap gap-2 items-center">
-          <Select value={filterType} onValueChange={setFilterType}>
-            <SelectTrigger className="w-[180px] bg-white border-gray-300 text-gray-900">
-              <SelectValue placeholder="Bot Function" />
-            </SelectTrigger>
-            <SelectContent className="bg-white border-gray-300">
-              <SelectItem value="all">All Functions</SelectItem>
-              <SelectItem value="Math Tutor">Math Tutor</SelectItem>
-              <SelectItem value="Science Tutor">Science Tutor</SelectItem>
-              <SelectItem value="Language Arts Tutor">Language Arts Tutor</SelectItem>
-              <SelectItem value="History Tutor">History Tutor</SelectItem>
-              <SelectItem value="Reading Assistant">Reading Assistant</SelectItem>
-              <SelectItem value="Homework Helper">Homework Helper</SelectItem>
-              <SelectItem value="Study Buddy">Study Buddy</SelectItem>
-              <SelectItem value="Quiz Master">Quiz Master</SelectItem>
-              <SelectItem value="Writing Coach">Writing Coach</SelectItem>
-              <SelectItem value="General Tutor">General Tutor</SelectItem>
-            </SelectContent>
-          </Select>
-
-          <Select value={filterChannel} onValueChange={setFilterChannel}>
-            <SelectTrigger className="w-[140px] bg-white border-gray-300 text-gray-900">
-              <SelectValue placeholder="Channel" />
-            </SelectTrigger>
-            <SelectContent className="bg-white border-gray-300">
-              <SelectItem value="all">All Channels</SelectItem>
-              <SelectItem value="voice">Voice</SelectItem>
-              <SelectItem value="chat">Chat</SelectItem>
-              <SelectItem value="email">Email</SelectItem>
-              <SelectItem value="whatsapp">WhatsApp</SelectItem>
-              <SelectItem value="sms">SMS</SelectItem>
-            </SelectContent>
-          </Select>
-
-          <Select value={filterStatus} onValueChange={setFilterStatus}>
-            <SelectTrigger className="w-[140px] bg-white border-gray-300 text-gray-900">
-              <SelectValue placeholder="Status" />
-            </SelectTrigger>
-            <SelectContent className="bg-white border-gray-300">
-              <SelectItem value="all">All Status</SelectItem>
-              <SelectItem value="active">Active</SelectItem>
-              <SelectItem value="inactive">Inactive</SelectItem>
-              <SelectItem value="draft">Draft</SelectItem>
-            </SelectContent>
-          </Select>
-
-          <Select value={sortBy} onValueChange={setSortBy}>
-            <SelectTrigger className="w-[140px] bg-white border-gray-300 text-gray-900">
-              <SelectValue placeholder="Sort by" />
-            </SelectTrigger>
-            <SelectContent className="bg-white border-gray-300">
-              <SelectItem value="recent">Most Recent</SelectItem>
-              <SelectItem value="oldest">Oldest First</SelectItem>
-              <SelectItem value="most-used">Most Used</SelectItem>
-              <SelectItem value="less-used">Less Used</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" className="border-gray-300 text-gray-700 hover:bg-gray-50">
+              <Filter className="mr-2 h-4 w-4" />
+              Filter
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="bg-white border-gray-200">
+            <DropdownMenuItem 
+              onClick={() => setFilterStatus("all")}
+              className="text-gray-700 hover:bg-gray-50"
+            >
+              All Status
+            </DropdownMenuItem>
+            <DropdownMenuItem 
+              onClick={() => setFilterStatus("active")}
+              className="text-gray-700 hover:bg-gray-50"
+            >
+              Active
+            </DropdownMenuItem>
+            <DropdownMenuItem 
+              onClick={() => setFilterStatus("draft")}
+              className="text-gray-700 hover:bg-gray-50"
+            >
+              Draft
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
 
-      {isLoading ? (
-        <div className="flex justify-center items-center h-64">
-          <Loader2 className="h-8 w-8 text-blue-600 animate-spin" />
-        </div>
-      ) : filteredAgents.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-16 space-y-4">
-          <Bot className="h-16 w-16 text-gray-500 opacity-80" />
-          <h2 className="text-2xl font-semibold text-gray-900">No Agents Found</h2>
-          <p className="text-gray-600">
-            {searchTerm ? "Try a different search term" : "Create your first agent to get started"}
-          </p>
-          {!searchTerm && (
-            <Link to="/agents/create" className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">
-              Create Your First Agent
-            </Link>
-          )}
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <Link to="/agents/create" className="block">
-            <Card className="h-full hover:shadow-lg transition-shadow border-dashed border-2 border-blue-300 hover:border-blue-500 bg-white">
-              <div className="flex flex-col items-center justify-center h-full py-10">
-                <div className="h-12 w-12 rounded-full bg-blue-100 flex items-center justify-center mb-4">
-                  <PlusCircle className="h-6 w-6 text-blue-600" />
-                </div>
-                <h3 className="text-lg font-medium text-gray-900">Create New Agent</h3>
-                <p className="text-sm text-gray-600 text-center mt-2 max-w-xs">
-                  Create a custom AI agent to help with teaching and tutoring tasks
+      {/* Tutors Grid */}
+      {filteredAgents.length === 0 ? (
+        <Card className="border-gray-200">
+          <CardContent className="pt-6">
+            <div className="flex flex-col items-center text-center space-y-4">
+              <Bot className="h-12 w-12 text-gray-400" />
+              <div>
+                <h3 className="font-semibold text-gray-900">No tutors found</h3>
+                <p className="text-sm text-gray-600 mt-1">
+                  {searchQuery ? "Try adjusting your search criteria" : "Create your first AI tutor to get started"}
                 </p>
               </div>
-            </Card>
-          </Link>
-        
-          {filteredAgents.map((agent) => (
-            <Link to={`/agents/${agent.id}`} key={agent.id} className="block">
-              <Card className="h-full hover:shadow-lg transition-shadow bg-white border-gray-200">
-                <CardHeader className="pb-2">
-                  <div className="flex justify-between items-start">
-                    <div className="flex items-center gap-3">
-                      <Avatar className="h-12 w-12 border border-gray-200">
-                        <AvatarImage src={agent.avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${agent.id}`} alt={agent.name} />
-                        <AvatarFallback className="bg-gray-100"><UserCircle2 className="h-6 w-6 text-gray-600" /></AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <h3 className="font-medium text-gray-900">{agent.name}</h3>
-                        <p className="text-xs text-gray-500">{agent.phone || 'No phone'}</p>
-                      </div>
-                    </div>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild onClick={(e) => e.preventDefault()}>
-                        <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-600 hover:text-gray-900">
-                          <MoreVertical className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" className="w-48 bg-white border-gray-200 z-50">
-                        <DropdownMenuItem onClick={(e) => handleToggleStatus(e, agent.id, agent.status)} className="text-gray-700 hover:bg-gray-50">
-                          <Power className="mr-2 h-4 w-4" />
-                          {agent.status === "active" ? "Deactivate" : "Activate"}
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={(e) => handleEditAgent(e, agent.id)} className="text-gray-700 hover:bg-gray-50">
-                          <Edit className="mr-2 h-4 w-4" />
-                          Edit Agent
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={(e) => handleViewDetails(e, agent.id)} className="text-gray-700 hover:bg-gray-50">
-                          <Eye className="mr-2 h-4 w-4" />
-                          View Details
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={(e) => handleArchiveAgent(e, agent.id)} className="text-gray-700 hover:bg-gray-50">
-                          <Archive className="mr-2 h-4 w-4" />
-                          Archive Agent
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+              {!searchQuery && (
+                <Button onClick={handleCreateAgent} className="bg-blue-600 hover:bg-blue-700 text-white">
+                  <Plus className="mr-2 h-4 w-4" />
+                  Create Your First Tutor
+                </Button>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {filteredAgents.map((agent: AgentType) => (
+            <Card 
+              key={agent.id} 
+              className="border-gray-200 hover:shadow-md transition-shadow cursor-pointer"
+              onClick={() => handleAgentClick(agent.id)}
+            >
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <div className="flex items-center space-x-3">
+                  <Avatar className="h-10 w-10 border border-gray-200">
+                    <AvatarImage src={agent.avatar} alt={agent.name} />
+                    <AvatarFallback className="bg-blue-100 text-blue-600">
+                      <Bot className="h-5 w-5" />
+                    </AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <CardTitle className="text-lg text-gray-900">{agent.name}</CardTitle>
+                  </div>
+                </div>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button 
+                      variant="ghost" 
+                      className="h-8 w-8 p-0 text-gray-600 hover:bg-gray-100"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <MoreVertical className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="bg-white border-gray-200">
+                    <DropdownMenuItem 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleAgentClick(agent.id);
+                      }}
+                      className="text-gray-700 hover:bg-gray-50"
+                    >
+                      <Settings className="mr-2 h-4 w-4" />
+                      Edit Settings
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator className="bg-gray-200" />
+                    <DropdownMenuItem 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleViewPublic(agent.id);
+                      }}
+                      className="text-gray-700 hover:bg-gray-50"
+                    >
+                      <Eye className="mr-2 h-4 w-4" />
+                      View Public Page
+                    </DropdownMenuItem>
+                    <DropdownMenuItem 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleChatDemo(agent.id);
+                      }}
+                      className="text-gray-700 hover:bg-gray-50"
+                    >
+                      <ExternalLink className="mr-2 h-4 w-4" />
+                      Try Chat Demo
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2">
+                    <Badge 
+                      variant={agent.status === 'active' ? 'default' : 'secondary'}
+                      className={agent.status === 'active' ? 'bg-green-100 text-green-800 border-green-200' : 'bg-gray-100 text-gray-700 border-gray-200'}
+                    >
+                      {agent.status}
+                    </Badge>
+                    <span className="text-sm text-gray-600">
+                      {agent.type} • {agent.subject || 'General'}
+                    </span>
                   </div>
                   
-                  <div className="mt-3">
-                    <CardDescription className="line-clamp-2 text-gray-600 mb-2">
-                      {agent.description}
-                    </CardDescription>
-                    
-                    {agent.channelConfigs ? (
-                      <AgentChannels channels={agent.channelConfigs} readonly={true} compact={true} className="mt-0" />
-                    ) : agent.channels && agent.channels.length > 0 ? (
-                      <AgentChannels 
-                        channels={agent.channels.reduce((obj, channel) => {
-                          obj[channel] = { enabled: true };
-                          return obj;
-                        }, {} as Record<string, AgentChannelConfig>)} 
-                        readonly={true} 
-                        compact={true}
-                        className="mt-0"
-                      />
-                    ) : null}
-                  </div>
-                </CardHeader>
-                
-                <CardContent>
-                  <div className="flex flex-col space-y-4">
-                    <AgentStats 
-                      avmScore={getAgentAVMScore(agent.id)} 
-                      interactionCount={agent.interactions}
-                      compact={true}
-                      hideInteractions={true}
-                    />
-                    
-                    <div className="flex flex-wrap gap-2 mt-2">
-                      {filterType !== "all" && (
-                        <Badge variant="secondary" className="w-fit bg-gray-100 text-gray-700">
-                          Type: {agent.type}
-                        </Badge>
-                      )}
-                      
-                      {filterChannel !== "all" && agent.channels && (
-                        <Badge variant="secondary" className="w-fit bg-gray-100 text-gray-700">
-                          Channel: {filterChannel}
-                        </Badge>
-                      )}
-                      
-                      {filterStatus !== "all" && (
-                        <Badge variant="secondary" className="w-fit bg-gray-100 text-gray-700">
-                          Status: {agent.status}
-                        </Badge>
-                      )}
-                      
-                      {(sortBy === "recent" || sortBy === "oldest") && (
-                        <Badge variant="secondary" className="w-fit bg-gray-100 text-gray-700">
-                          {formatCreatedAt(agent.createdAt)}
-                        </Badge>
-                      )}
-                      
-                      {(sortBy === "most-used" || sortBy === "less-used") && (
-                        <Badge variant="secondary" className="w-fit bg-gray-100 text-gray-700">
-                          {agent.interactions} interactions
-                        </Badge>
-                      )}
+                  <CardDescription className="text-gray-600 text-sm line-clamp-2">
+                    {agent.description || "A helpful AI tutor designed to support student learning"}
+                  </CardDescription>
+                  
+                  <div className="flex items-center justify-between pt-2">
+                    <div className="flex items-center space-x-4 text-sm text-gray-500">
+                      <div className="flex items-center">
+                        <Users className="mr-1 h-3 w-3" />
+                        {agent.interactions || 0}
+                      </div>
+                      <div className="flex items-center">
+                        <TrendingUp className="mr-1 h-3 w-3" />
+                        {agent.performance || 0}%
+                      </div>
                     </div>
+                    
+                    <ShareButton 
+                      tutorId={agent.id} 
+                      tutorName={agent.name}
+                      className="text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+                    />
                   </div>
-                </CardContent>
-                
-                <CardFooter className="border-t pt-4 flex justify-between items-center bg-gray-50">
-                  <AgentToggle 
-                    isActive={agent.status === "active"} 
-                    onToggle={(e) => handleToggleStatus(e, agent.id, agent.status)} 
-                  />
-                  <div className="text-sm text-gray-700 font-medium">View Details &rarr;</div>
-                </CardFooter>
-              </Card>
-            </Link>
+                </div>
+              </CardContent>
+            </Card>
           ))}
         </div>
       )}

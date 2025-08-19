@@ -37,8 +37,8 @@ const App = () => (
             {/* Public routes */}
             <Route path="/" element={<Index />} />
             <Route path="/login" element={<Login />} />
-            <Route path="/tutors/:id" element={<PublicTutorDetail />} />
-            <Route path="/chat/:tutorId" element={<StudentChat />} />
+            <Route path="/tutors/:agentId" element={<PublicTutorDetail />} />
+            <Route path="/tutors/:agentId/chat" element={<StudentChat />} />
             
             {/* Protected dashboard routes - Tutors is now the default home */}
             <Route path="/dashboard" element={<DashboardLayout />}>
@@ -61,7 +61,7 @@ const App = () => (
               <Route index element={<Billing />} />
             </Route>
             
-            {/* Agents routes */}
+            {/* Agents routes - Fixed to use agentId parameter */}
             <Route path="/agents" element={<DashboardLayout />}>
               <Route index element={<AgentsDashboard />} />
             </Route>
@@ -70,11 +70,11 @@ const App = () => (
               <Route index element={<AgentCreate />} />
             </Route>
             
-            <Route path="/agents/:id" element={<DashboardLayout />}>
+            <Route path="/agents/:agentId" element={<DashboardLayout />}>
               <Route index element={<AgentDetails />} />
             </Route>
             
-            <Route path="/agents/:id/analytics" element={<DashboardLayout />}>
+            <Route path="/agents/:agentId/analytics" element={<DashboardLayout />}>
               <Route index element={<AgentAnalytics />} />
             </Route>
             

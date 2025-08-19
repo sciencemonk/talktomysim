@@ -9,12 +9,9 @@ import { Button } from "@/components/ui/button";
 import AgentConfigSettings from "@/components/AgentConfigSettings";
 import { RolePlayDialog } from "@/components/RolePlayDialog";
 import { CallInterface } from "@/components/CallInterface";
+
 const AgentDetails = () => {
-  const {
-    agentId
-  } = useParams<{
-    agentId: string;
-  }>();
+  const { agentId } = useParams<{ agentId: string }>();
   const navigate = useNavigate();
   const {
     agent,
@@ -29,9 +26,11 @@ const AgentDetails = () => {
     startDirectCall,
     endDirectCall
   } = useAgentDetails(agentId);
+
   const handleBack = () => {
     navigate('/dashboard');
   };
+
   if (isLoading) {
     return <div className="min-h-screen bg-slate-50">
         <div className="border-b bg-white">
@@ -57,6 +56,7 @@ const AgentDetails = () => {
         </div>
       </div>;
   }
+
   if (error || !agent) {
     return <div className="min-h-screen bg-slate-50">
         <div className="border-b bg-white">
@@ -84,9 +84,11 @@ const AgentDetails = () => {
         </div>
       </div>;
   }
+
   const handleAgentUpdate = (updatedAgent: any) => {
     console.log("Agent updated:", updatedAgent);
   };
+
   return <div className="min-h-screen bg-slate-50">
       {/* Header */}
       <div className="border-b bg-white shadow-sm">
@@ -295,4 +297,5 @@ const AgentDetails = () => {
       {isDirectCallActive && directCallInfo && <CallInterface open={isDirectCallActive} onOpenChange={open => !open && endDirectCall()} persona={null} directCallInfo={directCallInfo} />}
     </div>;
 };
+
 export default AgentDetails;
