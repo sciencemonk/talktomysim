@@ -40,7 +40,10 @@ export const useSimpleMessageAccumulator = () => {
   }, []);
 
   const completeAiMessage = useCallback(() => {
-    console.log('Completing AI message:', currentAiMessage);
+    console.log('Completing AI message. Current content:', currentAiMessage);
+    setIsAiSpeaking(false);
+    
+    // Only complete if there's actual content
     if (currentAiMessage.trim()) {
       const newMessage: Message = {
         id: Date.now().toString() + '_ai',
@@ -49,10 +52,22 @@ export const useSimpleMessageAccumulator = () => {
         timestamp: new Date(),
         isComplete: true
       };
-      setMessages(prev => [...prev, newMessage]);
+      
+      console.log('Adding completed AI message to permanent messages:', newMessage);
+      setMessages(prev => {
+        const updated = [...prev, newMessage];
+        console.log('Updated messages array:', updated);
+        return updated;
+      });
+      
+      // Clear current message after adding to permanent messages
+      setTimeout(() => {
+        setCurrentAiMessage('');
+      }, 100);
+    } else {
+      console.log('No content to complete, just clearing current message');
+      setCurrentAiMessage('');
     }
-    setCurrentAiMessage('');
-    setIsAiSpeaking(false);
   }, [currentAiMessage]);
 
   const resetMessages = useCallback(() => {
@@ -66,6 +81,7 @@ export const useSimpleMessageAccumulator = () => {
   const getAllMessages = useCallback((): Message[] => {
     const allMessages = [...messages];
     
+    // Only add current AI message if it has content and we're actively streaming
     if (currentAiMessage.trim() && isAiSpeaking) {
       allMessages.push({
         id: 'current_ai',
@@ -76,6 +92,7 @@ export const useSimpleMessageAccumulator = () => {
       });
     }
     
+    console.log('getAllMessages returning:', allMessages);
     return allMessages;
   }, [messages, currentAiMessage, isAiSpeaking]);
 
