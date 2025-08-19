@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { AgentType, VoiceTrait, AgentChannelConfig } from "@/types/agent";
 
@@ -26,6 +25,8 @@ export const fetchAgents = async (filter: string = 'all-agents'): Promise<AgentT
     console.log("No authenticated user found");
     return [];
   }
+
+  console.log("Authenticated user ID:", user.id);
 
   let query = supabase
     .from('tutors')
@@ -65,15 +66,15 @@ export const fetchAgents = async (filter: string = 'all-agents'): Promise<AgentT
     voice: tutor.voice,
     voiceProvider: tutor.voice_provider,
     customVoiceId: tutor.custom_voice_id,
-    voiceTraits: isVoiceTraitArray(tutor.voice_traits) ? tutor.voice_traits : [],
+    voiceTraits: isVoiceTraitArray(tutor.voice_traits) ? tutor.voice_traits as VoiceTrait[] : [],
     interactions: tutor.interactions || 0,
     studentsSaved: tutor.students_saved || 0,
     helpfulnessScore: tutor.helpfulness_score || 0,
     avmScore: tutor.avm_score || 0,
     csat: tutor.csat || 0,
     performance: tutor.performance || 0,
-    channels: isStringArray(tutor.channels) ? tutor.channels : [],
-    channelConfigs: isChannelConfigsRecord(tutor.channel_configs) ? tutor.channel_configs : {},
+    channels: isStringArray(tutor.channels) ? tutor.channels as string[] : [],
+    channelConfigs: isChannelConfigsRecord(tutor.channel_configs) ? tutor.channel_configs as Record<string, AgentChannelConfig> : {},
     isPersonal: tutor.is_personal,
     phone: tutor.phone,
     email: tutor.email,
@@ -159,6 +160,8 @@ export const updateAgent = async (id: string, updates: Partial<AgentType>): Prom
   if (!user) {
     throw new Error("User must be authenticated to update tutor");
   }
+
+  console.log("Authenticated user ID for update:", user.id);
 
   // Transform the updates to match database column names with proper JSON conversion
   const tutorUpdates: any = {};
@@ -249,6 +252,8 @@ export const createAgent = async (agentData: Partial<AgentType>): Promise<AgentT
   if (!user) {
     throw new Error("User must be authenticated to create a tutor");
   }
+
+  console.log("Authenticated user ID for create:", user.id);
 
   const tutorData = {
     name: agentData.name || '',
