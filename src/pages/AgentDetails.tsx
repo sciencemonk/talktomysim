@@ -1,4 +1,3 @@
-
 import { useParams, useNavigate } from "react-router-dom";
 import { useAgentDetails } from "@/hooks/useAgentDetails";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,16 +9,19 @@ import { Button } from "@/components/ui/button";
 import AgentConfigSettings from "@/components/AgentConfigSettings";
 import { RolePlayDialog } from "@/components/RolePlayDialog";
 import { CallInterface } from "@/components/CallInterface";
-
 const AgentDetails = () => {
-  const { agentId } = useParams<{ agentId: string }>();
+  const {
+    agentId
+  } = useParams<{
+    agentId: string;
+  }>();
   const navigate = useNavigate();
-  const { 
-    agent, 
-    isLoading, 
-    error, 
-    isRolePlayOpen, 
-    openRolePlay, 
+  const {
+    agent,
+    isLoading,
+    error,
+    isRolePlayOpen,
+    openRolePlay,
     closeRolePlay,
     showSuccessToast,
     isDirectCallActive,
@@ -27,14 +29,11 @@ const AgentDetails = () => {
     startDirectCall,
     endDirectCall
   } = useAgentDetails(agentId);
-
   const handleBack = () => {
     navigate('/dashboard');
   };
-
   if (isLoading) {
-    return (
-      <div className="min-h-screen bg-slate-50">
+    return <div className="min-h-screen bg-slate-50">
         <div className="border-b bg-white">
           <div className="container mx-auto px-6 py-4">
             <div className="flex items-center gap-4">
@@ -56,20 +55,13 @@ const AgentDetails = () => {
             <Skeleton className="h-96" />
           </div>
         </div>
-      </div>
-    );
+      </div>;
   }
-
   if (error || !agent) {
-    return (
-      <div className="min-h-screen bg-slate-50">
+    return <div className="min-h-screen bg-slate-50">
         <div className="border-b bg-white">
           <div className="container mx-auto px-6 py-4">
-            <Button 
-              variant="ghost" 
-              onClick={handleBack}
-              className="gap-2 text-slate-600 hover:text-slate-900"
-            >
+            <Button variant="ghost" onClick={handleBack} className="gap-2 text-slate-600 hover:text-slate-900">
               <ChevronLeft className="h-4 w-4" />
               Back to Dashboard
             </Button>
@@ -90,34 +82,21 @@ const AgentDetails = () => {
             </CardContent>
           </Card>
         </div>
-      </div>
-    );
+      </div>;
   }
-
   const handleAgentUpdate = (updatedAgent: any) => {
     console.log("Agent updated:", updatedAgent);
   };
-
-  return (
-    <div className="min-h-screen bg-slate-50">
+  return <div className="min-h-screen bg-slate-50">
       {/* Header */}
       <div className="border-b bg-white shadow-sm">
         <div className="container mx-auto px-6 py-3">
           <div className="flex items-center justify-between">
-            <Button 
-              variant="ghost" 
-              onClick={handleBack}
-              className="gap-2 text-slate-600 hover:text-slate-900 font-medium"
-            >
+            <Button variant="ghost" onClick={handleBack} className="gap-2 text-slate-600 hover:text-slate-900 font-medium">
               <ChevronLeft className="h-4 w-4" />
               Back to Dashboard
             </Button>
-            <div className="flex items-center gap-2">
-              <div className="bg-blue-600 p-1 rounded">
-                <Bot className="h-3 w-3 text-white" />
-              </div>
-              <span className="text-sm font-medium text-slate-700">TeacherHub</span>
-            </div>
+            
           </div>
         </div>
       </div>
@@ -137,10 +116,7 @@ const AgentDetails = () => {
                 <div>
                   <h1 className="text-2xl font-bold text-slate-900 mb-2">{agent.name}</h1>
                   <div className="flex items-center gap-2 mb-3">
-                    <Badge 
-                      variant={agent.status === 'active' ? 'default' : 'secondary'}
-                      className={agent.status === 'active' ? 'bg-green-100 text-green-800 border-green-200' : ''}
-                    >
+                    <Badge variant={agent.status === 'active' ? 'default' : 'secondary'} className={agent.status === 'active' ? 'bg-green-100 text-green-800 border-green-200' : ''}>
                       {agent.status}
                     </Badge>
                     <span className="text-slate-600 font-medium text-sm">
@@ -151,8 +127,7 @@ const AgentDetails = () => {
                     {agent.description || "A helpful AI tutor designed to support student learning"}
                   </p>
                   
-                  {agent.learningObjective && (
-                    <div className="p-3 bg-green-50 rounded-md border border-green-200">
+                  {agent.learningObjective && <div className="p-3 bg-green-50 rounded-md border border-green-200">
                       <div className="flex items-center gap-2 mb-1">
                         <Target className="h-4 w-4 text-green-600" />
                         <span className="text-sm font-medium text-green-700">Learning Objective</span>
@@ -160,8 +135,7 @@ const AgentDetails = () => {
                       <p className="text-sm text-green-700">
                         {agent.learningObjective}
                       </p>
-                    </div>
-                  )}
+                    </div>}
                 </div>
                 
                 {/* Quick Stats */}
@@ -194,12 +168,7 @@ const AgentDetails = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <AgentConfigSettings 
-                  agent={agent}
-                  onAgentUpdate={handleAgentUpdate}
-                  showSuccessToast={showSuccessToast}
-                  showTeachingInstructions={true}
-                />
+                <AgentConfigSettings agent={agent} onAgentUpdate={handleAgentUpdate} showSuccessToast={showSuccessToast} showTeachingInstructions={true} />
               </CardContent>
             </Card>
           </div>
@@ -228,8 +197,7 @@ const AgentDetails = () => {
                   <Badge className="bg-green-100 text-green-800 border-green-200 text-xs">Active</Badge>
                 </div>
                 
-                {agent.phone && (
-                  <div className="flex items-center justify-between p-3 border border-slate-200 rounded-lg">
+                {agent.phone && <div className="flex items-center justify-between p-3 border border-slate-200 rounded-lg">
                     <div className="flex items-center gap-3">
                       <div className="bg-slate-100 p-2 rounded-lg">
                         <Phone className="h-4 w-4 text-slate-600" />
@@ -240,11 +208,9 @@ const AgentDetails = () => {
                       </div>
                     </div>
                     <Badge variant="secondary" className="text-xs">Available</Badge>
-                  </div>
-                )}
+                  </div>}
                 
-                {agent.email && (
-                  <div className="flex items-center justify-between p-3 border border-slate-200 rounded-lg">
+                {agent.email && <div className="flex items-center justify-between p-3 border border-slate-200 rounded-lg">
                     <div className="flex items-center gap-3">
                       <div className="bg-slate-100 p-2 rounded-lg">
                         <Mail className="h-4 w-4 text-slate-600" />
@@ -255,8 +221,7 @@ const AgentDetails = () => {
                       </div>
                     </div>
                     <Badge variant="secondary" className="text-xs">Available</Badge>
-                  </div>
-                )}
+                  </div>}
               </CardContent>
             </Card>
 
@@ -324,22 +289,10 @@ const AgentDetails = () => {
       </div>
 
       {/* Role Play Dialog */}
-      <RolePlayDialog
-        open={isRolePlayOpen}
-        onOpenChange={(open) => open ? openRolePlay() : closeRolePlay()}
-      />
+      <RolePlayDialog open={isRolePlayOpen} onOpenChange={open => open ? openRolePlay() : closeRolePlay()} />
 
       {/* Direct Call Interface */}
-      {isDirectCallActive && directCallInfo && (
-        <CallInterface
-          open={isDirectCallActive}
-          onOpenChange={(open) => !open && endDirectCall()}
-          persona={null}
-          directCallInfo={directCallInfo}
-        />
-      )}
-    </div>
-  );
+      {isDirectCallActive && directCallInfo && <CallInterface open={isDirectCallActive} onOpenChange={open => !open && endDirectCall()} persona={null} directCallInfo={directCallInfo} />}
+    </div>;
 };
-
 export default AgentDetails;
