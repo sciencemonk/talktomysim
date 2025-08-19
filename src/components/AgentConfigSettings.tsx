@@ -335,7 +335,7 @@ Always be patient, supportive, and adapt to each child's learning pace. If a chi
                 id="learning-objective"
                 value={learningObjective}
                 onChange={(e) => setLearningObjective(e.target.value)}
-                placeholder="e.g., Help children master solving quadratic equations and understand their real-world applications"
+                placeholder="e.g., Help my child learn about what Bitcoin is and why it's so important"
                 className="min-h-[80px] text-sm"
               />
               <p className="text-xs text-fgMuted">

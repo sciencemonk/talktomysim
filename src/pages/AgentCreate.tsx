@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { ArrowLeft, CheckCircle2, Loader2 } from "lucide-react";
@@ -159,15 +158,6 @@ Always be patient, supportive, and adapt to each child's learning pace and style
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Dashboard
           </Link>
-          
-          <div className="text-center">
-            <h1 className="text-3xl font-semibold text-fg mb-3">
-              Create Your Child's AI Thinking Partner
-            </h1>
-            <p className="text-lg text-fgMuted max-w-2xl mx-auto">
-              Set up a personalized AI thinking partner that adapts to your child's learning style and helps them explore ideas effectively
-            </p>
-          </div>
         </div>
         
         <div className="bg-bg border border-border rounded-xl shadow-sm overflow-hidden">
@@ -183,7 +173,7 @@ Always be patient, supportive, and adapt to each child's learning pace and style
           <div className="border-t border-border bg-bgMuted/30 p-6">
             <div className="flex justify-between items-center">
               <p className="text-sm text-fgMuted">
-                Teaching instructions will be automatically generated based on your thinking partner's configuration
+                Your thinking partner's master prompt will be auto-generated. You may edit it after creation.
               </p>
               <Button 
                 onClick={handleCreateAgent} 
