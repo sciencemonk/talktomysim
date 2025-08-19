@@ -267,8 +267,7 @@ The student should be talking at least 50% of the time about ${learningObjective
             isAiSpeakingRef.current = false;
             onSpeakingChange(false);
             
-            // ALWAYS unmute when AI finishes speaking (regardless of welcome message status)
-            console.log('🎤 Force unmuting user microphone - AI finished speaking');
+            // Unmute microphone when AI finishes speaking
             unmuteUserMicrophone();
           }
           
