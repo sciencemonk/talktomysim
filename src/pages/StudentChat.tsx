@@ -87,8 +87,11 @@ const StudentChat = () => {
       {/* Chat Interface */}
       <div className="flex-1 overflow-hidden">
         <ChatInterface 
-          agentId={agentId!}
           agent={agent}
+          messages={[]}
+          isConnected={false}
+          isSpeaking={false}
+          connectionStatus="connecting"
         />
       </div>
     </div>
