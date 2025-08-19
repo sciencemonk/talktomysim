@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { ArrowLeft, CheckCircle2, Loader2 } from "lucide-react";
@@ -7,6 +6,7 @@ import { useToast } from "@/components/ui/use-toast";
 import AgentConfigSettings from "@/components/AgentConfigSettings";
 import { createAgent } from "@/services/agentService";
 import { AgentType } from "@/types/agent";
+import { useAuth } from "@/hooks/useAuth";
 
 const SUBJECTS = [
   { id: "math", name: "Mathematics" },
@@ -30,6 +30,7 @@ const GRADE_LEVELS = [
 const AgentCreate = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { user } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   
   // Create a temporary agent object for the configuration
@@ -73,6 +74,16 @@ Always be patient, supportive, and adapt to each student's learning pace. If a s
   };
   
   const handleCreateAgent = async () => {
+    // Check authentication first
+    if (!user) {
+      toast({
+        title: "Authentication Required",
+        description: "Please sign in to create a tutor.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     if (!tempAgent.name || tempAgent.name === "New Tutor") {
       toast({
         title: "Missing Information",
@@ -111,6 +122,11 @@ Always be patient, supportive, and adapt to each student's learning pace. If a s
         }
       });
       
+      // Check if creation was successful
+      if (!createdAgent) {
+        throw new Error("Failed to create tutor. Please try again.");
+      }
+      
       toast({
         title: "Tutor Created!",
         description: `${createdAgent.name} has been successfully created with auto-generated teaching instructions.`,
@@ -122,7 +138,7 @@ Always be patient, supportive, and adapt to each student's learning pace. If a s
       console.error("Error creating tutor:", error);
       toast({
         title: "Creation Failed",
-        description: "There was an error creating your tutor. Please try again.",
+        description: error instanceof Error ? error.message : "There was an error creating your tutor. Please try again.",
         variant: "destructive",
       });
     } finally {
