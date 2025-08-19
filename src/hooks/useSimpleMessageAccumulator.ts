@@ -11,7 +11,6 @@ interface Message {
 
 export const useSimpleMessageAccumulator = () => {
   const [messages, setMessages] = useState<Message[]>([]);
-  const [currentUserMessage, setCurrentUserMessage] = useState('');
   const [currentAiMessage, setCurrentAiMessage] = useState('');
   const [isAiSpeaking, setIsAiSpeaking] = useState(false);
 
@@ -59,7 +58,6 @@ export const useSimpleMessageAccumulator = () => {
   const resetMessages = useCallback(() => {
     console.log('Resetting all messages');
     setMessages([]);
-    setCurrentUserMessage('');
     setCurrentAiMessage('');
     setIsAiSpeaking(false);
   }, []);
@@ -67,16 +65,6 @@ export const useSimpleMessageAccumulator = () => {
   // Get all messages including current partial ones
   const getAllMessages = useCallback((): Message[] => {
     const allMessages = [...messages];
-    
-    if (currentUserMessage.trim()) {
-      allMessages.push({
-        id: 'current_user',
-        role: 'user',
-        content: currentUserMessage,
-        timestamp: new Date(),
-        isComplete: false
-      });
-    }
     
     if (currentAiMessage.trim() && isAiSpeaking) {
       allMessages.push({
@@ -89,7 +77,7 @@ export const useSimpleMessageAccumulator = () => {
     }
     
     return allMessages;
-  }, [messages, currentUserMessage, currentAiMessage, isAiSpeaking]);
+  }, [messages, currentAiMessage, isAiSpeaking]);
 
   return {
     messages: getAllMessages(),

@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -21,6 +22,28 @@ interface ChatInterfaceProps {
   connectionStatus: string;
 }
 
+const WordHighlighter: React.FC<{ text: string; isComplete: boolean }> = ({ text, isComplete }) => {
+  const words = text.split(' ');
+  
+  return (
+    <span className="text-3xl leading-relaxed font-medium">
+      {words.map((word, index) => (
+        <span
+          key={index}
+          className={cn(
+            "inline-block mr-2 mb-1 transition-all duration-300",
+            !isComplete && index === words.length - 1 
+              ? "bg-yellow-200 dark:bg-yellow-600 px-1 rounded animate-pulse" 
+              : ""
+          )}
+        >
+          {word}
+        </span>
+      ))}
+    </span>
+  );
+};
+
 export const ChatInterface: React.FC<ChatInterfaceProps> = ({
   agent,
   messages,
@@ -39,11 +62,11 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
   const getConnectionStatusText = () => {
     switch (connectionStatus) {
       case 'connecting':
-        return 'Connecting to your tutor...';
+        return 'Getting ready to chat...';
       case 'connected':
-        return isSpeaking ? 'AI is speaking...' : 'Listening...';
+        return isSpeaking ? `${agent.name} is speaking...` : `${agent.name} is listening...`;
       case 'error':
-        return 'Connection error';
+        return 'Something went wrong';
       default:
         return 'Getting ready...';
     }
@@ -65,44 +88,44 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
   console.log('ChatInterface rendering with messages:', messages);
 
   return (
-    <div className="flex flex-col h-full bg-white dark:bg-gray-900">
+    <div className="flex flex-col h-full bg-gradient-to-b from-blue-50 to-purple-50 dark:from-gray-900 dark:to-gray-800">
       {/* Header */}
-      <div className="flex-shrink-0 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 p-4">
+      <div className="flex-shrink-0 bg-white dark:bg-gray-800 border-b-4 border-blue-200 dark:border-blue-700 p-6">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Avatar className="h-12 w-12 border-2 border-gray-200 dark:border-gray-700">
+          <div className="flex items-center gap-4">
+            <Avatar className="h-16 w-16 border-4 border-blue-200 dark:border-blue-700">
               <AvatarImage src={agent.avatar} alt={agent.name} />
               <AvatarFallback className="bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400">
-                <Bot className="h-6 w-6" />
+                <Bot className="h-8 w-8" />
               </AvatarFallback>
             </Avatar>
             <div>
-              <h1 className="font-semibold text-gray-900 dark:text-white text-lg">
+              <h1 className="font-bold text-gray-900 dark:text-white text-2xl">
                 {agent.name}
               </h1>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-3 mt-2">
                 <div className={cn(
-                  "h-2 w-2 rounded-full transition-colors",
+                  "h-3 w-3 rounded-full transition-colors",
                   isConnected 
                     ? (isSpeaking ? "bg-green-500 animate-pulse" : "bg-blue-500") 
                     : "bg-gray-400"
                 )} />
-                <p className={cn("text-sm transition-colors", getConnectionStatusColor())}>
+                <p className={cn("text-lg transition-colors font-medium", getConnectionStatusColor())}>
                   {getConnectionStatusText()}
                 </p>
               </div>
             </div>
           </div>
           
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
             {isConnected && (
-              <div className="flex items-center gap-2 px-3 py-1 bg-gray-100 dark:bg-gray-800 rounded-full">
+              <div className="flex items-center gap-3 px-4 py-2 bg-gray-100 dark:bg-gray-800 rounded-full">
                 {isSpeaking ? (
-                  <Mic className="h-4 w-4 text-green-600 dark:text-green-400" />
+                  <Mic className="h-6 w-6 text-green-600 dark:text-green-400" />
                 ) : (
-                  <MicOff className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                  <MicOff className="h-6 w-6 text-blue-600 dark:text-blue-400" />
                 )}
-                <span className="text-xs font-medium text-gray-700 dark:text-gray-300">
+                <span className="text-lg font-bold text-gray-700 dark:text-gray-300">
                   {isSpeaking ? 'Speaking' : 'Listening'}
                 </span>
               </div>
@@ -112,16 +135,16 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
       </div>
 
       {/* Messages */}
-      <ScrollArea className="flex-1 p-6">
-        <div className="space-y-6 max-w-5xl mx-auto">
+      <ScrollArea className="flex-1 p-8">
+        <div className="space-y-8 max-w-6xl mx-auto">
           {messages.length === 0 && connectionStatus !== 'connected' ? (
             <div className="flex flex-col items-center justify-center h-64 text-center">
-              <Bot className="h-16 w-16 mb-4 text-gray-400 dark:text-gray-600" />
-              <p className="text-xl text-gray-600 dark:text-gray-400 mb-2">
-                Getting ready to chat with {agent.name}
+              <Bot className="h-24 w-24 mb-6 text-blue-400 dark:text-blue-600" />
+              <p className="text-3xl text-gray-600 dark:text-gray-400 mb-4 font-bold">
+                Getting ready to chat with {agent.name}!
               </p>
-              <p className="text-sm text-gray-500 dark:text-gray-500">
-                Your conversation will begin automatically
+              <p className="text-xl text-gray-500 dark:text-gray-500">
+                Your fun conversation will begin soon
               </p>
             </div>
           ) : (
@@ -132,44 +155,49 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
                   <div 
                     key={message.id} 
                     className={cn(
-                      "flex gap-4 animate-fade-in",
+                      "flex gap-6 animate-fade-in",
                       message.role === "user" ? "justify-end" : "justify-start"
                     )}
                   >
                     {message.role === "system" && (
-                      <Avatar className="h-12 w-12 flex-shrink-0 mt-1">
+                      <Avatar className="h-16 w-16 flex-shrink-0 mt-2">
                         <AvatarImage src={agent.avatar} alt={agent.name} />
                         <AvatarFallback className="bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400">
-                          <Bot className="h-6 w-6" />
+                          <Bot className="h-8 w-8" />
                         </AvatarFallback>
                       </Avatar>
                     )}
                     
                     <div 
                       className={cn(
-                        "rounded-2xl py-4 px-6 shadow-sm max-w-[80%] min-w-[200px]",
+                        "rounded-3xl py-6 px-8 shadow-lg max-w-[85%] min-w-[300px]",
                         message.role === "system" 
-                          ? "bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100" 
-                          : "bg-blue-600 dark:bg-blue-700 text-white",
-                        !message.isComplete && "opacity-90"
+                          ? "bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border-4 border-blue-200 dark:border-blue-700" 
+                          : "bg-gradient-to-r from-blue-500 to-purple-600 text-white border-4 border-blue-300",
+                        !message.isComplete && message.role === "system" && "bg-gradient-to-r from-blue-50 to-purple-50 dark:from-gray-700 dark:to-gray-600"
                       )}
                     >
-                      <p className="text-lg leading-relaxed whitespace-pre-wrap break-words">
-                        {message.content}
-                      </p>
-                      {!message.isComplete && (
-                        <div className="flex items-center gap-1 mt-3">
-                          <div className="h-2 w-2 bg-current rounded-full animate-pulse" />
-                          <div className="h-2 w-2 bg-current rounded-full animate-pulse" style={{ animationDelay: '0.2s' }} />
-                          <div className="h-2 w-2 bg-current rounded-full animate-pulse" style={{ animationDelay: '0.4s' }} />
+                      {message.role === "system" ? (
+                        <WordHighlighter text={message.content} isComplete={message.isComplete} />
+                      ) : (
+                        <p className="text-3xl leading-relaxed font-medium whitespace-pre-wrap break-words">
+                          {message.content}
+                        </p>
+                      )}
+                      
+                      {!message.isComplete && message.role === "system" && (
+                        <div className="flex items-center gap-2 mt-4">
+                          <div className="h-4 w-4 bg-blue-500 rounded-full animate-bounce" />
+                          <div className="h-4 w-4 bg-purple-500 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }} />
+                          <div className="h-4 w-4 bg-green-500 rounded-full animate-bounce" style={{ animationDelay: '0.4s' }} />
                         </div>
                       )}
                     </div>
                     
                     {message.role === "user" && (
-                      <Avatar className="h-12 w-12 flex-shrink-0 mt-1">
-                        <AvatarFallback className="bg-blue-600 dark:bg-blue-700 text-white">
-                          <User className="h-6 w-6" />
+                      <Avatar className="h-16 w-16 flex-shrink-0 mt-2">
+                        <AvatarFallback className="bg-gradient-to-r from-blue-500 to-purple-600 text-white">
+                          <User className="h-8 w-8" />
                         </AvatarFallback>
                       </Avatar>
                     )}
