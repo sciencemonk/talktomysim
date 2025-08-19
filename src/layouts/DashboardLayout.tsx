@@ -1,14 +1,13 @@
+
 import { useState } from "react";
 import { Outlet } from "react-router-dom";
 
-import { SidebarProvider } from "@/components/SidebarProvider";
+import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
-import { SidebarTrigger } from "@/components/SidebarTrigger";
-import { SidebarInset } from "@/components/SidebarInset";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList } from "@/components/ui/breadcrumb";
 import { Separator } from "@/components/ui/separator";
 import { ThemeToggle } from "@/components/ThemeToggle";
-import { UserSettingsDropdown } from "@/components/UserSettingsDropdown";
+import UserSettingsDropdown from "@/components/UserSettingsDropdown";
 import UsageBilling from "@/components/UsageBilling";
 
 const DashboardLayout = () => {
