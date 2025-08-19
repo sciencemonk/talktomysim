@@ -23,21 +23,49 @@ interface ChatInterfaceProps {
 }
 
 const WordHighlighter: React.FC<{ text: string; isComplete: boolean }> = ({ text, isComplete }) => {
+  const [highlightedWordIndex, setHighlightedWordIndex] = React.useState(-1);
   const words = text.split(' ');
+  
+  React.useEffect(() => {
+    if (isComplete) {
+      setHighlightedWordIndex(-1);
+      return;
+    }
+    
+    // Start highlighting from the beginning when text changes
+    setHighlightedWordIndex(0);
+    
+    // Create a more realistic speech timing - approximately 2-3 words per second
+    const interval = setInterval(() => {
+      setHighlightedWordIndex(prev => {
+        const nextIndex = prev + 1;
+        if (nextIndex >= words.length) {
+          clearInterval(interval);
+          return words.length - 1; // Keep the last word highlighted
+        }
+        return nextIndex;
+      });
+    }, 800); // 800ms per word (about 75 words per minute, natural speech pace)
+    
+    return () => clearInterval(interval);
+  }, [text, isComplete, words.length]);
   
   return (
     <span className="text-3xl leading-relaxed font-medium">
       {words.map((word, index) => {
-        // Only highlight the last few words when streaming, with slower timing
-        const shouldHighlight = !isComplete && index >= Math.max(0, words.length - 3);
+        // Highlight the current word being "spoken" and a few words around it for context
+        const isCurrentWord = !isComplete && index === highlightedWordIndex;
+        const isNearCurrentWord = !isComplete && index >= highlightedWordIndex - 1 && index <= highlightedWordIndex + 1;
         
         return (
           <span
             key={index}
             className={cn(
-              "inline-block mr-2 mb-1 transition-all duration-700 ease-in-out",
-              shouldHighlight
-                ? "bg-yellow-200 dark:bg-yellow-600 px-1 rounded animate-pulse" 
+              "inline-block mr-2 mb-1 transition-all duration-500 ease-in-out",
+              isCurrentWord
+                ? "bg-yellow-300 dark:bg-yellow-500 px-1 rounded shadow-sm transform scale-105" 
+                : isNearCurrentWord
+                ? "bg-yellow-100 dark:bg-yellow-700 px-1 rounded"
                 : ""
             )}
           >
