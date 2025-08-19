@@ -7,7 +7,7 @@ import { Bot, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 
-const StudentChat = () => {
+const ChildChat = () => {
   const { agentId } = useParams<{ agentId: string }>();
   const { agent, isLoading, error } = usePublicAgent(agentId);
 
@@ -32,7 +32,7 @@ const StudentChat = () => {
         <div className="flex-1 flex items-center justify-center">
           <div className="text-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <p className="text-slate-600">Loading tutor...</p>
+            <p className="text-slate-600">Loading thinking partner...</p>
           </div>
         </div>
       </div>
@@ -51,9 +51,9 @@ const StudentChat = () => {
         <div className="flex-1 flex items-center justify-center">
           <div className="text-center">
             <Bot className="h-12 w-12 text-red-500 mx-auto mb-4" />
-            <h3 className="font-semibold text-slate-900 mb-2">Tutor Not Available</h3>
+            <h3 className="font-semibold text-slate-900 mb-2">Thinking Partner Not Available</h3>
             <p className="text-slate-600">
-              {error || "This tutor is not available for chat."}
+              {error || "This thinking partner is not available for chat."}
             </p>
           </div>
         </div>
@@ -98,4 +98,4 @@ const StudentChat = () => {
   );
 };
 
-export default StudentChat;
+export default ChildChat;

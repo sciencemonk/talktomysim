@@ -10,7 +10,7 @@ import { useAgents } from "@/hooks/useAgents";
 import { AgentType } from "@/types/agent";
 import { ShareButton } from "@/components/ShareButton";
 
-const TeacherDashboard = () => {
+const ParentDashboard = () => {
   const [filter, setFilter] = useState("all-agents");
   const {
     agents,
@@ -23,7 +23,7 @@ const TeacherDashboard = () => {
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600 dark:text-gray-400">Loading your tutors...</p>
+          <p className="text-gray-600 dark:text-gray-400">Loading your thinking partners...</p>
         </div>
       </div>
     );
@@ -75,7 +75,7 @@ const TeacherDashboard = () => {
     return sentences.slice(0, 2).join('. ') + (sentences[0] && sentences[1] ? '...' : '');
   };
 
-  const totalStudentsHelped = agents.reduce((sum, agent) => sum + (agent.studentsSaved || 0), 0);
+  const totalChildrenHelped = agents.reduce((sum, agent) => sum + (agent.studentsSaved || 0), 0);
   const totalInteractions = agents.reduce((sum, agent) => sum + (agent.interactions || 0), 0);
   const avgHelpfulness = agents.length > 0 ? agents.reduce((sum, agent) => sum + (agent.helpfulnessScore || 0), 0) / agents.length : 0;
 
@@ -93,7 +93,7 @@ const TeacherDashboard = () => {
                 <div className="text-lg font-semibold text-gray-900 dark:text-white">
                   {agents.filter(a => a.status === 'active').length}
                 </div>
-                <p className="text-xs text-gray-500 dark:text-gray-400">Active Tutors</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">Active Partners</p>
               </div>
             </div>
           </CardContent>
@@ -106,8 +106,8 @@ const TeacherDashboard = () => {
                 <Users className="h-4 w-4 text-green-600 dark:text-green-400" />
               </div>
               <div>
-                <div className="text-lg font-semibold text-gray-900 dark:text-white">{totalStudentsHelped}</div>
-                <p className="text-xs text-gray-500 dark:text-gray-400">Students Helped</p>
+                <div className="text-lg font-semibold text-gray-900 dark:text-white">{totalChildrenHelped}</div>
+                <p className="text-xs text-gray-500 dark:text-gray-400">Children Helped</p>
               </div>
             </div>
           </CardContent>
@@ -142,13 +142,13 @@ const TeacherDashboard = () => {
         </Card>
       </div>
 
-      {/* Tutors Section */}
+      {/* Thinking Partners Section */}
       <div>
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Your AI Tutors</h2>
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Your Child's AI Thinking Partners</h2>
             <p className="text-gray-600 dark:text-gray-400 text-sm">
-              Manage and monitor your personalized teaching assistants
+              Manage and monitor your child's personalized learning assistants
             </p>
           </div>
         </div>
@@ -159,30 +159,30 @@ const TeacherDashboard = () => {
               <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
                 <GraduationCap className="h-8 w-8 text-blue-600 dark:text-blue-400" />
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Create Your First AI Tutor</h3>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Create Your First AI Thinking Partner</h3>
               <p className="text-gray-600 dark:text-gray-400 mb-6 max-w-md mx-auto">
-                Get started by creating a personalized AI tutor tailored to your students' needs.
+                Get started by creating a personalized AI thinking partner tailored to your child's learning needs.
               </p>
               <Link to="/agents/create">
                 <Button className="bg-blue-600 hover:bg-blue-700 text-white px-6">
                   <Plus className="h-4 w-4 mr-2" />
-                  Create Your First Tutor
+                  Create Your First Thinking Partner
                 </Button>
               </Link>
             </CardContent>
           </Card>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {/* Create New Tutor Card */}
+            {/* Create New Thinking Partner Card */}
             <Link to="/agents/create">
               <Card className="hover:shadow-md transition-all duration-200 cursor-pointer border-2 border-dashed border-blue-200 hover:border-blue-300 dark:border-blue-800 dark:hover:border-blue-700 bg-blue-50/30 hover:bg-blue-50/50 dark:bg-blue-950/20 dark:hover:bg-blue-950/30 h-full min-h-[200px]">
                 <CardContent className="flex flex-col items-center justify-center h-full py-8">
                   <div className="h-10 w-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center mb-3">
                     <Plus className="h-5 w-5 text-blue-600 dark:text-blue-400" />
                   </div>
-                  <h3 className="font-medium text-gray-900 dark:text-white mb-1">Create New Tutor</h3>
+                  <h3 className="font-medium text-gray-900 dark:text-white mb-1">Create New Thinking Partner</h3>
                   <p className="text-sm text-gray-600 dark:text-gray-400 text-center">
-                    Add a new AI tutor to help your students
+                    Add a new AI thinking partner to help your child
                   </p>
                 </CardContent>
               </Card>
@@ -222,7 +222,7 @@ const TeacherDashboard = () => {
                   </CardHeader>
                   <CardContent className="pt-0">
                     <p className="text-sm text-gray-700 dark:text-gray-300 mb-3 line-clamp-2">
-                      {agent.description || agent.purpose || "A helpful AI tutor for students"}
+                      {agent.description || agent.purpose || "A helpful AI thinking partner for your child"}
                     </p>
                     
                     {agent.learningObjective && (
@@ -240,7 +240,7 @@ const TeacherDashboard = () => {
                     <div className="grid grid-cols-2 gap-3 text-sm">
                       <div>
                         <p className="font-semibold text-gray-900 dark:text-white">{agent.studentsSaved || 0}</p>
-                        <p className="text-gray-500 dark:text-gray-400 text-xs">Students</p>
+                        <p className="text-gray-500 dark:text-gray-400 text-xs">Children</p>
                       </div>
                       <div>
                         <p className="font-semibold text-gray-900 dark:text-white">{agent.interactions || 0}</p>
@@ -265,4 +265,4 @@ const TeacherDashboard = () => {
   );
 };
 
-export default TeacherDashboard;
+export default ParentDashboard;

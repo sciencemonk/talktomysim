@@ -31,7 +31,7 @@ import {
 import { AgentType } from "@/types/agent";
 import { ShareButton } from "@/components/ShareButton";
 
-const AgentsDashboard = () => {
+const ThinkingPartnersDashboard = () => {
   const navigate = useNavigate();
   const { agents, isLoading, error } = useAgents();
   const [searchQuery, setSearchQuery] = useState("");
@@ -87,7 +87,7 @@ const AgentsDashboard = () => {
             <div className="flex flex-col items-center text-center space-y-4">
               <Bot className="h-12 w-12 text-red-500" />
               <div>
-                <h3 className="font-semibold text-gray-900">Failed to load tutors</h3>
+                <h3 className="font-semibold text-gray-900">Failed to load thinking partners</h3>
                 <p className="text-sm text-gray-600 mt-1">
                   {error || "Something went wrong. Please try again."}
                 </p>
@@ -104,9 +104,9 @@ const AgentsDashboard = () => {
       {/* Header */}
       <div className="flex items-center justify-between space-y-2">
         <div>
-          <h2 className="text-3xl font-bold tracking-tight text-gray-900">My Tutors</h2>
+          <h2 className="text-3xl font-bold tracking-tight text-gray-900">My Child's Thinking Partners</h2>
           <p className="text-gray-600">
-            Create and manage your AI tutoring assistants
+            Create and manage your child's AI learning assistants
           </p>
         </div>
         <Button 
@@ -114,7 +114,7 @@ const AgentsDashboard = () => {
           className="bg-blue-600 hover:bg-blue-700 text-white"
         >
           <Plus className="mr-2 h-4 w-4" />
-          Create Tutor
+          Create Thinking Partner
         </Button>
       </div>
 
@@ -123,7 +123,7 @@ const AgentsDashboard = () => {
         <div className="relative flex-1 max-w-sm">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
           <Input
-            placeholder="Search tutors..."
+            placeholder="Search thinking partners..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-10 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
@@ -159,22 +159,22 @@ const AgentsDashboard = () => {
         </DropdownMenu>
       </div>
 
-      {/* Tutors Grid */}
+      {/* Thinking Partners Grid */}
       {filteredAgents.length === 0 ? (
         <Card className="border-gray-200">
           <CardContent className="pt-6">
             <div className="flex flex-col items-center text-center space-y-4">
               <Bot className="h-12 w-12 text-gray-400" />
               <div>
-                <h3 className="font-semibold text-gray-900">No tutors found</h3>
+                <h3 className="font-semibold text-gray-900">No thinking partners found</h3>
                 <p className="text-sm text-gray-600 mt-1">
-                  {searchQuery ? "Try adjusting your search criteria" : "Create your first AI tutor to get started"}
+                  {searchQuery ? "Try adjusting your search criteria" : "Create your first AI thinking partner to get started"}
                 </p>
               </div>
               {!searchQuery && (
                 <Button onClick={handleCreateAgent} className="bg-blue-600 hover:bg-blue-700 text-white">
                   <Plus className="mr-2 h-4 w-4" />
-                  Create Your First Tutor
+                  Create Your First Thinking Partner
                 </Button>
               )}
             </div>
@@ -260,7 +260,7 @@ const AgentsDashboard = () => {
                   </div>
                   
                   <CardDescription className="text-gray-600 text-sm line-clamp-2">
-                    {agent.description || "A helpful AI tutor designed to support student learning"}
+                    {agent.description || "A helpful AI thinking partner designed to support your child's learning"}
                   </CardDescription>
                   
                   <div className="flex items-center justify-between pt-2">
@@ -291,4 +291,4 @@ const AgentsDashboard = () => {
   );
 };
 
-export default AgentsDashboard;
+export default ThinkingPartnersDashboard;

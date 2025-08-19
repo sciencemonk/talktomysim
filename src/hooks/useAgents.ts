@@ -27,14 +27,14 @@ export const useAgents = (filter: string = 'all-agents') => {
 
       setIsLoading(true);
       try {
-        console.log("Loading agents for user:", user.id);
+        console.log("Loading thinking partners for user:", user.id);
         const data = await fetchAgents(filter);
         setAgents(data);
         setError(null);
-        console.log("Loaded agents:", data);
+        console.log("Loaded thinking partners:", data);
       } catch (err: any) {
-        setError(err.message || "Failed to load tutors");
-        console.error("Error loading tutors:", err);
+        setError(err.message || "Failed to load thinking partners");
+        console.error("Error loading thinking partners:", err);
       } finally {
         setIsLoading(false);
       }

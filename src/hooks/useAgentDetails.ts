@@ -17,7 +17,7 @@ export const useAgentDetails = (agentId: string | undefined) => {
 
   useEffect(() => {
     if (!agentId) {
-      setError("Agent ID is required");
+      setError("Thinking Partner ID is required");
       setIsLoading(false);
       return;
     }
@@ -29,8 +29,8 @@ export const useAgentDetails = (agentId: string | undefined) => {
         setAgent(data);
         setError(null);
       } catch (err: any) {
-        console.error("Error loading tutor details:", err);
-        setError(err.message || "Failed to load tutor details");
+        console.error("Error loading thinking partner details:", err);
+        setError(err.message || "Failed to load thinking partner details");
       } finally {
         setIsLoading(false);
       }
@@ -86,7 +86,7 @@ export const useAgentDetails = (agentId: string | undefined) => {
             const data = await fetchAgentById(agentId);
             setAgent(data);
           } catch (err: any) {
-            console.error("Error refetching tutor details:", err);
+            console.error("Error refetching thinking partner details:", err);
           }
         };
         loadAgentDetails();

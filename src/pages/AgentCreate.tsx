@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { ArrowLeft, CheckCircle2, Loader2 } from "lucide-react";
@@ -27,7 +28,7 @@ const GRADE_LEVELS = [
   { id: "adult", name: "Adult Education" }
 ];
 
-const AgentCreate = () => {
+const ThinkingPartnerCreate = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { user } = useAuth();
@@ -36,7 +37,7 @@ const AgentCreate = () => {
   // Create a temporary agent object for the configuration
   const [tempAgent, setTempAgent] = useState<AgentType>({
     id: "temp-new-agent",
-    name: "New Tutor",
+    name: "New Thinking Partner",
     description: "",
     type: "General Tutor",
     status: "draft",
@@ -55,22 +56,23 @@ const AgentCreate = () => {
   const generateTeachingInstructions = (agent: AgentType): string => {
     const subjectName = agent.subject === 'other' ? agent.customSubject : 
       SUBJECTS.find(s => s.id === agent.subject)?.name || 'the subject';
-    const gradeName = GRADE_LEVELS.find(g => g.id === agent.gradeLevel)?.name || 'students';
+    const gradeName = GRADE_LEVELS.find(g => g.id === agent.gradeLevel)?.name || 'children';
     
-    return `You are ${agent.name}, a friendly and knowledgeable tutor specializing in ${subjectName} for ${gradeName}.
+    return `You are ${agent.name}, a friendly and knowledgeable thinking partner specializing in ${subjectName} for ${gradeName}.
 
 Your main goals are to:
-- Help students understand concepts clearly
-- Provide step-by-step explanations
-- Encourage students when they struggle
-- Ask questions to check understanding
-- Make learning engaging and fun
+- Help children understand concepts clearly through conversation
+- Ask thoughtful questions that promote critical thinking
+- Provide step-by-step explanations when needed
+- Encourage children when they struggle
+- Make learning engaging and fun through discussion
+- Guide children to discover answers rather than just giving them
 
 ${agent.learningObjective ? `Learning Objective: ${agent.learningObjective}
 
-Focus on helping students achieve this specific learning objective through your teaching.` : ''}
+Focus on helping children achieve this specific learning objective through thoughtful conversation and guided discovery.` : ''}
 
-Always be patient, supportive, and adapt to each student's learning pace. If a student seems confused, break down concepts into smaller steps. Celebrate their progress and effort!`;
+Always be patient, supportive, and adapt to each child's learning pace and style. If a child seems confused, ask simpler questions to help them build understanding step by step. Celebrate their thinking process and effort, not just correct answers!`;
   };
   
   const handleCreateAgent = async () => {
@@ -78,16 +80,16 @@ Always be patient, supportive, and adapt to each student's learning pace. If a s
     if (!user) {
       toast({
         title: "Authentication Required",
-        description: "Please sign in to create a tutor.",
+        description: "Please sign in to create a thinking partner.",
         variant: "destructive",
       });
       return;
     }
 
-    if (!tempAgent.name || tempAgent.name === "New Tutor") {
+    if (!tempAgent.name || tempAgent.name === "New Thinking Partner") {
       toast({
         title: "Missing Information",
-        description: "Please provide a name for your tutor.",
+        description: "Please provide a name for your thinking partner.",
         variant: "destructive",
       });
       return;
@@ -96,7 +98,7 @@ Always be patient, supportive, and adapt to each student's learning pace. If a s
     if (!tempAgent.subject) {
       toast({
         title: "Missing Information", 
-        description: "Please select a subject for your tutor.",
+        description: "Please select a subject for your thinking partner.",
         variant: "destructive",
       });
       return;
@@ -117,28 +119,28 @@ Always be patient, supportive, and adapt to each student's learning pace. If a s
         channelConfigs: {
           chat: {
             enabled: true,
-            details: "Available for student chat"
+            details: "Available for child chat"
           }
         }
       });
       
       // Check if creation was successful
       if (!createdAgent) {
-        throw new Error("Failed to create tutor. Please try again.");
+        throw new Error("Failed to create thinking partner. Please try again.");
       }
       
       toast({
-        title: "Tutor Created!",
+        title: "Thinking Partner Created!",
         description: `${createdAgent.name} has been successfully created with auto-generated teaching instructions.`,
       });
       
       // Navigate to the dashboard instead of the tutor detail page
       navigate("/dashboard");
     } catch (error) {
-      console.error("Error creating tutor:", error);
+      console.error("Error creating thinking partner:", error);
       toast({
         title: "Creation Failed",
-        description: error instanceof Error ? error.message : "There was an error creating your tutor. Please try again.",
+        description: error instanceof Error ? error.message : "There was an error creating your thinking partner. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -157,9 +159,9 @@ Always be patient, supportive, and adapt to each student's learning pace. If a s
         </div>
         
         <div className="text-center mb-8 sm:mb-12">
-          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-fg mb-2 sm:mb-3 px-2">Create Your AI Tutor</h1>
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-fg mb-2 sm:mb-3 px-2">Create Your Child's AI Thinking Partner</h1>
           <p className="text-base sm:text-lg text-fgMuted max-w-2xl mx-auto px-4">
-            Set up a personalized AI tutor that adapts to your teaching style and helps students learn effectively
+            Set up a personalized AI thinking partner that adapts to your child's learning style and helps them explore ideas effectively
           </p>
         </div>
         
@@ -176,7 +178,7 @@ Always be patient, supportive, and adapt to each student's learning pace. If a s
           <div className="border-t border-border bg-bgMuted/30 p-4 sm:px-6 sm:py-6 lg:px-8">
             <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
               <div className="text-xs sm:text-sm text-fgMuted text-center sm:text-left">
-                Teaching instructions will be automatically generated based on your tutor's configuration
+                Teaching instructions will be automatically generated based on your thinking partner's configuration
               </div>
               <Button 
                 onClick={handleCreateAgent} 
@@ -187,13 +189,13 @@ Always be patient, supportive, and adapt to each student's learning pace. If a s
                 {isSubmitting ? (
                   <>
                     <Loader2 className="h-4 w-4 sm:h-5 sm:w-5 animate-spin" />
-                    <span className="hidden xs:inline">Creating Tutor...</span>
+                    <span className="hidden xs:inline">Creating Thinking Partner...</span>
                     <span className="xs:hidden">Creating...</span>
                   </>
                 ) : (
                   <>
                     <CheckCircle2 className="h-4 w-4 sm:h-5 sm:w-5" />
-                    <span className="hidden xs:inline">Create Tutor</span>
+                    <span className="hidden xs:inline">Create Thinking Partner</span>
                     <span className="xs:hidden">Create</span>
                   </>
                 )}
@@ -206,4 +208,4 @@ Always be patient, supportive, and adapt to each student's learning pace. If a s
   );
 };
 
-export default AgentCreate;
+export default ThinkingPartnerCreate;
