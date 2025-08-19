@@ -149,24 +149,29 @@ Always be patient, supportive, and adapt to each child's learning pace and style
   };
   
   return (
-    <div className="min-h-screen bg-gradient-to-br from-bg via-bg to-bgMuted/30">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 py-4 sm:py-8 animate-fade-in">
-        <div className="mb-6 sm:mb-8">
-          <Link to="/dashboard" className="inline-flex items-center text-fgMuted hover:text-fg transition-colors group">
-            <ArrowLeft className="h-4 w-4 mr-2 group-hover:-translate-x-1 transition-transform" />
-            <span className="text-sm sm:text-base">Back to Dashboard</span>
+    <div className="min-h-screen bg-bg">
+      <div className="max-w-4xl mx-auto px-4 py-8">
+        <div className="mb-8">
+          <Link 
+            to="/dashboard" 
+            className="inline-flex items-center text-fgMuted hover:text-fg transition-colors mb-6"
+          >
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to Dashboard
           </Link>
+          
+          <div className="text-center">
+            <h1 className="text-3xl font-semibold text-fg mb-3">
+              Create Your Child's AI Thinking Partner
+            </h1>
+            <p className="text-lg text-fgMuted max-w-2xl mx-auto">
+              Set up a personalized AI thinking partner that adapts to your child's learning style and helps them explore ideas effectively
+            </p>
+          </div>
         </div>
         
-        <div className="text-center mb-8 sm:mb-12">
-          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-fg mb-2 sm:mb-3 px-2">Create Your Child's AI Thinking Partner</h1>
-          <p className="text-base sm:text-lg text-fgMuted max-w-2xl mx-auto px-4">
-            Set up a personalized AI thinking partner that adapts to your child's learning style and helps them explore ideas effectively
-          </p>
-        </div>
-        
-        <div className="bg-bg/80 backdrop-blur-sm border border-border rounded-xl sm:rounded-2xl shadow-xl overflow-hidden">
-          <div className="p-4 sm:p-6 lg:p-8">
+        <div className="bg-bg border border-border rounded-xl shadow-sm overflow-hidden">
+          <div className="p-8">
             <AgentConfigSettings 
               agent={tempAgent}
               onAgentUpdate={handleAgentUpdate}
@@ -175,28 +180,26 @@ Always be patient, supportive, and adapt to each child's learning pace and style
             />
           </div>
           
-          <div className="border-t border-border bg-bgMuted/30 p-4 sm:px-6 sm:py-6 lg:px-8">
-            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
-              <div className="text-xs sm:text-sm text-fgMuted text-center sm:text-left">
+          <div className="border-t border-border bg-bgMuted/30 p-6">
+            <div className="flex justify-between items-center">
+              <p className="text-sm text-fgMuted">
                 Teaching instructions will be automatically generated based on your thinking partner's configuration
-              </div>
+              </p>
               <Button 
                 onClick={handleCreateAgent} 
                 disabled={isSubmitting}
-                className="gap-2 px-6 sm:px-8 py-3 text-sm sm:text-base font-medium w-full sm:w-auto"
+                className="gap-2 px-8 py-3 font-medium"
                 size="lg"
               >
                 {isSubmitting ? (
                   <>
-                    <Loader2 className="h-4 w-4 sm:h-5 sm:w-5 animate-spin" />
-                    <span className="hidden xs:inline">Creating Thinking Partner...</span>
-                    <span className="xs:hidden">Creating...</span>
+                    <Loader2 className="h-5 w-5 animate-spin" />
+                    Creating Thinking Partner...
                   </>
                 ) : (
                   <>
-                    <CheckCircle2 className="h-4 w-4 sm:h-5 sm:w-5" />
-                    <span className="hidden xs:inline">Create Thinking Partner</span>
-                    <span className="xs:hidden">Create</span>
+                    <CheckCircle2 className="h-5 w-5" />
+                    Create Thinking Partner
                   </>
                 )}
               </Button>

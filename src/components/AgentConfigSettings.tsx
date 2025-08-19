@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -86,18 +85,18 @@ const TeacherConfigSettings: React.FC<TeacherConfigSettingsProps> = ({
         onAgentUpdate(updatedAgent);
         
         if (showSuccessToast) {
-          showSuccessToast("Changes saved", "Your tutor has been updated automatically.");
+          showSuccessToast("Changes saved", "Your thinking partner has been updated automatically.");
         } else {
           toast({
             title: "Changes saved",
-            description: "Your tutor has been updated automatically."
+            description: "Your thinking partner has been updated automatically."
           });
         }
       } catch (error) {
-        console.error("Error saving tutor settings:", error);
+        console.error("Error saving thinking partner settings:", error);
         toast({
           title: "Failed to save changes",
-          description: "There was an error updating your tutor.",
+          description: "There was an error updating your thinking partner.",
           variant: "destructive"
         });
       } finally {
@@ -190,39 +189,39 @@ const TeacherConfigSettings: React.FC<TeacherConfigSettingsProps> = ({
 
   const generatePrompt = () => {
     const subjectName = subject === 'other' ? customSubject : SUBJECTS.find(s => s.id === subject)?.name || 'the subject';
-    const gradeName = GRADE_LEVELS.find(g => g.id === gradeLevel)?.name || 'students';
+    const gradeName = GRADE_LEVELS.find(g => g.id === gradeLevel)?.name || 'children';
     
-    const basePrompt = `You are ${name}, a friendly and knowledgeable tutor specializing in ${subjectName} for ${gradeName}.
+    const basePrompt = `You are ${name}, a friendly and knowledgeable thinking partner specializing in ${subjectName} for ${gradeName}.
 
 Your main goals are to:
-- Help students understand concepts clearly
+- Help children understand concepts clearly
 - Provide step-by-step explanations
-- Encourage students when they struggle
+- Encourage children when they struggle
 - Ask questions to check understanding
 - Make learning engaging and fun
 
 ${learningObjective ? `Learning Objective: ${learningObjective}
 
-Focus on helping students achieve this specific learning objective through your teaching.` : ''}
+Focus on helping children achieve this specific learning objective through your teaching.` : ''}
 
-Always be patient, supportive, and adapt to each student's learning pace. If a student seems confused, break down concepts into smaller steps. Celebrate their progress and effort!`;
+Always be patient, supportive, and adapt to each child's learning pace. If a child seems confused, break down concepts into smaller steps. Celebrate their progress and effort!`;
 
     setPrompt(basePrompt);
   };
 
   return (
-    <div className="space-y-4 sm:space-y-6">
-      <Card>
-        <CardHeader className="pb-4 sm:pb-6">
-          <CardTitle className="text-lg sm:text-xl">Tutor Identity</CardTitle>
-          <CardDescription className="text-sm sm:text-base">
-            Set up your AI tutor's name and appearance
+    <div className="space-y-6">
+      <Card className="border-border bg-bg">
+        <CardHeader className="pb-6">
+          <CardTitle className="text-xl text-fg">Thinking Partner Identity</CardTitle>
+          <CardDescription className="text-fgMuted">
+            Set up your AI thinking partner's name and appearance
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-6">
             <div className="space-y-2">
-              <Label htmlFor="tutor-name" className="text-sm">Tutor Name</Label>
+              <Label htmlFor="tutor-name" className="text-sm text-fg">Thinking Partner Name</Label>
               <Input
                 id="tutor-name"
                 value={name}
@@ -233,10 +232,10 @@ Always be patient, supportive, and adapt to each student's learning pace. If a s
             </div>
             
             <div className="flex flex-col items-center space-y-4">
-              <Avatar className="h-20 w-20 sm:h-24 sm:w-24 border-2 border-primary/30">
+              <Avatar className="h-24 w-24 border-2 border-primary/30">
                 <AvatarImage src={avatar} alt={name} />
                 <AvatarFallback>
-                  <Bot className="h-10 w-10 sm:h-12 sm:w-12" />
+                  <Bot className="h-12 w-12" />
                 </AvatarFallback>
               </Avatar>
               
@@ -254,7 +253,7 @@ Always be patient, supportive, and adapt to each student's learning pace. If a s
                     variant="outline" 
                     onClick={() => fileInputRef.current?.click()}
                     disabled={isUploading}
-                    className="text-xs sm:text-sm"
+                    className="text-sm"
                     size="sm"
                   >
                     <Upload className="h-4 w-4 mr-2" />
@@ -264,7 +263,7 @@ Always be patient, supportive, and adapt to each student's learning pace. If a s
                   <Button 
                     variant="outline" 
                     onClick={generateRandomAvatar} 
-                    className="text-xs sm:text-sm"
+                    className="text-sm"
                     size="sm"
                   >
                     Generate Random
@@ -276,25 +275,25 @@ Always be patient, supportive, and adapt to each student's learning pace. If a s
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader className="pb-4 sm:pb-6">
-          <CardTitle className="text-lg sm:text-xl">Teaching Configuration</CardTitle>
-          <CardDescription className="text-sm sm:text-base">
-            Configure what and how your tutor teaches
+      <Card className="border-border bg-bg">
+        <CardHeader className="pb-6">
+          <CardTitle className="text-xl text-fg">Teaching Configuration</CardTitle>
+          <CardDescription className="text-fgMuted">
+            Configure what and how your thinking partner teaches
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4 sm:space-y-6">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <Label className="text-sm">Subject</Label>
+                <Label className="text-sm text-fg">Subject</Label>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   {SUBJECTS.map((subj) => (
                     <Button
                       key={subj.id}
                       type="button"
                       variant={subject === subj.id ? "default" : "outline"}
-                      className="justify-start gap-2 text-xs sm:text-sm py-2 px-3"
+                      className="justify-start gap-2 text-sm py-2 px-3"
                       onClick={() => setSubject(subj.id)}
                     >
                       {subj.icon}
@@ -314,7 +313,7 @@ Always be patient, supportive, and adapt to each student's learning pace. If a s
               </div>
 
               <div className="space-y-2">
-                <Label className="text-sm">Grade Level</Label>
+                <Label className="text-sm text-fg">Grade Level</Label>
                 <Select value={gradeLevel} onValueChange={setGradeLevel}>
                   <SelectTrigger className="text-sm">
                     <SelectValue placeholder="Select grade level" />
@@ -331,16 +330,16 @@ Always be patient, supportive, and adapt to each student's learning pace. If a s
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="learning-objective" className="text-sm">Learning Objective</Label>
+              <Label htmlFor="learning-objective" className="text-sm text-fg">Learning Objective</Label>
               <Textarea
                 id="learning-objective"
                 value={learningObjective}
                 onChange={(e) => setLearningObjective(e.target.value)}
-                placeholder="e.g., Help students master solving quadratic equations and understand their real-world applications"
+                placeholder="e.g., Help children master solving quadratic equations and understand their real-world applications"
                 className="min-h-[80px] text-sm"
               />
-              <p className="text-xs text-muted-foreground">
-                Describe what specific learning goals this tutor should help students achieve
+              <p className="text-xs text-fgMuted">
+                Describe what specific learning goals this thinking partner should help children achieve
               </p>
             </div>
           </div>
@@ -348,11 +347,11 @@ Always be patient, supportive, and adapt to each student's learning pace. If a s
       </Card>
 
       {showTeachingInstructions && (
-        <Card>
-          <CardHeader className="pb-4 sm:pb-6">
-            <CardTitle className="text-lg sm:text-xl">Teaching Instructions</CardTitle>
-            <CardDescription className="text-sm sm:text-base">
-              Customize how your tutor communicates with students
+        <Card className="border-border bg-bg">
+          <CardHeader className="pb-6">
+            <CardTitle className="text-xl text-fg">Teaching Instructions</CardTitle>
+            <CardDescription className="text-fgMuted">
+              Customize how your thinking partner communicates with children
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -361,26 +360,25 @@ Always be patient, supportive, and adapt to each student's learning pace. If a s
                 <Button 
                   onClick={generatePrompt}
                   variant="outline"
-                  className="gap-2 text-xs sm:text-sm"
+                  className="gap-2 text-sm"
                   size="sm"
                 >
                   <Brain className="h-4 w-4" />
-                  <span className="hidden xs:inline">Generate Instructions</span>
-                  <span className="xs:hidden">Generate</span>
+                  Generate Instructions
                 </Button>
               </div>
               
               <div>
-                <Label htmlFor="tutor-prompt" className="text-sm">Teaching Instructions</Label>
+                <Label htmlFor="tutor-prompt" className="text-sm text-fg">Teaching Instructions</Label>
                 <Textarea
                   id="tutor-prompt"
                   value={prompt}
                   onChange={(e) => setPrompt(e.target.value)}
-                  placeholder="Enter detailed instructions for how your tutor should behave and teach..."
-                  className="min-h-[150px] sm:min-h-[200px] font-mono text-xs sm:text-sm mt-2"
+                  placeholder="Enter detailed instructions for how your thinking partner should behave and teach..."
+                  className="min-h-[200px] font-mono text-sm mt-2"
                 />
-                <p className="text-xs text-muted-foreground mt-2">
-                  These instructions tell your AI tutor how to interact with students and what teaching approach to use
+                <p className="text-xs text-fgMuted mt-2">
+                  These instructions tell your AI thinking partner how to interact with children and what teaching approach to use
                 </p>
               </div>
             </div>
