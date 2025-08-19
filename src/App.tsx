@@ -47,66 +47,37 @@ const App = () => (
               <Route path="/chat/:tutorId" element={<StudentChat />} />
               
               {/* Protected dashboard routes */}
-              <Route path="/dashboard" element={
-                <DashboardLayout>
-                  <TeacherDashboard />
-                </DashboardLayout>
-              } />
+              <Route path="/dashboard" element={<DashboardLayout />}>
+                <Route index element={<TeacherDashboard />} />
+              </Route>
               
-              <Route path="/simple-dashboard" element={
-                <SimpleDashboardLayout>
-                  <SimpleTeacherDashboard />
-                </SimpleDashboardLayout>
-              } />
+              <Route path="/simple-dashboard" element={<SimpleDashboardLayout />}>
+                <Route index element={<SimpleTeacherDashboard />} />
+              </Route>
               
-              <Route path="/marketplace" element={
-                <DashboardLayout>
-                  <Marketplace />
-                </DashboardLayout>
-              } />
+              <Route path="/marketplace" element={<DashboardLayout />}>
+                <Route index element={<Marketplace />} />
+              </Route>
               
-              <Route path="/professional-development" element={
-                <DashboardLayout>
-                  <ProfessionalDevelopment />
-                </DashboardLayout>
-              } />
+              <Route path="/professional-development" element={<DashboardLayout />}>
+                <Route index element={<ProfessionalDevelopment />} />
+              </Route>
               
-              <Route path="/settings" element={
-                <DashboardLayout>
-                  <Settings />
-                </DashboardLayout>
-              } />
+              <Route path="/settings" element={<DashboardLayout />}>
+                <Route index element={<Settings />} />
+              </Route>
               
-              <Route path="/billing" element={
-                <DashboardLayout>
-                  <Billing />
-                </DashboardLayout>
-              } />
+              <Route path="/billing" element={<DashboardLayout />}>
+                <Route index element={<Billing />} />
+              </Route>
               
               {/* Agents routes */}
-              <Route path="/agents" element={
-                <AgentsLayout>
-                  <AgentsDashboard />
-                </AgentsLayout>
-              } />
-              
-              <Route path="/agents/create" element={
-                <AgentsLayout>
-                  <AgentCreate />
-                </AgentsLayout>
-              } />
-              
-              <Route path="/agents/:id" element={
-                <AgentsLayout>
-                  <AgentDetails />
-                </AgentsLayout>
-              } />
-              
-              <Route path="/agents/:id/analytics" element={
-                <AgentsLayout>
-                  <AgentAnalytics />
-                </AgentsLayout>
-              } />
+              <Route path="/agents" element={<AgentsLayout />}>
+                <Route index element={<AgentsDashboard />} />
+                <Route path="create" element={<AgentCreate />} />
+                <Route path=":id" element={<AgentDetails />} />
+                <Route path=":id/analytics" element={<AgentAnalytics />} />
+              </Route>
               
               {/* Catch all - redirect to home */}
               <Route path="*" element={<NotFound />} />
