@@ -18,7 +18,9 @@ import {
   Bot, 
   Settings,
   Play,
-  Link
+  Link,
+  MessageSquare,
+  Clock
 } from "lucide-react";
 import { AgentType } from "@/types/agent";
 import { toast } from "@/components/ui/use-toast";
@@ -52,6 +54,35 @@ const ThinkingPartnersDashboard = () => {
   const capitalizeFirst = (text: string) => {
     if (!text) return "";
     return text.charAt(0).toUpperCase() + text.slice(1);
+  };
+
+  const formatUsageStats = (interactions: number, studentsHelped: number) => {
+    if (interactions === 0 && studentsHelped === 0) {
+      return "No activity yet";
+    }
+    
+    const parts = [];
+    if (interactions > 0) {
+      parts.push(`${interactions} conversation${interactions !== 1 ? 's' : ''}`);
+    }
+    if (studentsHelped > 0) {
+      parts.push(`${studentsHelped} child${studentsHelped !== 1 ? 'ren' : ''} helped`);
+    }
+    
+    return parts.join(' • ');
+  };
+
+  const getLastActivityText = (createdAt: string, updatedAt?: string) => {
+    const lastUpdate = updatedAt || createdAt;
+    const date = new Date(lastUpdate);
+    const now = new Date();
+    const diffInDays = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24));
+    
+    if (diffInDays === 0) return "Active today";
+    if (diffInDays === 1) return "Active yesterday";
+    if (diffInDays < 7) return `Active ${diffInDays} days ago`;
+    if (diffInDays < 30) return `Active ${Math.floor(diffInDays / 7)} week${Math.floor(diffInDays / 7) !== 1 ? 's' : ''} ago`;
+    return `Active ${Math.floor(diffInDays / 30)} month${Math.floor(diffInDays / 30) !== 1 ? 's' : ''} ago`;
   };
 
   if (isLoading) {
@@ -171,6 +202,23 @@ const ThinkingPartnersDashboard = () => {
                   {agent.description}
                 </p>
               )}
+
+              {/* Usage Summary */}
+              <div className="p-3 bg-blue-50 rounded-xl border border-blue-200/50">
+                <div className="flex items-center gap-2 mb-1">
+                  <MessageSquare className="h-3 w-3 text-blue-600" />
+                  <span className="text-xs font-medium text-blue-700">Usage Summary</span>
+                </div>
+                <p className="text-xs text-blue-700/80 leading-relaxed">
+                  {formatUsageStats(agent.interactions || 0, agent.studentsSaved || 0)}
+                </p>
+                <div className="flex items-center gap-1 mt-1">
+                  <Clock className="h-3 w-3 text-blue-600/60" />
+                  <span className="text-xs text-blue-600/60">
+                    {getLastActivityText(agent.createdAt, agent.updatedAt)}
+                  </span>
+                </div>
+              </div>
               
               <Button 
                 onClick={() => handleStartChat(agent.id)}
