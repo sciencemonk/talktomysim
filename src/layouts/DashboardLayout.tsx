@@ -1,6 +1,5 @@
-
 import { Link, useLocation } from "react-router-dom";
-import { UserSettingsDropdown } from "@/components/UserSettingsDropdown";
+import UserSettingsDropdown from "@/components/UserSettingsDropdown";
 import { NavigationMenu, NavigationMenuContent, NavigationMenuItem, NavigationMenuLink, NavigationMenuList, NavigationMenuTrigger } from "@/components/ui/navigation-menu";
 import ProtectedRoute from "@/components/ProtectedRoute";
 

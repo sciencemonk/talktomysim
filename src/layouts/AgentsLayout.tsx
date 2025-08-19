@@ -1,8 +1,7 @@
-
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import AgentsSidebar from "@/components/AgentsSidebar";
 import { Outlet } from "react-router-dom";
-import { UserSettingsDropdown } from "@/components/UserSettingsDropdown";
+import UserSettingsDropdown from "@/components/UserSettingsDropdown";
 import ProtectedRoute from "@/components/ProtectedRoute";
 
 const AgentsLayout = () => {
