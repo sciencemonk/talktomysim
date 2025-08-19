@@ -4,9 +4,45 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Brain, Users, MessageSquare, ArrowRight, Sparkles, Shield, Heart, DollarSign, Clock, Target } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
+import { useState } from "react";
+import { useToast } from "@/hooks/use-toast";
+import { Loader2 } from "lucide-react";
 
 const Index = () => {
   const { user } = useAuth();
+  const { toast } = useToast();
+  const [isSigningIn, setIsSigningIn] = useState(false);
+
+  const handleSignInWithGoogle = async () => {
+    try {
+      setIsSigningIn(true);
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/dashboard`,
+        },
+      });
+
+      if (error) {
+        console.error('Google sign in error:', error);
+        toast({
+          title: "Sign In Failed",
+          description: error.message || "There was an error signing in with Google. Please try again.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error('Unexpected error during Google sign in:', error);
+      toast({
+        title: "Sign In Failed",
+        description: "An unexpected error occurred. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSigningIn(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-white">
@@ -26,6 +62,14 @@ const Index = () => {
             Personalized conversations that spark curiosity and deepen understanding.
           </h2>
           
+          {/* Free offer tag */}
+          <div className="inline-flex items-center gap-2 px-4 py-2 mb-6 bg-green-50 border border-green-200 rounded-full">
+            <Sparkles className="h-4 w-4 text-green-600" />
+            <span className="text-sm font-medium text-green-700">
+              Free to create an account • Get 1 hour free when you sign up (Limited time offer)
+            </span>
+          </div>
+          
           {user ? (
             <Link to="/dashboard">
               <Button size="lg" className="bg-gray-900 hover:bg-gray-800 text-white px-10 py-4 text-lg rounded-full font-medium shadow-xl hover:shadow-2xl transition-all duration-300">
@@ -34,12 +78,23 @@ const Index = () => {
               </Button>
             </Link>
           ) : (
-            <Link to="/login">
-              <Button size="lg" className="bg-gray-900 hover:bg-gray-800 text-white px-10 py-4 text-lg rounded-full font-medium shadow-xl hover:shadow-2xl transition-all duration-300">
-                Get Started
-                <ArrowRight className="ml-3 h-5 w-5" />
-              </Button>
-            </Link>
+            <Button 
+              onClick={handleSignInWithGoogle}
+              disabled={isSigningIn}
+              size="lg" 
+              className="bg-gray-900 hover:bg-gray-800 text-white px-10 py-4 text-lg rounded-full font-medium shadow-xl hover:shadow-2xl transition-all duration-300 inline-flex items-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isSigningIn ? (
+                <Loader2 className="h-5 w-5 animate-spin" />
+              ) : (
+                <img 
+                  src="/lovable-uploads/b0174e22-c5cc-4bc5-8b34-8df738173560.png" 
+                  alt="Google" 
+                  className="h-5 w-5"
+                />
+              )}
+              <span>{isSigningIn ? "Signing in..." : "Sign in with Google"}</span>
+            </Button>
           )}
         </div>
 
@@ -255,7 +310,7 @@ const Index = () => {
         </div>
 
         {/* CTA Section */}
-        <div className="text-center">
+        <div className="text-center mb-20">
           <h2 className="text-4xl font-light text-gray-900 mb-6">
             Ready to Transform Learning?
           </h2>
@@ -264,15 +319,63 @@ const Index = () => {
             that make learning engaging, focused, and fun.
           </p>
           {!user && (
-            <Link to="/login">
-              <Button size="lg" className="bg-gray-900 hover:bg-gray-800 text-white px-10 py-4 text-lg rounded-full font-medium shadow-xl hover:shadow-2xl transition-all duration-300">
-                Start Creating Today
-                <ArrowRight className="ml-3 h-5 w-5" />
-              </Button>
-            </Link>
+            <>
+              <div className="inline-flex items-center gap-2 px-4 py-2 mb-6 bg-green-50 border border-green-200 rounded-full">
+                <Sparkles className="h-4 w-4 text-green-600" />
+                <span className="text-sm font-medium text-green-700">
+                  Free to create an account • Get 1 hour free when you sign up (Limited time offer)
+                </span>
+              </div>
+              <div>
+                <Button 
+                  onClick={handleSignInWithGoogle}
+                  disabled={isSigningIn}
+                  size="lg" 
+                  className="bg-gray-900 hover:bg-gray-800 text-white px-10 py-4 text-lg rounded-full font-medium shadow-xl hover:shadow-2xl transition-all duration-300 inline-flex items-center gap-3 disabled:opacity-50 disabled:cursor-not-turned"
+                >
+                  {isSigningIn ? (
+                    <Loader2 className="h-5 w-5 animate-spin" />
+                  ) : (
+                    <img 
+                      src="/lovable-uploads/b0174e22-c5cc-4bc5-8b34-8df738173560.png" 
+                      alt="Google" 
+                      className="h-5 w-5"
+                    />
+                  )}
+                  <span>{isSigningIn ? "Signing in..." : "Sign in with Google"}</span>
+                </Button>
+              </div>
+            </>
           )}
         </div>
       </div>
+
+      {/* Footer */}
+      <footer className="bg-gray-50 border-t border-gray-200">
+        <div className="container mx-auto px-4 py-12">
+          <div className="text-center">
+            <div className="flex items-center justify-center mb-6">
+              <div className="p-3 rounded-2xl bg-gradient-to-br from-blue-500 to-purple-600 shadow-lg mr-3">
+                <Brain className="h-6 w-6 text-white" />
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900">Think With Me</h3>
+            </div>
+            <p className="text-gray-600 mb-6 max-w-md mx-auto">
+              Empowering families to create personalized AI learning experiences for their children.
+            </p>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-6 text-sm text-gray-500">
+              <div>© 2025 Think With Me. All rights reserved.</div>
+              <div className="flex items-center gap-4">
+                <span>Privacy Policy</span>
+                <span>•</span>
+                <span>Terms of Service</span>
+                <span>•</span>
+                <span>Contact Us</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 };
