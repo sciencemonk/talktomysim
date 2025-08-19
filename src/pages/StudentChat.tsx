@@ -135,8 +135,8 @@ const StudentChat = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col">
-      {/* Top Navigation */}
-      <div className="flex-shrink-0 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+      {/* Fixed Top Navigation */}
+      <div className="fixed top-0 left-0 right-0 z-50 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 shadow-sm">
         <div className="container mx-auto px-6 py-3">
           <div className="flex items-center justify-between">
             <Button 
@@ -175,8 +175,8 @@ const StudentChat = () => {
         </div>
       </div>
 
-      {/* Main Chat Interface */}
-      <div className="flex-1 container mx-auto px-6 py-4 max-w-6xl">
+      {/* Main Chat Interface - Add top padding to account for fixed header */}
+      <div className="flex-1 container mx-auto px-6 py-4 max-w-6xl mt-16">
         <div className="h-full bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
           {!hasStarted ? (
             <div className="h-full flex flex-col items-center justify-center p-8">

@@ -27,19 +27,24 @@ const WordHighlighter: React.FC<{ text: string; isComplete: boolean }> = ({ text
   
   return (
     <span className="text-3xl leading-relaxed font-medium">
-      {words.map((word, index) => (
-        <span
-          key={index}
-          className={cn(
-            "inline-block mr-2 mb-1 transition-all duration-300",
-            !isComplete && index === words.length - 1 
-              ? "bg-yellow-200 dark:bg-yellow-600 px-1 rounded animate-pulse" 
-              : ""
-          )}
-        >
-          {word}
-        </span>
-      ))}
+      {words.map((word, index) => {
+        // Only highlight the last few words when streaming, with slower timing
+        const shouldHighlight = !isComplete && index >= Math.max(0, words.length - 3);
+        
+        return (
+          <span
+            key={index}
+            className={cn(
+              "inline-block mr-2 mb-1 transition-all duration-700 ease-in-out",
+              shouldHighlight
+                ? "bg-yellow-200 dark:bg-yellow-600 px-1 rounded animate-pulse" 
+                : ""
+            )}
+          >
+            {word}
+          </span>
+        );
+      })}
     </span>
   );
 };
@@ -89,7 +94,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
 
   return (
     <div className="flex flex-col h-full bg-gradient-to-b from-blue-50 to-purple-50 dark:from-gray-900 dark:to-gray-800">
-      {/* Header */}
+      {/* Header - now simpler since top nav is fixed */}
       <div className="flex-shrink-0 bg-white dark:bg-gray-800 border-b-4 border-blue-200 dark:border-blue-700 p-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
@@ -188,8 +193,8 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
                       {!message.isComplete && message.role === "system" && (
                         <div className="flex items-center gap-2 mt-4">
                           <div className="h-4 w-4 bg-blue-500 rounded-full animate-bounce" />
-                          <div className="h-4 w-4 bg-purple-500 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }} />
-                          <div className="h-4 w-4 bg-green-500 rounded-full animate-bounce" style={{ animationDelay: '0.4s' }} />
+                          <div className="h-4 w-4 bg-purple-500 rounded-full animate-bounce" style={{ animationDelay: '0.3s' }} />
+                          <div className="h-4 w-4 bg-green-500 rounded-full animate-bounce" style={{ animationDelay: '0.6s' }} />
                         </div>
                       )}
                     </div>
