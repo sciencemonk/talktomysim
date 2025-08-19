@@ -1,9 +1,10 @@
+
 import { useParams, useNavigate } from "react-router-dom";
 import { useAgentDetails } from "@/hooks/useAgentDetails";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Bot, Phone, MessageCircle, Mail, Target, ChevronLeft, Users, TrendingUp, Clock, Star } from "lucide-react";
+import { Bot, Target, ChevronLeft, MessageCircle, Clock, Eye } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import AgentConfigSettings from "@/components/AgentConfigSettings";
@@ -29,6 +30,12 @@ const AgentDetails = () => {
 
   const handleBack = () => {
     navigate('/dashboard');
+  };
+
+  const handleViewChat = () => {
+    if (agentId) {
+      navigate(`/tutors/${agentId}/chat`);
+    }
   };
 
   if (isLoading) {
@@ -73,9 +80,9 @@ const AgentDetails = () => {
               <div className="flex flex-col items-center text-center space-y-4">
                 <Bot className="h-12 w-12 text-red-500" />
                 <div>
-                  <h3 className="font-semibold text-slate-900">Tutor Not Found</h3>
+                  <h3 className="font-semibold text-slate-900">Thinking Partner Not Found</h3>
                   <p className="text-sm text-slate-600 mt-1">
-                    {error || "The tutor you're looking for doesn't exist or you don't have permission to view it."}
+                    {error || "The thinking partner you're looking for doesn't exist or you don't have permission to view it."}
                   </p>
                 </div>
               </div>
@@ -86,7 +93,7 @@ const AgentDetails = () => {
   }
 
   const handleAgentUpdate = (updatedAgent: any) => {
-    console.log("Agent updated:", updatedAgent);
+    console.log("Thinking partner updated:", updatedAgent);
   };
 
   return <div className="min-h-screen bg-slate-50">
@@ -99,12 +106,16 @@ const AgentDetails = () => {
               Back to Dashboard
             </Button>
             
+            <Button onClick={handleViewChat} className="gap-2">
+              <Eye className="h-4 w-4" />
+              View Chat
+            </Button>
           </div>
         </div>
       </div>
 
       <div className="container mx-auto px-6 py-6 space-y-6">
-        {/* Tutor Header */}
+        {/* Thinking Partner Header */}
         <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-6">
           <div className="flex flex-col sm:flex-row sm:items-start gap-4">
             <Avatar className="h-16 w-16 border-2 border-blue-100 shadow-md">
@@ -114,59 +125,41 @@ const AgentDetails = () => {
               </AvatarFallback>
             </Avatar>
             <div className="flex-1">
-              <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
-                <div>
-                  <h1 className="text-2xl font-bold text-slate-900 mb-2">{agent.name}</h1>
-                  <div className="flex items-center gap-2 mb-3">
-                    <Badge variant={agent.status === 'active' ? 'default' : 'secondary'} className={agent.status === 'active' ? 'bg-green-100 text-green-800 border-green-200' : ''}>
-                      {agent.status}
-                    </Badge>
-                    <span className="text-slate-600 font-medium text-sm">
-                      {agent.type} • {agent.subject || 'General'}
-                    </span>
-                  </div>
-                  <p className="text-slate-600 text-sm leading-relaxed mb-3">
-                    {agent.description || "A helpful AI tutor designed to support student learning"}
-                  </p>
-                  
-                  {agent.learningObjective && <div className="p-3 bg-green-50 rounded-md border border-green-200">
-                      <div className="flex items-center gap-2 mb-1">
-                        <Target className="h-4 w-4 text-green-600" />
-                        <span className="text-sm font-medium text-green-700">Learning Objective</span>
-                      </div>
-                      <p className="text-sm text-green-700">
-                        {agent.learningObjective}
-                      </p>
-                    </div>}
-                </div>
-                
-                {/* Quick Stats */}
-                <div className="grid grid-cols-2 sm:grid-cols-1 gap-3 sm:min-w-[200px]">
-                  <div className="bg-slate-50 rounded-lg p-3 text-center">
-                    <Users className="h-5 w-5 text-slate-600 mx-auto mb-1" />
-                    <div className="text-lg font-semibold text-slate-900">{agent.interactions || 0}</div>
-                    <div className="text-xs text-slate-600">Student Interactions</div>
-                  </div>
-                  <div className="bg-slate-50 rounded-lg p-3 text-center">
-                    <Star className="h-5 w-5 text-yellow-500 mx-auto mb-1" />
-                    <div className="text-lg font-semibold text-slate-900">{agent.csat || 0}%</div>
-                    <div className="text-xs text-slate-600">Satisfaction</div>
-                  </div>
-                </div>
+              <h1 className="text-2xl font-bold text-slate-900 mb-2">{agent.name}</h1>
+              <div className="flex items-center gap-2 mb-3">
+                <Badge variant={agent.status === 'active' ? 'default' : 'secondary'} className={agent.status === 'active' ? 'bg-green-100 text-green-800 border-green-200' : ''}>
+                  {agent.status}
+                </Badge>
+                <span className="text-slate-600 font-medium text-sm">
+                  {agent.type} • {agent.subject || 'General'}
+                </span>
               </div>
+              <p className="text-slate-600 text-sm leading-relaxed mb-3">
+                {agent.description || "A helpful AI thinking partner designed to support your child's learning"}
+              </p>
+              
+              {agent.learningObjective && <div className="p-3 bg-green-50 rounded-md border border-green-200">
+                  <div className="flex items-center gap-2 mb-1">
+                    <Target className="h-4 w-4 text-green-600" />
+                    <span className="text-sm font-medium text-green-700">Learning Objective</span>
+                  </div>
+                  <p className="text-sm text-green-700">
+                    {agent.learningObjective}
+                  </p>
+                </div>}
             </div>
           </div>
         </div>
 
         {/* Main Content Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Tutor Configuration - Takes up 2 columns */}
+          {/* Configuration - Takes up 2 columns */}
           <div className="lg:col-span-2">
             <Card className="shadow-sm border-slate-200">
               <CardHeader className="pb-4">
-                <CardTitle className="text-lg font-semibold text-slate-900">Tutor Configuration</CardTitle>
+                <CardTitle className="text-lg font-semibold text-slate-900">Thinking Partner Configuration</CardTitle>
                 <CardDescription className="text-sm text-slate-600">
-                  Customize your tutor's behavior, voice, and teaching approach
+                  Customize your child's thinking partner behavior and teaching approach
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -175,55 +168,34 @@ const AgentDetails = () => {
             </Card>
           </div>
 
-          {/* Usage Overview - Takes up 1 column */}
+          {/* Activity Overview - Takes up 1 column */}
           <div className="space-y-6">
-            {/* Communication Channels */}
+            {/* Quick Actions */}
             <Card className="shadow-sm border-slate-200">
               <CardHeader className="pb-4">
-                <CardTitle className="text-lg font-semibold text-slate-900">Available Channels</CardTitle>
+                <CardTitle className="text-lg font-semibold text-slate-900">Quick Actions</CardTitle>
                 <CardDescription className="text-sm text-slate-600">
-                  How students can interact with this tutor
+                  Manage your child's thinking partner
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-3">
-                <div className="flex items-center justify-between p-3 border border-slate-200 rounded-lg bg-slate-50">
-                  <div className="flex items-center gap-3">
-                    <div className="bg-blue-100 p-2 rounded-lg">
-                      <MessageCircle className="h-4 w-4 text-blue-600" />
-                    </div>
-                    <div>
-                      <h4 className="font-medium text-slate-900 text-sm">Chat Interface</h4>
-                      <p className="text-xs text-slate-600">Text conversations</p>
-                    </div>
-                  </div>
-                  <Badge className="bg-green-100 text-green-800 border-green-200 text-xs">Active</Badge>
-                </div>
+                <Button 
+                  onClick={handleViewChat}
+                  className="w-full gap-2"
+                  variant="outline"
+                >
+                  <MessageCircle className="h-4 w-4" />
+                  View Chat History
+                </Button>
                 
-                {agent.phone && <div className="flex items-center justify-between p-3 border border-slate-200 rounded-lg">
-                    <div className="flex items-center gap-3">
-                      <div className="bg-slate-100 p-2 rounded-lg">
-                        <Phone className="h-4 w-4 text-slate-600" />
-                      </div>
-                      <div>
-                        <h4 className="font-medium text-slate-900 text-sm">Phone</h4>
-                        <p className="text-xs text-slate-600">{agent.phone}</p>
-                      </div>
-                    </div>
-                    <Badge variant="secondary" className="text-xs">Available</Badge>
-                  </div>}
-                
-                {agent.email && <div className="flex items-center justify-between p-3 border border-slate-200 rounded-lg">
-                    <div className="flex items-center gap-3">
-                      <div className="bg-slate-100 p-2 rounded-lg">
-                        <Mail className="h-4 w-4 text-slate-600" />
-                      </div>
-                      <div>
-                        <h4 className="font-medium text-slate-900 text-sm">Email</h4>
-                        <p className="text-xs text-slate-600">{agent.email}</p>
-                      </div>
-                    </div>
-                    <Badge variant="secondary" className="text-xs">Available</Badge>
-                  </div>}
+                <Button 
+                  onClick={openRolePlay}
+                  className="w-full gap-2"
+                  variant="outline"
+                >
+                  <Bot className="h-4 w-4" />
+                  Test Conversation
+                </Button>
               </CardContent>
             </Card>
 
@@ -232,57 +204,54 @@ const AgentDetails = () => {
               <CardHeader className="pb-4">
                 <CardTitle className="text-lg font-semibold text-slate-900">Recent Activity</CardTitle>
                 <CardDescription className="text-sm text-slate-600">
-                  Latest student interactions
+                  Latest conversations with your child
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-3">
                 <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg">
                   <Clock className="h-4 w-4 text-slate-500" />
                   <div className="flex-1">
-                    <p className="text-sm font-medium text-slate-900">Math problem assistance</p>
+                    <p className="text-sm font-medium text-slate-900">Learning session</p>
                     <p className="text-xs text-slate-600">2 minutes ago</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg">
                   <Clock className="h-4 w-4 text-slate-500" />
                   <div className="flex-1">
-                    <p className="text-sm font-medium text-slate-900">Study session</p>
+                    <p className="text-sm font-medium text-slate-900">Question & answer</p>
                     <p className="text-xs text-slate-600">15 minutes ago</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg">
                   <Clock className="h-4 w-4 text-slate-500" />
                   <div className="flex-1">
-                    <p className="text-sm font-medium text-slate-900">Homework help</p>
+                    <p className="text-sm font-medium text-slate-900">Exploration chat</p>
                     <p className="text-xs text-slate-600">1 hour ago</p>
                   </div>
                 </div>
               </CardContent>
             </Card>
 
-            {/* Performance Summary */}
+            {/* Usage Summary */}
             <Card className="shadow-sm border-slate-200">
               <CardHeader className="pb-4">
-                <CardTitle className="text-lg font-semibold text-slate-900">Performance</CardTitle>
+                <CardTitle className="text-lg font-semibold text-slate-900">Usage Summary</CardTitle>
                 <CardDescription className="text-sm text-slate-600">
-                  Key metrics for this tutor
+                  Overview of conversations
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-slate-600">AVM Score</span>
-                  <div className="flex items-center gap-2">
-                    <div className="text-sm font-semibold text-slate-900">{agent.avmScore || 8.5}/10</div>
-                    <TrendingUp className="h-3 w-3 text-green-500" />
-                  </div>
+                  <span className="text-sm text-slate-600">Total Conversations</span>
+                  <div className="text-sm font-semibold text-slate-900">{agent.interactions || 0}</div>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-slate-600">Response Time</span>
-                  <div className="text-sm font-semibold text-slate-900">1.2s avg</div>
+                  <span className="text-sm text-slate-600">This Week</span>
+                  <div className="text-sm font-semibold text-slate-900">12</div>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-slate-600">Success Rate</span>
-                  <div className="text-sm font-semibold text-slate-900">{agent.performance || 92}%</div>
+                  <span className="text-sm text-slate-600">Average Duration</span>
+                  <div className="text-sm font-semibold text-slate-900">8 min</div>
                 </div>
               </CardContent>
             </Card>
