@@ -45,7 +45,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
       case 'connected':
         return isSpeaking ? `${agent.name} is speaking...` : `${agent.name} is listening...`;
       case 'error':
-        return 'Something went wrong';
+        return 'Connection error - please refresh';
       default:
         return 'Getting ready...';
     }
@@ -54,21 +54,19 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
   const getConnectionStatusColor = () => {
     switch (connectionStatus) {
       case 'connecting':
-        return 'text-warning dark:text-warning';
+        return 'text-yellow-600 dark:text-yellow-400';
       case 'connected':
-        return isSpeaking ? 'text-success dark:text-success' : 'text-brandBlue dark:text-brandBlue';
+        return isSpeaking ? 'text-green-600 dark:text-green-400' : 'text-blue-600 dark:text-blue-400';
       case 'error':
-        return 'text-destructive dark:text-destructive';
+        return 'text-red-600 dark:text-red-400';
       default:
-        return 'text-fgMuted dark:text-fgMuted';
+        return 'text-gray-500 dark:text-gray-400';
     }
   };
 
-  console.log('ChatInterface rendering with messages:', messages);
-
   return (
     <div className="flex flex-col h-full bg-gradient-to-br from-bg via-bgMuted to-bg">
-      {/* Header with Apple-style design */}
+      {/* Header with connection status */}
       <div className="flex-shrink-0 bg-bg/80 backdrop-blur-xl border-b border-border/20 p-6">
         <div className="flex items-center justify-between max-w-4xl mx-auto">
           <div className="flex items-center gap-4">
@@ -82,7 +80,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
               {isConnected && (
                 <div className={cn(
                   "absolute -bottom-1 -right-1 h-6 w-6 rounded-full border-2 border-bg transition-colors",
-                  isSpeaking ? "bg-success animate-pulse" : "bg-brandBlue"
+                  isSpeaking ? "bg-green-500 animate-pulse" : "bg-blue-500"
                 )} />
               )}
             </div>
@@ -94,8 +92,8 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
                 <div className={cn(
                   "h-2 w-2 rounded-full transition-colors",
                   isConnected 
-                    ? (isSpeaking ? "bg-success animate-pulse" : "bg-brandBlue") 
-                    : "bg-fgMuted/50"
+                    ? (isSpeaking ? "bg-green-500 animate-pulse" : "bg-blue-500") 
+                    : "bg-gray-400"
                 )} />
                 <p className={cn("text-sm transition-colors font-medium", getConnectionStatusColor())}>
                   {getConnectionStatusText()}
@@ -113,12 +111,12 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
           {isConnected && (
             <div className="flex items-center gap-3 px-4 py-2 bg-bgMuted/50 backdrop-blur-sm rounded-full border border-border/50">
               {isSpeaking ? (
-                <MicOff className="h-5 w-5 text-destructive" />
+                <MicOff className="h-5 w-5 text-red-500" />
               ) : (
-                <Mic className="h-5 w-5 text-success" />
+                <Mic className="h-5 w-5 text-green-500" />
               )}
               <span className="text-sm font-medium text-fg">
-                {isSpeaking ? 'AI Speaking' : 'You can speak'}
+                {isSpeaking ? 'AI Speaking' : 'You can speak or type'}
               </span>
             </div>
           )}
@@ -137,62 +135,64 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
                 Ready to chat with {agent.name}
               </h2>
               <p className="text-fgMuted">
-                Your conversation will begin shortly
+                {connectionStatus === 'connecting' 
+                  ? 'Your conversation will begin shortly' 
+                  : connectionStatus === 'error'
+                  ? 'Please refresh the page to try again'
+                  : 'Start by saying hello or typing a message'
+                }
               </p>
             </div>
           ) : (
             <>
-              {messages.map((message) => {
-                console.log('Rendering message:', message);
-                return (
+              {messages.map((message) => (
+                <div 
+                  key={message.id} 
+                  className={cn(
+                    "flex gap-4 animate-fade-in",
+                    message.role === "user" ? "justify-end" : "justify-start"
+                  )}
+                >
+                  {message.role === "system" && (
+                    <Avatar className="h-12 w-12 flex-shrink-0 mt-2">
+                      <AvatarImage src={agent.avatar} alt={agent.name} />
+                      <AvatarFallback className="bg-gradient-to-br from-brandBlue to-brandPurple text-white">
+                        <Bot className="h-6 w-6" />
+                      </AvatarFallback>
+                    </Avatar>
+                  )}
+                  
                   <div 
-                    key={message.id} 
                     className={cn(
-                      "flex gap-4 animate-fade-in",
-                      message.role === "user" ? "justify-end" : "justify-start"
+                      "rounded-2xl py-4 px-6 shadow-sm max-w-[80%] backdrop-blur-sm",
+                      message.role === "system" 
+                        ? "bg-bg/80 text-fg border border-border/50" 
+                        : "bg-gradient-to-r from-brandBlue to-brandPurple text-white",
+                      !message.isComplete && message.role === "system" && "bg-bgMuted/60"
                     )}
                   >
-                    {message.role === "system" && (
-                      <Avatar className="h-12 w-12 flex-shrink-0 mt-2">
-                        <AvatarImage src={agent.avatar} alt={agent.name} />
-                        <AvatarFallback className="bg-gradient-to-br from-brandBlue to-brandPurple text-white">
-                          <Bot className="h-6 w-6" />
-                        </AvatarFallback>
-                      </Avatar>
-                    )}
+                    <p className="text-lg leading-relaxed whitespace-pre-wrap break-words">
+                      {message.content}
+                    </p>
                     
-                    <div 
-                      className={cn(
-                        "rounded-2xl py-4 px-6 shadow-sm max-w-[80%] backdrop-blur-sm",
-                        message.role === "system" 
-                          ? "bg-bg/80 text-fg border border-border/50" 
-                          : "bg-gradient-to-r from-brandBlue to-brandPurple text-white",
-                        !message.isComplete && message.role === "system" && "bg-bgMuted/60"
-                      )}
-                    >
-                      <p className="text-lg leading-relaxed whitespace-pre-wrap break-words">
-                        {message.content}
-                      </p>
-                      
-                      {!message.isComplete && message.role === "system" && isSpeaking && (
-                        <div className="flex items-center gap-2 mt-3">
-                          <div className="h-2 w-2 bg-brandBlue rounded-full animate-bounce" />
-                          <div className="h-2 w-2 bg-brandPurple rounded-full animate-bounce" style={{ animationDelay: '0.2s' }} />
-                          <div className="h-2 w-2 bg-success rounded-full animate-bounce" style={{ animationDelay: '0.4s' }} />
-                        </div>
-                      )}
-                    </div>
-                    
-                    {message.role === "user" && (
-                      <Avatar className="h-12 w-12 flex-shrink-0 mt-2">
-                        <AvatarFallback className="bg-gradient-to-r from-brandBlue to-brandPurple text-white">
-                          <User className="h-6 w-6" />
-                        </AvatarFallback>
-                      </Avatar>
+                    {!message.isComplete && message.role === "system" && (
+                      <div className="flex items-center gap-2 mt-3">
+                        <div className="h-2 w-2 bg-brandBlue rounded-full animate-bounce" />
+                        <div className="h-2 w-2 bg-brandPurple rounded-full animate-bounce" style={{ animationDelay: '0.2s' }} />
+                        <div className="h-2 w-2 bg-green-500 rounded-full animate-bounce" style={{ animationDelay: '0.4s' }} />
+                      </div>
                     )}
                   </div>
-                );
-              })}
+                  
+                  {message.role === "user" && (
+                    <Avatar className="h-12 w-12 flex-shrink-0 mt-2">
+                      <AvatarFallback className="bg-gradient-to-r from-brandBlue to-brandPurple text-white">
+                        <User className="h-6 w-6" />
+                      </AvatarFallback>
+                    </Avatar>
+                  )}
+                </div>
+              ))}
               
               <div ref={messagesEndRef} />
             </>

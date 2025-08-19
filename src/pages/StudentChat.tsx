@@ -1,7 +1,9 @@
 
 import { useParams } from "react-router-dom";
 import { usePublicAgent } from "@/hooks/usePublicAgent";
+import { useRealtimeChat } from "@/hooks/useRealtimeChat";
 import { ChatInterface } from "@/components/ChatInterface";
+import { TextInput } from "@/components/TextInput";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Bot, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -10,12 +12,25 @@ import { Skeleton } from "@/components/ui/skeleton";
 const ChildChat = () => {
   const { agentId } = useParams<{ agentId: string }>();
   const { agent, isLoading, error } = usePublicAgent(agentId);
+  const realtimeChat = useRealtimeChat({ agent: agent! });
 
   const handleBack = () => {
     if (agentId) {
       window.location.href = `/tutors/${agentId}`;
     }
   };
+
+  // Combine messages with current partial message if speaking
+  const allMessages = [...realtimeChat.messages];
+  if (realtimeChat.currentMessage && realtimeChat.isSpeaking) {
+    allMessages.push({
+      id: 'current',
+      role: 'system' as const,
+      content: realtimeChat.currentMessage,
+      timestamp: new Date(),
+      isComplete: false
+    });
+  }
 
   if (isLoading) {
     return (
@@ -85,13 +100,21 @@ const ChildChat = () => {
       </div>
 
       {/* Chat Interface */}
-      <div className="flex-1 overflow-hidden">
-        <ChatInterface 
-          agent={agent}
-          messages={[]}
-          isConnected={false}
-          isSpeaking={false}
-          connectionStatus="connecting"
+      <div className="flex-1 overflow-hidden flex flex-col">
+        <div className="flex-1">
+          <ChatInterface 
+            agent={agent}
+            messages={allMessages}
+            isConnected={realtimeChat.isConnected}
+            isSpeaking={realtimeChat.isSpeaking}
+            connectionStatus={realtimeChat.connectionStatus}
+          />
+        </div>
+        
+        {/* Text Input */}
+        <TextInput
+          onSendMessage={realtimeChat.sendTextMessage}
+          disabled={!realtimeChat.isConnected}
         />
       </div>
     </div>
