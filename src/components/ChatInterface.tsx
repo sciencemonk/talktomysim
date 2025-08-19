@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -63,6 +62,8 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
     }
   };
 
+  console.log('ChatInterface rendering with messages:', messages);
+
   return (
     <div className="flex flex-col h-full bg-white dark:bg-gray-900">
       {/* Header */}
@@ -125,53 +126,56 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
             </div>
           ) : (
             <>
-              {messages.map((message) => (
-                <div 
-                  key={message.id} 
-                  className={cn(
-                    "flex gap-4 animate-fade-in",
-                    message.role === "user" ? "justify-end" : "justify-start"
-                  )}
-                >
-                  {message.role === "system" && (
-                    <Avatar className="h-12 w-12 flex-shrink-0 mt-1">
-                      <AvatarImage src={agent.avatar} alt={agent.name} />
-                      <AvatarFallback className="bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400">
-                        <Bot className="h-6 w-6" />
-                      </AvatarFallback>
-                    </Avatar>
-                  )}
-                  
+              {messages.map((message) => {
+                console.log('Rendering message:', message);
+                return (
                   <div 
+                    key={message.id} 
                     className={cn(
-                      "rounded-2xl py-5 px-6 shadow-sm max-w-[80%]",
-                      message.role === "system" 
-                        ? "bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100" 
-                        : "bg-blue-600 dark:bg-blue-700 text-white",
-                      !message.isComplete && "opacity-90"
+                      "flex gap-4 animate-fade-in",
+                      message.role === "user" ? "justify-end" : "justify-start"
                     )}
                   >
-                    <p className="text-xl leading-relaxed font-medium whitespace-pre-wrap break-words">
-                      {message.content}
-                    </p>
-                    {!message.isComplete && (
-                      <div className="flex items-center gap-1 mt-4">
-                        <div className="h-2 w-2 bg-current rounded-full animate-pulse" />
-                        <div className="h-2 w-2 bg-current rounded-full animate-pulse" style={{ animationDelay: '0.2s' }} />
-                        <div className="h-2 w-2 bg-current rounded-full animate-pulse" style={{ animationDelay: '0.4s' }} />
-                      </div>
+                    {message.role === "system" && (
+                      <Avatar className="h-12 w-12 flex-shrink-0 mt-1">
+                        <AvatarImage src={agent.avatar} alt={agent.name} />
+                        <AvatarFallback className="bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400">
+                          <Bot className="h-6 w-6" />
+                        </AvatarFallback>
+                      </Avatar>
+                    )}
+                    
+                    <div 
+                      className={cn(
+                        "rounded-2xl py-4 px-6 shadow-sm max-w-[80%] min-w-[200px]",
+                        message.role === "system" 
+                          ? "bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100" 
+                          : "bg-blue-600 dark:bg-blue-700 text-white",
+                        !message.isComplete && "opacity-90"
+                      )}
+                    >
+                      <p className="text-lg leading-relaxed whitespace-pre-wrap break-words">
+                        {message.content}
+                      </p>
+                      {!message.isComplete && (
+                        <div className="flex items-center gap-1 mt-3">
+                          <div className="h-2 w-2 bg-current rounded-full animate-pulse" />
+                          <div className="h-2 w-2 bg-current rounded-full animate-pulse" style={{ animationDelay: '0.2s' }} />
+                          <div className="h-2 w-2 bg-current rounded-full animate-pulse" style={{ animationDelay: '0.4s' }} />
+                        </div>
+                      )}
+                    </div>
+                    
+                    {message.role === "user" && (
+                      <Avatar className="h-12 w-12 flex-shrink-0 mt-1">
+                        <AvatarFallback className="bg-blue-600 dark:bg-blue-700 text-white">
+                          <User className="h-6 w-6" />
+                        </AvatarFallback>
+                      </Avatar>
                     )}
                   </div>
-                  
-                  {message.role === "user" && (
-                    <Avatar className="h-12 w-12 flex-shrink-0 mt-1">
-                      <AvatarFallback className="bg-blue-600 dark:bg-blue-700 text-white">
-                        <User className="h-6 w-6" />
-                      </AvatarFallback>
-                    </Avatar>
-                  )}
-                </div>
-              ))}
+                );
+              })}
               
               <div ref={messagesEndRef} />
             </>

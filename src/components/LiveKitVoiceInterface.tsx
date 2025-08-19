@@ -28,18 +28,9 @@ const LiveKitVoiceInterface: React.FC<LiveKitVoiceInterfaceProps> = ({
   const dcRef = useRef<RTCDataChannel | null>(null);
   const audioElementRef = useRef<HTMLAudioElement | null>(null);
 
-  // Track current transcript fragments
+  // Track accumulated transcripts
   const currentUserTranscriptRef = useRef('');
   const currentAITranscriptRef = useRef('');
-
-  // Track completion callbacks
-  const completeCurrentMessageRef = useRef<(() => void) | null>(null);
-
-  // Store the completion callback from the parent
-  useEffect(() => {
-    // We need access to the completeCurrentMessage function from useMessageAccumulator
-    // For now, we'll trigger completion when transcripts are done
-  }, []);
 
   const createSystemInstructions = () => {
     const getAgeAppropriateLanguage = () => {
@@ -218,31 +209,26 @@ The student should be talking at least 50% of the time about ${learningObjective
           const event = JSON.parse(e.data);
           console.log("Received event:", event.type, event);
           
-          // Handle AI transcript events
+          // Handle AI transcript events - accumulate deltas
           if (event.type === 'response.audio_transcript.delta') {
             console.log('AI transcript delta:', event.delta);
             currentAITranscriptRef.current += event.delta;
-            // Send each delta immediately for real-time display
-            onTranscriptUpdate(event.delta, false);
           } else if (event.type === 'response.audio_transcript.done') {
             console.log('AI transcript complete:', currentAITranscriptRef.current);
-            // Complete the current AI message
-            onTranscriptUpdate('', false); // Signal completion
+            // Send the complete AI message
+            if (currentAITranscriptRef.current.trim()) {
+              onTranscriptUpdate(currentAITranscriptRef.current.trim(), false);
+            }
             currentAITranscriptRef.current = ''; // Reset for next message
           }
           
           // Handle user transcript events
           else if (event.type === 'conversation.item.input_audio_transcription.completed') {
             console.log('User transcript completed:', event.transcript);
-            // Send the complete user transcript at once
-            onTranscriptUpdate(event.transcript, true);
-            // Signal completion immediately
-            onTranscriptUpdate('', true);
-          } else if (event.type === 'conversation.item.input_audio_transcription.delta') {
-            console.log('User transcript delta:', event.delta);
-            currentUserTranscriptRef.current += event.delta;
-            // Send each delta immediately for real-time display
-            onTranscriptUpdate(event.delta, true);
+            // Send the complete user transcript
+            if (event.transcript.trim()) {
+              onTranscriptUpdate(event.transcript.trim(), true);
+            }
           }
           
           // Handle speaking state changes
