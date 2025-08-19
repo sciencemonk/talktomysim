@@ -61,9 +61,7 @@ export const useSimpleMessageAccumulator = () => {
       });
       
       // Clear current message after adding to permanent messages
-      setTimeout(() => {
-        setCurrentAiMessage('');
-      }, 100);
+      setCurrentAiMessage('');
     } else {
       console.log('No content to complete, just clearing current message');
       setCurrentAiMessage('');
@@ -81,7 +79,7 @@ export const useSimpleMessageAccumulator = () => {
   const getAllMessages = useCallback((): Message[] => {
     const allMessages = [...messages];
     
-    // Only add current AI message if it has content and we're actively streaming
+    // Add current AI message if it has content and we're actively streaming
     if (currentAiMessage.trim() && isAiSpeaking) {
       allMessages.push({
         id: 'current_ai',
@@ -92,7 +90,10 @@ export const useSimpleMessageAccumulator = () => {
       });
     }
     
-    console.log('getAllMessages returning:', allMessages);
+    console.log('getAllMessages returning:', allMessages.length, 'messages');
+    console.log('Permanent messages:', messages.length);
+    console.log('Current AI message length:', currentAiMessage.length);
+    console.log('Is AI speaking:', isAiSpeaking);
     return allMessages;
   }, [messages, currentAiMessage, isAiSpeaking]);
 
