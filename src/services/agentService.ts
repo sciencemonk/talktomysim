@@ -335,3 +335,28 @@ export const createAgent = async (agentData: Partial<AgentType>): Promise<AgentT
     learningObjective: tutor.learning_objective
   };
 };
+
+export const deleteAgent = async (id: string): Promise<void> => {
+  console.log("Deleting tutor with ID:", id);
+  
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  if (!user) {
+    throw new Error("User must be authenticated to delete tutor");
+  }
+
+  console.log("Authenticated user ID for delete:", user.id);
+
+  const { error } = await supabase
+    .from('tutors')
+    .delete()
+    .eq('id', id)
+    .eq('user_id', user.id);
+
+  if (error) {
+    console.error("Error deleting tutor:", error);
+    throw new Error(`Failed to delete tutor: ${error.message}`);
+  }
+
+  console.log("Successfully deleted tutor:", id);
+};

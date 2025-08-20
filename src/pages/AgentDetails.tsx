@@ -1,17 +1,31 @@
-
 import { useParams, useNavigate } from "react-router-dom";
 import { useAgentDetails } from "@/hooks/useAgentDetails";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Bot, ChevronLeft, MessageCircle, Clock } from "lucide-react";
+import { Bot, ChevronLeft, MessageCircle, Clock, Trash2 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import AgentConfigSettings from "@/components/AgentConfigSettings";
 import { RolePlayDialog } from "@/components/RolePlayDialog";
 import { CallInterface } from "@/components/CallInterface";
+import { deleteAgent } from "@/services/agentService";
+import { useState } from "react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { toast } from "@/components/ui/use-toast";
 
 const AgentDetails = () => {
   const { agentId } = useParams<{ agentId: string }>();
   const navigate = useNavigate();
+  const [isDeleting, setIsDeleting] = useState(false);
   const {
     agent,
     isLoading,
@@ -28,6 +42,29 @@ const AgentDetails = () => {
 
   const handleBack = () => {
     navigate('/dashboard');
+  };
+
+  const handleDelete = async () => {
+    if (!agentId || !agent) return;
+    
+    setIsDeleting(true);
+    try {
+      await deleteAgent(agentId);
+      toast({
+        title: "Thinking partner deleted",
+        description: `${agent.name} has been successfully removed.`
+      });
+      navigate('/dashboard');
+    } catch (error: any) {
+      console.error("Error deleting thinking partner:", error);
+      toast({
+        title: "Failed to delete",
+        description: error.message || "There was an error deleting your thinking partner.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   if (isLoading) {
@@ -182,6 +219,50 @@ const AgentDetails = () => {
               </CardContent>
             </Card>
           </div>
+        </div>
+
+        {/* Delete Section */}
+        <div className="mt-8 pt-8 border-t border-border">
+          <Card className="border-destructive/20">
+            <CardHeader className="pb-4">
+              <CardTitle className="text-lg font-semibold text-destructive">Danger Zone</CardTitle>
+              <CardDescription className="text-sm">
+                Permanently delete this thinking partner. This action cannot be undone.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button 
+                    variant="destructive" 
+                    className="gap-2"
+                    disabled={isDeleting}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                    {isDeleting ? 'Deleting...' : 'Delete Thinking Partner'}
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      This will permanently delete <strong>{agent?.name}</strong> and all associated conversations. 
+                      This action cannot be undone.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction 
+                      onClick={handleDelete}
+                      className="bg-destructive hover:bg-destructive/90"
+                    >
+                      Delete Permanently
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </CardContent>
+          </Card>
         </div>
       </div>
 
