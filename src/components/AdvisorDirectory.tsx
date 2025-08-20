@@ -1,13 +1,13 @@
-
 import { usePublicAgents } from "@/hooks/usePublicAgents";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Bot, Users, BookOpen, MessageCircle } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { AgentType } from "@/types/agent";
 
 interface AdvisorDirectoryProps {
-  onSelectAdvisor: (advisorId: string) => void;
+  onSelectAdvisor: (advisorId: string, advisor?: AgentType) => void;
 }
 
 const AdvisorDirectory = ({ onSelectAdvisor }: AdvisorDirectoryProps) => {
@@ -104,7 +104,7 @@ const AdvisorDirectory = ({ onSelectAdvisor }: AdvisorDirectoryProps) => {
                     </div>
 
                     <Button 
-                      onClick={() => onSelectAdvisor(advisor.id)}
+                      onClick={() => onSelectAdvisor(advisor.id, advisor)}
                       className="w-full"
                       size="sm"
                     >

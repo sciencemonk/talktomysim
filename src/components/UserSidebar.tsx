@@ -1,4 +1,3 @@
-
 import { useLocation } from "react-router-dom";
 import { 
   Bot, 
@@ -41,8 +40,9 @@ interface UserSidebarProps {
   onShowAdvisorDirectory?: () => void;
   selectedAgent?: AgentType | null;
   selectedPublicAdvisorId?: string | null;
+  selectedPublicAdvisors?: AgentType[];
   onSelectAgent?: (agent: AgentType) => void;
-  onSelectPublicAdvisor?: (advisorId: string) => void;
+  onSelectPublicAdvisor?: (advisorId: string, advisor?: AgentType) => void;
   refreshTrigger?: number;
 }
 
@@ -53,6 +53,7 @@ const SidebarContent = ({
   onShowAdvisorDirectory,
   selectedAgent,
   selectedPublicAdvisorId,
+  selectedPublicAdvisors = [],
   onSelectAgent,
   onSelectPublicAdvisor,
   refreshTrigger,
@@ -66,7 +67,6 @@ const SidebarContent = ({
 }) => {
   const { user, signOut } = useAuth();
   const { agents, isLoading } = useAgents();
-  const { agents: publicAgents } = usePublicAgents();
 
   useEffect(() => {
     if (refreshTrigger) {
@@ -86,7 +86,8 @@ const SidebarContent = ({
 
   const handlePublicAdvisorSelect = (advisorId: string) => {
     console.log('Public advisor selected:', advisorId);
-    onSelectPublicAdvisor?.(advisorId);
+    const advisor = selectedPublicAdvisors.find(a => a.id === advisorId);
+    onSelectPublicAdvisor?.(advisorId, advisor);
     onClose?.(); // Close mobile drawer when advisor is selected
   };
 
@@ -94,9 +95,6 @@ const SidebarContent = ({
     onShowAdvisorDirectory?.();
     onClose?.(); // Close mobile drawer
   };
-
-  // Find the selected public advisor details
-  const selectedPublicAdvisor = publicAgents?.find(advisor => advisor.id === selectedPublicAdvisorId);
 
   return (
     <>
@@ -155,78 +153,76 @@ const SidebarContent = ({
 
       {/* Navigation Items */}
       <div className="flex-1 p-3 space-y-1">
-        {/* Personal Agents List */}
-        <div className="space-y-1">
-          {(!isCollapsed || !onToggleCollapse) && (
-            <div className="px-3 py-2 text-xs font-medium text-muted-foreground uppercase tracking-wider">
-              Your Agents
-            </div>
-          )}
-          {isLoading ? (
-            <div className={cn(
-              "px-3 py-2 text-xs text-muted-foreground",
-              isCollapsed && onToggleCollapse && "text-center"
-            )}>
-              {(isCollapsed && onToggleCollapse) ? "..." : "Loading thinking partners..."}
-            </div>
-          ) : agents.length > 0 ? (
-            agents.map((agent) => (
-              <Button
-                key={agent.id}
-                onClick={() => handleAgentSelect(agent)}
-                variant="ghost"
-                className={cn(
-                  "flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors w-full justify-start h-auto min-h-[40px]",
-                  selectedAgent?.id === agent.id
-                    ? "bg-primary/10 text-primary font-medium hover:bg-primary/15"
-                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                )}
-              >
-                <Avatar className="h-6 w-6 flex-shrink-0">
-                  <AvatarImage src={agent.avatar} alt={agent.name} />
-                  <AvatarFallback className="bg-primary/10 text-primary text-xs">
-                    <Bot className="h-3 w-3" />
-                  </AvatarFallback>
-                </Avatar>
-                {(!isCollapsed || !onToggleCollapse) && <span className="truncate text-left">{agent.name}</span>}
-              </Button>
-            ))
-          ) : (
-            <div className={cn(
-              "px-3 py-2 text-xs text-muted-foreground",
-              isCollapsed && onToggleCollapse && "text-center"
-            )}>
-              {(isCollapsed && onToggleCollapse) ? "0" : "No thinking partners yet"}
-            </div>
-          )}
-        </div>
+        {/* Personal Agents List - Only show if there are agents */}
+        {agents.length > 0 && (
+          <div className="space-y-1">
+            {(!isCollapsed || !onToggleCollapse) && (
+              <div className="px-3 py-2 text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                Your Agents
+              </div>
+            )}
+            {isLoading ? (
+              <div className={cn(
+                "px-3 py-2 text-xs text-muted-foreground",
+                isCollapsed && onToggleCollapse && "text-center"
+              )}>
+                {(isCollapsed && onToggleCollapse) ? "..." : "Loading thinking partners..."}
+              </div>
+            ) : (
+              agents.map((agent) => (
+                <Button
+                  key={agent.id}
+                  onClick={() => handleAgentSelect(agent)}
+                  variant="ghost"
+                  className={cn(
+                    "flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors w-full justify-start h-auto min-h-[40px]",
+                    selectedAgent?.id === agent.id
+                      ? "bg-primary/10 text-primary font-medium hover:bg-primary/15"
+                      : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                  )}
+                >
+                  <Avatar className="h-6 w-6 flex-shrink-0">
+                    <AvatarImage src={agent.avatar} alt={agent.name} />
+                    <AvatarFallback className="bg-primary/10 text-primary text-xs">
+                      <Bot className="h-3 w-3" />
+                    </AvatarFallback>
+                  </Avatar>
+                  {(!isCollapsed || !onToggleCollapse) && <span className="truncate text-left">{agent.name}</span>}
+                </Button>
+              ))
+            )}
+          </div>
+        )}
 
         {/* Public Advisors Section */}
-        {selectedPublicAdvisor && (
-          <div className="space-y-1 mt-4">
+        {selectedPublicAdvisors.length > 0 && (
+          <div className={cn("space-y-1", agents.length > 0 && "mt-4")}>
             {(!isCollapsed || !onToggleCollapse) && (
               <div className="px-3 py-2 text-xs font-medium text-muted-foreground uppercase tracking-wider">
                 Advisors
               </div>
             )}
-            <Button
-              onClick={() => handlePublicAdvisorSelect(selectedPublicAdvisor.id)}
-              variant="ghost"
-              className={cn(
-                "flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors w-full justify-start h-auto min-h-[40px]",
-                selectedPublicAdvisorId === selectedPublicAdvisor.id
-                  ? "bg-primary/10 text-primary font-medium hover:bg-primary/15"
-                  : "text-muted-foreground hover:bg-muted hover:text-foreground"
-              )}
-            >
-              <Avatar className="h-6 w-6 flex-shrink-0">
-                <AvatarImage src={selectedPublicAdvisor.avatar} alt={selectedPublicAdvisor.name} />
-                <AvatarFallback className="bg-primary/10 text-primary text-xs">
-                  <Star className="h-3 w-3" />
-                </AvatarFallback>
-              </Avatar>
-              {(!isCollapsed || !onToggleCollapse) && <span className="truncate text-left">{selectedPublicAdvisor.name}</span>}
-            </Button>
+            {selectedPublicAdvisors.map((advisor) => (
+              <Button
+                key={advisor.id}
+                onClick={() => handlePublicAdvisorSelect(advisor.id)}
+                variant="ghost"
+                className={cn(
+                  "flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors w-full justify-start h-auto min-h-[40px]",
+                  selectedPublicAdvisorId === advisor.id
+                    ? "bg-primary/10 text-primary font-medium hover:bg-primary/15"
+                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                )}
+              >
+                <Avatar className="h-6 w-6 flex-shrink-0">
+                  <AvatarImage src={advisor.avatar} alt={advisor.name} />
+                  <AvatarFallback className="bg-primary/10 text-primary text-xs">
+                    <Star className="h-3 w-3" />
+                  </AvatarFallback>
+                </Avatar>
+                {(!isCollapsed || !onToggleCollapse) && <span className="truncate text-left">{advisor.name}</span>}
+              </Button>
+            ))}
           </div>
         )}
 
@@ -234,7 +230,10 @@ const SidebarContent = ({
         <Button
           onClick={handleShowAdvisorDirectory}
           variant="outline"
-          className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors w-full justify-start mt-4"
+          className={cn(
+            "flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors w-full justify-start",
+            (agents.length > 0 || selectedPublicAdvisors.length > 0) && "mt-4"
+          )}
           size="sm"
         >
           <PlusCircle className="h-4 w-4 flex-shrink-0" />

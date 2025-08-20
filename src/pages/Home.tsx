@@ -18,9 +18,18 @@ const Home = () => {
   const isMobile = useIsMobile();
   const [selectedAgent, setSelectedAgent] = useState<AgentType | null>(null);
   const [selectedPublicAdvisorId, setSelectedPublicAdvisorId] = useState<string | null>(null);
-  const [currentView, setCurrentView] = useState<'chat' | 'child-profile' | 'settings' | 'agents' | 'agent-create' | 'advisor-directory'>('chat');
+  const [selectedPublicAdvisors, setSelectedPublicAdvisors] = useState<AgentType[]>([]);
+  
+  // Show advisor directory by default for new users (no agents and no selected advisors)
+  const getDefaultView = () => {
+    if (!selectedAgent && !selectedPublicAdvisorId && agents.length === 0 && selectedPublicAdvisors.length === 0) {
+      return 'advisor-directory';
+    }
+    return 'chat';
+  };
+  
+  const [currentView, setCurrentView] = useState<'chat' | 'child-profile' | 'settings' | 'agents' | 'agent-create' | 'advisor-directory'>(getDefaultView());
   const [refreshTrigger, setRefreshTrigger] = useState(0);
-  const [publicAdvisors, setPublicAdvisors] = useState<AgentType[]>([]);
 
   // Load public advisor data when selected
   const { agent: publicAgent } = usePublicAgent(selectedPublicAdvisorId);
@@ -43,12 +52,18 @@ const Home = () => {
   const handleShowAgentCreate = () => setCurrentView('agent-create');
   const handleShowAdvisorDirectory = () => setCurrentView('advisor-directory');
 
-  const handleSelectAdvisor = useCallback((advisorId: string) => {
+  const handleSelectAdvisor = useCallback((advisorId: string, advisor?: AgentType) => {
     console.log('Selecting advisor:', advisorId);
     setSelectedPublicAdvisorId(advisorId);
     setSelectedAgent(null); // Clear personal agent when selecting public advisor
+    
+    // Add advisor to the selected list if not already there and we have advisor data
+    if (advisor && !selectedPublicAdvisors.find(a => a.id === advisorId)) {
+      setSelectedPublicAdvisors(prev => [...prev, advisor]);
+    }
+    
     setCurrentView('chat');
-  }, []);
+  }, [selectedPublicAdvisors]);
 
   // Set first agent as selected if none selected and we're in chat view
   if (!selectedAgent && !selectedPublicAdvisorId && agents.length > 0 && currentView === 'chat') {
@@ -112,6 +127,7 @@ const Home = () => {
           onShowAdvisorDirectory={handleShowAdvisorDirectory}
           selectedAgent={selectedAgent}
           selectedPublicAdvisorId={selectedPublicAdvisorId}
+          selectedPublicAdvisors={selectedPublicAdvisors}
           onSelectAgent={handleSelectAgent}
           onSelectPublicAdvisor={handleSelectAdvisor}
           refreshTrigger={refreshTrigger}
@@ -127,6 +143,7 @@ const Home = () => {
             onShowAdvisorDirectory={handleShowAdvisorDirectory}
             selectedAgent={selectedAgent}
             selectedPublicAdvisorId={selectedPublicAdvisorId}
+            selectedPublicAdvisors={selectedPublicAdvisors}
             onSelectAgent={handleSelectAgent}
             onSelectPublicAdvisor={handleSelectAdvisor}
             refreshTrigger={refreshTrigger}
