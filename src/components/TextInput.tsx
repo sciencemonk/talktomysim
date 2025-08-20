@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Send } from 'lucide-react';
@@ -7,16 +7,26 @@ import { Send } from 'lucide-react';
 interface TextInputProps {
   onSendMessage: (message: string) => void;
   disabled?: boolean;
+  placeholder?: string;
 }
 
-export const TextInput: React.FC<TextInputProps> = ({ onSendMessage, disabled }) => {
+export const TextInput: React.FC<TextInputProps> = ({ 
+  onSendMessage, 
+  disabled,
+  placeholder = "Ask anything..."
+}) => {
   const [message, setMessage] = useState('');
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (message.trim() && !disabled) {
       onSendMessage(message.trim());
       setMessage('');
+      // Reset textarea height
+      if (textareaRef.current) {
+        textareaRef.current.style.height = 'auto';
+      }
     }
   };
 
@@ -27,36 +37,44 @@ export const TextInput: React.FC<TextInputProps> = ({ onSendMessage, disabled })
     }
   };
 
+  const handleInput = (e: React.FormEvent<HTMLTextAreaElement>) => {
+    const target = e.target as HTMLTextAreaElement;
+    // Auto-resize
+    target.style.height = 'auto';
+    target.style.height = Math.min(target.scrollHeight, 200) + 'px';
+  };
+
+  // Reset height when message is cleared
+  useEffect(() => {
+    if (!message && textareaRef.current) {
+      textareaRef.current.style.height = 'auto';
+    }
+  }, [message]);
+
   return (
-    <div className="p-4 max-w-4xl mx-auto w-full">
+    <div className="max-w-4xl mx-auto w-full p-4">
       <form onSubmit={handleSubmit} className="relative">
-        <Textarea
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
-          onKeyDown={handleKeyDown}
-          placeholder={disabled ? "Connecting..." : "Ask anything..."}
-          disabled={disabled}
-          className="min-h-[60px] max-h-[200px] pr-12 resize-none bg-background border-border focus:border-primary/50 focus:ring-primary/20"
-          rows={1}
-          style={{
-            height: 'auto',
-            minHeight: '60px',
-            maxHeight: '200px',
-          }}
-          onInput={(e) => {
-            const target = e.target as HTMLTextAreaElement;
-            target.style.height = 'auto';
-            target.style.height = Math.min(target.scrollHeight, 200) + 'px';
-          }}
-        />
-        <Button 
-          type="submit" 
-          disabled={!message.trim() || disabled}
-          size="sm"
-          className="absolute right-2 bottom-2 h-8 w-8 p-0"
-        >
-          <Send className="h-4 w-4" />
-        </Button>
+        <div className="flex items-end gap-2 bg-background border border-border rounded-xl p-3 shadow-sm focus-within:border-primary/50 transition-colors">
+          <Textarea
+            ref={textareaRef}
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+            onKeyDown={handleKeyDown}
+            onInput={handleInput}
+            placeholder={placeholder}
+            disabled={disabled}
+            className="flex-1 min-h-[24px] max-h-[200px] resize-none border-0 p-0 shadow-none focus-visible:ring-0 bg-transparent text-sm placeholder:text-muted-foreground"
+            rows={1}
+          />
+          <Button 
+            type="submit" 
+            disabled={!message.trim() || disabled}
+            size="sm"
+            className="h-8 w-8 p-0 flex-shrink-0 rounded-lg"
+          >
+            <Send className="h-4 w-4" />
+          </Button>
+        </div>
       </form>
     </div>
   );
