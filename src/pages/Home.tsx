@@ -15,7 +15,7 @@ const Home = () => {
   const { agents } = useAgents();
   const isMobile = useIsMobile();
   const [selectedAgent, setSelectedAgent] = useState<AgentType | null>(null);
-  const [currentView, setCurrentView] = useState<'chat' | 'child-profile' | 'settings' | 'agents' | 'agent-create'>('chat');
+  const [currentView, setCurrentView] = useState<'chat' | 'child-profile' | 'settings' | 'agent-create'>('chat');
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   const handleSelectAgent = useCallback((agent: AgentType) => {
@@ -25,13 +25,12 @@ const Home = () => {
 
   const handleAgentUpdate = useCallback((updatedAgent: AgentType) => {
     setSelectedAgent(updatedAgent);
-    // Trigger sidebar refresh to show updated agent name
     setRefreshTrigger(prev => prev + 1);
   }, []);
 
   const handleShowChildProfile = () => setCurrentView('child-profile');
   const handleShowSettings = () => setCurrentView('settings');
-  const handleShowAgents = () => setCurrentView('agents');
+  const handleShowAgents = () => setCurrentView('chat'); // Just show chat view
   const handleShowAgentCreate = () => setCurrentView('agent-create');
 
   // Set first agent as selected if none selected
