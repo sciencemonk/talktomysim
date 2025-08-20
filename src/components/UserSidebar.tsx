@@ -1,296 +1,282 @@
-
-import { useLocation } from "react-router-dom";
-import { 
-  Bot, 
-  PlusCircle,
-  LogOut, 
-  Settings,
-  User,
-  ChevronLeft,
-  ChevronRight,
-  Menu
-} from "lucide-react";
+import React, { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useAgents } from "@/hooks/useAgents";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Bot, ChevronLeft, ChevronRight, Menu, Plus, Settings, User, X } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useState, useEffect } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import {
   Drawer,
+  DrawerClose,
   DrawerContent,
   DrawerTrigger,
 } from "@/components/ui/drawer";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { AgentType } from "@/types/agent";
+import UserSettingsDropdown from "./UserSettingsDropdown";
 
-interface UserSidebarProps {
-  onShowSettings?: () => void;
-  onShowChildProfile?: () => void;
-  onShowAgents?: () => void;
-  onShowAgentCreate?: () => void;
+export interface UserSidebarProps {
+  onShowSettings: () => void;
+  onShowChildProfile: () => void;
+  onShowAgents: () => void;
+  onShowAgentCreate: () => void;
   selectedAgent?: AgentType | null;
-  onSelectAgent?: (agent: AgentType) => void;
+  onSelectAgent: (agent: AgentType) => void;
   refreshTrigger?: number;
 }
 
-const SidebarContent = ({ 
-  onShowSettings, 
-  onShowChildProfile, 
+const UserSidebar: React.FC<UserSidebarProps> = ({
+  onShowSettings,
+  onShowChildProfile,
   onShowAgents,
   onShowAgentCreate,
   selectedAgent,
   onSelectAgent,
-  refreshTrigger,
-  isCollapsed,
-  onToggleCollapse,
-  onClose
-}: UserSidebarProps & { 
-  isCollapsed?: boolean; 
-  onToggleCollapse?: () => void;
-  onClose?: () => void;
+  refreshTrigger = 0
 }) => {
-  const { user, signOut } = useAuth();
+  const { user } = useAuth();
   const { agents, isLoading } = useAgents();
-
-  useEffect(() => {
-    if (refreshTrigger) {
-      console.log('Refreshing agents list due to update');
-    }
-  }, [refreshTrigger]);
-
-  const handleSignOut = async () => {
-    await signOut();
-  };
-
-  const handleAgentSelect = (agent: AgentType) => {
-    console.log('Agent selected:', agent.name, agent.id);
-    onSelectAgent?.(agent);
-    onClose?.(); // Close mobile drawer when agent is selected
-  };
-
-  const handleCreateNew = () => {
-    onShowAgentCreate?.();
-    onClose?.(); // Close mobile drawer
-  };
-
-  return (
-    <>
-      {/* Header with Logo and Toggle (Desktop only) */}
-      {onToggleCollapse && (
-        <>
-          <div className="p-4 flex items-center justify-between">
-            {!isCollapsed && (
-              <div className="flex items-center gap-3">
-                <img 
-                  src="/lovable-uploads/55ccce33-98a1-45d2-9e9e-7b446a02a417.png" 
-                  alt="Think With Me" 
-                  className="h-8 w-8"
-                />
-                <h1 className="font-semibold text-lg">Think With Me</h1>
-              </div>
-            )}
-            {isCollapsed && (
-              <img 
-                src="/lovable-uploads/55ccce33-98a1-45d2-9e9e-7b446a02a417.png" 
-                alt="Think With Me" 
-                className="h-8 w-8 mx-auto"
-              />
-            )}
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={onToggleCollapse}
-              className="h-8 w-8 p-0"
-            >
-              {isCollapsed ? (
-                <ChevronRight className="h-4 w-4" />
-              ) : (
-                <ChevronLeft className="h-4 w-4" />
-              )}
-            </Button>
-          </div>
-          <Separator />
-        </>
-      )}
-
-      {/* Mobile Header */}
-      {!onToggleCollapse && (
-        <>
-          <div className="p-4 flex items-center gap-3">
-            <img 
-              src="/lovable-uploads/55ccce33-98a1-45d2-9e9e-7b446a02a417.png" 
-              alt="Think With Me" 
-              className="h-8 w-8"
-            />
-            <h1 className="font-semibold text-lg">Think With Me</h1>
-          </div>
-          <Separator />
-        </>
-      )}
-
-      {/* Navigation Items */}
-      <div className="flex-1 p-3 space-y-1">
-        {/* Create New Button */}
-        <Button
-          onClick={handleCreateNew}
-          className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors bg-primary text-primary-foreground hover:bg-primary/90 w-full justify-start"
-          size="sm"
-        >
-          <PlusCircle className="h-4 w-4 flex-shrink-0" />
-          {(!isCollapsed || !onToggleCollapse) && <span>New chat</span>}
-        </Button>
-
-        {/* Agents List */}
-        <div className="mt-4 space-y-1">
-          {isLoading ? (
-            <div className={cn(
-              "px-3 py-2 text-xs text-muted-foreground",
-              isCollapsed && onToggleCollapse && "text-center"
-            )}>
-              {(isCollapsed && onToggleCollapse) ? "..." : "Loading thinking partners..."}
-            </div>
-          ) : agents.length > 0 ? (
-            agents.map((agent) => (
-              <Button
-                key={agent.id}
-                onClick={() => handleAgentSelect(agent)}
-                variant="ghost"
-                className={cn(
-                  "flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors w-full justify-start h-auto min-h-[40px]",
-                  selectedAgent?.id === agent.id
-                    ? "bg-primary/10 text-primary font-medium hover:bg-primary/15"
-                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                )}
-              >
-                <Avatar className="h-6 w-6 flex-shrink-0">
-                  <AvatarImage src={agent.avatar} alt={agent.name} />
-                  <AvatarFallback className="bg-primary/10 text-primary text-xs">
-                    <Bot className="h-3 w-3" />
-                  </AvatarFallback>
-                </Avatar>
-                {(!isCollapsed || !onToggleCollapse) && <span className="truncate text-left">{agent.name}</span>}
-              </Button>
-            ))
-          ) : (
-            <div className={cn(
-              "px-3 py-2 text-xs text-muted-foreground",
-              isCollapsed && onToggleCollapse && "text-center"
-            )}>
-              {(isCollapsed && onToggleCollapse) ? "0" : "No thinking partners yet"}
-            </div>
-          )}
-        </div>
-      </div>
-
-      <Separator />
-
-      {/* User Profile Section */}
-      <div className="p-3">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <button className={cn(
-              "flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-muted transition-colors w-full",
-              isCollapsed && onToggleCollapse && "justify-center"
-            )}>
-              <Avatar className="h-8 w-8 flex-shrink-0">
-                <AvatarImage src={user?.user_metadata?.avatar_url} alt="Profile" />
-                <AvatarFallback>
-                  {user?.email?.charAt(0)?.toUpperCase() || "U"}
-                </AvatarFallback>
-              </Avatar>
-              {(!isCollapsed || !onToggleCollapse) && (
-                <div className="flex-1 min-w-0 text-left">
-                  <p className="text-sm font-medium truncate">
-                    {user?.user_metadata?.full_name || "User"}
-                  </p>
-                  <p className="text-xs text-muted-foreground truncate">
-                    {user?.email}
-                  </p>
-                </div>
-              )}
-            </button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="start" className="w-56">
-            {onShowChildProfile && (
-              <DropdownMenuItem onClick={() => { onShowChildProfile(); onClose?.(); }}>
-                <User className="mr-2 h-4 w-4" />
-                <span>Child Profile</span>
-              </DropdownMenuItem>
-            )}
-            {onShowSettings && (
-              <DropdownMenuItem onClick={() => { onShowSettings(); onClose?.(); }}>
-                <Settings className="mr-2 h-4 w-4" />
-                <span>Settings</span>
-              </DropdownMenuItem>
-            )}
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={handleSignOut}>
-              <LogOut className="mr-2 h-4 w-4" />
-              <span>Log out</span>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
-    </>
-  );
-};
-
-const UserSidebar = (props: UserSidebarProps) => {
   const isMobile = useIsMobile();
-  const [isCollapsed, setIsCollapsed] = useState(false);
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const [collapsed, setCollapsed] = useState(false);
 
-  const toggleSidebar = () => {
-    setIsCollapsed(!isCollapsed);
-  };
-
-  if (isMobile) {
-    return (
-      <>
-        {/* Mobile Trigger Button - Fixed Position */}
-        <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
-          <DrawerTrigger asChild>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="fixed top-4 left-4 z-50 h-10 w-10 p-0 bg-background border shadow-md"
-            >
-              <Menu className="h-5 w-5" />
-            </Button>
-          </DrawerTrigger>
-          <DrawerContent className="h-[85vh] max-h-[85vh]">
-            <div className="flex flex-col h-full">
-              <SidebarContent 
-                {...props} 
-                onClose={() => setIsDrawerOpen(false)} 
-              />
-            </div>
-          </DrawerContent>
-        </Drawer>
-      </>
-    );
+  if (!user) {
+    return null;
   }
 
   return (
-    <div className={cn(
-      "bg-card border-r border-border flex flex-col h-screen transition-all duration-300",
-      isCollapsed ? "w-16" : "w-64"
-    )}>
-      <SidebarContent 
-        {...props} 
-        isCollapsed={isCollapsed}
-        onToggleCollapse={toggleSidebar}
-      />
-    </div>
+    <>
+      {isMobile ? (
+        <Drawer open={isMobileOpen} onOpenChange={setIsMobileOpen}>
+          <div className="fixed top-4 left-4 z-50">
+            <DrawerTrigger asChild>
+              <Button 
+                variant="ghost" 
+                size="icon"
+                className="h-10 w-10 bg-background/80 backdrop-blur-sm border border-border rounded-lg shadow-sm"
+              >
+                <Menu className="h-5 w-5" />
+              </Button>
+            </DrawerTrigger>
+          </div>
+          
+          <DrawerContent side="left" className="h-full w-80 fixed inset-y-0 left-0">
+            <div className="flex flex-col h-full">
+              <div className="p-4 border-b">
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-lg font-semibold">Menu</h2>
+                  <DrawerClose asChild>
+                    <Button variant="ghost" size="icon">
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </DrawerClose>
+                </div>
+                
+                <Button 
+                  onClick={() => {
+                    onShowAgentCreate();
+                    setIsMobileOpen(false);
+                  }}
+                  className="w-full justify-start gap-2"
+                >
+                  <Plus className="h-4 w-4" />
+                  New Advisor
+                </Button>
+              </div>
+
+              <div className="flex-1 overflow-hidden">
+                <ScrollArea className="h-full">
+                  <div className="p-4">
+                    <div className="space-y-2">
+                      <div className="px-2 py-1">
+                        <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                          Your Advisors
+                        </h3>
+                      </div>
+                      
+                      {isLoading ? (
+                        <div className="space-y-2">
+                          {[...Array(3)].map((_, i) => (
+                            <div key={i} className="flex items-center space-x-3 px-2 py-2">
+                              <Skeleton className="h-8 w-8 rounded-lg" />
+                              <Skeleton className="h-4 flex-1" />
+                            </div>
+                          ))}
+                        </div>
+                      ) : agents.length > 0 ? (
+                        agents.map((agent) => (
+                          <Button
+                            key={agent.id}
+                            variant={selectedAgent?.id === agent.id ? "secondary" : "ghost"}
+                            className="w-full justify-start h-auto p-2"
+                            onClick={() => {
+                              onSelectAgent(agent);
+                              setIsMobileOpen(false);
+                            }}
+                          >
+                            <div className="flex items-center space-x-3 min-w-0 flex-1">
+                              <Avatar className="h-8 w-8">
+                                <AvatarImage src={agent.avatar} alt={agent.name} />
+                                <AvatarFallback className="text-xs">
+                                  <Bot className="h-4 w-4" />
+                                </AvatarFallback>
+                              </Avatar>
+                              <div className="flex-1 min-w-0 text-left">
+                                <div className="font-medium text-sm truncate">{agent.name}</div>
+                                <div className="text-xs text-muted-foreground truncate">
+                                  {agent.subject || agent.type}
+                                </div>
+                              </div>
+                            </div>
+                          </Button>
+                        ))
+                      ) : (
+                        <div className="text-center py-8 text-sm text-muted-foreground">
+                          No advisors yet
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </ScrollArea>
+              </div>
+
+              <div className="p-4 border-t space-y-2">
+                <Button 
+                  variant="ghost" 
+                  className="w-full justify-start gap-2" 
+                  onClick={() => {
+                    onShowAgents();
+                    setIsMobileOpen(false);
+                  }}
+                >
+                  <Bot className="h-4 w-4" />
+                  All Advisors
+                </Button>
+                
+                <UserSettingsDropdown onShowSettings={onShowSettings} />
+              </div>
+            </div>
+          </DrawerContent>
+        </Drawer>
+      ) : (
+        // Desktop sidebar
+        <div className={cn(
+          "flex flex-col h-screen bg-card border-r transition-all duration-300",
+          collapsed ? "w-16" : "w-64"
+        )}>
+          <div className="p-4 border-b">
+            <div className="flex items-center justify-between">
+              {!collapsed && (
+                <h1 className="text-lg font-semibold">Advisors</h1>
+              )}
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setCollapsed(!collapsed)}
+                className="h-8 w-8"
+              >
+                {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
+              </Button>
+            </div>
+            
+            {!collapsed && (
+              <Button 
+                onClick={onShowAgentCreate}
+                className="w-full mt-3 gap-2"
+              >
+                <Plus className="h-4 w-4" />
+                New Advisor
+              </Button>
+            )}
+          </div>
+
+          {/* Agent List */}
+          <div className="flex-1 overflow-hidden">
+            <ScrollArea className="h-full">
+              <div className="p-2">
+                {!collapsed && (
+                  <div className="px-2 py-1 mb-2">
+                    <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                      Your Advisors
+                    </h3>
+                  </div>
+                )}
+                
+                <div className="space-y-1">
+                  {isLoading ? (
+                    <div className="space-y-1">
+                      {[...Array(3)].map((_, i) => (
+                        <div key={i} className="flex items-center space-x-3 px-2 py-2">
+                          <Skeleton className="h-8 w-8 rounded-lg" />
+                          {!collapsed && <Skeleton className="h-4 flex-1" />}
+                        </div>
+                      ))}
+                    </div>
+                  ) : agents.length > 0 ? (
+                    agents.map((agent) => (
+                      <Button
+                        key={agent.id}
+                        variant={selectedAgent?.id === agent.id ? "secondary" : "ghost"}
+                        className={cn(
+                          "w-full h-auto p-2",
+                          collapsed ? "justify-center" : "justify-start"
+                        )}
+                        onClick={() => onSelectAgent(agent)}
+                      >
+                        <div className={cn(
+                          "flex items-center min-w-0 flex-1",
+                          collapsed ? "justify-center" : "space-x-3"
+                        )}>
+                          <Avatar className="h-8 w-8 flex-shrink-0">
+                            <AvatarImage src={agent.avatar} alt={agent.name} />
+                            <AvatarFallback className="text-xs">
+                              <Bot className="h-4 w-4" />
+                            </AvatarFallback>
+                          </Avatar>
+                          {!collapsed && (
+                            <div className="flex-1 min-w-0 text-left">
+                              <div className="font-medium text-sm truncate">{agent.name}</div>
+                              <div className="text-xs text-muted-foreground truncate">
+                                {agent.subject || agent.type}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </Button>
+                    ))
+                  ) : (
+                    !collapsed && (
+                      <div className="text-center py-8 text-sm text-muted-foreground">
+                        No advisors yet
+                      </div>
+                    )
+                  )}
+                </div>
+              </div>
+            </ScrollArea>
+          </div>
+
+          {/* Footer */}
+          <div className="p-2 border-t space-y-1">
+            <Button 
+              variant="ghost" 
+              className={cn(
+                "w-full h-auto p-2",
+                collapsed ? "justify-center" : "justify-start gap-2"
+              )}
+              onClick={onShowAgents}
+            >
+              <Bot className="h-4 w-4 flex-shrink-0" />
+              {!collapsed && "All Advisors"}
+            </Button>
+            
+            <UserSettingsDropdown onShowSettings={onShowSettings} collapsed={collapsed} />
+          </div>
+        </div>
+      )}
+    </>
   );
 };
 

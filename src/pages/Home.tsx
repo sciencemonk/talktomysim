@@ -61,8 +61,8 @@ const Home = () => {
           return (
             <div className="flex-1 flex items-center justify-center p-4">
               <div className="text-center">
-                <p className="text-xl text-muted-foreground mb-4">No thinking partners yet</p>
-                <p className="text-muted-foreground">Create your first thinking partner to get started!</p>
+                <p className="text-xl text-muted-foreground mb-4">No advisors yet</p>
+                <p className="text-muted-foreground">Create your first AI advisor to get started!</p>
               </div>
             </div>
           );
