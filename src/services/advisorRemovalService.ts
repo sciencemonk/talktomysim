@@ -1,85 +1,64 @@
 
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from '@/integrations/supabase/client';
 
-export const advisorRemovalService = {
-  // Remove advisor and all associated data
-  async removeAdvisor(advisorId: string): Promise<boolean> {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('User not authenticated');
+export const removeAdvisorForUser = async (advisorId: string) => {
+  try {
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
 
-      console.log('Removing advisor:', advisorId, 'for user:', user.id);
-
-      // Delete all conversations and their messages for this advisor and user
-      const { data: conversations, error: conversationsError } = await supabase
-        .from('conversations')
-        .select('id')
-        .eq('tutor_id', advisorId)
-        .eq('user_id', user.id);
-
-      if (conversationsError) {
-        console.error('Error fetching conversations:', conversationsError);
-        throw conversationsError;
-      }
-
-      if (conversations && conversations.length > 0) {
-        const conversationIds = conversations.map(c => c.id);
-        
-        // Delete messages first (due to foreign key constraints)
-        const { error: messagesError } = await supabase
-          .from('messages')
-          .delete()
-          .in('conversation_id', conversationIds);
-
-        if (messagesError) {
-          console.error('Error deleting messages:', messagesError);
-          throw messagesError;
-        }
-
-        // Delete conversations
-        const { error: deleteConversationsError } = await supabase
-          .from('conversations')
-          .delete()
-          .in('id', conversationIds);
-
-        if (deleteConversationsError) {
-          console.error('Error deleting conversations:', deleteConversationsError);
-          throw deleteConversationsError;
-        }
-
-        console.log(`Deleted ${conversations.length} conversations and their messages for advisor ${advisorId}`);
-      }
-
-      // Try to remove from user_advisors table using raw SQL to avoid TypeScript issues
-      try {
-        const { error: userAdvisorsError } = await supabase.rpc('delete_user_advisor', {
-          p_advisor_id: advisorId,
-          p_user_id: user.id
-        });
-
-        if (userAdvisorsError) {
-          console.log('No custom function available, trying direct delete...');
-          // Fallback: try direct access (this might work despite TypeScript errors)
-          const { error: directDeleteError } = await (supabase as any)
-            .from('user_advisors')
-            .delete()
-            .eq('advisor_id', advisorId)
-            .eq('user_id', user.id);
-
-          if (directDeleteError && directDeleteError.code !== '42P01') {
-            console.error('Error removing from user_advisors:', directDeleteError);
-          }
-        }
-      } catch (error) {
-        console.log('Could not remove from user_advisors table:', error);
-        // Continue anyway as this might not be critical
-      }
-
-      console.log('Successfully removed advisor:', advisorId);
-      return true;
-    } catch (error) {
-      console.error('Error removing advisor:', error);
-      return false;
+    if (authError || !user) {
+      throw new Error('User not authenticated');
     }
+
+    console.log('Removing advisor:', advisorId, 'for user:', user.id);
+
+    // Delete conversations and their messages
+    const { data: conversations, error: conversationsError } = await supabase
+      .from('conversations')
+      .select('id')
+      .eq('user_id', user.id)
+      .eq('agent_id', advisorId);
+
+    if (conversationsError) {
+      console.error('Error fetching conversations:', conversationsError);
+      throw conversationsError;
+    }
+
+    if (conversations && conversations.length > 0) {
+      // Delete all messages for these conversations
+      const conversationIds = conversations.map(c => c.id);
+      
+      const { error: messagesError } = await supabase
+        .from('messages')
+        .delete()
+        .in('conversation_id', conversationIds);
+
+      if (messagesError) {
+        console.error('Error deleting messages:', messagesError);
+        throw messagesError;
+      }
+
+      // Delete the conversations
+      const { error: deleteConversationsError } = await supabase
+        .from('conversations')
+        .delete()
+        .eq('user_id', user.id)
+        .eq('agent_id', advisorId);
+
+      if (deleteConversationsError) {
+        console.error('Error deleting conversations:', deleteConversationsError);
+        throw deleteConversationsError;
+      }
+
+      console.log(`Deleted ${conversations.length} conversations and their messages for advisor ${advisorId}`);
+    }
+
+    // Note: We're not removing from user_advisors table as it doesn't exist in the current schema
+    // The UI will handle removing the advisor from the selected advisors list
+
+    console.log('Successfully removed advisor:', advisorId);
+    return true;
+  } catch (error) {
+    console.error('Error removing advisor:', error);
+    throw error;
   }
 };

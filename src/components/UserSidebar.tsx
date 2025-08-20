@@ -1,4 +1,3 @@
-
 import { useLocation } from "react-router-dom";
 import { 
   Bot, 
@@ -342,15 +341,19 @@ const UserSidebar = (props: UserSidebarProps) => {
   if (isMobile) {
     return (
       <>
-        {/* Mobile Trigger Button - Fixed Position */}
+        {/* Mobile Trigger Button - Fixed Position at Bottom Left */}
         <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
           <DrawerTrigger asChild>
             <Button
               variant="ghost"
               size="sm"
-              className="fixed top-4 left-4 z-50 h-10 w-10 p-0 bg-background border shadow-md"
+              className="fixed bottom-6 left-4 z-50 h-12 w-12 p-0 bg-background border shadow-lg rounded-full"
             >
-              <Menu className="h-5 w-5" />
+              <img 
+                src="/lovable-uploads/bedcfe0a-1a02-47a0-b867-775e5713580a.png" 
+                alt="Menu" 
+                className="h-6 w-6"
+              />
             </Button>
           </DrawerTrigger>
           <DrawerContent className="h-[85vh] max-h-[85vh]">
