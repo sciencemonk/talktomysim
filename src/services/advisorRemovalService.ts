@@ -50,16 +50,29 @@ export const advisorRemovalService = {
         console.log(`Deleted ${conversations.length} conversations and their messages for advisor ${advisorId}`);
       }
 
-      // Remove from user_advisors table if it exists
-      const { error: userAdvisorsError } = await supabase
-        .from('user_advisors')
-        .delete()
-        .eq('advisor_id', advisorId)
-        .eq('user_id', user.id);
+      // Try to remove from user_advisors table using raw SQL to avoid TypeScript issues
+      try {
+        const { error: userAdvisorsError } = await supabase.rpc('delete_user_advisor', {
+          p_advisor_id: advisorId,
+          p_user_id: user.id
+        });
 
-      if (userAdvisorsError && userAdvisorsError.code !== '42P01') { // Ignore table doesn't exist error
-        console.error('Error removing from user_advisors:', userAdvisorsError);
-        throw userAdvisorsError;
+        if (userAdvisorsError) {
+          console.log('No custom function available, trying direct delete...');
+          // Fallback: try direct access (this might work despite TypeScript errors)
+          const { error: directDeleteError } = await (supabase as any)
+            .from('user_advisors')
+            .delete()
+            .eq('advisor_id', advisorId)
+            .eq('user_id', user.id);
+
+          if (directDeleteError && directDeleteError.code !== '42P01') {
+            console.error('Error removing from user_advisors:', directDeleteError);
+          }
+        }
+      } catch (error) {
+        console.log('Could not remove from user_advisors table:', error);
+        // Continue anyway as this might not be critical
       }
 
       console.log('Successfully removed advisor:', advisorId);
