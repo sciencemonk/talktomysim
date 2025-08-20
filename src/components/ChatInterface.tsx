@@ -1,4 +1,5 @@
 
+
 import { useState, useRef, useEffect } from "react";
 import { useChatHistory } from "@/hooks/useChatHistory";
 import { TextInput } from "@/components/TextInput";
@@ -30,15 +31,22 @@ const parseMarkdown = (text: string) => {
 const ChatInterface = ({ agent, onShowAgentDetails }: ChatInterfaceProps) => {
   const [showSettings, setShowSettings] = useState(false);
   const [currentAgent, setCurrentAgent] = useState(agent);
+  const [isAiResponding, setIsAiResponding] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   
   const chatHistory = useChatHistory(currentAgent);
   const textChat = useTextChat({ 
     agent: currentAgent,
     onUserMessage: chatHistory.addUserMessage,
-    onAiMessageStart: chatHistory.startAiMessage,
+    onAiMessageStart: () => {
+      setIsAiResponding(true);
+      return chatHistory.startAiMessage();
+    },
     onAiTextDelta: chatHistory.addAiTextDelta,
-    onAiMessageComplete: chatHistory.completeAiMessage
+    onAiMessageComplete: (messageId: string) => {
+      chatHistory.completeAiMessage(messageId);
+      setIsAiResponding(false);
+    }
   });
 
   // Update current agent when agent prop changes
@@ -230,6 +238,25 @@ const ChatInterface = ({ agent, onShowAgentDetails }: ChatInterfaceProps) => {
                 </div>
               ))}
               
+              {/* Show typing indicator when AI is responding but no incomplete message exists */}
+              {isAiResponding && !chatHistory.messages.some(msg => !msg.isComplete && msg.role === 'system') && (
+                <div className="flex gap-4">
+                  <Avatar className="h-8 w-8 flex-shrink-0">
+                    <AvatarImage src={currentAgent.avatar} alt={currentAgent.name} />
+                    <AvatarFallback className="bg-primary text-primary-foreground text-xs">
+                      <Bot className="h-4 w-4" />
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-1 mt-2">
+                      <div className="w-1 h-1 bg-muted-foreground rounded-full animate-pulse" />
+                      <div className="w-1 h-1 bg-muted-foreground rounded-full animate-pulse" style={{ animationDelay: '0.2s' }} />
+                      <div className="w-1 h-1 bg-muted-foreground rounded-full animate-pulse" style={{ animationDelay: '0.4s' }} />
+                    </div>
+                  </div>
+                </div>
+              )}
+              
               {/* Invisible div to scroll to */}
               <div ref={messagesEndRef} />
             </div>
@@ -241,12 +268,10 @@ const ChatInterface = ({ agent, onShowAgentDetails }: ChatInterfaceProps) => {
       <div className="border-t bg-background flex-shrink-0 sticky bottom-0">
         <TextInput
           onSendMessage={handleSendMessage}
-          disabled={textChat.connectionStatus !== 'connected' || textChat.isProcessing}
+          disabled={textChat.connectionStatus !== 'connected'}
           placeholder={
             textChat.connectionStatus !== 'connected'
               ? "Connecting..." 
-              : textChat.isProcessing
-              ? "Processing..."
               : `Message ${currentAgent.name}...`
           }
         />
@@ -256,3 +281,4 @@ const ChatInterface = ({ agent, onShowAgentDetails }: ChatInterfaceProps) => {
 };
 
 export default ChatInterface;
+

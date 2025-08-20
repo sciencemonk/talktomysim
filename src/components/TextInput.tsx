@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -26,6 +25,10 @@ export const TextInput: React.FC<TextInputProps> = ({
       // Reset textarea height
       if (textareaRef.current) {
         textareaRef.current.style.height = 'auto';
+        // Keep focus on the textarea after sending
+        setTimeout(() => {
+          textareaRef.current?.focus();
+        }, 0);
       }
     }
   };
@@ -50,6 +53,13 @@ export const TextInput: React.FC<TextInputProps> = ({
       textareaRef.current.style.height = 'auto';
     }
   }, [message]);
+
+  // Auto-focus on mount and when enabled
+  useEffect(() => {
+    if (!disabled && textareaRef.current) {
+      textareaRef.current.focus();
+    }
+  }, [disabled]);
 
   return (
     <div className="w-full p-4">
