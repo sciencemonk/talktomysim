@@ -196,6 +196,7 @@ export type Database = {
       }
       conversations: {
         Row: {
+          advisor_id: string | null
           created_at: string
           id: string
           title: string | null
@@ -204,6 +205,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          advisor_id?: string | null
           created_at?: string
           id?: string
           title?: string | null
@@ -212,6 +214,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          advisor_id?: string | null
           created_at?: string
           id?: string
           title?: string | null
@@ -605,6 +608,54 @@ export type Database = {
           voice?: string | null
           voice_provider?: string | null
           voice_traits?: Json | null
+        }
+        Relationships: []
+      }
+      user_advisors: {
+        Row: {
+          advisor_id: string
+          avatar_url: string | null
+          background_content: string | null
+          category: string | null
+          created_at: string
+          description: string | null
+          id: string
+          knowledge_summary: string | null
+          name: string
+          prompt: string
+          title: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          advisor_id: string
+          avatar_url?: string | null
+          background_content?: string | null
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          knowledge_summary?: string | null
+          name: string
+          prompt: string
+          title?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          advisor_id?: string
+          avatar_url?: string | null
+          background_content?: string | null
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          knowledge_summary?: string | null
+          name?: string
+          prompt?: string
+          title?: string | null
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }

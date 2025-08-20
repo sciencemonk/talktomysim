@@ -1,6 +1,6 @@
 
 import { useState, useEffect, useCallback } from 'react';
-import { AgentType } from '@/types/agent';
+import { UserAdvisor } from '@/services/userAdvisorService';
 import { conversationService, Message } from '@/services/conversationService';
 
 interface ChatMessage {
@@ -10,22 +10,27 @@ interface ChatMessage {
   isComplete: boolean;
 }
 
-export const useChatHistory = (agent: AgentType) => {
+export const useChatHistory = (advisor: UserAdvisor | null) => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Load conversation and messages when agent changes
+  // Load conversation and messages when advisor changes
   useEffect(() => {
     const loadChatHistory = async () => {
-      if (!agent?.id) return;
+      if (!advisor?.id) {
+        setMessages([]);
+        setConversationId(null);
+        setIsLoading(false);
+        return;
+      }
       
       setIsLoading(true);
-      console.log('Loading chat history for agent:', agent.name);
+      console.log('Loading chat history for advisor:', advisor.name);
 
       try {
-        // Get or create conversation
-        const conversation = await conversationService.getOrCreateConversation(agent.id);
+        // Get or create conversation using the user advisor's ID
+        const conversation = await conversationService.getOrCreateConversation(advisor.id);
         if (!conversation) {
           console.error('Failed to get or create conversation');
           setIsLoading(false);
@@ -45,7 +50,7 @@ export const useChatHistory = (agent: AgentType) => {
         }));
 
         setMessages(chatMessages);
-        console.log(`Loaded ${chatMessages.length} messages for ${agent.name}:`, chatMessages);
+        console.log(`Loaded ${chatMessages.length} messages for ${advisor.name}:`, chatMessages);
       } catch (error) {
         console.error('Error loading chat history:', error);
       }
@@ -54,7 +59,7 @@ export const useChatHistory = (agent: AgentType) => {
     };
 
     loadChatHistory();
-  }, [agent?.id]);
+  }, [advisor?.id]);
 
   // Add user message
   const addUserMessage = useCallback(async (content: string) => {
@@ -110,7 +115,6 @@ export const useChatHistory = (agent: AgentType) => {
   const completeAiMessage = useCallback(async (messageId: string) => {
     if (!conversationId) return;
 
-    // Use a function to get the current message content
     setMessages(prev => {
       const currentMessage = prev.find(msg => msg.id === messageId);
       if (!currentMessage || !currentMessage.content.trim()) {
@@ -137,7 +141,6 @@ export const useChatHistory = (agent: AgentType) => {
           );
         } else {
           console.error('Failed to save AI message to database');
-          // Still mark as complete even if save failed
           setMessages(prevMessages => 
             prevMessages.map(msg => 
               msg.id === messageId 
@@ -148,7 +151,6 @@ export const useChatHistory = (agent: AgentType) => {
         }
       }).catch(error => {
         console.error('Error saving AI message:', error);
-        // Still mark as complete even if save failed
         setMessages(prevMessages => 
           prevMessages.map(msg => 
             msg.id === messageId 
