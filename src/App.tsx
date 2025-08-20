@@ -36,11 +36,11 @@ function App() {
   useEffect(() => {
     console.log("App component mounted, auth loading:", loading);
     
-    // Set a maximum loading time to prevent infinite loading
+    // Set a shorter timeout for better UX
     const timeout = setTimeout(() => {
-      console.log("Force ending loading state after 5 seconds");
+      console.log("Force ending loading state after 2 seconds");
       setAppLoading(false);
-    }, 5000);
+    }, 2000);
 
     if (!loading) {
       console.log("Auth loading complete, ending app loading");
@@ -54,10 +54,10 @@ function App() {
   if (appLoading && loading) {
     console.log("Showing loading spinner");
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-white">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Loading application...</p>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading...</p>
         </div>
       </div>
     );
@@ -72,13 +72,13 @@ function App() {
         <BrowserRouter>
           <Routes>
             {/* Public routes - NO SIDEBAR */}
+            <Route path="/" element={<Landing />} />
             <Route path="/login" element={<Login />} />
-            <Route path="/landing" element={<Landing />} />
             <Route path="/marketplace" element={<Marketplace />} />
             <Route path="/tutors/:agentId" element={<PublicTutorDetail />} />
             
             {/* Protected routes with DashboardLayout (includes sidebar) */}
-            <Route path="/" element={
+            <Route path="/app" element={
               <ProtectedRoute>
                 <DashboardLayout />
               </ProtectedRoute>
@@ -88,6 +88,9 @@ function App() {
               <Route path="child-profile" element={<ChildProfile />} />
               <Route path="settings" element={<Settings />} />
             </Route>
+
+            {/* Legacy dashboard redirect */}
+            <Route path="/dashboard" element={<Navigate to="/app" replace />} />
 
             {/* Agents management routes */}
             <Route path="/agents" element={<AgentsLayout />}>

@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Brain, Users, MessageSquare, ArrowRight, Sparkles, Shield, Heart, DollarSign, Clock, Target } from "lucide-react";
@@ -20,7 +19,7 @@ const Index = () => {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/dashboard`,
+          redirectTo: `${window.location.origin}/app`,
         },
       });
 
@@ -63,7 +62,7 @@ const Index = () => {
           </h2>
           
           {user ? (
-            <Link to="/dashboard">
+            <Link to="/app">
               <Button size="lg" className="bg-gray-900 hover:bg-gray-800 text-white px-10 py-4 text-lg rounded-full font-medium shadow-xl hover:shadow-2xl transition-all duration-300">
                 Go to Dashboard
                 <ArrowRight className="ml-3 h-5 w-5" />
