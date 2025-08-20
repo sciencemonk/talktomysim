@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useSimpleMessageAccumulator } from "@/hooks/useSimpleMessageAccumulator";
 import { TextInput } from "@/components/TextInput";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -17,6 +17,7 @@ interface ChatInterfaceProps {
 const ChatInterface = ({ agent, onShowAgentDetails }: ChatInterfaceProps) => {
   const [showSettings, setShowSettings] = useState(false);
   const [currentAgent, setCurrentAgent] = useState(agent);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
   
   const messageAccumulator = useSimpleMessageAccumulator();
   const textChat = useTextChat({ 
@@ -26,6 +27,11 @@ const ChatInterface = ({ agent, onShowAgentDetails }: ChatInterfaceProps) => {
     onAiTextDelta: messageAccumulator.addAiTextDelta,
     onAiMessageComplete: messageAccumulator.completeAiMessage
   });
+
+  // Auto-scroll to bottom when new messages arrive
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messageAccumulator.messages]);
 
   const handleAgentUpdate = (updatedAgent: AgentType) => {
     setCurrentAgent(updatedAgent);
@@ -83,8 +89,8 @@ const ChatInterface = ({ agent, onShowAgentDetails }: ChatInterfaceProps) => {
   }
 
   return (
-    <div className="flex flex-col h-full">
-      {/* Header - ChatGPT style */}
+    <div className="flex flex-col h-screen">
+      {/* Header - Fixed at top */}
       <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-6 py-4 flex-shrink-0">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -107,79 +113,79 @@ const ChatInterface = ({ agent, onShowAgentDetails }: ChatInterfaceProps) => {
         </div>
       </div>
 
-      {/* Chat Content Area */}
-      <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Messages Container */}
-        <div className="flex-1 overflow-y-auto">
-          {messageAccumulator.messages.length === 0 ? (
-            <div className="h-full flex flex-col items-center justify-center px-6">
-              <div className="w-12 h-12 bg-muted rounded-xl flex items-center justify-center mb-4">
-                <Bot className="h-6 w-6 text-muted-foreground" />
-              </div>
-              <h2 className="text-xl font-semibold mb-2">How can I help you today?</h2>
-              <p className="text-sm text-muted-foreground text-center max-w-md">
-                {textChat.connectionStatus === 'connecting' 
-                  ? 'Getting ready to chat...' 
-                  : textChat.connectionStatus === 'error'
-                  ? 'Connection error - please refresh'
-                  : `I'm ${currentAgent.name}, ready to help you learn and explore ideas together.`
-                }
-              </p>
+      {/* Chat Messages Area - Scrollable */}
+      <div className="flex-1 overflow-y-auto pb-4">
+        {messageAccumulator.messages.length === 0 ? (
+          <div className="h-full flex flex-col items-center justify-center px-6">
+            <div className="w-12 h-12 bg-muted rounded-xl flex items-center justify-center mb-4">
+              <Bot className="h-6 w-6 text-muted-foreground" />
             </div>
-          ) : (
-            <div className="max-w-4xl mx-auto px-6 py-8 w-full">
-              <div className="space-y-8">
-                {messageAccumulator.messages.map((message) => (
-                  <div key={message.id} className="flex gap-4">
-                    {message.role === 'system' && (
-                      <Avatar className="h-8 w-8 flex-shrink-0">
-                        <AvatarImage src={currentAgent.avatar} alt={currentAgent.name} />
-                        <AvatarFallback className="bg-primary text-primary-foreground text-xs">
-                          <Bot className="h-4 w-4" />
-                        </AvatarFallback>
-                      </Avatar>
-                    )}
-                    
-                    {message.role === 'user' && (
-                      <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
-                        <span className="text-xs font-medium">You</span>
-                      </div>
-                    )}
-                    
-                    <div className="flex-1 min-w-0">
-                      <div className="prose prose-sm max-w-none">
-                        <p className="text-sm leading-relaxed whitespace-pre-wrap break-words mb-0">
-                          {message.content}
-                        </p>
-                      </div>
-                      
-                      {!message.isComplete && message.role === 'system' && (
-                        <div className="flex items-center gap-1 mt-2">
-                          <div className="w-1 h-1 bg-muted-foreground rounded-full animate-pulse" />
-                          <div className="w-1 h-1 bg-muted-foreground rounded-full animate-pulse" style={{ animationDelay: '0.2s' }} />
-                          <div className="w-1 h-1 bg-muted-foreground rounded-full animate-pulse" style={{ animationDelay: '0.4s' }} />
-                        </div>
-                      )}
+            <h2 className="text-xl font-semibold mb-2">How can I help you today?</h2>
+            <p className="text-sm text-muted-foreground text-center max-w-md">
+              {textChat.connectionStatus === 'connecting' 
+                ? 'Getting ready to chat...' 
+                : textChat.connectionStatus === 'error'
+                ? 'Connection error - please refresh'
+                : `I'm ${currentAgent.name}, ready to help you learn and explore ideas together.`
+              }
+            </p>
+          </div>
+        ) : (
+          <div className="max-w-4xl mx-auto px-6 py-8 w-full">
+            <div className="space-y-6">
+              {messageAccumulator.messages.map((message) => (
+                <div key={message.id} className="flex gap-4">
+                  {message.role === 'system' && (
+                    <Avatar className="h-8 w-8 flex-shrink-0">
+                      <AvatarImage src={currentAgent.avatar} alt={currentAgent.name} />
+                      <AvatarFallback className="bg-primary text-primary-foreground text-xs">
+                        <Bot className="h-4 w-4" />
+                      </AvatarFallback>
+                    </Avatar>
+                  )}
+                  
+                  {message.role === 'user' && (
+                    <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
+                      <span className="text-xs font-medium">You</span>
                     </div>
+                  )}
+                  
+                  <div className="flex-1 min-w-0">
+                    <div className="prose prose-sm max-w-none dark:prose-invert">
+                      <p className="text-sm leading-relaxed whitespace-pre-wrap break-words mb-0">
+                        {message.content}
+                      </p>
+                    </div>
+                    
+                    {!message.isComplete && message.role === 'system' && (
+                      <div className="flex items-center gap-1 mt-2">
+                        <div className="w-1 h-1 bg-muted-foreground rounded-full animate-pulse" />
+                        <div className="w-1 h-1 bg-muted-foreground rounded-full animate-pulse" style={{ animationDelay: '0.2s' }} />
+                        <div className="w-1 h-1 bg-muted-foreground rounded-full animate-pulse" style={{ animationDelay: '0.4s' }} />
+                      </div>
+                    )}
                   </div>
-                ))}
-              </div>
+                </div>
+              ))}
+              
+              {/* Invisible div to scroll to */}
+              <div ref={messagesEndRef} />
             </div>
-          )}
-        </div>
-        
-        {/* Input Area */}
-        <div className="border-t bg-background flex-shrink-0">
-          <TextInput
-            onSendMessage={handleSendMessage}
-            disabled={textChat.connectionStatus !== 'connected'}
-            placeholder={
-              textChat.connectionStatus !== 'connected'
-                ? "Connecting..." 
-                : `Message ${currentAgent.name}...`
-            }
-          />
-        </div>
+          </div>
+        )}
+      </div>
+      
+      {/* Text Input - Fixed at bottom */}
+      <div className="border-t bg-background flex-shrink-0 sticky bottom-0">
+        <TextInput
+          onSendMessage={handleSendMessage}
+          disabled={textChat.connectionStatus !== 'connected'}
+          placeholder={
+            textChat.connectionStatus !== 'connected'
+              ? "Connecting..." 
+              : `Message ${currentAgent.name}...`
+          }
+        />
       </div>
     </div>
   );

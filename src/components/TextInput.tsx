@@ -52,30 +52,32 @@ export const TextInput: React.FC<TextInputProps> = ({
   }, [message]);
 
   return (
-    <div className="max-w-4xl mx-auto w-full p-4">
-      <form onSubmit={handleSubmit} className="relative">
-        <div className="flex items-end gap-2 bg-background border border-border rounded-xl p-3 shadow-sm focus-within:border-primary/50 transition-colors">
-          <Textarea
-            ref={textareaRef}
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-            onKeyDown={handleKeyDown}
-            onInput={handleInput}
-            placeholder={placeholder}
-            disabled={disabled}
-            className="flex-1 min-h-[24px] max-h-[200px] resize-none border-0 p-0 shadow-none focus-visible:ring-0 bg-transparent text-sm placeholder:text-muted-foreground"
-            rows={1}
-          />
-          <Button 
-            type="submit" 
-            disabled={!message.trim() || disabled}
-            size="sm"
-            className="h-8 w-8 p-0 flex-shrink-0 rounded-lg"
-          >
-            <Send className="h-4 w-4" />
-          </Button>
-        </div>
-      </form>
+    <div className="w-full p-4">
+      <div className="max-w-4xl mx-auto">
+        <form onSubmit={handleSubmit} className="relative">
+          <div className="flex items-end gap-3 bg-background border border-input rounded-2xl p-4 shadow-sm focus-within:border-ring transition-colors">
+            <Textarea
+              ref={textareaRef}
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              onKeyDown={handleKeyDown}
+              onInput={handleInput}
+              placeholder={placeholder}
+              disabled={disabled}
+              className="flex-1 min-h-[24px] max-h-[200px] resize-none border-0 p-0 shadow-none focus-visible:ring-0 bg-transparent text-sm placeholder:text-muted-foreground"
+              rows={1}
+            />
+            <Button 
+              type="submit" 
+              disabled={!message.trim() || disabled}
+              size="sm"
+              className="h-8 w-8 p-0 flex-shrink-0 rounded-lg"
+            >
+              <Send className="h-4 w-4" />
+            </Button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 };
