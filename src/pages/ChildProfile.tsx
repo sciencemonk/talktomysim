@@ -1,254 +1,198 @@
 
-import { useState, useEffect } from "react";
-import { User, Baby, MapPin, Heart, Calendar, Smile, Target, ArrowLeft } from "lucide-react";
-import { Link } from "react-router-dom";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useToast } from "@/hooks/use-toast";
+import { Badge } from "@/components/ui/badge";
+import { Plus, X } from "lucide-react";
+import { useState } from "react";
 
 const ChildProfile = () => {
-  const { toast } = useToast();
-  const [profile, setProfile] = useState({
-    firstName: "",
-    lastName: "",
-    age: "",
-    grade: "",
-    interests: "",
-    hometown: "",
-    favoriteSubjects: "",
-    personality: "",
-    communicationStyle: "",
-    goals: "",
-    values: ""
-  });
+  const [interests, setInterests] = useState<string[]>(["Math", "Science", "Reading"]);
+  const [newInterest, setNewInterest] = useState("");
 
-  const updateProfile = (field: string, value: string) => {
-    setProfile(prev => ({
-      ...prev,
-      [field]: value
-    }));
+  const addInterest = () => {
+    if (newInterest.trim() && !interests.includes(newInterest.trim())) {
+      setInterests([...interests, newInterest.trim()]);
+      setNewInterest("");
+    }
   };
 
-  // Auto-save functionality
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      // Only show toast if there's actual content to save
-      const hasContent = Object.values(profile).some(value => value.trim() !== "");
-      if (hasContent) {
-        toast({
-          title: "Profile saved",
-          description: "Your child's profile has been updated automatically.",
-        });
-      }
-    }, 1000); // Auto-save after 1 second of inactivity
-
-    return () => clearTimeout(timer);
-  }, [profile, toast]);
+  const removeInterest = (interest: string) => {
+    setInterests(interests.filter(i => i !== interest));
+  };
 
   return (
-    <div className="container mx-auto p-6 space-y-8 max-w-4xl">
-      <div className="flex items-center justify-between">
-        <Link to="/agents">
-          <Button variant="ghost" size="sm" className="gap-2">
-            <ArrowLeft className="h-4 w-4" />
-            Back to Dashboard
-          </Button>
-        </Link>
-      </div>
-
-      {/* Basic Information */}
+    <div className="container mx-auto p-6 max-w-4xl space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <User className="h-5 w-5" />
-            Basic Information
-          </CardTitle>
-          <CardDescription>Tell us about your child</CardDescription>
+          <CardTitle>Basic Information</CardTitle>
+          <CardDescription>
+            Tell us about your child to personalize their learning experience
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="firstName">First Name</Label>
+              <Label htmlFor="childName">Child's Name</Label>
               <Input
-                id="firstName"
-                value={profile.firstName}
-                onChange={(e) => updateProfile('firstName', e.target.value)}
-                placeholder="Enter your child's first name"
+                id="childName"
+                placeholder="Enter your child's name"
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="lastName">Last Name</Label>
-              <Input
-                id="lastName"
-                value={profile.lastName}
-                onChange={(e) => updateProfile('lastName', e.target.value)}
-                placeholder="Enter your child's last name"
-              />
-            </div>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="age">Age</Label>
               <Input
                 id="age"
                 type="number"
-                value={profile.age}
-                onChange={(e) => updateProfile('age', e.target.value)}
-                placeholder="Enter your child's age"
+                placeholder="Enter age"
+                min="5"
+                max="18"
               />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="grade">Grade Level</Label>
-              <Select value={profile.grade} onValueChange={(value) => updateProfile('grade', value)}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select grade level" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="pre-k">Pre-K</SelectItem>
-                  <SelectItem value="k">Kindergarten</SelectItem>
-                  <SelectItem value="1">1st Grade</SelectItem>
-                  <SelectItem value="2">2nd Grade</SelectItem>
-                  <SelectItem value="3">3rd Grade</SelectItem>
-                  <SelectItem value="4">4th Grade</SelectItem>
-                  <SelectItem value="5">5th Grade</SelectItem>
-                  <SelectItem value="6">6th Grade</SelectItem>
-                  <SelectItem value="7">7th Grade</SelectItem>
-                  <SelectItem value="8">8th Grade</SelectItem>
-                  <SelectItem value="9">9th Grade</SelectItem>
-                  <SelectItem value="10">10th Grade</SelectItem>
-                  <SelectItem value="11">11th Grade</SelectItem>
-                  <SelectItem value="12">12th Grade</SelectItem>
-                </SelectContent>
-              </Select>
             </div>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="hometown">Hometown</Label>
-            <Input
-              id="hometown"
-              value={profile.hometown}
-              onChange={(e) => updateProfile('hometown', e.target.value)}
-              placeholder="Enter your child's hometown"
+            <Label htmlFor="gradeLevel">Grade Level</Label>
+            <Select>
+              <SelectTrigger>
+                <SelectValue placeholder="Select grade level" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="kindergarten">Kindergarten</SelectItem>
+                <SelectItem value="1st">1st Grade</SelectItem>
+                <SelectItem value="2nd">2nd Grade</SelectItem>
+                <SelectItem value="3rd">3rd Grade</SelectItem>
+                <SelectItem value="4th">4th Grade</SelectItem>
+                <SelectItem value="5th">5th Grade</SelectItem>
+                <SelectItem value="6th">6th Grade</SelectItem>
+                <SelectItem value="7th">7th Grade</SelectItem>
+                <SelectItem value="8th">8th Grade</SelectItem>
+                <SelectItem value="9th">9th Grade</SelectItem>
+                <SelectItem value="10th">10th Grade</SelectItem>
+                <SelectItem value="11th">11th Grade</SelectItem>
+                <SelectItem value="12th">12th Grade</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Learning Preferences</CardTitle>
+          <CardDescription>
+            Help us understand how your child learns best
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="learningStyle">Preferred Learning Style</Label>
+            <Select>
+              <SelectTrigger>
+                <SelectValue placeholder="Select learning style" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="visual">Visual Learner</SelectItem>
+                <SelectItem value="auditory">Auditory Learner</SelectItem>
+                <SelectItem value="kinesthetic">Kinesthetic Learner</SelectItem>
+                <SelectItem value="reading">Reading/Writing Learner</SelectItem>
+                <SelectItem value="mixed">Mixed Learning Style</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="difficulty">Current Difficulty Level</Label>
+            <Select>
+              <SelectTrigger>
+                <SelectValue placeholder="Select difficulty level" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="beginner">Beginner</SelectItem>
+                <SelectItem value="intermediate">Intermediate</SelectItem>
+                <SelectItem value="advanced">Advanced</SelectItem>
+                <SelectItem value="gifted">Gifted/Accelerated</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Interests & Goals</CardTitle>
+          <CardDescription>
+            What subjects and activities interest your child?
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <Label>Interests</Label>
+            <div className="flex flex-wrap gap-2 mb-2">
+              {interests.map((interest) => (
+                <Badge key={interest} variant="secondary" className="flex items-center gap-1">
+                  {interest}
+                  <X
+                    className="h-3 w-3 cursor-pointer hover:text-destructive"
+                    onClick={() => removeInterest(interest)}
+                  />
+                </Badge>
+              ))}
+            </div>
+            <div className="flex gap-2">
+              <Input
+                placeholder="Add an interest"
+                value={newInterest}
+                onChange={(e) => setNewInterest(e.target.value)}
+                onKeyPress={(e) => e.key === 'Enter' && addInterest()}
+              />
+              <Button onClick={addInterest} size="sm">
+                <Plus className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="goals">Learning Goals</Label>
+            <Textarea
+              id="goals"
+              placeholder="What would you like your child to achieve? (e.g., improve math skills, develop reading comprehension, prepare for tests)"
+              rows={3}
             />
           </div>
         </CardContent>
       </Card>
 
-      {/* Interests & Preferences */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Heart className="h-5 w-5" />
-            Interests & Preferences
-          </CardTitle>
-          <CardDescription>Help us understand what your child loves</CardDescription>
+          <CardTitle>Special Considerations</CardTitle>
+          <CardDescription>
+            Any additional information that might help personalize the experience
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="interests">Hobbies & Interests</Label>
+            <Label htmlFor="specialNeeds">Special Needs or Accommodations</Label>
             <Textarea
-              id="interests"
-              value={profile.interests}
-              onChange={(e) => updateProfile('interests', e.target.value)}
-              placeholder="What does your child love to do? (e.g., sports, music, art, reading, video games)"
+              id="specialNeeds"
+              placeholder="Please describe any learning differences, accommodations needed, or other considerations"
               rows={3}
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="favoriteSubjects">Favorite School Subjects</Label>
+            <Label htmlFor="motivation">What motivates your child?</Label>
             <Textarea
-              id="favoriteSubjects"
-              value={profile.favoriteSubjects}
-              onChange={(e) => updateProfile('favoriteSubjects', e.target.value)}
-              placeholder="Which subjects does your child enjoy most?"
+              id="motivation"
+              placeholder="What rewards, topics, or approaches work best to keep your child engaged?"
               rows={2}
             />
           </div>
         </CardContent>
       </Card>
 
-      {/* Communication & Personality */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Smile className="h-5 w-5" />
-            Communication & Personality
-          </CardTitle>
-          <CardDescription>How does your child communicate and interact?</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="personality">Personality Traits</Label>
-            <Textarea
-              id="personality"
-              value={profile.personality}
-              onChange={(e) => updateProfile('personality', e.target.value)}
-              placeholder="How would you describe your child's personality? Are they shy, outgoing, curious, analytical, creative, etc.?"
-              rows={3}
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="communicationStyle">Communication Style</Label>
-            <Textarea
-              id="communicationStyle"
-              value={profile.communicationStyle}
-              onChange={(e) => updateProfile('communicationStyle', e.target.value)}
-              placeholder="How does your child prefer to communicate? Do they like detailed explanations, quick answers, visual examples, stories, etc.?"
-              rows={3}
-            />
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Values & Character */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Target className="h-5 w-5" />
-            Values & Character Development
-          </CardTitle>
-          <CardDescription>What values do you want to instill in your child?</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="values">Core Values & Principles</Label>
-            <Textarea
-              id="values"
-              value={profile.values}
-              onChange={(e) => updateProfile('values', e.target.value)}
-              placeholder="What values are important to your family? (e.g., honesty, kindness, curiosity, perseverance, respect, critical thinking, empathy)"
-              rows={4}
-            />
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Learning Goals */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Calendar className="h-5 w-5" />
-            Learning Goals
-          </CardTitle>
-          <CardDescription>What would you like your child to work on?</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="goals">Learning Goals & Objectives</Label>
-            <Textarea
-              id="goals"
-              value={profile.goals}
-              onChange={(e) => updateProfile('goals', e.target.value)}
-              placeholder="What specific skills or subjects would you like your child to improve? Any challenges they're facing?"
-              rows={4}
-            />
-          </div>
-        </CardContent>
-      </Card>
+      <div className="flex justify-end">
+        <Button size="lg">Save Profile</Button>
+      </div>
     </div>
   );
 };

@@ -7,13 +7,24 @@ import {
   LogOut, 
   Bot, 
   PlusCircle,
-  CreditCard
+  CreditCard,
+  ChevronDown,
+  ChevronRight
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { useAgents } from "@/hooks/useAgents";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
+import { useState } from "react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface UserSidebarProps {
   onShowBilling?: () => void;
@@ -21,19 +32,15 @@ interface UserSidebarProps {
 
 const UserSidebar = ({ onShowBilling }: UserSidebarProps) => {
   const { user, signOut } = useAuth();
+  const { agents, isLoading } = useAgents();
   const location = useLocation();
+  const [isHomeExpanded, setIsHomeExpanded] = useState(true);
 
   const handleSignOut = async () => {
     await signOut();
   };
 
   const isActive = (path: string) => location.pathname === path;
-
-  const navigationItems = [
-    { title: "Home", url: "/agents", icon: Home },
-    { title: "Child Profile", url: "/child-profile", icon: User },
-    { title: "Settings", url: "/settings", icon: Settings },
-  ];
 
   return (
     <div className="w-64 bg-card border-r border-border flex flex-col h-screen">
@@ -51,39 +58,63 @@ const UserSidebar = ({ onShowBilling }: UserSidebarProps) => {
 
       {/* Navigation Items */}
       <div className="flex-1 p-3 space-y-1">
-        {navigationItems.map((item) => (
-          <Link
-            key={item.title}
-            to={item.url}
-            className={cn(
-              "flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors",
-              isActive(item.url)
-                ? "bg-primary/10 text-primary font-medium"
-                : "text-muted-foreground hover:bg-muted hover:text-foreground"
-            )}
+        {/* Home Section */}
+        <div>
+          <button
+            onClick={() => setIsHomeExpanded(!isHomeExpanded)}
+            className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors text-muted-foreground hover:bg-muted hover:text-foreground w-full"
           >
-            <item.icon className="h-4 w-4" />
-            {item.title}
-          </Link>
-        ))}
+            <Home className="h-4 w-4" />
+            <span className="flex-1 text-left">Home</span>
+            {isHomeExpanded ? (
+              <ChevronDown className="h-4 w-4" />
+            ) : (
+              <ChevronRight className="h-4 w-4" />
+            )}
+          </button>
 
+          {/* Thinking Partners List */}
+          {isHomeExpanded && (
+            <div className="ml-6 mt-1 space-y-1">
+              {isLoading ? (
+                <div className="px-3 py-2 text-xs text-muted-foreground">
+                  Loading thinking partners...
+                </div>
+              ) : agents.length > 0 ? (
+                agents.map((agent) => (
+                  <Link
+                    key={agent.id}
+                    to={`/agents/${agent.id}`}
+                    className={cn(
+                      "flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors",
+                      isActive(`/agents/${agent.id}`)
+                        ? "bg-primary/10 text-primary font-medium"
+                        : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                    )}
+                  >
+                    <Bot className="h-3 w-3" />
+                    <span className="truncate">{agent.name}</span>
+                  </Link>
+                ))
+              ) : (
+                <div className="px-3 py-2 text-xs text-muted-foreground">
+                  No thinking partners yet
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
+        <div className="flex-1" />
+
+        {/* Create New - moved to bottom */}
         <Separator className="my-3" />
-
-        {/* Quick Actions */}
         <Link
           to="/agents/create"
           className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors text-muted-foreground hover:bg-muted hover:text-foreground"
         >
           <PlusCircle className="h-4 w-4" />
-          Create Agent
-        </Link>
-
-        <Link
-          to="/agents"
-          className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors text-muted-foreground hover:bg-muted hover:text-foreground"
-        >
-          <Bot className="h-4 w-4" />
-          My Agents
+          Create New
         </Link>
       </div>
 
@@ -105,34 +136,46 @@ const UserSidebar = ({ onShowBilling }: UserSidebarProps) => {
           </button>
         )}
 
-        {/* User Info */}
-        <div className="flex items-center gap-3 px-3 py-2">
-          <Avatar className="h-8 w-8">
-            <AvatarImage src={user?.user_metadata?.avatar_url} alt="Profile" />
-            <AvatarFallback>
-              {user?.email?.charAt(0)?.toUpperCase() || "U"}
-            </AvatarFallback>
-          </Avatar>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium truncate">
-              {user?.user_metadata?.full_name || "User"}
-            </p>
-            <p className="text-xs text-muted-foreground truncate">
-              {user?.email}
-            </p>
-          </div>
-        </div>
-
-        {/* Logout Button */}
-        <Button
-          onClick={handleSignOut}
-          variant="ghost"
-          size="sm"
-          className="w-full justify-start gap-2 text-muted-foreground hover:text-foreground"
-        >
-          <LogOut className="h-4 w-4" />
-          Log out
-        </Button>
+        {/* User Info with Dropdown */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-muted transition-colors w-full">
+              <Avatar className="h-8 w-8">
+                <AvatarImage src={user?.user_metadata?.avatar_url} alt="Profile" />
+                <AvatarFallback>
+                  {user?.email?.charAt(0)?.toUpperCase() || "U"}
+                </AvatarFallback>
+              </Avatar>
+              <div className="flex-1 min-w-0 text-left">
+                <p className="text-sm font-medium truncate">
+                  {user?.user_metadata?.full_name || "User"}
+                </p>
+                <p className="text-xs text-muted-foreground truncate">
+                  {user?.email}
+                </p>
+              </div>
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="start" className="w-56">
+            <DropdownMenuItem asChild>
+              <Link to="/child-profile" className="w-full flex items-center">
+                <User className="mr-2 h-4 w-4" />
+                <span>Child Profile</span>
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link to="/settings" className="w-full flex items-center">
+                <Settings className="mr-2 h-4 w-4" />
+                <span>Settings</span>
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={handleSignOut}>
+              <LogOut className="mr-2 h-4 w-4" />
+              <span>Log out</span>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </div>
   );
