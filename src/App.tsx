@@ -1,47 +1,88 @@
-
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { AuthProvider } from "@/hooks/useAuth";
-
-// Pages
-import Index from "./pages/Index";
-import Login from "./pages/Login";
-import Home from "./pages/Home";
-import PublicTutorDetail from "./pages/PublicTutorDetail";
-import StudentChat from "./pages/StudentChat";
-import NotFound from "./pages/NotFound";
+import React from 'react';
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  Navigate
+} from "react-router-dom";
+import { QueryClient, QueryClientProvider } from 'react-query';
+import { Toaster } from "@/components/ui/toaster"
+import { useAuth, AuthProvider } from "@/hooks/useAuth";
+import Dashboard from "@/pages/Dashboard";
+import AgentDetails from "@/pages/AgentDetails";
+import PublicAgentDetails from "@/pages/PublicAgentDetails";
+import PricingPage from "@/pages/PricingPage";
+import { TooltipProvider } from "@/components/ui/tooltip"
+import { Sonner } from 'sonner'
+import AgentBuilder from "@/pages/AgentBuilder";
+import AdvisorEdit from "@/pages/AdvisorEdit";
 
 const queryClient = new QueryClient();
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <AuthProvider>
+function ProtectedRoute({ children }: { children: React.ReactNode }) {
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return <div>Loading...</div>; // Or a more appropriate loading indicator
+  }
+
+  if (!user) {
+    return <Navigate to="/pricing" replace />;
+  }
+
+  return <>{children}</>;
+}
+
+function App() {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
         <Toaster />
         <Sonner />
         <BrowserRouter>
-          <Routes>
-            {/* Public routes */}
-            <Route path="/" element={<Index />} />
-            <Route path="/login" element={<Login />} />
-            
-            {/* Public tutor share links - accessible by non-signed in users */}
-            <Route path="/tutors/:agentId" element={<PublicTutorDetail />} />
-            <Route path="/tutors/:agentId/chat" element={<StudentChat />} />
-            
-            {/* Protected main app - single page with modals */}
-            <Route path="/app" element={<Home />} />
-            
-            {/* Catch all - redirect to home */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+          <AuthProvider>
+            <Routes>
+              <Route path="/pricing" element={<PricingPage />} />
+              <Route path="/" element={<Navigate to="/dashboard" replace />} />
+              <Route
+                path="/dashboard"
+                element={
+                  <ProtectedRoute>
+                    <Dashboard />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/agent-builder"
+                element={
+                  <ProtectedRoute>
+                    <AgentBuilder />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/agents/:agentId"
+                element={
+                  <ProtectedRoute>
+                    <AgentDetails />
+                  </ProtectedRoute>
+                }
+              />
+              <Route path="/public/agents/:agentId" element={<PublicAgentDetails />} />
+              <Route 
+                path="/advisor-edit/:advisorId" 
+                element={
+                  <ProtectedRoute>
+                    <AdvisorEdit />
+                  </ProtectedRoute>
+                } 
+              />
+            </Routes>
+          </AuthProvider>
         </BrowserRouter>
-      </AuthProvider>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+      </TooltipProvider>
+    </QueryClientProvider>
+  );
+}
 
 export default App;
