@@ -180,7 +180,7 @@ const SidebarContent = ({
           )}
         </div>
 
-        {/* New Chat Button - Now below the agents list */}
+        {/* New Advisor Button - Now below the agents list */}
         <Button
           onClick={handleShowAdvisorDirectory}
           variant="outline"
@@ -188,7 +188,7 @@ const SidebarContent = ({
           size="sm"
         >
           <PlusCircle className="h-4 w-4 flex-shrink-0" />
-          {(!isCollapsed || !onToggleCollapse) && <span>New chat</span>}
+          {(!isCollapsed || !onToggleCollapse) && <span>New Advisor</span>}
         </Button>
       </div>
 
