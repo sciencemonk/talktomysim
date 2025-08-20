@@ -4,7 +4,7 @@ import { usePublicAgent } from "@/hooks/usePublicAgent";
 import { useRealtimeChat } from "@/hooks/useRealtimeChat";
 import { TextInput } from "@/components/TextInput";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Bot, Settings, Menu } from "lucide-react";
+import { Bot, Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -14,6 +14,7 @@ import {
   DrawerTrigger,
 } from "@/components/ui/drawer";
 import { useState } from "react";
+import { ShareButton } from "@/components/ShareButton";
 
 const StudentChat = () => {
   const { agentId } = useParams<{ agentId: string }>();
@@ -21,11 +22,6 @@ const StudentChat = () => {
   const realtimeChat = useRealtimeChat({ agent: agent! });
   const isMobile = useIsMobile();
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-
-  const handleEdit = () => {
-    // Navigate to agent detail page for editing
-    window.location.href = `/agents/${agentId}`;
-  };
 
   // Combine messages with current partial message if speaking
   const allMessages = [...realtimeChat.messages];
@@ -108,17 +104,11 @@ const StudentChat = () => {
             </div>
           </div>
           
-          <Button 
-            onClick={() => {
-              handleEdit();
-              setIsDrawerOpen(false);
-            }}
-            variant="outline" 
-            className="w-full justify-start gap-2"
-          >
-            <Settings className="h-4 w-4" />
-            Edit Tutor
-          </Button>
+          <ShareButton 
+            tutorId={agent.id}
+            tutorName={agent.name}
+            className="w-full justify-start"
+          />
         </div>
       </DrawerContent>
     </Drawer>
@@ -144,10 +134,10 @@ const StudentChat = () => {
           </div>
           
           {!isMobile && (
-            <Button variant="ghost" size="sm" onClick={handleEdit} className="gap-2 text-sm">
-              <Settings className="h-4 w-4" />
-              Edit
-            </Button>
+            <ShareButton 
+              tutorId={agent.id}
+              tutorName={agent.name}
+            />
           )}
         </div>
       </div>
