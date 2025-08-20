@@ -32,7 +32,7 @@ const App = () => (
             <Route path="/tutors/:agentId" element={<PublicTutorDetail />} />
             <Route path="/tutors/:agentId/chat" element={<StudentChat />} />
             
-            {/* Protected main app - single page with modals */}
+            {/* Main app - now accessible without authentication for testing */}
             <Route path="/app" element={<Home />} />
             
             {/* Catch all - redirect to home */}
