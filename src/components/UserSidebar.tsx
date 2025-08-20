@@ -1,9 +1,9 @@
+
 import { useLocation } from "react-router-dom";
 import { 
   Bot, 
   PlusCircle,
   LogOut, 
-  CreditCard,
   Settings,
   User,
   ChevronLeft,
@@ -26,7 +26,6 @@ import {
 import { AgentType } from "@/types/agent";
 
 interface UserSidebarProps {
-  onShowBilling?: () => void;
   onShowSettings?: () => void;
   onShowChildProfile?: () => void;
   onShowAgents?: () => void;
@@ -37,7 +36,6 @@ interface UserSidebarProps {
 }
 
 const UserSidebar = ({ 
-  onShowBilling, 
   onShowSettings, 
   onShowChildProfile, 
   onShowAgents,
@@ -169,21 +167,7 @@ const UserSidebar = ({
       <Separator />
 
       {/* User Profile Section */}
-      <div className="p-3 space-y-2">
-        {/* Usage/Billing Info */}
-        {onShowBilling && !isCollapsed && (
-          <button
-            onClick={onShowBilling}
-            className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors text-muted-foreground hover:bg-muted hover:text-foreground w-full text-left"
-          >
-            <CreditCard className="h-4 w-4" />
-            <div className="flex flex-col">
-              <span className="text-xs">Usage</span>
-              <span className="text-primary font-medium">0.0 hours left</span>
-            </div>
-          </button>
-        )}
-
+      <div className="p-3">
         {/* User Info with Dropdown */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>

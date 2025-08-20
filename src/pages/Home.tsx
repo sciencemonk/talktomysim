@@ -3,8 +3,6 @@ import { useState, useCallback } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import UserSidebar from "@/components/UserSidebar";
 import ChatInterface from "@/components/ChatInterface";
-import AgentConfigSettings from "@/components/AgentConfigSettings";
-import UsageBilling from "@/components/UsageBilling";
 import ChildProfile from "@/pages/ChildProfile";
 import Settings from "@/pages/Settings";
 import AgentCreate from "@/pages/AgentCreate";
@@ -15,7 +13,7 @@ const Home = () => {
   const { user } = useAuth();
   const { agents } = useAgents();
   const [selectedAgent, setSelectedAgent] = useState<AgentType | null>(null);
-  const [currentView, setCurrentView] = useState<'chat' | 'billing' | 'child-profile' | 'settings' | 'agents' | 'agent-create'>('chat');
+  const [currentView, setCurrentView] = useState<'chat' | 'child-profile' | 'settings' | 'agents' | 'agent-create'>('chat');
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   const handleSelectAgent = useCallback((agent: AgentType) => {
@@ -29,12 +27,10 @@ const Home = () => {
     setRefreshTrigger(prev => prev + 1);
   }, []);
 
-  const handleShowBilling = () => setCurrentView('billing');
   const handleShowChildProfile = () => setCurrentView('child-profile');
   const handleShowSettings = () => setCurrentView('settings');
   const handleShowAgents = () => setCurrentView('agents');
   const handleShowAgentCreate = () => setCurrentView('agent-create');
-  const handleCloseBilling = () => setCurrentView('chat');
 
   // Set first agent as selected if none selected
   if (!selectedAgent && agents.length > 0) {
@@ -43,8 +39,6 @@ const Home = () => {
 
   const renderMainContent = () => {
     switch (currentView) {
-      case 'billing':
-        return <UsageBilling onClose={handleCloseBilling} />;
       case 'child-profile':
         return <ChildProfile />;
       case 'settings':
@@ -63,7 +57,7 @@ const Home = () => {
       default:
         if (!selectedAgent) {
           return (
-            <div className="flex-1 flex items-center justify-center">
+            <div className="flex-1 flex items-center justify-center p-4">
               <div className="text-center">
                 <p className="text-xl text-muted-foreground mb-4">No thinking partners yet</p>
                 <p className="text-muted-foreground">Create your first thinking partner to get started!</p>
@@ -87,7 +81,6 @@ const Home = () => {
   return (
     <div className="flex h-screen bg-background">
       <UserSidebar
-        onShowBilling={handleShowBilling}
         onShowSettings={handleShowSettings}
         onShowChildProfile={handleShowChildProfile}
         onShowAgents={handleShowAgents}
