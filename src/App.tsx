@@ -71,20 +71,18 @@ function App() {
         <Toaster />
         <BrowserRouter>
           <Routes>
-            {/* Public routes */}
+            {/* Public routes - NO SIDEBAR */}
             <Route path="/login" element={<Login />} />
             <Route path="/landing" element={<Landing />} />
             <Route path="/marketplace" element={<Marketplace />} />
             <Route path="/tutors/:agentId" element={<PublicTutorDetail />} />
             
-            {/* Dashboard routes with sidebar */}
-            <Route path="/dashboard" element={<DashboardLayout />}>
-              <Route index element={<Navigate to="/" replace />} />
-              <Route path="*" element={<Navigate to="/" replace />} />
-            </Route>
-
-            {/* Main dashboard routes with sidebar - includes tutor chats */}
-            <Route path="/" element={<DashboardLayout />}>
+            {/* Protected routes with DashboardLayout (includes sidebar) */}
+            <Route path="/" element={
+              <ProtectedRoute>
+                <DashboardLayout />
+              </ProtectedRoute>
+            }>
               <Route index element={<Index />} />
               <Route path="tutors/:agentId/chat" element={<StudentChat />} />
               <Route path="child-profile" element={<ChildProfile />} />
