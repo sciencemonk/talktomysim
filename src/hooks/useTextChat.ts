@@ -19,6 +19,7 @@ export const useTextChat = ({
 }: UseTextChatProps) => {
   const [connectionStatus, setConnectionStatus] = useState<'connecting' | 'connected' | 'error' | 'disconnected'>('disconnected');
   const [isProcessing, setIsProcessing] = useState(false);
+  const [conversationHistory, setConversationHistory] = useState<Array<{role: string, content: string}>>([]);
   const abortControllerRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
@@ -35,6 +36,10 @@ export const useTextChat = ({
     
     // Add user message immediately
     onUserMessage(message);
+    
+    // Update conversation history
+    const newHistory = [...conversationHistory, { role: 'user', content: message }];
+    setConversationHistory(newHistory);
     
     // Start AI message
     const aiMessageId = onAiMessageStart();
@@ -53,58 +58,46 @@ export const useTextChat = ({
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          message,
+          messages: newHistory,
           agent: {
             name: agent.name,
             type: agent.type,
             subject: agent.subject,
             description: agent.description,
-            prompt: agent.prompt
+            prompt: agent.prompt,
+            gradeLevel: agent.gradeLevel,
+            learningObjective: agent.learningObjective
           }
         }),
         signal: abortControllerRef.current.signal
       });
 
+      console.log('Response status:', response.status);
+
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        const errorText = await response.text();
+        console.error('HTTP error:', response.status, errorText);
+        throw new Error(`HTTP error! status: ${response.status} - ${errorText}`);
       }
 
-      const reader = response.body?.getReader();
-      if (!reader) {
-        throw new Error('No response body');
+      const data = await response.json();
+      console.log('Response data:', data);
+      
+      if (data.error) {
+        throw new Error(data.error);
       }
 
-      const decoder = new TextDecoder();
-      let buffer = '';
-
-      while (true) {
-        const { done, value } = await reader.read();
+      if (data.content) {
+        // Add the AI response as a single message
+        onAiTextDelta(data.content);
         
-        if (done) break;
-        
-        buffer += decoder.decode(value, { stream: true });
-        const lines = buffer.split('\n');
-        buffer = lines.pop() || '';
-
-        for (const line of lines) {
-          if (line.startsWith('data: ')) {
-            const data = line.slice(6);
-            if (data === '[DONE]') {
-              onAiMessageComplete();
-              break;
-            }
-            
-            try {
-              const parsed = JSON.parse(data);
-              if (parsed.choices?.[0]?.delta?.content) {
-                onAiTextDelta(parsed.choices[0].delta.content);
-              }
-            } catch (e) {
-              console.warn('Failed to parse SSE data:', data);
-            }
-          }
-        }
+        // Update conversation history with AI response
+        setConversationHistory(prev => [...prev, { role: 'assistant', content: data.content }]);
+      } else {
+        throw new Error('No content in response');
       }
+
+      onAiMessageComplete();
     } catch (error: any) {
       if (error.name === 'AbortError') {
         console.log('Request was aborted');
@@ -118,7 +111,7 @@ export const useTextChat = ({
       setIsProcessing(false);
       abortControllerRef.current = null;
     }
-  }, [agent, isProcessing, onUserMessage, onAiMessageStart, onAiTextDelta, onAiMessageComplete]);
+  }, [agent, isProcessing, conversationHistory, onUserMessage, onAiMessageStart, onAiTextDelta, onAiMessageComplete]);
 
   return {
     sendMessage,
