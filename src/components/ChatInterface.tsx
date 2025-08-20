@@ -1,4 +1,3 @@
-
 import { useState, useRef, useEffect } from "react";
 import { useChatHistory } from "@/hooks/useChatHistory";
 import { TextInput } from "@/components/TextInput";
@@ -30,29 +29,27 @@ const parseMarkdown = (text: string) => {
 const ChatInterface = ({ agent, onShowAgentDetails }: ChatInterfaceProps) => {
   const [showSettings, setShowSettings] = useState(false);
   const [currentAgent, setCurrentAgent] = useState(agent);
+  const [currentAiMessageId, setCurrentAiMessageId] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   
   const chatHistory = useChatHistory(currentAgent);
   const textChat = useTextChat({ 
     agent: currentAgent,
     onUserMessage: chatHistory.addUserMessage,
-    onAiMessageStart: () => chatHistory.startAiMessage(),
+    onAiMessageStart: () => {
+      const messageId = chatHistory.startAiMessage();
+      setCurrentAiMessageId(messageId);
+      return messageId;
+    },
     onAiTextDelta: (delta: string) => {
-      // Find the latest incomplete AI message and add delta
-      const latestAiMessage = chatHistory.messages
-        .filter(msg => msg.role === 'system' && !msg.isComplete)
-        .pop();
-      if (latestAiMessage) {
-        chatHistory.addAiTextDelta(latestAiMessage.id, delta);
+      if (currentAiMessageId) {
+        chatHistory.addAiTextDelta(currentAiMessageId, delta);
       }
     },
     onAiMessageComplete: () => {
-      // Find the latest incomplete AI message and complete it
-      const latestAiMessage = chatHistory.messages
-        .filter(msg => msg.role === 'system' && !msg.isComplete)
-        .pop();
-      if (latestAiMessage) {
-        chatHistory.completeAiMessage(latestAiMessage.id);
+      if (currentAiMessageId) {
+        chatHistory.completeAiMessage(currentAiMessageId);
+        setCurrentAiMessageId(null);
       }
     }
   });
@@ -62,6 +59,7 @@ const ChatInterface = ({ agent, onShowAgentDetails }: ChatInterfaceProps) => {
     if (agent.id !== currentAgent.id) {
       console.log('Agent changed from', currentAgent.name, 'to', agent.name);
       setCurrentAgent(agent);
+      setCurrentAiMessageId(null); // Reset current AI message when agent changes
     }
   }, [agent.id, currentAgent.id, agent.name, currentAgent.name]);
 
@@ -83,6 +81,7 @@ const ChatInterface = ({ agent, onShowAgentDetails }: ChatInterfaceProps) => {
   };
 
   const handleSendMessage = (message: string) => {
+    console.log('Sending message:', message);
     textChat.sendMessage(message);
   };
 
@@ -256,10 +255,12 @@ const ChatInterface = ({ agent, onShowAgentDetails }: ChatInterfaceProps) => {
       <div className="border-t bg-background flex-shrink-0 sticky bottom-0">
         <TextInput
           onSendMessage={handleSendMessage}
-          disabled={textChat.connectionStatus !== 'connected'}
+          disabled={textChat.connectionStatus !== 'connected' || textChat.isProcessing}
           placeholder={
             textChat.connectionStatus !== 'connected'
               ? "Connecting..." 
+              : textChat.isProcessing
+              ? "Processing..."
               : `Message ${currentAgent.name}...`
           }
         />
