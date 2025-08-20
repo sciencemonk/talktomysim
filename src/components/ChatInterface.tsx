@@ -1,6 +1,6 @@
 
 import { useState, useRef, useEffect } from "react";
-import { useSimpleMessageAccumulator } from "@/hooks/useSimpleMessageAccumulator";
+import { useChatHistory } from "@/hooks/useChatHistory";
 import { TextInput } from "@/components/TextInput";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Bot, Settings, ArrowLeft } from "lucide-react";
@@ -32,28 +32,43 @@ const ChatInterface = ({ agent, onShowAgentDetails }: ChatInterfaceProps) => {
   const [currentAgent, setCurrentAgent] = useState(agent);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   
-  const messageAccumulator = useSimpleMessageAccumulator();
+  const chatHistory = useChatHistory(currentAgent);
   const textChat = useTextChat({ 
     agent: currentAgent,
-    onUserMessage: messageAccumulator.addUserMessage,
-    onAiMessageStart: messageAccumulator.startAiMessage,
-    onAiTextDelta: messageAccumulator.addAiTextDelta,
-    onAiMessageComplete: messageAccumulator.completeAiMessage
+    onUserMessage: chatHistory.addUserMessage,
+    onAiMessageStart: () => chatHistory.startAiMessage(),
+    onAiTextDelta: (delta: string) => {
+      // Find the latest incomplete AI message and add delta
+      const latestAiMessage = chatHistory.messages
+        .filter(msg => msg.role === 'system' && !msg.isComplete)
+        .pop();
+      if (latestAiMessage) {
+        chatHistory.addAiTextDelta(latestAiMessage.id, delta);
+      }
+    },
+    onAiMessageComplete: () => {
+      // Find the latest incomplete AI message and complete it
+      const latestAiMessage = chatHistory.messages
+        .filter(msg => msg.role === 'system' && !msg.isComplete)
+        .pop();
+      if (latestAiMessage) {
+        chatHistory.completeAiMessage(latestAiMessage.id);
+      }
+    }
   });
 
-  // Reset conversation when agent changes
+  // Update current agent when agent prop changes
   useEffect(() => {
     if (agent.id !== currentAgent.id) {
       console.log('Agent changed from', currentAgent.name, 'to', agent.name);
       setCurrentAgent(agent);
-      messageAccumulator.clearMessages();
     }
-  }, [agent.id, currentAgent.id, agent.name, currentAgent.name, messageAccumulator]);
+  }, [agent.id, currentAgent.id, agent.name, currentAgent.name]);
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messageAccumulator.messages]);
+  }, [chatHistory.messages]);
 
   const handleAgentUpdate = (updatedAgent: AgentType) => {
     setCurrentAgent(updatedAgent);
@@ -110,6 +125,43 @@ const ChatInterface = ({ agent, onShowAgentDetails }: ChatInterfaceProps) => {
     );
   }
 
+  if (chatHistory.isLoading) {
+    return (
+      <div className="flex flex-col h-screen">
+        {/* Header */}
+        <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-6 py-4 flex-shrink-0">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Avatar className="h-8 w-8">
+                <AvatarImage src={currentAgent.avatar} alt={currentAgent.name} />
+                <AvatarFallback className="bg-primary text-primary-foreground text-xs">
+                  <Bot className="h-4 w-4" />
+                </AvatarFallback>
+              </Avatar>
+              <div>
+                <h1 className="font-semibold text-base">{currentAgent.name}</h1>
+                <p className="text-xs text-muted-foreground">{currentAgent.type} • {currentAgent.subject || 'General'}</p>
+              </div>
+            </div>
+            
+            <Button variant="ghost" size="sm" onClick={handleShowSettings} className="gap-1.5 text-xs">
+              <Settings className="h-3 w-3" />
+              Edit
+            </Button>
+          </div>
+        </div>
+
+        {/* Loading state */}
+        <div className="flex-1 flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+            <p className="text-sm text-muted-foreground">Loading chat history...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col h-screen">
       {/* Header - Fixed at top */}
@@ -137,7 +189,7 @@ const ChatInterface = ({ agent, onShowAgentDetails }: ChatInterfaceProps) => {
 
       {/* Chat Messages Area - Scrollable */}
       <div className="flex-1 overflow-y-auto pb-4">
-        {messageAccumulator.messages.length === 0 ? (
+        {chatHistory.messages.length === 0 ? (
           <div className="h-full flex flex-col items-center justify-center px-6">
             <div className="w-12 h-12 bg-muted rounded-xl flex items-center justify-center mb-4">
               <Bot className="h-6 w-6 text-muted-foreground" />
@@ -155,7 +207,7 @@ const ChatInterface = ({ agent, onShowAgentDetails }: ChatInterfaceProps) => {
         ) : (
           <div className="max-w-4xl mx-auto px-6 py-8 w-full">
             <div className="space-y-6">
-              {messageAccumulator.messages.map((message) => (
+              {chatHistory.messages.map((message) => (
                 <div key={message.id} className="flex gap-4">
                   {message.role === 'system' && (
                     <Avatar className="h-8 w-8 flex-shrink-0">
