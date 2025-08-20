@@ -1,3 +1,4 @@
+
 import React from 'react';
 import {
   BrowserRouter,
@@ -5,16 +6,16 @@ import {
   Route,
   Navigate
 } from "react-router-dom";
-import { QueryClient, QueryClientProvider } from 'react-query';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from "@/components/ui/toaster"
 import { useAuth, AuthProvider } from "@/hooks/useAuth";
-import Dashboard from "@/pages/Dashboard";
+import Dashboard from "@/pages/TeacherDashboard";
 import AgentDetails from "@/pages/AgentDetails";
 import PublicAgentDetails from "@/pages/PublicAgentDetails";
-import PricingPage from "@/pages/PricingPage";
+import PricingPage from "@/pages/Landing";
 import { TooltipProvider } from "@/components/ui/tooltip"
-import { Sonner } from 'sonner'
-import AgentBuilder from "@/pages/AgentBuilder";
+import { Toaster as SonnerToaster } from 'sonner'
+import AgentBuilder from "@/pages/AgentCreate";
 import AdvisorEdit from "@/pages/AdvisorEdit";
 
 const queryClient = new QueryClient();
@@ -38,7 +39,7 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <Toaster />
-        <Sonner />
+        <SonnerToaster />
         <BrowserRouter>
           <AuthProvider>
             <Routes>
