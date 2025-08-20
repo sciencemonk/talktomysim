@@ -3,27 +3,16 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 
 // Pages
 import Index from "./pages/Index";
 import Login from "./pages/Login";
-import TeacherDashboard from "./pages/TeacherDashboard";
-import AgentsDashboard from "./pages/AgentsDashboard";
-import AgentDetails from "./pages/AgentDetails";
-import AgentCreate from "./pages/AgentCreate";
-import AgentAnalytics from "./pages/AgentAnalytics";
-import StudentChat from "./pages/StudentChat";
+import Home from "./pages/Home";
 import PublicTutorDetail from "./pages/PublicTutorDetail";
-import ProfessionalDevelopment from "./pages/ProfessionalDevelopment";
-import Settings from "./pages/Settings";
-import Billing from "./pages/Billing";
-import ChildProfile from "./pages/ChildProfile";
+import StudentChat from "./pages/StudentChat";
 import NotFound from "./pages/NotFound";
-
-// Layouts
-import DashboardLayout from "./layouts/DashboardLayout";
 
 const queryClient = new QueryClient();
 
@@ -43,39 +32,8 @@ const App = () => (
             <Route path="/tutors/:agentId" element={<PublicTutorDetail />} />
             <Route path="/tutors/:agentId/chat" element={<StudentChat />} />
             
-            {/* Protected dashboard routes - Tutors is now the default home */}
-            <Route path="/dashboard" element={<DashboardLayout />}>
-              <Route index element={<AgentsDashboard />} />
-            </Route>
-            
-            <Route path="/child-profile" element={<DashboardLayout />}>
-              <Route index element={<ChildProfile />} />
-            </Route>
-            
-            <Route path="/settings" element={<DashboardLayout />}>
-              <Route index element={<Settings />} />
-            </Route>
-            
-            <Route path="/billing" element={<DashboardLayout />}>
-              <Route index element={<Billing />} />
-            </Route>
-            
-            {/* Protected agents routes */}
-            <Route path="/agents" element={<DashboardLayout />}>
-              <Route index element={<AgentsDashboard />} />
-            </Route>
-            
-            <Route path="/agents/create" element={<DashboardLayout />}>
-              <Route index element={<AgentCreate />} />
-            </Route>
-            
-            <Route path="/agents/:agentId" element={<DashboardLayout />}>
-              <Route index element={<AgentDetails />} />
-            </Route>
-            
-            <Route path="/agents/:agentId/analytics" element={<DashboardLayout />}>
-              <Route index element={<AgentAnalytics />} />
-            </Route>
+            {/* Protected main app - single page with modals */}
+            <Route path="/app" element={<Home />} />
             
             {/* Catch all - redirect to home */}
             <Route path="*" element={<NotFound />} />

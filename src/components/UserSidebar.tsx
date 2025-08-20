@@ -9,7 +9,8 @@ import {
   PlusCircle,
   CreditCard,
   ChevronDown,
-  ChevronRight
+  ChevronRight,
+  Grid3X3
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useAgents } from "@/hooks/useAgents";
@@ -28,9 +29,19 @@ import {
 
 interface UserSidebarProps {
   onShowBilling?: () => void;
+  onShowSettings?: () => void;
+  onShowChildProfile?: () => void;
+  onShowAgents?: () => void;
+  onShowAgentCreate?: () => void;
 }
 
-const UserSidebar = ({ onShowBilling }: UserSidebarProps) => {
+const UserSidebar = ({ 
+  onShowBilling, 
+  onShowSettings, 
+  onShowChildProfile, 
+  onShowAgents,
+  onShowAgentCreate 
+}: UserSidebarProps) => {
   const { user, signOut } = useAuth();
   const { agents, isLoading } = useAgents();
   const location = useLocation();
@@ -107,15 +118,28 @@ const UserSidebar = ({ onShowBilling }: UserSidebarProps) => {
 
         <div className="flex-1" />
 
-        {/* Create New - moved to bottom */}
+        {/* Management Options */}
         <Separator className="my-3" />
-        <Link
-          to="/agents/create"
-          className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors text-muted-foreground hover:bg-muted hover:text-foreground"
-        >
-          <PlusCircle className="h-4 w-4" />
-          Create New
-        </Link>
+        
+        {onShowAgents && (
+          <button
+            onClick={onShowAgents}
+            className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors text-muted-foreground hover:bg-muted hover:text-foreground w-full text-left"
+          >
+            <Grid3X3 className="h-4 w-4" />
+            Manage Partners
+          </button>
+        )}
+
+        {onShowAgentCreate && (
+          <button
+            onClick={onShowAgentCreate}
+            className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors text-muted-foreground hover:bg-muted hover:text-foreground w-full text-left"
+          >
+            <PlusCircle className="h-4 w-4" />
+            Create New
+          </button>
+        )}
       </div>
 
       <Separator />
@@ -157,18 +181,18 @@ const UserSidebar = ({ onShowBilling }: UserSidebarProps) => {
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="start" className="w-56">
-            <DropdownMenuItem asChild>
-              <Link to="/child-profile" className="w-full flex items-center">
+            {onShowChildProfile && (
+              <DropdownMenuItem onClick={onShowChildProfile}>
                 <User className="mr-2 h-4 w-4" />
                 <span>Child Profile</span>
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem asChild>
-              <Link to="/settings" className="w-full flex items-center">
+              </DropdownMenuItem>
+            )}
+            {onShowSettings && (
+              <DropdownMenuItem onClick={onShowSettings}>
                 <Settings className="mr-2 h-4 w-4" />
                 <span>Settings</span>
-              </Link>
-            </DropdownMenuItem>
+              </DropdownMenuItem>
+            )}
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={handleSignOut}>
               <LogOut className="mr-2 h-4 w-4" />
