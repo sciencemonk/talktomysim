@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -62,10 +63,10 @@ export const TextInput: React.FC<TextInputProps> = ({
   }, [disabled]);
 
   return (
-    <div className="w-full p-4">
+    <div className="w-full p-5">
       <div className="max-w-4xl mx-auto">
         <form onSubmit={handleSubmit} className="relative">
-          <div className="flex items-end gap-3 bg-background border border-input rounded-2xl p-4 shadow-sm focus-within:border-ring transition-colors">
+          <div className="flex items-end gap-4 bg-background border border-input rounded-2xl p-5 shadow-sm focus-within:border-ring transition-colors">
             <Textarea
               ref={textareaRef}
               value={message}
@@ -74,16 +75,16 @@ export const TextInput: React.FC<TextInputProps> = ({
               onInput={handleInput}
               placeholder={placeholder}
               disabled={disabled}
-              className="flex-1 min-h-[24px] max-h-[200px] resize-none border-0 p-0 shadow-none focus-visible:ring-0 bg-transparent text-sm placeholder:text-muted-foreground"
+              className="flex-1 min-h-[28px] max-h-[200px] resize-none border-0 p-0 shadow-none focus-visible:ring-0 bg-transparent text-base placeholder:text-muted-foreground font-medium"
               rows={1}
             />
             <Button 
               type="submit" 
               disabled={!message.trim() || disabled}
-              size="sm"
-              className="h-8 w-8 p-0 flex-shrink-0 rounded-lg"
+              size="default"
+              className="h-10 w-10 p-0 flex-shrink-0 rounded-xl"
             >
-              <Send className="h-4 w-4" />
+              <Send className="h-5 w-5" />
             </Button>
           </div>
         </form>
