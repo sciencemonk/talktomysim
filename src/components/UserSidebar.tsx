@@ -10,7 +10,7 @@ import {
   ChevronRight,
   Menu,
   Star,
-  MoreVertical,
+  MoreHorizontal,
   Trash2
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
@@ -243,7 +243,7 @@ const SidebarContent = ({
                         className="absolute right-1 top-1/2 -translate-y-1/2 h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
                         onClick={(e) => e.stopPropagation()}
                       >
-                        <MoreVertical className="h-3 w-3" />
+                        <MoreHorizontal className="h-3 w-3" />
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
