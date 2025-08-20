@@ -1,14 +1,24 @@
 
+
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { AgentType } from '@/types/agent';
 import { supabase } from '@/integrations/supabase/client';
 
-export const useTextChat = (
-  prompt: string,
-  onUserMessage: (message: string) => void,
-  onAiMessageStart: () => string,
-  onAiTextDelta: (messageId: string, delta: string) => void,
-  onAiMessageComplete: (messageId: string) => void
-) => {
+interface UseTextChatProps {
+  agent: AgentType;
+  onUserMessage: (message: string) => void;
+  onAiMessageStart: () => string;
+  onAiTextDelta: (messageId: string, delta: string) => void;
+  onAiMessageComplete: (messageId: string) => void;
+}
+
+export const useTextChat = ({
+  agent,
+  onUserMessage,
+  onAiMessageStart,
+  onAiTextDelta,
+  onAiMessageComplete
+}: UseTextChatProps) => {
   const [connectionStatus, setConnectionStatus] = useState<'connecting' | 'connected' | 'error' | 'disconnected'>('disconnected');
   const [isProcessing, setIsProcessing] = useState(false);
   const [conversationHistory, setConversationHistory] = useState<Array<{role: string, content: string}>>([]);
@@ -17,12 +27,12 @@ export const useTextChat = (
   useEffect(() => {
     // Simulate connection for text chat (no actual persistent connection needed)
     setConnectionStatus('connected');
-  }, [prompt]);
+  }, [agent]);
 
   const sendMessage = useCallback(async (message: string) => {
     if (!message.trim() || isProcessing) return;
 
-    console.log('Sending message:', message);
+    console.log('Sending message to', agent.name, ':', message);
     
     setIsProcessing(true);
     
@@ -50,7 +60,13 @@ export const useTextChat = (
         body: {
           messages: newHistory,
           agent: {
-            prompt: prompt
+            name: agent.name,
+            type: agent.type,
+            subject: agent.subject,
+            description: agent.description,
+            prompt: agent.prompt,
+            gradeLevel: agent.gradeLevel,
+            learningObjective: agent.learningObjective
           }
         }
       });
@@ -87,7 +103,7 @@ export const useTextChat = (
       setIsProcessing(false);
       abortControllerRef.current = null;
     }
-  }, [prompt, isProcessing, conversationHistory, onUserMessage, onAiMessageStart, onAiTextDelta, onAiMessageComplete]);
+  }, [agent, isProcessing, conversationHistory, onUserMessage, onAiMessageStart, onAiTextDelta, onAiMessageComplete]);
 
   return {
     sendMessage,

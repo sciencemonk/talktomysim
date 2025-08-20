@@ -1,3 +1,4 @@
+
 import { useState, useRef, useEffect } from "react";
 import { useChatHistory } from "@/hooks/useChatHistory";
 import { TextInput } from "@/components/TextInput";
@@ -7,7 +8,6 @@ import { Button } from "@/components/ui/button";
 import { AgentType } from "@/types/agent";
 import AgentConfigSettings from "@/components/AgentConfigSettings";
 import { useTextChat } from "@/hooks/useTextChat";
-import { convertAgentToUserAdvisor } from "@/utils/agentToUserAdvisorAdapter";
 
 interface ChatInterfaceProps {
   agent: AgentType;
@@ -34,25 +34,22 @@ const ChatInterface = ({ agent, onShowAgentDetails, onAgentUpdate }: ChatInterfa
   const [isAiResponding, setIsAiResponding] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   
-  // Convert AgentType to UserAdvisor for compatibility
-  const userAdvisor = convertAgentToUserAdvisor(currentAgent);
-  
-  const chatHistory = useChatHistory(userAdvisor);
-  const textChat = useTextChat(
-    currentAgent.prompt || `You are ${currentAgent.name}, a ${currentAgent.type}. Help the user with their questions.`,
-    chatHistory.addUserMessage,
-    () => {
+  const chatHistory = useChatHistory(currentAgent);
+  const textChat = useTextChat({ 
+    agent: currentAgent,
+    onUserMessage: chatHistory.addUserMessage,
+    onAiMessageStart: () => {
       setIsAiResponding(true);
       return chatHistory.startAiMessage();
     },
-    (messageId: string, delta: string) => {
+    onAiTextDelta: (messageId: string, delta: string) => {
       chatHistory.addAiTextDelta(messageId, delta);
     },
-    async (messageId: string) => {
+    onAiMessageComplete: async (messageId: string) => {
       await chatHistory.completeAiMessage(messageId);
       setIsAiResponding(false);
     }
-  );
+  });
 
   // Update current agent when agent prop changes
   useEffect(() => {

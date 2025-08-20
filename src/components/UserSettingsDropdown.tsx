@@ -12,16 +12,13 @@ import { Button } from "@/components/ui/button"
 import { useAuth } from "@/hooks/useAuth";
 import { Settings, LogOut, User, Home } from "lucide-react";
 import { Link } from "react-router-dom";
-import { cn } from "@/lib/utils";
 
 interface UserSettingsDropdownProps {
   onShowBilling?: () => void;
-  onShowSettings?: () => void;
-  collapsed?: boolean;
   trigger?: React.ReactNode;
 }
 
-const UserSettingsDropdown = ({ onShowBilling, onShowSettings, collapsed, trigger }: UserSettingsDropdownProps) => {
+const UserSettingsDropdown = ({ onShowBilling, trigger }: UserSettingsDropdownProps) => {
   const { user, signOut } = useAuth();
 
   const handleSignOut = async () => {
@@ -29,29 +26,13 @@ const UserSettingsDropdown = ({ onShowBilling, onShowSettings, collapsed, trigge
   };
 
   const defaultTrigger = (
-    <Button 
-      variant="ghost" 
-      className={cn(
-        "h-auto p-2",
-        collapsed ? "w-full justify-center" : "w-full justify-start gap-2"
-      )}
-    >
-      <Avatar className="h-8 w-8 flex-shrink-0">
+    <Button variant="ghost" size="sm" className="h-8 w-8 rounded-full">
+      <Avatar className="h-8 w-8">
         <AvatarImage src={user?.user_metadata?.avatar_url} alt="Profile" />
         <AvatarFallback>
           {user?.email?.charAt(0)?.toUpperCase() || "U"}
         </AvatarFallback>
       </Avatar>
-      {!collapsed && (
-        <div className="flex-1 min-w-0 text-left">
-          <div className="font-medium text-sm truncate">
-            {user?.user_metadata?.full_name || "User"}
-          </div>
-          <div className="text-xs text-muted-foreground truncate">
-            {user?.email}
-          </div>
-        </div>
-      )}
     </Button>
   );
 
@@ -92,12 +73,11 @@ const UserSettingsDropdown = ({ onShowBilling, onShowSettings, collapsed, trigge
             <span>Child Profile</span>
           </Link>
         </DropdownMenuItem>
-        <DropdownMenuItem 
-          onClick={onShowSettings}
-          className="w-full flex items-center cursor-pointer"
-        >
-          <Settings className="mr-2 h-4 w-4" />
-          <span>Settings</span>
+        <DropdownMenuItem asChild>
+          <Link to="/settings" className="w-full flex items-center">
+            <Settings className="mr-2 h-4 w-4" />
+            <span>Settings</span>
+          </Link>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={handleSignOut}>

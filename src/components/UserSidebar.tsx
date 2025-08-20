@@ -1,118 +1,294 @@
 
-import { useState } from "react";
+import { useLocation } from "react-router-dom";
+import { 
+  Bot, 
+  PlusCircle,
+  LogOut, 
+  Settings,
+  User,
+  ChevronLeft,
+  ChevronRight,
+  Menu
+} from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
-import { useUserAdvisors } from "@/hooks/useUserAdvisors";
+import { useAgents } from "@/hooks/useAgents";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Search, MessageSquare, Plus } from "lucide-react";
-import AdvisorSearchModal from "./AdvisorSearchModal";
-import { UserAdvisor } from "@/services/userAdvisorService";
-import { Advisor } from "@/types/advisor";
+import { Separator } from "@/components/ui/separator";
+import { cn } from "@/lib/utils";
+import { useState, useEffect } from "react";
+import { useIsMobile } from "@/hooks/use-mobile";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerTrigger,
+} from "@/components/ui/drawer";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { AgentType } from "@/types/agent";
 
 interface UserSidebarProps {
-  onAdvisorSelect: (advisor: UserAdvisor) => void;
+  onShowSettings?: () => void;
+  onShowChildProfile?: () => void;
+  onShowAgents?: () => void;
+  onShowAgentCreate?: () => void;
+  selectedAgent?: AgentType | null;
+  onSelectAgent?: (agent: AgentType) => void;
+  refreshTrigger?: number;
 }
 
-const UserSidebar = ({ onAdvisorSelect }: UserSidebarProps) => {
-  const { user } = useAuth();
-  const { userAdvisors, addAdvisor, isLoading } = useUserAdvisors();
-  const [showAdvisorSearch, setShowAdvisorSearch] = useState(false);
+const SidebarContent = ({ 
+  onShowSettings, 
+  onShowChildProfile, 
+  onShowAgents,
+  onShowAgentCreate,
+  selectedAgent,
+  onSelectAgent,
+  refreshTrigger,
+  isCollapsed,
+  onToggleCollapse,
+  onClose
+}: UserSidebarProps & { 
+  isCollapsed?: boolean; 
+  onToggleCollapse?: () => void;
+  onClose?: () => void;
+}) => {
+  const { user, signOut } = useAuth();
+  const { agents, isLoading } = useAgents();
 
-  const handleAdvisorSelect = async (advisor: Advisor) => {
-    setShowAdvisorSearch(false);
-    
-    // Add advisor to user's collection
-    const userAdvisor = await addAdvisor(advisor);
-    if (userAdvisor) {
-      onAdvisorSelect(userAdvisor);
+  useEffect(() => {
+    if (refreshTrigger) {
+      console.log('Refreshing agents list due to update');
     }
+  }, [refreshTrigger]);
+
+  const handleSignOut = async () => {
+    await signOut();
   };
 
-  const handleAdvisorClick = (advisor: UserAdvisor) => {
-    onAdvisorSelect(advisor);
+  const handleAgentSelect = (agent: AgentType) => {
+    console.log('Agent selected:', agent.name, agent.id);
+    onSelectAgent?.(agent);
+    onClose?.(); // Close mobile drawer when agent is selected
+  };
+
+  const handleCreateNew = () => {
+    onShowAgentCreate?.();
+    onClose?.(); // Close mobile drawer
   };
 
   return (
-    <div className="w-80 border-r bg-muted/30 flex flex-col">
-      <div className="p-4 border-b">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold">Your Advisors</h2>
-          <Button
-            onClick={() => setShowAdvisorSearch(true)}
-            size="sm"
-            variant="outline"
-          >
-            <Plus className="h-4 w-4 mr-1" />
-            Add
-          </Button>
+    <>
+      {/* Header with Logo and Toggle (Desktop only) */}
+      {onToggleCollapse && (
+        <>
+          <div className="p-4 flex items-center justify-between">
+            {!isCollapsed && (
+              <div className="flex items-center gap-3">
+                <img 
+                  src="/lovable-uploads/55ccce33-98a1-45d2-9e9e-7b446a02a417.png" 
+                  alt="Think With Me" 
+                  className="h-8 w-8"
+                />
+                <h1 className="font-semibold text-lg">Think With Me</h1>
+              </div>
+            )}
+            {isCollapsed && (
+              <img 
+                src="/lovable-uploads/55ccce33-98a1-45d2-9e9e-7b446a02a417.png" 
+                alt="Think With Me" 
+                className="h-8 w-8 mx-auto"
+              />
+            )}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onToggleCollapse}
+              className="h-8 w-8 p-0"
+            >
+              {isCollapsed ? (
+                <ChevronRight className="h-4 w-4" />
+              ) : (
+                <ChevronLeft className="h-4 w-4" />
+              )}
+            </Button>
+          </div>
+          <Separator />
+        </>
+      )}
+
+      {/* Mobile Header */}
+      {!onToggleCollapse && (
+        <>
+          <div className="p-4 flex items-center gap-3">
+            <img 
+              src="/lovable-uploads/55ccce33-98a1-45d2-9e9e-7b446a02a417.png" 
+              alt="Think With Me" 
+              className="h-8 w-8"
+            />
+            <h1 className="font-semibold text-lg">Think With Me</h1>
+          </div>
+          <Separator />
+        </>
+      )}
+
+      {/* Navigation Items */}
+      <div className="flex-1 p-3 space-y-1">
+        {/* Create New Button */}
+        <Button
+          onClick={handleCreateNew}
+          className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors bg-primary text-primary-foreground hover:bg-primary/90 w-full justify-start"
+          size="sm"
+        >
+          <PlusCircle className="h-4 w-4 flex-shrink-0" />
+          {(!isCollapsed || !onToggleCollapse) && <span>New chat</span>}
+        </Button>
+
+        {/* Agents List */}
+        <div className="mt-4 space-y-1">
+          {isLoading ? (
+            <div className={cn(
+              "px-3 py-2 text-xs text-muted-foreground",
+              isCollapsed && onToggleCollapse && "text-center"
+            )}>
+              {(isCollapsed && onToggleCollapse) ? "..." : "Loading thinking partners..."}
+            </div>
+          ) : agents.length > 0 ? (
+            agents.map((agent) => (
+              <Button
+                key={agent.id}
+                onClick={() => handleAgentSelect(agent)}
+                variant="ghost"
+                className={cn(
+                  "flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors w-full justify-start h-auto min-h-[40px]",
+                  selectedAgent?.id === agent.id
+                    ? "bg-primary/10 text-primary font-medium hover:bg-primary/15"
+                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                )}
+              >
+                <Avatar className="h-6 w-6 flex-shrink-0">
+                  <AvatarImage src={agent.avatar} alt={agent.name} />
+                  <AvatarFallback className="bg-primary/10 text-primary text-xs">
+                    <Bot className="h-3 w-3" />
+                  </AvatarFallback>
+                </Avatar>
+                {(!isCollapsed || !onToggleCollapse) && <span className="truncate text-left">{agent.name}</span>}
+              </Button>
+            ))
+          ) : (
+            <div className={cn(
+              "px-3 py-2 text-xs text-muted-foreground",
+              isCollapsed && onToggleCollapse && "text-center"
+            )}>
+              {(isCollapsed && onToggleCollapse) ? "0" : "No thinking partners yet"}
+            </div>
+          )}
         </div>
       </div>
 
-      <ScrollArea className="flex-1">
-        <div className="p-4 space-y-2">
-          {isLoading ? (
-            <div className="text-center py-8">
-              <div className="animate-pulse">Loading advisors...</div>
-            </div>
-          ) : userAdvisors.length === 0 ? (
-            <div className="text-center py-8">
-              <div className="text-muted-foreground mb-4">
-                No advisors yet
-              </div>
-              <Button
-                onClick={() => setShowAdvisorSearch(true)}
-                variant="outline"
-                size="sm"
-              >
-                <Search className="h-4 w-4 mr-2" />
-                Find Advisors
-              </Button>
-            </div>
-          ) : (
-            userAdvisors.map((advisor) => (
-              <Card
-                key={advisor.id}
-                className="cursor-pointer transition-colors hover:bg-muted/50"
-                onClick={() => handleAdvisorClick(advisor)}
-              >
-                <CardContent className="p-3">
-                  <div className="flex items-center gap-3">
-                    <Avatar className="h-10 w-10">
-                      <AvatarImage src={advisor.avatar_url} alt={advisor.name} />
-                      <AvatarFallback>
-                        {advisor.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-medium text-sm truncate">{advisor.name}</h3>
-                      {advisor.title && (
-                        <p className="text-xs text-muted-foreground truncate">
-                          {advisor.title}
-                        </p>
-                      )}
-                      {advisor.category && (
-                        <Badge variant="secondary" className="text-xs mt-1">
-                          {advisor.category}
-                        </Badge>
-                      )}
-                    </div>
-                    <MessageSquare className="h-4 w-4 text-muted-foreground" />
-                  </div>
-                </CardContent>
-              </Card>
-            ))
-          )}
-        </div>
-      </ScrollArea>
+      <Separator />
 
-      {/* Advisor Search Modal */}
-      <AdvisorSearchModal
-        isOpen={showAdvisorSearch}
-        onClose={() => setShowAdvisorSearch(false)}
-        onAdvisorSelect={handleAdvisorSelect}
+      {/* User Profile Section */}
+      <div className="p-3">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button className={cn(
+              "flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-muted transition-colors w-full",
+              isCollapsed && onToggleCollapse && "justify-center"
+            )}>
+              <Avatar className="h-8 w-8 flex-shrink-0">
+                <AvatarImage src={user?.user_metadata?.avatar_url} alt="Profile" />
+                <AvatarFallback>
+                  {user?.email?.charAt(0)?.toUpperCase() || "U"}
+                </AvatarFallback>
+              </Avatar>
+              {(!isCollapsed || !onToggleCollapse) && (
+                <div className="flex-1 min-w-0 text-left">
+                  <p className="text-sm font-medium truncate">
+                    {user?.user_metadata?.full_name || "User"}
+                  </p>
+                  <p className="text-xs text-muted-foreground truncate">
+                    {user?.email}
+                  </p>
+                </div>
+              )}
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="start" className="w-56">
+            {onShowChildProfile && (
+              <DropdownMenuItem onClick={() => { onShowChildProfile(); onClose?.(); }}>
+                <User className="mr-2 h-4 w-4" />
+                <span>Child Profile</span>
+              </DropdownMenuItem>
+            )}
+            {onShowSettings && (
+              <DropdownMenuItem onClick={() => { onShowSettings(); onClose?.(); }}>
+                <Settings className="mr-2 h-4 w-4" />
+                <span>Settings</span>
+              </DropdownMenuItem>
+            )}
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={handleSignOut}>
+              <LogOut className="mr-2 h-4 w-4" />
+              <span>Log out</span>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+    </>
+  );
+};
+
+const UserSidebar = (props: UserSidebarProps) => {
+  const isMobile = useIsMobile();
+  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+
+  const toggleSidebar = () => {
+    setIsCollapsed(!isCollapsed);
+  };
+
+  if (isMobile) {
+    return (
+      <>
+        {/* Mobile Trigger Button - Fixed Position */}
+        <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
+          <DrawerTrigger asChild>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="fixed top-4 left-4 z-50 h-10 w-10 p-0 bg-background border shadow-md"
+            >
+              <Menu className="h-5 w-5" />
+            </Button>
+          </DrawerTrigger>
+          <DrawerContent className="h-[85vh] max-h-[85vh]">
+            <div className="flex flex-col h-full">
+              <SidebarContent 
+                {...props} 
+                onClose={() => setIsDrawerOpen(false)} 
+              />
+            </div>
+          </DrawerContent>
+        </Drawer>
+      </>
+    );
+  }
+
+  return (
+    <div className={cn(
+      "bg-card border-r border-border flex flex-col h-screen transition-all duration-300",
+      isCollapsed ? "w-16" : "w-64"
+    )}>
+      <SidebarContent 
+        {...props} 
+        isCollapsed={isCollapsed}
+        onToggleCollapse={toggleSidebar}
       />
     </div>
   );
