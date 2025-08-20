@@ -25,19 +25,45 @@ import DashboardLayout from "./layouts/DashboardLayout";
 import AgentsLayout from "./layouts/AgentsLayout";
 import SimpleDashboardLayout from "./layouts/SimpleDashboardLayout";
 import ProtectedRoute from "./components/ProtectedRoute";
+import { useEffect, useState } from "react";
 
 const queryClient = new QueryClient();
 
 function App() {
   const { loading } = useAuth();
+  const [appLoading, setAppLoading] = useState(true);
 
-  if (loading) {
+  useEffect(() => {
+    console.log("App component mounted, auth loading:", loading);
+    
+    // Set a maximum loading time to prevent infinite loading
+    const timeout = setTimeout(() => {
+      console.log("Force ending loading state after 5 seconds");
+      setAppLoading(false);
+    }, 5000);
+
+    if (!loading) {
+      console.log("Auth loading complete, ending app loading");
+      setAppLoading(false);
+      clearTimeout(timeout);
+    }
+
+    return () => clearTimeout(timeout);
+  }, [loading]);
+
+  if (appLoading && loading) {
+    console.log("Showing loading spinner");
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Loading application...</p>
+        </div>
       </div>
     );
   }
+
+  console.log("Rendering main app");
 
   return (
     <QueryClientProvider client={queryClient}>
