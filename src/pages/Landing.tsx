@@ -9,105 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Loader2, Search, MessageCircle, User } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
-
-const SAMPLE_ADVISORS = [
-  {
-    id: "jobs",
-    name: "Steve Jobs",
-    role: "entrepreneur",
-    field: "Technology, Innovation",
-    avatar: "/lovable-uploads/steve-jobs.jpg",
-    description: "Co-founder of Apple Inc. Visionary entrepreneur who revolutionized personal computing, animated movies, music, phones, tablet computing, and digital publishing.",
-  },
-  {
-    id: "musk",
-    name: "Elon Musk",
-    role: "entrepreneur", 
-    field: "SpaceX, Tesla, Innovation",
-    avatar: "/lovable-uploads/elon-musk.jpg",
-    description: "CEO of SpaceX and Tesla. Entrepreneur focused on advancing sustainable transport and space exploration.",
-  },
-  {
-    id: "gates",
-    name: "Bill Gates",
-    role: "entrepreneur",
-    field: "Technology, Philanthropy", 
-    avatar: "/lovable-uploads/bill-gates.jpg",
-    description: "Co-founder of Microsoft. Philanthropist focused on global health, education, and sustainability.",
-  },
-  {
-    id: "buffett",
-    name: "Warren Buffett",
-    role: "investor",
-    field: "Investment, Finance",
-    avatar: "/lovable-uploads/warren-buffett.jpg", 
-    description: "Chairman and CEO of Berkshire Hathaway. One of the most successful investors in the world.",
-  },
-  {
-    id: "dalio",
-    name: "Ray Dalio",
-    role: "investor",
-    field: "Investment, Economics",
-    avatar: "/lovable-uploads/ray-dalio.jpg",
-    description: "Founder of Bridgewater Associates. Advocate for understanding economic cycles and principles-based decision making.",
-  },
-  {
-    id: "obama",
-    name: "Barack Obama", 
-    role: "politician",
-    field: "Politics, Leadership",
-    avatar: "/lovable-uploads/barack-obama.jpg",
-    description: "Former President of the United States. Known for his leadership, oratory skills, and policy initiatives.",
-  },
-  {
-    id: "socrates",
-    name: "Socrates",
-    role: "philosopher",
-    field: "Philosophy, Ethics",
-    avatar: "/lovable-uploads/socrates.jpg",
-    description: "Classical Greek philosopher credited as one of the founders of Western philosophy.",
-  },
-  {
-    id: "aristotle", 
-    name: "Aristotle",
-    role: "philosopher",
-    field: "Philosophy, Science",
-    avatar: "/lovable-uploads/aristotle.jpg",
-    description: "Greek philosopher and polymath during the Classical period in Ancient Greece. Founder of the Lyceum and the Peripatetic school of philosophy and science.",
-  },
-  {
-    id: "jefferson",
-    name: "Thomas Jefferson",
-    role: "founding father",
-    field: "Politics, Law", 
-    avatar: "/lovable-uploads/thomas-jefferson.jpg",
-    description: "One of the Founding Fathers of the United States and the principal author of the Declaration of Independence.",
-  },
-  {
-    id: "franklin",
-    name: "Benjamin Franklin",
-    role: "founding father",
-    field: "Science, Diplomacy",
-    avatar: "/lovable-uploads/benjamin-franklin.jpg",
-    description: "One of the Founding Fathers of the United States. A polymath, printer, scientist, inventor, statesman, diplomat, and political philosopher.",
-  },
-  {
-    id: "keynes",
-    name: "John Maynard Keynes",
-    role: "economist",
-    field: "Economics, Finance",
-    avatar: "/lovable-uploads/john-maynard-keynes.jpg",
-    description: "British economist whose ideas fundamentally changed the theory and practice of macroeconomics and the economic policies of governments.",
-  },
-  {
-    id: "friedman",
-    name: "Milton Friedman", 
-    role: "economist",
-    field: "Economics, Monetary Policy",
-    avatar: "/lovable-uploads/milton-friedman.jpg",
-    description: "American economist and statistician who received the 1976 Nobel Memorial Prize in Economic Sciences for his research on consumption analysis, monetary history and theory and the complexity of stabilization policy.",
-  }
-];
+import { useAdvisors } from "@/hooks/useAdvisors";
 
 const Landing = () => {
   const navigate = useNavigate();
@@ -116,6 +18,7 @@ const Landing = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedFilter, setSelectedFilter] = useState("all");
   const { user } = useAuth();
+  const { advisors, isLoading: advisorsLoading, error: advisorsError } = useAdvisors();
 
   const handleSignInWithGoogle = async () => {
     try {
@@ -123,7 +26,7 @@ const Landing = () => {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/dashboard`,
+          redirectTo: `${window.location.origin}/home`,
         },
       });
 
@@ -158,12 +61,15 @@ const Landing = () => {
     window.open(chatUrl, '_blank');
   };
 
-  const filteredAdvisors = SAMPLE_ADVISORS.filter(advisor => {
+  // Get unique categories for filter
+  const categories = Array.from(new Set(advisors.map(advisor => advisor.category).filter(Boolean)));
+
+  const filteredAdvisors = advisors.filter(advisor => {
     const matchesSearch = advisor.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         advisor.field.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         advisor.description.toLowerCase().includes(searchTerm.toLowerCase());
+                         (advisor.category && advisor.category.toLowerCase().includes(searchTerm.toLowerCase())) ||
+                         (advisor.description && advisor.description.toLowerCase().includes(searchTerm.toLowerCase()));
     
-    const matchesFilter = selectedFilter === "all" || advisor.role.toLowerCase() === selectedFilter;
+    const matchesFilter = selectedFilter === "all" || advisor.category?.toLowerCase() === selectedFilter;
     
     return matchesSearch && matchesFilter;
   });
@@ -207,7 +113,7 @@ const Landing = () => {
             <span className="text-primary">powered by AI</span>
           </h2>
           <p className="text-xl text-fgMuted mb-12 leading-relaxed font-system">
-            Get personalized guidance from history's greatest minds. From entrepreneurs to philosophers,<br />
+            Get personalized guidance from expert advisors. From mathematics to science,<br />
             our AI advisors are here to help you navigate any challenge.
           </p>
         </div>
@@ -231,52 +137,75 @@ const Landing = () => {
               onChange={(e) => setSelectedFilter(e.target.value)}
               className="px-6 py-3 border border-input rounded-xl bg-bg text-fg min-w-[160px] focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-system shadow-sm"
             >
-              <option value="all">All Roles</option>
-              <option value="entrepreneur">Entrepreneurs</option>
-              <option value="investor">Investors</option>
-              <option value="politician">Politicians</option>
-              <option value="philosopher">Philosophers</option>
-              <option value="founding father">Founding Fathers</option>
-              <option value="economist">Economists</option>
+              <option value="all">All Categories</option>
+              {categories.map(category => (
+                <option key={category} value={category?.toLowerCase()}>
+                  {category}
+                </option>
+              ))}
             </select>
           </div>
 
-          {/* Advisors Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {filteredAdvisors.map((advisor) => (
-              <div key={advisor.id} className="bg-bg rounded-2xl p-8 border border-border/50 hover:border-border hover:shadow-lg transition-all duration-300 group">
-                <div className="flex items-start gap-4 mb-6">
-                  <Avatar className="h-16 w-16 border-2 border-border/30 group-hover:border-primary/30 transition-colors">
-                    <AvatarImage src={advisor.avatar} alt={advisor.name} />
-                    <AvatarFallback className="bg-bgMuted">
-                      <User className="h-8 w-8 text-fgMuted" />
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-xl text-fg mb-2 font-system">{advisor.name}</h3>
-                    <Badge variant="secondary" className="text-sm mb-3 bg-bgMuted text-fgMuted border-0 font-system">
-                      {advisor.role}
-                    </Badge>
-                    <p className="text-sm text-primary font-medium mb-1 font-system">{advisor.field}</p>
-                  </div>
-                </div>
-                
-                <p className="text-fgMuted text-sm leading-relaxed mb-8 font-system">
-                  {advisor.description}
-                </p>
-                
-                <Button 
-                  onClick={() => handleTalkClick(advisor)}
-                  className="w-full bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl font-medium py-3 inline-flex items-center justify-center gap-2 transition-all shadow-sm font-system"
-                >
-                  <MessageCircle className="h-4 w-4" />
-                  {!user ? 'Sign In to Talk' : 'Start Conversation'}
-                </Button>
-              </div>
-            ))}
-          </div>
+          {/* Loading State */}
+          {advisorsLoading && (
+            <div className="text-center py-16">
+              <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-primary" />
+              <p className="text-fgMuted text-lg font-system">Loading advisors...</p>
+            </div>
+          )}
 
-          {filteredAdvisors.length === 0 && (
+          {/* Error State */}
+          {advisorsError && (
+            <div className="text-center py-16">
+              <p className="text-red-500 text-lg font-system mb-4">Failed to load advisors</p>
+              <p className="text-fgMuted font-system">{advisorsError}</p>
+            </div>
+          )}
+
+          {/* Advisors Grid */}
+          {!advisorsLoading && !advisorsError && (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {filteredAdvisors.map((advisor) => (
+                <div key={advisor.id} className="bg-bg rounded-2xl p-8 border border-border/50 hover:border-border hover:shadow-lg transition-all duration-300 group">
+                  <div className="flex items-start gap-4 mb-6">
+                    <Avatar className="h-16 w-16 border-2 border-border/30 group-hover:border-primary/30 transition-colors">
+                      <AvatarImage src={advisor.avatar_url} alt={advisor.name} />
+                      <AvatarFallback className="bg-bgMuted">
+                        <User className="h-8 w-8 text-fgMuted" />
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-semibold text-xl text-fg mb-2 font-system">{advisor.name}</h3>
+                      {advisor.title && (
+                        <Badge variant="secondary" className="text-sm mb-3 bg-bgMuted text-fgMuted border-0 font-system">
+                          {advisor.title}
+                        </Badge>
+                      )}
+                      {advisor.category && (
+                        <p className="text-sm text-primary font-medium mb-1 font-system">{advisor.category}</p>
+                      )}
+                    </div>
+                  </div>
+                  
+                  {advisor.description && (
+                    <p className="text-fgMuted text-sm leading-relaxed mb-8 font-system">
+                      {advisor.description}
+                    </p>
+                  )}
+                  
+                  <Button 
+                    onClick={() => handleTalkClick(advisor)}
+                    className="w-full bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl font-medium py-3 inline-flex items-center justify-center gap-2 transition-all shadow-sm font-system"
+                  >
+                    <MessageCircle className="h-4 w-4" />
+                    {!user ? 'Sign In to Talk' : 'Start Conversation'}
+                  </Button>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {!advisorsLoading && !advisorsError && filteredAdvisors.length === 0 && (
             <div className="text-center py-16">
               <p className="text-fgMuted text-lg font-system">No advisors found matching your search.</p>
             </div>
@@ -288,7 +217,7 @@ const Landing = () => {
       <footer className="bg-bg border-t border-border/30 py-12">
         <div className="max-w-7xl mx-auto px-6 text-center">
           <p className="text-fgMuted font-system">
-            Built with cutting-edge AI technology to bring you the wisdom of history's greatest minds.
+            Built with cutting-edge AI technology to bring you expert guidance and knowledge.
           </p>
         </div>
       </footer>
