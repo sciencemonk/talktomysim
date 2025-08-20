@@ -12,7 +12,7 @@ import { useAuth, AuthProvider } from "@/hooks/useAuth";
 import Dashboard from "@/pages/TeacherDashboard";
 import AgentDetails from "@/pages/AgentDetails";
 import PublicAgentDetails from "@/pages/PublicAgentDetails";
-import PricingPage from "@/pages/Landing";
+import Landing from "@/pages/Landing";
 import { TooltipProvider } from "@/components/ui/tooltip"
 import { Toaster as SonnerToaster } from 'sonner'
 import AgentBuilder from "@/pages/AgentCreate";
@@ -28,7 +28,7 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   }
 
   if (!user) {
-    return <Navigate to="/pricing" replace />;
+    return <Navigate to="/" replace />;
   }
 
   return <>{children}</>;
@@ -43,8 +43,8 @@ function App() {
         <BrowserRouter>
           <AuthProvider>
             <Routes>
-              <Route path="/pricing" element={<PricingPage />} />
-              <Route path="/" element={<PublicAgentDetails />} />
+              <Route path="/" element={<Landing />} />
+              <Route path="/public" element={<PublicAgentDetails />} />
               <Route
                 path="/dashboard"
                 element={
