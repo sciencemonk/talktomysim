@@ -1,4 +1,3 @@
-
 import { useState, useRef, useEffect } from "react";
 import { useChatHistory } from "@/hooks/useChatHistory";
 import { TextInput } from "@/components/TextInput";
@@ -8,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { AgentType } from "@/types/agent";
 import AgentConfigSettings from "@/components/AgentConfigSettings";
 import { useTextChat } from "@/hooks/useTextChat";
+import { ShareButton } from "@/components/ShareButton";
 
 interface ChatInterfaceProps {
   agent: AgentType;
@@ -82,6 +82,9 @@ const ChatInterface = ({ agent, onShowAgentDetails, onAgentUpdate }: ChatInterfa
     textChat.sendMessage(message);
   };
 
+  // Check if this is a personal agent (can be edited) or public advisor (can only be shared)
+  const isPersonalAgent = currentAgent.isPersonal !== false;
+
   if (showSettings) {
     return (
       <div className="flex flex-col h-full">
@@ -140,10 +143,18 @@ const ChatInterface = ({ agent, onShowAgentDetails, onAgentUpdate }: ChatInterfa
               </div>
             </div>
             
-            <Button variant="ghost" size="sm" onClick={handleShowSettings} className="gap-2 text-lg">
-              <Settings className="h-5 w-5" />
-              Edit
-            </Button>
+            {isPersonalAgent ? (
+              <Button variant="ghost" size="sm" onClick={handleShowSettings} className="gap-2 text-lg">
+                <Settings className="h-5 w-5" />
+                Edit
+              </Button>
+            ) : (
+              <ShareButton 
+                tutorId={currentAgent.id} 
+                tutorName={currentAgent.name}
+                className="text-lg"
+              />
+            )}
           </div>
         </div>
 
@@ -176,10 +187,18 @@ const ChatInterface = ({ agent, onShowAgentDetails, onAgentUpdate }: ChatInterfa
             </div>
           </div>
           
-          <Button variant="ghost" size="sm" onClick={handleShowSettings} className="gap-2 text-lg">
-            <Settings className="h-5 w-5" />
-            Edit
-          </Button>
+          {isPersonalAgent ? (
+            <Button variant="ghost" size="sm" onClick={handleShowSettings} className="gap-2 text-lg">
+              <Settings className="h-5 w-5" />
+              Edit
+            </Button>
+          ) : (
+            <ShareButton 
+              tutorId={currentAgent.id} 
+              tutorName={currentAgent.name}
+              className="text-lg"
+            />
+          )}
         </div>
       </div>
 
