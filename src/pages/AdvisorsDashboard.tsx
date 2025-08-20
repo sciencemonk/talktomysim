@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
@@ -9,7 +10,6 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
 import { Search, Plus, Edit, MessageSquare, Settings, Trash2 } from "lucide-react";
-import SimpleDashboardLayout from "@/layouts/SimpleDashboardLayout";
 import AdvisorSearchModal from "@/components/AdvisorSearchModal";
 import { Advisor } from "@/types/advisor";
 
@@ -71,79 +71,77 @@ const AdvisorsDashboard = () => {
   }
 
   return (
-    <SimpleDashboardLayout>
-      <div className="container mx-auto py-6">
-        <div className="flex items-center justify-between mb-4">
-          <h1 className="text-2xl font-semibold">AI Advisors</h1>
-          <Button onClick={() => setShowAdvisorSearch(true)}>
-            <Plus className="h-4 w-4 mr-2" />
-            Add Advisor
-          </Button>
-        </div>
+    <div className="container mx-auto py-6">
+      <div className="flex items-center justify-between mb-4">
+        <h1 className="text-2xl font-semibold">AI Advisors</h1>
+        <Button onClick={() => setShowAdvisorSearch(true)}>
+          <Plus className="h-4 w-4 mr-2" />
+          Add Advisor
+        </Button>
+      </div>
 
-        <div className="relative mb-4">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-          <Input
-            placeholder="Search advisors..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10"
-          />
-        </div>
-
-        {isLoading ? (
-          <div className="text-center py-8">
-            <div className="animate-pulse">Loading advisors...</div>
-          </div>
-        ) : error ? (
-          <div className="text-center py-8 text-red-500">Error: {error}</div>
-        ) : (
-          <ScrollArea className="h-[calc(100vh-250px)]">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {filteredAdvisors.map((advisor) => (
-                <Card key={advisor.id}>
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">{advisor.name}</CardTitle>
-                    <div className="space-x-2">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleEditClick(advisor)}
-                      >
-                        <Edit className="h-4 w-4 mr-2" />
-                        Edit
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleDeleteClick(advisor.id)}
-                      >
-                        <Trash2 className="h-4 w-4 mr-2" />
-                        Delete
-                      </Button>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-sm text-muted-foreground">
-                      {advisor.description}
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </ScrollArea>
-        )}
-
-        <AdvisorSearchModal
-          isOpen={showAdvisorSearch}
-          onClose={() => setShowAdvisorSearch(false)}
-          onAdvisorSelect={(advisor) => {
-            setSelectedAdvisor(advisor);
-            setShowAdvisorSearch(false);
-          }}
+      <div className="relative mb-4">
+        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+        <Input
+          placeholder="Search advisors..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="pl-10"
         />
       </div>
-    </SimpleDashboardLayout>
+
+      {isLoading ? (
+        <div className="text-center py-8">
+          <div className="animate-pulse">Loading advisors...</div>
+        </div>
+      ) : error ? (
+        <div className="text-center py-8 text-red-500">Error: {error}</div>
+      ) : (
+        <ScrollArea className="h-[calc(100vh-250px)]">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {filteredAdvisors.map((advisor) => (
+              <Card key={advisor.id}>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">{advisor.name}</CardTitle>
+                  <div className="space-x-2">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleEditClick(advisor)}
+                    >
+                      <Edit className="h-4 w-4 mr-2" />
+                      Edit
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleDeleteClick(advisor.id)}
+                    >
+                      <Trash2 className="h-4 w-4 mr-2" />
+                      Delete
+                    </Button>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-sm text-muted-foreground">
+                    {advisor.description}
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </ScrollArea>
+      )}
+
+      <AdvisorSearchModal
+        isOpen={showAdvisorSearch}
+        onClose={() => setShowAdvisorSearch(false)}
+        onAdvisorSelect={(advisor) => {
+          setSelectedAdvisor(advisor);
+          setShowAdvisorSearch(false);
+        }}
+      />
+    </div>
   );
 };
 
