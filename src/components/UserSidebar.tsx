@@ -1,3 +1,4 @@
+
 import { useLocation } from "react-router-dom";
 import { 
   Bot, 
@@ -8,7 +9,9 @@ import {
   ChevronLeft,
   ChevronRight,
   Menu,
-  Star
+  Star,
+  MoreVertical,
+  Trash2
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useAgents } from "@/hooks/useAgents";
@@ -43,6 +46,7 @@ interface UserSidebarProps {
   selectedPublicAdvisors?: AgentType[];
   onSelectAgent?: (agent: AgentType) => void;
   onSelectPublicAdvisor?: (advisorId: string, advisor?: AgentType) => void;
+  onRemovePublicAdvisor?: (advisorId: string) => void;
   refreshTrigger?: number;
 }
 
@@ -56,6 +60,7 @@ const SidebarContent = ({
   selectedPublicAdvisors = [],
   onSelectAgent,
   onSelectPublicAdvisor,
+  onRemovePublicAdvisor,
   refreshTrigger,
   isCollapsed,
   onToggleCollapse,
@@ -94,6 +99,11 @@ const SidebarContent = ({
   const handleShowAdvisorDirectory = () => {
     onShowAdvisorDirectory?.();
     onClose?.(); // Close mobile drawer
+  };
+
+  const handleRemoveAdvisor = (advisorId: string, event: React.MouseEvent) => {
+    event.stopPropagation();
+    onRemovePublicAdvisor?.(advisorId);
   };
 
   return (
@@ -203,25 +213,51 @@ const SidebarContent = ({
               </div>
             )}
             {selectedPublicAdvisors.map((advisor) => (
-              <Button
-                key={advisor.id}
-                onClick={() => handlePublicAdvisorSelect(advisor.id)}
-                variant="ghost"
-                className={cn(
-                  "flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors w-full justify-start h-auto min-h-[40px]",
-                  selectedPublicAdvisorId === advisor.id
-                    ? "bg-primary/10 text-primary font-medium hover:bg-primary/15"
-                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
+              <div key={advisor.id} className="relative group">
+                <Button
+                  onClick={() => handlePublicAdvisorSelect(advisor.id)}
+                  variant="ghost"
+                  className={cn(
+                    "flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors w-full justify-start h-auto min-h-[40px]",
+                    selectedPublicAdvisorId === advisor.id
+                      ? "bg-primary/10 text-primary font-medium hover:bg-primary/15"
+                      : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                  )}
+                >
+                  <Avatar className="h-6 w-6 flex-shrink-0">
+                    <AvatarImage src={advisor.avatar} alt={advisor.name} />
+                    <AvatarFallback className="bg-primary/10 text-primary text-xs">
+                      <Star className="h-3 w-3" />
+                    </AvatarFallback>
+                  </Avatar>
+                  {(!isCollapsed || !onToggleCollapse) && <span className="truncate text-left">{advisor.name}</span>}
+                </Button>
+                
+                {/* Three dots menu - only show when not collapsed */}
+                {(!isCollapsed || !onToggleCollapse) && (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="absolute right-1 top-1/2 -translate-y-1/2 h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <MoreVertical className="h-3 w-3" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem
+                        onClick={(e) => handleRemoveAdvisor(advisor.id, e)}
+                        className="text-destructive hover:text-destructive"
+                      >
+                        <Trash2 className="mr-2 h-4 w-4" />
+                        Remove
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 )}
-              >
-                <Avatar className="h-6 w-6 flex-shrink-0">
-                  <AvatarImage src={advisor.avatar} alt={advisor.name} />
-                  <AvatarFallback className="bg-primary/10 text-primary text-xs">
-                    <Star className="h-3 w-3" />
-                  </AvatarFallback>
-                </Avatar>
-                {(!isCollapsed || !onToggleCollapse) && <span className="truncate text-left">{advisor.name}</span>}
-              </Button>
+              </div>
             ))}
           </div>
         )}
