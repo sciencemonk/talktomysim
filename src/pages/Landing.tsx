@@ -1,6 +1,7 @@
+
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { Bot, Shield, CheckCircle, Award, Lightbulb, Zap, Sparkles, Mail, Building2 } from "lucide-react";
+import { Bot, Shield, CheckCircle, Award, Lightbulb, Zap, Sparkles, Mail, Building2, Users, Crown } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
@@ -17,7 +18,7 @@ const Landing = () => {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/dashboard`,
+          redirectTo: `${window.location.origin}/app`,
         },
       });
 
@@ -112,11 +113,11 @@ const Landing = () => {
             <div className="inline-flex items-center gap-6 px-6 py-3 mb-8 bg-blue-50/80 dark:bg-blue-950/30 rounded-full border border-blue-100/50 dark:border-blue-900/30 backdrop-blur-sm">
               <div className="flex items-center gap-2 text-sm text-blue-700 dark:text-blue-300">
                 <Shield className="h-4 w-4" />
-                <span>COPPA Compliant</span>
+                <span>Privacy First</span>
               </div>
               <div className="flex items-center gap-2 text-sm text-blue-700 dark:text-blue-300">
-                <CheckCircle className="h-4 w-4" />
-                <span>Built for Education</span>
+                <Crown className="h-4 w-4" />
+                <span>Premium Advisors</span>
               </div>
               <div className="flex items-center gap-2 text-sm text-blue-700 dark:text-blue-300">
                 <Award className="h-4 w-4" />
@@ -126,17 +127,17 @@ const Landing = () => {
 
             {/* Main Headline */}
             <h1 className="text-5xl sm:text-6xl lg:text-7xl font-light tracking-tight text-neutral-900 dark:text-white mb-6 leading-none">
-              Thinking Partners
+              Talk to the Greatest
               <br />
               <span className="bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 bg-clip-text text-transparent font-medium">
-                for Classrooms
+                Minds Who Ever Lived
               </span>
             </h1>
 
             {/* Subheadline */}
             <p className="text-xl sm:text-2xl text-neutral-600 dark:text-neutral-300 mb-12 max-w-3xl mx-auto font-light leading-relaxed">
-              AI tutors designed to engage students in meaningful conversations 
-              that promote critical thinking and deep understanding.
+              Get personalized advice and mentorship from history's most influential thinkers, 
+              leaders, and visionaries through AI-powered conversations.
             </p>
 
             {/* CTA Section */}
@@ -156,10 +157,10 @@ const Landing = () => {
                     className="h-5 w-5"
                   />
                 )}
-                <span>{isSigningIn ? "Signing in..." : "Get started with Google"}</span>
+                <span>{isSigningIn ? "Signing in..." : "Start Your First Conversation"}</span>
               </Button>
               <p className="text-sm text-neutral-500 dark:text-neutral-400 mt-4">
-                No credit card required. Start teaching in minutes.
+                No credit card required. Access premium advisors instantly.
               </p>
             </div>
 
@@ -170,23 +171,22 @@ const Landing = () => {
                   <div className="text-left space-y-6">
                     <div className="flex items-center gap-3">
                       <div className="p-3 rounded-2xl bg-blue-500/10 dark:bg-blue-500/20">
-                        <Bot className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+                        <Crown className="h-6 w-6 text-blue-600 dark:text-blue-400" />
                       </div>
                       <h3 className="text-xl font-semibold text-neutral-900 dark:text-white">
-                        Meet Your AI Teaching Assistant
+                        Meet Richard Feynman
                       </h3>
                     </div>
                     <p className="text-neutral-600 dark:text-neutral-300">
-                      "Hello! I'm excited to explore this topic with you! My name is Science, 
-                      and I'm here to help you learn about the fascinating world around us. 
-                      What would you like to discover today?"
+                      "Curious about how the universe works? I'd love to explore the fascinating 
+                      world of physics with you! What mysteries of nature would you like to uncover together?"
                     </p>
                     <div className="flex flex-wrap gap-2">
                       <span className="px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-full text-sm font-medium">
-                        Science
+                        Physicist
                       </span>
-                      <span className="px-3 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded-full text-sm font-medium">
-                        Grades 3-5
+                      <span className="px-3 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 rounded-full text-sm font-medium">
+                        Nobel Laureate
                       </span>
                     </div>
                   </div>
@@ -195,7 +195,7 @@ const Landing = () => {
                       <Bot className="h-8 w-8 text-white" />
                     </div>
                     <p className="text-sm text-neutral-600 dark:text-neutral-400">
-                      Interactive AI Tutor Ready to Engage
+                      AI Advisor Ready to Mentor
                     </p>
                   </div>
                 </div>
@@ -206,14 +206,14 @@ const Landing = () => {
             <div className="grid md:grid-cols-3 gap-8 mb-20">
               <div className="text-center space-y-4">
                 <div className="w-16 h-16 mx-auto bg-purple-100 dark:bg-purple-900/30 rounded-2xl flex items-center justify-center mb-4">
-                  <Lightbulb className="h-8 w-8 text-purple-600 dark:text-purple-400" />
+                  <Users className="h-8 w-8 text-purple-600 dark:text-purple-400" />
                 </div>
                 <h3 className="text-xl font-semibold text-neutral-900 dark:text-white">
-                  Thinking Partners
+                  Legendary Mentors
                 </h3>
                 <p className="text-neutral-600 dark:text-neutral-400 leading-relaxed">
-                  AI tutors that engage students in deep, meaningful conversations 
-                  promoting critical thinking.
+                  Access wisdom from history's greatest minds including philosophers, 
+                  scientists, leaders, and visionaries.
                 </p>
               </div>
 
@@ -222,11 +222,11 @@ const Landing = () => {
                   <Zap className="h-8 w-8 text-green-600 dark:text-green-400" />
                 </div>
                 <h3 className="text-xl font-semibold text-neutral-900 dark:text-white">
-                  True Differentiation
+                  Personalized Guidance
                 </h3>
                 <p className="text-neutral-600 dark:text-neutral-400 leading-relaxed">
-                  Personalized support that adapts to each student's learning style 
-                  and pace in real-time.
+                  Each conversation adapts to your interests, goals, and learning style 
+                  for maximum impact and insight.
                 </p>
               </div>
 
@@ -235,11 +235,11 @@ const Landing = () => {
                   <Sparkles className="h-8 w-8 text-blue-600 dark:text-blue-400" />
                 </div>
                 <h3 className="text-xl font-semibold text-neutral-900 dark:text-white">
-                  Transformative Learning
+                  Transformative Insights
                 </h3>
                 <p className="text-neutral-600 dark:text-neutral-400 leading-relaxed">
-                  Move beyond traditional instruction to create dynamic, 
-                  interactive learning experiences.
+                  Gain fresh perspectives on life's challenges through conversations 
+                  with the world's most influential thinkers.
                 </p>
               </div>
             </div>
@@ -255,7 +255,7 @@ const Landing = () => {
                     Partner with Us
                   </h2>
                   <p className="text-neutral-600 dark:text-neutral-400">
-                    Transform learning in your school district. Let's explore how Think With Me can enhance education in your community.
+                    Interested in bringing AI advisors to your organization or community? Let's explore partnership opportunities.
                   </p>
                 </div>
 
@@ -305,7 +305,7 @@ const Landing = () => {
 
                   <div>
                     <label htmlFor="organization" className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
-                      School/Organization
+                      Organization
                     </label>
                     <input
                       type="text"
@@ -313,7 +313,7 @@ const Landing = () => {
                       name="organization"
                       required
                       className="w-full px-4 py-3 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-white placeholder-neutral-500 dark:placeholder-neutral-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                      placeholder="Enter your school or organization name"
+                      placeholder="Enter your organization name"
                     />
                   </div>
 
@@ -327,7 +327,7 @@ const Landing = () => {
                       rows={4}
                       required
                       className="w-full px-4 py-3 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-white placeholder-neutral-500 dark:placeholder-neutral-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 resize-none"
-                      placeholder="Tell us about your partnership interests, district size, or specific needs..."
+                      placeholder="Tell us about your partnership interests, organization size, or specific needs..."
                     />
                   </div>
 
@@ -359,11 +359,11 @@ const Landing = () => {
               </div>
               <div>
                 <h3 className="font-semibold text-neutral-900 dark:text-white">Think With Me</h3>
-                <p className="text-sm text-neutral-500 dark:text-neutral-400">Empowering educators with AI</p>
+                <p className="text-sm text-neutral-500 dark:text-neutral-400">Wisdom of the ages, conversations for today</p>
               </div>
             </div>
             <p className="text-sm text-neutral-500 dark:text-neutral-400">
-              © 2024 Think With Me. Built for educators, by educators.
+              © 2024 Think With Me. Connecting minds across time.
             </p>
           </div>
         </div>
