@@ -131,9 +131,16 @@ const SAMPLE_ADVISORS = [
 interface AdvisorSearchModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onSignInRequired?: () => void;
+  isPublic?: boolean;
 }
 
-export const AdvisorSearchModal: React.FC<AdvisorSearchModalProps> = ({ open, onOpenChange }) => {
+export const AdvisorSearchModal: React.FC<AdvisorSearchModalProps> = ({ 
+  open, 
+  onOpenChange, 
+  onSignInRequired,
+  isPublic = false 
+}) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedFilter, setSelectedFilter] = useState("all");
   const { user } = useAuth();
@@ -152,6 +159,14 @@ export const AdvisorSearchModal: React.FC<AdvisorSearchModalProps> = ({ open, on
   });
 
   const handleTalkClick = (advisor: any) => {
+    if (isPublic && !user) {
+      // Prompt user to sign in for public access
+      if (onSignInRequired) {
+        onSignInRequired();
+      }
+      return;
+    }
+    
     // Open chat with advisor in new tab
     const chatUrl = `/advisor-chat/${advisor.id}`;
     window.open(chatUrl, '_blank');
@@ -227,9 +242,9 @@ export const AdvisorSearchModal: React.FC<AdvisorSearchModalProps> = ({ open, on
                       className="flex-1 gap-1"
                     >
                       <MessageCircle className="h-3 w-3" />
-                      Talk
+                      {isPublic && !user ? 'Sign In to Talk' : 'Talk'}
                     </Button>
-                    {isAuthorizedEditor && (
+                    {isAuthorizedEditor && !isPublic && (
                       <Button 
                         size="sm" 
                         variant="outline"
@@ -250,3 +265,6 @@ export const AdvisorSearchModal: React.FC<AdvisorSearchModalProps> = ({ open, on
     </Dialog>
   );
 };
+
+// Default export for compatibility
+export default AdvisorSearchModal;

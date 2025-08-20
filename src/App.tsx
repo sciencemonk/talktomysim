@@ -44,7 +44,7 @@ function App() {
           <AuthProvider>
             <Routes>
               <Route path="/pricing" element={<PricingPage />} />
-              <Route path="/" element={<Navigate to="/dashboard" replace />} />
+              <Route path="/" element={<PublicAgentDetails />} />
               <Route
                 path="/dashboard"
                 element={
