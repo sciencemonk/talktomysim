@@ -2,7 +2,6 @@
 import { useParams } from "react-router-dom";
 import { usePublicAgent } from "@/hooks/usePublicAgent";
 import { useRealtimeChat } from "@/hooks/useRealtimeChat";
-import { ChatInterface } from "@/components/ChatInterface";
 import { TextInput } from "@/components/TextInput";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Bot, Settings } from "lucide-react";
@@ -33,15 +32,15 @@ const StudentChat = () => {
 
   if (isLoading) {
     return (
-      <div className="h-full flex flex-col bg-background">
+      <div className="h-screen flex flex-col">
         {/* Header Skeleton */}
-        <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-4 py-3">
+        <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-6 py-4">
           <div className="flex items-center justify-between max-w-4xl mx-auto">
             <div className="flex items-center gap-3">
               <Skeleton className="h-8 w-8 rounded-full" />
               <div className="space-y-1">
-                <Skeleton className="h-4 w-24" />
-                <Skeleton className="h-3 w-16" />
+                <Skeleton className="h-4 w-32" />
+                <Skeleton className="h-3 w-24" />
               </div>
             </div>
             <Skeleton className="h-8 w-16" />
@@ -61,7 +60,7 @@ const StudentChat = () => {
 
   if (error || !agent) {
     return (
-      <div className="h-full flex items-center justify-center bg-background">
+      <div className="h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="w-16 h-16 bg-muted rounded-2xl flex items-center justify-center mb-4">
             <Bot className="h-8 w-8 text-muted-foreground" />
@@ -76,9 +75,9 @@ const StudentChat = () => {
   }
 
   return (
-    <div className="h-full flex flex-col bg-background">
-      {/* Minimal Header - ChatGPT style */}
-      <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-4 py-3">
+    <div className="h-screen flex flex-col">
+      {/* Header - ChatGPT style */}
+      <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-6 py-4">
         <div className="flex items-center justify-between max-w-4xl mx-auto">
           <div className="flex items-center gap-3">
             <Avatar className="h-8 w-8">
@@ -88,7 +87,7 @@ const StudentChat = () => {
               </AvatarFallback>
             </Avatar>
             <div>
-              <h1 className="font-medium text-sm">{agent.name}</h1>
+              <h1 className="font-semibold text-base">{agent.name}</h1>
               <p className="text-xs text-muted-foreground">{agent.type} • {agent.subject || 'General'}</p>
             </div>
           </div>
@@ -100,28 +99,28 @@ const StudentChat = () => {
         </div>
       </div>
 
-      {/* Chat Area */}
+      {/* Chat Content Area */}
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Messages Container */}
         <div className="flex-1 overflow-y-auto">
           {allMessages.length === 0 ? (
-            <div className="h-full flex flex-col items-center justify-center px-4">
+            <div className="h-full flex flex-col items-center justify-center px-6">
               <div className="w-12 h-12 bg-muted rounded-xl flex items-center justify-center mb-4">
                 <Bot className="h-6 w-6 text-muted-foreground" />
               </div>
-              <h2 className="text-lg font-medium mb-2">Ready to chat with {agent.name}</h2>
+              <h2 className="text-xl font-semibold mb-2">How can I help you today?</h2>
               <p className="text-sm text-muted-foreground text-center max-w-md">
                 {realtimeChat.connectionStatus === 'connecting' 
                   ? 'Getting ready to chat...' 
                   : realtimeChat.connectionStatus === 'error'
                   ? 'Connection error - please refresh'
-                  : 'Start by typing a message or question'
+                  : `I'm ${agent.name}, ready to help you learn and explore ideas together.`
                 }
               </p>
             </div>
           ) : (
-            <div className="max-w-4xl mx-auto px-4 py-6">
-              <div className="space-y-6">
+            <div className="max-w-4xl mx-auto px-6 py-8">
+              <div className="space-y-8">
                 {allMessages.map((message) => (
                   <div key={message.id} className="flex gap-4">
                     {message.role === 'system' && (
@@ -135,7 +134,7 @@ const StudentChat = () => {
                     
                     {message.role === 'user' && (
                       <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
-                        <span className="text-xs font-medium">U</span>
+                        <span className="text-xs font-medium">You</span>
                       </div>
                     )}
                     
