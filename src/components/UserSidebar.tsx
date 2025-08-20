@@ -55,6 +55,7 @@ const UserSidebar = ({
   };
 
   const handleAgentSelect = (agent: AgentType) => {
+    console.log('Agent selected:', agent.name, agent.id);
     onSelectAgent?.(agent);
   };
 
@@ -106,14 +107,14 @@ const UserSidebar = ({
       <div className="flex-1 p-3 space-y-1">
         {/* Create New Button */}
         {onShowAgentCreate && (
-          <button
+          <Button
             onClick={onShowAgentCreate}
-            className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors bg-primary text-primary-foreground hover:bg-primary/90 w-full text-left"
-            title={isCollapsed ? "Create New" : undefined}
+            className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors bg-primary text-primary-foreground hover:bg-primary/90 w-full justify-start"
+            size="sm"
           >
             <PlusCircle className="h-4 w-4 flex-shrink-0" />
             {!isCollapsed && <span>Create New</span>}
-          </button>
+          </Button>
         )}
 
         {/* Agents List */}
@@ -127,20 +128,20 @@ const UserSidebar = ({
             </div>
           ) : agents.length > 0 ? (
             agents.map((agent) => (
-              <button
+              <Button
                 key={agent.id}
                 onClick={() => handleAgentSelect(agent)}
+                variant="ghost"
                 className={cn(
-                  "flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors w-full text-left",
+                  "flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors w-full justify-start h-auto min-h-[40px]",
                   selectedAgent?.id === agent.id
-                    ? "bg-primary/10 text-primary font-medium"
+                    ? "bg-primary/10 text-primary font-medium hover:bg-primary/15"
                     : "text-muted-foreground hover:bg-muted hover:text-foreground"
                 )}
-                title={isCollapsed ? agent.name : undefined}
               >
                 <Bot className="h-4 w-4 flex-shrink-0" />
-                {!isCollapsed && <span className="truncate">{agent.name}</span>}
-              </button>
+                {!isCollapsed && <span className="truncate text-left">{agent.name}</span>}
+              </Button>
             ))
           ) : (
             <div className={cn(
