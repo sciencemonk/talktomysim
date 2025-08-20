@@ -133,7 +133,7 @@ const StudentChat = () => {
             </div>
           </div>
           
-          {/* Share Button - Always visible on desktop, in drawer on mobile */}
+          {/* Only ShareButton - no edit button */}
           {!isMobile && (
             <ShareButton 
               tutorId={agent.id}
