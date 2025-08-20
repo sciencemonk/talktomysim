@@ -42,8 +42,8 @@ const Login = () => {
   const handleTestSignIn = async () => {
     setIsTestLoading(true);
     try {
-      // Generate a unique test email
-      const testEmail = `test_${Date.now()}@example.com`;
+      // Use a more realistic email domain that Supabase will accept
+      const testEmail = `testuser${Date.now()}@gmail.com`;
       const testPassword = 'testpassword123';
       
       console.log('Creating test account:', testEmail);
@@ -62,6 +62,21 @@ const Login = () => {
 
       if (signUpError) {
         console.error('Error creating test account:', signUpError);
+        // If signup fails, try to sign in with existing credentials
+        const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+          email: testEmail,
+          password: testPassword,
+        });
+        
+        if (signInError) {
+          console.error('Error signing in with test account:', signInError);
+          return;
+        }
+        
+        console.log('Signed in with existing test account:', signInData);
+        if (signInData.user) {
+          navigate('/app');
+        }
         return;
       }
 
