@@ -1,16 +1,14 @@
 
 import { useLocation } from "react-router-dom";
 import { 
-  Home, 
-  User, 
-  Settings, 
-  LogOut, 
   Bot, 
   PlusCircle,
+  LogOut, 
   CreditCard,
-  ChevronDown,
-  ChevronRight,
-  Grid3X3
+  Settings,
+  User,
+  ChevronLeft,
+  ChevronRight
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useAgents } from "@/hooks/useAgents";
@@ -50,7 +48,7 @@ const UserSidebar = ({
   const { user, signOut } = useAuth();
   const { agents, isLoading } = useAgents();
   const location = useLocation();
-  const [isHomeExpanded, setIsHomeExpanded] = useState(true);
+  const [isCollapsed, setIsCollapsed] = useState(false);
 
   const handleSignOut = async () => {
     await signOut();
@@ -60,93 +58,99 @@ const UserSidebar = ({
     onSelectAgent?.(agent);
   };
 
+  const toggleSidebar = () => {
+    setIsCollapsed(!isCollapsed);
+  };
+
   return (
-    <div className="w-64 bg-card border-r border-border flex flex-col h-screen">
-      {/* Logo */}
-      <div className="p-4 flex items-center gap-3">
-        <img 
-          src="/lovable-uploads/55ccce33-98a1-45d2-9e9e-7b446a02a417.png" 
-          alt="Think With Me" 
-          className="h-8 w-8"
-        />
-        <h1 className="font-semibold text-lg">Think With Me</h1>
+    <div className={cn(
+      "bg-card border-r border-border flex flex-col h-screen transition-all duration-300",
+      isCollapsed ? "w-16" : "w-64"
+    )}>
+      {/* Header with Logo and Toggle */}
+      <div className="p-4 flex items-center justify-between">
+        {!isCollapsed && (
+          <div className="flex items-center gap-3">
+            <img 
+              src="/lovable-uploads/55ccce33-98a1-45d2-9e9e-7b446a02a417.png" 
+              alt="Think With Me" 
+              className="h-8 w-8"
+            />
+            <h1 className="font-semibold text-lg">Think With Me</h1>
+          </div>
+        )}
+        {isCollapsed && (
+          <img 
+            src="/lovable-uploads/55ccce33-98a1-45d2-9e9e-7b446a02a417.png" 
+            alt="Think With Me" 
+            className="h-8 w-8 mx-auto"
+          />
+        )}
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={toggleSidebar}
+          className="h-8 w-8 p-0"
+        >
+          {isCollapsed ? (
+            <ChevronRight className="h-4 w-4" />
+          ) : (
+            <ChevronLeft className="h-4 w-4" />
+          )}
+        </Button>
       </div>
 
       <Separator />
 
       {/* Navigation Items */}
       <div className="flex-1 p-3 space-y-1">
-        {/* Home Section */}
-        <div>
-          <button
-            onClick={() => setIsHomeExpanded(!isHomeExpanded)}
-            className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors text-muted-foreground hover:bg-muted hover:text-foreground w-full"
-          >
-            <Home className="h-4 w-4" />
-            <span className="flex-1 text-left">Home</span>
-            {isHomeExpanded ? (
-              <ChevronDown className="h-4 w-4" />
-            ) : (
-              <ChevronRight className="h-4 w-4" />
-            )}
-          </button>
-
-          {/* Thinking Partners List */}
-          {isHomeExpanded && (
-            <div className="ml-6 mt-1 space-y-1">
-              {isLoading ? (
-                <div className="px-3 py-2 text-xs text-muted-foreground">
-                  Loading thinking partners...
-                </div>
-              ) : agents.length > 0 ? (
-                agents.map((agent) => (
-                  <button
-                    key={agent.id}
-                    onClick={() => handleAgentSelect(agent)}
-                    className={cn(
-                      "flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors w-full text-left",
-                      selectedAgent?.id === agent.id
-                        ? "bg-primary/10 text-primary font-medium"
-                        : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                    )}
-                  >
-                    <Bot className="h-3 w-3" />
-                    <span className="truncate">{agent.name}</span>
-                  </button>
-                ))
-              ) : (
-                <div className="px-3 py-2 text-xs text-muted-foreground">
-                  No thinking partners yet
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-
-        <div className="flex-1" />
-
-        {/* Management Options */}
-        <Separator className="my-3" />
-        
-        {onShowAgents && (
-          <button
-            onClick={onShowAgents}
-            className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors text-muted-foreground hover:bg-muted hover:text-foreground w-full text-left"
-          >
-            <Grid3X3 className="h-4 w-4" />
-            Manage Partners
-          </button>
-        )}
-
+        {/* Create New Button */}
         {onShowAgentCreate && (
           <button
             onClick={onShowAgentCreate}
-            className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors text-muted-foreground hover:bg-muted hover:text-foreground w-full text-left"
+            className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors bg-primary text-primary-foreground hover:bg-primary/90 w-full text-left"
+            title={isCollapsed ? "Create New" : undefined}
           >
-            <PlusCircle className="h-4 w-4" />
-            Create New
+            <PlusCircle className="h-4 w-4 flex-shrink-0" />
+            {!isCollapsed && <span>Create New</span>}
           </button>
         )}
+
+        {/* Agents List */}
+        <div className="mt-4 space-y-1">
+          {isLoading ? (
+            <div className={cn(
+              "px-3 py-2 text-xs text-muted-foreground",
+              isCollapsed && "text-center"
+            )}>
+              {isCollapsed ? "..." : "Loading thinking partners..."}
+            </div>
+          ) : agents.length > 0 ? (
+            agents.map((agent) => (
+              <button
+                key={agent.id}
+                onClick={() => handleAgentSelect(agent)}
+                className={cn(
+                  "flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors w-full text-left",
+                  selectedAgent?.id === agent.id
+                    ? "bg-primary/10 text-primary font-medium"
+                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                )}
+                title={isCollapsed ? agent.name : undefined}
+              >
+                <Bot className="h-4 w-4 flex-shrink-0" />
+                {!isCollapsed && <span className="truncate">{agent.name}</span>}
+              </button>
+            ))
+          ) : (
+            <div className={cn(
+              "px-3 py-2 text-xs text-muted-foreground",
+              isCollapsed && "text-center"
+            )}>
+              {isCollapsed ? "0" : "No thinking partners yet"}
+            </div>
+          )}
+        </div>
       </div>
 
       <Separator />
@@ -154,7 +158,7 @@ const UserSidebar = ({
       {/* User Profile Section */}
       <div className="p-3 space-y-2">
         {/* Usage/Billing Info */}
-        {onShowBilling && (
+        {onShowBilling && !isCollapsed && (
           <button
             onClick={onShowBilling}
             className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors text-muted-foreground hover:bg-muted hover:text-foreground w-full text-left"
@@ -170,21 +174,26 @@ const UserSidebar = ({
         {/* User Info with Dropdown */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <button className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-muted transition-colors w-full">
-              <Avatar className="h-8 w-8">
+            <button className={cn(
+              "flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-muted transition-colors w-full",
+              isCollapsed && "justify-center"
+            )}>
+              <Avatar className="h-8 w-8 flex-shrink-0">
                 <AvatarImage src={user?.user_metadata?.avatar_url} alt="Profile" />
                 <AvatarFallback>
                   {user?.email?.charAt(0)?.toUpperCase() || "U"}
                 </AvatarFallback>
               </Avatar>
-              <div className="flex-1 min-w-0 text-left">
-                <p className="text-sm font-medium truncate">
-                  {user?.user_metadata?.full_name || "User"}
-                </p>
-                <p className="text-xs text-muted-foreground truncate">
-                  {user?.email}
-                </p>
-              </div>
+              {!isCollapsed && (
+                <div className="flex-1 min-w-0 text-left">
+                  <p className="text-sm font-medium truncate">
+                    {user?.user_metadata?.full_name || "User"}
+                  </p>
+                  <p className="text-xs text-muted-foreground truncate">
+                    {user?.email}
+                  </p>
+                </div>
+              )}
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="start" className="w-56">
