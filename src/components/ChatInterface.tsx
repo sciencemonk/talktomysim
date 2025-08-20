@@ -1,12 +1,13 @@
 
 import { useState } from "react";
-import { useRealtimeChat } from "@/hooks/useRealtimeChat";
+import { useSimpleMessageAccumulator } from "@/hooks/useSimpleMessageAccumulator";
 import { TextInput } from "@/components/TextInput";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Bot, Settings, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AgentType } from "@/types/agent";
 import AgentConfigSettings from "@/components/AgentConfigSettings";
+import { useTextChat } from "@/hooks/useTextChat";
 
 interface ChatInterfaceProps {
   agent: AgentType;
@@ -16,7 +17,15 @@ interface ChatInterfaceProps {
 const ChatInterface = ({ agent, onShowAgentDetails }: ChatInterfaceProps) => {
   const [showSettings, setShowSettings] = useState(false);
   const [currentAgent, setCurrentAgent] = useState(agent);
-  const realtimeChat = useRealtimeChat({ agent: currentAgent });
+  
+  const messageAccumulator = useSimpleMessageAccumulator();
+  const textChat = useTextChat({ 
+    agent: currentAgent,
+    onUserMessage: messageAccumulator.addUserMessage,
+    onAiMessageStart: messageAccumulator.startAiMessage,
+    onAiTextDelta: messageAccumulator.addAiTextDelta,
+    onAiMessageComplete: messageAccumulator.completeAiMessage
+  });
 
   const handleAgentUpdate = (updatedAgent: AgentType) => {
     setCurrentAgent(updatedAgent);
@@ -28,6 +37,10 @@ const ChatInterface = ({ agent, onShowAgentDetails }: ChatInterfaceProps) => {
 
   const handleBackToChat = () => {
     setShowSettings(false);
+  };
+
+  const handleSendMessage = (message: string) => {
+    textChat.sendMessage(message);
   };
 
   if (showSettings) {
@@ -69,18 +82,6 @@ const ChatInterface = ({ agent, onShowAgentDetails }: ChatInterfaceProps) => {
     );
   }
 
-  // Combine messages with current partial message if speaking
-  const allMessages = [...realtimeChat.messages];
-  if (realtimeChat.currentMessage && realtimeChat.isSpeaking) {
-    allMessages.push({
-      id: 'current',
-      role: 'system' as const,
-      content: realtimeChat.currentMessage,
-      timestamp: new Date(),
-      isComplete: false
-    });
-  }
-
   return (
     <div className="flex flex-col h-full">
       {/* Header - ChatGPT style */}
@@ -110,16 +111,16 @@ const ChatInterface = ({ agent, onShowAgentDetails }: ChatInterfaceProps) => {
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Messages Container */}
         <div className="flex-1 overflow-y-auto">
-          {allMessages.length === 0 ? (
+          {messageAccumulator.messages.length === 0 ? (
             <div className="h-full flex flex-col items-center justify-center px-6">
               <div className="w-12 h-12 bg-muted rounded-xl flex items-center justify-center mb-4">
                 <Bot className="h-6 w-6 text-muted-foreground" />
               </div>
               <h2 className="text-xl font-semibold mb-2">How can I help you today?</h2>
               <p className="text-sm text-muted-foreground text-center max-w-md">
-                {realtimeChat.connectionStatus === 'connecting' 
+                {textChat.connectionStatus === 'connecting' 
                   ? 'Getting ready to chat...' 
-                  : realtimeChat.connectionStatus === 'error'
+                  : textChat.connectionStatus === 'error'
                   ? 'Connection error - please refresh'
                   : `I'm ${currentAgent.name}, ready to help you learn and explore ideas together.`
                 }
@@ -128,7 +129,7 @@ const ChatInterface = ({ agent, onShowAgentDetails }: ChatInterfaceProps) => {
           ) : (
             <div className="max-w-4xl mx-auto px-6 py-8 w-full">
               <div className="space-y-8">
-                {allMessages.map((message) => (
+                {messageAccumulator.messages.map((message) => (
                   <div key={message.id} className="flex gap-4">
                     {message.role === 'system' && (
                       <Avatar className="h-8 w-8 flex-shrink-0">
@@ -170,10 +171,10 @@ const ChatInterface = ({ agent, onShowAgentDetails }: ChatInterfaceProps) => {
         {/* Input Area */}
         <div className="border-t bg-background flex-shrink-0">
           <TextInput
-            onSendMessage={realtimeChat.sendTextMessage}
-            disabled={!realtimeChat.isConnected}
+            onSendMessage={handleSendMessage}
+            disabled={textChat.connectionStatus !== 'connected'}
             placeholder={
-              !realtimeChat.isConnected 
+              textChat.connectionStatus !== 'connected'
                 ? "Connecting..." 
                 : `Message ${currentAgent.name}...`
             }
