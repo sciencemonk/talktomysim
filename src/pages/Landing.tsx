@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -169,28 +168,19 @@ const Landing = () => {
   });
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-neutral-50 via-white to-blue-50/30 dark:from-neutral-950 dark:via-neutral-900 dark:to-blue-950/30">
+    <div className="min-h-screen bg-white">
       {/* Header */}
-      <header className="bg-white/60 dark:bg-neutral-900/60 backdrop-blur-xl border-b border-neutral-200/20 dark:border-neutral-800/20">
-        <div className="container mx-auto px-6 py-4">
+      <header className="bg-neutral-800 text-white">
+        <div className="container mx-auto px-6 py-6">
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <div className="p-2 rounded-2xl bg-gradient-to-br from-blue-500 to-purple-600 shadow-lg">
-                <img 
-                  src="/lovable-uploads/1a618b3c-11e7-43e4-a2d5-c1e6f36e48ba.png" 
-                  alt="Think With Me" 
-                  className="h-7 w-7"
-                />
-              </div>
-              <h1 className="text-xl font-semibold tracking-tight text-neutral-900 dark:text-white">
-                Think With Me
-              </h1>
-            </div>
+            <h1 className="text-3xl font-bold text-center flex-1">
+              AI Advisor Directory
+            </h1>
             {!user && (
               <Button 
                 onClick={handleSignInWithGoogle}
                 disabled={isSigningIn}
-                className="bg-neutral-900 hover:bg-neutral-800 text-white dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-100 rounded-full px-6 py-2 font-medium inline-flex items-center gap-2"
+                className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg px-6 py-2 font-medium inline-flex items-center gap-2"
               >
                 {isSigningIn ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
@@ -210,92 +200,59 @@ const Landing = () => {
 
       {/* Main Content */}
       <main className="container mx-auto px-6 py-8">
-        {/* Hero Section */}
-        <div className="text-center mb-12">
-          <div className="inline-flex items-center gap-6 px-6 py-3 mb-8 bg-blue-50/80 dark:bg-blue-950/30 rounded-full border border-blue-100/50 dark:border-blue-900/30 backdrop-blur-sm">
-            <div className="flex items-center gap-2 text-sm text-blue-700 dark:text-blue-300">
-              <Shield className="h-4 w-4" />
-              <span>Privacy First</span>
-            </div>
-            <div className="flex items-center gap-2 text-sm text-blue-700 dark:text-blue-300">
-              <Crown className="h-4 w-4" />
-              <span>Premium Advisors</span>
-            </div>
-            <div className="flex items-center gap-2 text-sm text-blue-700 dark:text-blue-300">
-              <Award className="h-4 w-4" />
-              <span>Free to Start</span>
-            </div>
-          </div>
-
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-light tracking-tight text-neutral-900 dark:text-white mb-4 leading-none">
-            Talk to the Greatest
-            <br />
-            <span className="bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 bg-clip-text text-transparent font-medium">
-              Minds Who Ever Lived
-            </span>
-          </h1>
-
-          <p className="text-lg sm:text-xl text-neutral-600 dark:text-neutral-300 mb-8 max-w-2xl mx-auto font-light leading-relaxed">
-            Get personalized advice and mentorship from history's most influential thinkers, 
-            leaders, and visionaries through AI-powered conversations.
-          </p>
-        </div>
-
         {/* Search and Filter */}
-        <div className="max-w-2xl mx-auto mb-12">
-          <div className="flex gap-4 mb-6">
-            <div className="flex-1 relative">
-              <Search className="h-4 w-4 absolute left-3 top-3 text-neutral-400" />
-              <Input
-                placeholder="Search advisors..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 rounded-xl border-neutral-200/50 dark:border-neutral-700/50 bg-white/80 dark:bg-neutral-800/80 backdrop-blur-sm"
-              />
-            </div>
-            <select 
-              value={selectedFilter}
-              onChange={(e) => setSelectedFilter(e.target.value)}
-              className="px-4 py-2 border border-neutral-200/50 dark:border-neutral-700/50 rounded-xl bg-white/80 dark:bg-neutral-800/80 backdrop-blur-sm text-neutral-900 dark:text-white"
-            >
-              <option value="all">All Roles</option>
-              <option value="entrepreneur">Entrepreneurs</option>
-              <option value="investor">Investors</option>
-              <option value="politician">Politicians</option>
-              <option value="philosopher">Philosophers</option>
-              <option value="founding father">Founding Fathers</option>
-              <option value="economist">Economists</option>
-            </select>
+        <div className="flex gap-4 mb-8">
+          <div className="flex-1 relative">
+            <Search className="h-5 w-5 absolute left-3 top-3 text-gray-400" />
+            <Input
+              placeholder="Search advisors..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10 h-12 text-base border-gray-300 rounded-lg"
+            />
           </div>
+          <select 
+            value={selectedFilter}
+            onChange={(e) => setSelectedFilter(e.target.value)}
+            className="px-4 py-3 border border-gray-300 rounded-lg bg-white text-gray-900 min-w-[140px]"
+          >
+            <option value="all">All Roles</option>
+            <option value="entrepreneur">Entrepreneurs</option>
+            <option value="investor">Investors</option>
+            <option value="politician">Politicians</option>
+            <option value="philosopher">Philosophers</option>
+            <option value="founding father">Founding Fathers</option>
+            <option value="economist">Economists</option>
+          </select>
         </div>
 
         {/* Advisors Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-20">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {filteredAdvisors.map((advisor) => (
-            <div key={advisor.id} className="bg-white/80 dark:bg-neutral-900/80 backdrop-blur-xl rounded-3xl border border-neutral-200/50 dark:border-neutral-800/50 p-6 shadow-lg hover:shadow-xl transition-all duration-300 group">
+            <div key={advisor.id} className="bg-gray-50 rounded-xl p-6 border border-gray-200 hover:shadow-md transition-shadow">
               <div className="flex items-start gap-4 mb-4">
-                <Avatar className="h-16 w-16 border-2 border-neutral-200/50 dark:border-neutral-700/50">
+                <Avatar className="h-16 w-16 border-2 border-gray-200">
                   <AvatarImage src={advisor.avatar} alt={advisor.name} />
-                  <AvatarFallback className="bg-neutral-100 dark:bg-neutral-800">
-                    <User className="h-8 w-8 text-neutral-500" />
+                  <AvatarFallback className="bg-gray-100">
+                    <User className="h-8 w-8 text-gray-500" />
                   </AvatarFallback>
                 </Avatar>
                 <div className="flex-1 min-w-0">
-                  <h3 className="font-semibold text-lg text-neutral-900 dark:text-white truncate">{advisor.name}</h3>
-                  <Badge variant="secondary" className="text-xs mb-2 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300">
+                  <h3 className="font-semibold text-xl text-gray-900 mb-1">{advisor.name}</h3>
+                  <Badge variant="secondary" className="text-sm mb-2 bg-gray-200 text-gray-700">
                     {advisor.role}
                   </Badge>
-                  <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-1">{advisor.field}</p>
+                  <p className="text-sm text-gray-600 mb-3">{advisor.field}</p>
                 </div>
               </div>
               
-              <p className="text-sm text-neutral-600 dark:text-neutral-300 line-clamp-3 mb-6 leading-relaxed">
+              <p className="text-gray-700 text-sm leading-relaxed mb-6">
                 {advisor.description}
               </p>
               
               <Button 
                 onClick={() => handleTalkClick(advisor)}
-                className="w-full bg-neutral-900 hover:bg-neutral-800 text-white dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-100 rounded-xl font-medium shadow-lg hover:shadow-xl transition-all duration-300 group-hover:scale-[1.02] inline-flex items-center justify-center gap-2"
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium py-3 inline-flex items-center justify-center gap-2"
               >
                 <MessageCircle className="h-4 w-4" />
                 {!user ? 'Sign In to Talk' : 'Start Conversation'}
@@ -303,31 +260,13 @@ const Landing = () => {
             </div>
           ))}
         </div>
-      </main>
 
-      {/* Footer */}
-      <footer className="border-t border-neutral-200/50 dark:border-neutral-800/50 bg-white/60 dark:bg-neutral-900/60 backdrop-blur-xl">
-        <div className="container mx-auto px-6 py-8">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <div className="flex items-center space-x-3">
-              <div className="p-2 rounded-2xl bg-gradient-to-br from-blue-500 to-purple-600">
-                <img 
-                  src="/lovable-uploads/1a618b3c-11e7-43e4-a2d5-c1e6f36e48ba.png" 
-                  alt="Think With Me" 
-                  className="h-6 w-6"
-                />
-              </div>
-              <div>
-                <h3 className="font-semibold text-neutral-900 dark:text-white">Think With Me</h3>
-                <p className="text-sm text-neutral-500 dark:text-neutral-400">Wisdom of the ages, conversations for today</p>
-              </div>
-            </div>
-            <p className="text-sm text-neutral-500 dark:text-neutral-400">
-              © 2024 Think With Me. Connecting minds across time.
-            </p>
+        {filteredAdvisors.length === 0 && (
+          <div className="text-center py-12">
+            <p className="text-gray-500 text-lg">No advisors found matching your search.</p>
           </div>
-        </div>
-      </footer>
+        )}
+      </main>
     </div>
   );
 };
