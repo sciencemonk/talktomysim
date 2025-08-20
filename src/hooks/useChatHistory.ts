@@ -45,7 +45,7 @@ export const useChatHistory = (agent: AgentType) => {
         }));
 
         setMessages(chatMessages);
-        console.log(`Loaded ${chatMessages.length} messages for ${agent.name}`);
+        console.log(`Loaded ${chatMessages.length} messages for ${agent.name}:`, chatMessages);
       } catch (error) {
         console.error('Error loading chat history:', error);
       }
@@ -110,10 +110,17 @@ export const useChatHistory = (agent: AgentType) => {
   const completeAiMessage = useCallback(async (messageId: string) => {
     if (!conversationId) return;
 
-    // Find the message and mark as complete
-    const currentMessage = messages.find(msg => msg.id === messageId);
-    if (!currentMessage) return;
+    // Find the current message content
+    const currentMessages = messages;
+    const currentMessage = currentMessages.find(msg => msg.id === messageId);
+    if (!currentMessage || !currentMessage.content.trim()) {
+      console.error('No message content found for ID:', messageId);
+      return;
+    }
 
+    console.log('Completing AI message:', currentMessage.content);
+
+    // Mark as complete first
     setMessages(prev => 
       prev.map(msg => 
         msg.id === messageId 
@@ -130,6 +137,7 @@ export const useChatHistory = (agent: AgentType) => {
     );
     
     if (savedMessage) {
+      console.log('AI message saved to database:', savedMessage);
       setMessages(prev => 
         prev.map(msg => 
           msg.id === messageId 
@@ -137,6 +145,8 @@ export const useChatHistory = (agent: AgentType) => {
             : msg
         )
       );
+    } else {
+      console.error('Failed to save AI message to database');
     }
   }, [conversationId, messages]);
 
