@@ -1,55 +1,65 @@
 
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
-import { useAgents } from "@/hooks/useAgents";
+import { useUserAdvisors } from "@/hooks/useUserAdvisors";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Settings, User, Plus, MessageSquare, Bot } from "lucide-react";
-import { AgentType } from "@/types/agent";
+import { UserAdvisor } from "@/services/userAdvisorService";
 import { useIsMobile } from "@/hooks/use-mobile";
+import AdvisorSearchModal from "./AdvisorSearchModal";
+import { Advisor } from "@/types/advisor";
 
 interface AgentUserSidebarProps {
   onShowSettings: () => void;
   onShowChildProfile: () => void;
-  onShowAgents: () => void;
-  onShowAgentCreate: () => void;
-  selectedAgent: AgentType | null;
-  onSelectAgent: (agent: AgentType) => void;
+  selectedAdvisor: UserAdvisor | null;
+  onSelectAdvisor: (advisor: UserAdvisor) => void;
   refreshTrigger: number;
 }
 
 const AgentUserSidebar = ({
   onShowSettings,
   onShowChildProfile,
-  onShowAgents,
-  onShowAgentCreate,
-  selectedAgent,
-  onSelectAgent,
+  selectedAdvisor,
+  onSelectAdvisor,
   refreshTrigger
 }: AgentUserSidebarProps) => {
   const { user } = useAuth();
-  const { agents, isLoading } = useAgents();
+  const { userAdvisors, addAdvisor, isLoading } = useUserAdvisors();
   const isMobile = useIsMobile();
+  const [showAdvisorSearch, setShowAdvisorSearch] = useState(false);
 
-  const handleAgentClick = (agent: AgentType) => {
-    onSelectAgent(agent);
+  const handleAdvisorSelect = async (advisor: Advisor) => {
+    setShowAdvisorSearch(false);
+    
+    // Add advisor to user's collection
+    const userAdvisor = await addAdvisor(advisor);
+    if (userAdvisor) {
+      onSelectAdvisor(userAdvisor);
+    }
+  };
+
+  const handleAdvisorClick = (advisor: UserAdvisor) => {
+    onSelectAdvisor(advisor);
   };
 
   const sidebarContent = (
     <>
       <div className="p-4 border-b">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold">AI Tutors</h2>
+          <h2 className="text-lg font-semibold">Think With Me</h2>
           <Button
-            onClick={onShowAgentCreate}
+            onClick={() => setShowAdvisorSearch(true)}
             size="sm"
-            variant="outline"
+            variant="default"
+            className="rounded-full px-6"
           >
             <Plus className="h-4 w-4 mr-1" />
-            Create
+            Create New
           </Button>
         </div>
         <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
@@ -86,49 +96,49 @@ const AgentUserSidebar = ({
         <div className="p-4 space-y-2">
           {isLoading ? (
             <div className="text-center py-8">
-              <div className="animate-pulse">Loading tutors...</div>
+              <div className="animate-pulse">Loading advisors...</div>
             </div>
-          ) : agents.length === 0 ? (
+          ) : userAdvisors.length === 0 ? (
             <div className="text-center py-8">
               <div className="text-muted-foreground mb-4">
-                No tutors yet
+                No advisors yet
               </div>
               <Button
-                onClick={onShowAgentCreate}
+                onClick={() => setShowAdvisorSearch(true)}
                 variant="outline"
                 size="sm"
               >
                 <Plus className="h-4 w-4 mr-2" />
-                Create First Tutor
+                Find Advisors
               </Button>
             </div>
           ) : (
-            agents.map((agent) => (
+            userAdvisors.map((advisor) => (
               <Card
-                key={agent.id}
+                key={advisor.id}
                 className={`cursor-pointer transition-colors hover:bg-muted/50 ${
-                  selectedAgent?.id === agent.id ? 'bg-muted' : ''
+                  selectedAdvisor?.id === advisor.id ? 'bg-primary/10 border-primary' : ''
                 }`}
-                onClick={() => handleAgentClick(agent)}
+                onClick={() => handleAdvisorClick(advisor)}
               >
                 <CardContent className="p-3">
                   <div className="flex items-center gap-3">
                     <Avatar className="h-10 w-10">
-                      <AvatarImage src={agent.avatar} alt={agent.name} />
+                      <AvatarImage src={advisor.avatar_url} alt={advisor.name} />
                       <AvatarFallback>
                         <Bot className="h-5 w-5" />
                       </AvatarFallback>
                     </Avatar>
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-medium text-sm truncate">{agent.name}</h3>
-                      {agent.subject && (
+                      <h3 className="font-medium text-sm truncate">{advisor.name}</h3>
+                      {advisor.title && (
                         <p className="text-xs text-muted-foreground truncate">
-                          {agent.subject}
+                          {advisor.title}
                         </p>
                       )}
-                      {agent.type && (
+                      {advisor.category && (
                         <Badge variant="secondary" className="text-xs mt-1">
-                          {agent.type}
+                          {advisor.category}
                         </Badge>
                       )}
                     </div>
@@ -140,6 +150,12 @@ const AgentUserSidebar = ({
           )}
         </div>
       </ScrollArea>
+
+      <AdvisorSearchModal
+        isOpen={showAdvisorSearch}
+        onClose={() => setShowAdvisorSearch(false)}
+        onAdvisorSelect={handleAdvisorSelect}
+      />
     </>
   );
 

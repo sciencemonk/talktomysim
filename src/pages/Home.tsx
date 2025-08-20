@@ -2,40 +2,32 @@
 import { useState, useCallback } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import AgentUserSidebar from "@/components/AgentUserSidebar";
-import ChatInterface from "@/components/ChatInterface";
+import UserAdvisorChat from "@/components/UserAdvisorChat";
 import ChildProfile from "@/pages/ChildProfile";
 import Settings from "@/pages/Settings";
-import AgentCreate from "@/pages/AgentCreate";
-import { AgentType } from "@/types/agent";
-import { useAgents } from "@/hooks/useAgents";
+import { UserAdvisor } from "@/services/userAdvisorService";
+import { useUserAdvisors } from "@/hooks/useUserAdvisors";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 const Home = () => {
   const { user } = useAuth();
-  const { agents } = useAgents();
+  const { userAdvisors } = useUserAdvisors();
   const isMobile = useIsMobile();
-  const [selectedAgent, setSelectedAgent] = useState<AgentType | null>(null);
-  const [currentView, setCurrentView] = useState<'chat' | 'child-profile' | 'settings' | 'agent-create'>('chat');
+  const [selectedAdvisor, setSelectedAdvisor] = useState<UserAdvisor | null>(null);
+  const [currentView, setCurrentView] = useState<'chat' | 'child-profile' | 'settings'>('chat');
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
-  const handleSelectAgent = useCallback((agent: AgentType) => {
-    setSelectedAgent(agent);
+  const handleSelectAdvisor = useCallback((advisor: UserAdvisor) => {
+    setSelectedAdvisor(advisor);
     setCurrentView('chat');
-  }, []);
-
-  const handleAgentUpdate = useCallback((updatedAgent: AgentType) => {
-    setSelectedAgent(updatedAgent);
-    setRefreshTrigger(prev => prev + 1);
   }, []);
 
   const handleShowChildProfile = () => setCurrentView('child-profile');
   const handleShowSettings = () => setCurrentView('settings');
-  const handleShowAgents = () => setCurrentView('chat'); // Just show chat view
-  const handleShowAgentCreate = () => setCurrentView('agent-create');
 
-  // Set first agent as selected if none selected
-  if (!selectedAgent && agents.length > 0) {
-    setSelectedAgent(agents[0]);
+  // Set first advisor as selected if none selected
+  if (!selectedAdvisor && userAdvisors.length > 0) {
+    setSelectedAdvisor(userAdvisors[0]);
   }
 
   const renderMainContent = () => {
@@ -44,33 +36,20 @@ const Home = () => {
         return <ChildProfile />;
       case 'settings':
         return <Settings />;
-      case 'agent-create':
-        return (
-          <AgentCreate 
-            onAgentCreated={(agent) => {
-              setSelectedAgent(agent);
-              setCurrentView('chat');
-              setRefreshTrigger(prev => prev + 1);
-            }}
-          />
-        );
       case 'chat':
       default:
-        if (!selectedAgent) {
+        if (!selectedAdvisor) {
           return (
             <div className="flex-1 flex items-center justify-center p-4">
               <div className="text-center">
                 <p className="text-xl text-muted-foreground mb-4">No advisors yet</p>
-                <p className="text-muted-foreground">Create your first AI advisor to get started!</p>
+                <p className="text-muted-foreground">Find and add AI advisors to get started!</p>
               </div>
             </div>
           );
         }
         return (
-          <ChatInterface 
-            agent={selectedAgent} 
-            onAgentUpdate={handleAgentUpdate}
-          />
+          <UserAdvisorChat advisor={selectedAdvisor} />
         );
     }
   };
@@ -85,10 +64,8 @@ const Home = () => {
         <AgentUserSidebar
           onShowSettings={handleShowSettings}
           onShowChildProfile={handleShowChildProfile}
-          onShowAgents={handleShowAgents}
-          onShowAgentCreate={handleShowAgentCreate}
-          selectedAgent={selectedAgent}
-          onSelectAgent={handleSelectAgent}
+          selectedAdvisor={selectedAdvisor}
+          onSelectAdvisor={handleSelectAdvisor}
           refreshTrigger={refreshTrigger}
         />
       )}
@@ -98,10 +75,8 @@ const Home = () => {
           <AgentUserSidebar
             onShowSettings={handleShowSettings}
             onShowChildProfile={handleShowChildProfile}
-            onShowAgents={handleShowAgents}
-            onShowAgentCreate={handleShowAgentCreate}
-            selectedAgent={selectedAgent}
-            onSelectAgent={handleSelectAgent}
+            selectedAdvisor={selectedAdvisor}
+            onSelectAdvisor={handleSelectAdvisor}
             refreshTrigger={refreshTrigger}
           />
         )}
