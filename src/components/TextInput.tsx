@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { Send } from 'lucide-react';
 
 interface TextInputProps {
@@ -20,22 +20,44 @@ export const TextInput: React.FC<TextInputProps> = ({ onSendMessage, disabled })
     }
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSubmit(e);
+    }
+  };
+
   return (
-    <form onSubmit={handleSubmit} className="flex gap-3 p-6">
-      <Input
-        value={message}
-        onChange={(e) => setMessage(e.target.value)}
-        placeholder={disabled ? "Connecting..." : "Type a message..."}
-        disabled={disabled}
-        className="flex-1 bg-bg/50 border-border/50 focus:border-brandBlue/50 focus:ring-brandBlue/20"
-      />
-      <Button 
-        type="submit" 
-        disabled={!message.trim() || disabled}
-        className="px-6 bg-gradient-to-r from-brandBlue to-brandPurple hover:from-brandBlue/90 hover:to-brandPurple/90"
-      >
-        <Send className="h-4 w-4" />
-      </Button>
-    </form>
+    <div className="p-4 max-w-4xl mx-auto w-full">
+      <form onSubmit={handleSubmit} className="relative">
+        <Textarea
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
+          onKeyDown={handleKeyDown}
+          placeholder={disabled ? "Connecting..." : "Ask anything..."}
+          disabled={disabled}
+          className="min-h-[60px] max-h-[200px] pr-12 resize-none bg-background border-border focus:border-primary/50 focus:ring-primary/20"
+          rows={1}
+          style={{
+            height: 'auto',
+            minHeight: '60px',
+            maxHeight: '200px',
+          }}
+          onInput={(e) => {
+            const target = e.target as HTMLTextAreaElement;
+            target.style.height = 'auto';
+            target.style.height = Math.min(target.scrollHeight, 200) + 'px';
+          }}
+        />
+        <Button 
+          type="submit" 
+          disabled={!message.trim() || disabled}
+          size="sm"
+          className="absolute right-2 bottom-2 h-8 w-8 p-0"
+        >
+          <Send className="h-4 w-4" />
+        </Button>
+      </form>
+    </div>
   );
 };
