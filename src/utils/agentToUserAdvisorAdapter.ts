@@ -8,7 +8,7 @@ export const convertAgentToUserAdvisor = (agent: AgentType): UserAdvisor => {
     user_id: '', // This will be set by the service
     advisor_id: agent.id,
     name: agent.name,
-    title: agent.type,
+    title: agent.type, // Use type as title since AgentType doesn't have title
     description: agent.description,
     prompt: agent.prompt || `You are ${agent.name}, a ${agent.type}. Help the user with their questions.`,
     avatar_url: agent.avatar,

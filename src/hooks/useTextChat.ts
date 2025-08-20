@@ -1,24 +1,14 @@
 
-
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { AgentType } from '@/types/agent';
 import { supabase } from '@/integrations/supabase/client';
 
-interface UseTextChatProps {
-  agent: AgentType;
-  onUserMessage: (message: string) => void;
-  onAiMessageStart: () => string;
-  onAiTextDelta: (messageId: string, delta: string) => void;
-  onAiMessageComplete: (messageId: string) => void;
-}
-
-export const useTextChat = ({
-  agent,
-  onUserMessage,
-  onAiMessageStart,
-  onAiTextDelta,
-  onAiMessageComplete
-}: UseTextChatProps) => {
+export const useTextChat = (
+  prompt: string,
+  onUserMessage: (message: string) => void,
+  onAiMessageStart: () => string,
+  onAiTextDelta: (messageId: string, delta: string) => void,
+  onAiMessageComplete: (messageId: string) => void
+) => {
   const [connectionStatus, setConnectionStatus] = useState<'connecting' | 'connected' | 'error' | 'disconnected'>('disconnected');
   const [isProcessing, setIsProcessing] = useState(false);
   const [conversationHistory, setConversationHistory] = useState<Array<{role: string, content: string}>>([]);
@@ -27,12 +17,12 @@ export const useTextChat = ({
   useEffect(() => {
     // Simulate connection for text chat (no actual persistent connection needed)
     setConnectionStatus('connected');
-  }, [agent]);
+  }, [prompt]);
 
   const sendMessage = useCallback(async (message: string) => {
     if (!message.trim() || isProcessing) return;
 
-    console.log('Sending message to', agent.name, ':', message);
+    console.log('Sending message:', message);
     
     setIsProcessing(true);
     
@@ -60,13 +50,7 @@ export const useTextChat = ({
         body: {
           messages: newHistory,
           agent: {
-            name: agent.name,
-            type: agent.type,
-            subject: agent.subject,
-            description: agent.description,
-            prompt: agent.prompt,
-            gradeLevel: agent.gradeLevel,
-            learningObjective: agent.learningObjective
+            prompt: prompt
           }
         }
       });
@@ -103,7 +87,7 @@ export const useTextChat = ({
       setIsProcessing(false);
       abortControllerRef.current = null;
     }
-  }, [agent, isProcessing, conversationHistory, onUserMessage, onAiMessageStart, onAiTextDelta, onAiMessageComplete]);
+  }, [prompt, isProcessing, conversationHistory, onUserMessage, onAiMessageStart, onAiTextDelta, onAiMessageComplete]);
 
   return {
     sendMessage,

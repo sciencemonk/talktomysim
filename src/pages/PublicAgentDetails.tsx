@@ -54,10 +54,12 @@ const PublicAgentDetails = () => {
                 </AvatarFallback>
               </Avatar>
               <div>
-                <CardTitle className="text-lg font-semibold">{agent.name}</CardTitle>
-                <CardDescription className="text-muted-foreground">
-                  {agent.title || agent.type}
-                </CardDescription>
+                <div>
+                  <CardTitle className="text-lg font-semibold">{agent.name}</CardTitle>
+                  <CardDescription className="text-muted-foreground">
+                    {agent.type}
+                  </CardDescription>
+                </div>
               </div>
             </div>
             <div className="space-x-2">

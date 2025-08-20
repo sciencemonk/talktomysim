@@ -9,10 +9,9 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
 import { Search, Plus, Edit, MessageSquare, Settings, Trash2 } from "lucide-react";
-import { SimpleDashboardLayout } from "@/layouts/SimpleDashboardLayout";
+import SimpleDashboardLayout from "@/layouts/SimpleDashboardLayout";
 import AdvisorSearchModal from "@/components/AdvisorSearchModal";
 import { Advisor } from "@/types/advisor";
-import { advisorService } from "@/services/advisorService";
 
 const AdvisorsDashboard = () => {
   const { user } = useAuth();
@@ -39,7 +38,7 @@ const AdvisorsDashboard = () => {
     if (!editedAdvisor) return;
 
     try {
-      await advisorService.updateAdvisor(editedAdvisor.id, editedAdvisor);
+      // await advisorService.updateAdvisor(editedAdvisor.id, editedAdvisor);
       setIsEditing(false);
       setEditedAdvisor(null);
       refetch(); // Refresh the advisor list
@@ -51,7 +50,7 @@ const AdvisorsDashboard = () => {
 
   const handleDeleteClick = async (advisorId: string) => {
     try {
-      await advisorService.deleteAdvisor(advisorId);
+      // await advisorService.deleteAdvisor(advisorId);
       refetch(); // Refresh the advisor list
     } catch (error) {
       console.error("Error deleting advisor:", error);
