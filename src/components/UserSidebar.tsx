@@ -6,7 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Bot, ChevronLeft, ChevronRight, Menu, Plus, Search, X } from "lucide-react";
+import { Bot, ChevronLeft, ChevronRight, Menu, Search, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 import {
@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/drawer";
 import { AgentType } from "@/types/agent";
 import UserSettingsDropdown from "./UserSettingsDropdown";
+import { AdvisorSearchModal } from "./AdvisorSearchModal";
 
 export interface UserSidebarProps {
   onShowSettings: () => void;
@@ -42,6 +43,7 @@ const UserSidebar: React.FC<UserSidebarProps> = ({
   const isMobile = useIsMobile();
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
+  const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
 
   if (!user) {
     return null;
@@ -74,17 +76,6 @@ const UserSidebar: React.FC<UserSidebarProps> = ({
                     </Button>
                   </DrawerClose>
                 </div>
-                
-                <Button 
-                  onClick={() => {
-                    onShowAgentCreate();
-                    setIsMobileOpen(false);
-                  }}
-                  className="w-full justify-start gap-2"
-                >
-                  <Search className="h-4 w-4" />
-                  Search Advisors
-                </Button>
               </div>
 
               <div className="flex-1 overflow-hidden">
@@ -138,24 +129,25 @@ const UserSidebar: React.FC<UserSidebarProps> = ({
                           No advisors yet
                         </div>
                       )}
+
+                      {/* Search Advisors Button - Mobile */}
+                      <Button 
+                        onClick={() => {
+                          setIsSearchModalOpen(true);
+                          setIsMobileOpen(false);
+                        }}
+                        variant="outline"
+                        className="w-full justify-start gap-2 mt-4"
+                      >
+                        <Search className="h-4 w-4" />
+                        Search Advisors
+                      </Button>
                     </div>
                   </div>
                 </ScrollArea>
               </div>
 
-              <div className="p-4 border-t space-y-2">
-                <Button 
-                  variant="ghost" 
-                  className="w-full justify-start gap-2" 
-                  onClick={() => {
-                    onShowAgents();
-                    setIsMobileOpen(false);
-                  }}
-                >
-                  <Bot className="h-4 w-4" />
-                  All Advisors
-                </Button>
-                
+              <div className="p-4 border-t">
                 <UserSettingsDropdown onShowSettings={onShowSettings} />
               </div>
             </div>
@@ -181,16 +173,6 @@ const UserSidebar: React.FC<UserSidebarProps> = ({
                 {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
               </Button>
             </div>
-            
-            {!collapsed && (
-              <Button 
-                onClick={onShowAgentCreate}
-                className="w-full mt-3 gap-2"
-              >
-                <Search className="h-4 w-4" />
-                Search Advisors
-              </Button>
-            )}
           </div>
 
           {/* Agent List */}
@@ -255,28 +237,34 @@ const UserSidebar: React.FC<UserSidebarProps> = ({
                     )
                   )}
                 </div>
+
+                {/* Search Advisors Button - Desktop */}
+                {!collapsed && (
+                  <Button 
+                    onClick={() => setIsSearchModalOpen(true)}
+                    variant="outline"
+                    className="w-full justify-start gap-2 mt-4"
+                  >
+                    <Search className="h-4 w-4" />
+                    Search Advisors
+                  </Button>
+                )}
               </div>
             </ScrollArea>
           </div>
 
           {/* Footer */}
-          <div className="p-2 border-t space-y-1">
-            <Button 
-              variant="ghost" 
-              className={cn(
-                "w-full h-auto p-2",
-                collapsed ? "justify-center" : "justify-start gap-2"
-              )}
-              onClick={onShowAgents}
-            >
-              <Bot className="h-4 w-4 flex-shrink-0" />
-              {!collapsed && "All Advisors"}
-            </Button>
-            
+          <div className="p-2 border-t">
             <UserSettingsDropdown onShowSettings={onShowSettings} collapsed={collapsed} />
           </div>
         </div>
       )}
+
+      {/* Advisor Search Modal */}
+      <AdvisorSearchModal 
+        open={isSearchModalOpen} 
+        onOpenChange={setIsSearchModalOpen}
+      />
     </>
   );
 };

@@ -5,27 +5,15 @@ import { useAgents } from "@/hooks/useAgents";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { 
-  DropdownMenu, 
-  DropdownMenuContent, 
-  DropdownMenuItem, 
-  DropdownMenuTrigger,
-  DropdownMenuSeparator
-} from "@/components/ui/dropdown-menu";
 import { Skeleton } from "@/components/ui/skeleton";
 import { 
   Search, 
-  MoreVertical, 
   Bot, 
-  Settings,
   Play,
-  Link,
   MessageSquare,
-  Clock,
-  Crown
+  Clock
 } from "lucide-react";
 import { AgentType } from "@/types/agent";
-import { toast } from "@/components/ui/use-toast";
 import { AdvisorSearchModal } from "@/components/AdvisorSearchModal";
 
 const AdvisorsDashboard = () => {
@@ -35,20 +23,6 @@ const AdvisorsDashboard = () => {
 
   const handleStartChat = (agentId: string) => {
     window.open(`/advisors/${agentId}/chat`, '_blank');
-  };
-
-  const handleCopyShareableLink = (agentId: string) => {
-    const shareableLink = `${window.location.origin}/advisors/${agentId}/chat`;
-    navigator.clipboard.writeText(shareableLink).then(() => {
-      toast({
-        title: "Link copied!",
-        description: "Shareable link has been copied to clipboard."
-      });
-    });
-  };
-
-  const handleAgentClick = (agentId: string) => {
-    navigate(`/agents/${agentId}`);
   };
 
   const capitalizeFirst = (text: string) => {
@@ -180,33 +154,6 @@ const AdvisorsDashboard = () => {
                   )}
                 </div>
               </div>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button 
-                    variant="ghost" 
-                    className="h-8 w-8 p-0 text-fgMuted hover:bg-bgMuted opacity-0 group-hover:opacity-100 transition-all rounded-lg"
-                  >
-                    <MoreVertical className="h-4 w-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="bg-card border-border/50 rounded-xl">
-                  <DropdownMenuItem 
-                    onClick={() => handleAgentClick(agent.id)}
-                    className="text-fg hover:bg-bgMuted rounded-lg"
-                  >
-                    <Settings className="mr-2 h-4 w-4" />
-                    Edit Settings
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator className="bg-border/50" />
-                  <DropdownMenuItem 
-                    onClick={() => handleCopyShareableLink(agent.id)}
-                    className="text-fg hover:bg-bgMuted rounded-lg"
-                  >
-                    <Link className="mr-2 h-4 w-4" />
-                    Shareable Link
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
             </CardHeader>
             <CardContent className="space-y-4">
               {agent.description && 
