@@ -32,10 +32,10 @@ const StudentChat = () => {
 
   if (isLoading) {
     return (
-      <div className="flex flex-col h-full">
+      <div className="h-screen flex flex-col">
         {/* Header Skeleton */}
         <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-6 py-4">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between max-w-4xl mx-auto">
             <div className="flex items-center gap-3">
               <Skeleton className="h-8 w-8 rounded-full" />
               <div className="space-y-1">
@@ -60,7 +60,7 @@ const StudentChat = () => {
 
   if (error || !agent) {
     return (
-      <div className="flex items-center justify-center h-full">
+      <div className="h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="w-16 h-16 bg-muted rounded-2xl flex items-center justify-center mb-4">
             <Bot className="h-8 w-8 text-muted-foreground" />
@@ -75,10 +75,10 @@ const StudentChat = () => {
   }
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="h-screen flex flex-col">
       {/* Header - ChatGPT style */}
       <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-6 py-4">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between max-w-4xl mx-auto">
           <div className="flex items-center gap-3">
             <Avatar className="h-8 w-8">
               <AvatarImage src={agent.avatar} alt={agent.name} />
@@ -119,8 +119,8 @@ const StudentChat = () => {
               </p>
             </div>
           ) : (
-            <div className="px-6 py-8">
-              <div className="space-y-8 max-w-4xl mx-auto">
+            <div className="max-w-4xl mx-auto px-6 py-8">
+              <div className="space-y-8">
                 {allMessages.map((message) => (
                   <div key={message.id} className="flex gap-4">
                     {message.role === 'system' && (

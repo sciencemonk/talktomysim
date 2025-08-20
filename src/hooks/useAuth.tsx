@@ -23,8 +23,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    console.log("AuthProvider useEffect started");
-    
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
@@ -36,26 +34,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     );
 
     // THEN check for existing session
-    supabase.auth.getSession().then(({ data: { session }, error }) => {
-      console.log('Initial session check:', session?.user?.email || 'No user', error ? `Error: ${error.message}` : 'No error');
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      console.log('Initial session check:', session?.user?.email || 'No user');
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
-    }).catch((error) => {
-      console.error('Error getting session:', error);
-      setLoading(false);
     });
 
-    // Fallback to ensure loading doesn't persist indefinitely
-    const fallbackTimeout = setTimeout(() => {
-      console.log("Auth fallback timeout - forcing loading to false");
-      setLoading(false);
-    }, 3000);
-
-    return () => {
-      subscription.unsubscribe();
-      clearTimeout(fallbackTimeout);
-    };
+    return () => subscription.unsubscribe();
   }, []);
 
   const signOut = async () => {
@@ -68,8 +54,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       console.error('Error signing out:', error);
     }
   };
-
-  console.log("AuthProvider render - loading:", loading, "user:", user?.email || 'none');
 
   return (
     <AuthContext.Provider value={{ user, session, loading, signOut }}>
