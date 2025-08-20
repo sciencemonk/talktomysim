@@ -8,13 +8,14 @@ import { useAuth } from '@/hooks/useAuth';
 
 const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
+  const [isTestLoading, setIsTestLoading] = useState(false);
   const { user } = useAuth();
   const navigate = useNavigate();
 
   // Redirect if already logged in
   useEffect(() => {
     if (user) {
-      navigate('/dashboard');
+      navigate('/app');
     }
   }, [user, navigate]);
 
@@ -24,7 +25,7 @@ const Login = () => {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/dashboard`
+          redirectTo: `${window.location.origin}/app`
         }
       });
       
@@ -35,6 +36,45 @@ const Login = () => {
       console.error('Error signing in with Google:', error);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleTestSignIn = async () => {
+    setIsTestLoading(true);
+    try {
+      // Generate a unique test email
+      const testEmail = `test_${Date.now()}@example.com`;
+      const testPassword = 'testpassword123';
+      
+      console.log('Creating test account:', testEmail);
+      
+      // Try to sign up the test user
+      const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+        email: testEmail,
+        password: testPassword,
+        options: {
+          emailRedirectTo: `${window.location.origin}/app`,
+          data: {
+            full_name: 'Test User'
+          }
+        }
+      });
+
+      if (signUpError) {
+        console.error('Error creating test account:', signUpError);
+        return;
+      }
+
+      console.log('Test account created successfully:', signUpData);
+      
+      // If signup was successful, navigate to app
+      if (signUpData.user) {
+        navigate('/app');
+      }
+    } catch (error) {
+      console.error('Error with test sign in:', error);
+    } finally {
+      setIsTestLoading(false);
     }
   };
 
@@ -51,7 +91,7 @@ const Login = () => {
             Sign in to create and manage your AI tutors
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-3">
           <Button
             onClick={handleGoogleSignIn}
             disabled={isLoading}
@@ -59,6 +99,16 @@ const Login = () => {
             size="lg"
           >
             {isLoading ? 'Signing in...' : 'Continue with Google'}
+          </Button>
+          
+          <Button
+            onClick={handleTestSignIn}
+            disabled={isTestLoading}
+            variant="outline"
+            className="w-full"
+            size="lg"
+          >
+            {isTestLoading ? 'Creating test account...' : 'Test Sign In (Preview Only)'}
           </Button>
         </CardContent>
       </Card>
