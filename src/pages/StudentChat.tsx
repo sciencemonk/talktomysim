@@ -5,7 +5,7 @@ import { useRealtimeChat } from "@/hooks/useRealtimeChat";
 import { ChatInterface } from "@/components/ChatInterface";
 import { TextInput } from "@/components/TextInput";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Bot, ArrowLeft } from "lucide-react";
+import { Bot, ArrowLeft, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -17,6 +17,11 @@ const ChildChat = () => {
   const handleBack = () => {
     // Navigate to dashboard instead of tutor detail page
     window.location.href = `/dashboard`;
+  };
+
+  const handleEdit = () => {
+    // Navigate to agent detail page for editing
+    window.location.href = `/agents/${agentId}`;
   };
 
   // Combine messages with current partial message if speaking
@@ -84,7 +89,7 @@ const ChildChat = () => {
 
   return (
     <div className="h-screen flex flex-col bg-gradient-to-br from-bg via-bgMuted to-bg">
-      {/* Simplified Header - removed duplicate avatar */}
+      {/* Header with back button and edit button */}
       <div className="border-b bg-bg/80 backdrop-blur-xl p-4 shadow-sm border-border/20">
         <div className="flex items-center justify-between max-w-4xl mx-auto">
           <div className="flex items-center gap-3">
@@ -104,6 +109,12 @@ const ChildChat = () => {
               <p className="text-sm text-fgMuted">{agent.type} • {agent.subject || 'General'}</p>
             </div>
           </div>
+          
+          {/* Edit Button */}
+          <Button variant="outline" onClick={handleEdit} className="gap-2">
+            <Settings className="h-4 w-4" />
+            Edit
+          </Button>
         </div>
       </div>
 

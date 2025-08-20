@@ -84,10 +84,10 @@ const UserSidebar = ({ onShowBilling }: UserSidebarProps) => {
                 agents.map((agent) => (
                   <Link
                     key={agent.id}
-                    to={`/agents/${agent.id}`}
+                    to={`/tutors/${agent.id}/chat`}
                     className={cn(
                       "flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors",
-                      isActive(`/agents/${agent.id}`)
+                      isActive(`/tutors/${agent.id}/chat`)
                         ? "bg-primary/10 text-primary font-medium"
                         : "text-muted-foreground hover:bg-muted hover:text-foreground"
                     )}
