@@ -6,6 +6,7 @@ import ChatInterface from "@/components/ChatInterface";
 import ChildProfile from "@/pages/ChildProfile";
 import Settings from "@/pages/Settings";
 import AgentCreate from "@/pages/AgentCreate";
+import AdvisorDirectory from "@/components/AdvisorDirectory";
 import { AgentType } from "@/types/agent";
 import { useAgents } from "@/hooks/useAgents";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -15,7 +16,7 @@ const Home = () => {
   const { agents } = useAgents();
   const isMobile = useIsMobile();
   const [selectedAgent, setSelectedAgent] = useState<AgentType | null>(null);
-  const [currentView, setCurrentView] = useState<'chat' | 'child-profile' | 'settings' | 'agents' | 'agent-create'>('chat');
+  const [currentView, setCurrentView] = useState<'chat' | 'child-profile' | 'settings' | 'agents' | 'agent-create' | 'advisor-directory'>('chat');
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   const handleSelectAgent = useCallback((agent: AgentType) => {
@@ -33,9 +34,15 @@ const Home = () => {
   const handleShowSettings = () => setCurrentView('settings');
   const handleShowAgents = () => setCurrentView('agents');
   const handleShowAgentCreate = () => setCurrentView('agent-create');
+  const handleShowAdvisorDirectory = () => setCurrentView('advisor-directory');
 
-  // Set first agent as selected if none selected
-  if (!selectedAgent && agents.length > 0) {
+  const handleSelectAdvisor = (advisorId: string) => {
+    // Navigate to the public tutor chat page
+    window.location.href = `/tutor/${advisorId}`;
+  };
+
+  // Set first agent as selected if none selected and we're in chat view
+  if (!selectedAgent && agents.length > 0 && currentView === 'chat') {
     setSelectedAgent(agents[0]);
   }
 
@@ -55,6 +62,8 @@ const Home = () => {
             }}
           />
         );
+      case 'advisor-directory':
+        return <AdvisorDirectory onSelectAdvisor={handleSelectAdvisor} />;
       case 'chat':
       default:
         if (!selectedAgent) {
@@ -62,7 +71,7 @@ const Home = () => {
             <div className="flex-1 flex items-center justify-center p-4">
               <div className="text-center">
                 <p className="text-xl text-muted-foreground mb-4">No thinking partners yet</p>
-                <p className="text-muted-foreground">Create your first thinking partner to get started!</p>
+                <p className="text-muted-foreground">Browse advisors to start a new chat!</p>
               </div>
             </div>
           );
@@ -87,7 +96,7 @@ const Home = () => {
           onShowSettings={handleShowSettings}
           onShowChildProfile={handleShowChildProfile}
           onShowAgents={handleShowAgents}
-          onShowAgentCreate={handleShowAgentCreate}
+          onShowAdvisorDirectory={handleShowAdvisorDirectory}
           selectedAgent={selectedAgent}
           onSelectAgent={handleSelectAgent}
           refreshTrigger={refreshTrigger}
@@ -100,7 +109,7 @@ const Home = () => {
             onShowSettings={handleShowSettings}
             onShowChildProfile={handleShowChildProfile}
             onShowAgents={handleShowAgents}
-            onShowAgentCreate={handleShowAgentCreate}
+            onShowAdvisorDirectory={handleShowAdvisorDirectory}
             selectedAgent={selectedAgent}
             onSelectAgent={handleSelectAgent}
             refreshTrigger={refreshTrigger}

@@ -36,7 +36,7 @@ interface UserSidebarProps {
   onShowSettings?: () => void;
   onShowChildProfile?: () => void;
   onShowAgents?: () => void;
-  onShowAgentCreate?: () => void;
+  onShowAdvisorDirectory?: () => void;
   selectedAgent?: AgentType | null;
   onSelectAgent?: (agent: AgentType) => void;
   refreshTrigger?: number;
@@ -46,7 +46,7 @@ const SidebarContent = ({
   onShowSettings, 
   onShowChildProfile, 
   onShowAgents,
-  onShowAgentCreate,
+  onShowAdvisorDirectory,
   selectedAgent,
   onSelectAgent,
   refreshTrigger,
@@ -77,8 +77,8 @@ const SidebarContent = ({
     onClose?.(); // Close mobile drawer when agent is selected
   };
 
-  const handleCreateNew = () => {
-    onShowAgentCreate?.();
+  const handleShowAdvisorDirectory = () => {
+    onShowAdvisorDirectory?.();
     onClose?.(); // Close mobile drawer
   };
 
@@ -139,18 +139,8 @@ const SidebarContent = ({
 
       {/* Navigation Items */}
       <div className="flex-1 p-3 space-y-1">
-        {/* Create New Button */}
-        <Button
-          onClick={handleCreateNew}
-          className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors bg-primary text-primary-foreground hover:bg-primary/90 w-full justify-start"
-          size="sm"
-        >
-          <PlusCircle className="h-4 w-4 flex-shrink-0" />
-          {(!isCollapsed || !onToggleCollapse) && <span>New chat</span>}
-        </Button>
-
         {/* Agents List */}
-        <div className="mt-4 space-y-1">
+        <div className="space-y-1">
           {isLoading ? (
             <div className={cn(
               "px-3 py-2 text-xs text-muted-foreground",
@@ -189,6 +179,17 @@ const SidebarContent = ({
             </div>
           )}
         </div>
+
+        {/* New Chat Button - Now below the agents list */}
+        <Button
+          onClick={handleShowAdvisorDirectory}
+          variant="outline"
+          className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors w-full justify-start mt-4"
+          size="sm"
+        >
+          <PlusCircle className="h-4 w-4 flex-shrink-0" />
+          {(!isCollapsed || !onToggleCollapse) && <span>New chat</span>}
+        </Button>
       </div>
 
       <Separator />
