@@ -24,7 +24,8 @@ export const useChatHistory = (agent: AgentType) => {
       console.log('Loading chat history for agent:', agent.name);
 
       try {
-        // Get or create conversation
+        // For public agents, we'll create a conversation using the public agent ID
+        // The conversation service will handle both personal and public agents
         const conversation = await conversationService.getOrCreateConversation(agent.id);
         if (!conversation) {
           console.error('Failed to get or create conversation');
@@ -53,6 +54,9 @@ export const useChatHistory = (agent: AgentType) => {
       setIsLoading(false);
     };
 
+    // Reset messages when switching agents
+    setMessages([]);
+    setConversationId(null);
     loadChatHistory();
   }, [agent?.id]);
 

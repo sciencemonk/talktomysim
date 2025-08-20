@@ -10,17 +10,24 @@ import AdvisorDirectory from "@/components/AdvisorDirectory";
 import { AgentType } from "@/types/agent";
 import { useAgents } from "@/hooks/useAgents";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { usePublicAgent } from "@/hooks/usePublicAgent";
 
 const Home = () => {
   const { user } = useAuth();
   const { agents } = useAgents();
   const isMobile = useIsMobile();
   const [selectedAgent, setSelectedAgent] = useState<AgentType | null>(null);
+  const [selectedPublicAdvisorId, setSelectedPublicAdvisorId] = useState<string | null>(null);
   const [currentView, setCurrentView] = useState<'chat' | 'child-profile' | 'settings' | 'agents' | 'agent-create' | 'advisor-directory'>('chat');
   const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const [publicAdvisors, setPublicAdvisors] = useState<AgentType[]>([]);
+
+  // Load public advisor data when selected
+  const { agent: publicAgent } = usePublicAgent(selectedPublicAdvisorId);
 
   const handleSelectAgent = useCallback((agent: AgentType) => {
     setSelectedAgent(agent);
+    setSelectedPublicAdvisorId(null); // Clear public advisor when selecting personal agent
     setCurrentView('chat');
   }, []);
 
@@ -36,15 +43,20 @@ const Home = () => {
   const handleShowAgentCreate = () => setCurrentView('agent-create');
   const handleShowAdvisorDirectory = () => setCurrentView('advisor-directory');
 
-  const handleSelectAdvisor = (advisorId: string) => {
-    // Navigate to the public tutor chat page
-    window.location.href = `/tutor/${advisorId}`;
-  };
+  const handleSelectAdvisor = useCallback((advisorId: string) => {
+    console.log('Selecting advisor:', advisorId);
+    setSelectedPublicAdvisorId(advisorId);
+    setSelectedAgent(null); // Clear personal agent when selecting public advisor
+    setCurrentView('chat');
+  }, []);
 
   // Set first agent as selected if none selected and we're in chat view
-  if (!selectedAgent && agents.length > 0 && currentView === 'chat') {
+  if (!selectedAgent && !selectedPublicAdvisorId && agents.length > 0 && currentView === 'chat') {
     setSelectedAgent(agents[0]);
   }
+
+  // Determine which agent to show in chat
+  const activeAgent = selectedAgent || publicAgent;
 
   const renderMainContent = () => {
     switch (currentView) {
@@ -57,6 +69,7 @@ const Home = () => {
           <AgentCreate 
             onAgentCreated={(agent) => {
               setSelectedAgent(agent);
+              setSelectedPublicAdvisorId(null);
               setCurrentView('chat');
               setRefreshTrigger(prev => prev + 1);
             }}
@@ -66,7 +79,7 @@ const Home = () => {
         return <AdvisorDirectory onSelectAdvisor={handleSelectAdvisor} />;
       case 'chat':
       default:
-        if (!selectedAgent) {
+        if (!activeAgent) {
           return (
             <div className="flex-1 flex items-center justify-center p-4">
               <div className="text-center">
@@ -78,7 +91,7 @@ const Home = () => {
         }
         return (
           <ChatInterface 
-            agent={selectedAgent} 
+            agent={activeAgent} 
             onAgentUpdate={handleAgentUpdate}
           />
         );
@@ -98,7 +111,9 @@ const Home = () => {
           onShowAgents={handleShowAgents}
           onShowAdvisorDirectory={handleShowAdvisorDirectory}
           selectedAgent={selectedAgent}
+          selectedPublicAdvisorId={selectedPublicAdvisorId}
           onSelectAgent={handleSelectAgent}
+          onSelectPublicAdvisor={handleSelectAdvisor}
           refreshTrigger={refreshTrigger}
         />
       )}
@@ -111,7 +126,9 @@ const Home = () => {
             onShowAgents={handleShowAgents}
             onShowAdvisorDirectory={handleShowAdvisorDirectory}
             selectedAgent={selectedAgent}
+            selectedPublicAdvisorId={selectedPublicAdvisorId}
             onSelectAgent={handleSelectAgent}
+            onSelectPublicAdvisor={handleSelectAdvisor}
             refreshTrigger={refreshTrigger}
           />
         )}

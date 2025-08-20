@@ -8,10 +8,12 @@ import {
   User,
   ChevronLeft,
   ChevronRight,
-  Menu
+  Menu,
+  Star
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useAgents } from "@/hooks/useAgents";
+import { usePublicAgents } from "@/hooks/usePublicAgents";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -38,7 +40,9 @@ interface UserSidebarProps {
   onShowAgents?: () => void;
   onShowAdvisorDirectory?: () => void;
   selectedAgent?: AgentType | null;
+  selectedPublicAdvisorId?: string | null;
   onSelectAgent?: (agent: AgentType) => void;
+  onSelectPublicAdvisor?: (advisorId: string) => void;
   refreshTrigger?: number;
 }
 
@@ -48,7 +52,9 @@ const SidebarContent = ({
   onShowAgents,
   onShowAdvisorDirectory,
   selectedAgent,
+  selectedPublicAdvisorId,
   onSelectAgent,
+  onSelectPublicAdvisor,
   refreshTrigger,
   isCollapsed,
   onToggleCollapse,
@@ -60,6 +66,7 @@ const SidebarContent = ({
 }) => {
   const { user, signOut } = useAuth();
   const { agents, isLoading } = useAgents();
+  const { agents: publicAgents } = usePublicAgents();
 
   useEffect(() => {
     if (refreshTrigger) {
@@ -77,10 +84,19 @@ const SidebarContent = ({
     onClose?.(); // Close mobile drawer when agent is selected
   };
 
+  const handlePublicAdvisorSelect = (advisorId: string) => {
+    console.log('Public advisor selected:', advisorId);
+    onSelectPublicAdvisor?.(advisorId);
+    onClose?.(); // Close mobile drawer when advisor is selected
+  };
+
   const handleShowAdvisorDirectory = () => {
     onShowAdvisorDirectory?.();
     onClose?.(); // Close mobile drawer
   };
+
+  // Find the selected public advisor details
+  const selectedPublicAdvisor = publicAgents?.find(advisor => advisor.id === selectedPublicAdvisorId);
 
   return (
     <>
@@ -139,8 +155,13 @@ const SidebarContent = ({
 
       {/* Navigation Items */}
       <div className="flex-1 p-3 space-y-1">
-        {/* Agents List */}
+        {/* Personal Agents List */}
         <div className="space-y-1">
+          {(!isCollapsed || !onToggleCollapse) && (
+            <div className="px-3 py-2 text-xs font-medium text-muted-foreground uppercase tracking-wider">
+              Your Agents
+            </div>
+          )}
           {isLoading ? (
             <div className={cn(
               "px-3 py-2 text-xs text-muted-foreground",
@@ -180,7 +201,36 @@ const SidebarContent = ({
           )}
         </div>
 
-        {/* New Advisor Button - Now below the agents list */}
+        {/* Public Advisors Section */}
+        {selectedPublicAdvisor && (
+          <div className="space-y-1 mt-4">
+            {(!isCollapsed || !onToggleCollapse) && (
+              <div className="px-3 py-2 text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                Advisors
+              </div>
+            )}
+            <Button
+              onClick={() => handlePublicAdvisorSelect(selectedPublicAdvisor.id)}
+              variant="ghost"
+              className={cn(
+                "flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors w-full justify-start h-auto min-h-[40px]",
+                selectedPublicAdvisorId === selectedPublicAdvisor.id
+                  ? "bg-primary/10 text-primary font-medium hover:bg-primary/15"
+                  : "text-muted-foreground hover:bg-muted hover:text-foreground"
+              )}
+            >
+              <Avatar className="h-6 w-6 flex-shrink-0">
+                <AvatarImage src={selectedPublicAdvisor.avatar} alt={selectedPublicAdvisor.name} />
+                <AvatarFallback className="bg-primary/10 text-primary text-xs">
+                  <Star className="h-3 w-3" />
+                </AvatarFallback>
+              </Avatar>
+              {(!isCollapsed || !onToggleCollapse) && <span className="truncate text-left">{selectedPublicAdvisor.name}</span>}
+            </Button>
+          </div>
+        )}
+
+        {/* New Advisor Button */}
         <Button
           onClick={handleShowAdvisorDirectory}
           variant="outline"
