@@ -1,3 +1,4 @@
+
 import { useState, useRef, useEffect } from "react";
 import { useSimpleMessageAccumulator } from "@/hooks/useSimpleMessageAccumulator";
 import { TextInput } from "@/components/TextInput";
@@ -39,6 +40,15 @@ const ChatInterface = ({ agent, onShowAgentDetails }: ChatInterfaceProps) => {
     onAiTextDelta: messageAccumulator.addAiTextDelta,
     onAiMessageComplete: messageAccumulator.completeAiMessage
   });
+
+  // Reset conversation when agent changes
+  useEffect(() => {
+    if (agent.id !== currentAgent.id) {
+      console.log('Agent changed from', currentAgent.name, 'to', agent.name);
+      setCurrentAgent(agent);
+      messageAccumulator.clearMessages();
+    }
+  }, [agent.id, currentAgent.id, agent.name, currentAgent.name, messageAccumulator]);
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {

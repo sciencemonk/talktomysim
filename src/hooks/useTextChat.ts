@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback } from 'react';
 import { AgentType } from '@/types/agent';
 import { supabase } from '@/integrations/supabase/client';
@@ -21,6 +20,18 @@ export const useTextChat = ({
   const [connectionStatus, setConnectionStatus] = useState<string>('disconnected');
   const [conversationHistory, setConversationHistory] = useState<Array<{role: string, content: string}>>([]);
   const [hasWelcomeMessage, setHasWelcomeMessage] = useState(false);
+  const [currentAgentId, setCurrentAgentId] = useState(agent.id);
+
+  // Reset when agent changes
+  useEffect(() => {
+    if (agent.id !== currentAgentId) {
+      console.log('Resetting chat for new agent:', agent.name);
+      setCurrentAgentId(agent.id);
+      setConversationHistory([]);
+      setHasWelcomeMessage(false);
+      setConnectionStatus('disconnected');
+    }
+  }, [agent.id, currentAgentId, agent.name]);
 
   const createSystemInstructions = useCallback(() => {
     const getAgeAppropriateLanguage = () => {
@@ -136,7 +147,7 @@ The student should be talking at least 50% of the time about ${learningObjective
   const sendWelcomeMessage = useCallback(async () => {
     if (hasWelcomeMessage) return;
     
-    console.log('Sending welcome message');
+    console.log('Sending welcome message for', agent.name);
     setConnectionStatus('connecting');
     onAiMessageStart();
     
