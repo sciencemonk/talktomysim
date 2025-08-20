@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useAgents } from "@/hooks/useAgents";
@@ -5,7 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Bot, ChevronLeft, ChevronRight, Menu, Plus, Settings, User, X } from "lucide-react";
+import { Bot, ChevronLeft, ChevronRight, Menu, Plus, Search, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 import {
@@ -62,11 +63,11 @@ const UserSidebar: React.FC<UserSidebarProps> = ({
             </DrawerTrigger>
           </div>
           
-          <DrawerContent side="left" className="h-full w-80 fixed inset-y-0 left-0">
+          <DrawerContent className="h-full w-80 fixed inset-y-0 left-0">
             <div className="flex flex-col h-full">
               <div className="p-4 border-b">
                 <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-lg font-semibold">Menu</h2>
+                  <h2 className="text-lg font-semibold">Advisors</h2>
                   <DrawerClose asChild>
                     <Button variant="ghost" size="icon">
                       <X className="h-4 w-4" />
@@ -81,8 +82,8 @@ const UserSidebar: React.FC<UserSidebarProps> = ({
                   }}
                   className="w-full justify-start gap-2"
                 >
-                  <Plus className="h-4 w-4" />
-                  New Advisor
+                  <Search className="h-4 w-4" />
+                  Search Advisors
                 </Button>
               </div>
 
@@ -186,8 +187,8 @@ const UserSidebar: React.FC<UserSidebarProps> = ({
                 onClick={onShowAgentCreate}
                 className="w-full mt-3 gap-2"
               >
-                <Plus className="h-4 w-4" />
-                New Advisor
+                <Search className="h-4 w-4" />
+                Search Advisors
               </Button>
             )}
           </div>
