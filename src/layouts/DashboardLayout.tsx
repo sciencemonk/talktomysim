@@ -4,7 +4,6 @@ import { Outlet } from "react-router-dom";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import UserSettingsDropdown from "@/components/UserSettingsDropdown";
 import UsageBilling from "@/components/UsageBilling";
-import { Brain } from "lucide-react";
 
 const DashboardLayout = () => {
   const [showBilling, setShowBilling] = useState(false);
@@ -22,11 +21,12 @@ const DashboardLayout = () => {
   return (
     <div className="min-h-screen bg-background">
       <header className="flex h-16 shrink-0 items-center justify-between border-b px-4">
-        <div className="flex items-center gap-2">
-          <div className="p-4 rounded-3xl bg-gradient-to-br from-blue-500 to-purple-600 shadow-2xl">
-            <Brain className="h-6 w-6 text-white" />
-          </div>
-          <h1 className="text-xl font-semibold">Think With Me</h1>
+        <div className="flex items-center">
+          <img 
+            src="/lovable-uploads/55ccce33-98a1-45d2-9e9e-7b446a02a417.png" 
+            alt="Think With Me" 
+            className="h-8 w-8"
+          />
         </div>
         
         <div className="flex items-center gap-4">

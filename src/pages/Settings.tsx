@@ -1,20 +1,16 @@
+
 import { useState } from "react";
-import { User, Bell, Shield, Palette, Globe, Save, ArrowLeft } from "lucide-react";
-import { Link } from "react-router-dom";
-import { Button } from "@/components/ui/button";
+import { User, Bell, Shield, Palette, Globe } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
 import { useTheme } from "@/hooks/useTheme";
-import { useToast } from "@/hooks/use-toast";
 
 const Settings = () => {
   const { theme, setTheme } = useTheme();
-  const { toast } = useToast();
   const [settings, setSettings] = useState({
     name: "Teacher Smith",
     email: "teacher@school.edu",
@@ -36,13 +32,6 @@ const Settings = () => {
     }
   });
 
-  const handleSave = () => {
-    toast({
-      title: "Settings saved",
-      description: "Your preferences have been updated successfully.",
-    });
-  };
-
   const updateSetting = (path: string, value: any) => {
     setSettings(prev => {
       const keys = path.split('.');
@@ -61,23 +50,6 @@ const Settings = () => {
 
   return (
     <div className="container mx-auto p-6 space-y-8 max-w-4xl">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Settings</h1>
-          <p className="text-muted-foreground">Manage your account and preferences</p>
-          <Link to="/agents" className="mt-4 inline-block">
-            <Button variant="ghost" size="sm" className="gap-2">
-              <ArrowLeft className="h-4 w-4" />
-              Back to Dashboard
-            </Button>
-          </Link>
-        </div>
-        <Button onClick={handleSave} className="gap-2">
-          <Save className="h-4 w-4" />
-          Save Changes
-        </Button>
-      </div>
-
       {/* Profile Settings */}
       <Card>
         <CardHeader>

@@ -1,6 +1,8 @@
 
 import { useState, useEffect } from "react";
-import { User, Baby, MapPin, Heart, Calendar, Smile, Target } from "lucide-react";
+import { User, Baby, MapPin, Heart, Calendar, Smile, Target, ArrowLeft } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -49,6 +51,15 @@ const ChildProfile = () => {
 
   return (
     <div className="container mx-auto p-6 space-y-8 max-w-4xl">
+      <div className="flex items-center justify-between">
+        <Link to="/agents">
+          <Button variant="ghost" size="sm" className="gap-2">
+            <ArrowLeft className="h-4 w-4" />
+            Back to Dashboard
+          </Button>
+        </Link>
+      </div>
+
       {/* Basic Information */}
       <Card>
         <CardHeader>
