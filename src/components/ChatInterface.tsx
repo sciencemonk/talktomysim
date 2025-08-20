@@ -1,208 +1,134 @@
 
-import React from 'react';
+import { useRealtimeChat } from "@/hooks/useRealtimeChat";
+import { TextInput } from "@/components/TextInput";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Bot, User, Mic, MicOff } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { AgentType } from '@/types/agent';
-import { AudioIndicator } from './AudioIndicator';
-
-interface Message {
-  id: string;
-  role: 'user' | 'system';
-  content: string;
-  timestamp: Date;
-  isComplete: boolean;
-}
+import { Bot, Settings } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { AgentType } from "@/types/agent";
 
 interface ChatInterfaceProps {
   agent: AgentType;
-  messages: Message[];
-  isConnected: boolean;
-  isSpeaking: boolean;
-  connectionStatus: string;
-  hideHeader?: boolean;
+  onShowAgentDetails?: () => void;
 }
 
-export const ChatInterface: React.FC<ChatInterfaceProps> = ({
-  agent,
-  messages,
-  isConnected,
-  isSpeaking,
-  connectionStatus,
-  hideHeader = false
-}) => {
-  const messagesEndRef = React.useRef<HTMLDivElement>(null);
+const ChatInterface = ({ agent, onShowAgentDetails }: ChatInterfaceProps) => {
+  const realtimeChat = useRealtimeChat({ agent });
 
-  React.useEffect(() => {
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
-    }
-  }, [messages]);
-
-  const getConnectionStatusText = () => {
-    switch (connectionStatus) {
-      case 'connecting':
-        return 'Getting ready to chat...';
-      case 'connected':
-        return isSpeaking ? `${agent.name} is speaking...` : `${agent.name} is listening...`;
-      case 'error':
-        return 'Connection error - please refresh';
-      default:
-        return 'Getting ready...';
-    }
-  };
-
-  const getConnectionStatusColor = () => {
-    switch (connectionStatus) {
-      case 'connecting':
-        return 'text-yellow-600';
-      case 'connected':
-        return isSpeaking ? 'text-green-600' : 'text-brandBlue';
-      case 'error':
-        return 'text-red-600';
-      default:
-        return 'text-fgMuted';
-    }
-  };
+  // Combine messages with current partial message if speaking
+  const allMessages = [...realtimeChat.messages];
+  if (realtimeChat.currentMessage && realtimeChat.isSpeaking) {
+    allMessages.push({
+      id: 'current',
+      role: 'system' as const,
+      content: realtimeChat.currentMessage,
+      timestamp: new Date(),
+      isComplete: false
+    });
+  }
 
   return (
     <div className="flex flex-col h-full">
-      {/* Header with connection status - only show if not hidden */}
-      {!hideHeader && (
-        <div className="flex-shrink-0 bg-bg/80 backdrop-blur-xl border-b border-border/20 p-6">
-          <div className="flex items-center justify-between max-w-4xl mx-auto">
-            <div className="flex items-center gap-4">
-              <div className="relative">
-                <Avatar className="h-16 w-16 ring-4 ring-brandBlue/20">
-                  <AvatarImage src={agent.avatar} alt={agent.name} />
-                  <AvatarFallback className="bg-gradient-to-br from-brandBlue to-brandPurple text-white">
-                    <Bot className="h-8 w-8" />
-                  </AvatarFallback>
-                </Avatar>
-                {isConnected && (
-                  <div className={cn(
-                    "absolute -bottom-1 -right-1 h-6 w-6 rounded-full border-2 border-bg transition-colors",
-                    isSpeaking ? "bg-green-500 animate-pulse" : "bg-brandBlue"
-                  )} />
-                )}
-              </div>
-              <div>
-                <h1 className="font-semibold text-fg text-xl">
-                  {agent.name}
-                </h1>
-                <div className="flex items-center gap-3 mt-1">
-                  <div className={cn(
-                    "h-2 w-2 rounded-full transition-colors",
-                    isConnected 
-                      ? (isSpeaking ? "bg-green-500 animate-pulse" : "bg-brandBlue") 
-                      : "bg-gray-400"
-                  )} />
-                  <p className={cn("text-sm transition-colors font-medium", getConnectionStatusColor())}>
-                    {getConnectionStatusText()}
-                  </p>
-                </div>
-              </div>
+      {/* Header - ChatGPT style */}
+      <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-6 py-4 flex-shrink-0">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Avatar className="h-8 w-8">
+              <AvatarImage src={agent.avatar} alt={agent.name} />
+              <AvatarFallback className="bg-primary text-primary-foreground text-xs">
+                <Bot className="h-4 w-4" />
+              </AvatarFallback>
+            </Avatar>
+            <div>
+              <h1 className="font-semibold text-base">{agent.name}</h1>
+              <p className="text-xs text-muted-foreground">{agent.type} • {agent.subject || 'General'}</p>
             </div>
-            
-            {/* Audio Indicator */}
-            {isConnected && isSpeaking && (
-              <AudioIndicator isActive={isSpeaking} />
-            )}
-            
-            {/* Status Indicator */}
-            {isConnected && (
-              <div className="flex items-center gap-3 px-4 py-2 bg-bgMuted/50 backdrop-blur-sm rounded-full border border-border/50">
-                {isSpeaking ? (
-                  <MicOff className="h-5 w-5 text-red-500" />
-                ) : (
-                  <Mic className="h-5 w-5 text-green-500" />
-                )}
-                <span className="text-sm font-medium text-fg">
-                  {isSpeaking ? 'AI Speaking' : 'You can speak or type'}
-                </span>
-              </div>
-            )}
           </div>
+          
+          {onShowAgentDetails && (
+            <Button variant="ghost" size="sm" onClick={onShowAgentDetails} className="gap-1.5 text-xs">
+              <Settings className="h-3 w-3" />
+              Edit
+            </Button>
+          )}
         </div>
-      )}
+      </div>
 
-      {/* Messages */}
-      <ScrollArea className="flex-1 p-6">
-        <div className="space-y-6 max-w-4xl mx-auto">
-          {messages.length === 0 && connectionStatus !== 'connected' ? (
-            <div className="flex flex-col items-center justify-center h-96 text-center">
-              <div className="w-24 h-24 bg-gradient-to-br from-brandBlue/20 to-brandPurple/20 rounded-3xl flex items-center justify-center mb-6">
-                <Bot className="h-12 w-12 text-brandBlue" />
+      {/* Chat Content Area */}
+      <div className="flex-1 flex flex-col overflow-hidden">
+        {/* Messages Container */}
+        <div className="flex-1 overflow-y-auto">
+          {allMessages.length === 0 ? (
+            <div className="h-full flex flex-col items-center justify-center px-6">
+              <div className="w-12 h-12 bg-muted rounded-xl flex items-center justify-center mb-4">
+                <Bot className="h-6 w-6 text-muted-foreground" />
               </div>
-              <h2 className="text-2xl font-semibold text-fg mb-3">
-                Ready to chat with {agent.name}
-              </h2>
-              <p className="text-fgMuted">
-                {connectionStatus === 'connecting' 
-                  ? 'Your conversation will begin shortly' 
-                  : connectionStatus === 'error'
-                  ? 'Please refresh the page to try again'
-                  : 'Start by saying hello or typing a message'
+              <h2 className="text-xl font-semibold mb-2">How can I help you today?</h2>
+              <p className="text-sm text-muted-foreground text-center max-w-md">
+                {realtimeChat.connectionStatus === 'connecting' 
+                  ? 'Getting ready to chat...' 
+                  : realtimeChat.connectionStatus === 'error'
+                  ? 'Connection error - please refresh'
+                  : `I'm ${agent.name}, ready to help you learn and explore ideas together.`
                 }
               </p>
             </div>
           ) : (
-            <>
-              {messages.map((message) => (
-                <div 
-                  key={message.id} 
-                  className={cn(
-                    "flex gap-4 animate-fade-in",
-                    message.role === "user" ? "justify-end" : "justify-start"
-                  )}
-                >
-                  {message.role === "system" && (
-                    <Avatar className="h-12 w-12 flex-shrink-0 mt-2">
-                      <AvatarImage src={agent.avatar} alt={agent.name} />
-                      <AvatarFallback className="bg-gradient-to-br from-brandBlue to-brandPurple text-white">
-                        <Bot className="h-6 w-6" />
-                      </AvatarFallback>
-                    </Avatar>
-                  )}
-                  
-                  <div 
-                    className={cn(
-                      "rounded-2xl py-4 px-6 shadow-sm max-w-[80%] backdrop-blur-sm",
-                      message.role === "system" 
-                        ? "bg-bg/80 text-fg border border-border/50" 
-                        : "bg-gradient-to-r from-brandBlue to-brandPurple text-white",
-                      !message.isComplete && message.role === "system" && "bg-bgMuted/60"
+            <div className="max-w-4xl mx-auto px-6 py-8 w-full">
+              <div className="space-y-8">
+                {allMessages.map((message) => (
+                  <div key={message.id} className="flex gap-4">
+                    {message.role === 'system' && (
+                      <Avatar className="h-8 w-8 flex-shrink-0">
+                        <AvatarImage src={agent.avatar} alt={agent.name} />
+                        <AvatarFallback className="bg-primary text-primary-foreground text-xs">
+                          <Bot className="h-4 w-4" />
+                        </AvatarFallback>
+                      </Avatar>
                     )}
-                  >
-                    <p className="text-lg leading-relaxed whitespace-pre-wrap break-words">
-                      {message.content}
-                    </p>
                     
-                    {!message.isComplete && message.role === "system" && (
-                      <div className="flex items-center gap-2 mt-3">
-                        <div className="h-2 w-2 bg-brandBlue rounded-full animate-bounce" />
-                        <div className="h-2 w-2 bg-brandPurple rounded-full animate-bounce" style={{ animationDelay: '0.2s' }} />
-                        <div className="h-2 w-2 bg-green-500 rounded-full animate-bounce" style={{ animationDelay: '0.4s' }} />
+                    {message.role === 'user' && (
+                      <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
+                        <span className="text-xs font-medium">You</span>
                       </div>
                     )}
+                    
+                    <div className="flex-1 min-w-0">
+                      <div className="prose prose-sm max-w-none">
+                        <p className="text-sm leading-relaxed whitespace-pre-wrap break-words mb-0">
+                          {message.content}
+                        </p>
+                      </div>
+                      
+                      {!message.isComplete && message.role === 'system' && (
+                        <div className="flex items-center gap-1 mt-2">
+                          <div className="w-1 h-1 bg-muted-foreground rounded-full animate-pulse" />
+                          <div className="w-1 h-1 bg-muted-foreground rounded-full animate-pulse" style={{ animationDelay: '0.2s' }} />
+                          <div className="w-1 h-1 bg-muted-foreground rounded-full animate-pulse" style={{ animationDelay: '0.4s' }} />
+                        </div>
+                      )}
+                    </div>
                   </div>
-                  
-                  {message.role === "user" && (
-                    <Avatar className="h-12 w-12 flex-shrink-0 mt-2">
-                      <AvatarFallback className="bg-gradient-to-r from-brandBlue to-brandPurple text-white">
-                        <User className="h-6 w-6" />
-                      </AvatarFallback>
-                    </Avatar>
-                  )}
-                </div>
-              ))}
-              
-              <div ref={messagesEndRef} />
-            </>
+                ))}
+              </div>
+            </div>
           )}
         </div>
-      </ScrollArea>
+        
+        {/* Input Area */}
+        <div className="border-t bg-background flex-shrink-0">
+          <TextInput
+            onSendMessage={realtimeChat.sendTextMessage}
+            disabled={!realtimeChat.isConnected}
+            placeholder={
+              !realtimeChat.isConnected 
+                ? "Connecting..." 
+                : `Message ${agent.name}...`
+            }
+          />
+        </div>
+      </div>
     </div>
   );
 };
+
+export default ChatInterface;

@@ -1,5 +1,5 @@
 
-import { Link, useLocation } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { 
   Home, 
   User, 
@@ -26,6 +26,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { AgentType } from "@/types/agent";
 
 interface UserSidebarProps {
   onShowBilling?: () => void;
@@ -33,6 +34,8 @@ interface UserSidebarProps {
   onShowChildProfile?: () => void;
   onShowAgents?: () => void;
   onShowAgentCreate?: () => void;
+  selectedAgent?: AgentType | null;
+  onSelectAgent?: (agent: AgentType) => void;
 }
 
 const UserSidebar = ({ 
@@ -40,7 +43,9 @@ const UserSidebar = ({
   onShowSettings, 
   onShowChildProfile, 
   onShowAgents,
-  onShowAgentCreate 
+  onShowAgentCreate,
+  selectedAgent,
+  onSelectAgent
 }: UserSidebarProps) => {
   const { user, signOut } = useAuth();
   const { agents, isLoading } = useAgents();
@@ -51,7 +56,9 @@ const UserSidebar = ({
     await signOut();
   };
 
-  const isActive = (path: string) => location.pathname === path;
+  const handleAgentSelect = (agent: AgentType) => {
+    onSelectAgent?.(agent);
+  };
 
   return (
     <div className="w-64 bg-card border-r border-border flex flex-col h-screen">
@@ -93,19 +100,19 @@ const UserSidebar = ({
                 </div>
               ) : agents.length > 0 ? (
                 agents.map((agent) => (
-                  <Link
+                  <button
                     key={agent.id}
-                    to={`/tutors/${agent.id}/chat`}
+                    onClick={() => handleAgentSelect(agent)}
                     className={cn(
-                      "flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors",
-                      isActive(`/tutors/${agent.id}/chat`)
+                      "flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors w-full text-left",
+                      selectedAgent?.id === agent.id
                         ? "bg-primary/10 text-primary font-medium"
                         : "text-muted-foreground hover:bg-muted hover:text-foreground"
                     )}
                   >
                     <Bot className="h-3 w-3" />
                     <span className="truncate">{agent.name}</span>
-                  </Link>
+                  </button>
                 ))
               ) : (
                 <div className="px-3 py-2 text-xs text-muted-foreground">
