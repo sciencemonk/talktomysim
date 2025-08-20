@@ -2,12 +2,11 @@ import { useState, useRef, useEffect } from "react";
 import { useChatHistory } from "@/hooks/useChatHistory";
 import { TextInput } from "@/components/TextInput";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Bot, Settings, ArrowLeft } from "lucide-react";
+import { Bot, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AgentType } from "@/types/agent";
 import AgentConfigSettings from "@/components/AgentConfigSettings";
 import { useTextChat } from "@/hooks/useTextChat";
-import { ShareButton } from "@/components/ShareButton";
 
 interface ChatInterfaceProps {
   agent: AgentType;
@@ -22,7 +21,7 @@ const parseMarkdown = (text: string) => {
     .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
     // Headers
     .replace(/^### (.*$)/gm, '<h3 class="text-xl font-semibold mt-4 mb-2">$1</h3>')
-    .replace(/^## (.*$)/gm, '<h2 class="text-2xl font-semibold mt-4 mb-2">$1</h2>')
+    .replace(/^## (.*$)/gm, '<h2 class="text-2xl font-semibold mt-4 mb-2">$2</h2>')
     .replace(/^# (.*$)/gm, '<h1 class="text-3xl font-semibold mt-4 mb-2">$1</h1>')
     // Line breaks
     .replace(/\n/g, '<br>');
@@ -67,10 +66,6 @@ const ChatInterface = ({ agent, onShowAgentDetails, onAgentUpdate }: ChatInterfa
   const handleAgentUpdate = (updatedAgent: AgentType) => {
     setCurrentAgent(updatedAgent);
     onAgentUpdate?.(updatedAgent);
-  };
-
-  const handleShowSettings = () => {
-    setShowSettings(true);
   };
 
   const handleBackToChat = () => {
@@ -173,19 +168,6 @@ const ChatInterface = ({ agent, onShowAgentDetails, onAgentUpdate }: ChatInterfa
               <p className="text-lg text-muted-foreground">{currentAgent.type} • {currentAgent.subject || 'General'}</p>
             </div>
           </div>
-          
-          {isPersonalAgent ? (
-            <Button variant="ghost" size="sm" onClick={handleShowSettings} className="gap-2 text-lg">
-              <Settings className="h-5 w-5" />
-              Edit
-            </Button>
-          ) : (
-            <ShareButton 
-              tutorId={currentAgent.id} 
-              tutorName={currentAgent.name}
-              className="text-lg"
-            />
-          )}
         </div>
       </div>
 
