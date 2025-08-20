@@ -8,23 +8,23 @@ export const useAdvisors = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const loadAdvisors = async () => {
-      setIsLoading(true);
-      try {
-        const data = await fetchActiveAdvisors();
-        setAdvisors(data);
-        setError(null);
-      } catch (err: any) {
-        console.error("Error loading advisors:", err);
-        setError(err.message || "Failed to load advisors");
-      } finally {
-        setIsLoading(false);
-      }
-    };
+  const loadAdvisors = async () => {
+    setIsLoading(true);
+    try {
+      const data = await fetchActiveAdvisors();
+      setAdvisors(data);
+      setError(null);
+    } catch (err: any) {
+      console.error("Error loading advisors:", err);
+      setError(err.message || "Failed to load advisors");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
+  useEffect(() => {
     loadAdvisors();
   }, []);
 
-  return { advisors, isLoading, error, refetch: () => loadAdvisors() };
+  return { advisors, isLoading, error, refetch: loadAdvisors };
 };
