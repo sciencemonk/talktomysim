@@ -139,7 +139,12 @@ const UserSidebar = ({
                     : "text-muted-foreground hover:bg-muted hover:text-foreground"
                 )}
               >
-                <Bot className="h-4 w-4 flex-shrink-0" />
+                <Avatar className="h-6 w-6 flex-shrink-0">
+                  <AvatarImage src={agent.avatar} alt={agent.name} />
+                  <AvatarFallback className="bg-primary/10 text-primary text-xs">
+                    <Bot className="h-3 w-3" />
+                  </AvatarFallback>
+                </Avatar>
                 {!isCollapsed && <span className="truncate text-left">{agent.name}</span>}
               </Button>
             ))
