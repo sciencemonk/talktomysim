@@ -47,7 +47,7 @@ export const fetchAdvisorById = async (id: string): Promise<Advisor | null> => {
   console.log("Fetching advisor by ID:", id);
   
   try {
-    const { data: advisor, error } = await supabase
+    const { data: advisorData, error } = await supabase
       .from('advisors' as any)
       .select('*')
       .eq('id', id)
@@ -59,12 +59,15 @@ export const fetchAdvisorById = async (id: string): Promise<Advisor | null> => {
       return null;
     }
 
-    if (!advisor) {
+    if (!advisorData) {
       console.log("No advisor found with ID:", id);
       return null;
     }
 
-    console.log("Fetched advisor:", advisor);
+    console.log("Fetched advisor:", advisorData);
+    
+    // Cast the data to any first, then map to Advisor type
+    const advisor = advisorData as any;
     
     return {
       id: advisor.id,
