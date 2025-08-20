@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -62,14 +61,14 @@ const Landing = () => {
     const agentForChat: AgentType = {
       id: advisor.id,
       name: advisor.name,
-      type: 'tutor',
+      type: 'General Tutor',
       subject: advisor.category || '',
       description: advisor.description || '',
       prompt: advisor.prompt || '',
       gradeLevel: '',
       learningObjective: '',
       avatar: advisor.avatar_url,
-      userId: user.id,
+      status: 'active',
       createdAt: advisor.created_at || new Date().toISOString(),
       updatedAt: advisor.updated_at || new Date().toISOString()
     };
