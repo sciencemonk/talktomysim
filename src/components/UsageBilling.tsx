@@ -8,7 +8,7 @@ import { Clock, CreditCard, Star, ArrowLeft } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
 
 interface UsageBillingProps {
-  onClose: () => void;
+  onClose?: () => void;
 }
 
 const UsageBilling = ({ onClose }: UsageBillingProps) => {
@@ -64,15 +64,17 @@ const UsageBilling = ({ onClose }: UsageBillingProps) => {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center gap-4">
-        <Button 
-          variant="ghost" 
-          size="sm" 
-          onClick={onClose}
-          className="gap-2"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Back
-        </Button>
+        {onClose && (
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={onClose}
+            className="gap-2"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Back
+          </Button>
+        )}
         <div>
           <h1 className="text-2xl font-bold">Usage & Billing</h1>
           <p className="text-fgMuted">Manage your child's learning time</p>

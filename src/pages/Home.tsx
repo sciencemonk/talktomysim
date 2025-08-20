@@ -34,6 +34,7 @@ const Home = () => {
   const handleShowSettings = () => setCurrentView('settings');
   const handleShowAgents = () => setCurrentView('agents');
   const handleShowAgentCreate = () => setCurrentView('agent-create');
+  const handleCloseBilling = () => setCurrentView('chat');
 
   // Set first agent as selected if none selected
   if (!selectedAgent && agents.length > 0) {
@@ -43,7 +44,7 @@ const Home = () => {
   const renderMainContent = () => {
     switch (currentView) {
       case 'billing':
-        return <UsageBilling />;
+        return <UsageBilling onClose={handleCloseBilling} />;
       case 'child-profile':
         return <ChildProfile />;
       case 'settings':

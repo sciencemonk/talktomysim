@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { ArrowLeft, CheckCircle2, Loader2 } from "lucide-react";
@@ -27,7 +28,11 @@ const GRADE_LEVELS = [
   { id: "adult", name: "Adult Education" }
 ];
 
-const ThinkingPartnerCreate = () => {
+interface AgentCreateProps {
+  onAgentCreated?: (agent: AgentType) => void;
+}
+
+const ThinkingPartnerCreate = ({ onAgentCreated }: AgentCreateProps) => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { user } = useAuth();
@@ -133,8 +138,13 @@ Always be patient, supportive, and adapt to each child's learning pace and style
         description: `${createdAgent.name} has been successfully created with auto-generated teaching instructions.`,
       });
       
-      // Navigate to the dashboard instead of the tutor detail page
-      navigate("/dashboard");
+      // Call the callback if provided
+      if (onAgentCreated) {
+        onAgentCreated(createdAgent);
+      } else {
+        // Navigate to the dashboard if no callback provided
+        navigate("/dashboard");
+      }
     } catch (error) {
       console.error("Error creating thinking partner:", error);
       toast({
