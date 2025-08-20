@@ -8,10 +8,12 @@ import Settings from "@/pages/Settings";
 import AgentCreate from "@/pages/AgentCreate";
 import { AgentType } from "@/types/agent";
 import { useAgents } from "@/hooks/useAgents";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const Home = () => {
   const { user } = useAuth();
   const { agents } = useAgents();
+  const isMobile = useIsMobile();
   const [selectedAgent, setSelectedAgent] = useState<AgentType | null>(null);
   const [currentView, setCurrentView] = useState<'chat' | 'child-profile' | 'settings' | 'agents' | 'agent-create'>('chat');
   const [refreshTrigger, setRefreshTrigger] = useState(0);
@@ -80,16 +82,30 @@ const Home = () => {
 
   return (
     <div className="flex h-screen bg-background">
-      <UserSidebar
-        onShowSettings={handleShowSettings}
-        onShowChildProfile={handleShowChildProfile}
-        onShowAgents={handleShowAgents}
-        onShowAgentCreate={handleShowAgentCreate}
-        selectedAgent={selectedAgent}
-        onSelectAgent={handleSelectAgent}
-        refreshTrigger={refreshTrigger}
-      />
-      <div className="flex-1 flex flex-col min-w-0">
+      {!isMobile && (
+        <UserSidebar
+          onShowSettings={handleShowSettings}
+          onShowChildProfile={handleShowChildProfile}
+          onShowAgents={handleShowAgents}
+          onShowAgentCreate={handleShowAgentCreate}
+          selectedAgent={selectedAgent}
+          onSelectAgent={handleSelectAgent}
+          refreshTrigger={refreshTrigger}
+        />
+      )}
+      
+      <div className={`flex-1 flex flex-col min-w-0 ${isMobile ? 'pl-0' : ''}`}>
+        {isMobile && (
+          <UserSidebar
+            onShowSettings={handleShowSettings}
+            onShowChildProfile={handleShowChildProfile}
+            onShowAgents={handleShowAgents}
+            onShowAgentCreate={handleShowAgentCreate}
+            selectedAgent={selectedAgent}
+            onSelectAgent={handleSelectAgent}
+            refreshTrigger={refreshTrigger}
+          />
+        )}
         {renderMainContent()}
       </div>
     </div>

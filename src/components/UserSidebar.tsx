@@ -7,7 +7,8 @@ import {
   Settings,
   User,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Menu
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useAgents } from "@/hooks/useAgents";
@@ -16,6 +17,12 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 import { useState, useEffect } from "react";
+import { useIsMobile } from "@/hooks/use-mobile";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerTrigger,
+} from "@/components/ui/drawer";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -35,19 +42,24 @@ interface UserSidebarProps {
   refreshTrigger?: number;
 }
 
-const UserSidebar = ({ 
+const SidebarContent = ({ 
   onShowSettings, 
   onShowChildProfile, 
   onShowAgents,
   onShowAgentCreate,
   selectedAgent,
   onSelectAgent,
-  refreshTrigger
-}: UserSidebarProps) => {
+  refreshTrigger,
+  isCollapsed,
+  onToggleCollapse,
+  onClose
+}: UserSidebarProps & { 
+  isCollapsed?: boolean; 
+  onToggleCollapse?: () => void;
+  onClose?: () => void;
+}) => {
   const { user, signOut } = useAuth();
   const { agents, isLoading } = useAgents();
-  const location = useLocation();
-  const [isCollapsed, setIsCollapsed] = useState(false);
 
   useEffect(() => {
     if (refreshTrigger) {
@@ -62,21 +74,58 @@ const UserSidebar = ({
   const handleAgentSelect = (agent: AgentType) => {
     console.log('Agent selected:', agent.name, agent.id);
     onSelectAgent?.(agent);
+    onClose?.(); // Close mobile drawer when agent is selected
   };
 
-  const toggleSidebar = () => {
-    setIsCollapsed(!isCollapsed);
+  const handleCreateNew = () => {
+    onShowAgentCreate?.();
+    onClose?.(); // Close mobile drawer
   };
 
   return (
-    <div className={cn(
-      "bg-card border-r border-border flex flex-col h-screen transition-all duration-300",
-      isCollapsed ? "w-16" : "w-64"
-    )}>
-      {/* Header with Logo and Toggle */}
-      <div className="p-4 flex items-center justify-between">
-        {!isCollapsed && (
-          <div className="flex items-center gap-3">
+    <>
+      {/* Header with Logo and Toggle (Desktop only) */}
+      {onToggleCollapse && (
+        <>
+          <div className="p-4 flex items-center justify-between">
+            {!isCollapsed && (
+              <div className="flex items-center gap-3">
+                <img 
+                  src="/lovable-uploads/55ccce33-98a1-45d2-9e9e-7b446a02a417.png" 
+                  alt="Think With Me" 
+                  className="h-8 w-8"
+                />
+                <h1 className="font-semibold text-lg">Think With Me</h1>
+              </div>
+            )}
+            {isCollapsed && (
+              <img 
+                src="/lovable-uploads/55ccce33-98a1-45d2-9e9e-7b446a02a417.png" 
+                alt="Think With Me" 
+                className="h-8 w-8 mx-auto"
+              />
+            )}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onToggleCollapse}
+              className="h-8 w-8 p-0"
+            >
+              {isCollapsed ? (
+                <ChevronRight className="h-4 w-4" />
+              ) : (
+                <ChevronLeft className="h-4 w-4" />
+              )}
+            </Button>
+          </div>
+          <Separator />
+        </>
+      )}
+
+      {/* Mobile Header */}
+      {!onToggleCollapse && (
+        <>
+          <div className="p-4 flex items-center gap-3">
             <img 
               src="/lovable-uploads/55ccce33-98a1-45d2-9e9e-7b446a02a417.png" 
               alt="Think With Me" 
@@ -84,52 +133,30 @@ const UserSidebar = ({
             />
             <h1 className="font-semibold text-lg">Think With Me</h1>
           </div>
-        )}
-        {isCollapsed && (
-          <img 
-            src="/lovable-uploads/55ccce33-98a1-45d2-9e9e-7b446a02a417.png" 
-            alt="Think With Me" 
-            className="h-8 w-8 mx-auto"
-          />
-        )}
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={toggleSidebar}
-          className="h-8 w-8 p-0"
-        >
-          {isCollapsed ? (
-            <ChevronRight className="h-4 w-4" />
-          ) : (
-            <ChevronLeft className="h-4 w-4" />
-          )}
-        </Button>
-      </div>
-
-      <Separator />
+          <Separator />
+        </>
+      )}
 
       {/* Navigation Items */}
       <div className="flex-1 p-3 space-y-1">
         {/* Create New Button */}
-        {onShowAgentCreate && (
-          <Button
-            onClick={onShowAgentCreate}
-            className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors bg-primary text-primary-foreground hover:bg-primary/90 w-full justify-start"
-            size="sm"
-          >
-            <PlusCircle className="h-4 w-4 flex-shrink-0" />
-            {!isCollapsed && <span>Create New</span>}
-          </Button>
-        )}
+        <Button
+          onClick={handleCreateNew}
+          className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors bg-primary text-primary-foreground hover:bg-primary/90 w-full justify-start"
+          size="sm"
+        >
+          <PlusCircle className="h-4 w-4 flex-shrink-0" />
+          {(!isCollapsed || !onToggleCollapse) && <span>New chat</span>}
+        </Button>
 
         {/* Agents List */}
         <div className="mt-4 space-y-1">
           {isLoading ? (
             <div className={cn(
               "px-3 py-2 text-xs text-muted-foreground",
-              isCollapsed && "text-center"
+              isCollapsed && onToggleCollapse && "text-center"
             )}>
-              {isCollapsed ? "..." : "Loading thinking partners..."}
+              {(isCollapsed && onToggleCollapse) ? "..." : "Loading thinking partners..."}
             </div>
           ) : agents.length > 0 ? (
             agents.map((agent) => (
@@ -150,15 +177,15 @@ const UserSidebar = ({
                     <Bot className="h-3 w-3" />
                   </AvatarFallback>
                 </Avatar>
-                {!isCollapsed && <span className="truncate text-left">{agent.name}</span>}
+                {(!isCollapsed || !onToggleCollapse) && <span className="truncate text-left">{agent.name}</span>}
               </Button>
             ))
           ) : (
             <div className={cn(
               "px-3 py-2 text-xs text-muted-foreground",
-              isCollapsed && "text-center"
+              isCollapsed && onToggleCollapse && "text-center"
             )}>
-              {isCollapsed ? "0" : "No thinking partners yet"}
+              {(isCollapsed && onToggleCollapse) ? "0" : "No thinking partners yet"}
             </div>
           )}
         </div>
@@ -168,12 +195,11 @@ const UserSidebar = ({
 
       {/* User Profile Section */}
       <div className="p-3">
-        {/* User Info with Dropdown */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button className={cn(
               "flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-muted transition-colors w-full",
-              isCollapsed && "justify-center"
+              isCollapsed && onToggleCollapse && "justify-center"
             )}>
               <Avatar className="h-8 w-8 flex-shrink-0">
                 <AvatarImage src={user?.user_metadata?.avatar_url} alt="Profile" />
@@ -181,7 +207,7 @@ const UserSidebar = ({
                   {user?.email?.charAt(0)?.toUpperCase() || "U"}
                 </AvatarFallback>
               </Avatar>
-              {!isCollapsed && (
+              {(!isCollapsed || !onToggleCollapse) && (
                 <div className="flex-1 min-w-0 text-left">
                   <p className="text-sm font-medium truncate">
                     {user?.user_metadata?.full_name || "User"}
@@ -195,13 +221,13 @@ const UserSidebar = ({
           </DropdownMenuTrigger>
           <DropdownMenuContent align="start" className="w-56">
             {onShowChildProfile && (
-              <DropdownMenuItem onClick={onShowChildProfile}>
+              <DropdownMenuItem onClick={() => { onShowChildProfile(); onClose?.(); }}>
                 <User className="mr-2 h-4 w-4" />
                 <span>Child Profile</span>
               </DropdownMenuItem>
             )}
             {onShowSettings && (
-              <DropdownMenuItem onClick={onShowSettings}>
+              <DropdownMenuItem onClick={() => { onShowSettings(); onClose?.(); }}>
                 <Settings className="mr-2 h-4 w-4" />
                 <span>Settings</span>
               </DropdownMenuItem>
@@ -214,6 +240,56 @@ const UserSidebar = ({
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
+    </>
+  );
+};
+
+const UserSidebar = (props: UserSidebarProps) => {
+  const isMobile = useIsMobile();
+  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+
+  const toggleSidebar = () => {
+    setIsCollapsed(!isCollapsed);
+  };
+
+  if (isMobile) {
+    return (
+      <>
+        {/* Mobile Trigger Button - Fixed Position */}
+        <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
+          <DrawerTrigger asChild>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="fixed top-4 left-4 z-50 h-10 w-10 p-0 bg-background border shadow-md"
+            >
+              <Menu className="h-5 w-5" />
+            </Button>
+          </DrawerTrigger>
+          <DrawerContent className="h-[85vh] max-h-[85vh]">
+            <div className="flex flex-col h-full">
+              <SidebarContent 
+                {...props} 
+                onClose={() => setIsDrawerOpen(false)} 
+              />
+            </div>
+          </DrawerContent>
+        </Drawer>
+      </>
+    );
+  }
+
+  return (
+    <div className={cn(
+      "bg-card border-r border-border flex flex-col h-screen transition-all duration-300",
+      isCollapsed ? "w-16" : "w-64"
+    )}>
+      <SidebarContent 
+        {...props} 
+        isCollapsed={isCollapsed}
+        onToggleCollapse={toggleSidebar}
+      />
     </div>
   );
 };
