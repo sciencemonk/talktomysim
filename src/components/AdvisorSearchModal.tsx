@@ -132,6 +132,7 @@ interface AdvisorSearchModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSignInRequired?: () => void;
+  onTalkClick?: (advisor: any) => void;
   isPublic?: boolean;
 }
 
@@ -139,6 +140,7 @@ export const AdvisorSearchModal: React.FC<AdvisorSearchModalProps> = ({
   open, 
   onOpenChange, 
   onSignInRequired,
+  onTalkClick,
   isPublic = false 
 }) => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -167,9 +169,14 @@ export const AdvisorSearchModal: React.FC<AdvisorSearchModalProps> = ({
       return;
     }
     
-    // Open chat with advisor in new tab
-    const chatUrl = `/advisor-chat/${advisor.id}`;
-    window.open(chatUrl, '_blank');
+    // Use custom onTalkClick if provided, otherwise default behavior
+    if (onTalkClick) {
+      onTalkClick(advisor);
+    } else {
+      // Default behavior - open chat in new tab
+      const chatUrl = `/advisor-chat/${advisor.id}`;
+      window.open(chatUrl, '_blank');
+    }
   };
 
   const handleEditClick = (advisor: any) => {

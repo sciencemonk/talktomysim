@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -10,6 +11,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useAdvisors } from "@/hooks/useAdvisors";
 import ChatInterface from "@/components/ChatInterface";
 import { AgentType } from "@/types/agent";
+import AdvisorSearchModal from "@/components/AdvisorSearchModal";
 
 const Landing = () => {
   const { toast } = useToast();
@@ -18,6 +20,7 @@ const Landing = () => {
   const [selectedFilter, setSelectedFilter] = useState("all");
   const [activeChats, setActiveChats] = useState<AgentType[]>([]);
   const [currentChat, setCurrentChat] = useState<AgentType | null>(null);
+  const [showAdvisorModal, setShowAdvisorModal] = useState(false);
   const { user } = useAuth();
   const { advisors, isLoading: advisorsLoading, error: advisorsError } = useAdvisors();
 
@@ -62,16 +65,19 @@ const Landing = () => {
       id: advisor.id,
       name: advisor.name,
       type: 'General Tutor',
-      subject: advisor.category || '',
+      subject: advisor.category || advisor.field || '',
       description: advisor.description || '',
       prompt: advisor.prompt || '',
       gradeLevel: '',
       learningObjective: '',
-      avatar: advisor.avatar_url,
+      avatar: advisor.avatar_url || advisor.avatar,
       status: 'active',
       createdAt: advisor.created_at || new Date().toISOString(),
       updatedAt: advisor.updated_at || new Date().toISOString()
     };
+    
+    // Hide the modal immediately
+    setShowAdvisorModal(false);
     
     // Add to active chats if not already there
     if (!activeChats.find(chat => chat.id === agentForChat.id)) {
@@ -94,18 +100,9 @@ const Landing = () => {
     setCurrentChat(agent);
   };
 
-  // Get unique categories for filter
-  const categories = Array.from(new Set(advisors.map(advisor => advisor.category).filter(Boolean)));
-
-  const filteredAdvisors = advisors.filter(advisor => {
-    const matchesSearch = advisor.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         (advisor.category && advisor.category.toLowerCase().includes(searchTerm.toLowerCase())) ||
-                         (advisor.description && advisor.description.toLowerCase().includes(searchTerm.toLowerCase()));
-    
-    const matchesFilter = selectedFilter === "all" || advisor.category?.toLowerCase() === selectedFilter;
-    
-    return matchesSearch && matchesFilter;
-  });
+  const handleBrowseAdvisors = () => {
+    setShowAdvisorModal(true);
+  };
 
   return (
     <div className="min-h-screen bg-bg flex">
@@ -225,105 +222,19 @@ const Landing = () => {
                   Get personalized guidance from expert advisors. From mathematics to science,<br />
                   our AI advisors are here to help you navigate any challenge.
                 </p>
-              </div>
-            </section>
-
-            {/* Search and Filter Section */}
-            <section className="bg-bgMuted py-12 flex-1">
-              <div className="max-w-7xl mx-auto px-6">
-                <div className="flex flex-col sm:flex-row gap-4 mb-12">
-                  <div className="flex-1 relative">
-                    <Search className="h-5 w-5 absolute left-4 top-1/2 transform -translate-y-1/2 text-fgMuted" />
-                    <Input
-                      placeholder="Search advisors..."
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      className="pl-12 h-12 text-base border-input bg-bg rounded-xl shadow-sm focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-system"
-                    />
-                  </div>
-                  <select 
-                    value={selectedFilter}
-                    onChange={(e) => setSelectedFilter(e.target.value)}
-                    className="px-6 py-3 border border-input rounded-xl bg-bg text-fg min-w-[160px] focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-system shadow-sm"
-                  >
-                    <option value="all">All Categories</option>
-                    {categories.map(category => (
-                      <option key={category} value={category?.toLowerCase()}>
-                        {category}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                {/* Loading State */}
-                {advisorsLoading && (
-                  <div className="text-center py-16">
-                    <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-primary" />
-                    <p className="text-fgMuted text-lg font-system">Loading advisors...</p>
-                  </div>
-                )}
-
-                {/* Error State */}
-                {advisorsError && (
-                  <div className="text-center py-16">
-                    <p className="text-red-500 text-lg font-system mb-4">Failed to load advisors</p>
-                    <p className="text-fgMuted font-system">{advisorsError}</p>
-                  </div>
-                )}
-
-                {/* Advisors Grid */}
-                {!advisorsLoading && !advisorsError && (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    {filteredAdvisors.map((advisor) => (
-                      <div key={advisor.id} className="bg-bg rounded-2xl p-8 border border-border/50 hover:border-border hover:shadow-lg transition-all duration-300 group">
-                        <div className="flex items-start gap-4 mb-6">
-                          <Avatar className="h-16 w-16 border-2 border-border/30 group-hover:border-primary/30 transition-colors">
-                            <AvatarImage src={advisor.avatar_url} alt={advisor.name} />
-                            <AvatarFallback className="bg-bgMuted">
-                              <User className="h-8 w-8 text-fgMuted" />
-                            </AvatarFallback>
-                          </Avatar>
-                          <div className="flex-1 min-w-0">
-                            <h3 className="font-semibold text-xl text-fg mb-2 font-system">{advisor.name}</h3>
-                            {advisor.title && (
-                              <Badge variant="secondary" className="text-sm mb-3 bg-bgMuted text-fgMuted border-0 font-system">
-                                {advisor.title}
-                              </Badge>
-                            )}
-                            {advisor.category && (
-                              <p className="text-sm text-primary font-medium mb-1 font-system">{advisor.category}</p>
-                            )}
-                          </div>
-                        </div>
-                        
-                        {advisor.description && (
-                          <p className="text-fgMuted text-sm leading-relaxed mb-8 font-system">
-                            {advisor.description}
-                          </p>
-                        )}
-                        
-                        <Button 
-                          onClick={() => handleTalkClick(advisor)}
-                          className="w-full bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl font-medium py-3 inline-flex items-center justify-center gap-2 transition-all shadow-sm font-system"
-                        >
-                          <MessageCircle className="h-4 w-4" />
-                          {!user ? 'Sign In to Talk' : 'Start Conversation'}
-                        </Button>
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                {!advisorsLoading && !advisorsError && filteredAdvisors.length === 0 && (
-                  <div className="text-center py-16">
-                    <p className="text-fgMuted text-lg font-system">No advisors found matching your search.</p>
-                  </div>
-                )}
+                <Button 
+                  onClick={handleBrowseAdvisors}
+                  size="lg"
+                  className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl font-medium py-4 px-8 inline-flex items-center justify-center gap-2 transition-all shadow-sm font-system text-lg"
+                >
+                  <Search className="h-5 w-5" />
+                  Browse Advisors
+                </Button>
               </div>
             </section>
 
             {/* Footer */}
-            <footer className="bg-bg border-t border-border/30 py-12">
+            <footer className="bg-bg border-t border-border/30 py-12 mt-auto">
               <div className="max-w-7xl mx-auto px-6 text-center">
                 <p className="text-fgMuted font-system">
                   Built with cutting-edge AI technology to bring you expert guidance and knowledge.
@@ -333,6 +244,15 @@ const Landing = () => {
           </>
         )}
       </div>
+
+      {/* Advisor Search Modal */}
+      <AdvisorSearchModal
+        open={showAdvisorModal}
+        onOpenChange={setShowAdvisorModal}
+        onSignInRequired={handleSignInWithGoogle}
+        onTalkClick={handleTalkClick}
+        isPublic={true}
+      />
     </div>
   );
 };
