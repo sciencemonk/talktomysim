@@ -1,5 +1,4 @@
-
-import { usePublicAgent } from "@/hooks/usePublicAgent";
+import { usePublicAgents } from "@/hooks/usePublicAgents";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,7 +10,7 @@ interface AdvisorDirectoryProps {
 }
 
 const AdvisorDirectory = ({ onSelectAdvisor }: AdvisorDirectoryProps) => {
-  const { agents: advisors, isLoading, error } = usePublicAgent();
+  const { agents: advisors, isLoading, error } = usePublicAgents();
 
   if (isLoading) {
     return (
