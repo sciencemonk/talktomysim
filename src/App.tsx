@@ -1,89 +1,93 @@
 
 import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { AuthProvider } from "@/hooks/useAuth";
-
-// Pages
+import { useAuth } from "@/hooks/useAuth";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
-import TeacherDashboard from "./pages/TeacherDashboard";
+import Landing from "./pages/Landing";
 import AgentsDashboard from "./pages/AgentsDashboard";
-import AgentDetails from "./pages/AgentDetails";
 import AgentCreate from "./pages/AgentCreate";
+import AgentDetails from "./pages/AgentDetails";
 import AgentAnalytics from "./pages/AgentAnalytics";
-import StudentChat from "./pages/StudentChat";
-import PublicTutorDetail from "./pages/PublicTutorDetail";
+import TeacherDashboard from "./pages/TeacherDashboard";
+import SimpleTeacherDashboard from "./pages/SimpleTeacherDashboard";
 import ProfessionalDevelopment from "./pages/ProfessionalDevelopment";
+import ChildProfile from "./pages/ChildProfile";
 import Settings from "./pages/Settings";
 import Billing from "./pages/Billing";
-import ChildProfile from "./pages/ChildProfile";
+import Marketplace from "./pages/Marketplace";
+import PublicTutorDetail from "./pages/PublicTutorDetail";
+import StudentChat from "./pages/StudentChat";
 import NotFound from "./pages/NotFound";
-
-// Layouts
 import DashboardLayout from "./layouts/DashboardLayout";
+import AgentsLayout from "./layouts/AgentsLayout";
+import SimpleDashboardLayout from "./layouts/SimpleDashboardLayout";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 const queryClient = new QueryClient();
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <AuthProvider>
+function App() {
+  const { loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
         <Toaster />
-        <Sonner />
         <BrowserRouter>
           <Routes>
             {/* Public routes */}
-            <Route path="/" element={<Index />} />
             <Route path="/login" element={<Login />} />
-            
-            {/* Public tutor share links - accessible by non-signed in users */}
+            <Route path="/landing" element={<Landing />} />
+            <Route path="/marketplace" element={<Marketplace />} />
             <Route path="/tutors/:agentId" element={<PublicTutorDetail />} />
-            <Route path="/tutors/:agentId/chat" element={<StudentChat />} />
             
-            {/* Protected dashboard routes - Tutors is now the default home */}
+            {/* Dashboard routes with sidebar */}
             <Route path="/dashboard" element={<DashboardLayout />}>
+              <Route index element={<Navigate to="/" replace />} />
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Route>
+
+            {/* Main dashboard routes with sidebar - includes tutor chats */}
+            <Route path="/" element={<DashboardLayout />}>
+              <Route index element={<Index />} />
+              <Route path="tutors/:agentId/chat" element={<StudentChat />} />
+              <Route path="child-profile" element={<ChildProfile />} />
+              <Route path="settings" element={<Settings />} />
+            </Route>
+
+            {/* Agents management routes */}
+            <Route path="/agents" element={<AgentsLayout />}>
               <Route index element={<AgentsDashboard />} />
+              <Route path="create" element={<AgentCreate />} />
+              <Route path=":id" element={<AgentDetails />} />
+              <Route path=":id/analytics" element={<AgentAnalytics />} />
             </Route>
-            
-            <Route path="/child-profile" element={<DashboardLayout />}>
-              <Route index element={<ChildProfile />} />
+
+            {/* Teacher dashboard routes */}
+            <Route path="/teacher" element={<SimpleDashboardLayout />}>
+              <Route index element={<SimpleTeacherDashboard />} />
+              <Route path="dashboard" element={<TeacherDashboard />} />
+              <Route path="professional-development" element={<ProfessionalDevelopment />} />
+              <Route path="billing" element={<Billing />} />
             </Route>
-            
-            <Route path="/settings" element={<DashboardLayout />}>
-              <Route index element={<Settings />} />
-            </Route>
-            
-            <Route path="/billing" element={<DashboardLayout />}>
-              <Route index element={<Billing />} />
-            </Route>
-            
-            {/* Protected agents routes */}
-            <Route path="/agents" element={<DashboardLayout />}>
-              <Route index element={<AgentsDashboard />} />
-            </Route>
-            
-            <Route path="/agents/create" element={<DashboardLayout />}>
-              <Route index element={<AgentCreate />} />
-            </Route>
-            
-            <Route path="/agents/:agentId" element={<DashboardLayout />}>
-              <Route index element={<AgentDetails />} />
-            </Route>
-            
-            <Route path="/agents/:agentId/analytics" element={<DashboardLayout />}>
-              <Route index element={<AgentAnalytics />} />
-            </Route>
-            
-            {/* Catch all - redirect to home */}
+
+            {/* Catch all */}
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
-      </AuthProvider>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+      </TooltipProvider>
+    </QueryClientProvider>
+  );
+}
 
 export default App;
