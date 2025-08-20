@@ -1,4 +1,5 @@
 
+
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { AgentType } from '@/types/agent';
 import { supabase } from '@/integrations/supabase/client';
@@ -7,8 +8,8 @@ interface UseTextChatProps {
   agent: AgentType;
   onUserMessage: (message: string) => void;
   onAiMessageStart: () => string;
-  onAiTextDelta: (delta: string) => void;
-  onAiMessageComplete: () => void;
+  onAiTextDelta: (messageId: string, delta: string) => void;
+  onAiMessageComplete: (messageId: string) => void;
 }
 
 export const useTextChat = ({
@@ -42,8 +43,9 @@ export const useTextChat = ({
     const newHistory = [...conversationHistory, { role: 'user', content: message }];
     setConversationHistory(newHistory);
     
-    // Start AI message
+    // Start AI message and get the message ID
     const aiMessageId = onAiMessageStart();
+    console.log('Started AI message with ID:', aiMessageId);
     
     try {
       // Cancel any ongoing request
@@ -77,8 +79,9 @@ export const useTextChat = ({
       }
 
       if (data?.content) {
+        console.log('Adding AI response to message ID:', aiMessageId);
         // Add the AI response as a single message
-        onAiTextDelta(data.content);
+        onAiTextDelta(aiMessageId, data.content);
         
         // Update conversation history with AI response
         setConversationHistory(prev => [...prev, { role: 'assistant', content: data.content }]);
@@ -86,7 +89,7 @@ export const useTextChat = ({
         throw new Error('No content in response');
       }
 
-      onAiMessageComplete();
+      onAiMessageComplete(aiMessageId);
     } catch (error: any) {
       if (error.name === 'AbortError') {
         console.log('Request was aborted');
@@ -94,8 +97,8 @@ export const useTextChat = ({
       }
       
       console.error('Error sending message:', error);
-      onAiTextDelta('Sorry, I encountered an error. Please try again.');
-      onAiMessageComplete();
+      onAiTextDelta(aiMessageId, 'Sorry, I encountered an error. Please try again.');
+      onAiMessageComplete(aiMessageId);
     } finally {
       setIsProcessing(false);
       abortControllerRef.current = null;

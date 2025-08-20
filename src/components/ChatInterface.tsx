@@ -1,3 +1,4 @@
+
 import { useState, useRef, useEffect } from "react";
 import { useChatHistory } from "@/hooks/useChatHistory";
 import { TextInput } from "@/components/TextInput";
@@ -29,29 +30,15 @@ const parseMarkdown = (text: string) => {
 const ChatInterface = ({ agent, onShowAgentDetails }: ChatInterfaceProps) => {
   const [showSettings, setShowSettings] = useState(false);
   const [currentAgent, setCurrentAgent] = useState(agent);
-  const [currentAiMessageId, setCurrentAiMessageId] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   
   const chatHistory = useChatHistory(currentAgent);
   const textChat = useTextChat({ 
     agent: currentAgent,
     onUserMessage: chatHistory.addUserMessage,
-    onAiMessageStart: () => {
-      const messageId = chatHistory.startAiMessage();
-      setCurrentAiMessageId(messageId);
-      return messageId;
-    },
-    onAiTextDelta: (delta: string) => {
-      if (currentAiMessageId) {
-        chatHistory.addAiTextDelta(currentAiMessageId, delta);
-      }
-    },
-    onAiMessageComplete: () => {
-      if (currentAiMessageId) {
-        chatHistory.completeAiMessage(currentAiMessageId);
-        setCurrentAiMessageId(null);
-      }
-    }
+    onAiMessageStart: chatHistory.startAiMessage,
+    onAiTextDelta: chatHistory.addAiTextDelta,
+    onAiMessageComplete: chatHistory.completeAiMessage
   });
 
   // Update current agent when agent prop changes
@@ -59,7 +46,6 @@ const ChatInterface = ({ agent, onShowAgentDetails }: ChatInterfaceProps) => {
     if (agent.id !== currentAgent.id) {
       console.log('Agent changed from', currentAgent.name, 'to', agent.name);
       setCurrentAgent(agent);
-      setCurrentAiMessageId(null); // Reset current AI message when agent changes
     }
   }, [agent.id, currentAgent.id, agent.name, currentAgent.name]);
 
