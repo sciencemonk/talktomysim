@@ -1,4 +1,3 @@
-
 import { useState, useRef, useEffect } from "react";
 import { useSimpleMessageAccumulator } from "@/hooks/useSimpleMessageAccumulator";
 import { TextInput } from "@/components/TextInput";
@@ -13,6 +12,19 @@ interface ChatInterfaceProps {
   agent: AgentType;
   onShowAgentDetails?: () => void;
 }
+
+// Simple markdown parser for basic formatting
+const parseMarkdown = (text: string) => {
+  return text
+    // Bold text
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    // Headers
+    .replace(/^### (.*$)/gm, '<h3 class="text-base font-semibold mt-4 mb-2">$1</h3>')
+    .replace(/^## (.*$)/gm, '<h2 class="text-lg font-semibold mt-4 mb-2">$1</h2>')
+    .replace(/^# (.*$)/gm, '<h1 class="text-xl font-semibold mt-4 mb-2">$1</h1>')
+    // Line breaks
+    .replace(/\n/g, '<br>');
+};
 
 const ChatInterface = ({ agent, onShowAgentDetails }: ChatInterfaceProps) => {
   const [showSettings, setShowSettings] = useState(false);
@@ -152,9 +164,12 @@ const ChatInterface = ({ agent, onShowAgentDetails }: ChatInterfaceProps) => {
                   
                   <div className="flex-1 min-w-0">
                     <div className="prose prose-sm max-w-none dark:prose-invert">
-                      <p className="text-sm leading-relaxed whitespace-pre-wrap break-words mb-0">
-                        {message.content}
-                      </p>
+                      <div 
+                        className="text-sm leading-relaxed break-words"
+                        dangerouslySetInnerHTML={{ 
+                          __html: parseMarkdown(message.content) 
+                        }}
+                      />
                     </div>
                     
                     {!message.isComplete && message.role === 'system' && (
