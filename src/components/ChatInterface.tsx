@@ -1,10 +1,12 @@
 
+import { useState } from "react";
 import { useRealtimeChat } from "@/hooks/useRealtimeChat";
 import { TextInput } from "@/components/TextInput";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Bot, Settings } from "lucide-react";
+import { Bot, Settings, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AgentType } from "@/types/agent";
+import AgentConfigSettings from "@/components/AgentConfigSettings";
 
 interface ChatInterfaceProps {
   agent: AgentType;
@@ -12,7 +14,60 @@ interface ChatInterfaceProps {
 }
 
 const ChatInterface = ({ agent, onShowAgentDetails }: ChatInterfaceProps) => {
-  const realtimeChat = useRealtimeChat({ agent });
+  const [showSettings, setShowSettings] = useState(false);
+  const [currentAgent, setCurrentAgent] = useState(agent);
+  const realtimeChat = useRealtimeChat({ agent: currentAgent });
+
+  const handleAgentUpdate = (updatedAgent: AgentType) => {
+    setCurrentAgent(updatedAgent);
+  };
+
+  const handleShowSettings = () => {
+    setShowSettings(true);
+  };
+
+  const handleBackToChat = () => {
+    setShowSettings(false);
+  };
+
+  if (showSettings) {
+    return (
+      <div className="flex flex-col h-full">
+        {/* Header */}
+        <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-6 py-4 flex-shrink-0">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Button variant="ghost" size="sm" onClick={handleBackToChat} className="gap-1.5 text-xs">
+                <ArrowLeft className="h-3 w-3" />
+                Back to Chat
+              </Button>
+              <Avatar className="h-8 w-8">
+                <AvatarImage src={currentAgent.avatar} alt={currentAgent.name} />
+                <AvatarFallback className="bg-primary text-primary-foreground text-xs">
+                  <Bot className="h-4 w-4" />
+                </AvatarFallback>
+              </Avatar>
+              <div>
+                <h1 className="font-semibold text-base">{currentAgent.name} Settings</h1>
+                <p className="text-xs text-muted-foreground">Configure your thinking partner</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Settings Content */}
+        <div className="flex-1 overflow-y-auto p-6">
+          <div className="max-w-4xl mx-auto">
+            <AgentConfigSettings 
+              agent={currentAgent} 
+              onAgentUpdate={handleAgentUpdate}
+              showTeachingInstructions={true}
+            />
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   // Combine messages with current partial message if speaking
   const allMessages = [...realtimeChat.messages];
@@ -33,23 +88,21 @@ const ChatInterface = ({ agent, onShowAgentDetails }: ChatInterfaceProps) => {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Avatar className="h-8 w-8">
-              <AvatarImage src={agent.avatar} alt={agent.name} />
+              <AvatarImage src={currentAgent.avatar} alt={currentAgent.name} />
               <AvatarFallback className="bg-primary text-primary-foreground text-xs">
                 <Bot className="h-4 w-4" />
               </AvatarFallback>
             </Avatar>
             <div>
-              <h1 className="font-semibold text-base">{agent.name}</h1>
-              <p className="text-xs text-muted-foreground">{agent.type} • {agent.subject || 'General'}</p>
+              <h1 className="font-semibold text-base">{currentAgent.name}</h1>
+              <p className="text-xs text-muted-foreground">{currentAgent.type} • {currentAgent.subject || 'General'}</p>
             </div>
           </div>
           
-          {onShowAgentDetails && (
-            <Button variant="ghost" size="sm" onClick={onShowAgentDetails} className="gap-1.5 text-xs">
-              <Settings className="h-3 w-3" />
-              Edit
-            </Button>
-          )}
+          <Button variant="ghost" size="sm" onClick={handleShowSettings} className="gap-1.5 text-xs">
+            <Settings className="h-3 w-3" />
+            Edit
+          </Button>
         </div>
       </div>
 
@@ -68,7 +121,7 @@ const ChatInterface = ({ agent, onShowAgentDetails }: ChatInterfaceProps) => {
                   ? 'Getting ready to chat...' 
                   : realtimeChat.connectionStatus === 'error'
                   ? 'Connection error - please refresh'
-                  : `I'm ${agent.name}, ready to help you learn and explore ideas together.`
+                  : `I'm ${currentAgent.name}, ready to help you learn and explore ideas together.`
                 }
               </p>
             </div>
@@ -79,7 +132,7 @@ const ChatInterface = ({ agent, onShowAgentDetails }: ChatInterfaceProps) => {
                   <div key={message.id} className="flex gap-4">
                     {message.role === 'system' && (
                       <Avatar className="h-8 w-8 flex-shrink-0">
-                        <AvatarImage src={agent.avatar} alt={agent.name} />
+                        <AvatarImage src={currentAgent.avatar} alt={currentAgent.name} />
                         <AvatarFallback className="bg-primary text-primary-foreground text-xs">
                           <Bot className="h-4 w-4" />
                         </AvatarFallback>
@@ -122,7 +175,7 @@ const ChatInterface = ({ agent, onShowAgentDetails }: ChatInterfaceProps) => {
             placeholder={
               !realtimeChat.isConnected 
                 ? "Connecting..." 
-                : `Message ${agent.name}...`
+                : `Message ${currentAgent.name}...`
             }
           />
         </div>
