@@ -71,6 +71,70 @@ const SAMPLE_ADVISORS: Advisor[] = [
     field: "Classical Philosophy, Ethics",
     avatar: "/lovable-uploads/socrates.jpg",
     description: "Ancient Greek philosopher, father of Western philosophy. Known for the Socratic method of questioning."
+  },
+  {
+    id: "calacanis",
+    name: "Jason Calacanis",
+    role: "Entrepreneur",
+    field: "Angel Investor, Tech Entrepreneur",
+    avatar: "/placeholder.svg",
+    description: "Serial entrepreneur and angel investor. Host of 'This Week in Startups' podcast and early investor in Uber, Robinhood, and more."
+  },
+  {
+    id: "chamath",
+    name: "Chamath Palihapitiya",
+    role: "Investor",
+    field: "Venture Capitalist, Social Capital",
+    avatar: "/placeholder.svg",
+    description: "Venture capitalist and former Facebook executive. Founder of Social Capital and known for contrarian investment views."
+  },
+  {
+    id: "trump",
+    name: "Donald J. Trump",
+    role: "Politician",
+    field: "45th President, Business Leader",
+    avatar: "/placeholder.svg",
+    description: "45th President of the United States and business mogul. Known for real estate empire and political leadership."
+  },
+  {
+    id: "andreessen",
+    name: "Marc Andreessen",
+    role: "Entrepreneur",
+    field: "Co-founder Netscape, VC Partner",
+    avatar: "/placeholder.svg",
+    description: "Co-founder of Netscape and partner at Andreessen Horowitz. Pioneer of the modern web browser and venture capital."
+  },
+  {
+    id: "rand",
+    name: "Ayn Rand",
+    role: "Philosopher",
+    field: "Objectivism, Individualism",
+    avatar: "/placeholder.svg",
+    description: "Author of 'Atlas Shrugged' and 'The Fountainhead'. Philosopher of Objectivism and advocate for rational individualism."
+  },
+  {
+    id: "washington",
+    name: "George Washington",
+    role: "Founding Father",
+    field: "1st President, Revolutionary Leader",
+    avatar: "/placeholder.svg",
+    description: "First President of the United States and commanding general of the Continental Army. Father of the American nation."
+  },
+  {
+    id: "jefferson",
+    name: "Thomas Jefferson",
+    role: "Founding Father",
+    field: "3rd President, Declaration Author",
+    avatar: "/placeholder.svg",
+    description: "Third President and primary author of the Declaration of Independence. Champion of individual liberty and democracy."
+  },
+  {
+    id: "friedman",
+    name: "Milton Friedman",
+    role: "Economist",
+    field: "Nobel Laureate, Free Market",
+    avatar: "/placeholder.svg",
+    description: "Nobel Prize-winning economist and advocate for free market capitalism. Influential monetary theorist and policy advisor."
   }
 ];
 
