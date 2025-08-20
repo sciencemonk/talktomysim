@@ -142,19 +142,6 @@ const ChatInterface = ({ agent, onShowAgentDetails, onAgentUpdate }: ChatInterfa
                 <p className="text-lg text-muted-foreground">{currentAgent.type} • {currentAgent.subject || 'General'}</p>
               </div>
             </div>
-            
-            {isPersonalAgent ? (
-              <Button variant="ghost" size="sm" onClick={handleShowSettings} className="gap-2 text-lg">
-                <Settings className="h-5 w-5" />
-                Edit
-              </Button>
-            ) : (
-              <ShareButton 
-                tutorId={currentAgent.id} 
-                tutorName={currentAgent.name}
-                className="text-lg"
-              />
-            )}
           </div>
         </div>
 
