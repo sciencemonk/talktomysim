@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { Outlet } from "react-router-dom";
 import { ThemeToggle } from "@/components/ThemeToggle";
-import UserSettingsDropdown from "@/components/UserSettingsDropdown";
+import UserSidebar from "@/components/UserSidebar";
 import UsageBilling from "@/components/UsageBilling";
 
 const DashboardLayout = () => {
@@ -19,28 +19,17 @@ const DashboardLayout = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <header className="flex h-16 shrink-0 items-center justify-between border-b px-4">
-        <div className="flex items-center">
-          <UserSettingsDropdown 
-            onShowBilling={() => setShowBilling(true)}
-            trigger={
-              <img 
-                src="/lovable-uploads/55ccce33-98a1-45d2-9e9e-7b446a02a417.png" 
-                alt="Think With Me" 
-                className="h-8 w-8 cursor-pointer hover:opacity-80 transition-opacity"
-              />
-            }
-          />
-        </div>
-        
-        <div className="flex items-center gap-4">
-          <ThemeToggle />
-        </div>
-      </header>
+    <div className="min-h-screen bg-background flex">
+      <UserSidebar onShowBilling={() => setShowBilling(true)} />
       
-      <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
-        <Outlet />
+      <div className="flex-1 flex flex-col">
+        <header className="flex h-16 shrink-0 items-center justify-end border-b px-4">
+          <ThemeToggle />
+        </header>
+        
+        <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
+          <Outlet />
+        </div>
       </div>
     </div>
   );

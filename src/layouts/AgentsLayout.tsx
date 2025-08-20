@@ -1,7 +1,8 @@
+
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import AgentsSidebar from "@/components/AgentsSidebar";
 import { Outlet } from "react-router-dom";
-import UserSettingsDropdown from "@/components/UserSettingsDropdown";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import ProtectedRoute from "@/components/ProtectedRoute";
 
 const AgentsLayout = () => {
@@ -13,7 +14,7 @@ const AgentsLayout = () => {
           <main className="flex-1 flex flex-col">
             <header className="flex items-center justify-between p-4 border-b">
               <SidebarTrigger />
-              <UserSettingsDropdown />
+              <ThemeToggle />
             </header>
             <div className="flex-1 p-6">
               <Outlet />
