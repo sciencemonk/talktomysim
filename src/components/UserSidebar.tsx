@@ -1,4 +1,3 @@
-
 import { useLocation } from "react-router-dom";
 import { 
   Bot, 
@@ -16,7 +15,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -34,6 +33,7 @@ interface UserSidebarProps {
   onShowAgentCreate?: () => void;
   selectedAgent?: AgentType | null;
   onSelectAgent?: (agent: AgentType) => void;
+  refreshTrigger?: number;
 }
 
 const UserSidebar = ({ 
@@ -43,12 +43,19 @@ const UserSidebar = ({
   onShowAgents,
   onShowAgentCreate,
   selectedAgent,
-  onSelectAgent
+  onSelectAgent,
+  refreshTrigger
 }: UserSidebarProps) => {
   const { user, signOut } = useAuth();
   const { agents, isLoading } = useAgents();
   const location = useLocation();
   const [isCollapsed, setIsCollapsed] = useState(false);
+
+  useEffect(() => {
+    if (refreshTrigger) {
+      console.log('Refreshing agents list due to update');
+    }
+  }, [refreshTrigger]);
 
   const handleSignOut = async () => {
     await signOut();

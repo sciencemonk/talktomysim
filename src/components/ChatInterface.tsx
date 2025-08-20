@@ -12,6 +12,7 @@ import { useTextChat } from "@/hooks/useTextChat";
 interface ChatInterfaceProps {
   agent: AgentType;
   onShowAgentDetails?: () => void;
+  onAgentUpdate?: (updatedAgent: AgentType) => void;
 }
 
 // Simple markdown parser for basic formatting
@@ -27,7 +28,7 @@ const parseMarkdown = (text: string) => {
     .replace(/\n/g, '<br>');
 };
 
-const ChatInterface = ({ agent, onShowAgentDetails }: ChatInterfaceProps) => {
+const ChatInterface = ({ agent, onShowAgentDetails, onAgentUpdate }: ChatInterfaceProps) => {
   const [showSettings, setShowSettings] = useState(false);
   const [currentAgent, setCurrentAgent] = useState(agent);
   const [isAiResponding, setIsAiResponding] = useState(false);
@@ -65,6 +66,7 @@ const ChatInterface = ({ agent, onShowAgentDetails }: ChatInterfaceProps) => {
 
   const handleAgentUpdate = (updatedAgent: AgentType) => {
     setCurrentAgent(updatedAgent);
+    onAgentUpdate?.(updatedAgent);
   };
 
   const handleShowSettings = () => {
@@ -218,8 +220,8 @@ const ChatInterface = ({ agent, onShowAgentDetails }: ChatInterfaceProps) => {
                     </div>
                   )}
                   
-                  <div className="flex-1 min-w-0">
-                    <div className="prose prose-lg max-w-none dark:prose-invert">
+                  <div className="flex-1 min-w-0 flex items-start">
+                    <div className="prose prose-lg max-w-none dark:prose-invert mt-1">
                       <div 
                         className="text-xl leading-relaxed break-words font-medium"
                         dangerouslySetInnerHTML={{ 
@@ -248,7 +250,7 @@ const ChatInterface = ({ agent, onShowAgentDetails }: ChatInterfaceProps) => {
                       <Bot className="h-6 w-6" />
                     </AvatarFallback>
                   </Avatar>
-                  <div className="flex-1 min-w-0">
+                  <div className="flex-1 min-w-0 flex items-start">
                     <div className="flex items-center gap-1 mt-3">
                       <div className="w-3 h-3 bg-muted-foreground rounded-full animate-pulse" />
                       <div className="w-3 h-3 bg-muted-foreground rounded-full animate-pulse" style={{ animationDelay: '0.2s' }} />

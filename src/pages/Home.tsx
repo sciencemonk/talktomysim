@@ -1,107 +1,103 @@
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useAuth } from "@/hooks/useAuth";
-import { Navigate } from "react-router-dom";
 import UserSidebar from "@/components/UserSidebar";
-import Settings from "@/pages/Settings";
-import Billing from "@/pages/Billing";
-import ChildProfile from "@/pages/ChildProfile";
-import AgentsDashboard from "@/pages/AgentsDashboard";
-import AgentCreate from "@/pages/AgentCreate";
 import ChatInterface from "@/components/ChatInterface";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import AgentConfigSettings from "@/components/AgentConfigSettings";
+import UsageBilling from "@/components/UsageBilling";
+import ChildProfile from "@/pages/ChildProfile";
+import Settings from "@/pages/Settings";
+import AgentCreate from "@/pages/AgentCreate";
 import { AgentType } from "@/types/agent";
-
-type ModalType = 'settings' | 'billing' | 'child-profile' | 'agents' | 'agent-create' | null;
+import { useAgents } from "@/hooks/useAgents";
 
 const Home = () => {
-  const { user, loading } = useAuth();
-  const [activeModal, setActiveModal] = useState<ModalType>(null);
+  const { user } = useAuth();
+  const { agents } = useAgents();
   const [selectedAgent, setSelectedAgent] = useState<AgentType | null>(null);
+  const [currentView, setCurrentView] = useState<'chat' | 'billing' | 'child-profile' | 'settings' | 'agents' | 'agent-create'>('chat');
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
 
-  if (loading) {
-    return (
-      <div className="h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-      </div>
-    );
+  const handleSelectAgent = useCallback((agent: AgentType) => {
+    setSelectedAgent(agent);
+    setCurrentView('chat');
+  }, []);
+
+  const handleAgentUpdate = useCallback((updatedAgent: AgentType) => {
+    setSelectedAgent(updatedAgent);
+    // Trigger sidebar refresh to show updated agent name
+    setRefreshTrigger(prev => prev + 1);
+  }, []);
+
+  const handleShowBilling = () => setCurrentView('billing');
+  const handleShowChildProfile = () => setCurrentView('child-profile');
+  const handleShowSettings = () => setCurrentView('settings');
+  const handleShowAgents = () => setCurrentView('agents');
+  const handleShowAgentCreate = () => setCurrentView('agent-create');
+
+  // Set first agent as selected if none selected
+  if (!selectedAgent && agents.length > 0) {
+    setSelectedAgent(agents[0]);
   }
+
+  const renderMainContent = () => {
+    switch (currentView) {
+      case 'billing':
+        return <UsageBilling />;
+      case 'child-profile':
+        return <ChildProfile />;
+      case 'settings':
+        return <Settings />;
+      case 'agent-create':
+        return (
+          <AgentCreate 
+            onAgentCreated={(agent) => {
+              setSelectedAgent(agent);
+              setCurrentView('chat');
+              setRefreshTrigger(prev => prev + 1);
+            }}
+          />
+        );
+      case 'chat':
+      default:
+        if (!selectedAgent) {
+          return (
+            <div className="flex-1 flex items-center justify-center">
+              <div className="text-center">
+                <p className="text-xl text-muted-foreground mb-4">No thinking partners yet</p>
+                <p className="text-muted-foreground">Create your first thinking partner to get started!</p>
+              </div>
+            </div>
+          );
+        }
+        return (
+          <ChatInterface 
+            agent={selectedAgent} 
+            onAgentUpdate={handleAgentUpdate}
+          />
+        );
+    }
+  };
 
   if (!user) {
-    return <Navigate to="/login" replace />;
+    return <div>Loading...</div>;
   }
 
-  const closeModal = () => setActiveModal(null);
-
   return (
-    <div className="min-h-screen bg-background flex">
-      <UserSidebar 
-        onShowBilling={() => setActiveModal('billing')}
-        onShowSettings={() => setActiveModal('settings')}
-        onShowChildProfile={() => setActiveModal('child-profile')}
-        onShowAgents={() => setActiveModal('agents')}
-        onShowAgentCreate={() => setActiveModal('agent-create')}
+    <div className="flex h-screen bg-background">
+      <UserSidebar
+        onShowBilling={handleShowBilling}
+        onShowSettings={handleShowSettings}
+        onShowChildProfile={handleShowChildProfile}
+        onShowAgents={handleShowAgents}
+        onShowAgentCreate={handleShowAgentCreate}
         selectedAgent={selectedAgent}
-        onSelectAgent={setSelectedAgent}
+        onSelectAgent={handleSelectAgent}
+        refreshTrigger={refreshTrigger}
       />
-      
-      <div className="flex-1 flex flex-col">
-        {selectedAgent ? (
-          <ChatInterface 
-            agent={selectedAgent}
-            onShowAgentDetails={() => setActiveModal('agents')}
-          />
-        ) : (
-          <div className="flex-1 flex flex-col items-center justify-center px-6">
-            <div className="w-12 h-12 bg-muted rounded-xl flex items-center justify-center mb-4">
-              <img 
-                src="/lovable-uploads/55ccce33-98a1-45d2-9e9e-7b446a02a417.png" 
-                alt="Think With Me" 
-                className="h-8 w-8"
-              />
-            </div>
-            <h2 className="text-2xl font-semibold mb-2">How can I help you today?</h2>
-            <p className="text-sm text-muted-foreground text-center max-w-md mb-8">
-              Choose a thinking partner from the sidebar to start learning together.
-            </p>
-          </div>
-        )}
+      <div className="flex-1 flex flex-col min-w-0">
+        {renderMainContent()}
       </div>
-
-      {/* Settings Modal */}
-      <Dialog open={activeModal === 'settings'} onOpenChange={closeModal}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-          <Settings />
-        </DialogContent>
-      </Dialog>
-
-      {/* Billing Modal */}
-      <Dialog open={activeModal === 'billing'} onOpenChange={closeModal}>
-        <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
-          <Billing />
-        </DialogContent>
-      </Dialog>
-
-      {/* Child Profile Modal */}
-      <Dialog open={activeModal === 'child-profile'} onOpenChange={closeModal}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-          <ChildProfile />
-        </DialogContent>
-      </Dialog>
-
-      {/* Agents Dashboard Modal */}
-      <Dialog open={activeModal === 'agents'} onOpenChange={closeModal}>
-        <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
-          <AgentsDashboard />
-        </DialogContent>
-      </Dialog>
-
-      {/* Agent Creation Modal */}
-      <Dialog open={activeModal === 'agent-create'} onOpenChange={closeModal}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-          <AgentCreate />
-        </DialogContent>
-      </Dialog>
     </div>
   );
 };
