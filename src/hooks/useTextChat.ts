@@ -1,6 +1,7 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { AgentType } from '@/types/agent';
+import { supabase } from '@/integrations/supabase/client';
 
 interface UseTextChatProps {
   agent: AgentType;
@@ -52,12 +53,9 @@ export const useTextChat = ({
       
       abortControllerRef.current = new AbortController();
       
-      const response = await fetch('/functions/v1/chat-completion', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
+      // Use Supabase client to call the edge function
+      const { data, error } = await supabase.functions.invoke('chat-completion', {
+        body: {
           messages: newHistory,
           agent: {
             name: agent.name,
@@ -68,26 +66,17 @@ export const useTextChat = ({
             gradeLevel: agent.gradeLevel,
             learningObjective: agent.learningObjective
           }
-        }),
-        signal: abortControllerRef.current.signal
+        }
       });
 
-      console.log('Response status:', response.status);
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('HTTP error:', response.status, errorText);
-        throw new Error(`HTTP error! status: ${response.status} - ${errorText}`);
-      }
-
-      const data = await response.json();
       console.log('Response data:', data);
       
-      if (data.error) {
-        throw new Error(data.error);
+      if (error) {
+        console.error('Supabase function error:', error);
+        throw error;
       }
 
-      if (data.content) {
+      if (data?.content) {
         // Add the AI response as a single message
         onAiTextDelta(data.content);
         
