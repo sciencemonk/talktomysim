@@ -110,45 +110,62 @@ export const useChatHistory = (agent: AgentType) => {
   const completeAiMessage = useCallback(async (messageId: string) => {
     if (!conversationId) return;
 
-    // Find the current message content
-    const currentMessages = messages;
-    const currentMessage = currentMessages.find(msg => msg.id === messageId);
-    if (!currentMessage || !currentMessage.content.trim()) {
-      console.error('No message content found for ID:', messageId);
-      return;
-    }
+    // Use a function to get the current message content
+    setMessages(prev => {
+      const currentMessage = prev.find(msg => msg.id === messageId);
+      if (!currentMessage || !currentMessage.content.trim()) {
+        console.error('No message content found for ID:', messageId);
+        return prev;
+      }
 
-    console.log('Completing AI message:', currentMessage.content);
+      console.log('Completing AI message:', currentMessage.content);
 
-    // Mark as complete first
-    setMessages(prev => 
-      prev.map(msg => 
+      // Save to database in the background
+      conversationService.addMessage(
+        conversationId, 
+        'system', 
+        currentMessage.content
+      ).then(savedMessage => {
+        if (savedMessage) {
+          console.log('AI message saved to database:', savedMessage);
+          setMessages(prevMessages => 
+            prevMessages.map(msg => 
+              msg.id === messageId 
+                ? { ...msg, id: savedMessage.id, isComplete: true }
+                : msg
+            )
+          );
+        } else {
+          console.error('Failed to save AI message to database');
+          // Still mark as complete even if save failed
+          setMessages(prevMessages => 
+            prevMessages.map(msg => 
+              msg.id === messageId 
+                ? { ...msg, isComplete: true }
+                : msg
+            )
+          );
+        }
+      }).catch(error => {
+        console.error('Error saving AI message:', error);
+        // Still mark as complete even if save failed
+        setMessages(prevMessages => 
+          prevMessages.map(msg => 
+            msg.id === messageId 
+              ? { ...msg, isComplete: true }
+              : msg
+          )
+        );
+      });
+
+      // Mark as complete immediately in the UI
+      return prev.map(msg => 
         msg.id === messageId 
           ? { ...msg, isComplete: true }
           : msg
-      )
-    );
-
-    // Save to database
-    const savedMessage = await conversationService.addMessage(
-      conversationId, 
-      'system', 
-      currentMessage.content
-    );
-    
-    if (savedMessage) {
-      console.log('AI message saved to database:', savedMessage);
-      setMessages(prev => 
-        prev.map(msg => 
-          msg.id === messageId 
-            ? { ...msg, id: savedMessage.id }
-            : msg
-        )
       );
-    } else {
-      console.error('Failed to save AI message to database');
-    }
-  }, [conversationId, messages]);
+    });
+  }, [conversationId]);
 
   return {
     messages,
