@@ -66,7 +66,12 @@ export const conversationService = {
         .order('created_at', { ascending: true });
 
       if (error) throw error;
-      return data || [];
+      
+      // Type cast the role field to ensure it matches our Message interface
+      return (data || []).map(msg => ({
+        ...msg,
+        role: msg.role as 'user' | 'system'
+      }));
     } catch (error) {
       console.error('Error fetching messages:', error);
       return [];
@@ -87,7 +92,12 @@ export const conversationService = {
         .single();
 
       if (error) throw error;
-      return data;
+      
+      // Type cast the role field to ensure it matches our Message interface
+      return {
+        ...data,
+        role: data.role as 'user' | 'system'
+      };
     } catch (error) {
       console.error('Error adding message:', error);
       return null;
