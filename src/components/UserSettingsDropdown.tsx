@@ -1,3 +1,4 @@
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -9,10 +10,14 @@ import {
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { useAuth } from "@/hooks/useAuth";
-import { Settings, LogOut } from "lucide-react";
+import { Settings, LogOut, User } from "lucide-react";
 import { Link } from "react-router-dom";
 
-const UserSettingsDropdown = () => {
+interface UserSettingsDropdownProps {
+  onShowBilling?: () => void;
+}
+
+const UserSettingsDropdown = ({ onShowBilling }: UserSettingsDropdownProps) => {
   const { user, signOut } = useAuth();
 
   const handleSignOut = async () => {
@@ -40,9 +45,23 @@ const UserSettingsDropdown = () => {
             <p className="text-xs leading-none text-muted-foreground">
               {user?.email}
             </p>
+            {onShowBilling && (
+              <button
+                onClick={onShowBilling}
+                className="text-xs text-primary hover:text-primary/80 underline font-medium text-left mt-1"
+              >
+                0.0 hours left
+              </button>
+            )}
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
+        <DropdownMenuItem asChild>
+          <Link to="/child-profile" className="w-full flex items-center">
+            <User className="mr-2 h-4 w-4" />
+            <span>Child Profile</span>
+          </Link>
+        </DropdownMenuItem>
         <DropdownMenuItem asChild>
           <Link to="/settings" className="w-full flex items-center">
             <Settings className="mr-2 h-4 w-4" />
