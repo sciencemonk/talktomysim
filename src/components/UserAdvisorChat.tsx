@@ -25,7 +25,7 @@ const UserAdvisorChat = ({ advisor }: UserAdvisorChatProps) => {
     completeAiMessage
   } = useChatHistory(advisor);
 
-  const { sendMessage, isLoading: sendingMessage } = useTextChat(
+  const { sendMessage, isProcessing, connectionStatus } = useTextChat(
     advisor.prompt,
     addUserMessage,
     startAiMessage,
@@ -34,7 +34,7 @@ const UserAdvisorChat = ({ advisor }: UserAdvisorChatProps) => {
   );
 
   const handleSendMessage = async () => {
-    if (!inputMessage.trim() || sendingMessage) return;
+    if (!inputMessage.trim() || isProcessing) return;
 
     const message = inputMessage.trim();
     setInputMessage("");
@@ -151,12 +151,12 @@ const UserAdvisorChat = ({ advisor }: UserAdvisorChatProps) => {
             onChange={(e) => setInputMessage(e.target.value)}
             onKeyPress={handleKeyPress}
             placeholder="Type your message..."
-            disabled={sendingMessage}
+            disabled={isProcessing || connectionStatus !== 'connected'}
             className="flex-1"
           />
           <Button 
             onClick={handleSendMessage}
-            disabled={!inputMessage.trim() || sendingMessage}
+            disabled={!inputMessage.trim() || isProcessing || connectionStatus !== 'connected'}
             size="icon"
           >
             <Send className="h-4 w-4" />

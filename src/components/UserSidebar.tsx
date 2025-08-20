@@ -1,271 +1,119 @@
-
-import React, { useState } from "react";
+import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
-import { useAgents } from "@/hooks/useAgents";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useUserAdvisors } from "@/hooks/useUserAdvisors";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Bot, ChevronLeft, ChevronRight, Menu, Search, X } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { useIsMobile } from "@/hooks/use-mobile";
-import {
-  Drawer,
-  DrawerClose,
-  DrawerContent,
-  DrawerTrigger,
-} from "@/components/ui/drawer";
-import { AgentType } from "@/types/agent";
-import UserSettingsDropdown from "./UserSettingsDropdown";
-import { AdvisorSearchModal } from "./AdvisorSearchModal";
+import { Search, MessageSquare, Plus } from "lucide-react";
+import AdvisorSearchModal from "./AdvisorSearchModal";
+import { UserAdvisor } from "@/services/userAdvisorService";
+import { Advisor } from "@/types/advisor";
 
-export interface UserSidebarProps {
-  onShowSettings: () => void;
-  onShowChildProfile: () => void;
-  onShowAgents: () => void;
-  onShowAgentCreate: () => void;
-  selectedAgent?: AgentType | null;
-  onSelectAgent: (agent: AgentType) => void;
-  refreshTrigger?: number;
+interface UserSidebarProps {
+  onAdvisorSelect: (advisor: UserAdvisor) => void;
 }
 
-const UserSidebar: React.FC<UserSidebarProps> = ({
-  onShowSettings,
-  onShowChildProfile,
-  onShowAgents,
-  onShowAgentCreate,
-  selectedAgent,
-  onSelectAgent,
-  refreshTrigger = 0
-}) => {
+const UserSidebar = ({ onAdvisorSelect }: UserSidebarProps) => {
   const { user } = useAuth();
-  const { agents, isLoading } = useAgents();
-  const isMobile = useIsMobile();
-  const [isMobileOpen, setIsMobileOpen] = useState(false);
-  const [collapsed, setCollapsed] = useState(false);
-  const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
+  const { userAdvisors, addAdvisor, isLoading } = useUserAdvisors();
+  const [showAdvisorSearch, setShowAdvisorSearch] = useState(false);
 
-  if (!user) {
-    return null;
-  }
+  const handleAdvisorSelect = async (advisor: Advisor) => {
+    setShowAdvisorSearch(false);
+    
+    // Add advisor to user's collection
+    const userAdvisor = await addAdvisor(advisor);
+    if (userAdvisor) {
+      onAdvisorSelect(userAdvisor);
+    }
+  };
+
+  const handleAdvisorClick = (advisor: UserAdvisor) => {
+    onAdvisorSelect(advisor);
+  };
 
   return (
-    <>
-      {isMobile ? (
-        <Drawer open={isMobileOpen} onOpenChange={setIsMobileOpen}>
-          <div className="fixed top-4 left-4 z-50">
-            <DrawerTrigger asChild>
-              <Button 
-                variant="ghost" 
-                size="icon"
-                className="h-10 w-10 bg-background/80 backdrop-blur-sm border border-border rounded-lg shadow-sm"
-              >
-                <Menu className="h-5 w-5" />
-              </Button>
-            </DrawerTrigger>
-          </div>
-          
-          <DrawerContent className="h-full w-80 fixed inset-y-0 left-0">
-            <div className="flex flex-col h-full">
-              <div className="p-4 border-b">
-                <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-lg font-semibold">Advisors</h2>
-                  <DrawerClose asChild>
-                    <Button variant="ghost" size="icon">
-                      <X className="h-4 w-4" />
-                    </Button>
-                  </DrawerClose>
-                </div>
-              </div>
-
-              <div className="flex-1 overflow-hidden">
-                <ScrollArea className="h-full">
-                  <div className="p-4">
-                    <div className="space-y-2">
-                      <div className="px-2 py-1">
-                        <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                          Your Advisors
-                        </h3>
-                      </div>
-                      
-                      {isLoading ? (
-                        <div className="space-y-2">
-                          {[...Array(3)].map((_, i) => (
-                            <div key={i} className="flex items-center space-x-3 px-2 py-2">
-                              <Skeleton className="h-8 w-8 rounded-lg" />
-                              <Skeleton className="h-4 flex-1" />
-                            </div>
-                          ))}
-                        </div>
-                      ) : agents.length > 0 ? (
-                        agents.map((agent) => (
-                          <Button
-                            key={agent.id}
-                            variant={selectedAgent?.id === agent.id ? "secondary" : "ghost"}
-                            className="w-full justify-start h-auto p-2"
-                            onClick={() => {
-                              onSelectAgent(agent);
-                              setIsMobileOpen(false);
-                            }}
-                          >
-                            <div className="flex items-center space-x-3 min-w-0 flex-1">
-                              <Avatar className="h-8 w-8">
-                                <AvatarImage src={agent.avatar} alt={agent.name} />
-                                <AvatarFallback className="text-xs">
-                                  <Bot className="h-4 w-4" />
-                                </AvatarFallback>
-                              </Avatar>
-                              <div className="flex-1 min-w-0 text-left">
-                                <div className="font-medium text-sm truncate">{agent.name}</div>
-                                <div className="text-xs text-muted-foreground truncate">
-                                  {agent.subject || agent.type}
-                                </div>
-                              </div>
-                            </div>
-                          </Button>
-                        ))
-                      ) : (
-                        <div className="text-center py-8 text-sm text-muted-foreground">
-                          No advisors yet
-                        </div>
-                      )}
-
-                      {/* Search Advisors Button - Mobile */}
-                      <Button 
-                        onClick={() => {
-                          setIsSearchModalOpen(true);
-                          setIsMobileOpen(false);
-                        }}
-                        variant="outline"
-                        className="w-full justify-start gap-2 mt-4"
-                      >
-                        <Search className="h-4 w-4" />
-                        Search Advisors
-                      </Button>
-                    </div>
-                  </div>
-                </ScrollArea>
-              </div>
-
-              <div className="p-4 border-t">
-                <UserSettingsDropdown onShowSettings={onShowSettings} />
-              </div>
-            </div>
-          </DrawerContent>
-        </Drawer>
-      ) : (
-        // Desktop sidebar
-        <div className={cn(
-          "flex flex-col h-screen bg-card border-r transition-all duration-300",
-          collapsed ? "w-16" : "w-64"
-        )}>
-          <div className="p-4 border-b">
-            <div className="flex items-center justify-between">
-              {!collapsed && (
-                <h1 className="text-lg font-semibold">Advisors</h1>
-              )}
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setCollapsed(!collapsed)}
-                className="h-8 w-8"
-              >
-                {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
-              </Button>
-            </div>
-          </div>
-
-          {/* Agent List */}
-          <div className="flex-1 overflow-hidden">
-            <ScrollArea className="h-full">
-              <div className="p-2">
-                {!collapsed && (
-                  <div className="px-2 py-1 mb-2">
-                    <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                      Your Advisors
-                    </h3>
-                  </div>
-                )}
-                
-                <div className="space-y-1">
-                  {isLoading ? (
-                    <div className="space-y-1">
-                      {[...Array(3)].map((_, i) => (
-                        <div key={i} className="flex items-center space-x-3 px-2 py-2">
-                          <Skeleton className="h-8 w-8 rounded-lg" />
-                          {!collapsed && <Skeleton className="h-4 flex-1" />}
-                        </div>
-                      ))}
-                    </div>
-                  ) : agents.length > 0 ? (
-                    agents.map((agent) => (
-                      <Button
-                        key={agent.id}
-                        variant={selectedAgent?.id === agent.id ? "secondary" : "ghost"}
-                        className={cn(
-                          "w-full h-auto p-2",
-                          collapsed ? "justify-center" : "justify-start"
-                        )}
-                        onClick={() => onSelectAgent(agent)}
-                      >
-                        <div className={cn(
-                          "flex items-center min-w-0 flex-1",
-                          collapsed ? "justify-center" : "space-x-3"
-                        )}>
-                          <Avatar className="h-8 w-8 flex-shrink-0">
-                            <AvatarImage src={agent.avatar} alt={agent.name} />
-                            <AvatarFallback className="text-xs">
-                              <Bot className="h-4 w-4" />
-                            </AvatarFallback>
-                          </Avatar>
-                          {!collapsed && (
-                            <div className="flex-1 min-w-0 text-left">
-                              <div className="font-medium text-sm truncate">{agent.name}</div>
-                              <div className="text-xs text-muted-foreground truncate">
-                                {agent.subject || agent.type}
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      </Button>
-                    ))
-                  ) : (
-                    !collapsed && (
-                      <div className="text-center py-8 text-sm text-muted-foreground">
-                        No advisors yet
-                      </div>
-                    )
-                  )}
-                </div>
-
-                {/* Search Advisors Button - Desktop */}
-                {!collapsed && (
-                  <Button 
-                    onClick={() => setIsSearchModalOpen(true)}
-                    variant="outline"
-                    className="w-full justify-start gap-2 mt-4"
-                  >
-                    <Search className="h-4 w-4" />
-                    Search Advisors
-                  </Button>
-                )}
-              </div>
-            </ScrollArea>
-          </div>
-
-          {/* Footer */}
-          <div className="p-2 border-t">
-            <UserSettingsDropdown onShowSettings={onShowSettings} collapsed={collapsed} />
-          </div>
+    <div className="w-80 border-r bg-muted/30 flex flex-col">
+      <div className="p-4 border-b">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-semibold">Your Advisors</h2>
+          <Button
+            onClick={() => setShowAdvisorSearch(true)}
+            size="sm"
+            variant="outline"
+          >
+            <Plus className="h-4 w-4 mr-1" />
+            Add
+          </Button>
         </div>
-      )}
+      </div>
+
+      <ScrollArea className="flex-1">
+        <div className="p-4 space-y-2">
+          {isLoading ? (
+            <div className="text-center py-8">
+              <div className="animate-pulse">Loading advisors...</div>
+            </div>
+          ) : userAdvisors.length === 0 ? (
+            <div className="text-center py-8">
+              <div className="text-muted-foreground mb-4">
+                No advisors yet
+              </div>
+              <Button
+                onClick={() => setShowAdvisorSearch(true)}
+                variant="outline"
+                size="sm"
+              >
+                <Search className="h-4 w-4 mr-2" />
+                Find Advisors
+              </Button>
+            </div>
+          ) : (
+            userAdvisors.map((advisor) => (
+              <Card
+                key={advisor.id}
+                className="cursor-pointer transition-colors hover:bg-muted/50"
+                onClick={() => handleAdvisorClick(advisor)}
+              >
+                <CardContent className="p-3">
+                  <div className="flex items-center gap-3">
+                    <Avatar className="h-10 w-10">
+                      <AvatarImage src={advisor.avatar_url} alt={advisor.name} />
+                      <AvatarFallback>
+                        {advisor.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-medium text-sm truncate">{advisor.name}</h3>
+                      {advisor.title && (
+                        <p className="text-xs text-muted-foreground truncate">
+                          {advisor.title}
+                        </p>
+                      )}
+                      {advisor.category && (
+                        <Badge variant="secondary" className="text-xs mt-1">
+                          {advisor.category}
+                        </Badge>
+                      )}
+                    </div>
+                    <MessageSquare className="h-4 w-4 text-muted-foreground" />
+                  </div>
+                </CardContent>
+              </Card>
+            ))
+          )}
+        </div>
+      </ScrollArea>
 
       {/* Advisor Search Modal */}
-      <AdvisorSearchModal 
-        open={isSearchModalOpen} 
-        onOpenChange={setIsSearchModalOpen}
+      <AdvisorSearchModal
+        isOpen={showAdvisorSearch}
+        onClose={() => setShowAdvisorSearch(false)}
+        onAdvisorSelect={handleAdvisorSelect}
       />
-    </>
+    </div>
   );
 };
 
