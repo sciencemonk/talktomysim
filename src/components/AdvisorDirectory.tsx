@@ -105,7 +105,7 @@ const AdvisorDirectory = ({ onSelectAdvisor, onAuthRequired }: AdvisorDirectoryP
               alt="Simulacra" 
               className="h-6 w-6"
             />
-            <h1 className="font-semibold">Simulacra</h1>
+            <h1 className="font-semibold hidden sm:block">Simulacra</h1>
           </div>
           
           <div className="w-10" /> {/* Spacer for balance */}
