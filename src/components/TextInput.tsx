@@ -45,7 +45,7 @@ export const TextInput: React.FC<TextInputProps> = ({
     const target = e.target as HTMLTextAreaElement;
     // Auto-resize
     target.style.height = 'auto';
-    target.style.height = Math.min(target.scrollHeight, 200) + 'px';
+    target.style.height = Math.min(target.scrollHeight, 150) + 'px';
   };
 
   // Reset height when message is cleared
@@ -63,10 +63,10 @@ export const TextInput: React.FC<TextInputProps> = ({
   }, [disabled]);
 
   return (
-    <div className="w-full p-5">
+    <div className="w-full p-3">
       <div className="max-w-4xl mx-auto">
         <form onSubmit={handleSubmit} className="relative">
-          <div className="flex items-end gap-4 bg-background border border-input rounded-2xl p-5 shadow-sm focus-within:border-ring transition-colors">
+          <div className="flex items-end gap-3 bg-background border border-input rounded-xl p-3 shadow-sm focus-within:border-ring transition-colors">
             <Textarea
               ref={textareaRef}
               value={message}
@@ -75,16 +75,16 @@ export const TextInput: React.FC<TextInputProps> = ({
               onInput={handleInput}
               placeholder={placeholder}
               disabled={disabled}
-              className="flex-1 min-h-[28px] max-h-[200px] resize-none border-0 p-0 shadow-none focus-visible:ring-0 bg-transparent text-base placeholder:text-muted-foreground font-medium"
+              className="flex-1 min-h-[24px] max-h-[150px] resize-none border-0 p-0 shadow-none focus-visible:ring-0 bg-transparent text-sm placeholder:text-muted-foreground"
               rows={1}
             />
             <Button 
               type="submit" 
               disabled={!message.trim() || disabled}
-              size="default"
-              className="h-10 w-10 p-0 flex-shrink-0 rounded-xl"
+              size="sm"
+              className="h-8 w-8 p-0 flex-shrink-0 rounded-lg"
             >
-              <Send className="h-5 w-5" />
+              <Send className="h-4 w-4" />
             </Button>
           </div>
         </form>
