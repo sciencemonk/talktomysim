@@ -12,23 +12,23 @@ export const advisorRemovalService = {
 
       console.log('Removing advisor:', advisorId, 'for user:', user.id);
 
-      // Get conversations to delete - using simple query to avoid deep type inference
-      const conversationsQuery = await supabase
+      // Get conversations to delete - explicitly type the response to avoid deep inference
+      const conversationsResponse = await supabase
         .from('conversations')
         .select('id')
         .eq('user_id', user.id)
-        .eq('advisor_id', advisorId);
+        .eq('advisor_id', advisorId) as { data: { id: string }[] | null; error: any };
 
-      if (conversationsQuery.error) {
-        console.error('Error fetching conversations:', conversationsQuery.error);
-        throw conversationsQuery.error;
+      if (conversationsResponse.error) {
+        console.error('Error fetching conversations:', conversationsResponse.error);
+        throw conversationsResponse.error;
       }
 
-      const conversations = conversationsQuery.data;
+      const conversations = conversationsResponse.data;
 
       if (conversations && conversations.length > 0) {
         // Delete all messages for these conversations
-        const conversationIds = conversations.map((c: any) => c.id);
+        const conversationIds = conversations.map((c) => c.id);
         
         const messagesDelete = await supabase
           .from('messages')
