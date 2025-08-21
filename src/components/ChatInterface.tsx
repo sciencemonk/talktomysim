@@ -14,6 +14,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { SidebarContent } from "./UserSidebar";
+import { InfoModal } from "./InfoModal";
 
 interface ChatInterfaceProps {
   agent: AgentType;
@@ -90,6 +91,7 @@ const ChatInterface = ({ agent, onBack }: ChatInterfaceProps) => {
               </p>
             </div>
           </div>
+          <InfoModal />
         </div>
       </div>
 

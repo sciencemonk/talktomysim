@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/drawer";
 import { useState } from "react";
 import { ShareButton } from "@/components/ShareButton";
+import { InfoModal } from "@/components/InfoModal";
 
 const StudentChat = () => {
   const { agentId } = useParams<{ agentId: string }>();
@@ -133,15 +134,16 @@ const StudentChat = () => {
             </div>
           </div>
           
-          {/* Only ShareButton - no edit button */}
-          {!isMobile && (
-            <div className="flex-shrink-0">
+          {/* ShareButton and InfoModal */}
+          <div className="flex items-center gap-2 flex-shrink-0">
+            {!isMobile && (
               <ShareButton 
                 tutorId={agent.id}
                 tutorName={agent.name}
               />
-            </div>
-          )}
+            )}
+            <InfoModal />
+          </div>
         </div>
       </div>
 
