@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -24,7 +25,8 @@ const AdvisorForm = ({ open, onOpenChange, advisor, onSuccess }: AdvisorFormProp
     name: '',
     title: '',
     prompt: '',
-    avatar_url: ''
+    avatar_url: '',
+    url: ''
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
@@ -39,7 +41,8 @@ const AdvisorForm = ({ open, onOpenChange, advisor, onSuccess }: AdvisorFormProp
         name: advisor.name || '',
         title: advisor.title || '',
         prompt: advisor.prompt || '',
-        avatar_url: advisor.avatar_url || ''
+        avatar_url: advisor.avatar_url || '',
+        url: (advisor as any).url || ''
       });
       setPreviewUrl(advisor.avatar_url || '');
       setActiveTab('basic');
@@ -48,7 +51,8 @@ const AdvisorForm = ({ open, onOpenChange, advisor, onSuccess }: AdvisorFormProp
         name: '',
         title: '',
         prompt: '',
-        avatar_url: ''
+        avatar_url: '',
+        url: ''
       });
       setPreviewUrl('');
       setActiveTab('basic');
@@ -58,6 +62,23 @@ const AdvisorForm = ({ open, onOpenChange, advisor, onSuccess }: AdvisorFormProp
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  // Auto-generate URL slug from name
+  const handleNameChange = (value: string) => {
+    setFormData(prev => {
+      const urlSlug = value.toLowerCase()
+        .replace(/[^a-z0-9\s-]/g, '') // Remove special characters
+        .replace(/\s+/g, '-') // Replace spaces with hyphens
+        .replace(/-+/g, '-') // Replace multiple hyphens with single
+        .trim();
+      
+      return {
+        ...prev,
+        name: value,
+        url: prev.url || urlSlug // Only auto-generate if URL is empty
+      };
+    });
   };
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -134,6 +155,15 @@ const AdvisorForm = ({ open, onOpenChange, advisor, onSuccess }: AdvisorFormProp
       return;
     }
 
+    if (formData.url && !/^[a-z0-9-]+$/.test(formData.url)) {
+      toast({
+        title: "Validation Error",
+        description: "URL can only contain lowercase letters, numbers, and hyphens",
+        variant: "destructive"
+      });
+      return;
+    }
+
     setIsSubmitting(true);
     try {
       const avatarUrl = await uploadImage();
@@ -200,7 +230,7 @@ const AdvisorForm = ({ open, onOpenChange, advisor, onSuccess }: AdvisorFormProp
                 <Input
                   id="name"
                   value={formData.name}
-                  onChange={(e) => handleInputChange('name', e.target.value)}
+                  onChange={(e) => handleNameChange(e.target.value)}
                   placeholder="Advisor name"
                   required
                 />
@@ -214,6 +244,23 @@ const AdvisorForm = ({ open, onOpenChange, advisor, onSuccess }: AdvisorFormProp
                   onChange={(e) => handleInputChange('title', e.target.value)}
                   placeholder="Professional title"
                 />
+              </div>
+
+              <div>
+                <Label htmlFor="url">Custom URL Path</Label>
+                <div className="flex items-center">
+                  <span className="text-sm text-muted-foreground mr-1">/</span>
+                  <Input
+                    id="url"
+                    value={formData.url}
+                    onChange={(e) => handleInputChange('url', e.target.value)}
+                    placeholder="thomas-jefferson"
+                    className="flex-1"
+                  />
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  This will be the URL path for the public chat (e.g., /thomas-jefferson). Only lowercase letters, numbers, and hyphens allowed.
+                </p>
               </div>
 
               <div>
