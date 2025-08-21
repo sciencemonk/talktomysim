@@ -1,3 +1,4 @@
+
 import { useLocation } from "react-router-dom";
 import { 
   Bot, 
@@ -324,7 +325,7 @@ const SidebarContent = ({
           {(!isCollapsed || !onToggleCollapse) && (
             <>
               <div className="text-center space-y-2">
-                <p className="text-lg font-medium">What will you ask?</p>
+                <p className="text-lg font-medium">Create your free Sim today.</p>
               </div>
               <Button
                 onClick={() => setShowAuthModal(true)}
@@ -332,7 +333,7 @@ const SidebarContent = ({
                 size="lg"
               >
                 <LogIn className="mr-2 h-4 w-4" />
-                Login
+                Get Started
               </Button>
             </>
           )}
