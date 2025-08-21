@@ -44,6 +44,58 @@ serve(async (req) => {
       throw new Error('Conversation not found')
     }
 
+    // Get the tutor/advisor ID for context retrieval
+    const advisorId = conversation.tutor_id
+
+    // Generate embedding for the user's message to find relevant context
+    const openaiApiKey = Deno.env.get('OPENAI_API_KEY')
+    if (!openaiApiKey) {
+      throw new Error('OpenAI API key not configured')
+    }
+
+    let relevantContext = ''
+    
+    if (advisorId) {
+      try {
+        // Generate embedding for user message
+        const embeddingResponse = await fetch('https://api.openai.com/v1/embeddings', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${openaiApiKey}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            model: 'text-embedding-ada-002',
+            input: userMessage
+          }),
+        })
+
+        if (embeddingResponse.ok) {
+          const embeddingData = await embeddingResponse.json()
+          const queryEmbedding = embeddingData.data[0].embedding
+
+          // Search for relevant context using vector similarity
+          const { data: relevantChunks, error: searchError } = await supabaseClient
+            .rpc('search_advisor_embeddings', {
+              query_embedding: queryEmbedding,
+              target_advisor_id: advisorId,
+              similarity_threshold: 0.7,
+              match_count: 5
+            })
+
+          if (!searchError && relevantChunks && relevantChunks.length > 0) {
+            relevantContext = relevantChunks
+              .map(chunk => chunk.chunk_text)
+              .join('\n\n')
+            
+            console.log(`Found ${relevantChunks.length} relevant context chunks`)
+          }
+        }
+      } catch (contextError) {
+        console.warn('Failed to retrieve context, continuing without it:', contextError)
+      }
+    }
+
     // Save user message
     const { error: userMsgError } = await supabaseClient
       .from('messages')
@@ -68,20 +120,19 @@ serve(async (req) => {
 
     const messages: ChatMessage[] = recentMessages || []
 
-    // Get OpenAI response
-    const openaiApiKey = Deno.env.get('OPENAI_API_KEY')
-    if (!openaiApiKey) {
-      throw new Error('OpenAI API key not configured')
+    // Enhance the system prompt with relevant context
+    let enhancedPrompt = tutorPrompt || conversation.tutors?.prompt || 'You are a helpful AI tutor.'
+    
+    if (relevantContext) {
+      enhancedPrompt += `\n\nRelevant context from your knowledge base:\n${relevantContext}\n\nUse this context to inform your response when relevant, but don't explicitly mention that you're using a knowledge base.`
     }
-
-    const systemPrompt = tutorPrompt || conversation.tutors?.prompt || 'You are a helpful AI tutor.'
-    const model = conversation.tutors?.model || 'gpt-4'
 
     const systemMessage = {
       role: 'system' as const,
-      content: systemPrompt
+      content: enhancedPrompt
     }
 
+    const model = conversation.tutors?.model || 'gpt-4'
     const chatMessages = [systemMessage, ...messages]
 
     const openaiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -130,7 +181,8 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({ 
         message: assistantMessage,
-        conversationId: conversationId
+        conversationId: conversationId,
+        contextUsed: relevantContext.length > 0
       }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },

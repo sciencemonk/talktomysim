@@ -14,6 +14,98 @@ export type Database = {
   }
   public: {
     Tables: {
+      advisor_documents: {
+        Row: {
+          advisor_id: string
+          content: string
+          created_at: string
+          file_size: number | null
+          file_type: string
+          id: string
+          processed_at: string | null
+          title: string
+          updated_at: string
+          upload_date: string
+        }
+        Insert: {
+          advisor_id: string
+          content: string
+          created_at?: string
+          file_size?: number | null
+          file_type: string
+          id?: string
+          processed_at?: string | null
+          title: string
+          updated_at?: string
+          upload_date?: string
+        }
+        Update: {
+          advisor_id?: string
+          content?: string
+          created_at?: string
+          file_size?: number | null
+          file_type?: string
+          id?: string
+          processed_at?: string | null
+          title?: string
+          updated_at?: string
+          upload_date?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "advisor_documents_advisor_id_fkey"
+            columns: ["advisor_id"]
+            isOneToOne: false
+            referencedRelation: "advisors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      advisor_embeddings: {
+        Row: {
+          advisor_id: string
+          chunk_index: number
+          chunk_text: string
+          created_at: string
+          document_id: string
+          embedding: string | null
+          id: string
+        }
+        Insert: {
+          advisor_id: string
+          chunk_index: number
+          chunk_text: string
+          created_at?: string
+          document_id: string
+          embedding?: string | null
+          id?: string
+        }
+        Update: {
+          advisor_id?: string
+          chunk_index?: number
+          chunk_text?: string
+          created_at?: string
+          document_id?: string
+          embedding?: string | null
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "advisor_embeddings_advisor_id_fkey"
+            columns: ["advisor_id"]
+            isOneToOne: false
+            referencedRelation: "advisors"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "advisor_embeddings_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "advisor_documents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       advisors: {
         Row: {
           avatar_url: string | null
@@ -327,7 +419,20 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      search_advisor_embeddings: {
+        Args: {
+          match_count?: number
+          query_embedding: string
+          similarity_threshold?: number
+          target_advisor_id: string
+        }
+        Returns: {
+          chunk_text: string
+          document_id: string
+          id: string
+          similarity: number
+        }[]
+      }
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"
