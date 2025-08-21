@@ -53,8 +53,10 @@ export const useAllAdvisors = () => {
           avmScore: tutor.avm_score || 0,
           csat: tutor.csat || 0,
           performance: tutor.performance || 0,
-          channels: Array.isArray(tutor.channels) ? (tutor.channels as string[]) : [],
-          channelConfigs: typeof tutor.channel_configs === 'object' && tutor.channel_configs !== null ? (tutor.channel_configs as Record<string, AgentChannelConfig>) : {},
+          channels: Array.isArray(tutor.channels) ? (tutor.channels as unknown as string[]) : [],
+          channelConfigs: typeof tutor.channel_configs === 'object' && tutor.channel_configs !== null && !Array.isArray(tutor.channel_configs) 
+            ? (tutor.channel_configs as unknown as Record<string, AgentChannelConfig>) 
+            : {},
           isPersonal: tutor.is_personal,
           phone: tutor.phone,
           email: tutor.email,
