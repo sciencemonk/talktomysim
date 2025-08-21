@@ -1,15 +1,15 @@
 
 import { useParams } from "react-router-dom";
 import { usePublicAgent } from "@/hooks/usePublicAgent";
-import { useRealtimeChat } from "@/hooks/useRealtimeChat";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Bot, Menu } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { TextInput } from "@/components/TextInput";
 import { InfoModal } from "@/components/InfoModal";
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useTextChat } from "@/hooks/useTextChat";
 import {
   Sheet,
   SheetContent,
@@ -17,20 +17,70 @@ import {
 } from "@/components/ui/sheet";
 import { SidebarContent } from "@/components/UserSidebar";
 
+interface Message {
+  id: string;
+  role: 'user' | 'system';
+  content: string;
+  timestamp: Date;
+  isComplete: boolean;
+}
+
 const StudentChat = () => {
   const { agentId } = useParams<{ agentId: string }>();
   const { agent, isLoading, error } = usePublicAgent(agentId);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
   
-  const {
-    messages,
-    isConnected,
-    isSpeaking,
-    connectionStatus,
-    sendTextMessage,
-    currentMessage
-  } = useRealtimeChat({ agent });
+  const [messages, setMessages] = useState<Message[]>([]);
+
+  // Simple message management for public chat (no persistence needed)
+  const addUserMessage = (content: string) => {
+    const message: Message = {
+      id: `user_${Date.now()}`,
+      role: 'user',
+      content,
+      timestamp: new Date(),
+      isComplete: true
+    };
+    setMessages(prev => [...prev, message]);
+  };
+
+  const startAiMessage = () => {
+    const messageId = `ai_${Date.now()}`;
+    const message: Message = {
+      id: messageId,
+      role: 'system',
+      content: '',
+      timestamp: new Date(),
+      isComplete: false
+    };
+    setMessages(prev => [...prev, message]);
+    return messageId;
+  };
+
+  const addAiTextDelta = (messageId: string, delta: string) => {
+    setMessages(prev => prev.map(msg => 
+      msg.id === messageId 
+        ? { ...msg, content: msg.content + delta }
+        : msg
+    ));
+  };
+
+  const completeAiMessage = (messageId: string) => {
+    setMessages(prev => prev.map(msg => 
+      msg.id === messageId 
+        ? { ...msg, isComplete: true }
+        : msg
+    ));
+  };
+
+  const textChat = useTextChat({
+    agent: agent!,
+    onUserMessage: addUserMessage,
+    onAiMessageStart: startAiMessage,
+    onAiTextDelta: addAiTextDelta,
+    onAiMessageComplete: completeAiMessage
+  });
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -142,19 +192,12 @@ const StudentChat = () => {
               }`}
             >
               {message.content}
+              {!message.isComplete && message.role === 'system' && (
+                <span className="animate-pulse">|</span>
+              )}
             </div>
           </div>
         ))}
-        
-        {/* Show current AI message being typed */}
-        {currentMessage && (
-          <div className="mb-2 flex flex-col items-start">
-            <div className="rounded-lg px-3 py-2 text-sm max-w-[85%] sm:max-w-[75%] md:max-w-[60%] lg:max-w-[40%] xl:max-w-[30%] bg-secondary text-secondary-foreground">
-              {currentMessage}
-              {isSpeaking && <span className="animate-pulse">|</span>}
-            </div>
-          </div>
-        )}
         
         <div ref={messagesEndRef} />
       </div>
@@ -162,14 +205,12 @@ const StudentChat = () => {
       {/* Input */}
       <div className="border-t bg-background flex-shrink-0 sticky bottom-0 z-10">
         <TextInput 
-          onSendMessage={sendTextMessage}
-          disabled={!isConnected || isSpeaking}
+          onSendMessage={textChat.sendMessage}
+          disabled={textChat.isProcessing}
           placeholder={
-            !isConnected 
-              ? "Connecting..." 
-              : isSpeaking 
-                ? `${agent.name} is speaking...` 
-                : `Message ${agent.name}...`
+            textChat.isProcessing 
+              ? `${agent.name} is typing...` 
+              : `Message ${agent.name}...`
           }
         />
       </div>
