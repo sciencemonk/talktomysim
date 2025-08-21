@@ -1,142 +1,122 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Bot, ArrowLeft } from 'lucide-react';
+
+import { useState, useEffect, useRef } from "react";
+import { Bot, Menu } from "lucide-react";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { TextInput } from "@/components/TextInput";
-import { useRealtimeChat } from "@/hooks/useRealtimeChat";
-import { ShareButton } from "@/components/ShareButton";
-import { InfoModal } from "@/components/InfoModal";
+import { useChatHistory } from "@/hooks/useChatHistory";
+import { useTextChat } from "@/hooks/useTextChat";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { AgentType } from "@/types/agent";
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import { SidebarContent } from "./UserSidebar";
 
 interface ChatInterfaceProps {
-  agent: {
-    id: string;
-    name: string;
-    avatar: string;
-    title: string;
-    type: string;
-  };
+  agent: AgentType;
   onBack: () => void;
 }
 
 const ChatInterface = ({ agent, onBack }: ChatInterfaceProps) => {
-  const realtimeChat = useRealtimeChat({ agent: agent! });
+  const [currentAgent, setCurrentAgent] = useState(agent);
+  const [isAiResponding, setIsAiResponding] = useState(false);
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const isMobile = useIsMobile();
+  
+  const chatHistory = useChatHistory(currentAgent);
+  const textChat = useTextChat({
+    agent: currentAgent,
+    onUserMessage: chatHistory.addUserMessage,
+    onAiMessageStart: chatHistory.startAiMessage,
+    onAiTextDelta: chatHistory.addAiTextDelta,
+    onAiMessageComplete: chatHistory.completeAiMessage
+  });
 
-  // Combine messages with current partial message if speaking
-  const allMessages = [...realtimeChat.messages];
-  if (realtimeChat.currentMessage && realtimeChat.isSpeaking) {
-    allMessages.push({
-      id: 'current',
-      role: 'system' as const,
-      content: realtimeChat.currentMessage,
-      timestamp: new Date(),
-      isComplete: false
-    });
-  }
+  useEffect(() => {
+    setCurrentAgent(agent);
+  }, [agent]);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [chatHistory.messages]);
 
   return (
-    <div className="h-screen flex flex-col w-full">
-      {/* Header */}
-      <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-4 sm:px-6 py-5 sticky top-0 z-10 flex-shrink-0">
-        <div className="flex items-center justify-between max-w-4xl mx-auto">
-          <div className="flex items-center gap-3 min-w-0 flex-1">
-            <Button variant="ghost" size="sm" onClick={onBack}>
-              <ArrowLeft className="h-4 w-4" />
-            </Button>
-            <Avatar className="h-10 w-10 flex-shrink-0">
-              <AvatarImage src={agent.avatar} alt={agent.name} />
-              <AvatarFallback className="bg-primary text-primary-foreground text-sm">
-                <Bot className="h-5 w-5" />
+    <div className="flex flex-col h-screen w-full">
+      {/* Header - Always visible on mobile */}
+      <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-4 sm:px-6 py-4 flex-shrink-0 sticky top-0 z-10">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            {isMobile && (
+              <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
+                <SheetTrigger asChild>
+                  <Button variant="ghost" size="sm" className="p-2">
+                    <Menu className="h-5 w-5" />
+                  </Button>
+                </SheetTrigger>
+                <SheetContent side="left" className="w-80 p-0">
+                  <SidebarContent
+                    selectedPublicAdvisors={[]}
+                    onSelectPublicAdvisor={() => {
+                      setIsSheetOpen(false);
+                    }}
+                    onRemovePublicAdvisor={() => {}}
+                    onShowAdvisorDirectory={() => {
+                      onBack();
+                      setIsSheetOpen(false);
+                    }}
+                    onClose={() => setIsSheetOpen(false)}
+                  />
+                </SheetContent>
+              </Sheet>
+            )}
+            <Avatar className="h-10 w-10 sm:h-12 sm:w-12">
+              <AvatarImage src={currentAgent.avatar} alt={currentAgent.name} />
+              <AvatarFallback className="bg-primary text-primary-foreground text-lg">
+                <Bot className="h-5 w-5 sm:h-6 sm:w-6" />
               </AvatarFallback>
             </Avatar>
             <div className="min-w-0 flex-1">
-              <h1 className="font-semibold text-lg truncate">{agent.name}</h1>
-              <p className="text-sm text-muted-foreground truncate">{agent.title || agent.type}</p>
+              <h1 className="text-lg sm:text-xl font-semibold truncate">{currentAgent.name}</h1>
+              <p className="text-xs sm:text-sm text-muted-foreground truncate">
+                {currentAgent.title || currentAgent.subject || currentAgent.type}
+              </p>
             </div>
-          </div>
-          
-          <div className="flex items-center gap-2 flex-shrink-0">
-            <ShareButton 
-              tutorId={agent.id}
-              tutorName={agent.name}
-            />
-            <InfoModal />
           </div>
         </div>
       </div>
 
-      {/* Chat Content Area - Scrollable between header and input */}
-      <div className="flex-1 flex flex-col overflow-hidden min-h-0">
-        {/* Messages Container */}
-        <div className="flex-1 overflow-y-auto">
-          {allMessages.length === 0 ? (
-            <div className="h-full flex flex-col items-center justify-center px-4 sm:px-6">
-              <div className="w-16 h-16 bg-muted rounded-2xl flex items-center justify-center mb-6">
-                <Bot className="h-8 w-8 text-muted-foreground" />
-              </div>
-              <h2 className="text-xl sm:text-2xl font-semibold mb-3 text-center">How can I help you today?</h2>
-              <p className="text-sm sm:text-base text-muted-foreground text-center max-w-md leading-relaxed">
-                {realtimeChat.connectionStatus === 'connecting' 
-                  ? 'Getting ready to chat...' 
-                  : realtimeChat.connectionStatus === 'error'
-                  ? 'Connection error - please refresh'
-                  : `I'm ${agent.name}, ready to help you learn and explore ideas together!`
-                }
-              </p>
+      {/* Messages - Scrollable area between header and input */}
+      <div className="flex-1 overflow-auto px-4 sm:p-4 min-h-0">
+        {chatHistory.messages.map((message) => (
+          <div
+            key={message.id}
+            className={`mb-2 flex flex-col ${message.role === 'user' ? 'items-end' : 'items-start'}`}
+          >
+            <div
+              className={`rounded-lg px-3 py-2 text-sm max-w-[85%] sm:max-w-[75%] md:max-w-[60%] lg:max-w-[40%] xl:max-w-[30%] ${message.role === 'user' ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground'}`}
+            >
+              {message.content}
             </div>
-          ) : (
-            <div className="max-w-4xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
-              <div className="space-y-6 sm:space-y-8">
-                {allMessages.map((message) => (
-                  <div key={message.id} className="flex gap-3 sm:gap-4">
-                    {message.role === 'system' && (
-                      <Avatar className="h-8 w-8 sm:h-10 sm:w-10 flex-shrink-0">
-                        <AvatarImage src={agent.avatar} alt={agent.name} />
-                        <AvatarFallback className="bg-primary text-primary-foreground text-sm">
-                          <Bot className="h-4 w-4 sm:h-5 sm:w-5" />
-                        </AvatarFallback>
-                      </Avatar>
-                    )}
-                    
-                    {message.role === 'user' && (
-                      <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
-                        <span className="text-xs sm:text-sm font-medium">You</span>
-                      </div>
-                    )}
-                    
-                    <div className="flex-1 min-w-0">
-                      <div className="prose prose-sm max-w-none">
-                        <p className="text-sm sm:text-base leading-relaxed whitespace-pre-wrap break-words mb-0 font-medium">
-                          {message.content}
-                        </p>
-                      </div>
-                      
-                      {!message.isComplete && message.role === 'system' && (
-                        <div className="flex items-center gap-1 mt-3">
-                          <div className="w-2 h-2 bg-muted-foreground rounded-full animate-pulse" />
-                          <div className="w-2 h-2 bg-muted-foreground rounded-full animate-pulse" style={{ animationDelay: '0.2s' }} />
-                          <div className="w-2 h-2 bg-muted-foreground rounded-full animate-pulse" style={{ animationDelay: '0.4s' }} />
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-        
-        {/* Input Area - Always visible and sticky at bottom */}
-        <div className="border-t bg-background sticky bottom-0 z-10 flex-shrink-0">
-          <TextInput
-            onSendMessage={realtimeChat.sendTextMessage}
-            disabled={!realtimeChat.isConnected}
-            placeholder={
-              !realtimeChat.isConnected 
-                ? "Connecting..." 
-                : `Message ${agent.name}...`
-            }
-          />
-        </div>
+          </div>
+        ))}
+        <div ref={messagesEndRef} />
+      </div>
+
+      {/* Input - Always visible and sticky on mobile */}
+      <div className="border-t bg-background flex-shrink-0 sticky bottom-0 z-10">
+        <TextInput 
+          onSendMessage={textChat.sendMessage}
+          disabled={textChat.isProcessing || isAiResponding}
+          placeholder={isAiResponding ? `${currentAgent.name} is typing...` : `Message ${currentAgent.name}...`}
+        />
       </div>
     </div>
   );
