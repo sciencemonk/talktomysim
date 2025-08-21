@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { Navigate } from "react-router-dom";
@@ -21,9 +22,6 @@ const Home = () => {
   // Handle auth modal close
   const handleAuthModalClose = (open: boolean) => {
     setShowAuthModal(open);
-    if (!open) {
-      setPendingAdvisor(null);
-    }
   };
 
   // Handle auth required (when non-signed-in user tries to start chat)
@@ -34,10 +32,7 @@ const Home = () => {
   // Handle advisor selection from directory
   const handleAdvisorSelect = async (advisorId: string, advisor?: AgentType) => {
     if (!user) {
-      // Store the advisor selection and show auth modal
-      if (advisor) {
-        setPendingAdvisor(advisor);
-      }
+      // Show auth modal for non-signed-in users
       setShowAuthModal(true);
     } else {
       // User is signed in, proceed directly
@@ -104,15 +99,6 @@ const Home = () => {
     setSelectedAdvisor(null);
     setSelectedPublicAdvisorId(null);
   };
-
-  // Effect to handle post-authentication advisor selection
-  useEffect(() => {
-    if (user && pendingAdvisor && !selectedAdvisor) {
-      handleAdvisorSelect(pendingAdvisor.id, pendingAdvisor);
-      setPendingAdvisor(null);
-      setShowAuthModal(false);
-    }
-  }, [user, pendingAdvisor, selectedAdvisor]);
 
   if (loading) {
     return (
