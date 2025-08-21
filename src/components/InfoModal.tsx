@@ -17,11 +17,11 @@ export const InfoModal = () => {
           <Info className="h-4 w-4" />
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
+      <DialogContent className="sm:max-w-md p-4">
+        <DialogHeader className="space-y-2">
           <DialogTitle>Disclaimer</DialogTitle>
         </DialogHeader>
-        <p className="text-black">
+        <p className="text-black text-sm leading-relaxed">
           This Sim is built from public domain and widely available source content. It is not the real individual, nor an official or endorsed representation of them.
         </p>
       </DialogContent>
