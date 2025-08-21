@@ -12,14 +12,12 @@ export const advisorRemovalService = {
 
       console.log('Removing advisor:', advisorId, 'for user:', user.id);
 
-      // First, get conversation IDs to delete - using explicit typing
-      const conversationsQuery = supabase
+      // First, get conversation IDs to delete - simplified query
+      const { data: conversations, error: conversationsError } = await supabase
         .from('conversations')
         .select('id')
         .eq('user_id', user.id)
         .eq('advisor_id', advisorId);
-
-      const { data: conversations, error: conversationsError } = await conversationsQuery;
 
       if (conversationsError) {
         console.error('Error fetching conversations:', conversationsError);
