@@ -1,15 +1,16 @@
-
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { createAdvisor, updateAdvisor } from '@/services/advisorService';
 import { Advisor } from '@/pages/Admin';
 import { toast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { Upload, X } from 'lucide-react';
+import AdvisorDocumentManager from './AdvisorDocumentManager';
 
 interface AdvisorFormProps {
   open: boolean;
@@ -29,6 +30,7 @@ const AdvisorForm = ({ open, onOpenChange, advisor, onSuccess }: AdvisorFormProp
   const [isUploading, setIsUploading] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string>('');
+  const [activeTab, setActiveTab] = useState('basic');
 
   // Reset form when dialog opens/closes or advisor changes
   useEffect(() => {
@@ -40,6 +42,7 @@ const AdvisorForm = ({ open, onOpenChange, advisor, onSuccess }: AdvisorFormProp
         avatar_url: advisor.avatar_url || ''
       });
       setPreviewUrl(advisor.avatar_url || '');
+      setActiveTab('basic');
     } else {
       setFormData({
         name: '',
@@ -48,6 +51,7 @@ const AdvisorForm = ({ open, onOpenChange, advisor, onSuccess }: AdvisorFormProp
         avatar_url: ''
       });
       setPreviewUrl('');
+      setActiveTab('basic');
     }
     setSelectedFile(null);
   }, [advisor, open]);
@@ -173,95 +177,119 @@ const AdvisorForm = ({ open, onOpenChange, advisor, onSuccess }: AdvisorFormProp
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
         <DialogHeader>
           <DialogTitle>{advisor ? 'Edit Advisor' : 'Create New Advisor'}</DialogTitle>
           <DialogDescription>
-            {advisor ? 'Update the advisor information below.' : 'Fill in the details to create a new advisor.'}
+            {advisor ? 'Update the advisor information and manage source materials.' : 'Fill in the details to create a new advisor and add source materials.'}
           </DialogDescription>
         </DialogHeader>
         
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <Label htmlFor="name">Name *</Label>
-            <Input
-              id="name"
-              value={formData.name}
-              onChange={(e) => handleInputChange('name', e.target.value)}
-              placeholder="Advisor name"
-              required
-            />
-          </div>
-
-          <div>
-            <Label htmlFor="title">Title</Label>
-            <Input
-              id="title"
-              value={formData.title}
-              onChange={(e) => handleInputChange('title', e.target.value)}
-              placeholder="Professional title"
-            />
-          </div>
-
-          <div>
-            <Label htmlFor="prompt">System Prompt *</Label>
-            <Textarea
-              id="prompt"
-              value={formData.prompt}
-              onChange={(e) => handleInputChange('prompt', e.target.value)}
-              placeholder="The system prompt that defines how this advisor behaves"
-              rows={4}
-              required
-            />
-          </div>
-
-          <div>
-            <Label>Avatar Image</Label>
-            <div className="space-y-3">
-              {previewUrl ? (
-                <div className="relative inline-block">
-                  <img
-                    src={previewUrl}
-                    alt="Avatar preview"
-                    className="w-20 h-20 rounded-full object-cover border"
-                  />
-                  <button
-                    type="button"
-                    onClick={removeImage}
-                    className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground rounded-full p-1 hover:bg-destructive/90"
-                  >
-                    <X className="h-3 w-3" />
-                  </button>
-                </div>
-              ) : (
-                <div className="w-20 h-20 rounded-full border-2 border-dashed border-muted-foreground/25 flex items-center justify-center">
-                  <Upload className="h-6 w-6 text-muted-foreground" />
-                </div>
-              )}
-              
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 overflow-hidden">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="basic">Basic Info</TabsTrigger>
+            <TabsTrigger value="documents" disabled={!advisor}>
+              Knowledge Base {!advisor && "(Save first)"}
+            </TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="basic" className="mt-4 space-y-4 overflow-y-auto max-h-[60vh]">
+            <form onSubmit={handleSubmit} className="space-y-4">
               <div>
+                <Label htmlFor="name">Name *</Label>
                 <Input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleFileSelect}
-                  className="cursor-pointer"
+                  id="name"
+                  value={formData.name}
+                  onChange={(e) => handleInputChange('name', e.target.value)}
+                  placeholder="Advisor name"
+                  required
                 />
-                <p className="text-xs text-muted-foreground mt-1">
-                  Max file size: 5MB. Supported formats: JPG, PNG, GIF
-                </p>
               </div>
-            </div>
-          </div>
 
-          <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-              Cancel
-            </Button>
-            <Button type="submit" disabled={isSubmitting || isUploading}>
-              {isSubmitting || isUploading ? 'Saving...' : advisor ? 'Update' : 'Create'}
-            </Button>
-          </DialogFooter>
-        </form>
+              <div>
+                <Label htmlFor="title">Title</Label>
+                <Input
+                  id="title"
+                  value={formData.title}
+                  onChange={(e) => handleInputChange('title', e.target.value)}
+                  placeholder="Professional title"
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="prompt">System Prompt *</Label>
+                <Textarea
+                  id="prompt"
+                  value={formData.prompt}
+                  onChange={(e) => handleInputChange('prompt', e.target.value)}
+                  placeholder="The system prompt that defines how this advisor behaves"
+                  rows={4}
+                  required
+                />
+              </div>
+
+              <div>
+                <Label>Avatar Image</Label>
+                <div className="space-y-3">
+                  {previewUrl ? (
+                    <div className="relative inline-block">
+                      <img
+                        src={previewUrl}
+                        alt="Avatar preview"
+                        className="w-20 h-20 rounded-full object-cover border"
+                      />
+                      <button
+                        type="button"
+                        onClick={removeImage}
+                        className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground rounded-full p-1 hover:bg-destructive/90"
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="w-20 h-20 rounded-full border-2 border-dashed border-muted-foreground/25 flex items-center justify-center">
+                      <Upload className="h-6 w-6 text-muted-foreground" />
+                    </div>
+                  )}
+                  
+                  <div>
+                    <Input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleFileSelect}
+                      className="cursor-pointer"
+                    />
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Max file size: 5MB. Supported formats: JPG, PNG, GIF
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <DialogFooter>
+                <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+                  Cancel
+                </Button>
+                <Button type="submit" disabled={isSubmitting || isUploading}>
+                  {isSubmitting || isUploading ? 'Saving...' : advisor ? 'Update' : 'Create'}
+                </Button>
+              </DialogFooter>
+            </form>
+          </TabsContent>
+          
+          <TabsContent value="documents" className="mt-4 overflow-y-auto max-h-[60vh]">
+            {advisor ? (
+              <AdvisorDocumentManager 
+                advisorId={advisor.id} 
+                advisorName={advisor.name}
+              />
+            ) : (
+              <div className="text-center py-8 text-muted-foreground">
+                Please save the advisor first to manage source materials.
+              </div>
+            )}
+          </TabsContent>
+        </Tabs>
       </DialogContent>
     </Dialog>
   );
