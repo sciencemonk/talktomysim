@@ -1,3 +1,4 @@
+
 import { useLocation } from "react-router-dom";
 import { 
   Bot, 
@@ -114,7 +115,7 @@ const SidebarContent = ({
   };
 
   return (
-    <>
+    <div className="flex flex-col h-full">
       {/* Header with Logo and Toggle (Desktop only) */}
       {onToggleCollapse && (
         <>
@@ -187,7 +188,7 @@ const SidebarContent = ({
 
       {/* Navigation Items - Only show if user is authenticated */}
       {user && (
-        <div className="flex-1 p-3 space-y-1">
+        <div className="flex-1 p-3 space-y-1 overflow-auto">
           {/* Personal Agents List - Only show if there are agents */}
           {agents.length > 0 && (
             <div className="space-y-1">
@@ -403,7 +404,7 @@ const SidebarContent = ({
         open={showAuthModal} 
         onOpenChange={setShowAuthModal} 
       />
-    </>
+    </div>
   );
 };
 
