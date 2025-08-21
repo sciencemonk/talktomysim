@@ -39,7 +39,7 @@ const StudentChat = () => {
     return (
       <div className="h-screen flex flex-col">
         {/* Header Skeleton */}
-        <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-6 py-5">
+        <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-4 sm:px-6 py-5 sticky top-0 z-10">
           <div className="flex items-center justify-between max-w-4xl mx-auto">
             <div className="flex items-center gap-3">
               {isMobile && (
@@ -115,45 +115,47 @@ const StudentChat = () => {
   );
 
   return (
-    <div className="h-screen flex flex-col">
-      {/* Header - ChatGPT style */}
-      <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-6 py-5">
+    <div className="h-screen flex flex-col w-full">
+      {/* Header - Always visible and sticky on mobile */}
+      <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-4 sm:px-6 py-5 sticky top-0 z-10 flex-shrink-0">
         <div className="flex items-center justify-between max-w-4xl mx-auto">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 min-w-0 flex-1">
             {isMobile && <MobileMenu />}
-            <Avatar className="h-10 w-10">
+            <Avatar className="h-10 w-10 flex-shrink-0">
               <AvatarImage src={agent.avatar} alt={agent.name} />
               <AvatarFallback className="bg-primary text-primary-foreground text-sm">
                 <Bot className="h-5 w-5" />
               </AvatarFallback>
             </Avatar>
-            <div>
-              <h1 className="font-semibold text-lg">{agent.name}</h1>
-              <p className="text-sm text-muted-foreground">{agent.title || agent.type}</p>
+            <div className="min-w-0 flex-1">
+              <h1 className="font-semibold text-lg truncate">{agent.name}</h1>
+              <p className="text-sm text-muted-foreground truncate">{agent.title || agent.type}</p>
             </div>
           </div>
           
           {/* Only ShareButton - no edit button */}
           {!isMobile && (
-            <ShareButton 
-              tutorId={agent.id}
-              tutorName={agent.name}
-            />
+            <div className="flex-shrink-0">
+              <ShareButton 
+                tutorId={agent.id}
+                tutorName={agent.name}
+              />
+            </div>
           )}
         </div>
       </div>
 
-      {/* Chat Content Area */}
-      <div className="flex-1 flex flex-col overflow-hidden">
+      {/* Chat Content Area - Scrollable between header and input */}
+      <div className="flex-1 flex flex-col overflow-hidden min-h-0">
         {/* Messages Container */}
         <div className="flex-1 overflow-y-auto">
           {allMessages.length === 0 ? (
-            <div className="h-full flex flex-col items-center justify-center px-6">
+            <div className="h-full flex flex-col items-center justify-center px-4 sm:px-6">
               <div className="w-16 h-16 bg-muted rounded-xl flex items-center justify-center mb-6">
                 <Bot className="h-8 w-8 text-muted-foreground" />
               </div>
-              <h2 className="text-2xl font-semibold mb-3">How can I help you today?</h2>
-              <p className="text-base text-muted-foreground text-center max-w-md leading-relaxed">
+              <h2 className="text-xl sm:text-2xl font-semibold mb-3 text-center">How can I help you today?</h2>
+              <p className="text-sm sm:text-base text-muted-foreground text-center max-w-md leading-relaxed">
                 {realtimeChat.connectionStatus === 'connecting' 
                   ? 'Getting ready to chat...' 
                   : realtimeChat.connectionStatus === 'error'
@@ -163,28 +165,28 @@ const StudentChat = () => {
               </p>
             </div>
           ) : (
-            <div className="max-w-4xl mx-auto px-6 py-8">
-              <div className="space-y-8">
+            <div className="max-w-4xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
+              <div className="space-y-6 sm:space-y-8">
                 {allMessages.map((message) => (
-                  <div key={message.id} className="flex gap-4">
+                  <div key={message.id} className="flex gap-3 sm:gap-4">
                     {message.role === 'system' && (
-                      <Avatar className="h-10 w-10 flex-shrink-0">
+                      <Avatar className="h-8 w-8 sm:h-10 sm:w-10 flex-shrink-0">
                         <AvatarImage src={agent.avatar} alt={agent.name} />
                         <AvatarFallback className="bg-primary text-primary-foreground text-sm">
-                          <Bot className="h-5 w-5" />
+                          <Bot className="h-4 w-4 sm:h-5 sm:w-5" />
                         </AvatarFallback>
                       </Avatar>
                     )}
                     
                     {message.role === 'user' && (
-                      <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
-                        <span className="text-sm font-medium">You</span>
+                      <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
+                        <span className="text-xs sm:text-sm font-medium">You</span>
                       </div>
                     )}
                     
                     <div className="flex-1 min-w-0">
                       <div className="prose prose-sm max-w-none">
-                        <p className="text-base leading-relaxed whitespace-pre-wrap break-words mb-0 font-medium">
+                        <p className="text-sm sm:text-base leading-relaxed whitespace-pre-wrap break-words mb-0 font-medium">
                           {message.content}
                         </p>
                       </div>
@@ -204,8 +206,8 @@ const StudentChat = () => {
           )}
         </div>
         
-        {/* Input Area */}
-        <div className="border-t bg-background">
+        {/* Input Area - Always visible and sticky at bottom */}
+        <div className="border-t bg-background sticky bottom-0 z-10 flex-shrink-0">
           <TextInput
             onSendMessage={realtimeChat.sendTextMessage}
             disabled={!realtimeChat.isConnected}
