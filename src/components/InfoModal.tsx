@@ -18,7 +18,7 @@ export const InfoModal = () => {
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-md p-4">
-        <DialogHeader className="space-y-2">
+        <DialogHeader className="space-y-1">
           <DialogTitle>Disclaimer</DialogTitle>
         </DialogHeader>
         <p className="text-black text-sm leading-relaxed">
