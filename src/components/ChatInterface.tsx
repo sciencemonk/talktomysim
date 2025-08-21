@@ -1,3 +1,4 @@
+
 import { useState, useRef, useEffect } from "react";
 import { useChatHistory } from "@/hooks/useChatHistory";
 import { TextInput } from "@/components/TextInput";
@@ -10,6 +11,7 @@ import { useTextChat } from "@/hooks/useTextChat";
 
 interface ChatInterfaceProps {
   agent: AgentType;
+  onBack?: () => void;
   onShowAgentDetails?: () => void;
   onAgentUpdate?: (updatedAgent: AgentType) => void;
 }
