@@ -232,11 +232,6 @@ const SidebarContent = ({
           {/* Public Advisors Section */}
           {selectedPublicAdvisors.length > 0 && (
             <div className={cn("space-y-1", agents.length > 0 && "mt-4")}>
-              {(!isCollapsed || !onToggleCollapse) && (
-                <div className="px-3 py-2 text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                  Advisors
-                </div>
-              )}
               {selectedPublicAdvisors.map((advisor) => (
                 <div
                   key={advisor.id}
@@ -307,7 +302,7 @@ const SidebarContent = ({
             </div>
           )}
 
-          {/* New Advisor Button */}
+          {/* Find a Sim Button */}
           <Button
             onClick={handleShowAdvisorDirectory}
             variant="outline"
@@ -318,7 +313,7 @@ const SidebarContent = ({
             size="sm"
           >
             <PlusCircle className="h-4 w-4 flex-shrink-0" />
-            {(!isCollapsed || !onToggleCollapse) && <span>New Advisor</span>}
+            {(!isCollapsed || !onToggleCollapse) && <span>Find a Sim</span>}
           </Button>
         </div>
       )}
