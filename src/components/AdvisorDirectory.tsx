@@ -172,7 +172,11 @@ const AdvisorDirectory = ({ onSelectAdvisor, onAuthRequired }: AdvisorDirectoryP
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredAdvisors.map((advisor) => (
-                <Card key={advisor.id} className="cursor-pointer hover:shadow-md transition-shadow group">
+                <Card 
+                  key={advisor.id} 
+                  className="cursor-pointer hover:shadow-md transition-shadow group"
+                  onClick={() => handleAdvisorSelect(advisor)}
+                >
                   <CardHeader className="p-4">
                     <div className="flex items-center space-x-4">
                       <Avatar className="h-12 w-12">
