@@ -213,10 +213,10 @@ const Login = () => {
               <Button
                 type="submit"
                 disabled={isLoading}
-                className="w-full"
+                className="w-full bg-gradient-to-r from-purple-600 via-pink-500 to-blue-500 text-white hover:opacity-90 animate-pulse"
                 size="lg"
               >
-                {isLoading ? 'Processing...' : (isSignUp ? 'Sign Up' : 'Sign In')}
+                {isLoading ? 'Processing...' : 'Sign in for free'}
               </Button>
             </form>
           </Form>

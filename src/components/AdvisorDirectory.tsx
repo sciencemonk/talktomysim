@@ -1,3 +1,4 @@
+
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -15,6 +16,10 @@ interface AdvisorDirectoryProps {
 const AdvisorDirectory = ({ onSelectAdvisor, onAuthRequired }: AdvisorDirectoryProps) => {
   const { agents: advisors, isLoading, error } = useAllAdvisors();
   const { user } = useAuth();
+
+  console.log('AdvisorDirectory - advisors:', advisors);
+  console.log('AdvisorDirectory - isLoading:', isLoading);
+  console.log('AdvisorDirectory - error:', error);
 
   const handleStartChat = (advisor: AgentType) => {
     if (!user) {
