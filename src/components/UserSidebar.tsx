@@ -1,3 +1,4 @@
+
 import { useLocation } from "react-router-dom";
 import { 
   Bot, 
@@ -8,14 +9,10 @@ import {
   ChevronLeft,
   ChevronRight,
   Menu,
-  Star,
-  MoreHorizontal,
-  Trash2
+  Star
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useAgents } from "@/hooks/useAgents";
-import { usePublicAgents } from "@/hooks/usePublicAgents";
-import { useAdvisorRemoval } from "@/hooks/useAdvisorRemoval";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -72,18 +69,6 @@ const SidebarContent = ({
 }) => {
   const { user, signOut } = useAuth();
   const { agents, isLoading } = useAgents();
-  
-  // Initialize advisor removal functionality
-  const { removeAdvisor, isRemoving } = useAdvisorRemoval(
-    selectedPublicAdvisors,
-    (advisors) => {
-      // This will be handled by the parent component through state
-      console.log('Updated advisors:', advisors);
-    },
-    selectedPublicAdvisorId,
-    onSelectPublicAdvisor || (() => {}),
-    onShowAdvisorDirectory
-  );
 
   useEffect(() => {
     if (refreshTrigger) {
@@ -111,11 +96,6 @@ const SidebarContent = ({
   const handleShowAdvisorDirectory = () => {
     onShowAdvisorDirectory?.();
     onClose?.(); // Close mobile drawer
-  };
-
-  const handleRemoveAdvisor = async (advisorId: string, event: React.MouseEvent) => {
-    event.stopPropagation();
-    await removeAdvisor(advisorId);
   };
 
   return (
@@ -225,54 +205,25 @@ const SidebarContent = ({
               </div>
             )}
             {selectedPublicAdvisors.map((advisor) => (
-              <div key={advisor.id} className="relative group">
-                <Button
-                  onClick={() => handlePublicAdvisorSelect(advisor.id)}
-                  variant="ghost"
-                  className={cn(
-                    "flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors w-full justify-start h-auto min-h-[40px]",
-                    selectedPublicAdvisorId === advisor.id
-                      ? "bg-primary/10 text-primary font-medium hover:bg-primary/15"
-                      : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                  )}
-                  disabled={isRemoving}
-                >
-                  <Avatar className="h-6 w-6 flex-shrink-0">
-                    <AvatarImage src={advisor.avatar} alt={advisor.name} />
-                    <AvatarFallback className="bg-primary/10 text-primary text-xs">
-                      <Star className="h-3 w-3" />
-                    </AvatarFallback>
-                  </Avatar>
-                  {(!isCollapsed || !onToggleCollapse) && <span className="truncate text-left">{advisor.name}</span>}
-                </Button>
-                
-                {/* Three dots menu - only show when not collapsed */}
-                {(!isCollapsed || !onToggleCollapse) && (
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="absolute right-1 top-1/2 -translate-y-1/2 h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
-                        onClick={(e) => e.stopPropagation()}
-                        disabled={isRemoving}
-                      >
-                        <MoreHorizontal className="h-3 w-3" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem
-                        onClick={(e) => handleRemoveAdvisor(advisor.id, e)}
-                        className="text-destructive hover:text-destructive"
-                        disabled={isRemoving}
-                      >
-                        <Trash2 className="mr-2 h-4 w-4" />
-                        {isRemoving ? 'Removing...' : 'Remove'}
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+              <Button
+                key={advisor.id}
+                onClick={() => handlePublicAdvisorSelect(advisor.id)}
+                variant="ghost"
+                className={cn(
+                  "flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors w-full justify-start h-auto min-h-[40px]",
+                  selectedPublicAdvisorId === advisor.id
+                    ? "bg-primary/10 text-primary font-medium hover:bg-primary/15"
+                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
                 )}
-              </div>
+              >
+                <Avatar className="h-6 w-6 flex-shrink-0">
+                  <AvatarImage src={advisor.avatar} alt={advisor.name} />
+                  <AvatarFallback className="bg-primary/10 text-primary text-xs">
+                    <Star className="h-3 w-3" />
+                  </AvatarFallback>
+                </Avatar>
+                {(!isCollapsed || !onToggleCollapse) && <span className="truncate text-left">{advisor.name}</span>}
+              </Button>
             ))}
           </div>
         )}
