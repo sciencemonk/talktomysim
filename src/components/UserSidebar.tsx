@@ -159,18 +159,20 @@ const SidebarContent = ({
                 )}
               </button>
             )}
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={onToggleCollapse}
-              className="h-8 w-8 p-0"
-            >
-              <img 
-                src="/lovable-uploads/414592e4-0cdf-4286-a371-903bef284fe3.png" 
-                alt="Toggle Sidebar" 
-                className="h-4 w-4"
-              />
-            </Button>
+            {!isCollapsed && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={onToggleCollapse}
+                className="h-8 w-8 p-0"
+              >
+                <img 
+                  src="/lovable-uploads/414592e4-0cdf-4286-a371-903bef284fe3.png" 
+                  alt="Toggle Sidebar" 
+                  className="h-4 w-4"
+                />
+              </Button>
+            )}
           </div>
           <Separator />
         </>
