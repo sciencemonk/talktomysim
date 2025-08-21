@@ -21,9 +21,16 @@ export interface UserAdvisor {
 export const addUserAdvisor = async (advisor: AgentType): Promise<UserAdvisor> => {
   console.log("Adding advisor to user's list:", advisor);
   
+  // Get the current user
+  const { data: { user }, error: userError } = await supabase.auth.getUser();
+  if (userError || !user) {
+    throw new Error("User not authenticated");
+  }
+
   const { data, error } = await supabase
     .from('user_advisors')
     .insert({
+      user_id: user.id,
       advisor_id: advisor.id,
       name: advisor.name,
       title: advisor.title || advisor.subject,

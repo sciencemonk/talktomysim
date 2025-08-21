@@ -1,13 +1,13 @@
+
 import { useState, useEffect, useRef } from "react";
 import { ArrowLeft, Bot, Menu } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { TextInput } from "@/components/ui/text-input";
+import { TextInput } from "@/components/TextInput";
 import { useChatHistory } from "@/hooks/useChatHistory";
 import { useTextChat } from "@/hooks/useTextChat";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { AgentType } from "@/types/agent";
-import AgentSettings from "./AgentSettings";
 import {
   Sheet,
   SheetContent,
@@ -21,7 +21,6 @@ interface ChatInterfaceProps {
 }
 
 const ChatInterface = ({ agent, onBack }: ChatInterfaceProps) => {
-  const [showSettings, setShowSettings] = useState(false);
   const [currentAgent, setCurrentAgent] = useState(agent);
   const [isAiResponding, setIsAiResponding] = useState(false);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
@@ -29,13 +28,12 @@ const ChatInterface = ({ agent, onBack }: ChatInterfaceProps) => {
   const isMobile = useIsMobile();
   
   const chatHistory = useChatHistory(currentAgent);
-  const textChat = useTextChat({ 
-    agent: currentAgent, 
-    conversation: chatHistory.currentConversation,
-    onNewConversation: chatHistory.createNewConversation,
-    onMessageUpdate: chatHistory.addMessage,
-    onAiResponseStart: () => setIsAiResponding(true),
-    onAiResponseEnd: () => setIsAiResponding(false)
+  const textChat = useTextChat({
+    agent: currentAgent,
+    onUserMessage: chatHistory.addUserMessage,
+    onAiMessageStart: chatHistory.startAiMessage,
+    onAiTextDelta: chatHistory.addAiTextDelta,
+    onAiMessageComplete: chatHistory.completeAiMessage
   });
 
   useEffect(() => {
@@ -49,21 +47,6 @@ const ChatInterface = ({ agent, onBack }: ChatInterfaceProps) => {
   useEffect(() => {
     scrollToBottom();
   }, [chatHistory.messages]);
-
-  const handleConfigSave = (updatedAgent: AgentType) => {
-    setCurrentAgent(updatedAgent);
-    setShowSettings(false);
-  };
-
-  if (showSettings) {
-    return (
-      <AgentSettings 
-        agent={currentAgent}
-        onSave={handleConfigSave}
-        onCancel={() => setShowSettings(false)}
-      />
-    );
-  }
 
   return (
     <div className="flex flex-col h-full">
@@ -121,10 +104,10 @@ const ChatInterface = ({ agent, onBack }: ChatInterfaceProps) => {
         {chatHistory.messages.map((message) => (
           <div
             key={message.id}
-            className={`mb-2 flex flex-col ${message.is_sent_by_user ? 'items-end' : 'items-start'}`}
+            className={`mb-2 flex flex-col ${message.role === 'user' ? 'items-end' : 'items-start'}`}
           >
             <div
-              className={`rounded-lg px-3 py-2 text-sm max-w-[75%] sm:max-w-[60%] md:max-w-[40%] lg:max-w-[30%] ${message.is_sent_by_user ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground'}`}
+              className={`rounded-lg px-3 py-2 text-sm max-w-[75%] sm:max-w-[60%] md:max-w-[40%] lg:max-w-[30%] ${message.role === 'user' ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground'}`}
             >
               {message.content}
             </div>
@@ -137,7 +120,7 @@ const ChatInterface = ({ agent, onBack }: ChatInterfaceProps) => {
       <div className="border-t bg-background p-4 flex-shrink-0">
         <TextInput 
           onSendMessage={textChat.sendMessage}
-          disabled={textChat.isLoading || isAiResponding}
+          disabled={textChat.isProcessing || isAiResponding}
           placeholder={isAiResponding ? `${currentAgent.name} is typing...` : `Message ${currentAgent.name}...`}
         />
       </div>
