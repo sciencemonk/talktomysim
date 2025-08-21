@@ -3,11 +3,18 @@ import { useState, useRef, useEffect } from "react";
 import { useChatHistory } from "@/hooks/useChatHistory";
 import { TextInput } from "@/components/TextInput";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Bot, ArrowLeft } from "lucide-react";
+import { Bot, ArrowLeft, Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AgentType } from "@/types/agent";
 import AgentConfigSettings from "@/components/AgentConfigSettings";
 import { useTextChat } from "@/hooks/useTextChat";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { SidebarContent } from "@/components/UserSidebar";
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 
 interface ChatInterfaceProps {
   agent: AgentType;
@@ -33,7 +40,9 @@ const ChatInterface = ({ agent, onShowAgentDetails, onAgentUpdate }: ChatInterfa
   const [showSettings, setShowSettings] = useState(false);
   const [currentAgent, setCurrentAgent] = useState(agent);
   const [isAiResponding, setIsAiResponding] = useState(false);
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const isMobile = useIsMobile();
   
   const chatHistory = useChatHistory(currentAgent);
   const textChat = useTextChat({ 
@@ -142,6 +151,28 @@ const ChatInterface = ({ agent, onShowAgentDetails, onAgentUpdate }: ChatInterfa
         <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-6 py-4 flex-shrink-0">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
+              {isMobile && (
+                <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
+                  <SheetTrigger asChild>
+                    <Button variant="ghost" size="sm" className="p-2">
+                      <Menu className="h-5 w-5" />
+                    </Button>
+                  </SheetTrigger>
+                  <SheetContent side="left" className="w-80 p-0">
+                    <SidebarContent
+                      selectedPublicAdvisors={[]}
+                      onSelectPublicAdvisor={() => {
+                        setIsSheetOpen(false);
+                      }}
+                      onRemovePublicAdvisor={() => {}}
+                      onShowAdvisorDirectory={() => {
+                        setIsSheetOpen(false);
+                      }}
+                      onClose={() => setIsSheetOpen(false)}
+                    />
+                  </SheetContent>
+                </Sheet>
+              )}
               <Avatar className="h-12 w-12">
                 <AvatarImage src={currentAgent.avatar} alt={currentAgent.name} />
                 <AvatarFallback className="bg-primary text-primary-foreground text-lg">
@@ -173,6 +204,28 @@ const ChatInterface = ({ agent, onShowAgentDetails, onAgentUpdate }: ChatInterfa
       <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-6 py-4 flex-shrink-0">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
+            {isMobile && (
+              <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
+                <SheetTrigger asChild>
+                  <Button variant="ghost" size="sm" className="p-2">
+                    <Menu className="h-5 w-5" />
+                  </Button>
+                </SheetTrigger>
+                <SheetContent side="left" className="w-80 p-0">
+                  <SidebarContent
+                    selectedPublicAdvisors={[]}
+                    onSelectPublicAdvisor={() => {
+                      setIsSheetOpen(false);
+                    }}
+                    onRemovePublicAdvisor={() => {}}
+                    onShowAdvisorDirectory={() => {
+                      setIsSheetOpen(false);
+                    }}
+                    onClose={() => setIsSheetOpen(false)}
+                  />
+                </SheetContent>
+              </Sheet>
+            )}
             <Avatar className="h-12 w-12">
               <AvatarImage src={currentAgent.avatar} alt={currentAgent.name} />
               <AvatarFallback className="bg-primary text-primary-foreground text-lg">
