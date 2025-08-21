@@ -5,14 +5,28 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Bot, MessageCircle } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AgentType } from "@/types/agent";
-import { useAllAdvisors } from "@/hooks/useAllAdvisors";
+import { usePublicAgents } from "@/hooks/usePublicAgents";
+import { useAuth } from "@/hooks/useAuth";
 
 interface AdvisorDirectoryProps {
   onSelectAdvisor: (advisorId: string, advisor?: AgentType) => void;
+  onAuthRequired?: () => void;
 }
 
-const AdvisorDirectory = ({ onSelectAdvisor }: AdvisorDirectoryProps) => {
-  const { agents: advisors, isLoading, error } = useAllAdvisors();
+const AdvisorDirectory = ({ onSelectAdvisor, onAuthRequired }: AdvisorDirectoryProps) => {
+  const { agents: advisors, isLoading, error } = usePublicAgents();
+  const { user } = useAuth();
+
+  const handleStartChat = (advisor: AgentType) => {
+    if (!user) {
+      // User is not signed in, trigger auth modal
+      onAuthRequired?.();
+      return;
+    }
+    
+    // User is signed in, proceed with chat
+    onSelectAdvisor(advisor.id, advisor);
+  };
 
   if (isLoading) {
     return (
@@ -96,7 +110,7 @@ const AdvisorDirectory = ({ onSelectAdvisor }: AdvisorDirectoryProps) => {
                     )}
 
                     <Button 
-                      onClick={() => onSelectAdvisor(advisor.id, advisor)}
+                      onClick={() => handleStartChat(advisor)}
                       className="w-full"
                       size="sm"
                     >
