@@ -7,7 +7,9 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { createAdvisor, updateAdvisor } from '@/services/advisorService';
 import { Advisor } from '@/pages/Admin';
-import { toast } from '@/components/ui/use-toast';
+import { toast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
+import { Upload, X } from 'lucide-react';
 
 interface AdvisorFormProps {
   open: boolean;
@@ -20,14 +22,13 @@ const AdvisorForm = ({ open, onOpenChange, advisor, onSuccess }: AdvisorFormProp
   const [formData, setFormData] = useState({
     name: '',
     title: '',
-    description: '',
     prompt: '',
-    avatar_url: '',
-    category: '',
-    background_content: '',
-    knowledge_summary: ''
+    avatar_url: ''
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string>('');
 
   // Reset form when dialog opens/closes or advisor changes
   useEffect(() => {
@@ -35,29 +36,86 @@ const AdvisorForm = ({ open, onOpenChange, advisor, onSuccess }: AdvisorFormProp
       setFormData({
         name: advisor.name || '',
         title: advisor.title || '',
-        description: advisor.description || '',
         prompt: advisor.prompt || '',
-        avatar_url: advisor.avatar_url || '',
-        category: advisor.category || '',
-        background_content: advisor.background_content || '',
-        knowledge_summary: advisor.knowledge_summary || ''
+        avatar_url: advisor.avatar_url || ''
       });
+      setPreviewUrl(advisor.avatar_url || '');
     } else {
       setFormData({
         name: '',
         title: '',
-        description: '',
         prompt: '',
-        avatar_url: '',
-        category: '',
-        background_content: '',
-        knowledge_summary: ''
+        avatar_url: ''
       });
+      setPreviewUrl('');
     }
+    setSelectedFile(null);
   }, [advisor, open]);
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) { // 5MB limit
+        toast({
+          title: "File too large",
+          description: "Please select an image smaller than 5MB",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      if (!file.type.startsWith('image/')) {
+        toast({
+          title: "Invalid file type",
+          description: "Please select an image file",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      setSelectedFile(file);
+      setPreviewUrl(URL.createObjectURL(file));
+    }
+  };
+
+  const uploadImage = async (): Promise<string | null> => {
+    if (!selectedFile) return formData.avatar_url;
+
+    setIsUploading(true);
+    try {
+      const fileExt = selectedFile.name.split('.').pop();
+      const fileName = `${Math.random()}.${fileExt}`;
+      const filePath = `advisor-avatars/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('avatars')
+        .upload(filePath, selectedFile);
+
+      if (uploadError) {
+        console.error('Upload error:', uploadError);
+        throw uploadError;
+      }
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('avatars')
+        .getPublicUrl(filePath);
+
+      return publicUrl;
+    } catch (error) {
+      console.error('Failed to upload image:', error);
+      toast({
+        title: "Upload failed",
+        description: "Failed to upload image. Please try again.",
+        variant: "destructive"
+      });
+      throw error;
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -66,21 +124,29 @@ const AdvisorForm = ({ open, onOpenChange, advisor, onSuccess }: AdvisorFormProp
     if (!formData.name.trim() || !formData.prompt.trim()) {
       toast({
         title: "Validation Error",
-        description: "Name and prompt are required fields"
+        description: "Name and system prompt are required fields",
+        variant: "destructive"
       });
       return;
     }
 
     setIsSubmitting(true);
     try {
+      const avatarUrl = await uploadImage();
+      
+      const submitData = {
+        ...formData,
+        avatar_url: avatarUrl || ''
+      };
+
       if (advisor) {
-        await updateAdvisor(advisor.id, formData);
+        await updateAdvisor(advisor.id, submitData);
         toast({
           title: "Success",
           description: "Advisor updated successfully"
         });
       } else {
-        await createAdvisor(formData);
+        await createAdvisor(submitData);
         toast({
           title: "Success",
           description: "Advisor created successfully"
@@ -91,16 +157,23 @@ const AdvisorForm = ({ open, onOpenChange, advisor, onSuccess }: AdvisorFormProp
       console.error('Failed to save advisor:', error);
       toast({
         title: "Error",
-        description: "Failed to save advisor"
+        description: "Failed to save advisor",
+        variant: "destructive"
       });
     } finally {
       setIsSubmitting(false);
     }
   };
 
+  const removeImage = () => {
+    setSelectedFile(null);
+    setPreviewUrl('');
+    setFormData(prev => ({ ...prev, avatar_url: '' }));
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle>{advisor ? 'Edit Advisor' : 'Create New Advisor'}</DialogTitle>
           <DialogDescription>
@@ -109,58 +182,25 @@ const AdvisorForm = ({ open, onOpenChange, advisor, onSuccess }: AdvisorFormProp
         </DialogHeader>
         
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="name">Name *</Label>
-              <Input
-                id="name"
-                value={formData.name}
-                onChange={(e) => handleInputChange('name', e.target.value)}
-                placeholder="Advisor name"
-                required
-              />
-            </div>
-            <div>
-              <Label htmlFor="title">Title</Label>
-              <Input
-                id="title"
-                value={formData.title}
-                onChange={(e) => handleInputChange('title', e.target.value)}
-                placeholder="Professional title"
-              />
-            </div>
-          </div>
-
           <div>
-            <Label htmlFor="description">Description</Label>
-            <Textarea
-              id="description"
-              value={formData.description}
-              onChange={(e) => handleInputChange('description', e.target.value)}
-              placeholder="Brief description of the advisor"
-              rows={3}
+            <Label htmlFor="name">Name *</Label>
+            <Input
+              id="name"
+              value={formData.name}
+              onChange={(e) => handleInputChange('name', e.target.value)}
+              placeholder="Advisor name"
+              required
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="category">Category</Label>
-              <Input
-                id="category"
-                value={formData.category}
-                onChange={(e) => handleInputChange('category', e.target.value)}
-                placeholder="e.g., Math, Science, Language"
-              />
-            </div>
-            <div>
-              <Label htmlFor="avatar_url">Avatar URL</Label>
-              <Input
-                id="avatar_url"
-                value={formData.avatar_url}
-                onChange={(e) => handleInputChange('avatar_url', e.target.value)}
-                placeholder="https://..."
-              />
-            </div>
+          <div>
+            <Label htmlFor="title">Title</Label>
+            <Input
+              id="title"
+              value={formData.title}
+              onChange={(e) => handleInputChange('title', e.target.value)}
+              placeholder="Professional title"
+            />
           </div>
 
           <div>
@@ -176,33 +216,49 @@ const AdvisorForm = ({ open, onOpenChange, advisor, onSuccess }: AdvisorFormProp
           </div>
 
           <div>
-            <Label htmlFor="background_content">Background Content</Label>
-            <Textarea
-              id="background_content"
-              value={formData.background_content}
-              onChange={(e) => handleInputChange('background_content', e.target.value)}
-              placeholder="Additional background information"
-              rows={3}
-            />
-          </div>
-
-          <div>
-            <Label htmlFor="knowledge_summary">Knowledge Summary</Label>
-            <Textarea
-              id="knowledge_summary"
-              value={formData.knowledge_summary}
-              onChange={(e) => handleInputChange('knowledge_summary', e.target.value)}
-              placeholder="Summary of the advisor's knowledge areas"
-              rows={3}
-            />
+            <Label>Avatar Image</Label>
+            <div className="space-y-3">
+              {previewUrl ? (
+                <div className="relative inline-block">
+                  <img
+                    src={previewUrl}
+                    alt="Avatar preview"
+                    className="w-20 h-20 rounded-full object-cover border"
+                  />
+                  <button
+                    type="button"
+                    onClick={removeImage}
+                    className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground rounded-full p-1 hover:bg-destructive/90"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </div>
+              ) : (
+                <div className="w-20 h-20 rounded-full border-2 border-dashed border-muted-foreground/25 flex items-center justify-center">
+                  <Upload className="h-6 w-6 text-muted-foreground" />
+                </div>
+              )}
+              
+              <div>
+                <Input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileSelect}
+                  className="cursor-pointer"
+                />
+                <p className="text-xs text-muted-foreground mt-1">
+                  Max file size: 5MB. Supported formats: JPG, PNG, GIF
+                </p>
+              </div>
+            </div>
           </div>
 
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               Cancel
             </Button>
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? 'Saving...' : advisor ? 'Update' : 'Create'}
+            <Button type="submit" disabled={isSubmitting || isUploading}>
+              {isSubmitting || isUploading ? 'Saving...' : advisor ? 'Update' : 'Create'}
             </Button>
           </DialogFooter>
         </form>
