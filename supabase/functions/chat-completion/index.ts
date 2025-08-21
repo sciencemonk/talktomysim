@@ -17,11 +17,15 @@ serve(async (req) => {
 
     const openaiApiKey = Deno.env.get('OPENAI_API_KEY')
     if (!openaiApiKey) {
+      console.error('OpenAI API key not found in environment variables')
       throw new Error('OpenAI API key not configured')
     }
 
+    console.log('Processing chat request for agent:', agent?.name || 'unknown')
+    console.log('Messages count:', messages?.length || 0)
+
     // Use the advisor's prompt or create a default one
-    const systemPrompt = agent?.prompt || `You are ${agent?.name || 'an AI advisor'}, a helpful AI advisor specializing in ${agent?.subject || 'general topics'}.
+    const systemPrompt = agent?.prompt || `You are ${agent?.name || 'an AI advisor'}, a helpful AI advisor.
 
 Your main goals are to:
 - Help users understand concepts clearly through conversation
@@ -32,6 +36,7 @@ Your main goals are to:
 - Guide users to discover answers rather than just giving them
 
 ${agent?.description ? `Background: ${agent.description}` : ''}
+${agent?.title ? `Title: ${agent.title}` : ''}
 
 Always be patient, supportive, and adapt to each user's learning pace and style. If a user seems confused, ask simpler questions to help them build understanding step by step.`
 
@@ -52,7 +57,7 @@ Always be patient, supportive, and adapt to each user's learning pace and style.
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4',
+        model: 'gpt-4o-mini',
         messages: chatMessages,
         max_tokens: 1000,
         temperature: 0.7,
@@ -72,6 +77,8 @@ Always be patient, supportive, and adapt to each user's learning pace and style.
     }
 
     const assistantMessage = data.choices[0].message.content
+
+    console.log('Received response from OpenAI, length:', assistantMessage?.length || 0)
 
     return new Response(
       JSON.stringify({ 

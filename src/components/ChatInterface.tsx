@@ -1,3 +1,4 @@
+
 import { useState, useRef, useEffect } from "react";
 import { useChatHistory } from "@/hooks/useChatHistory";
 import { TextInput } from "@/components/TextInput";
@@ -80,6 +81,17 @@ const ChatInterface = ({ agent, onShowAgentDetails, onAgentUpdate }: ChatInterfa
   // Check if this is a personal agent (can be edited) or public advisor (can only be shared)
   const isPersonalAgent = currentAgent.isPersonal !== false;
 
+  // Get display text for advisor - use title if available, otherwise fall back to subject
+  const getAdvisorDisplayText = (agent: AgentType) => {
+    // For advisors from the advisors table, we might have a title property
+    const advisorTitle = (agent as any).title;
+    if (advisorTitle) {
+      return advisorTitle;
+    }
+    // Fallback to subject or category
+    return agent.subject || (agent as any).category || 'Advisor';
+  };
+
   if (showSettings) {
     return (
       <div className="flex flex-col h-full">
@@ -134,7 +146,7 @@ const ChatInterface = ({ agent, onShowAgentDetails, onAgentUpdate }: ChatInterfa
               </Avatar>
               <div>
                 <h1 className="font-semibold text-xl">{currentAgent.name}</h1>
-                <p className="text-lg text-muted-foreground">{currentAgent.type} • {currentAgent.subject || 'General'}</p>
+                <p className="text-lg text-muted-foreground">{getAdvisorDisplayText(currentAgent)}</p>
               </div>
             </div>
           </div>
@@ -165,7 +177,7 @@ const ChatInterface = ({ agent, onShowAgentDetails, onAgentUpdate }: ChatInterfa
             </Avatar>
             <div>
               <h1 className="font-semibold text-xl">{currentAgent.name}</h1>
-              <p className="text-lg text-muted-foreground">{currentAgent.type} • {currentAgent.subject || 'General'}</p>
+              <p className="text-lg text-muted-foreground">{getAdvisorDisplayText(currentAgent)}</p>
             </div>
           </div>
         </div>
