@@ -13,17 +13,32 @@ serve(async (req) => {
   }
 
   try {
-    const { messages, tutorPrompt, model = 'gpt-4' } = await req.json()
+    const { messages, agent } = await req.json()
 
     const openaiApiKey = Deno.env.get('OPENAI_API_KEY')
     if (!openaiApiKey) {
       throw new Error('OpenAI API key not configured')
     }
 
+    // Use the advisor's prompt or create a default one
+    const systemPrompt = agent?.prompt || `You are ${agent?.name || 'an AI advisor'}, a helpful AI advisor specializing in ${agent?.subject || 'general topics'}.
+
+Your main goals are to:
+- Help users understand concepts clearly through conversation
+- Ask thoughtful questions that promote critical thinking
+- Provide step-by-step explanations when needed
+- Encourage users when they struggle
+- Make learning engaging and fun through discussion
+- Guide users to discover answers rather than just giving them
+
+${agent?.description ? `Background: ${agent.description}` : ''}
+
+Always be patient, supportive, and adapt to each user's learning pace and style. If a user seems confused, ask simpler questions to help them build understanding step by step.`
+
     // Prepare the messages for OpenAI
     const systemMessage = {
       role: 'system',
-      content: tutorPrompt || 'You are a helpful AI tutor. Provide clear, educational responses to help students learn.'
+      content: systemPrompt
     }
 
     const chatMessages = [systemMessage, ...messages]
@@ -37,7 +52,7 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: model,
+        model: 'gpt-4',
         messages: chatMessages,
         max_tokens: 1000,
         temperature: 0.7,
@@ -60,7 +75,7 @@ serve(async (req) => {
 
     return new Response(
       JSON.stringify({ 
-        message: assistantMessage,
+        content: assistantMessage,
         usage: data.usage 
       }),
       {

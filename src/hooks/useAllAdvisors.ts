@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { AgentType, VoiceTrait, AgentChannelConfig } from '@/types/agent';
+import { AgentType } from '@/types/agent';
 
 export const useAllAdvisors = () => {
   const [agents, setAgents] = useState<AgentType[]>([]);
@@ -14,17 +14,7 @@ export const useAllAdvisors = () => {
         setIsLoading(true);
         setError(null);
 
-        // Fetch tutors
-        const { data: tutors, error: tutorsError } = await supabase
-          .from('tutors')
-          .select('*')
-          .eq('is_personal', false);
-
-        if (tutorsError) {
-          throw tutorsError;
-        }
-
-        // Fetch advisors
+        // Fetch only from advisors table
         const { data: advisors, error: advisorsError } = await supabase
           .from('advisors')
           .select('*');
@@ -32,43 +22,6 @@ export const useAllAdvisors = () => {
         if (advisorsError) {
           throw advisorsError;
         }
-
-        // Transform tutors to AgentType format
-        const transformedTutors: AgentType[] = (tutors || []).map(tutor => ({
-          id: tutor.id,
-          name: tutor.name,
-          description: tutor.description || '',
-          type: tutor.type as any,
-          status: tutor.status as any,
-          createdAt: tutor.created_at,
-          updatedAt: tutor.updated_at,
-          model: tutor.model,
-          voice: tutor.voice,
-          voiceProvider: tutor.voice_provider,
-          customVoiceId: tutor.custom_voice_id,
-          voiceTraits: Array.isArray(tutor.voice_traits) ? (tutor.voice_traits as unknown as VoiceTrait[]) : [],
-          interactions: tutor.interactions || 0,
-          studentsSaved: tutor.students_saved || 0,
-          helpfulnessScore: tutor.helpfulness_score || 0,
-          avmScore: tutor.avm_score || 0,
-          csat: tutor.csat || 0,
-          performance: tutor.performance || 0,
-          channels: Array.isArray(tutor.channels) ? (tutor.channels as unknown as string[]) : [],
-          channelConfigs: typeof tutor.channel_configs === 'object' && tutor.channel_configs !== null && !Array.isArray(tutor.channel_configs) 
-            ? (tutor.channel_configs as unknown as Record<string, AgentChannelConfig>) 
-            : {},
-          isPersonal: tutor.is_personal,
-          phone: tutor.phone,
-          email: tutor.email,
-          avatar: tutor.avatar,
-          purpose: tutor.purpose,
-          prompt: tutor.prompt,
-          subject: tutor.subject,
-          gradeLevel: tutor.grade_level,
-          teachingStyle: tutor.teaching_style,
-          customSubject: tutor.custom_subject,
-          learningObjective: tutor.learning_objective
-        }));
 
         // Transform advisors to AgentType format
         const transformedAdvisors: AgentType[] = (advisors || []).map(advisor => ({
@@ -96,9 +49,7 @@ export const useAllAdvisors = () => {
           voiceTraits: []
         }));
 
-        // Combine both arrays
-        const combinedAgents = [...transformedTutors, ...transformedAdvisors];
-        setAgents(combinedAgents);
+        setAgents(transformedAdvisors);
 
       } catch (err: any) {
         console.error('Error fetching advisors:', err);

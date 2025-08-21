@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 export interface Conversation {
   id: string;
   user_id: string;
+  advisor_id: string | null;
   tutor_id: string;
   title: string | null;
   created_at: string;
@@ -19,18 +20,18 @@ export interface Message {
 }
 
 export const conversationService = {
-  // Get or create a conversation for a user and tutor
-  async getOrCreateConversation(tutorId: string): Promise<Conversation | null> {
+  // Get or create a conversation for a user and advisor
+  async getOrCreateConversation(advisorId: string): Promise<Conversation | null> {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('User not authenticated');
 
-      // First try to get existing conversation
+      // First try to get existing conversation for this advisor
       const { data: existingConversation } = await supabase
         .from('conversations')
         .select('*')
         .eq('user_id', user.id)
-        .eq('tutor_id', tutorId)
+        .eq('tutor_id', advisorId) // Using tutor_id field for advisor IDs for now
         .maybeSingle();
 
       if (existingConversation) {
@@ -42,7 +43,7 @@ export const conversationService = {
         .from('conversations')
         .insert({
           user_id: user.id,
-          tutor_id: tutorId,
+          tutor_id: advisorId, // Using tutor_id field for advisor IDs for now
           title: null
         })
         .select()
