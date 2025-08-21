@@ -1,9 +1,11 @@
 
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
+import { Navigate } from "react-router-dom";
 import AdvisorDirectory from "@/components/AdvisorDirectory";
 import ChatInterface from "@/components/ChatInterface";
 import AuthModal from "@/components/AuthModal";
+import UserSidebar from "@/components/UserSidebar";
 import { AgentType } from "@/types/agent";
 import { useUserAdvisors } from "@/hooks/useUserAdvisors";
 import { useToast } from "@/hooks/use-toast";
@@ -15,6 +17,8 @@ const Home = () => {
   const [selectedAdvisor, setSelectedAdvisor] = useState<AgentType | null>(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [pendingAdvisor, setPendingAdvisor] = useState<AgentType | null>(null);
+  const [selectedAgent, setSelectedAgent] = useState<AgentType | null>(null);
+  const [selectedPublicAdvisorId, setSelectedPublicAdvisorId] = useState<string | null>(null);
 
   // Handle auth modal close
   const handleAuthModalClose = (open: boolean) => {
@@ -57,8 +61,50 @@ const Home = () => {
         }
         
         setSelectedAdvisor(advisor);
+        setSelectedPublicAdvisorId(advisor.id);
       }
     }
+  };
+
+  // Handle agent selection from sidebar
+  const handleAgentSelect = (agent: AgentType) => {
+    setSelectedAgent(agent);
+    setSelectedAdvisor(null);
+    setSelectedPublicAdvisorId(null);
+  };
+
+  // Handle public advisor selection from sidebar
+  const handlePublicAdvisorSelect = (advisorId: string, advisor?: AgentType) => {
+    setSelectedPublicAdvisorId(advisorId);
+    if (advisor) {
+      setSelectedAdvisor(advisor);
+    }
+    setSelectedAgent(null);
+  };
+
+  // Handle removing public advisor
+  const handleRemovePublicAdvisor = async (advisorId: string) => {
+    try {
+      await removeAdvisor(advisorId);
+      if (selectedPublicAdvisorId === advisorId) {
+        setSelectedPublicAdvisorId(null);
+        setSelectedAdvisor(null);
+      }
+    } catch (error) {
+      console.error("Failed to remove advisor:", error);
+      toast({
+        title: "Error",
+        description: "Failed to remove advisor.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  // Handle showing advisor directory
+  const handleShowAdvisorDirectory = () => {
+    setSelectedAgent(null);
+    setSelectedAdvisor(null);
+    setSelectedPublicAdvisorId(null);
   };
 
   // Effect to handle post-authentication advisor selection
@@ -78,19 +124,38 @@ const Home = () => {
     );
   }
 
+  // Determine which agent/advisor to show in chat
+  const currentChatAgent = selectedAgent || selectedAdvisor;
+
   return (
-    <div className="flex-1">
-      {selectedAdvisor ? (
-        <ChatInterface
-          agent={selectedAdvisor}
-          onBack={() => setSelectedAdvisor(null)}
-        />
-      ) : (
-        <AdvisorDirectory 
-          onSelectAdvisor={handleAdvisorSelect}
-          onAuthRequired={handleAuthRequired}
-        />
-      )}
+    <div className="flex h-screen bg-background">
+      <UserSidebar
+        selectedAgent={selectedAgent}
+        selectedPublicAdvisorId={selectedPublicAdvisorId}
+        selectedPublicAdvisors={advisorsAsAgents}
+        onSelectAgent={handleAgentSelect}
+        onSelectPublicAdvisor={handlePublicAdvisorSelect}
+        onRemovePublicAdvisor={handleRemovePublicAdvisor}
+        onShowAdvisorDirectory={handleShowAdvisorDirectory}
+      />
+      
+      <div className="flex-1">
+        {currentChatAgent ? (
+          <ChatInterface
+            agent={currentChatAgent}
+            onBack={() => {
+              setSelectedAgent(null);
+              setSelectedAdvisor(null);
+              setSelectedPublicAdvisorId(null);
+            }}
+          />
+        ) : (
+          <AdvisorDirectory 
+            onSelectAdvisor={handleAdvisorSelect}
+            onAuthRequired={handleAuthRequired}
+          />
+        )}
+      </div>
       
       <AuthModal 
         open={showAuthModal} 
