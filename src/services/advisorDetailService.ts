@@ -34,6 +34,7 @@ export const fetchAdvisorById = async (id: string): Promise<AgentType> => {
     avatar: advisor.avatar_url,
     prompt: advisor.prompt,
     subject: advisor.category || 'General',
+    title: advisor.title, // Include the title field from advisors table
     // Set default values for tutor-specific fields
     model: 'GPT-4',
     interactions: 0,

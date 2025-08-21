@@ -1,58 +1,45 @@
-
-export type AgentStatus = "active" | "inactive" | "draft";
-export type AgentTypeCategory = 
-  | "Math Tutor" 
-  | "Science Tutor" 
-  | "Language Arts Tutor" 
-  | "History Tutor" 
-  | "Reading Assistant" 
-  | "Homework Helper" 
-  | "Study Buddy" 
-  | "Quiz Master" 
-  | "Writing Coach" 
-  | "General Tutor";
-
-export interface AgentChannelConfig {
-  enabled: boolean;
-  details?: string;
-  config?: Record<string, any>;
-}
-
 export interface VoiceTrait {
   name: string;
-  color?: string;
+  description: string;
+}
+
+export interface AgentChannel {
+  id: string;
+  name: string;
+  type: 'discord' | 'slack' | 'telegram' | 'whatsapp' | 'sms' | 'email' | 'web';
+  config: Record<string, any>;
 }
 
 export interface AgentType {
   id: string;
   name: string;
   description: string;
-  type: AgentTypeCategory;
-  status: AgentStatus;
+  type: 'Math Tutor' | 'Science Tutor' | 'Language Tutor' | 'General Tutor' | 'History Tutor' | 'Art Tutor';
+  status: 'active' | 'inactive' | 'training';
   createdAt: string;
-  updatedAt?: string;
+  updatedAt: string;
+  avatar?: string;
+  prompt?: string;
+  subject?: string;
+  title?: string; // Add title field for advisors
+  gradeLevel?: string;
+  learningObjective?: string;
   model?: string;
-  voice?: string;
-  voiceProvider?: string;
-  customVoiceId?: string;
-  voiceTraits?: VoiceTrait[];
   interactions?: number;
   studentsSaved?: number;
   helpfulnessScore?: number;
   avmScore?: number;
   csat?: number;
   performance?: number;
-  channels?: string[];
-  channelConfigs?: Record<string, AgentChannelConfig>;
+  channels?: AgentChannel[];
+  channelConfigs?: Record<string, any>;
   isPersonal?: boolean;
-  phone?: string;
-  email?: string;
+  voiceTraits?: VoiceTrait[];
+}
+
+export interface PublicAgentType {
+  id: string;
+  name: string;
+  description: string;
   avatar?: string;
-  purpose?: string;
-  prompt?: string;
-  subject?: string;
-  gradeLevel?: string;
-  teachingStyle?: string;
-  customSubject?: string;
-  learningObjective?: string;
 }
