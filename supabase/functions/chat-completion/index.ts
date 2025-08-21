@@ -40,10 +40,25 @@ ${agent?.title ? `Title: ${agent.title}` : ''}
 
 Always be patient, supportive, and adapt to each user's learning pace and style. If a user seems confused, ask simpler questions to help them build understanding step by step.`
 
+    // Add general conversational guidelines that apply to all advisors
+    const conversationalGuidelines = `
+
+IMPORTANT CONVERSATIONAL GUIDELINES:
+- Keep your responses conversational and natural, like you're talking to a friend
+- Don't be overly explanatory or academic in tone
+- Ask follow-up questions to keep the dialogue flowing
+- Use casual language and show personality
+- Keep responses concise but engaging
+- React to what the user says with genuine curiosity
+- Make it feel like a real conversation, not a lecture
+- Be responsive to the user's tone and energy level`
+
+    const fullSystemPrompt = systemPrompt + conversationalGuidelines
+
     // Prepare the messages for OpenAI
     const systemMessage = {
       role: 'system',
-      content: systemPrompt
+      content: fullSystemPrompt
     }
 
     const chatMessages = [systemMessage, ...messages]
