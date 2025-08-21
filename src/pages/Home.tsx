@@ -12,6 +12,7 @@ import { AgentType } from "@/types/agent";
 import { useAgents } from "@/hooks/useAgents";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { usePublicAgent } from "@/hooks/usePublicAgent";
+import { useAdvisorDetail } from "@/hooks/useAdvisorDetail";
 
 const Home = () => {
   const { user } = useAuth();
@@ -21,6 +22,9 @@ const Home = () => {
   const [selectedPublicAdvisorId, setSelectedPublicAdvisorId] = useState<string | null>(null);
   const [selectedPublicAdvisors, setSelectedPublicAdvisors] = useState<AgentType[]>([]);
   const [showAuthModal, setShowAuthModal] = useState(false);
+  
+  // Track whether the selected advisor is from advisors table or tutors table
+  const [isAdvisorFromAdvisorsTable, setIsAdvisorFromAdvisorsTable] = useState(false);
   
   // Show advisor directory by default for new users (no agents and no selected advisors)
   const getDefaultView = () => {
@@ -33,8 +37,18 @@ const Home = () => {
   const [currentView, setCurrentView] = useState<'chat' | 'child-profile' | 'settings' | 'agents' | 'agent-create' | 'advisor-directory'>(getDefaultView());
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
-  // Load public advisor data when selected
-  const { agent: publicAgent, isLoading: publicAgentLoading, error: publicAgentError } = usePublicAgent(selectedPublicAdvisorId);
+  // Load public advisor/tutor data when selected - use appropriate hook based on source
+  const { agent: publicTutor, isLoading: publicTutorLoading, error: publicTutorError } = usePublicAgent(
+    !isAdvisorFromAdvisorsTable ? selectedPublicAdvisorId : undefined
+  );
+  const { advisor: publicAdvisor, isLoading: publicAdvisorLoading, error: publicAdvisorError } = useAdvisorDetail(
+    isAdvisorFromAdvisorsTable ? selectedPublicAdvisorId : undefined
+  );
+
+  // Determine the active public agent and loading/error states
+  const activePublicAgent = isAdvisorFromAdvisorsTable ? publicAdvisor : publicTutor;
+  const isPublicAgentLoading = isAdvisorFromAdvisorsTable ? publicAdvisorLoading : publicTutorLoading;
+  const publicAgentError = isAdvisorFromAdvisorsTable ? publicAdvisorError : publicTutorError;
 
   const handleSelectAgent = useCallback((agent: AgentType) => {
     if (!user) {
@@ -67,6 +81,12 @@ const Home = () => {
     setSelectedPublicAdvisorId(advisorId);
     setSelectedAgent(null); // Clear personal agent when selecting public advisor
     
+    // Determine if this advisor comes from the advisors table or tutors table
+    // We can check this by looking at whether the advisor object has certain fields
+    // that are specific to the advisors table (like category instead of subject)
+    const isFromAdvisorsTable = advisor && 'category' in advisor;
+    setIsAdvisorFromAdvisorsTable(!!isFromAdvisorsTable);
+    
     // Add advisor to the selected list if not already there and we have advisor data
     if (advisor && !selectedPublicAdvisors.find(a => a.id === advisorId)) {
       setSelectedPublicAdvisors(prev => [...prev, advisor]);
@@ -85,9 +105,14 @@ const Home = () => {
     setSelectedPublicAdvisorId(advisorId);
     setSelectedAgent(null); // Clear personal agent when selecting public advisor
     
+    // Find the advisor in our selected list to determine its source
+    const advisor = selectedPublicAdvisors.find(a => a.id === advisorId);
+    const isFromAdvisorsTable = advisor && 'category' in advisor;
+    setIsAdvisorFromAdvisorsTable(!!isFromAdvisorsTable);
+    
     // Always switch to chat view when selecting an advisor from sidebar
     setCurrentView('chat');
-  }, [user]);
+  }, [user, selectedPublicAdvisors]);
 
   const handleRemoveAdvisor = useCallback((advisorId: string) => {
     // Remove from selected advisors list
@@ -96,6 +121,7 @@ const Home = () => {
     // If this was the currently selected advisor, clear it
     if (selectedPublicAdvisorId === advisorId) {
       setSelectedPublicAdvisorId(null);
+      setIsAdvisorFromAdvisorsTable(false);
       
       // If no other agents available, show advisor directory
       if (agents.length === 0 && selectedPublicAdvisors.length <= 1) {
@@ -110,10 +136,10 @@ const Home = () => {
   }
 
   // Determine which agent to show in chat
-  const activeAgent = selectedAgent || publicAgent;
+  const activeAgent = selectedAgent || activePublicAgent;
 
   // Check if we're waiting for a public advisor to load
-  const isWaitingForPublicAgent = selectedPublicAdvisorId && !publicAgent && publicAgentLoading;
+  const isWaitingForPublicAgent = selectedPublicAdvisorId && !activePublicAgent && isPublicAgentLoading;
 
   const renderMainContent = () => {
     switch (currentView) {
