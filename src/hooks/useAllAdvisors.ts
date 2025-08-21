@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { AgentType, VoiceTrait } from '@/types/agent';
+import { AgentType, VoiceTrait, AgentChannelConfig } from '@/types/agent';
 
 export const useAllAdvisors = () => {
   const [agents, setAgents] = useState<AgentType[]>([]);
@@ -54,7 +54,7 @@ export const useAllAdvisors = () => {
           csat: tutor.csat || 0,
           performance: tutor.performance || 0,
           channels: Array.isArray(tutor.channels) ? (tutor.channels as string[]) : [],
-          channelConfigs: typeof tutor.channel_configs === 'object' ? tutor.channel_configs : {},
+          channelConfigs: typeof tutor.channel_configs === 'object' && tutor.channel_configs !== null ? (tutor.channel_configs as Record<string, AgentChannelConfig>) : {},
           isPersonal: tutor.is_personal,
           phone: tutor.phone,
           email: tutor.email,
