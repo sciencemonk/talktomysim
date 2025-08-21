@@ -27,6 +27,8 @@ const buttonVariants = cva(
         brand: "bg-brandPurple text-white hover:bg-brandPurple/90 focus-visible:ring-focusRing",
         // Brand gradient variant
         brandGradient: "bg-gradient-to-r from-brandBlue to-brandPink text-white hover:opacity-90 focus-visible:ring-focusRing",
+        // New selected variant for filter buttons
+        selected: "bg-black text-white hover:bg-black/90",
       },
       size: {
         default: "h-10 px-4 py-2",

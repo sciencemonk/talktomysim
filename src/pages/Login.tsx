@@ -163,9 +163,9 @@ const Login = () => {
     <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <CardTitle>Welcome to Think With Me</CardTitle>
+          <CardTitle>Welcome to Sim</CardTitle>
           <CardDescription>
-            {isSignUp ? 'Create an account to get started' : 'Sign in to create and manage your AI tutors'}
+            Talk with a Sim
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -216,7 +216,7 @@ const Login = () => {
                 className="w-full bg-gradient-to-r from-purple-600 via-pink-500 to-blue-500 text-white hover:opacity-90 animate-pulse"
                 size="lg"
               >
-                {isLoading ? 'Processing...' : 'Sign in for free'}
+                {isLoading ? 'Processing...' : 'Get Started for Free'}
               </Button>
             </form>
           </Form>
