@@ -1,4 +1,3 @@
-
 import { useParams } from "react-router-dom";
 import { usePublicAgent } from "@/hooks/usePublicAgent";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -226,11 +225,11 @@ const StudentChat = () => {
         </div>
 
         {/* Messages */}
-        <div className="flex-1 overflow-auto px-4 sm:p-4 min-h-0">
-          {messages.map((message) => (
+        <div className="flex-1 overflow-auto px-4 sm:p-4 pt-6 min-h-0">
+          {messages.map((message, index) => (
             <div
               key={message.id}
-              className={`mb-2 flex flex-col ${message.role === 'user' ? 'items-end' : 'items-start'}`}
+              className={`${index === 0 ? 'mt-0' : 'mt-2'} mb-2 flex flex-col ${message.role === 'user' ? 'items-end' : 'items-start'}`}
             >
               <div
                 className={`rounded-lg px-3 py-2 text-sm max-w-[85%] sm:max-w-[75%] md:max-w-[60%] lg:max-w-[40%] xl:max-w-[30%] ${
