@@ -10,12 +10,6 @@ import Index from "./pages/Index";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Landing from "./pages/Landing";
-import AgentsDashboard from "./pages/AgentsDashboard";
-import AgentCreate from "./pages/AgentCreate";
-import AgentDetails from "./pages/AgentDetails";
-import AgentAnalytics from "./pages/AgentAnalytics";
-import TeacherDashboard from "./pages/TeacherDashboard";
-import SimpleTeacherDashboard from "./pages/SimpleTeacherDashboard";
 import StudentChat from "./pages/StudentChat";
 import PublicTutorDetail from "./pages/PublicTutorDetail";
 import Settings from "./pages/Settings";
@@ -26,9 +20,7 @@ import Marketplace from "./pages/Marketplace";
 import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/ProtectedRoute";
-import AgentsLayout from "./layouts/AgentsLayout";
 import DashboardLayout from "./layouts/DashboardLayout";
-import SimpleDashboardLayout from "./layouts/SimpleDashboardLayout";
 
 const queryClient = new QueryClient();
 
@@ -56,20 +48,6 @@ function App() {
                   <Route path="billing" element={<ProtectedRoute><Billing /></ProtectedRoute>} />
                   <Route path="professional-development" element={<ProtectedRoute><ProfessionalDevelopment /></ProtectedRoute>} />
                   <Route path="marketplace" element={<ProtectedRoute><Marketplace /></ProtectedRoute>} />
-                </Route>
-
-                {/* Agent management routes */}
-                <Route path="/agents" element={<ProtectedRoute><AgentsLayout /></ProtectedRoute>}>
-                  <Route index element={<AgentsDashboard />} />
-                  <Route path="create" element={<AgentCreate />} />
-                  <Route path=":id" element={<AgentDetails />} />
-                  <Route path=":id/analytics" element={<AgentAnalytics />} />
-                </Route>
-
-                {/* Teacher dashboard routes */}
-                <Route path="/teacher" element={<ProtectedRoute><SimpleDashboardLayout /></ProtectedRoute>}>
-                  <Route index element={<SimpleTeacherDashboard />} />
-                  <Route path="dashboard" element={<TeacherDashboard />} />
                 </Route>
 
                 {/* Admin routes */}

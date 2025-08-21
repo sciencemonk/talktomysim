@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 import { AgentType } from "@/types/agent";
 import UserSettingsDropdown from "./UserSettingsDropdown";
+import AdvisorForm from "./AdvisorForm";
 
 interface UserSidebarProps {
   selectedAgent?: AgentType | null;
@@ -46,11 +47,17 @@ export const SidebarContent = ({
   onClose
 }: UserSidebarProps & { onClose?: () => void }) => {
   const { user } = useAuth();
-  const { agents } = useAgents();
+  const { agents, refetch } = useAgents();
   const location = useLocation();
   const [conversationsExpanded, setConversationsExpanded] = useState(true);
+  const [isCreateSimOpen, setIsCreateSimOpen] = useState(false);
 
   const isOnHomePage = location.pathname === '/';
+
+  const handleCreateSimSuccess = () => {
+    setIsCreateSimOpen(false);
+    refetch();
+  };
 
   return (
     <div className="flex flex-col h-full bg-background border-r border-border">
@@ -117,18 +124,15 @@ export const SidebarContent = ({
                           
                           {/* Sim Management Actions */}
                           <div className="ml-8 space-y-1">
-                            <Link to={`/agents/${agent.id}`}>
-                              <Button variant="ghost" size="sm" className="w-full justify-start gap-2 text-xs h-7">
-                                <Settings className="h-3 w-3" />
-                                Edit Sim
-                              </Button>
-                            </Link>
-                            <Link to={`/agents/${agent.id}/analytics`}>
-                              <Button variant="ghost" size="sm" className="w-full justify-start gap-2 text-xs h-7">
-                                <BarChart3 className="h-3 w-3" />
-                                Analytics
-                              </Button>
-                            </Link>
+                            <Button 
+                              variant="ghost" 
+                              size="sm" 
+                              className="w-full justify-start gap-2 text-xs h-7"
+                              onClick={() => setIsCreateSimOpen(true)}
+                            >
+                              <Settings className="h-3 w-3" />
+                              Edit Sim
+                            </Button>
                             <Button 
                               variant="ghost" 
                               size="sm" 
@@ -141,20 +145,25 @@ export const SidebarContent = ({
                           </div>
                         </div>
                       ))}
-                      <Link to="/agents/create">
-                        <Button variant="outline" size="sm" className="w-full gap-2">
-                          <Plus className="h-3 w-3" />
-                          Create Another Sim
-                        </Button>
-                      </Link>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="w-full gap-2"
+                        onClick={() => setIsCreateSimOpen(true)}
+                      >
+                        <Plus className="h-3 w-3" />
+                        Create Another Sim
+                      </Button>
                     </>
                   ) : (
-                    <Link to="/agents/create">
-                      <Button variant="outline" className="w-full gap-2">
-                        <Plus className="h-4 w-4" />
-                        Create Your Sim
-                      </Button>
-                    </Link>
+                    <Button 
+                      variant="outline" 
+                      className="w-full gap-2"
+                      onClick={() => setIsCreateSimOpen(true)}
+                    >
+                      <Plus className="h-4 w-4" />
+                      Create Your Sim
+                    </Button>
                   )}
                 </div>
               </div>
@@ -226,6 +235,14 @@ export const SidebarContent = ({
           <UserSettingsDropdown />
         </div>
       )}
+
+      {/* Create Sim Modal */}
+      <AdvisorForm
+        open={isCreateSimOpen}
+        onOpenChange={setIsCreateSimOpen}
+        advisor={null}
+        onSuccess={handleCreateSimSuccess}
+      />
     </div>
   );
 };
