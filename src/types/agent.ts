@@ -1,6 +1,8 @@
+
 export interface VoiceTrait {
   name: string;
-  description: string;
+  description?: string;
+  color?: string;
 }
 
 export interface AgentChannel {
@@ -10,12 +12,18 @@ export interface AgentChannel {
   config: Record<string, any>;
 }
 
+export interface AgentChannelConfig {
+  enabled: boolean;
+  details?: string;
+  config?: Record<string, any>;
+}
+
 export interface AgentType {
   id: string;
   name: string;
   description: string;
   type: 'Math Tutor' | 'Science Tutor' | 'Language Tutor' | 'General Tutor' | 'History Tutor' | 'Art Tutor';
-  status: 'active' | 'inactive' | 'training';
+  status: 'active' | 'inactive' | 'training' | 'draft';
   createdAt: string;
   updatedAt: string;
   avatar?: string;
@@ -25,15 +33,23 @@ export interface AgentType {
   gradeLevel?: string;
   learningObjective?: string;
   model?: string;
+  voice?: string;
+  voiceProvider?: string;
+  customVoiceId?: string;
   interactions?: number;
   studentsSaved?: number;
   helpfulnessScore?: number;
   avmScore?: number;
   csat?: number;
   performance?: number;
-  channels?: AgentChannel[];
-  channelConfigs?: Record<string, any>;
+  channels?: string[];
+  channelConfigs?: Record<string, AgentChannelConfig>;
   isPersonal?: boolean;
+  phone?: string;
+  email?: string;
+  purpose?: string;
+  teachingStyle?: string;
+  customSubject?: string;
   voiceTraits?: VoiceTrait[];
 }
 

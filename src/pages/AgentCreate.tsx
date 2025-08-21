@@ -44,13 +44,15 @@ const ThinkingPartnerCreate = ({ onAgentCreated }: AgentCreateProps) => {
     name: "New Thinking Partner",
     description: "",
     type: "General Tutor",
-    status: "draft",
+    status: "active",
     createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
     prompt: "",
     subject: "",
     gradeLevel: "",
     learningObjective: "",
-    avatar: `https://api.dicebear.com/7.x/bottts/svg?seed=temp-new-agent`
+    avatar: `https://api.dicebear.com/7.x/bottts/svg?seed=temp-new-agent`,
+    customSubject: ""
   });
   
   const handleAgentUpdate = (updatedAgent: AgentType) => {

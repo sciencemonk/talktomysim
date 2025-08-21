@@ -1,4 +1,3 @@
-
 import React, { useRef, useState, useEffect } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -295,8 +294,8 @@ const VoiceSelectionModal: React.FC<VoiceSelectionModalProps> = ({
                             )}
                           </div>
                           <div className="flex gap-1 mt-2 flex-wrap">
-                            {voiceObj.traits?.map((trait: VoiceTrait, idx: number) => (
-                              <Badge key={idx} className={trait.color}>
+                            {voiceObj.traits?.map((trait: any, idx: number) => (
+                              <Badge key={idx} className={trait.color || 'bg-gray-100 text-gray-800'}>
                                 {trait.name}
                               </Badge>
                             ))}
