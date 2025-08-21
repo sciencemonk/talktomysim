@@ -14,7 +14,272 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      conversations: {
+        Row: {
+          advisor_id: string | null
+          created_at: string | null
+          id: string
+          title: string | null
+          tutor_id: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          advisor_id?: string | null
+          created_at?: string | null
+          id?: string
+          title?: string | null
+          tutor_id: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          advisor_id?: string | null
+          created_at?: string | null
+          id?: string
+          title?: string | null
+          tutor_id?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      messages: {
+        Row: {
+          content: string
+          conversation_id: string
+          created_at: string | null
+          id: string
+          role: string
+        }
+        Insert: {
+          content: string
+          conversation_id: string
+          created_at?: string | null
+          id?: string
+          role: string
+        }
+        Update: {
+          content?: string
+          conversation_id?: string
+          created_at?: string | null
+          id?: string
+          role?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_premium: boolean | null
+          parent_email: string | null
+          parent_first_name: string | null
+          parent_last_name: string | null
+          passcode: string
+          student_dob: string | null
+          student_first_name: string | null
+          student_last_name: string | null
+          total_bananas: number | null
+          updated_at: string | null
+          username: string
+          wallet_address: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id: string
+          is_premium?: boolean | null
+          parent_email?: string | null
+          parent_first_name?: string | null
+          parent_last_name?: string | null
+          passcode: string
+          student_dob?: string | null
+          student_first_name?: string | null
+          student_last_name?: string | null
+          total_bananas?: number | null
+          updated_at?: string | null
+          username: string
+          wallet_address?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_premium?: boolean | null
+          parent_email?: string | null
+          parent_first_name?: string | null
+          parent_last_name?: string | null
+          passcode?: string
+          student_dob?: string | null
+          student_first_name?: string | null
+          student_last_name?: string | null
+          total_bananas?: number | null
+          updated_at?: string | null
+          username?: string
+          wallet_address?: string | null
+        }
+        Relationships: []
+      }
+      tutors: {
+        Row: {
+          avatar: string | null
+          avm_score: number | null
+          channel_configs: Json | null
+          channels: Json | null
+          created_at: string | null
+          csat: number | null
+          custom_subject: string | null
+          custom_voice_id: string | null
+          description: string | null
+          email: string | null
+          grade_level: string | null
+          helpfulness_score: number | null
+          id: string
+          interactions: number | null
+          is_personal: boolean | null
+          learning_objective: string | null
+          model: string | null
+          name: string
+          performance: number | null
+          phone: string | null
+          prompt: string | null
+          purpose: string | null
+          status: string
+          students_saved: number | null
+          subject: string | null
+          teaching_style: string | null
+          type: string
+          updated_at: string | null
+          user_id: string
+          voice: string | null
+          voice_provider: string | null
+          voice_traits: Json | null
+        }
+        Insert: {
+          avatar?: string | null
+          avm_score?: number | null
+          channel_configs?: Json | null
+          channels?: Json | null
+          created_at?: string | null
+          csat?: number | null
+          custom_subject?: string | null
+          custom_voice_id?: string | null
+          description?: string | null
+          email?: string | null
+          grade_level?: string | null
+          helpfulness_score?: number | null
+          id?: string
+          interactions?: number | null
+          is_personal?: boolean | null
+          learning_objective?: string | null
+          model?: string | null
+          name: string
+          performance?: number | null
+          phone?: string | null
+          prompt?: string | null
+          purpose?: string | null
+          status?: string
+          students_saved?: number | null
+          subject?: string | null
+          teaching_style?: string | null
+          type?: string
+          updated_at?: string | null
+          user_id: string
+          voice?: string | null
+          voice_provider?: string | null
+          voice_traits?: Json | null
+        }
+        Update: {
+          avatar?: string | null
+          avm_score?: number | null
+          channel_configs?: Json | null
+          channels?: Json | null
+          created_at?: string | null
+          csat?: number | null
+          custom_subject?: string | null
+          custom_voice_id?: string | null
+          description?: string | null
+          email?: string | null
+          grade_level?: string | null
+          helpfulness_score?: number | null
+          id?: string
+          interactions?: number | null
+          is_personal?: boolean | null
+          learning_objective?: string | null
+          model?: string | null
+          name?: string
+          performance?: number | null
+          phone?: string | null
+          prompt?: string | null
+          purpose?: string | null
+          status?: string
+          students_saved?: number | null
+          subject?: string | null
+          teaching_style?: string | null
+          type?: string
+          updated_at?: string | null
+          user_id?: string
+          voice?: string | null
+          voice_provider?: string | null
+          voice_traits?: Json | null
+        }
+        Relationships: []
+      }
+      user_advisors: {
+        Row: {
+          advisor_id: string
+          avatar_url: string | null
+          background_content: string | null
+          category: string | null
+          created_at: string | null
+          description: string | null
+          id: string
+          knowledge_summary: string | null
+          name: string
+          prompt: string
+          title: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          advisor_id: string
+          avatar_url?: string | null
+          background_content?: string | null
+          category?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          knowledge_summary?: string | null
+          name: string
+          prompt: string
+          title?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          advisor_id?: string
+          avatar_url?: string | null
+          background_content?: string | null
+          category?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          knowledge_summary?: string | null
+          name?: string
+          prompt?: string
+          title?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -23,7 +288,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "moderator" | "user"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +415,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "moderator", "user"],
+    },
   },
 } as const
