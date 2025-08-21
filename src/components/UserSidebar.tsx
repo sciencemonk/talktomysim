@@ -5,8 +5,6 @@ import {
   LogOut, 
   Settings,
   User,
-  ChevronLeft,
-  ChevronRight,
   Menu,
   Star,
   MoreHorizontal,
@@ -151,11 +149,11 @@ const SidebarContent = ({
               onClick={onToggleCollapse}
               className="h-8 w-8 p-0"
             >
-              {isCollapsed ? (
-                <ChevronRight className="h-4 w-4" />
-              ) : (
-                <ChevronLeft className="h-4 w-4" />
-              )}
+              <img 
+                src="/lovable-uploads/414592e4-0cdf-4286-a371-903bef284fe3.png" 
+                alt="Toggle Sidebar" 
+                className="h-4 w-4"
+              />
             </Button>
           </div>
           <Separator />
