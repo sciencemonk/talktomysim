@@ -1,6 +1,6 @@
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
-import { AccessToken } from "https://deno.land/x/livekit_server_sdk@1.2.7/mod.ts"
+import { AccessToken } from "https://esm.sh/livekit-server-sdk@2.6.1"
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -8,31 +8,23 @@ const corsHeaders = {
 }
 
 serve(async (req) => {
-  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
   }
 
   try {
-    const { roomName, participantName } = await req.json()
-
-    if (!roomName || !participantName) {
-      throw new Error('Missing roomName or participantName')
-    }
-
-    const livekitHost = Deno.env.get('LIVEKIT_WS_URL')
+    const { roomName, participantName, participantMetadata } = await req.json()
+    
     const apiKey = Deno.env.get('LIVEKIT_API_KEY')
     const apiSecret = Deno.env.get('LIVEKIT_API_SECRET')
-
-    if (!livekitHost || !apiKey || !apiSecret) {
-      throw new Error('LiveKit credentials not configured')
+    
+    if (!apiKey || !apiSecret) {
+      throw new Error('LiveKit API credentials not configured')
     }
-
-    console.log('Generating LiveKit token for:', { roomName, participantName })
 
     const at = new AccessToken(apiKey, apiSecret, {
       identity: participantName,
-      ttl: '10m',
+      metadata: participantMetadata,
     })
 
     at.addGrant({
@@ -42,27 +34,27 @@ serve(async (req) => {
       canSubscribe: true,
     })
 
-    const token = at.toJwt()
-
+    const token = await at.toJwt()
+    
     return new Response(
-      JSON.stringify({ 
-        token,
-        wsUrl: livekitHost
-      }),
-      {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      JSON.stringify({ token }),
+      { 
+        headers: { 
+          ...corsHeaders,
+          'Content-Type': 'application/json'
+        } 
       },
     )
-
   } catch (error) {
-    console.error('Error in livekit-token function:', error)
+    console.error('Error generating LiveKit token:', error)
     return new Response(
-      JSON.stringify({ 
-        error: error.message || 'Internal server error'
-      }),
-      {
+      JSON.stringify({ error: error.message }),
+      { 
         status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        headers: { 
+          ...corsHeaders,
+          'Content-Type': 'application/json'
+        } 
       },
     )
   }
