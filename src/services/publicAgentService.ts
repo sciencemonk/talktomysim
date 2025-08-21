@@ -72,6 +72,6 @@ export const fetchPublicAgentById = async (id: string): Promise<AgentType> => {
     teachingStyle: null,
     customSubject: null,
     learningObjective: null,
-    is_featured: advisor.is_featured || false
+    is_featured: false // Default to false since advisors table doesn't have this field
   };
 };
