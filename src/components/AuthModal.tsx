@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
@@ -193,10 +194,10 @@ const AuthModal = ({ open, onOpenChange }: AuthModalProps) => {
                     <Button
                       type="submit"
                       disabled={isLoading}
-                      className="w-full h-12"
+                      className="w-full h-12 bg-gradient-to-r from-purple-600 via-pink-500 to-blue-500 text-white hover:opacity-90"
                       size="lg"
                     >
-                      {isLoading ? 'Processing...' : (isSignUp ? 'Sign Up' : 'Sign In')}
+                      {isLoading ? 'Processing...' : (isSignUp ? 'Sign Up' : 'Login')}
                     </Button>
                   </form>
                 </Form>
@@ -222,7 +223,7 @@ const AuthModal = ({ open, onOpenChange }: AuthModalProps) => {
                       onClick={() => setIsSignUp(false)}
                       className="text-sm"
                     >
-                      Already have an account? Sign in
+                      Already have an account? Login
                     </Button>
                   </div>
                 )}
