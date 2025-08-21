@@ -5,6 +5,7 @@ import { Navigate } from "react-router-dom";
 import AdvisorDirectory from "@/components/AdvisorDirectory";
 import ChatInterface from "@/components/ChatInterface";
 import AuthModal from "@/components/AuthModal";
+import UserSidebar from "@/components/UserSidebar";
 import { AgentType } from "@/types/agent";
 
 const Home = () => {
@@ -12,6 +13,9 @@ const Home = () => {
   const [selectedAdvisor, setSelectedAdvisor] = useState<AgentType | null>(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [pendingAdvisor, setPendingAdvisor] = useState<AgentType | null>(null);
+  const [selectedAgent, setSelectedAgent] = useState<AgentType | null>(null);
+  const [selectedPublicAdvisorId, setSelectedPublicAdvisorId] = useState<string | null>(null);
+  const [selectedPublicAdvisors, setSelectedPublicAdvisors] = useState<AgentType[]>([]);
 
   // Handle auth modal close
   const handleAuthModalClose = (open: boolean) => {
@@ -26,7 +30,7 @@ const Home = () => {
     setShowAuthModal(true);
   };
 
-  // Handle advisor selection
+  // Handle advisor selection from directory
   const handleAdvisorSelect = (advisorId: string, advisor?: AgentType) => {
     if (!user) {
       // Store the advisor selection and show auth modal
@@ -40,6 +44,43 @@ const Home = () => {
         setSelectedAdvisor(advisor);
       }
     }
+  };
+
+  // Handle agent selection from sidebar
+  const handleAgentSelect = (agent: AgentType) => {
+    setSelectedAgent(agent);
+    setSelectedAdvisor(null);
+    setSelectedPublicAdvisorId(null);
+  };
+
+  // Handle public advisor selection from sidebar
+  const handlePublicAdvisorSelect = (advisorId: string, advisor?: AgentType) => {
+    setSelectedPublicAdvisorId(advisorId);
+    if (advisor) {
+      setSelectedAdvisor(advisor);
+    }
+    setSelectedAgent(null);
+  };
+
+  // Handle adding public advisor
+  const handleAddPublicAdvisor = (advisor: AgentType) => {
+    setSelectedPublicAdvisors(prev => [...prev, advisor]);
+  };
+
+  // Handle removing public advisor
+  const handleRemovePublicAdvisor = (advisorId: string) => {
+    setSelectedPublicAdvisors(prev => prev.filter(a => a.id !== advisorId));
+    if (selectedPublicAdvisorId === advisorId) {
+      setSelectedPublicAdvisorId(null);
+      setSelectedAdvisor(null);
+    }
+  };
+
+  // Handle showing advisor directory
+  const handleShowAdvisorDirectory = () => {
+    setSelectedAgent(null);
+    setSelectedAdvisor(null);
+    setSelectedPublicAdvisorId(null);
   };
 
   // Effect to handle post-authentication advisor selection
@@ -59,19 +100,38 @@ const Home = () => {
     );
   }
 
+  // Determine which agent/advisor to show in chat
+  const currentChatAgent = selectedAgent || selectedAdvisor;
+
   return (
     <div className="flex h-screen bg-background">
-      {selectedAdvisor ? (
-        <ChatInterface
-          agent={selectedAdvisor}
-          onBack={() => setSelectedAdvisor(null)}
-        />
-      ) : (
-        <AdvisorDirectory 
-          onSelectAdvisor={handleAdvisorSelect}
-          onAuthRequired={handleAuthRequired}
-        />
-      )}
+      <UserSidebar
+        selectedAgent={selectedAgent}
+        selectedPublicAdvisorId={selectedPublicAdvisorId}
+        selectedPublicAdvisors={selectedPublicAdvisors}
+        onSelectAgent={handleAgentSelect}
+        onSelectPublicAdvisor={handlePublicAdvisorSelect}
+        onRemovePublicAdvisor={handleRemovePublicAdvisor}
+        onShowAdvisorDirectory={handleShowAdvisorDirectory}
+      />
+      
+      <div className="flex-1">
+        {currentChatAgent ? (
+          <ChatInterface
+            agent={currentChatAgent}
+            onBack={() => {
+              setSelectedAgent(null);
+              setSelectedAdvisor(null);
+              setSelectedPublicAdvisorId(null);
+            }}
+          />
+        ) : (
+          <AdvisorDirectory 
+            onSelectAdvisor={handleAdvisorSelect}
+            onAuthRequired={handleAuthRequired}
+          />
+        )}
+      </div>
       
       <AuthModal 
         open={showAuthModal} 
