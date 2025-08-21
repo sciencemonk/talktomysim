@@ -1,4 +1,3 @@
-
 import { useLocation } from "react-router-dom";
 import { 
   Bot, 
@@ -416,11 +415,12 @@ const UserSidebar = (props: UserSidebarProps) => {
     setIsCollapsed(!isCollapsed);
   };
 
-  // Hide the desktop sidebar on mobile - mobile navigation is handled by AdvisorDirectory
+  // On mobile, render just the content without the desktop wrapper
   if (isMobile) {
-    return null;
+    return <SidebarContent {...props} />;
   }
 
+  // On desktop, render with the full sidebar wrapper
   return (
     <div className={cn(
       "bg-card border-r border-border flex flex-col h-screen transition-all duration-300",
