@@ -133,7 +133,7 @@ const AdvisorDirectory = ({ onSelectAdvisor, onAuthRequired }: AdvisorDirectoryP
                 return (
                   <Button
                     key={category.id}
-                    variant={selectedCategory === category.id ? "default" : "outline"}
+                    variant={selectedCategory === category.id ? "selected" : "outline"}
                     size="sm"
                     onClick={() => setSelectedCategory(category.id)}
                     className="flex items-center gap-2 whitespace-nowrap"
