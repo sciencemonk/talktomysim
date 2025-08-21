@@ -8,10 +8,13 @@ import {
   ChevronLeft,
   ChevronRight,
   Menu,
-  Star
+  Star,
+  MoreHorizontal,
+  X
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useAgents } from "@/hooks/useAgents";
+import { useAdvisorRemoval } from "@/hooks/useAdvisorRemoval";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -68,6 +71,13 @@ const SidebarContent = ({
 }) => {
   const { user, signOut } = useAuth();
   const { agents, isLoading } = useAgents();
+  const { handleRemoveAdvisor, removingAdvisorId, error } = useAdvisorRemoval(
+    selectedPublicAdvisors,
+    onRemovePublicAdvisor
+  );
+  
+  const [hoveredAdvisorId, setHoveredAdvisorId] = useState<string | null>(null);
+  const [showRemoveForAdvisor, setShowRemoveForAdvisor] = useState<string | null>(null);
 
   useEffect(() => {
     if (refreshTrigger) {
@@ -95,6 +105,21 @@ const SidebarContent = ({
   const handleShowAdvisorDirectory = () => {
     onShowAdvisorDirectory?.();
     onClose?.(); // Close mobile drawer
+  };
+
+  const handleAdvisorRemove = async (advisorId: string, event: React.MouseEvent) => {
+    event.stopPropagation();
+    await handleRemoveAdvisor(advisorId);
+    setShowRemoveForAdvisor(null);
+    setHoveredAdvisorId(null);
+  };
+
+  const handleAdvisorClick = (advisorId: string) => {
+    if (showRemoveForAdvisor === advisorId) {
+      setShowRemoveForAdvisor(null);
+    } else {
+      handlePublicAdvisorSelect(advisorId);
+    }
   };
 
   return (
@@ -204,26 +229,91 @@ const SidebarContent = ({
               </div>
             )}
             {selectedPublicAdvisors.map((advisor) => (
-              <Button
+              <div
                 key={advisor.id}
-                onClick={() => handlePublicAdvisorSelect(advisor.id)}
-                variant="ghost"
-                className={cn(
-                  "flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors w-full justify-start h-auto min-h-[40px]",
-                  selectedPublicAdvisorId === advisor.id
-                    ? "bg-primary/10 text-primary font-medium hover:bg-primary/15"
-                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                )}
+                className="relative group"
+                onMouseEnter={() => setHoveredAdvisorId(advisor.id)}
+                onMouseLeave={() => {
+                  if (showRemoveForAdvisor !== advisor.id) {
+                    setHoveredAdvisorId(null);
+                  }
+                }}
               >
-                <Avatar className="h-6 w-6 flex-shrink-0">
-                  <AvatarImage src={advisor.avatar} alt={advisor.name} />
-                  <AvatarFallback className="bg-primary/10 text-primary text-xs">
-                    <Star className="h-3 w-3" />
-                  </AvatarFallback>
-                </Avatar>
-                {(!isCollapsed || !onToggleCollapse) && <span className="truncate text-left">{advisor.name}</span>}
-              </Button>
+                <Button
+                  onClick={() => handleAdvisorClick(advisor.id)}
+                  variant="ghost"
+                  disabled={removingAdvisorId === advisor.id}
+                  className={cn(
+                    "flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors w-full justify-start h-auto min-h-[40px] relative",
+                    selectedPublicAdvisorId === advisor.id && showRemoveForAdvisor !== advisor.id
+                      ? "bg-primary/10 text-primary font-medium hover:bg-primary/15"
+                      : "text-muted-foreground hover:bg-muted hover:text-foreground",
+                    showRemoveForAdvisor === advisor.id && "bg-red-50 hover:bg-red-100"
+                  )}
+                >
+                  <Avatar className="h-6 w-6 flex-shrink-0">
+                    <AvatarImage src={advisor.avatar} alt={advisor.name} />
+                    <AvatarFallback className="bg-primary/10 text-primary text-xs">
+                      <Star className="h-3 w-3" />
+                    </AvatarFallback>
+                  </Avatar>
+                  {(!isCollapsed || !onToggleCollapse) && (
+                    <span className="truncate text-left flex-1">
+                      {removingAdvisorId === advisor.id ? "Removing..." : advisor.name}
+                    </span>
+                  )}
+                  
+                  {/* Three dots on hover */}
+                  {hoveredAdvisorId === advisor.id && !showRemoveForAdvisor && !removingAdvisorId && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-6 w-6 p-0 opacity-70 hover:opacity-100"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setShowRemoveForAdvisor(advisor.id);
+                      }}
+                    >
+                      <MoreHorizontal className="h-3 w-3" />
+                    </Button>
+                  )}
+                </Button>
+
+                {/* Remove button */}
+                {showRemoveForAdvisor === advisor.id && (
+                  <div className="absolute right-2 top-1/2 transform -translate-y-1/2 flex gap-1">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-6 px-2 text-xs text-red-600 hover:text-red-700 hover:bg-red-100"
+                      onClick={(e) => handleAdvisorRemove(advisor.id, e)}
+                      disabled={removingAdvisorId === advisor.id}
+                    >
+                      Remove
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-6 w-6 p-0"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setShowRemoveForAdvisor(null);
+                        setHoveredAdvisorId(null);
+                      }}
+                    >
+                      <X className="h-3 w-3" />
+                    </Button>
+                  </div>
+                )}
+              </div>
             ))}
+          </div>
+        )}
+
+        {/* Error message */}
+        {error && (
+          <div className="px-3 py-2 text-xs text-red-600 bg-red-50 rounded-md">
+            {error}
           </div>
         )}
 
