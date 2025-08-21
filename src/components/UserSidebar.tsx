@@ -1,3 +1,4 @@
+
 import { useLocation } from "react-router-dom";
 import { 
   Bot, 
@@ -336,10 +337,11 @@ const SidebarContent = ({
               </div>
               <Button
                 onClick={() => setShowAuthModal(true)}
-                className="w-full"
+                className="w-full bg-gradient-to-r from-purple-600 via-pink-500 to-blue-500 text-white hover:opacity-90 animate-pulse"
+                size="lg"
               >
                 <LogIn className="mr-2 h-4 w-4" />
-                Sign In / Sign Up
+                Sign in for free
               </Button>
             </>
           )}
