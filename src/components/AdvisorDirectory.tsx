@@ -30,7 +30,7 @@ const AdvisorDirectory = ({ onSelectAdvisor, onAuthRequired }: AdvisorDirectoryP
   
   const { user } = useAuth();
   const { advisors, isLoading } = useAdvisors();
-  const { advisors: allAdvisors, isLoading: isLoadingAll } = useAllAdvisors();
+  const { agents: allAdvisors, isLoading: isLoadingAll } = useAllAdvisors();
   const { toast } = useToast();
   const isMobile = useIsMobile();
 
