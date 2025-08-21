@@ -151,7 +151,7 @@ const AdvisorDirectory = ({ onSelectAdvisor, onAuthRequired }: AdvisorDirectoryP
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {[...Array(6)].map((_, i) => (
                 <Card key={i} className="animate-pulse">
-                  <CardHeader className="space-y-4">
+                  <CardHeader className="space-y-4 p-4">
                     <div className="flex items-center space-x-4">
                       <div className="rounded-full bg-muted h-12 w-12" />
                       <div className="space-y-2 flex-1">
@@ -160,7 +160,7 @@ const AdvisorDirectory = ({ onSelectAdvisor, onAuthRequired }: AdvisorDirectoryP
                       </div>
                     </div>
                   </CardHeader>
-                  <CardContent>
+                  <CardContent className="p-4 pt-0">
                     <div className="space-y-2">
                       <div className="h-3 bg-muted rounded" />
                       <div className="h-3 bg-muted rounded w-5/6" />
@@ -173,7 +173,7 @@ const AdvisorDirectory = ({ onSelectAdvisor, onAuthRequired }: AdvisorDirectoryP
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredAdvisors.map((advisor) => (
                 <Card key={advisor.id} className="cursor-pointer hover:shadow-md transition-shadow group">
-                  <CardHeader>
+                  <CardHeader className="p-4">
                     <div className="flex items-center space-x-4">
                       <Avatar className="h-12 w-12">
                         <AvatarImage src={advisor.avatar || ''} alt={advisor.name} />
@@ -195,7 +195,7 @@ const AdvisorDirectory = ({ onSelectAdvisor, onAuthRequired }: AdvisorDirectoryP
                       </div>
                     </div>
                   </CardHeader>
-                  <CardContent>
+                  <CardContent className="p-4 pt-0">
                     <p className="text-sm text-muted-foreground line-clamp-3">
                       {advisor.description}
                     </p>
