@@ -24,16 +24,17 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <Routes>
-            {/* Public routes */}
-            <Route path="/" element={<Index />} />
+            {/* Main app as default route */}
+            <Route path="/" element={<Home />} />
+            <Route path="/app" element={<Home />} />
+            
+            {/* Legacy routes */}
+            <Route path="/index" element={<Index />} />
             <Route path="/login" element={<Login />} />
             
             {/* Public tutor share links - accessible by non-signed in users */}
             <Route path="/tutors/:agentId" element={<PublicTutorDetail />} />
             <Route path="/tutors/:agentId/chat" element={<StudentChat />} />
-            
-            {/* Main app - now accessible without authentication for testing */}
-            <Route path="/app" element={<Home />} />
             
             {/* Catch all - redirect to home */}
             <Route path="*" element={<NotFound />} />

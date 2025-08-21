@@ -8,7 +8,8 @@ import {
   Menu,
   Star,
   MoreHorizontal,
-  X
+  X,
+  LogIn
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useAgents } from "@/hooks/useAgents";
@@ -32,6 +33,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { AgentType } from "@/types/agent";
+import AuthModal from "./AuthModal";
 
 interface UserSidebarProps {
   onShowSettings?: () => void;
@@ -77,6 +79,7 @@ const SidebarContent = ({
   const [hoveredAdvisorId, setHoveredAdvisorId] = useState<string | null>(null);
   const [showRemoveForAdvisor, setShowRemoveForAdvisor] = useState<string | null>(null);
   const [isLogoHovered, setIsLogoHovered] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
 
   useEffect(() => {
     if (refreshTrigger) {
@@ -193,210 +196,243 @@ const SidebarContent = ({
         </>
       )}
 
-      {/* Navigation Items */}
-      <div className="flex-1 p-3 space-y-1">
-        {/* Personal Agents List - Only show if there are agents */}
-        {agents.length > 0 && (
-          <div className="space-y-1">
-            {(!isCollapsed || !onToggleCollapse) && (
-              <div className="px-3 py-2 text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                Your Agents
-              </div>
-            )}
-            {isLoading ? (
-              <div className={cn(
-                "px-3 py-2 text-xs text-muted-foreground",
-                isCollapsed && onToggleCollapse && "text-center"
-              )}>
-                {(isCollapsed && onToggleCollapse) ? "..." : "Loading thinking partners..."}
-              </div>
-            ) : (
-              agents.map((agent) => (
-                <Button
-                  key={agent.id}
-                  onClick={() => handleAgentSelect(agent)}
-                  variant="ghost"
-                  className={cn(
-                    "flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors w-full justify-start h-auto min-h-[40px]",
-                    selectedAgent?.id === agent.id
-                      ? "bg-primary/10 text-primary font-medium hover:bg-primary/15"
-                      : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                  )}
-                >
-                  <Avatar className="h-6 w-6 flex-shrink-0">
-                    <AvatarImage src={agent.avatar} alt={agent.name} />
-                    <AvatarFallback className="bg-primary/10 text-primary text-xs">
-                      <Bot className="h-3 w-3" />
-                    </AvatarFallback>
-                  </Avatar>
-                  {(!isCollapsed || !onToggleCollapse) && <span className="truncate text-left">{agent.name}</span>}
-                </Button>
-              ))
-            )}
-          </div>
-        )}
-
-        {/* Public Advisors Section */}
-        {selectedPublicAdvisors.length > 0 && (
-          <div className={cn("space-y-1", agents.length > 0 && "mt-4")}>
-            {(!isCollapsed || !onToggleCollapse) && (
-              <div className="px-3 py-2 text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                Advisors
-              </div>
-            )}
-            {selectedPublicAdvisors.map((advisor) => (
-              <div
-                key={advisor.id}
-                className="relative group"
-                onMouseEnter={() => setHoveredAdvisorId(advisor.id)}
-                onMouseLeave={() => {
-                  if (showRemoveForAdvisor !== advisor.id) {
-                    setHoveredAdvisorId(null);
-                  }
-                }}
-              >
-                <Button
-                  onClick={() => handleAdvisorClick(advisor.id)}
-                  variant="ghost"
-                  disabled={removingAdvisorId === advisor.id}
-                  className={cn(
-                    "flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors w-full justify-start h-auto min-h-[40px] relative",
-                    selectedPublicAdvisorId === advisor.id && showRemoveForAdvisor !== advisor.id
-                      ? "bg-primary/10 text-primary font-medium hover:bg-primary/15"
-                      : "text-muted-foreground hover:bg-muted hover:text-foreground",
-                    showRemoveForAdvisor === advisor.id && "bg-red-50 hover:bg-red-100"
-                  )}
-                >
-                  <Avatar className="h-6 w-6 flex-shrink-0">
-                    <AvatarImage src={advisor.avatar} alt={advisor.name} />
-                    <AvatarFallback className="bg-primary/10 text-primary text-xs">
-                      <Star className="h-3 w-3" />
-                    </AvatarFallback>
-                  </Avatar>
-                  {(!isCollapsed || !onToggleCollapse) && (
-                    <span className="truncate text-left flex-1">
-                      {removingAdvisorId === advisor.id ? "Removing..." : advisor.name}
-                    </span>
-                  )}
-                  
-                  {/* Three dots on hover */}
-                  {hoveredAdvisorId === advisor.id && !showRemoveForAdvisor && !removingAdvisorId && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="h-6 w-6 p-0 opacity-70 hover:opacity-100"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setShowRemoveForAdvisor(advisor.id);
-                      }}
-                    >
-                      <MoreHorizontal className="h-3 w-3" />
-                    </Button>
-                  )}
-                </Button>
-
-                {/* Remove button */}
-                {showRemoveForAdvisor === advisor.id && (
-                  <div className="absolute right-2 top-1/2 transform -translate-y-1/2 flex gap-1">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="h-6 px-2 text-xs text-red-600 hover:text-red-700 hover:bg-red-100"
-                      onClick={(e) => handleAdvisorRemove(advisor.id, e)}
-                      disabled={removingAdvisorId === advisor.id}
-                    >
-                      Remove
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="h-6 w-6 p-0"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setShowRemoveForAdvisor(null);
-                        setHoveredAdvisorId(null);
-                      }}
-                    >
-                      <X className="h-3 w-3" />
-                    </Button>
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* Error message */}
-        {error && (
-          <div className="px-3 py-2 text-xs text-red-600 bg-red-50 rounded-md">
-            {error}
-          </div>
-        )}
-
-        {/* New Advisor Button */}
-        <Button
-          onClick={handleShowAdvisorDirectory}
-          variant="outline"
-          className={cn(
-            "flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors w-full justify-start",
-            (agents.length > 0 || selectedPublicAdvisors.length > 0) && "mt-4"
+      {/* Navigation Items - Only show if user is authenticated */}
+      {user && (
+        <div className="flex-1 p-3 space-y-1">
+          {/* Personal Agents List - Only show if there are agents */}
+          {agents.length > 0 && (
+            <div className="space-y-1">
+              {(!isCollapsed || !onToggleCollapse) && (
+                <div className="px-3 py-2 text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                  Your Agents
+                </div>
+              )}
+              {isLoading ? (
+                <div className={cn(
+                  "px-3 py-2 text-xs text-muted-foreground",
+                  isCollapsed && onToggleCollapse && "text-center"
+                )}>
+                  {(isCollapsed && onToggleCollapse) ? "..." : "Loading thinking partners..."}
+                </div>
+              ) : (
+                agents.map((agent) => (
+                  <Button
+                    key={agent.id}
+                    onClick={() => handleAgentSelect(agent)}
+                    variant="ghost"
+                    className={cn(
+                      "flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors w-full justify-start h-auto min-h-[40px]",
+                      selectedAgent?.id === agent.id
+                        ? "bg-primary/10 text-primary font-medium hover:bg-primary/15"
+                        : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                    )}
+                  >
+                    <Avatar className="h-6 w-6 flex-shrink-0">
+                      <AvatarImage src={agent.avatar} alt={agent.name} />
+                      <AvatarFallback className="bg-primary/10 text-primary text-xs">
+                        <Bot className="h-3 w-3" />
+                      </AvatarFallback>
+                    </Avatar>
+                    {(!isCollapsed || !onToggleCollapse) && <span className="truncate text-left">{agent.name}</span>}
+                  </Button>
+                ))
+              )}
+            </div>
           )}
-          size="sm"
-        >
-          <PlusCircle className="h-4 w-4 flex-shrink-0" />
-          {(!isCollapsed || !onToggleCollapse) && <span>New Advisor</span>}
-        </Button>
-      </div>
+
+          {/* Public Advisors Section */}
+          {selectedPublicAdvisors.length > 0 && (
+            <div className={cn("space-y-1", agents.length > 0 && "mt-4")}>
+              {(!isCollapsed || !onToggleCollapse) && (
+                <div className="px-3 py-2 text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                  Advisors
+                </div>
+              )}
+              {selectedPublicAdvisors.map((advisor) => (
+                <div
+                  key={advisor.id}
+                  className="relative group"
+                  onMouseEnter={() => setHoveredAdvisorId(advisor.id)}
+                  onMouseLeave={() => {
+                    if (showRemoveForAdvisor !== advisor.id) {
+                      setHoveredAdvisorId(null);
+                    }
+                  }}
+                >
+                  <Button
+                    onClick={() => handleAdvisorClick(advisor.id)}
+                    variant="ghost"
+                    disabled={removingAdvisorId === advisor.id}
+                    className={cn(
+                      "flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors w-full justify-start h-auto min-h-[40px] relative",
+                      selectedPublicAdvisorId === advisor.id && showRemoveForAdvisor !== advisor.id
+                        ? "bg-primary/10 text-primary font-medium hover:bg-primary/15"
+                        : "text-muted-foreground hover:bg-muted hover:text-foreground",
+                      showRemoveForAdvisor === advisor.id && "bg-red-50 hover:bg-red-100"
+                    )}
+                  >
+                    <Avatar className="h-6 w-6 flex-shrink-0">
+                      <AvatarImage src={advisor.avatar} alt={advisor.name} />
+                      <AvatarFallback className="bg-primary/10 text-primary text-xs">
+                        <Star className="h-3 w-3" />
+                      </AvatarFallback>
+                    </Avatar>
+                    {(!isCollapsed || !onToggleCollapse) && (
+                      <span className="truncate text-left flex-1">
+                        {removingAdvisorId === advisor.id ? "Removing..." : advisor.name}
+                      </span>
+                    )}
+                    
+                    {/* Three dots on hover */}
+                    {hoveredAdvisorId === advisor.id && !showRemoveForAdvisor && !removingAdvisorId && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-6 w-6 p-0 opacity-70 hover:opacity-100"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setShowRemoveForAdvisor(advisor.id);
+                        }}
+                      >
+                        <MoreHorizontal className="h-3 w-3" />
+                      </Button>
+                    )}
+                  </Button>
+
+                  {/* Remove button */}
+                  {showRemoveForAdvisor === advisor.id && (
+                    <div className="absolute right-2 top-1/2 transform -translate-y-1/2 flex gap-1">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-6 px-2 text-xs text-red-600 hover:text-red-700 hover:bg-red-100"
+                        onClick={(e) => handleAdvisorRemove(advisor.id, e)}
+                        disabled={removingAdvisorId === advisor.id}
+                      >
+                        Remove
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-6 w-6 p-0"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setShowRemoveForAdvisor(null);
+                          setHoveredAdvisorId(null);
+                        }}
+                      >
+                        <X className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Error message */}
+          {error && (
+            <div className="px-3 py-2 text-xs text-red-600 bg-red-50 rounded-md">
+              {error}
+            </div>
+          )}
+
+          {/* New Advisor Button */}
+          <Button
+            onClick={handleShowAdvisorDirectory}
+            variant="outline"
+            className={cn(
+              "flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors w-full justify-start",
+              (agents.length > 0 || selectedPublicAdvisors.length > 0) && "mt-4"
+            )}
+            size="sm"
+          >
+            <PlusCircle className="h-4 w-4 flex-shrink-0" />
+            {(!isCollapsed || !onToggleCollapse) && <span>New Advisor</span>}
+          </Button>
+        </div>
+      )}
+
+      {/* Non-authenticated state */}
+      {!user && (
+        <div className="flex-1 p-3 flex flex-col items-center justify-center space-y-4">
+          {(!isCollapsed || !onToggleCollapse) && (
+            <>
+              <div className="text-center space-y-2">
+                <p className="text-lg font-medium">Welcome to Simulacra</p>
+                <p className="text-sm text-muted-foreground">
+                  Create and manage your AI tutors
+                </p>
+              </div>
+              <Button
+                onClick={() => setShowAuthModal(true)}
+                className="w-full"
+              >
+                <LogIn className="mr-2 h-4 w-4" />
+                Sign In / Sign Up
+              </Button>
+            </>
+          )}
+        </div>
+      )}
 
       <Separator />
 
-      {/* User Profile Section */}
-      <div className="p-3">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <button className={cn(
-              "flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-muted transition-colors w-full",
-              isCollapsed && onToggleCollapse && "justify-center"
-            )}>
-              <Avatar className="h-8 w-8 flex-shrink-0">
-                <AvatarImage src={user?.user_metadata?.avatar_url} alt="Profile" />
-                <AvatarFallback>
-                  {user?.email?.charAt(0)?.toUpperCase() || "U"}
-                </AvatarFallback>
-              </Avatar>
-              {(!isCollapsed || !onToggleCollapse) && (
-                <div className="flex-1 min-w-0 text-left">
-                  <p className="text-sm font-medium truncate">
-                    {user?.user_metadata?.full_name || "User"}
-                  </p>
-                  <p className="text-xs text-muted-foreground truncate">
-                    {user?.email}
-                  </p>
-                </div>
+      {/* User Profile Section - Only show if user is authenticated */}
+      {user && (
+        <div className="p-3">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className={cn(
+                "flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-muted transition-colors w-full",
+                isCollapsed && onToggleCollapse && "justify-center"
+              )}>
+                <Avatar className="h-8 w-8 flex-shrink-0">
+                  <AvatarImage src={user?.user_metadata?.avatar_url} alt="Profile" />
+                  <AvatarFallback>
+                    {user?.email?.charAt(0)?.toUpperCase() || "U"}
+                  </AvatarFallback>
+                </Avatar>
+                {(!isCollapsed || !onToggleCollapse) && (
+                  <div className="flex-1 min-w-0 text-left">
+                    <p className="text-sm font-medium truncate">
+                      {user?.user_metadata?.full_name || "User"}
+                    </p>
+                    <p className="text-xs text-muted-foreground truncate">
+                      {user?.email}
+                    </p>
+                  </div>
+                )}
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" className="w-56">
+              {onShowChildProfile && (
+                <DropdownMenuItem onClick={() => { onShowChildProfile(); onClose?.(); }}>
+                  <User className="mr-2 h-4 w-4" />
+                  <span>Child Profile</span>
+                </DropdownMenuItem>
               )}
-            </button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="start" className="w-56">
-            {onShowChildProfile && (
-              <DropdownMenuItem onClick={() => { onShowChildProfile(); onClose?.(); }}>
-                <User className="mr-2 h-4 w-4" />
-                <span>Child Profile</span>
+              {onShowSettings && (
+                <DropdownMenuItem onClick={() => { onShowSettings(); onClose?.(); }}>
+                  <Settings className="mr-2 h-4 w-4" />
+                  <span>Settings</span>
+                </DropdownMenuItem>
+              )}
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={handleSignOut}>
+                <LogOut className="mr-2 h-4 w-4" />
+                <span>Log out</span>
               </DropdownMenuItem>
-            )}
-            {onShowSettings && (
-              <DropdownMenuItem onClick={() => { onShowSettings(); onClose?.(); }}>
-                <Settings className="mr-2 h-4 w-4" />
-                <span>Settings</span>
-              </DropdownMenuItem>
-            )}
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={handleSignOut}>
-              <LogOut className="mr-2 h-4 w-4" />
-              <span>Log out</span>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      )}
+
+      {/* Auth Modal */}
+      <AuthModal 
+        open={showAuthModal} 
+        onOpenChange={setShowAuthModal} 
+      />
     </>
   );
 };
