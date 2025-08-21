@@ -251,6 +251,7 @@ export const useRealtimeChat = ({ agent }: UseRealtimeChatProps) => {
   const sendTextMessage = useCallback((text: string) => {
     if (!wsRef.current || !isConnected) return;
 
+    // Add user message to chat immediately
     const userMessage: Message = {
       id: `user_${Date.now()}`,
       role: 'user',
