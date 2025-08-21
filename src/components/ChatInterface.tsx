@@ -37,14 +37,8 @@ const ChatInterface = ({ agent, onShowAgentDetails, onAgentUpdate }: ChatInterfa
   const textChat = useTextChat({ 
     agent: currentAgent,
     onUserMessage: (message: string) => {
-      // Only add the user message if it's not the auto-generated greeting
-      if (message !== "Hello! I'm here and ready to help. What's on your mind today, or what would you like to discuss?" && 
-          message !== "Welcome back! What would you like to explore together today?") {
-        chatHistory.addUserMessage(message);
-      } else {
-        // For auto-generated greetings, add a simple "Hello." instead
-        chatHistory.addUserMessage("Hello.");
-      }
+      // Don't add any auto-generated messages
+      chatHistory.addUserMessage(message);
     },
     onAiMessageStart: () => {
       setIsAiResponding(true);
@@ -223,7 +217,7 @@ const ChatInterface = ({ agent, onShowAgentDetails, onAgentUpdate }: ChatInterfa
                 <p className="text-xl text-muted-foreground">Connection error - please refresh</p>
               )}
               {textChat.connectionStatus === 'connected' && (
-                <p className="text-xl text-muted-foreground">Starting conversation...</p>
+                <p className="text-xl text-muted-foreground">Say something...</p>
               )}
             </div>
           </div>
