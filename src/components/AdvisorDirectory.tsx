@@ -1,17 +1,18 @@
-import { usePublicAgents } from "@/hooks/usePublicAgents";
+
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Bot, Users, BookOpen, MessageCircle } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AgentType } from "@/types/agent";
+import { useAllAdvisors } from "@/hooks/useAllAdvisors";
 
 interface AdvisorDirectoryProps {
   onSelectAdvisor: (advisorId: string, advisor?: AgentType) => void;
 }
 
 const AdvisorDirectory = ({ onSelectAdvisor }: AdvisorDirectoryProps) => {
-  const { agents: advisors, isLoading, error } = usePublicAgents();
+  const { agents: advisors, isLoading, error } = useAllAdvisors();
 
   if (isLoading) {
     return (
