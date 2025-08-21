@@ -34,7 +34,7 @@ const Home = () => {
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   // Load public advisor data when selected
-  const { agent: publicAgent } = usePublicAgent(selectedPublicAdvisorId);
+  const { agent: publicAgent, isLoading: publicAgentLoading, error: publicAgentError } = usePublicAgent(selectedPublicAdvisorId);
 
   const handleSelectAgent = useCallback((agent: AgentType) => {
     if (!user) {
@@ -112,6 +112,9 @@ const Home = () => {
   // Determine which agent to show in chat
   const activeAgent = selectedAgent || publicAgent;
 
+  // Check if we're waiting for a public advisor to load
+  const isWaitingForPublicAgent = selectedPublicAdvisorId && !publicAgent && publicAgentLoading;
+
   const renderMainContent = () => {
     switch (currentView) {
       case 'child-profile':
@@ -133,21 +136,48 @@ const Home = () => {
         return <AdvisorDirectory onSelectAdvisor={handleSelectAdvisor} />;
       case 'chat':
       default:
-        if (!activeAgent) {
+        // Show loading state if we're waiting for a public agent to load
+        if (isWaitingForPublicAgent) {
           return (
             <div className="flex-1 flex items-center justify-center p-4">
               <div className="text-center">
-                <p className="text-xl text-muted-foreground mb-4">No thinking partners yet</p>
-                <p className="text-muted-foreground">Browse advisors to start a new chat!</p>
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+                <p className="text-xl text-muted-foreground">Loading advisor...</p>
               </div>
             </div>
           );
         }
+
+        // Show error state if there's an error loading the public agent
+        if (selectedPublicAdvisorId && publicAgentError) {
+          return (
+            <div className="flex-1 flex items-center justify-center p-4">
+              <div className="text-center">
+                <p className="text-xl text-muted-foreground mb-4">Unable to load advisor</p>
+                <p className="text-muted-foreground">{publicAgentError}</p>
+              </div>
+            </div>
+          );
+        }
+
+        // Show chat interface if we have an active agent
+        if (activeAgent) {
+          return (
+            <ChatInterface 
+              agent={activeAgent} 
+              onAgentUpdate={handleAgentUpdate}
+            />
+          );
+        }
+
+        // Show fallback message when no agent is available
         return (
-          <ChatInterface 
-            agent={activeAgent} 
-            onAgentUpdate={handleAgentUpdate}
-          />
+          <div className="flex-1 flex items-center justify-center p-4">
+            <div className="text-center">
+              <p className="text-xl text-muted-foreground mb-4">No thinking partners yet</p>
+              <p className="text-muted-foreground">Browse advisors to start a new chat!</p>
+            </div>
+          </div>
         );
     }
   };
