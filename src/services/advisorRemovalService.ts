@@ -12,42 +12,44 @@ export const advisorRemovalService = {
 
       console.log('Removing advisor:', advisorId, 'for user:', user.id);
 
-      // Get conversations to delete - using explicit typing to avoid deep type inference
-      const { data: conversations, error: conversationsError } = await supabase
+      // Get conversations to delete - using simple query to avoid deep type inference
+      const conversationsQuery = await supabase
         .from('conversations')
         .select('id')
         .eq('user_id', user.id)
         .eq('advisor_id', advisorId);
 
-      if (conversationsError) {
-        console.error('Error fetching conversations:', conversationsError);
-        throw conversationsError;
+      if (conversationsQuery.error) {
+        console.error('Error fetching conversations:', conversationsQuery.error);
+        throw conversationsQuery.error;
       }
+
+      const conversations = conversationsQuery.data;
 
       if (conversations && conversations.length > 0) {
         // Delete all messages for these conversations
-        const conversationIds = conversations.map(c => c.id);
+        const conversationIds = conversations.map((c: any) => c.id);
         
-        const { error: messagesError } = await supabase
+        const messagesDelete = await supabase
           .from('messages')
           .delete()
           .in('conversation_id', conversationIds);
 
-        if (messagesError) {
-          console.error('Error deleting messages:', messagesError);
-          throw messagesError;
+        if (messagesDelete.error) {
+          console.error('Error deleting messages:', messagesDelete.error);
+          throw messagesDelete.error;
         }
 
         // Delete the conversations
-        const { error: deleteConversationsError } = await supabase
+        const conversationsDelete = await supabase
           .from('conversations')
           .delete()
           .eq('user_id', user.id)
           .eq('advisor_id', advisorId);
 
-        if (deleteConversationsError) {
-          console.error('Error deleting conversations:', deleteConversationsError);
-          throw deleteConversationsError;
+        if (conversationsDelete.error) {
+          console.error('Error deleting conversations:', conversationsDelete.error);
+          throw conversationsDelete.error;
         }
 
         console.log(`Deleted ${conversations.length} conversations and their messages for advisor ${advisorId}`);
