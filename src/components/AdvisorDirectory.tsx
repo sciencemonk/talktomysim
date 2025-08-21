@@ -6,7 +6,7 @@ import { useUserAdvisors } from "@/hooks/useUserAdvisors";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, Users, Star, Sparkles, Menu } from "lucide-react";
+import { Search, Users, Star, Sparkles, Menu, ExternalLink } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -34,7 +34,15 @@ const AdvisorDirectory = ({ onSelectAdvisor, onAuthRequired }: AdvisorDirectoryP
   const { advisorsAsAgents, removeAdvisor } = useUserAdvisors();
   const isMobile = useIsMobile();
 
-  const handleAdvisorSelect = async (advisor: AgentType) => {
+  const handleAdvisorSelect = async (advisor: AgentType, event?: React.MouseEvent) => {
+    // Check if it's a middle click, ctrl+click, or cmd+click (open in new tab)
+    if (event && (event.ctrlKey || event.metaKey || event.button === 1)) {
+      // Open in new tab
+      window.open(`/tutors/${advisor.id}/chat`, '_blank');
+      return;
+    }
+
+    // Regular click - check if user is logged in for internal navigation
     if (!user) {
       onAuthRequired?.();
       return;
@@ -145,9 +153,13 @@ const AdvisorDirectory = ({ onSelectAdvisor, onAuthRequired }: AdvisorDirectoryP
               {filteredAdvisors.map((advisor) => (
                 <Card 
                   key={advisor.id} 
-                  className="cursor-pointer hover:shadow-md transition-shadow group"
-                  onClick={() => handleAdvisorSelect(advisor)}
+                  className="cursor-pointer hover:shadow-md transition-shadow group relative"
+                  onClick={(event) => handleAdvisorSelect(advisor, event)}
+                  onAuxClick={(event) => handleAdvisorSelect(advisor, event)} // Handle middle click
                 >
+                  <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <ExternalLink className="h-4 w-4 text-muted-foreground" />
+                  </div>
                   <CardHeader className="p-4">
                     <div className="flex items-center space-x-4">
                       <Avatar className="h-12 w-12">
