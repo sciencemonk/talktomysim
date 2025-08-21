@@ -27,13 +27,13 @@ const PersonalSimForm = ({ open, onOpenChange, sim, onSuccess }: PersonalSimForm
   
   const [formData, setFormData] = useState({
     name: sim?.name || "",
-    system_prompt: sim?.system_prompt || "You are a helpful AI assistant representing the user. Respond in a friendly and knowledgeable manner, staying true to the personality and expertise you've been given.",
+    prompt: sim?.prompt || "You are a helpful AI assistant representing the user. Respond in a friendly and knowledgeable manner, staying true to the personality and expertise you've been given.",
     avatar: sim?.avatar || "",
-    voice_id: sim?.voice_id || "pNInz6obpgDQGcFmaJgB",
-    is_public: sim?.is_public || false,
+    voice: sim?.voice || "pNInz6obpgDQGcFmaJgB",
+    isPersonal: sim?.isPersonal ?? true,
     description: sim?.description || "",
-    expertise: sim?.expertise || "",
-    personality: sim?.personality || "",
+    subject: sim?.subject || "",
+    teachingStyle: sim?.teachingStyle || "",
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -133,11 +133,11 @@ const PersonalSimForm = ({ open, onOpenChange, sim, onSuccess }: PersonalSimForm
             </div>
 
             <div>
-              <Label htmlFor="system_prompt">System Prompt</Label>
+              <Label htmlFor="prompt">System Prompt</Label>
               <Textarea
-                id="system_prompt"
-                value={formData.system_prompt}
-                onChange={(e) => setFormData(prev => ({ ...prev, system_prompt: e.target.value }))}
+                id="prompt"
+                value={formData.prompt}
+                onChange={(e) => setFormData(prev => ({ ...prev, prompt: e.target.value }))}
                 placeholder="The system prompt that defines how your Sim behaves"
                 className="min-h-[100px]"
                 required
@@ -155,32 +155,32 @@ const PersonalSimForm = ({ open, onOpenChange, sim, onSuccess }: PersonalSimForm
             </div>
 
             <div>
-              <Label htmlFor="expertise">Expertise</Label>
+              <Label htmlFor="subject">Expertise</Label>
               <Input
-                id="expertise"
-                value={formData.expertise}
-                onChange={(e) => setFormData(prev => ({ ...prev, expertise: e.target.value }))}
+                id="subject"
+                value={formData.subject}
+                onChange={(e) => setFormData(prev => ({ ...prev, subject: e.target.value }))}
                 placeholder="Your areas of expertise"
               />
             </div>
 
             <div>
-              <Label htmlFor="personality">Personality</Label>
+              <Label htmlFor="teachingStyle">Personality</Label>
               <Input
-                id="personality"
-                value={formData.personality}
-                onChange={(e) => setFormData(prev => ({ ...prev, personality: e.target.value }))}
+                id="teachingStyle"
+                value={formData.teachingStyle}
+                onChange={(e) => setFormData(prev => ({ ...prev, teachingStyle: e.target.value }))}
                 placeholder="Personality traits"
               />
             </div>
 
             <div className="flex items-center space-x-2">
               <Switch
-                id="is_public"
-                checked={formData.is_public}
-                onCheckedChange={(checked) => setFormData(prev => ({ ...prev, is_public: checked }))}
+                id="isPersonal"
+                checked={!formData.isPersonal}
+                onCheckedChange={(checked) => setFormData(prev => ({ ...prev, isPersonal: !checked }))}
               />
-              <Label htmlFor="is_public">Make your Sim publicly available</Label>
+              <Label htmlFor="isPersonal">Make your Sim publicly available</Label>
             </div>
           </div>
 
