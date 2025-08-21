@@ -332,7 +332,7 @@ const SidebarContent = ({
               <div className="text-center space-y-2">
                 <p className="text-lg font-medium">Welcome to Simulacra</p>
                 <p className="text-sm text-muted-foreground">
-                  Create and manage your AI tutors
+                  Speak with your advisors
                 </p>
               </div>
               <Button
