@@ -8,10 +8,13 @@ import {
   ChevronLeft,
   ChevronRight,
   Menu,
-  Star
+  Star,
+  MoreHorizontal,
+  X
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useAgents } from "@/hooks/useAgents";
+import { useAdvisorRemoval } from "@/hooks/useAdvisorRemoval";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -68,6 +71,9 @@ const SidebarContent = ({
 }) => {
   const { user, signOut } = useAuth();
   const { agents, isLoading } = useAgents();
+  const { isRemoving, handleRemoveAdvisor } = useAdvisorRemoval();
+  const [hoveredAdvisorId, setHoveredAdvisorId] = useState<string | null>(null);
+  const [showRemoveButton, setShowRemoveButton] = useState<string | null>(null);
 
   useEffect(() => {
     if (refreshTrigger) {
@@ -82,19 +88,32 @@ const SidebarContent = ({
   const handleAgentSelect = (agent: AgentType) => {
     console.log('Agent selected:', agent.name, agent.id);
     onSelectAgent?.(agent);
-    onClose?.(); // Close mobile drawer when agent is selected
+    onClose?.();
   };
 
   const handlePublicAdvisorSelect = (advisorId: string) => {
     console.log('Public advisor selected:', advisorId);
     const advisor = selectedPublicAdvisors.find(a => a.id === advisorId);
     onSelectPublicAdvisor?.(advisorId, advisor);
-    onClose?.(); // Close mobile drawer when advisor is selected
+    onClose?.();
   };
 
   const handleShowAdvisorDirectory = () => {
     onShowAdvisorDirectory?.();
-    onClose?.(); // Close mobile drawer
+    onClose?.();
+  };
+
+  const handleAdvisorRemoval = async (advisorId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    await handleRemoveAdvisor(
+      advisorId,
+      selectedPublicAdvisors,
+      selectedPublicAdvisorId,
+      onRemovePublicAdvisor,
+      onSelectPublicAdvisor,
+      onShowAdvisorDirectory
+    );
+    setShowRemoveButton(null);
   };
 
   return (
@@ -204,25 +223,65 @@ const SidebarContent = ({
               </div>
             )}
             {selectedPublicAdvisors.map((advisor) => (
-              <Button
+              <div
                 key={advisor.id}
-                onClick={() => handlePublicAdvisorSelect(advisor.id)}
-                variant="ghost"
-                className={cn(
-                  "flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors w-full justify-start h-auto min-h-[40px]",
-                  selectedPublicAdvisorId === advisor.id
-                    ? "bg-primary/10 text-primary font-medium hover:bg-primary/15"
-                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                )}
+                className="relative"
+                onMouseEnter={() => setHoveredAdvisorId(advisor.id)}
+                onMouseLeave={() => {
+                  setHoveredAdvisorId(null);
+                  setShowRemoveButton(null);
+                }}
               >
-                <Avatar className="h-6 w-6 flex-shrink-0">
-                  <AvatarImage src={advisor.avatar} alt={advisor.name} />
-                  <AvatarFallback className="bg-primary/10 text-primary text-xs">
-                    <Star className="h-3 w-3" />
-                  </AvatarFallback>
-                </Avatar>
-                {(!isCollapsed || !onToggleCollapse) && <span className="truncate text-left">{advisor.name}</span>}
-              </Button>
+                <Button
+                  onClick={() => handlePublicAdvisorSelect(advisor.id)}
+                  variant="ghost"
+                  className={cn(
+                    "flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors w-full justify-start h-auto min-h-[40px] relative",
+                    selectedPublicAdvisorId === advisor.id
+                      ? "bg-primary/10 text-primary font-medium hover:bg-primary/15"
+                      : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                  )}
+                >
+                  <Avatar className="h-6 w-6 flex-shrink-0">
+                    <AvatarImage src={advisor.avatar} alt={advisor.name} />
+                    <AvatarFallback className="bg-primary/10 text-primary text-xs">
+                      <Star className="h-3 w-3" />
+                    </AvatarFallback>
+                  </Avatar>
+                  {(!isCollapsed || !onToggleCollapse) && <span className="truncate text-left">{advisor.name}</span>}
+                </Button>
+                
+                {/* Three dots on hover */}
+                {hoveredAdvisorId === advisor.id && (!isCollapsed || !onToggleCollapse) && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 h-6 w-6 p-0 hover:bg-muted-foreground/20"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setShowRemoveButton(showRemoveButton === advisor.id ? null : advisor.id);
+                    }}
+                  >
+                    <MoreHorizontal className="h-3 w-3" />
+                  </Button>
+                )}
+
+                {/* Remove button */}
+                {showRemoveButton === advisor.id && (!isCollapsed || !onToggleCollapse) && (
+                  <div className="absolute right-2 top-full mt-1 z-50 bg-background border border-border rounded-md shadow-lg">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="flex items-center gap-2 px-3 py-2 text-sm text-destructive hover:text-destructive hover:bg-destructive/10 rounded-md"
+                      onClick={(e) => handleAdvisorRemoval(advisor.id, e)}
+                      disabled={isRemoving === advisor.id}
+                    >
+                      <X className="h-3 w-3" />
+                      {isRemoving === advisor.id ? 'Removing...' : 'Remove'}
+                    </Button>
+                  </div>
+                )}
+              </div>
             ))}
           </div>
         )}
