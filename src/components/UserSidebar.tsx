@@ -76,6 +76,7 @@ const SidebarContent = ({
   
   const [hoveredAdvisorId, setHoveredAdvisorId] = useState<string | null>(null);
   const [showRemoveForAdvisor, setShowRemoveForAdvisor] = useState<string | null>(null);
+  const [isLogoHovered, setIsLogoHovered] = useState(false);
 
   useEffect(() => {
     if (refreshTrigger) {
@@ -137,11 +138,26 @@ const SidebarContent = ({
               </div>
             )}
             {isCollapsed && (
-              <img 
-                src="/lovable-uploads/c31e3133-a65e-4f5d-a888-939a07968005.png" 
-                alt="Simulacra" 
-                className="h-8 w-8 mx-auto"
-              />
+              <button 
+                onClick={onToggleCollapse}
+                onMouseEnter={() => setIsLogoHovered(true)}
+                onMouseLeave={() => setIsLogoHovered(false)}
+                className="h-8 w-8 mx-auto flex items-center justify-center hover:bg-muted rounded-md transition-colors cursor-pointer"
+              >
+                {isLogoHovered ? (
+                  <img 
+                    src="/lovable-uploads/414592e4-0cdf-4286-a371-903bef284fe3.png" 
+                    alt="Open Sidebar" 
+                    className="h-4 w-4"
+                  />
+                ) : (
+                  <img 
+                    src="/lovable-uploads/c31e3133-a65e-4f5d-a888-939a07968005.png" 
+                    alt="Simulacra" 
+                    className="h-8 w-8"
+                  />
+                )}
+              </button>
             )}
             <Button
               variant="ghost"
