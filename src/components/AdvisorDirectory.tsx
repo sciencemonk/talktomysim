@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useAdvisors } from "@/hooks/useAdvisors";
 import { useAllAdvisors } from "@/hooks/useAllAdvisors";
@@ -27,6 +28,7 @@ const AdvisorDirectory = ({ onSelectAdvisor, onAuthRequired }: AdvisorDirectoryP
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [selectedAdvisors, setSelectedAdvisors] = useState<AgentType[]>([]);
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
   
   const { user } = useAuth();
   const { advisors, isLoading } = useAdvisors();
@@ -61,6 +63,10 @@ const AdvisorDirectory = ({ onSelectAdvisor, onAuthRequired }: AdvisorDirectoryP
     onSelectAdvisor(advisor.id, advisor);
   };
 
+  const handleRemoveAdvisor = (advisorId: string) => {
+    setSelectedAdvisors(prev => prev.filter(a => a.id !== advisorId));
+  };
+
   // Filter advisors based on search term and category
   const filteredAdvisors = allAdvisors.filter(advisor => {
     const matchesSearch = advisor.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -78,27 +84,28 @@ const AdvisorDirectory = ({ onSelectAdvisor, onAuthRequired }: AdvisorDirectoryP
       {/* Mobile Header with Sidebar Toggle */}
       {isMobile && (
         <div className="flex items-center justify-between p-4 border-b border-border">
-          <Sheet>
+          <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
             <SheetTrigger asChild>
               <Button variant="ghost" size="sm" className="p-2">
                 <Menu className="h-5 w-5" />
               </Button>
             </SheetTrigger>
             <SheetContent side="left" className="w-80 p-0">
-              <UserSidebar
-                selectedPublicAdvisors={selectedAdvisors}
-                onSelectPublicAdvisor={(advisorId, advisor) => {
-                  if (advisor) {
-                    onSelectAdvisor(advisorId, advisor);
-                  }
-                }}
-                onRemovePublicAdvisor={(advisorId) => {
-                  setSelectedAdvisors(prev => prev.filter(a => a.id !== advisorId));
-                }}
-                onShowAdvisorDirectory={() => {
-                  // Already showing directory
-                }}
-              />
+              <div className="bg-card border-r border-border flex flex-col h-full">
+                <UserSidebar
+                  selectedPublicAdvisors={selectedAdvisors}
+                  onSelectPublicAdvisor={(advisorId, advisor) => {
+                    if (advisor) {
+                      onSelectAdvisor(advisorId, advisor);
+                    }
+                    setIsSheetOpen(false);
+                  }}
+                  onRemovePublicAdvisor={handleRemoveAdvisor}
+                  onShowAdvisorDirectory={() => {
+                    setIsSheetOpen(false);
+                  }}
+                />
+              </div>
             </SheetContent>
           </Sheet>
           

@@ -1,4 +1,3 @@
-
 import { useLocation } from "react-router-dom";
 import { 
   Bot, 
@@ -416,19 +415,16 @@ const UserSidebar = (props: UserSidebarProps) => {
     setIsCollapsed(!isCollapsed);
   };
 
-  if (isMobile) {
-    return null; // Mobile sidebar is now handled in AdvisorDirectory
-  }
-
+  // Always render the sidebar content - mobile handling is now done in AdvisorDirectory
   return (
     <div className={cn(
       "bg-card border-r border-border flex flex-col h-screen transition-all duration-300",
-      isCollapsed ? "w-16" : "w-64"
+      isMobile ? "w-full" : (isCollapsed ? "w-16" : "w-64")
     )}>
       <SidebarContent 
         {...props} 
-        isCollapsed={isCollapsed}
-        onToggleCollapse={toggleSidebar}
+        isCollapsed={isMobile ? false : isCollapsed}
+        onToggleCollapse={isMobile ? undefined : toggleSidebar}
       />
     </div>
   );
