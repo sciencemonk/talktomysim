@@ -4,7 +4,10 @@ import { supabase } from '@/integrations/supabase/client';
 export const advisorRemovalService = {
   removeAdvisor: async (advisorId: string): Promise<boolean> => {
     try {
-      const { data: { user }, error: authError } = await supabase.auth.getUser();
+      // Break up nested destructuring to avoid deep type inference
+      const authResponse = await supabase.auth.getUser();
+      const user = authResponse.data.user;
+      const authError = authResponse.error;
 
       if (authError || !user) {
         throw new Error('User not authenticated');
@@ -12,17 +15,12 @@ export const advisorRemovalService = {
 
       console.log('Removing advisor:', advisorId, 'for user:', user.id);
 
-      // Get conversations to delete - assign first, then cast to avoid deep inference
-      const rawResponse = await supabase
-        .from('conversations')
+      // Use explicit generic typing to avoid deep inference
+      const conversationsResponse = await supabase
+        .from<{ id: string }>('conversations')
         .select('id')
         .eq('user_id', user.id)
         .eq('advisor_id', advisorId);
-
-      const conversationsResponse = rawResponse as {
-        data: { id: string }[] | null;
-        error: any;
-      };
 
       if (conversationsResponse.error) {
         console.error('Error fetching conversations:', conversationsResponse.error);
