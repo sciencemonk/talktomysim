@@ -2,7 +2,7 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Bot, Users, BookOpen, MessageCircle } from "lucide-react";
+import { Bot, MessageCircle } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AgentType } from "@/types/agent";
 import { useAllAdvisors } from "@/hooks/useAllAdvisors";
@@ -84,25 +84,16 @@ const AdvisorDirectory = ({ onSelectAdvisor }: AdvisorDirectoryProps) => {
                     <div className="flex-1 min-w-0">
                       <CardTitle className="text-base truncate">{advisor.name}</CardTitle>
                       <CardDescription className="truncate">
-                        {advisor.subject || "AI Advisor"}
+                        {advisor.title || advisor.subject}
                       </CardDescription>
                     </div>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
-                      {advisor.description || "An AI advisor ready to help you learn and grow."}
-                    </p>
-                    
-                    <div className="flex items-center justify-between text-xs text-muted-foreground mb-4">
-                      <div className="flex items-center gap-1">
-                        <Users className="h-3 w-3" />
-                        <span>Public</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <BookOpen className="h-3 w-3" />
-                        <span>{advisor.subject || "General"}</span>
-                      </div>
-                    </div>
+                    {advisor.description && (
+                      <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
+                        {advisor.description}
+                      </p>
+                    )}
 
                     <Button 
                       onClick={() => onSelectAdvisor(advisor.id, advisor)}
