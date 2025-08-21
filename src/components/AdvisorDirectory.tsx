@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useAdvisors } from "@/hooks/useAdvisors";
 import { useAllAdvisors } from "@/hooks/useAllAdvisors";
@@ -179,7 +180,7 @@ const AdvisorDirectory = ({ onSelectAdvisor, onAuthRequired }: AdvisorDirectoryP
                           )}
                         </div>
                         <CardDescription className="text-sm">
-                          {advisor.subject || "General Advisor"}
+                          {advisor.title || "Advisor"}
                         </CardDescription>
                       </div>
                     </div>
