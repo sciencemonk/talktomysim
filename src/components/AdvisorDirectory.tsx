@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useAdvisors } from "@/hooks/useAdvisors";
 import { useAllAdvisors } from "@/hooks/useAllAdvisors";
@@ -25,7 +26,6 @@ interface AdvisorDirectoryProps {
 
 const AdvisorDirectory = ({ onSelectAdvisor, onAuthRequired }: AdvisorDirectoryProps) => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("all");
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   
   const { user } = useAuth();
@@ -33,12 +33,6 @@ const AdvisorDirectory = ({ onSelectAdvisor, onAuthRequired }: AdvisorDirectoryP
   const { agents: allAdvisors, isLoading: isLoadingAll } = useAllAdvisors();
   const { advisorsAsAgents, removeAdvisor } = useUserAdvisors();
   const isMobile = useIsMobile();
-
-  const categories = [
-    { id: "all", label: "All", icon: Users },
-    { id: "featured", label: "Featured", icon: Star },
-    { id: "new", label: "New", icon: Sparkles },
-  ];
 
   const handleAdvisorSelect = async (advisor: AgentType) => {
     if (!user) {
@@ -57,14 +51,10 @@ const AdvisorDirectory = ({ onSelectAdvisor, onAuthRequired }: AdvisorDirectoryP
     }
   };
 
-  // Filter advisors based on search term and category
+  // Filter advisors based on search term only
   const filteredAdvisors = allAdvisors.filter(advisor => {
     const matchesSearch = advisor.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          advisor.description?.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    if (selectedCategory === "all") return matchesSearch;
-    if (selectedCategory === "featured") return matchesSearch && advisor.is_featured;
-    if (selectedCategory === "new") return matchesSearch; // You might want to add a created_at filter here
     
     return matchesSearch;
   });
@@ -114,9 +104,9 @@ const AdvisorDirectory = ({ onSelectAdvisor, onAuthRequired }: AdvisorDirectoryP
       {/* Main Content */}
       <div className="flex-1 overflow-auto">
         <div className="max-w-6xl mx-auto p-6">
-          {/* Search and Filters */}
-          <div className="flex flex-col sm:flex-row gap-4 mb-6">
-            <div className="relative flex-1">
+          {/* Search Only */}
+          <div className="mb-6">
+            <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
               <Input
                 placeholder="Search sims..."
@@ -124,24 +114,6 @@ const AdvisorDirectory = ({ onSelectAdvisor, onAuthRequired }: AdvisorDirectoryP
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10"
               />
-            </div>
-            
-            <div className="flex gap-2 overflow-x-auto pb-2">
-              {categories.map((category) => {
-                const Icon = category.icon;
-                return (
-                  <Button
-                    key={category.id}
-                    variant={selectedCategory === category.id ? "selected" : "outline"}
-                    size="sm"
-                    onClick={() => setSelectedCategory(category.id)}
-                    className="flex items-center gap-2 whitespace-nowrap"
-                  >
-                    <Icon className="h-4 w-4" />
-                    {category.label}
-                  </Button>
-                );
-              })}
             </div>
           </div>
 
