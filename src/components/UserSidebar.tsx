@@ -74,10 +74,10 @@ export const SidebarContent = ({
           <div className="flex items-center gap-2">
             <img 
               src="/lovable-uploads/d1283b59-7cfa-45f5-b151-4c32b24f3621.png" 
-              alt="Simulacra" 
+              alt="Sim" 
               className="h-6 w-6"
             />
-            <h1 className="font-semibold">Simulacra</h1>
+            <h1 className="font-semibold">Sim</h1>
           </div>
           {onClose && (
             <Button variant="ghost" size="sm" onClick={onClose} className="p-1 h-auto">
