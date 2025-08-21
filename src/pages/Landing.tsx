@@ -105,7 +105,8 @@ const Landing = () => {
                 onClick={handleSignInWithGoogle}
                 disabled={isSigningIn}
                 size="lg"
-                className="bg-neutral-900 hover:bg-neutral-800 text-white dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-100 rounded-full px-8 py-4 text-lg font-medium shadow-lg hover:shadow-xl transition-all duration-300 inline-flex items-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed"
+                variant="brandGradient"
+                className="rounded-full px-8 py-4 text-lg font-medium shadow-lg hover:shadow-xl transition-all duration-300 inline-flex items-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isSigningIn ? (
                   <Loader2 className="h-5 w-5 animate-spin" />
@@ -116,7 +117,7 @@ const Landing = () => {
                     className="h-5 w-5"
                   />
                 )}
-                <span>{isSigningIn ? "Signing in..." : "Get started with Google"}</span>
+                <span>{isSigningIn ? "Signing in..." : "Create your free Sim today"}</span>
               </Button>
               <p className="text-sm text-neutral-500 dark:text-neutral-400 mt-4">
                 No credit card required. Start teaching in minutes.
