@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { AgentType } from '@/types/agent';
+import { AgentType, VoiceTrait } from '@/types/agent';
 
 export const useAllAdvisors = () => {
   const [agents, setAgents] = useState<AgentType[]>([]);
@@ -46,7 +46,7 @@ export const useAllAdvisors = () => {
           voice: tutor.voice,
           voiceProvider: tutor.voice_provider,
           customVoiceId: tutor.custom_voice_id,
-          voiceTraits: Array.isArray(tutor.voice_traits) ? tutor.voice_traits : [],
+          voiceTraits: Array.isArray(tutor.voice_traits) ? tutor.voice_traits as VoiceTrait[] : [],
           interactions: tutor.interactions || 0,
           studentsSaved: tutor.students_saved || 0,
           helpfulnessScore: tutor.helpfulness_score || 0,
@@ -90,7 +90,8 @@ export const useAllAdvisors = () => {
           performance: 0,
           channels: [],
           channelConfigs: {},
-          isPersonal: false
+          isPersonal: false,
+          voiceTraits: []
         }));
 
         // Combine both arrays
