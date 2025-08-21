@@ -72,13 +72,37 @@ const Home = () => {
       setSelectedPublicAdvisors(prev => [...prev, advisor]);
     }
     
+    // Always switch to chat view when selecting an advisor
     setCurrentView('chat');
   }, [selectedPublicAdvisors, user]);
 
+  const handleSelectPublicAdvisor = useCallback((advisorId: string) => {
+    if (!user) {
+      setShowAuthModal(true);
+      return;
+    }
+    console.log('Selecting existing public advisor from sidebar:', advisorId);
+    setSelectedPublicAdvisorId(advisorId);
+    setSelectedAgent(null); // Clear personal agent when selecting public advisor
+    
+    // Always switch to chat view when selecting an advisor from sidebar
+    setCurrentView('chat');
+  }, [user]);
+
   const handleRemoveAdvisor = useCallback((advisorId: string) => {
-    // This will be handled by the useAdvisorRemoval hook in UserSidebar
-    console.log('Remove advisor requested:', advisorId);
-  }, []);
+    // Remove from selected advisors list
+    setSelectedPublicAdvisors(prev => prev.filter(a => a.id !== advisorId));
+    
+    // If this was the currently selected advisor, clear it
+    if (selectedPublicAdvisorId === advisorId) {
+      setSelectedPublicAdvisorId(null);
+      
+      // If no other agents available, show advisor directory
+      if (agents.length === 0 && selectedPublicAdvisors.length <= 1) {
+        setCurrentView('advisor-directory');
+      }
+    }
+  }, [selectedPublicAdvisorId, agents.length, selectedPublicAdvisors.length]);
 
   // Set first agent as selected if none selected and we're in chat view and user is authenticated
   if (user && !selectedAgent && !selectedPublicAdvisorId && agents.length > 0 && currentView === 'chat') {
@@ -140,7 +164,7 @@ const Home = () => {
           selectedPublicAdvisorId={selectedPublicAdvisorId}
           selectedPublicAdvisors={selectedPublicAdvisors}
           onSelectAgent={handleSelectAgent}
-          onSelectPublicAdvisor={handleSelectAdvisor}
+          onSelectPublicAdvisor={handleSelectPublicAdvisor}
           onRemovePublicAdvisor={handleRemoveAdvisor}
           refreshTrigger={refreshTrigger}
         />
@@ -157,7 +181,7 @@ const Home = () => {
             selectedPublicAdvisorId={selectedPublicAdvisorId}
             selectedPublicAdvisors={selectedPublicAdvisors}
             onSelectAgent={handleSelectAgent}
-            onSelectPublicAdvisor={handleSelectAdvisor}
+            onSelectPublicAdvisor={handleSelectPublicAdvisor}
             onRemovePublicAdvisor={handleRemoveAdvisor}
             refreshTrigger={refreshTrigger}
           />
