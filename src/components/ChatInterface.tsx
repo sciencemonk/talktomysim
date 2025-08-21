@@ -36,7 +36,16 @@ const ChatInterface = ({ agent, onShowAgentDetails, onAgentUpdate }: ChatInterfa
   const chatHistory = useChatHistory(currentAgent);
   const textChat = useTextChat({ 
     agent: currentAgent,
-    onUserMessage: chatHistory.addUserMessage,
+    onUserMessage: (message: string) => {
+      // Only add the user message if it's not the auto-generated greeting
+      if (message !== "Hello! I'm here and ready to help. What's on your mind today, or what would you like to discuss?" && 
+          message !== "Welcome back! What would you like to explore together today?") {
+        chatHistory.addUserMessage(message);
+      } else {
+        // For auto-generated greetings, add a simple "Hello." instead
+        chatHistory.addUserMessage("Hello.");
+      }
+    },
     onAiMessageStart: () => {
       setIsAiResponding(true);
       return chatHistory.startAiMessage();
