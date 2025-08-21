@@ -11,7 +11,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useToast } from "@/hooks/use-toast";
 import { useIsMobile } from "@/hooks/use-mobile";
-import UserSidebar from "@/components/UserSidebar";
+import { SidebarContent } from "@/components/UserSidebar";
 import {
   Sheet,
   SheetContent,
@@ -91,21 +91,20 @@ const AdvisorDirectory = ({ onSelectAdvisor, onAuthRequired }: AdvisorDirectoryP
               </Button>
             </SheetTrigger>
             <SheetContent side="left" className="w-80 p-0">
-              <div className="bg-card border-r border-border flex flex-col h-full">
-                <UserSidebar
-                  selectedPublicAdvisors={selectedAdvisors}
-                  onSelectPublicAdvisor={(advisorId, advisor) => {
-                    if (advisor) {
-                      onSelectAdvisor(advisorId, advisor);
-                    }
-                    setIsSheetOpen(false);
-                  }}
-                  onRemovePublicAdvisor={handleRemoveAdvisor}
-                  onShowAdvisorDirectory={() => {
-                    setIsSheetOpen(false);
-                  }}
-                />
-              </div>
+              <SidebarContent
+                selectedPublicAdvisors={selectedAdvisors}
+                onSelectPublicAdvisor={(advisorId, advisor) => {
+                  if (advisor) {
+                    onSelectAdvisor(advisorId, advisor);
+                  }
+                  setIsSheetOpen(false);
+                }}
+                onRemovePublicAdvisor={handleRemoveAdvisor}
+                onShowAdvisorDirectory={() => {
+                  setIsSheetOpen(false);
+                }}
+                onClose={() => setIsSheetOpen(false)}
+              />
             </SheetContent>
           </Sheet>
           
