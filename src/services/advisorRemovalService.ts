@@ -1,5 +1,4 @@
 
-
 import { supabase } from '@/integrations/supabase/client';
 
 export const advisorRemovalService = {
@@ -13,12 +12,14 @@ export const advisorRemovalService = {
 
       console.log('Removing advisor:', advisorId, 'for user:', user.id);
 
-      // Delete conversations and their messages - using advisor_id field
-      const { data: conversations, error: conversationsError } = await supabase
+      // First, get conversation IDs to delete - using explicit typing
+      const conversationsQuery = supabase
         .from('conversations')
         .select('id')
         .eq('user_id', user.id)
         .eq('advisor_id', advisorId);
+
+      const { data: conversations, error: conversationsError } = await conversationsQuery;
 
       if (conversationsError) {
         console.error('Error fetching conversations:', conversationsError);
@@ -27,7 +28,7 @@ export const advisorRemovalService = {
 
       if (conversations && conversations.length > 0) {
         // Delete all messages for these conversations
-        const conversationIds = conversations.map(c => c.id);
+        const conversationIds = conversations.map((c: { id: string }) => c.id);
         
         const { error: messagesError } = await supabase
           .from('messages')
@@ -62,4 +63,3 @@ export const advisorRemovalService = {
     }
   }
 };
-
