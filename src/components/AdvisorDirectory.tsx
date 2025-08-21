@@ -110,7 +110,8 @@ const AdvisorDirectory = ({ onSelectAdvisor, onAuthRequired }: AdvisorDirectoryP
 
                     <Button 
                       onClick={() => handleStartChat(advisor)}
-                      className="w-full"
+                      variant="outline"
+                      className="w-full border-black text-black hover:bg-black hover:text-white"
                       size="sm"
                     >
                       <MessageCircle className="h-4 w-4 mr-2" />
