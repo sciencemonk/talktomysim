@@ -51,6 +51,7 @@ export interface AgentType {
   teachingStyle?: string;
   customSubject?: string;
   voiceTraits?: VoiceTrait[];
+  is_featured?: boolean; // Add the missing is_featured property
 }
 
 export interface PublicAgentType {
