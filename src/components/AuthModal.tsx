@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
@@ -129,12 +128,6 @@ const AuthModal = ({ open, onOpenChange }: AuthModalProps) => {
           {showEmailConfirmation ? (
             // Email confirmation screen
             <>
-              <div className="flex justify-center mb-4">
-                <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center">
-                  <Mail className="h-8 w-8 text-primary" />
-                </div>
-              </div>
-              
               <div className="text-center space-y-2">
                 <h2 className="text-xl font-semibold">Check your email</h2>
                 <p className="text-sm text-muted-foreground">
@@ -154,12 +147,12 @@ const AuthModal = ({ open, onOpenChange }: AuthModalProps) => {
                 
                 <div className="text-center">
                   <p className="text-sm text-muted-foreground mb-2">
-                    Click the link in your email to activate your account and start chatting with AI Sims.
+                    Click the link in your email to activate your account.
                   </p>
                 </div>
                 
                 <div className="bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
-                  <p className="text-sm text-blue-800 dark:text-blue-200">
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
                     <strong>Didn't receive the email?</strong> Check your spam folder or try signing up again.
                   </p>
                 </div>
