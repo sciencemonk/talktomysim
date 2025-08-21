@@ -2,7 +2,7 @@
 import { useParams } from "react-router-dom";
 import { usePublicAgent } from "@/hooks/usePublicAgent";
 import { usePublicAgentByUrl } from "@/hooks/usePublicAgentByUrl";
-import { ChatInterface } from "@/components/ChatInterface";
+import ChatInterface from "@/components/ChatInterface";
 import { Bot, Loader2, AlertCircle } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -58,40 +58,16 @@ const StudentChat = () => {
     );
   }
 
+  const handleBack = () => {
+    window.history.back();
+  };
+
   return (
     <div className="h-screen bg-background">
-      {/* Chat Header */}
-      <div className="border-b bg-card p-4">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-            {agent.avatar ? (
-              <img 
-                src={agent.avatar} 
-                alt={agent.name}
-                className="w-full h-full rounded-full object-cover"
-              />
-            ) : (
-              <Bot className="w-5 h-5 text-primary" />
-            )}
-          </div>
-          <div>
-            <h1 className="font-semibold text-lg">{agent.name}</h1>
-            {agent.subject && (
-              <p className="text-sm text-muted-foreground">{agent.subject}</p>
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* Chat Interface */}
-      <div className="h-[calc(100vh-81px)]">
-        <ChatInterface 
-          agentId={agent.id}
-          agentName={agent.name}
-          systemPrompt={agent.prompt || `You are ${agent.name}, a helpful AI tutor.`}
-          isPublicChat={true}
-        />
-      </div>
+      <ChatInterface 
+        agent={agent}
+        onBack={handleBack}
+      />
     </div>
   );
 };

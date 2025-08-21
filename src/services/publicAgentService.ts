@@ -49,7 +49,7 @@ export const fetchPublicAgentById = async (id: string): Promise<AgentType> => {
     avatar: advisor.avatar_url,
     prompt: advisor.prompt,
     title: advisor.title,
-    url: advisor.url, // Include the url field
+    url: (advisor as any).url || null, // Handle missing url field gracefully
     // Default values for fields that don't exist in advisors table
     model: 'gpt-4',
     voice: 'default',
