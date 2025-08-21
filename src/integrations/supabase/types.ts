@@ -114,6 +114,7 @@ export type Database = {
           created_at: string
           description: string | null
           id: string
+          is_verified: boolean
           knowledge_summary: string | null
           name: string
           prompt: string
@@ -128,6 +129,7 @@ export type Database = {
           created_at?: string
           description?: string | null
           id?: string
+          is_verified?: boolean
           knowledge_summary?: string | null
           name: string
           prompt: string
@@ -142,6 +144,7 @@ export type Database = {
           created_at?: string
           description?: string | null
           id?: string
+          is_verified?: boolean
           knowledge_summary?: string | null
           name?: string
           prompt?: string

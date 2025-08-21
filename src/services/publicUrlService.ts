@@ -35,6 +35,7 @@ export const fetchPublicAgentByUrl = async (url: string): Promise<AgentType> => 
     prompt: advisor.prompt,
     title: advisor.title,
     url: advisor.url,
+    is_verified: advisor.is_verified || false, // Include verification status
     // Default values for fields that don't exist in advisors table
     model: 'gpt-4',
     voice: 'default',
@@ -57,7 +58,6 @@ export const fetchPublicAgentByUrl = async (url: string): Promise<AgentType> => 
     gradeLevel: null,
     teachingStyle: null,
     customSubject: null,
-    learningObjective: null,
-    is_featured: false
+    learningObjective: null
   };
 };

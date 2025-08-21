@@ -52,6 +52,7 @@ export interface AgentType {
   customSubject?: string;
   voiceTraits?: VoiceTrait[];
   is_featured?: boolean; // Add the missing is_featured property
+  is_verified?: boolean; // Add verification status
   url?: string; // Add url field for custom paths
 }
 

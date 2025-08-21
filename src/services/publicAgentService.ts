@@ -50,6 +50,7 @@ export const fetchPublicAgentById = async (id: string): Promise<AgentType> => {
     prompt: advisor.prompt,
     title: advisor.title,
     url: (advisor as any).url || null, // Handle missing url field gracefully
+    is_verified: advisor.is_verified || false, // Include verification status
     // Default values for fields that don't exist in advisors table
     model: 'gpt-4',
     voice: 'default',
@@ -72,7 +73,6 @@ export const fetchPublicAgentById = async (id: string): Promise<AgentType> => {
     gradeLevel: null,
     teachingStyle: null,
     customSubject: null,
-    learningObjective: null,
-    is_featured: false // Default to false since advisors table doesn't have this field
+    learningObjective: null
   };
 };

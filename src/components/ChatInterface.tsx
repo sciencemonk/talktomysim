@@ -1,125 +1,217 @@
 
-import { useState, useEffect, useRef } from "react";
-import { Bot, Menu } from "lucide-react";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
-import { TextInput } from "@/components/TextInput";
-import { useChatHistory } from "@/hooks/useChatHistory";
-import { useTextChat } from "@/hooks/useTextChat";
-import { useIsMobile } from "@/hooks/use-mobile";
-import { AgentType } from "@/types/agent";
-import {
-  Sheet,
-  SheetContent,
-  SheetTrigger,
-} from "@/components/ui/sheet";
-import { SidebarContent } from "./UserSidebar";
-import { InfoModal } from "./InfoModal";
+import { useState, useRef, useEffect } from 'react';
+import { Send, ArrowLeft, Phone, Mic, MicOff } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { AgentType } from '@/types/agent';
+import { useTextChat } from '@/hooks/useTextChat';
+import { useVoiceChat } from '@/hooks/useVoiceChat';
+import { VerificationBadge } from './VerificationBadge';
 
 interface ChatInterfaceProps {
   agent: AgentType;
-  onBack: () => void;
+  onBack?: () => void;
 }
 
 const ChatInterface = ({ agent, onBack }: ChatInterfaceProps) => {
-  const [currentAgent, setCurrentAgent] = useState(agent);
-  const [isAiResponding, setIsAiResponding] = useState(false);
-  const [isSheetOpen, setIsSheetOpen] = useState(false);
+  const [message, setMessage] = useState('');
+  const [isVoiceMode, setIsVoiceMode] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const isMobile = useIsMobile();
   
-  const chatHistory = useChatHistory(currentAgent);
-  const textChat = useTextChat({
-    agent: currentAgent,
-    onUserMessage: chatHistory.addUserMessage,
-    onAiMessageStart: chatHistory.startAiMessage,
-    onAiTextDelta: chatHistory.addAiTextDelta,
-    onAiMessageComplete: chatHistory.completeAiMessage
-  });
-
-  useEffect(() => {
-    setCurrentAgent(agent);
-  }, [agent]);
+  const { 
+    messages, 
+    isLoading: isTextLoading, 
+    sendMessage: sendTextMessage 
+  } = useTextChat(agent.id);
+  
+  const {
+    isConnected,
+    isRecording,
+    startVoiceChat,
+    stopVoiceChat,
+    toggleMute
+  } = useVoiceChat(agent.id);
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
   useEffect(() => {
     scrollToBottom();
-  }, [chatHistory.messages]);
+  }, [messages]);
+
+  const handleSendMessage = async () => {
+    if (!message.trim() || isTextLoading) return;
+    
+    const messageToSend = message;
+    setMessage('');
+    await sendTextMessage(messageToSend);
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSendMessage();
+    }
+  };
+
+  const toggleVoiceMode = () => {
+    if (isVoiceMode) {
+      stopVoiceChat();
+    } else {
+      startVoiceChat();
+    }
+    setIsVoiceMode(!isVoiceMode);
+  };
 
   return (
-    <div className="flex flex-col h-screen w-full">
-      {/* Header - Always visible on mobile */}
-      <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-4 sm:px-6 py-4 flex-shrink-0 sticky top-0 z-10">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            {isMobile && (
-              <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
-                <SheetTrigger asChild>
-                  <Button variant="ghost" size="sm" className="p-2">
-                    <Menu className="h-5 w-5" />
-                  </Button>
-                </SheetTrigger>
-                <SheetContent side="left" className="w-80 p-0">
-                  <SidebarContent
-                    selectedPublicAdvisors={[]}
-                    onSelectPublicAdvisor={() => {
-                      setIsSheetOpen(false);
-                    }}
-                    onRemovePublicAdvisor={() => {}}
-                    onShowAdvisorDirectory={() => {
-                      onBack();
-                      setIsSheetOpen(false);
-                    }}
-                    onClose={() => setIsSheetOpen(false)}
-                  />
-                </SheetContent>
-              </Sheet>
-            )}
-            <Avatar className="h-10 w-10 sm:h-12 sm:w-12">
-              <AvatarImage src={currentAgent.avatar} alt={currentAgent.name} />
-              <AvatarFallback className="bg-primary text-primary-foreground text-lg">
-                <Bot className="h-5 w-5 sm:h-6 sm:w-6" />
-              </AvatarFallback>
-            </Avatar>
-            <div className="min-w-0 flex-1">
-              <h1 className="text-lg sm:text-xl font-semibold truncate">{currentAgent.name}</h1>
-              <p className="text-xs sm:text-sm text-muted-foreground truncate">
-                {currentAgent.title || currentAgent.subject || currentAgent.type}
-              </p>
-            </div>
+    <div className="flex flex-col h-full bg-background">
+      {/* Header */}
+      <div className="flex items-center gap-3 p-4 border-b bg-card">
+        {onBack && (
+          <Button variant="ghost" size="sm" onClick={onBack}>
+            <ArrowLeft className="h-4 w-4" />
+          </Button>
+        )}
+        
+        <Avatar className="h-10 w-10">
+          <AvatarImage src={agent.avatar} alt={agent.name} />
+          <AvatarFallback>{agent.name.charAt(0)}</AvatarFallback>
+        </Avatar>
+        
+        <div className="flex-1">
+          <div className="flex items-center gap-2">
+            <h1 className="font-semibold text-lg">{agent.name}</h1>
+            <VerificationBadge isVerified={agent.is_verified || false} />
           </div>
-          <InfoModal />
+          {agent.title && (
+            <p className="text-sm text-muted-foreground">{agent.title}</p>
+          )}
+        </div>
+
+        <div className="flex items-center gap-2">
+          <Button
+            variant={isVoiceMode ? "destructive" : "outline"}
+            size="sm"
+            onClick={toggleVoiceMode}
+            className="gap-2"
+          >
+            <Phone className="h-4 w-4" />
+            {isVoiceMode ? "End Call" : "Voice Call"}
+          </Button>
         </div>
       </div>
 
-      {/* Messages - Scrollable area between header and input */}
-      <div className="flex-1 overflow-auto px-4 sm:p-4 min-h-0">
-        {chatHistory.messages.map((message) => (
-          <div
-            key={message.id}
-            className={`mb-2 flex flex-col ${message.role === 'user' ? 'items-end' : 'items-start'}`}
-          >
-            <div
-              className={`rounded-lg px-3 py-2 text-sm max-w-[85%] sm:max-w-[75%] md:max-w-[60%] lg:max-w-[40%] xl:max-w-[30%] ${message.role === 'user' ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground'}`}
+      {/* Voice Mode Indicator */}
+      {isVoiceMode && (
+        <div className="p-4 bg-muted/50 border-b">
+          <div className="flex items-center justify-center gap-4">
+            <Badge variant={isConnected ? "default" : "secondary"}>
+              {isConnected ? "Connected" : "Connecting..."}
+            </Badge>
+            
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={toggleMute}
+              className="gap-2"
             >
-              {message.content}
-            </div>
+              {isRecording ? (
+                <>
+                  <Mic className="h-4 w-4" />
+                  Mute
+                </>
+              ) : (
+                <>
+                  <MicOff className="h-4 w-4" />
+                  Unmute
+                </>
+              )}
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* Messages */}
+      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+        {messages.map((msg, index) => (
+          <div
+            key={index}
+            className={`flex gap-3 ${
+              msg.role === 'user' ? 'justify-end' : 'justify-start'
+            }`}
+          >
+            {msg.role === 'assistant' && (
+              <Avatar className="h-8 w-8 mt-1">
+                <AvatarImage src={agent.avatar} alt={agent.name} />
+                <AvatarFallback>{agent.name.charAt(0)}</AvatarFallback>
+              </Avatar>
+            )}
+            
+            <Card className={`max-w-[80%] ${
+              msg.role === 'user' 
+                ? 'bg-primary text-primary-foreground' 
+                : 'bg-muted'
+            }`}>
+              <CardContent className="p-3">
+                <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
+              </CardContent>
+            </Card>
+            
+            {msg.role === 'user' && (
+              <Avatar className="h-8 w-8 mt-1">
+                <AvatarFallback>U</AvatarFallback>
+              </Avatar>
+            )}
           </div>
         ))}
+        
+        {isTextLoading && (
+          <div className="flex gap-3">
+            <Avatar className="h-8 w-8 mt-1">
+              <AvatarImage src={agent.avatar} alt={agent.name} />
+              <AvatarFallback>{agent.name.charAt(0)}</AvatarFallback>
+            </Avatar>
+            <Card className="bg-muted">
+              <CardContent className="p-3">
+                <div className="flex gap-1">
+                  <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" />
+                  <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: '0.1s' }} />
+                  <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: '0.2s' }} />
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+        
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Input - Always visible and sticky on mobile */}
-      <div className="border-t bg-background flex-shrink-0 sticky bottom-0 z-10">
-        <TextInput 
-          onSendMessage={textChat.sendMessage}
-          disabled={textChat.isProcessing || isAiResponding}
-          placeholder={isAiResponding ? `${currentAgent.name} is typing...` : `Message ${currentAgent.name}...`}
-        />
-      </div>
+      {/* Input */}
+      {!isVoiceMode && (
+        <div className="p-4 border-t bg-card">
+          <div className="flex gap-2">
+            <Input
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              onKeyPress={handleKeyPress}
+              placeholder={`Message ${agent.name}...`}
+              className="flex-1"
+              disabled={isTextLoading}
+            />
+            <Button 
+              onClick={handleSendMessage}
+              disabled={!message.trim() || isTextLoading}
+              size="sm"
+            >
+              <Send className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
