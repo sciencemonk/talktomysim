@@ -3,33 +3,30 @@ import { useState } from "react";
 import { Outlet } from "react-router-dom";
 import UserSidebar from "@/components/UserSidebar";
 import { AgentType } from "@/types/agent";
+import { useUserAdvisors } from "@/hooks/useUserAdvisors";
 
 const DashboardLayout = () => {
+  const { advisorsAsAgents } = useUserAdvisors();
   const [selectedAgent, setSelectedAgent] = useState<AgentType | null>(null);
   const [selectedPublicAdvisorId, setSelectedPublicAdvisorId] = useState<string | null>(null);
-  const [selectedPublicAdvisors, setSelectedPublicAdvisors] = useState<AgentType[]>([]);
 
   const handleSelectAgent = (agent: AgentType) => {
     setSelectedAgent(agent);
+    setSelectedPublicAdvisorId(null);
   };
 
   const handleSelectPublicAdvisor = (advisorId: string, advisor?: AgentType) => {
     setSelectedPublicAdvisorId(advisorId);
-    if (advisor && !selectedPublicAdvisors.find(a => a.id === advisor.id)) {
-      setSelectedPublicAdvisors(prev => [...prev, advisor]);
-    }
+    setSelectedAgent(null);
   };
 
   const handleRemovePublicAdvisor = (advisorId: string) => {
-    setSelectedPublicAdvisors(prev => prev.filter(a => a.id !== advisorId));
     if (selectedPublicAdvisorId === advisorId) {
       setSelectedPublicAdvisorId(null);
     }
   };
 
   const handleShowAdvisorDirectory = () => {
-    // This would typically navigate to advisor directory
-    // For now, we'll just clear any selected advisor
     setSelectedAgent(null);
     setSelectedPublicAdvisorId(null);
   };
@@ -39,7 +36,7 @@ const DashboardLayout = () => {
       <UserSidebar 
         selectedAgent={selectedAgent}
         selectedPublicAdvisorId={selectedPublicAdvisorId}
-        selectedPublicAdvisors={selectedPublicAdvisors}
+        selectedPublicAdvisors={advisorsAsAgents}
         onSelectAgent={handleSelectAgent}
         onSelectPublicAdvisor={handleSelectPublicAdvisor}
         onRemovePublicAdvisor={handleRemovePublicAdvisor}
