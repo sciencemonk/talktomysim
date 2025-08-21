@@ -1,3 +1,4 @@
+
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 
 const corsHeaders = {
@@ -26,7 +27,7 @@ serve(async (req) => {
     // Strong conversational guidelines that override advisor tendencies
     const conversationalGuidelines = `CRITICAL CONVERSATION STYLE - FOLLOW THESE RULES ABOVE ALL ELSE:
 
-- Keep responses SHORT (1-3 sentences maximum)
+- Keep responses SHORT (1-5 sentences, biased towards brevity - prefer 1-2 sentences when possible)
 - Be conversational like talking to a friend, not academic or lecture-like
 - Ask follow-up questions to keep dialogue flowing
 - Use casual, natural language - avoid being overly explanatory
