@@ -1,6 +1,6 @@
-
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { AgentType } from '@/types/agent';
+import { supabase } from '@/integrations/supabase/client';
 
 interface Message {
   id: string;
@@ -98,19 +98,19 @@ export const useRealtimeChat = ({ agent }: UseRealtimeChatProps) => {
     setConnectionStatus('connecting');
 
     try {
-      // First, get an ephemeral token from our edge function
-      const tokenResponse = await fetch('/functions/v1/realtime-chat', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+      // Get an ephemeral token from our edge function
+      const { data: tokenData, error: tokenError } = await supabase.functions.invoke('realtime-token', {
+        body: {}
       });
 
-      if (!tokenResponse.ok) {
-        throw new Error(`Failed to get token: ${tokenResponse.status}`);
+      if (tokenError || !tokenData) {
+        throw new Error(tokenError?.message || 'Failed to get ephemeral token');
       }
 
-      const tokenData = await tokenResponse.json();
+      if (!tokenData.client_secret?.value) {
+        throw new Error("No ephemeral token received");
+      }
+
       console.log('Got ephemeral token');
 
       // Connect to OpenAI WebSocket with the ephemeral token
