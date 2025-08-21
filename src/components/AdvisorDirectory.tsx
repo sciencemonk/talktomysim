@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useAdvisors } from "@/hooks/useAdvisors";
 import { useAllAdvisors } from "@/hooks/useAllAdvisors";
@@ -120,7 +119,7 @@ const AdvisorDirectory = ({ onSelectAdvisor, onAuthRequired }: AdvisorDirectoryP
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
               <Input
-                placeholder="Search advisors..."
+                placeholder="Search sims..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10"
