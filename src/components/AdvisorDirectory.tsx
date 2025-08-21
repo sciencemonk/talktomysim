@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { useAdvisors } from "@/hooks/useAdvisors";
 import { useAllAdvisors } from "@/hooks/useAllAdvisors";
+import { useUserAdvisors } from "@/hooks/useUserAdvisors";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -31,6 +32,7 @@ const AdvisorDirectory = ({ onSelectAdvisor, onAuthRequired }: AdvisorDirectoryP
   const { user } = useAuth();
   const { advisors, isLoading } = useAdvisors();
   const { agents: allAdvisors, isLoading: isLoadingAll } = useAllAdvisors();
+  const { advisorsAsAgents, removeAdvisor } = useUserAdvisors();
   const isMobile = useIsMobile();
 
   const categories = [
@@ -46,6 +48,14 @@ const AdvisorDirectory = ({ onSelectAdvisor, onAuthRequired }: AdvisorDirectoryP
     }
 
     onSelectAdvisor(advisor.id, advisor);
+  };
+
+  const handleRemovePublicAdvisor = async (advisorId: string) => {
+    try {
+      await removeAdvisor(advisorId);
+    } catch (error) {
+      console.error("Failed to remove advisor:", error);
+    }
   };
 
   // Filter advisors based on search term and category
@@ -73,14 +83,14 @@ const AdvisorDirectory = ({ onSelectAdvisor, onAuthRequired }: AdvisorDirectoryP
             </SheetTrigger>
             <SheetContent side="left" className="w-80 p-0">
               <SidebarContent
-                selectedPublicAdvisors={[]}
+                selectedPublicAdvisors={advisorsAsAgents}
                 onSelectPublicAdvisor={(advisorId, advisor) => {
                   if (advisor) {
                     onSelectAdvisor(advisorId, advisor);
                   }
                   setIsSheetOpen(false);
                 }}
-                onRemovePublicAdvisor={() => {}}
+                onRemovePublicAdvisor={handleRemovePublicAdvisor}
                 onShowAdvisorDirectory={() => {
                   setIsSheetOpen(false);
                 }}
