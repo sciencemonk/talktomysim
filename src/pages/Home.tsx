@@ -65,6 +65,11 @@ const Home = () => {
     setCurrentView('chat');
   }, [selectedPublicAdvisors]);
 
+  const handleRemoveAdvisor = useCallback((advisorId: string) => {
+    // This will be handled by the useAdvisorRemoval hook in UserSidebar
+    console.log('Remove advisor requested:', advisorId);
+  }, []);
+
   // Set first agent as selected if none selected and we're in chat view
   if (!selectedAgent && !selectedPublicAdvisorId && agents.length > 0 && currentView === 'chat') {
     setSelectedAgent(agents[0]);
@@ -130,6 +135,7 @@ const Home = () => {
           selectedPublicAdvisors={selectedPublicAdvisors}
           onSelectAgent={handleSelectAgent}
           onSelectPublicAdvisor={handleSelectAdvisor}
+          onRemovePublicAdvisor={handleRemoveAdvisor}
           refreshTrigger={refreshTrigger}
         />
       )}
@@ -146,6 +152,7 @@ const Home = () => {
             selectedPublicAdvisors={selectedPublicAdvisors}
             onSelectAgent={handleSelectAgent}
             onSelectPublicAdvisor={handleSelectAdvisor}
+            onRemovePublicAdvisor={handleRemoveAdvisor}
             refreshTrigger={refreshTrigger}
           />
         )}
