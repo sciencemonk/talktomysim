@@ -1,33 +1,18 @@
 
 import { supabase } from "@/integrations/supabase/client";
-import { AgentType, VoiceTrait, AgentChannelConfig } from "@/types/agent";
+import { AgentType } from "@/types/agent";
 
-// Type guard functions for safe JSON conversion
-const isVoiceTraitArray = (value: any): value is VoiceTrait[] => {
-  return Array.isArray(value) && value.every(item => 
-    typeof item === 'object' && item !== null && typeof item.name === 'string'
-  );
-};
-
-const isStringArray = (value: any): value is string[] => {
-  return Array.isArray(value) && value.every(item => typeof item === 'string');
-};
-
-const isChannelConfigsRecord = (value: any): value is Record<string, AgentChannelConfig> => {
-  return typeof value === 'object' && value !== null && !Array.isArray(value);
-};
-
-export const fetchPublicAgentById = async (id: string): Promise<AgentType> => {
-  console.log("Fetching public advisor by ID:", id);
+export const fetchPublicAgentByUrl = async (url: string): Promise<AgentType> => {
+  console.log("Fetching public advisor by URL:", url);
   
   const { data: advisor, error } = await supabase
     .from('advisors')
     .select('*')
-    .eq('id', id)
+    .eq('url', url)
     .maybeSingle();
 
   if (error) {
-    console.error("Error fetching public advisor:", error);
+    console.error("Error fetching public advisor by URL:", error);
     throw new Error(`Failed to fetch advisor: ${error.message}`);
   }
 
@@ -35,21 +20,21 @@ export const fetchPublicAgentById = async (id: string): Promise<AgentType> => {
     throw new Error("Advisor not found");
   }
 
-  console.log("Fetched public advisor:", advisor);
+  console.log("Fetched public advisor by URL:", advisor);
 
   // Transform the advisor data to match AgentType interface
   return {
     id: advisor.id,
     name: advisor.name,
     description: advisor.description || '',
-    type: 'General Tutor' as any, // Default type since advisors don't have this field
-    status: 'active' as any, // Default status
+    type: 'General Tutor' as any,
+    status: 'active' as any,
     createdAt: advisor.created_at,
     updatedAt: advisor.updated_at,
     avatar: advisor.avatar_url,
     prompt: advisor.prompt,
     title: advisor.title,
-    url: advisor.url, // Include the url field
+    url: advisor.url,
     // Default values for fields that don't exist in advisors table
     model: 'gpt-4',
     voice: 'default',
@@ -73,6 +58,6 @@ export const fetchPublicAgentById = async (id: string): Promise<AgentType> => {
     teachingStyle: null,
     customSubject: null,
     learningObjective: null,
-    is_featured: false // Default to false since advisors table doesn't have this field
+    is_featured: false
   };
 };

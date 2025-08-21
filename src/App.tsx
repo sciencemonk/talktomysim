@@ -40,6 +40,9 @@ const App = () => (
             <Route path="/tutors/:agentId" element={<PublicTutorDetail />} />
             <Route path="/tutors/:agentId/chat" element={<StudentChat />} />
             
+            {/* New custom URL routes for public chats */}
+            <Route path="/:customUrl" element={<StudentChat />} />
+            
             {/* Catch all - redirect to home */}
             <Route path="*" element={<NotFound />} />
           </Routes>
