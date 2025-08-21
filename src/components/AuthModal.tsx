@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
@@ -8,14 +9,17 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { supabase } from '@/integrations/supabase/client';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
+
 interface AuthForm {
   email: string;
   password: string;
 }
+
 interface AuthModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
+
 const AuthModal = ({
   open,
   onOpenChange
@@ -23,12 +27,16 @@ const AuthModal = ({
   const [isLoading, setIsLoading] = useState(false);
   const [showEmailForm, setShowEmailForm] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
+  const [showEmailConfirmation, setShowEmailConfirmation] = useState(false);
+  const [userEmail, setUserEmail] = useState('');
+  
   const form = useForm<AuthForm>({
     defaultValues: {
       email: '',
       password: ''
     }
   });
+
   const handleGoogleSignIn = async () => {
     setIsLoading(true);
     try {
@@ -51,6 +59,7 @@ const AuthModal = ({
       setIsLoading(false);
     }
   };
+
   const onSubmit = async (data: AuthForm) => {
     setIsLoading(true);
     try {
@@ -70,8 +79,8 @@ const AuthModal = ({
           return;
         }
         if (signUpData.user) {
-          toast.success('Account created successfully! Please check your email to confirm your account.');
-          onOpenChange(false);
+          setUserEmail(data.email);
+          setShowEmailConfirmation(true);
         }
       } else {
         const {
@@ -97,22 +106,55 @@ const AuthModal = ({
       setIsLoading(false);
     }
   };
+
   const resetModal = () => {
     setShowEmailForm(false);
     setIsSignUp(false);
+    setShowEmailConfirmation(false);
+    setUserEmail('');
     form.reset();
   };
-  return <Dialog open={open} onOpenChange={open => {
-    onOpenChange(open);
-    if (!open) resetModal();
-  }}>
+
+  return (
+    <Dialog open={open} onOpenChange={open => {
+      onOpenChange(open);
+      if (!open) resetModal();
+    }}>
       <DialogContent className="sm:max-w-md">
         <div className="flex flex-col items-center space-y-6 py-4">
           <div className="flex items-center justify-center">
             <img src="/lovable-uploads/a5a8957b-48cb-40f5-9097-0ab747b74077.png" alt="Think With Me" className="w-8 h-8" />
           </div>
 
-          {!showEmailForm ? <div className="w-full space-y-4">
+          {showEmailConfirmation ? (
+            <div className="w-full text-center space-y-4">
+              <div className="space-y-2">
+                <h3 className="text-lg font-semibold">Check your email</h3>
+                <p className="text-sm text-muted-foreground">
+                  We sent a confirmation link to <strong>{userEmail}</strong>
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  Click the link in your email to activate your account.
+                </p>
+              </div>
+              
+              <p className="text-xs text-gray-500">
+                Didn't receive the email? Check your spam folder or try signing up again.
+              </p>
+
+              <div className="text-center">
+                <Button 
+                  type="button" 
+                  variant="link" 
+                  onClick={() => setShowEmailConfirmation(false)} 
+                  className="text-sm text-muted-foreground"
+                >
+                  ← Back to login options
+                </Button>
+              </div>
+            </div>
+          ) : !showEmailForm ? (
+            <div className="w-full space-y-4">
               <Button onClick={handleGoogleSignIn} disabled={isLoading} variant="outline" className="w-full h-12 text-base" size="lg">
                 <svg className="w-5 h-5 mr-3" viewBox="0 0 24 24">
                   <path fill="#4285f4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
@@ -126,23 +168,61 @@ const AuthModal = ({
               <Button onClick={() => setShowEmailForm(true)} variant="outline" className="w-full h-12 text-base" size="lg">
                 Login with Email
               </Button>
-            </div> : <Card className="w-full border-0 shadow-none">
+            </div>
+          ) : (
+            <Card className="w-full border-0 shadow-none">
               <CardContent className="space-y-4 px-0">
                 <Form {...form}>
-                  
+                  <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                    <FormField
+                      control={form.control}
+                      name="email"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Email</FormLabel>
+                          <FormControl>
+                            <Input type="email" placeholder="Enter your email" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="password"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Password</FormLabel>
+                          <FormControl>
+                            <Input type="password" placeholder="Enter your password" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <Button type="submit" disabled={isLoading} className="w-full">
+                      {isLoading ? 'Loading...' : (isSignUp ? 'Sign Up' : 'Login')}
+                    </Button>
+                  </form>
                 </Form>
 
-                {!isSignUp && <div className="text-center">
+                {!isSignUp && (
+                  <div className="text-center">
                     <Button type="button" variant="link" onClick={() => setIsSignUp(true)} className="text-sm">
                       Don't have an account? Sign up
                     </Button>
-                  </div>}
+                  </div>
+                )}
 
-                {isSignUp && <div className="text-center">
+                {isSignUp && (
+                  <div className="text-center">
                     <Button type="button" variant="link" onClick={() => setIsSignUp(false)} className="text-sm">
                       Already have an account? Login
                     </Button>
-                  </div>}
+                  </div>
+                )}
 
                 <div className="text-center">
                   <Button type="button" variant="link" onClick={() => setShowEmailForm(false)} className="text-sm text-muted-foreground">
@@ -150,13 +230,16 @@ const AuthModal = ({
                   </Button>
                 </div>
               </CardContent>
-            </Card>}
+            </Card>
+          )}
 
           <p className="text-xs text-muted-foreground text-center px-6">
             By continuing, you agree to our Terms of Service and Privacy Policy
           </p>
         </div>
       </DialogContent>
-    </Dialog>;
+    </Dialog>
+  );
 };
+
 export default AuthModal;
