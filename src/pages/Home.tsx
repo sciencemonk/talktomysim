@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { Navigate } from "react-router-dom";
@@ -50,10 +49,6 @@ const Home = () => {
         if (!isAlreadyAdded) {
           try {
             await addAdvisor(advisor);
-            toast({
-              title: "Advisor Added",
-              description: `${advisor.name} has been added to your advisors.`,
-            });
           } catch (error) {
             console.error("Failed to add advisor:", error);
             toast({
