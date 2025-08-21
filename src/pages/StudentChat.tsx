@@ -3,12 +3,15 @@ import { useParams } from "react-router-dom";
 import { usePublicAgent } from "@/hooks/usePublicAgent";
 import { usePublicAgentByUrl } from "@/hooks/usePublicAgentByUrl";
 import ChatInterface from "@/components/ChatInterface";
+import UserSidebar from "@/components/UserSidebar";
 import { Bot, Loader2, AlertCircle } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const StudentChat = () => {
   const { agentId, customUrl } = useParams<{ agentId?: string; customUrl?: string }>();
+  const isMobile = useIsMobile();
   
   // Determine which hook to use based on the route parameters
   const isLegacyRoute = !!agentId;
@@ -62,12 +65,28 @@ const StudentChat = () => {
     window.history.back();
   };
 
+  // On mobile, render just the chat interface
+  if (isMobile) {
+    return (
+      <div className="h-screen bg-background">
+        <ChatInterface 
+          agent={agent}
+          onBack={handleBack}
+        />
+      </div>
+    );
+  }
+
+  // On desktop, render with sidebar
   return (
-    <div className="h-screen bg-background">
-      <ChatInterface 
-        agent={agent}
-        onBack={handleBack}
-      />
+    <div className="h-screen bg-background flex">
+      <UserSidebar />
+      <div className="flex-1">
+        <ChatInterface 
+          agent={agent}
+          onBack={handleBack}
+        />
+      </div>
     </div>
   );
 };
