@@ -1,11 +1,10 @@
-
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Bot, MessageCircle } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AgentType } from "@/types/agent";
-import { usePublicAgents } from "@/hooks/usePublicAgents";
+import { useAllAdvisors } from "@/hooks/useAllAdvisors";
 import { useAuth } from "@/hooks/useAuth";
 
 interface AdvisorDirectoryProps {
@@ -14,7 +13,7 @@ interface AdvisorDirectoryProps {
 }
 
 const AdvisorDirectory = ({ onSelectAdvisor, onAuthRequired }: AdvisorDirectoryProps) => {
-  const { agents: advisors, isLoading, error } = usePublicAgents();
+  const { agents: advisors, isLoading, error } = useAllAdvisors();
   const { user } = useAuth();
 
   const handleStartChat = (advisor: AgentType) => {
