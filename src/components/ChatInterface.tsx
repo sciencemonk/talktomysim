@@ -61,23 +61,6 @@ const ChatInterface = ({ agent, onShowAgentDetails, onAgentUpdate }: ChatInterfa
     }
   }, [agent.id, currentAgent.id, agent.name, currentAgent.name]);
 
-  // Send initial greeting when starting new chat or returning to existing chat
-  useEffect(() => {
-    if (!chatHistory.isLoading && textChat.connectionStatus === 'connected') {
-      const hasMessages = chatHistory.messages.length > 0;
-      
-      if (!hasMessages) {
-        // New chat - send initial greeting
-        const initialGreeting = "Hello! I'm here and ready to help. What's on your mind today, or what would you like to discuss?";
-        textChat.sendMessage(initialGreeting);
-      } else {
-        // Existing chat - send return greeting
-        const returnGreeting = "Welcome back! What would you like to explore together today?";
-        textChat.sendMessage(returnGreeting);
-      }
-    }
-  }, [chatHistory.isLoading, textChat.connectionStatus, chatHistory.messages.length]);
-
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
