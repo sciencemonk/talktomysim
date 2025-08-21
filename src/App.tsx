@@ -26,11 +26,11 @@ const App = () => (
           <Routes>
             {/* Main app as default route */}
             <Route path="/" element={<Home />} />
-            <Route path="/app" element={<Home />} />
             
             {/* Legacy routes */}
             <Route path="/index" element={<Index />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/app" element={<Home />} />
             
             {/* Public tutor share links - accessible by non-signed in users */}
             <Route path="/tutors/:agentId" element={<PublicTutorDetail />} />

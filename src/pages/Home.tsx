@@ -7,6 +7,7 @@ import ChildProfile from "@/pages/ChildProfile";
 import Settings from "@/pages/Settings";
 import AgentCreate from "@/pages/AgentCreate";
 import AdvisorDirectory from "@/components/AdvisorDirectory";
+import AuthModal from "@/components/AuthModal";
 import { AgentType } from "@/types/agent";
 import { useAgents } from "@/hooks/useAgents";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -19,6 +20,7 @@ const Home = () => {
   const [selectedAgent, setSelectedAgent] = useState<AgentType | null>(null);
   const [selectedPublicAdvisorId, setSelectedPublicAdvisorId] = useState<string | null>(null);
   const [selectedPublicAdvisors, setSelectedPublicAdvisors] = useState<AgentType[]>([]);
+  const [showAuthModal, setShowAuthModal] = useState(false);
   
   // Show advisor directory by default for new users (no agents and no selected advisors)
   const getDefaultView = () => {
@@ -35,10 +37,14 @@ const Home = () => {
   const { agent: publicAgent } = usePublicAgent(selectedPublicAdvisorId);
 
   const handleSelectAgent = useCallback((agent: AgentType) => {
+    if (!user) {
+      setShowAuthModal(true);
+      return;
+    }
     setSelectedAgent(agent);
     setSelectedPublicAdvisorId(null); // Clear public advisor when selecting personal agent
     setCurrentView('chat');
-  }, []);
+  }, [user]);
 
   const handleAgentUpdate = useCallback((updatedAgent: AgentType) => {
     setSelectedAgent(updatedAgent);
@@ -53,6 +59,10 @@ const Home = () => {
   const handleShowAdvisorDirectory = () => setCurrentView('advisor-directory');
 
   const handleSelectAdvisor = useCallback((advisorId: string, advisor?: AgentType) => {
+    if (!user) {
+      setShowAuthModal(true);
+      return;
+    }
     console.log('Selecting advisor:', advisorId);
     setSelectedPublicAdvisorId(advisorId);
     setSelectedAgent(null); // Clear personal agent when selecting public advisor
@@ -63,15 +73,15 @@ const Home = () => {
     }
     
     setCurrentView('chat');
-  }, [selectedPublicAdvisors]);
+  }, [selectedPublicAdvisors, user]);
 
   const handleRemoveAdvisor = useCallback((advisorId: string) => {
     // This will be handled by the useAdvisorRemoval hook in UserSidebar
     console.log('Remove advisor requested:', advisorId);
   }, []);
 
-  // Set first agent as selected if none selected and we're in chat view
-  if (!selectedAgent && !selectedPublicAdvisorId && agents.length > 0 && currentView === 'chat') {
+  // Set first agent as selected if none selected and we're in chat view and user is authenticated
+  if (user && !selectedAgent && !selectedPublicAdvisorId && agents.length > 0 && currentView === 'chat') {
     setSelectedAgent(agents[0]);
   }
 
@@ -118,10 +128,6 @@ const Home = () => {
     }
   };
 
-  if (!user) {
-    return <div>Loading...</div>;
-  }
-
   return (
     <div className="flex h-screen bg-background">
       {!isMobile && (
@@ -158,6 +164,12 @@ const Home = () => {
         )}
         {renderMainContent()}
       </div>
+
+      {/* Auth Modal */}
+      <AuthModal 
+        open={showAuthModal} 
+        onOpenChange={setShowAuthModal} 
+      />
     </div>
   );
 };
