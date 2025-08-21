@@ -10,9 +10,6 @@ import {
   MoreHorizontal,
   X,
   LogIn,
-  Share2,
-  Edit,
-  Archive,
   Trash2
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
@@ -33,16 +30,8 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  ContextMenu,
-  ContextMenuContent,
-  ContextMenuItem,
-  ContextMenuSeparator,
-  ContextMenuTrigger,
-} from "@/components/ui/context-menu";
 import { AgentType } from "@/types/agent";
 import AuthModal from "./AuthModal";
 
@@ -251,102 +240,61 @@ const SidebarContent = ({
               {selectedPublicAdvisors.map((advisor) => (
                 <div
                   key={advisor.id}
-                  className="relative"
-                  onMouseEnter={() => setHoveredAdvisorId(advisor.id)}
-                  onMouseLeave={() => setHoveredAdvisorId(null)}
+                  className="relative group"
                 >
-                  <ContextMenu>
-                    <ContextMenuTrigger asChild>
-                      <Button
-                        onClick={() => handlePublicAdvisorSelect(advisor.id)}
-                        variant="ghost"
-                        disabled={removingAdvisorId === advisor.id}
-                        className={cn(
-                          "flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors w-full justify-start h-auto min-h-[40px] relative",
-                          selectedPublicAdvisorId === advisor.id
-                            ? "bg-primary/10 text-primary font-medium hover:bg-primary/15"
-                            : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                        )}
-                      >
-                        <Avatar className="h-6 w-6 flex-shrink-0">
-                          <AvatarImage src={advisor.avatar} alt={advisor.name} />
-                          <AvatarFallback className="bg-primary/10 text-primary text-xs">
-                            <Star className="h-3 w-3" />
-                          </AvatarFallback>
-                        </Avatar>
-                        {(!isCollapsed || !onToggleCollapse) && (
-                          <span className="truncate text-left flex-1">
-                            {removingAdvisorId === advisor.id ? "Removing..." : advisor.name}
-                          </span>
-                        )}
-                        
-                        {/* Three dots on hover - Desktop only */}
-                        {hoveredAdvisorId === advisor.id && !removingAdvisorId && (!isCollapsed || !onToggleCollapse) && (
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                className="h-6 w-6 p-0 opacity-70 hover:opacity-100"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                }}
-                              >
-                                <MoreHorizontal className="h-3 w-3" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" className="w-48">
-                              <DropdownMenuItem>
-                                <Share2 className="mr-2 h-4 w-4" />
-                                Share
-                              </DropdownMenuItem>
-                              <DropdownMenuItem>
-                                <Edit className="mr-2 h-4 w-4" />
-                                Rename
-                              </DropdownMenuItem>
-                              <DropdownMenuItem>
-                                <Archive className="mr-2 h-4 w-4" />
-                                Archive
-                              </DropdownMenuItem>
-                              <DropdownMenuSeparator />
-                              <DropdownMenuItem 
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleAdvisorRemove(advisor.id);
-                                }}
-                                className="text-red-600 hover:text-red-700"
-                              >
-                                <Trash2 className="mr-2 h-4 w-4" />
-                                Delete
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        )}
-                      </Button>
-                    </ContextMenuTrigger>
-                    <ContextMenuContent className="w-48">
-                      <ContextMenuItem>
-                        <Share2 className="mr-2 h-4 w-4" />
-                        Share
-                      </ContextMenuItem>
-                      <ContextMenuItem>
-                        <Edit className="mr-2 h-4 w-4" />
-                        Rename
-                      </ContextMenuItem>
-                      <ContextMenuItem>
-                        <Archive className="mr-2 h-4 w-4" />
-                        Archive
-                      </ContextMenuItem>
-                      <ContextMenuSeparator />
-                      <ContextMenuItem 
-                        onClick={() => handleAdvisorRemove(advisor.id)}
-                        className="text-red-600 hover:text-red-700"
-                      >
-                        <Trash2 className="mr-2 h-4 w-4" />
-                        Delete
-                      </ContextMenuItem>
-                    </ContextMenuContent>
-                  </ContextMenu>
+                  <Button
+                    onClick={() => handlePublicAdvisorSelect(advisor.id)}
+                    variant="ghost"
+                    disabled={removingAdvisorId === advisor.id}
+                    className={cn(
+                      "flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors w-full justify-start h-auto min-h-[40px] relative",
+                      selectedPublicAdvisorId === advisor.id
+                        ? "bg-primary/10 text-primary font-medium hover:bg-primary/15"
+                        : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                    )}
+                  >
+                    <Avatar className="h-6 w-6 flex-shrink-0">
+                      <AvatarImage src={advisor.avatar} alt={advisor.name} />
+                      <AvatarFallback className="bg-primary/10 text-primary text-xs">
+                        <Star className="h-3 w-3" />
+                      </AvatarFallback>
+                    </Avatar>
+                    {(!isCollapsed || !onToggleCollapse) && (
+                      <span className="truncate text-left flex-1">
+                        {removingAdvisorId === advisor.id ? "Removing..." : advisor.name}
+                      </span>
+                    )}
+                    
+                    {/* Three dots dropdown - Desktop only */}
+                    {!removingAdvisorId && (!isCollapsed || !onToggleCollapse) && (
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 hover:opacity-100 transition-opacity"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                            }}
+                          >
+                            <MoreHorizontal className="h-3 w-3" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-32">
+                          <DropdownMenuItem 
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleAdvisorRemove(advisor.id);
+                            }}
+                            className="text-red-600 hover:text-red-700"
+                          >
+                            <Trash2 className="mr-2 h-4 w-4" />
+                            Remove
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    )}
+                  </Button>
                 </div>
               ))}
             </div>
@@ -440,7 +388,6 @@ const SidebarContent = ({
                   <span>Settings</span>
                 </DropdownMenuItem>
               )}
-              <DropdownMenuSeparator />
               <DropdownMenuItem onClick={handleSignOut}>
                 <LogOut className="mr-2 h-4 w-4" />
                 <span>Log out</span>
