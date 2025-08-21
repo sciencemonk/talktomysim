@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { AgentType } from '@/types/agent';
 import { supabase } from '@/integrations/supabase/client';
@@ -11,7 +12,7 @@ interface Message {
 }
 
 interface UseRealtimeChatProps {
-  agent: AgentType;
+  agent: AgentType | null;
 }
 
 export const useRealtimeChat = ({ agent }: UseRealtimeChatProps) => {
@@ -94,6 +95,11 @@ export const useRealtimeChat = ({ agent }: UseRealtimeChatProps) => {
   }, [createWavFromPCM]);
 
   const connectWebSocket = useCallback(async () => {
+    if (!agent) {
+      console.log('No agent available, cannot connect WebSocket');
+      return;
+    }
+
     console.log('Connecting to WebSocket...');
     setConnectionStatus('connecting');
 
@@ -272,8 +278,10 @@ export const useRealtimeChat = ({ agent }: UseRealtimeChatProps) => {
   }, [isConnected]);
 
   useEffect(() => {
-    initializeAudioContext();
-    connectWebSocket();
+    if (agent) {
+      initializeAudioContext();
+      connectWebSocket();
+    }
 
     return () => {
       if (wsRef.current) {
@@ -283,7 +291,7 @@ export const useRealtimeChat = ({ agent }: UseRealtimeChatProps) => {
         audioContextRef.current.close();
       }
     };
-  }, [connectWebSocket, initializeAudioContext]);
+  }, [agent, connectWebSocket, initializeAudioContext]);
 
   return {
     messages,
