@@ -1,4 +1,3 @@
-
 import { useLocation } from "react-router-dom";
 import { 
   Bot, 
@@ -107,17 +106,17 @@ const SidebarContent = ({
             {!isCollapsed && (
               <div className="flex items-center gap-3">
                 <img 
-                  src="/lovable-uploads/55ccce33-98a1-45d2-9e9e-7b446a02a417.png" 
-                  alt="Think With Me" 
+                  src="/lovable-uploads/c31e3133-a65e-4f5d-a888-939a07968005.png" 
+                  alt="Simulacra" 
                   className="h-8 w-8"
                 />
-                <h1 className="font-semibold text-lg">Think With Me</h1>
+                <h1 className="font-semibold text-lg">Simulacra</h1>
               </div>
             )}
             {isCollapsed && (
               <img 
-                src="/lovable-uploads/55ccce33-98a1-45d2-9e9e-7b446a02a417.png" 
-                alt="Think With Me" 
+                src="/lovable-uploads/c31e3133-a65e-4f5d-a888-939a07968005.png" 
+                alt="Simulacra" 
                 className="h-8 w-8 mx-auto"
               />
             )}
@@ -143,11 +142,11 @@ const SidebarContent = ({
         <>
           <div className="p-4 flex items-center gap-3">
             <img 
-              src="/lovable-uploads/55ccce33-98a1-45d2-9e9e-7b446a02a417.png" 
-              alt="Think With Me" 
+              src="/lovable-uploads/c31e3133-a65e-4f5d-a888-939a07968005.png" 
+              alt="Simulacra" 
               className="h-8 w-8"
             />
-            <h1 className="font-semibold text-lg">Think With Me</h1>
+            <h1 className="font-semibold text-lg">Simulacra</h1>
           </div>
           <Separator />
         </>
