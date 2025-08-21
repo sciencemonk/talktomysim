@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { Navigate } from "react-router-dom";
@@ -89,10 +90,6 @@ const Home = () => {
         setSelectedPublicAdvisorId(null);
         setSelectedAdvisor(null);
       }
-      toast({
-        title: "Advisor Removed",
-        description: "Advisor has been removed from your list.",
-      });
     } catch (error) {
       console.error("Failed to remove advisor:", error);
       toast({
