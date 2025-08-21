@@ -14,12 +14,19 @@ export const useAllAdvisors = () => {
         setIsLoading(true);
         setError(null);
 
-        // Fetch only from advisors table
+        console.log('Fetching advisors from Supabase...');
+
+        // Fetch from advisors table
         const { data: advisors, error: advisorsError } = await supabase
           .from('advisors')
-          .select('*');
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        console.log('Supabase response - advisors:', advisors);
+        console.log('Supabase response - error:', advisorsError);
 
         if (advisorsError) {
+          console.error('Supabase error:', advisorsError);
           throw advisorsError;
         }
 
@@ -50,6 +57,7 @@ export const useAllAdvisors = () => {
           voiceTraits: []
         }));
 
+        console.log('Transformed advisors:', transformedAdvisors);
         setAgents(transformedAdvisors);
 
       } catch (err: any) {

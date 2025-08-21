@@ -7,6 +7,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { AgentType } from "@/types/agent";
 import { useAllAdvisors } from "@/hooks/useAllAdvisors";
 import { useAuth } from "@/hooks/useAuth";
+import { useEffect } from "react";
+import { seedAdvisorsIfEmpty } from "@/services/advisorSeedService";
 
 interface AdvisorDirectoryProps {
   onSelectAdvisor: (advisorId: string, advisor?: AgentType) => void;
@@ -20,6 +22,11 @@ const AdvisorDirectory = ({ onSelectAdvisor, onAuthRequired }: AdvisorDirectoryP
   console.log('AdvisorDirectory - advisors:', advisors);
   console.log('AdvisorDirectory - isLoading:', isLoading);
   console.log('AdvisorDirectory - error:', error);
+
+  // Seed advisors if none exist
+  useEffect(() => {
+    seedAdvisorsIfEmpty();
+  }, []);
 
   const handleStartChat = (advisor: AgentType) => {
     if (!user) {
