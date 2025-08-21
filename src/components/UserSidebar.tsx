@@ -1,3 +1,4 @@
+
 import { useLocation } from "react-router-dom";
 import { 
   Bot, 
@@ -123,10 +124,10 @@ const SidebarContent = ({
               <div className="flex items-center gap-3">
                 <img 
                   src="/lovable-uploads/d1283b59-7cfa-45f5-b151-4c32b24f3621.png" 
-                  alt="Simulacra" 
+                  alt="Sim" 
                   className="h-8 w-8 object-contain"
                 />
-                <h1 className="font-semibold text-lg">Simulacra</h1>
+                <h1 className="font-semibold text-lg">Sim</h1>
               </div>
             )}
             {isCollapsed && (
@@ -145,7 +146,7 @@ const SidebarContent = ({
                 ) : (
                   <img 
                     src="/lovable-uploads/d1283b59-7cfa-45f5-b151-4c32b24f3621.png" 
-                    alt="Simulacra" 
+                    alt="Sim" 
                     className="h-8 w-8 object-contain"
                   />
                 )}
@@ -176,10 +177,10 @@ const SidebarContent = ({
           <div className="p-4 flex items-center gap-3">
             <img 
               src="/lovable-uploads/d1283b59-7cfa-45f5-b151-4c32b24f3621.png" 
-              alt="Simulacra" 
+              alt="Sim" 
               className="h-8 w-8 object-contain"
             />
-            <h1 className="font-semibold text-lg">Simulacra</h1>
+            <h1 className="font-semibold text-lg">Sim</h1>
           </div>
           <Separator />
         </>
@@ -329,7 +330,7 @@ const SidebarContent = ({
           {(!isCollapsed || !onToggleCollapse) && (
             <>
               <div className="text-center space-y-2">
-                <p className="text-lg font-medium">Welcome to Simulacra</p>
+                <p className="text-lg font-medium">Welcome to Sim</p>
                 <p className="text-sm text-muted-foreground">
                   Speak with your advisors
                 </p>
