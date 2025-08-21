@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { AgentType } from '@/types/agent';
 import { supabase } from '@/integrations/supabase/client';
@@ -119,10 +118,11 @@ export const useRealtimeChat = ({ agent }: UseRealtimeChatProps) => {
 
       console.log('Got ephemeral token');
 
-      // Connect to OpenAI WebSocket with the ephemeral token
+      // Connect to OpenAI WebSocket with the ephemeral token and proper headers
       const ws = new WebSocket(`wss://api.openai.com/v1/realtime?model=gpt-4o-realtime-preview-2024-12-17`, [
         'realtime',
         `openai-insecure-api-key.${tokenData.client_secret.value}`,
+        'openai-beta.realtime-v1'
       ]);
 
       ws.onopen = () => {
