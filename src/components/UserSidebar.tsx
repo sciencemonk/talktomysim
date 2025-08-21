@@ -23,7 +23,7 @@ import {
 } from "lucide-react";
 import { AgentType } from "@/types/agent";
 import UserSettingsDropdown from "./UserSettingsDropdown";
-import AdvisorForm from "./AdvisorForm";
+import PersonalSimForm from "./PersonalSimForm";
 
 interface UserSidebarProps {
   selectedAgent?: AgentType | null;
@@ -51,12 +51,19 @@ export const SidebarContent = ({
   const location = useLocation();
   const [conversationsExpanded, setConversationsExpanded] = useState(true);
   const [isCreateSimOpen, setIsCreateSimOpen] = useState(false);
+  const [editingSim, setEditingSim] = useState<AgentType | null>(null);
 
   const isOnHomePage = location.pathname === '/';
 
   const handleCreateSimSuccess = () => {
     setIsCreateSimOpen(false);
+    setEditingSim(null);
     refetch();
+  };
+
+  const handleEditSim = (sim: AgentType) => {
+    setEditingSim(sim);
+    setIsCreateSimOpen(true);
   };
 
   return (
@@ -128,7 +135,7 @@ export const SidebarContent = ({
                               variant="ghost" 
                               size="sm" 
                               className="w-full justify-start gap-2 text-xs h-7"
-                              onClick={() => setIsCreateSimOpen(true)}
+                              onClick={() => handleEditSim(agent)}
                             >
                               <Settings className="h-3 w-3" />
                               Edit Sim
@@ -236,11 +243,11 @@ export const SidebarContent = ({
         </div>
       )}
 
-      {/* Create Sim Modal */}
-      <AdvisorForm
+      {/* Create/Edit Sim Modal */}
+      <PersonalSimForm
         open={isCreateSimOpen}
         onOpenChange={setIsCreateSimOpen}
-        advisor={null}
+        sim={editingSim}
         onSuccess={handleCreateSimSuccess}
       />
     </div>
