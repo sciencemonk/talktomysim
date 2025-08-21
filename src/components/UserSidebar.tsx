@@ -411,41 +411,13 @@ const SidebarContent = ({
 const UserSidebar = (props: UserSidebarProps) => {
   const isMobile = useIsMobile();
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   const toggleSidebar = () => {
     setIsCollapsed(!isCollapsed);
   };
 
   if (isMobile) {
-    return (
-      <>
-        {/* Mobile Trigger Button - Fixed Position at Bottom Left */}
-        <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
-          <DrawerTrigger asChild>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="fixed bottom-6 left-4 z-50 h-12 w-12 p-0 bg-background border shadow-lg rounded-full"
-            >
-              <img 
-                src="/lovable-uploads/bedcfe0a-1a02-47a0-b867-775e5713580a.png" 
-                alt="Menu" 
-                className="h-6 w-6"
-              />
-            </Button>
-          </DrawerTrigger>
-          <DrawerContent className="h-[85vh] max-h-[85vh]">
-            <div className="flex flex-col h-full">
-              <SidebarContent 
-                {...props} 
-                onClose={() => setIsDrawerOpen(false)} 
-              />
-            </div>
-          </DrawerContent>
-        </Drawer>
-      </>
-    );
+    return null; // Mobile sidebar is now handled in AdvisorDirectory
   }
 
   return (
