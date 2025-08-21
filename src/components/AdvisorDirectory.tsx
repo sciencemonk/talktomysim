@@ -196,16 +196,9 @@ const AdvisorDirectory = ({ onSelectAdvisor, onAuthRequired }: AdvisorDirectoryP
                     </div>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-sm text-muted-foreground mb-4 line-clamp-3">
+                    <p className="text-sm text-muted-foreground line-clamp-3">
                       {advisor.description}
                     </p>
-                    <Button 
-                      onClick={() => handleAdvisorSelect(advisor)}
-                      variant="outline"
-                      className="w-full bg-white text-black border-black hover:bg-gray-50"
-                    >
-                      Start Conversation
-                    </Button>
                   </CardContent>
                 </Card>
               ))}
