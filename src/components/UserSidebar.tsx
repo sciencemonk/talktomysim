@@ -1,4 +1,3 @@
-
 import { useLocation } from "react-router-dom";
 import { 
   Bot, 
@@ -10,7 +9,11 @@ import {
   Star,
   MoreHorizontal,
   X,
-  LogIn
+  LogIn,
+  Share2,
+  Edit,
+  Archive,
+  Trash2
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useAgents } from "@/hooks/useAgents";
@@ -33,6 +36,13 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuSeparator,
+  ContextMenuTrigger,
+} from "@/components/ui/context-menu";
 import { AgentType } from "@/types/agent";
 import AuthModal from "./AuthModal";
 
@@ -78,7 +88,6 @@ const SidebarContent = ({
   );
   
   const [hoveredAdvisorId, setHoveredAdvisorId] = useState<string | null>(null);
-  const [showRemoveForAdvisor, setShowRemoveForAdvisor] = useState<string | null>(null);
   const [isLogoHovered, setIsLogoHovered] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
 
@@ -110,19 +119,9 @@ const SidebarContent = ({
     onClose?.(); // Close mobile drawer
   };
 
-  const handleAdvisorRemove = async (advisorId: string, event: React.MouseEvent) => {
-    event.stopPropagation();
+  const handleAdvisorRemove = async (advisorId: string) => {
     await handleRemoveAdvisor(advisorId);
-    setShowRemoveForAdvisor(null);
     setHoveredAdvisorId(null);
-  };
-
-  const handleAdvisorClick = (advisorId: string) => {
-    if (showRemoveForAdvisor === advisorId) {
-      setShowRemoveForAdvisor(null);
-    } else {
-      handlePublicAdvisorSelect(advisorId);
-    }
   };
 
   return (
@@ -252,80 +251,102 @@ const SidebarContent = ({
               {selectedPublicAdvisors.map((advisor) => (
                 <div
                   key={advisor.id}
-                  className="relative group"
+                  className="relative"
                   onMouseEnter={() => setHoveredAdvisorId(advisor.id)}
-                  onMouseLeave={() => {
-                    if (showRemoveForAdvisor !== advisor.id) {
-                      setHoveredAdvisorId(null);
-                    }
-                  }}
+                  onMouseLeave={() => setHoveredAdvisorId(null)}
                 >
-                  <Button
-                    onClick={() => handleAdvisorClick(advisor.id)}
-                    variant="ghost"
-                    disabled={removingAdvisorId === advisor.id}
-                    className={cn(
-                      "flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors w-full justify-start h-auto min-h-[40px] relative",
-                      selectedPublicAdvisorId === advisor.id && showRemoveForAdvisor !== advisor.id
-                        ? "bg-primary/10 text-primary font-medium hover:bg-primary/15"
-                        : "text-muted-foreground hover:bg-muted hover:text-foreground",
-                      showRemoveForAdvisor === advisor.id && "bg-red-50 hover:bg-red-100"
-                    )}
-                  >
-                    <Avatar className="h-6 w-6 flex-shrink-0">
-                      <AvatarImage src={advisor.avatar} alt={advisor.name} />
-                      <AvatarFallback className="bg-primary/10 text-primary text-xs">
-                        <Star className="h-3 w-3" />
-                      </AvatarFallback>
-                    </Avatar>
-                    {(!isCollapsed || !onToggleCollapse) && (
-                      <span className="truncate text-left flex-1">
-                        {removingAdvisorId === advisor.id ? "Removing..." : advisor.name}
-                      </span>
-                    )}
-                    
-                    {/* Three dots on hover */}
-                    {hoveredAdvisorId === advisor.id && !showRemoveForAdvisor && !removingAdvisorId && (
+                  <ContextMenu>
+                    <ContextMenuTrigger asChild>
                       <Button
+                        onClick={() => handlePublicAdvisorSelect(advisor.id)}
                         variant="ghost"
-                        size="sm"
-                        className="h-6 w-6 p-0 opacity-70 hover:opacity-100"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setShowRemoveForAdvisor(advisor.id);
-                        }}
-                      >
-                        <MoreHorizontal className="h-3 w-3" />
-                      </Button>
-                    )}
-                  </Button>
-
-                  {/* Remove button */}
-                  {showRemoveForAdvisor === advisor.id && (
-                    <div className="absolute right-2 top-1/2 transform -translate-y-1/2 flex gap-1">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-6 px-2 text-xs text-red-600 hover:text-red-700 hover:bg-red-100"
-                        onClick={(e) => handleAdvisorRemove(advisor.id, e)}
                         disabled={removingAdvisorId === advisor.id}
+                        className={cn(
+                          "flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors w-full justify-start h-auto min-h-[40px] relative",
+                          selectedPublicAdvisorId === advisor.id
+                            ? "bg-primary/10 text-primary font-medium hover:bg-primary/15"
+                            : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                        )}
                       >
-                        Remove
+                        <Avatar className="h-6 w-6 flex-shrink-0">
+                          <AvatarImage src={advisor.avatar} alt={advisor.name} />
+                          <AvatarFallback className="bg-primary/10 text-primary text-xs">
+                            <Star className="h-3 w-3" />
+                          </AvatarFallback>
+                        </Avatar>
+                        {(!isCollapsed || !onToggleCollapse) && (
+                          <span className="truncate text-left flex-1">
+                            {removingAdvisorId === advisor.id ? "Removing..." : advisor.name}
+                          </span>
+                        )}
+                        
+                        {/* Three dots on hover - Desktop only */}
+                        {hoveredAdvisorId === advisor.id && !removingAdvisorId && (!isCollapsed || !onToggleCollapse) && (
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-6 w-6 p-0 opacity-70 hover:opacity-100"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                }}
+                              >
+                                <MoreHorizontal className="h-3 w-3" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="w-48">
+                              <DropdownMenuItem>
+                                <Share2 className="mr-2 h-4 w-4" />
+                                Share
+                              </DropdownMenuItem>
+                              <DropdownMenuItem>
+                                <Edit className="mr-2 h-4 w-4" />
+                                Rename
+                              </DropdownMenuItem>
+                              <DropdownMenuItem>
+                                <Archive className="mr-2 h-4 w-4" />
+                                Archive
+                              </DropdownMenuItem>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem 
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleAdvisorRemove(advisor.id);
+                                }}
+                                className="text-red-600 hover:text-red-700"
+                              >
+                                <Trash2 className="mr-2 h-4 w-4" />
+                                Delete
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        )}
                       </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-6 w-6 p-0"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setShowRemoveForAdvisor(null);
-                          setHoveredAdvisorId(null);
-                        }}
+                    </ContextMenuTrigger>
+                    <ContextMenuContent className="w-48">
+                      <ContextMenuItem>
+                        <Share2 className="mr-2 h-4 w-4" />
+                        Share
+                      </ContextMenuItem>
+                      <ContextMenuItem>
+                        <Edit className="mr-2 h-4 w-4" />
+                        Rename
+                      </ContextMenuItem>
+                      <ContextMenuItem>
+                        <Archive className="mr-2 h-4 w-4" />
+                        Archive
+                      </ContextMenuItem>
+                      <ContextMenuSeparator />
+                      <ContextMenuItem 
+                        onClick={() => handleAdvisorRemove(advisor.id)}
+                        className="text-red-600 hover:text-red-700"
                       >
-                        <X className="h-3 w-3" />
-                      </Button>
-                    </div>
-                  )}
+                        <Trash2 className="mr-2 h-4 w-4" />
+                        Delete
+                      </ContextMenuItem>
+                    </ContextMenuContent>
+                  </ContextMenu>
                 </div>
               ))}
             </div>
