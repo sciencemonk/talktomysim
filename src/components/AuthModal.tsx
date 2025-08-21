@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
@@ -103,10 +104,17 @@ const AuthModal = ({ open, onOpenChange }: AuthModalProps) => {
         <DialogHeader>
           <DialogTitle>Welcome to Think With Me</DialogTitle>
         </DialogHeader>
+        <div className="flex justify-center mb-4">
+          <img 
+            src="/lovable-uploads/a5a8957b-48cb-40f5-9097-0ab747b74077.png" 
+            alt="Think With Me" 
+            className="w-16 h-16"
+          />
+        </div>
         <Card className="border-0 shadow-none">
           <CardHeader className="text-center px-0 pt-0">
             <CardDescription>
-              {isSignUp ? 'Create an account to get started' : 'Sign in to create and manage your AI tutors'}
+              {isSignUp ? 'Create an account to get started' : 'Sign in to speak with your advisors'}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4 px-0">
