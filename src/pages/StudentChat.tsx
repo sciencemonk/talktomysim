@@ -1,4 +1,3 @@
-
 import { useParams } from "react-router-dom";
 import { usePublicAgent } from "@/hooks/usePublicAgent";
 import { useRealtimeChat } from "@/hooks/useRealtimeChat";
@@ -15,6 +14,7 @@ import {
 } from "@/components/ui/drawer";
 import { useState } from "react";
 import { ShareButton } from "@/components/ShareButton";
+import { InfoModal } from "@/components/InfoModal";
 
 const StudentChat = () => {
   const { agentId } = useParams<{ agentId: string }>();
@@ -133,13 +133,14 @@ const StudentChat = () => {
             </div>
           </div>
           
-          {/* Only ShareButton - no edit button */}
+          {/* ShareButton and InfoModal */}
           {!isMobile && (
-            <div className="flex-shrink-0">
+            <div className="flex items-center gap-2 flex-shrink-0">
               <ShareButton 
                 tutorId={agent.id}
                 tutorName={agent.name}
               />
+              <InfoModal />
             </div>
           )}
         </div>
