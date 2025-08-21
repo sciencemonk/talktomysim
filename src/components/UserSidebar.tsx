@@ -1,3 +1,4 @@
+
 import { useLocation } from "react-router-dom";
 import { 
   Bot, 
@@ -133,9 +134,9 @@ const SidebarContent = ({
             {!isCollapsed && (
               <div className="flex items-center gap-3">
                 <img 
-                  src="/lovable-uploads/c31e3133-a65e-4f5d-a888-939a07968005.png" 
+                  src="/lovable-uploads/d1283b59-7cfa-45f5-b151-4c32b24f3621.png" 
                   alt="Simulacra" 
-                  className="h-8 w-8"
+                  className="h-8 w-8 object-contain"
                 />
                 <h1 className="font-semibold text-lg">Simulacra</h1>
               </div>
@@ -155,9 +156,9 @@ const SidebarContent = ({
                   />
                 ) : (
                   <img 
-                    src="/lovable-uploads/c31e3133-a65e-4f5d-a888-939a07968005.png" 
+                    src="/lovable-uploads/d1283b59-7cfa-45f5-b151-4c32b24f3621.png" 
                     alt="Simulacra" 
-                    className="h-8 w-8"
+                    className="h-8 w-8 object-contain"
                   />
                 )}
               </button>
@@ -186,9 +187,9 @@ const SidebarContent = ({
         <>
           <div className="p-4 flex items-center gap-3">
             <img 
-              src="/lovable-uploads/c31e3133-a65e-4f5d-a888-939a07968005.png" 
+              src="/lovable-uploads/d1283b59-7cfa-45f5-b151-4c32b24f3621.png" 
               alt="Simulacra" 
-              className="h-8 w-8"
+              className="h-8 w-8 object-contain"
             />
             <h1 className="font-semibold text-lg">Simulacra</h1>
           </div>
