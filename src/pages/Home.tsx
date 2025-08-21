@@ -9,9 +9,9 @@ import { AgentType } from "@/types/agent";
 
 const Home = () => {
   const { user, loading } = useAuth();
-  const [selectedAdvisor, setSelectedAdvisor] = useState<{ id: string; advisor?: AgentType } | null>(null);
+  const [selectedAdvisor, setSelectedAdvisor] = useState<AgentType | null>(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
-  const [pendingAdvisor, setPendingAdvisor] = useState<{ id: string; advisor?: AgentType } | null>(null);
+  const [pendingAdvisor, setPendingAdvisor] = useState<AgentType | null>(null);
 
   // Handle auth modal close
   const handleAuthModalClose = (open: boolean) => {
@@ -28,15 +28,17 @@ const Home = () => {
 
   // Handle advisor selection
   const handleAdvisorSelect = (advisorId: string, advisor?: AgentType) => {
-    const advisorData = { id: advisorId, advisor };
-    
     if (!user) {
       // Store the advisor selection and show auth modal
-      setPendingAdvisor(advisorData);
+      if (advisor) {
+        setPendingAdvisor(advisor);
+      }
       setShowAuthModal(true);
     } else {
       // User is signed in, proceed directly
-      setSelectedAdvisor(advisorData);
+      if (advisor) {
+        setSelectedAdvisor(advisor);
+      }
     }
   };
 
@@ -61,8 +63,7 @@ const Home = () => {
     <div className="flex h-screen bg-background">
       {selectedAdvisor ? (
         <ChatInterface
-          advisorId={selectedAdvisor.id}
-          advisor={selectedAdvisor.advisor}
+          agent={selectedAdvisor}
           onBack={() => setSelectedAdvisor(null)}
         />
       ) : (
