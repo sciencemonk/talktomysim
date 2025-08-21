@@ -8,7 +8,7 @@ export const useAdvisorRemoval = (
   selectedPublicAdvisors: AgentType[],
   setSelectedPublicAdvisors: (advisors: AgentType[]) => void,
   selectedPublicAdvisorId: string | null,
-  onSelectPublicAdvisor: (advisorId: string | null) => void,
+  onSelectPublicAdvisor: (advisorId: string | null, advisor?: AgentType) => void,
   onShowAdvisorDirectory?: () => void
 ) => {
   const [isRemoving, setIsRemoving] = useState(false);

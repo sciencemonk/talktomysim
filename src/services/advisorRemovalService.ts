@@ -2,7 +2,7 @@
 import { supabase } from '@/integrations/supabase/client';
 
 export const advisorRemovalService = {
-  removeAdvisor: async (advisorId: string) => {
+  removeAdvisor: async (advisorId: string): Promise<boolean> => {
     try {
       const { data: { user }, error: authError } = await supabase.auth.getUser();
 
@@ -12,15 +12,12 @@ export const advisorRemovalService = {
 
       console.log('Removing advisor:', advisorId, 'for user:', user.id);
 
-      // Get conversations to delete - using a simpler query structure
-      const conversationsResult = await supabase
+      // Get conversations to delete - using explicit typing to avoid deep type inference
+      const { data: conversations, error: conversationsError } = await supabase
         .from('conversations')
         .select('id')
         .eq('user_id', user.id)
         .eq('advisor_id', advisorId);
-
-      const conversations = conversationsResult.data;
-      const conversationsError = conversationsResult.error;
 
       if (conversationsError) {
         console.error('Error fetching conversations:', conversationsError);
@@ -29,28 +26,28 @@ export const advisorRemovalService = {
 
       if (conversations && conversations.length > 0) {
         // Delete all messages for these conversations
-        const conversationIds = conversations.map((c: { id: string }) => c.id);
+        const conversationIds = conversations.map(c => c.id);
         
-        const messagesResult = await supabase
+        const { error: messagesError } = await supabase
           .from('messages')
           .delete()
           .in('conversation_id', conversationIds);
 
-        if (messagesResult.error) {
-          console.error('Error deleting messages:', messagesResult.error);
-          throw messagesResult.error;
+        if (messagesError) {
+          console.error('Error deleting messages:', messagesError);
+          throw messagesError;
         }
 
         // Delete the conversations
-        const deleteConversationsResult = await supabase
+        const { error: deleteConversationsError } = await supabase
           .from('conversations')
           .delete()
           .eq('user_id', user.id)
           .eq('advisor_id', advisorId);
 
-        if (deleteConversationsResult.error) {
-          console.error('Error deleting conversations:', deleteConversationsResult.error);
-          throw deleteConversationsResult.error;
+        if (deleteConversationsError) {
+          console.error('Error deleting conversations:', deleteConversationsError);
+          throw deleteConversationsError;
         }
 
         console.log(`Deleted ${conversations.length} conversations and their messages for advisor ${advisorId}`);
@@ -60,7 +57,7 @@ export const advisorRemovalService = {
       return true;
     } catch (error) {
       console.error('Error removing advisor:', error);
-      throw error;
+      return false;
     }
   }
 };
