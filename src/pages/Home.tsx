@@ -1,5 +1,5 @@
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import UserSidebar from "@/components/UserSidebar";
 import ChatInterface from "@/components/ChatInterface";
@@ -35,6 +35,43 @@ const Home = () => {
 
   // Load advisor data when selected
   const { advisor: publicAdvisor, isLoading: advisorLoading, error: advisorError } = useAdvisorDetail(selectedAdvisorId);
+
+  // Load persisted advisors from localStorage on component mount
+  useEffect(() => {
+    if (user) {
+      const savedAdvisors = localStorage.getItem(`selectedAdvisors_${user.id}`);
+      const savedSelectedAdvisorId = localStorage.getItem(`selectedAdvisorId_${user.id}`);
+      
+      if (savedAdvisors) {
+        try {
+          const parsedAdvisors = JSON.parse(savedAdvisors);
+          setSelectedAdvisors(parsedAdvisors);
+        } catch (error) {
+          console.error('Error parsing saved advisors:', error);
+        }
+      }
+      
+      if (savedSelectedAdvisorId) {
+        setSelectedAdvisorId(savedSelectedAdvisorId);
+      }
+    }
+  }, [user]);
+
+  // Save advisors to localStorage whenever they change
+  useEffect(() => {
+    if (user && selectedAdvisors.length > 0) {
+      localStorage.setItem(`selectedAdvisors_${user.id}`, JSON.stringify(selectedAdvisors));
+    }
+  }, [selectedAdvisors, user]);
+
+  // Save selected advisor ID to localStorage whenever it changes
+  useEffect(() => {
+    if (user && selectedAdvisorId) {
+      localStorage.setItem(`selectedAdvisorId_${user.id}`, selectedAdvisorId);
+    } else if (user && !selectedAdvisorId) {
+      localStorage.removeItem(`selectedAdvisorId_${user.id}`);
+    }
+  }, [selectedAdvisorId, user]);
 
   const handleSelectAgent = useCallback((agent: AgentType) => {
     if (!user) {
@@ -93,16 +130,29 @@ const Home = () => {
     // Remove from selected advisors list
     setSelectedAdvisors(prev => prev.filter(a => a.id !== advisorId));
     
+    // Remove from localStorage
+    if (user) {
+      const updatedAdvisors = selectedAdvisors.filter(a => a.id !== advisorId);
+      if (updatedAdvisors.length > 0) {
+        localStorage.setItem(`selectedAdvisors_${user.id}`, JSON.stringify(updatedAdvisors));
+      } else {
+        localStorage.removeItem(`selectedAdvisors_${user.id}`);
+      }
+    }
+    
     // If this was the currently selected advisor, clear it
     if (selectedAdvisorId === advisorId) {
       setSelectedAdvisorId(null);
+      if (user) {
+        localStorage.removeItem(`selectedAdvisorId_${user.id}`);
+      }
       
       // If no other agents available, show advisor directory
       if (agents.length === 0 && selectedAdvisors.length <= 1) {
         setCurrentView('advisor-directory');
       }
     }
-  }, [selectedAdvisorId, agents.length, selectedAdvisors.length]);
+  }, [selectedAdvisorId, agents.length, selectedAdvisors, user]);
 
   // Set first agent as selected if none selected and we're in chat view and user is authenticated
   if (user && !selectedAgent && !selectedAdvisorId && agents.length > 0 && currentView === 'chat') {

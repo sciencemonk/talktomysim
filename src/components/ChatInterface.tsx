@@ -1,4 +1,3 @@
-
 import { useState, useRef, useEffect } from "react";
 import { useChatHistory } from "@/hooks/useChatHistory";
 import { TextInput } from "@/components/TextInput";
@@ -58,6 +57,23 @@ const ChatInterface = ({ agent, onShowAgentDetails, onAgentUpdate }: ChatInterfa
       setCurrentAgent(agent);
     }
   }, [agent.id, currentAgent.id, agent.name, currentAgent.name]);
+
+  // Send initial greeting when starting new chat or returning to existing chat
+  useEffect(() => {
+    if (!chatHistory.isLoading && textChat.connectionStatus === 'connected') {
+      const hasMessages = chatHistory.messages.length > 0;
+      
+      if (!hasMessages) {
+        // New chat - send initial greeting
+        const initialGreeting = "Hello! I'm here and ready to help. What's on your mind today, or what would you like to discuss?";
+        textChat.sendMessage(initialGreeting);
+      } else {
+        // Existing chat - send return greeting
+        const returnGreeting = "Welcome back! What would you like to explore together today?";
+        textChat.sendMessage(returnGreeting);
+      }
+    }
+  }, [chatHistory.isLoading, textChat.connectionStatus, chatHistory.messages.length]);
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
@@ -187,18 +203,20 @@ const ChatInterface = ({ agent, onShowAgentDetails, onAgentUpdate }: ChatInterfa
       <div className="flex-1 overflow-y-auto pb-4">
         {chatHistory.messages.length === 0 ? (
           <div className="h-full flex flex-col items-center justify-center px-6">
-            <div className="w-20 h-20 bg-muted rounded-xl flex items-center justify-center mb-6">
-              <Bot className="h-10 w-10 text-muted-foreground" />
+            <div className="text-center">
+              {textChat.connectionStatus === 'connecting' && (
+                <>
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+                  <p className="text-xl text-muted-foreground">Getting ready to chat...</p>
+                </>
+              )}
+              {textChat.connectionStatus === 'error' && (
+                <p className="text-xl text-muted-foreground">Connection error - please refresh</p>
+              )}
+              {textChat.connectionStatus === 'connected' && (
+                <p className="text-xl text-muted-foreground">Starting conversation...</p>
+              )}
             </div>
-            <h2 className="text-3xl font-semibold mb-3">How can I help you today?</h2>
-            <p className="text-xl text-muted-foreground text-center max-w-md leading-relaxed">
-              {textChat.connectionStatus === 'connecting' 
-                ? 'Getting ready to chat...' 
-                : textChat.connectionStatus === 'error'
-                ? 'Connection error - please refresh'
-                : `I'm ${currentAgent.name}, ready to help you learn and explore ideas together!`
-              }
-            </p>
           </div>
         ) : (
           <div className="max-w-4xl mx-auto px-6 py-8 w-full">
