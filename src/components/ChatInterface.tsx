@@ -1,6 +1,6 @@
 
 import { useState, useEffect, useRef } from "react";
-import { ArrowLeft, Bot, Menu } from "lucide-react";
+import { Bot, Menu } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { TextInput } from "@/components/TextInput";
@@ -89,12 +89,6 @@ const ChatInterface = ({ agent, onBack }: ChatInterfaceProps) => {
                 {currentAgent.subject || currentAgent.type}
               </p>
             </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <Button variant="ghost" size="sm" onClick={onBack}>
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back
-            </Button>
           </div>
         </div>
       </div>
