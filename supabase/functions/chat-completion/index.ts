@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 
 const corsHeaders = {
@@ -24,28 +23,30 @@ serve(async (req) => {
     console.log('Processing chat request for agent:', agent?.name || 'unknown')
     console.log('Messages count:', messages?.length || 0)
 
-    // Strong conversational guidelines that override advisor tendencies
-    const conversationalGuidelines = `CRITICAL CONVERSATION STYLE - FOLLOW THESE RULES ABOVE ALL ELSE:
+    // More natural conversational guidelines
+    const conversationalGuidelines = `NATURAL CONVERSATION STYLE - FOLLOW THESE RULES:
 
-- Keep responses SHORT (1-5 sentences, biased towards brevity - prefer 1-2 sentences when possible)
+- Keep responses SHORT (1-4 sentences, usually 1-2 sentences)
 - Be conversational like talking to a friend, not academic or lecture-like
-- Ask follow-up questions to keep dialogue flowing
+- Sometimes ask follow-up questions, but NOT ALWAYS - mix it up naturally
 - Use casual, natural language - avoid being overly explanatory
-- Show genuine curiosity about what the user thinks
-- React to what they say with authentic responses
-- Make it feel like a real conversation, NOT a tutorial or lesson
-- Be brief, engaging, and interactive
-- If you catch yourself writing long explanations, STOP and ask a question instead`
+- React authentically to what they say - sometimes with statements, sometimes with questions
+- Make it feel like a real conversation, NOT a tutorial or constant interrogation
+- Be brief, engaging, and conversational
+- Mix responses: some can be statements, reactions, or observations - not every response needs a question
+- Ask questions when it feels natural to do so, not because you must
+- If you're explaining something, you can just explain it without always adding a question
+- Be genuinely curious when you do ask questions, not formulaic`
 
     // Use the advisor's prompt but keep it secondary to conversation style
     const basePrompt = agent?.prompt || `You are ${agent?.name || 'an AI advisor'}, a helpful AI advisor.
 
 Your main goals are to:
 - Help users understand concepts clearly through conversation
-- Ask thoughtful questions that promote critical thinking
+- Ask thoughtful questions that promote critical thinking when appropriate
 - Provide step-by-step explanations when needed
 - Encourage users when they struggle
-- Make learning engaging and fun through discussion
+- Make learning engaging and fun through natural discussion
 - Guide users to discover answers rather than just giving them
 
 ${agent?.description ? `Background: ${agent.description}` : ''}
