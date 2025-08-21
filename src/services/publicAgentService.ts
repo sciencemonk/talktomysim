@@ -18,57 +18,60 @@ const isChannelConfigsRecord = (value: any): value is Record<string, AgentChanne
 };
 
 export const fetchPublicAgentById = async (id: string): Promise<AgentType> => {
-  console.log("Fetching public tutor by ID:", id);
+  console.log("Fetching public advisor by ID:", id);
   
-  const { data: tutor, error } = await supabase
-    .from('tutors')
+  const { data: advisor, error } = await supabase
+    .from('advisors')
     .select('*')
     .eq('id', id)
-    .single();
+    .maybeSingle();
 
   if (error) {
-    console.error("Error fetching public tutor:", error);
-    throw new Error(`Failed to fetch tutor: ${error.message}`);
+    console.error("Error fetching public advisor:", error);
+    throw new Error(`Failed to fetch advisor: ${error.message}`);
   }
 
-  if (!tutor) {
-    throw new Error("Tutor not found");
+  if (!advisor) {
+    throw new Error("Advisor not found");
   }
 
-  console.log("Fetched public tutor:", tutor);
+  console.log("Fetched public advisor:", advisor);
 
-  // Transform the data to match AgentType interface with proper type handling
+  // Transform the advisor data to match AgentType interface
   return {
-    id: tutor.id,
-    name: tutor.name,
-    description: tutor.description || '',
-    type: tutor.type as any,
-    status: tutor.status as any,
-    createdAt: tutor.created_at,
-    updatedAt: tutor.updated_at,
-    model: tutor.model,
-    voice: tutor.voice,
-    voiceProvider: tutor.voice_provider,
-    customVoiceId: tutor.custom_voice_id,
-    voiceTraits: isVoiceTraitArray(tutor.voice_traits) ? tutor.voice_traits : [],
-    interactions: tutor.interactions || 0,
-    studentsSaved: tutor.students_saved || 0,
-    helpfulnessScore: tutor.helpfulness_score || 0,
-    avmScore: tutor.avm_score || 0,
-    csat: tutor.csat || 0,
-    performance: tutor.performance || 0,
-    channels: isStringArray(tutor.channels) ? tutor.channels : [],
-    channelConfigs: isChannelConfigsRecord(tutor.channel_configs) ? tutor.channel_configs : {},
-    isPersonal: tutor.is_personal,
-    phone: tutor.phone,
-    email: tutor.email,
-    avatar: tutor.avatar,
-    purpose: tutor.purpose,
-    prompt: tutor.prompt,
-    subject: tutor.subject,
-    gradeLevel: tutor.grade_level,
-    teachingStyle: tutor.teaching_style,
-    customSubject: tutor.custom_subject,
-    learningObjective: tutor.learning_objective
+    id: advisor.id,
+    name: advisor.name,
+    description: advisor.description || '',
+    type: 'General Tutor' as any, // Default type since advisors don't have this field
+    status: 'active' as any, // Default status
+    createdAt: advisor.created_at,
+    updatedAt: advisor.updated_at,
+    avatar: advisor.avatar_url,
+    prompt: advisor.prompt,
+    title: advisor.title,
+    // Default values for fields that don't exist in advisors table
+    model: 'gpt-4',
+    voice: 'default',
+    voiceProvider: 'openai',
+    customVoiceId: null,
+    voiceTraits: [],
+    interactions: 0,
+    studentsSaved: 0,
+    helpfulnessScore: 0,
+    avmScore: 0,
+    csat: 0,
+    performance: 0,
+    channels: [],
+    channelConfigs: {},
+    isPersonal: false,
+    phone: null,
+    email: null,
+    purpose: null,
+    subject: null,
+    gradeLevel: null,
+    teachingStyle: null,
+    customSubject: null,
+    learningObjective: null,
+    is_featured: advisor.is_featured || false
   };
 };
