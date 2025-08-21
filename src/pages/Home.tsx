@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { Navigate } from "react-router-dom";
@@ -16,7 +15,6 @@ const Home = () => {
   const { toast } = useToast();
   const [selectedAdvisor, setSelectedAdvisor] = useState<AgentType | null>(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
-  const [pendingAdvisor, setPendingAdvisor] = useState<AgentType | null>(null);
   const [selectedAgent, setSelectedAgent] = useState<AgentType | null>(null);
   const [selectedPublicAdvisorId, setSelectedPublicAdvisorId] = useState<string | null>(null);
 

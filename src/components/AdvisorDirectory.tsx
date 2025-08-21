@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useAdvisors } from "@/hooks/useAdvisors";
 import { useAllAdvisors } from "@/hooks/useAllAdvisors";
@@ -35,20 +34,8 @@ const AdvisorDirectory = ({ onSelectAdvisor, onAuthRequired }: AdvisorDirectoryP
   const isMobile = useIsMobile();
 
   const handleAdvisorSelect = async (advisor: AgentType, event?: React.MouseEvent) => {
-    // Check if it's a middle click, ctrl+click, or cmd+click (open in new tab)
-    if (event && (event.ctrlKey || event.metaKey || event.button === 1)) {
-      // Open in new tab
-      window.open(`/tutors/${advisor.id}/chat`, '_blank');
-      return;
-    }
-
-    // Regular click - check if user is logged in for internal navigation
-    if (!user) {
-      onAuthRequired?.();
-      return;
-    }
-
-    onSelectAdvisor(advisor.id, advisor);
+    // Always open the public chat page in a new tab for sim tiles
+    window.open(`/tutors/${advisor.id}/chat`, '_blank');
   };
 
   const handleRemovePublicAdvisor = async (advisorId: string) => {
