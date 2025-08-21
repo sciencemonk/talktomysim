@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useAdvisors } from "@/hooks/useAdvisors";
 import { useAllAdvisors } from "@/hooks/useAllAdvisors";
@@ -124,13 +123,6 @@ const AdvisorDirectory = ({ onSelectAdvisor, onAuthRequired }: AdvisorDirectoryP
       {/* Main Content */}
       <div className="flex-1 overflow-auto">
         <div className="max-w-6xl mx-auto p-6">
-          <div className="text-center mb-8">
-            <h1 className="text-2xl font-bold mb-2">Choose an Advisor</h1>
-            <p className="text-muted-foreground">
-              Select from our curated collection of AI advisors, each with unique expertise and personality
-            </p>
-          </div>
-
           {/* Search and Filters */}
           <div className="flex flex-col sm:flex-row gap-4 mb-6">
             <div className="relative flex-1">
@@ -217,7 +209,8 @@ const AdvisorDirectory = ({ onSelectAdvisor, onAuthRequired }: AdvisorDirectoryP
                     </p>
                     <Button 
                       onClick={() => handleAdvisorSelect(advisor)}
-                      className="w-full group-hover:bg-primary/90 transition-colors"
+                      variant="outline"
+                      className="w-full bg-white text-black border-black hover:bg-gray-50"
                     >
                       Start Conversation
                     </Button>
