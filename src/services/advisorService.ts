@@ -1,5 +1,75 @@
-
 import { supabase } from "@/integrations/supabase/client";
+import { Advisor } from "@/pages/Admin";
+
+export const fetchAdvisors = async (): Promise<Advisor[]> => {
+  console.log("Fetching advisors from database...");
+  
+  const { data: advisors, error } = await supabase
+    .from('advisors')
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error("Error fetching advisors:", error);
+    throw new Error(`Failed to fetch advisors: ${error.message}`);
+  }
+
+  console.log("Fetched advisors:", advisors);
+  return advisors || [];
+};
+
+export const createAdvisor = async (advisorData: Omit<Advisor, 'id' | 'created_at' | 'updated_at'>): Promise<Advisor> => {
+  console.log("Creating advisor:", advisorData);
+  
+  const { data: advisor, error } = await supabase
+    .from('advisors')
+    .insert(advisorData)
+    .select()
+    .single();
+
+  if (error) {
+    console.error("Error creating advisor:", error);
+    throw new Error(`Failed to create advisor: ${error.message}`);
+  }
+
+  console.log("Created advisor:", advisor);
+  return advisor;
+};
+
+export const updateAdvisor = async (id: string, advisorData: Partial<Omit<Advisor, 'id' | 'created_at' | 'updated_at'>>): Promise<Advisor> => {
+  console.log("Updating advisor:", id, advisorData);
+  
+  const { data: advisor, error } = await supabase
+    .from('advisors')
+    .update(advisorData)
+    .eq('id', id)
+    .select()
+    .single();
+
+  if (error) {
+    console.error("Error updating advisor:", error);
+    throw new Error(`Failed to update advisor: ${error.message}`);
+  }
+
+  console.log("Updated advisor:", advisor);
+  return advisor;
+};
+
+export const deleteAdvisor = async (id: string): Promise<void> => {
+  console.log("Deleting advisor:", id);
+  
+  const { error } = await supabase
+    .from('advisors')
+    .delete()
+    .eq('id', id);
+
+  if (error) {
+    console.error("Error deleting advisor:", error);
+    throw new Error(`Failed to delete advisor: ${error.message}`);
+  }
+
+  console.log("Deleted advisor:", id);
+};
 
 export const removeAdvisor = async (advisorId: string) => {
   const { error } = await supabase

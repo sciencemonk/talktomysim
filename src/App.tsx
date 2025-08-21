@@ -10,6 +10,7 @@ import { AuthProvider } from "@/hooks/useAuth";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import Home from "./pages/Home";
+import Admin from "./pages/Admin";
 import PublicTutorDetail from "./pages/PublicTutorDetail";
 import StudentChat from "./pages/StudentChat";
 import NotFound from "./pages/NotFound";
@@ -26,6 +27,9 @@ const App = () => (
           <Routes>
             {/* Main app as default route */}
             <Route path="/" element={<Home />} />
+            
+            {/* Admin route */}
+            <Route path="/admin" element={<Admin />} />
             
             {/* Legacy routes */}
             <Route path="/index" element={<Index />} />

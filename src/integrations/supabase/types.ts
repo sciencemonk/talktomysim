@@ -14,6 +14,48 @@ export type Database = {
   }
   public: {
     Tables: {
+      advisors: {
+        Row: {
+          avatar_url: string | null
+          background_content: string | null
+          category: string | null
+          created_at: string
+          description: string | null
+          id: string
+          knowledge_summary: string | null
+          name: string
+          prompt: string
+          title: string | null
+          updated_at: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          background_content?: string | null
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          knowledge_summary?: string | null
+          name: string
+          prompt: string
+          title?: string | null
+          updated_at?: string
+        }
+        Update: {
+          avatar_url?: string | null
+          background_content?: string | null
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          knowledge_summary?: string | null
+          name?: string
+          prompt?: string
+          title?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       conversations: {
         Row: {
           advisor_id: string | null
