@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 
 const corsHeaders = {
@@ -24,8 +23,21 @@ serve(async (req) => {
     console.log('Processing chat request for agent:', agent?.name || 'unknown')
     console.log('Messages count:', messages?.length || 0)
 
-    // Use the advisor's prompt or create a default one
-    const systemPrompt = agent?.prompt || `You are ${agent?.name || 'an AI advisor'}, a helpful AI advisor.
+    // Strong conversational guidelines that override advisor tendencies
+    const conversationalGuidelines = `CRITICAL CONVERSATION STYLE - FOLLOW THESE RULES ABOVE ALL ELSE:
+
+- Keep responses SHORT (1-3 sentences maximum)
+- Be conversational like talking to a friend, not academic or lecture-like
+- Ask follow-up questions to keep dialogue flowing
+- Use casual, natural language - avoid being overly explanatory
+- Show genuine curiosity about what the user thinks
+- React to what they say with authentic responses
+- Make it feel like a real conversation, NOT a tutorial or lesson
+- Be brief, engaging, and interactive
+- If you catch yourself writing long explanations, STOP and ask a question instead`
+
+    // Use the advisor's prompt but keep it secondary to conversation style
+    const basePrompt = agent?.prompt || `You are ${agent?.name || 'an AI advisor'}, a helpful AI advisor.
 
 Your main goals are to:
 - Help users understand concepts clearly through conversation
@@ -40,20 +52,8 @@ ${agent?.title ? `Title: ${agent.title}` : ''}
 
 Always be patient, supportive, and adapt to each user's learning pace and style. If a user seems confused, ask simpler questions to help them build understanding step by step.`
 
-    // Add general conversational guidelines that apply to all advisors
-    const conversationalGuidelines = `
-
-IMPORTANT CONVERSATIONAL GUIDELINES:
-- Keep your responses conversational and natural, like you're talking to a friend
-- Don't be overly explanatory or academic in tone
-- Ask follow-up questions to keep the dialogue flowing
-- Use casual language and show personality
-- Keep responses concise but engaging
-- React to what the user says with genuine curiosity
-- Make it feel like a real conversation, not a lecture
-- Be responsive to the user's tone and energy level`
-
-    const fullSystemPrompt = systemPrompt + conversationalGuidelines
+    // Put conversational guidelines FIRST so they take priority
+    const fullSystemPrompt = conversationalGuidelines + '\n\n' + basePrompt
 
     // Prepare the messages for OpenAI
     const systemMessage = {
