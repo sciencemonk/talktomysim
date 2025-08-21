@@ -1,4 +1,3 @@
-
 import { useLocation } from "react-router-dom";
 import { 
   Bot, 
@@ -416,9 +415,9 @@ const UserSidebar = (props: UserSidebarProps) => {
     setIsCollapsed(!isCollapsed);
   };
 
-  // On mobile, render just the content without the desktop wrapper
+  // On mobile, return null to completely hide the desktop sidebar
   if (isMobile) {
-    return <SidebarContent {...props} />;
+    return null;
   }
 
   // On desktop, render with the full sidebar wrapper
@@ -436,4 +435,6 @@ const UserSidebar = (props: UserSidebarProps) => {
   );
 };
 
+// Export SidebarContent for use in mobile sheets
+export { SidebarContent };
 export default UserSidebar;
