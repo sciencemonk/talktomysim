@@ -7,15 +7,18 @@ import ChatInterface from "@/components/ChatInterface";
 import AuthModal from "@/components/AuthModal";
 import UserSidebar from "@/components/UserSidebar";
 import { AgentType } from "@/types/agent";
+import { useUserAdvisors } from "@/hooks/useUserAdvisors";
+import { useToast } from "@/hooks/use-toast";
 
 const Home = () => {
   const { user, loading } = useAuth();
+  const { advisorsAsAgents, addAdvisor, removeAdvisor } = useUserAdvisors();
+  const { toast } = useToast();
   const [selectedAdvisor, setSelectedAdvisor] = useState<AgentType | null>(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [pendingAdvisor, setPendingAdvisor] = useState<AgentType | null>(null);
   const [selectedAgent, setSelectedAgent] = useState<AgentType | null>(null);
   const [selectedPublicAdvisorId, setSelectedPublicAdvisorId] = useState<string | null>(null);
-  const [selectedPublicAdvisors, setSelectedPublicAdvisors] = useState<AgentType[]>([]);
 
   // Handle auth modal close
   const handleAuthModalClose = (open: boolean) => {
@@ -31,7 +34,7 @@ const Home = () => {
   };
 
   // Handle advisor selection from directory
-  const handleAdvisorSelect = (advisorId: string, advisor?: AgentType) => {
+  const handleAdvisorSelect = async (advisorId: string, advisor?: AgentType) => {
     if (!user) {
       // Store the advisor selection and show auth modal
       if (advisor) {
@@ -41,7 +44,28 @@ const Home = () => {
     } else {
       // User is signed in, proceed directly
       if (advisor) {
+        // Check if advisor is already in user's list
+        const isAlreadyAdded = advisorsAsAgents.some(a => a.id === advisor.id);
+        
+        if (!isAlreadyAdded) {
+          try {
+            await addAdvisor(advisor);
+            toast({
+              title: "Advisor Added",
+              description: `${advisor.name} has been added to your advisors.`,
+            });
+          } catch (error) {
+            console.error("Failed to add advisor:", error);
+            toast({
+              title: "Error",
+              description: "Failed to add advisor to your list.",
+              variant: "destructive"
+            });
+          }
+        }
+        
         setSelectedAdvisor(advisor);
+        setSelectedPublicAdvisorId(advisor.id);
       }
     }
   };
@@ -62,17 +86,25 @@ const Home = () => {
     setSelectedAgent(null);
   };
 
-  // Handle adding public advisor
-  const handleAddPublicAdvisor = (advisor: AgentType) => {
-    setSelectedPublicAdvisors(prev => [...prev, advisor]);
-  };
-
   // Handle removing public advisor
-  const handleRemovePublicAdvisor = (advisorId: string) => {
-    setSelectedPublicAdvisors(prev => prev.filter(a => a.id !== advisorId));
-    if (selectedPublicAdvisorId === advisorId) {
-      setSelectedPublicAdvisorId(null);
-      setSelectedAdvisor(null);
+  const handleRemovePublicAdvisor = async (advisorId: string) => {
+    try {
+      await removeAdvisor(advisorId);
+      if (selectedPublicAdvisorId === advisorId) {
+        setSelectedPublicAdvisorId(null);
+        setSelectedAdvisor(null);
+      }
+      toast({
+        title: "Advisor Removed",
+        description: "Advisor has been removed from your list.",
+      });
+    } catch (error) {
+      console.error("Failed to remove advisor:", error);
+      toast({
+        title: "Error",
+        description: "Failed to remove advisor.",
+        variant: "destructive"
+      });
     }
   };
 
@@ -86,7 +118,7 @@ const Home = () => {
   // Effect to handle post-authentication advisor selection
   useEffect(() => {
     if (user && pendingAdvisor && !selectedAdvisor) {
-      setSelectedAdvisor(pendingAdvisor);
+      handleAdvisorSelect(pendingAdvisor.id, pendingAdvisor);
       setPendingAdvisor(null);
       setShowAuthModal(false);
     }
@@ -108,7 +140,7 @@ const Home = () => {
       <UserSidebar
         selectedAgent={selectedAgent}
         selectedPublicAdvisorId={selectedPublicAdvisorId}
-        selectedPublicAdvisors={selectedPublicAdvisors}
+        selectedPublicAdvisors={advisorsAsAgents}
         onSelectAgent={handleAgentSelect}
         onSelectPublicAdvisor={handlePublicAdvisorSelect}
         onRemovePublicAdvisor={handleRemovePublicAdvisor}

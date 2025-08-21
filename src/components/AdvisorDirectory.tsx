@@ -8,7 +8,6 @@ import { Search, Users, Star, Sparkles, Menu } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { useToast } from "@/hooks/use-toast";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { SidebarContent } from "@/components/UserSidebar";
 import {
@@ -26,13 +25,11 @@ interface AdvisorDirectoryProps {
 const AdvisorDirectory = ({ onSelectAdvisor, onAuthRequired }: AdvisorDirectoryProps) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
-  const [selectedAdvisors, setSelectedAdvisors] = useState<AgentType[]>([]);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   
   const { user } = useAuth();
   const { advisors, isLoading } = useAdvisors();
   const { agents: allAdvisors, isLoading: isLoadingAll } = useAllAdvisors();
-  const { toast } = useToast();
   const isMobile = useIsMobile();
 
   const categories = [
@@ -47,23 +44,7 @@ const AdvisorDirectory = ({ onSelectAdvisor, onAuthRequired }: AdvisorDirectoryP
       return;
     }
 
-    // Add to selected advisors if not already added
-    const isAlreadySelected = selectedAdvisors.some(a => a.id === advisor.id);
-    
-    if (!isAlreadySelected) {
-      setSelectedAdvisors(prev => [...prev, advisor]);
-      
-      toast({
-        title: "Advisor Added",
-        description: `${advisor.name} has been added to your advisors.`,
-      });
-    }
-    
     onSelectAdvisor(advisor.id, advisor);
-  };
-
-  const handleRemoveAdvisor = (advisorId: string) => {
-    setSelectedAdvisors(prev => prev.filter(a => a.id !== advisorId));
   };
 
   // Filter advisors based on search term and category
@@ -91,14 +72,14 @@ const AdvisorDirectory = ({ onSelectAdvisor, onAuthRequired }: AdvisorDirectoryP
             </SheetTrigger>
             <SheetContent side="left" className="w-80 p-0">
               <SidebarContent
-                selectedPublicAdvisors={selectedAdvisors}
+                selectedPublicAdvisors={[]}
                 onSelectPublicAdvisor={(advisorId, advisor) => {
                   if (advisor) {
                     onSelectAdvisor(advisorId, advisor);
                   }
                   setIsSheetOpen(false);
                 }}
-                onRemovePublicAdvisor={handleRemoveAdvisor}
+                onRemovePublicAdvisor={() => {}}
                 onShowAdvisorDirectory={() => {
                   setIsSheetOpen(false);
                 }}
