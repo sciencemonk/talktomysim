@@ -130,9 +130,6 @@ const AuthModal = ({ open, onOpenChange }: AuthModalProps) => {
             <>
               <div className="text-center space-y-2">
                 <h2 className="text-xl font-semibold">Check your email</h2>
-                <p className="text-sm text-muted-foreground">
-                  We've sent a confirmation link to your email address
-                </p>
               </div>
 
               <div className="w-full space-y-4">
@@ -148,12 +145,6 @@ const AuthModal = ({ open, onOpenChange }: AuthModalProps) => {
                 <div className="text-center">
                   <p className="text-sm text-muted-foreground mb-2">
                     Click the link in your email to activate your account.
-                  </p>
-                </div>
-                
-                <div className="bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
-                    <strong>Didn't receive the email?</strong> Check your spam folder or try signing up again.
                   </p>
                 </div>
               </div>
