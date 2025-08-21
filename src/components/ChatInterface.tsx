@@ -86,7 +86,7 @@ const ChatInterface = ({ agent, onBack }: ChatInterfaceProps) => {
             <div>
               <h1 className="text-xl font-semibold">{currentAgent.name}</h1>
               <p className="text-sm text-muted-foreground">
-                {currentAgent.subject || currentAgent.type}
+                {currentAgent.title || currentAgent.subject || currentAgent.type}
               </p>
             </div>
           </div>

@@ -100,7 +100,7 @@ const StudentChat = () => {
             </Avatar>
             <div>
               <h2 className="font-semibold text-lg">{agent.name}</h2>
-              <p className="text-sm text-muted-foreground">{agent.type} • {agent.subject || 'General'}</p>
+              <p className="text-sm text-muted-foreground">{agent.title || agent.type}</p>
             </div>
           </div>
           
@@ -129,7 +129,7 @@ const StudentChat = () => {
             </Avatar>
             <div>
               <h1 className="font-semibold text-lg">{agent.name}</h1>
-              <p className="text-sm text-muted-foreground">{agent.type} • {agent.subject || 'General'}</p>
+              <p className="text-sm text-muted-foreground">{agent.title || agent.type}</p>
             </div>
           </div>
           
