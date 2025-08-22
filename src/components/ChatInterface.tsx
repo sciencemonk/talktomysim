@@ -7,9 +7,11 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { AgentType } from '@/types/agent';
+import { useSimpleMessageAccumulator } from '@/hooks/useSimpleMessageAccumulator';
 import { useTextChat } from '@/hooks/useTextChat';
 import { useVoiceChat } from '@/hooks/useVoiceChat';
 import { VerificationBadge } from './VerificationBadge';
+import VoiceInterface from './VoiceInterface';
 
 interface ChatInterfaceProps {
   agent: AgentType;
@@ -21,11 +23,27 @@ const ChatInterface = ({ agent, onBack }: ChatInterfaceProps) => {
   const [isVoiceMode, setIsVoiceMode] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   
+  // Use message accumulator for managing chat messages
+  const {
+    messages,
+    addUserMessage,
+    startAiMessage,
+    addAiTextDelta,
+    completeAiMessage
+  } = useSimpleMessageAccumulator();
+
+  // Use text chat hook with proper callback structure
   const { 
-    messages, 
-    isLoading: isTextLoading, 
-    sendMessage: sendTextMessage 
-  } = useTextChat(agent.id);
+    sendMessage: sendTextMessage,
+    connectionStatus,
+    isProcessing: isTextLoading
+  } = useTextChat({
+    agent,
+    onUserMessage: addUserMessage,
+    onAiMessageStart: startAiMessage,
+    onAiTextDelta: addAiTextDelta,
+    onAiMessageComplete: completeAiMessage
+  });
   
   const {
     isConnected,
@@ -69,6 +87,19 @@ const ChatInterface = ({ agent, onBack }: ChatInterfaceProps) => {
 
   return (
     <div className="flex flex-col h-full bg-background">
+      {/* Voice Interface - hidden but handles voice functionality */}
+      {isVoiceMode && (
+        <VoiceInterface
+          agent={agent}
+          onUserMessage={addUserMessage}
+          onAiMessageStart={startAiMessage}
+          onAiTextDelta={addAiTextDelta}
+          onAiMessageComplete={completeAiMessage}
+          onSpeakingChange={() => {}}
+          autoStart={true}
+        />
+      )}
+
       {/* Header */}
       <div className="flex items-center gap-3 p-4 border-b bg-card">
         {onBack && (
