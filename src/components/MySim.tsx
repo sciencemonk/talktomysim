@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -21,8 +20,7 @@ import {
   Save,
   X,
   Share2,
-  Copy,
-  Plus
+  Copy
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
@@ -37,10 +35,9 @@ const MySim = () => {
   const { user } = useAuth();
   const [selectedActivity, setSelectedActivity] = useState<any>(null);
   const [copied, setCopied] = useState(false);
-  const [hasData, setHasData] = useState(false); // This would come from your backend
 
   // Mock data - in a real app, this would come from your backend
-  const simData = hasData ? {
+  const simData = {
     name: "My Personal Sim",
     totalChats: 247,
     totalUsers: 89,
@@ -126,7 +123,7 @@ const MySim = () => {
         ]
       }
     ]
-  } : null;
+  };
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
@@ -171,43 +168,8 @@ const MySim = () => {
     }
   };
 
-  const handleGetStarted = () => {
-    // This would navigate to the sim creation flow
-    toast({
-      title: "Getting Started",
-      description: "Redirecting to sim creation...",
-    });
-  };
-
-  // No data state
-  if (!hasData) {
-    return (
-      <div className="w-full max-w-none mx-0 p-6 space-y-6">
-        <div className="text-center py-12">
-          <div className="mx-auto w-24 h-24 bg-muted rounded-full flex items-center justify-center mb-6">
-            <Plus className="h-8 w-8 text-muted-foreground" />
-          </div>
-          <h2 className="text-2xl font-semibold mb-3">No Sim Data Yet</h2>
-          <p className="text-muted-foreground mb-8 max-w-md mx-auto">
-            You haven't created a sim or had any interactions yet. Get started by creating your first sim or sharing your existing one.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button onClick={handleGetStarted} className="flex items-center gap-2">
-              <Plus className="h-4 w-4" />
-              Create Your First Sim
-            </Button>
-            <Button variant="outline" onClick={handleShareClick} className="flex items-center gap-2">
-              <Share2 className="h-4 w-4" />
-              Share Existing Sim
-            </Button>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="w-full max-w-none mx-0 p-4 sm:p-6 space-y-6">
+    <div className="w-full max-w-none mx-0 p-6 space-y-6">
       {/* Share Tile */}
       <Card className="cursor-pointer hover:bg-accent/50 transition-colors" onClick={handleShareClick}>
         <CardContent className="p-4">
@@ -244,7 +206,7 @@ const MySim = () => {
           {simData.recentActivity.map((activity, index) => (
             <div 
               key={index} 
-              className="space-y-1 pb-3 border-b last:border-b-0 last:pb-0 cursor-pointer hover:bg-muted/20 p-2 rounded transition-colors duration-200"
+              className="space-y-1 pb-3 border-b last:border-b-0 last:pb-0 cursor-pointer hover:bg-muted/30 p-2 rounded transition-colors duration-200"
               onClick={() => handleActivityClick(activity)}
             >
               <p className="text-sm font-medium">{activity.activity}</p>
@@ -258,50 +220,50 @@ const MySim = () => {
       </Card>
 
       {/* Statistics Grid */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card>
-          <CardContent className="p-4 sm:p-6">
+          <CardContent className="p-6">
             <div className="flex items-center gap-2">
-              <MessageCircle className="h-4 w-4 sm:h-5 sm:w-5 text-blue-500 flex-shrink-0" />
-              <div className="min-w-0">
-                <p className="text-lg sm:text-2xl font-bold">{simData.totalChats}</p>
-                <p className="text-xs sm:text-sm text-muted-foreground">Total Conversations</p>
+              <MessageCircle className="h-5 w-5 text-blue-500" />
+              <div>
+                <p className="text-2xl font-bold">{simData.totalChats}</p>
+                <p className="text-sm text-muted-foreground">Total Conversations</p>
               </div>
             </div>
           </CardContent>
         </Card>
 
         <Card>
-          <CardContent className="p-4 sm:p-6">
+          <CardContent className="p-6">
             <div className="flex items-center gap-2">
-              <Users className="h-4 w-4 sm:h-5 sm:w-5 text-green-500 flex-shrink-0" />
-              <div className="min-w-0">
-                <p className="text-lg sm:text-2xl font-bold">{simData.totalUsers}</p>
-                <p className="text-xs sm:text-sm text-muted-foreground">Unique Users</p>
+              <Users className="h-5 w-5 text-green-500" />
+              <div>
+                <p className="text-2xl font-bold">{simData.totalUsers}</p>
+                <p className="text-sm text-muted-foreground">Unique Users</p>
               </div>
             </div>
           </CardContent>
         </Card>
 
         <Card>
-          <CardContent className="p-4 sm:p-6">
+          <CardContent className="p-6">
             <div className="flex items-center gap-2">
-              <Clock className="h-4 w-4 sm:h-5 sm:w-5 text-purple-500 flex-shrink-0" />
-              <div className="min-w-0">
-                <p className="text-lg sm:text-2xl font-bold">{simData.avgSessionTime}</p>
-                <p className="text-xs sm:text-sm text-muted-foreground">Avg Session Time</p>
+              <Clock className="h-5 w-5 text-purple-500" />
+              <div>
+                <p className="text-2xl font-bold">{simData.avgSessionTime}</p>
+                <p className="text-sm text-muted-foreground">Avg Session Time</p>
               </div>
             </div>
           </CardContent>
         </Card>
 
         <Card>
-          <CardContent className="p-4 sm:p-6">
+          <CardContent className="p-6">
             <div className="flex items-center gap-2">
-              <TrendingUp className="h-4 w-4 sm:h-5 sm:w-5 text-orange-500 flex-shrink-0" />
-              <div className="min-w-0">
-                <p className="text-lg sm:text-2xl font-bold">{simData.satisfactionScore}/5</p>
-                <p className="text-xs sm:text-sm text-muted-foreground">Satisfaction Score</p>
+              <TrendingUp className="h-5 w-5 text-orange-500" />
+              <div>
+                <p className="text-2xl font-bold">{simData.satisfactionScore}/5</p>
+                <p className="text-sm text-muted-foreground">Satisfaction Score</p>
               </div>
             </div>
           </CardContent>
@@ -321,26 +283,24 @@ const MySim = () => {
             </CardHeader>
             <CardContent className="space-y-4">
               {simData.actionItems.map((item) => (
-                <div key={item.id} className="flex flex-col sm:flex-row sm:items-start gap-3 p-4 border rounded-lg">
-                  <div className="flex items-start gap-3 flex-1 min-w-0">
-                    <div className="flex-shrink-0 mt-1">
-                      {getActionIcon(item.type)}
+                <div key={item.id} className="flex items-start gap-3 p-4 border rounded-lg">
+                  <div className="flex-shrink-0 mt-1">
+                    {getActionIcon(item.type)}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1 flex-wrap">
+                      <h4 className="font-medium">{item.title}</h4>
+                      <Badge variant="outline" className={getPriorityColor(item.priority)}>
+                        {item.priority}
+                      </Badge>
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-1">
-                        <h4 className="font-medium text-sm sm:text-base break-words">{item.title}</h4>
-                        <Badge variant="outline" className={`${getPriorityColor(item.priority)} text-xs self-start sm:self-auto`}>
-                          {item.priority}
-                        </Badge>
-                      </div>
-                      <p className="text-sm text-muted-foreground mb-2 break-words">{item.description}</p>
-                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                        <Calendar className="h-3 w-3 flex-shrink-0" />
-                        <span>Due: {item.dueDate}</span>
-                      </div>
+                    <p className="text-sm text-muted-foreground mb-2">{item.description}</p>
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                      <Calendar className="h-3 w-3" />
+                      Due: {item.dueDate}
                     </div>
                   </div>
-                  <Button variant="outline" size="sm" className="flex-shrink-0 w-full sm:w-auto">
+                  <Button variant="outline" size="sm" className="flex-shrink-0">
                     Mark Complete
                   </Button>
                 </div>
@@ -362,8 +322,8 @@ const MySim = () => {
             <CardContent className="space-y-3">
               {simData.popularTopics.map((topic, index) => (
                 <div key={index} className="flex justify-between items-center">
-                  <span className="text-sm truncate flex-1 mr-2">{topic.topic}</span>
-                  <Badge variant="secondary" className="flex-shrink-0">{topic.count}</Badge>
+                  <span className="text-sm">{topic.topic}</span>
+                  <Badge variant="secondary">{topic.count}</Badge>
                 </div>
               ))}
             </CardContent>
