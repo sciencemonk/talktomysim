@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Plus, Trash2, MessageCircle, HelpCircle } from "lucide-react";
 import { useSim } from "@/hooks/useSim";
+import { debounce } from 'lodash';
 
 interface SampleScenario {
   id: string;
@@ -21,17 +23,83 @@ const InteractionModel = () => {
   const [scenarios, setScenarios] = useState<SampleScenario[]>([
     { id: '1', question: '', expectedResponse: '' }
   ]);
+  const [isSaving, setIsSaving] = useState(false);
+  const [showSaved, setShowSaved] = useState(false);
+
+  // Refs to track previous values
+  const previousDataRef = useRef<{
+    welcomeMessage: string;
+    scenarios: SampleScenario[];
+  }>({ welcomeMessage: '', scenarios: [] });
 
   // Load existing sim data
   useEffect(() => {
     if (sim) {
-      setWelcomeMessage(sim.welcome_message || '');
-      
-      if (sim.sample_scenarios && sim.sample_scenarios.length > 0) {
-        setScenarios(sim.sample_scenarios);
-      }
+      const newWelcomeMessage = sim.welcome_message || '';
+      const newScenarios = sim.sample_scenarios && sim.sample_scenarios.length > 0 
+        ? sim.sample_scenarios 
+        : [{ id: '1', question: '', expectedResponse: '' }];
+
+      setWelcomeMessage(newWelcomeMessage);
+      setScenarios(newScenarios);
+
+      // Update previous data ref
+      previousDataRef.current = {
+        welcomeMessage: newWelcomeMessage,
+        scenarios: newScenarios
+      };
     }
   }, [sim]);
+
+  const performAutoSave = useCallback(async (data: {
+    welcome_message: string;
+    sample_scenarios: SampleScenario[];
+  }) => {
+    try {
+      setIsSaving(true);
+      await updateInteractionModel(data);
+      
+      // Update previous data ref
+      previousDataRef.current = {
+        welcomeMessage: data.welcome_message,
+        scenarios: data.sample_scenarios
+      };
+
+      setShowSaved(true);
+      setTimeout(() => setShowSaved(false), 2000);
+    } catch (error) {
+      console.error('Auto-save failed:', error);
+    } finally {
+      setIsSaving(false);
+    }
+  }, [updateInteractionModel]);
+
+  const debouncedAutoSave = useCallback(
+    debounce((welcomeMsg: string, scenarioData: SampleScenario[]) => {
+      const currentData = {
+        welcomeMessage: welcomeMsg,
+        scenarios: scenarioData
+      };
+
+      // Check if data has actually changed
+      const hasChanged = 
+        currentData.welcomeMessage !== previousDataRef.current.welcomeMessage ||
+        JSON.stringify(currentData.scenarios) !== JSON.stringify(previousDataRef.current.scenarios);
+
+      if (hasChanged) {
+        const filteredScenarios = scenarioData.filter(s => s.question.trim() && s.expectedResponse.trim());
+        performAutoSave({
+          welcome_message: welcomeMsg,
+          sample_scenarios: filteredScenarios
+        });
+      }
+    }, 1500),
+    [performAutoSave]
+  );
+
+  const triggerAutoSave = useCallback(() => {
+    debouncedAutoSave(welcomeMessage, scenarios);
+  }, [welcomeMessage, scenarios, debouncedAutoSave]);
 
   const addScenario = () => {
     const newScenario: SampleScenario = {
@@ -39,32 +107,31 @@ const InteractionModel = () => {
       question: '',
       expectedResponse: ''
     };
-    setScenarios([...scenarios, newScenario]);
+    const newScenarios = [...scenarios, newScenario];
+    setScenarios(newScenarios);
+    triggerAutoSave();
   };
 
   const removeScenario = (id: string) => {
     if (scenarios.length > 1) {
-      setScenarios(scenarios.filter(scenario => scenario.id !== id));
+      const newScenarios = scenarios.filter(scenario => scenario.id !== id);
+      setScenarios(newScenarios);
+      triggerAutoSave();
     }
   };
 
   const updateScenario = (id: string, field: 'question' | 'expectedResponse', value: string) => {
-    setScenarios(scenarios.map(scenario => 
+    const newScenarios = scenarios.map(scenario => 
       scenario.id === id ? { ...scenario, [field]: value } : scenario
-    ));
+    );
+    setScenarios(newScenarios);
+    triggerAutoSave();
   };
 
-  const handleSave = async () => {
-    try {
-      const interactionData = {
-        welcome_message: welcomeMessage,
-        sample_scenarios: scenarios.filter(s => s.question.trim() && s.expectedResponse.trim())
-      };
-
-      await updateInteractionModel(interactionData);
-    } catch (error) {
-      console.error('Error saving interaction model:', error);
-    }
+  const handleWelcomeMessageChange = (value: string) => {
+    setWelcomeMessage(value);
+    // Trigger auto-save after welcome message changes
+    debouncedAutoSave(value, scenarios);
   };
 
   return (
@@ -74,6 +141,12 @@ const InteractionModel = () => {
           <CardTitle className="flex items-center gap-2">
             <MessageCircle className="h-5 w-5" />
             Interaction Model
+            {isSaving && (
+              <span className="text-sm text-muted-foreground ml-auto">Saving...</span>
+            )}
+            {showSaved && (
+              <span className="text-sm text-green-600 ml-auto">Saved ✓</span>
+            )}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -94,7 +167,7 @@ const InteractionModel = () => {
               id="welcome-message"
               placeholder="Hey there! I'm the Sim version of [Your Name]. I'm here to chat about whatever's on your mind. What would you like to talk about?"
               value={welcomeMessage}
-              onChange={(e) => setWelcomeMessage(e.target.value)}
+              onChange={(e) => handleWelcomeMessageChange(e.target.value)}
               className="min-h-[100px]"
             />
           </div>
@@ -169,17 +242,6 @@ const InteractionModel = () => {
                 </Card>
               ))}
             </div>
-          </div>
-
-          {/* Save Button */}
-          <div className="flex justify-end pt-4">
-            <Button 
-              onClick={handleSave} 
-              className="px-8"
-              disabled={isLoading}
-            >
-              {isLoading ? 'Saving...' : 'Save Interaction Model'}
-            </Button>
           </div>
         </CardContent>
       </Card>
