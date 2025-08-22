@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { 
   Share2, 
@@ -18,7 +18,10 @@ import {
   BarChart3,
   Settings,
   Calendar,
-  Activity
+  Activity,
+  Edit2,
+  Save,
+  X
 } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
 import { useAuth } from "@/hooks/useAuth";
@@ -26,18 +29,19 @@ import { useAuth } from "@/hooks/useAuth";
 const MySim = () => {
   const { user } = useAuth();
   const [copied, setCopied] = useState(false);
+  const [isEditingUrl, setIsEditingUrl] = useState(false);
+  const [customUrl, setCustomUrl] = useState(user?.id || 'demo');
+  const [tempUrl, setTempUrl] = useState(customUrl);
 
   // Mock data - in a real app, this would come from your backend
   const simData = {
     name: "My Personal Sim",
-    avatar: "/lovable-uploads/d1283b59-7cfa-45f5-b151-4c32b24f3621.png",
-    shareUrl: `${window.location.origin}/sim/${user?.id || 'demo'}`,
+    shareUrl: `${window.location.origin}/sim/${customUrl}`,
     totalChats: 247,
     totalUsers: 89,
     avgSessionTime: "8.5 min",
     satisfactionScore: 4.7,
     lastActive: "2 hours ago",
-    knowledgeItems: 45,
     responseAccuracy: 94,
     popularTopics: [
       { topic: "Career advice", count: 34 },
@@ -97,6 +101,25 @@ const MySim = () => {
     }
   };
 
+  const handleEditUrl = () => {
+    setIsEditingUrl(true);
+    setTempUrl(customUrl);
+  };
+
+  const handleSaveUrl = () => {
+    setCustomUrl(tempUrl);
+    setIsEditingUrl(false);
+    toast({
+      title: "URL updated!",
+      description: "Your Sim's URL has been updated successfully."
+    });
+  };
+
+  const handleCancelEdit = () => {
+    setIsEditingUrl(false);
+    setTempUrl(customUrl);
+  };
+
   const getPriorityColor = (priority: string) => {
     switch (priority) {
       case "high": return "bg-red-100 text-red-800 border-red-200";
@@ -117,28 +140,10 @@ const MySim = () => {
 
   return (
     <div className="max-w-7xl mx-auto p-6 space-y-6">
-      {/* Header Section */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Avatar className="h-16 w-16">
-            <AvatarImage src={simData.avatar} alt={simData.name} />
-            <AvatarFallback>MS</AvatarFallback>
-          </Avatar>
-          <div>
-            <h1 className="text-3xl font-bold text-fg">{simData.name}</h1>
-            <p className="text-fgMuted">Your personal AI companion</p>
-          </div>
-        </div>
-        <div className="flex gap-2">
-          <Button variant="outline" size="sm">
-            <Settings className="h-4 w-4 mr-2" />
-            Settings
-          </Button>
-          <Button size="sm">
-            <ExternalLink className="h-4 w-4 mr-2" />
-            View Public Page
-          </Button>
-        </div>
+      {/* Page Title */}
+      <div>
+        <h1 className="text-3xl font-bold text-fg">{simData.name}</h1>
+        <p className="text-fgMuted">Manage and monitor your personal AI companion</p>
       </div>
 
       {/* Share Link Section */}
@@ -149,9 +154,38 @@ const MySim = () => {
             Share Your Sim
           </CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-4">
           <div className="flex items-center gap-2 p-3 bg-bgMuted rounded-lg">
-            <code className="flex-1 text-sm font-mono">{simData.shareUrl}</code>
+            <span className="text-sm font-mono text-fgMuted">{window.location.origin}/sim/</span>
+            {isEditingUrl ? (
+              <div className="flex items-center gap-2 flex-1">
+                <Input
+                  value={tempUrl}
+                  onChange={(e) => setTempUrl(e.target.value)}
+                  className="h-8 text-sm font-mono"
+                  placeholder="your-custom-url"
+                />
+                <Button size="sm" onClick={handleSaveUrl} className="h-8">
+                  <Save className="h-3 w-3" />
+                </Button>
+                <Button size="sm" variant="outline" onClick={handleCancelEdit} className="h-8">
+                  <X className="h-3 w-3" />
+                </Button>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2 flex-1">
+                <code className="flex-1 text-sm font-mono">{customUrl}</code>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleEditUrl}
+                  className="flex-shrink-0"
+                >
+                  <Edit2 className="h-4 w-4 mr-2" />
+                  Edit
+                </Button>
+              </div>
+            )}
             <Button
               variant="outline"
               size="sm"
@@ -171,7 +205,7 @@ const MySim = () => {
               )}
             </Button>
           </div>
-          <p className="text-sm text-fgMuted mt-2">
+          <p className="text-sm text-fgMuted">
             Share this link with others so they can chat with your Sim
           </p>
         </CardContent>
@@ -269,29 +303,6 @@ const MySim = () => {
 
         {/* Side Panel */}
         <div className="space-y-6">
-          {/* Knowledge Base Stats */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Knowledge Base</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex justify-between items-center">
-                <span className="text-sm">Total Items</span>
-                <span className="font-semibold">{simData.knowledgeItems}</span>
-              </div>
-              <div className="space-y-2">
-                <div className="flex justify-between items-center">
-                  <span className="text-sm">Response Accuracy</span>
-                  <span className="font-semibold">{simData.responseAccuracy}%</span>
-                </div>
-                <Progress value={simData.responseAccuracy} className="h-2" />
-              </div>
-              <Button variant="outline" size="sm" className="w-full">
-                Manage Knowledge
-              </Button>
-            </CardContent>
-          </Card>
-
           {/* Popular Topics */}
           <Card>
             <CardHeader>
