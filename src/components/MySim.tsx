@@ -73,7 +73,7 @@ const MySim = () => {
             {sim?.is_public && sim?.url && <Button variant="outline" asChild size="sm">
                 <a href={`/${sim.url}`} target="_blank" rel="noopener noreferrer">
                   <ExternalLink className="h-4 w-4 mr-2" />
-                  View Public Page
+                  Share Sim
                 </a>
               </Button>}
           </div>
