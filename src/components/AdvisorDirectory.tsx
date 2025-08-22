@@ -29,7 +29,7 @@ const AdvisorDirectory = ({ onSelectAdvisor, onAuthRequired }: AdvisorDirectoryP
 
   const handleAdvisorSelect = (advisor: AgentType) => {
     // Use custom URL if available, otherwise fall back to agent ID route
-    const chatUrl = advisor.url ? `/${advisor.url}` : `/tutors/${advisor.id}/chat`;
+    const chatUrl = advisor.custom_url ? `/${advisor.custom_url}` : `/tutors/${advisor.id}/chat`;
     window.open(chatUrl, '_blank');
   };
 
