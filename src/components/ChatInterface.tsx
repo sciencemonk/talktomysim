@@ -114,7 +114,7 @@ const ChatInterface = ({ agent, onBack }: ChatInterfaceProps) => {
               </p>
             </div>
           </div>
-          <InfoModal />
+          <InfoModal agentName={currentAgent.name} />
         </div>
       </div>
 
