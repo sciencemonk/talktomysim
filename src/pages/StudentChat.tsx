@@ -70,10 +70,6 @@ const StudentChat = () => {
     window.location.href = '/';
   };
 
-  const handleAuthRequired = () => {
-    setShowAuthModal(true);
-  };
-
   const SidebarContent = () => (
     <div className="w-80 bg-card border-r border-border flex flex-col h-full">
       <div className="p-6 border-b border-border">
