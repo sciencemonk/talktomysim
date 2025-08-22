@@ -10,7 +10,7 @@ import AuthModal from '@/components/AuthModal';
 
 const Home = () => {
   const { user } = useAuth();
-  const { data: agents = [] } = usePublicAgents();
+  const { agents = [], isLoading, error } = usePublicAgents();
   const [searchTerm, setSearchTerm] = useState('');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
@@ -149,7 +149,7 @@ const Home = () => {
                     <div className="bg-card border border-border rounded-lg p-6 hover:shadow-lg transition-all duration-200 group-hover:border-primary/20">
                       <div className="flex items-start space-x-4">
                         <img
-                          src={agent.avatar_url || "/placeholder.svg"}
+                          src={agent.avatar || "/placeholder.svg"}
                           alt={agent.name}
                           className="w-12 h-12 rounded-full object-cover"
                         />
@@ -157,8 +157,8 @@ const Home = () => {
                           <h3 className="font-semibold text-fg group-hover:text-primary transition-colors">
                             {agent.name}
                           </h3>
-                          {agent.subject_area && (
-                            <p className="text-sm text-primary mb-2">{agent.subject_area}</p>
+                          {agent.subject && (
+                            <p className="text-sm text-primary mb-2">{agent.subject}</p>
                           )}
                           <p className="text-sm text-muted-foreground line-clamp-3">
                             {agent.description}
