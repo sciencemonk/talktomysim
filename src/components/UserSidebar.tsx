@@ -111,7 +111,7 @@ export const SidebarContent = ({
                       className="w-full justify-start h-9"
                     >
                       <User className="mr-2 h-4 w-4" />
-                      Basic Info
+                      Context Window
                       {completionStatus.basic_info && (
                         <CheckCircle className="ml-auto h-3 w-3 text-green-500" />
                       )}
@@ -143,7 +143,7 @@ export const SidebarContent = ({
                       className="w-full justify-start h-9"
                     >
                       <Brain className="mr-2 h-4 w-4" />
-                      Core Knowledge
+                      Vector Embedding
                       {completionStatus.core_knowledge && (
                         <CheckCircle className="ml-auto h-3 w-3 text-green-500" />
                       )}

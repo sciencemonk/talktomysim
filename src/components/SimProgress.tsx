@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -15,7 +14,7 @@ const SimProgress: React.FC<SimProgressProps> = ({ completionStatus, className =
   const steps = [
     {
       key: 'basic_info' as keyof SimCompletionStatus,
-      title: 'Basic Info',
+      title: 'Context Window',
       description: 'Personal details and background',
       icon: User
     },
@@ -27,7 +26,7 @@ const SimProgress: React.FC<SimProgressProps> = ({ completionStatus, className =
     },
     {
       key: 'core_knowledge' as keyof SimCompletionStatus,
-      title: 'Core Knowledge',
+      title: 'Vector Embedding',
       description: 'Knowledge base and expertise',
       icon: BookOpen
     }
