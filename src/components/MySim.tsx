@@ -78,7 +78,7 @@ const MySim = () => {
                   </Badge>
                   {sim?.custom_url && (
                     <Badge variant="outline">
-                      /{sim.custom_url}
+                      {sim.custom_url}
                     </Badge>
                   )}
                 </div>
