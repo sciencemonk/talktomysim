@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -5,6 +6,8 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { 
+  Share2, 
+  Copy, 
   MessageCircle, 
   TrendingUp, 
   Clock, 
@@ -94,7 +97,13 @@ const MySim = () => {
   };
 
   return (
-    <div className="w-full max-w-none mx-0 p-6 space-y-6">
+    <div className="max-w-4xl mx-auto p-6 space-y-6">
+      {/* Page Title */}
+      <div>
+        <h1 className="text-3xl font-bold text-fg">{simData.name}</h1>
+        <p className="text-fgMuted">Manage and monitor your personal AI companion</p>
+      </div>
+
       {/* Statistics Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card>
