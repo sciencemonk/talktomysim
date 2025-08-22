@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useAllAdvisors } from "@/hooks/useAllAdvisors";
 import { AgentType } from "@/types/agent";
@@ -18,7 +19,7 @@ const AdvisorDirectory: React.FC<AdvisorDirectoryProps> = ({
   onSelectAdvisor,
   onAuthRequired
 }) => {
-  const { data: advisors = [], isLoading, error } = useAllAdvisors();
+  const { agents: advisors = [], isLoading, error } = useAllAdvisors();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
@@ -44,14 +45,14 @@ const AdvisorDirectory: React.FC<AdvisorDirectoryProps> = ({
 
   if (isLoading) {
     return (
-      <div className="flex-1 flex items-center justify-center min-h-screen">
+      <div className="flex-1 flex items-center justify-center">
         <LoaderIcon size={24} />
       </div>
     );
   }
 
   if (error) {
-    return <div className="text-red-500">Error: {error.message}</div>;
+    return <div className="text-red-500">Error: {error}</div>;
   }
 
   return (
@@ -75,7 +76,7 @@ const AdvisorDirectory: React.FC<AdvisorDirectoryProps> = ({
         >
           All
         </Button>
-        {allCategories.map((category) => (
+        {allCategories.map((category: string) => (
           <Button
             key={category}
             variant="outline"
