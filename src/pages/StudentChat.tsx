@@ -1,10 +1,11 @@
+
 import { useParams } from "react-router-dom";
 import { usePublicAgent } from "@/hooks/usePublicAgent";
 import { usePublicAgentByUrl } from "@/hooks/usePublicAgentByUrl";
 import ChatInterface from "@/components/ChatInterface";
 import AuthModal from "@/components/AuthModal";
 import { useAuth } from "@/hooks/useAuth";
-import { Bot, Loader2, AlertCircle, Menu } from "lucide-react";
+import { Bot, Loader2, AlertCircle } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
@@ -113,13 +114,13 @@ const StudentChat = () => {
       {isMobile && (
         <Sheet>
           <SheetTrigger asChild>
-            <Button 
-              variant="outline" 
-              size="icon"
-              className="fixed top-4 left-4 z-50 md:hidden"
-            >
-              <Menu className="h-4 w-4" />
-            </Button>
+            <div className="fixed top-4 left-4 z-50 md:hidden cursor-pointer">
+              <img 
+                src="/lovable-uploads/108a5580-39a3-45d5-a07e-672253a59f99.png" 
+                alt="Menu" 
+                className="h-6 w-6 object-contain"
+              />
+            </div>
           </SheetTrigger>
           <SheetContent side="left" className="p-0 w-80">
             <SidebarContent />
