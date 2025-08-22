@@ -17,11 +17,11 @@ interface AdvisorDirectoryProps {
 
 const AdvisorDirectory = ({ onSelectAdvisor, onAuthRequired }: AdvisorDirectoryProps) => {
   const { user } = useAuth();
-  const { advisors, isLoading, error } = useAllAdvisors();
+  const { agents, isLoading, error } = useAllAdvisors();
   const [searchTerm, setSearchTerm] = useState("");
 
   // Filter advisors based on search term
-  const filteredAdvisors = advisors.filter(advisor =>
+  const filteredAdvisors = agents.filter(advisor =>
     advisor.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     advisor.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     advisor.expertise?.some(exp => exp.toLowerCase().includes(searchTerm.toLowerCase()))
