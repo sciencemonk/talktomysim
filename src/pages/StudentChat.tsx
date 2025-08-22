@@ -21,7 +21,7 @@ const StudentChat = () => {
   
   // Use the appropriate query based on which parameter is present
   const query = agentId ? publicAgentQuery : publicAgentByUrlQuery;
-  const { data: agent, isLoading, error } = query;
+  const { agent, isLoading, error } = query;
 
   if (isLoading) {
     return (
