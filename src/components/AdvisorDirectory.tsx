@@ -57,7 +57,7 @@ const AdvisorDirectory = ({ onSelectAdvisor, onAuthRequired }: AdvisorDirectoryP
   return (
     <div className="flex-1 flex flex-col h-full">
       {/* Search Section */}
-      <div className="p-4 border-b border-border">
+      <div className="p-6 border-b border-border">
         <div className="relative max-w-md mx-auto">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
@@ -70,10 +70,10 @@ const AdvisorDirectory = ({ onSelectAdvisor, onAuthRequired }: AdvisorDirectoryP
       </div>
 
       {/* Advisors Grid */}
-      <div className="flex-1 overflow-auto p-4">
-        <div className="grid gap-4 max-w-4xl mx-auto">
+      <div className="flex-1 overflow-auto p-6">
+        <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 max-w-6xl mx-auto">
           {filteredAdvisors.length === 0 ? (
-            <div className="text-center py-12">
+            <div className="col-span-full text-center py-12">
               <p className="text-muted-foreground">
                 {searchTerm ? "No sims found matching your search." : "No sims available."}
               </p>
@@ -85,8 +85,8 @@ const AdvisorDirectory = ({ onSelectAdvisor, onAuthRequired }: AdvisorDirectoryP
                 className="cursor-pointer hover:shadow-md transition-shadow"
                 onClick={() => handleAdvisorSelect(advisor)}
               >
-                <CardContent className="p-4">
-                  <div className="flex items-start gap-4">
+                <CardContent className="p-6">
+                  <div className="flex items-center gap-4">
                     <Avatar className="h-12 w-12 flex-shrink-0">
                       <AvatarImage src={advisor.avatar} alt={advisor.name} />
                       <AvatarFallback className="bg-primary/10 text-primary">
@@ -100,23 +100,9 @@ const AdvisorDirectory = ({ onSelectAdvisor, onAuthRequired }: AdvisorDirectoryP
                       </h3>
                       
                       {advisor.title && (
-                        <p className="text-sm text-muted-foreground mb-2">
+                        <p className="text-sm text-muted-foreground">
                           {advisor.title}
                         </p>
-                      )}
-                      
-                      {advisor.description && (
-                        <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
-                          {advisor.description}
-                        </p>
-                      )}
-                      
-                      {advisor.subject && (
-                        <div className="flex flex-wrap gap-1">
-                          <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-primary/10 text-primary">
-                            {advisor.subject}
-                          </span>
-                        </div>
                       )}
                     </div>
                   </div>
