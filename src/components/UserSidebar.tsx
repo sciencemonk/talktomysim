@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useSim } from "@/hooks/useSim";
@@ -11,13 +12,12 @@ import {
   MessageSquare,
   Brain,
   Settings,
-  PlusCircle,
   CheckCircle,
   Search,
-  Bot,
   Trash2
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import UserSettingsDropdown from "./UserSettingsDropdown";
 
 interface UserSidebarProps {
   selectedAgent: AgentType | null;
@@ -59,7 +59,7 @@ export const SidebarContent = ({
   onClose,
   onAuthRequired
 }: SidebarContentProps) => {
-  const { user, signOut } = useAuth();
+  const { user } = useAuth();
   const { completionStatus } = useSim();
 
   return (
@@ -176,47 +176,6 @@ export const SidebarContent = ({
                   </div>
                 </div>
 
-                {/* My Agents Section */}
-                <div className="pt-4">
-                  <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2 px-2">
-                    My Advisors
-                  </h3>
-                  <div className="space-y-1">
-                    {selectedPublicAdvisors.map((advisor) => (
-                      <Button
-                        key={advisor.id}
-                        variant={selectedAgent?.id === advisor.id ? "secondary" : "ghost"}
-                        size="sm"
-                        onClick={() => {
-                          onSelectAgent(advisor);
-                          onClose?.();
-                        }}
-                        className="w-full justify-start h-9"
-                      >
-                        <Bot className="mr-2 h-4 w-4" />
-                        {advisor.name}
-                      </Button>
-                    ))}
-                    
-                    {selectedPublicAdvisors.length > 0 && (
-                      <div className="h-1 bg-border my-2 rounded-full" />
-                    )}
-
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => {
-                        onShowAdvisorDirectory();
-                        onClose?.();
-                      }}
-                      className="w-full justify-start h-9"
-                    >
-                      <PlusCircle className="mr-2 h-4 w-4" />
-                      Add Advisor
-                    </Button>
-                  </div>
-                </div>
-
                 {/* Public Advisors Section */}
                 {selectedPublicAdvisorId && (
                   <div className="pt-4">
@@ -229,7 +188,7 @@ export const SidebarContent = ({
                           <Avatar className="h-6 w-6">
                             <AvatarImage src={advisor.avatar} alt={advisor.name} />
                             <AvatarFallback className="bg-primary/10 text-primary">
-                              <Bot className="h-3 w-3" />
+                              {advisor.name.charAt(0)}
                             </AvatarFallback>
                           </Avatar>
                           <span className="text-sm font-medium">{advisor.name}</span>
@@ -269,16 +228,7 @@ export const SidebarContent = ({
         {/* User Settings at Bottom */}
         {user && (
           <div className="p-4 border-t border-border">
-            <Button
-              onClick={() => {
-                signOut();
-                onClose?.();
-              }}
-              className="w-full"
-              variant="outline"
-            >
-              Sign Out
-            </Button>
+            <UserSettingsDropdown simplified={true} />
           </div>
         )}
       </div>
