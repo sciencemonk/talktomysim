@@ -103,7 +103,7 @@ const SidebarContent = ({
   const navigationItems = [
     {
       title: "My Sim",
-      icon: Bot,
+      icon: Brain,
       href: "#",
       onClick: () => {
         onNavigateToMySim?.();
@@ -130,7 +130,7 @@ const SidebarContent = ({
     },
     {
       title: "Core Knowledge",
-      icon: Brain,
+      icon: BookOpen,
       href: "#",
       onClick: () => {
         onNavigateToCoreKnowledge?.();
@@ -266,11 +266,6 @@ const SidebarContent = ({
 
           {/* Navigation Links */}
           <div className={cn("space-y-1", agents.length > 0 && "mt-4")}>
-            {(!isCollapsed || !onToggleCollapse) && (
-              <div className="px-3 py-2 text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                Navigation
-              </div>
-            )}
             {navigationItems.map((item) => (
               <Button
                 key={item.title}
