@@ -31,11 +31,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
-        
-        // Handle logout redirect - go to landing page
-        if (event === 'SIGNED_OUT') {
-          window.location.href = '/landing';
-        }
       }
     );
 

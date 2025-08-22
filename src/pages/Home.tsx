@@ -14,7 +14,7 @@ import CoreKnowledge from "@/components/CoreKnowledge";
 import Integrations from "@/components/Integrations";
 import { AgentType } from "@/types/agent";
 import { LoaderIcon } from "@/components/LoaderIcon";
-import { Navigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 const Home = () => {
   const { user, loading } = useAuth();
@@ -24,6 +24,13 @@ const Home = () => {
   const [selectedAgent, setSelectedAgent] = useState<AgentType | null>(null);
   const [selectedPublicAdvisorId, setSelectedPublicAdvisorId] = useState<string | null>(null);
   const [selectedPublicAdvisors, setSelectedPublicAdvisors] = useState<AgentType[]>([]);
+
+  // For non-authenticated users, always show search directory
+  useEffect(() => {
+    if (!loading && !user) {
+      setActiveView("search");
+    }
+  }, [user, loading]);
 
   const handleSelectAgent = (agent: AgentType) => {
     setSelectedAgent(agent);
@@ -55,9 +62,68 @@ const Home = () => {
     );
   }
 
-  // Redirect non-authenticated users to landing page
+  // For non-authenticated users, show search directory with login sidebar
   if (!user) {
-    return <Navigate to="/landing" replace />;
+    return (
+      <div className="min-h-screen bg-bg flex">
+        {/* Desktop Sidebar for non-authenticated users */}
+        {!isMobile && (
+          <div className="fixed left-0 top-0 h-screen w-80 z-40">
+            <div className="flex flex-col h-full bg-card border-r border-border">
+              {/* Header */}
+              <div className="p-4 border-b border-border">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2">
+                    <img 
+                      src="/lovable-uploads/d1283b59-7cfa-45f5-b151-4c32b24f3621.png" 
+                      alt="Logo" 
+                      className="h-8 w-8 object-contain"
+                    />
+                    <h2 className="text-lg font-semibold text-fg">Sim</h2>
+                  </div>
+                </div>
+              </div>
+
+              {/* Login Section */}
+              <div className="flex-1 flex items-center justify-center p-4">
+                <div className="text-center space-y-4">
+                  <p className="text-fgMuted">Sign in to create and manage your AI tutors</p>
+                  <Link to="/login">
+                    <Button className="w-full">Sign In</Button>
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Mobile Header for non-authenticated users */}
+        {isMobile && (
+          <div className="fixed top-0 left-0 right-0 bg-card border-b border-border z-50 h-16">
+            <div className="flex items-center justify-between px-4 h-full">
+              <div className="flex items-center space-x-2">
+                <img 
+                  src="/lovable-uploads/d1283b59-7cfa-45f5-b151-4c32b24f3621.png" 
+                  alt="Logo" 
+                  className="h-8 w-8 object-contain"
+                />
+                <h2 className="text-lg font-semibold text-fg">Sim</h2>
+              </div>
+              <Link to="/login">
+                <Button size="sm">Sign In</Button>
+              </Link>
+            </div>
+          </div>
+        )}
+
+        {/* Main Content Area */}
+        <div className={`flex-1 ${!isMobile ? 'ml-80' : 'mt-16'}`}>
+          <AdvisorDirectory 
+            onSelectAdvisor={handleSelectPublicAdvisor}
+          />
+        </div>
+      </div>
+    );
   }
 
   // For authenticated users, show the full app
