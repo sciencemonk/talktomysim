@@ -71,7 +71,7 @@ const MySim = () => {
               {sim?.is_public ? "Make Private" : "Make Public"}
             </Button>
             {sim?.is_public && <Button variant="outline" asChild size="sm">
-                <a href={`/${sim.url || sim.id}`} target="_blank" rel="noopener noreferrer">
+                <a href={`/${sim.custom_url || sim.id}`} target="_blank" rel="noopener noreferrer">
                   <ExternalLink className="h-4 w-4 mr-2" />
                   Share Sim
                 </a>
@@ -110,7 +110,7 @@ const MySim = () => {
               </div>
               <div className="text-center">
                 <p className="text-xl md:text-2xl font-bold text-primary">
-                  {sim.url ? 'Set' : 'None'}
+                  {sim.custom_url ? 'Set' : 'None'}
                 </p>
                 <p className="text-xs md:text-sm text-muted-foreground">Custom URL</p>
               </div>

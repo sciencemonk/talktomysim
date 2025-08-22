@@ -8,7 +8,7 @@ export const fetchPublicAgentByUrl = async (url: string): Promise<AgentType> => 
   const { data: advisor, error } = await supabase
     .from('advisors')
     .select('*')
-    .eq('url', url)
+    .eq('custom_url', url)
     .maybeSingle();
 
   if (error) {
@@ -34,7 +34,7 @@ export const fetchPublicAgentByUrl = async (url: string): Promise<AgentType> => 
     avatar: advisor.avatar_url,
     prompt: advisor.prompt,
     title: advisor.title,
-    url: advisor.url,
+    url: advisor.custom_url,
     // Default values for fields that don't exist in advisors table
     model: 'gpt-4',
     voice: 'default',
