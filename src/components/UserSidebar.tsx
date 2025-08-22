@@ -73,8 +73,6 @@ export const SidebarContent: React.FC<SidebarContentProps> = ({
         onNavigateToMySim?.();
         onClose?.();
       },
-      badge: user ? null : "Pro",
-      isPro: !user,
       viewKey: "my-sim"
     },
     {
@@ -178,18 +176,11 @@ export const SidebarContent: React.FC<SidebarContentProps> = ({
                     isActive 
                       ? "bg-primary/10 text-primary border border-primary/20" 
                       : "text-fgMuted hover:text-fg hover:bg-bgMuted"
-                  } ${item.isPro ? "opacity-60" : ""}`}
+                  }`}
                   onClick={item.onClick}
-                  disabled={item.isPro}
                 >
                   <item.icon className="mr-3 h-4 w-4" />
                   <span className="flex-1">{item.label}</span>
-                  {item.badge && (
-                    <Badge variant="secondary" className="ml-2 bg-amber-100 text-amber-800 border-amber-200">
-                      <Crown className="w-3 h-3 mr-1" />
-                      {item.badge}
-                    </Badge>
-                  )}
                 </Button>
               );
             })}
