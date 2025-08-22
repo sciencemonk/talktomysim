@@ -70,8 +70,8 @@ const MySim = () => {
             <Button onClick={handleMakePublic} variant={sim?.is_public ? "outline" : "default"} disabled={isLoading} size="sm">
               {sim?.is_public ? "Make Private" : "Make Public"}
             </Button>
-            {sim?.is_public && sim?.custom_url && <Button variant="outline" asChild size="sm">
-                <a href={`/${sim.custom_url}`} target="_blank" rel="noopener noreferrer">
+            {sim?.is_public && sim?.url && <Button variant="outline" asChild size="sm">
+                <a href={`/${sim.url}`} target="_blank" rel="noopener noreferrer">
                   <ExternalLink className="h-4 w-4 mr-2" />
                   View Public Page
                 </a>
@@ -110,7 +110,7 @@ const MySim = () => {
               </div>
               <div className="text-center">
                 <p className="text-xl md:text-2xl font-bold text-primary">
-                  {sim.custom_url ? 'Set' : 'None'}
+                  {sim.url ? 'Set' : 'None'}
                 </p>
                 <p className="text-xs md:text-sm text-muted-foreground">Custom URL</p>
               </div>
