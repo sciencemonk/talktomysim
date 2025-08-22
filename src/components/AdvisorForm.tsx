@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -5,7 +6,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Switch } from '@/components/ui/switch';
 import { createAdvisor, updateAdvisor } from '@/services/advisorService';
 import { Advisor } from '@/pages/Admin';
 import { toast } from '@/hooks/use-toast';
@@ -26,8 +26,7 @@ const AdvisorForm = ({ open, onOpenChange, advisor, onSuccess }: AdvisorFormProp
     title: '',
     prompt: '',
     avatar_url: '',
-    url: '',
-    is_verified: true
+    url: ''
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
@@ -43,8 +42,7 @@ const AdvisorForm = ({ open, onOpenChange, advisor, onSuccess }: AdvisorFormProp
         title: advisor.title || '',
         prompt: advisor.prompt || '',
         avatar_url: advisor.avatar_url || '',
-        url: (advisor as any).url || '',
-        is_verified: (advisor as any).is_verified !== undefined ? (advisor as any).is_verified : true
+        url: (advisor as any).url || ''
       });
       setPreviewUrl(advisor.avatar_url || '');
       setActiveTab('basic');
@@ -54,8 +52,7 @@ const AdvisorForm = ({ open, onOpenChange, advisor, onSuccess }: AdvisorFormProp
         title: '',
         prompt: '',
         avatar_url: '',
-        url: '',
-        is_verified: true
+        url: ''
       });
       setPreviewUrl('');
       setActiveTab('basic');
@@ -63,7 +60,7 @@ const AdvisorForm = ({ open, onOpenChange, advisor, onSuccess }: AdvisorFormProp
     setSelectedFile(null);
   }, [advisor, open]);
 
-  const handleInputChange = (field: string, value: string | boolean) => {
+  const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
@@ -146,12 +143,6 @@ const AdvisorForm = ({ open, onOpenChange, advisor, onSuccess }: AdvisorFormProp
     }
   };
 
-  const removeImage = () => {
-    setSelectedFile(null);
-    setPreviewUrl('');
-    setFormData(prev => ({ ...prev, avatar_url: '' }));
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -206,6 +197,12 @@ const AdvisorForm = ({ open, onOpenChange, advisor, onSuccess }: AdvisorFormProp
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const removeImage = () => {
+    setSelectedFile(null);
+    setPreviewUrl('');
+    setFormData(prev => ({ ...prev, avatar_url: '' }));
   };
 
   return (
@@ -263,18 +260,6 @@ const AdvisorForm = ({ open, onOpenChange, advisor, onSuccess }: AdvisorFormProp
                 </div>
                 <p className="text-xs text-muted-foreground mt-1">
                   This will be the URL path for the public chat (e.g., /thomas-jefferson). Only lowercase letters, numbers, and hyphens allowed.
-                </p>
-              </div>
-
-              <div className="flex items-center space-x-2">
-                <Switch
-                  id="is_verified"
-                  checked={formData.is_verified}
-                  onCheckedChange={(checked) => handleInputChange('is_verified', checked)}
-                />
-                <Label htmlFor="is_verified">Verified Identity</Label>
-                <p className="text-xs text-muted-foreground">
-                  Show verification checkmark on public pages
                 </p>
               </div>
 
