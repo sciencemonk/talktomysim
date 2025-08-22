@@ -38,6 +38,7 @@ interface UserSidebarProps {
   onNavigateToBasicInfo?: () => void;
   onNavigateToInteractionModel?: () => void;
   onNavigateToCoreKnowledge?: () => void;
+  activeView?: string; // Add this prop to track the active view
 }
 
 export interface SidebarContentProps extends UserSidebarProps {
@@ -56,6 +57,7 @@ export const SidebarContent: React.FC<SidebarContentProps> = ({
   onNavigateToBasicInfo,
   onNavigateToInteractionModel,
   onNavigateToCoreKnowledge,
+  activeView,
   onClose
 }) => {
   const { user } = useAuth();
@@ -69,7 +71,8 @@ export const SidebarContent: React.FC<SidebarContentProps> = ({
         onClose?.();
       },
       badge: user ? null : "Pro",
-      isPro: !user
+      isPro: !user,
+      viewKey: "my-sim"
     },
     {
       icon: Sparkles,
@@ -77,7 +80,8 @@ export const SidebarContent: React.FC<SidebarContentProps> = ({
       onClick: () => {
         onNavigateToBasicInfo?.();
         onClose?.();
-      }
+      },
+      viewKey: "basic-info"
     },
     {
       icon: Brain,
@@ -85,7 +89,8 @@ export const SidebarContent: React.FC<SidebarContentProps> = ({
       onClick: () => {
         onNavigateToInteractionModel?.();
         onClose?.();
-      }
+      },
+      viewKey: "interaction-model"
     },
     {
       icon: BookOpen,
@@ -93,7 +98,8 @@ export const SidebarContent: React.FC<SidebarContentProps> = ({
       onClick: () => {
         onNavigateToCoreKnowledge?.();
         onClose?.();
-      }
+      },
+      viewKey: "core-knowledge"
     },
     {
       icon: Search,
@@ -102,7 +108,7 @@ export const SidebarContent: React.FC<SidebarContentProps> = ({
         onShowAdvisorDirectory?.();
         onClose?.();
       },
-      isActive: !selectedAgent && !selectedPublicAdvisorId
+      viewKey: "search"
     }
   ];
 
@@ -140,11 +146,6 @@ export const SidebarContent: React.FC<SidebarContentProps> = ({
             />
             <h2 className="text-lg font-semibold text-fg">Sim</h2>
           </div>
-          {onClose && (
-            <Button variant="ghost" size="sm" onClick={onClose}>
-              <X className="h-4 w-4" />
-            </Button>
-          )}
         </div>
       </div>
 
@@ -153,28 +154,33 @@ export const SidebarContent: React.FC<SidebarContentProps> = ({
         <div className="p-4 space-y-6">
           {/* Navigation Menu */}
           <div className="space-y-2">
-            {menuItems.map((item, index) => (
-              <Button
-                key={index}
-                variant="ghost"
-                className={`w-full justify-start text-left ${
-                  item.isActive 
-                    ? "bg-primary/10 text-primary border border-primary/20" 
-                    : "text-fgMuted hover:text-fg hover:bg-bgMuted"
-                } ${item.isPro ? "opacity-60" : ""}`}
-                onClick={item.onClick}
-                disabled={item.isPro}
-              >
-                <item.icon className="mr-3 h-4 w-4" />
-                <span className="flex-1">{item.label}</span>
-                {item.badge && (
-                  <Badge variant="secondary" className="ml-2 bg-amber-100 text-amber-800 border-amber-200">
-                    <Crown className="w-3 h-3 mr-1" />
-                    {item.badge}
-                  </Badge>
-                )}
-              </Button>
-            ))}
+            {menuItems.map((item, index) => {
+              const isActive = activeView === item.viewKey || 
+                (item.viewKey === "search" && !selectedAgent && !selectedPublicAdvisorId && !activeView);
+              
+              return (
+                <Button
+                  key={index}
+                  variant="ghost"
+                  className={`w-full justify-start text-left ${
+                    isActive 
+                      ? "bg-primary/10 text-primary border border-primary/20" 
+                      : "text-fgMuted hover:text-fg hover:bg-bgMuted"
+                  } ${item.isPro ? "opacity-60" : ""}`}
+                  onClick={item.onClick}
+                  disabled={item.isPro}
+                >
+                  <item.icon className="mr-3 h-4 w-4" />
+                  <span className="flex-1">{item.label}</span>
+                  {item.badge && (
+                    <Badge variant="secondary" className="ml-2 bg-amber-100 text-amber-800 border-amber-200">
+                      <Crown className="w-3 h-3 mr-1" />
+                      {item.badge}
+                    </Badge>
+                  )}
+                </Button>
+              );
+            })}
           </div>
         </div>
       </ScrollArea>
