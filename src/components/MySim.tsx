@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { User, MessageCircle, BookOpen, ExternalLink, Settings, Globe, Lock } from "lucide-react";
+import { User, MessageCircle, BookOpen, ExternalLink, Settings, Globe } from "lucide-react";
 import { useSim } from "@/hooks/useSim";
 import SimProgress from './SimProgress';
 
@@ -12,17 +12,8 @@ const MySim = () => {
   const {
     sim,
     completionStatus,
-    isLoading,
-    makeSimPublic
+    isLoading
   } = useSim();
-
-  const handleMakePublic = async () => {
-    try {
-      await makeSimPublic(!sim?.is_public);
-    } catch (error) {
-      console.error('Error updating sim visibility:', error);
-    }
-  };
 
   if (isLoading) {
     return <div className="flex items-center justify-center min-h-[400px]">
@@ -53,29 +44,21 @@ const MySim = () => {
                   {sim.description}
                 </p>}
               <div className="flex items-center gap-2">
-                <Badge variant={sim?.is_public ? "default" : "secondary"} className="text-xs">
-                  {sim?.is_public ? <>
-                      <Globe className="h-3 w-3 mr-1" />
-                      Public
-                    </> : <>
-                      <Lock className="h-3 w-3 mr-1" />
-                      Private
-                    </>}
+                <Badge variant="default" className="text-xs">
+                  <Globe className="h-3 w-3 mr-1" />
+                  Public
                 </Badge>
               </div>
             </div>
           </div>
 
           <div className="flex flex-col sm:flex-row gap-2">
-            <Button onClick={handleMakePublic} variant={sim?.is_public ? "outline" : "default"} disabled={isLoading} size="sm">
-              {sim?.is_public ? "Make Private" : "Make Public"}
+            <Button variant="outline" asChild size="sm">
+              <a href={`/${sim?.custom_url || sim?.id}`} target="_blank" rel="noopener noreferrer">
+                <ExternalLink className="h-4 w-4 mr-2" />
+                Share Sim
+              </a>
             </Button>
-            {sim?.is_public && <Button variant="outline" asChild size="sm">
-                <a href={`/${sim.custom_url || sim.id}`} target="_blank" rel="noopener noreferrer">
-                  <ExternalLink className="h-4 w-4 mr-2" />
-                  Share Sim
-                </a>
-              </Button>}
           </div>
         </CardContent>
       </Card>
@@ -104,9 +87,9 @@ const MySim = () => {
               </div>
               <div className="text-center">
                 <p className="text-xl md:text-2xl font-bold text-primary">
-                  {sim.is_public ? 'Yes' : 'No'}
+                  Public
                 </p>
-                <p className="text-xs md:text-sm text-muted-foreground">Public Status</p>
+                <p className="text-xs md:text-sm text-muted-foreground">Status</p>
               </div>
               <div className="text-center">
                 <p className="text-xl md:text-2xl font-bold text-primary">
