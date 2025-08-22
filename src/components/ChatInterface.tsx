@@ -175,7 +175,7 @@ const ChatInterface = ({ agent, onBack }: ChatInterfaceProps) => {
               msg.role === 'user' ? 'justify-end' : 'justify-start'
             }`}
           >
-            {msg.role === 'assistant' && (
+            {msg.role === 'system' && (
               <Avatar className="h-8 w-8 mt-1">
                 <AvatarImage src={agent.avatar} alt={agent.name} />
                 <AvatarFallback>{agent.name.charAt(0)}</AvatarFallback>
