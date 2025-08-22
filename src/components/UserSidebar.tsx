@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
@@ -245,20 +246,6 @@ export const SidebarContent: React.FC<SidebarContentProps> = ({
                           <p className="text-xs text-fgMuted truncate mt-1">
                             {advisor.description}
                           </p>
-                          {advisor.tags && advisor.tags.length > 0 && (
-                            <div className="flex flex-wrap gap-1 mt-2">
-                              {advisor.tags.slice(0, 2).map((tag, idx) => (
-                                <Badge key={idx} variant="secondary" className="text-xs px-1 py-0">
-                                  {tag}
-                                </Badge>
-                              ))}
-                              {advisor.tags.length > 2 && (
-                                <Badge variant="secondary" className="text-xs px-1 py-0">
-                                  +{advisor.tags.length - 2}
-                                </Badge>
-                              )}
-                            </div>
-                          )}
                         </div>
                       </div>
                     ))}
