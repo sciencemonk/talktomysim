@@ -1,4 +1,5 @@
 
+
 import { useState, useEffect, useRef } from "react";
 import { Bot, Menu } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
@@ -44,6 +45,11 @@ const ChatInterface = ({ agent, onBack }: ChatInterfaceProps) => {
     scrollToBottom();
   }, [chatHistory.messages]);
 
+  // Monitor text chat processing state for typing indicator
+  useEffect(() => {
+    setIsAiResponding(textChat.isProcessing);
+  }, [textChat.isProcessing]);
+
   const SidebarContent = () => (
     <div className="w-80 bg-card border-r border-border flex flex-col h-full">
       <div className="p-6 border-b border-border">
@@ -67,6 +73,20 @@ const ChatInterface = ({ agent, onBack }: ChatInterfaceProps) => {
           >
             Get Started
           </Button>
+        </div>
+      </div>
+    </div>
+  );
+
+  const TypingIndicator = () => (
+    <div className="mb-4 flex flex-col items-start">
+      <div className="rounded-lg px-3 py-2 text-sm max-w-[85%] sm:max-w-[75%] md:max-w-[60%] lg:max-w-[40%] xl:max-w-[30%] bg-secondary text-secondary-foreground">
+        <div className="flex items-center space-x-1">
+          <div className="flex space-x-1">
+            <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+            <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+            <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce"></div>
+          </div>
         </div>
       </div>
     </div>
@@ -131,6 +151,7 @@ const ChatInterface = ({ agent, onBack }: ChatInterfaceProps) => {
               </div>
             </div>
           ))}
+          {isAiResponding && <TypingIndicator />}
           <div ref={messagesEndRef} />
         </div>
       </div>
@@ -148,3 +169,4 @@ const ChatInterface = ({ agent, onBack }: ChatInterfaceProps) => {
 };
 
 export default ChatInterface;
+
