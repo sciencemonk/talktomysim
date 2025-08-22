@@ -158,7 +158,7 @@ const MySim = () => {
           {simData.recentActivity.map((activity, index) => (
             <div 
               key={index} 
-              className="space-y-1 pb-3 border-b last:border-b-0 last:pb-0 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 p-2 rounded transition-colors"
+              className="space-y-1 pb-3 border-b last:border-b-0 last:pb-0 cursor-pointer hover:bg-gray-50/50 dark:hover:bg-gray-800/30 p-2 rounded transition-colors duration-200"
               onClick={() => handleActivityClick(activity)}
             >
               <p className="text-sm font-medium">{activity.activity}</p>
