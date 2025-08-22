@@ -1,10 +1,11 @@
+
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { Navigate } from "react-router-dom";
 import AdvisorDirectory from "@/components/AdvisorDirectory";
 import ChatInterface from "@/components/ChatInterface";
 import AuthModal from "@/components/AuthModal";
-import UserSidebar from "@/components/UserSidebar";
+import UserSidebar, { SidebarContent } from "@/components/UserSidebar";
 import MySim from "@/components/MySim";
 import BasicInfo from "@/components/BasicInfo";
 import InteractionModel from "@/components/InteractionModel";
@@ -12,6 +13,14 @@ import CoreKnowledge from "@/components/CoreKnowledge";
 import { AgentType } from "@/types/agent";
 import { useUserAdvisors } from "@/hooks/useUserAdvisors";
 import { useToast } from "@/hooks/use-toast";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { Menu } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 
 type ViewType = 'directory' | 'my-sim' | 'basic-info' | 'interaction-model' | 'core-knowledge';
 
@@ -19,11 +28,13 @@ const Home = () => {
   const { user, loading } = useAuth();
   const { advisorsAsAgents, addAdvisor, removeAdvisor } = useUserAdvisors();
   const { toast } = useToast();
+  const isMobile = useIsMobile();
   const [selectedAdvisor, setSelectedAdvisor] = useState<AgentType | null>(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [selectedAgent, setSelectedAgent] = useState<AgentType | null>(null);
   const [selectedPublicAdvisorId, setSelectedPublicAdvisorId] = useState<string | null>(null);
   const [currentView, setCurrentView] = useState<ViewType>('directory');
+  const [mobileSheetOpen, setMobileSheetOpen] = useState(false);
 
   // Handle auth modal close
   const handleAuthModalClose = (open: boolean) => {
@@ -72,6 +83,7 @@ const Home = () => {
     setSelectedAdvisor(null);
     setSelectedPublicAdvisorId(null);
     setCurrentView('directory'); // Reset view when selecting agent
+    setMobileSheetOpen(false); // Close mobile sheet
   };
 
   // Handle public advisor selection from sidebar
@@ -82,6 +94,7 @@ const Home = () => {
     }
     setSelectedAgent(null);
     setCurrentView('directory'); // Reset view when selecting public advisor
+    setMobileSheetOpen(false); // Close mobile sheet
   };
 
   // Handle removing public advisor
@@ -108,6 +121,7 @@ const Home = () => {
     setSelectedAdvisor(null);
     setSelectedPublicAdvisorId(null);
     setCurrentView('directory');
+    setMobileSheetOpen(false); // Close mobile sheet
   };
 
   // Handle navigation to different views
@@ -116,6 +130,7 @@ const Home = () => {
     setSelectedAgent(null);
     setSelectedAdvisor(null);
     setSelectedPublicAdvisorId(null);
+    setMobileSheetOpen(false); // Close mobile sheet
   };
 
   const handleNavigateToBasicInfo = () => {
@@ -123,6 +138,7 @@ const Home = () => {
     setSelectedAgent(null);
     setSelectedAdvisor(null);
     setSelectedPublicAdvisorId(null);
+    setMobileSheetOpen(false); // Close mobile sheet
   };
 
   const handleNavigateToInteractionModel = () => {
@@ -130,6 +146,7 @@ const Home = () => {
     setSelectedAgent(null);
     setSelectedAdvisor(null);
     setSelectedPublicAdvisorId(null);
+    setMobileSheetOpen(false); // Close mobile sheet
   };
 
   const handleNavigateToCoreKnowledge = () => {
@@ -137,6 +154,7 @@ const Home = () => {
     setSelectedAgent(null);
     setSelectedAdvisor(null);
     setSelectedPublicAdvisorId(null);
+    setMobileSheetOpen(false); // Close mobile sheet
   };
 
   if (loading) {
@@ -188,8 +206,46 @@ const Home = () => {
     }
   };
 
+  // Mobile Header Component
+  const MobileHeader = () => (
+    <div className="md:hidden bg-card border-b border-border p-4 flex items-center justify-between">
+      <div className="flex items-center gap-3">
+        <img 
+          src="/lovable-uploads/d1283b59-7cfa-45f5-b151-4c32b24f3621.png" 
+          alt="Sim" 
+          className="h-8 w-8 object-contain"
+        />
+        <h1 className="font-semibold text-lg">Sim</h1>
+      </div>
+      <Sheet open={mobileSheetOpen} onOpenChange={setMobileSheetOpen}>
+        <SheetTrigger asChild>
+          <Button variant="ghost" size="icon">
+            <Menu className="h-5 w-5" />
+          </Button>
+        </SheetTrigger>
+        <SheetContent side="left" className="p-0 w-80">
+          <SidebarContent
+            selectedAgent={selectedAgent}
+            selectedPublicAdvisorId={selectedPublicAdvisorId}
+            selectedPublicAdvisors={advisorsAsAgents}
+            onSelectAgent={handleAgentSelect}
+            onSelectPublicAdvisor={handlePublicAdvisorSelect}
+            onRemovePublicAdvisor={handleRemovePublicAdvisor}
+            onShowAdvisorDirectory={handleShowAdvisorDirectory}
+            onNavigateToMySim={handleNavigateToMySim}
+            onNavigateToBasicInfo={handleNavigateToBasicInfo}
+            onNavigateToInteractionModel={handleNavigateToInteractionModel}
+            onNavigateToCoreKnowledge={handleNavigateToCoreKnowledge}
+            onClose={() => setMobileSheetOpen(false)}
+          />
+        </SheetContent>
+      </Sheet>
+    </div>
+  );
+
   return (
     <div className="flex h-screen bg-background">
+      {/* Desktop Sidebar */}
       <UserSidebar
         selectedAgent={selectedAgent}
         selectedPublicAdvisorId={selectedPublicAdvisorId}
@@ -204,8 +260,14 @@ const Home = () => {
         onNavigateToCoreKnowledge={handleNavigateToCoreKnowledge}
       />
       
-      <div className="flex-1">
-        {renderMainContent()}
+      <div className="flex-1 flex flex-col">
+        {/* Mobile Header */}
+        <MobileHeader />
+        
+        {/* Main Content */}
+        <div className="flex-1">
+          {renderMainContent()}
+        </div>
       </div>
       
       <AuthModal 
