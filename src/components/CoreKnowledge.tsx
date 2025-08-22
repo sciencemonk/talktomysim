@@ -63,13 +63,13 @@ const CoreKnowledge = ({ advisorId, advisorName }: CoreKnowledgeProps) => {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Brain className="h-5 w-5" />
-            Core Knowledge
+            Vector Embedding
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
           <p className="text-muted-foreground">
-            Upload documents, add personal experiences, and share your expertise to build your Sim's knowledge base. 
-            This helps your Sim give more accurate and personalized responses.
+            Upload documents, add personal experiences, and share your expertise to build your Sim's brain. 
+            We'll convert it into a vector embedding so that huge amounts of information are readily available.
           </p>
 
           {/* Knowledge Items */}
@@ -175,7 +175,7 @@ const CoreKnowledge = ({ advisorId, advisorName }: CoreKnowledgeProps) => {
               className="px-8"
               disabled={isLoading}
             >
-              {isLoading ? 'Saving...' : 'Save Core Knowledge'}
+              {isLoading ? 'Saving...' : 'Save Vector Embedding'}
             </Button>
           </div>
         </CardContent>

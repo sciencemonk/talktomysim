@@ -8,7 +8,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { CalendarIcon, X, Plus, Upload, Camera, FileText } from "lucide-react";
+import { CalendarIcon, X, Plus, Upload, Camera, FileText, User } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { useSim } from "@/hooks/useSim";
@@ -281,7 +281,10 @@ const BasicInfo = () => {
     <div className="max-w-4xl mx-auto p-6 space-y-6">
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle>Context Window</CardTitle>
+          <CardTitle className="flex items-center gap-2">
+            <User className="h-5 w-5" />
+            Context Window
+          </CardTitle>
           <Dialog open={showPromptModal} onOpenChange={handleModalOpen}>
             <DialogTrigger asChild>
               <Button variant="outline" size="sm">
