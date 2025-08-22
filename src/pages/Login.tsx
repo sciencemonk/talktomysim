@@ -35,7 +35,7 @@ const Login = () => {
   // Redirect if already logged in
   useEffect(() => {
     if (user) {
-      navigate('/app');
+      navigate('/');
     }
   }, [user, navigate]);
 
@@ -45,7 +45,7 @@ const Login = () => {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/app`
+          redirectTo: `${window.location.origin}/`
         }
       });
       
@@ -73,7 +73,7 @@ const Login = () => {
         email: testEmail,
         password: testPassword,
         options: {
-          emailRedirectTo: `${window.location.origin}/app`,
+          emailRedirectTo: `${window.location.origin}/`,
           data: {
             full_name: 'Test User'
           }
@@ -95,7 +95,7 @@ const Login = () => {
         
         console.log('Signed in with existing test account:', signInData);
         if (signInData.user) {
-          navigate('/app');
+          navigate('/');
         }
         return;
       }
@@ -103,7 +103,7 @@ const Login = () => {
       console.log('Test account created successfully:', signUpData);
       
       if (signUpData.user) {
-        navigate('/app');
+        navigate('/');
       }
     } catch (error) {
       console.error('Error with test sign in:', error);
@@ -121,7 +121,7 @@ const Login = () => {
           email: data.email,
           password: data.password,
           options: {
-            emailRedirectTo: `${window.location.origin}/app`
+            emailRedirectTo: `${window.location.origin}/`
           }
         });
 
@@ -148,7 +148,7 @@ const Login = () => {
 
         if (signInData.user) {
           toast.success('Signed in successfully!');
-          navigate('/app');
+          navigate('/');
         }
       }
     } catch (error) {
