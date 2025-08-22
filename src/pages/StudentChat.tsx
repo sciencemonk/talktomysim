@@ -3,19 +3,16 @@ import { useParams } from "react-router-dom";
 import { usePublicAgent } from "@/hooks/usePublicAgent";
 import { usePublicAgentByUrl } from "@/hooks/usePublicAgentByUrl";
 import ChatInterface from "@/components/ChatInterface";
-import UserSidebar from "@/components/UserSidebar";
 import AuthModal from "@/components/AuthModal";
 import { useAuth } from "@/hooks/useAuth";
 import { Bot, Loader2, AlertCircle } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { useIsMobile } from "@/hooks/use-mobile";
 import { useState } from "react";
 
 const StudentChat = () => {
   const { agentId, customUrl } = useParams<{ agentId?: string; customUrl?: string }>();
   const { user } = useAuth();
-  const isMobile = useIsMobile();
   const [showAuthModal, setShowAuthModal] = useState(false);
   
   // Determine which hook to use based on the route parameters
@@ -74,51 +71,14 @@ const StudentChat = () => {
     setShowAuthModal(true);
   };
 
-  // On mobile, render just the chat interface without sidebar
-  if (isMobile) {
-    return (
-      <>
-        <div className="h-screen bg-background">
-          <ChatInterface 
-            agent={agent}
-            onBack={handleBack}
-          />
-        </div>
-        <AuthModal 
-          open={showAuthModal} 
-          onOpenChange={setShowAuthModal} 
-        />
-      </>
-    );
-  }
-
-  // On desktop, always render with sidebar (for both signed-in and non-signed-in users)
+  // Render chat interface without sidebar for public pages
   return (
     <>
-      <div className="h-screen bg-background flex">
-        <UserSidebar 
-          selectedAgent={null}
-          selectedPublicAdvisorId={null}
-          selectedPublicAdvisors={[]}
-          onSelectAgent={() => {}}
-          onSelectPublicAdvisor={() => {}}
-          onRemovePublicAdvisor={() => {}}
-          onShowAdvisorDirectory={() => {}}
-          onNavigateToMySim={() => {}}
-          onNavigateToBasicInfo={() => {}}
-          onNavigateToInteractionModel={() => {}}
-          onNavigateToCoreKnowledge={() => {}}
-          onNavigateToIntegrations={() => {}}
-          onNavigateToSearch={() => {}}
-          activeView="directory"
-          onAuthRequired={handleAuthRequired} 
+      <div className="h-screen bg-background">
+        <ChatInterface 
+          agent={agent}
+          onBack={handleBack}
         />
-        <div className="flex-1 md:ml-80">
-          <ChatInterface 
-            agent={agent}
-            onBack={handleBack}
-          />
-        </div>
       </div>
       <AuthModal 
         open={showAuthModal} 
