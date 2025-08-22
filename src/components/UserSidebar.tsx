@@ -1,4 +1,3 @@
-
 import { useLocation } from "react-router-dom";
 import { 
   Bot, 
@@ -11,7 +10,8 @@ import {
   Info,
   MessageSquare,
   Brain,
-  BookOpen
+  BookOpen,
+  Search
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useAgents } from "@/hooks/useAgents";
@@ -130,6 +130,15 @@ const SidebarContent = ({
       onClick: () => {
         // TODO: Navigate to Core Knowledge page
         console.log("Navigate to Core Knowledge");
+        onClose?.();
+      }
+    },
+    {
+      title: "Find a Sim",
+      icon: Search,
+      href: "#",
+      onClick: () => {
+        onShowAdvisorDirectory?.();
         onClose?.();
       }
     }
