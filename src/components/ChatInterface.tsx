@@ -89,6 +89,14 @@ const ChatInterface = ({ agent, onBack }: ChatInterfaceProps) => {
     </div>
   );
 
+  // Filter out incomplete messages with no content for display
+  const displayMessages = chatHistory.messages.filter(message => {
+    // Show complete messages always
+    if (message.isComplete) return true;
+    // Show incomplete messages only if they have content
+    return message.content.trim().length > 0;
+  });
+
   return (
     <div className="flex flex-col h-screen w-full">
       {/* Header - Always visible on mobile */}
@@ -136,7 +144,7 @@ const ChatInterface = ({ agent, onBack }: ChatInterfaceProps) => {
       {/* Messages - Scrollable area between header and input */}
       <div className="flex-1 overflow-auto min-h-0">
         <div className="px-4 sm:p-4 pt-6 pb-4">
-          {chatHistory.messages.map((message) => (
+          {displayMessages.map((message) => (
             <div
               key={message.id}
               className={`mb-4 flex flex-col ${message.role === 'user' ? 'items-end' : 'items-start'}`}
@@ -148,8 +156,8 @@ const ChatInterface = ({ agent, onBack }: ChatInterfaceProps) => {
               </div>
             </div>
           ))}
-          {/* Show typing indicator only when AI is responding and there are no incomplete messages */}
-          {isAiResponding && !chatHistory.messages.some(msg => !msg.isComplete) && <TypingIndicator />}
+          {/* Show typing indicator when AI is responding and no incomplete messages are being displayed */}
+          {isAiResponding && !chatHistory.messages.some(msg => !msg.isComplete && msg.content.trim().length > 0) && <TypingIndicator />}
           <div ref={messagesEndRef} />
         </div>
       </div>
