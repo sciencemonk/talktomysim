@@ -2,20 +2,19 @@
 import { useLocation } from "react-router-dom";
 import { 
   Bot, 
-  PlusCircle,
   LogOut, 
   Settings,
   User,
   Menu,
-  Star,
-  MoreHorizontal,
   X,
   LogIn,
-  Trash2
+  Info,
+  MessageSquare,
+  Brain,
+  BookOpen
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useAgents } from "@/hooks/useAgents";
-import { useAdvisorRemoval } from "@/hooks/useAdvisorRemoval";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -72,12 +71,7 @@ const SidebarContent = ({
 }) => {
   const { user, signOut } = useAuth();
   const { agents, isLoading } = useAgents();
-  const { handleRemoveAdvisor, removingAdvisorId, error } = useAdvisorRemoval(
-    selectedPublicAdvisors,
-    onRemovePublicAdvisor
-  );
   
-  const [hoveredAdvisorId, setHoveredAdvisorId] = useState<string | null>(null);
   const [isLogoHovered, setIsLogoHovered] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
 
@@ -97,22 +91,49 @@ const SidebarContent = ({
     onClose?.(); // Close mobile drawer when agent is selected
   };
 
-  const handlePublicAdvisorSelect = (advisorId: string) => {
-    console.log('Public advisor selected:', advisorId);
-    const advisor = selectedPublicAdvisors.find(a => a.id === advisorId);
-    onSelectPublicAdvisor?.(advisorId, advisor);
-    onClose?.(); // Close mobile drawer when advisor is selected
-  };
-
-  const handleShowAdvisorDirectory = () => {
-    onShowAdvisorDirectory?.();
-    onClose?.(); // Close mobile drawer
-  };
-
-  const handleAdvisorRemove = async (advisorId: string) => {
-    await handleRemoveAdvisor(advisorId);
-    setHoveredAdvisorId(null);
-  };
+  // Navigation items for authenticated users
+  const navigationItems = [
+    {
+      title: "My Sim",
+      icon: Bot,
+      href: "#",
+      onClick: () => {
+        // TODO: Navigate to My Sim page
+        console.log("Navigate to My Sim");
+        onClose?.();
+      }
+    },
+    {
+      title: "Basic Info",
+      icon: Info,
+      href: "#",
+      onClick: () => {
+        // TODO: Navigate to Basic Info page
+        console.log("Navigate to Basic Info");
+        onClose?.();
+      }
+    },
+    {
+      title: "Interaction Model",
+      icon: MessageSquare,
+      href: "#",
+      onClick: () => {
+        // TODO: Navigate to Interaction Model page
+        console.log("Navigate to Interaction Model");
+        onClose?.();
+      }
+    },
+    {
+      title: "Core Knowledge",
+      icon: Brain,
+      href: "#",
+      onClick: () => {
+        // TODO: Navigate to Core Knowledge page
+        console.log("Navigate to Core Knowledge");
+        onClose?.();
+      }
+    }
+  ];
 
   return (
     <div className="flex flex-col h-full">
@@ -230,92 +251,28 @@ const SidebarContent = ({
             </div>
           )}
 
-          {/* Public Advisors Section */}
-          {selectedPublicAdvisors.length > 0 && (
-            <div className={cn("space-y-1", agents.length > 0 && "mt-4")}>
-              {selectedPublicAdvisors.map((advisor) => (
-                <div
-                  key={advisor.id}
-                  className="relative group"
-                >
-                  <Button
-                    onClick={() => handlePublicAdvisorSelect(advisor.id)}
-                    variant="ghost"
-                    disabled={removingAdvisorId === advisor.id}
-                    className={cn(
-                      "flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors w-full justify-start h-auto min-h-[40px] relative",
-                      selectedPublicAdvisorId === advisor.id
-                        ? "bg-primary/10 text-primary font-medium hover:bg-primary/15"
-                        : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                    )}
-                  >
-                    <Avatar className="h-6 w-6 flex-shrink-0">
-                      <AvatarImage src={advisor.avatar} alt={advisor.name} />
-                      <AvatarFallback className="bg-primary/10 text-primary text-xs">
-                        <Star className="h-3 w-3" />
-                      </AvatarFallback>
-                    </Avatar>
-                    {(!isCollapsed || !onToggleCollapse) && (
-                      <span className="truncate text-left flex-1">
-                        {removingAdvisorId === advisor.id ? "Removing..." : advisor.name}
-                      </span>
-                    )}
-                    
-                    {/* Three dots dropdown - Desktop only */}
-                    {!removingAdvisorId && (!isCollapsed || !onToggleCollapse) && (
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 hover:opacity-100 transition-opacity"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                            }}
-                          >
-                            <MoreHorizontal className="h-3 w-3" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-32">
-                          <DropdownMenuItem 
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleAdvisorRemove(advisor.id);
-                            }}
-                            className="text-red-600 hover:text-red-700"
-                          >
-                            <Trash2 className="mr-2 h-4 w-4" />
-                            Remove
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    )}
-                  </Button>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {/* Error message */}
-          {error && (
-            <div className="px-3 py-2 text-xs text-red-600 bg-red-50 rounded-md">
-              {error}
-            </div>
-          )}
-
-          {/* Find a Sim Button */}
-          <Button
-            onClick={handleShowAdvisorDirectory}
-            variant="outline"
-            className={cn(
-              "flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors w-full justify-start",
-              (agents.length > 0 || selectedPublicAdvisors.length > 0) && "mt-4"
+          {/* Navigation Links */}
+          <div className={cn("space-y-1", agents.length > 0 && "mt-4")}>
+            {(!isCollapsed || !onToggleCollapse) && (
+              <div className="px-3 py-2 text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                Navigation
+              </div>
             )}
-            size="sm"
-          >
-            <PlusCircle className="h-4 w-4 flex-shrink-0" />
-            {(!isCollapsed || !onToggleCollapse) && <span>Find a Sim</span>}
-          </Button>
+            {navigationItems.map((item) => (
+              <Button
+                key={item.title}
+                onClick={item.onClick}
+                variant="ghost"
+                className={cn(
+                  "flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors w-full justify-start h-auto min-h-[40px]",
+                  "text-muted-foreground hover:bg-muted hover:text-foreground"
+                )}
+              >
+                <item.icon className="h-4 w-4 flex-shrink-0" />
+                {(!isCollapsed || !onToggleCollapse) && <span className="truncate text-left">{item.title}</span>}
+              </Button>
+            ))}
+          </div>
         </div>
       )}
 
