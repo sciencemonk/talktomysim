@@ -67,21 +67,10 @@ const UpgradeModal = ({ open, onOpenChange }: UpgradeModalProps) => {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-semibold text-center mb-6">
+          <DialogTitle className="text-2xl font-semibold text-center mb-2">
             Upgrade your plan
           </DialogTitle>
         </DialogHeader>
-        
-        <div className="flex justify-center mb-8">
-          <div className="bg-muted rounded-lg p-1 flex">
-            <Button variant="secondary" size="sm" className="bg-background">
-              Personal
-            </Button>
-            <Button variant="ghost" size="sm" className="text-muted-foreground">
-              Business
-            </Button>
-          </div>
-        </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {plans.map((plan) => (
