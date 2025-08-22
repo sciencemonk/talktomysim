@@ -57,8 +57,8 @@ const InteractionModel = () => {
         </CardHeader>
         <CardContent className="space-y-6">
           <p className="text-muted-foreground">
-            Define how your AI tutor communicates and interacts with students. Set the tone, style, 
-            and behavioral patterns through examples.
+            Define how your digital sim communicates and interacts with people. Set your personality, 
+            tone, and response patterns so others can chat with a digital version of you.
           </p>
 
           {/* Welcome Message Section */}
@@ -67,11 +67,11 @@ const InteractionModel = () => {
               Welcome Message
             </Label>
             <p className="text-sm text-muted-foreground">
-              The first message students will see when they start chatting with your AI tutor.
+              The first message people will see when they start chatting with your digital sim.
             </p>
             <Textarea
               id="welcome-message"
-              placeholder="Hi! I'm your AI tutor. I'm here to help you learn and understand complex topics. What would you like to explore today?"
+              placeholder="Hey there! I'm the digital version of [Your Name]. I'm here to chat about whatever's on your mind. What would you like to talk about?"
               value={welcomeMessage}
               onChange={(e) => setWelcomeMessage(e.target.value)}
               className="min-h-[100px]"
@@ -86,11 +86,11 @@ const InteractionModel = () => {
               <div>
                 <Label className="text-base font-medium flex items-center gap-2">
                   <HelpCircle className="h-4 w-4" />
-                  Sample Questions & Responses
+                  Sample Questions & Your Responses
                 </Label>
                 <p className="text-sm text-muted-foreground mt-1">
-                  Provide example questions students might ask and how you would typically respond. 
-                  This helps the AI learn your teaching style and communication patterns.
+                  Provide example questions people might ask you and how you would typically respond. 
+                  This helps your digital sim learn your personality, communication style, and way of thinking.
                 </p>
               </div>
               <Button onClick={addScenario} variant="outline" size="sm">
@@ -120,11 +120,11 @@ const InteractionModel = () => {
                     <div className="space-y-3">
                       <div>
                         <Label htmlFor={`question-${scenario.id}`} className="text-sm">
-                          Student Question
+                          Question Someone Might Ask You
                         </Label>
                         <Input
                           id={`question-${scenario.id}`}
-                          placeholder="e.g., Can you explain photosynthesis?"
+                          placeholder="e.g., What's your favorite hobby? or What do you think about...?"
                           value={scenario.question}
                           onChange={(e) => updateScenario(scenario.id, 'question', e.target.value)}
                           className="mt-1"
@@ -133,11 +133,11 @@ const InteractionModel = () => {
 
                       <div>
                         <Label htmlFor={`response-${scenario.id}`} className="text-sm">
-                          Your Typical Response
+                          How You Would Respond
                         </Label>
                         <Textarea
                           id={`response-${scenario.id}`}
-                          placeholder="e.g., Great question! Let me break down photosynthesis step by step. First, plants need three key ingredients..."
+                          placeholder="e.g., I'm really into photography! I love capturing moments and experimenting with different lighting..."
                           value={scenario.expectedResponse}
                           onChange={(e) => updateScenario(scenario.id, 'expectedResponse', e.target.value)}
                           className="mt-1 min-h-[80px]"
@@ -164,10 +164,11 @@ const InteractionModel = () => {
         <CardContent className="p-4">
           <h4 className="font-medium text-blue-900 mb-2">💡 Tips for Better Interactions</h4>
           <ul className="text-sm text-blue-800 space-y-1">
-            <li>• Be specific in your responses to help the AI understand your teaching style</li>
-            <li>• Include different types of questions (conceptual, practical, troubleshooting)</li>
-            <li>• Show how you break down complex topics into simpler parts</li>
-            <li>• Demonstrate your tone - encouraging, patient, or challenging as appropriate</li>
+            <li>• Be authentic in your responses to capture your real personality</li>
+            <li>• Include different types of questions (personal, professional, casual, deep)</li>
+            <li>• Show your unique way of explaining things or sharing thoughts</li>
+            <li>• Demonstrate your tone - whether you're humorous, thoughtful, direct, or encouraging</li>
+            <li>• Include your interests, opinions, and experiences to make conversations feel genuine</li>
           </ul>
         </CardContent>
       </Card>
