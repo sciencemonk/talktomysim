@@ -154,35 +154,35 @@ const CoreKnowledge: React.FC<CoreKnowledgeProps> = ({
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
             <Button 
               variant="outline" 
-              className="flex items-center justify-center gap-2 h-20"
+              className="flex flex-col items-center justify-center gap-3 h-24 p-4 border-2 hover:border-primary/50 transition-colors"
               onClick={() => setTextDialogOpen(true)}
             >
-              <Type className="h-6 w-6" />
-              <div className="text-center">
-                <div className="font-medium">Add Text</div>
-                <div className="text-xs text-muted-foreground">Personal insights, thoughts</div>
+              <Type className="h-8 w-8 text-muted-foreground" />
+              <div className="text-center space-y-1">
+                <div className="font-medium text-sm">Add Text</div>
+                <div className="text-xs text-muted-foreground leading-tight">Personal insights, thoughts</div>
               </div>
             </Button>
             <Button 
               variant="outline" 
-              className="flex items-center justify-center gap-2 h-20"
+              className="flex flex-col items-center justify-center gap-3 h-24 p-4 border-2 hover:border-primary/50 transition-colors"
               onClick={() => setWebUrlDialogOpen(true)}
             >
-              <Globe className="h-6 w-6" />
-              <div className="text-center">
-                <div className="font-medium">Add Web Page</div>
-                <div className="text-xs text-muted-foreground">Articles, blogs, references</div>
+              <Globe className="h-8 w-8 text-muted-foreground" />
+              <div className="text-center space-y-1">
+                <div className="font-medium text-sm">Add Web Page</div>
+                <div className="text-xs text-muted-foreground leading-tight">Articles, blogs, references</div>
               </div>
             </Button>
             <Button 
               variant="outline" 
-              className="flex items-center justify-center gap-2 h-20"
+              className="flex flex-col items-center justify-center gap-3 h-24 p-4 border-2 hover:border-primary/50 transition-colors"
               onClick={() => document.getElementById('file-upload')?.click()}
             >
-              <Upload className="h-6 w-6" />
-              <div className="text-center">
-                <div className="font-medium">Upload Files</div>
-                <div className="text-xs text-muted-foreground">PDFs, documents, books</div>
+              <Upload className="h-8 w-8 text-muted-foreground" />
+              <div className="text-center space-y-1">
+                <div className="font-medium text-sm">Upload Files</div>
+                <div className="text-xs text-muted-foreground leading-tight">PDFs, documents, books</div>
               </div>
             </Button>
             <input
