@@ -1,222 +1,198 @@
 
-import { useState, useEffect } from "react";
-import { useAuth } from "@/hooks/useAuth";
-import { Sheet, SheetContent } from "@/components/ui/sheet";
-import { Button } from "@/components/ui/button";
-import { Menu, X } from "lucide-react";
-import { useIsMobile } from "@/hooks/use-mobile";
-import { SidebarContent } from "@/components/UserSidebar";
-import AdvisorDirectory from "@/components/AdvisorDirectory";
-import MySim from "@/components/MySim";
-import BasicInfo from "@/components/BasicInfo";
-import InteractionModel from "@/components/InteractionModel";
-import CoreKnowledge from "@/components/CoreKnowledge";
-import Integrations from "@/components/Integrations";
-import { AgentType } from "@/types/agent";
-import { LoaderIcon } from "@/components/LoaderIcon";
-import { Link } from "react-router-dom";
+import { useState } from 'react';
+import { useAuth } from '@/hooks/useAuth';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Search, Menu, X } from 'lucide-react';
+import { usePublicAgents } from '@/hooks/usePublicAgents';
+import { Link } from 'react-router-dom';
+import AuthModal from '@/components/AuthModal';
 
 const Home = () => {
-  const { user, loading } = useAuth();
-  const isMobile = useIsMobile();
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [activeView, setActiveView] = useState<string>("search");
-  const [selectedAgent, setSelectedAgent] = useState<AgentType | null>(null);
-  const [selectedPublicAdvisorId, setSelectedPublicAdvisorId] = useState<string | null>(null);
-  const [selectedPublicAdvisors, setSelectedPublicAdvisors] = useState<AgentType[]>([]);
+  const { user } = useAuth();
+  const { data: agents = [] } = usePublicAgents();
+  const [searchTerm, setSearchTerm] = useState('');
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
 
-  // For non-authenticated users, always show search directory
-  useEffect(() => {
-    if (!loading && !user) {
-      setActiveView("search");
-    }
-  }, [user, loading]);
+  const filteredAgents = agents.filter(agent =>
+    agent.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    agent.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    agent.subject_area?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
-  const handleSelectAgent = (agent: AgentType) => {
-    setSelectedAgent(agent);
-    setSelectedPublicAdvisorId(null);
-  };
-
-  const handleSelectPublicAdvisor = (advisorId: string, advisor?: AgentType) => {
-    setSelectedPublicAdvisorId(advisorId);
-    setSelectedAgent(null);
-
-    if (advisor) {
-      // Check if the advisor is already in the list
-      const advisorExists = selectedPublicAdvisors.some(a => a.id === advisorId);
-      if (!advisorExists) {
-        setSelectedPublicAdvisors(prev => [...prev, advisor]);
-      }
-    }
-  };
-
-  const handleRemovePublicAdvisor = (advisorId: string) => {
-    setSelectedPublicAdvisors(prev => prev.filter(advisor => advisor.id !== advisorId));
-  };
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <LoaderIcon className="w-8 h-8" />
-      </div>
-    );
+  if (user) {
+    // Authenticated user view - redirect to main app
+    window.location.href = '/app';
+    return null;
   }
 
-  // For non-authenticated users, show search directory with login sidebar
-  if (!user) {
-    return (
-      <div className="min-h-screen bg-bg flex">
-        {/* Desktop Sidebar for non-authenticated users */}
-        {!isMobile && (
-          <div className="fixed left-0 top-0 h-screen w-80 z-40">
-            <div className="flex flex-col h-full bg-card border-r border-border">
-              {/* Header */}
-              <div className="p-4 border-b border-border">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
-                    <img 
-                      src="/lovable-uploads/d1283b59-7cfa-45f5-b151-4c32b24f3621.png" 
-                      alt="Logo" 
-                      className="h-8 w-8 object-contain"
-                    />
-                    <h2 className="text-lg font-semibold text-fg">Sim</h2>
-                  </div>
-                </div>
-              </div>
+  return (
+    <div className="min-h-screen bg-background text-foreground">
+      {/* Mobile Header */}
+      <div className="lg:hidden border-b border-border bg-background">
+        <div className="flex items-center justify-between p-4">
+          <div className="flex items-center space-x-2">
+            <img 
+              src="/lovable-uploads/a5a8957b-48cb-40f5-9097-0ab747b74077.png" 
+              alt="Think With Me" 
+              className="w-8 h-8"
+            />
+            <h1 className="text-xl font-bold text-fg">Sim</h1>
+          </div>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+          >
+            {isSidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </Button>
+        </div>
+      </div>
 
-              {/* Login Section */}
-              <div className="flex-1 flex items-center justify-center p-4">
-                <div className="text-center space-y-6">
-                  <p className="text-lg font-medium text-fg">Create your free Sim today.</p>
-                  <Link to="/login">
-                    <Button className="w-full bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 text-white hover:from-purple-700 hover:via-pink-700 hover:to-blue-700 animate-pulse">
-                      Get started
-                    </Button>
-                  </Link>
-                </div>
-              </div>
+      <div className="flex h-screen lg:h-screen">
+        {/* Sidebar */}
+        <div className={`
+          ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} 
+          lg:translate-x-0 transition-transform duration-300 ease-in-out
+          fixed lg:static inset-y-0 left-0 z-50 w-80 bg-background border-r border-border
+          flex flex-col
+        `}>
+          {/* Desktop Header */}
+          <div className="hidden lg:block border-b border-border p-6">
+            <div className="flex items-center space-x-2">
+              <img 
+                src="/lovable-uploads/a5a8957b-48cb-40f5-9097-0ab747b74077.png" 
+                alt="Think With Me" 
+                className="w-8 h-8"
+              />
+              <h1 className="text-xl font-bold text-fg">Sim</h1>
             </div>
           </div>
-        )}
 
-        {/* Mobile Header for non-authenticated users */}
-        {isMobile && (
-          <div className="fixed top-0 left-0 right-0 bg-card border-b border-border z-50 h-16">
-            <div className="flex items-center justify-between px-4 h-full">
+          {/* Login Section */}
+          <div className="flex-1 flex items-center justify-center p-4">
+            <div className="text-center space-y-6">
+              <p className="text-lg font-medium text-fg">Create your free Sim today.</p>
+              <Button 
+                onClick={() => setShowAuthModal(true)}
+                className="w-full bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 text-white hover:from-purple-700 hover:via-pink-700 hover:to-blue-700 animate-pulse"
+              >
+                Get started
+              </Button>
+            </div>
+          </div>
+        </div>
+
+        {/* Main Content */}
+        <div className="flex-1 flex flex-col overflow-hidden">
+          {/* Search Header - Desktop */}
+          <div className="hidden lg:flex items-center justify-between border-b border-border p-6">
+            <div className="flex-1 max-w-md relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+              <Input
+                type="text"
+                placeholder="Search tutors..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+            <div className="flex items-center space-x-4">
               <div className="flex items-center space-x-2">
                 <img 
-                  src="/lovable-uploads/d1283b59-7cfa-45f5-b151-4c32b24f3621.png" 
-                  alt="Logo" 
-                  className="h-8 w-8 object-contain"
+                  src="/lovable-uploads/a5a8957b-48cb-40f5-9097-0ab747b74077.png" 
+                  alt="Think With Me" 
+                  className="w-6 h-6"
                 />
                 <h2 className="text-lg font-semibold text-fg">Sim</h2>
               </div>
-              <Link to="/login">
-                <Button size="sm" className="bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 text-white hover:from-purple-700 hover:via-pink-700 hover:to-blue-700 animate-pulse">
-                  Get started
-                </Button>
-              </Link>
+              <Button 
+                size="sm" 
+                onClick={() => setShowAuthModal(true)}
+                className="bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 text-white hover:from-purple-700 hover:via-pink-700 hover:to-blue-700 animate-pulse"
+              >
+                Get started
+              </Button>
             </div>
           </div>
-        )}
 
-        {/* Main Content Area */}
-        <div className={`flex-1 ${!isMobile ? 'ml-80' : 'mt-16'}`}>
-          <AdvisorDirectory 
-            onSelectAdvisor={handleSelectPublicAdvisor}
-          />
-        </div>
-      </div>
-    );
-  }
-
-  // For authenticated users, show the full app
-  return (
-    <div className="min-h-screen bg-bg flex">
-      {/* Desktop Sidebar */}
-      {!isMobile && (
-        <div className="fixed left-0 top-0 h-screen w-80 z-40">
-          <SidebarContent
-            selectedAgent={selectedAgent}
-            selectedPublicAdvisorId={selectedPublicAdvisorId}
-            selectedPublicAdvisors={selectedPublicAdvisors}
-            onSelectAgent={handleSelectAgent}
-            onSelectPublicAdvisor={handleSelectPublicAdvisor}
-            onRemovePublicAdvisor={handleRemovePublicAdvisor}
-            onShowAdvisorDirectory={() => setActiveView("search")}
-            onNavigateToMySim={() => setActiveView("my-sim")}
-            onNavigateToBasicInfo={() => setActiveView("basic-info")}
-            onNavigateToInteractionModel={() => setActiveView("interaction-model")}
-            onNavigateToCoreKnowledge={() => setActiveView("core-knowledge")}
-            onNavigateToIntegrations={() => setActiveView("integrations")}
-            activeView={activeView}
-          />
-        </div>
-      )}
-
-      {/* Mobile Header */}
-      {isMobile && (
-        <div className="fixed top-0 left-0 right-0 bg-card border-b border-border z-50 h-16">
-          <div className="flex items-center justify-between px-4 h-full">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setMobileMenuOpen(true)}
-              className="p-2"
-            >
-              <Menu className="w-5 h-5" />
-            </Button>
-            <div className="flex items-center space-x-2">
-              <img 
-                src="/lovable-uploads/d1283b59-7cfa-45f5-b151-4c32b24f3621.png" 
-                alt="Logo" 
-                className="h-8 w-8 object-contain"
+          {/* Search Bar - Mobile */}
+          <div className="lg:hidden border-b border-border p-4">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+              <Input
+                type="text"
+                placeholder="Search tutors..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10"
               />
-              <h2 className="text-lg font-semibold text-fg">Sim</h2>
             </div>
-            <div className="w-10" />
+          </div>
+
+          {/* Content */}
+          <div className="flex-1 overflow-auto p-6">
+            <div className="max-w-6xl mx-auto">
+              <div className="mb-8">
+                <h1 className="text-2xl font-bold text-fg mb-2">Discover AI Tutors</h1>
+                <p className="text-muted-foreground">Find the perfect AI tutor for your learning needs</p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filteredAgents.map((agent) => (
+                  <Link
+                    key={agent.id}
+                    to={`/tutors/${agent.id}`}
+                    className="block group"
+                  >
+                    <div className="bg-card border border-border rounded-lg p-6 hover:shadow-lg transition-all duration-200 group-hover:border-primary/20">
+                      <div className="flex items-start space-x-4">
+                        <img
+                          src={agent.avatar_url || "/placeholder.svg"}
+                          alt={agent.name}
+                          className="w-12 h-12 rounded-full object-cover"
+                        />
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-semibold text-fg group-hover:text-primary transition-colors">
+                            {agent.name}
+                          </h3>
+                          {agent.subject_area && (
+                            <p className="text-sm text-primary mb-2">{agent.subject_area}</p>
+                          )}
+                          <p className="text-sm text-muted-foreground line-clamp-3">
+                            {agent.description}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+
+              {filteredAgents.length === 0 && (
+                <div className="text-center py-12">
+                  <p className="text-muted-foreground">No tutors found matching your search.</p>
+                </div>
+              )}
+            </div>
           </div>
         </div>
-      )}
-
-      {/* Mobile Sidebar Sheet */}
-      {isMobile && (
-        <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
-          <SheetContent side="left" className="w-80 p-0">
-            <SidebarContent
-              selectedAgent={selectedAgent}
-              selectedPublicAdvisorId={selectedPublicAdvisorId}
-              selectedPublicAdvisors={selectedPublicAdvisors}
-              onSelectAgent={handleSelectAgent}
-              onSelectPublicAdvisor={handleSelectPublicAdvisor}
-              onRemovePublicAdvisor={handleRemovePublicAdvisor}
-              onShowAdvisorDirectory={() => { setActiveView("search"); setMobileMenuOpen(false); }}
-              onNavigateToMySim={() => { setActiveView("my-sim"); setMobileMenuOpen(false); }}
-              onNavigateToBasicInfo={() => { setActiveView("basic-info"); setMobileMenuOpen(false); }}
-              onNavigateToInteractionModel={() => { setActiveView("interaction-model"); setMobileMenuOpen(false); }}
-              onNavigateToCoreKnowledge={() => { setActiveView("core-knowledge"); setMobileMenuOpen(false); }}
-              onNavigateToIntegrations={() => { setActiveView("integrations"); setMobileMenuOpen(false); }}
-              activeView={activeView}
-              onClose={() => setMobileMenuOpen(false)}
-            />
-          </SheetContent>
-        </Sheet>
-      )}
-
-      {/* Main Content Area */}
-      <div className={`flex-1 ${!isMobile ? 'ml-80' : 'mt-16'}`}>
-        {activeView === "search" && (
-          <AdvisorDirectory 
-            onSelectAdvisor={handleSelectPublicAdvisor}
-          />
-        )}
-
-        {activeView === "my-sim" && <MySim />}
-        {activeView === "basic-info" && <BasicInfo />}
-        {activeView === "interaction-model" && <InteractionModel />}
-        {activeView === "core-knowledge" && <CoreKnowledge />}
-        {activeView === "integrations" && <Integrations />}
       </div>
+
+      {/* Mobile Sidebar Overlay */}
+      {isSidebarOpen && (
+        <div 
+          className="lg:hidden fixed inset-0 bg-black bg-opacity-50 z-40"
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
+
+      {/* Auth Modal */}
+      <AuthModal 
+        open={showAuthModal} 
+        onOpenChange={setShowAuthModal} 
+      />
     </div>
   );
 };
