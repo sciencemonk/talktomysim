@@ -79,7 +79,7 @@ const ChatInterface = ({ agent, onBack }: ChatInterfaceProps) => {
 
   const TypingIndicator = () => (
     <div className="mb-4 flex flex-col items-start">
-      <div className="rounded-lg px-3 py-2 text-sm max-w-[85%] sm:max-w-[75%] md:max-w-[60%] lg:max-w-[40%] xl:max-w-[30%] bg-secondary text-secondary-foreground">
+      <div className="rounded-lg px-3 py-2 text-sm max-w-[80%] bg-secondary text-secondary-foreground">
         <div className="flex items-center space-x-1">
           <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce [animation-delay:-0.3s]"></div>
           <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce [animation-delay:-0.15s]"></div>
@@ -98,17 +98,17 @@ const ChatInterface = ({ agent, onBack }: ChatInterfaceProps) => {
   });
 
   return (
-    <div className="flex flex-col h-screen w-full">
-      {/* Header - Always visible on mobile */}
-      <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-4 sm:px-6 py-4 flex-shrink-0 sticky top-0 z-10">
+    <div className="flex flex-col h-screen w-full overflow-hidden">
+      {/* Header - Fixed height with safe area */}
+      <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-3 sm:px-6 py-3 sm:py-4 flex-shrink-0 sticky top-0 z-10">
         <div className="flex items-center w-full">
           {/* Left: Sidebar button (mobile only) */}
           {isMobile && (
-            <div className="flex-shrink-0 mr-3">
+            <div className="flex-shrink-0 mr-2">
               <Sheet>
                 <SheetTrigger asChild>
                   <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                    <Menu className="h-5 w-5" />
+                    <Menu className="h-4 w-4" />
                   </Button>
                 </SheetTrigger>
                 <SheetContent side="left" className="p-0 w-80">
@@ -119,56 +119,65 @@ const ChatInterface = ({ agent, onBack }: ChatInterfaceProps) => {
           )}
           
           {/* Center: Avatar and name */}
-          <div className="flex items-center gap-3 flex-1 min-w-0">
-            <Avatar className="h-10 w-10 sm:h-12 sm:w-12 flex-shrink-0">
+          <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
+            <Avatar className="h-8 w-8 sm:h-10 sm:w-10 flex-shrink-0">
               <AvatarImage src={currentAgent.avatar} alt={currentAgent.name} />
-              <AvatarFallback className="bg-primary text-primary-foreground text-lg">
-                <Bot className="h-5 w-5 sm:h-6 sm:w-6" />
+              <AvatarFallback className="bg-primary text-primary-foreground text-sm">
+                <Bot className="h-4 w-4 sm:h-5 sm:w-5" />
               </AvatarFallback>
             </Avatar>
             <div className="min-w-0 flex-1">
-              <h1 className="text-lg sm:text-xl font-semibold truncate">{currentAgent.name}</h1>
-              <p className="text-xs sm:text-sm text-muted-foreground truncate">
+              <h1 className="text-sm sm:text-lg font-semibold truncate">{currentAgent.name}</h1>
+              <p className="text-xs text-muted-foreground truncate">
                 {currentAgent.title || currentAgent.subject || currentAgent.type}
               </p>
             </div>
           </div>
           
           {/* Right: Info button */}
-          <div className="flex-shrink-0 ml-3">
+          <div className="flex-shrink-0 ml-2">
             <InfoModal agentName={currentAgent.name} />
           </div>
         </div>
       </div>
 
-      {/* Messages - Scrollable area between header and input */}
-      <div className="flex-1 overflow-auto min-h-0">
-        <div className="px-4 sm:p-4 pt-6 pb-4">
-          {displayMessages.map((message) => (
-            <div
-              key={message.id}
-              className={`mb-4 flex flex-col ${message.role === 'user' ? 'items-end' : 'items-start'}`}
-            >
+      {/* Messages - Flexible scrollable area */}
+      <div className="flex-1 overflow-y-auto overflow-x-hidden min-h-0">
+        <div className="px-3 sm:px-4 pt-4 pb-2 min-h-full">
+          <div className="space-y-3 sm:space-y-4">
+            {displayMessages.map((message) => (
               <div
-                className={`rounded-lg px-3 py-2 text-sm max-w-[85%] sm:max-w-[75%] md:max-w-[60%] lg:max-w-[40%] xl:max-w-[30%] ${message.role === 'user' ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground'}`}
+                key={message.id}
+                className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
               >
-                {message.content}
+                <div
+                  className={`rounded-lg px-3 py-2 text-sm max-w-[80%] sm:max-w-[75%] md:max-w-[60%] lg:max-w-[40%] xl:max-w-[30%] break-words ${
+                    message.role === 'user' 
+                      ? 'bg-primary text-primary-foreground' 
+                      : 'bg-secondary text-secondary-foreground'
+                  }`}
+                  style={{ wordWrap: 'break-word', overflowWrap: 'break-word' }}
+                >
+                  {message.content}
+                </div>
               </div>
-            </div>
-          ))}
-          {/* Show typing indicator when AI is responding and no incomplete messages are being displayed */}
-          {isAiResponding && !chatHistory.messages.some(msg => !msg.isComplete && msg.content.trim().length > 0) && <TypingIndicator />}
-          <div ref={messagesEndRef} />
+            ))}
+            {/* Show typing indicator when AI is responding and no incomplete messages are being displayed */}
+            {isAiResponding && !chatHistory.messages.some(msg => !msg.isComplete && msg.content.trim().length > 0) && <TypingIndicator />}
+          </div>
+          <div ref={messagesEndRef} className="h-2" />
         </div>
       </div>
 
-      {/* Input - Always visible and sticky on mobile */}
-      <div className="border-t bg-background flex-shrink-0 sticky bottom-0 z-10">
-        <TextInput 
-          onSendMessage={textChat.sendMessage}
-          disabled={textChat.isProcessing || isAiResponding}
-          placeholder={isAiResponding ? `${currentAgent.name} is typing...` : `Message ${currentAgent.name}...`}
-        />
+      {/* Input - Fixed at bottom with safe area */}
+      <div className="border-t bg-background flex-shrink-0 sticky bottom-0 z-10 safe-area-bottom">
+        <div className="p-2 sm:p-0">
+          <TextInput 
+            onSendMessage={textChat.sendMessage}
+            disabled={textChat.isProcessing || isAiResponding}
+            placeholder={isAiResponding ? `${currentAgent.name} is typing...` : `Message ${currentAgent.name}...`}
+          />
+        </div>
       </div>
     </div>
   );
