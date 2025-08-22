@@ -22,6 +22,7 @@ export interface SimData {
   skills?: string[];
   additional_background?: string;
   custom_url?: string;
+  url?: string; // Add the url field from database
   avatar_url?: string;
   
   // Core fields
