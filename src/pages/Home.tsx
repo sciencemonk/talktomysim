@@ -86,10 +86,12 @@ const Home = () => {
 
               {/* Login Section */}
               <div className="flex-1 flex items-center justify-center p-4">
-                <div className="text-center space-y-4">
-                  <p className="text-fgMuted">Sign in to create and manage your AI tutors</p>
+                <div className="text-center space-y-6">
+                  <p className="text-lg font-medium text-fg">Create your free Sim today.</p>
                   <Link to="/login">
-                    <Button className="w-full">Sign In</Button>
+                    <Button className="w-full bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 text-white hover:from-purple-700 hover:via-pink-700 hover:to-blue-700 animate-pulse">
+                      Get started
+                    </Button>
                   </Link>
                 </div>
               </div>
@@ -110,7 +112,9 @@ const Home = () => {
                 <h2 className="text-lg font-semibold text-fg">Sim</h2>
               </div>
               <Link to="/login">
-                <Button size="sm">Sign In</Button>
+                <Button size="sm" className="bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 text-white hover:from-purple-700 hover:via-pink-700 hover:to-blue-700 animate-pulse">
+                  Get started
+                </Button>
               </Link>
             </div>
           </div>
