@@ -28,15 +28,10 @@ import { useAuth } from "@/hooks/useAuth";
 
 const MySim = () => {
   const { user } = useAuth();
-  const [copied, setCopied] = useState(false);
-  const [isEditingUrl, setIsEditingUrl] = useState(false);
-  const [customUrl, setCustomUrl] = useState(user?.id || 'demo');
-  const [tempUrl, setTempUrl] = useState(customUrl);
 
   // Mock data - in a real app, this would come from your backend
   const simData = {
     name: "My Personal Sim",
-    shareUrl: `${window.location.origin}/sim/${customUrl}`,
     totalChats: 247,
     totalUsers: 89,
     avgSessionTime: "8.5 min",
@@ -83,43 +78,6 @@ const MySim = () => {
     ]
   };
 
-  const copyShareLink = async () => {
-    try {
-      await navigator.clipboard.writeText(simData.shareUrl);
-      setCopied(true);
-      toast({
-        title: "Link copied!",
-        description: "Share link has been copied to your clipboard."
-      });
-      setTimeout(() => setCopied(false), 2000);
-    } catch (error) {
-      toast({
-        title: "Failed to copy",
-        description: "Please copy the link manually.",
-        variant: "destructive"
-      });
-    }
-  };
-
-  const handleEditUrl = () => {
-    setIsEditingUrl(true);
-    setTempUrl(customUrl);
-  };
-
-  const handleSaveUrl = () => {
-    setCustomUrl(tempUrl);
-    setIsEditingUrl(false);
-    toast({
-      title: "URL updated!",
-      description: "Your Sim's URL has been updated successfully."
-    });
-  };
-
-  const handleCancelEdit = () => {
-    setIsEditingUrl(false);
-    setTempUrl(customUrl);
-  };
-
   const getPriorityColor = (priority: string) => {
     switch (priority) {
       case "high": return "bg-red-100 text-red-800 border-red-200";
@@ -139,83 +97,12 @@ const MySim = () => {
   };
 
   return (
-    <div className="w-full max-w-none mx-0 p-6 space-y-6 overflow-hidden">
+    <div className="max-w-4xl mx-auto p-6 space-y-6">
       {/* Page Title */}
       <div>
         <h1 className="text-3xl font-bold text-fg">{simData.name}</h1>
         <p className="text-fgMuted">Manage and monitor your personal AI companion</p>
       </div>
-
-      {/* Share Link Section */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Share2 className="h-5 w-5" />
-            Share Your Sim
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="p-3 bg-bgMuted rounded-lg space-y-2 overflow-hidden">
-            <div className="flex items-center gap-1 text-sm font-mono text-fgMuted overflow-hidden">
-              <span className="flex-shrink-0">{window.location.origin}/sim/</span>
-              {isEditingUrl ? (
-                <div className="flex items-center gap-2 flex-1 min-w-0">
-                  <Input
-                    value={tempUrl}
-                    onChange={(e) => setTempUrl(e.target.value)}
-                    className="h-8 text-sm font-mono flex-1 min-w-0"
-                    placeholder="your-custom-url"
-                  />
-                  <div className="flex items-center gap-1 flex-shrink-0">
-                    <Button size="sm" onClick={handleSaveUrl} className="h-8 px-2">
-                      <Save className="h-3 w-3" />
-                    </Button>
-                    <Button size="sm" variant="outline" onClick={handleCancelEdit} className="h-8 px-2">
-                      <X className="h-3 w-3" />
-                    </Button>
-                  </div>
-                </div>
-              ) : (
-                <div className="flex items-center gap-2 flex-1 min-w-0 overflow-hidden">
-                  <code className="text-sm font-mono flex-1 truncate min-w-0 overflow-hidden">{customUrl}</code>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={handleEditUrl}
-                    className="flex-shrink-0 h-8"
-                  >
-                    <Edit2 className="h-3 w-3 mr-1" />
-                    Edit
-                  </Button>
-                </div>
-              )}
-            </div>
-            <div className="flex justify-end">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={copyShareLink}
-                className="flex-shrink-0"
-              >
-                {copied ? (
-                  <>
-                    <CheckCircle2 className="h-4 w-4 mr-2" />
-                    Copied!
-                  </>
-                ) : (
-                  <>
-                    <Copy className="h-4 w-4 mr-2" />
-                    Copy Link
-                  </>
-                )}
-              </Button>
-            </div>
-          </div>
-          <p className="text-sm text-fgMuted">
-            Share this link with others so they can chat with your Sim
-          </p>
-        </CardContent>
-      </Card>
 
       {/* Statistics Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
