@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -37,9 +36,8 @@ const MySim = () => {
         {/* Sim Overview Card */}
         <Card className="flex-1">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <User className="h-5 w-5" />
-              My Sim Overview
+            <CardTitle>
+              Sim Overview
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
@@ -76,11 +74,6 @@ const MySim = () => {
                       </>
                     )}
                   </Badge>
-                  {sim?.custom_url && (
-                    <Badge variant="outline">
-                      {sim.custom_url}
-                    </Badge>
-                  )}
                 </div>
               </div>
             </div>
