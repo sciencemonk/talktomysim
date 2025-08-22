@@ -20,7 +20,8 @@ import {
   X,
   Settings,
   Crown,
-  Bot
+  Bot,
+  Zap
 } from "lucide-react";
 import { AgentType } from "@/types/agent";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -38,6 +39,7 @@ interface UserSidebarProps {
   onNavigateToBasicInfo?: () => void;
   onNavigateToInteractionModel?: () => void;
   onNavigateToCoreKnowledge?: () => void;
+  onNavigateToIntegrations?: () => void;
   activeView?: string; // Add this prop to track the active view
 }
 
@@ -57,6 +59,7 @@ export const SidebarContent: React.FC<SidebarContentProps> = ({
   onNavigateToBasicInfo,
   onNavigateToInteractionModel,
   onNavigateToCoreKnowledge,
+  onNavigateToIntegrations,
   activeView,
   onClose
 }) => {
@@ -100,6 +103,15 @@ export const SidebarContent: React.FC<SidebarContentProps> = ({
         onClose?.();
       },
       viewKey: "core-knowledge"
+    },
+    {
+      icon: Zap,
+      label: "Integrations",
+      onClick: () => {
+        onNavigateToIntegrations?.();
+        onClose?.();
+      },
+      viewKey: "integrations"
     },
     {
       icon: Search,
@@ -155,7 +167,7 @@ export const SidebarContent: React.FC<SidebarContentProps> = ({
           {/* Navigation Menu */}
           <div className="space-y-2">
             {menuItems.map((item, index) => {
-              // Only highlight if there's an explicit activeView match, or if it's search and no other view is active
+              // Only highlight if there's an explicit activeView match
               const isActive = activeView === item.viewKey;
               
               return (

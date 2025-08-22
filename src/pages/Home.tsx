@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { Navigate } from "react-router-dom";
@@ -9,6 +10,7 @@ import MySim from "@/components/MySim";
 import BasicInfo from "@/components/BasicInfo";
 import InteractionModel from "@/components/InteractionModel";
 import CoreKnowledge from "@/components/CoreKnowledge";
+import Integrations from "@/components/Integrations";
 import { AgentType } from "@/types/agent";
 import { useUserAdvisors } from "@/hooks/useUserAdvisors";
 import { useToast } from "@/hooks/use-toast";
@@ -21,7 +23,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 
-type ViewType = 'directory' | 'my-sim' | 'basic-info' | 'interaction-model' | 'core-knowledge';
+type ViewType = 'directory' | 'my-sim' | 'basic-info' | 'interaction-model' | 'core-knowledge' | 'integrations';
 
 const Home = () => {
   const { user, loading } = useAuth();
@@ -156,6 +158,14 @@ const Home = () => {
     setMobileSheetOpen(false); // Close mobile sheet
   };
 
+  const handleNavigateToIntegrations = () => {
+    setCurrentView('integrations');
+    setSelectedAgent(null);
+    setSelectedAdvisor(null);
+    setSelectedPublicAdvisorId(null);
+    setMobileSheetOpen(false); // Close mobile sheet
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -194,6 +204,8 @@ const Home = () => {
         return <InteractionModel />;
       case 'core-knowledge':
         return <CoreKnowledge />;
+      case 'integrations':
+        return <Integrations />;
       case 'directory':
       default:
         return (
@@ -219,6 +231,8 @@ const Home = () => {
         onNavigateToBasicInfo={handleNavigateToBasicInfo}
         onNavigateToInteractionModel={handleNavigateToInteractionModel}
         onNavigateToCoreKnowledge={handleNavigateToCoreKnowledge}
+        onNavigateToIntegrations={handleNavigateToIntegrations}
+        activeView={currentView}
       />
       
       {/* Main content with left margin to account for fixed sidebar on desktop */}
@@ -245,6 +259,8 @@ const Home = () => {
                   onNavigateToBasicInfo={handleNavigateToBasicInfo}
                   onNavigateToInteractionModel={handleNavigateToInteractionModel}
                   onNavigateToCoreKnowledge={handleNavigateToCoreKnowledge}
+                  onNavigateToIntegrations={handleNavigateToIntegrations}
+                  activeView={currentView}
                   onClose={() => setMobileSheetOpen(false)}
                 />
               </SheetContent>
