@@ -29,7 +29,24 @@ const UserSettingsDropdown = ({ onShowBilling, trigger, simplified = false }: Us
     await signOut();
   };
 
-  const defaultTrigger = (
+  const defaultTrigger = simplified ? (
+    <Button variant="ghost" className="w-full justify-start p-2 h-auto">
+      <div className="flex items-center space-x-3">
+        <Avatar className="h-8 w-8">
+          <AvatarImage src={user?.user_metadata?.avatar_url} alt="Profile" />
+          <AvatarFallback>
+            {user?.email?.charAt(0)?.toUpperCase() || "U"}
+          </AvatarFallback>
+        </Avatar>
+        <div className="flex flex-col items-start text-left">
+          <span className="text-sm font-medium">
+            {user?.user_metadata?.full_name || user?.email?.split('@')[0] || "User"}
+          </span>
+          <span className="text-xs text-muted-foreground">Plus</span>
+        </div>
+      </div>
+    </Button>
+  ) : (
     <Button variant="ghost" size="sm" className="h-8 w-8 rounded-full">
       <Avatar className="h-8 w-8">
         <AvatarImage src={user?.user_metadata?.avatar_url} alt="Profile" />
