@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Badge } from "@/components/ui/badge";
-import { CalendarIcon, X, Plus, Upload } from "lucide-react";
+import { CalendarIcon, X, Plus, Upload, Camera } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 
@@ -23,7 +23,8 @@ const BasicInfo = () => {
     yearsExperience: "",
     areasOfExpertise: "",
     additionalBackground: "",
-    avatarUrl: ""
+    avatarUrl: "",
+    customUrl: ""
   });
 
   const [interests, setInterests] = useState<string[]>([]);
@@ -53,6 +54,11 @@ const BasicInfo = () => {
       setSelectedFile(file);
       setPreviewUrl(URL.createObjectURL(file));
     }
+  };
+
+  const triggerFileUpload = () => {
+    const fileInput = document.getElementById('avatar-upload') as HTMLInputElement;
+    fileInput?.click();
   };
 
   const removeImage = () => {
@@ -88,6 +94,17 @@ const BasicInfo = () => {
     // Here you would typically save the data to your backend
   };
 
+  const handleCustomUrlChange = (value: string) => {
+    // Remove any leading slash and ensure it's URL-friendly
+    const cleanUrl = value.toLowerCase()
+      .replace(/^\/+/, '') // Remove leading slashes
+      .replace(/[^a-z0-9-]/g, '') // Remove special characters except hyphens
+      .replace(/-+/g, '-') // Replace multiple hyphens with single
+      .trim();
+    
+    handleInputChange('customUrl', cleanUrl);
+  };
+
   return (
     <div className="max-w-4xl mx-auto p-6 space-y-6">
       <Card>
@@ -99,38 +116,69 @@ const BasicInfo = () => {
           <div className="space-y-4">
             <h3 className="text-lg font-semibold">Profile Picture</h3>
             <div className="space-y-3">
-              {previewUrl ? (
-                <div className="relative inline-block">
-                  <img
-                    src={previewUrl}
-                    alt="Avatar preview"
-                    className="w-24 h-24 rounded-full object-cover border-2 border-border"
-                  />
-                  <button
-                    type="button"
-                    onClick={removeImage}
-                    className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground rounded-full p-1 hover:bg-destructive/90"
-                  >
-                    <X className="h-3 w-3" />
-                  </button>
-                </div>
-              ) : (
-                <div className="w-24 h-24 rounded-full border-2 border-dashed border-muted-foreground/25 flex items-center justify-center">
-                  <Upload className="h-8 w-8 text-muted-foreground" />
-                </div>
-              )}
-              
-              <div>
-                <Input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleFileSelect}
-                  className="cursor-pointer"
-                />
-                <p className="text-xs text-muted-foreground mt-1">
-                  Max file size: 5MB. Supported formats: JPG, PNG, GIF
-                </p>
+              <div 
+                className="relative inline-block cursor-pointer group"
+                onClick={triggerFileUpload}
+              >
+                {previewUrl ? (
+                  <>
+                    <img
+                      src={previewUrl}
+                      alt="Avatar preview"
+                      className="w-24 h-24 rounded-full object-cover border-2 border-border group-hover:opacity-80 transition-opacity"
+                    />
+                    <div className="absolute inset-0 w-24 h-24 rounded-full bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                      <Camera className="h-6 w-6 text-white" />
+                    </div>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        removeImage();
+                      }}
+                      className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground rounded-full p-1 hover:bg-destructive/90"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </>
+                ) : (
+                  <div className="w-24 h-24 rounded-full border-2 border-dashed border-muted-foreground/25 flex items-center justify-center group-hover:border-muted-foreground/50 transition-colors">
+                    <Upload className="h-8 w-8 text-muted-foreground group-hover:text-muted-foreground/80" />
+                  </div>
+                )}
               </div>
+              
+              <input
+                id="avatar-upload"
+                type="file"
+                accept="image/*"
+                onChange={handleFileSelect}
+                className="hidden"
+              />
+              <p className="text-xs text-muted-foreground">
+                Click the circle to upload an image. Max file size: 5MB. Supported formats: JPG, PNG, GIF
+              </p>
+            </div>
+          </div>
+
+          {/* Custom URL */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold">Custom URL</h3>
+            <div className="space-y-2">
+              <Label htmlFor="customUrl">Your Custom Path</Label>
+              <div className="flex items-center">
+                <span className="text-sm text-muted-foreground mr-1">/</span>
+                <Input
+                  id="customUrl"
+                  value={formData.customUrl}
+                  onChange={(e) => handleCustomUrlChange(e.target.value)}
+                  placeholder="your-name"
+                  className="flex-1"
+                />
+              </div>
+              <p className="text-xs text-muted-foreground">
+                This will be your personal URL path. Only lowercase letters, numbers, and hyphens allowed.
+              </p>
             </div>
           </div>
 
