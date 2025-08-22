@@ -5,12 +5,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Checkbox } from "@/components/ui/checkbox";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Badge } from "@/components/ui/badge";
-import { CalendarIcon, X, Plus } from "lucide-react";
+import { CalendarIcon, X, Plus, Upload } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 
@@ -24,38 +22,43 @@ const BasicInfo = () => {
     currentProfession: "",
     yearsExperience: "",
     areasOfExpertise: "",
-    personalityType: "",
-    communicationStyle: "",
-    additionalBackground: ""
+    additionalBackground: "",
+    avatarUrl: ""
   });
 
   const [interests, setInterests] = useState<string[]>([]);
   const [newInterest, setNewInterest] = useState("");
   const [skills, setSkills] = useState<string[]>([]);
   const [newSkill, setNewSkill] = useState("");
-
-  const personalityTypes = [
-    "Analytical",
-    "Creative",
-    "Collaborative",
-    "Detail-oriented",
-    "Strategic",
-    "Empathetic",
-    "Results-driven",
-    "Innovative"
-  ];
-
-  const communicationStyles = [
-    "Direct and concise",
-    "Warm and conversational",
-    "Professional and formal",
-    "Casual and friendly",
-    "Educational and detailed",
-    "Inspiring and motivational"
-  ];
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string>("");
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) { // 5MB limit
+        alert("File too large. Please select an image smaller than 5MB.");
+        return;
+      }
+
+      if (!file.type.startsWith('image/')) {
+        alert("Please select an image file.");
+        return;
+      }
+
+      setSelectedFile(file);
+      setPreviewUrl(URL.createObjectURL(file));
+    }
+  };
+
+  const removeImage = () => {
+    setSelectedFile(null);
+    setPreviewUrl("");
+    setFormData(prev => ({ ...prev, avatarUrl: "" }));
   };
 
   const addInterest = () => {
@@ -81,7 +84,7 @@ const BasicInfo = () => {
   };
 
   const handleSave = () => {
-    console.log("Saving basic info:", { ...formData, interests, skills });
+    console.log("Saving basic info:", { ...formData, interests, skills, selectedFile });
     // Here you would typically save the data to your backend
   };
 
@@ -92,6 +95,45 @@ const BasicInfo = () => {
           <CardTitle>Basic Info</CardTitle>
         </CardHeader>
         <CardContent className="space-y-8">
+          {/* Avatar Upload */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold">Profile Picture</h3>
+            <div className="space-y-3">
+              {previewUrl ? (
+                <div className="relative inline-block">
+                  <img
+                    src={previewUrl}
+                    alt="Avatar preview"
+                    className="w-24 h-24 rounded-full object-cover border-2 border-border"
+                  />
+                  <button
+                    type="button"
+                    onClick={removeImage}
+                    className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground rounded-full p-1 hover:bg-destructive/90"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </div>
+              ) : (
+                <div className="w-24 h-24 rounded-full border-2 border-dashed border-muted-foreground/25 flex items-center justify-center">
+                  <Upload className="h-8 w-8 text-muted-foreground" />
+                </div>
+              )}
+              
+              <div>
+                <Input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileSelect}
+                  className="cursor-pointer"
+                />
+                <p className="text-xs text-muted-foreground mt-1">
+                  Max file size: 5MB. Supported formats: JPG, PNG, GIF
+                </p>
+              </div>
+            </div>
+          </div>
+
           {/* Personal Details */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold">Personal Details</h3>
@@ -202,50 +244,6 @@ const BasicInfo = () => {
                   placeholder="List your key areas of expertise and specializations..."
                   rows={3}
                 />
-              </div>
-            </div>
-          </div>
-
-          {/* Personality & Communication */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Personality & Communication</h3>
-            <div className="space-y-4">
-              <div className="space-y-3">
-                <Label>Personality Type</Label>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                  {personalityTypes.map((type) => (
-                    <div key={type} className="flex items-center space-x-2">
-                      <Checkbox
-                        id={type}
-                        checked={formData.personalityType.includes(type)}
-                        onCheckedChange={(checked) => {
-                          if (checked) {
-                            handleInputChange('personalityType', formData.personalityType ? `${formData.personalityType}, ${type}` : type);
-                          } else {
-                            const types = formData.personalityType.split(', ').filter(t => t !== type);
-                            handleInputChange('personalityType', types.join(', '));
-                          }
-                        }}
-                      />
-                      <Label htmlFor={type} className="text-sm">{type}</Label>
-                    </div>
-                  ))}
-                </div>
-              </div>
-              
-              <div className="space-y-3">
-                <Label>Communication Style</Label>
-                <RadioGroup
-                  value={formData.communicationStyle}
-                  onValueChange={(value) => handleInputChange('communicationStyle', value)}
-                >
-                  {communicationStyles.map((style) => (
-                    <div key={style} className="flex items-center space-x-2">
-                      <RadioGroupItem value={style} id={style} />
-                      <Label htmlFor={style} className="text-sm">{style}</Label>
-                    </div>
-                  ))}
-                </RadioGroup>
               </div>
             </div>
           </div>
