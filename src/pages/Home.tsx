@@ -207,7 +207,6 @@ const Home = () => {
 
   return (
     <div className="flex h-screen bg-background">
-      {/* Desktop Sidebar */}
       <UserSidebar
         selectedAgent={selectedAgent}
         selectedPublicAdvisorId={selectedPublicAdvisorId}
@@ -224,15 +223,7 @@ const Home = () => {
       
       <div className="flex-1 flex flex-col">
         {/* Mobile Header - shared across all views */}
-        <div className="md:hidden bg-card border-b border-border p-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <img 
-              src="/lovable-uploads/d1283b59-7cfa-45f5-b151-4c32b24f3621.png" 
-              alt="Sim" 
-              className="h-8 w-8 object-contain"
-            />
-            <h1 className="font-semibold text-lg">Sim</h1>
-          </div>
+        <div className="md:hidden bg-card border-b border-border p-4 flex items-center">
           <Sheet open={mobileSheetOpen} onOpenChange={setMobileSheetOpen}>
             <SheetTrigger asChild>
               <Button variant="ghost" size="icon">
@@ -256,6 +247,14 @@ const Home = () => {
               />
             </SheetContent>
           </Sheet>
+          
+          <div className="flex-1 flex justify-center">
+            <img 
+              src="/lovable-uploads/d1283b59-7cfa-45f5-b151-4c32b24f3621.png" 
+              alt="Sim" 
+              className="h-8 w-8 object-contain"
+            />
+          </div>
         </div>
         
         {/* Main Content */}
