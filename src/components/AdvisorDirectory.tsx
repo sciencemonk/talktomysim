@@ -1,126 +1,118 @@
 
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useAllAdvisors } from "@/hooks/useAllAdvisors";
-import { AgentType } from "@/types/agent";
-import { Input } from "@/components/ui/input";
+import { useAuth } from "@/hooks/useAuth";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Search, MessageCircle, Users, Star, ChevronRight } from "lucide-react";
-import { LoaderIcon } from "@/components/LoaderIcon";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent } from "@/components/ui/card";
+import { Search, Bot } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { AgentType } from "@/types/agent";
 
 interface AdvisorDirectoryProps {
   onSelectAdvisor: (advisorId: string, advisor?: AgentType) => void;
   onAuthRequired?: () => void;
 }
 
-const AdvisorDirectory: React.FC<AdvisorDirectoryProps> = ({
-  onSelectAdvisor,
-  onAuthRequired
-}) => {
-  const { agents: advisors = [], isLoading, error } = useAllAdvisors();
+const AdvisorDirectory = ({ onSelectAdvisor, onAuthRequired }: AdvisorDirectoryProps) => {
+  const { user } = useAuth();
+  const { agents, isLoading, error } = useAllAdvisors();
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
-  // Filter advisors based on search term and category
-  const filteredAdvisors = advisors.filter(advisor => {
-    const matchesSearch = advisor.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         advisor.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         advisor.categories?.some(cat => cat.toLowerCase().includes(searchTerm.toLowerCase()));
-    
-    const matchesCategory = !selectedCategory || advisor.categories?.includes(selectedCategory);
-    
-    return matchesSearch && matchesCategory;
-  });
-
-  // Get unique categories
-  const allCategories = Array.from(
-    new Set(advisors.flatMap(advisor => advisor.categories || []))
-  ).sort();
+  // Filter advisors based on search term
+  const filteredAdvisors = agents.filter(advisor =>
+    advisor.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    advisor.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    advisor.subject?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   const handleAdvisorSelect = (advisor: AgentType) => {
-    onSelectAdvisor(advisor.id, advisor);
+    if (!user) {
+      // Open public chat page in new tab for non-signed in users
+      const chatUrl = advisor.url ? `/${advisor.url}` : `/tutors/${advisor.id}/chat`;
+      window.open(chatUrl, '_blank');
+    } else {
+      onSelectAdvisor(advisor.id, advisor);
+    }
   };
 
   if (isLoading) {
     return (
-      <div className="flex-1 flex items-center justify-center">
-        <LoaderIcon size={24} />
+      <div className="flex-1 flex items-center justify-center min-h-0">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
       </div>
     );
   }
 
   if (error) {
-    return <div className="text-red-500">Error: {error}</div>;
+    return (
+      <div className="flex-1 flex items-center justify-center min-h-0">
+        <div className="text-center">
+          <p className="text-muted-foreground">Failed to load advisors</p>
+          <p className="text-sm text-muted-foreground mt-1">{error}</p>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className="container mx-auto p-6">
-      {/* Search Input */}
-      <div className="mb-4">
-        <Input
-          type="text"
-          placeholder="Search advisors..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
+    <div className="flex-1 flex flex-col h-full">
+      {/* Search Section */}
+      <div className="p-6 border-b border-border">
+        <div className="relative max-w-6xl mx-auto">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Search"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-9"
+          />
+        </div>
       </div>
 
-      {/* Category Filters */}
-      <div className="mb-4 flex overflow-x-auto pb-2">
-        <Button
-          variant="outline"
-          className={`mr-2 rounded-full ${!selectedCategory ? "bg-primary text-primary-foreground hover:bg-primary/80" : "hover:bg-secondary/50"}`}
-          onClick={() => setSelectedCategory(null)}
-        >
-          All
-        </Button>
-        {allCategories.map((category: string) => (
-          <Button
-            key={category}
-            variant="outline"
-            className={`mr-2 rounded-full ${selectedCategory === category ? "bg-primary text-primary-foreground hover:bg-primary/80" : "hover:bg-secondary/50"}`}
-            onClick={() => setSelectedCategory(category)}
-          >
-            {category}
-          </Button>
-        ))}
-      </div>
-
-      {/* Advisor List */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {filteredAdvisors.map((advisor) => (
-          <Card key={advisor.id} className="bg-card text-card-foreground shadow-sm">
-            <CardHeader>
-              <div className="flex items-center space-x-4">
-                <Avatar className="h-10 w-10">
-                  <AvatarImage src={advisor.image_url} alt={advisor.name} />
-                  <AvatarFallback>{advisor.name.charAt(0)}</AvatarFallback>
-                </Avatar>
-                <div>
-                  <CardTitle className="text-lg font-semibold">{advisor.name}</CardTitle>
-                  <CardDescription className="text-sm text-muted-foreground">
-                    {advisor.categories?.map((category, index) => (
-                      <Badge key={index} variant="secondary" className="mr-1">
-                        {category}
-                      </Badge>
-                    ))}
-                  </CardDescription>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground">{advisor.description}</p>
-              <Button variant="link" className="mt-4 w-full justify-end" onClick={() => handleAdvisorSelect(advisor)}>
-                Chat <ChevronRight className="ml-2 h-4 w-4" />
-              </Button>
-            </CardContent>
-          </Card>
-        ))}
-        {filteredAdvisors.length === 0 && (
-          <div className="text-center text-fgMuted col-span-full">No advisors found.</div>
-        )}
+      {/* Advisors Grid */}
+      <div className="flex-1 overflow-auto p-6">
+        <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 max-w-6xl mx-auto">
+          {filteredAdvisors.length === 0 ? (
+            <div className="col-span-full text-center py-12">
+              <p className="text-muted-foreground">
+                {searchTerm ? "No sims found matching your search." : "No sims available."}
+              </p>
+            </div>
+          ) : (
+            filteredAdvisors.map((advisor) => (
+              <Card
+                key={advisor.id}
+                className="cursor-pointer hover:shadow-md transition-shadow"
+                onClick={() => handleAdvisorSelect(advisor)}
+              >
+                <CardContent className="p-6">
+                  <div className="flex items-center gap-4">
+                    <Avatar className="h-12 w-12 flex-shrink-0">
+                      <AvatarImage src={advisor.avatar} alt={advisor.name} />
+                      <AvatarFallback className="bg-primary/10 text-primary">
+                        <Bot className="h-6 w-6" />
+                      </AvatarFallback>
+                    </Avatar>
+                    
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-semibold text-lg mb-1 truncate">
+                        {advisor.name}
+                      </h3>
+                      
+                      {advisor.title && (
+                        <p className="text-sm text-muted-foreground">
+                          {advisor.title}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))
+          )}
+        </div>
       </div>
     </div>
   );
