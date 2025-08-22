@@ -11,6 +11,7 @@ import Index from "./pages/Index";
 import Login from "./pages/Login";
 import Home from "./pages/Home";
 import Admin from "./pages/Admin";
+import BasicInfo from "./pages/BasicInfo";
 import PublicTutorDetail from "./pages/PublicTutorDetail";
 import StudentChat from "./pages/StudentChat";
 import NotFound from "./pages/NotFound";
@@ -30,6 +31,9 @@ const App = () => (
             
             {/* Admin route */}
             <Route path="/admin" element={<Admin />} />
+            
+            {/* Basic Info route */}
+            <Route path="/basic-info" element={<BasicInfo />} />
             
             {/* Legacy routes */}
             <Route path="/index" element={<Index />} />
