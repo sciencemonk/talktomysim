@@ -67,8 +67,8 @@ const StudentChat = () => {
     window.history.back();
   };
 
-  // For non-signed-in users or mobile, render just the chat interface without sidebar
-  if (!user || isMobile) {
+  // On mobile, render just the chat interface without sidebar
+  if (isMobile) {
     return (
       <div className="h-screen bg-background">
         <ChatInterface 
@@ -79,7 +79,7 @@ const StudentChat = () => {
     );
   }
 
-  // On desktop with signed-in users, render with sidebar
+  // On desktop, always render with sidebar (for both signed-in and non-signed-in users)
   return (
     <div className="h-screen bg-background flex">
       <UserSidebar />
