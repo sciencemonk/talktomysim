@@ -22,9 +22,11 @@ export const InfoModal = ({ agentName }: InfoModalProps) => {
       <DialogContent className="sm:max-w-md p-6">
         <div className="text-center space-y-4">
           <div className="flex justify-center">
-            <div className="text-2xl font-bold bg-gradient-to-r from-purple-600 via-pink-500 to-blue-500 bg-clip-text text-transparent">
-              Sim
-            </div>
+            <img 
+              src="/lovable-uploads/40a339cc-9701-429d-89a8-9cb64d32f751.png" 
+              alt="Sim" 
+              className="h-8 w-auto"
+            />
           </div>
           <p className="text-black text-sm leading-relaxed">
             This is a Sim. An AI powered agent of {agentName || "this individual"}. It is not the real individual and may make responses that aren't endorsed by its creator.
