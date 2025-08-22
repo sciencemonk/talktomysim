@@ -24,23 +24,38 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Menu } from "lucide-react";
 import { useState } from "react";
+import { AgentType } from "@/types/agent";
 
 interface UserSidebarProps {
   onCreateAgent?: () => void;
   onSelectAgent?: (agentId: string) => void;
   selectedAgentId?: string;
   onShowAdvisorDirectory?: () => void;
+  selectedAgent?: AgentType | null;
+  selectedPublicAdvisorId?: string | null;
+  selectedPublicAdvisors?: AgentType[];
+  onSelectPublicAdvisor?: (advisorId: string, advisor?: AgentType) => void;
+  onRemovePublicAdvisor?: (advisorId: string) => void;
 }
 
-const UserSidebar = ({ 
+interface SidebarContentProps extends UserSidebarProps {
+  onClose?: () => void;
+}
+
+const SidebarContent = ({ 
   onCreateAgent, 
   onSelectAgent, 
   selectedAgentId,
   onShowAdvisorDirectory,
+  selectedAgent,
+  selectedPublicAdvisorId,
+  selectedPublicAdvisors = [],
+  onSelectPublicAdvisor,
+  onRemovePublicAdvisor,
   onClose
-}: UserSidebarProps & { onClose?: () => void }) => {
+}: SidebarContentProps) => {
   const { user, signOut } = useAuth();
-  const { data: agents, isLoading } = useAgents();
+  const { agents, isLoading } = useAgents();
   const location = useLocation();
   
   const handleSignOut = async () => {
@@ -114,7 +129,7 @@ const UserSidebar = ({
     }
   ];
 
-  const sidebarContent = (
+  return (
     <div className="flex flex-col h-full">
       {/* User Profile Section */}
       {user && (
@@ -240,7 +255,9 @@ const UserSidebar = ({
       </div>
     </div>
   );
+};
 
+const UserSidebar = (props: UserSidebarProps) => {
   return (
     <>
       {/* Mobile Sidebar */}
@@ -251,13 +268,13 @@ const UserSidebar = ({
           </Button>
         </SheetTrigger>
         <SheetContent side="left" className="p-0 w-64">
-          {sidebarContent}
+          <SidebarContent {...props} />
         </SheetContent>
       </Sheet>
 
       {/* Desktop Sidebar */}
       <div className="hidden md:flex md:w-64 md:flex-col md:fixed md:inset-y-0 bg-card border-r">
-        {sidebarContent}
+        <SidebarContent {...props} />
       </div>
     </>
   );
@@ -274,11 +291,11 @@ const MobileSidebar = (props: UserSidebarProps) => {
         </Button>
       </SheetTrigger>
       <SheetContent side="left" className="p-0 w-64">
-        <UserSidebar {...props} onClose={() => setIsOpen(false)} />
+        <SidebarContent {...props} onClose={() => setIsOpen(false)} />
       </SheetContent>
     </Sheet>
   );
 };
 
 export default UserSidebar;
-export { MobileSidebar };
+export { MobileSidebar, SidebarContent };
