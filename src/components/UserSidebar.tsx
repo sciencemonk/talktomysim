@@ -40,7 +40,8 @@ interface UserSidebarProps {
   onNavigateToInteractionModel?: () => void;
   onNavigateToCoreKnowledge?: () => void;
   onNavigateToIntegrations?: () => void;
-  activeView?: string; // Add this prop to track the active view
+  activeView?: string;
+  onAuthRequired?: () => void; // Add this prop to trigger auth modal
 }
 
 export interface SidebarContentProps extends UserSidebarProps {
@@ -61,7 +62,8 @@ export const SidebarContent: React.FC<SidebarContentProps> = ({
   onNavigateToCoreKnowledge,
   onNavigateToIntegrations,
   activeView,
-  onClose
+  onClose,
+  onAuthRequired
 }) => {
   const { user } = useAuth();
 
@@ -162,33 +164,57 @@ export const SidebarContent: React.FC<SidebarContentProps> = ({
       {/* Scrollable Content */}
       <ScrollArea className="flex-1">
         <div className="p-4 space-y-6">
-          {/* Navigation Menu */}
-          <div className="space-y-2">
-            {menuItems.map((item, index) => {
-              // Only highlight if there's an explicit activeView match
-              const isActive = activeView === item.viewKey;
+          {user ? (
+            // Show navigation menu for signed-in users
+            <div className="space-y-2">
+              {menuItems.map((item, index) => {
+                const isActive = activeView === item.viewKey;
+                
+                return (
+                  <Button
+                    key={index}
+                    variant="ghost"
+                    className={`w-full justify-start text-left ${
+                      isActive 
+                        ? "bg-primary/10 text-primary border border-primary/20" 
+                        : "text-fgMuted hover:text-fg hover:bg-bgMuted"
+                    }`}
+                    onClick={item.onClick}
+                  >
+                    <item.icon className="mr-3 h-4 w-4" />
+                    <span className="flex-1">{item.label}</span>
+                  </Button>
+                );
+              })}
+            </div>
+          ) : (
+            // Show "Create your free Sim today" for non-signed-in users
+            <div className="space-y-4 text-center">
+              <div className="space-y-2">
+                <h3 className="text-lg font-semibold text-fg">
+                  Create your free Sim today
+                </h3>
+                <p className="text-sm text-fgMuted leading-relaxed">
+                  Get started with your personalized AI companion and explore endless possibilities.
+                </p>
+              </div>
               
-              return (
-                <Button
-                  key={index}
-                  variant="ghost"
-                  className={`w-full justify-start text-left ${
-                    isActive 
-                      ? "bg-primary/10 text-primary border border-primary/20" 
-                      : "text-fgMuted hover:text-fg hover:bg-bgMuted"
-                  }`}
-                  onClick={item.onClick}
-                >
-                  <item.icon className="mr-3 h-4 w-4" />
-                  <span className="flex-1">{item.label}</span>
-                </Button>
-              );
-            })}
-          </div>
+              <Button
+                onClick={() => {
+                  onAuthRequired?.();
+                  onClose?.();
+                }}
+                className="w-full bg-gradient-to-r from-purple-600 via-pink-500 to-blue-500 text-white hover:opacity-90"
+                size="lg"
+              >
+                Get Started
+              </Button>
+            </div>
+          )}
         </div>
       </ScrollArea>
 
-      {/* User Info at Bottom */}
+      {/* User Info at Bottom - only show for signed-in users */}
       {user && (
         <>
           <Separator />

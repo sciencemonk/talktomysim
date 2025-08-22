@@ -233,6 +233,7 @@ const Home = () => {
         onNavigateToCoreKnowledge={handleNavigateToCoreKnowledge}
         onNavigateToIntegrations={handleNavigateToIntegrations}
         activeView={currentView}
+        onAuthRequired={handleAuthRequired}
       />
       
       {/* Main content with left margin to account for fixed sidebar on desktop */}
@@ -262,6 +263,7 @@ const Home = () => {
                   onNavigateToIntegrations={handleNavigateToIntegrations}
                   activeView={currentView}
                   onClose={() => setMobileSheetOpen(false)}
+                  onAuthRequired={handleAuthRequired}
                 />
               </SheetContent>
             </Sheet>
