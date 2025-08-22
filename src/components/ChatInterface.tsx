@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useRef } from "react";
 import { Bot, Menu } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
@@ -116,20 +117,22 @@ const ChatInterface = ({ agent, onBack }: ChatInterfaceProps) => {
       </div>
 
       {/* Messages - Scrollable area between header and input */}
-      <div className="flex-1 overflow-auto px-4 sm:p-4 pt-6 min-h-0">
-        {chatHistory.messages.map((message) => (
-          <div
-            key={message.id}
-            className={`mb-2 flex flex-col ${message.role === 'user' ? 'items-end' : 'items-start'}`}
-          >
+      <div className="flex-1 overflow-auto min-h-0">
+        <div className="px-4 sm:p-4 pt-6 pb-4">
+          {chatHistory.messages.map((message) => (
             <div
-              className={`rounded-lg px-3 py-2 text-sm max-w-[85%] sm:max-w-[75%] md:max-w-[60%] lg:max-w-[40%] xl:max-w-[30%] ${message.role === 'user' ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground'}`}
+              key={message.id}
+              className={`mb-4 flex flex-col ${message.role === 'user' ? 'items-end' : 'items-start'}`}
             >
-              {message.content}
+              <div
+                className={`rounded-lg px-3 py-2 text-sm max-w-[85%] sm:max-w-[75%] md:max-w-[60%] lg:max-w-[40%] xl:max-w-[30%] ${message.role === 'user' ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground'}`}
+              >
+                {message.content}
+              </div>
             </div>
-          </div>
-        ))}
-        <div ref={messagesEndRef} />
+          ))}
+          <div ref={messagesEndRef} />
+        </div>
       </div>
 
       {/* Input - Always visible and sticky on mobile */}
