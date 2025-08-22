@@ -6,6 +6,7 @@ import { AgentType } from "@/types/agent";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Badge } from "@/components/ui/badge";
 import {
   Home,
   User,
@@ -61,6 +62,7 @@ export const SidebarContent = ({
 }: SidebarContentProps) => {
   const { user } = useAuth();
   const { completionStatus } = useSim();
+  const [showComingSoon, setShowComingSoon] = useState(false);
 
   return (
     <div className="flex flex-col h-full bg-card border-r border-border">
@@ -78,20 +80,6 @@ export const SidebarContent = ({
       <div className="flex-1 overflow-hidden flex flex-col">
         <ScrollArea className="flex-1">
           <div className="p-4 space-y-2">
-            {/* Search Button */}
-            <Button
-              variant={activeView === 'search' ? "secondary" : "ghost"}
-              size="sm"
-              onClick={() => {
-                onNavigateToSearch();
-                onClose?.();
-              }}
-              className="w-full justify-start h-9"
-            >
-              <Search className="mr-2 h-4 w-4" />
-              Search
-            </Button>
-
             {user && (
               <>
                 {/* My Sim Section */}
@@ -161,18 +149,24 @@ export const SidebarContent = ({
                       )}
                     </Button>
                     
-                    <Button
-                      variant={activeView === 'integrations' ? "secondary" : "ghost"}
-                      size="sm"
-                      onClick={() => {
-                        onNavigateToIntegrations();
-                        onClose?.();
-                      }}
-                      className="w-full justify-start h-9"
-                    >
-                      <Settings className="mr-2 h-4 w-4" />
-                      Integrations
-                    </Button>
+                    <div className="relative">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setShowComingSoon(!showComingSoon)}
+                        onMouseEnter={() => setShowComingSoon(true)}
+                        onMouseLeave={() => setShowComingSoon(false)}
+                        className="w-full justify-start h-9 cursor-not-allowed opacity-60"
+                      >
+                        <Settings className="mr-2 h-4 w-4" />
+                        Integrations
+                        {showComingSoon && (
+                          <Badge variant="muted" className="ml-auto text-xs">
+                            Coming soon
+                          </Badge>
+                        )}
+                      </Button>
+                    </div>
                   </div>
                 </div>
 
@@ -205,6 +199,22 @@ export const SidebarContent = ({
                     </div>
                   </div>
                 )}
+
+                {/* Search Button - moved to bottom */}
+                <div className="pt-4">
+                  <Button
+                    variant={activeView === 'search' ? "secondary" : "ghost"}
+                    size="sm"
+                    onClick={() => {
+                      onNavigateToSearch();
+                      onClose?.();
+                    }}
+                    className="w-full justify-start h-9"
+                  >
+                    <Search className="mr-2 h-4 w-4" />
+                    Search
+                  </Button>
+                </div>
               </>
             )}
 
