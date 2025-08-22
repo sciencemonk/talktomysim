@@ -25,11 +25,11 @@ const StudentChat = () => {
   const query = agentId ? publicAgentQuery : publicAgentByUrlQuery;
   const { agent, isLoading, error } = query;
 
-  // Redirect to custom URL if agent has one and we're using the old route
+  // Redirect from legacy /tutors/:agentId route to custom URL route
   useEffect(() => {
     if (agent && agent.url && agentId && !customUrl) {
-      // Redirect to the custom URL route
-      window.location.href = `/${agent.url}`;
+      // Replace the current URL with the custom URL route
+      window.history.replaceState(null, '', `/${agent.url}`);
     }
   }, [agent, agentId, customUrl]);
 

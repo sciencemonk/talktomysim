@@ -1,4 +1,3 @@
-
 import { useParams, useNavigate } from "react-router-dom";
 import { usePublicAgent } from "@/hooks/usePublicAgent";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -14,7 +13,10 @@ const PublicTutorDetail = () => {
   const { agent, isLoading, error } = usePublicAgent(agentId);
 
   const handleStartChat = () => {
-    if (agentId) {
+    // Use custom URL if available, otherwise fall back to agent ID
+    if (agent?.url) {
+      navigate(`/${agent.url}`);
+    } else if (agentId) {
       navigate(`/tutors/${agentId}/chat`);
     }
   };
