@@ -1,6 +1,6 @@
 
 import { useState, useEffect, useRef } from "react";
-import { Bot, Menu } from "lucide-react";
+import { Bot } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { TextInput } from "@/components/TextInput";
@@ -8,12 +8,6 @@ import { useChatHistory } from "@/hooks/useChatHistory";
 import { useEnhancedTextChat } from "@/hooks/useEnhancedTextChat";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { AgentType } from "@/types/agent";
-import {
-  Sheet,
-  SheetContent,
-  SheetTrigger,
-} from "@/components/ui/sheet";
-import { SidebarContent } from "./UserSidebar";
 import { InfoModal } from "./InfoModal";
 
 interface ChatInterfaceProps {
@@ -24,7 +18,6 @@ interface ChatInterfaceProps {
 const ChatInterface = ({ agent, onBack }: ChatInterfaceProps) => {
   const [currentAgent, setCurrentAgent] = useState(agent);
   const [isAiResponding, setIsAiResponding] = useState(false);
-  const [isSheetOpen, setIsSheetOpen] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
   
@@ -56,51 +49,6 @@ const ChatInterface = ({ agent, onBack }: ChatInterfaceProps) => {
       <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-4 sm:px-6 py-4 flex-shrink-0 sticky top-0 z-10">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            {isMobile && (
-              <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
-                <SheetTrigger asChild>
-                  <Button variant="ghost" size="sm" className="p-2">
-                    <Menu className="h-5 w-5" />
-                  </Button>
-                </SheetTrigger>
-                <SheetContent side="left" className="w-80 p-0">
-                  <SidebarContent
-                    selectedAgent={null}
-                    selectedPublicAdvisorId={null}
-                    selectedPublicAdvisors={[]}
-                    onSelectAgent={() => {}}
-                    onSelectPublicAdvisor={() => {
-                      setIsSheetOpen(false);
-                    }}
-                    onRemovePublicAdvisor={() => {}}
-                    onShowAdvisorDirectory={() => {
-                      onBack();
-                      setIsSheetOpen(false);
-                    }}
-                    onNavigateToMySim={() => {
-                      setIsSheetOpen(false);
-                    }}
-                    onNavigateToBasicInfo={() => {
-                      setIsSheetOpen(false);
-                    }}
-                    onNavigateToInteractionModel={() => {
-                      setIsSheetOpen(false);
-                    }}
-                    onNavigateToCoreKnowledge={() => {
-                      setIsSheetOpen(false);
-                    }}
-                    onNavigateToIntegrations={() => {
-                      setIsSheetOpen(false);
-                    }}
-                    onNavigateToSearch={() => {
-                      setIsSheetOpen(false);
-                    }}
-                    activeView="directory"
-                    onClose={() => setIsSheetOpen(false)}
-                  />
-                </SheetContent>
-              </Sheet>
-            )}
             <Avatar className="h-10 w-10 sm:h-12 sm:w-12">
               <AvatarImage src={currentAgent.avatar} alt={currentAgent.name} />
               <AvatarFallback className="bg-primary text-primary-foreground text-lg">
