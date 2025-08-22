@@ -35,6 +35,7 @@ export const fetchPublicAgentByUrl = async (url: string): Promise<AgentType> => 
     prompt: advisor.prompt,
     title: advisor.title,
     url: advisor.custom_url,
+    welcomeMessage: advisor.welcome_message, // Include welcome message
     // Default values for fields that don't exist in advisors table
     model: 'gpt-4',
     voice: 'default',

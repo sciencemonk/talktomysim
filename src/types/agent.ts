@@ -54,6 +54,7 @@ export interface AgentType {
   is_featured?: boolean; // Add the missing is_featured property
   url?: string; // Add url field for custom paths
   custom_url?: string; // Add custom_url field for custom URLs
+  welcomeMessage?: string; // Add welcome message field
 }
 
 export interface PublicAgentType {

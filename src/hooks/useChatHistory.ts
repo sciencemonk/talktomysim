@@ -15,6 +15,7 @@ export const useChatHistory = (agent: AgentType) => {
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isPublicChat, setIsPublicChat] = useState(false);
+  const [welcomeMessageSent, setWelcomeMessageSent] = useState(false);
 
   // Load conversation and messages when agent changes
   useEffect(() => {
@@ -22,6 +23,7 @@ export const useChatHistory = (agent: AgentType) => {
       if (!agent?.id) return;
       
       setIsLoading(true);
+      setWelcomeMessageSent(false);
       console.log('Loading chat history for agent:', agent.name);
 
       try {
@@ -35,6 +37,20 @@ export const useChatHistory = (agent: AgentType) => {
           setIsPublicChat(true);
           setConversationId(null);
           setMessages([]);
+          
+          // Add welcome message for unauthenticated users if it exists
+          if (agent.welcomeMessage && agent.welcomeMessage.trim()) {
+            const welcomeMessage: ChatMessage = {
+              id: `welcome-${Date.now()}`,
+              role: 'system',
+              content: agent.welcomeMessage,
+              isComplete: true
+            };
+            setMessages([welcomeMessage]);
+            setWelcomeMessageSent(true);
+            console.log('Added welcome message for unauthenticated user:', agent.welcomeMessage);
+          }
+          
           setIsLoading(false);
           return;
         }
@@ -54,12 +70,56 @@ export const useChatHistory = (agent: AgentType) => {
 
         setMessages(chatMessages);
         console.log(`Loaded ${chatMessages.length} messages for ${agent.name}:`, chatMessages);
+
+        // Add welcome message if no existing messages and welcome message exists
+        if (chatMessages.length === 0 && agent.welcomeMessage && agent.welcomeMessage.trim()) {
+          const welcomeMessage: ChatMessage = {
+            id: `welcome-${Date.now()}`,
+            role: 'system',
+            content: agent.welcomeMessage,
+            isComplete: true
+          };
+          
+          setMessages([welcomeMessage]);
+          setWelcomeMessageSent(true);
+          
+          // Save welcome message to database for authenticated users
+          const savedWelcomeMessage = await conversationService.addMessage(
+            conversation.id, 
+            'system', 
+            agent.welcomeMessage
+          );
+          
+          if (savedWelcomeMessage) {
+            setMessages([{
+              id: savedWelcomeMessage.id,
+              role: 'system',
+              content: agent.welcomeMessage,
+              isComplete: true
+            }]);
+            console.log('Welcome message saved to database for authenticated user');
+          }
+        }
+        
       } catch (error) {
         console.error('Error loading chat history:', error);
         // Fallback to in-memory chat
         setIsPublicChat(true);
         setConversationId(null);
-        setMessages([]);
+        
+        // Add welcome message for fallback case if it exists
+        if (agent.welcomeMessage && agent.welcomeMessage.trim()) {
+          const welcomeMessage: ChatMessage = {
+            id: `welcome-${Date.now()}`,
+            role: 'system',
+            content: agent.welcomeMessage,
+            isComplete: true
+          };
+          setMessages([welcomeMessage]);
+          setWelcomeMessageSent(true);
+        } else {
+          setMessages([]);
+        }
       }
       
       setIsLoading(false);
@@ -69,8 +129,9 @@ export const useChatHistory = (agent: AgentType) => {
     setMessages([]);
     setConversationId(null);
     setIsPublicChat(false);
+    setWelcomeMessageSent(false);
     loadChatHistory();
-  }, [agent?.id]);
+  }, [agent?.id, agent?.welcomeMessage]);
 
   // Add user message
   const addUserMessage = useCallback(async (content: string) => {
@@ -187,6 +248,7 @@ export const useChatHistory = (agent: AgentType) => {
     messages,
     isLoading,
     isPublicChat,
+    welcomeMessageSent,
     addUserMessage,
     startAiMessage,
     addAiTextDelta,
