@@ -6,10 +6,13 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { User, MessageCircle, BookOpen, ExternalLink, Settings, Globe, Lock } from "lucide-react";
 import { useSim } from "@/hooks/useSim";
 import SimProgress from './SimProgress';
-
 const MySim = () => {
-  const { sim, completionStatus, isLoading, makeSimPublic } = useSim();
-
+  const {
+    sim,
+    completionStatus,
+    isLoading,
+    makeSimPublic
+  } = useSim();
   const handleMakePublic = async () => {
     try {
       await makeSimPublic(!sim?.is_public);
@@ -17,29 +20,20 @@ const MySim = () => {
       console.error('Error updating sim visibility:', error);
     }
   };
-
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
+    return <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
           <p className="text-muted-foreground">Loading your sim...</p>
         </div>
-      </div>
-    );
+      </div>;
   }
-
-  return (
-    <div className="max-w-6xl mx-auto p-6 space-y-6">
+  return <div className="max-w-6xl mx-auto p-6 space-y-6">
       {/* Header Section */}
       <div className="flex flex-col lg:flex-row gap-6">
         {/* Sim Overview Card */}
         <Card className="flex-1">
-          <CardHeader>
-            <CardTitle>
-              Sim Overview
-            </CardTitle>
-          </CardHeader>
+          
           <CardContent className="space-y-6">
             <div className="flex items-start gap-4">
               <Avatar className="h-16 w-16">
@@ -52,48 +46,37 @@ const MySim = () => {
                 <h3 className="text-xl font-semibold">
                   {sim?.name || "Unnamed Sim"}
                 </h3>
-                {sim?.professional_title && (
-                  <p className="text-muted-foreground">{sim.professional_title}</p>
-                )}
-                {sim?.description && (
-                  <p className="text-sm text-muted-foreground line-clamp-2">
+                {sim?.professional_title && <p className="text-muted-foreground">{sim.professional_title}</p>}
+                {sim?.description && <p className="text-sm text-muted-foreground line-clamp-2">
                     {sim.description}
-                  </p>
-                )}
+                  </p>}
                 <div className="flex items-center gap-2">
                   <Badge variant={sim?.is_public ? "default" : "secondary"}>
-                    {sim?.is_public ? (
-                      <>
+                    {sim?.is_public ? <>
                         <Globe className="h-3 w-3 mr-1" />
                         Public
-                      </>
-                    ) : (
-                      <>
+                      </> : <>
                         <Lock className="h-3 w-3 mr-1" />
                         Private
-                      </>
-                    )}
+                      </>}
                   </Badge>
+                  {sim?.custom_url && <Badge variant="outline">
+                      {sim.custom_url}
+                    </Badge>}
                 </div>
               </div>
             </div>
 
             <div className="flex gap-2">
-              <Button 
-                onClick={handleMakePublic}
-                variant={sim?.is_public ? "outline" : "default"}
-                disabled={isLoading}
-              >
+              <Button onClick={handleMakePublic} variant={sim?.is_public ? "outline" : "default"} disabled={isLoading}>
                 {sim?.is_public ? "Make Private" : "Make Public"}
               </Button>
-              {sim?.is_public && sim?.custom_url && (
-                <Button variant="outline" asChild>
+              {sim?.is_public && sim?.custom_url && <Button variant="outline" asChild>
                   <a href={`/${sim.custom_url}`} target="_blank" rel="noopener noreferrer">
                     <ExternalLink className="h-4 w-4 mr-2" />
                     View Public Page
                   </a>
-                </Button>
-              )}
+                </Button>}
             </div>
           </CardContent>
         </Card>
@@ -174,8 +157,7 @@ const MySim = () => {
       </div>
 
       {/* Quick Stats */}
-      {sim && (
-        <Card>
+      {sim && <Card>
           <CardHeader>
             <CardTitle>Quick Stats</CardTitle>
           </CardHeader>
@@ -189,7 +171,7 @@ const MySim = () => {
               </div>
               <div className="text-center">
                 <p className="text-2xl font-bold text-primary">
-                  {Math.round((Object.values(completionStatus).filter(Boolean).length / 3) * 100)}%
+                  {Math.round(Object.values(completionStatus).filter(Boolean).length / 3 * 100)}%
                 </p>
                 <p className="text-sm text-muted-foreground">Setup Progress</p>
               </div>
@@ -207,10 +189,7 @@ const MySim = () => {
               </div>
             </div>
           </CardContent>
-        </Card>
-      )}
-    </div>
-  );
+        </Card>}
+    </div>;
 };
-
 export default MySim;
