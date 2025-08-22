@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { Navigate } from "react-router-dom";
@@ -22,7 +23,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 
-type ViewType = 'directory' | 'my-sim' | 'basic-info' | 'interaction-model' | 'core-knowledge' | 'integrations';
+type ViewType = 'directory' | 'my-sim' | 'basic-info' | 'interaction-model' | 'core-knowledge' | 'integrations' | 'search';
 
 const Home = () => {
   const { user, loading } = useAuth();
@@ -82,7 +83,7 @@ const Home = () => {
         
         setSelectedAdvisor(advisor);
         setSelectedPublicAdvisorId(advisor.id);
-        setCurrentView('directory'); // Reset view when selecting advisor
+        setCurrentView('search'); // Keep the search view when selecting advisor
       }
     }
   };
@@ -131,6 +132,15 @@ const Home = () => {
     setSelectedAdvisor(null);
     setSelectedPublicAdvisorId(null);
     setCurrentView('directory');
+    setMobileSheetOpen(false); // Close mobile sheet
+  };
+
+  // Handle search navigation
+  const handleNavigateToSearch = () => {
+    setCurrentView('search');
+    setSelectedAgent(null);
+    setSelectedAdvisor(null);
+    setSelectedPublicAdvisorId(null);
     setMobileSheetOpen(false); // Close mobile sheet
   };
 
@@ -197,7 +207,12 @@ const Home = () => {
             setSelectedAgent(null);
             setSelectedAdvisor(null);
             setSelectedPublicAdvisorId(null);
-            setCurrentView('directory');
+            // Return to the previous view context
+            if (currentView === 'search') {
+              setCurrentView('search');
+            } else {
+              setCurrentView('directory');
+            }
           }}
         />
       );
@@ -215,6 +230,13 @@ const Home = () => {
         return <CoreKnowledge />;
       case 'integrations':
         return <Integrations />;
+      case 'search':
+        return (
+          <AdvisorDirectory 
+            onSelectAdvisor={handleAdvisorSelect}
+            onAuthRequired={handleAuthRequired}
+          />
+        );
       case 'directory':
       default:
         return (
@@ -241,6 +263,7 @@ const Home = () => {
         onNavigateToInteractionModel={handleNavigateToInteractionModel}
         onNavigateToCoreKnowledge={handleNavigateToCoreKnowledge}
         onNavigateToIntegrations={handleNavigateToIntegrations}
+        onNavigateToSearch={handleNavigateToSearch}
         activeView={currentView}
         onAuthRequired={handleAuthRequired}
       />
@@ -270,6 +293,7 @@ const Home = () => {
                   onNavigateToInteractionModel={handleNavigateToInteractionModel}
                   onNavigateToCoreKnowledge={handleNavigateToCoreKnowledge}
                   onNavigateToIntegrations={handleNavigateToIntegrations}
+                  onNavigateToSearch={handleNavigateToSearch}
                   activeView={currentView}
                   onClose={() => setMobileSheetOpen(false)}
                   onAuthRequired={handleAuthRequired}

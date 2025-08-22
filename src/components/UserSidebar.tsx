@@ -1,42 +1,50 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Separator } from "@/components/ui/separator";
-import { Sheet, SheetContent } from "@/components/ui/sheet";
-import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Search, Plus, MessageCircle, User, Sparkles, Brain, BookOpen, Home, X, Settings, Crown, Bot, Zap } from "lucide-react";
+import { useSim } from "@/hooks/useSim";
 import { AgentType } from "@/types/agent";
-import { useIsMobile } from "@/hooks/use-mobile";
-import UserSettingsDropdown from "./UserSettingsDropdown";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+  Home,
+  User,
+  MessageSquare,
+  Brain,
+  Settings,
+  PlusCircle,
+  CheckCircle,
+  Search,
+  Bot,
+  Trash2
+} from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface UserSidebarProps {
-  selectedAgent?: AgentType | null;
-  selectedPublicAdvisorId?: string | null;
-  selectedPublicAdvisors?: AgentType[];
-  onSelectAgent?: (agent: AgentType) => void;
-  onSelectPublicAdvisor?: (advisorId: string, advisor?: AgentType) => void;
-  onRemovePublicAdvisor?: (advisorId: string) => void;
-  onShowAdvisorDirectory?: () => void;
-  onNavigateToMySim?: () => void;
-  onNavigateToBasicInfo?: () => void;
-  onNavigateToInteractionModel?: () => void;
-  onNavigateToCoreKnowledge?: () => void;
-  onNavigateToIntegrations?: () => void;
-  activeView?: string;
-  onAuthRequired?: () => void; // Add this prop to trigger auth modal
+  selectedAgent: AgentType | null;
+  selectedPublicAdvisorId: string | null;
+  selectedPublicAdvisors: AgentType[];
+  onSelectAgent: (agent: AgentType) => void;
+  onSelectPublicAdvisor: (advisorId: string, advisor?: AgentType) => void;
+  onRemovePublicAdvisor: (advisorId: string) => void;
+  onShowAdvisorDirectory: () => void;
+  onNavigateToMySim: () => void;
+  onNavigateToBasicInfo: () => void;
+  onNavigateToInteractionModel: () => void;
+  onNavigateToCoreKnowledge: () => void;
+  onNavigateToIntegrations: () => void;
+  onNavigateToSearch: () => void;
+  activeView: string;
+  onAuthRequired?: () => void;
 }
 
-export interface SidebarContentProps extends UserSidebarProps {
+interface SidebarContentProps extends UserSidebarProps {
   onClose?: () => void;
 }
 
-export const SidebarContent: React.FC<SidebarContentProps> = ({
+export const SidebarContent = ({
   selectedAgent,
   selectedPublicAdvisorId,
-  selectedPublicAdvisors = [],
+  selectedPublicAdvisors,
   onSelectAgent,
   onSelectPublicAdvisor,
   onRemovePublicAdvisor,
@@ -46,153 +54,244 @@ export const SidebarContent: React.FC<SidebarContentProps> = ({
   onNavigateToInteractionModel,
   onNavigateToCoreKnowledge,
   onNavigateToIntegrations,
+  onNavigateToSearch,
   activeView,
   onClose,
   onAuthRequired
-}) => {
-  const {
-    user
-  } = useAuth();
-  
-  const menuItems = [{
-    icon: User,
-    label: "My Sim",
-    onClick: () => {
-      onNavigateToMySim?.();
-      onClose?.();
-    },
-    viewKey: "my-sim"
-  }, {
-    icon: Sparkles,
-    label: "Basic Info",
-    onClick: () => {
-      onNavigateToBasicInfo?.();
-      onClose?.();
-    },
-    viewKey: "basic-info"
-  }, {
-    icon: Brain,
-    label: "Interaction Model",
-    onClick: () => {
-      onNavigateToInteractionModel?.();
-      onClose?.();
-    },
-    viewKey: "interaction-model"
-  }, {
-    icon: BookOpen,
-    label: "Core Knowledge",
-    onClick: () => {
-      onNavigateToCoreKnowledge?.();
-      onClose?.();
-    },
-    viewKey: "core-knowledge"
-  }, {
-    icon: Zap,
-    label: "Integrations",
-    onClick: () => {
-      onNavigateToIntegrations?.();
-      onClose?.();
-    },
-    viewKey: "integrations"
-  }, {
-    icon: Search,
-    label: "Search",
-    onClick: () => {
-      onShowAdvisorDirectory?.();
-      onClose?.();
-    },
-    viewKey: "search"
-  }];
+}: SidebarContentProps) => {
+  const { user, signOut } = useAuth();
+  const { completionStatus } = useSim();
 
-  const userTrigger = user ? <Button variant="ghost" className="w-full justify-start p-3 h-auto">
-      <div className="flex items-center space-x-3 w-full">
-        <Avatar className="h-10 w-10">
-          <AvatarImage src={user?.user_metadata?.avatar_url} alt="Profile" />
-          <AvatarFallback>
-            {user?.email?.charAt(0)?.toUpperCase() || "U"}
-          </AvatarFallback>
-        </Avatar>
-        <div className="flex-1 min-w-0 text-left">
-          <p className="text-sm font-medium text-fg truncate">
-            {user?.user_metadata?.full_name || "User"}
-          </p>
-          <p className="text-xs text-fgMuted truncate">
-            {user?.email}
-          </p>
-        </div>
-      </div>
-    </Button> : null;
-
-  return <div className="flex flex-col h-full bg-card border-r border-border">
+  return (
+    <div className="flex flex-col h-full bg-card border-r border-border">
       {/* Header */}
-      <div className="p-4 border-b border-border">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <img src="/lovable-uploads/d1283b59-7cfa-45f5-b151-4c32b24f3621.png" alt="Logo" className="h-8 w-8 object-contain" />
-            <h2 className="text-lg font-semibold text-fg">Sim</h2>
-          </div>
+      <div className="p-6 border-b border-border">
+        <div className="flex items-center justify-center">
+          <img 
+            src="/lovable-uploads/d1283b59-7cfa-45f5-b151-4c32b24f3621.png" 
+            alt="Logo" 
+            className="h-8 w-8 object-contain"
+          />
         </div>
       </div>
 
-      {/* Scrollable Content */}
-      {user ? (
-        <>
-          <ScrollArea className="flex-1">
-            <div className="p-4 space-y-6">
-              <div className="space-y-2">
-                {menuItems.map((item, index) => {
-                  const isActive = activeView === item.viewKey;
-                  return <Button key={index} variant="ghost" className={`w-full justify-start text-left ${isActive ? "bg-primary/10 text-primary border border-primary/20" : "text-fgMuted hover:text-fg hover:bg-bgMuted"}`} onClick={item.onClick}>
-                    <item.icon className="mr-3 h-4 w-4" />
-                    <span className="flex-1">{item.label}</span>
-                  </Button>;
-                })}
-              </div>
-            </div>
-          </ScrollArea>
-
-          {/* User Info at Bottom */}
-          <Separator />
-          <div className="p-4">
-            <UserSettingsDropdown trigger={userTrigger} simplified={true} />
-          </div>
-        </>
-      ) : (
-        /* Centered content for non-signed-in users */
-        <div className="flex-1 flex items-center justify-center p-4">
-          <div className="space-y-4 text-center">
-            <div className="space-y-2">
-              <h3 className="text-lg font-semibold text-fg">
-                Create your free Sim today
-              </h3>
-            </div>
-            
-            <Button 
+      <div className="flex-1 overflow-hidden flex flex-col">
+        <ScrollArea className="flex-1">
+          <div className="p-4 space-y-2">
+            {/* Search Button */}
+            <Button
+              variant={activeView === 'search' ? "secondary" : "ghost"}
+              size="sm"
               onClick={() => {
-                onAuthRequired?.();
+                onNavigateToSearch();
                 onClose?.();
-              }} 
-              className="w-full bg-gradient-to-r from-purple-600 via-pink-500 to-blue-500 text-white hover:opacity-90 relative overflow-hidden" 
-              size="lg"
+              }}
+              className="w-full justify-start h-9"
             >
-              <span className="relative z-10">Get Started</span>
-              {/* Shimmer effect */}
-              <div className="absolute inset-0 -top-[1px] bg-gradient-to-r from-transparent via-white/30 to-transparent translate-x-[-100%] animate-[shimmer_2s_ease-in-out_infinite] skew-x-12" />
+              <Search className="mr-2 h-4 w-4" />
+              Search
+            </Button>
+
+            {user && (
+              <>
+                {/* My Sim Section */}
+                <div className="pt-4">
+                  <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2 px-2">
+                    My Sim
+                  </h3>
+                  <div className="space-y-1">
+                    <Button
+                      variant={activeView === 'my-sim' ? "secondary" : "ghost"}
+                      size="sm"
+                      onClick={() => {
+                        onNavigateToMySim();
+                        onClose?.();
+                      }}
+                      className="w-full justify-start h-9"
+                    >
+                      <Home className="mr-2 h-4 w-4" />
+                      Overview
+                    </Button>
+                    
+                    <Button
+                      variant={activeView === 'basic-info' ? "secondary" : "ghost"}
+                      size="sm"
+                      onClick={() => {
+                        onNavigateToBasicInfo();
+                        onClose?.();
+                      }}
+                      className="w-full justify-start h-9"
+                    >
+                      <User className="mr-2 h-4 w-4" />
+                      Basic Info
+                      {completionStatus.basic_info && (
+                        <CheckCircle className="ml-auto h-3 w-3 text-green-500" />
+                      )}
+                    </Button>
+                    
+                    <Button
+                      variant={activeView === 'interaction-model' ? "secondary" : "ghost"}
+                      size="sm"
+                      onClick={() => {
+                        onNavigateToInteractionModel();
+                        onClose?.();
+                      }}
+                      className="w-full justify-start h-9"
+                    >
+                      <MessageSquare className="mr-2 h-4 w-4" />
+                      Interaction Model
+                      {completionStatus.interaction_model && (
+                        <CheckCircle className="ml-auto h-3 w-3 text-green-500" />
+                      )}
+                    </Button>
+                    
+                    <Button
+                      variant={activeView === 'core-knowledge' ? "secondary" : "ghost"}
+                      size="sm"
+                      onClick={() => {
+                        onNavigateToCoreKnowledge();
+                        onClose?.();
+                      }}
+                      className="w-full justify-start h-9"
+                    >
+                      <Brain className="mr-2 h-4 w-4" />
+                      Core Knowledge
+                      {completionStatus.core_knowledge && (
+                        <CheckCircle className="ml-auto h-3 w-3 text-green-500" />
+                      )}
+                    </Button>
+                    
+                    <Button
+                      variant={activeView === 'integrations' ? "secondary" : "ghost"}
+                      size="sm"
+                      onClick={() => {
+                        onNavigateToIntegrations();
+                        onClose?.();
+                      }}
+                      className="w-full justify-start h-9"
+                    >
+                      <Settings className="mr-2 h-4 w-4" />
+                      Integrations
+                    </Button>
+                  </div>
+                </div>
+
+                {/* My Agents Section */}
+                <div className="pt-4">
+                  <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2 px-2">
+                    My Advisors
+                  </h3>
+                  <div className="space-y-1">
+                    {selectedPublicAdvisors.map((advisor) => (
+                      <Button
+                        key={advisor.id}
+                        variant={selectedAgent?.id === advisor.id ? "secondary" : "ghost"}
+                        size="sm"
+                        onClick={() => {
+                          onSelectAgent(advisor);
+                          onClose?.();
+                        }}
+                        className="w-full justify-start h-9"
+                      >
+                        <Bot className="mr-2 h-4 w-4" />
+                        {advisor.name}
+                      </Button>
+                    ))}
+                    
+                    {selectedPublicAdvisors.length > 0 && (
+                      <div className="h-1 bg-border my-2 rounded-full" />
+                    )}
+
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => {
+                        onShowAdvisorDirectory();
+                        onClose?.();
+                      }}
+                      className="w-full justify-start h-9"
+                    >
+                      <PlusCircle className="mr-2 h-4 w-4" />
+                      Add Advisor
+                    </Button>
+                  </div>
+                </div>
+
+                {/* Public Advisors Section */}
+                {selectedPublicAdvisorId && (
+                  <div className="pt-4">
+                    <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2 px-2">
+                      Public Advisor
+                    </h3>
+                    <div className="space-y-1">
+                      {selectedPublicAdvisors.filter(advisor => advisor.id === selectedPublicAdvisorId).map((advisor) => (
+                        <div key={advisor.id} className="flex items-center space-x-2 px-2 py-1">
+                          <Avatar className="h-6 w-6">
+                            <AvatarImage src={advisor.avatar} alt={advisor.name} />
+                            <AvatarFallback className="bg-primary/10 text-primary">
+                              <Bot className="h-3 w-3" />
+                            </AvatarFallback>
+                          </Avatar>
+                          <span className="text-sm font-medium">{advisor.name}</span>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => onRemovePublicAdvisor(advisor.id)}
+                            className="ml-auto hover:bg-red-500/10 text-red-500"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </>
+            )}
+
+            {!user && (
+              <div className="pt-4">
+                <Button
+                  onClick={() => {
+                    onAuthRequired?.();
+                    onClose?.();
+                  }}
+                  className="w-full"
+                  variant="outline"
+                >
+                  Sign In
+                </Button>
+              </div>
+            )}
+          </div>
+        </ScrollArea>
+
+        {/* User Settings at Bottom */}
+        {user && (
+          <div className="p-4 border-t border-border">
+            <Button
+              onClick={() => {
+                signOut();
+                onClose?.();
+              }}
+              className="w-full"
+              variant="outline"
+            >
+              Sign Out
             </Button>
           </div>
-        </div>
-      )}
-    </div>;
+        )}
+      </div>
+    </div>
+  );
 };
 
-const UserSidebar: React.FC<UserSidebarProps> = props => {
-  const isMobile = useIsMobile();
-  if (isMobile) {
-    return null; // Mobile sidebar is handled in Home component with Sheet
-  }
-  return <div className="fixed left-0 top-0 h-screen w-80 z-40">
+const UserSidebar = (props: UserSidebarProps) => {
+  return (
+    <div className="hidden md:block fixed left-0 top-0 h-full w-80 z-40">
       <SidebarContent {...props} />
-    </div>;
+    </div>
+  );
 };
 
 export default UserSidebar;
