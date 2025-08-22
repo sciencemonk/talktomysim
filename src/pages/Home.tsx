@@ -59,13 +59,11 @@ const Home = () => {
     }
   };
 
-  // Handle agent selection from sidebar - expects agentId string
-  const handleAgentSelect = (agentId: string) => {
-    // Find the agent by ID (this would need to be implemented)
-    // For now, we'll just clear selections since we don't have access to the full agent
-    setSelectedAgent(null);
+  // Handle agent selection from sidebar
+  const handleAgentSelect = (agent: AgentType) => {
+    setSelectedAgent(agent);
     setSelectedAdvisor(null);
-    setSelectedPublicAdvisorId(agentId);
+    setSelectedPublicAdvisorId(null);
   };
 
   // Handle public advisor selection from sidebar
