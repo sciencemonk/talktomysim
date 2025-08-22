@@ -1,413 +1,290 @@
-import { useLocation } from "react-router-dom";
-import { 
-  Bot, 
-  LogOut, 
-  Settings,
+import React, { useState } from "react";
+import { useAuth } from "@/hooks/useAuth";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Separator } from "@/components/ui/separator";
+import { Sheet, SheetContent } from "@/components/ui/sheet";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  Search,
+  Plus,
+  MessageCircle,
   User,
-  Menu,
-  X,
-  LogIn,
-  Info,
-  MessageSquare,
+  Sparkles,
   Brain,
   BookOpen,
-  Search,
-  CreditCard
+  Home,
+  X,
+  ChevronRight,
+  Settings,
+  Crown,
+  Bot
 } from "lucide-react";
-import { useAuth } from "@/hooks/useAuth";
-import { useAgents } from "@/hooks/useAgents";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
-import { cn } from "@/lib/utils";
-import { useState, useEffect } from "react";
-import { useIsMobile } from "@/hooks/use-mobile";
-import {
-  Drawer,
-  DrawerContent,
-  DrawerTrigger,
-} from "@/components/ui/drawer";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { AgentType } from "@/types/agent";
-import AuthModal from "./AuthModal";
-import UpgradeModal from "./UpgradeModal";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface UserSidebarProps {
-  onShowSettings?: () => void;
-  onShowChildProfile?: () => void;
-  onShowAgents?: () => void;
-  onShowAdvisorDirectory?: () => void;
   selectedAgent?: AgentType | null;
   selectedPublicAdvisorId?: string | null;
   selectedPublicAdvisors?: AgentType[];
   onSelectAgent?: (agent: AgentType) => void;
   onSelectPublicAdvisor?: (advisorId: string, advisor?: AgentType) => void;
   onRemovePublicAdvisor?: (advisorId: string) => void;
-  refreshTrigger?: number;
+  onShowAdvisorDirectory?: () => void;
   onNavigateToMySim?: () => void;
   onNavigateToBasicInfo?: () => void;
   onNavigateToInteractionModel?: () => void;
   onNavigateToCoreKnowledge?: () => void;
 }
 
-const SidebarContent = ({ 
-  onShowSettings, 
-  onShowChildProfile, 
-  onShowAgents,
-  onShowAdvisorDirectory,
+export interface SidebarContentProps extends UserSidebarProps {
+  onClose?: () => void;
+}
+
+export const SidebarContent: React.FC<SidebarContentProps> = ({
   selectedAgent,
   selectedPublicAdvisorId,
   selectedPublicAdvisors = [],
   onSelectAgent,
   onSelectPublicAdvisor,
   onRemovePublicAdvisor,
-  refreshTrigger,
-  isCollapsed,
-  onToggleCollapse,
-  onClose,
+  onShowAdvisorDirectory,
   onNavigateToMySim,
   onNavigateToBasicInfo,
   onNavigateToInteractionModel,
-  onNavigateToCoreKnowledge
-}: UserSidebarProps & { 
-  isCollapsed?: boolean; 
-  onToggleCollapse?: () => void;
-  onClose?: () => void;
+  onNavigateToCoreKnowledge,
+  onClose
 }) => {
-  const { user, signOut } = useAuth();
-  const { agents, isLoading } = useAgents();
-  
-  const [isLogoHovered, setIsLogoHovered] = useState(false);
-  const [showAuthModal, setShowAuthModal] = useState(false);
-  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const { user } = useAuth();
+  const [searchQuery, setSearchQuery] = useState("");
 
-  useEffect(() => {
-    if (refreshTrigger) {
-      console.log('Refreshing agents list due to update');
-    }
-  }, [refreshTrigger]);
-
-  const handleSignOut = async () => {
-    await signOut();
+  const handlePublicAdvisorClick = (advisorId: string, advisor?: AgentType) => {
+    onSelectPublicAdvisor?.(advisorId, advisor);
   };
 
-  const handleAgentSelect = (agent: AgentType) => {
-    console.log('Agent selected:', agent.name, agent.id);
-    onSelectAgent?.(agent);
-    onClose?.(); // Close mobile drawer when agent is selected
+  const handleRemovePublicAdvisor = (e: React.MouseEvent, advisorId: string) => {
+    e.stopPropagation();
+    onRemovePublicAdvisor?.(advisorId);
   };
 
-  // Navigation items for authenticated users
-  const navigationItems = [
+  const filteredPublicAdvisors = selectedPublicAdvisors.filter(advisor =>
+    advisor.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    advisor.description?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const menuItems = [
     {
-      title: "My Sim",
-      icon: Brain,
-      href: "#",
+      icon: Home,
+      label: "Advisor Directory",
+      onClick: () => {
+        onShowAdvisorDirectory?.();
+        onClose?.();
+      },
+      isActive: !selectedAgent && !selectedPublicAdvisorId
+    },
+    {
+      icon: User,
+      label: "My Sim",
       onClick: () => {
         onNavigateToMySim?.();
         onClose?.();
-      }
+      },
+      badge: user ? null : "Pro",
+      isPro: !user
     },
     {
-      title: "Basic Info",
-      icon: Info,
-      href: "#",
+      icon: Sparkles,
+      label: "Basic Info",
       onClick: () => {
         onNavigateToBasicInfo?.();
         onClose?.();
       }
     },
     {
-      title: "Interaction Model",
-      icon: MessageSquare,
-      href: "#",
+      icon: Brain,
+      label: "Interaction Model",
       onClick: () => {
         onNavigateToInteractionModel?.();
         onClose?.();
       }
     },
     {
-      title: "Core Knowledge",
       icon: BookOpen,
-      href: "#",
+      label: "Core Knowledge",
       onClick: () => {
         onNavigateToCoreKnowledge?.();
-        onClose?.();
-      }
-    },
-    {
-      title: "Find a Sim",
-      icon: Search,
-      href: "#",
-      onClick: () => {
-        onShowAdvisorDirectory?.();
         onClose?.();
       }
     }
   ];
 
   return (
-    <>
-      <div className="flex flex-col h-full">
-        {/* Header with Logo and Toggle (Desktop only) */}
-        {onToggleCollapse && (
-          <>
-            <div className="p-4 flex items-center justify-between">
-              {!isCollapsed && (
-                <div className="flex items-center gap-3">
-                  <img 
-                    src="/lovable-uploads/d1283b59-7cfa-45f5-b151-4c32b24f3621.png" 
-                    alt="Sim" 
-                    className="h-8 w-8 object-contain"
-                  />
-                  <h1 className="font-semibold text-lg">Sim</h1>
-                </div>
-              )}
-              {isCollapsed && (
-                <button 
-                  onClick={onToggleCollapse}
-                  onMouseEnter={() => setIsLogoHovered(true)}
-                  onMouseLeave={() => setIsLogoHovered(false)}
-                  className="h-8 w-8 mx-auto flex items-center justify-center hover:bg-muted rounded-md transition-colors cursor-pointer"
-                >
-                  {isLogoHovered ? (
-                    <img 
-                      src="/lovable-uploads/414592e4-0cdf-4286-a371-903bef284fe3.png" 
-                      alt="Open Sidebar" 
-                      className="h-4 w-4"
-                    />
-                  ) : (
-                    <img 
-                      src="/lovable-uploads/d1283b59-7cfa-45f5-b151-4c32b24f3621.png" 
-                      alt="Sim" 
-                      className="h-8 w-8 object-contain"
-                    />
-                  )}
-                </button>
-              )}
-              {!isCollapsed && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={onToggleCollapse}
-                  className="h-8 w-8 p-0"
-                >
-                  <img 
-                    src="/lovable-uploads/414592e4-0cdf-4286-a371-903bef284fe3.png" 
-                    alt="Toggle Sidebar" 
-                    className="h-4 w-4"
-                  />
-                </Button>
-              )}
-            </div>
-            <Separator />
-          </>
-        )}
+    <div className="flex flex-col h-full bg-card border-r border-border">
+      {/* Header */}
+      <div className="p-4 border-b border-border">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center space-x-2">
+            <img 
+              src="/lovable-uploads/d1283b59-7cfa-45f5-b151-4c32b24f3621.png" 
+              alt="Logo" 
+              className="h-8 w-8 object-contain"
+            />
+            <h2 className="text-lg font-semibold text-fg">SimTutor</h2>
+          </div>
+          {onClose && (
+            <Button variant="ghost" size="sm" onClick={onClose}>
+              <X className="h-4 w-4" />
+            </Button>
+          )}
+        </div>
+        
+        <div className="relative">
+          <Search className="absolute left-3 top-3 h-4 w-4 text-fgMuted" />
+          <Input
+            placeholder="Search advisors..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-9 bg-background"
+          />
+        </div>
+      </div>
 
-        {/* Mobile Header */}
-        {!onToggleCollapse && (
-          <>
-            <div className="p-4 flex items-center gap-3">
-              <img 
-                src="/lovable-uploads/d1283b59-7cfa-45f5-b151-4c32b24f3621.png" 
-                alt="Sim" 
-                className="h-8 w-8 object-contain"
-              />
-              <h1 className="font-semibold text-lg">Sim</h1>
-            </div>
-            <Separator />
-          </>
-        )}
-
-        {/* Navigation Items - Only show if user is authenticated */}
-        {user && (
-          <div className="flex-1 p-3 space-y-1 overflow-auto">
-            {/* Personal Agents List - Only show if there are agents */}
-            {agents.length > 0 && (
-              <div className="space-y-1">
-                {(!isCollapsed || !onToggleCollapse) && (
-                  <div className="px-3 py-2 text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                    Your Agents
-                  </div>
+      {/* Scrollable Content */}
+      <ScrollArea className="flex-1">
+        <div className="p-4 space-y-6">
+          {/* Navigation Menu */}
+          <div className="space-y-2">
+            {menuItems.map((item, index) => (
+              <Button
+                key={index}
+                variant="ghost"
+                className={`w-full justify-start text-left ${
+                  item.isActive 
+                    ? "bg-primary/10 text-primary border border-primary/20" 
+                    : "text-fgMuted hover:text-fg hover:bg-bgMuted"
+                } ${item.isPro ? "opacity-60" : ""}`}
+                onClick={item.onClick}
+                disabled={item.isPro}
+              >
+                <item.icon className="mr-3 h-4 w-4" />
+                <span className="flex-1">{item.label}</span>
+                {item.badge && (
+                  <Badge variant="secondary" className="ml-2 bg-amber-100 text-amber-800 border-amber-200">
+                    <Crown className="w-3 h-3 mr-1" />
+                    {item.badge}
+                  </Badge>
                 )}
-                {isLoading ? (
-                  <div className={cn(
-                    "px-3 py-2 text-xs text-muted-foreground",
-                    isCollapsed && onToggleCollapse && "text-center"
-                  )}>
-                    {(isCollapsed && onToggleCollapse) ? "..." : "Loading thinking partners..."}
+                <ChevronRight className="ml-2 h-4 w-4" />
+              </Button>
+            ))}
+          </div>
+
+          <Separator />
+
+          {/* My Advisors Section */}
+          {user && (
+            <>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-sm font-medium text-fg">My Advisors</h3>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => {
+                      onShowAdvisorDirectory?.();
+                      onClose?.();
+                    }}
+                    className="h-7 px-2 text-xs"
+                  >
+                    <Plus className="h-3 w-3 mr-1" />
+                    Add
+                  </Button>
+                </div>
+
+                {filteredPublicAdvisors.length === 0 ? (
+                  <div className="text-center py-6 text-fgMuted">
+                    <Bot className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                    <p className="text-sm">No advisors added yet</p>
+                    <p className="text-xs mt-1">Browse the directory to add some!</p>
                   </div>
                 ) : (
-                  agents.map((agent) => (
-                    <Button
-                      key={agent.id}
-                      onClick={() => handleAgentSelect(agent)}
-                      variant="ghost"
-                      className={cn(
-                        "flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors w-full justify-start h-auto min-h-[40px]",
-                        selectedAgent?.id === agent.id
-                          ? "bg-primary/10 text-primary font-medium hover:bg-primary/15"
-                          : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                      )}
-                    >
-                      <Avatar className="h-6 w-6 flex-shrink-0">
-                        <AvatarImage src={agent.avatar} alt={agent.name} />
-                        <AvatarFallback className="bg-primary/10 text-primary text-xs">
-                          <Bot className="h-3 w-3" />
-                        </AvatarFallback>
-                      </Avatar>
-                      {(!isCollapsed || !onToggleCollapse) && <span className="truncate text-left">{agent.name}</span>}
-                    </Button>
-                  ))
+                  <div className="space-y-2">
+                    {filteredPublicAdvisors.map((advisor) => (
+                      <div
+                        key={advisor.id}
+                        className={`group flex items-start space-x-3 p-3 rounded-lg cursor-pointer transition-all duration-200 ${
+                          selectedPublicAdvisorId === advisor.id
+                            ? "bg-primary/10 border border-primary/20"
+                            : "hover:bg-bgMuted border border-transparent"
+                        }`}
+                        onClick={() => handlePublicAdvisorClick(advisor.id, advisor)}
+                      >
+                        <Avatar className="h-8 w-8 flex-shrink-0">
+                          <AvatarImage src={advisor.avatar} alt={advisor.name} />
+                          <AvatarFallback className="bg-primary/10 text-primary text-xs">
+                            {advisor.name.split(' ').map(n => n[0]).join('')}
+                          </AvatarFallback>
+                        </Avatar>
+                        
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between">
+                            <h4 className="text-sm font-medium text-fg truncate">
+                              {advisor.name}
+                            </h4>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={(e) => handleRemovePublicAdvisor(e, advisor.id)}
+                              className="opacity-0 group-hover:opacity-100 h-6 w-6 p-0 hover:bg-destructive/10 hover:text-destructive"
+                            >
+                              <X className="h-3 w-3" />
+                            </Button>
+                          </div>
+                          <p className="text-xs text-fgMuted truncate mt-1">
+                            {advisor.description}
+                          </p>
+                          {advisor.tags && advisor.tags.length > 0 && (
+                            <div className="flex flex-wrap gap-1 mt-2">
+                              {advisor.tags.slice(0, 2).map((tag, idx) => (
+                                <Badge key={idx} variant="secondary" className="text-xs px-1 py-0">
+                                  {tag}
+                                </Badge>
+                              ))}
+                              {advisor.tags.length > 2 && (
+                                <Badge variant="secondary" className="text-xs px-1 py-0">
+                                  +{advisor.tags.length - 2}
+                                </Badge>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 )}
               </div>
-            )}
-
-            {/* Navigation Links */}
-            <div className={cn("space-y-1", agents.length > 0 && "mt-4")}>
-              {navigationItems.map((item) => (
-                <Button
-                  key={item.title}
-                  onClick={item.onClick}
-                  variant="ghost"
-                  className={cn(
-                    "flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors w-full justify-start h-auto min-h-[40px]",
-                    "text-muted-foreground hover:bg-muted hover:text-foreground"
-                  )}
-                >
-                  <item.icon className="h-4 w-4 flex-shrink-0" />
-                  {(!isCollapsed || !onToggleCollapse) && <span className="truncate text-left">{item.title}</span>}
-                </Button>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Non-authenticated state */}
-        {!user && (
-          <div className="flex-1 p-3 flex flex-col items-center justify-center space-y-4">
-            {(!isCollapsed || !onToggleCollapse) && (
-              <>
-                <div className="text-center space-y-2">
-                  <p className="text-lg font-medium">Create your free Sim today.</p>
-                </div>
-                <Button
-                  onClick={() => setShowAuthModal(true)}
-                  className="w-full bg-gradient-to-r from-purple-600 via-pink-500 to-blue-500 text-white hover:opacity-90 animate-pulse"
-                  size="lg"
-                >
-                  <LogIn className="mr-2 h-4 w-4" />
-                  Get Started
-                </Button>
-              </>
-            )}
-          </div>
-        )}
-
-        <Separator />
-
-        {/* User Profile Section - Only show if user is authenticated */}
-        {user && (
-          <div className="p-3">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button className={cn(
-                  "flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-muted transition-colors w-full",
-                  isCollapsed && onToggleCollapse && "justify-center"
-                )}>
-                  <Avatar className="h-8 w-8 flex-shrink-0">
-                    <AvatarImage src={user?.user_metadata?.avatar_url} alt="Profile" />
-                    <AvatarFallback>
-                      {user?.email?.charAt(0)?.toUpperCase() || "U"}
-                    </AvatarFallback>
-                  </Avatar>
-                  {(!isCollapsed || !onToggleCollapse) && (
-                    <div className="flex-1 min-w-0 text-left">
-                      <p className="text-sm font-medium truncate">
-                        {user?.user_metadata?.full_name || "User"}
-                      </p>
-                      <p className="text-xs text-muted-foreground truncate">
-                        {user?.email}
-                      </p>
-                    </div>
-                  )}
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="start" className="w-56">
-                {onShowChildProfile && (
-                  <DropdownMenuItem onClick={() => { onShowChildProfile(); onClose?.(); }}>
-                    <User className="mr-2 h-4 w-4" />
-                    <span>Child Profile</span>
-                  </DropdownMenuItem>
-                )}
-                {onShowSettings && (
-                  <DropdownMenuItem onClick={() => { onShowSettings(); onClose?.(); }}>
-                    <Settings className="mr-2 h-4 w-4" />
-                    <span>Settings</span>
-                  </DropdownMenuItem>
-                )}
-                <DropdownMenuItem onClick={() => { setShowUpgradeModal(true); onClose?.(); }}>
-                  <CreditCard className="mr-2 h-4 w-4" />
-                  <span>Upgrade</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={handleSignOut}>
-                  <LogOut className="mr-2 h-4 w-4" />
-                  <span>Log out</span>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-        )}
-
-        {/* Auth Modal */}
-        <AuthModal 
-          open={showAuthModal} 
-          onOpenChange={setShowAuthModal} 
-        />
-
-        {/* Upgrade Modal */}
-        <UpgradeModal 
-          open={showUpgradeModal} 
-          onOpenChange={setShowUpgradeModal} 
-        />
-      </div>
-    </>
-  );
-};
-
-const UserSidebar = (props: UserSidebarProps) => {
-  const isMobile = useIsMobile();
-  const [isCollapsed, setIsCollapsed] = useState(false);
-
-  const toggleSidebar = () => {
-    setIsCollapsed(!isCollapsed);
-  };
-
-  // On mobile, return null to completely hide the desktop sidebar
-  if (isMobile) {
-    return null;
-  }
-
-  // On desktop, render with the full sidebar wrapper
-  return (
-    <div className={cn(
-      "bg-card border-r border-border flex flex-col h-screen transition-all duration-300",
-      isCollapsed ? "w-16" : "w-64"
-    )}>
-      <SidebarContent 
-        {...props} 
-        isCollapsed={isCollapsed}
-        onToggleCollapse={toggleSidebar}
-      />
+            </>
+          )}
+        </div>
+      </ScrollArea>
     </div>
   );
 };
 
-// Export SidebarContent for use in mobile sheets
-export { SidebarContent };
+const UserSidebar: React.FC<UserSidebarProps> = (props) => {
+  const isMobile = useIsMobile();
+
+  if (isMobile) {
+    return null; // Mobile sidebar is handled in Home component with Sheet
+  }
+
+  return (
+    <div className="fixed left-0 top-0 h-screen w-80 z-40">
+      <SidebarContent {...props} />
+    </div>
+  );
+};
+
 export default UserSidebar;

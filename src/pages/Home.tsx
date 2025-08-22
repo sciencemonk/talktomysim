@@ -221,7 +221,8 @@ const Home = () => {
         onNavigateToCoreKnowledge={handleNavigateToCoreKnowledge}
       />
       
-      <div className="flex-1 flex flex-col">
+      {/* Main content with left margin to account for fixed sidebar on desktop */}
+      <div className="flex-1 flex flex-col md:ml-80">
         {/* Mobile Header - shared across all views */}
         <div className="md:hidden bg-card border-b border-border p-4">
           <div className="flex items-center">
