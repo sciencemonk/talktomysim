@@ -1,4 +1,3 @@
-
 import { useParams } from "react-router-dom";
 import { usePublicAgent } from "@/hooks/usePublicAgent";
 import { usePublicAgentByUrl } from "@/hooks/usePublicAgentByUrl";
@@ -104,36 +103,34 @@ const StudentChat = () => {
   );
 
   return (
-    <div className="flex h-screen bg-background relative">
-      {/* Mobile Sidebar Icon - Positioned absolutely to avoid overlap */}
-      {isMobile && (
-        <>
-          <Sheet>
-            <SheetTrigger asChild>
-              <button className="fixed top-4 left-4 z-50 md:hidden">
-                <img 
-                  src="/lovable-uploads/108a5580-39a3-45d5-a07e-672253a59f99.png" 
-                  alt="Menu" 
-                  className="h-6 w-6"
-                />
-              </button>
-            </SheetTrigger>
-            <SheetContent side="left" className="p-0 w-80">
-              <SidebarContent />
-            </SheetContent>
-          </Sheet>
-        </>
-      )}
-      
+    <div className="flex h-screen bg-background">
       {/* Desktop Sidebar */}
       <div className="hidden md:flex">
         <SidebarContent />
       </div>
       
+      {/* Mobile Sidebar */}
+      {isMobile && (
+        <Sheet>
+          <SheetTrigger asChild>
+            <Button 
+              variant="outline" 
+              size="icon"
+              className="fixed top-4 left-4 z-50 md:hidden"
+            >
+              <Menu className="h-4 w-4" />
+            </Button>
+          </SheetTrigger>
+          <SheetContent side="left" className="p-0 w-80">
+            <SidebarContent />
+          </SheetContent>
+        </Sheet>
+      )}
+      
       {/* Main content */}
       <div className="flex-1 flex flex-col">
-        {/* Chat Content - full height with padding to avoid menu overlap */}
-        <div className="flex-1" style={{ paddingTop: isMobile ? '0' : '0' }}>
+        {/* Chat Content - full height */}
+        <div className="flex-1">
           <ChatInterface 
             agent={agent}
             onBack={handleBack}
