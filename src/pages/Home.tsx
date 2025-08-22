@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { Menu, LogIn } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { SidebarContent } from "@/components/UserSidebar";
 import AdvisorDirectory from "@/components/AdvisorDirectory";
@@ -85,17 +85,11 @@ const Home = () => {
               </div>
 
               {/* Login Section */}
-              <div className="flex-1 flex flex-col justify-between p-6">
-                <div className="flex-1" />
-                
-                <div className="space-y-4">
-                  <h3 className="text-lg font-semibold text-fg">Create your free Sim today.</h3>
-                  
+              <div className="flex-1 flex items-center justify-center p-4">
+                <div className="text-center space-y-4">
+                  <p className="text-fgMuted">Sign in to create and manage your AI tutors</p>
                   <Link to="/login">
-                    <Button className="w-full bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white border-0 h-12 text-base font-medium">
-                      <LogIn className="mr-2 h-4 w-4" />
-                      Get Started
-                    </Button>
+                    <Button className="w-full">Sign In</Button>
                   </Link>
                 </div>
               </div>
@@ -116,9 +110,7 @@ const Home = () => {
                 <h2 className="text-lg font-semibold text-fg">Sim</h2>
               </div>
               <Link to="/login">
-                <Button size="sm" className="bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white border-0">
-                  Get Started
-                </Button>
+                <Button size="sm">Sign In</Button>
               </Link>
             </div>
           </div>
