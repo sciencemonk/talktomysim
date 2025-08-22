@@ -9,11 +9,14 @@ import { Bot, Loader2, AlertCircle } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const StudentChat = () => {
   const { agentId, customUrl } = useParams<{ agentId?: string; customUrl?: string }>();
   const { user } = useAuth();
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const isMobile = useIsMobile();
   
   // Determine which hook to use based on the route parameters
   const publicAgentQuery = usePublicAgent(agentId || "");
@@ -71,36 +74,63 @@ const StudentChat = () => {
     setShowAuthModal(true);
   };
 
-  // Use the same layout as non-signed-in home page
-  return (
-    <div className="flex h-screen bg-background">
-      {/* Left Sidebar - same as non-signed in home page */}
-      <div className="hidden md:flex w-80 bg-card border-r border-border flex-col">
-        <div className="p-6 border-b border-border">
-          <div className="flex items-center justify-center">
-            <img 
-              src="/lovable-uploads/d1283b59-7cfa-45f5-b151-4c32b24f3621.png" 
-              alt="Logo" 
-              className="h-8 w-8 object-contain"
-            />
-          </div>
-        </div>
-        
-        <div className="flex-1 flex items-center justify-center p-6">
-          <div className="space-y-6 text-center">
-            <div>
-              <h2 className="text-xl font-semibold mb-2">Create your free Sim today</h2>
-            </div>
-            
-            <Button 
-              onClick={() => setShowAuthModal(true)}
-              className="w-full bg-gradient-to-r from-purple-600 via-pink-500 to-blue-500 text-white hover:opacity-90 animate-pulse rounded-lg py-3"
-            >
-              Get Started
-            </Button>
-          </div>
+  const SidebarContent = () => (
+    <div className="w-80 bg-card border-r border-border flex flex-col h-full">
+      <div className="p-6 border-b border-border">
+        <div className="flex items-center justify-center">
+          <img 
+            src="/lovable-uploads/d1283b59-7cfa-45f5-b151-4c32b24f3621.png" 
+            alt="Logo" 
+            className="h-8 w-8 object-contain"
+          />
         </div>
       </div>
+      
+      <div className="flex-1 flex items-center justify-center p-6">
+        <div className="space-y-6 text-center">
+          <div>
+            <h2 className="text-xl font-semibold mb-2">Create your free Sim today</h2>
+          </div>
+          
+          <Button 
+            onClick={() => setShowAuthModal(true)}
+            className="w-full bg-gradient-to-r from-purple-600 via-pink-500 to-blue-500 text-white hover:opacity-90 animate-pulse rounded-lg py-3"
+          >
+            Get Started
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="flex h-screen bg-background">
+      {/* Desktop Sidebar */}
+      <div className="hidden md:flex">
+        <SidebarContent />
+      </div>
+      
+      {/* Mobile Sidebar */}
+      {isMobile && (
+        <Sheet>
+          <SheetTrigger asChild>
+            <Button 
+              variant="outline" 
+              size="icon"
+              className="fixed top-4 left-4 z-50 md:hidden"
+            >
+              <img 
+                src="/lovable-uploads/d1283b59-7cfa-45f5-b151-4c32b24f3621.png" 
+                alt="Menu" 
+                className="h-4 w-4"
+              />
+            </Button>
+          </SheetTrigger>
+          <SheetContent side="left" className="p-0 w-80">
+            <SidebarContent />
+          </SheetContent>
+        </Sheet>
+      )}
       
       {/* Main content */}
       <div className="flex-1 flex flex-col">
