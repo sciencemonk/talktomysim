@@ -1,11 +1,10 @@
-
 import { useState, useEffect, useRef } from "react";
 import { Bot, Menu } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { TextInput } from "@/components/TextInput";
 import { useChatHistory } from "@/hooks/useChatHistory";
-import { useTextChat } from "@/hooks/useTextChat";
+import { useEnhancedTextChat } from "@/hooks/useEnhancedTextChat";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { AgentType } from "@/types/agent";
 import {
@@ -29,7 +28,8 @@ const ChatInterface = ({ agent, onBack }: ChatInterfaceProps) => {
   const isMobile = useIsMobile();
   
   const chatHistory = useChatHistory(currentAgent);
-  const textChat = useTextChat({
+  
+  const textChat = useEnhancedTextChat({
     agent: currentAgent,
     onUserMessage: chatHistory.addUserMessage,
     onAiMessageStart: chatHistory.startAiMessage,
