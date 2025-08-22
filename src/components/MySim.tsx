@@ -29,7 +29,10 @@ const MySim = () => {
   const handleModalOpen = (open: boolean) => {
     setShowPromptModal(open);
     if (open) {
-      setEditablePrompt(sim?.prompt || generatedPrompt?.systemPrompt || '');
+      // Default to generated prompt, fallback to saved prompt if it exists
+      const defaultPrompt = generatedPrompt?.systemPrompt || '';
+      const currentPrompt = sim?.prompt || defaultPrompt;
+      setEditablePrompt(currentPrompt);
     }
   };
 
