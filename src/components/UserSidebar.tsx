@@ -11,6 +11,7 @@ import { Search, Plus, MessageCircle, User, Sparkles, Brain, BookOpen, Home, X, 
 import { AgentType } from "@/types/agent";
 import { useIsMobile } from "@/hooks/use-mobile";
 import UserSettingsDropdown from "./UserSettingsDropdown";
+
 interface UserSidebarProps {
   selectedAgent?: AgentType | null;
   selectedPublicAdvisorId?: string | null;
@@ -27,9 +28,11 @@ interface UserSidebarProps {
   activeView?: string;
   onAuthRequired?: () => void; // Add this prop to trigger auth modal
 }
+
 export interface SidebarContentProps extends UserSidebarProps {
   onClose?: () => void;
 }
+
 export const SidebarContent: React.FC<SidebarContentProps> = ({
   selectedAgent,
   selectedPublicAdvisorId,
@@ -50,6 +53,7 @@ export const SidebarContent: React.FC<SidebarContentProps> = ({
   const {
     user
   } = useAuth();
+  
   const menuItems = [{
     icon: User,
     label: "My Sim",
@@ -99,6 +103,7 @@ export const SidebarContent: React.FC<SidebarContentProps> = ({
     },
     viewKey: "search"
   }];
+
   const userTrigger = user ? <Button variant="ghost" className="w-full justify-start p-3 h-auto">
       <div className="flex items-center space-x-3 w-full">
         <Avatar className="h-10 w-10">
@@ -117,6 +122,7 @@ export const SidebarContent: React.FC<SidebarContentProps> = ({
         </div>
       </div>
     </Button> : null;
+
   return <div className="flex flex-col h-full bg-card border-r border-border">
       {/* Header */}
       <div className="p-4 border-b border-border">
@@ -129,47 +135,56 @@ export const SidebarContent: React.FC<SidebarContentProps> = ({
       </div>
 
       {/* Scrollable Content */}
-      <ScrollArea className="flex-1">
-        <div className="p-4 space-y-6">
-          {user ?
-        // Show navigation menu for signed-in users
-        <div className="space-y-2">
-              {menuItems.map((item, index) => {
-            const isActive = activeView === item.viewKey;
-            return <Button key={index} variant="ghost" className={`w-full justify-start text-left ${isActive ? "bg-primary/10 text-primary border border-primary/20" : "text-fgMuted hover:text-fg hover:bg-bgMuted"}`} onClick={item.onClick}>
+      {user ? (
+        <>
+          <ScrollArea className="flex-1">
+            <div className="p-4 space-y-6">
+              <div className="space-y-2">
+                {menuItems.map((item, index) => {
+                  const isActive = activeView === item.viewKey;
+                  return <Button key={index} variant="ghost" className={`w-full justify-start text-left ${isActive ? "bg-primary/10 text-primary border border-primary/20" : "text-fgMuted hover:text-fg hover:bg-bgMuted"}`} onClick={item.onClick}>
                     <item.icon className="mr-3 h-4 w-4" />
                     <span className="flex-1">{item.label}</span>
                   </Button>;
-          })}
-            </div> :
-        // Show "Create your free Sim today" for non-signed-in users
-        <div className="space-y-4 text-center">
-              <div className="space-y-2">
-                <h3 className="text-lg font-semibold text-fg">
-                  Create your free Sim today
-                </h3>
-                
+                })}
               </div>
-              
-              <Button onClick={() => {
-            onAuthRequired?.();
-            onClose?.();
-          }} className="w-full bg-gradient-to-r from-purple-600 via-pink-500 to-blue-500 text-white hover:opacity-90" size="lg">
-                Get Started
-              </Button>
-            </div>}
-        </div>
-      </ScrollArea>
+            </div>
+          </ScrollArea>
 
-      {/* User Info at Bottom - only show for signed-in users */}
-      {user && <>
+          {/* User Info at Bottom */}
           <Separator />
           <div className="p-4">
             <UserSettingsDropdown trigger={userTrigger} simplified={true} />
           </div>
-        </>}
+        </>
+      ) : (
+        /* Centered content for non-signed-in users */
+        <div className="flex-1 flex items-center justify-center p-4">
+          <div className="space-y-4 text-center">
+            <div className="space-y-2">
+              <h3 className="text-lg font-semibold text-fg">
+                Create your free Sim today
+              </h3>
+            </div>
+            
+            <Button 
+              onClick={() => {
+                onAuthRequired?.();
+                onClose?.();
+              }} 
+              className="w-full bg-gradient-to-r from-purple-600 via-pink-500 to-blue-500 text-white hover:opacity-90 relative overflow-hidden" 
+              size="lg"
+            >
+              <span className="relative z-10">Get Started</span>
+              {/* Shimmer effect */}
+              <div className="absolute inset-0 -top-[1px] bg-gradient-to-r from-transparent via-white/30 to-transparent translate-x-[-100%] animate-[shimmer_2s_ease-in-out_infinite] skew-x-12" />
+            </Button>
+          </div>
+        </div>
+      )}
     </div>;
 };
+
 const UserSidebar: React.FC<UserSidebarProps> = props => {
   const isMobile = useIsMobile();
   if (isMobile) {
@@ -179,4 +194,5 @@ const UserSidebar: React.FC<UserSidebarProps> = props => {
       <SidebarContent {...props} />
     </div>;
 };
+
 export default UserSidebar;
