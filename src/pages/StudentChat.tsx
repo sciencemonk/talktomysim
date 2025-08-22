@@ -1,3 +1,4 @@
+
 import { useParams } from "react-router-dom";
 import { usePublicAgent } from "@/hooks/usePublicAgent";
 import { usePublicAgentByUrl } from "@/hooks/usePublicAgentByUrl";
@@ -113,13 +114,13 @@ const StudentChat = () => {
       {isMobile && (
         <Sheet>
           <SheetTrigger asChild>
-            <Button 
-              variant="outline" 
-              size="icon"
-              className="fixed top-4 left-4 z-50 md:hidden"
-            >
-              <Menu className="h-4 w-4" />
-            </Button>
+            <button className="fixed top-4 left-4 z-50 md:hidden p-2">
+              <img 
+                src="/lovable-uploads/108a5580-39a3-45d5-a07e-672253a59f99.png" 
+                alt="Menu" 
+                className="h-6 w-6"
+              />
+            </button>
           </SheetTrigger>
           <SheetContent side="left" className="p-0 w-80">
             <SidebarContent />
