@@ -48,22 +48,27 @@ const ChatInterface = ({ agent, onBack }: ChatInterfaceProps) => {
       {/* Header - Always visible on mobile */}
       <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-4 sm:px-6 py-4 flex-shrink-0 sticky top-0 z-10">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
+          <div className={`flex items-center gap-3 ${isMobile ? 'justify-center flex-1' : ''}`}>
             <Avatar className="h-10 w-10 sm:h-12 sm:w-12">
               <AvatarImage src={currentAgent.avatar} alt={currentAgent.name} />
               <AvatarFallback className="bg-primary text-primary-foreground text-lg">
                 <Bot className="h-5 w-5 sm:h-6 sm:w-6" />
               </AvatarFallback>
             </Avatar>
-            <div className="min-w-0 flex-1">
+            <div className={`min-w-0 flex-1 ${isMobile ? 'text-center' : ''}`}>
               <h1 className="text-lg sm:text-xl font-semibold truncate">{currentAgent.name}</h1>
               <p className="text-xs sm:text-sm text-muted-foreground truncate">
                 {currentAgent.title || currentAgent.subject || currentAgent.type}
               </p>
             </div>
           </div>
-          <InfoModal agentName={currentAgent.name} />
+          {!isMobile && <InfoModal agentName={currentAgent.name} />}
         </div>
+        {isMobile && (
+          <div className="flex justify-center mt-2">
+            <InfoModal agentName={currentAgent.name} />
+          </div>
+        )}
       </div>
 
       {/* Messages - Scrollable area between header and input */}
