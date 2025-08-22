@@ -19,46 +19,6 @@ const MySim = () => {
     isLoading,
     updateBasicInfo
   } = useSim();
-  const [showPromptModal, setShowPromptModal] = useState(false);
-  const [editablePrompt, setEditablePrompt] = useState('');
-  const [isSaving, setIsSaving] = useState(false);
-
-  // Generate the current system prompt for the sim
-  const generatedPrompt = sim ? promptGenerationService.generateSystemPrompt(sim) : null;
-
-  // Initialize editable prompt when modal opens
-  const handleModalOpen = (open: boolean) => {
-    setShowPromptModal(open);
-    if (open) {
-      // Default to generated prompt, fallback to saved prompt if it exists
-      const defaultPrompt = generatedPrompt?.systemPrompt || '';
-      const currentPrompt = sim?.prompt || defaultPrompt;
-      setEditablePrompt(currentPrompt);
-    }
-  };
-
-  const handleSavePrompt = async () => {
-    if (!sim) return;
-    
-    try {
-      setIsSaving(true);
-      await updateBasicInfo({ prompt: editablePrompt });
-      toast.success('Master prompt updated successfully!');
-      setShowPromptModal(false);
-    } catch (error) {
-      console.error('Error saving prompt:', error);
-      toast.error('Failed to save master prompt');
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
-  const handleResetPrompt = () => {
-    if (generatedPrompt?.systemPrompt) {
-      setEditablePrompt(generatedPrompt.systemPrompt);
-      toast.success('Prompt reset to generated version');
-    }
-  };
 
   if (isLoading) {
     return <div className="flex items-center justify-center min-h-[400px]">
@@ -104,59 +64,6 @@ const MySim = () => {
                 Talk to Your Sim
               </a>
             </Button>
-            
-            <Dialog open={showPromptModal} onOpenChange={handleModalOpen}>
-              <DialogTrigger asChild>
-                <Button variant="outline" size="sm">
-                  <FileText className="h-4 w-4 mr-2" />
-                  Edit Master Prompt
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
-                <DialogHeader>
-                  <DialogTitle>Master Prompt for {sim?.name || "Your Sim"}</DialogTitle>
-                </DialogHeader>
-                <div className="flex flex-col space-y-4 flex-1 min-h-0">
-                  <div>
-                    <p className="text-sm text-muted-foreground">
-                      Customize how your Sim behaves and responds in conversations. You can edit the generated prompt or reset it to the auto-generated version.
-                    </p>
-                  </div>
-                  <div className="flex-1 min-h-0">
-                    <Textarea
-                      value={editablePrompt}
-                      onChange={(e) => setEditablePrompt(e.target.value)}
-                      placeholder="Enter your custom system prompt..."
-                      className="min-h-[400px] font-mono text-sm resize-none h-full"
-                    />
-                  </div>
-                  <div className="flex justify-between gap-2 pt-2 border-t">
-                    <Button 
-                      variant="outline" 
-                      onClick={handleResetPrompt}
-                      disabled={isSaving}
-                    >
-                      Reset to Generated
-                    </Button>
-                    <div className="flex gap-2">
-                      <Button 
-                        variant="outline" 
-                        onClick={() => setShowPromptModal(false)}
-                        disabled={isSaving}
-                      >
-                        Cancel
-                      </Button>
-                      <Button 
-                        onClick={handleSavePrompt}
-                        disabled={isSaving}
-                      >
-                        {isSaving ? 'Saving...' : 'Save Changes'}
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              </DialogContent>
-            </Dialog>
           </div>
         </CardContent>
       </Card>
