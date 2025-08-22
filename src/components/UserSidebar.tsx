@@ -1,5 +1,4 @@
 
-
 import React, { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
@@ -25,6 +24,7 @@ import {
 } from "lucide-react";
 import { AgentType } from "@/types/agent";
 import { useIsMobile } from "@/hooks/use-mobile";
+import UserSettingsDropdown from "./UserSettingsDropdown";
 
 interface UserSidebarProps {
   selectedAgent?: AgentType | null;
@@ -168,6 +168,35 @@ export const SidebarContent: React.FC<SidebarContentProps> = ({
           </div>
         </div>
       </ScrollArea>
+
+      {/* User Info at Bottom */}
+      {user && (
+        <>
+          <Separator />
+          <div className="p-4">
+            <UserSettingsDropdown
+              trigger={
+                <Button variant="ghost" className="w-full justify-start p-2 h-auto">
+                  <Avatar className="h-8 w-8 mr-3">
+                    <AvatarImage src={user?.user_metadata?.avatar_url} alt="Profile" />
+                    <AvatarFallback>
+                      {user?.email?.charAt(0)?.toUpperCase() || "U"}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="flex flex-col items-start flex-1 min-w-0">
+                    <p className="text-sm font-medium truncate w-full">
+                      {user?.user_metadata?.full_name || "User"}
+                    </p>
+                    <p className="text-xs text-muted-foreground truncate w-full">
+                      {user?.email}
+                    </p>
+                  </div>
+                </Button>
+              }
+            />
+          </div>
+        </>
+      )}
     </div>
   );
 };
@@ -187,4 +216,3 @@ const UserSidebar: React.FC<UserSidebarProps> = (props) => {
 };
 
 export default UserSidebar;
-
