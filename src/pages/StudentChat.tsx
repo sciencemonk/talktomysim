@@ -1,5 +1,4 @@
 
-
 import { useParams } from "react-router-dom";
 import { usePublicAgent } from "@/hooks/usePublicAgent";
 import { usePublicAgentByUrl } from "@/hooks/usePublicAgentByUrl";
@@ -111,6 +110,24 @@ const StudentChat = () => {
         <SidebarContent />
       </div>
       
+      {/* Mobile Sidebar */}
+      {isMobile && (
+        <Sheet>
+          <SheetTrigger asChild>
+            <div className="fixed top-4 left-4 z-50 md:hidden cursor-pointer">
+              <img 
+                src="/lovable-uploads/108a5580-39a3-45d5-a07e-672253a59f99.png" 
+                alt="Menu" 
+                className="h-6 w-6 object-contain"
+              />
+            </div>
+          </SheetTrigger>
+          <SheetContent side="left" className="p-0 w-80">
+            <SidebarContent />
+          </SheetContent>
+        </Sheet>
+      )}
+      
       {/* Main content */}
       <div className="flex-1 flex flex-col">
         {/* Chat Content - full height */}
@@ -131,4 +148,3 @@ const StudentChat = () => {
 };
 
 export default StudentChat;
-
