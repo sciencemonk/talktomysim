@@ -1,11 +1,14 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { User, MessageCircle, BookOpen, ExternalLink, Settings, Globe } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
+import { User, MessageCircle, BookOpen, ExternalLink, Settings, Globe, FileText } from "lucide-react";
 import { useSim } from "@/hooks/useSim";
+import { promptGenerationService } from "@/services/promptGenerationService";
 import SimProgress from './SimProgress';
 
 const MySim = () => {
@@ -14,6 +17,10 @@ const MySim = () => {
     completionStatus,
     isLoading
   } = useSim();
+  const [showPromptModal, setShowPromptModal] = useState(false);
+
+  // Generate the current system prompt for the sim
+  const generatedPrompt = sim ? promptGenerationService.generateSystemPrompt(sim) : null;
 
   if (isLoading) {
     return <div className="flex items-center justify-center min-h-[400px]">
@@ -59,6 +66,32 @@ const MySim = () => {
                 Share Sim
               </a>
             </Button>
+            
+            <Dialog open={showPromptModal} onOpenChange={setShowPromptModal}>
+              <DialogTrigger asChild>
+                <Button variant="outline" size="sm">
+                  <FileText className="h-4 w-4 mr-2" />
+                  Edit Master Prompt
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-4xl max-h-[80vh]">
+                <DialogHeader>
+                  <DialogTitle>Master Prompt for {sim?.name || "Your Sim"}</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4">
+                  <div>
+                    <p className="text-sm text-muted-foreground mb-2">
+                      This is the system prompt that defines how your Sim behaves and responds in conversations.
+                    </p>
+                  </div>
+                  <Textarea
+                    value={generatedPrompt?.systemPrompt || "No prompt generated yet"}
+                    readOnly
+                    className="min-h-[400px] font-mono text-sm"
+                  />
+                </div>
+              </DialogContent>
+            </Dialog>
           </div>
         </CardContent>
       </Card>
