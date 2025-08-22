@@ -18,7 +18,9 @@ import {
   Activity,
   Edit2,
   Save,
-  X
+  X,
+  Share2,
+  Copy
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
@@ -32,6 +34,7 @@ import {
 const MySim = () => {
   const { user } = useAuth();
   const [selectedActivity, setSelectedActivity] = useState<any>(null);
+  const [copied, setCopied] = useState(false);
 
   // Mock data - in a real app, this would come from your backend
   const simData = {
@@ -144,8 +147,53 @@ const MySim = () => {
     setSelectedActivity(activity);
   };
 
+  const handleShareClick = async () => {
+    const shareUrl = `${window.location.origin}/sim/my-personal-sim`; // Placeholder URL
+    
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      setCopied(true);
+      toast({
+        title: "Link Copied!",
+        description: "Share link for your sim has been copied to clipboard.",
+      });
+      
+      setTimeout(() => setCopied(false), 2000);
+    } catch (error) {
+      toast({
+        title: "Copy Failed",
+        description: "Unable to copy link to clipboard.",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <div className="w-full max-w-none mx-0 p-6 space-y-6">
+      {/* Share Tile */}
+      <Card className="cursor-pointer hover:bg-accent/50 transition-colors" onClick={handleShareClick}>
+        <CardContent className="p-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-primary/10">
+                {copied ? (
+                  <CheckCircle2 className="h-5 w-5 text-green-600" />
+                ) : (
+                  <Share2 className="h-5 w-5 text-primary" />
+                )}
+              </div>
+              <div>
+                <h3 className="font-medium">Share Your Sim</h3>
+                <p className="text-sm text-muted-foreground">
+                  {copied ? "Link copied to clipboard!" : "Click to copy share link"}
+                </p>
+              </div>
+            </div>
+            <Copy className="h-4 w-4 text-muted-foreground" />
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Recent Activity - Moved to Top */}
       <Card>
         <CardHeader>
@@ -158,11 +206,11 @@ const MySim = () => {
           {simData.recentActivity.map((activity, index) => (
             <div 
               key={index} 
-              className="space-y-1 pb-3 border-b last:border-b-0 last:pb-0 cursor-pointer hover:bg-gray-50/50 dark:hover:bg-gray-800/30 p-2 rounded transition-colors duration-200"
+              className="space-y-1 pb-3 border-b last:border-b-0 last:pb-0 cursor-pointer hover:bg-muted/30 p-2 rounded transition-colors duration-200"
               onClick={() => handleActivityClick(activity)}
             >
               <p className="text-sm font-medium">{activity.activity}</p>
-              <div className="flex justify-between items-center text-xs text-fgMuted">
+              <div className="flex justify-between items-center text-xs text-muted-foreground">
                 <span>{activity.time}</span>
                 <span>{activity.duration}</span>
               </div>
@@ -179,7 +227,7 @@ const MySim = () => {
               <MessageCircle className="h-5 w-5 text-blue-500" />
               <div>
                 <p className="text-2xl font-bold">{simData.totalChats}</p>
-                <p className="text-sm text-fgMuted">Total Conversations</p>
+                <p className="text-sm text-muted-foreground">Total Conversations</p>
               </div>
             </div>
           </CardContent>
@@ -191,7 +239,7 @@ const MySim = () => {
               <Users className="h-5 w-5 text-green-500" />
               <div>
                 <p className="text-2xl font-bold">{simData.totalUsers}</p>
-                <p className="text-sm text-fgMuted">Unique Users</p>
+                <p className="text-sm text-muted-foreground">Unique Users</p>
               </div>
             </div>
           </CardContent>
@@ -203,7 +251,7 @@ const MySim = () => {
               <Clock className="h-5 w-5 text-purple-500" />
               <div>
                 <p className="text-2xl font-bold">{simData.avgSessionTime}</p>
-                <p className="text-sm text-fgMuted">Avg Session Time</p>
+                <p className="text-sm text-muted-foreground">Avg Session Time</p>
               </div>
             </div>
           </CardContent>
@@ -215,7 +263,7 @@ const MySim = () => {
               <TrendingUp className="h-5 w-5 text-orange-500" />
               <div>
                 <p className="text-2xl font-bold">{simData.satisfactionScore}/5</p>
-                <p className="text-sm text-fgMuted">Satisfaction Score</p>
+                <p className="text-sm text-muted-foreground">Satisfaction Score</p>
               </div>
             </div>
           </CardContent>
@@ -246,8 +294,8 @@ const MySim = () => {
                         {item.priority}
                       </Badge>
                     </div>
-                    <p className="text-sm text-fgMuted mb-2">{item.description}</p>
-                    <div className="flex items-center gap-2 text-xs text-fgMuted">
+                    <p className="text-sm text-muted-foreground mb-2">{item.description}</p>
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
                       <Calendar className="h-3 w-3" />
                       Due: {item.dueDate}
                     </div>
@@ -291,7 +339,7 @@ const MySim = () => {
               <MessageCircle className="h-5 w-5" />
               {selectedActivity?.activity}
             </DialogTitle>
-            <p className="text-sm text-fgMuted">
+            <p className="text-sm text-muted-foreground">
               {selectedActivity?.time} • Duration: {selectedActivity?.duration}
             </p>
           </DialogHeader>
