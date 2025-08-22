@@ -1,11 +1,10 @@
-
 import { useParams } from "react-router-dom";
 import { usePublicAgent } from "@/hooks/usePublicAgent";
 import { usePublicAgentByUrl } from "@/hooks/usePublicAgentByUrl";
 import ChatInterface from "@/components/ChatInterface";
 import AuthModal from "@/components/AuthModal";
 import { useAuth } from "@/hooks/useAuth";
-import { Bot, Loader2, AlertCircle } from "lucide-react";
+import { Bot, Loader2, AlertCircle, Menu } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
@@ -119,11 +118,7 @@ const StudentChat = () => {
               size="icon"
               className="fixed top-4 left-4 z-50 md:hidden"
             >
-              <img 
-                src="/lovable-uploads/d1283b59-7cfa-45f5-b151-4c32b24f3621.png" 
-                alt="Menu" 
-                className="h-4 w-4"
-              />
+              <Menu className="h-4 w-4" />
             </Button>
           </SheetTrigger>
           <SheetContent side="left" className="p-0 w-80">
