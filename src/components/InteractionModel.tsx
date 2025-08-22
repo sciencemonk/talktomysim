@@ -57,8 +57,8 @@ const InteractionModel = () => {
         </CardHeader>
         <CardContent className="space-y-6">
           <p className="text-muted-foreground">
-            Define how your digital sim communicates and interacts with people. Set your personality, 
-            tone, and response patterns so others can chat with a digital version of you.
+            Define how your Sim communicates and interacts with people. Set your personality, 
+            tone, and response patterns so others can chat with a version of you.
           </p>
 
           {/* Welcome Message Section */}
@@ -67,11 +67,11 @@ const InteractionModel = () => {
               Welcome Message
             </Label>
             <p className="text-sm text-muted-foreground">
-              The first message people will see when they start chatting with your digital sim.
+              The first message people will see when they start chatting with your Sim.
             </p>
             <Textarea
               id="welcome-message"
-              placeholder="Hey there! I'm the digital version of [Your Name]. I'm here to chat about whatever's on your mind. What would you like to talk about?"
+              placeholder="Hey there! I'm the Sim version of [Your Name]. I'm here to chat about whatever's on your mind. What would you like to talk about?"
               value={welcomeMessage}
               onChange={(e) => setWelcomeMessage(e.target.value)}
               className="min-h-[100px]"
@@ -90,7 +90,7 @@ const InteractionModel = () => {
                 </Label>
                 <p className="text-sm text-muted-foreground mt-1">
                   Provide example questions people might ask you and how you would typically respond. 
-                  This helps your digital sim learn your personality, communication style, and way of thinking.
+                  This helps your Sim learn your personality, communication style, and way of thinking.
                 </p>
               </div>
               <Button onClick={addScenario} variant="outline" size="sm">
