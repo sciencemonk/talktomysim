@@ -1,13 +1,10 @@
-
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { 
-  Share2, 
-  Copy, 
   MessageCircle, 
   TrendingUp, 
   Clock, 
@@ -18,26 +15,32 @@ import {
   BarChart3,
   Settings,
   Calendar,
-  Activity
+  Activity,
+  Edit2,
+  Save,
+  X
 } from "lucide-react";
-import { toast } from "@/components/ui/use-toast";
+import { toast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 const MySim = () => {
   const { user } = useAuth();
-  const [copied, setCopied] = useState(false);
+  const [selectedActivity, setSelectedActivity] = useState<any>(null);
 
   // Mock data - in a real app, this would come from your backend
   const simData = {
     name: "My Personal Sim",
-    avatar: "/lovable-uploads/d1283b59-7cfa-45f5-b151-4c32b24f3621.png",
-    shareUrl: `${window.location.origin}/sim/${user?.id || 'demo'}`,
     totalChats: 247,
     totalUsers: 89,
     avgSessionTime: "8.5 min",
     satisfactionScore: 4.7,
     lastActive: "2 hours ago",
-    knowledgeItems: 45,
     responseAccuracy: 94,
     popularTopics: [
       { topic: "Career advice", count: 34 },
@@ -72,29 +75,51 @@ const MySim = () => {
       }
     ],
     recentActivity: [
-      { time: "2 hours ago", activity: "Chat with Alex about career change", duration: "12 min" },
-      { time: "5 hours ago", activity: "Helped Maria with relationship advice", duration: "8 min" },
-      { time: "1 day ago", activity: "Discussed life goals with John", duration: "15 min" },
-      { time: "2 days ago", activity: "Career guidance for Lisa", duration: "10 min" }
+      { 
+        id: 1,
+        time: "2 hours ago", 
+        activity: "Chat with Alex about career change", 
+        duration: "12 min",
+        messages: [
+          { role: "user", content: "I'm thinking about changing careers but I'm not sure if it's the right time." },
+          { role: "system", content: "That's a big decision! Let's explore what's driving this feeling. What aspects of your current career are making you consider a change?" },
+          { role: "user", content: "I feel like I'm not growing anymore, and the work doesn't excite me like it used to." },
+          { role: "system", content: "It sounds like you're experiencing career stagnation, which is actually quite common. The fact that you're recognizing these feelings is the first step toward positive change. Have you identified any specific areas or industries that do interest you?" }
+        ]
+      },
+      { 
+        id: 2,
+        time: "5 hours ago", 
+        activity: "Helped Maria with relationship advice", 
+        duration: "8 min",
+        messages: [
+          { role: "user", content: "My partner and I have been arguing a lot lately. I don't know what to do." },
+          { role: "system", content: "I'm sorry to hear you're going through a difficult time. Arguments in relationships can be stressful, but they're also opportunities for growth and better understanding. Can you tell me what these arguments tend to be about?" },
+          { role: "user", content: "It's usually about small things, but they escalate quickly. We both get defensive." },
+          { role: "system", content: "It sounds like the issue might not be the topics themselves, but how you're communicating about them. When both people get defensive, it often means you're both feeling unheard or misunderstood. Have you tried having a calm conversation about your communication patterns when you're not in the middle of an argument?" }
+        ]
+      },
+      { 
+        id: 3,
+        time: "1 day ago", 
+        activity: "Discussed life goals with John", 
+        duration: "15 min",
+        messages: [
+          { role: "user", content: "I feel like I'm drifting through life without clear goals. How do I figure out what I really want?" },
+          { role: "system", content: "That's a profound question that many people struggle with. The feeling of drifting often comes from a disconnect between our daily actions and our deeper values. Let's start by exploring what matters most to you. When you think about the times you've felt most fulfilled or proud, what were you doing?" }
+        ]
+      },
+      { 
+        id: 4,
+        time: "2 days ago", 
+        activity: "Career guidance for Lisa", 
+        duration: "10 min",
+        messages: [
+          { role: "user", content: "I just graduated and I'm overwhelmed by all the career options. How do I choose?" },
+          { role: "system", content: "Congratulations on graduating! It's completely normal to feel overwhelmed by the possibilities ahead. This is actually an exciting time, even though it might feel daunting. Let's break this down into manageable steps. What subjects or activities during your studies did you find most engaging?" }
+        ]
+      }
     ]
-  };
-
-  const copyShareLink = async () => {
-    try {
-      await navigator.clipboard.writeText(simData.shareUrl);
-      setCopied(true);
-      toast({
-        title: "Link copied!",
-        description: "Share link has been copied to your clipboard."
-      });
-      setTimeout(() => setCopied(false), 2000);
-    } catch (error) {
-      toast({
-        title: "Failed to copy",
-        description: "Please copy the link manually.",
-        variant: "destructive"
-      });
-    }
   };
 
   const getPriorityColor = (priority: string) => {
@@ -115,65 +140,34 @@ const MySim = () => {
     }
   };
 
-  return (
-    <div className="max-w-7xl mx-auto p-6 space-y-6">
-      {/* Header Section */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Avatar className="h-16 w-16">
-            <AvatarImage src={simData.avatar} alt={simData.name} />
-            <AvatarFallback>MS</AvatarFallback>
-          </Avatar>
-          <div>
-            <h1 className="text-3xl font-bold text-fg">{simData.name}</h1>
-            <p className="text-fgMuted">Your personal AI companion</p>
-          </div>
-        </div>
-        <div className="flex gap-2">
-          <Button variant="outline" size="sm">
-            <Settings className="h-4 w-4 mr-2" />
-            Settings
-          </Button>
-          <Button size="sm">
-            <ExternalLink className="h-4 w-4 mr-2" />
-            View Public Page
-          </Button>
-        </div>
-      </div>
+  const handleActivityClick = (activity: any) => {
+    setSelectedActivity(activity);
+  };
 
-      {/* Share Link Section */}
+  return (
+    <div className="w-full max-w-none mx-0 p-6 space-y-6">
+      {/* Recent Activity - Moved to Top */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Share2 className="h-5 w-5" />
-            Share Your Sim
+          <CardTitle className="text-lg flex items-center gap-2">
+            <Activity className="h-4 w-4" />
+            Recent Activity
           </CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="flex items-center gap-2 p-3 bg-bgMuted rounded-lg">
-            <code className="flex-1 text-sm font-mono">{simData.shareUrl}</code>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={copyShareLink}
-              className="flex-shrink-0"
+        <CardContent className="space-y-3">
+          {simData.recentActivity.map((activity, index) => (
+            <div 
+              key={index} 
+              className="space-y-1 pb-3 border-b last:border-b-0 last:pb-0 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 p-2 rounded transition-colors"
+              onClick={() => handleActivityClick(activity)}
             >
-              {copied ? (
-                <>
-                  <CheckCircle2 className="h-4 w-4 mr-2" />
-                  Copied!
-                </>
-              ) : (
-                <>
-                  <Copy className="h-4 w-4 mr-2" />
-                  Copy
-                </>
-              )}
-            </Button>
-          </div>
-          <p className="text-sm text-fgMuted mt-2">
-            Share this link with others so they can chat with your Sim
-          </p>
+              <p className="text-sm font-medium">{activity.activity}</p>
+              <div className="flex justify-between items-center text-xs text-fgMuted">
+                <span>{activity.time}</span>
+                <span>{activity.duration}</span>
+              </div>
+            </div>
+          ))}
         </CardContent>
       </Card>
 
@@ -246,7 +240,7 @@ const MySim = () => {
                     {getActionIcon(item.type)}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
+                    <div className="flex items-center gap-2 mb-1 flex-wrap">
                       <h4 className="font-medium">{item.title}</h4>
                       <Badge variant="outline" className={getPriorityColor(item.priority)}>
                         {item.priority}
@@ -258,7 +252,7 @@ const MySim = () => {
                       Due: {item.dueDate}
                     </div>
                   </div>
-                  <Button variant="outline" size="sm">
+                  <Button variant="outline" size="sm" className="flex-shrink-0">
                     Mark Complete
                   </Button>
                 </div>
@@ -269,29 +263,6 @@ const MySim = () => {
 
         {/* Side Panel */}
         <div className="space-y-6">
-          {/* Knowledge Base Stats */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Knowledge Base</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex justify-between items-center">
-                <span className="text-sm">Total Items</span>
-                <span className="font-semibold">{simData.knowledgeItems}</span>
-              </div>
-              <div className="space-y-2">
-                <div className="flex justify-between items-center">
-                  <span className="text-sm">Response Accuracy</span>
-                  <span className="font-semibold">{simData.responseAccuracy}%</span>
-                </div>
-                <Progress value={simData.responseAccuracy} className="h-2" />
-              </div>
-              <Button variant="outline" size="sm" className="w-full">
-                Manage Knowledge
-              </Button>
-            </CardContent>
-          </Card>
-
           {/* Popular Topics */}
           <Card>
             <CardHeader>
@@ -309,29 +280,42 @@ const MySim = () => {
               ))}
             </CardContent>
           </Card>
-
-          {/* Recent Activity */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg flex items-center gap-2">
-                <Activity className="h-4 w-4" />
-                Recent Activity
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {simData.recentActivity.map((activity, index) => (
-                <div key={index} className="space-y-1 pb-3 border-b last:border-b-0 last:pb-0">
-                  <p className="text-sm font-medium">{activity.activity}</p>
-                  <div className="flex justify-between items-center text-xs text-fgMuted">
-                    <span>{activity.time}</span>
-                    <span>{activity.duration}</span>
-                  </div>
-                </div>
-              ))}
-            </CardContent>
-          </Card>
         </div>
       </div>
+
+      {/* Chat Modal */}
+      <Dialog open={!!selectedActivity} onOpenChange={() => setSelectedActivity(null)}>
+        <DialogContent className="max-w-4xl max-h-[80vh] overflow-hidden flex flex-col">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <MessageCircle className="h-5 w-5" />
+              {selectedActivity?.activity}
+            </DialogTitle>
+            <p className="text-sm text-fgMuted">
+              {selectedActivity?.time} • Duration: {selectedActivity?.duration}
+            </p>
+          </DialogHeader>
+          
+          <div className="flex-1 overflow-auto space-y-4 pr-2">
+            {selectedActivity?.messages?.map((message: any, index: number) => (
+              <div
+                key={index}
+                className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+              >
+                <div
+                  className={`rounded-lg px-4 py-2 max-w-[75%] ${
+                    message.role === 'user'
+                      ? 'bg-primary text-primary-foreground'
+                      : 'bg-secondary text-secondary-foreground'
+                  }`}
+                >
+                  <p className="text-sm">{message.content}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
