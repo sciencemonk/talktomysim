@@ -28,8 +28,10 @@ const AdvisorDirectory = ({ onSelectAdvisor, onAuthRequired }: AdvisorDirectoryP
   );
 
   const handleAdvisorSelect = (advisor: AgentType) => {
-    if (!user && onAuthRequired) {
-      onAuthRequired();
+    if (!user) {
+      // Open public chat page in new tab for non-signed in users
+      const chatUrl = advisor.url ? `/${advisor.url}` : `/tutors/${advisor.id}/chat`;
+      window.open(chatUrl, '_blank');
     } else {
       onSelectAdvisor(advisor.id, advisor);
     }
