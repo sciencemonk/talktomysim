@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -154,59 +155,61 @@ const MySim = () => {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 p-3 bg-bgMuted rounded-lg">
-            <div className="flex items-center gap-2 min-w-0 flex-1">
-              <span className="text-sm font-mono text-fgMuted whitespace-nowrap">{window.location.origin}/sim/</span>
+          <div className="p-3 bg-bgMuted rounded-lg space-y-2">
+            <div className="flex items-center gap-1 text-sm font-mono text-fgMuted">
+              <span className="flex-shrink-0">{window.location.origin}/sim/</span>
               {isEditingUrl ? (
-                <div className="flex items-center gap-2 min-w-0 flex-1">
+                <div className="flex items-center gap-2 flex-1 min-w-0">
                   <Input
                     value={tempUrl}
                     onChange={(e) => setTempUrl(e.target.value)}
-                    className="h-8 text-sm font-mono min-w-0"
+                    className="h-8 text-sm font-mono flex-1"
                     placeholder="your-custom-url"
                   />
                   <div className="flex items-center gap-1 flex-shrink-0">
-                    <Button size="sm" onClick={handleSaveUrl} className="h-8">
+                    <Button size="sm" onClick={handleSaveUrl} className="h-8 px-2">
                       <Save className="h-3 w-3" />
                     </Button>
-                    <Button size="sm" variant="outline" onClick={handleCancelEdit} className="h-8">
+                    <Button size="sm" variant="outline" onClick={handleCancelEdit} className="h-8 px-2">
                       <X className="h-3 w-3" />
                     </Button>
                   </div>
                 </div>
               ) : (
-                <div className="flex items-center gap-2 min-w-0 flex-1">
-                  <code className="text-sm font-mono truncate min-w-0">{customUrl}</code>
+                <div className="flex items-center gap-2 flex-1 min-w-0">
+                  <code className="text-sm font-mono flex-1 truncate">{customUrl}</code>
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={handleEditUrl}
-                    className="flex-shrink-0"
+                    className="flex-shrink-0 h-8"
                   >
-                    <Edit2 className="h-4 w-4 mr-2" />
+                    <Edit2 className="h-3 w-3 mr-1" />
                     Edit
                   </Button>
                 </div>
               )}
             </div>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={copyShareLink}
-              className="flex-shrink-0"
-            >
-              {copied ? (
-                <>
-                  <CheckCircle2 className="h-4 w-4 mr-2" />
-                  Copied!
-                </>
-              ) : (
-                <>
-                  <Copy className="h-4 w-4 mr-2" />
-                  Copy
-                </>
-              )}
-            </Button>
+            <div className="flex justify-end">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={copyShareLink}
+                className="flex-shrink-0"
+              >
+                {copied ? (
+                  <>
+                    <CheckCircle2 className="h-4 w-4 mr-2" />
+                    Copied!
+                  </>
+                ) : (
+                  <>
+                    <Copy className="h-4 w-4 mr-2" />
+                    Copy Link
+                  </>
+                )}
+              </Button>
+            </div>
           </div>
           <p className="text-sm text-fgMuted">
             Share this link with others so they can chat with your Sim
@@ -283,7 +286,7 @@ const MySim = () => {
                     {getActionIcon(item.type)}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
+                    <div className="flex items-center gap-2 mb-1 flex-wrap">
                       <h4 className="font-medium">{item.title}</h4>
                       <Badge variant="outline" className={getPriorityColor(item.priority)}>
                         {item.priority}
@@ -295,7 +298,7 @@ const MySim = () => {
                       Due: {item.dueDate}
                     </div>
                   </div>
-                  <Button variant="outline" size="sm">
+                  <Button variant="outline" size="sm" className="flex-shrink-0">
                     Mark Complete
                   </Button>
                 </div>
