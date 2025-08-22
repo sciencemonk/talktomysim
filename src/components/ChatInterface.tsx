@@ -1,5 +1,4 @@
 
-
 import { useState, useEffect, useRef } from "react";
 import { Bot, Menu } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
@@ -151,7 +150,7 @@ const ChatInterface = ({ agent, onBack }: ChatInterfaceProps) => {
               </div>
             </div>
           ))}
-          {/* Only show typing indicator when AI is responding and there's no incomplete message */}
+          {/* Show typing indicator only when AI is responding and there are no incomplete messages */}
           {isAiResponding && !chatHistory.messages.some(msg => !msg.isComplete) && <TypingIndicator />}
           <div ref={messagesEndRef} />
         </div>
@@ -170,4 +169,3 @@ const ChatInterface = ({ agent, onBack }: ChatInterfaceProps) => {
 };
 
 export default ChatInterface;
-
