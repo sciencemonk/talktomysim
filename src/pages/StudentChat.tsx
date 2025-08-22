@@ -9,7 +9,6 @@ import { Bot, Loader2, AlertCircle } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 const StudentChat = () => {
@@ -105,24 +104,6 @@ const StudentChat = () => {
       <div className="hidden md:flex">
         <SidebarContent />
       </div>
-      
-      {/* Mobile Sidebar */}
-      {isMobile && (
-        <Sheet>
-          <SheetTrigger asChild>
-            <div className="fixed top-4 left-4 z-50 md:hidden cursor-pointer">
-              <img 
-                src="/lovable-uploads/108a5580-39a3-45d5-a07e-672253a59f99.png" 
-                alt="Menu" 
-                className="h-6 w-6 object-contain"
-              />
-            </div>
-          </SheetTrigger>
-          <SheetContent side="left" className="p-0 w-80">
-            <SidebarContent />
-          </SheetContent>
-        </Sheet>
-      )}
       
       {/* Main content */}
       <div className="flex-1 flex flex-col">
