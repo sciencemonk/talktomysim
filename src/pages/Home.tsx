@@ -4,21 +4,22 @@ import { useAuth } from '@/hooks/useAuth';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Search, Menu, X } from 'lucide-react';
-import { usePublicAgents } from '@/hooks/usePublicAgents';
+import { usePublicAdvisors } from '@/hooks/usePublicAdvisors';
 import { Link } from 'react-router-dom';
 import AuthModal from '@/components/AuthModal';
 
 const Home = () => {
   const { user } = useAuth();
-  const { agents = [], isLoading, error } = usePublicAgents();
+  const { advisors, isLoading, error } = usePublicAdvisors();
   const [searchTerm, setSearchTerm] = useState('');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
 
-  const filteredAgents = agents.filter(agent =>
-    agent.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    agent.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    agent.subject?.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredAdvisors = advisors.filter(advisor =>
+    advisor.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    advisor.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    advisor.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    advisor.category?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   if (user) {
@@ -33,11 +34,9 @@ const Home = () => {
       <div className="lg:hidden border-b border-border bg-background">
         <div className="flex items-center justify-between p-4">
           <div className="flex items-center space-x-2">
-            <img 
-              src="/lovable-uploads/a5a8957b-48cb-40f5-9097-0ab747b74077.png" 
-              alt="Think With Me" 
-              className="w-8 h-8"
-            />
+            <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center">
+              <span className="text-white text-sm font-bold">S</span>
+            </div>
             <h1 className="text-xl font-bold text-fg">Sim</h1>
           </div>
           <Button
@@ -61,24 +60,22 @@ const Home = () => {
           {/* Desktop Header */}
           <div className="hidden lg:block border-b border-border p-6">
             <div className="flex items-center space-x-2">
-              <img 
-                src="/lovable-uploads/a5a8957b-48cb-40f5-9097-0ab747b74077.png" 
-                alt="Think With Me" 
-                className="w-8 h-8"
-              />
+              <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center">
+                <span className="text-white text-sm font-bold">S</span>
+              </div>
               <h1 className="text-xl font-bold text-fg">Sim</h1>
             </div>
           </div>
 
           {/* Login Section */}
-          <div className="flex-1 flex items-center justify-center p-4">
-            <div className="text-center space-y-6">
-              <p className="text-lg font-medium text-fg">Create your free Sim today.</p>
+          <div className="flex-1 flex items-center justify-center p-6">
+            <div className="text-center space-y-6 max-w-sm">
+              <h2 className="text-lg font-medium text-fg">Create your free Sim today.</h2>
               <Button 
                 onClick={() => setShowAuthModal(true)}
-                className="w-full bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 text-white hover:from-purple-700 hover:via-pink-700 hover:to-blue-700 animate-pulse"
+                className="w-full bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 text-white hover:from-purple-700 hover:via-pink-700 hover:to-blue-700"
               >
-                Get started
+                Get Started
               </Button>
             </div>
           </div>
@@ -92,7 +89,7 @@ const Home = () => {
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
               <Input
                 type="text"
-                placeholder="Search tutors..."
+                placeholder="Search sims..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10"
@@ -100,19 +97,17 @@ const Home = () => {
             </div>
             <div className="flex items-center space-x-4">
               <div className="flex items-center space-x-2">
-                <img 
-                  src="/lovable-uploads/a5a8957b-48cb-40f5-9097-0ab747b74077.png" 
-                  alt="Think With Me" 
-                  className="w-6 h-6"
-                />
+                <div className="w-6 h-6 bg-black rounded-full flex items-center justify-center">
+                  <span className="text-white text-xs font-bold">S</span>
+                </div>
                 <h2 className="text-lg font-semibold text-fg">Sim</h2>
               </div>
               <Button 
                 size="sm" 
                 onClick={() => setShowAuthModal(true)}
-                className="bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 text-white hover:from-purple-700 hover:via-pink-700 hover:to-blue-700 animate-pulse"
+                className="bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 text-white hover:from-purple-700 hover:via-pink-700 hover:to-blue-700"
               >
-                Get started
+                Get Started
               </Button>
             </div>
           </div>
@@ -123,7 +118,7 @@ const Home = () => {
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
               <Input
                 type="text"
-                placeholder="Search tutors..."
+                placeholder="Search sims..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10"
@@ -133,46 +128,49 @@ const Home = () => {
 
           {/* Content */}
           <div className="flex-1 overflow-auto p-6">
-            <div className="max-w-6xl mx-auto">
-              <div className="mb-8">
-                <h1 className="text-2xl font-bold text-fg mb-2">Discover AI Tutors</h1>
-                <p className="text-muted-foreground">Find the perfect AI tutor for your learning needs</p>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredAgents.map((agent) => (
-                  <Link
-                    key={agent.id}
-                    to={`/tutors/${agent.id}`}
-                    className="block group"
-                  >
-                    <div className="bg-card border border-border rounded-lg p-6 hover:shadow-lg transition-all duration-200 group-hover:border-primary/20">
-                      <div className="flex items-start space-x-4">
-                        <img
-                          src={agent.avatar || "/placeholder.svg"}
-                          alt={agent.name}
-                          className="w-12 h-12 rounded-full object-cover"
-                        />
-                        <div className="flex-1 min-w-0">
-                          <h3 className="font-semibold text-fg group-hover:text-primary transition-colors">
-                            {agent.name}
-                          </h3>
-                          {agent.subject && (
-                            <p className="text-sm text-primary mb-2">{agent.subject}</p>
-                          )}
-                          <p className="text-sm text-muted-foreground line-clamp-3">
-                            {agent.description}
-                          </p>
+            <div className="max-w-4xl mx-auto">
+              {isLoading ? (
+                <div className="flex items-center justify-center py-12">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                </div>
+              ) : error ? (
+                <div className="text-center py-12">
+                  <p className="text-muted-foreground">Failed to load sims</p>
+                  <p className="text-sm text-muted-foreground mt-1">{error}</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {filteredAdvisors.map((advisor) => (
+                    <Link
+                      key={advisor.id}
+                      to={advisor.url ? `/${advisor.url}` : `/tutors/${advisor.id}`}
+                      className="block group"
+                    >
+                      <div className="bg-card border border-border rounded-lg p-6 hover:shadow-lg transition-all duration-200 group-hover:border-primary/20">
+                        <div className="flex items-center space-x-4">
+                          <img
+                            src={advisor.avatar_url || "/placeholder.svg"}
+                            alt={advisor.name}
+                            className="w-12 h-12 rounded-full object-cover"
+                          />
+                          <div className="flex-1 min-w-0">
+                            <h3 className="font-semibold text-fg group-hover:text-primary transition-colors text-lg">
+                              {advisor.name}
+                            </h3>
+                            {advisor.title && (
+                              <p className="text-sm text-muted-foreground mt-1">{advisor.title}</p>
+                            )}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </Link>
-                ))}
-              </div>
+                    </Link>
+                  ))}
+                </div>
+              )}
 
-              {filteredAgents.length === 0 && (
+              {!isLoading && filteredAdvisors.length === 0 && (
                 <div className="text-center py-12">
-                  <p className="text-muted-foreground">No tutors found matching your search.</p>
+                  <p className="text-muted-foreground">No sims found matching your search.</p>
                 </div>
               )}
             </div>
