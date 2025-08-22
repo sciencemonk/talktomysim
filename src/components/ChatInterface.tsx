@@ -1,8 +1,9 @@
 
 import { useState, useEffect, useRef } from "react";
-import { Bot } from "lucide-react";
+import { Bot, Menu } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { TextInput } from "@/components/TextInput";
 import { useChatHistory } from "@/hooks/useChatHistory";
 import { useEnhancedTextChat } from "@/hooks/useEnhancedTextChat";
@@ -43,13 +44,58 @@ const ChatInterface = ({ agent, onBack }: ChatInterfaceProps) => {
     scrollToBottom();
   }, [chatHistory.messages]);
 
+  const SidebarContent = () => (
+    <div className="w-80 bg-card border-r border-border flex flex-col h-full">
+      <div className="p-6 border-b border-border">
+        <div className="flex items-center justify-center">
+          <img 
+            src="/lovable-uploads/d1283b59-7cfa-45f5-b151-4c32b24f3621.png" 
+            alt="Logo" 
+            className="h-8 w-8 object-contain"
+          />
+        </div>
+      </div>
+      
+      <div className="flex-1 flex items-center justify-center p-6">
+        <div className="space-y-6 text-center">
+          <div>
+            <h2 className="text-xl font-semibold mb-2">Create your free Sim today</h2>
+          </div>
+          
+          <Button 
+            className="w-full bg-gradient-to-r from-purple-600 via-pink-500 to-blue-500 text-white hover:opacity-90 animate-pulse rounded-lg py-3"
+          >
+            Get Started
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+
   return (
     <div className="flex flex-col h-screen w-full">
       {/* Header - Always visible on mobile */}
       <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-4 sm:px-6 py-4 flex-shrink-0 sticky top-0 z-10">
-        <div className="flex items-center justify-between w-full">
-          <div className="flex items-center gap-3 flex-1">
-            <Avatar className="h-10 w-10 sm:h-12 sm:w-12">
+        <div className="flex items-center w-full">
+          {/* Left: Sidebar button (mobile only) */}
+          {isMobile && (
+            <div className="flex-shrink-0 mr-3">
+              <Sheet>
+                <SheetTrigger asChild>
+                  <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                    <Menu className="h-5 w-5" />
+                  </Button>
+                </SheetTrigger>
+                <SheetContent side="left" className="p-0 w-80">
+                  <SidebarContent />
+                </SheetContent>
+              </Sheet>
+            </div>
+          )}
+          
+          {/* Center: Avatar and name */}
+          <div className="flex items-center gap-3 flex-1 min-w-0">
+            <Avatar className="h-10 w-10 sm:h-12 sm:w-12 flex-shrink-0">
               <AvatarImage src={currentAgent.avatar} alt={currentAgent.name} />
               <AvatarFallback className="bg-primary text-primary-foreground text-lg">
                 <Bot className="h-5 w-5 sm:h-6 sm:w-6" />
@@ -62,7 +108,11 @@ const ChatInterface = ({ agent, onBack }: ChatInterfaceProps) => {
               </p>
             </div>
           </div>
-          <InfoModal agentName={currentAgent.name} />
+          
+          {/* Right: Info button */}
+          <div className="flex-shrink-0 ml-3">
+            <InfoModal agentName={currentAgent.name} />
+          </div>
         </div>
       </div>
 
