@@ -7,7 +7,11 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 
-export const InfoModal = () => {
+interface InfoModalProps {
+  agentName?: string;
+}
+
+export const InfoModal = ({ agentName }: InfoModalProps) => {
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -17,9 +21,9 @@ export const InfoModal = () => {
       </DialogTrigger>
       <DialogContent className="sm:max-w-md p-6">
         <div className="text-center space-y-4">
-          <h2 className="text-lg font-semibold text-black">Disclaimer</h2>
+          <h2 className="text-lg font-semibold text-black">This is a Sim</h2>
           <p className="text-black text-sm leading-relaxed">
-            This Sim is built from public domain and widely available source content. It is not the real individual, nor an official or endorsed representation of them.
+            This Sim is an AI powered representation of {agentName || "this individual"}. It is not the real individual and may make responses that aren't endorsed by its creator.
           </p>
         </div>
       </DialogContent>
