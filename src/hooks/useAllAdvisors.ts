@@ -44,6 +44,7 @@ export const useAllAdvisors = () => {
           subject: advisor.category || 'General',
           title: advisor.title, // Include the title field from advisors table
           url: advisor.url, // Include the url field from advisors table
+          custom_url: advisor.custom_url, // Include the custom_url field from advisors table
           is_featured: false, // Default to false since advisors table doesn't have this field yet
           // Set default values for tutor-specific fields
           model: 'GPT-4',

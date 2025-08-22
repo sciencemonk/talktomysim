@@ -53,6 +53,7 @@ export interface AgentType {
   voiceTraits?: VoiceTrait[];
   is_featured?: boolean; // Add the missing is_featured property
   url?: string; // Add url field for custom paths
+  custom_url?: string; // Add custom_url field for custom URLs
 }
 
 export interface PublicAgentType {
