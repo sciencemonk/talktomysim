@@ -223,37 +223,42 @@ const Home = () => {
       
       <div className="flex-1 flex flex-col">
         {/* Mobile Header - shared across all views */}
-        <div className="md:hidden bg-card border-b border-border p-4 flex items-center">
-          <Sheet open={mobileSheetOpen} onOpenChange={setMobileSheetOpen}>
-            <SheetTrigger asChild>
-              <Button variant="ghost" size="icon">
-                <Menu className="h-5 w-5" />
-              </Button>
-            </SheetTrigger>
-            <SheetContent side="left" className="p-0 w-80">
-              <SidebarContent
-                selectedAgent={selectedAgent}
-                selectedPublicAdvisorId={selectedPublicAdvisorId}
-                selectedPublicAdvisors={advisorsAsAgents}
-                onSelectAgent={handleAgentSelect}
-                onSelectPublicAdvisor={handlePublicAdvisorSelect}
-                onRemovePublicAdvisor={handleRemovePublicAdvisor}
-                onShowAdvisorDirectory={handleShowAdvisorDirectory}
-                onNavigateToMySim={handleNavigateToMySim}
-                onNavigateToBasicInfo={handleNavigateToBasicInfo}
-                onNavigateToInteractionModel={handleNavigateToInteractionModel}
-                onNavigateToCoreKnowledge={handleNavigateToCoreKnowledge}
-                onClose={() => setMobileSheetOpen(false)}
+        <div className="md:hidden bg-card border-b border-border p-4">
+          <div className="flex items-center">
+            <Sheet open={mobileSheetOpen} onOpenChange={setMobileSheetOpen}>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="icon" className="flex-shrink-0">
+                  <Menu className="h-5 w-5" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="left" className="p-0 w-80">
+                <SidebarContent
+                  selectedAgent={selectedAgent}
+                  selectedPublicAdvisorId={selectedPublicAdvisorId}
+                  selectedPublicAdvisors={advisorsAsAgents}
+                  onSelectAgent={handleAgentSelect}
+                  onSelectPublicAdvisor={handlePublicAdvisorSelect}
+                  onRemovePublicAdvisor={handleRemovePublicAdvisor}
+                  onShowAdvisorDirectory={handleShowAdvisorDirectory}
+                  onNavigateToMySim={handleNavigateToMySim}
+                  onNavigateToBasicInfo={handleNavigateToBasicInfo}
+                  onNavigateToInteractionModel={handleNavigateToInteractionModel}
+                  onNavigateToCoreKnowledge={handleNavigateToCoreKnowledge}
+                  onClose={() => setMobileSheetOpen(false)}
+                />
+              </SheetContent>
+            </Sheet>
+            
+            <div className="flex-1 flex justify-center">
+              <img 
+                src="/lovable-uploads/d1283b59-7cfa-45f5-b151-4c32b24f3621.png" 
+                alt="Logo" 
+                className="h-8 w-8 object-contain"
               />
-            </SheetContent>
-          </Sheet>
-          
-          <div className="flex-1 flex justify-center">
-            <img 
-              src="/lovable-uploads/d1283b59-7cfa-45f5-b151-4c32b24f3621.png" 
-              alt="Sim" 
-              className="h-8 w-8 object-contain"
-            />
+            </div>
+            
+            {/* Invisible spacer to balance the hamburger menu */}
+            <div className="flex-shrink-0 w-10"></div>
           </div>
         </div>
         
