@@ -190,7 +190,7 @@ export const SidebarContent: React.FC<SidebarContentProps> = ({
                 </p>
               </div>
             </div>
-            <UserSettingsDropdown />
+            <UserSettingsDropdown simplified={true} />
           </div>
         </>
       )}
