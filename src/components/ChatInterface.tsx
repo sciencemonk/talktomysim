@@ -151,7 +151,8 @@ const ChatInterface = ({ agent, onBack }: ChatInterfaceProps) => {
               </div>
             </div>
           ))}
-          {isAiResponding && <TypingIndicator />}
+          {/* Only show typing indicator when AI is responding and there's no incomplete message */}
+          {isAiResponding && !chatHistory.messages.some(msg => !msg.isComplete) && <TypingIndicator />}
           <div ref={messagesEndRef} />
         </div>
       </div>
