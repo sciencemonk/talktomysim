@@ -11,6 +11,8 @@ import { CalendarIcon, X, Plus, Upload, Camera } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { useSim } from "@/hooks/useSim";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 const BasicInfo = () => {
   const { sim, updateBasicInfo, checkCustomUrlAvailability, isLoading } = useSim();
@@ -37,6 +39,7 @@ const BasicInfo = () => {
   const [previewUrl, setPreviewUrl] = useState<string>("");
   const [isUrlAvailable, setIsUrlAvailable] = useState<boolean | null>(null);
   const [isCheckingUrl, setIsCheckingUrl] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
 
   // Load existing sim data
   useEffect(() => {
@@ -58,8 +61,11 @@ const BasicInfo = () => {
       setInterests(sim.interests || []);
       setSkills(sim.skills || []);
       
-      if (sim.avatar_url) {
+      // Only set preview URL if there's a valid avatar URL (not a blob URL)
+      if (sim.avatar_url && !sim.avatar_url.startsWith('blob:')) {
         setPreviewUrl(sim.avatar_url);
+      } else {
+        setPreviewUrl("");
       }
     }
   }, [sim]);
@@ -68,21 +74,55 @@ const BasicInfo = () => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
+  const uploadImage = async (): Promise<string | null> => {
+    if (!selectedFile) return formData.avatarUrl;
+
+    setIsUploading(true);
+    try {
+      const fileExt = selectedFile.name.split('.').pop();
+      const fileName = `${Math.random()}.${fileExt}`;
+      const filePath = `sim-avatars/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('avatars')
+        .upload(filePath, selectedFile);
+
+      if (uploadError) {
+        console.error('Upload error:', uploadError);
+        throw uploadError;
+      }
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('avatars')
+        .getPublicUrl(filePath);
+
+      return publicUrl;
+    } catch (error) {
+      console.error('Failed to upload image:', error);
+      toast.error('Failed to upload image. Please try again.');
+      throw error;
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
       if (file.size > 5 * 1024 * 1024) { // 5MB limit
-        alert("File too large. Please select an image smaller than 5MB.");
+        toast.error("File too large. Please select an image smaller than 5MB.");
         return;
       }
 
       if (!file.type.startsWith('image/')) {
-        alert("Please select an image file.");
+        toast.error("Please select an image file.");
         return;
       }
 
       setSelectedFile(file);
-      setPreviewUrl(URL.createObjectURL(file));
+      // Create a blob URL for preview
+      const blobUrl = URL.createObjectURL(file);
+      setPreviewUrl(blobUrl);
     }
   };
 
@@ -95,6 +135,10 @@ const BasicInfo = () => {
     setSelectedFile(null);
     setPreviewUrl("");
     setFormData(prev => ({ ...prev, avatarUrl: "" }));
+    // Clean up blob URL if it exists
+    if (previewUrl && previewUrl.startsWith('blob:')) {
+      URL.revokeObjectURL(previewUrl);
+    }
   };
 
   const addInterest = () => {
@@ -147,6 +191,13 @@ const BasicInfo = () => {
 
   const handleSave = async () => {
     try {
+      let finalAvatarUrl = formData.avatarUrl;
+      
+      // Upload image if there's a selected file
+      if (selectedFile) {
+        finalAvatarUrl = await uploadImage() || "";
+      }
+
       const basicInfoData = {
         full_name: formData.fullName,
         professional_title: formData.professionalTitle,
@@ -158,7 +209,7 @@ const BasicInfo = () => {
         areas_of_expertise: formData.areasOfExpertise,
         additional_background: formData.additionalBackground,
         custom_url: formData.customUrl,
-        avatar_url: previewUrl,
+        avatar_url: finalAvatarUrl,
         interests,
         skills,
         // Use full name as the display name if provided
@@ -168,6 +219,17 @@ const BasicInfo = () => {
       };
 
       await updateBasicInfo(basicInfoData);
+      
+      // Update local state with the final avatar URL
+      if (finalAvatarUrl !== formData.avatarUrl) {
+        setFormData(prev => ({ ...prev, avatarUrl: finalAvatarUrl }));
+        // Clean up blob URL and update with permanent URL
+        if (previewUrl && previewUrl.startsWith('blob:')) {
+          URL.revokeObjectURL(previewUrl);
+        }
+        setPreviewUrl(finalAvatarUrl);
+        setSelectedFile(null);
+      }
     } catch (error) {
       console.error('Error saving basic info:', error);
     }
@@ -194,6 +256,11 @@ const BasicInfo = () => {
                       src={previewUrl}
                       alt="Avatar preview"
                       className="w-24 h-24 rounded-full object-cover border-2 border-border group-hover:opacity-80 transition-opacity"
+                      onError={(e) => {
+                        console.error('Avatar image failed to load:', previewUrl);
+                        // If image fails to load, show the upload placeholder
+                        setPreviewUrl("");
+                      }}
                     />
                     <div className="absolute inset-0 w-24 h-24 rounded-full bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                       <Camera className="h-6 w-6 text-white" />
@@ -451,9 +518,9 @@ const BasicInfo = () => {
             <Button 
               onClick={handleSave} 
               className="px-8"
-              disabled={isLoading || (formData.customUrl && isUrlAvailable === false)}
+              disabled={isLoading || isUploading || (formData.customUrl && isUrlAvailable === false)}
             >
-              {isLoading ? 'Saving...' : 'Save Basic Info'}
+              {isLoading || isUploading ? 'Saving...' : 'Save Basic Info'}
             </Button>
           </div>
         </CardContent>
