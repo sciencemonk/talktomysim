@@ -70,8 +70,8 @@ const MySim = () => {
             <Button onClick={handleMakePublic} variant={sim?.is_public ? "outline" : "default"} disabled={isLoading} size="sm">
               {sim?.is_public ? "Make Private" : "Make Public"}
             </Button>
-            {sim?.is_public && sim?.url && <Button variant="outline" asChild size="sm">
-                <a href={`/${sim.url}`} target="_blank" rel="noopener noreferrer">
+            {sim?.is_public && <Button variant="outline" asChild size="sm">
+                <a href={`/${sim.url || sim.id}`} target="_blank" rel="noopener noreferrer">
                   <ExternalLink className="h-4 w-4 mr-2" />
                   Share Sim
                 </a>
