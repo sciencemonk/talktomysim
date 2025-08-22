@@ -8,7 +8,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Bot, Loader2, AlertCircle } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const StudentChat = () => {
   const { agentId, customUrl } = useParams<{ agentId?: string; customUrl?: string }>();
@@ -22,6 +22,14 @@ const StudentChat = () => {
   // Use the appropriate query based on which parameter is present
   const query = agentId ? publicAgentQuery : publicAgentByUrlQuery;
   const { agent, isLoading, error } = query;
+
+  // Redirect to custom URL if agent has one and we're using the old route
+  useEffect(() => {
+    if (agent && agent.url && agentId && !customUrl) {
+      // Redirect to the custom URL route
+      window.location.href = `/${agent.url}`;
+    }
+  }, [agent, agentId, customUrl]);
 
   if (isLoading) {
     return (
