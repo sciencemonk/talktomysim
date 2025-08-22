@@ -47,6 +47,21 @@ const UserSettingsDropdown = ({ onShowBilling, trigger, simplified = false }: Us
           {trigger || defaultTrigger}
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start" className="w-56">
+          {simplified && (
+            <>
+              <DropdownMenuLabel className="font-normal">
+                <div className="flex flex-col space-y-1">
+                  <p className="text-sm font-medium leading-none">
+                    {user?.user_metadata?.full_name || "User"}
+                  </p>
+                  <p className="text-xs leading-none text-muted-foreground">
+                    {user?.email}
+                  </p>
+                </div>
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator />
+            </>
+          )}
           {!simplified && (
             <>
               <DropdownMenuLabel className="font-normal">
@@ -92,7 +107,6 @@ const UserSettingsDropdown = ({ onShowBilling, trigger, simplified = false }: Us
             <CreditCard className="mr-2 h-4 w-4" />
             <span>Upgrade</span>
           </DropdownMenuItem>
-          {!simplified && <DropdownMenuSeparator />}
           <DropdownMenuItem onClick={handleSignOut}>
             <LogOut className="mr-2 h-4 w-4" />
             <span>Log out</span>
