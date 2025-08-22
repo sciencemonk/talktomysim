@@ -4,6 +4,7 @@ import { usePublicAgent } from "@/hooks/usePublicAgent";
 import { usePublicAgentByUrl } from "@/hooks/usePublicAgentByUrl";
 import ChatInterface from "@/components/ChatInterface";
 import UserSidebar from "@/components/UserSidebar";
+import { useAuth } from "@/hooks/useAuth";
 import { Bot, Loader2, AlertCircle } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -11,6 +12,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 
 const StudentChat = () => {
   const { agentId, customUrl } = useParams<{ agentId?: string; customUrl?: string }>();
+  const { user } = useAuth();
   const isMobile = useIsMobile();
   
   // Determine which hook to use based on the route parameters
@@ -65,8 +67,8 @@ const StudentChat = () => {
     window.history.back();
   };
 
-  // On mobile, render just the chat interface
-  if (isMobile) {
+  // For non-signed-in users or mobile, render just the chat interface without sidebar
+  if (!user || isMobile) {
     return (
       <div className="h-screen bg-background">
         <ChatInterface 
@@ -77,11 +79,11 @@ const StudentChat = () => {
     );
   }
 
-  // On desktop, render with sidebar
+  // On desktop with signed-in users, render with sidebar
   return (
     <div className="h-screen bg-background flex">
       <UserSidebar />
-      <div className="flex-1">
+      <div className="flex-1 md:ml-80">
         <ChatInterface 
           agent={agent}
           onBack={handleBack}
