@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
@@ -59,7 +58,6 @@ export const SidebarContent: React.FC<SidebarContentProps> = ({
   onClose
 }) => {
   const { user } = useAuth();
-  const [searchQuery, setSearchQuery] = useState("");
 
   const menuItems = [
     {
@@ -132,7 +130,7 @@ export const SidebarContent: React.FC<SidebarContentProps> = ({
     <div className="flex flex-col h-full bg-card border-r border-border">
       {/* Header */}
       <div className="p-4 border-b border-border">
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <img 
               src="/lovable-uploads/d1283b59-7cfa-45f5-b151-4c32b24f3621.png" 
@@ -146,16 +144,6 @@ export const SidebarContent: React.FC<SidebarContentProps> = ({
               <X className="h-4 w-4" />
             </Button>
           )}
-        </div>
-        
-        <div className="relative">
-          <Search className="absolute left-3 top-3 h-4 w-4 text-fgMuted" />
-          <Input
-            placeholder="Search advisors..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-9 bg-background"
-          />
         </div>
       </div>
 
