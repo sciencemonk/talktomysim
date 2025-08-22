@@ -11,7 +11,8 @@ import {
   MessageSquare,
   Brain,
   BookOpen,
-  Search
+  Search,
+  CreditCard
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useAgents } from "@/hooks/useAgents";
@@ -34,6 +35,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { AgentType } from "@/types/agent";
 import AuthModal from "./AuthModal";
+import UpgradeModal from "./UpgradeModal";
 
 interface UserSidebarProps {
   onShowSettings?: () => void;
@@ -82,6 +84,7 @@ const SidebarContent = ({
   
   const [isLogoHovered, setIsLogoHovered] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
   useEffect(() => {
     if (refreshTrigger) {
@@ -149,219 +152,231 @@ const SidebarContent = ({
   ];
 
   return (
-    <div className="flex flex-col h-full">
-      {/* Header with Logo and Toggle (Desktop only) */}
-      {onToggleCollapse && (
-        <>
-          <div className="p-4 flex items-center justify-between">
-            {!isCollapsed && (
-              <div className="flex items-center gap-3">
-                <img 
-                  src="/lovable-uploads/d1283b59-7cfa-45f5-b151-4c32b24f3621.png" 
-                  alt="Sim" 
-                  className="h-8 w-8 object-contain"
-                />
-                <h1 className="font-semibold text-lg">Sim</h1>
-              </div>
-            )}
-            {isCollapsed && (
-              <button 
-                onClick={onToggleCollapse}
-                onMouseEnter={() => setIsLogoHovered(true)}
-                onMouseLeave={() => setIsLogoHovered(false)}
-                className="h-8 w-8 mx-auto flex items-center justify-center hover:bg-muted rounded-md transition-colors cursor-pointer"
-              >
-                {isLogoHovered ? (
-                  <img 
-                    src="/lovable-uploads/414592e4-0cdf-4286-a371-903bef284fe3.png" 
-                    alt="Open Sidebar" 
-                    className="h-4 w-4"
-                  />
-                ) : (
+    <>
+      <div className="flex flex-col h-full">
+        {/* Header with Logo and Toggle (Desktop only) */}
+        {onToggleCollapse && (
+          <>
+            <div className="p-4 flex items-center justify-between">
+              {!isCollapsed && (
+                <div className="flex items-center gap-3">
                   <img 
                     src="/lovable-uploads/d1283b59-7cfa-45f5-b151-4c32b24f3621.png" 
                     alt="Sim" 
                     className="h-8 w-8 object-contain"
                   />
-                )}
-              </button>
-            )}
-            {!isCollapsed && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={onToggleCollapse}
-                className="h-8 w-8 p-0"
-              >
-                <img 
-                  src="/lovable-uploads/414592e4-0cdf-4286-a371-903bef284fe3.png" 
-                  alt="Toggle Sidebar" 
-                  className="h-4 w-4"
-                />
-              </Button>
-            )}
-          </div>
-          <Separator />
-        </>
-      )}
-
-      {/* Mobile Header */}
-      {!onToggleCollapse && (
-        <>
-          <div className="p-4 flex items-center gap-3">
-            <img 
-              src="/lovable-uploads/d1283b59-7cfa-45f5-b151-4c32b24f3621.png" 
-              alt="Sim" 
-              className="h-8 w-8 object-contain"
-            />
-            <h1 className="font-semibold text-lg">Sim</h1>
-          </div>
-          <Separator />
-        </>
-      )}
-
-      {/* Navigation Items - Only show if user is authenticated */}
-      {user && (
-        <div className="flex-1 p-3 space-y-1 overflow-auto">
-          {/* Personal Agents List - Only show if there are agents */}
-          {agents.length > 0 && (
-            <div className="space-y-1">
-              {(!isCollapsed || !onToggleCollapse) && (
-                <div className="px-3 py-2 text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                  Your Agents
+                  <h1 className="font-semibold text-lg">Sim</h1>
                 </div>
               )}
-              {isLoading ? (
-                <div className={cn(
-                  "px-3 py-2 text-xs text-muted-foreground",
-                  isCollapsed && onToggleCollapse && "text-center"
-                )}>
-                  {(isCollapsed && onToggleCollapse) ? "..." : "Loading thinking partners..."}
-                </div>
-              ) : (
-                agents.map((agent) => (
-                  <Button
-                    key={agent.id}
-                    onClick={() => handleAgentSelect(agent)}
-                    variant="ghost"
-                    className={cn(
-                      "flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors w-full justify-start h-auto min-h-[40px]",
-                      selectedAgent?.id === agent.id
-                        ? "bg-primary/10 text-primary font-medium hover:bg-primary/15"
-                        : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                    )}
-                  >
-                    <Avatar className="h-6 w-6 flex-shrink-0">
-                      <AvatarImage src={agent.avatar} alt={agent.name} />
-                      <AvatarFallback className="bg-primary/10 text-primary text-xs">
-                        <Bot className="h-3 w-3" />
-                      </AvatarFallback>
-                    </Avatar>
-                    {(!isCollapsed || !onToggleCollapse) && <span className="truncate text-left">{agent.name}</span>}
-                  </Button>
-                ))
+              {isCollapsed && (
+                <button 
+                  onClick={onToggleCollapse}
+                  onMouseEnter={() => setIsLogoHovered(true)}
+                  onMouseLeave={() => setIsLogoHovered(false)}
+                  className="h-8 w-8 mx-auto flex items-center justify-center hover:bg-muted rounded-md transition-colors cursor-pointer"
+                >
+                  {isLogoHovered ? (
+                    <img 
+                      src="/lovable-uploads/414592e4-0cdf-4286-a371-903bef284fe3.png" 
+                      alt="Open Sidebar" 
+                      className="h-4 w-4"
+                    />
+                  ) : (
+                    <img 
+                      src="/lovable-uploads/d1283b59-7cfa-45f5-b151-4c32b24f3621.png" 
+                      alt="Sim" 
+                      className="h-8 w-8 object-contain"
+                    />
+                  )}
+                </button>
+              )}
+              {!isCollapsed && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={onToggleCollapse}
+                  className="h-8 w-8 p-0"
+                >
+                  <img 
+                    src="/lovable-uploads/414592e4-0cdf-4286-a371-903bef284fe3.png" 
+                    alt="Toggle Sidebar" 
+                    className="h-4 w-4"
+                  />
+                </Button>
               )}
             </div>
-          )}
+            <Separator />
+          </>
+        )}
 
-          {/* Navigation Links */}
-          <div className={cn("space-y-1", agents.length > 0 && "mt-4")}>
-            {navigationItems.map((item) => (
-              <Button
-                key={item.title}
-                onClick={item.onClick}
-                variant="ghost"
-                className={cn(
-                  "flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors w-full justify-start h-auto min-h-[40px]",
-                  "text-muted-foreground hover:bg-muted hover:text-foreground"
-                )}
-              >
-                <item.icon className="h-4 w-4 flex-shrink-0" />
-                {(!isCollapsed || !onToggleCollapse) && <span className="truncate text-left">{item.title}</span>}
-              </Button>
-            ))}
-          </div>
-        </div>
-      )}
+        {/* Mobile Header */}
+        {!onToggleCollapse && (
+          <>
+            <div className="p-4 flex items-center gap-3">
+              <img 
+                src="/lovable-uploads/d1283b59-7cfa-45f5-b151-4c32b24f3621.png" 
+                alt="Sim" 
+                className="h-8 w-8 object-contain"
+              />
+              <h1 className="font-semibold text-lg">Sim</h1>
+            </div>
+            <Separator />
+          </>
+        )}
 
-      {/* Non-authenticated state */}
-      {!user && (
-        <div className="flex-1 p-3 flex flex-col items-center justify-center space-y-4">
-          {(!isCollapsed || !onToggleCollapse) && (
-            <>
-              <div className="text-center space-y-2">
-                <p className="text-lg font-medium">Create your free Sim today.</p>
-              </div>
-              <Button
-                onClick={() => setShowAuthModal(true)}
-                className="w-full bg-gradient-to-r from-purple-600 via-pink-500 to-blue-500 text-white hover:opacity-90 animate-pulse"
-                size="lg"
-              >
-                <LogIn className="mr-2 h-4 w-4" />
-                Get Started
-              </Button>
-            </>
-          )}
-        </div>
-      )}
-
-      <Separator />
-
-      {/* User Profile Section - Only show if user is authenticated */}
-      {user && (
-        <div className="p-3">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <button className={cn(
-                "flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-muted transition-colors w-full",
-                isCollapsed && onToggleCollapse && "justify-center"
-              )}>
-                <Avatar className="h-8 w-8 flex-shrink-0">
-                  <AvatarImage src={user?.user_metadata?.avatar_url} alt="Profile" />
-                  <AvatarFallback>
-                    {user?.email?.charAt(0)?.toUpperCase() || "U"}
-                  </AvatarFallback>
-                </Avatar>
+        {/* Navigation Items - Only show if user is authenticated */}
+        {user && (
+          <div className="flex-1 p-3 space-y-1 overflow-auto">
+            {/* Personal Agents List - Only show if there are agents */}
+            {agents.length > 0 && (
+              <div className="space-y-1">
                 {(!isCollapsed || !onToggleCollapse) && (
-                  <div className="flex-1 min-w-0 text-left">
-                    <p className="text-sm font-medium truncate">
-                      {user?.user_metadata?.full_name || "User"}
-                    </p>
-                    <p className="text-xs text-muted-foreground truncate">
-                      {user?.email}
-                    </p>
+                  <div className="px-3 py-2 text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                    Your Agents
                   </div>
                 )}
-              </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="start" className="w-56">
-              {onShowChildProfile && (
-                <DropdownMenuItem onClick={() => { onShowChildProfile(); onClose?.(); }}>
-                  <User className="mr-2 h-4 w-4" />
-                  <span>Child Profile</span>
-                </DropdownMenuItem>
-              )}
-              {onShowSettings && (
-                <DropdownMenuItem onClick={() => { onShowSettings(); onClose?.(); }}>
-                  <Settings className="mr-2 h-4 w-4" />
-                  <span>Settings</span>
-                </DropdownMenuItem>
-              )}
-              <DropdownMenuItem onClick={handleSignOut}>
-                <LogOut className="mr-2 h-4 w-4" />
-                <span>Log out</span>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-      )}
+                {isLoading ? (
+                  <div className={cn(
+                    "px-3 py-2 text-xs text-muted-foreground",
+                    isCollapsed && onToggleCollapse && "text-center"
+                  )}>
+                    {(isCollapsed && onToggleCollapse) ? "..." : "Loading thinking partners..."}
+                  </div>
+                ) : (
+                  agents.map((agent) => (
+                    <Button
+                      key={agent.id}
+                      onClick={() => handleAgentSelect(agent)}
+                      variant="ghost"
+                      className={cn(
+                        "flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors w-full justify-start h-auto min-h-[40px]",
+                        selectedAgent?.id === agent.id
+                          ? "bg-primary/10 text-primary font-medium hover:bg-primary/15"
+                          : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                      )}
+                    >
+                      <Avatar className="h-6 w-6 flex-shrink-0">
+                        <AvatarImage src={agent.avatar} alt={agent.name} />
+                        <AvatarFallback className="bg-primary/10 text-primary text-xs">
+                          <Bot className="h-3 w-3" />
+                        </AvatarFallback>
+                      </Avatar>
+                      {(!isCollapsed || !onToggleCollapse) && <span className="truncate text-left">{agent.name}</span>}
+                    </Button>
+                  ))
+                )}
+              </div>
+            )}
 
-      {/* Auth Modal */}
-      <AuthModal 
-        open={showAuthModal} 
-        onOpenChange={setShowAuthModal} 
-      />
-    </div>
+            {/* Navigation Links */}
+            <div className={cn("space-y-1", agents.length > 0 && "mt-4")}>
+              {navigationItems.map((item) => (
+                <Button
+                  key={item.title}
+                  onClick={item.onClick}
+                  variant="ghost"
+                  className={cn(
+                    "flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors w-full justify-start h-auto min-h-[40px]",
+                    "text-muted-foreground hover:bg-muted hover:text-foreground"
+                  )}
+                >
+                  <item.icon className="h-4 w-4 flex-shrink-0" />
+                  {(!isCollapsed || !onToggleCollapse) && <span className="truncate text-left">{item.title}</span>}
+                </Button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Non-authenticated state */}
+        {!user && (
+          <div className="flex-1 p-3 flex flex-col items-center justify-center space-y-4">
+            {(!isCollapsed || !onToggleCollapse) && (
+              <>
+                <div className="text-center space-y-2">
+                  <p className="text-lg font-medium">Create your free Sim today.</p>
+                </div>
+                <Button
+                  onClick={() => setShowAuthModal(true)}
+                  className="w-full bg-gradient-to-r from-purple-600 via-pink-500 to-blue-500 text-white hover:opacity-90 animate-pulse"
+                  size="lg"
+                >
+                  <LogIn className="mr-2 h-4 w-4" />
+                  Get Started
+                </Button>
+              </>
+            )}
+          </div>
+        )}
+
+        <Separator />
+
+        {/* User Profile Section - Only show if user is authenticated */}
+        {user && (
+          <div className="p-3">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className={cn(
+                  "flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-muted transition-colors w-full",
+                  isCollapsed && onToggleCollapse && "justify-center"
+                )}>
+                  <Avatar className="h-8 w-8 flex-shrink-0">
+                    <AvatarImage src={user?.user_metadata?.avatar_url} alt="Profile" />
+                    <AvatarFallback>
+                      {user?.email?.charAt(0)?.toUpperCase() || "U"}
+                    </AvatarFallback>
+                  </Avatar>
+                  {(!isCollapsed || !onToggleCollapse) && (
+                    <div className="flex-1 min-w-0 text-left">
+                      <p className="text-sm font-medium truncate">
+                        {user?.user_metadata?.full_name || "User"}
+                      </p>
+                      <p className="text-xs text-muted-foreground truncate">
+                        {user?.email}
+                      </p>
+                    </div>
+                  )}
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="w-56">
+                {onShowChildProfile && (
+                  <DropdownMenuItem onClick={() => { onShowChildProfile(); onClose?.(); }}>
+                    <User className="mr-2 h-4 w-4" />
+                    <span>Child Profile</span>
+                  </DropdownMenuItem>
+                )}
+                {onShowSettings && (
+                  <DropdownMenuItem onClick={() => { onShowSettings(); onClose?.(); }}>
+                    <Settings className="mr-2 h-4 w-4" />
+                    <span>Settings</span>
+                  </DropdownMenuItem>
+                )}
+                <DropdownMenuItem onClick={() => { setShowUpgradeModal(true); onClose?.(); }}>
+                  <CreditCard className="mr-2 h-4 w-4" />
+                  <span>Upgrade</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleSignOut}>
+                  <LogOut className="mr-2 h-4 w-4" />
+                  <span>Log out</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        )}
+
+        {/* Auth Modal */}
+        <AuthModal 
+          open={showAuthModal} 
+          onOpenChange={setShowAuthModal} 
+        />
+
+        {/* Upgrade Modal */}
+        <UpgradeModal 
+          open={showUpgradeModal} 
+          onOpenChange={setShowUpgradeModal} 
+        />
+      </div>
+    </>
   );
 };
 
