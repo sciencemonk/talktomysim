@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from '@/components/ui/button';
@@ -9,6 +8,7 @@ import { toast } from 'sonner';
 import { Trash2, Upload, FileText, Loader2, Globe, Type, BookOpen } from 'lucide-react';
 import { documentService, AdvisorDocument } from '@/services/documentService';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { useSim } from "@/hooks/useSim";
 
 interface CoreKnowledgeProps {
   advisorId?: string;
@@ -16,9 +16,14 @@ interface CoreKnowledgeProps {
 }
 
 const CoreKnowledge: React.FC<CoreKnowledgeProps> = ({ 
-  advisorId = 'default-advisor', 
+  advisorId, 
   advisorName = 'Your Sim' 
 }) => {
+  const { sim, updateCoreKnowledgeStatus } = useSim();
+  
+  // Use sim ID if available, otherwise fall back to provided advisorId
+  const effectiveAdvisorId = sim?.id || advisorId || 'default-advisor';
+  
   const [documents, setDocuments] = useState<AdvisorDocument[]>([]);
   const [stats, setStats] = useState({ totalChunks: 0, totalDocuments: 0 });
   const [isLoading, setIsLoading] = useState(false);
@@ -70,7 +75,7 @@ const CoreKnowledge: React.FC<CoreKnowledgeProps> = ({
     setIsProcessing(true);
     try {
       const result = await documentService.processDocument(
-        advisorId,
+        effectiveAdvisorId,
         title.trim(),
         content.trim(),
         'text'
@@ -82,6 +87,11 @@ const CoreKnowledge: React.FC<CoreKnowledgeProps> = ({
         setContent('');
         await loadDocuments();
         await loadStats();
+        
+        // Update completion status when first knowledge is added
+        if (stats.totalDocuments === 0) {
+          await updateCoreKnowledgeStatus();
+        }
       } else {
         toast.error(result.error || 'Failed to process document');
       }
