@@ -155,8 +155,8 @@ export const SidebarContent: React.FC<SidebarContentProps> = ({
           {/* Navigation Menu */}
           <div className="space-y-2">
             {menuItems.map((item, index) => {
-              const isActive = activeView === item.viewKey || 
-                (item.viewKey === "search" && !selectedAgent && !selectedPublicAdvisorId && !activeView);
+              // Only highlight if there's an explicit activeView match, or if it's search and no other view is active
+              const isActive = activeView === item.viewKey;
               
               return (
                 <Button
