@@ -2,7 +2,7 @@
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Zap, ExternalLink, Settings, Plus } from 'lucide-react';
+import { Zap, Clock, Bell } from 'lucide-react';
 
 const Integrations = () => {
   return (
@@ -19,163 +19,66 @@ const Integrations = () => {
           </p>
         </div>
 
-        {/* Integration Categories */}
-        <div className="space-y-8">
-          {/* Communication */}
-          <section>
-            <h2 className="text-xl font-semibold text-fg mb-4">Communication</h2>
-            <div className="grid gap-4 md:grid-cols-2">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center justify-between">
-                    Slack
-                    <Button variant="outline" size="sm">
-                      <Plus className="h-4 w-4 mr-1" />
-                      Connect
-                    </Button>
-                  </CardTitle>
-                  <CardDescription>
-                    Connect your Sim to Slack channels for team communication.
-                  </CardDescription>
-                </CardHeader>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center justify-between">
-                    Discord
-                    <Button variant="outline" size="sm">
-                      <Plus className="h-4 w-4 mr-1" />
-                      Connect
-                    </Button>
-                  </CardTitle>
-                  <CardDescription>
-                    Integrate with Discord servers and channels.
-                  </CardDescription>
-                </CardHeader>
-              </Card>
-            </div>
-          </section>
-
-          {/* Learning Management */}
-          <section>
-            <h2 className="text-xl font-semibold text-fg mb-4">Learning Management</h2>
-            <div className="grid gap-4 md:grid-cols-2">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center justify-between">
-                    Google Classroom
-                    <Button variant="outline" size="sm">
-                      <Plus className="h-4 w-4 mr-1" />
-                      Connect
-                    </Button>
-                  </CardTitle>
-                  <CardDescription>
-                    Sync with Google Classroom for assignments and student data.
-                  </CardDescription>
-                </CardHeader>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center justify-between">
-                    Canvas
-                    <Button variant="outline" size="sm">
-                      <Plus className="h-4 w-4 mr-1" />
-                      Connect
-                    </Button>
-                  </CardTitle>
-                  <CardDescription>
-                    Integrate with Canvas LMS for course management.
-                  </CardDescription>
-                </CardHeader>
-              </Card>
-            </div>
-          </section>
-
-          {/* Productivity */}
-          <section>
-            <h2 className="text-xl font-semibold text-fg mb-4">Productivity</h2>
-            <div className="grid gap-4 md:grid-cols-2">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center justify-between">
-                    Google Drive
-                    <Button variant="outline" size="sm">
-                      <Plus className="h-4 w-4 mr-1" />
-                      Connect
-                    </Button>
-                  </CardTitle>
-                  <CardDescription>
-                    Access and share files from Google Drive.
-                  </CardDescription>
-                </CardHeader>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center justify-between">
-                    Notion
-                    <Button variant="outline" size="sm">
-                      <Plus className="h-4 w-4 mr-1" />
-                      Connect
-                    </Button>
-                  </CardTitle>
-                  <CardDescription>
-                    Sync with Notion databases and pages.
-                  </CardDescription>
-                </CardHeader>
-              </Card>
-            </div>
-          </section>
-
-          {/* Analytics */}
-          <section>
-            <h2 className="text-xl font-semibold text-fg mb-4">Analytics</h2>
-            <div className="grid gap-4 md:grid-cols-2">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center justify-between">
-                    Google Analytics
-                    <Button variant="outline" size="sm">
-                      <Plus className="h-4 w-4 mr-1" />
-                      Connect
-                    </Button>
-                  </CardTitle>
-                  <CardDescription>
-                    Track user interactions and engagement metrics.
-                  </CardDescription>
-                </CardHeader>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center justify-between">
-                    Mixpanel
-                    <Button variant="outline" size="sm">
-                      <Plus className="h-4 w-4 mr-1" />
-                      Connect
-                    </Button>
-                  </CardTitle>
-                  <CardDescription>
-                    Advanced analytics for user behavior tracking.
-                  </CardDescription>
-                </CardHeader>
-              </Card>
-            </div>
-          </section>
+        {/* Coming Soon Card */}
+        <div className="flex items-center justify-center min-h-[400px]">
+          <Card className="max-w-md w-full text-center">
+            <CardHeader className="pb-4">
+              <div className="flex justify-center mb-4">
+                <div className="relative">
+                  <Clock className="h-16 w-16 text-primary" />
+                  <div className="absolute -top-1 -right-1">
+                    <Bell className="h-6 w-6 text-primary animate-pulse" />
+                  </div>
+                </div>
+              </div>
+              <CardTitle className="text-2xl text-fg">Coming Soon</CardTitle>
+              <CardDescription className="text-base">
+                We're working hard to bring you powerful integrations with your favorite tools and platforms.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="pt-2">
+              <div className="space-y-4">
+                <div className="text-sm text-fgMuted">
+                  Get notified when integrations are available
+                </div>
+                <Button className="w-full">
+                  <Bell className="h-4 w-4 mr-2" />
+                  Notify Me
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
         </div>
 
-        {/* Help Section */}
-        <div className="mt-12 p-6 bg-bgMuted rounded-lg">
-          <h3 className="text-lg font-semibold text-fg mb-2">Need Help?</h3>
-          <p className="text-fgMuted mb-4">
-            Learn more about setting up integrations and connecting your Sim to external services.
-          </p>
-          <Button variant="outline">
-            <ExternalLink className="h-4 w-4 mr-2" />
-            View Documentation
-          </Button>
+        {/* Preview of upcoming integrations */}
+        <div className="mt-12">
+          <h3 className="text-lg font-semibold text-fg mb-6 text-center">What's Coming</h3>
+          <div className="grid gap-4 md:grid-cols-4 opacity-50">
+            <div className="text-center p-4">
+              <div className="w-12 h-12 bg-bgMuted rounded-lg mx-auto mb-2 flex items-center justify-center">
+                <span className="text-lg font-semibold text-fgMuted">S</span>
+              </div>
+              <p className="text-sm text-fgMuted">Slack</p>
+            </div>
+            <div className="text-center p-4">
+              <div className="w-12 h-12 bg-bgMuted rounded-lg mx-auto mb-2 flex items-center justify-center">
+                <span className="text-lg font-semibold text-fgMuted">G</span>
+              </div>
+              <p className="text-sm text-fgMuted">Google Drive</p>
+            </div>
+            <div className="text-center p-4">
+              <div className="w-12 h-12 bg-bgMuted rounded-lg mx-auto mb-2 flex items-center justify-center">
+                <span className="text-lg font-semibold text-fgMuted">N</span>
+              </div>
+              <p className="text-sm text-fgMuted">Notion</p>
+            </div>
+            <div className="text-center p-4">
+              <div className="w-12 h-12 bg-bgMuted rounded-lg mx-auto mb-2 flex items-center justify-center">
+                <span className="text-lg font-semibold text-fgMuted">+</span>
+              </div>
+              <p className="text-sm text-fgMuted">More</p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
