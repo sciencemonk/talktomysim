@@ -139,7 +139,7 @@ const MySim = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6 space-y-6">
+    <div className="w-full max-w-none mx-0 p-6 space-y-6 overflow-hidden">
       {/* Page Title */}
       <div>
         <h1 className="text-3xl font-bold text-fg">{simData.name}</h1>
@@ -155,15 +155,15 @@ const MySim = () => {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="p-3 bg-bgMuted rounded-lg space-y-2">
-            <div className="flex items-center gap-1 text-sm font-mono text-fgMuted">
+          <div className="p-3 bg-bgMuted rounded-lg space-y-2 overflow-hidden">
+            <div className="flex items-center gap-1 text-sm font-mono text-fgMuted overflow-hidden">
               <span className="flex-shrink-0">{window.location.origin}/sim/</span>
               {isEditingUrl ? (
                 <div className="flex items-center gap-2 flex-1 min-w-0">
                   <Input
                     value={tempUrl}
                     onChange={(e) => setTempUrl(e.target.value)}
-                    className="h-8 text-sm font-mono flex-1"
+                    className="h-8 text-sm font-mono flex-1 min-w-0"
                     placeholder="your-custom-url"
                   />
                   <div className="flex items-center gap-1 flex-shrink-0">
@@ -176,8 +176,8 @@ const MySim = () => {
                   </div>
                 </div>
               ) : (
-                <div className="flex items-center gap-2 flex-1 min-w-0">
-                  <code className="text-sm font-mono flex-1 truncate">{customUrl}</code>
+                <div className="flex items-center gap-2 flex-1 min-w-0 overflow-hidden">
+                  <code className="text-sm font-mono flex-1 truncate min-w-0 overflow-hidden">{customUrl}</code>
                   <Button
                     variant="outline"
                     size="sm"
