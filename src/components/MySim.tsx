@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -155,37 +154,41 @@ const MySim = () => {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="flex items-center gap-2 p-3 bg-bgMuted rounded-lg">
-            <span className="text-sm font-mono text-fgMuted">{window.location.origin}/sim/</span>
-            {isEditingUrl ? (
-              <div className="flex items-center gap-2 flex-1">
-                <Input
-                  value={tempUrl}
-                  onChange={(e) => setTempUrl(e.target.value)}
-                  className="h-8 text-sm font-mono"
-                  placeholder="your-custom-url"
-                />
-                <Button size="sm" onClick={handleSaveUrl} className="h-8">
-                  <Save className="h-3 w-3" />
-                </Button>
-                <Button size="sm" variant="outline" onClick={handleCancelEdit} className="h-8">
-                  <X className="h-3 w-3" />
-                </Button>
-              </div>
-            ) : (
-              <div className="flex items-center gap-2 flex-1">
-                <code className="flex-1 text-sm font-mono">{customUrl}</code>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleEditUrl}
-                  className="flex-shrink-0"
-                >
-                  <Edit2 className="h-4 w-4 mr-2" />
-                  Edit
-                </Button>
-              </div>
-            )}
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 p-3 bg-bgMuted rounded-lg">
+            <div className="flex items-center gap-2 min-w-0 flex-1">
+              <span className="text-sm font-mono text-fgMuted whitespace-nowrap">{window.location.origin}/sim/</span>
+              {isEditingUrl ? (
+                <div className="flex items-center gap-2 min-w-0 flex-1">
+                  <Input
+                    value={tempUrl}
+                    onChange={(e) => setTempUrl(e.target.value)}
+                    className="h-8 text-sm font-mono min-w-0"
+                    placeholder="your-custom-url"
+                  />
+                  <div className="flex items-center gap-1 flex-shrink-0">
+                    <Button size="sm" onClick={handleSaveUrl} className="h-8">
+                      <Save className="h-3 w-3" />
+                    </Button>
+                    <Button size="sm" variant="outline" onClick={handleCancelEdit} className="h-8">
+                      <X className="h-3 w-3" />
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex items-center gap-2 min-w-0 flex-1">
+                  <code className="text-sm font-mono truncate min-w-0">{customUrl}</code>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleEditUrl}
+                    className="flex-shrink-0"
+                  >
+                    <Edit2 className="h-4 w-4 mr-2" />
+                    Edit
+                  </Button>
+                </div>
+              )}
+            </div>
             <Button
               variant="outline"
               size="sm"
