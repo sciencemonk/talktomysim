@@ -50,7 +50,7 @@ const Home = () => {
       </div>
 
       <div className="flex h-screen lg:h-screen">
-        {/* Sidebar */}
+        {/* Left Sidebar */}
         <div className={`
           ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} 
           lg:translate-x-0 transition-transform duration-300 ease-in-out
@@ -67,9 +67,9 @@ const Home = () => {
             </div>
           </div>
 
-          {/* Login Section */}
+          {/* Sidebar Content */}
           <div className="flex-1 flex items-center justify-center p-6">
-            <div className="text-center space-y-6 max-w-sm">
+            <div className="text-center space-y-6 max-w-sm w-full">
               <h2 className="text-lg font-medium text-fg">Create your free Sim today.</h2>
               <Button 
                 onClick={() => setShowAuthModal(true)}
@@ -81,40 +81,11 @@ const Home = () => {
           </div>
         </div>
 
-        {/* Main Content */}
+        {/* Main Content Area */}
         <div className="flex-1 flex flex-col overflow-hidden">
-          {/* Search Header - Desktop */}
-          <div className="hidden lg:flex items-center justify-between border-b border-border p-6">
-            <div className="flex-1 max-w-md relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-              <Input
-                type="text"
-                placeholder="Search sims..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
-            </div>
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-2">
-                <div className="w-6 h-6 bg-black rounded-full flex items-center justify-center">
-                  <span className="text-white text-xs font-bold">S</span>
-                </div>
-                <h2 className="text-lg font-semibold text-fg">Sim</h2>
-              </div>
-              <Button 
-                size="sm" 
-                onClick={() => setShowAuthModal(true)}
-                className="bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 text-white hover:from-purple-700 hover:via-pink-700 hover:to-blue-700"
-              >
-                Get Started
-              </Button>
-            </div>
-          </div>
-
-          {/* Search Bar - Mobile */}
-          <div className="lg:hidden border-b border-border p-4">
-            <div className="relative">
+          {/* Search Header */}
+          <div className="border-b border-border p-6">
+            <div className="max-w-md relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
               <Input
                 type="text"
@@ -126,9 +97,9 @@ const Home = () => {
             </div>
           </div>
 
-          {/* Content */}
+          {/* Content Grid */}
           <div className="flex-1 overflow-auto p-6">
-            <div className="max-w-4xl mx-auto">
+            <div className="max-w-4xl">
               {isLoading ? (
                 <div className="flex items-center justify-center py-12">
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
