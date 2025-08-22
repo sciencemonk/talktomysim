@@ -32,10 +32,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setUser(session?.user ?? null);
         setLoading(false);
         
-        // Handle logout redirect
+        // Handle logout redirect - go to landing page
         if (event === 'SIGNED_OUT') {
-          // Redirect to home page with search directory view
-          window.location.href = '/';
+          window.location.href = '/landing';
         }
       }
     );
