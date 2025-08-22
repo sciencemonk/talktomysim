@@ -96,7 +96,23 @@ const StudentChat = () => {
   return (
     <>
       <div className="h-screen bg-background flex">
-        <UserSidebar onAuthRequired={handleAuthRequired} />
+        <UserSidebar 
+          selectedAgent={null}
+          selectedPublicAdvisorId={null}
+          selectedPublicAdvisors={[]}
+          onSelectAgent={() => {}}
+          onSelectPublicAdvisor={() => {}}
+          onRemovePublicAdvisor={() => {}}
+          onShowAdvisorDirectory={() => {}}
+          onNavigateToMySim={() => {}}
+          onNavigateToBasicInfo={() => {}}
+          onNavigateToInteractionModel={() => {}}
+          onNavigateToCoreKnowledge={() => {}}
+          onNavigateToIntegrations={() => {}}
+          onNavigateToSearch={() => {}}
+          activeView="directory"
+          onAuthRequired={handleAuthRequired} 
+        />
         <div className="flex-1 md:ml-80">
           <ChatInterface 
             agent={agent}

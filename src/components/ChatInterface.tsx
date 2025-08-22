@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useRef } from "react";
 import { Bot, Menu } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
@@ -64,7 +65,10 @@ const ChatInterface = ({ agent, onBack }: ChatInterfaceProps) => {
                 </SheetTrigger>
                 <SheetContent side="left" className="w-80 p-0">
                   <SidebarContent
+                    selectedAgent={null}
+                    selectedPublicAdvisorId={null}
                     selectedPublicAdvisors={[]}
+                    onSelectAgent={() => {}}
                     onSelectPublicAdvisor={() => {
                       setIsSheetOpen(false);
                     }}
@@ -73,6 +77,25 @@ const ChatInterface = ({ agent, onBack }: ChatInterfaceProps) => {
                       onBack();
                       setIsSheetOpen(false);
                     }}
+                    onNavigateToMySim={() => {
+                      setIsSheetOpen(false);
+                    }}
+                    onNavigateToBasicInfo={() => {
+                      setIsSheetOpen(false);
+                    }}
+                    onNavigateToInteractionModel={() => {
+                      setIsSheetOpen(false);
+                    }}
+                    onNavigateToCoreKnowledge={() => {
+                      setIsSheetOpen(false);
+                    }}
+                    onNavigateToIntegrations={() => {
+                      setIsSheetOpen(false);
+                    }}
+                    onNavigateToSearch={() => {
+                      setIsSheetOpen(false);
+                    }}
+                    activeView="directory"
                     onClose={() => setIsSheetOpen(false)}
                   />
                 </SheetContent>
