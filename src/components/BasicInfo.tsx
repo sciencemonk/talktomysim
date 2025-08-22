@@ -1,21 +1,23 @@
-import { useState, useEffect } from "react";
+
+import { useState, useEffect, useRef, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Badge } from "@/components/ui/badge";
-import { CalendarIcon, X, Plus, Upload, Camera } from "lucide-react";
+import { CalendarIcon, X, Plus, Upload, Camera, Check } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { useSim } from "@/hooks/useSim";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { debounce } from "lodash";
+import { Button } from "@/components/ui/button";
 
 const BasicInfo = () => {
-  const { sim, updateBasicInfo, checkCustomUrlAvailability, isLoading } = useSim();
+  const { sim, updateBasicInfoSilent, checkCustomUrlAvailability, isLoading } = useSim();
   
   const [formData, setFormData] = useState({
     fullName: "",
@@ -40,11 +42,15 @@ const BasicInfo = () => {
   const [isUrlAvailable, setIsUrlAvailable] = useState<boolean | null>(null);
   const [isCheckingUrl, setIsCheckingUrl] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [lastSaved, setLastSaved] = useState<Date | null>(null);
+
+  const previousDataRef = useRef<string>("");
 
   // Load existing sim data
   useEffect(() => {
     if (sim) {
-      setFormData({
+      const newFormData = {
         fullName: sim.full_name || "",
         professionalTitle: sim.professional_title || "",
         dateOfBirth: sim.date_of_birth ? new Date(sim.date_of_birth) : undefined,
@@ -56,8 +62,9 @@ const BasicInfo = () => {
         additionalBackground: sim.additional_background || "",
         avatarUrl: sim.avatar_url || "",
         customUrl: sim.custom_url || ""
-      });
+      };
       
+      setFormData(newFormData);
       setInterests(sim.interests || []);
       setSkills(sim.skills || []);
       
@@ -67,8 +74,99 @@ const BasicInfo = () => {
       } else {
         setPreviewUrl("");
       }
+
+      // Update the previous data reference
+      previousDataRef.current = JSON.stringify({
+        ...newFormData,
+        interests: sim.interests || [],
+        skills: sim.skills || []
+      });
     }
   }, [sim]);
+
+  const performAutoSave = useCallback(async (data: any) => {
+    const currentDataString = JSON.stringify(data);
+    
+    // Only save if data has actually changed
+    if (currentDataString === previousDataRef.current) {
+      return;
+    }
+
+    setIsSaving(true);
+    try {
+      let finalAvatarUrl = data.avatarUrl;
+      
+      // Upload image if there's a selected file
+      if (selectedFile) {
+        finalAvatarUrl = await uploadImage() || "";
+      }
+
+      const basicInfoData = {
+        full_name: data.fullName,
+        professional_title: data.professionalTitle,
+        date_of_birth: data.dateOfBirth?.toISOString().split('T')[0],
+        location: data.location,
+        education: data.education,
+        current_profession: data.currentProfession,
+        years_experience: data.yearsExperience ? parseInt(data.yearsExperience) : undefined,
+        areas_of_expertise: data.areasOfExpertise,
+        additional_background: data.additionalBackground,
+        custom_url: data.customUrl,
+        avatar_url: finalAvatarUrl,
+        interests: data.interests,
+        skills: data.skills,
+        // Use full name as the display name if provided
+        name: data.fullName || 'My Sim',
+        title: data.professionalTitle,
+        description: data.areasOfExpertise || data.additionalBackground || 'Personal AI assistant'
+      };
+
+      await updateBasicInfoSilent(basicInfoData);
+      
+      // Update previous data reference
+      previousDataRef.current = currentDataString;
+      setLastSaved(new Date());
+      
+      // Update local state with the final avatar URL
+      if (finalAvatarUrl !== data.avatarUrl) {
+        setFormData(prev => ({ ...prev, avatarUrl: finalAvatarUrl }));
+        // Clean up blob URL and update with permanent URL
+        if (previewUrl && previewUrl.startsWith('blob:')) {
+          URL.revokeObjectURL(previewUrl);
+        }
+        setPreviewUrl(finalAvatarUrl);
+        setSelectedFile(null);
+      }
+    } catch (error) {
+      console.error('Auto-save error:', error);
+    } finally {
+      setIsSaving(false);
+    }
+  }, [updateBasicInfoSilent, selectedFile, previewUrl]);
+
+  // Create debounced save function
+  const debouncedAutoSave = useCallback(
+    debounce((data: any) => {
+      performAutoSave(data);
+    }, 1500),
+    [performAutoSave]
+  );
+
+  // Trigger auto-save when data changes
+  useEffect(() => {
+    const currentData = {
+      ...formData,
+      interests,
+      skills
+    };
+
+    // Don't auto-save if custom URL is being checked or invalid
+    if (formData.customUrl && (isCheckingUrl || isUrlAvailable === false)) {
+      return;
+    }
+
+    debouncedAutoSave(currentData);
+  }, [formData, interests, skills, debouncedAutoSave, isCheckingUrl, isUrlAvailable]);
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -106,7 +204,7 @@ const BasicInfo = () => {
     }
   };
 
-  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
       if (file.size > 5 * 1024 * 1024) { // 5MB limit
@@ -123,6 +221,14 @@ const BasicInfo = () => {
       // Create a blob URL for preview
       const blobUrl = URL.createObjectURL(file);
       setPreviewUrl(blobUrl);
+
+      // Trigger immediate save for file uploads
+      const currentData = {
+        ...formData,
+        interests,
+        skills
+      };
+      performAutoSave(currentData);
     }
   };
 
@@ -189,57 +295,26 @@ const BasicInfo = () => {
     }
   };
 
-  const handleSave = async () => {
-    try {
-      let finalAvatarUrl = formData.avatarUrl;
-      
-      // Upload image if there's a selected file
-      if (selectedFile) {
-        finalAvatarUrl = await uploadImage() || "";
-      }
-
-      const basicInfoData = {
-        full_name: formData.fullName,
-        professional_title: formData.professionalTitle,
-        date_of_birth: formData.dateOfBirth?.toISOString().split('T')[0],
-        location: formData.location,
-        education: formData.education,
-        current_profession: formData.currentProfession,
-        years_experience: formData.yearsExperience ? parseInt(formData.yearsExperience) : undefined,
-        areas_of_expertise: formData.areasOfExpertise,
-        additional_background: formData.additionalBackground,
-        custom_url: formData.customUrl,
-        avatar_url: finalAvatarUrl,
-        interests,
-        skills,
-        // Use full name as the display name if provided
-        name: formData.fullName || 'My Sim',
-        title: formData.professionalTitle,
-        description: formData.areasOfExpertise || formData.additionalBackground || 'Personal AI assistant'
-      };
-
-      await updateBasicInfo(basicInfoData);
-      
-      // Update local state with the final avatar URL
-      if (finalAvatarUrl !== formData.avatarUrl) {
-        setFormData(prev => ({ ...prev, avatarUrl: finalAvatarUrl }));
-        // Clean up blob URL and update with permanent URL
-        if (previewUrl && previewUrl.startsWith('blob:')) {
-          URL.revokeObjectURL(previewUrl);
-        }
-        setPreviewUrl(finalAvatarUrl);
-        setSelectedFile(null);
-      }
-    } catch (error) {
-      console.error('Error saving basic info:', error);
-    }
-  };
-
   return (
     <div className="max-w-4xl mx-auto p-6 space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle>Basic Info</CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle>Basic Info</CardTitle>
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              {isSaving || isUploading ? (
+                <div className="flex items-center gap-2">
+                  <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-primary"></div>
+                  <span>Saving...</span>
+                </div>
+              ) : lastSaved ? (
+                <div className="flex items-center gap-2">
+                  <Check className="h-3 w-3 text-green-600" />
+                  <span>Saved {format(lastSaved, 'HH:mm')}</span>
+                </div>
+              ) : null}
+            </div>
+          </div>
         </CardHeader>
         <CardContent className="space-y-8">
           {/* Avatar Upload */}
@@ -511,17 +586,6 @@ const BasicInfo = () => {
                 rows={4}
               />
             </div>
-          </div>
-
-          {/* Save Button */}
-          <div className="flex justify-end pt-4">
-            <Button 
-              onClick={handleSave} 
-              className="px-8"
-              disabled={isLoading || isUploading || (formData.customUrl && isUrlAvailable === false)}
-            >
-              {isLoading || isUploading ? 'Saving...' : 'Save Basic Info'}
-            </Button>
           </div>
         </CardContent>
       </Card>

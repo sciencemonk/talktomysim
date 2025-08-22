@@ -59,6 +59,21 @@ export const useSim = () => {
     }
   };
 
+  const updateBasicInfoSilent = async (basicInfo: Partial<SimData>) => {
+    try {
+      setError(null);
+      const updatedSim = await simService.updateBasicInfo(basicInfo);
+      setSim(updatedSim);
+      setCompletionStatus(prev => ({ ...prev, basic_info: true }));
+      return updatedSim;
+    } catch (err: any) {
+      const errorMessage = err.message || 'Failed to save basic info';
+      setError(errorMessage);
+      toast.error(errorMessage);
+      throw err;
+    }
+  };
+
   const updateInteractionModel = async (interactionData: {
     welcome_message?: string;
     sample_scenarios?: Array<{
@@ -131,6 +146,7 @@ export const useSim = () => {
     isLoading,
     error,
     updateBasicInfo,
+    updateBasicInfoSilent,
     updateInteractionModel,
     updateCoreKnowledgeStatus,
     makeSimPublic,
