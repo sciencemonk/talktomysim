@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -102,7 +103,7 @@ const CoreKnowledge = ({ advisorId, advisorName }: CoreKnowledgeProps) => {
                     <CardContent className="p-4 space-y-4">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
-                          <Badge variant="outline">
+                          <Badge variant="default" className="bg-primary text-white">
                             <FileText className="h-3 w-3 mr-1" />
                             Knowledge Item {index + 1}
                           </Badge>
