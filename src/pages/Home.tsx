@@ -206,7 +206,7 @@ const Home = () => {
     }
   };
 
-  // Mobile Header Component
+  // Mobile Header Component - Single source of truth for all views
   const MobileHeader = () => (
     <div className="md:hidden bg-card border-b border-border p-4 flex items-center justify-between">
       <div className="flex items-center gap-3">
@@ -261,7 +261,7 @@ const Home = () => {
       />
       
       <div className="flex-1 flex flex-col">
-        {/* Mobile Header */}
+        {/* Single Mobile Header for all views */}
         <MobileHeader />
         
         {/* Main Content */}
