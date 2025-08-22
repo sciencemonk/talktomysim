@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { Navigate } from "react-router-dom";
@@ -206,43 +205,6 @@ const Home = () => {
     }
   };
 
-  // Mobile Header Component - Single source of truth for all views
-  const MobileHeader = () => (
-    <div className="md:hidden bg-card border-b border-border p-4 flex items-center justify-between">
-      <div className="flex items-center gap-3">
-        <img 
-          src="/lovable-uploads/d1283b59-7cfa-45f5-b151-4c32b24f3621.png" 
-          alt="Sim" 
-          className="h-8 w-8 object-contain"
-        />
-        <h1 className="font-semibold text-lg">Sim</h1>
-      </div>
-      <Sheet open={mobileSheetOpen} onOpenChange={setMobileSheetOpen}>
-        <SheetTrigger asChild>
-          <Button variant="ghost" size="icon">
-            <Menu className="h-5 w-5" />
-          </Button>
-        </SheetTrigger>
-        <SheetContent side="left" className="p-0 w-80">
-          <SidebarContent
-            selectedAgent={selectedAgent}
-            selectedPublicAdvisorId={selectedPublicAdvisorId}
-            selectedPublicAdvisors={advisorsAsAgents}
-            onSelectAgent={handleAgentSelect}
-            onSelectPublicAdvisor={handlePublicAdvisorSelect}
-            onRemovePublicAdvisor={handleRemovePublicAdvisor}
-            onShowAdvisorDirectory={handleShowAdvisorDirectory}
-            onNavigateToMySim={handleNavigateToMySim}
-            onNavigateToBasicInfo={handleNavigateToBasicInfo}
-            onNavigateToInteractionModel={handleNavigateToInteractionModel}
-            onNavigateToCoreKnowledge={handleNavigateToCoreKnowledge}
-            onClose={() => setMobileSheetOpen(false)}
-          />
-        </SheetContent>
-      </Sheet>
-    </div>
-  );
-
   return (
     <div className="flex h-screen bg-background">
       {/* Desktop Sidebar */}
@@ -261,8 +223,40 @@ const Home = () => {
       />
       
       <div className="flex-1 flex flex-col">
-        {/* Single Mobile Header for all views */}
-        <MobileHeader />
+        {/* Mobile Header - shared across all views */}
+        <div className="md:hidden bg-card border-b border-border p-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <img 
+              src="/lovable-uploads/d1283b59-7cfa-45f5-b151-4c32b24f3621.png" 
+              alt="Sim" 
+              className="h-8 w-8 object-contain"
+            />
+            <h1 className="font-semibold text-lg">Sim</h1>
+          </div>
+          <Sheet open={mobileSheetOpen} onOpenChange={setMobileSheetOpen}>
+            <SheetTrigger asChild>
+              <Button variant="ghost" size="icon">
+                <Menu className="h-5 w-5" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="left" className="p-0 w-80">
+              <SidebarContent
+                selectedAgent={selectedAgent}
+                selectedPublicAdvisorId={selectedPublicAdvisorId}
+                selectedPublicAdvisors={advisorsAsAgents}
+                onSelectAgent={handleAgentSelect}
+                onSelectPublicAdvisor={handlePublicAdvisorSelect}
+                onRemovePublicAdvisor={handleRemovePublicAdvisor}
+                onShowAdvisorDirectory={handleShowAdvisorDirectory}
+                onNavigateToMySim={handleNavigateToMySim}
+                onNavigateToBasicInfo={handleNavigateToBasicInfo}
+                onNavigateToInteractionModel={handleNavigateToInteractionModel}
+                onNavigateToCoreKnowledge={handleNavigateToCoreKnowledge}
+                onClose={() => setMobileSheetOpen(false)}
+              />
+            </SheetContent>
+          </Sheet>
+        </div>
         
         {/* Main Content */}
         <div className="flex-1">
