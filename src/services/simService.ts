@@ -3,6 +3,12 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 
 export interface SimData {
+  // Database fields
+  id?: string;
+  user_id?: string;
+  created_at?: string;
+  updated_at?: string;
+  
   // Basic Info
   full_name?: string;
   professional_title?: string;
@@ -51,6 +57,20 @@ export interface SimCompletionStatus {
 }
 
 class SimService {
+  private convertDatabaseRow(row: any): SimData {
+    return {
+      ...row,
+      interests: Array.isArray(row.interests) ? row.interests : [],
+      skills: Array.isArray(row.skills) ? row.skills : [],
+      sample_scenarios: Array.isArray(row.sample_scenarios) ? row.sample_scenarios : [],
+      completion_status: typeof row.completion_status === 'object' ? row.completion_status : {
+        basic_info: false,
+        interaction_model: false,
+        core_knowledge: false
+      }
+    };
+  }
+
   async getUserSim(): Promise<SimData | null> {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return null;
@@ -66,7 +86,7 @@ class SimService {
       throw error;
     }
 
-    return data;
+    return data ? this.convertDatabaseRow(data) : null;
   }
 
   async createOrUpdateSim(simData: Partial<SimData>): Promise<SimData> {
@@ -91,7 +111,7 @@ class SimService {
         throw error;
       }
 
-      return data;
+      return this.convertDatabaseRow(data);
     } else {
       const { data, error } = await supabase
         .from('advisors')
@@ -115,7 +135,7 @@ class SimService {
         throw error;
       }
 
-      return data;
+      return this.convertDatabaseRow(data);
     }
   }
 

@@ -1,13 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { toast } from 'sonner';
-import { Trash2, Upload, FileText, Loader2, Globe, Type, BookOpen } from 'lucide-react';
-import { documentService, AdvisorDocument } from '@/services/documentService';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
+import { BookOpen, Upload, FileText, Trash2, Plus, Brain } from "lucide-react";
 import { useSim } from "@/hooks/useSim";
 
 interface CoreKnowledgeProps {
@@ -15,121 +13,46 @@ interface CoreKnowledgeProps {
   advisorName?: string;
 }
 
-const CoreKnowledge: React.FC<CoreKnowledgeProps> = ({ 
-  advisorId, 
-  advisorName = 'Your Sim' 
-}) => {
-  const { sim, updateCoreKnowledgeStatus } = useSim();
-  
-  // Use sim ID if available, otherwise fall back to provided advisorId
-  const effectiveAdvisorId = sim?.id || advisorId || 'default-advisor';
-  
-  const [documents, setDocuments] = useState<AdvisorDocument[]>([]);
-  const [stats, setStats] = useState({ totalChunks: 0, totalDocuments: 0 });
-  const [isLoading, setIsLoading] = useState(false);
-  const [isProcessing, setIsProcessing] = useState(false);
-  
-  // Form state
-  const [title, setTitle] = useState('');
-  const [content, setContent] = useState('');
-  
-  // Dialog states
-  const [textDialogOpen, setTextDialogOpen] = useState(false);
-  const [webUrlDialogOpen, setWebUrlDialogOpen] = useState(false);
-  const [webUrl, setWebUrl] = useState('');
-  const [webUrls, setWebUrls] = useState<string[]>([]);
+const CoreKnowledge = ({ advisorId, advisorName }: CoreKnowledgeProps) => {
+  const { sim, updateCoreKnowledgeStatus, isLoading } = useSim();
+  const [knowledgeItems, setKnowledgeItems] = useState<Array<{
+    id: string;
+    title: string;
+    content: string;
+    type: 'text' | 'document';
+  }>>([]);
 
-  useEffect(() => {
-    loadDocuments();
-    loadStats();
-  }, [advisorId]);
+  // Use sim?.id if available, fallback to advisorId prop
+  const effectiveAdvisorId = sim?.id || advisorId;
+  const effectiveAdvisorName = sim?.name || advisorName;
 
-  const loadDocuments = async () => {
-    setIsLoading(true);
+  const addKnowledgeItem = () => {
+    const newItem = {
+      id: Date.now().toString(),
+      title: '',
+      content: '',
+      type: 'text' as const
+    };
+    setKnowledgeItems([...knowledgeItems, newItem]);
+  };
+
+  const removeKnowledgeItem = (id: string) => {
+    setKnowledgeItems(knowledgeItems.filter(item => item.id !== id));
+  };
+
+  const updateKnowledgeItem = (id: string, field: 'title' | 'content', value: string) => {
+    setKnowledgeItems(knowledgeItems.map(item => 
+      item.id === id ? { ...item, [field]: value } : item
+    ));
+  };
+
+  const handleSave = async () => {
     try {
-      const docs = await documentService.getAdvisorDocuments(advisorId);
-      setDocuments(docs);
+      // For now, we'll just mark core knowledge as complete
+      // In Phase 2, we'll implement actual document processing and embedding
+      await updateCoreKnowledgeStatus();
     } catch (error) {
-      console.error('Failed to load documents:', error);
-      toast.error('Failed to load documents');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const loadStats = async () => {
-    try {
-      const stats = await documentService.getEmbeddingStats(advisorId);
-      setStats(stats);
-    } catch (error) {
-      console.error('Failed to load stats:', error);
-    }
-  };
-
-  const handleProcessDocument = async () => {
-    if (!title.trim() || !content.trim()) {
-      toast.error('Please provide both title and content');
-      return;
-    }
-
-    setIsProcessing(true);
-    try {
-      const result = await documentService.processDocument(
-        effectiveAdvisorId,
-        title.trim(),
-        content.trim(),
-        'text'
-      );
-
-      if (result.success) {
-        toast.success(`Document processed successfully! Generated ${result.chunksProcessed} embeddings.`);
-        setTitle('');
-        setContent('');
-        await loadDocuments();
-        await loadStats();
-        
-        // Update completion status when first knowledge is added
-        if (stats.totalDocuments === 0) {
-          await updateCoreKnowledgeStatus();
-        }
-      } else {
-        toast.error(result.error || 'Failed to process document');
-      }
-    } catch (error) {
-      console.error('Error processing document:', error);
-      toast.error('Failed to process document');
-    } finally {
-      setIsProcessing(false);
-    }
-  };
-
-  const handleDeleteDocument = async (documentId: string, documentTitle: string) => {
-    if (!confirm(`Are you sure you want to delete "${documentTitle}"? This will also remove all related embeddings.`)) {
-      return;
-    }
-
-    try {
-      await documentService.deleteDocument(documentId);
-      toast.success('Document deleted successfully');
-      await loadDocuments();
-      await loadStats();
-    } catch (error) {
-      console.error('Error deleting document:', error);
-      toast.error('Failed to delete document');
-    }
-  };
-
-  const handleAddWebUrl = () => {
-    if (webUrl.trim()) {
-      setWebUrls([...webUrls, webUrl]);
-      setWebUrl("");
-    }
-  };
-
-  const handleAddText = () => {
-    if (content.trim() && title.trim()) {
-      handleProcessDocument();
-      setTextDialogOpen(false);
+      console.error('Error saving core knowledge:', error);
     }
   };
 
@@ -138,252 +61,138 @@ const CoreKnowledge: React.FC<CoreKnowledgeProps> = ({
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <BookOpen className="h-5 w-5" />
+            <Brain className="h-5 w-5" />
             Core Knowledge
           </CardTitle>
         </CardHeader>
-        <CardContent>
-          <p className="text-muted-foreground mb-6">
-            Upload and manage the knowledge base for your Sim. Add documents, books, personal insights, 
-            and specialized information that defines what your Sim knows and how it responds.
+        <CardContent className="space-y-6">
+          <p className="text-muted-foreground">
+            Upload documents, add personal experiences, and share your expertise to build your Sim's knowledge base. 
+            This helps your Sim give more accurate and personalized responses.
           </p>
 
-          {/* Stats */}
-          <div className="flex gap-4 p-4 bg-muted rounded-lg mb-6">
-            <div className="text-center">
-              <div className="text-2xl font-bold">{stats.totalDocuments}</div>
-              <div className="text-sm text-muted-foreground">Documents</div>
+          {/* Knowledge Items */}
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <Label className="text-base font-medium">Knowledge Items</Label>
+              <Button onClick={addKnowledgeItem} variant="outline" size="sm">
+                <Plus className="h-4 w-4 mr-2" />
+                Add Knowledge
+              </Button>
             </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold">{stats.totalChunks}</div>
-              <div className="text-sm text-muted-foreground">Knowledge Chunks</div>
-            </div>
-          </div>
 
-          {/* Quick Add Buttons */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-            <Button 
-              variant="outline" 
-              className="flex flex-col items-center justify-center gap-3 h-24 p-4 border-2 hover:border-primary/50 transition-colors"
-              onClick={() => setTextDialogOpen(true)}
-            >
-              <Type className="h-8 w-8 text-muted-foreground" />
-              <div className="text-center space-y-1">
-                <div className="font-medium text-sm">Add Text</div>
-                <div className="text-xs text-muted-foreground leading-tight">Personal insights, thoughts</div>
-              </div>
-            </Button>
-            <Button 
-              variant="outline" 
-              className="flex flex-col items-center justify-center gap-3 h-24 p-4 border-2 hover:border-primary/50 transition-colors"
-              onClick={() => setWebUrlDialogOpen(true)}
-            >
-              <Globe className="h-8 w-8 text-muted-foreground" />
-              <div className="text-center space-y-1">
-                <div className="font-medium text-sm">Add Web Page</div>
-                <div className="text-xs text-muted-foreground leading-tight">Articles, blogs, references</div>
-              </div>
-            </Button>
-            <Button 
-              variant="outline" 
-              className="flex flex-col items-center justify-center gap-3 h-24 p-4 border-2 hover:border-primary/50 transition-colors"
-              onClick={() => document.getElementById('file-upload')?.click()}
-            >
-              <Upload className="h-8 w-8 text-muted-foreground" />
-              <div className="text-center space-y-1">
-                <div className="font-medium text-sm">Upload Files</div>
-                <div className="text-xs text-muted-foreground leading-tight">PDFs, documents, books</div>
-              </div>
-            </Button>
-            <input
-              id="file-upload"
-              type="file"
-              style={{ display: 'none' }}
-              multiple
-              accept=".pdf,.doc,.docx,.txt"
-              onChange={(e) => {
-                const files = e.target.files;
-                if (files && files.length > 0) {
-                  console.log('Files selected:', files);
-                  toast.info('File upload coming soon!');
-                }
-              }}
-            />
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Documents List */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Knowledge Sources</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {isLoading ? (
-            <div className="flex items-center justify-center py-8">
-              <Loader2 className="h-6 w-6 animate-spin" />
-              <span className="ml-2">Loading knowledge sources...</span>
-            </div>
-          ) : documents.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground">
-              <FileText className="h-12 w-12 mx-auto mb-4 opacity-50" />
-              <h3 className="font-medium mb-2">No knowledge sources yet</h3>
-              <p className="text-sm">Add your first piece of knowledge to get started building your Sim's intelligence.</p>
-            </div>
-          ) : (
-            <div className="space-y-3">
-              {documents.map((doc) => (
-                <div key={doc.id} className="flex items-center justify-between p-4 border rounded-lg">
-                  <div className="flex items-center gap-3">
-                    <div className="bg-muted p-2 rounded-full">
-                      <FileText className="h-5 w-5 text-muted-foreground" />
-                    </div>
-                    <div>
-                      <h4 className="font-medium">{doc.title}</h4>
-                      <div className="text-sm text-muted-foreground">
-                        {doc.file_type.toUpperCase()} • 
-                        {doc.file_size ? ` ${Math.round(doc.file_size / 1024)} KB • ` : ' '}
-                        Added {new Date(doc.upload_date).toLocaleDateString()}
-                        {doc.processed_at && ' • Processed'}
-                      </div>
-                    </div>
-                  </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleDeleteDocument(doc.id, doc.title)}
-                    className="text-destructive hover:text-destructive"
-                  >
-                    <Trash2 className="h-4 w-4" />
+            {knowledgeItems.length === 0 ? (
+              <Card className="border-dashed">
+                <CardContent className="p-8 text-center">
+                  <BookOpen className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                  <h4 className="font-medium mb-2">No knowledge items yet</h4>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Add your expertise, experiences, and documents to help your Sim provide better responses.
+                  </p>
+                  <Button onClick={addKnowledgeItem} variant="outline">
+                    <Plus className="h-4 w-4 mr-2" />
+                    Add Your First Knowledge Item
                   </Button>
-                </div>
-              ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="space-y-4">
+                {knowledgeItems.map((item, index) => (
+                  <Card key={item.id} className="border-dashed">
+                    <CardContent className="p-4 space-y-4">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <Badge variant="outline">
+                            <FileText className="h-3 w-3 mr-1" />
+                            Knowledge Item {index + 1}
+                          </Badge>
+                        </div>
+                        <Button
+                          onClick={() => removeKnowledgeItem(item.id)}
+                          variant="ghost"
+                          size="sm"
+                          className="text-destructive hover:text-destructive"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
 
-      {/* Add Text Dialog */}
-      <Dialog open={textDialogOpen} onOpenChange={setTextDialogOpen}>
-        <DialogContent className="sm:max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>Add Text Knowledge</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="text-title">Title</Label>
-              <Input
-                id="text-title"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                placeholder="e.g., 'My thoughts on creativity', 'Personal philosophy', 'Favorite quotes'"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="text-content">Content</Label>
-              <Textarea 
-                id="text-content"
-                placeholder="Share your thoughts, insights, experiences, or any knowledge you want your Sim to have..." 
-                value={content} 
-                onChange={(e) => setContent(e.target.value)}
-                className="min-h-[200px]"
-              />
-            </div>
-          </div>
-          <DialogFooter className="flex justify-between sm:justify-between">
-            <Button 
-              variant="outline" 
-              onClick={() => {
-                setTextDialogOpen(false);
-                setTitle('');
-                setContent('');
-              }}
-            >
-              Cancel
-            </Button>
-            <Button 
-              onClick={handleAddText}
-              disabled={isProcessing || !title.trim() || !content.trim()}
-            >
-              {isProcessing ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Processing...
-                </>
-              ) : (
-                'Add Knowledge'
-              )}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+                      <div className="space-y-3">
+                        <div>
+                          <Label htmlFor={`title-${item.id}`} className="text-sm">
+                            Title/Topic
+                          </Label>
+                          <Input
+                            id={`title-${item.id}`}
+                            placeholder="e.g., My experience with project management, Marketing strategies I've used..."
+                            value={item.title}
+                            onChange={(e) => updateKnowledgeItem(item.id, 'title', e.target.value)}
+                            className="mt-1"
+                          />
+                        </div>
 
-      {/* Add Web URL Dialog */}
-      <Dialog open={webUrlDialogOpen} onOpenChange={setWebUrlDialogOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Add Web Page</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4 py-4">
-            <div className="flex items-center gap-2">
-              <Input 
-                placeholder="Enter URL (e.g., https://example.com)" 
-                value={webUrl} 
-                onChange={(e) => setWebUrl(e.target.value)}
-                className="flex-1"
-              />
-              <Button onClick={handleAddWebUrl}>Add</Button>
-            </div>
-            
-            {webUrls.length > 0 && (
-              <div className="border rounded-md p-3 space-y-2">
-                <h4 className="text-sm font-medium text-muted-foreground">
-                  URLs to process ({webUrls.length})
-                </h4>
-                <div className="space-y-2">
-                  {webUrls.map((url, index) => (
-                    <div key={index} className="flex items-center justify-between bg-muted p-2 rounded-md">
-                      <span className="text-sm truncate max-w-[250px]">{url}</span>
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        className="h-6 w-6 p-0" 
-                        onClick={() => setWebUrls(webUrls.filter((_, i) => i !== index))}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  ))}
-                </div>
+                        <div>
+                          <Label htmlFor={`content-${item.id}`} className="text-sm">
+                            Content/Details
+                          </Label>
+                          <Textarea
+                            id={`content-${item.id}`}
+                            placeholder="Share your knowledge, experiences, methodologies, or any information that would help your Sim respond as you would..."
+                            value={item.content}
+                            onChange={(e) => updateKnowledgeItem(item.id, 'content', e.target.value)}
+                            className="mt-1 min-h-[120px]"
+                          />
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
               </div>
             )}
           </div>
-          <DialogFooter className="flex justify-between sm:justify-between">
+
+          {/* Document Upload Section - Placeholder for Phase 2 */}
+          <div className="space-y-3">
+            <Label className="text-base font-medium">Document Upload</Label>
+            <p className="text-sm text-muted-foreground">
+              Upload PDFs, Word documents, or text files to add to your Sim's knowledge base.
+            </p>
+            <Card className="border-dashed border-muted">
+              <CardContent className="p-6 text-center">
+                <Upload className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
+                <p className="text-sm text-muted-foreground">
+                  Document upload coming in Phase 2
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Save Button */}
+          <div className="flex justify-end pt-4">
             <Button 
-              variant="outline" 
-              onClick={() => {
-                setWebUrlDialogOpen(false);
-                setWebUrl('');
-                setWebUrls([]);
-              }}
+              onClick={handleSave} 
+              className="px-8"
+              disabled={isLoading}
             >
-              Cancel
+              {isLoading ? 'Saving...' : 'Save Core Knowledge'}
             </Button>
-            <Button 
-              onClick={() => {
-                console.log('Web URLs to process:', webUrls);
-                toast.info('Web page processing coming soon!');
-                setWebUrlDialogOpen(false);
-                setWebUrl('');
-                setWebUrls([]);
-              }}
-              disabled={webUrls.length === 0}
-            >
-              Process Web Pages
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Tips Card */}
+      <Card className="border-blue-200 bg-blue-50">
+        <CardContent className="p-4">
+          <h4 className="font-medium text-blue-900 mb-2">💡 Tips for Building Your Knowledge Base</h4>
+          <ul className="text-sm text-blue-800 space-y-1">
+            <li>• Include your professional experiences and methodologies</li>
+            <li>• Add personal anecdotes that show your perspective and approach</li>
+            <li>• Share your expertise in specific domains or industries</li>
+            <li>• Include your opinions on topics you're passionate about</li>
+            <li>• Add any frameworks or processes you use in your work</li>
+          </ul>
+        </CardContent>
+      </Card>
     </div>
   );
 };
