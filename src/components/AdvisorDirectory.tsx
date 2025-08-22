@@ -24,7 +24,7 @@ const AdvisorDirectory = ({ onSelectAdvisor, onAuthRequired }: AdvisorDirectoryP
   const filteredAdvisors = agents.filter(advisor =>
     advisor.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     advisor.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    advisor.expertise?.some(exp => exp.toLowerCase().includes(searchTerm.toLowerCase()))
+    advisor.subject?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const handleAdvisorSelect = (advisor: AgentType) => {
@@ -99,9 +99,9 @@ const AdvisorDirectory = ({ onSelectAdvisor, onAuthRequired }: AdvisorDirectoryP
                         {advisor.name}
                       </h3>
                       
-                      {advisor.role && (
+                      {advisor.title && (
                         <p className="text-sm text-muted-foreground mb-2">
-                          {advisor.role}
+                          {advisor.title}
                         </p>
                       )}
                       
@@ -111,21 +111,11 @@ const AdvisorDirectory = ({ onSelectAdvisor, onAuthRequired }: AdvisorDirectoryP
                         </p>
                       )}
                       
-                      {advisor.expertise && advisor.expertise.length > 0 && (
+                      {advisor.subject && (
                         <div className="flex flex-wrap gap-1">
-                          {advisor.expertise.slice(0, 3).map((skill, index) => (
-                            <span
-                              key={index}
-                              className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-primary/10 text-primary"
-                            >
-                              {skill}
-                            </span>
-                          ))}
-                          {advisor.expertise.length > 3 && (
-                            <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-muted text-muted-foreground">
-                              +{advisor.expertise.length - 3} more
-                            </span>
-                          )}
+                          <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-primary/10 text-primary">
+                            {advisor.subject}
+                          </span>
                         </div>
                       )}
                     </div>
