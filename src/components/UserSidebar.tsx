@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
@@ -137,7 +138,7 @@ export const SidebarContent: React.FC<SidebarContentProps> = ({
               alt="Logo" 
               className="h-8 w-8 object-contain"
             />
-            <h2 className="text-lg font-semibold text-fg">SimTutor</h2>
+            <h2 className="text-lg font-semibold text-fg">Sim</h2>
           </div>
           {onClose && (
             <Button variant="ghost" size="sm" onClick={onClose}>
