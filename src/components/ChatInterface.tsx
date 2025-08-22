@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from "react";
 import { Bot, Menu } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
@@ -117,7 +116,7 @@ const ChatInterface = ({ agent, onBack }: ChatInterfaceProps) => {
       </div>
 
       {/* Messages - Scrollable area between header and input */}
-      <div className="flex-1 overflow-auto px-4 sm:p-4 min-h-0">
+      <div className="flex-1 overflow-auto px-4 sm:p-4 pt-6 min-h-0">
         {chatHistory.messages.map((message) => (
           <div
             key={message.id}
