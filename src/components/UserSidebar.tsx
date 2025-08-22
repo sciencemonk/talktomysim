@@ -174,26 +174,23 @@ export const SidebarContent: React.FC<SidebarContentProps> = ({
         <>
           <Separator />
           <div className="p-4">
-            <UserSettingsDropdown
-              trigger={
-                <Button variant="ghost" className="w-full justify-start p-2 h-auto">
-                  <Avatar className="h-8 w-8 mr-3">
-                    <AvatarImage src={user?.user_metadata?.avatar_url} alt="Profile" />
-                    <AvatarFallback>
-                      {user?.email?.charAt(0)?.toUpperCase() || "U"}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="flex flex-col items-start flex-1 min-w-0">
-                    <p className="text-sm font-medium truncate w-full">
-                      {user?.user_metadata?.full_name || "User"}
-                    </p>
-                    <p className="text-xs text-muted-foreground truncate w-full">
-                      {user?.email}
-                    </p>
-                  </div>
-                </Button>
-              }
-            />
+            <div className="flex items-center space-x-3 mb-3">
+              <Avatar className="h-10 w-10">
+                <AvatarImage src={user?.user_metadata?.avatar_url} alt="Profile" />
+                <AvatarFallback>
+                  {user?.email?.charAt(0)?.toUpperCase() || "U"}
+                </AvatarFallback>
+              </Avatar>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-fg truncate">
+                  {user?.user_metadata?.full_name || "User"}
+                </p>
+                <p className="text-xs text-fgMuted truncate">
+                  {user?.email}
+                </p>
+              </div>
+            </div>
+            <UserSettingsDropdown />
           </div>
         </>
       )}
