@@ -47,6 +47,10 @@ interface UserSidebarProps {
   onSelectPublicAdvisor?: (advisorId: string, advisor?: AgentType) => void;
   onRemovePublicAdvisor?: (advisorId: string) => void;
   refreshTrigger?: number;
+  onNavigateToMySim?: () => void;
+  onNavigateToBasicInfo?: () => void;
+  onNavigateToInteractionModel?: () => void;
+  onNavigateToCoreKnowledge?: () => void;
 }
 
 const SidebarContent = ({ 
@@ -63,7 +67,11 @@ const SidebarContent = ({
   refreshTrigger,
   isCollapsed,
   onToggleCollapse,
-  onClose
+  onClose,
+  onNavigateToMySim,
+  onNavigateToBasicInfo,
+  onNavigateToInteractionModel,
+  onNavigateToCoreKnowledge
 }: UserSidebarProps & { 
   isCollapsed?: boolean; 
   onToggleCollapse?: () => void;
@@ -98,8 +106,7 @@ const SidebarContent = ({
       icon: Bot,
       href: "#",
       onClick: () => {
-        // TODO: Navigate to My Sim page
-        console.log("Navigate to My Sim");
+        onNavigateToMySim?.();
         onClose?.();
       }
     },
@@ -108,8 +115,7 @@ const SidebarContent = ({
       icon: Info,
       href: "#",
       onClick: () => {
-        // TODO: Navigate to Basic Info page
-        console.log("Navigate to Basic Info");
+        onNavigateToBasicInfo?.();
         onClose?.();
       }
     },
@@ -118,8 +124,7 @@ const SidebarContent = ({
       icon: MessageSquare,
       href: "#",
       onClick: () => {
-        // TODO: Navigate to Interaction Model page
-        console.log("Navigate to Interaction Model");
+        onNavigateToInteractionModel?.();
         onClose?.();
       }
     },
@@ -128,8 +133,7 @@ const SidebarContent = ({
       icon: Brain,
       href: "#",
       onClick: () => {
-        // TODO: Navigate to Core Knowledge page
-        console.log("Navigate to Core Knowledge");
+        onNavigateToCoreKnowledge?.();
         onClose?.();
       }
     },
