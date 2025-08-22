@@ -254,23 +254,24 @@ const Home = () => {
         {/* Left Sidebar for non-signed in users */}
         <div className="hidden md:flex w-80 bg-card border-r border-border flex-col">
           <div className="p-6 border-b border-border">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-8 h-8 bg-foreground rounded-full flex items-center justify-center">
-                <span className="text-background text-sm font-semibold">S</span>
-              </div>
-              <span className="font-semibold text-lg">Sim</span>
+            <div className="flex items-center justify-center">
+              <img 
+                src="/lovable-uploads/d1283b59-7cfa-45f5-b151-4c32b24f3621.png" 
+                alt="Logo" 
+                className="h-8 w-8 object-contain"
+              />
             </div>
           </div>
           
-          <div className="flex-1 p-6">
-            <div className="space-y-6">
+          <div className="flex-1 flex items-center justify-center p-6">
+            <div className="space-y-6 text-center">
               <div>
                 <h2 className="text-xl font-semibold mb-2">Create your free Sim today</h2>
               </div>
               
               <Button 
                 onClick={() => setShowAuthModal(true)}
-                className="w-full bg-purple-600 hover:bg-purple-700 text-white rounded-lg py-3"
+                className="w-full bg-gradient-to-r from-purple-600 via-pink-500 to-blue-500 text-white hover:opacity-90 animate-pulse rounded-lg py-3"
               >
                 Get Started
               </Button>
@@ -284,16 +285,17 @@ const Home = () => {
           <div className="md:hidden bg-card border-b border-border p-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 bg-foreground rounded-full flex items-center justify-center">
-                  <span className="text-background text-sm font-semibold">S</span>
-                </div>
-                <span className="font-semibold text-lg">Sim</span>
+                <img 
+                  src="/lovable-uploads/d1283b59-7cfa-45f5-b151-4c32b24f3621.png" 
+                  alt="Logo" 
+                  className="h-8 w-8 object-contain"
+                />
               </div>
               
               <Button 
                 onClick={() => setShowAuthModal(true)}
                 size="sm"
-                className="bg-purple-600 hover:bg-purple-700 text-white"
+                className="bg-gradient-to-r from-purple-600 via-pink-500 to-blue-500 text-white hover:opacity-90 animate-pulse"
               >
                 Get Started
               </Button>
