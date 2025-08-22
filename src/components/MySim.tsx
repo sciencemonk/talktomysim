@@ -20,11 +20,18 @@ import {
   Save,
   X
 } from "lucide-react";
-import { toast } from "@/components/ui/use-toast";
+import { toast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 const MySim = () => {
   const { user } = useAuth();
+  const [selectedActivity, setSelectedActivity] = useState<any>(null);
 
   // Mock data - in a real app, this would come from your backend
   const simData = {
@@ -68,10 +75,50 @@ const MySim = () => {
       }
     ],
     recentActivity: [
-      { time: "2 hours ago", activity: "Chat with Alex about career change", duration: "12 min" },
-      { time: "5 hours ago", activity: "Helped Maria with relationship advice", duration: "8 min" },
-      { time: "1 day ago", activity: "Discussed life goals with John", duration: "15 min" },
-      { time: "2 days ago", activity: "Career guidance for Lisa", duration: "10 min" }
+      { 
+        id: 1,
+        time: "2 hours ago", 
+        activity: "Chat with Alex about career change", 
+        duration: "12 min",
+        messages: [
+          { role: "user", content: "I'm thinking about changing careers but I'm not sure if it's the right time." },
+          { role: "system", content: "That's a big decision! Let's explore what's driving this feeling. What aspects of your current career are making you consider a change?" },
+          { role: "user", content: "I feel like I'm not growing anymore, and the work doesn't excite me like it used to." },
+          { role: "system", content: "It sounds like you're experiencing career stagnation, which is actually quite common. The fact that you're recognizing these feelings is the first step toward positive change. Have you identified any specific areas or industries that do interest you?" }
+        ]
+      },
+      { 
+        id: 2,
+        time: "5 hours ago", 
+        activity: "Helped Maria with relationship advice", 
+        duration: "8 min",
+        messages: [
+          { role: "user", content: "My partner and I have been arguing a lot lately. I don't know what to do." },
+          { role: "system", content: "I'm sorry to hear you're going through a difficult time. Arguments in relationships can be stressful, but they're also opportunities for growth and better understanding. Can you tell me what these arguments tend to be about?" },
+          { role: "user", content: "It's usually about small things, but they escalate quickly. We both get defensive." },
+          { role: "system", content: "It sounds like the issue might not be the topics themselves, but how you're communicating about them. When both people get defensive, it often means you're both feeling unheard or misunderstood. Have you tried having a calm conversation about your communication patterns when you're not in the middle of an argument?" }
+        ]
+      },
+      { 
+        id: 3,
+        time: "1 day ago", 
+        activity: "Discussed life goals with John", 
+        duration: "15 min",
+        messages: [
+          { role: "user", content: "I feel like I'm drifting through life without clear goals. How do I figure out what I really want?" },
+          { role: "system", content: "That's a profound question that many people struggle with. The feeling of drifting often comes from a disconnect between our daily actions and our deeper values. Let's start by exploring what matters most to you. When you think about the times you've felt most fulfilled or proud, what were you doing?" }
+        ]
+      },
+      { 
+        id: 4,
+        time: "2 days ago", 
+        activity: "Career guidance for Lisa", 
+        duration: "10 min",
+        messages: [
+          { role: "user", content: "I just graduated and I'm overwhelmed by all the career options. How do I choose?" },
+          { role: "system", content: "Congratulations on graduating! It's completely normal to feel overwhelmed by the possibilities ahead. This is actually an exciting time, even though it might feel daunting. Let's break this down into manageable steps. What subjects or activities during your studies did you find most engaging?" }
+        ]
+      }
     ]
   };
 
@@ -93,8 +140,37 @@ const MySim = () => {
     }
   };
 
+  const handleActivityClick = (activity: any) => {
+    setSelectedActivity(activity);
+  };
+
   return (
     <div className="w-full max-w-none mx-0 p-6 space-y-6">
+      {/* Recent Activity - Moved to Top */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg flex items-center gap-2">
+            <Activity className="h-4 w-4" />
+            Recent Activity
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          {simData.recentActivity.map((activity, index) => (
+            <div 
+              key={index} 
+              className="space-y-1 pb-3 border-b last:border-b-0 last:pb-0 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 p-2 rounded transition-colors"
+              onClick={() => handleActivityClick(activity)}
+            >
+              <p className="text-sm font-medium">{activity.activity}</p>
+              <div className="flex justify-between items-center text-xs text-fgMuted">
+                <span>{activity.time}</span>
+                <span>{activity.duration}</span>
+              </div>
+            </div>
+          ))}
+        </CardContent>
+      </Card>
+
       {/* Statistics Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card>
@@ -204,29 +280,42 @@ const MySim = () => {
               ))}
             </CardContent>
           </Card>
-
-          {/* Recent Activity */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg flex items-center gap-2">
-                <Activity className="h-4 w-4" />
-                Recent Activity
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {simData.recentActivity.map((activity, index) => (
-                <div key={index} className="space-y-1 pb-3 border-b last:border-b-0 last:pb-0">
-                  <p className="text-sm font-medium">{activity.activity}</p>
-                  <div className="flex justify-between items-center text-xs text-fgMuted">
-                    <span>{activity.time}</span>
-                    <span>{activity.duration}</span>
-                  </div>
-                </div>
-              ))}
-            </CardContent>
-          </Card>
         </div>
       </div>
+
+      {/* Chat Modal */}
+      <Dialog open={!!selectedActivity} onOpenChange={() => setSelectedActivity(null)}>
+        <DialogContent className="max-w-4xl max-h-[80vh] overflow-hidden flex flex-col">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <MessageCircle className="h-5 w-5" />
+              {selectedActivity?.activity}
+            </DialogTitle>
+            <p className="text-sm text-fgMuted">
+              {selectedActivity?.time} • Duration: {selectedActivity?.duration}
+            </p>
+          </DialogHeader>
+          
+          <div className="flex-1 overflow-auto space-y-4 pr-2">
+            {selectedActivity?.messages?.map((message: any, index: number) => (
+              <div
+                key={index}
+                className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+              >
+                <div
+                  className={`rounded-lg px-4 py-2 max-w-[75%] ${
+                    message.role === 'user'
+                      ? 'bg-primary text-primary-foreground'
+                      : 'bg-secondary text-secondary-foreground'
+                  }`}
+                >
+                  <p className="text-sm">{message.content}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
