@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -100,7 +101,7 @@ const MySim = () => {
             <Button variant="outline" asChild size="sm">
               <a href={`/${sim?.custom_url || sim?.id}`} target="_blank" rel="noopener noreferrer">
                 <ExternalLink className="h-4 w-4 mr-2" />
-                Share Sim
+                Talk to Your Sim
               </a>
             </Button>
             
