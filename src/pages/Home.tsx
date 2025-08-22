@@ -18,7 +18,7 @@ const Home = () => {
   const filteredAgents = agents.filter(agent =>
     agent.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     agent.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    agent.subject_area?.toLowerCase().includes(searchTerm.toLowerCase())
+    agent.subject?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   if (user) {
