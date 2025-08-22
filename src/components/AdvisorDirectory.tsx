@@ -28,7 +28,7 @@ const AdvisorDirectory = ({ onSelectAdvisor, onAuthRequired }: AdvisorDirectoryP
   );
 
   const handleAdvisorSelect = (advisor: AgentType) => {
-    // Always open public chat page in new tab, regardless of user authentication status
+    // Use custom URL if available, otherwise fall back to agent ID route
     const chatUrl = advisor.url ? `/${advisor.url}` : `/tutors/${advisor.id}/chat`;
     window.open(chatUrl, '_blank');
   };
