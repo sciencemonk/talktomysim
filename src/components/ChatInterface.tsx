@@ -20,6 +20,14 @@ interface Message {
   timestamp: number;
 }
 
+const TypingIndicator = () => (
+  <div className="flex space-x-1 justify-center items-center py-2">
+    <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+    <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+    <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce"></div>
+  </div>
+);
+
 const ChatInterface: React.FC<ChatInterfaceProps> = ({ agent, onBack }) => {
   const [input, setInput] = useState('');
   const [messages, setMessages] = useState<Message[]>([]);
@@ -110,7 +118,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ agent, onBack }) => {
         scrollElement.scrollTop = scrollElement.scrollHeight;
       }
     }
-  }, [messages]);
+  }, [messages, isProcessing]);
 
   return (
     <div className="h-screen flex flex-col bg-background">
@@ -131,7 +139,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ agent, onBack }) => {
       </div>
 
       {/* Messages Area */}
-      <div className="flex-1 min-h-0">
+      <div className="flex-1 overflow-hidden">
         <ScrollArea ref={scrollAreaRef} className="h-full">
           <div className="p-4 space-y-4 max-w-4xl mx-auto">
             {messages.map((message) => (
@@ -182,9 +190,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ agent, onBack }) => {
                   </AvatarFallback>
                 </Avatar>
                 <div className="bg-muted text-foreground rounded-lg px-4 py-3">
-                  <div className="text-sm text-muted-foreground">
-                    {agent.name} is typing...
-                  </div>
+                  <TypingIndicator />
                 </div>
               </div>
             )}
