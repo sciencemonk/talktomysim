@@ -91,12 +91,12 @@ const Overview = () => {
         </CardContent>
       </Card>
 
-      {/* All Conversations Section */}
+      {/* Activity - All Conversations List */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <MessageSquare className="h-5 w-5" />
-            All Conversations ({conversations.length})
+            Activity
           </CardTitle>
           <p className="text-sm text-muted-foreground">
             All conversations users are having with your sim
