@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback } from 'react';
 import { AgentType } from '@/types/agent';
 import { conversationService, Message } from '@/services/conversationService';
@@ -27,18 +26,17 @@ export const useChatHistory = (agent: AgentType) => {
       console.log('Loading chat history for agent:', agent.name);
 
       try {
-        // For public agents, we'll create a conversation using the public agent ID
-        // The conversation service will handle both personal and public agents
+        // Always try to create a conversation (works for both authenticated and anonymous users)
         const conversation = await conversationService.getOrCreateConversation(agent.id);
         
         if (!conversation) {
-          // No conversation means user is not authenticated - use in-memory chat for public access
-          console.log('No conversation created - using in-memory chat for public access');
+          // Fallback to in-memory chat if conversation creation fails
+          console.log('No conversation created - using in-memory chat');
           setIsPublicChat(true);
           setConversationId(null);
           setMessages([]);
           
-          // Add welcome message for unauthenticated users if it exists
+          // Add welcome message for fallback case if it exists
           if (agent.welcomeMessage && agent.welcomeMessage.trim()) {
             const welcomeMessage: ChatMessage = {
               id: `welcome-${Date.now()}`,
@@ -48,14 +46,14 @@ export const useChatHistory = (agent: AgentType) => {
             };
             setMessages([welcomeMessage]);
             setWelcomeMessageSent(true);
-            console.log('Added welcome message for unauthenticated user:', agent.welcomeMessage);
           }
           
           setIsLoading(false);
           return;
         }
 
-        setIsPublicChat(false);
+        // Set conversation type based on whether user_id starts with 'anonymous_'
+        setIsPublicChat(conversation.user_id.startsWith('anonymous_'));
         setConversationId(conversation.id);
 
         // Load existing messages
@@ -83,7 +81,7 @@ export const useChatHistory = (agent: AgentType) => {
           setMessages([welcomeMessage]);
           setWelcomeMessageSent(true);
           
-          // Save welcome message to database for authenticated users
+          // Save welcome message to database
           const savedWelcomeMessage = await conversationService.addMessage(
             conversation.id, 
             'system', 
@@ -97,7 +95,7 @@ export const useChatHistory = (agent: AgentType) => {
               content: agent.welcomeMessage,
               isComplete: true
             }]);
-            console.log('Welcome message saved to database for authenticated user');
+            console.log('Welcome message saved to database');
           }
         }
         
@@ -144,7 +142,7 @@ export const useChatHistory = (agent: AgentType) => {
 
     setMessages(prev => [...prev, tempMessage]);
 
-    // Only save to database if we have a conversation (authenticated user)
+    // Save to database if we have a conversation
     if (conversationId) {
       const savedMessage = await conversationService.addMessage(conversationId, 'user', content);
       if (savedMessage) {
@@ -195,7 +193,7 @@ export const useChatHistory = (agent: AgentType) => {
 
       console.log('Completing AI message:', currentMessage.content);
 
-      // Only save to database if we have a conversation (authenticated user)
+      // Save to database if we have a conversation
       if (conversationId) {
         conversationService.addMessage(
           conversationId, 

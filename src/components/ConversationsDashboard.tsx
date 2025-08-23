@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -15,7 +14,8 @@ import {
   Phone, 
   CheckCircle,
   ArrowUpRight,
-  Filter
+  Filter,
+  Globe
 } from 'lucide-react';
 import { escalationService, ConversationCapture } from '@/services/escalationService';
 import { conversationService } from '@/services/conversationService';
@@ -35,6 +35,7 @@ interface ConversationSummary {
   highest_score: number;
   intents: string[];
   escalated: boolean;
+  is_anonymous?: boolean;
 }
 
 export const ConversationsDashboard = ({ advisorId }: ConversationsDashboardProps) => {
@@ -50,49 +51,21 @@ export const ConversationsDashboard = ({ advisorId }: ConversationsDashboardProp
   const loadData = async () => {
     setIsLoading(true);
     
-    // Load conversation captures
-    const captureData = await escalationService.getConversationCaptures(advisorId);
-    setCaptures(captureData);
+    try {
+      // Load conversation captures
+      const captureData = await escalationService.getConversationCaptures(advisorId);
+      setCaptures(captureData);
 
-    // For now, we'll create mock conversation summaries
-    // In a real implementation, you'd query the conversations and messages tables
-    const mockConversations: ConversationSummary[] = [
-      {
-        id: '1',
-        created_at: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-        updated_at: new Date(Date.now() - 30 * 60 * 1000).toISOString(),
-        message_count: 8,
-        latest_message: "I'm the CEO of a startup and we need to discuss a potential partnership deal...",
-        avg_score: 8.5,
-        highest_score: 10,
-        intents: ['vip_inquiry', 'sales_inquiry'],
-        escalated: true,
-      },
-      {
-        id: '2',
-        created_at: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(),
-        updated_at: new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString(),
-        message_count: 12,
-        latest_message: "This is urgent! I need help with my purchase order before the deadline...",
-        avg_score: 7.2,
-        highest_score: 9,
-        intents: ['urgent_request', 'sales_inquiry'],
-        escalated: true,
-      },
-      {
-        id: '3',
-        created_at: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(),
-        updated_at: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString(),
-        message_count: 5,
-        latest_message: "Can you help me understand your pricing structure?",
-        avg_score: 4.2,
-        highest_score: 6,
-        intents: ['general'],
-        escalated: false,
-      },
-    ];
+      // Load real conversations
+      const conversationData = await conversationService.getAdvisorConversations(advisorId);
+      setConversations(conversationData);
+      
+      console.log(`Loaded ${conversationData.length} conversations for advisor ${advisorId}`);
+    } catch (error) {
+      console.error('Error loading dashboard data:', error);
+      toast.error('Failed to load dashboard data');
+    }
     
-    setConversations(mockConversations);
     setIsLoading(false);
   };
 
@@ -280,48 +253,64 @@ export const ConversationsDashboard = ({ advisorId }: ConversationsDashboardProp
           <TabsContent value="escalated" className="mt-6">
             <ScrollArea className="h-96">
               <div className="space-y-4">
-                {conversations.filter(c => c.escalated).map((conversation) => (
-                  <Card key={conversation.id} className="p-4">
-                    <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
-                      <div className="space-y-2 flex-1 min-w-0 w-full sm:w-auto">
-                        <div className="flex flex-wrap items-center gap-2">
-                          <Badge 
-                            variant="outline" 
-                            className={getScoreBadgeColor(conversation.highest_score)}
-                          >
-                            Peak Score: {conversation.highest_score}
-                          </Badge>
-                          <Badge variant="outline">
-                            {conversation.message_count} messages
-                          </Badge>
-                          {conversation.intents.map((intent) => (
+                {conversations.filter(c => c.escalated).length === 0 ? (
+                  <div className="text-center py-8">
+                    <AlertTriangle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                    <p className="text-muted-foreground">No escalated conversations yet</p>
+                    <p className="text-sm text-muted-foreground">
+                      High-priority conversations will appear here
+                    </p>
+                  </div>
+                ) : (
+                  conversations.filter(c => c.escalated).map((conversation) => (
+                    <Card key={conversation.id} className="p-4">
+                      <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
+                        <div className="space-y-2 flex-1 min-w-0 w-full sm:w-auto">
+                          <div className="flex flex-wrap items-center gap-2">
                             <Badge 
-                              key={intent}
                               variant="outline" 
-                              className={getIntentBadgeColor(intent)}
+                              className={getScoreBadgeColor(conversation.highest_score)}
                             >
-                              {intent.replace('_', ' ')}
+                              Peak Score: {conversation.highest_score}
                             </Badge>
-                          ))}
+                            <Badge variant="outline">
+                              {conversation.message_count} messages
+                            </Badge>
+                            {conversation.is_anonymous && (
+                              <Badge variant="secondary">
+                                <Globe className="h-3 w-3 mr-1" />
+                                Public
+                              </Badge>
+                            )}
+                            {conversation.intents.map((intent) => (
+                              <Badge 
+                                key={intent}
+                                variant="outline" 
+                                className={getIntentBadgeColor(intent)}
+                              >
+                                {intent.replace('_', ' ')}
+                              </Badge>
+                            ))}
+                          </div>
+
+                          <p className="text-sm text-muted-foreground line-clamp-2">
+                            {conversation.latest_message}
+                          </p>
+
+                          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                            <Clock className="h-3 w-3" />
+                            Updated {formatTimeAgo(conversation.updated_at)}
+                          </div>
                         </div>
 
-                        <p className="text-sm text-muted-foreground line-clamp-2">
-                          {conversation.latest_message}
-                        </p>
-
-                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                          <Clock className="h-3 w-3" />
-                          Updated {formatTimeAgo(conversation.updated_at)}
-                        </div>
+                        <Button size="sm" variant="outline" className="w-full sm:w-auto flex-shrink-0">
+                          <ArrowUpRight className="h-4 w-4 mr-1" />
+                          View Chat
+                        </Button>
                       </div>
-
-                      <Button size="sm" variant="outline" className="w-full sm:w-auto flex-shrink-0">
-                        <ArrowUpRight className="h-4 w-4 mr-1" />
-                        View Chat
-                      </Button>
-                    </div>
-                  </Card>
-                ))}
+                    </Card>
+                  ))
+                )}
               </div>
             </ScrollArea>
           </TabsContent>
@@ -329,45 +318,61 @@ export const ConversationsDashboard = ({ advisorId }: ConversationsDashboardProp
           <TabsContent value="all" className="mt-6">
             <ScrollArea className="h-96">
               <div className="space-y-4">
-                {conversations.map((conversation) => (
-                  <Card key={conversation.id} className="p-4">
-                    <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
-                      <div className="space-y-2 flex-1 min-w-0 w-full sm:w-auto">
-                        <div className="flex flex-wrap items-center gap-2">
-                          <Badge 
-                            variant="outline" 
-                            className={getScoreBadgeColor(conversation.avg_score)}
-                          >
-                            Avg Score: {conversation.avg_score}
-                          </Badge>
-                          <Badge variant="outline">
-                            {conversation.message_count} messages
-                          </Badge>
-                          {conversation.escalated && (
-                            <Badge variant="destructive">
-                              <AlertTriangle className="h-3 w-3 mr-1" />
-                              Escalated
+                {conversations.length === 0 ? (
+                  <div className="text-center py-8">
+                    <MessageSquare className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                    <p className="text-muted-foreground">No conversations yet</p>
+                    <p className="text-sm text-muted-foreground">
+                      Conversations will appear here as users interact with your Sim
+                    </p>
+                  </div>
+                ) : (
+                  conversations.map((conversation) => (
+                    <Card key={conversation.id} className="p-4">
+                      <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
+                        <div className="space-y-2 flex-1 min-w-0 w-full sm:w-auto">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <Badge 
+                              variant="outline" 
+                              className={getScoreBadgeColor(conversation.avg_score)}
+                            >
+                              Avg Score: {conversation.avg_score.toFixed(1)}
                             </Badge>
-                          )}
+                            <Badge variant="outline">
+                              {conversation.message_count} messages
+                            </Badge>
+                            {conversation.is_anonymous && (
+                              <Badge variant="secondary">
+                                <Globe className="h-3 w-3 mr-1" />
+                                Public
+                              </Badge>
+                            )}
+                            {conversation.escalated && (
+                              <Badge variant="destructive">
+                                <AlertTriangle className="h-3 w-3 mr-1" />
+                                Escalated
+                              </Badge>
+                            )}
+                          </div>
+
+                          <p className="text-sm text-muted-foreground line-clamp-2">
+                            {conversation.latest_message}
+                          </p>
+
+                          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                            <Clock className="h-3 w-3" />
+                            Updated {formatTimeAgo(conversation.updated_at)}
+                          </div>
                         </div>
 
-                        <p className="text-sm text-muted-foreground line-clamp-2">
-                          {conversation.latest_message}
-                        </p>
-
-                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                          <Clock className="h-3 w-3" />
-                          Updated {formatTimeAgo(conversation.updated_at)}
-                        </div>
+                        <Button size="sm" variant="outline" className="w-full sm:w-auto flex-shrink-0">
+                          <ArrowUpRight className="h-4 w-4 mr-1" />
+                          View Chat
+                        </Button>
                       </div>
-
-                      <Button size="sm" variant="outline" className="w-full sm:w-auto flex-shrink-0">
-                        <ArrowUpRight className="h-4 w-4 mr-1" />
-                        View Chat
-                      </Button>
-                    </div>
-                  </Card>
-                ))}
+                    </Card>
+                  ))
+                )}
               </div>
             </ScrollArea>
           </TabsContent>

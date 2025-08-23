@@ -25,37 +25,58 @@ export const conversationService = {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       
-      // If no user is authenticated, return null (public chats will handle this)
-      if (!user) {
-        console.log('No authenticated user for conversation - using in-memory chat');
-        return null;
+      if (user) {
+        // Authenticated user - normal flow
+        // First try to get existing conversation for this advisor
+        const { data: existingConversation } = await supabase
+          .from('conversations')
+          .select('*')
+          .eq('user_id', user.id)
+          .eq('tutor_id', advisorId)
+          .maybeSingle();
+
+        if (existingConversation) {
+          return existingConversation;
+        }
+
+        // Create new conversation if it doesn't exist
+        const { data: newConversation, error } = await supabase
+          .from('conversations')
+          .insert({
+            user_id: user.id,
+            tutor_id: advisorId,
+            title: null
+          })
+          .select()
+          .single();
+
+        if (error) throw error;
+        return newConversation;
+      } else {
+        // Unauthenticated user - create anonymous conversation
+        console.log('Creating anonymous conversation for public access');
+        
+        // Create a temporary user ID for anonymous conversations
+        const anonymousUserId = `anonymous_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        
+        const { data: newConversation, error } = await supabase
+          .from('conversations')
+          .insert({
+            user_id: anonymousUserId,
+            tutor_id: advisorId,
+            title: 'Anonymous Conversation'
+          })
+          .select()
+          .single();
+
+        if (error) {
+          console.error('Error creating anonymous conversation:', error);
+          return null;
+        }
+        
+        console.log('Created anonymous conversation:', newConversation);
+        return newConversation;
       }
-
-      // First try to get existing conversation for this advisor
-      const { data: existingConversation } = await supabase
-        .from('conversations')
-        .select('*')
-        .eq('user_id', user.id)
-        .eq('tutor_id', advisorId) // Using tutor_id field for advisor IDs for now
-        .maybeSingle();
-
-      if (existingConversation) {
-        return existingConversation;
-      }
-
-      // Create new conversation if it doesn't exist
-      const { data: newConversation, error } = await supabase
-        .from('conversations')
-        .insert({
-          user_id: user.id,
-          tutor_id: advisorId, // Using tutor_id field for advisor IDs for now
-          title: null
-        })
-        .select()
-        .single();
-
-      if (error) throw error;
-      return newConversation;
     } catch (error) {
       console.error('Error getting or creating conversation:', error);
       return null;
@@ -107,6 +128,54 @@ export const conversationService = {
     } catch (error) {
       console.error('Error adding message:', error);
       return null;
+    }
+  },
+
+  // Get conversations for an advisor (for dashboard)
+  async getAdvisorConversations(advisorId: string): Promise<any[]> {
+    try {
+      const { data, error } = await supabase
+        .from('conversations')
+        .select(`
+          *,
+          messages (
+            id,
+            content,
+            role,
+            created_at,
+            score,
+            intent,
+            urgency_level
+          )
+        `)
+        .eq('tutor_id', advisorId)
+        .order('updated_at', { ascending: false });
+
+      if (error) throw error;
+      
+      // Transform the data to match what the dashboard expects
+      return (data || []).map(conversation => {
+        const messages = conversation.messages || [];
+        const userMessages = messages.filter(m => m.role === 'user');
+        const latestMessage = messages[messages.length - 1];
+        const scores = userMessages.map(m => m.score || 0).filter(s => s > 0);
+        
+        return {
+          id: conversation.id,
+          created_at: conversation.created_at,
+          updated_at: conversation.updated_at,
+          message_count: messages.length,
+          latest_message: latestMessage?.content || 'No messages',
+          avg_score: scores.length > 0 ? scores.reduce((a, b) => a + b, 0) / scores.length : 0,
+          highest_score: scores.length > 0 ? Math.max(...scores) : 0,
+          intents: [...new Set(userMessages.map(m => m.intent).filter(Boolean))],
+          escalated: scores.some(s => s >= 7) || messages.length >= 5,
+          is_anonymous: conversation.user_id.startsWith('anonymous_')
+        };
+      });
+    } catch (error) {
+      console.error('Error fetching advisor conversations:', error);
+      return [];
     }
   }
 };
