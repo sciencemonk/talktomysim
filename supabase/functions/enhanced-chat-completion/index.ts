@@ -1,3 +1,4 @@
+
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
@@ -160,54 +161,69 @@ serve(async (req) => {
       }
     }
 
-    // Generate enhanced system prompt with improved instructions
-    const personalitySection = buildPersonalitySection(advisor)
-    const communicationSection = buildCommunicationSection(advisor)
-    const expertiseSection = buildExpertiseSection(advisor)
-    const knowledgeSection = contextData ? buildKnowledgeSection(contextData.contextText, contextData.sources) : ''
-    const conversationIntelligence = buildConversationIntelligence(conversationContext, advisor.full_name || advisor.name)
+    // Build a cleaner, more focused system prompt
+    const advisorName = advisor.full_name || advisor.name
+    const advisorTitle = advisor.professional_title || 'an AI assistant'
     
-    const enhancedSystemPrompt = `You are ${advisor.full_name || advisor.name}, ${advisor.professional_title || 'an AI assistant'}.
+    let systemPrompt = `You are ${advisorName}, ${advisorTitle}.`
 
-${personalitySection}
+    // Add background information
+    if (advisor.additional_background) {
+      systemPrompt += `\n\nBACKGROUND:\n${advisor.additional_background}`
+    }
 
-${communicationSection}
+    if (advisor.location) {
+      systemPrompt += `\nYou are based in ${advisor.location}.`
+    }
 
-${expertiseSection}
+    if (advisor.education) {
+      systemPrompt += `\nEDUCATION: ${advisor.education}`
+    }
 
-${knowledgeSection}
+    if (advisor.years_experience) {
+      systemPrompt += `\nYou have ${advisor.years_experience} years of professional experience.`
+    }
 
-${conversationIntelligence}
+    if (advisor.current_profession) {
+      systemPrompt += `\nCURRENT ROLE: ${advisor.current_profession}`
+    }
 
-CRITICAL SCHEDULING RULES:
-- You CANNOT schedule meetings, calls, or appointments
-- You have NO access to any calendar system
-- You CANNOT suggest specific dates or times
-- When someone wants to meet, collect their contact information and let them know ${advisor.full_name || advisor.name} will reach out directly
+    if (advisor.areas_of_expertise) {
+      systemPrompt += `\nAREAS OF EXPERTISE: ${advisor.areas_of_expertise}`
+    }
 
-RESPONSE GUIDELINES:
-- Respond naturally and conversationally as ${advisor.full_name || advisor.name}
-- Be helpful and engaging while staying within your capabilities
-- When appropriate, share insights from your background and expertise
-- If someone provides contact information after expressing interest in meeting, acknowledge it and confirm that ${advisor.full_name || advisor.name} will follow up
+    if (advisor.skills && advisor.skills.length > 0) {
+      systemPrompt += `\nKEY SKILLS: ${advisor.skills.join(', ')}`
+    }
 
-${contextData && contextData.sources.length > 0 ? `
-KNOWLEDGE BASE:
-Use this context naturally in your responses:
-${contextData.sources.map(source => `- ${source.title} (${source.documentType})`).join('\n')}
-` : ''}
+    if (advisor.interests && advisor.interests.length > 0) {
+      systemPrompt += `\nINTERESTS: ${advisor.interests.join(', ')}`
+    }
 
-Remember: You are ${advisor.full_name || advisor.name}. Respond authentically while never attempting to schedule anything yourself.`
+    // Add knowledge context if available
+    if (contextData && contextData.contextText) {
+      systemPrompt += `\n\nRELEVANT KNOWLEDGE:\n${contextData.contextText}\n\nUse this information naturally when relevant to the conversation.`
+    }
+
+    // Add conversation guidelines
+    systemPrompt += `\n\nCONVERSATION GUIDELINES:
+- Respond as ${advisorName} in a natural, authentic way
+- Be helpful and engaging while staying true to your background
+- When someone mentions scheduling or meetings, collect their contact information and let them know ${advisorName} will reach out directly
+- You cannot schedule meetings yourself - you have no access to calendars or scheduling systems
+- Focus on being helpful and sharing your expertise when appropriate
+
+Remember: You are ${advisorName}. Respond naturally and conversationally.`
 
     // Prepare the messages for OpenAI
     const systemMessage = {
       role: 'system',
-      content: enhancedSystemPrompt
+      content: systemPrompt
     }
 
     const chatMessages = [systemMessage, ...messages]
 
-    console.log('Sending enhanced request to OpenAI with improved conversation intelligence')
+    console.log('Sending request to OpenAI with system prompt length:', systemPrompt.length)
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -225,24 +241,45 @@ Remember: You are ${advisor.full_name || advisor.name}. Respond authentically wh
     if (!response.ok) {
       const errorData = await response.text()
       console.error('OpenAI API error:', errorData)
-      throw new Error(`OpenAI API error: ${response.status}`)
+      throw new Error(`OpenAI API error: ${response.status} - ${errorData}`)
     }
 
     const data = await response.json()
     
+    console.log('OpenAI response:', JSON.stringify(data, null, 2))
+
     if (!data.choices || data.choices.length === 0) {
-      throw new Error('No response from OpenAI')
+      console.error('No choices in OpenAI response')
+      throw new Error('No response choices from OpenAI')
     }
 
-    const assistantMessage = data.choices[0].message.content
+    const assistantMessage = data.choices[0].message?.content
 
-    console.log('Received enhanced response from OpenAI, length:', assistantMessage?.length || 0)
+    console.log('Assistant message content:', assistantMessage)
 
     // Check if we got an empty response
     if (!assistantMessage || assistantMessage.trim().length === 0) {
       console.error('OpenAI returned empty content')
-      throw new Error('OpenAI returned empty response')
+      // Return a fallback response instead of throwing an error
+      const fallbackMessage = `Hello! I'm ${advisorName}. I'm here to help. Could you please rephrase your message?`
+      
+      return new Response(
+        JSON.stringify({ 
+          content: fallbackMessage,
+          usage: data.usage || {},
+          contextUsed: contextData ? contextData.contextText.length > 0 : false,
+          sources: contextData?.sources || [],
+          searchMetrics: contextData?.searchMetrics || null,
+          conversationContext: conversationContext,
+          fallback: true
+        }),
+        {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        },
+      )
     }
+
+    console.log('Received response from OpenAI, length:', assistantMessage.length)
 
     return new Response(
       JSON.stringify({ 
@@ -275,7 +312,7 @@ Remember: You are ${advisor.full_name || advisor.name}. Respond authentically wh
 function analyzeConversationContext(messages: any[], latestMessage: string): any {
   const lowerMessage = latestMessage.toLowerCase()
   
-  // Analyze intent and context with better scheduling detection
+  // Analyze intent and context
   const businessKeywords = ['business', 'work', 'project', 'collaboration', 'opportunity', 'partnership', 'consulting', 'advice', 'help with', 'expertise', 'investor', 'investment', 'funding', 'reporter', 'interview', 'story']
   const schedulingKeywords = ['meet', 'call', 'schedule', 'available', 'time', 'appointment', 'free', 'calendar', 'meeting', 'zoom', 'phone']
   const questionIndicators = ['how', 'what', 'why', 'when', 'where', 'can you', 'do you', 'would you', 'could you']
@@ -288,12 +325,6 @@ function analyzeConversationContext(messages: any[], latestMessage: string): any
   // Determine conversation stage
   const messageCount = messages.length
   const isEarlyConversation = messageCount <= 4
-  const isEstablishedConversation = messageCount > 4
-  
-  // Analyze user's communication style
-  const messageLength = latestMessage.length
-  const isDetailed = messageLength > 100
-  const isCasual = messageLength < 50
   
   // Better intent classification
   let intent = 'general'
@@ -311,143 +342,6 @@ function analyzeConversationContext(messages: any[], latestMessage: string): any
     hasBusinessContext: hasBusinessKeywords,
     hasSchedulingContext: hasSchedulingKeywords,
     conversationStage: isEarlyConversation ? 'early' : 'established',
-    userStyle: isDetailed ? 'detailed' : isCasual ? 'casual' : 'moderate',
-    shouldAskClarifyingQuestions: (hasBusinessKeywords || hasSchedulingKeywords) && isEarlyConversation,
-    shouldAvoidAssumptions: hasBusinessKeywords || hasSchedulingKeywords,
-    requiresContactCollection: hasSchedulingKeywords,
     messageCount
   }
-}
-
-function buildConversationIntelligence(context: any, advisorName: string): string {
-  let intelligence = 'CONVERSATION CONTEXT:\n'
-  
-  if (context.intent === 'business_meeting_request' || context.intent === 'meeting_request') {
-    intelligence += `- The user mentioned wanting to meet or schedule something
-- Acknowledge their interest and ask for their contact information
-- Let them know that ${advisorName} will reach out directly to coordinate`
-  } else if (context.intent === 'business_inquiry') {
-    intelligence += `- The user is asking about business/professional topics
-- Focus on understanding their specific needs
-- Share relevant insights from your expertise`
-  } else {
-    intelligence += `- General conversation - respond naturally and helpfully`
-  }
-  
-  return intelligence + '\n'
-}
-
-function buildPersonalitySection(advisor: any): string {
-  const sections = []
-  
-  if (advisor.additional_background) {
-    sections.push(`BACKGROUND:\n${advisor.additional_background}`)
-  }
-  
-  if (advisor.location) {
-    sections.push(`You are based in ${advisor.location}.`)
-  }
-  
-  if (advisor.education) {
-    sections.push(`EDUCATION: ${advisor.education}`)
-  }
-  
-  if (advisor.years_experience) {
-    sections.push(`You have ${advisor.years_experience} years of professional experience.`)
-  }
-  
-  if (advisor.interests && advisor.interests.length > 0) {
-    sections.push(`INTERESTS: ${advisor.interests.join(', ')}`)
-  }
-  
-  if (advisor.skills && advisor.skills.length > 0) {
-    sections.push(`KEY SKILLS: ${advisor.skills.join(', ')}`)
-  }
-  
-  return sections.join('\n\n')
-}
-
-function buildCommunicationSection(advisor: any): string {
-  if (!advisor.sample_scenarios || advisor.sample_scenarios.length === 0) {
-    return 'COMMUNICATION STYLE:\n- Be helpful, professional, and engaging\n- Adapt your tone to match the context of the conversation'
-  }
-  
-  const scenarios = advisor.sample_scenarios
-  const communicationPatterns = analyzeCommuncationPatterns(scenarios)
-  
-  return `COMMUNICATION STYLE:
-Based on your typical interactions, you should:
-${communicationPatterns.map(pattern => `- ${pattern}`).join('\n')}
-
-EXAMPLE RESPONSES STYLE:
-${scenarios.slice(0, 2).map(scenario => 
-  `When asked: "${scenario.question}"\nYour response style: "${scenario.expectedResponse}"`
-).join('\n\n')}`
-}
-
-function buildExpertiseSection(advisor: any): string {
-  const sections = []
-  
-  if (advisor.current_profession) {
-    sections.push(`CURRENT ROLE: ${advisor.current_profession}`)
-  }
-  
-  if (advisor.areas_of_expertise) {
-    sections.push(`AREAS OF EXPERTISE: ${advisor.areas_of_expertise}`)
-  }
-  
-  if (advisor.category) {
-    sections.push(`PRIMARY FOCUS: ${advisor.category}`)
-  }
-  
-  return sections.length > 0 ? sections.join('\n') : ''
-}
-
-function buildKnowledgeSection(knowledgeContext: string, sources: any[]): string {
-  const sourcesList = sources.map(source => 
-    `- ${source.title} (${source.documentType}, ${new Date(source.uploadDate).toLocaleDateString()})`
-  ).join('\n')
-
-  return `RELEVANT KNOWLEDGE:
-${knowledgeContext}
-
-SOURCES CONSULTED:
-${sourcesList}
-
-Use this information to inform your responses when relevant. Reference it naturally as part of your expertise and experience.`
-}
-
-function analyzeCommuncationPatterns(scenarios: any[]): string[] {
-  const patterns = []
-  
-  // Analyze response length
-  const avgLength = scenarios.reduce((sum, s) => sum + s.expectedResponse.length, 0) / scenarios.length
-  if (avgLength > 200) {
-    patterns.push('Provide detailed, thorough explanations')
-  } else if (avgLength < 100) {
-    patterns.push('Keep responses concise and to the point')
-  } else {
-    patterns.push('Balance detail with clarity in your responses')
-  }
-  
-  // Analyze question asking
-  const questionCount = scenarios.filter(s => s.expectedResponse.includes('?')).length
-  if (questionCount > scenarios.length * 0.5) {
-    patterns.push('Ask engaging follow-up questions to deepen the conversation')
-  }
-  
-  // Analyze formality
-  const formalIndicators = scenarios.filter(s => 
-    s.expectedResponse.includes('would') || 
-    s.expectedResponse.includes('please') ||
-    s.expectedResponse.includes('kindly')
-  ).length
-  
-  if (formalIndicators > scenarios.length * 0.5) {
-    patterns.push('Maintain a professional and courteous tone')
-  } else {
-    patterns.push('Use a friendly, conversational tone')
-  }
-  
-  return patterns
 }
