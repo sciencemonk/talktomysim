@@ -1,381 +1,289 @@
 
-import React, { useState, useEffect, useRef } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { AgentType, VoiceTrait } from '@/types/agent';
-import { updateAgent } from '@/services/agentService';
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import React, { useState, useEffect } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Switch } from '@/components/ui/switch';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Separator } from '@/components/ui/separator';
+import { Badge } from '@/components/ui/badge';
 import { 
-  Bot, Target, User, FileText, GraduationCap, BookOpen, Calculator, 
-  Microscope, PenTool, Globe, Brain, Upload
+  Settings, 
+  Bot, 
+  MessageSquare, 
+  Shield,
+  Save,
+  Loader2
 } from 'lucide-react';
-import { Button } from "@/components/ui/button";
-import debounce from 'lodash/debounce';
-import { useToast } from "@/components/ui/use-toast";
-import { isEqual } from 'lodash';
+import { useAgentDetails } from '@/hooks/useAgentDetails';
+import { agentService } from '@/services/agentService';
+import { GatekeeperSettings } from './GatekeeperSettings';
+import { toast } from 'sonner';
 
-const SUBJECTS = [
-  { id: "math", name: "Mathematics", icon: <Calculator className="h-4 w-4" /> },
-  { id: "science", name: "Science", icon: <Microscope className="h-4 w-4" /> },
-  { id: "english", name: "English/Language Arts", icon: <PenTool className="h-4 w-4" /> },
-  { id: "history", name: "History/Social Studies", icon: <Globe className="h-4 w-4" /> },
-  { id: "reading", name: "Reading", icon: <BookOpen className="h-4 w-4" /> },
-  { id: "writing", name: "Writing", icon: <PenTool className="h-4 w-4" /> },
-  { id: "other", name: "Other Subject", icon: <GraduationCap className="h-4 w-4" /> }
-];
-
-const GRADE_LEVELS = [
-  { id: "k-2", name: "Kindergarten - 2nd Grade" },
-  { id: "3-5", name: "3rd - 5th Grade" },
-  { id: "6-8", name: "6th - 8th Grade" },
-  { id: "9-12", name: "9th - 12th Grade" },
-  { id: "college", name: "College Level" },
-  { id: "adult", name: "Adult Education" }
-];
-
-interface TeacherConfigSettingsProps {
-  agent: AgentType;
-  onAgentUpdate: (updatedAgent: AgentType) => void;
-  showSuccessToast?: (title: string, description: string) => void;
-  showTeachingInstructions?: boolean;
+interface AgentConfigSettingsProps {
+  agentId: string;
 }
 
-const TeacherConfigSettings: React.FC<TeacherConfigSettingsProps> = ({ 
-  agent, 
-  onAgentUpdate, 
-  showSuccessToast,
-  showTeachingInstructions = false
-}) => {
-  const { toast } = useToast();
-  const [name, setName] = useState(agent.name);
-  const [avatar, setAvatar] = useState(agent.avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${agent.id}`);
-  const [prompt, setPrompt] = useState(agent.prompt || '');
-  const [subject, setSubject] = useState(agent.subject || '');
-  const [gradeLevel, setGradeLevel] = useState(agent.gradeLevel || '');
-  const [learningObjective, setLearningObjective] = useState(agent.learningObjective || '');
-  const [customSubject, setCustomSubject] = useState('');
+export const AgentConfigSettings = ({ agentId }: AgentConfigSettingsProps) => {
+  const { agent, isLoading, refetch } = useAgentDetails(agentId);
   const [isSaving, setIsSaving] = useState(false);
-  const [isUploading, setIsUploading] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  
-  const prevValuesRef = useRef({
-    name: agent.name,
-    avatar: agent.avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${agent.id}`,
-    prompt: agent.prompt || '',
-    subject: agent.subject || '',
-    gradeLevel: agent.gradeLevel || '',
-    learningObjective: agent.learningObjective || ''
+  const [formData, setFormData] = useState({
+    name: '',
+    description: '',
+    prompt: '',
+    welcomeMessage: '',
+    isPublic: false,
+    customUrl: '',
+    subject: '',
+    gradeLevel: '',
+    learningObjective: ''
   });
 
-  const isCreationMode = agent.id.startsWith('temp-');
-
-  const debouncedSave = React.useCallback(
-    debounce(async (updatedData) => {
-      // Skip auto-save during creation mode
-      if (isCreationMode) {
-        console.log('Skipping auto-save during creation mode');
-        return;
-      }
-
-      try {
-        setIsSaving(true);
-        const updatedAgent = await updateAgent(agent.id, updatedData);
-        onAgentUpdate(updatedAgent);
-        
-        if (showSuccessToast) {
-          showSuccessToast("Changes saved", "Your thinking partner has been updated automatically.");
-        } else {
-          toast({
-            title: "Changes saved",
-            description: "Your thinking partner has been updated automatically."
-          });
-        }
-      } catch (error) {
-        console.error("Error saving thinking partner settings:", error);
-        toast({
-          title: "Failed to save changes",
-          description: "There was an error updating your thinking partner.",
-          variant: "destructive"
-        });
-      } finally {
-        setIsSaving(false);
-      }
-    }, 1000),
-    [agent.id, onAgentUpdate, toast, showSuccessToast, isCreationMode]
-  );
-
   useEffect(() => {
-    const finalSubject = subject === 'other' ? customSubject : subject;
-    
-    const currentValues = {
-      name,
-      avatar,
-      prompt,
-      subject: finalSubject,
-      gradeLevel,
-      learningObjective
-    };
-    
-    // Update the agent data immediately for creation mode
-    if (isCreationMode) {
-      onAgentUpdate({
-        ...agent,
-        ...currentValues
+    if (agent) {
+      setFormData({
+        name: agent.name || '',
+        description: agent.description || '',
+        prompt: agent.prompt || '',
+        welcomeMessage: agent.welcomeMessage || '',
+        isPublic: agent.isPublic || false,
+        customUrl: agent.customUrl || '',
+        subject: agent.subject || '',
+        gradeLevel: agent.gradeLevel || '',
+        learningObjective: agent.learningObjective || ''
       });
-    } else if (!isEqual(currentValues, prevValuesRef.current)) {
-      debouncedSave(currentValues);
     }
-    
-    prevValuesRef.current = { ...currentValues };
-  }, [name, avatar, prompt, subject, gradeLevel, learningObjective, customSubject, debouncedSave, isCreationMode, agent, onAgentUpdate]);
+  }, [agent]);
 
-  const generateRandomAvatar = () => {
-    const seed = Math.random().toString(36).substring(2, 10);
-    setAvatar(`https://api.dicebear.com/7.x/bottts/svg?seed=${seed}`);
-  };
+  const handleSave = async () => {
+    if (!agent) return;
 
-  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    // Validate file type
-    if (!file.type.startsWith('image/')) {
-      toast({
-        title: "Invalid file type",
-        description: "Please select an image file (JPG, PNG, GIF, etc.)",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    // Validate file size (max 5MB)
-    if (file.size > 5 * 1024 * 1024) {
-      toast({
-        title: "File too large",
-        description: "Please select an image smaller than 5MB",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    setIsUploading(true);
-    
+    setIsSaving(true);
     try {
-      // Convert file to base64 data URL for immediate preview
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const dataUrl = e.target?.result as string;
-        setAvatar(dataUrl);
-      };
-      reader.readAsDataURL(file);
-
-      toast({
-        title: "Image uploaded",
-        description: "Your custom avatar has been set successfully."
-      });
+      await agentService.updateAgent(agent.id, formData);
+      toast.success('Agent settings saved successfully!');
+      refetch();
     } catch (error) {
-      console.error("Error uploading avatar:", error);
-      toast({
-        title: "Upload failed",
-        description: "There was an error uploading your avatar. Please try again.",
-        variant: "destructive"
-      });
+      console.error('Error saving agent:', error);
+      toast.error('Failed to save agent settings');
     } finally {
-      setIsUploading(false);
+      setIsSaving(false);
     }
   };
 
-  const generatePrompt = () => {
-    const subjectName = subject === 'other' ? customSubject : SUBJECTS.find(s => s.id === subject)?.name || 'the subject';
-    const gradeName = GRADE_LEVELS.find(g => g.id === gradeLevel)?.name || 'children';
-    
-    const basePrompt = `You are ${name}, a friendly and knowledgeable thinking partner specializing in ${subjectName} for ${gradeName}.
-
-Your main goals are to:
-- Help children understand concepts clearly
-- Provide step-by-step explanations
-- Encourage children when they struggle
-- Ask questions to check understanding
-- Make learning engaging and fun
-
-${learningObjective ? `Learning Objective: ${learningObjective}
-
-Focus on helping children achieve this specific learning objective through your teaching.` : ''}
-
-Always be patient, supportive, and adapt to each child's learning pace. If a child seems confused, break down concepts into smaller steps. Celebrate their progress and effort!`;
-
-    setPrompt(basePrompt);
+  const updateFormData = (updates: Partial<typeof formData>) => {
+    setFormData(prev => ({ ...prev, ...updates }));
   };
 
-  return (
-    <div className="space-y-6">
-      <Card className="border-border bg-bg">
-        <CardHeader className="pb-6">
-          <CardTitle className="text-xl text-fg">Thinking Partner Identity</CardTitle>
-          <CardDescription className="text-fgMuted">
-            Set up your AI thinking partner's name and appearance
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-6">
-            <div className="space-y-2">
-              <Label htmlFor="tutor-name" className="text-sm text-fg">Thinking Partner Name</Label>
-              <Input
-                id="tutor-name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="e.g., Ms. Johnson, Mr. Smith"
-                className="text-sm"
-              />
-            </div>
-            
-            <div className="flex flex-col items-center space-y-4">
-              <Avatar className="h-24 w-24 border-2 border-primary/30">
-                <AvatarImage src={avatar} alt={name} />
-                <AvatarFallback>
-                  <Bot className="h-12 w-12" />
-                </AvatarFallback>
-              </Avatar>
-              
-              <div className="w-full max-w-md space-y-3">
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
-                  onChange={handleFileUpload}
-                  className="hidden"
-                />
-                
-                <div className="grid grid-cols-2 gap-2">
-                  <Button 
-                    variant="outline" 
-                    onClick={() => fileInputRef.current?.click()}
-                    disabled={isUploading}
-                    className="text-sm"
-                    size="sm"
-                  >
-                    <Upload className="h-4 w-4 mr-2" />
-                    {isUploading ? 'Uploading...' : 'Upload Image'}
-                  </Button>
-                  
-                  <Button 
-                    variant="outline" 
-                    onClick={generateRandomAvatar} 
-                    className="text-sm"
-                    size="sm"
-                  >
-                    Generate Random
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card className="border-border bg-bg">
-        <CardHeader className="pb-6">
-          <CardTitle className="text-xl text-fg">Teaching Configuration</CardTitle>
-          <CardDescription className="text-fgMuted">
-            Configure what your thinking partner teaches
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-6">
-            <div className="space-y-2">
-              <Label className="text-sm text-fg">Subject</Label>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                {SUBJECTS.map((subj) => (
-                  <Button
-                    key={subj.id}
-                    type="button"
-                    variant={subject === subj.id ? "default" : "outline"}
-                    className="justify-start gap-2 text-sm py-2 px-3"
-                    onClick={() => setSubject(subj.id)}
-                  >
-                    {subj.icon}
-                    <span className="truncate">{subj.name}</span>
-                  </Button>
-                ))}
-              </div>
-              
-              {subject === 'other' && (
-                <Input
-                  value={customSubject}
-                  onChange={(e) => setCustomSubject(e.target.value)}
-                  placeholder="Enter subject name"
-                  className="mt-2 text-sm"
-                />
-              )}
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="learning-objective" className="text-sm text-fg">Learning Objective</Label>
-              <Textarea
-                id="learning-objective"
-                value={learningObjective}
-                onChange={(e) => setLearningObjective(e.target.value)}
-                placeholder="e.g., Help my child learn about what Bitcoin is and why it's so important"
-                className="min-h-[80px] text-sm"
-              />
-              <p className="text-xs text-fgMuted">
-                Describe what specific learning goals this thinking partner should help children achieve
-              </p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {showTeachingInstructions && (
-        <Card className="border-border bg-bg">
-          <CardHeader className="pb-6">
-            <CardTitle className="text-xl text-fg">Teaching Instructions</CardTitle>
-            <CardDescription className="text-fgMuted">
-              Customize how your thinking partner communicates with children
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="flex justify-between items-center">
-                <Button 
-                  onClick={generatePrompt}
-                  variant="outline"
-                  className="gap-2 text-sm"
-                  size="sm"
-                >
-                  <Brain className="h-4 w-4" />
-                  Generate Instructions
-                </Button>
-              </div>
-              
-              <div>
-                <Label htmlFor="tutor-prompt" className="text-sm text-fg">Teaching Instructions</Label>
-                <Textarea
-                  id="tutor-prompt"
-                  value={prompt}
-                  onChange={(e) => setPrompt(e.target.value)}
-                  placeholder="Enter detailed instructions for how your thinking partner should behave and teach..."
-                  className="min-h-[200px] font-mono text-sm mt-2"
-                />
-                <p className="text-xs text-fgMuted mt-2">
-                  These instructions tell your AI thinking partner how to interact with children and what teaching approach to use
-                </p>
-              </div>
+  if (isLoading || !agent) {
+    return (
+      <div className="max-w-4xl mx-auto p-6">
+        <Card>
+          <CardContent className="p-6">
+            <div className="animate-pulse space-y-4">
+              <div className="h-4 bg-muted rounded w-1/4"></div>
+              <div className="h-10 bg-muted rounded"></div>
+              <div className="h-4 bg-muted rounded w-1/2"></div>
             </div>
           </CardContent>
         </Card>
-      )}
-      
-      {isSaving && !isCreationMode && (
-        <div className="fixed bottom-4 right-4 bg-secondary/80 text-foreground px-4 py-2 rounded-md text-sm animate-in fade-in slide-in-from-bottom-4">
-          Saving changes...
-        </div>
-      )}
+      </div>
+    );
+  }
+
+  return (
+    <div className="max-w-4xl mx-auto p-6 space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Settings className="h-5 w-5" />
+            Agent Configuration
+          </CardTitle>
+          <p className="text-sm text-muted-foreground">
+            Configure your agent's behavior, appearance, and intelligence features
+          </p>
+        </CardHeader>
+        <CardContent>
+          <Tabs defaultValue="basic" className="w-full">
+            <TabsList className="grid w-full grid-cols-4">
+              <TabsTrigger value="basic" className="flex items-center gap-2">
+                <Bot className="h-4 w-4" />
+                Basic Info
+              </TabsTrigger>
+              <TabsTrigger value="behavior" className="flex items-center gap-2">
+                <MessageSquare className="h-4 w-4" />
+                Behavior
+              </TabsTrigger>
+              <TabsTrigger value="gatekeeper" className="flex items-center gap-2">
+                <Shield className="h-4 w-4" />
+                Gatekeeper
+              </TabsTrigger>
+              <TabsTrigger value="advanced" className="flex items-center gap-2">
+                <Settings className="h-4 w-4" />
+                Advanced
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="basic" className="space-y-6 mt-6">
+              <div className="grid grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <Label htmlFor="name">Agent Name</Label>
+                  <Input
+                    id="name"
+                    value={formData.name}
+                    onChange={(e) => updateFormData({ name: e.target.value })}
+                    placeholder="Enter agent name..."
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="subject">Subject</Label>
+                  <Input
+                    id="subject"
+                    value={formData.subject}
+                    onChange={(e) => updateFormData({ subject: e.target.value })}
+                    placeholder="e.g., Mathematics, History, Science..."
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="description">Description</Label>
+                <Textarea
+                  id="description"
+                  value={formData.description}
+                  onChange={(e) => updateFormData({ description: e.target.value })}
+                  placeholder="Describe what your agent does..."
+                  rows={3}
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <Label htmlFor="gradeLevel">Grade Level</Label>
+                  <Select 
+                    value={formData.gradeLevel} 
+                    onValueChange={(value) => updateFormData({ gradeLevel: value })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select grade level..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="K-2">K-2</SelectItem>
+                      <SelectItem value="3-5">3-5</SelectItem>
+                      <SelectItem value="6-8">6-8</SelectItem>
+                      <SelectItem value="9-12">9-12</SelectItem>
+                      <SelectItem value="College">College</SelectItem>
+                      <SelectItem value="Adult">Adult</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="customUrl">Custom URL</Label>
+                  <Input
+                    id="customUrl"
+                    value={formData.customUrl}
+                    onChange={(e) => updateFormData({ customUrl: e.target.value })}
+                    placeholder="my-agent"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Your agent will be available at: /chat/{formData.customUrl || 'your-url'}
+                  </p>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="learningObjective">Learning Objective</Label>
+                <Input
+                  id="learningObjective"
+                  value={formData.learningObjective}
+                  onChange={(e) => updateFormData({ learningObjective: e.target.value })}
+                  placeholder="What should students learn from this agent?"
+                />
+              </div>
+
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label className="text-base font-medium">Make Public</Label>
+                  <p className="text-sm text-muted-foreground">
+                    Allow other users to discover and chat with your agent
+                  </p>
+                </div>
+                <Switch
+                  checked={formData.isPublic}
+                  onCheckedChange={(checked) => updateFormData({ isPublic: checked })}
+                />
+              </div>
+            </TabsContent>
+
+            <TabsContent value="behavior" className="space-y-6 mt-6">
+              <div className="space-y-2">
+                <Label htmlFor="prompt">System Prompt</Label>
+                <Textarea
+                  id="prompt"
+                  value={formData.prompt}
+                  onChange={(e) => updateFormData({ prompt: e.target.value })}
+                  placeholder="Define how your agent should behave and respond..."
+                  rows={8}
+                />
+                <p className="text-xs text-muted-foreground">
+                  This prompt defines your agent's personality, knowledge, and behavior patterns.
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="welcomeMessage">Welcome Message</Label>
+                <Textarea
+                  id="welcomeMessage"
+                  value={formData.welcomeMessage}
+                  onChange={(e) => updateFormData({ welcomeMessage: e.target.value })}
+                  placeholder="Enter the first message users will see..."
+                  rows={3}
+                />
+                <p className="text-xs text-muted-foreground">
+                  This message will be displayed when users first start chatting with your agent.
+                </p>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="gatekeeper" className="mt-6">
+              <GatekeeperSettings advisorId={agent.id} />
+            </TabsContent>
+
+            <TabsContent value="advanced" className="space-y-6 mt-6">
+              <div className="text-center py-8">
+                <Settings className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                <p className="text-muted-foreground">Advanced settings coming soon</p>
+                <p className="text-sm text-muted-foreground">
+                  Features like API integrations, custom actions, and workflow automation
+                </p>
+              </div>
+            </TabsContent>
+          </Tabs>
+
+          <Separator className="my-6" />
+
+          <div className="flex justify-end">
+            <Button onClick={handleSave} disabled={isSaving}>
+              {isSaving ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                <>
+                  <Save className="h-4 w-4 mr-2" />
+                  Save Changes
+                </>
+              )}
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };
-
-export default TeacherConfigSettings;

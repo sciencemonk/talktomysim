@@ -205,6 +205,59 @@ export type Database = {
         }
         Relationships: []
       }
+      conversation_captures: {
+        Row: {
+          advisor_id: string
+          conversation_id: string
+          conversation_score: number | null
+          created_at: string | null
+          email: string | null
+          id: string
+          message_count: number | null
+          name: string | null
+          notes: string | null
+          phone: string | null
+          status: string | null
+          trigger_reason: string | null
+        }
+        Insert: {
+          advisor_id: string
+          conversation_id: string
+          conversation_score?: number | null
+          created_at?: string | null
+          email?: string | null
+          id?: string
+          message_count?: number | null
+          name?: string | null
+          notes?: string | null
+          phone?: string | null
+          status?: string | null
+          trigger_reason?: string | null
+        }
+        Update: {
+          advisor_id?: string
+          conversation_id?: string
+          conversation_score?: number | null
+          created_at?: string | null
+          email?: string | null
+          id?: string
+          message_count?: number | null
+          name?: string | null
+          notes?: string | null
+          phone?: string | null
+          status?: string | null
+          trigger_reason?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conversation_captures_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       conversations: {
         Row: {
           advisor_id: string | null
@@ -282,27 +335,87 @@ export type Database = {
           },
         ]
       }
+      escalation_rules: {
+        Row: {
+          advisor_id: string
+          contact_capture_enabled: boolean | null
+          contact_capture_message: string | null
+          created_at: string | null
+          custom_keywords: string[] | null
+          id: string
+          is_active: boolean | null
+          message_count_threshold: number | null
+          score_threshold: number | null
+          updated_at: string | null
+          urgency_keywords: string[] | null
+          value_keywords: string[] | null
+          vip_keywords: string[] | null
+        }
+        Insert: {
+          advisor_id: string
+          contact_capture_enabled?: boolean | null
+          contact_capture_message?: string | null
+          created_at?: string | null
+          custom_keywords?: string[] | null
+          id?: string
+          is_active?: boolean | null
+          message_count_threshold?: number | null
+          score_threshold?: number | null
+          updated_at?: string | null
+          urgency_keywords?: string[] | null
+          value_keywords?: string[] | null
+          vip_keywords?: string[] | null
+        }
+        Update: {
+          advisor_id?: string
+          contact_capture_enabled?: boolean | null
+          contact_capture_message?: string | null
+          created_at?: string | null
+          custom_keywords?: string[] | null
+          id?: string
+          is_active?: boolean | null
+          message_count_threshold?: number | null
+          score_threshold?: number | null
+          updated_at?: string | null
+          urgency_keywords?: string[] | null
+          value_keywords?: string[] | null
+          vip_keywords?: string[] | null
+        }
+        Relationships: []
+      }
       messages: {
         Row: {
           content: string
           conversation_id: string
           created_at: string | null
           id: string
+          intent: string | null
+          metadata: Json | null
           role: string
+          score: number | null
+          urgency_level: string | null
         }
         Insert: {
           content: string
           conversation_id: string
           created_at?: string | null
           id?: string
+          intent?: string | null
+          metadata?: Json | null
           role: string
+          score?: number | null
+          urgency_level?: string | null
         }
         Update: {
           content?: string
           conversation_id?: string
           created_at?: string | null
           id?: string
+          intent?: string | null
+          metadata?: Json | null
           role?: string
+          score?: number | null
+          urgency_level?: string | null
         }
         Relationships: [
           {
