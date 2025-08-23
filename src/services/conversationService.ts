@@ -53,24 +53,27 @@ export const conversationService = {
         if (error) throw error;
         return newConversation;
       } else {
-        // Unauthenticated user - create anonymous conversation
+        // Unauthenticated user - try to create anonymous conversation
         console.log('Creating anonymous conversation for public access');
         
-        // Create a temporary user ID for anonymous conversations
-        const anonymousUserId = `anonymous_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        // For anonymous users, we'll use a special approach
+        // First, let's try to create a conversation without the foreign key constraint
+        const anonymousUserId = `anon_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
         
         const { data: newConversation, error } = await supabase
           .from('conversations')
           .insert({
             user_id: anonymousUserId,
             tutor_id: advisorId,
-            title: 'Anonymous Conversation'
+            title: 'Anonymous Chat'
           })
           .select()
           .single();
 
         if (error) {
           console.error('Error creating anonymous conversation:', error);
+          // If anonymous conversation creation fails, return null but don't throw
+          // This allows the chat to continue in memory-only mode
           return null;
         }
         
@@ -137,6 +140,7 @@ export const conversationService = {
       console.log('Fetching ALL conversations for advisor:', advisorId);
       
       // Fetch ALL conversations for this advisor, regardless of user type
+      // This includes both authenticated users and anonymous users
       const { data, error } = await supabase
         .from('conversations')
         .select(`
@@ -168,7 +172,8 @@ export const conversationService = {
         const latestMessage = messages[messages.length - 1];
         const scores = userMessages.map(m => m.score || 0).filter(s => s > 0);
         
-        const isAnonymous = conversation.user_id.startsWith('anonymous_');
+        // Check if this is an anonymous user by looking at the user_id pattern
+        const isAnonymous = conversation.user_id?.startsWith('anon_') || conversation.user_id?.startsWith('anonymous_');
         
         console.log(`Conversation ${conversation.id}: user_id=${conversation.user_id}, is_anonymous=${isAnonymous}, messages=${messages.length}`);
         
