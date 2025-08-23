@@ -171,18 +171,6 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ agent, onBack }) => {
       {/* Messages */}
       <ScrollArea ref={scrollAreaRef} className="flex-1 p-4">
         <div className="space-y-4 max-w-4xl mx-auto">
-          {allMessages.length === 0 && !isInitializing && (
-            <Card className="border-dashed">
-              <CardContent className="flex flex-col items-center justify-center py-12">
-                <Bot className="h-12 w-12 text-muted-foreground mb-4" />
-                <h3 className="font-semibold text-lg mb-2">Start a conversation</h3>
-                <p className="text-muted-foreground text-center">
-                  Send a message to begin chatting with {agent.name}
-                </p>
-              </CardContent>
-            </Card>
-          )}
-          
           {isInitializing && (
             <div className="flex items-center justify-center py-12">
               <Loader2 className="h-8 w-8 animate-spin text-primary mr-2" />
@@ -210,7 +198,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ agent, onBack }) => {
                 className={`max-w-[85%] md:max-w-[70%] rounded-lg px-4 py-3 ${
                   message.role === 'user'
                     ? 'bg-primary text-primary-foreground'
-                    : 'bg-muted text-muted-foreground'
+                    : 'bg-muted text-black'
                 }`}
               >
                 <div className="text-sm whitespace-pre-wrap">
