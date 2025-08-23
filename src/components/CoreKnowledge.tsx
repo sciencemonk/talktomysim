@@ -1,8 +1,6 @@
-
 import React, { useState } from 'react';
 import { FileUpload } from './FileUpload';
 import { DocumentManager } from './DocumentManager';
-import { VectorStats } from './VectorStats';
 import { TextContentInput } from './TextContentInput';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -112,13 +110,12 @@ export const CoreKnowledge: React.FC<CoreKnowledgeProps> = ({ advisorId }) => {
 
   return (
     <div className="max-w-6xl mx-auto p-6 space-y-6">
-      {/* Knowledge Base Stats */}
+      {/* Page Header */}
       <div className="mb-8">
-        <h2 className="text-2xl font-semibold text-fg mb-6">Knowledge Base</h2>
-        <VectorStats 
-          advisorId={advisorId} 
-          refreshTrigger={refreshDocuments}
-        />
+        <h1 className="text-3xl font-bold text-fg mb-4">Vector Embedding</h1>
+        <p className="text-muted-foreground text-lg leading-relaxed">
+          Upload documents, add personal experiences, and share your expertise to build your Sim's brain. We'll convert it into a vector embedding so that huge amounts of information are readily available.
+        </p>
       </div>
 
       {/* Add Knowledge Section */}
