@@ -25,58 +25,46 @@ export const conversationService = {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       
-      if (user) {
-        // Authenticated user - normal flow
-        // First try to get existing conversation for this advisor
-        const { data: existingConversation } = await supabase
-          .from('conversations')
-          .select('*')
-          .eq('user_id', user.id)
-          .eq('tutor_id', advisorId)
-          .maybeSingle();
-
-        if (existingConversation) {
-          return existingConversation;
-        }
-
-        // Create new conversation if it doesn't exist
-        const { data: newConversation, error } = await supabase
-          .from('conversations')
-          .insert({
-            user_id: user.id,
-            tutor_id: advisorId,
-            title: null
-          })
-          .select()
-          .single();
-
-        if (error) throw error;
-        return newConversation;
-      } else {
-        // Unauthenticated user - create anonymous conversation
-        console.log('Creating anonymous conversation for public access');
-        
-        // Create a temporary user ID for anonymous conversations
-        const anonymousUserId = `anonymous_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-        
-        const { data: newConversation, error } = await supabase
-          .from('conversations')
-          .insert({
-            user_id: anonymousUserId,
-            tutor_id: advisorId,
-            title: 'Anonymous Conversation'
-          })
-          .select()
-          .single();
-
-        if (error) {
-          console.error('Error creating anonymous conversation:', error);
-          return null;
-        }
-        
-        console.log('Created anonymous conversation:', newConversation);
-        return newConversation;
+      if (!user) {
+        console.error('User not authenticated - cannot create conversation');
+        return null;
       }
+
+      console.log('Getting or creating conversation for authenticated user:', user.id);
+
+      // First try to get existing conversation for this advisor
+      const { data: existingConversation } = await supabase
+        .from('conversations')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('tutor_id', advisorId)
+        .maybeSingle();
+
+      if (existingConversation) {
+        console.log('Found existing conversation:', existingConversation.id);
+        return existingConversation;
+      }
+
+      // Create new conversation if it doesn't exist
+      console.log('Creating new conversation for user:', user.id, 'advisor:', advisorId);
+      const { data: newConversation, error } = await supabase
+        .from('conversations')
+        .insert({
+          user_id: user.id,
+          tutor_id: advisorId,
+          title: null
+        })
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Error creating conversation:', error);
+        return null;
+      }
+
+      console.log('Created new conversation:', newConversation.id);
+      return newConversation;
+      
     } catch (error) {
       console.error('Error getting or creating conversation:', error);
       return null;
@@ -170,7 +158,7 @@ export const conversationService = {
           highest_score: scores.length > 0 ? Math.max(...scores) : 0,
           intents: [...new Set(userMessages.map(m => m.intent).filter(Boolean))],
           escalated: scores.some(s => s >= 7) || messages.length >= 5,
-          is_anonymous: conversation.user_id.startsWith('anonymous_')
+          is_anonymous: false // Remove anonymous support for now
         };
       });
     } catch (error) {

@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useCallback } from 'react';
 import { AgentType } from '@/types/agent';
 import { conversationService, Message } from '@/services/conversationService';
@@ -14,7 +15,6 @@ export const useChatHistory = (agent: AgentType) => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [isPublicChat, setIsPublicChat] = useState(false);
   const [welcomeMessageSent, setWelcomeMessageSent] = useState(false);
   
   const { sendMessage: sendEnhancedMessage, isLoading: isSending } = useEnhancedTextChat(agent);
@@ -29,34 +29,17 @@ export const useChatHistory = (agent: AgentType) => {
       console.log('Loading chat history for agent:', agent.name);
 
       try {
-        // Always try to create a conversation (works for both authenticated and anonymous users)
+        // Try to create a conversation (requires authentication)
         const conversation = await conversationService.getOrCreateConversation(agent.id);
         
         if (!conversation) {
-          // Fallback to in-memory chat if conversation creation fails
-          console.log('No conversation created - using in-memory chat');
-          setIsPublicChat(true);
-          setConversationId(null);
+          console.error('Failed to create conversation - user may not be authenticated');
           setMessages([]);
-          
-          // Add welcome message for fallback case if it exists
-          if (agent.welcomeMessage && agent.welcomeMessage.trim()) {
-            const welcomeMessage: ChatMessage = {
-              id: `welcome-${Date.now()}`,
-              role: 'system',
-              content: agent.welcomeMessage,
-              isComplete: true
-            };
-            setMessages([welcomeMessage]);
-            setWelcomeMessageSent(true);
-          }
-          
+          setConversationId(null);
           setIsLoading(false);
           return;
         }
 
-        // Set conversation type based on whether user_id starts with 'anonymous_'
-        setIsPublicChat(conversation.user_id.startsWith('anonymous_'));
         setConversationId(conversation.id);
 
         // Load existing messages
@@ -104,23 +87,8 @@ export const useChatHistory = (agent: AgentType) => {
         
       } catch (error) {
         console.error('Error loading chat history:', error);
-        // Fallback to in-memory chat
-        setIsPublicChat(true);
+        setMessages([]);
         setConversationId(null);
-        
-        // Add welcome message for fallback case if it exists
-        if (agent.welcomeMessage && agent.welcomeMessage.trim()) {
-          const welcomeMessage: ChatMessage = {
-            id: `welcome-${Date.now()}`,
-            role: 'system',
-            content: agent.welcomeMessage,
-            isComplete: true
-          };
-          setMessages([welcomeMessage]);
-          setWelcomeMessageSent(true);
-        } else {
-          setMessages([]);
-        }
       }
       
       setIsLoading(false);
@@ -129,7 +97,6 @@ export const useChatHistory = (agent: AgentType) => {
     // Reset messages when switching agents
     setMessages([]);
     setConversationId(null);
-    setIsPublicChat(false);
     setWelcomeMessageSent(false);
     loadChatHistory();
   }, [agent?.id, agent?.welcomeMessage]);
@@ -137,7 +104,7 @@ export const useChatHistory = (agent: AgentType) => {
   // Add user message and send to enhanced chat
   const addUserMessage = useCallback(async (content: string) => {
     if (!conversationId) {
-      console.error('No conversation ID available');
+      console.error('No conversation ID available - cannot send message');
       return;
     }
 
@@ -286,7 +253,7 @@ export const useChatHistory = (agent: AgentType) => {
   return {
     messages,
     isLoading: isLoading || isSending,
-    isPublicChat,
+    isPublicChat: false, // Always require authentication now
     welcomeMessageSent,
     addUserMessage,
     startAiMessage,
