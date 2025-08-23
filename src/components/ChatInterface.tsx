@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { TextInput } from "@/components/TextInput";
 import { useChatHistory } from "@/hooks/useChatHistory";
-import { useEnhancedTextChat } from "@/hooks/useEnhancedTextChat";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { AgentType } from "@/types/agent";
 import { InfoModal } from "./InfoModal";
@@ -19,19 +18,10 @@ interface ChatInterfaceProps {
 const ChatInterface = ({ agent, onBack }: ChatInterfaceProps) => {
   const [currentAgent, setCurrentAgent] = useState(agent);
   const [isAiResponding, setIsAiResponding] = useState(false);
-  const [showSources, setShowSources] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
   
   const chatHistory = useChatHistory(currentAgent);
-  
-  const textChat = useEnhancedTextChat({
-    agent: currentAgent,
-    onUserMessage: chatHistory.addUserMessage,
-    onAiMessageStart: chatHistory.startAiMessage,
-    onAiTextDelta: chatHistory.addAiTextDelta,
-    onAiMessageComplete: chatHistory.completeAiMessage
-  });
 
   useEffect(() => {
     setCurrentAgent(agent);
@@ -45,10 +35,10 @@ const ChatInterface = ({ agent, onBack }: ChatInterfaceProps) => {
     scrollToBottom();
   }, [chatHistory.messages]);
 
-  // Monitor text chat processing state for typing indicator
+  // Monitor chat history loading state for typing indicator
   useEffect(() => {
-    setIsAiResponding(textChat.isProcessing);
-  }, [textChat.isProcessing]);
+    setIsAiResponding(chatHistory.isLoading);
+  }, [chatHistory.isLoading]);
 
   const SidebarContent = () => (
     <div className="w-80 bg-card border-r border-border flex flex-col h-full">
@@ -89,47 +79,6 @@ const ChatInterface = ({ agent, onBack }: ChatInterfaceProps) => {
       </div>
     </div>
   );
-
-  const SourcesDisplay = () => {
-    if (!textChat.lastSources || textChat.lastSources.length === 0) return null;
-
-    return (
-      <div className="mt-2 p-3 bg-muted/50 rounded-lg border">
-        <div className="flex items-center justify-between mb-2">
-          <h4 className="text-xs font-medium text-muted-foreground">Sources</h4>
-          <button
-            onClick={() => setShowSources(!showSources)}
-            className="text-xs text-muted-foreground hover:text-foreground"
-          >
-            {showSources ? 'Hide' : 'Show'} ({textChat.lastSources.length})
-          </button>
-        </div>
-        
-        {showSources && (
-          <div className="space-y-2">
-            {textChat.lastSources.map((source, index) => (
-              <div key={index} className="text-xs text-muted-foreground">
-                <div className="font-medium">{source.title}</div>
-                <div className="flex justify-between">
-                  <span>{source.documentType}</span>
-                  <span>Similarity: {(source.similarity * 100).toFixed(1)}%</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-        
-        {textChat.lastSearchMetrics && (
-          <div className="mt-2 pt-2 border-t text-xs text-muted-foreground">
-            <div className="flex justify-between">
-              <span>Search time: {textChat.lastSearchMetrics.searchTime}ms</span>
-              <span>Avg similarity: {(textChat.lastSearchMetrics.averageSimilarity * 100).toFixed(1)}%</span>
-            </div>
-          </div>
-        )}
-      </div>
-    );
-  };
 
   // Filter out incomplete messages with no content for display
   const displayMessages = chatHistory.messages.filter(message => {
@@ -203,17 +152,6 @@ const ChatInterface = ({ agent, onBack }: ChatInterfaceProps) => {
                     {message.content}
                   </div>
                 </div>
-                
-                {/* Show sources for the last AI message */}
-                {message.role === 'system' && 
-                 index === displayMessages.length - 1 && 
-                 message.isComplete && (
-                  <div className="flex justify-start mt-1">
-                    <div className="max-w-[80%] sm:max-w-[75%] md:max-w-[60%] lg:max-w-[40%] xl:max-w-[30%]">
-                      <SourcesDisplay />
-                    </div>
-                  </div>
-                )}
               </div>
             ))}
             {/* Show typing indicator when AI is responding and no incomplete messages are being displayed */}
@@ -227,8 +165,8 @@ const ChatInterface = ({ agent, onBack }: ChatInterfaceProps) => {
       <div className="border-t bg-background flex-shrink-0 sticky bottom-0 z-10 safe-area-bottom">
         <div className="p-2 sm:p-0">
           <TextInput 
-            onSendMessage={textChat.sendMessage}
-            disabled={textChat.isProcessing || isAiResponding}
+            onSendMessage={chatHistory.addUserMessage}
+            disabled={chatHistory.isLoading || isAiResponding}
             placeholder={isAiResponding ? `${currentAgent.name} is typing...` : `Message ${currentAgent.name}...`}
           />
         </div>
