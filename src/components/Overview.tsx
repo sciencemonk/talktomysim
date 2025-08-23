@@ -4,8 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { BarChart3, ExternalLink, Globe, MessageSquare, Clock, User } from 'lucide-react';
-import { ConversationsDashboard } from '@/components/ConversationsDashboard';
+import { ExternalLink, Globe, MessageSquare, Clock, User } from 'lucide-react';
 import { ChatModal } from '@/components/ChatModal';
 import { useSim } from '@/hooks/useSim';
 import { useQuery } from '@tanstack/react-query';
@@ -56,7 +55,7 @@ const Overview = () => {
 
   return (
     <div className="max-w-4xl mx-auto p-6 space-y-6">
-      {/* Compact Header Section */}
+      {/* Header Section */}
       <Card>
         <CardContent className="p-4">
           <div className="flex flex-col sm:flex-row sm:items-center gap-4">
@@ -92,18 +91,21 @@ const Overview = () => {
         </CardContent>
       </Card>
 
-      {/* Activity Section */}
+      {/* All Conversations Section */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <MessageSquare className="h-5 w-5" />
-            Activity
+            All Conversations ({conversations.length})
           </CardTitle>
+          <p className="text-sm text-muted-foreground">
+            All conversations users are having with your sim
+          </p>
         </CardHeader>
         <CardContent>
           {conversationsLoading ? (
             <div className="space-y-4">
-              {[1, 2, 3].map((i) => (
+              {[1, 2, 3, 4, 5].map((i) => (
                 <div key={i} className="animate-pulse border rounded-lg p-4">
                   <div className="flex items-center gap-3">
                     <div className="h-8 w-8 bg-muted rounded-full"></div>
@@ -117,9 +119,12 @@ const Overview = () => {
               ))}
             </div>
           ) : conversations.length === 0 ? (
-            <div className="text-center py-8">
-              <MessageSquare className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-              <p className="text-muted-foreground">No conversations yet</p>
+            <div className="text-center py-12">
+              <MessageSquare className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+              <h3 className="text-lg font-semibold text-foreground mb-2">No conversations yet</h3>
+              <p className="text-muted-foreground">
+                Conversations will appear here once users start chatting with your sim
+              </p>
             </div>
           ) : (
             <div className="space-y-3">
@@ -182,28 +187,6 @@ const Overview = () => {
         conversation={selectedConversation}
         simName={sim?.name || 'Sim'}
       />
-
-      {/* Analytics Section */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <BarChart3 className="h-5 w-5" />
-            Analytics
-          </CardTitle>
-          <p className="text-sm text-muted-foreground">
-            Advanced analytics and insights will be available here
-          </p>
-        </CardHeader>
-        <CardContent>
-          <div className="text-center py-12">
-            <BarChart3 className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-foreground mb-2">Analytics Dashboard</h3>
-            <p className="text-muted-foreground">
-              Detailed conversation analytics, conversion rates, and performance metrics coming soon
-            </p>
-          </div>
-        </CardContent>
-      </Card>
     </div>
   );
 };
