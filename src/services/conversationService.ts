@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 
 export interface Conversation {
@@ -25,7 +24,7 @@ export const conversationService = {
     try {
       console.log('Creating anonymous conversation for advisor:', advisorId);
 
-      // First verify the advisor exists
+      // First verify the advisor exists using the public API
       const { data: advisor, error: advisorError } = await supabase
         .from('advisors')
         .select('id')
@@ -41,8 +40,7 @@ export const conversationService = {
       const conversationData = {
         user_id: 'anonymous',
         tutor_id: advisorId,
-        title: null,
-        advisor_id: null
+        title: null
       };
 
       console.log('Inserting conversation with data:', conversationData);
