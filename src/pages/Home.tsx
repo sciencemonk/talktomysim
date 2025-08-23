@@ -1,8 +1,9 @@
+
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { Navigate } from "react-router-dom";
 import AdvisorDirectory from "@/components/AdvisorDirectory";
-import ChatInterface from "@/components/ChatInterface";
+import { ChatInterface } from "@/components/ChatInterface";
 import AuthModal from "@/components/AuthModal";
 import UserSidebar, { SidebarContent } from "@/components/UserSidebar";
 import MySim from "@/components/MySim";

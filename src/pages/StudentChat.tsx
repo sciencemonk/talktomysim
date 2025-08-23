@@ -2,7 +2,7 @@
 import { useParams } from "react-router-dom";
 import { usePublicAgent } from "@/hooks/usePublicAgent";
 import { usePublicAgentByUrl } from "@/hooks/usePublicAgentByUrl";
-import ChatInterface from "@/components/ChatInterface";
+import { ChatInterface } from "@/components/ChatInterface";
 import AuthModal from "@/components/AuthModal";
 import { useAuth } from "@/hooks/useAuth";
 import { Bot, Loader2, AlertCircle } from "lucide-react";
