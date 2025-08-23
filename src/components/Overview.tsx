@@ -41,22 +41,7 @@ const Overview = () => {
       </Card>
 
       {/* Conversations Section */}
-      {sim?.id ? (
-        <ConversationsDashboard advisorId={sim.id} />
-      ) : (
-        <Card>
-          <CardHeader>
-            <CardTitle>Conversations</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-center py-8">
-              <p className="text-muted-foreground">
-                Complete your Sim setup to start tracking conversations
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-      )}
+      <ConversationsDashboard advisorId={sim?.id || 'demo'} />
 
       {/* Analytics Section */}
       <Card>
