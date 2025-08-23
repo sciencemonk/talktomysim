@@ -8,7 +8,7 @@ interface UseEnhancedTextChatProps {
   onUserMessage: (message: string) => void;
   onAiMessageStart: () => string;
   onAiTextDelta: (delta: string) => void;
-  onAiMessageComplete: (messageId: string) => void;
+  onAiMessageComplete: () => void;
 }
 
 export const useEnhancedTextChat = ({
@@ -98,7 +98,7 @@ export const useEnhancedTextChat = ({
         setConversationHistory(prev => [...prev, { role: 'assistant', content: data.content }]);
         
         // Complete the message
-        onAiMessageComplete(aiMessageId);
+        onAiMessageComplete();
       } else {
         throw new Error('No content in response');
       }
@@ -110,7 +110,7 @@ export const useEnhancedTextChat = ({
       
       console.error('Error sending enhanced message:', error);
       onAiTextDelta('Sorry, I encountered an error. Please try again.');
-      onAiMessageComplete(aiMessageId);
+      onAiMessageComplete();
     } finally {
       setIsProcessing(false);
       abortControllerRef.current = null;

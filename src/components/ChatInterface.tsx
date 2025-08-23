@@ -1,17 +1,13 @@
 
-import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Send, Loader2, Bot, User } from "lucide-react";
-import { AgentType } from "@/types/agent";
-import { useEnhancedTextChat } from "@/hooks/useEnhancedTextChat";
-
-interface ChatInterfaceProps {
-  agent: AgentType;
-  onBack?: () => void;
-}
+import React, { useState, useEffect, useCallback } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Send, Mic, MicOff } from 'lucide-react';
+import { AgentType } from '@/types/agent';
+import { useEnhancedTextChat } from '@/hooks/useEnhancedTextChat';
+import { conversationService, Conversation } from '@/services/conversationService';
+import { useChatHistory } from '@/hooks/useChatHistory';
 
 interface Message {
   id: string;
@@ -20,48 +16,60 @@ interface Message {
   timestamp: number;
 }
 
-const TypingIndicator = () => (
-  <div className="flex space-x-1 justify-center items-center py-2">
-    <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce [animation-delay:-0.3s]"></div>
-    <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce [animation-delay:-0.15s]"></div>
-    <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce"></div>
-  </div>
-);
+interface ChatInterfaceProps {
+  agent: AgentType;
+  onToggleAudio?: () => void;
+  isAudioEnabled?: boolean;
+}
 
-const ChatInterface: React.FC<ChatInterfaceProps> = ({ agent, onBack }) => {
-  const [input, setInput] = useState('');
+export const ChatInterface = ({ agent, onToggleAudio, isAudioEnabled = false }: ChatInterfaceProps) => {
+  const [inputMessage, setInputMessage] = useState('');
   const [messages, setMessages] = useState<Message[]>([]);
-  const [hasShownWelcome, setHasShownWelcome] = useState(false);
-  const scrollAreaRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const [conversation, setConversation] = useState<Conversation | null>(null);
 
-  // Show welcome message once
+  // Initialize conversation on component mount
   useEffect(() => {
-    if (!hasShownWelcome && agent) {
-      const welcomeMessage = agent.welcomeMessage || `Hello! I'm ${agent.name}. How can I help you today?`;
-      
-      const welcomeMsg: Message = {
-        id: `welcome-${Date.now()}`,
-        role: 'system',
-        content: welcomeMessage,
-        timestamp: Date.now()
-      };
-      
-      setMessages([welcomeMsg]);
-      setHasShownWelcome(true);
-    }
-  }, [agent, hasShownWelcome]);
+    const initConversation = async () => {
+      if (agent?.id) {
+        const conv = await conversationService.getOrCreateConversation(agent.id);
+        setConversation(conv);
+      }
+    };
+    
+    initConversation();
+  }, [agent?.id]);
 
-  const addUserMessage = useCallback((content: string) => {
+  // Load existing messages when conversation is available
+  const { messages: historyMessages, isLoading } = useChatHistory(conversation?.id || null);
+
+  // Update local messages when history loads
+  useEffect(() => {
+    if (historyMessages && historyMessages.length > 0) {
+      const formattedMessages: Message[] = historyMessages.map(msg => ({
+        id: msg.id,
+        role: msg.role,
+        content: msg.content,
+        timestamp: new Date(msg.created_at).getTime()
+      }));
+      setMessages(formattedMessages);
+    }
+  }, [historyMessages]);
+
+  const addUserMessage = useCallback(async (message: string) => {
     const userMsg: Message = {
       id: `user-${Date.now()}`,
       role: 'user',
-      content,
+      content: message,
       timestamp: Date.now()
     };
     
     setMessages(prev => [...prev, userMsg]);
-  }, []);
+
+    // Save to database if conversation exists
+    if (conversation?.id) {
+      await conversationService.addMessage(conversation.id, 'user', message);
+    }
+  }, [conversation?.id]);
 
   const startAiMessage = useCallback(() => {
     // Don't add an empty message, just return an ID for tracking
@@ -93,9 +101,15 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ agent, onBack }) => {
     });
   }, []);
 
-  const completeAiMessage = useCallback(() => {
-    // Message is already complete, nothing to do
-  }, []);
+  const completeAiMessage = useCallback(async () => {
+    // Save the completed AI message to database
+    if (conversation?.id) {
+      const lastMessage = messages[messages.length - 1];
+      if (lastMessage && lastMessage.role === 'system' && lastMessage.content) {
+        await conversationService.addMessage(conversation.id, 'system', lastMessage.content);
+      }
+    }
+  }, [conversation?.id, messages]);
 
   const { sendMessage, isProcessing } = useEnhancedTextChat({
     agent,
@@ -105,130 +119,153 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ agent, onBack }) => {
     onAiMessageComplete: completeAiMessage
   });
 
-  const handleSendMessage = useCallback(async (messageText: string) => {
-    if (!messageText?.trim() || isProcessing) return;
-
-    await sendMessage(messageText);
-    setInput('');
-    inputRef.current?.focus();
-  }, [isProcessing, sendMessage]);
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    handleSendMessage(input);
+  const handleSendMessage = async () => {
+    if (!inputMessage.trim() || isProcessing) return;
+    
+    const messageToSend = inputMessage.trim();
+    setInputMessage('');
+    
+    await sendMessage(messageToSend);
   };
 
-  // Auto-scroll to bottom when new messages arrive
-  useEffect(() => {
-    if (scrollAreaRef.current) {
-      const scrollElement = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]');
-      if (scrollElement) {
-        scrollElement.scrollTop = scrollElement.scrollHeight;
-      }
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSendMessage();
     }
-  }, [messages, isProcessing]);
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <div className="animate-pulse">Loading conversation...</div>
+      </div>
+    );
+  }
 
   return (
-    <div className="h-screen flex flex-col bg-background">
+    <div className="flex flex-col h-full bg-background">
       {/* Header */}
-      <div className="flex-shrink-0 flex items-center gap-4 p-4 border-b border-border bg-card">
-        <Avatar className="h-10 w-10">
-          <AvatarImage src={agent.avatar} alt={agent.name} />
-          <AvatarFallback>
-            <Bot className="h-5 w-5" />
-          </AvatarFallback>
-        </Avatar>
-        <div className="flex-1 min-w-0">
-          <h2 className="font-semibold text-foreground truncate">{agent.name || 'Chat'}</h2>
-          <p className="text-sm text-muted-foreground truncate">
-            {agent.description || 'AI Assistant'}
-          </p>
-        </div>
-      </div>
-
-      {/* Messages Area */}
-      <div className="flex-1 overflow-hidden">
-        <ScrollArea ref={scrollAreaRef} className="h-full">
-          <div className="p-4 space-y-4 max-w-4xl mx-auto">
-            {messages.map((message) => (
-              <div
-                key={message.id}
-                className={`flex gap-3 ${
-                  message.role === 'user' ? 'justify-end' : 'justify-start'
-                }`}
-              >
-                {message.role === 'system' && (
-                  <Avatar className="h-8 w-8 flex-shrink-0">
-                    <AvatarImage src={agent.avatar} alt={agent.name} />
-                    <AvatarFallback>
-                      <Bot className="h-4 w-4" />
-                    </AvatarFallback>
-                  </Avatar>
-                )}
-                
-                <div
-                  className={`max-w-[85%] md:max-w-[70%] rounded-lg px-4 py-3 ${
-                    message.role === 'user'
-                      ? 'bg-primary text-primary-foreground'
-                      : 'bg-muted text-foreground'
-                  }`}
-                >
-                  <div className="text-sm whitespace-pre-wrap">
-                    {message.content}
-                  </div>
-                </div>
-                
-                {message.role === 'user' && (
-                  <Avatar className="h-8 w-8 flex-shrink-0">
-                    <AvatarFallback>
-                      <User className="h-4 w-4" />
-                    </AvatarFallback>
-                  </Avatar>
-                )}
-              </div>
-            ))}
-
-            {/* Typing indicator - only show when processing */}
-            {isProcessing && (
-              <div className="flex gap-3 justify-start">
-                <Avatar className="h-8 w-8 flex-shrink-0">
-                  <AvatarImage src={agent.avatar} alt={agent.name} />
-                  <AvatarFallback>
-                    <Bot className="h-4 w-4" />
-                  </AvatarFallback>
-                </Avatar>
-                <div className="bg-muted text-foreground rounded-lg px-4 py-3">
-                  <TypingIndicator />
-                </div>
-              </div>
-            )}
+      <div className="flex items-center justify-between p-4 border-b border-border bg-card">
+        <div className="flex items-center gap-3">
+          <Avatar className="h-10 w-10">
+            <AvatarImage src={agent?.avatar} alt={agent?.name} />
+            <AvatarFallback className="bg-primary/10 text-primary font-medium">
+              {agent?.name?.charAt(0)}
+            </AvatarFallback>
+          </Avatar>
+          <div>
+            <h2 className="font-semibold text-foreground">{agent?.name}</h2>
+            <p className="text-sm text-muted-foreground">{agent?.description}</p>
           </div>
-        </ScrollArea>
-      </div>
-
-      {/* Input Area - Fixed at bottom */}
-      <div className="flex-shrink-0 p-4 border-t border-border bg-card">
-        <form onSubmit={handleSubmit} className="flex gap-2 max-w-4xl mx-auto">
-          <Input
-            ref={inputRef}
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder={`Message ${agent.name}...`}
-            disabled={isProcessing}
-            className="flex-1"
-            autoFocus
-          />
-          <Button type="submit" disabled={!input.trim() || isProcessing}>
-            {isProcessing ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
+        </div>
+        
+        {onToggleAudio && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={onToggleAudio}
+            className="flex items-center gap-2"
+          >
+            {isAudioEnabled ? (
+              <>
+                <MicOff className="h-4 w-4" />
+                Audio Off
+              </>
             ) : (
-              <Send className="h-4 w-4" />
+              <>
+                <Mic className="h-4 w-4" />
+                Audio On
+              </>
             )}
           </Button>
-        </form>
+        )}
+      </div>
+
+      {/* Messages */}
+      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+        {messages.length === 0 && (
+          <div className="text-center text-muted-foreground py-8">
+            <p>Start a conversation with {agent?.name}</p>
+          </div>
+        )}
+        
+        {messages.map((message) => (
+          <div
+            key={message.id}
+            className={`flex gap-3 ${
+              message.role === 'user' ? 'justify-end' : 'justify-start'
+            }`}
+          >
+            {message.role === 'system' && (
+              <Avatar className="h-8 w-8 flex-shrink-0">
+                <AvatarImage src={agent?.avatar} alt={agent?.name} />
+                <AvatarFallback className="bg-primary/10 text-primary text-xs">
+                  {agent?.name?.charAt(0)}
+                </AvatarFallback>
+              </Avatar>
+            )}
+            
+            <div
+              className={`max-w-[70%] rounded-lg px-4 py-2 ${
+                message.role === 'user'
+                  ? 'bg-primary text-primary-foreground'
+                  : 'bg-muted text-foreground'
+              }`}
+            >
+              <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+            </div>
+            
+            {message.role === 'user' && (
+              <Avatar className="h-8 w-8 flex-shrink-0">
+                <AvatarFallback className="bg-secondary text-secondary-foreground text-xs">
+                  U
+                </AvatarFallback>
+              </Avatar>
+            )}
+          </div>
+        ))}
+
+        {/* Typing indicator - only show when processing */}
+        {isProcessing && (
+          <div className="flex gap-3 justify-start">
+            <Avatar className="h-8 w-8 flex-shrink-0">
+              <AvatarImage src={agent?.avatar} alt={agent?.name} />
+              <AvatarFallback className="bg-primary/10 text-primary text-xs">
+                {agent?.name?.charAt(0)}
+              </AvatarFallback>
+            </Avatar>
+            <div className="bg-muted rounded-lg px-4 py-2">
+              <div className="flex space-x-1">
+                <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce"></div>
+                <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Input */}
+      <div className="p-4 border-t border-border bg-card">
+        <div className="flex gap-2">
+          <Input
+            value={inputMessage}
+            onChange={(e) => setInputMessage(e.target.value)}
+            onKeyPress={handleKeyPress}
+            placeholder={`Message ${agent?.name}...`}
+            disabled={isProcessing}
+            className="flex-1"
+          />
+          <Button
+            onClick={handleSendMessage}
+            disabled={!inputMessage.trim() || isProcessing}
+            size="icon"
+          >
+            <Send className="h-4 w-4" />
+          </Button>
+        </div>
       </div>
     </div>
   );
 };
-
-export default ChatInterface;
