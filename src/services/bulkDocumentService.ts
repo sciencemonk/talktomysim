@@ -102,7 +102,7 @@ export class BulkDocumentService {
           .from('advisor_documents')
           .select('title')
           .eq('id', documentId)
-          .single();
+          .maybeSingle();
 
         await documentService.deleteDocument(documentId);
         

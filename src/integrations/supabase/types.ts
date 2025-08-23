@@ -235,6 +235,53 @@ export type Database = {
         }
         Relationships: []
       }
+      document_versions: {
+        Row: {
+          change_summary: string | null
+          content: string
+          content_hash: string
+          created_at: string
+          created_by: string | null
+          document_id: string
+          file_size: number | null
+          id: string
+          title: string
+          version_number: number
+        }
+        Insert: {
+          change_summary?: string | null
+          content: string
+          content_hash: string
+          created_at?: string
+          created_by?: string | null
+          document_id: string
+          file_size?: number | null
+          id?: string
+          title: string
+          version_number: number
+        }
+        Update: {
+          change_summary?: string | null
+          content?: string
+          content_hash?: string
+          created_at?: string
+          created_by?: string | null
+          document_id?: string
+          file_size?: number | null
+          id?: string
+          title?: string
+          version_number?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "document_versions_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "advisor_documents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       messages: {
         Row: {
           content: string

@@ -33,14 +33,14 @@ export class DocumentVersioningService {
     changeSummary?: string
   ): Promise<{ success: boolean; version?: DocumentVersion; error?: string }> {
     try {
-      // Get current latest version
+      // Get current latest version using generic query
       const { data: latestVersion } = await supabase
-        .from('document_versions')
+        .from('document_versions' as any)
         .select('version_number, content_hash')
         .eq('document_id', documentId)
         .order('version_number', { ascending: false })
         .limit(1)
-        .single();
+        .maybeSingle();
 
       // Generate content hash
       const contentHash = await this.generateContentHash(content);
@@ -56,7 +56,7 @@ export class DocumentVersioningService {
       const nextVersion = (latestVersion?.version_number || 0) + 1;
 
       const { data: version, error } = await supabase
-        .from('document_versions')
+        .from('document_versions' as any)
         .insert({
           document_id: documentId,
           version_number: nextVersion,
@@ -71,7 +71,7 @@ export class DocumentVersioningService {
 
       if (error) throw error;
 
-      return { success: true, version };
+      return { success: true, version: version as DocumentVersion };
     } catch (error: any) {
       console.error('Error creating document version:', error);
       return { success: false, error: error.message };
@@ -81,13 +81,13 @@ export class DocumentVersioningService {
   async getVersionHistory(documentId: string): Promise<DocumentVersion[]> {
     try {
       const { data, error } = await supabase
-        .from('document_versions')
+        .from('document_versions' as any)
         .select('*')
         .eq('document_id', documentId)
         .order('version_number', { ascending: false });
 
       if (error) throw error;
-      return data || [];
+      return (data || []) as DocumentVersion[];
     } catch (error) {
       console.error('Error fetching version history:', error);
       return [];
@@ -97,14 +97,14 @@ export class DocumentVersioningService {
   async getVersion(documentId: string, versionNumber: number): Promise<DocumentVersion | null> {
     try {
       const { data, error } = await supabase
-        .from('document_versions')
+        .from('document_versions' as any)
         .select('*')
         .eq('document_id', documentId)
         .eq('version_number', versionNumber)
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
-      return data;
+      return data as DocumentVersion | null;
     } catch (error) {
       console.error('Error fetching document version:', error);
       return null;
