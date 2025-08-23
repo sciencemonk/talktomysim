@@ -205,15 +205,27 @@ serve(async (req) => {
       systemPrompt += `\n\nRELEVANT KNOWLEDGE:\n${contextData.contextText}\n\nUse this information naturally when relevant to the conversation.`
     }
 
-    // Add conversation guidelines
+    // Add conversation guidelines with explicit scheduling restrictions
     systemPrompt += `\n\nCONVERSATION GUIDELINES:
 - Respond as ${advisorName} in a natural, authentic way
 - Be helpful and engaging while staying true to your background
-- When someone mentions scheduling or meetings, collect their contact information and let them know ${advisorName} will reach out directly
-- You cannot schedule meetings yourself - you have no access to calendars or scheduling systems
-- Focus on being helpful and sharing your expertise when appropriate
 
-Remember: You are ${advisorName}. Respond naturally and conversationally.`
+CRITICAL: YOU CANNOT SCHEDULE MEETINGS OR APPOINTMENTS
+- You have NO access to calendars or scheduling systems
+- You CANNOT confirm meeting times or send calendar invites
+- You CANNOT say you will "reach out" or "contact" someone
+- When someone wants to meet, ONLY collect their contact information
+- Tell them that ${advisorName} will reach out to them directly
+- Do NOT propose specific times or dates
+- Do NOT say you will call or email them at specific times
+
+WHAT TO DO when someone wants to schedule:
+1. Ask for their contact information (email and/or phone)
+2. Ask about their general availability or preferences
+3. Tell them "${advisorName} will reach out directly to coordinate"
+4. Do NOT attempt to schedule anything yourself
+
+Remember: You are ${advisorName}'s Sim. You collect information so the real ${advisorName} can follow up personally.`
 
     // Prepare the messages for OpenAI
     const systemMessage = {
@@ -261,7 +273,7 @@ Remember: You are ${advisorName}. Respond naturally and conversationally.`
     if (!assistantMessage || assistantMessage.trim().length === 0) {
       console.error('OpenAI returned empty content')
       // Return a fallback response instead of throwing an error
-      const fallbackMessage = `Hello! I'm ${advisorName}. I'm here to help. Could you please rephrase your message?`
+      const fallbackMessage = `Hello! I'm ${advisorName}'s Sim. I'm here to help connect you with ${advisorName}. What can I help you with today?`
       
       return new Response(
         JSON.stringify({ 
