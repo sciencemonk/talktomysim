@@ -206,13 +206,6 @@ const BasicInfo = () => {
     }
   };
 
-  const handleResetPrompt = () => {
-    if (generatedPrompt?.systemPrompt) {
-      setFormData(prev => ({ ...prev, prompt: generatedPrompt.systemPrompt }));
-      toast.success('Context window reset to generated version');
-    }
-  };
-
   const handleSave = async () => {
     try {
       let finalAvatarUrl = formData.avatarUrl;
@@ -576,31 +569,6 @@ Examples of good writing samples:
                 </ul>
               </CardContent>
             </Card>
-
-            {/* Context Window */}
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <Label htmlFor="contextWindow">Context Window</Label>
-                <Button 
-                  type="button"
-                  variant="outline" 
-                  size="sm"
-                  onClick={handleResetPrompt}
-                >
-                  Reset to Generated
-                </Button>
-              </div>
-              <p className="text-sm text-muted-foreground">
-                This is the system prompt that defines how your Sim behaves and responds. You can edit it directly or reset to the auto-generated version.
-              </p>
-              <Textarea
-                id="contextWindow"
-                value={formData.prompt}
-                onChange={(e) => handleInputChange('prompt', e.target.value)}
-                placeholder="Enter your custom context window..."
-                className="min-h-[200px] font-mono text-sm resize-none"
-              />
-            </div>
           </div>
 
           {/* Save Button */}
