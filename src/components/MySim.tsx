@@ -6,11 +6,12 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
-import { User, MessageCircle, BookOpen, ExternalLink, Settings, Globe, FileText } from "lucide-react";
+import { User, MessageCircle, BookOpen, ExternalLink, Settings, Globe, FileText, BarChart3 } from "lucide-react";
 import { useSim } from "@/hooks/useSim";
 import { promptGenerationService } from "@/services/promptGenerationService";
 import { toast } from "sonner";
 import SimProgress from './SimProgress';
+import { ConversationsDashboard } from './ConversationsDashboard';
 
 const MySim = () => {
   const {
@@ -105,6 +106,31 @@ const MySim = () => {
             </div>
           </CardContent>
         </Card>}
+
+      {/* Conversations Section */}
+      <ConversationsDashboard advisorId={sim?.id || 'demo'} />
+
+      {/* Analytics Section */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <BarChart3 className="h-5 w-5" />
+            Analytics
+          </CardTitle>
+          <p className="text-sm text-muted-foreground">
+            Advanced analytics and insights will be available here
+          </p>
+        </CardHeader>
+        <CardContent>
+          <div className="text-center py-12">
+            <BarChart3 className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+            <h3 className="text-lg font-semibold text-foreground mb-2">Analytics Dashboard</h3>
+            <p className="text-muted-foreground">
+              Detailed conversation analytics, conversion rates, and performance metrics coming soon
+            </p>
+          </div>
+        </CardContent>
+      </Card>
     </div>;
 };
 
