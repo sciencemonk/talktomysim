@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -7,7 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
-import { X, Plus, Shield, Settings, AlertTriangle, Users, DollarSign } from 'lucide-react';
+import { X, Plus, Shield, Settings, AlertTriangle, Users } from 'lucide-react';
 import { escalationService, EscalationRule } from '@/services/escalationService';
 import { toast } from 'sonner';
 
@@ -73,7 +74,7 @@ export const GatekeeperSettings = ({ advisorId }: GatekeeperSettingsProps) => {
   const addKeyword = (type: 'urgency_keywords' | 'value_keywords' | 'vip_keywords' | 'custom_keywords') => {
     if (!newKeyword.trim() || !rules) return;
 
-    const updatedKeywords = [...rules[type], newKeyword.trim()];
+    const updatedKeywords = [...(rules[type] || []), newKeyword.trim()];
     updateRules({ [type]: updatedKeywords });
     setNewKeyword('');
   };
@@ -81,7 +82,7 @@ export const GatekeeperSettings = ({ advisorId }: GatekeeperSettingsProps) => {
   const removeKeyword = (type: 'urgency_keywords' | 'value_keywords' | 'vip_keywords' | 'custom_keywords', keyword: string) => {
     if (!rules) return;
 
-    const updatedKeywords = rules[type].filter(k => k !== keyword);
+    const updatedKeywords = (rules[type] || []).filter(k => k !== keyword);
     updateRules({ [type]: updatedKeywords });
   };
 
@@ -181,29 +182,38 @@ export const GatekeeperSettings = ({ advisorId }: GatekeeperSettingsProps) => {
             {/* Urgency Keywords */}
             <div className="space-y-3">
               <Label className="text-sm font-medium text-orange-600">Urgency Keywords (+3 points)</Label>
-              <div className="flex flex-wrap gap-2 mb-2">
-                {rules.urgency_keywords.map((keyword) => (
-                  <Badge key={keyword} variant="outline" className="border-orange-200">
+              <div className="flex flex-wrap gap-2 min-h-[32px] p-2 border border-border rounded-md bg-background">
+                {(rules.urgency_keywords || []).map((keyword) => (
+                  <Badge key={keyword} variant="outline" className="border-orange-200 bg-orange-50 text-orange-700 hover:bg-orange-100">
                     {keyword}
                     <X
-                      className="h-3 w-3 ml-1 cursor-pointer"
+                      className="h-3 w-3 ml-1 cursor-pointer hover:text-orange-900"
                       onClick={() => removeKeyword('urgency_keywords', keyword)}
                     />
                   </Badge>
                 ))}
+                {(!rules.urgency_keywords || rules.urgency_keywords.length === 0) && (
+                  <span className="text-sm text-muted-foreground italic">No urgency keywords added yet</span>
+                )}
               </div>
               <div className="flex gap-2">
                 <Input
                   placeholder="Add urgency keyword..."
                   value={newKeyword}
                   onChange={(e) => setNewKeyword(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && addKeyword('urgency_keywords')}
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      addKeyword('urgency_keywords');
+                    }
+                  }}
                 />
                 <Button
                   type="button"
                   variant="outline"
                   size="sm"
                   onClick={() => addKeyword('urgency_keywords')}
+                  disabled={!newKeyword.trim()}
                 >
                   <Plus className="h-4 w-4" />
                 </Button>
@@ -213,29 +223,38 @@ export const GatekeeperSettings = ({ advisorId }: GatekeeperSettingsProps) => {
             {/* Value Keywords */}
             <div className="space-y-3">
               <Label className="text-sm font-medium text-green-600">Value Keywords (+4 points)</Label>
-              <div className="flex flex-wrap gap-2 mb-2">
-                {rules.value_keywords.map((keyword) => (
-                  <Badge key={keyword} variant="outline" className="border-green-200">
+              <div className="flex flex-wrap gap-2 min-h-[32px] p-2 border border-border rounded-md bg-background">
+                {(rules.value_keywords || []).map((keyword) => (
+                  <Badge key={keyword} variant="outline" className="border-green-200 bg-green-50 text-green-700 hover:bg-green-100">
                     {keyword}
                     <X
-                      className="h-3 w-3 ml-1 cursor-pointer"
+                      className="h-3 w-3 ml-1 cursor-pointer hover:text-green-900"
                       onClick={() => removeKeyword('value_keywords', keyword)}
                     />
                   </Badge>
                 ))}
+                {(!rules.value_keywords || rules.value_keywords.length === 0) && (
+                  <span className="text-sm text-muted-foreground italic">No value keywords added yet</span>
+                )}
               </div>
               <div className="flex gap-2">
                 <Input
                   placeholder="Add value keyword..."
                   value={newKeyword}
                   onChange={(e) => setNewKeyword(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && addKeyword('value_keywords')}
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      addKeyword('value_keywords');
+                    }
+                  }}
                 />
                 <Button
                   type="button"
                   variant="outline"
                   size="sm"
                   onClick={() => addKeyword('value_keywords')}
+                  disabled={!newKeyword.trim()}
                 >
                   <Plus className="h-4 w-4" />
                 </Button>
@@ -245,29 +264,38 @@ export const GatekeeperSettings = ({ advisorId }: GatekeeperSettingsProps) => {
             {/* VIP Keywords */}
             <div className="space-y-3">
               <Label className="text-sm font-medium text-purple-600">VIP Keywords (+5 points)</Label>
-              <div className="flex flex-wrap gap-2 mb-2">
-                {rules.vip_keywords.map((keyword) => (
-                  <Badge key={keyword} variant="outline" className="border-purple-200">
+              <div className="flex flex-wrap gap-2 min-h-[32px] p-2 border border-border rounded-md bg-background">
+                {(rules.vip_keywords || []).map((keyword) => (
+                  <Badge key={keyword} variant="outline" className="border-purple-200 bg-purple-50 text-purple-700 hover:bg-purple-100">
                     {keyword}
                     <X
-                      className="h-3 w-3 ml-1 cursor-pointer"
+                      className="h-3 w-3 ml-1 cursor-pointer hover:text-purple-900"
                       onClick={() => removeKeyword('vip_keywords', keyword)}
                     />
                   </Badge>
                 ))}
+                {(!rules.vip_keywords || rules.vip_keywords.length === 0) && (
+                  <span className="text-sm text-muted-foreground italic">No VIP keywords added yet</span>
+                )}
               </div>
               <div className="flex gap-2">
                 <Input
                   placeholder="Add VIP keyword..."
                   value={newKeyword}
                   onChange={(e) => setNewKeyword(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && addKeyword('vip_keywords')}
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      addKeyword('vip_keywords');
+                    }
+                  }}
                 />
                 <Button
                   type="button"
                   variant="outline"
                   size="sm"
                   onClick={() => addKeyword('vip_keywords')}
+                  disabled={!newKeyword.trim()}
                 >
                   <Plus className="h-4 w-4" />
                 </Button>
@@ -277,29 +305,38 @@ export const GatekeeperSettings = ({ advisorId }: GatekeeperSettingsProps) => {
             {/* Custom Keywords */}
             <div className="space-y-3">
               <Label className="text-sm font-medium text-blue-600">Custom Keywords (+2 points)</Label>
-              <div className="flex flex-wrap gap-2 mb-2">
-                {rules.custom_keywords.map((keyword) => (
-                  <Badge key={keyword} variant="outline" className="border-blue-200">
+              <div className="flex flex-wrap gap-2 min-h-[32px] p-2 border border-border rounded-md bg-background">
+                {(rules.custom_keywords || []).map((keyword) => (
+                  <Badge key={keyword} variant="outline" className="border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100">
                     {keyword}
                     <X
-                      className="h-3 w-3 ml-1 cursor-pointer"
+                      className="h-3 w-3 ml-1 cursor-pointer hover:text-blue-900"
                       onClick={() => removeKeyword('custom_keywords', keyword)}
                     />
                   </Badge>
                 ))}
+                {(!rules.custom_keywords || rules.custom_keywords.length === 0) && (
+                  <span className="text-sm text-muted-foreground italic">No custom keywords added yet</span>
+                )}
               </div>
               <div className="flex gap-2">
                 <Input
                   placeholder="Add custom keyword..."
                   value={newKeyword}
                   onChange={(e) => setNewKeyword(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && addKeyword('custom_keywords')}
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      addKeyword('custom_keywords');
+                    }
+                  }}
                 />
                 <Button
                   type="button"
                   variant="outline"
                   size="sm"
                   onClick={() => addKeyword('custom_keywords')}
+                  disabled={!newKeyword.trim()}
                 >
                   <Plus className="h-4 w-4" />
                 </Button>
