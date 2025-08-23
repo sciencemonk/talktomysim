@@ -24,21 +24,6 @@ const Overview = () => {
     );
   }
 
-  if (!sim) {
-    return (
-      <div className="max-w-4xl mx-auto p-6">
-        <Card>
-          <CardContent className="p-6">
-            <div className="text-center">
-              <h2 className="text-lg font-semibold text-foreground">No Sim Found</h2>
-              <p className="text-muted-foreground">Please complete your Sim setup first.</p>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
   return (
     <div className="max-w-4xl mx-auto p-6 space-y-6">
       <Card>
@@ -67,7 +52,21 @@ const Overview = () => {
             </TabsList>
 
             <TabsContent value="conversations" className="space-y-6">
-              <ConversationsDashboard advisorId={sim.id} />
+              {sim?.id ? (
+                <ConversationsDashboard advisorId={sim.id} />
+              ) : (
+                <Card>
+                  <CardContent className="p-6">
+                    <div className="text-center">
+                      <MessageSquare className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+                      <h3 className="text-lg font-semibold text-foreground mb-2">No Conversations Yet</h3>
+                      <p className="text-muted-foreground">
+                        Complete your Sim setup to start tracking conversations
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
             </TabsContent>
 
             <TabsContent value="analytics" className="space-y-6">
