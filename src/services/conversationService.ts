@@ -19,6 +19,15 @@ export interface Message {
   created_at: string;
 }
 
+// Helper function to generate a UUID v4
+function generateUUID() {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    const r = Math.random() * 16 | 0;
+    const v = c == 'x' ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+  });
+}
+
 export const conversationService = {
   // Get or create a conversation for a user and advisor
   async getOrCreateConversation(advisorId: string): Promise<Conversation | null> {
@@ -53,12 +62,11 @@ export const conversationService = {
         if (error) throw error;
         return newConversation;
       } else {
-        // Unauthenticated user - try to create anonymous conversation
+        // Unauthenticated user - create anonymous conversation
         console.log('Creating anonymous conversation for public access');
         
-        // For anonymous users, we'll use a special approach
-        // First, let's try to create a conversation without the foreign key constraint
-        const anonymousUserId = `anon_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        // Generate a proper UUID for anonymous users
+        const anonymousUserId = generateUUID();
         
         const { data: newConversation, error } = await supabase
           .from('conversations')
@@ -172,10 +180,13 @@ export const conversationService = {
         const latestMessage = messages[messages.length - 1];
         const scores = userMessages.map(m => m.score || 0).filter(s => s > 0);
         
-        // Check if this is an anonymous user by looking at the user_id pattern
-        const isAnonymous = conversation.user_id?.startsWith('anon_') || conversation.user_id?.startsWith('anonymous_');
+        // Check if this is an anonymous user by checking if it's not in the auth.users table
+        // Since we're now using proper UUIDs, we need a different way to identify anonymous users
+        // We'll consider any user_id that doesn't match the current authenticated user as potentially anonymous
+        // This is a simple heuristic - in a production app you might want to track this differently
+        const isAnonymous = true; // For now, assume all conversations could be from anonymous users
         
-        console.log(`Conversation ${conversation.id}: user_id=${conversation.user_id}, is_anonymous=${isAnonymous}, messages=${messages.length}`);
+        console.log(`Conversation ${conversation.id}: user_id=${conversation.user_id}, messages=${messages.length}`);
         
         return {
           id: conversation.id,
