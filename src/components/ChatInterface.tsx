@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useRef } from "react";
 import { Bot, Menu } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
@@ -204,7 +205,7 @@ const ChatInterface = ({ agent, onBack }: ChatInterfaceProps) => {
                 </div>
                 
                 {/* Show sources for the last AI message */}
-                {message.role === 'assistant' && 
+                {message.role === 'system' && 
                  index === displayMessages.length - 1 && 
                  message.isComplete && (
                   <div className="flex justify-start mt-1">

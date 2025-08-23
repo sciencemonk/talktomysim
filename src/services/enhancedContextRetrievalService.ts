@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 
 export interface SearchFilters {
@@ -137,7 +136,7 @@ export class EnhancedContextRetrievalService {
   ) {
     const { data: vectorResults, error: searchError } = await supabase
       .rpc('search_advisor_embeddings', {
-        query_embedding: queryEmbedding,
+        query_embedding: JSON.stringify(queryEmbedding),
         target_advisor_id: advisorId,
         similarity_threshold: filters.minSimilarity || 0.7,
         match_count: (filters.maxResults || 5) * 2 // Get more for filtering
