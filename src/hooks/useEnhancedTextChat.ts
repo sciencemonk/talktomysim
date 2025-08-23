@@ -21,6 +21,8 @@ export const useEnhancedTextChat = ({
   const [connectionStatus, setConnectionStatus] = useState<'connecting' | 'connected' | 'error' | 'disconnected'>('disconnected');
   const [isProcessing, setIsProcessing] = useState(false);
   const [conversationHistory, setConversationHistory] = useState<Array<{role: string, content: string}>>([]);
+  const [lastSearchMetrics, setLastSearchMetrics] = useState<any>(null);
+  const [lastSources, setLastSources] = useState<any[]>([]);
   const abortControllerRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
@@ -28,7 +30,7 @@ export const useEnhancedTextChat = ({
     setConnectionStatus('connected');
   }, [agent]);
 
-  const sendMessage = useCallback(async (message: string) => {
+  const sendMessage = useCallback(async (message: string, searchFilters?: any) => {
     if (!message.trim() || isProcessing) return;
 
     console.log('Sending enhanced message to', agent.name, ':', message);
@@ -54,12 +56,19 @@ export const useEnhancedTextChat = ({
       
       abortControllerRef.current = new AbortController();
       
-      // Use enhanced chat completion with personality and knowledge
-      const { data, error } = await supabase.functions.invoke('enhanced-chat-completion', {
-        body: {
-          messages: newHistory,
-          advisorId: agent.id
+      // Use enhanced chat completion with search filters
+      const requestBody = {
+        messages: newHistory,
+        advisorId: agent.id,
+        searchFilters: {
+          minSimilarity: 0.7,
+          maxResults: 5,
+          ...searchFilters
         }
+      };
+
+      const { data, error } = await supabase.functions.invoke('enhanced-chat-completion', {
+        body: requestBody
       });
 
       console.log('Enhanced response data:', data);
@@ -72,6 +81,12 @@ export const useEnhancedTextChat = ({
       if (data?.content) {
         console.log('Adding enhanced AI response to message ID:', aiMessageId);
         console.log('Context was used:', data.contextUsed);
+        console.log('Sources found:', data.sources?.length || 0);
+        console.log('Search metrics:', data.searchMetrics);
+        
+        // Store search metrics and sources for potential display
+        setLastSearchMetrics(data.searchMetrics);
+        setLastSources(data.sources || []);
         
         // Add the AI response as a single message
         onAiTextDelta(aiMessageId, data.content);
@@ -98,9 +113,16 @@ export const useEnhancedTextChat = ({
     }
   }, [agent, isProcessing, conversationHistory, onUserMessage, onAiMessageStart, onAiTextDelta, onAiMessageComplete]);
 
+  const sendMessageWithFilters = useCallback((message: string, filters: any) => {
+    return sendMessage(message, filters);
+  }, [sendMessage]);
+
   return {
     sendMessage,
+    sendMessageWithFilters,
     connectionStatus,
-    isProcessing
+    isProcessing,
+    lastSearchMetrics,
+    lastSources
   };
 };

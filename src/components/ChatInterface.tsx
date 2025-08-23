@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from "react";
 import { Bot, Menu } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
@@ -19,6 +18,7 @@ interface ChatInterfaceProps {
 const ChatInterface = ({ agent, onBack }: ChatInterfaceProps) => {
   const [currentAgent, setCurrentAgent] = useState(agent);
   const [isAiResponding, setIsAiResponding] = useState(false);
+  const [showSources, setShowSources] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
   
@@ -89,6 +89,47 @@ const ChatInterface = ({ agent, onBack }: ChatInterfaceProps) => {
     </div>
   );
 
+  const SourcesDisplay = () => {
+    if (!textChat.lastSources || textChat.lastSources.length === 0) return null;
+
+    return (
+      <div className="mt-2 p-3 bg-muted/50 rounded-lg border">
+        <div className="flex items-center justify-between mb-2">
+          <h4 className="text-xs font-medium text-muted-foreground">Sources</h4>
+          <button
+            onClick={() => setShowSources(!showSources)}
+            className="text-xs text-muted-foreground hover:text-foreground"
+          >
+            {showSources ? 'Hide' : 'Show'} ({textChat.lastSources.length})
+          </button>
+        </div>
+        
+        {showSources && (
+          <div className="space-y-2">
+            {textChat.lastSources.map((source, index) => (
+              <div key={index} className="text-xs text-muted-foreground">
+                <div className="font-medium">{source.title}</div>
+                <div className="flex justify-between">
+                  <span>{source.documentType}</span>
+                  <span>Similarity: {(source.similarity * 100).toFixed(1)}%</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+        
+        {textChat.lastSearchMetrics && (
+          <div className="mt-2 pt-2 border-t text-xs text-muted-foreground">
+            <div className="flex justify-between">
+              <span>Search time: {textChat.lastSearchMetrics.searchTime}ms</span>
+              <span>Avg similarity: {(textChat.lastSearchMetrics.averageSimilarity * 100).toFixed(1)}%</span>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  };
+
   // Filter out incomplete messages with no content for display
   const displayMessages = chatHistory.messages.filter(message => {
     // Show complete messages always
@@ -145,21 +186,33 @@ const ChatInterface = ({ agent, onBack }: ChatInterfaceProps) => {
       <div className="flex-1 overflow-y-auto overflow-x-hidden min-h-0">
         <div className="px-3 sm:px-4 pt-4 pb-2 min-h-full">
           <div className="space-y-3 sm:space-y-4">
-            {displayMessages.map((message) => (
-              <div
-                key={message.id}
-                className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
-              >
+            {displayMessages.map((message, index) => (
+              <div key={message.id}>
                 <div
-                  className={`rounded-lg px-3 py-2 text-sm max-w-[80%] sm:max-w-[75%] md:max-w-[60%] lg:max-w-[40%] xl:max-w-[30%] break-words ${
-                    message.role === 'user' 
-                      ? 'bg-primary text-primary-foreground' 
-                      : 'bg-secondary text-secondary-foreground'
-                  }`}
-                  style={{ wordWrap: 'break-word', overflowWrap: 'break-word' }}
+                  className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
                 >
-                  {message.content}
+                  <div
+                    className={`rounded-lg px-3 py-2 text-sm max-w-[80%] sm:max-w-[75%] md:max-w-[60%] lg:max-w-[40%] xl:max-w-[30%] break-words ${
+                      message.role === 'user' 
+                        ? 'bg-primary text-primary-foreground' 
+                        : 'bg-secondary text-secondary-foreground'
+                    }`}
+                    style={{ wordWrap: 'break-word', overflowWrap: 'break-word' }}
+                  >
+                    {message.content}
+                  </div>
                 </div>
+                
+                {/* Show sources for the last AI message */}
+                {message.role === 'assistant' && 
+                 index === displayMessages.length - 1 && 
+                 message.isComplete && (
+                  <div className="flex justify-start mt-1">
+                    <div className="max-w-[80%] sm:max-w-[75%] md:max-w-[60%] lg:max-w-[40%] xl:max-w-[30%]">
+                      <SourcesDisplay />
+                    </div>
+                  </div>
+                )}
               </div>
             ))}
             {/* Show typing indicator when AI is responding and no incomplete messages are being displayed */}

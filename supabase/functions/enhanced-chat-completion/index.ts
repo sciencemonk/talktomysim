@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
@@ -14,7 +13,7 @@ serve(async (req) => {
   }
 
   try {
-    const { messages, advisorId } = await req.json()
+    const { messages, advisorId, searchFilters } = await req.json()
 
     const openaiApiKey = Deno.env.get('OPENAI_API_KEY')
     if (!openaiApiKey) {
@@ -46,12 +45,20 @@ serve(async (req) => {
     const userMessages = messages.filter(msg => msg.role === 'user')
     const latestUserMessage = userMessages[userMessages.length - 1]?.content || ''
 
-    // Retrieve relevant context from knowledge base
-    let relevantContext = ''
+    // Retrieve relevant context with enhanced search
+    let contextData = null
     if (latestUserMessage) {
       try {
-        console.log('Retrieving context for message:', latestUserMessage.substring(0, 100))
+        console.log('Retrieving enhanced context for message:', latestUserMessage.substring(0, 100))
         
+        // Use enhanced context retrieval with filters
+        const filters = {
+          minSimilarity: searchFilters?.minSimilarity || 0.7,
+          maxResults: searchFilters?.maxResults || 5,
+          documentTypes: searchFilters?.documentTypes,
+          dateRange: searchFilters?.dateRange
+        }
+
         // Generate embedding for user message
         const embeddingResponse = await fetch(`${Deno.env.get('SUPABASE_URL')}/functions/v1/generate-embedding`, {
           method: 'POST',
@@ -66,21 +73,82 @@ serve(async (req) => {
           const embeddingData = await embeddingResponse.json()
           const queryEmbedding = embeddingData.embedding
 
-          // Search for relevant context using vector similarity
-          const { data: relevantChunks, error: searchError } = await supabaseClient
-            .rpc('search_advisor_embeddings', {
+          // Perform enhanced vector search with metadata
+          const { data: vectorResults, error: searchError } = await supabaseClient
+            .rpc('search_advisor_embeddings_with_metadata', {
               query_embedding: queryEmbedding,
               target_advisor_id: advisorId,
-              similarity_threshold: 0.7,
-              match_count: 5
+              similarity_threshold: filters.minSimilarity,
+              match_count: filters.maxResults
             })
 
-          if (!searchError && relevantChunks && relevantChunks.length > 0) {
-            relevantContext = relevantChunks
-              .map(chunk => chunk.chunk_text)
-              .join('\n\n')
-            
-            console.log(`Found ${relevantChunks.length} relevant context chunks`)
+          // If the enhanced RPC doesn't exist, fallback to basic search
+          if (searchError && searchError.message?.includes('function')) {
+            console.log('Using fallback search method')
+            const { data: basicResults, error: basicError } = await supabaseClient
+              .rpc('search_advisor_embeddings', {
+                query_embedding: queryEmbedding,
+                target_advisor_id: advisorId,
+                similarity_threshold: filters.minSimilarity,
+                match_count: filters.maxResults
+              })
+
+            if (!basicError && basicResults && basicResults.length > 0) {
+              // Get document metadata separately
+              const documentIds = [...new Set(basicResults.map(chunk => chunk.document_id))]
+              const { data: documents } = await supabaseClient
+                .from('advisor_documents')
+                .select('id, title, file_type, upload_date')
+                .in('id', documentIds)
+
+              const documentMap = new Map(documents?.map(doc => [doc.id, doc]) || [])
+
+              contextData = {
+                relevantChunks: basicResults.map(chunk => chunk.chunk_text),
+                contextText: basicResults.map(chunk => chunk.chunk_text).join('\n\n'),
+                sources: basicResults.map(result => {
+                  const doc = documentMap.get(result.document_id)
+                  return {
+                    title: doc?.title || 'Unknown Document',
+                    documentId: result.document_id,
+                    similarity: result.similarity,
+                    documentType: doc?.file_type || 'unknown',
+                    uploadDate: doc?.upload_date || ''
+                  }
+                }).filter((source, index, self) => 
+                  index === self.findIndex(s => s.documentId === source.documentId)
+                ),
+                searchMetrics: {
+                  totalChunks: basicResults.length,
+                  averageSimilarity: basicResults.reduce((sum, chunk) => sum + chunk.similarity, 0) / basicResults.length,
+                  searchTime: 0
+                }
+              }
+            }
+          } else if (!searchError && vectorResults && vectorResults.length > 0) {
+            // Process enhanced results
+            contextData = {
+              relevantChunks: vectorResults.map(chunk => chunk.chunk_text),
+              contextText: vectorResults.map(chunk => chunk.chunk_text).join('\n\n'),
+              sources: vectorResults.map(result => ({
+                title: result.document_title || 'Unknown Document',
+                documentId: result.document_id,
+                similarity: result.similarity,
+                documentType: result.document_type || 'unknown',
+                uploadDate: result.upload_date || ''
+              })).filter((source, index, self) => 
+                index === self.findIndex(s => s.documentId === source.documentId)
+              ),
+              searchMetrics: {
+                totalChunks: vectorResults.length,
+                averageSimilarity: vectorResults.reduce((sum, chunk) => sum + chunk.similarity, 0) / vectorResults.length,
+                searchTime: 0
+              }
+            }
+          }
+
+          if (contextData && contextData.sources.length > 0) {
+            console.log(`Found ${contextData.sources.length} relevant sources with average similarity: ${contextData.searchMetrics.averageSimilarity.toFixed(3)}`)
           }
         }
       } catch (contextError) {
@@ -88,11 +156,11 @@ serve(async (req) => {
       }
     }
 
-    // Generate enhanced system prompt
+    // Generate enhanced system prompt with source attribution
     const personalitySection = buildPersonalitySection(advisor)
     const communicationSection = buildCommunicationSection(advisor)
     const expertiseSection = buildExpertiseSection(advisor)
-    const knowledgeSection = relevantContext ? buildKnowledgeSection(relevantContext) : ''
+    const knowledgeSection = contextData ? buildKnowledgeSection(contextData.contextText, contextData.sources) : ''
     
     const enhancedSystemPrompt = `You are ${advisor.full_name || advisor.name}, ${advisor.professional_title || 'an AI assistant'}.
 
@@ -115,6 +183,17 @@ CONVERSATION STYLE:
 - Be authentic to your personality and background
 - Use your expertise to provide valuable insights
 - Stay true to your established communication patterns
+
+${contextData && contextData.sources.length > 0 ? `
+SOURCE ATTRIBUTION:
+When referencing information from your knowledge base, you may naturally mention the source if relevant to the conversation. Don't force citations, but when appropriate, you can say things like:
+- "Based on [document name]..."
+- "I recall from [source]..."
+- "According to the [document type] I have on [topic]..."
+
+Available sources for this response:
+${contextData.sources.map(source => `- ${source.title} (${source.documentType}, similarity: ${source.similarity.toFixed(2)})`).join('\n')}
+` : ''}
 
 Remember: You are not just an AI assistant - you are ${advisor.full_name || advisor.name} with your own unique background, expertise, and personality.`
 
@@ -161,7 +240,9 @@ Remember: You are not just an AI assistant - you are ${advisor.full_name || advi
       JSON.stringify({ 
         content: assistantMessage,
         usage: data.usage,
-        contextUsed: relevantContext.length > 0
+        contextUsed: contextData ? contextData.contextText.length > 0 : false,
+        sources: contextData?.sources || [],
+        searchMetrics: contextData?.searchMetrics || null
       }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -248,11 +329,18 @@ function buildExpertiseSection(advisor: any): string {
   return sections.length > 0 ? sections.join('\n') : ''
 }
 
-function buildKnowledgeSection(knowledgeContext: string): string {
+function buildKnowledgeSection(knowledgeContext: string, sources: any[]): string {
+  const sourcesList = sources.map(source => 
+    `- ${source.title} (${source.documentType}, ${new Date(source.uploadDate).toLocaleDateString()})`
+  ).join('\n')
+
   return `RELEVANT KNOWLEDGE:
 ${knowledgeContext}
 
-Use this information to inform your responses when relevant, but don't explicitly mention that you're referencing a knowledge base.`
+SOURCES CONSULTED:
+${sourcesList}
+
+Use this information to inform your responses when relevant, but don't explicitly mention that you're referencing a knowledge base unless it adds value to the conversation.`
 }
 
 function analyzeCommuncationPatterns(scenarios: any[]): string[] {
