@@ -8,7 +8,7 @@ import UserSidebar, { SidebarContent } from "@/components/UserSidebar";
 import MySim from "@/components/MySim";
 import BasicInfo from "@/components/BasicInfo";
 import InteractionModel from "@/components/InteractionModel";
-import CoreKnowledge from "@/components/CoreKnowledge";
+import { CoreKnowledge } from "@/components/CoreKnowledge";
 import Integrations from "@/components/Integrations";
 import { AgentType } from "@/types/agent";
 import { useUserAdvisors } from "@/hooks/useUserAdvisors";

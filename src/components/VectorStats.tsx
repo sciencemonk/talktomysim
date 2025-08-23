@@ -6,15 +6,16 @@ import { documentService } from '@/services/documentService';
 
 interface VectorStatsProps {
   advisorId: string;
+  refreshTrigger?: number;
 }
 
-export const VectorStats: React.FC<VectorStatsProps> = ({ advisorId }) => {
+export const VectorStats: React.FC<VectorStatsProps> = ({ advisorId, refreshTrigger }) => {
   const [stats, setStats] = useState({ totalChunks: 0, totalDocuments: 0 });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     loadStats();
-  }, [advisorId]);
+  }, [advisorId, refreshTrigger]);
 
   const loadStats = async () => {
     try {

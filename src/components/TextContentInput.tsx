@@ -8,12 +8,12 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 interface TextContentInputProps {
-  onSave: (title: string, content: string) => void;
+  onProcess: (title: string, content: string) => Promise<void>;
   isProcessing?: boolean;
 }
 
 export const TextContentInput: React.FC<TextContentInputProps> = ({ 
-  onSave, 
+  onProcess, 
   isProcessing = false 
 }) => {
   const [title, setTitle] = useState('');
@@ -25,7 +25,7 @@ export const TextContentInput: React.FC<TextContentInputProps> = ({
       return;
     }
 
-    await onSave(title.trim(), content.trim());
+    await onProcess(title.trim(), content.trim());
     setTitle('');
     setContent('');
     setShowInput(false);
