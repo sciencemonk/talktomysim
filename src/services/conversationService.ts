@@ -31,7 +31,8 @@ export const conversationService = {
         .insert({
           user_id: 'anonymous', // Use a fixed anonymous user ID
           tutor_id: advisorId,
-          title: null
+          title: null,
+          advisor_id: null // Explicitly set advisor_id to null
         })
         .select()
         .single();
