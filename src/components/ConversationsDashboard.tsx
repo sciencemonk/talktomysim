@@ -174,18 +174,18 @@ export const ConversationsDashboard = ({ advisorId }: ConversationsDashboardProp
       </CardHeader>
       <CardContent>
         <Tabs value={selectedTab} onValueChange={setSelectedTab}>
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="captures" className="flex items-center gap-2">
+          <TabsList className="grid w-full grid-cols-1 sm:grid-cols-3 h-auto">
+            <TabsTrigger value="captures" className="flex items-center gap-2 py-3 px-4 text-xs sm:text-sm">
               <Users className="h-4 w-4" />
-              Captured Contacts ({captures.length})
+              <span className="truncate">Contacts ({captures.length})</span>
             </TabsTrigger>
-            <TabsTrigger value="escalated" className="flex items-center gap-2">
+            <TabsTrigger value="escalated" className="flex items-center gap-2 py-3 px-4 text-xs sm:text-sm">
               <AlertTriangle className="h-4 w-4" />
-              Escalated ({conversations.filter(c => c.escalated).length})
+              <span className="truncate">Escalated ({conversations.filter(c => c.escalated).length})</span>
             </TabsTrigger>
-            <TabsTrigger value="all" className="flex items-center gap-2">
+            <TabsTrigger value="all" className="flex items-center gap-2 py-3 px-4 text-xs sm:text-sm">
               <MessageSquare className="h-4 w-4" />
-              All Conversations ({conversations.length})
+              <span className="truncate">All ({conversations.length})</span>
             </TabsTrigger>
           </TabsList>
 
@@ -203,9 +203,9 @@ export const ConversationsDashboard = ({ advisorId }: ConversationsDashboardProp
                 ) : (
                   captures.map((capture) => (
                     <Card key={capture.id} className="p-4">
-                      <div className="flex items-start justify-between">
-                        <div className="space-y-2 flex-1">
-                          <div className="flex items-center gap-2">
+                      <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
+                        <div className="space-y-2 flex-1 min-w-0 w-full sm:w-auto">
+                          <div className="flex flex-wrap items-center gap-2">
                             <Badge 
                               variant="outline" 
                               className={getScoreBadgeColor(capture.conversation_score)}
@@ -225,20 +225,20 @@ export const ConversationsDashboard = ({ advisorId }: ConversationsDashboardProp
                           <div className="space-y-1">
                             {capture.name && (
                               <div className="flex items-center gap-2 text-sm">
-                                <Users className="h-4 w-4" />
-                                <span className="font-medium">{capture.name}</span>
+                                <Users className="h-4 w-4 flex-shrink-0" />
+                                <span className="font-medium truncate">{capture.name}</span>
                               </div>
                             )}
                             {capture.email && (
                               <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                                <Mail className="h-4 w-4" />
-                                <span>{capture.email}</span>
+                                <Mail className="h-4 w-4 flex-shrink-0" />
+                                <span className="truncate">{capture.email}</span>
                               </div>
                             )}
                             {capture.phone && (
                               <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                                <Phone className="h-4 w-4" />
-                                <span>{capture.phone}</span>
+                                <Phone className="h-4 w-4 flex-shrink-0" />
+                                <span className="truncate">{capture.phone}</span>
                               </div>
                             )}
                           </div>
@@ -253,18 +253,19 @@ export const ConversationsDashboard = ({ advisorId }: ConversationsDashboardProp
                           </div>
                         </div>
 
-                        <div className="flex gap-2">
+                        <div className="flex gap-2 w-full sm:w-auto">
                           {capture.status === 'new' && (
                             <Button
                               size="sm"
                               variant="outline"
                               onClick={() => handleUpdateCaptureStatus(capture.id, 'contacted')}
+                              className="flex-1 sm:flex-none"
                             >
                               <CheckCircle className="h-4 w-4 mr-1" />
                               Mark Contacted
                             </Button>
                           )}
-                          <Button size="sm" variant="ghost">
+                          <Button size="sm" variant="ghost" className="flex-shrink-0">
                             <ArrowUpRight className="h-4 w-4" />
                           </Button>
                         </div>
@@ -281,9 +282,9 @@ export const ConversationsDashboard = ({ advisorId }: ConversationsDashboardProp
               <div className="space-y-4">
                 {conversations.filter(c => c.escalated).map((conversation) => (
                   <Card key={conversation.id} className="p-4">
-                    <div className="flex items-start justify-between">
-                      <div className="space-y-2 flex-1">
-                        <div className="flex items-center gap-2">
+                    <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
+                      <div className="space-y-2 flex-1 min-w-0 w-full sm:w-auto">
+                        <div className="flex flex-wrap items-center gap-2">
                           <Badge 
                             variant="outline" 
                             className={getScoreBadgeColor(conversation.highest_score)}
@@ -304,7 +305,7 @@ export const ConversationsDashboard = ({ advisorId }: ConversationsDashboardProp
                           ))}
                         </div>
 
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-sm text-muted-foreground line-clamp-2">
                           {conversation.latest_message}
                         </p>
 
@@ -314,7 +315,7 @@ export const ConversationsDashboard = ({ advisorId }: ConversationsDashboardProp
                         </div>
                       </div>
 
-                      <Button size="sm" variant="outline">
+                      <Button size="sm" variant="outline" className="w-full sm:w-auto flex-shrink-0">
                         <ArrowUpRight className="h-4 w-4 mr-1" />
                         View Chat
                       </Button>
@@ -330,9 +331,9 @@ export const ConversationsDashboard = ({ advisorId }: ConversationsDashboardProp
               <div className="space-y-4">
                 {conversations.map((conversation) => (
                   <Card key={conversation.id} className="p-4">
-                    <div className="flex items-start justify-between">
-                      <div className="space-y-2 flex-1">
-                        <div className="flex items-center gap-2">
+                    <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
+                      <div className="space-y-2 flex-1 min-w-0 w-full sm:w-auto">
+                        <div className="flex flex-wrap items-center gap-2">
                           <Badge 
                             variant="outline" 
                             className={getScoreBadgeColor(conversation.avg_score)}
@@ -350,7 +351,7 @@ export const ConversationsDashboard = ({ advisorId }: ConversationsDashboardProp
                           )}
                         </div>
 
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-sm text-muted-foreground line-clamp-2">
                           {conversation.latest_message}
                         </p>
 
@@ -360,7 +361,7 @@ export const ConversationsDashboard = ({ advisorId }: ConversationsDashboardProp
                         </div>
                       </div>
 
-                      <Button size="sm" variant="outline">
+                      <Button size="sm" variant="outline" className="w-full sm:w-auto flex-shrink-0">
                         <ArrowUpRight className="h-4 w-4 mr-1" />
                         View Chat
                       </Button>
