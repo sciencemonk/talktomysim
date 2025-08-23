@@ -16,6 +16,7 @@ export const useChatHistory = (agent: AgentType) => {
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [welcomeMessageSent, setWelcomeMessageSent] = useState(false);
+  const [isAnonymous, setIsAnonymous] = useState(false);
   
   const { sendMessage: sendEnhancedMessage, isLoading: isSending } = useEnhancedTextChat(agent);
 
@@ -29,11 +30,11 @@ export const useChatHistory = (agent: AgentType) => {
       console.log('Loading chat history for agent:', agent.name);
 
       try {
-        // Try to create a conversation (requires authentication)
+        // Always try to create a conversation (handles both authenticated and anonymous users)
         const conversation = await conversationService.getOrCreateConversation(agent.id);
         
         if (!conversation) {
-          console.error('Failed to create conversation - user may not be authenticated');
+          console.error('Failed to create conversation');
           setMessages([]);
           setConversationId(null);
           setIsLoading(false);
@@ -41,8 +42,9 @@ export const useChatHistory = (agent: AgentType) => {
         }
 
         setConversationId(conversation.id);
+        setIsAnonymous(conversation.id.startsWith('temp-'));
 
-        // Load existing messages
+        // Load existing messages (will be empty for anonymous users)
         const existingMessages = await conversationService.getMessages(conversation.id);
         
         const chatMessages: ChatMessage[] = existingMessages.map((msg: Message) => ({
@@ -67,21 +69,23 @@ export const useChatHistory = (agent: AgentType) => {
           setMessages([welcomeMessage]);
           setWelcomeMessageSent(true);
           
-          // Save welcome message to database
-          const savedWelcomeMessage = await conversationService.addMessage(
-            conversation.id, 
-            'system', 
-            agent.welcomeMessage
-          );
-          
-          if (savedWelcomeMessage) {
-            setMessages([{
-              id: savedWelcomeMessage.id,
-              role: 'system',
-              content: agent.welcomeMessage,
-              isComplete: true
-            }]);
-            console.log('Welcome message saved to database');
+          // Save welcome message to database (only for authenticated users)
+          if (!conversation.id.startsWith('temp-')) {
+            const savedWelcomeMessage = await conversationService.addMessage(
+              conversation.id, 
+              'system', 
+              agent.welcomeMessage
+            );
+            
+            if (savedWelcomeMessage) {
+              setMessages([{
+                id: savedWelcomeMessage.id,
+                role: 'system',
+                content: agent.welcomeMessage,
+                isComplete: true
+              }]);
+              console.log('Welcome message saved to database');
+            }
           }
         }
         
@@ -118,9 +122,9 @@ export const useChatHistory = (agent: AgentType) => {
     setMessages(prev => [...prev, tempMessage]);
 
     try {
-      // Save user message to database first
+      // Save user message (will be skipped for anonymous users)
       const savedMessage = await conversationService.addMessage(conversationId, 'user', content);
-      if (savedMessage) {
+      if (savedMessage && !savedMessage.id.startsWith('temp-')) {
         setMessages(prev => 
           prev.map(msg => 
             msg.id === tempMessage.id 
@@ -204,8 +208,8 @@ export const useChatHistory = (agent: AgentType) => {
 
       console.log('Completing AI message:', currentMessage.content);
 
-      // Save to database if we have a conversation
-      if (conversationId) {
+      // Save to database if we have a conversation (only for authenticated users)
+      if (conversationId && !conversationId.startsWith('temp-')) {
         conversationService.addMessage(
           conversationId, 
           'system', 
@@ -253,7 +257,7 @@ export const useChatHistory = (agent: AgentType) => {
   return {
     messages,
     isLoading: isLoading || isSending,
-    isPublicChat: false, // Always require authentication now
+    isPublicChat: isAnonymous, // Anonymous users are treated as public chat
     welcomeMessageSent,
     addUserMessage,
     startAiMessage,

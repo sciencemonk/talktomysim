@@ -20,14 +20,24 @@ export interface Message {
 }
 
 export const conversationService = {
-  // Get or create a conversation for a user and advisor
+  // Get or create a conversation for anonymous or authenticated users
   async getOrCreateConversation(advisorId: string): Promise<Conversation | null> {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       
+      // For anonymous users, create a temporary conversation without saving to DB
       if (!user) {
-        console.error('User not authenticated - cannot create conversation');
-        return null;
+        console.log('Creating temporary conversation for anonymous user');
+        const tempConversation: Conversation = {
+          id: `temp-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+          user_id: 'anonymous',
+          advisor_id: null,
+          tutor_id: advisorId,
+          title: null,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        };
+        return tempConversation;
       }
 
       console.log('Getting or creating conversation for authenticated user:', user.id);
@@ -71,8 +81,13 @@ export const conversationService = {
     }
   },
 
-  // Get messages for a conversation
+  // Get messages for a conversation (only works for authenticated users with real conversations)
   async getMessages(conversationId: string): Promise<Message[]> {
+    // Skip database query for temporary conversations
+    if (conversationId.startsWith('temp-')) {
+      return [];
+    }
+
     try {
       const { data, error } = await supabase
         .from('messages')
@@ -93,8 +108,20 @@ export const conversationService = {
     }
   },
 
-  // Add a message to a conversation
+  // Add a message to a conversation (only saves for authenticated users with real conversations)
   async addMessage(conversationId: string, role: 'user' | 'system', content: string): Promise<Message | null> {
+    // Skip database save for temporary conversations
+    if (conversationId.startsWith('temp-')) {
+      console.log('Skipping message save for temporary conversation');
+      return {
+        id: `temp-msg-${Date.now()}`,
+        conversation_id: conversationId,
+        role,
+        content,
+        created_at: new Date().toISOString()
+      };
+    }
+
     try {
       const { data, error } = await supabase
         .from('messages')
