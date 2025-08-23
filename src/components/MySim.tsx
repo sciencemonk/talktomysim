@@ -193,7 +193,7 @@ const MySim = () => {
                           <div>Score: {conversation.avg_score.toFixed(1)}/10</div>
                         )}
                         <div className="text-xs opacity-50">
-                          ID: {conversation.user_id.substring(0, 8)}...
+                          ID: {conversation.user_id ? conversation.user_id.substring(0, 8) + '...' : 'N/A'}
                         </div>
                       </div>
                     </div>
