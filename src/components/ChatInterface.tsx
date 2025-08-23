@@ -70,11 +70,19 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ agent, onBack }) => {
   // Show welcome message if no history messages and haven't shown it yet
   useEffect(() => {
     if (conversation && historyMessages.length === 0 && !hasShownWelcome && !isInitializing) {
+      // Use the welcome message from the agent's interaction model, with fallback
       const welcomeMessage = agent.welcomeMessage || `Hello! I'm ${agent.name}. How can I help you today?`;
-      startAiMessage();
+      console.log('Showing welcome message:', welcomeMessage);
+      
+      const messageId = startAiMessage();
       addAiTextDelta(welcomeMessage);
       completeAiMessage();
       setHasShownWelcome(true);
+      
+      // Save welcome message to database
+      if (conversation?.id) {
+        conversationService.addMessage(conversation.id, 'system', welcomeMessage);
+      }
     }
   }, [conversation, historyMessages.length, hasShownWelcome, isInitializing, agent, startAiMessage, addAiTextDelta, completeAiMessage]);
 
@@ -84,8 +92,9 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ agent, onBack }) => {
     onAiMessageStart: startAiMessage,
     onAiTextDelta: addAiTextDelta,
     onAiMessageComplete: (messageId: string) => {
+      console.log('AI message completed:', messageId);
       completeAiMessage();
-      // Save messages to database if we have a conversation
+      // Save AI response to database if we have a conversation
       const currentMessage = messages.find(m => m.id === messageId);
       if (conversation?.id && currentMessage && currentMessage.content) {
         conversationService.addMessage(conversation.id, 'system', currentMessage.content);

@@ -67,11 +67,14 @@ export const useEnhancedTextChat = ({
         }
       };
 
+      console.log('Calling enhanced-chat-completion with:', requestBody);
+
       const { data, error } = await supabase.functions.invoke('enhanced-chat-completion', {
         body: requestBody
       });
 
       console.log('Enhanced response data:', data);
+      console.log('Enhanced response error:', error);
       
       if (error) {
         console.error('Supabase function error:', error);
@@ -93,11 +96,12 @@ export const useEnhancedTextChat = ({
         
         // Update conversation history with AI response
         setConversationHistory(prev => [...prev, { role: 'assistant', content: data.content }]);
+        
+        // Complete the message
+        onAiMessageComplete(aiMessageId);
       } else {
         throw new Error('No content in response');
       }
-
-      onAiMessageComplete(aiMessageId);
     } catch (error: any) {
       if (error.name === 'AbortError') {
         console.log('Request was aborted');
