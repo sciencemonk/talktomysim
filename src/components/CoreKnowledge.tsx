@@ -1,10 +1,10 @@
-
 import React, { useState } from 'react';
 import { FileUpload } from './FileUpload';
 import { DocumentManager } from './DocumentManager';
 import { TextContentInput } from './TextContentInput';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Database } from 'lucide-react';
 import { documentService } from '@/services/documentService';
 import { toast } from 'sonner';
 
@@ -110,66 +110,62 @@ export const CoreKnowledge: React.FC<CoreKnowledgeProps> = ({ advisorId }) => {
   };
 
   return (
-    <div className="max-w-6xl mx-auto p-6 space-y-6">
+    <div className="max-w-4xl mx-auto p-6 space-y-6">
       {/* Page Header */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-3xl font-bold text-fg">Vector Embedding</CardTitle>
+          <CardTitle className="flex items-center gap-2">
+            <Database className="h-5 w-5" />
+            Vector Embedding
+          </CardTitle>
         </CardHeader>
-        <CardContent>
-          <p className="text-muted-foreground text-lg leading-relaxed">
+        <CardContent className="space-y-6">
+          <p className="text-muted-foreground">
             Upload documents, add personal experiences, and share your expertise to build your Sim's brain. We'll convert it into a vector embedding so that huge amounts of information are readily available.
           </p>
+
+          {/* Add Knowledge Tabs - directly in the card content */}
+          <Tabs defaultValue="upload" className="w-full">
+            <TabsList className="grid w-full grid-cols-2 mb-6">
+              <TabsTrigger value="upload">Upload Files</TabsTrigger>
+              <TabsTrigger value="text">Paste Text</TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="upload" className="space-y-4">
+              <FileUpload
+                onFileSelect={handleFileSelect}
+                onFileProcess={handleFileProcess}
+                isProcessing={isProcessing}
+                processingProgress={processingProgress}
+                acceptedTypes={['.pdf', '.txt', '.docx']}
+                maxFiles={10}
+                maxFileSize={25}
+              />
+            </TabsContent>
+            
+            <TabsContent value="text" className="space-y-4">
+              <TextContentInput
+                onProcess={handleTextProcess}
+                isProcessing={isProcessing}
+              />
+            </TabsContent>
+          </Tabs>
         </CardContent>
       </Card>
 
-      {/* Add Knowledge Section */}
-      <div className="mb-8">
-        <h2 className="text-2xl font-semibold text-fg mb-6">Add Knowledge</h2>
-        <Card>
-          <CardContent className="p-6">
-            <Tabs defaultValue="upload" className="w-full">
-              <TabsList className="grid w-full grid-cols-2 mb-6">
-                <TabsTrigger value="upload">Upload Files</TabsTrigger>
-                <TabsTrigger value="text">Paste Text</TabsTrigger>
-              </TabsList>
-              
-              <TabsContent value="upload" className="space-y-4">
-                <FileUpload
-                  onFileSelect={handleFileSelect}
-                  onFileProcess={handleFileProcess}
-                  isProcessing={isProcessing}
-                  processingProgress={processingProgress}
-                  acceptedTypes={['.pdf', '.txt', '.docx']}
-                  maxFiles={10}
-                  maxFileSize={25}
-                />
-              </TabsContent>
-              
-              <TabsContent value="text" className="space-y-4">
-                <TextContentInput
-                  onProcess={handleTextProcess}
-                  isProcessing={isProcessing}
-                />
-              </TabsContent>
-            </Tabs>
-          </CardContent>
-        </Card>
-      </div>
-
       {/* Uploaded Documents Section */}
-      <div>
-        <h2 className="text-2xl font-semibold text-fg mb-6">Uploaded Documents</h2>
-        <Card>
-          <CardContent className="p-6">
-            <DocumentManager
-              advisorId={advisorId}
-              onDocumentsChange={handleDocumentsChange}
-              refreshTrigger={refreshDocuments}
-            />
-          </CardContent>
-        </Card>
-      </div>
+      <Card>
+        <CardHeader>
+          <CardTitle>Uploaded Documents</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <DocumentManager
+            advisorId={advisorId}
+            onDocumentsChange={handleDocumentsChange}
+            refreshTrigger={refreshDocuments}
+          />
+        </CardContent>
+      </Card>
     </div>
   );
 };
