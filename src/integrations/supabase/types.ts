@@ -137,6 +137,7 @@ export type Database = {
           url: string | null
           user_id: string | null
           welcome_message: string | null
+          writing_sample: string | null
           years_experience: number | null
         }
         Insert: {
@@ -169,6 +170,7 @@ export type Database = {
           url?: string | null
           user_id?: string | null
           welcome_message?: string | null
+          writing_sample?: string | null
           years_experience?: number | null
         }
         Update: {
@@ -201,6 +203,7 @@ export type Database = {
           url?: string | null
           user_id?: string | null
           welcome_message?: string | null
+          writing_sample?: string | null
           years_experience?: number | null
         }
         Relationships: []
