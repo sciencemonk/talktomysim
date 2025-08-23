@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -7,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Plus, Trash2, MessageCircle, HelpCircle } from "lucide-react";
 import { useSim } from "@/hooks/useSim";
+import { cn } from "@/lib/utils";
 
 interface SampleScenario {
   id: string;
@@ -22,16 +24,38 @@ const InteractionModel = () => {
     { id: '1', question: '', expectedResponse: '' }
   ]);
 
+  // Track if there are unsaved changes
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+
   // Load existing sim data
   useEffect(() => {
     if (sim) {
-      setWelcomeMessage(sim.welcome_message || '');
+      const newWelcomeMessage = sim.welcome_message || '';
+      const newScenarios = sim.sample_scenarios && sim.sample_scenarios.length > 0 
+        ? sim.sample_scenarios 
+        : [{ id: '1', question: '', expectedResponse: '' }];
       
-      if (sim.sample_scenarios && sim.sample_scenarios.length > 0) {
-        setScenarios(sim.sample_scenarios);
-      }
+      setWelcomeMessage(newWelcomeMessage);
+      setScenarios(newScenarios);
+      
+      // Reset unsaved changes when loading new data
+      setHasUnsavedChanges(false);
     }
   }, [sim]);
+
+  // Track changes to detect unsaved changes
+  useEffect(() => {
+    if (sim && welcomeMessage !== "" && !isLoading) { // Only track after initial load
+      const originalWelcomeMessage = sim.welcome_message || '';
+      const originalScenarios = sim.sample_scenarios || [{ id: '1', question: '', expectedResponse: '' }];
+      
+      const hasChanges = 
+        welcomeMessage !== originalWelcomeMessage ||
+        JSON.stringify(scenarios) !== JSON.stringify(originalScenarios);
+      
+      setHasUnsavedChanges(hasChanges);
+    }
+  }, [welcomeMessage, scenarios, sim, isLoading]);
 
   const addScenario = () => {
     const newScenario: SampleScenario = {
@@ -62,6 +86,7 @@ const InteractionModel = () => {
       };
 
       await updateInteractionModel(interactionData);
+      setHasUnsavedChanges(false);
     } catch (error) {
       console.error('Error saving interaction model:', error);
     }
@@ -71,10 +96,26 @@ const InteractionModel = () => {
     <div className="max-w-4xl mx-auto p-6 space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <MessageCircle className="h-5 w-5" />
-            Interaction Model
-          </CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle className="flex items-center gap-2">
+              <MessageCircle className="h-5 w-5" />
+              Interaction Model
+            </CardTitle>
+            <Button 
+              onClick={handleSave} 
+              variant={hasUnsavedChanges ? "default" : "outline"}
+              className={cn(
+                "relative",
+                hasUnsavedChanges && "pr-6"
+              )}
+              disabled={isLoading}
+            >
+              {isLoading ? 'Saving...' : 'Save'}
+              {hasUnsavedChanges && (
+                <div className="absolute top-1 right-1 w-2 h-2 bg-orange-500 rounded-full" />
+              )}
+            </Button>
+          </div>
         </CardHeader>
         <CardContent className="space-y-6">
           <p className="text-muted-foreground">
@@ -175,10 +216,17 @@ const InteractionModel = () => {
           <div className="flex justify-end pt-4">
             <Button 
               onClick={handleSave} 
-              className="px-8"
+              className={cn(
+                "px-8 relative",
+                hasUnsavedChanges && "pr-10"
+              )}
+              variant={hasUnsavedChanges ? "default" : "outline"}
               disabled={isLoading}
             >
               {isLoading ? 'Saving...' : 'Save Interaction Model'}
+              {hasUnsavedChanges && (
+                <div className="absolute top-1 right-1 w-2 h-2 bg-orange-500 rounded-full" />
+              )}
             </Button>
           </div>
         </CardContent>

@@ -44,6 +44,9 @@ const BasicInfo = () => {
   const [isCheckingUrl, setIsCheckingUrl] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
 
+  // Track if there are unsaved changes
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+
   // Memoize the generated prompt to prevent infinite re-renders
   const generatedPrompt = useMemo(() => {
     return sim ? promptGenerationService.generateSystemPrompt(sim) : null;
@@ -52,7 +55,7 @@ const BasicInfo = () => {
   // Load existing sim data - only run when sim changes, not when generatedPrompt changes
   useEffect(() => {
     if (sim) {
-      setFormData({
+      const newFormData = {
         fullName: sim.full_name || "",
         professionalTitle: sim.professional_title || "",
         dateOfBirth: sim.date_of_birth ? new Date(sim.date_of_birth) : undefined,
@@ -66,8 +69,9 @@ const BasicInfo = () => {
         avatarUrl: sim.avatar_url || "",
         customUrl: sim.custom_url || "",
         prompt: sim.prompt || generatedPrompt?.systemPrompt || ""
-      });
+      };
       
+      setFormData(newFormData);
       setInterests(sim.interests || []);
       setSkills(sim.skills || []);
       
@@ -77,6 +81,9 @@ const BasicInfo = () => {
       } else {
         setPreviewUrl("");
       }
+      
+      // Reset unsaved changes when loading new data
+      setHasUnsavedChanges(false);
     }
   }, [sim]); // Remove generatedPrompt from dependencies
 
@@ -86,6 +93,30 @@ const BasicInfo = () => {
       setFormData(prev => ({ ...prev, prompt: generatedPrompt.systemPrompt }));
     }
   }, [generatedPrompt?.systemPrompt, sim?.prompt]);
+
+  // Track changes to form data and mark as having unsaved changes
+  useEffect(() => {
+    if (sim && formData.fullName !== "" && !isLoading) { // Only track after initial load
+      const hasChanges = 
+        formData.fullName !== (sim.full_name || "") ||
+        formData.professionalTitle !== (sim.professional_title || "") ||
+        formData.dateOfBirth?.toISOString().split('T')[0] !== sim.date_of_birth ||
+        formData.location !== (sim.location || "") ||
+        formData.education !== (sim.education || "") ||
+        formData.currentProfession !== (sim.current_profession || "") ||
+        formData.yearsExperience !== (sim.years_experience?.toString() || "") ||
+        formData.areasOfExpertise !== (sim.areas_of_expertise || "") ||
+        formData.additionalBackground !== (sim.additional_background || "") ||
+        formData.writingSample !== (sim.writing_sample || "") ||
+        formData.customUrl !== (sim.custom_url || "") ||
+        formData.prompt !== (sim.prompt || "") ||
+        JSON.stringify(interests) !== JSON.stringify(sim.interests || []) ||
+        JSON.stringify(skills) !== JSON.stringify(sim.skills || []) ||
+        selectedFile !== null;
+      
+      setHasUnsavedChanges(hasChanges);
+    }
+  }, [formData, interests, skills, selectedFile, sim, isLoading]);
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -249,6 +280,9 @@ const BasicInfo = () => {
         setPreviewUrl(finalAvatarUrl);
         setSelectedFile(null);
       }
+      
+      // Mark as saved
+      setHasUnsavedChanges(false);
     } catch (error) {
       console.error('Error saving basic info:', error);
     }
@@ -258,10 +292,26 @@ const BasicInfo = () => {
     <div className="max-w-4xl mx-auto p-6 space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <User className="h-5 w-5" />
-            Context Window
-          </CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle className="flex items-center gap-2">
+              <User className="h-5 w-5" />
+              Context Window
+            </CardTitle>
+            <Button 
+              onClick={handleSave} 
+              variant={hasUnsavedChanges ? "default" : "outline"}
+              className={cn(
+                "relative",
+                hasUnsavedChanges && "pr-6"
+              )}
+              disabled={isLoading || isUploading || (formData.customUrl && isUrlAvailable === false)}
+            >
+              {isLoading || isUploading ? 'Saving...' : 'Save'}
+              {hasUnsavedChanges && (
+                <div className="absolute top-1 right-1 w-2 h-2 bg-orange-500 rounded-full" />
+              )}
+            </Button>
+          </div>
         </CardHeader>
         <CardContent className="space-y-8">
           {/* Avatar Upload */}
@@ -575,10 +625,17 @@ Examples of good writing samples:
           <div className="flex justify-end pt-4">
             <Button 
               onClick={handleSave} 
-              className="px-8"
+              className={cn(
+                "px-8 relative",
+                hasUnsavedChanges && "pr-10"
+              )}
+              variant={hasUnsavedChanges ? "default" : "outline"}
               disabled={isLoading || isUploading || (formData.customUrl && isUrlAvailable === false)}
             >
               {isLoading || isUploading ? 'Saving...' : 'Save Context Window'}
+              {hasUnsavedChanges && (
+                <div className="absolute top-1 right-1 w-2 h-2 bg-orange-500 rounded-full" />
+              )}
             </Button>
           </div>
         </CardContent>

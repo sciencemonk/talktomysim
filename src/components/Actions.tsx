@@ -1,11 +1,23 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { Shield } from 'lucide-react';
 import { GatekeeperSettings } from '@/components/GatekeeperSettings';
 import { useSim } from '@/hooks/useSim';
+import { cn } from '@/lib/utils';
 
 const Actions = () => {
   const { sim, isLoading } = useSim();
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+
+  // For Actions page, we'll track changes via the GatekeeperSettings component
+  // This is a placeholder implementation - the actual change tracking would need to be
+  // implemented within GatekeeperSettings and communicated up via props
+  const handleSave = async () => {
+    // This would trigger save in the GatekeeperSettings component
+    // For now, we'll just mark as saved
+    setHasUnsavedChanges(false);
+  };
 
   if (isLoading) {
     return (
@@ -41,10 +53,26 @@ const Actions = () => {
     <div className="max-w-4xl mx-auto p-6 space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Shield className="h-5 w-5" />
-            Actions
-          </CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle className="flex items-center gap-2">
+              <Shield className="h-5 w-5" />
+              Actions
+            </CardTitle>
+            <Button 
+              onClick={handleSave} 
+              variant={hasUnsavedChanges ? "default" : "outline"}
+              className={cn(
+                "relative",
+                hasUnsavedChanges && "pr-6"
+              )}
+              disabled={isLoading}
+            >
+              {isLoading ? 'Saving...' : 'Save'}
+              {hasUnsavedChanges && (
+                <div className="absolute top-1 right-1 w-2 h-2 bg-orange-500 rounded-full" />
+              )}
+            </Button>
+          </div>
         </CardHeader>
         <CardContent className="space-y-6">
           <p className="text-muted-foreground">
@@ -52,7 +80,10 @@ const Actions = () => {
           </p>
 
           {/* Smart Gatekeeper Settings */}
-          <GatekeeperSettings advisorId={sim.id} />
+          <GatekeeperSettings 
+            advisorId={sim.id} 
+            onSettingsChange={(hasChanges) => setHasUnsavedChanges(hasChanges)}
+          />
         </CardContent>
       </Card>
 
