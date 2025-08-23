@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Bot, ChevronLeft, MessageCircle, Clock, Trash2 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
-import AgentConfigSettings from "@/components/AgentConfigSettings";
+import { AgentConfigSettings } from "@/components/AgentConfigSettings";
 import { RolePlayDialog } from "@/components/RolePlayDialog";
 import { CallInterface } from "@/components/CallInterface";
 import { deleteAgent } from "@/services/agentService";

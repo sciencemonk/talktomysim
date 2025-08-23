@@ -55,6 +55,7 @@ export interface AgentType {
   url?: string; // Add url field for custom paths
   custom_url?: string; // Add custom_url field for custom URLs
   welcomeMessage?: string; // Add welcome message field
+  isPublic?: boolean; // Add isPublic field for public/private agents
 }
 
 export interface PublicAgentType {

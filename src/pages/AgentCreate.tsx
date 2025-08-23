@@ -1,10 +1,9 @@
-
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { ArrowLeft, CheckCircle2, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
-import AgentConfigSettings from "@/components/AgentConfigSettings";
+import { AgentConfigSettings } from "@/components/AgentConfigSettings";
 import { createAgent } from "@/services/agentService";
 import { AgentType } from "@/types/agent";
 import { useAuth } from "@/hooks/useAuth";

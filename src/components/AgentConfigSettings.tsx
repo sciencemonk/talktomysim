@@ -26,7 +26,7 @@ interface AgentConfigSettingsProps {
   agentId: string;
 }
 
-export const AgentConfigSettings = ({ agentId }: AgentConfigSettingsProps) => {
+const AgentConfigSettings = ({ agentId }: AgentConfigSettingsProps) => {
   const { agent, isLoading, refetchAgent } = useAgentDetails(agentId);
   const [isSaving, setIsSaving] = useState(false);
   const [formData, setFormData] = useState({
@@ -303,3 +303,5 @@ export const AgentConfigSettings = ({ agentId }: AgentConfigSettingsProps) => {
     </div>
   );
 };
+
+export default AgentConfigSettings;
