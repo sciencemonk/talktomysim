@@ -8,7 +8,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Send, ArrowLeft, Loader2, Bot, User } from "lucide-react";
 import { AgentType } from "@/types/agent";
 import { useEnhancedTextChat } from "@/hooks/useEnhancedTextChat";
-import { useSimpleMessageAccumulator } from "@/hooks/useSimpleMessageAccumulator";
 import { conversationService } from "@/services/conversationService";
 import { useChatHistory } from "@/hooks/useChatHistory";
 
@@ -17,15 +16,24 @@ interface ChatInterfaceProps {
   onBack?: () => void;
 }
 
+interface DisplayMessage {
+  id: string;
+  role: 'user' | 'system';
+  content: string;
+  isComplete: boolean;
+  timestamp: number;
+}
+
 const ChatInterface: React.FC<ChatInterfaceProps> = ({ agent, onBack }) => {
   const [input, setInput] = useState('');
   const [conversation, setConversation] = useState<any>(null);
   const [isInitializing, setIsInitializing] = useState(false);
   const [hasShownWelcome, setHasShownWelcome] = useState(false);
+  const [displayMessages, setDisplayMessages] = useState<DisplayMessage[]>([]);
+  const [currentAiMessage, setCurrentAiMessage] = useState<DisplayMessage | null>(null);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const { messages, addUserMessage, startAiMessage, addAiTextDelta, completeAiMessage, clearMessages } = useSimpleMessageAccumulator();
   const { messages: historyMessages, loadMessages } = useChatHistory(conversation?.id || null);
 
   // Initialize conversation only once
@@ -67,16 +75,35 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ agent, onBack }) => {
     }
   }, [conversation?.id, loadMessages]);
 
+  // Update display messages when history changes
+  useEffect(() => {
+    const historyMsgs: DisplayMessage[] = historyMessages.map(msg => ({
+      id: msg.id,
+      role: msg.role as 'user' | 'system',
+      content: msg.content || '',
+      isComplete: true,
+      timestamp: new Date(msg.created_at || Date.now()).getTime()
+    }));
+
+    setDisplayMessages(historyMsgs);
+    console.log('Updated display messages from history:', historyMsgs.length);
+  }, [historyMessages]);
+
   // Show welcome message if no history messages and haven't shown it yet
   useEffect(() => {
     if (conversation && historyMessages.length === 0 && !hasShownWelcome && !isInitializing) {
-      // Use the welcome message from the agent, with fallback
       const welcomeMessage = agent.welcomeMessage || `Hello! I'm ${agent.name}. How can I help you today?`;
       console.log('Showing welcome message:', welcomeMessage);
       
-      const messageId = startAiMessage();
-      addAiTextDelta(welcomeMessage);
-      completeAiMessage();
+      const welcomeMsg: DisplayMessage = {
+        id: `welcome-${Date.now()}`,
+        role: 'system',
+        content: welcomeMessage,
+        isComplete: true,
+        timestamp: Date.now()
+      };
+      
+      setDisplayMessages([welcomeMsg]);
       setHasShownWelcome(true);
       
       // Save welcome message to database
@@ -84,7 +111,64 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ agent, onBack }) => {
         conversationService.addMessage(conversation.id, 'system', welcomeMessage);
       }
     }
-  }, [conversation, historyMessages.length, hasShownWelcome, isInitializing, agent, startAiMessage, addAiTextDelta, completeAiMessage]);
+  }, [conversation, historyMessages.length, hasShownWelcome, isInitializing, agent]);
+
+  const addUserMessage = useCallback((content: string) => {
+    const userMsg: DisplayMessage = {
+      id: `user-${Date.now()}`,
+      role: 'user',
+      content,
+      isComplete: true,
+      timestamp: Date.now()
+    };
+    
+    setDisplayMessages(prev => [...prev, userMsg]);
+  }, []);
+
+  const startAiMessage = useCallback(() => {
+    const aiMsg: DisplayMessage = {
+      id: `ai-${Date.now()}`,
+      role: 'system',
+      content: '',
+      isComplete: false,
+      timestamp: Date.now()
+    };
+    
+    setCurrentAiMessage(aiMsg);
+    setDisplayMessages(prev => [...prev, aiMsg]);
+    
+    return aiMsg.id;
+  }, []);
+
+  const addAiTextDelta = useCallback((delta: string) => {
+    if (!currentAiMessage) return;
+    
+    setDisplayMessages(prev => 
+      prev.map(msg => 
+        msg.id === currentAiMessage.id 
+          ? { ...msg, content: msg.content + delta }
+          : msg
+      )
+    );
+    
+    setCurrentAiMessage(prev => 
+      prev ? { ...prev, content: prev.content + delta } : null
+    );
+  }, [currentAiMessage]);
+
+  const completeAiMessage = useCallback(() => {
+    if (!currentAiMessage) return;
+    
+    setDisplayMessages(prev => 
+      prev.map(msg => 
+        msg.id === currentAiMessage.id 
+          ? { ...msg, isComplete: true }
+          : msg
+      )
+    );
+    
+    setCurrentAiMessage(null);
+  }, [currentAiMessage]);
 
   const { sendMessage, isProcessing } = useEnhancedTextChat({
     agent,
@@ -95,7 +179,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ agent, onBack }) => {
       console.log('AI message completed:', messageId);
       completeAiMessage();
       // Save AI response to database if we have a conversation
-      const currentMessage = messages.find(m => m.id === messageId);
+      const currentMessage = displayMessages.find(m => m.id === messageId);
       if (conversation?.id && currentMessage && currentMessage.content) {
         conversationService.addMessage(conversation.id, 'system', currentMessage.content);
       }
@@ -117,44 +201,12 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ agent, onBack }) => {
     
     setInput('');
     inputRef.current?.focus();
-  }, [conversation?.id, isProcessing, sendMessage]);
+  }, [conversation?.id, isProcessing, sendMessage, displayMessages]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     handleSendMessage(input);
   };
-
-  // Create a unified message list that maintains proper chronological order
-  const displayMessages = React.useMemo(() => {
-    // Start with history messages (already in DB) and assign them proper timestamps
-    const historyMsgs = historyMessages.map((msg, index) => ({
-      id: msg.id,
-      role: msg.role,
-      content: msg.content || '',
-      isComplete: true,
-      timestamp: new Date(msg.created_at || Date.now()).getTime() + index // Ensure proper ordering even if timestamps are identical
-    }));
-
-    // Get the latest timestamp from history or use current time
-    const latestHistoryTime = historyMsgs.length > 0 
-      ? Math.max(...historyMsgs.map(m => m.timestamp))
-      : Date.now();
-
-    // Add current session messages (not yet in DB or being typed) with timestamps after history
-    const sessionMsgs = messages
-      .filter(msg => msg.content && msg.content.trim().length > 0)
-      .map((msg, index) => ({
-        ...msg,
-        timestamp: latestHistoryTime + 1000 + (index * 1000) // Add 1 second + index to ensure they come after history
-      }));
-
-    // Combine and sort by timestamp to ensure chronological order
-    const allMsgs = [...historyMsgs, ...sessionMsgs].sort((a, b) => a.timestamp - b.timestamp);
-    
-    console.log('Display messages:', allMsgs.map(m => ({ role: m.role, content: m.content?.substring(0, 50), timestamp: m.timestamp })));
-    
-    return allMsgs;
-  }, [historyMessages, messages]);
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
@@ -214,7 +266,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ agent, onBack }) => {
                 className={`max-w-[85%] md:max-w-[70%] rounded-lg px-4 py-3 ${
                   message.role === 'user'
                     ? 'bg-primary text-primary-foreground'
-                    : 'bg-muted text-black'
+                    : 'bg-muted text-foreground'
                 }`}
               >
                 <div className="text-sm whitespace-pre-wrap">
@@ -244,7 +296,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ agent, onBack }) => {
                   <Bot className="h-4 w-4" />
                 </AvatarFallback>
               </Avatar>
-              <div className="bg-muted text-black rounded-lg px-4 py-3">
+              <div className="bg-muted text-foreground rounded-lg px-4 py-3">
                 <div className="text-sm text-muted-foreground">
                   {agent.name} is typing...
                 </div>
