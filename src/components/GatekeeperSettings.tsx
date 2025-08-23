@@ -13,10 +13,12 @@ import { toast } from 'sonner';
 
 interface GatekeeperSettingsProps {
   advisorId: string;
+  onSettingsChange?: (hasChanges: boolean) => void;
 }
 
-export const GatekeeperSettings = ({ advisorId }: GatekeeperSettingsProps) => {
+export const GatekeeperSettings = ({ advisorId, onSettingsChange }: GatekeeperSettingsProps) => {
   const [rules, setRules] = useState<EscalationRule | null>(null);
+  const [originalRules, setOriginalRules] = useState<EscalationRule | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [newKeyword, setNewKeyword] = useState('');
@@ -25,12 +27,21 @@ export const GatekeeperSettings = ({ advisorId }: GatekeeperSettingsProps) => {
     loadEscalationRules();
   }, [advisorId]);
 
+  // Check for changes whenever rules change
+  useEffect(() => {
+    if (rules && originalRules && onSettingsChange) {
+      const hasChanges = JSON.stringify(rules) !== JSON.stringify(originalRules);
+      onSettingsChange(hasChanges);
+    }
+  }, [rules, originalRules, onSettingsChange]);
+
   const loadEscalationRules = async () => {
     setIsLoading(true);
     const fetchedRules = await escalationService.getEscalationRules(advisorId);
     
     if (fetchedRules) {
       setRules(fetchedRules);
+      setOriginalRules(JSON.parse(JSON.stringify(fetchedRules))); // Deep copy
     } else {
       // Create default rules
       const defaultRules = {
@@ -45,6 +56,7 @@ export const GatekeeperSettings = ({ advisorId }: GatekeeperSettingsProps) => {
         is_active: true
       };
       setRules(defaultRules as EscalationRule);
+      setOriginalRules(JSON.parse(JSON.stringify(defaultRules)) as EscalationRule); // Deep copy
     }
     setIsLoading(false);
   };
@@ -57,7 +69,11 @@ export const GatekeeperSettings = ({ advisorId }: GatekeeperSettingsProps) => {
     
     if (savedRules) {
       setRules(savedRules);
+      setOriginalRules(JSON.parse(JSON.stringify(savedRules))); // Deep copy
       toast.success('Gatekeeper settings saved successfully!');
+      if (onSettingsChange) {
+        onSettingsChange(false); // No more unsaved changes
+      }
     } else {
       toast.error('Failed to save gatekeeper settings');
     }
