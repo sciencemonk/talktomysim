@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 
 export interface DocumentVersion {
@@ -33,27 +32,17 @@ export class DocumentVersioningService {
     changeSummary?: string
   ): Promise<{ success: boolean; version?: DocumentVersion; error?: string }> {
     try {
-      // Get current latest version using raw SQL to avoid type issues
-      const { data: latestVersion, error: versionError } = await supabase.rpc('get_latest_version', {
-        doc_id: documentId
-      });
+      // Get current latest version using direct query
+      const { data: latestVersionData, error: queryError } = await supabase
+        .from('document_versions')
+        .select('version_number, content_hash')
+        .eq('document_id', documentId)
+        .order('version_number', { ascending: false })
+        .limit(1)
+        .maybeSingle();
 
-      // Fallback to direct query if RPC doesn't exist
-      let latestVersionData = null;
-      if (versionError) {
-        const { data, error } = await supabase
-          .from('document_versions')
-          .select('version_number, content_hash')
-          .eq('document_id', documentId)
-          .order('version_number', { ascending: false })
-          .limit(1)
-          .maybeSingle();
-        
-        if (!error) {
-          latestVersionData = data;
-        }
-      } else {
-        latestVersionData = latestVersion;
+      if (queryError && queryError.code !== 'PGRST116') {
+        console.error('Error fetching latest version:', queryError);
       }
 
       // Generate content hash
