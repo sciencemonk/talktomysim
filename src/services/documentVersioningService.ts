@@ -33,30 +33,44 @@ export class DocumentVersioningService {
     changeSummary?: string
   ): Promise<{ success: boolean; version?: DocumentVersion; error?: string }> {
     try {
-      // Get current latest version using generic query
-      const { data: latestVersion } = await supabase
-        .from('document_versions' as any)
-        .select('version_number, content_hash')
-        .eq('document_id', documentId)
-        .order('version_number', { ascending: false })
-        .limit(1)
-        .maybeSingle();
+      // Get current latest version using raw SQL to avoid type issues
+      const { data: latestVersion, error: versionError } = await supabase.rpc('get_latest_version', {
+        doc_id: documentId
+      });
+
+      // Fallback to direct query if RPC doesn't exist
+      let latestVersionData = null;
+      if (versionError) {
+        const { data, error } = await supabase
+          .from('document_versions')
+          .select('version_number, content_hash')
+          .eq('document_id', documentId)
+          .order('version_number', { ascending: false })
+          .limit(1)
+          .maybeSingle();
+        
+        if (!error) {
+          latestVersionData = data;
+        }
+      } else {
+        latestVersionData = latestVersion;
+      }
 
       // Generate content hash
       const contentHash = await this.generateContentHash(content);
       
       // Check if content has actually changed
-      if (latestVersion && latestVersion.content_hash === contentHash) {
+      if (latestVersionData && latestVersionData.content_hash === contentHash) {
         return { 
           success: false, 
           error: 'No changes detected in document content' 
         };
       }
 
-      const nextVersion = (latestVersion?.version_number || 0) + 1;
+      const nextVersion = (latestVersionData?.version_number || 0) + 1;
 
       const { data: version, error } = await supabase
-        .from('document_versions' as any)
+        .from('document_versions')
         .insert({
           document_id: documentId,
           version_number: nextVersion,
@@ -81,7 +95,7 @@ export class DocumentVersioningService {
   async getVersionHistory(documentId: string): Promise<DocumentVersion[]> {
     try {
       const { data, error } = await supabase
-        .from('document_versions' as any)
+        .from('document_versions')
         .select('*')
         .eq('document_id', documentId)
         .order('version_number', { ascending: false });
@@ -97,7 +111,7 @@ export class DocumentVersioningService {
   async getVersion(documentId: string, versionNumber: number): Promise<DocumentVersion | null> {
     try {
       const { data, error } = await supabase
-        .from('document_versions' as any)
+        .from('document_versions')
         .select('*')
         .eq('document_id', documentId)
         .eq('version_number', versionNumber)
