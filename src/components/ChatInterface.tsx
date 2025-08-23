@@ -71,7 +71,9 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ agent, onBack }) => {
   useEffect(() => {
     if (conversation && historyMessages.length === 0 && !hasShownWelcome && !isInitializing) {
       // Use the welcome message from the agent's interaction model, with fallback
-      const welcomeMessage = agent.welcomeMessage || `Hello! I'm ${agent.name}. How can I help you today?`;
+      const welcomeMessage = agent.interactionModel?.welcomeMessage || 
+                           agent.welcomeMessage || 
+                           `Hello! I'm ${agent.name}. How can I help you today?`;
       console.log('Showing welcome message:', welcomeMessage);
       
       const messageId = startAiMessage();
@@ -124,16 +126,26 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ agent, onBack }) => {
     handleSendMessage(input);
   };
 
-  // Combine history messages and current session messages
+  // Combine history messages and current session messages, then sort by timestamp/creation order
   const allMessages = [
     ...historyMessages.map(msg => ({
       id: msg.id,
       role: msg.role,
       content: msg.content || '',
-      isComplete: true
+      isComplete: true,
+      timestamp: msg.created_at || new Date().toISOString()
     })),
-    ...messages.filter(msg => msg.content && msg.content.trim().length > 0)
-  ];
+    ...messages.filter(msg => msg.content && msg.content.trim().length > 0).map(msg => ({
+      ...msg,
+      timestamp: new Date().toISOString()
+    }))
+  ].sort((a, b) => {
+    // Sort by timestamp if available, otherwise maintain original order
+    if (a.timestamp && b.timestamp) {
+      return new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime();
+    }
+    return 0;
+  });
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
@@ -147,13 +159,8 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ agent, onBack }) => {
 
   return (
     <div className="flex flex-col h-full bg-background">
-      {/* Header */}
+      {/* Header - removed back button */}
       <div className="flex items-center gap-4 p-4 border-b border-border bg-card">
-        {onBack && (
-          <Button variant="ghost" size="sm" onClick={onBack}>
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
-        )}
         <Avatar className="h-10 w-10">
           <AvatarImage src={agent.avatar} alt={agent.name} />
           <AvatarFallback>
