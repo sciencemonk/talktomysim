@@ -24,18 +24,6 @@ export const conversationService = {
     try {
       console.log('Creating anonymous conversation for advisor:', advisorId);
 
-      // First verify the advisor exists using the public API
-      const { data: advisor, error: advisorError } = await supabase
-        .from('advisors')
-        .select('id')
-        .eq('id', advisorId)
-        .single();
-
-      if (advisorError || !advisor) {
-        console.error('Advisor not found:', advisorId, advisorError);
-        return null;
-      }
-
       // Create new conversation for anonymous user
       const conversationData = {
         user_id: 'anonymous',
