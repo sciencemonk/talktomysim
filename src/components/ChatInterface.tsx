@@ -124,26 +124,30 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ agent, onBack }) => {
     handleSendMessage(input);
   };
 
-  // Combine history messages and current session messages, then sort by timestamp/creation order
-  const allMessages = [
-    ...historyMessages.map(msg => ({
+  // Create a unified message list that maintains proper chronological order
+  const displayMessages = React.useMemo(() => {
+    // Start with history messages (already in DB)
+    const historyMsgs = historyMessages.map(msg => ({
       id: msg.id,
       role: msg.role,
       content: msg.content || '',
       isComplete: true,
-      timestamp: msg.created_at || new Date().toISOString()
-    })),
-    ...messages.filter(msg => msg.content && msg.content.trim().length > 0).map(msg => ({
-      ...msg,
-      timestamp: new Date().toISOString()
-    }))
-  ].sort((a, b) => {
-    // Sort by timestamp if available, otherwise maintain original order
-    if (a.timestamp && b.timestamp) {
-      return new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime();
-    }
-    return 0;
-  });
+      timestamp: new Date(msg.created_at || Date.now()).getTime()
+    }));
+
+    // Add current session messages (not yet in DB or being typed)
+    const sessionMsgs = messages
+      .filter(msg => msg.content && msg.content.trim().length > 0)
+      .map(msg => ({
+        ...msg,
+        timestamp: Date.now() // Use current time for session messages
+      }));
+
+    // Combine and sort by timestamp
+    const allMsgs = [...historyMsgs, ...sessionMsgs].sort((a, b) => a.timestamp - b.timestamp);
+    
+    return allMsgs;
+  }, [historyMessages, messages]);
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
@@ -153,11 +157,11 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ agent, onBack }) => {
         scrollElement.scrollTop = scrollElement.scrollHeight;
       }
     }
-  }, [allMessages]);
+  }, [displayMessages, isProcessing]);
 
   return (
     <div className="flex flex-col h-full bg-background">
-      {/* Header - removed back button */}
+      {/* Header */}
       <div className="flex items-center gap-4 p-4 border-b border-border bg-card">
         <Avatar className="h-10 w-10">
           <AvatarImage src={agent.avatar} alt={agent.name} />
@@ -183,7 +187,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ agent, onBack }) => {
             </div>
           )}
           
-          {allMessages.map((message) => (
+          {displayMessages.map((message) => (
             <div
               key={message.id}
               className={`flex gap-3 ${
@@ -203,7 +207,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ agent, onBack }) => {
                 className={`max-w-[85%] md:max-w-[70%] rounded-lg px-4 py-3 ${
                   message.role === 'user'
                     ? 'bg-primary text-primary-foreground'
-                    : 'bg-muted text-foreground'
+                    : 'bg-muted text-black'
                 }`}
               >
                 <div className="text-sm whitespace-pre-wrap">
@@ -223,6 +227,23 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ agent, onBack }) => {
               )}
             </div>
           ))}
+
+          {/* Typing indicator */}
+          {isProcessing && (
+            <div className="flex gap-3 justify-start">
+              <Avatar className="h-8 w-8 flex-shrink-0">
+                <AvatarImage src={agent.avatar} alt={agent.name} />
+                <AvatarFallback>
+                  <Bot className="h-4 w-4" />
+                </AvatarFallback>
+              </Avatar>
+              <div className="bg-muted text-black rounded-lg px-4 py-3">
+                <div className="text-sm text-muted-foreground">
+                  {agent.name} is typing...
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </ScrollArea>
 
