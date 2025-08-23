@@ -126,25 +126,32 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ agent, onBack }) => {
 
   // Create a unified message list that maintains proper chronological order
   const displayMessages = React.useMemo(() => {
-    // Start with history messages (already in DB)
-    const historyMsgs = historyMessages.map(msg => ({
+    // Start with history messages (already in DB) and assign them proper timestamps
+    const historyMsgs = historyMessages.map((msg, index) => ({
       id: msg.id,
       role: msg.role,
       content: msg.content || '',
       isComplete: true,
-      timestamp: new Date(msg.created_at || Date.now()).getTime()
+      timestamp: new Date(msg.created_at || Date.now()).getTime() + index // Ensure proper ordering even if timestamps are identical
     }));
 
-    // Add current session messages (not yet in DB or being typed)
+    // Get the latest timestamp from history or use current time
+    const latestHistoryTime = historyMsgs.length > 0 
+      ? Math.max(...historyMsgs.map(m => m.timestamp))
+      : Date.now();
+
+    // Add current session messages (not yet in DB or being typed) with timestamps after history
     const sessionMsgs = messages
       .filter(msg => msg.content && msg.content.trim().length > 0)
-      .map(msg => ({
+      .map((msg, index) => ({
         ...msg,
-        timestamp: Date.now() // Use current time for session messages
+        timestamp: latestHistoryTime + 1000 + (index * 1000) // Add 1 second + index to ensure they come after history
       }));
 
-    // Combine and sort by timestamp
+    // Combine and sort by timestamp to ensure chronological order
     const allMsgs = [...historyMsgs, ...sessionMsgs].sort((a, b) => a.timestamp - b.timestamp);
+    
+    console.log('Display messages:', allMsgs.map(m => ({ role: m.role, content: m.content?.substring(0, 50), timestamp: m.timestamp })));
     
     return allMsgs;
   }, [historyMessages, messages]);
@@ -247,7 +254,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ agent, onBack }) => {
         </div>
       </ScrollArea>
 
-      {/* Input */}
+      {/* Fixed Input at bottom */}
       <div className="p-4 border-t border-border bg-card">
         <form onSubmit={handleSubmit} className="flex gap-2 max-w-4xl mx-auto">
           <Input
