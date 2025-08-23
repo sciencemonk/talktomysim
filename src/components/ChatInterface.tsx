@@ -70,10 +70,8 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ agent, onBack }) => {
   // Show welcome message if no history messages and haven't shown it yet
   useEffect(() => {
     if (conversation && historyMessages.length === 0 && !hasShownWelcome && !isInitializing) {
-      // Use the welcome message from the agent's interaction model, with fallback
-      const welcomeMessage = agent.interactionModel?.welcomeMessage || 
-                           agent.welcomeMessage || 
-                           `Hello! I'm ${agent.name}. How can I help you today?`;
+      // Use the welcome message from the agent, with fallback
+      const welcomeMessage = agent.welcomeMessage || `Hello! I'm ${agent.name}. How can I help you today?`;
       console.log('Showing welcome message:', welcomeMessage);
       
       const messageId = startAiMessage();
@@ -205,7 +203,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ agent, onBack }) => {
                 className={`max-w-[85%] md:max-w-[70%] rounded-lg px-4 py-3 ${
                   message.role === 'user'
                     ? 'bg-primary text-primary-foreground'
-                    : 'bg-muted text-black'
+                    : 'bg-muted text-foreground'
                 }`}
               >
                 <div className="text-sm whitespace-pre-wrap">
