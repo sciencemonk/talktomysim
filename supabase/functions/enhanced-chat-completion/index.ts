@@ -165,7 +165,7 @@ serve(async (req) => {
     const communicationSection = buildCommunicationSection(advisor)
     const expertiseSection = buildExpertiseSection(advisor)
     const knowledgeSection = contextData ? buildKnowledgeSection(contextData.contextText, contextData.sources) : ''
-    const conversationIntelligence = buildConversationIntelligence(conversationContext)
+    const conversationIntelligence = buildConversationIntelligence(conversationContext, advisor.full_name || advisor.name)
     
     const enhancedSystemPrompt = `You are ${advisor.full_name || advisor.name}, ${advisor.professional_title || 'an AI assistant'}.
 
@@ -179,60 +179,25 @@ ${knowledgeSection}
 
 ${conversationIntelligence}
 
-⚠️ CRITICAL SCHEDULING PROHIBITION RULES - NEVER VIOLATE THESE:
-- You are ABSOLUTELY FORBIDDEN from scheduling ANY meetings, calls, or appointments
-- You do NOT have access to any calendar or scheduling system whatsoever
-- You CANNOT and MUST NOT suggest specific dates, times, or availability (e.g., "I'm free Friday at 4pm", "Let's meet Tuesday", "How about 2pm?")
-- You CANNOT make appointments, book meetings, or commit to any specific times
-- You CANNOT claim to know when you're available or when meetings can be scheduled
-- If someone asks about scheduling, your ONLY role is to collect their contact information and pass it to your creator
-- NEVER use phrases like "I can meet", "Let's schedule", "I'm available", "How about [time]", or any scheduling language
-- The ONLY action you can take regarding meetings is to ask for their contact information so your creator can reach out directly
+CRITICAL SCHEDULING RULES:
+- You CANNOT schedule meetings, calls, or appointments
+- You have NO access to any calendar system
+- You CANNOT suggest specific dates or times
+- When someone wants to meet, collect their contact information and let them know ${advisor.full_name || advisor.name} will reach out directly
 
-CONTACT INFORMATION COLLECTION PROTOCOL:
-- When someone expresses interest in meeting or scheduling, ask for their preferred contact method
-- Ask for their phone number, email, or both depending on their preference  
-- Let them know you'll pass their information to ${advisor.full_name || advisor.name} so they can reach out directly
-- Be clear that ${advisor.full_name || advisor.name} will handle all scheduling personally
-
-ENHANCED CONVERSATION GUIDELINES:
-- You are a REAL PERSON (${advisor.full_name || advisor.name}) responding authentically
-- NEVER make assumptions about what people want without understanding their context first
-- When someone mentions business topics, ask clarifying questions to understand their specific needs
-- DO NOT immediately jump to scheduling or solutions - focus on understanding first
-- If someone asks about business opportunities, explore what they're looking for before suggesting next steps
-- Be genuinely curious about their situation and needs
-- Avoid robotic responses like "I'd be happy to help" - respond naturally as yourself
-- When appropriate, share relevant experiences or insights from your background
-- Only suggest contact information collection after you understand their context and needs
-
-RESPONSE QUALITY RULES:
-- Keep responses conversational and natural (1-3 sentences typically)
-- Ask thoughtful follow-up questions to understand context better
-- Don't end every response with a question - vary your response patterns naturally
-- Sometimes make observations or share insights without asking anything
-- Match the user's communication style and energy level
-- Be authentic to your personality while staying professional
-
-BUSINESS INTERACTION PROTOCOL:
-- When business topics arise, first understand: What specifically are they looking for?
-- Ask about their current situation, challenges, or goals before offering solutions
-- Share relevant insights from your expertise when it adds value
-- For potential meeting discussions: Ask about what they'd like to discuss, then collect their contact information
-- Make it clear that ${advisor.full_name || advisor.name} will reach out to them personally to coordinate any meetings
+RESPONSE GUIDELINES:
+- Respond naturally and conversationally as ${advisor.full_name || advisor.name}
+- Be helpful and engaging while staying within your capabilities
+- When appropriate, share insights from your background and expertise
+- If someone provides contact information after expressing interest in meeting, acknowledge it and confirm that ${advisor.full_name || advisor.name} will follow up
 
 ${contextData && contextData.sources.length > 0 ? `
-KNOWLEDGE BASE INTEGRATION:
-When referencing your knowledge base, do it naturally without explicitly mentioning "documents" or "sources":
-- "In my experience with [topic]..."
-- "I've found that [insight]..."
-- "Based on my work in [area]..."
-
-Available context for this conversation:
-${contextData.sources.map(source => `- ${source.title} (${source.documentType}, similarity: ${source.similarity.toFixed(2)})`).join('\n')}
+KNOWLEDGE BASE:
+Use this context naturally in your responses:
+${contextData.sources.map(source => `- ${source.title} (${source.documentType})`).join('\n')}
 ` : ''}
 
-Remember: You are ${advisor.full_name || advisor.name} - respond as yourself with your unique personality, background, and expertise. Focus on building genuine connections and understanding before suggesting contact information collection. UNDER NO CIRCUMSTANCES can you schedule meetings, suggest times, or claim calendar access. Your only meeting-related action is collecting contact information for your creator to follow up.`
+Remember: You are ${advisor.full_name || advisor.name}. Respond authentically while never attempting to schedule anything yourself.`
 
     // Prepare the messages for OpenAI
     const systemMessage = {
@@ -273,6 +238,12 @@ Remember: You are ${advisor.full_name || advisor.name} - respond as yourself wit
 
     console.log('Received enhanced response from OpenAI, length:', assistantMessage?.length || 0)
 
+    // Check if we got an empty response
+    if (!assistantMessage || assistantMessage.trim().length === 0) {
+      console.error('OpenAI returned empty content')
+      throw new Error('OpenAI returned empty response')
+    }
+
     return new Response(
       JSON.stringify({ 
         content: assistantMessage,
@@ -305,7 +276,7 @@ function analyzeConversationContext(messages: any[], latestMessage: string): any
   const lowerMessage = latestMessage.toLowerCase()
   
   // Analyze intent and context with better scheduling detection
-  const businessKeywords = ['business', 'work', 'project', 'collaboration', 'opportunity', 'partnership', 'consulting', 'advice', 'help with', 'expertise', 'investor', 'investment', 'funding']
+  const businessKeywords = ['business', 'work', 'project', 'collaboration', 'opportunity', 'partnership', 'consulting', 'advice', 'help with', 'expertise', 'investor', 'investment', 'funding', 'reporter', 'interview', 'story']
   const schedulingKeywords = ['meet', 'call', 'schedule', 'available', 'time', 'appointment', 'free', 'calendar', 'meeting', 'zoom', 'phone']
   const questionIndicators = ['how', 'what', 'why', 'when', 'where', 'can you', 'do you', 'would you', 'could you']
   
@@ -348,44 +319,19 @@ function analyzeConversationContext(messages: any[], latestMessage: string): any
   }
 }
 
-function buildConversationIntelligence(context: any): string {
-  let intelligence = 'CURRENT CONVERSATION CONTEXT:\n'
+function buildConversationIntelligence(context: any, advisorName: string): string {
+  let intelligence = 'CONVERSATION CONTEXT:\n'
   
-  if (context.intent === 'business_meeting_request') {
-    intelligence += `- The user is discussing business topics AND wants to meet
-- Focus on understanding their business needs first
-- After understanding their needs, ask for their contact information
-- Explain that ${context.advisorName || 'your creator'} will reach out directly to coordinate any meetings
-- NEVER suggest specific times or attempt to schedule anything yourself`
-  } else if (context.intent === 'meeting_request') {
+  if (context.intent === 'business_meeting_request' || context.intent === 'meeting_request') {
     intelligence += `- The user mentioned wanting to meet or schedule something
-- Ask what they'd like to discuss to understand the purpose
-- Collect their contact information so ${context.advisorName || 'your creator'} can reach out
-- NEVER suggest specific availability or attempt to schedule anything`
+- Acknowledge their interest and ask for their contact information
+- Let them know that ${advisorName} will reach out directly to coordinate`
   } else if (context.intent === 'business_inquiry') {
     intelligence += `- The user is asking about business/professional topics
-- Focus on understanding their specific needs before suggesting next steps
-- Ask clarifying questions about their situation, challenges, or goals
-- Only suggest contact collection if they express interest in further discussion`
+- Focus on understanding their specific needs
+- Share relevant insights from your expertise`
   } else {
-    intelligence += `- General conversation - respond naturally and authentically
-- Build rapport and understanding based on the topic they've brought up`
-  }
-  
-  if (context.conversationStage === 'early') {
-    intelligence += `\n- This is early in the conversation - focus on understanding and building connection
-- Don't rush to contact collection - take time to learn about them and their needs first`
-  }
-  
-  if (context.shouldAvoidAssumptions) {
-    intelligence += `\n- IMPORTANT: Avoid making assumptions about what they want
-- Ask thoughtful questions to understand their context and needs first`
-  }
-  
-  if (context.requiresContactCollection) {
-    intelligence += `\n- CRITICAL: User mentioned scheduling/meeting - remember you CANNOT schedule anything
-- Your only option is to collect their contact information
-- Let them know you'll pass their info to ${context.advisorName || 'your creator'} for direct follow-up`
+    intelligence += `- General conversation - respond naturally and helpfully`
   }
   
   return intelligence + '\n'
