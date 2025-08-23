@@ -33,6 +33,9 @@ export const useSimpleMessageAccumulator = () => {
     
     setCurrentAiMessage(aiMessage);
     setMessages(prev => [...prev, aiMessage]);
+    
+    // Return the message ID
+    return aiMessage.id;
   }, []);
 
   const addAiTextDelta = useCallback((delta: string) => {

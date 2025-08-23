@@ -7,7 +7,7 @@ interface UseEnhancedTextChatProps {
   agent: AgentType;
   onUserMessage: (message: string) => void;
   onAiMessageStart: () => string;
-  onAiTextDelta: (messageId: string, delta: string) => void;
+  onAiTextDelta: (delta: string) => void;
   onAiMessageComplete: (messageId: string) => void;
 }
 
@@ -89,7 +89,7 @@ export const useEnhancedTextChat = ({
         setLastSources(data.sources || []);
         
         // Add the AI response as a single message
-        onAiTextDelta(aiMessageId, data.content);
+        onAiTextDelta(data.content);
         
         // Update conversation history with AI response
         setConversationHistory(prev => [...prev, { role: 'assistant', content: data.content }]);
@@ -105,7 +105,7 @@ export const useEnhancedTextChat = ({
       }
       
       console.error('Error sending enhanced message:', error);
-      onAiTextDelta(aiMessageId, 'Sorry, I encountered an error. Please try again.');
+      onAiTextDelta('Sorry, I encountered an error. Please try again.');
       onAiMessageComplete(aiMessageId);
     } finally {
       setIsProcessing(false);
