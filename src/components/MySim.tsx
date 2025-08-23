@@ -10,7 +10,6 @@ import { User, MessageCircle, BookOpen, ExternalLink, Settings, Globe, FileText,
 import { useSim } from "@/hooks/useSim";
 import { promptGenerationService } from "@/services/promptGenerationService";
 import { toast } from "sonner";
-import SimProgress from './SimProgress';
 import { ConversationsDashboard } from './ConversationsDashboard';
 
 const MySim = () => {
@@ -68,44 +67,6 @@ const MySim = () => {
           </div>
         </CardContent>
       </Card>
-
-      {/* Progress Section */}
-      <SimProgress completionStatus={completionStatus} />
-
-      {/* Quick Stats */}
-      {sim && <Card>
-          <CardHeader className="p-4 md:p-6">
-            <CardTitle className="text-lg md:text-xl">Quick Stats</CardTitle>
-          </CardHeader>
-          <CardContent className="p-4 md:p-6 pt-0">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="text-center">
-                <p className="text-xl md:text-2xl font-bold text-primary">
-                  {Object.values(completionStatus).filter(Boolean).length}
-                </p>
-                <p className="text-xs md:text-sm text-muted-foreground">Steps Complete</p>
-              </div>
-              <div className="text-center">
-                <p className="text-xl md:text-2xl font-bold text-primary">
-                  {Math.round(Object.values(completionStatus).filter(Boolean).length / 3 * 100)}%
-                </p>
-                <p className="text-xs md:text-sm text-muted-foreground">Setup Progress</p>
-              </div>
-              <div className="text-center">
-                <p className="text-xl md:text-2xl font-bold text-primary">
-                  Public
-                </p>
-                <p className="text-xs md:text-sm text-muted-foreground">Status</p>
-              </div>
-              <div className="text-center">
-                <p className="text-xl md:text-2xl font-bold text-primary">
-                  {sim.custom_url ? 'Set' : 'None'}
-                </p>
-                <p className="text-xs md:text-sm text-muted-foreground">Custom URL</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>}
 
       {/* Conversations Section */}
       <ConversationsDashboard advisorId={sim?.id || 'demo'} />
