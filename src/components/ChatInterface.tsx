@@ -21,6 +21,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ agent, onBack }) => {
   const [input, setInput] = useState('');
   const [conversation, setConversation] = useState<any>(null);
   const [isInitializing, setIsInitializing] = useState(false);
+  const [hasShownWelcome, setHasShownWelcome] = useState(false);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -57,7 +58,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ agent, onBack }) => {
     return () => {
       isMounted = false;
     };
-  }, [agent?.id]); // Remove other dependencies to prevent re-initialization
+  }, [agent?.id]);
 
   // Load messages when conversation is set
   useEffect(() => {
@@ -65,6 +66,17 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ agent, onBack }) => {
       loadMessages();
     }
   }, [conversation?.id, loadMessages]);
+
+  // Show welcome message if no history messages and haven't shown it yet
+  useEffect(() => {
+    if (conversation && historyMessages.length === 0 && !hasShownWelcome && !isInitializing) {
+      const welcomeMessage = agent.welcomeMessage || `Hello! I'm ${agent.name}. How can I help you today?`;
+      startAiMessage();
+      addAiTextDelta(welcomeMessage);
+      completeAiMessage();
+      setHasShownWelcome(true);
+    }
+  }, [conversation, historyMessages.length, hasShownWelcome, isInitializing, agent, startAiMessage, addAiTextDelta, completeAiMessage]);
 
   const { sendMessage, isProcessing } = useEnhancedTextChat({
     agent,
@@ -74,11 +86,9 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ agent, onBack }) => {
     onAiMessageComplete: (messageId: string) => {
       completeAiMessage();
       // Save messages to database if we have a conversation
-      if (conversation?.id) {
-        const currentMessage = messages.find(m => m.id === messageId);
-        if (currentMessage && currentMessage.content) {
-          conversationService.addMessage(conversation.id, 'system', currentMessage.content);
-        }
+      const currentMessage = messages.find(m => m.id === messageId);
+      if (conversation?.id && currentMessage && currentMessage.content) {
+        conversationService.addMessage(conversation.id, 'system', currentMessage.content);
       }
     }
   });
