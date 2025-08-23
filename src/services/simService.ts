@@ -21,6 +21,7 @@ export interface SimData {
   interests?: string[];
   skills?: string[];
   additional_background?: string;
+  writing_sample?: string;
   custom_url?: string;
   url?: string; // Add the url field from database
   avatar_url?: string;
