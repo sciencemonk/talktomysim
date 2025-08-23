@@ -20,33 +20,51 @@ interface ChatInterfaceProps {
 const ChatInterface: React.FC<ChatInterfaceProps> = ({ agent, onBack }) => {
   const [input, setInput] = useState('');
   const [conversation, setConversation] = useState<any>(null);
+  const [isInitializing, setIsInitializing] = useState(false);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const { messages, addUserMessage, startAiMessage, addAiTextDelta, completeAiMessage, clearMessages } = useSimpleMessageAccumulator();
   const { messages: historyMessages, loadMessages } = useChatHistory(conversation?.id || null);
 
-  // Initialize conversation
+  // Initialize conversation only once
   useEffect(() => {
+    let isMounted = true;
+    
     const initConversation = async () => {
+      if (!agent?.id || isInitializing || conversation) return;
+      
+      setIsInitializing(true);
       try {
+        console.log('Initializing conversation for agent:', agent.id);
         const conv = await conversationService.getOrCreateConversation(agent.id);
-        console.log('Conversation initialized:', conv);
-        setConversation(conv);
         
-        if (conv) {
-          // Load existing messages
-          await loadMessages();
+        if (isMounted && conv) {
+          console.log('Conversation initialized:', conv.id);
+          setConversation(conv);
         }
       } catch (error) {
         console.error('Error initializing conversation:', error);
+      } finally {
+        if (isMounted) {
+          setIsInitializing(false);
+        }
       }
     };
 
-    if (agent?.id) {
-      initConversation();
+    initConversation();
+    
+    return () => {
+      isMounted = false;
+    };
+  }, [agent?.id]); // Remove other dependencies to prevent re-initialization
+
+  // Load messages when conversation is set
+  useEffect(() => {
+    if (conversation?.id) {
+      loadMessages();
     }
-  }, [agent?.id, loadMessages]);
+  }, [conversation?.id, loadMessages]);
 
   const { sendMessage, isProcessing } = useEnhancedTextChat({
     agent,
@@ -92,10 +110,10 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ agent, onBack }) => {
     ...historyMessages.map(msg => ({
       id: msg.id,
       role: msg.role,
-      content: msg.content || '', // Ensure content is never null
+      content: msg.content || '',
       isComplete: true
     })),
-    ...messages.filter(msg => msg.content && msg.content.trim().length > 0) // Filter out empty messages
+    ...messages.filter(msg => msg.content && msg.content.trim().length > 0)
   ];
 
   // Auto-scroll to bottom when new messages arrive
@@ -134,7 +152,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ agent, onBack }) => {
       {/* Messages */}
       <ScrollArea ref={scrollAreaRef} className="flex-1 p-4">
         <div className="space-y-4 max-w-4xl mx-auto">
-          {allMessages.length === 0 && (
+          {allMessages.length === 0 && !isInitializing && (
             <Card className="border-dashed">
               <CardContent className="flex flex-col items-center justify-center py-12">
                 <Bot className="h-12 w-12 text-muted-foreground mb-4" />
@@ -144,6 +162,13 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ agent, onBack }) => {
                 </p>
               </CardContent>
             </Card>
+          )}
+          
+          {isInitializing && (
+            <div className="flex items-center justify-center py-12">
+              <Loader2 className="h-8 w-8 animate-spin text-primary mr-2" />
+              <p className="text-muted-foreground">Initializing chat...</p>
+            </div>
           )}
           
           {allMessages.map((message) => (

@@ -53,10 +53,32 @@ export const conversationService = {
         if (error) throw error;
         return newConversation;
       } else {
-        // Unauthenticated user - create anonymous conversation
-        console.log('Creating anonymous conversation for public access');
+        // For anonymous users, create a single conversation per session
+        // Use localStorage to track if we already have a conversation for this advisor
+        const sessionKey = `anon_conversation_${advisorId}`;
+        const existingConversationId = localStorage.getItem(sessionKey);
         
-        // Use null for anonymous users (now that user_id is nullable)
+        if (existingConversationId) {
+          // Try to fetch the existing conversation
+          const { data: existingConversation } = await supabase
+            .from('conversations')
+            .select('*')
+            .eq('id', existingConversationId)
+            .eq('tutor_id', advisorId)
+            .maybeSingle();
+            
+          if (existingConversation) {
+            console.log('Reusing existing anonymous conversation:', existingConversation.id);
+            return existingConversation;
+          } else {
+            // Conversation no longer exists, clear from localStorage
+            localStorage.removeItem(sessionKey);
+          }
+        }
+
+        console.log('Creating new anonymous conversation for advisor:', advisorId);
+        
+        // Create new anonymous conversation
         const { data: newConversation, error } = await supabase
           .from('conversations')
           .insert({
@@ -69,12 +91,12 @@ export const conversationService = {
 
         if (error) {
           console.error('Error creating anonymous conversation:', error);
-          // If anonymous conversation creation fails, return null but don't throw
-          // This allows the chat to continue in memory-only mode
           return null;
         }
         
-        console.log('Created anonymous conversation:', newConversation);
+        // Store the conversation ID in localStorage for this session
+        localStorage.setItem(sessionKey, newConversation.id);
+        console.log('Created and stored anonymous conversation:', newConversation.id);
         return newConversation;
       }
     } catch (error) {
