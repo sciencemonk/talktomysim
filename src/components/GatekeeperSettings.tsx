@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -74,7 +73,8 @@ export const GatekeeperSettings = ({ advisorId }: GatekeeperSettingsProps) => {
   const addKeyword = (type: 'urgency_keywords' | 'value_keywords' | 'vip_keywords' | 'custom_keywords') => {
     if (!newKeyword.trim() || !rules) return;
 
-    const updatedKeywords = [...(rules[type] || []), newKeyword.trim()];
+    const currentKeywords = rules[type] || [];
+    const updatedKeywords = [...currentKeywords, newKeyword.trim()];
     updateRules({ [type]: updatedKeywords });
     setNewKeyword('');
   };
@@ -82,7 +82,8 @@ export const GatekeeperSettings = ({ advisorId }: GatekeeperSettingsProps) => {
   const removeKeyword = (type: 'urgency_keywords' | 'value_keywords' | 'vip_keywords' | 'custom_keywords', keyword: string) => {
     if (!rules) return;
 
-    const updatedKeywords = (rules[type] || []).filter(k => k !== keyword);
+    const currentKeywords = rules[type] || [];
+    const updatedKeywords = currentKeywords.filter(k => k !== keyword);
     updateRules({ [type]: updatedKeywords });
   };
 
@@ -135,38 +136,23 @@ export const GatekeeperSettings = ({ advisorId }: GatekeeperSettingsProps) => {
           <div className="space-y-4">
             <div className="flex items-center gap-2">
               <Settings className="h-4 w-4" />
-              <Label className="text-base font-medium">Escalation Thresholds</Label>
+              <Label className="text-base font-medium">Escalation Threshold</Label>
             </div>
             
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="score-threshold">Score Threshold (1-10)</Label>
-                <Input
-                  id="score-threshold"
-                  type="number"
-                  min="1"
-                  max="10"
-                  value={rules.score_threshold}
-                  onChange={(e) => updateRules({ score_threshold: parseInt(e.target.value) || 7 })}
-                />
-                <p className="text-xs text-muted-foreground">
-                  Conversations scoring above this will trigger escalation
-                </p>
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="message-threshold">Message Count Threshold</Label>
-                <Input
-                  id="message-threshold"
-                  type="number"
-                  min="1"
-                  value={rules.message_count_threshold}
-                  onChange={(e) => updateRules({ message_count_threshold: parseInt(e.target.value) || 5 })}
-                />
-                <p className="text-xs text-muted-foreground">
-                  Escalate after this many messages
-                </p>
-              </div>
+            <div className="space-y-2">
+              <Label htmlFor="score-threshold">Score Threshold (1-10)</Label>
+              <Input
+                id="score-threshold"
+                type="number"
+                min="1"
+                max="10"
+                value={rules.score_threshold}
+                onChange={(e) => updateRules({ score_threshold: parseInt(e.target.value) || 7 })}
+                className="w-32"
+              />
+              <p className="text-xs text-muted-foreground">
+                Conversations scoring above this will trigger escalation
+              </p>
             </div>
           </div>
 
@@ -184,10 +170,10 @@ export const GatekeeperSettings = ({ advisorId }: GatekeeperSettingsProps) => {
               <Label className="text-sm font-medium text-orange-600">Urgency Keywords (+3 points)</Label>
               <div className="flex flex-wrap gap-2 min-h-[32px] p-2 border border-border rounded-md bg-background">
                 {(rules.urgency_keywords || []).map((keyword) => (
-                  <Badge key={keyword} variant="outline" className="border-orange-200 bg-orange-50 text-orange-700 hover:bg-orange-100">
+                  <Badge key={keyword} className="bg-orange-800 text-orange-100 hover:bg-orange-700 border-orange-700">
                     {keyword}
                     <X
-                      className="h-3 w-3 ml-1 cursor-pointer hover:text-orange-900"
+                      className="h-3 w-3 ml-1 cursor-pointer hover:text-orange-200"
                       onClick={() => removeKeyword('urgency_keywords', keyword)}
                     />
                   </Badge>
@@ -201,7 +187,7 @@ export const GatekeeperSettings = ({ advisorId }: GatekeeperSettingsProps) => {
                   placeholder="Add urgency keyword..."
                   value={newKeyword}
                   onChange={(e) => setNewKeyword(e.target.value)}
-                  onKeyPress={(e) => {
+                  onKeyDown={(e) => {
                     if (e.key === 'Enter') {
                       e.preventDefault();
                       addKeyword('urgency_keywords');
@@ -225,10 +211,10 @@ export const GatekeeperSettings = ({ advisorId }: GatekeeperSettingsProps) => {
               <Label className="text-sm font-medium text-green-600">Value Keywords (+4 points)</Label>
               <div className="flex flex-wrap gap-2 min-h-[32px] p-2 border border-border rounded-md bg-background">
                 {(rules.value_keywords || []).map((keyword) => (
-                  <Badge key={keyword} variant="outline" className="border-green-200 bg-green-50 text-green-700 hover:bg-green-100">
+                  <Badge key={keyword} className="bg-green-800 text-green-100 hover:bg-green-700 border-green-700">
                     {keyword}
                     <X
-                      className="h-3 w-3 ml-1 cursor-pointer hover:text-green-900"
+                      className="h-3 w-3 ml-1 cursor-pointer hover:text-green-200"
                       onClick={() => removeKeyword('value_keywords', keyword)}
                     />
                   </Badge>
@@ -242,7 +228,7 @@ export const GatekeeperSettings = ({ advisorId }: GatekeeperSettingsProps) => {
                   placeholder="Add value keyword..."
                   value={newKeyword}
                   onChange={(e) => setNewKeyword(e.target.value)}
-                  onKeyPress={(e) => {
+                  onKeyDown={(e) => {
                     if (e.key === 'Enter') {
                       e.preventDefault();
                       addKeyword('value_keywords');
@@ -266,10 +252,10 @@ export const GatekeeperSettings = ({ advisorId }: GatekeeperSettingsProps) => {
               <Label className="text-sm font-medium text-purple-600">VIP Keywords (+5 points)</Label>
               <div className="flex flex-wrap gap-2 min-h-[32px] p-2 border border-border rounded-md bg-background">
                 {(rules.vip_keywords || []).map((keyword) => (
-                  <Badge key={keyword} variant="outline" className="border-purple-200 bg-purple-50 text-purple-700 hover:bg-purple-100">
+                  <Badge key={keyword} className="bg-purple-800 text-purple-100 hover:bg-purple-700 border-purple-700">
                     {keyword}
                     <X
-                      className="h-3 w-3 ml-1 cursor-pointer hover:text-purple-900"
+                      className="h-3 w-3 ml-1 cursor-pointer hover:text-purple-200"
                       onClick={() => removeKeyword('vip_keywords', keyword)}
                     />
                   </Badge>
@@ -283,7 +269,7 @@ export const GatekeeperSettings = ({ advisorId }: GatekeeperSettingsProps) => {
                   placeholder="Add VIP keyword..."
                   value={newKeyword}
                   onChange={(e) => setNewKeyword(e.target.value)}
-                  onKeyPress={(e) => {
+                  onKeyDown={(e) => {
                     if (e.key === 'Enter') {
                       e.preventDefault();
                       addKeyword('vip_keywords');
@@ -307,10 +293,10 @@ export const GatekeeperSettings = ({ advisorId }: GatekeeperSettingsProps) => {
               <Label className="text-sm font-medium text-blue-600">Custom Keywords (+2 points)</Label>
               <div className="flex flex-wrap gap-2 min-h-[32px] p-2 border border-border rounded-md bg-background">
                 {(rules.custom_keywords || []).map((keyword) => (
-                  <Badge key={keyword} variant="outline" className="border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100">
+                  <Badge key={keyword} className="bg-blue-800 text-blue-100 hover:bg-blue-700 border-blue-700">
                     {keyword}
                     <X
-                      className="h-3 w-3 ml-1 cursor-pointer hover:text-blue-900"
+                      className="h-3 w-3 ml-1 cursor-pointer hover:text-blue-200"
                       onClick={() => removeKeyword('custom_keywords', keyword)}
                     />
                   </Badge>
@@ -324,7 +310,7 @@ export const GatekeeperSettings = ({ advisorId }: GatekeeperSettingsProps) => {
                   placeholder="Add custom keyword..."
                   value={newKeyword}
                   onChange={(e) => setNewKeyword(e.target.value)}
-                  onKeyPress={(e) => {
+                  onKeyDown={(e) => {
                     if (e.key === 'Enter') {
                       e.preventDefault();
                       addKeyword('custom_keywords');
