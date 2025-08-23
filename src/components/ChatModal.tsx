@@ -6,6 +6,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { User, Bot, Clock } from 'lucide-react';
@@ -46,8 +47,8 @@ export const ChatModal: React.FC<ChatModalProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[80vh] overflow-hidden flex flex-col">
-        <DialogHeader className="flex-shrink-0">
+      <DialogContent className="max-w-4xl h-[80vh] flex flex-col">
+        <DialogHeader className="flex-shrink-0 pb-4">
           <DialogTitle className="flex items-center gap-3">
             <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
               <User className="h-4 w-4 text-primary" />
@@ -73,60 +74,62 @@ export const ChatModal: React.FC<ChatModalProps> = ({
           </DialogTitle>
         </DialogHeader>
         
-        <div className="flex-1 overflow-hidden">
+        <div className="flex-1 min-h-0">
           {isLoading ? (
-            <div className="flex items-center justify-center h-64">
+            <div className="flex items-center justify-center h-full">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
             </div>
           ) : (
-            <div className="h-full overflow-y-auto space-y-4 pr-2">
-              {messages.map((message) => (
-                <div
-                  key={message.id}
-                  className={`flex gap-3 ${
-                    message.role === 'user' ? 'justify-end' : 'justify-start'
-                  }`}
-                >
-                  {message.role === 'system' && (
-                    <Avatar className="h-8 w-8 flex-shrink-0">
-                      <AvatarFallback className="bg-primary/10">
-                        <Bot className="h-4 w-4 text-primary" />
-                      </AvatarFallback>
-                    </Avatar>
-                  )}
-                  
+            <ScrollArea className="h-full">
+              <div className="space-y-4 p-1">
+                {messages.map((message) => (
                   <div
-                    className={`max-w-[70%] rounded-lg p-3 ${
-                      message.role === 'user'
-                        ? 'bg-primary text-primary-foreground'
-                        : 'bg-muted'
+                    key={message.id}
+                    className={`flex gap-3 ${
+                      message.role === 'user' ? 'justify-end' : 'justify-start'
                     }`}
                   >
-                    <div className="text-sm whitespace-pre-wrap">
-                      {message.content}
+                    {message.role === 'system' && (
+                      <Avatar className="h-8 w-8 flex-shrink-0">
+                        <AvatarFallback className="bg-primary/10">
+                          <Bot className="h-4 w-4 text-primary" />
+                        </AvatarFallback>
+                      </Avatar>
+                    )}
+                    
+                    <div
+                      className={`max-w-[70%] rounded-lg p-3 ${
+                        message.role === 'user'
+                          ? 'bg-primary text-primary-foreground'
+                          : 'bg-muted'
+                      }`}
+                    >
+                      <div className="text-sm whitespace-pre-wrap">
+                        {message.content}
+                      </div>
+                      <div className="flex items-center gap-1 mt-2 text-xs opacity-70">
+                        <Clock className="h-3 w-3" />
+                        {formatMessageTime(message.created_at)}
+                      </div>
                     </div>
-                    <div className="flex items-center gap-1 mt-2 text-xs opacity-70">
-                      <Clock className="h-3 w-3" />
-                      {formatMessageTime(message.created_at)}
-                    </div>
+                    
+                    {message.role === 'user' && (
+                      <Avatar className="h-8 w-8 flex-shrink-0">
+                        <AvatarFallback className="bg-muted">
+                          <User className="h-4 w-4" />
+                        </AvatarFallback>
+                      </Avatar>
+                    )}
                   </div>
-                  
-                  {message.role === 'user' && (
-                    <Avatar className="h-8 w-8 flex-shrink-0">
-                      <AvatarFallback className="bg-muted">
-                        <User className="h-4 w-4" />
-                      </AvatarFallback>
-                    </Avatar>
-                  )}
-                </div>
-              ))}
-              
-              {messages.length === 0 && (
-                <div className="text-center py-8 text-muted-foreground">
-                  No messages in this conversation
-                </div>
-              )}
-            </div>
+                ))}
+                
+                {messages.length === 0 && (
+                  <div className="text-center py-8 text-muted-foreground">
+                    No messages in this conversation
+                  </div>
+                )}
+              </div>
+            </ScrollArea>
           )}
         </div>
       </DialogContent>
