@@ -13,7 +13,6 @@ import {
   MessageSquare,
   Brain,
   Settings,
-  CheckCircle,
   Search,
   Trash2,
   Shield
@@ -115,9 +114,6 @@ export const SidebarContent = ({
                     >
                       <User className="mr-2 h-4 w-4" />
                       Context Window
-                      {completionStatus.basic_info && (
-                        <CheckCircle className="ml-auto h-3 w-3 text-green-500" />
-                      )}
                     </Button>
                     
                     <Button
@@ -131,9 +127,6 @@ export const SidebarContent = ({
                     >
                       <MessageSquare className="mr-2 h-4 w-4" />
                       Interaction Model
-                      {completionStatus.interaction_model && (
-                        <CheckCircle className="ml-auto h-3 w-3 text-green-500" />
-                      )}
                     </Button>
                     
                     <Button
@@ -147,9 +140,6 @@ export const SidebarContent = ({
                     >
                       <Brain className="mr-2 h-4 w-4" />
                       Vector Embedding
-                      {completionStatus.core_knowledge && (
-                        <CheckCircle className="ml-auto h-3 w-3 text-green-500" />
-                      )}
                     </Button>
 
                     <Button
