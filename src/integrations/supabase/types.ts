@@ -269,7 +269,7 @@ export type Database = {
           title: string | null
           tutor_id: string
           updated_at: string | null
-          user_id: string
+          user_id: string | null
         }
         Insert: {
           advisor_id?: string | null
@@ -278,7 +278,7 @@ export type Database = {
           title?: string | null
           tutor_id: string
           updated_at?: string | null
-          user_id: string
+          user_id?: string | null
         }
         Update: {
           advisor_id?: string | null
@@ -287,7 +287,7 @@ export type Database = {
           title?: string | null
           tutor_id?: string
           updated_at?: string | null
-          user_id?: string
+          user_id?: string | null
         }
         Relationships: []
       }

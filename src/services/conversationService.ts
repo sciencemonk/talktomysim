@@ -19,15 +19,6 @@ export interface Message {
   created_at: string;
 }
 
-// Helper function to generate a UUID v4
-function generateUUID() {
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-    const r = Math.random() * 16 | 0;
-    const v = c == 'x' ? r : (r & 0x3 | 0x8);
-    return v.toString(16);
-  });
-}
-
 export const conversationService = {
   // Get or create a conversation for a user and advisor
   async getOrCreateConversation(advisorId: string): Promise<Conversation | null> {
@@ -65,13 +56,11 @@ export const conversationService = {
         // Unauthenticated user - create anonymous conversation
         console.log('Creating anonymous conversation for public access');
         
-        // Generate a proper UUID for anonymous users
-        const anonymousUserId = generateUUID();
-        
+        // Use null for anonymous users (now that user_id is nullable)
         const { data: newConversation, error } = await supabase
           .from('conversations')
           .insert({
-            user_id: anonymousUserId,
+            user_id: null,
             tutor_id: advisorId,
             title: 'Anonymous Chat'
           })
@@ -180,13 +169,10 @@ export const conversationService = {
         const latestMessage = messages[messages.length - 1];
         const scores = userMessages.map(m => m.score || 0).filter(s => s > 0);
         
-        // Check if this is an anonymous user by checking if it's not in the auth.users table
-        // Since we're now using proper UUIDs, we need a different way to identify anonymous users
-        // We'll consider any user_id that doesn't match the current authenticated user as potentially anonymous
-        // This is a simple heuristic - in a production app you might want to track this differently
-        const isAnonymous = true; // For now, assume all conversations could be from anonymous users
+        // Check if this is an anonymous user (user_id is null)
+        const isAnonymous = conversation.user_id === null;
         
-        console.log(`Conversation ${conversation.id}: user_id=${conversation.user_id}, messages=${messages.length}`);
+        console.log(`Conversation ${conversation.id}: user_id=${conversation.user_id}, is_anonymous=${isAnonymous}, messages=${messages.length}`);
         
         return {
           id: conversation.id,
