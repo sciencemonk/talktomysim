@@ -15,7 +15,8 @@ import {
   Settings,
   CheckCircle,
   Search,
-  Trash2
+  Trash2,
+  Shield
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import UserSettingsDropdown from "./UserSettingsDropdown";
@@ -33,6 +34,7 @@ interface UserSidebarProps {
   onNavigateToInteractionModel: () => void;
   onNavigateToCoreKnowledge: () => void;
   onNavigateToIntegrations: () => void;
+  onNavigateToActions: () => void;
   onNavigateToSearch: () => void;
   activeView: string;
   onAuthRequired?: () => void;
@@ -55,6 +57,7 @@ export const SidebarContent = ({
   onNavigateToInteractionModel,
   onNavigateToCoreKnowledge,
   onNavigateToIntegrations,
+  onNavigateToActions,
   onNavigateToSearch,
   activeView,
   onClose,
@@ -147,6 +150,19 @@ export const SidebarContent = ({
                       {completionStatus.core_knowledge && (
                         <CheckCircle className="ml-auto h-3 w-3 text-green-500" />
                       )}
+                    </Button>
+
+                    <Button
+                      variant={activeView === 'actions' ? "secondary" : "ghost"}
+                      size="sm"
+                      onClick={() => {
+                        onNavigateToActions();
+                        onClose?.();
+                      }}
+                      className="w-full justify-start h-9"
+                    >
+                      <Shield className="mr-2 h-4 w-4" />
+                      Actions
                     </Button>
                     
                     <div className="relative">
