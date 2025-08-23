@@ -179,6 +179,14 @@ ${knowledgeSection}
 
 ${conversationIntelligence}
 
+CRITICAL SCHEDULING RULES:
+- You do NOT have access to any calendar or scheduling system
+- NEVER suggest specific dates, times, or availability (e.g., "I'm free Friday at 4pm")
+- NEVER make up calendar information or claim to know when you're available
+- If someone asks about scheduling, ask them about their preferred times and communication method
+- Direct them to provide their availability rather than suggesting yours
+- You can discuss general preferences for meeting types (phone vs video) but never specific times
+
 ENHANCED CONVERSATION GUIDELINES:
 - You are a REAL PERSON (${advisor.full_name || advisor.name}) responding authentically
 - NEVER make assumptions about what people want without understanding their context first
@@ -188,7 +196,7 @@ ENHANCED CONVERSATION GUIDELINES:
 - Be genuinely curious about their situation and needs
 - Avoid robotic responses like "I'd be happy to help" - respond naturally as yourself
 - When appropriate, share relevant experiences or insights from your background
-- Only suggest specific actions (like scheduling) after you understand their context and needs
+- Only suggest specific actions after you understand their context and needs
 
 RESPONSE QUALITY RULES:
 - Keep responses conversational and natural (1-3 sentences typically)
@@ -202,8 +210,8 @@ BUSINESS INTERACTION PROTOCOL:
 - When business topics arise, first understand: What specifically are they looking for?
 - Ask about their current situation, challenges, or goals before offering solutions
 - Share relevant insights from your expertise when it adds value
-- Only suggest next steps (meetings, calls, etc.) after understanding their needs
-- If scheduling comes up, ask about their preferred communication method and availability rather than assuming
+- For scheduling discussions: Ask about THEIR preferred times, communication method, and what they'd like to discuss
+- Never claim to have specific availability or access to calendars
 
 ${contextData && contextData.sources.length > 0 ? `
 KNOWLEDGE BASE INTEGRATION:
@@ -216,7 +224,7 @@ Available context for this conversation:
 ${contextData.sources.map(source => `- ${source.title} (${source.documentType}, similarity: ${source.similarity.toFixed(2)})`).join('\n')}
 ` : ''}
 
-Remember: You are ${advisor.full_name || advisor.name} - respond as yourself with your unique personality, background, and expertise. Focus on building genuine connections and understanding before jumping to solutions.`
+Remember: You are ${advisor.full_name || advisor.name} - respond as yourself with your unique personality, background, and expertise. Focus on building genuine connections and understanding before jumping to solutions. NEVER make up scheduling information or claim calendar access.`
 
     // Prepare the messages for OpenAI
     const systemMessage = {
@@ -288,10 +296,10 @@ Remember: You are ${advisor.full_name || advisor.name} - respond as yourself wit
 function analyzeConversationContext(messages: any[], latestMessage: string): any {
   const lowerMessage = latestMessage.toLowerCase()
   
-  // Analyze intent and context
-  const businessKeywords = ['business', 'work', 'project', 'collaboration', 'opportunity', 'partnership', 'consulting', 'advice', 'help with', 'expertise']
-  const schedulingKeywords = ['meet', 'call', 'schedule', 'available', 'time', 'appointment', 'free']
-  const questionIndicators = ['how', 'what', 'why', 'when', 'where', 'can you', 'do you', 'would you']
+  // Analyze intent and context with better scheduling detection
+  const businessKeywords = ['business', 'work', 'project', 'collaboration', 'opportunity', 'partnership', 'consulting', 'advice', 'help with', 'expertise', 'investor', 'investment', 'funding']
+  const schedulingKeywords = ['meet', 'call', 'schedule', 'available', 'time', 'appointment', 'free', 'calendar', 'meeting', 'zoom', 'phone']
+  const questionIndicators = ['how', 'what', 'why', 'when', 'where', 'can you', 'do you', 'would you', 'could you']
   
   const hasBusinessKeywords = businessKeywords.some(keyword => lowerMessage.includes(keyword))
   const hasSchedulingKeywords = schedulingKeywords.some(keyword => lowerMessage.includes(keyword))
@@ -308,15 +316,26 @@ function analyzeConversationContext(messages: any[], latestMessage: string): any
   const isDetailed = messageLength > 100
   const isCasual = messageLength < 50
   
+  // Better intent classification
+  let intent = 'general'
+  if (hasBusinessKeywords && hasSchedulingKeywords) {
+    intent = 'business_scheduling'
+  } else if (hasBusinessKeywords) {
+    intent = 'business_inquiry'
+  } else if (hasSchedulingKeywords) {
+    intent = 'scheduling'
+  }
+  
   return {
-    intent: hasBusinessKeywords ? 'business_inquiry' : hasSchedulingKeywords ? 'scheduling' : 'general',
+    intent,
     isQuestion,
     hasBusinessContext: hasBusinessKeywords,
     hasSchedulingContext: hasSchedulingKeywords,
     conversationStage: isEarlyConversation ? 'early' : 'established',
     userStyle: isDetailed ? 'detailed' : isCasual ? 'casual' : 'moderate',
-    shouldAskClarifyingQuestions: hasBusinessKeywords && isQuestion && isEarlyConversation,
+    shouldAskClarifyingQuestions: (hasBusinessKeywords || hasSchedulingKeywords) && isEarlyConversation,
     shouldAvoidAssumptions: hasBusinessKeywords || hasSchedulingKeywords,
+    requiresCalendarWarning: hasSchedulingKeywords,
     messageCount
   }
 }
@@ -324,14 +343,20 @@ function analyzeConversationContext(messages: any[], latestMessage: string): any
 function buildConversationIntelligence(context: any): string {
   let intelligence = 'CURRENT CONVERSATION CONTEXT:\n'
   
-  if (context.intent === 'business_inquiry') {
+  if (context.intent === 'business_scheduling') {
+    intelligence += `- The user is discussing business topics AND scheduling
+- Focus on understanding their business needs first, then their scheduling preferences
+- Ask what they'd like to discuss and their preferred communication method
+- NEVER suggest specific times - ask for their availability instead`
+  } else if (context.intent === 'business_inquiry') {
     intelligence += `- The user is asking about business/professional topics
 - Focus on understanding their specific needs before suggesting solutions
 - Ask clarifying questions about their situation, challenges, or goals`
   } else if (context.intent === 'scheduling') {
     intelligence += `- The user mentioned scheduling/meeting topics
 - Don't assume they want to schedule immediately - understand the purpose first
-- Ask what they'd like to discuss or accomplish before suggesting meeting logistics`
+- Ask what they'd like to discuss and their preferred times/method
+- NEVER suggest specific availability or times`
   } else {
     intelligence += `- General conversation - respond naturally and authentically
 - Build rapport and understanding based on the topic they've brought up`
@@ -345,6 +370,12 @@ function buildConversationIntelligence(context: any): string {
   if (context.shouldAvoidAssumptions) {
     intelligence += `\n- IMPORTANT: Avoid making assumptions about what they want
 - Ask thoughtful questions to understand their context and needs first`
+  }
+  
+  if (context.requiresCalendarWarning) {
+    intelligence += `\n- CRITICAL: User mentioned scheduling - remember you have NO calendar access
+- Never suggest specific times or claim availability
+- Ask them about their preferred times and communication method`
   }
   
   return intelligence + '\n'
