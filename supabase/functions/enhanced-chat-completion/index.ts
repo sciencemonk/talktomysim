@@ -7,208 +7,131 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
+interface ChatMessage {
+  role: 'user' | 'system'
+  content: string
+}
+
+interface ConversationAnalysis {
+  score: number;
+  intent: string;
+  urgency_level: 'low' | 'medium' | 'high' | 'critical';
+  keywords_detected: string[];
+  should_escalate: boolean;
+  trigger_reason?: string;
+}
+
 serve(async (req) => {
-  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
   }
 
   try {
-    const { messages, advisorId, searchFilters } = await req.json()
-
-    const openaiApiKey = Deno.env.get('OPENAI_API_KEY')
-    if (!openaiApiKey) {
-      console.error('OpenAI API key not found in environment variables')
-      throw new Error('OpenAI API key not configured')
-    }
-
-    console.log('Processing enhanced chat request for advisor:', advisorId)
-    console.log('Messages count:', messages?.length || 0)
-
-    // Get Supabase client
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     )
 
-    // Fetch advisor data
+    const { advisorId, message, conversationId } = await req.json()
+
+    if (!advisorId || !message || !conversationId) {
+      throw new Error('Missing required parameters: advisorId, message, and conversationId are required')
+    }
+
+    console.log('Processing enhanced chat for advisor:', advisorId, 'conversation:', conversationId)
+
+    // Get advisor details
     const { data: advisor, error: advisorError } = await supabaseClient
       .from('advisors')
-      .select('*')
+      .select('name, prompt, background_content, areas_of_expertise, writing_sample')
       .eq('id', advisorId)
       .single()
 
     if (advisorError || !advisor) {
+      console.error('Advisor not found:', advisorError)
       throw new Error('Advisor not found')
     }
 
-    // Get the latest user message for context retrieval
-    const userMessages = messages.filter(msg => msg.role === 'user')
-    const latestUserMessage = userMessages[userMessages.length - 1]?.content || ''
+    const advisorName = advisor.name
 
-    // Analyze conversation context and intent
-    const conversationContext = analyzeConversationContext(messages, latestUserMessage)
-    console.log('Conversation context analysis:', conversationContext)
+    // Get escalation rules for this advisor
+    const { data: escalationRules } = await supabaseClient
+      .from('escalation_rules')
+      .select('*')
+      .eq('advisor_id', advisorId)
+      .eq('is_active', true)
+      .maybeSingle()
 
-    // Retrieve relevant context with enhanced search
-    let contextData = null
-    if (latestUserMessage) {
-      try {
-        console.log('Retrieving enhanced context for message:', latestUserMessage.substring(0, 100))
-        
-        // Use enhanced context retrieval with filters
-        const filters = {
-          minSimilarity: searchFilters?.minSimilarity || 0.7,
-          maxResults: searchFilters?.maxResults || 5,
-          documentTypes: searchFilters?.documentTypes,
-          dateRange: searchFilters?.dateRange
-        }
+    // Analyze the user message for conversation intelligence
+    let analysis: ConversationAnalysis | null = null
+    let shouldRequestContact = false
 
-        // Generate embedding for user message
-        const embeddingResponse = await fetch(`${Deno.env.get('SUPABASE_URL')}/functions/v1/generate-embedding`, {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ text: latestUserMessage }),
-        })
+    if (escalationRules) {
+      analysis = analyzeMessage(message, escalationRules)
+      console.log('Message analysis:', analysis)
+    }
 
-        if (embeddingResponse.ok) {
-          const embeddingData = await embeddingResponse.json()
-          const queryEmbedding = embeddingData.embedding
+    // Get message count for this conversation
+    const { count: messageCount } = await supabaseClient
+      .from('messages')
+      .select('*', { count: 'exact', head: true })
+      .eq('conversation_id', conversationId)
 
-          // Perform enhanced vector search with metadata
-          const { data: vectorResults, error: searchError } = await supabaseClient
-            .rpc('search_advisor_embeddings_with_metadata', {
-              query_embedding: queryEmbedding,
-              target_advisor_id: advisorId,
-              similarity_threshold: filters.minSimilarity,
-              match_count: filters.maxResults
-            })
-
-          // If the enhanced RPC doesn't exist, fallback to basic search
-          if (searchError && searchError.message?.includes('function')) {
-            console.log('Using fallback search method')
-            const { data: basicResults, error: basicError } = await supabaseClient
-              .rpc('search_advisor_embeddings', {
-                query_embedding: queryEmbedding,
-                target_advisor_id: advisorId,
-                similarity_threshold: filters.minSimilarity,
-                match_count: filters.maxResults
-              })
-
-            if (!basicError && basicResults && basicResults.length > 0) {
-              // Get document metadata separately
-              const documentIds = [...new Set(basicResults.map(chunk => chunk.document_id))]
-              const { data: documents } = await supabaseClient
-                .from('advisor_documents')
-                .select('id, title, file_type, upload_date')
-                .in('id', documentIds)
-
-              const documentMap = new Map(documents?.map(doc => [doc.id, doc]) || [])
-
-              contextData = {
-                relevantChunks: basicResults.map(chunk => chunk.chunk_text),
-                contextText: basicResults.map(chunk => chunk.chunk_text).join('\n\n'),
-                sources: basicResults.map(result => {
-                  const doc = documentMap.get(result.document_id)
-                  return {
-                    title: doc?.title || 'Unknown Document',
-                    documentId: result.document_id,
-                    similarity: result.similarity,
-                    documentType: doc?.file_type || 'unknown',
-                    uploadDate: doc?.upload_date || ''
-                  }
-                }).filter((source, index, self) => 
-                  index === self.findIndex(s => s.documentId === source.documentId)
-                ),
-                searchMetrics: {
-                  totalChunks: basicResults.length,
-                  averageSimilarity: basicResults.reduce((sum, chunk) => sum + chunk.similarity, 0) / basicResults.length,
-                  searchTime: 0
-                }
-              }
-            }
-          } else if (!searchError && vectorResults && vectorResults.length > 0) {
-            // Process enhanced results
-            contextData = {
-              relevantChunks: vectorResults.map(chunk => chunk.chunk_text),
-              contextText: vectorResults.map(chunk => chunk.chunk_text).join('\n\n'),
-              sources: vectorResults.map(result => ({
-                title: result.document_title || 'Unknown Document',
-                documentId: result.document_id,
-                similarity: result.similarity,
-                documentType: result.document_type || 'unknown',
-                uploadDate: result.upload_date || ''
-              })).filter((source, index, self) => 
-                index === self.findIndex(s => s.documentId === source.documentId)
-              ),
-              searchMetrics: {
-                totalChunks: vectorResults.length,
-                averageSimilarity: vectorResults.reduce((sum, chunk) => sum + chunk.similarity, 0) / vectorResults.length,
-                searchTime: 0
-              }
-            }
-          }
-
-          if (contextData && contextData.sources.length > 0) {
-            console.log(`Found ${contextData.sources.length} relevant sources with average similarity: ${contextData.searchMetrics.averageSimilarity.toFixed(3)}`)
-          }
-        }
-      } catch (contextError) {
-        console.warn('Failed to retrieve context, continuing without it:', contextError)
+    // Check if we should escalate based on message count
+    if (escalationRules && messageCount && messageCount >= escalationRules.message_count_threshold) {
+      shouldRequestContact = true
+      if (analysis) {
+        analysis.should_escalate = true
+        analysis.trigger_reason = `Message count threshold reached: ${messageCount} messages`
       }
     }
 
-    // Build a cleaner, more focused system prompt
-    const advisorName = advisor.full_name || advisor.name
-    const advisorTitle = advisor.professional_title || 'an AI assistant'
-    
-    let systemPrompt = `You are ${advisorName}, ${advisorTitle}.`
+    // Save user message with analysis metadata
+    const { error: userMsgError } = await supabaseClient
+      .from('messages')
+      .insert({
+        conversation_id: conversationId,
+        role: 'user',
+        content: message,
+        score: analysis?.score || 0,
+        intent: analysis?.intent || 'general',
+        urgency_level: analysis?.urgency_level || 'low',
+        metadata: analysis ? {
+          keywords_detected: analysis.keywords_detected,
+          should_escalate: analysis.should_escalate,
+          trigger_reason: analysis.trigger_reason
+        } : {}
+      })
 
-    // Add background information
-    if (advisor.additional_background) {
-      systemPrompt += `\n\nBACKGROUND:\n${advisor.additional_background}`
+    if (userMsgError) {
+      console.error('Error saving user message:', userMsgError)
+      throw new Error('Failed to save user message')
     }
 
-    if (advisor.location) {
-      systemPrompt += `\nYou are based in ${advisor.location}.`
+    // Get recent messages for context
+    const { data: recentMessages } = await supabaseClient
+      .from('messages')
+      .select('role, content')
+      .eq('conversation_id', conversationId)
+      .order('created_at', { ascending: true })
+      .limit(10)
+
+    const messages: ChatMessage[] = recentMessages || []
+
+    // Generate AI response
+    const openaiApiKey = Deno.env.get('OPENAI_API_KEY')
+    if (!openaiApiKey) {
+      throw new Error('OpenAI API key not configured')
     }
 
-    if (advisor.education) {
-      systemPrompt += `\nEDUCATION: ${advisor.education}`
-    }
+    // Build system prompt
+    let systemPrompt = `You are ${advisorName}'s Sim - a digital assistant that helps connect people with the real ${advisorName}.
 
-    if (advisor.years_experience) {
-      systemPrompt += `\nYou have ${advisor.years_experience} years of professional experience.`
-    }
+BACKGROUND: ${advisor.background_content || 'No background provided'}
 
-    if (advisor.current_profession) {
-      systemPrompt += `\nCURRENT ROLE: ${advisor.current_profession}`
-    }
+AREAS OF EXPERTISE: ${advisor.areas_of_expertise || 'General expertise'}
 
-    if (advisor.areas_of_expertise) {
-      systemPrompt += `\nAREAS OF EXPERTISE: ${advisor.areas_of_expertise}`
-    }
-
-    if (advisor.skills && advisor.skills.length > 0) {
-      systemPrompt += `\nKEY SKILLS: ${advisor.skills.join(', ')}`
-    }
-
-    if (advisor.interests && advisor.interests.length > 0) {
-      systemPrompt += `\nINTERESTS: ${advisor.interests.join(', ')}`
-    }
-
-    // Add knowledge context if available
-    if (contextData && contextData.contextText) {
-      systemPrompt += `\n\nRELEVANT KNOWLEDGE:\n${contextData.contextText}\n\nUse this information naturally when relevant to the conversation.`
-    }
-
-    // Add conversation guidelines with explicit scheduling restrictions
-    systemPrompt += `\n\nCONVERSATION GUIDELINES:
-- Respond as ${advisorName} in a natural, authentic way
-- Be helpful and engaging while staying true to your background
+${advisor.writing_sample ? `COMMUNICATION STYLE: ${advisor.writing_sample}` : ''}
 
 CRITICAL: YOU CANNOT SCHEDULE MEETINGS OR APPOINTMENTS
 - You have NO access to calendars or scheduling systems
@@ -227,9 +150,13 @@ WHAT TO DO when someone wants to schedule:
 
 Remember: You are ${advisorName}'s Sim. You collect information so the real ${advisorName} can follow up personally.`
 
-    // Prepare the messages for OpenAI
+    // If escalation is triggered and contact capture is enabled, modify the prompt
+    if (analysis?.should_escalate && escalationRules?.contact_capture_enabled && shouldRequestContact) {
+      systemPrompt += `\n\nIMPORTANT: This conversation has been flagged as high-priority (${analysis.trigger_reason}). After providing a helpful response, please ask for the user's contact information using this message: "${escalationRules.contact_capture_message}"`
+    }
+
     const systemMessage = {
-      role: 'system',
+      role: 'system' as const,
       content: systemPrompt
     }
 
@@ -237,7 +164,7 @@ Remember: You are ${advisorName}'s Sim. You collect information so the real ${ad
 
     console.log('Sending request to OpenAI with system prompt length:', systemPrompt.length)
 
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    const openaiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${openaiApiKey}`,
@@ -247,29 +174,29 @@ Remember: You are ${advisorName}'s Sim. You collect information so the real ${ad
         model: 'gpt-5-2025-08-07',
         messages: chatMessages,
         max_completion_tokens: 1000,
+        stream: false
       }),
     })
 
-    if (!response.ok) {
-      const errorData = await response.text()
+    if (!openaiResponse.ok) {
+      const errorData = await openaiResponse.text()
       console.error('OpenAI API error:', errorData)
-      throw new Error(`OpenAI API error: ${response.status} - ${errorData}`)
+      throw new Error(`OpenAI API error: ${openaiResponse.status}`)
     }
 
-    const data = await response.json()
+    const openaiData = await openaiResponse.json()
+    console.log('OpenAI response:', JSON.stringify(openaiData, null, 2))
     
-    console.log('OpenAI response:', JSON.stringify(data, null, 2))
-
-    if (!data.choices || data.choices.length === 0) {
-      console.error('No choices in OpenAI response')
-      throw new Error('No response choices from OpenAI')
+    if (!openaiData.choices || openaiData.choices.length === 0) {
+      throw new Error('No response from OpenAI')
     }
 
-    const assistantMessage = data.choices[0].message?.content
+    const assistantMessage = openaiData.choices[0].message.content
 
+    console.log('Received response from OpenAI, length:', assistantMessage?.length || 0)
     console.log('Assistant message content:', assistantMessage)
 
-    // Check if we got an empty response
+    // Check if the response is empty or null
     if (!assistantMessage || assistantMessage.trim().length === 0) {
       console.error('OpenAI returned empty content')
       // Return a fallback response instead of throwing an error
@@ -277,13 +204,10 @@ Remember: You are ${advisorName}'s Sim. You collect information so the real ${ad
       
       return new Response(
         JSON.stringify({ 
-          content: fallbackMessage,
-          usage: data.usage || {},
-          contextUsed: contextData ? contextData.contextText.length > 0 : false,
-          sources: contextData?.sources || [],
-          searchMetrics: contextData?.searchMetrics || null,
-          conversationContext: conversationContext,
-          fallback: true
+          message: fallbackMessage,
+          conversationId: conversationId,
+          analysis: analysis,
+          escalated: false
         }),
         {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -291,16 +215,49 @@ Remember: You are ${advisorName}'s Sim. You collect information so the real ${ad
       )
     }
 
-    console.log('Received response from OpenAI, length:', assistantMessage.length)
+    // Save assistant message
+    const { error: assistantMsgError } = await supabaseClient
+      .from('messages')
+      .insert({
+        conversation_id: conversationId,
+        role: 'system',
+        content: assistantMessage,
+        score: 0,
+        intent: 'response',
+        urgency_level: 'low',
+        metadata: {}
+      })
+
+    if (assistantMsgError) {
+      console.error('Error saving assistant message:', assistantMsgError)
+      throw new Error('Failed to save assistant message')
+    }
+
+    // If escalation was triggered, create a conversation capture record
+    if (analysis?.should_escalate && escalationRules) {
+      const { error: captureError } = await supabaseClient
+        .from('conversation_captures')
+        .insert({
+          conversation_id: conversationId,
+          advisor_id: advisorId,
+          trigger_reason: analysis.trigger_reason || 'Unknown trigger',
+          conversation_score: analysis.score,
+          message_count: (messageCount || 0) + 1 // +1 for the message we just added
+        })
+
+      if (captureError) {
+        console.error('Error creating conversation capture:', captureError)
+      } else {
+        console.log('Created conversation capture for escalated conversation')
+      }
+    }
 
     return new Response(
       JSON.stringify({ 
-        content: assistantMessage,
-        usage: data.usage,
-        contextUsed: contextData ? contextData.contextText.length > 0 : false,
-        sources: contextData?.sources || [],
-        searchMetrics: contextData?.searchMetrics || null,
-        conversationContext: conversationContext
+        message: assistantMessage,
+        conversationId: conversationId,
+        analysis: analysis,
+        escalated: analysis?.should_escalate || false
       }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -321,39 +278,94 @@ Remember: You are ${advisorName}'s Sim. You collect information so the real ${ad
   }
 })
 
-function analyzeConversationContext(messages: any[], latestMessage: string): any {
-  const lowerMessage = latestMessage.toLowerCase()
-  
-  // Analyze intent and context
-  const businessKeywords = ['business', 'work', 'project', 'collaboration', 'opportunity', 'partnership', 'consulting', 'advice', 'help with', 'expertise', 'investor', 'investment', 'funding', 'reporter', 'interview', 'story']
-  const schedulingKeywords = ['meet', 'call', 'schedule', 'available', 'time', 'appointment', 'free', 'calendar', 'meeting', 'zoom', 'phone']
-  const questionIndicators = ['how', 'what', 'why', 'when', 'where', 'can you', 'do you', 'would you', 'could you']
-  
-  const hasBusinessKeywords = businessKeywords.some(keyword => lowerMessage.includes(keyword))
-  const hasSchedulingKeywords = schedulingKeywords.some(keyword => lowerMessage.includes(keyword))
-  const hasQuestionIndicators = questionIndicators.some(indicator => lowerMessage.includes(indicator))
-  const isQuestion = lowerMessage.includes('?') || hasQuestionIndicators
-  
-  // Determine conversation stage
-  const messageCount = messages.length
-  const isEarlyConversation = messageCount <= 4
-  
-  // Better intent classification
+function analyzeMessage(content: string, rules: any): ConversationAnalysis {
+  const lowerContent = content.toLowerCase()
+  let score = 0
+  let urgency_level: 'low' | 'medium' | 'high' | 'critical' = 'low'
   let intent = 'general'
-  if (hasBusinessKeywords && hasSchedulingKeywords) {
-    intent = 'business_meeting_request'
-  } else if (hasBusinessKeywords) {
-    intent = 'business_inquiry'
-  } else if (hasSchedulingKeywords) {
+  const keywords_detected: string[] = []
+
+  // Check urgency keywords
+  const urgencyFound = rules.urgency_keywords.some((keyword: string) => {
+    if (lowerContent.includes(keyword.toLowerCase())) {
+      keywords_detected.push(keyword)
+      return true
+    }
+    return false
+  })
+
+  if (urgencyFound) {
+    score += 3
+    urgency_level = 'high'
+    intent = 'urgent_request'
+  }
+
+  // Check value keywords
+  const valueFound = rules.value_keywords.some((keyword: string) => {
+    if (lowerContent.includes(keyword.toLowerCase())) {
+      keywords_detected.push(keyword)
+      return true
+    }
+    return false
+  })
+
+  if (valueFound) {
+    score += 4
+    intent = 'sales_inquiry'
+  }
+
+  // Check VIP keywords
+  const vipFound = rules.vip_keywords.some((keyword: string) => {
+    if (lowerContent.includes(keyword.toLowerCase())) {
+      keywords_detected.push(keyword)
+      return true
+    }
+    return false
+  })
+
+  if (vipFound) {
+    score += 5
+    urgency_level = 'critical'
+    intent = 'vip_inquiry'
+  }
+
+  // Check custom keywords
+  const customFound = rules.custom_keywords.some((keyword: string) => {
+    if (lowerContent.includes(keyword.toLowerCase())) {
+      keywords_detected.push(keyword)
+      return true
+    }
+    return false
+  })
+
+  if (customFound) {
+    score += 2
+  }
+
+  // Additional scoring
+  if (lowerContent.includes('?')) score += 1
+  if (lowerContent.length > 200) score += 1
+  if (lowerContent.includes('help')) score += 1
+
+  // Check for meeting/scheduling requests
+  const meetingKeywords = ['meet', 'schedule', 'appointment', 'call', 'talk', 'discuss', 'connect']
+  const meetingFound = meetingKeywords.some(keyword => lowerContent.includes(keyword))
+  if (meetingFound) {
+    score += 3
     intent = 'meeting_request'
   }
-  
+
+  const should_escalate = score >= rules.score_threshold
+  const trigger_reason = should_escalate 
+    ? `Score: ${score} (threshold: ${rules.score_threshold}), Keywords: ${keywords_detected.join(', ')}`
+    : undefined
+
   return {
+    score,
     intent,
-    isQuestion,
-    hasBusinessContext: hasBusinessKeywords,
-    hasSchedulingContext: hasSchedulingKeywords,
-    conversationStage: isEarlyConversation ? 'early' : 'established',
-    messageCount
+    urgency_level,
+    keywords_detected,
+    should_escalate,
+    trigger_reason
   }
 }

@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { AgentType } from '@/types/agent';
 import { conversationService, Message } from '@/services/conversationService';
+import { useEnhancedTextChat } from './useEnhancedTextChat';
 
 interface ChatMessage {
   id: string;
@@ -15,6 +16,8 @@ export const useChatHistory = (agent: AgentType) => {
   const [isLoading, setIsLoading] = useState(true);
   const [isPublicChat, setIsPublicChat] = useState(false);
   const [welcomeMessageSent, setWelcomeMessageSent] = useState(false);
+  
+  const { sendMessage: sendEnhancedMessage, isLoading: isSending } = useEnhancedTextChat(agent);
 
   // Load conversation and messages when agent changes
   useEffect(() => {
@@ -131,8 +134,13 @@ export const useChatHistory = (agent: AgentType) => {
     loadChatHistory();
   }, [agent?.id, agent?.welcomeMessage]);
 
-  // Add user message
+  // Add user message and send to enhanced chat
   const addUserMessage = useCallback(async (content: string) => {
+    if (!conversationId) {
+      console.error('No conversation ID available');
+      return;
+    }
+
     const tempMessage: ChatMessage = {
       id: `temp-user-${Date.now()}`,
       role: 'user',
@@ -142,8 +150,8 @@ export const useChatHistory = (agent: AgentType) => {
 
     setMessages(prev => [...prev, tempMessage]);
 
-    // Save to database if we have a conversation
-    if (conversationId) {
+    try {
+      // Save user message to database first
       const savedMessage = await conversationService.addMessage(conversationId, 'user', content);
       if (savedMessage) {
         setMessages(prev => 
@@ -154,10 +162,50 @@ export const useChatHistory = (agent: AgentType) => {
           )
         );
       }
-    }
-  }, [conversationId]);
 
-  // Start AI message
+      // Send message using enhanced chat
+      await sendEnhancedMessage(
+        content,
+        conversationId,
+        () => {
+          const aiMessage: ChatMessage = {
+            id: `ai-${Date.now()}`,
+            role: 'system',
+            content: '',
+            isComplete: false
+          };
+          setMessages(prev => [...prev, aiMessage]);
+          return aiMessage.id;
+        },
+        (messageId: string, delta: string) => {
+          setMessages(prev => 
+            prev.map(msg => 
+              msg.id === messageId 
+                ? { ...msg, content: msg.content + delta }
+                : msg
+            )
+          );
+        },
+        (messageId: string) => {
+          setMessages(prev => 
+            prev.map(msg => 
+              msg.id === messageId 
+                ? { ...msg, isComplete: true }
+                : msg
+            )
+          );
+        }
+      );
+
+    } catch (error) {
+      console.error('Error sending message:', error);
+      // Remove the temp message on error
+      setMessages(prev => prev.filter(msg => msg.id !== tempMessage.id));
+      throw error;
+    }
+  }, [conversationId, sendEnhancedMessage]);
+
+  // Legacy functions for compatibility
   const startAiMessage = useCallback(() => {
     const aiMessage: ChatMessage = {
       id: `ai-${Date.now()}`,
@@ -165,12 +213,10 @@ export const useChatHistory = (agent: AgentType) => {
       content: '',
       isComplete: false
     };
-
     setMessages(prev => [...prev, aiMessage]);
     return aiMessage.id;
   }, []);
 
-  // Add text delta to AI message
   const addAiTextDelta = useCallback((messageId: string, delta: string) => {
     setMessages(prev => 
       prev.map(msg => 
@@ -181,9 +227,7 @@ export const useChatHistory = (agent: AgentType) => {
     );
   }, []);
 
-  // Complete AI message
   const completeAiMessage = useCallback(async (messageId: string) => {
-    // Use a function to get the current message content
     setMessages(prev => {
       const currentMessage = prev.find(msg => msg.id === messageId);
       if (!currentMessage || !currentMessage.content.trim()) {
@@ -211,7 +255,6 @@ export const useChatHistory = (agent: AgentType) => {
             );
           } else {
             console.error('Failed to save AI message to database');
-            // Still mark as complete even if save failed
             setMessages(prevMessages => 
               prevMessages.map(msg => 
                 msg.id === messageId 
@@ -222,7 +265,6 @@ export const useChatHistory = (agent: AgentType) => {
           }
         }).catch(error => {
           console.error('Error saving AI message:', error);
-          // Still mark as complete even if save failed
           setMessages(prevMessages => 
             prevMessages.map(msg => 
               msg.id === messageId 
@@ -233,7 +275,6 @@ export const useChatHistory = (agent: AgentType) => {
         });
       }
 
-      // Mark as complete immediately in the UI
       return prev.map(msg => 
         msg.id === messageId 
           ? { ...msg, isComplete: true }
@@ -244,7 +285,7 @@ export const useChatHistory = (agent: AgentType) => {
 
   return {
     messages,
-    isLoading,
+    isLoading: isLoading || isSending,
     isPublicChat,
     welcomeMessageSent,
     addUserMessage,
