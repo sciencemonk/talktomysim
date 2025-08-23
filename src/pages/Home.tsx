@@ -10,6 +10,7 @@ import BasicInfo from "@/components/BasicInfo";
 import InteractionModel from "@/components/InteractionModel";
 import { CoreKnowledge } from "@/components/CoreKnowledge";
 import Integrations from "@/components/Integrations";
+import Actions from "@/components/Actions";
 import { AgentType } from "@/types/agent";
 import { useUserAdvisors } from "@/hooks/useUserAdvisors";
 import { useToast } from "@/hooks/use-toast";
@@ -22,7 +23,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 
-type ViewType = 'directory' | 'my-sim' | 'basic-info' | 'interaction-model' | 'core-knowledge' | 'integrations' | 'search';
+type ViewType = 'directory' | 'my-sim' | 'basic-info' | 'interaction-model' | 'core-knowledge' | 'integrations' | 'actions' | 'search';
 
 const Home = () => {
   const { user, loading } = useAuth();
@@ -184,6 +185,14 @@ const Home = () => {
     setMobileSheetOpen(false); // Close mobile sheet
   };
 
+  const handleNavigateToActions = () => {
+    setCurrentView('actions');
+    setSelectedAgent(null);
+    setSelectedAdvisor(null);
+    setSelectedPublicAdvisorId(null);
+    setMobileSheetOpen(false); // Close mobile sheet
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -234,6 +243,8 @@ const Home = () => {
         return <CoreKnowledge advisorId={advisorId} />;
       case 'integrations':
         return <Integrations />;
+      case 'actions':
+        return <Actions />;
       case 'search':
         return (
           <AdvisorDirectory 
@@ -340,6 +351,7 @@ const Home = () => {
         onNavigateToInteractionModel={handleNavigateToInteractionModel}
         onNavigateToCoreKnowledge={handleNavigateToCoreKnowledge}
         onNavigateToIntegrations={handleNavigateToIntegrations}
+        onNavigateToActions={handleNavigateToActions}
         onNavigateToSearch={handleNavigateToSearch}
         activeView={currentView}
         onAuthRequired={handleAuthRequired}
@@ -370,6 +382,7 @@ const Home = () => {
                   onNavigateToInteractionModel={handleNavigateToInteractionModel}
                   onNavigateToCoreKnowledge={handleNavigateToCoreKnowledge}
                   onNavigateToIntegrations={handleNavigateToIntegrations}
+                  onNavigateToActions={handleNavigateToActions}
                   onNavigateToSearch={handleNavigateToSearch}
                   activeView={currentView}
                   onClose={() => setMobileSheetOpen(false)}

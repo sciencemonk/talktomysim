@@ -15,7 +15,6 @@ import Admin from "./pages/Admin";
 import PublicTutorDetail from "./pages/PublicTutorDetail";
 import StudentChat from "./pages/StudentChat";
 import NotFound from "./pages/NotFound";
-import Actions from "./pages/Actions";
 
 const queryClient = new QueryClient();
 
@@ -32,9 +31,6 @@ const App = () => (
             
             {/* Admin route */}
             <Route path="/admin" element={<Admin />} />
-            
-            {/* Agent actions route */}
-            <Route path="/agents/:agentId/actions" element={<Actions />} />
             
             {/* Legacy routes */}
             <Route path="/index" element={<Index />} />
