@@ -131,9 +131,12 @@ export const conversationService = {
     }
   },
 
-  // Get conversations for an advisor (for dashboard)
+  // Get conversations for an advisor (for dashboard) - includes ALL conversations regardless of user type
   async getAdvisorConversations(advisorId: string): Promise<any[]> {
     try {
+      console.log('Fetching ALL conversations for advisor:', advisorId);
+      
+      // Fetch ALL conversations for this advisor, regardless of user type
       const { data, error } = await supabase
         .from('conversations')
         .select(`
@@ -151,7 +154,12 @@ export const conversationService = {
         .eq('tutor_id', advisorId)
         .order('updated_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching conversations:', error);
+        throw error;
+      }
+      
+      console.log(`Found ${data?.length || 0} conversations for advisor ${advisorId}`);
       
       // Transform the data to match what the dashboard expects
       return (data || []).map(conversation => {
@@ -159,6 +167,10 @@ export const conversationService = {
         const userMessages = messages.filter(m => m.role === 'user');
         const latestMessage = messages[messages.length - 1];
         const scores = userMessages.map(m => m.score || 0).filter(s => s > 0);
+        
+        const isAnonymous = conversation.user_id.startsWith('anonymous_');
+        
+        console.log(`Conversation ${conversation.id}: user_id=${conversation.user_id}, is_anonymous=${isAnonymous}, messages=${messages.length}`);
         
         return {
           id: conversation.id,
@@ -170,7 +182,8 @@ export const conversationService = {
           highest_score: scores.length > 0 ? Math.max(...scores) : 0,
           intents: [...new Set(userMessages.map(m => m.intent).filter(Boolean))],
           escalated: scores.some(s => s >= 7) || messages.length >= 5,
-          is_anonymous: conversation.user_id.startsWith('anonymous_')
+          is_anonymous: isAnonymous,
+          user_id: conversation.user_id
         };
       });
     } catch (error) {

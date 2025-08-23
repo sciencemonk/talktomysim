@@ -22,13 +22,20 @@ const MySim = () => {
   const [isChatModalOpen, setIsChatModalOpen] = useState(false);
 
   // Fetch conversations for this sim
-  const { data: conversations = [], isLoading: conversationsLoading } = useQuery({
+  const { data: conversations = [], isLoading: conversationsLoading, refetch } = useQuery({
     queryKey: ['advisor-conversations', sim?.id],
-    queryFn: () => conversationService.getAdvisorConversations(sim?.id || ''),
+    queryFn: async () => {
+      console.log('Fetching conversations for sim:', sim?.id);
+      const result = await conversationService.getAdvisorConversations(sim?.id || '');
+      console.log('Conversations fetched:', result);
+      return result;
+    },
     enabled: !!sim?.id,
+    refetchInterval: 10000, // Refetch every 10 seconds to show new conversations
   });
 
   const handleConversationClick = (conversation: any) => {
+    console.log('Opening conversation:', conversation);
     setSelectedConversation(conversation);
     setIsChatModalOpen(true);
   };
@@ -80,12 +87,22 @@ const MySim = () => {
                 </div>
               </div>
             </div>
-            <Button variant="outline" asChild size="sm" className="w-full sm:w-auto flex-shrink-0">
-              <a href={`/${sim?.custom_url || sim?.id}`} target="_blank" rel="noopener noreferrer">
-                <ExternalLink className="h-4 w-4 mr-2" />
-                Talk to Your Sim
-              </a>
-            </Button>
+            <div className="flex gap-2">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => refetch()}
+                className="flex-shrink-0"
+              >
+                Refresh
+              </Button>
+              <Button variant="outline" asChild size="sm" className="flex-shrink-0">
+                <a href={`/${sim?.custom_url || sim?.id}`} target="_blank" rel="noopener noreferrer">
+                  <ExternalLink className="h-4 w-4 mr-2" />
+                  Talk to Your Sim
+                </a>
+              </Button>
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -98,7 +115,7 @@ const MySim = () => {
             All Conversations ({conversations.length})
           </CardTitle>
           <p className="text-sm text-muted-foreground">
-            All conversations users are having with your sim
+            All conversations users are having with your sim (authenticated and anonymous users)
           </p>
         </CardHeader>
         <CardContent>
@@ -124,6 +141,9 @@ const MySim = () => {
               <p className="text-muted-foreground">
                 Conversations will appear here once users start chatting with your sim
               </p>
+              <p className="text-sm text-muted-foreground mt-2">
+                Debug: Sim ID = {sim?.id}
+              </p>
             </div>
           ) : (
             <div className="space-y-3">
@@ -144,7 +164,7 @@ const MySim = () => {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
                         <span className="text-sm font-medium">
-                          {conversation.is_anonymous ? 'Anonymous User' : 'User'}
+                          {conversation.is_anonymous ? 'Anonymous User' : 'Registered User'}
                         </span>
                         <Badge variant="secondary" className="text-xs">
                           {conversation.message_count} messages
@@ -152,6 +172,12 @@ const MySim = () => {
                         {conversation.escalated && (
                           <Badge variant="destructive" className="text-xs">
                             Escalated
+                          </Badge>
+                        )}
+                        {conversation.is_anonymous && (
+                          <Badge variant="outline" className="text-xs">
+                            <Globe className="h-3 w-3 mr-1" />
+                            Public
                           </Badge>
                         )}
                       </div>
@@ -166,6 +192,9 @@ const MySim = () => {
                         {conversation.avg_score > 0 && (
                           <div>Score: {conversation.avg_score.toFixed(1)}/10</div>
                         )}
+                        <div className="text-xs opacity-50">
+                          ID: {conversation.user_id.substring(0, 8)}...
+                        </div>
                       </div>
                     </div>
                   </div>
