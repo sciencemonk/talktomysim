@@ -64,25 +64,33 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ agent, onBack }) => {
   }, []);
 
   const startAiMessage = useCallback(() => {
-    const aiMsg: Message = {
-      id: `ai-${Date.now()}`,
-      role: 'system',
-      content: '',
-      timestamp: Date.now()
-    };
-    
-    setMessages(prev => [...prev, aiMsg]);
-    return aiMsg.id;
+    // Don't add an empty message, just return an ID for tracking
+    const aiMessageId = `ai-${Date.now()}`;
+    return aiMessageId;
   }, []);
 
   const addAiTextDelta = useCallback((delta: string) => {
-    setMessages(prev => 
-      prev.map((msg, index) => 
-        index === prev.length - 1 && msg.role === 'system'
-          ? { ...msg, content: msg.content + delta }
-          : msg
-      )
-    );
+    setMessages(prev => {
+      // Check if the last message is from the system and has content
+      const lastMessage = prev[prev.length - 1];
+      if (lastMessage && lastMessage.role === 'system' && lastMessage.content) {
+        // Update existing AI message
+        return prev.map((msg, index) => 
+          index === prev.length - 1 && msg.role === 'system'
+            ? { ...msg, content: msg.content + delta }
+            : msg
+        );
+      } else {
+        // Create new AI message with the delta content
+        const aiMsg: Message = {
+          id: `ai-${Date.now()}`,
+          role: 'system',
+          content: delta,
+          timestamp: Date.now()
+        };
+        return [...prev, aiMsg];
+      }
+    });
   }, []);
 
   const completeAiMessage = useCallback(() => {
@@ -180,7 +188,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ agent, onBack }) => {
               </div>
             ))}
 
-            {/* Typing indicator */}
+            {/* Typing indicator - only show when processing */}
             {isProcessing && (
               <div className="flex gap-3 justify-start">
                 <Avatar className="h-8 w-8 flex-shrink-0">
