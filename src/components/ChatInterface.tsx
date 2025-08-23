@@ -7,200 +7,95 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Send, Loader2, Bot, User } from "lucide-react";
 import { AgentType } from "@/types/agent";
 import { useEnhancedTextChat } from "@/hooks/useEnhancedTextChat";
-import { conversationService } from "@/services/conversationService";
-import { useChatHistory } from "@/hooks/useChatHistory";
 
 interface ChatInterfaceProps {
   agent: AgentType;
   onBack?: () => void;
 }
 
-interface DisplayMessage {
+interface Message {
   id: string;
   role: 'user' | 'system';
   content: string;
-  isComplete: boolean;
   timestamp: number;
 }
 
 const ChatInterface: React.FC<ChatInterfaceProps> = ({ agent, onBack }) => {
   const [input, setInput] = useState('');
-  const [conversation, setConversation] = useState<any>(null);
-  const [isInitializing, setIsInitializing] = useState(false);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [hasShownWelcome, setHasShownWelcome] = useState(false);
-  const [displayMessages, setDisplayMessages] = useState<DisplayMessage[]>([]);
-  const [currentAiMessage, setCurrentAiMessage] = useState<DisplayMessage | null>(null);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const { messages: historyMessages, loadMessages } = useChatHistory(conversation?.id || null);
-
-  // Initialize conversation only once
+  // Show welcome message once
   useEffect(() => {
-    let isMounted = true;
-    
-    const initConversation = async () => {
-      if (!agent?.id || isInitializing || conversation) return;
-      
-      setIsInitializing(true);
-      try {
-        console.log('Initializing conversation for agent:', agent.id);
-        const conv = await conversationService.getOrCreateConversation(agent.id);
-        
-        if (isMounted && conv) {
-          console.log('Conversation initialized:', conv.id);
-          setConversation(conv);
-        }
-      } catch (error) {
-        console.error('Error initializing conversation:', error);
-      } finally {
-        if (isMounted) {
-          setIsInitializing(false);
-        }
-      }
-    };
-
-    initConversation();
-    
-    return () => {
-      isMounted = false;
-    };
-  }, [agent?.id]);
-
-  // Load messages when conversation is set
-  useEffect(() => {
-    if (conversation?.id) {
-      loadMessages();
-    }
-  }, [conversation?.id, loadMessages]);
-
-  // Update display messages when history changes
-  useEffect(() => {
-    const historyMsgs: DisplayMessage[] = historyMessages.map(msg => ({
-      id: msg.id,
-      role: msg.role as 'user' | 'system',
-      content: msg.content || '',
-      isComplete: true,
-      timestamp: new Date(msg.created_at || Date.now()).getTime()
-    }));
-
-    setDisplayMessages(historyMsgs);
-    console.log('Updated display messages from history:', historyMsgs.length);
-  }, [historyMessages]);
-
-  // Show welcome message if no history messages and haven't shown it yet
-  useEffect(() => {
-    if (conversation && historyMessages.length === 0 && !hasShownWelcome && !isInitializing) {
+    if (!hasShownWelcome && agent) {
       const welcomeMessage = agent.welcomeMessage || `Hello! I'm ${agent.name}. How can I help you today?`;
-      console.log('Showing welcome message:', welcomeMessage);
       
-      const welcomeMsg: DisplayMessage = {
+      const welcomeMsg: Message = {
         id: `welcome-${Date.now()}`,
         role: 'system',
         content: welcomeMessage,
-        isComplete: true,
         timestamp: Date.now()
       };
       
-      setDisplayMessages([welcomeMsg]);
+      setMessages([welcomeMsg]);
       setHasShownWelcome(true);
-      
-      // Save welcome message to database
-      if (conversation?.id) {
-        conversationService.addMessage(conversation.id, 'system', welcomeMessage);
-      }
     }
-  }, [conversation, historyMessages.length, hasShownWelcome, isInitializing, agent]);
+  }, [agent, hasShownWelcome]);
 
   const addUserMessage = useCallback((content: string) => {
-    const userMsg: DisplayMessage = {
+    const userMsg: Message = {
       id: `user-${Date.now()}`,
       role: 'user',
       content,
-      isComplete: true,
       timestamp: Date.now()
     };
     
-    setDisplayMessages(prev => [...prev, userMsg]);
+    setMessages(prev => [...prev, userMsg]);
   }, []);
 
   const startAiMessage = useCallback(() => {
-    const aiMsg: DisplayMessage = {
+    const aiMsg: Message = {
       id: `ai-${Date.now()}`,
       role: 'system',
       content: '',
-      isComplete: false,
       timestamp: Date.now()
     };
     
-    setCurrentAiMessage(aiMsg);
-    setDisplayMessages(prev => [...prev, aiMsg]);
-    
+    setMessages(prev => [...prev, aiMsg]);
     return aiMsg.id;
   }, []);
 
   const addAiTextDelta = useCallback((delta: string) => {
-    if (!currentAiMessage) return;
-    
-    setDisplayMessages(prev => 
-      prev.map(msg => 
-        msg.id === currentAiMessage.id 
+    setMessages(prev => 
+      prev.map((msg, index) => 
+        index === prev.length - 1 && msg.role === 'system'
           ? { ...msg, content: msg.content + delta }
           : msg
       )
     );
-    
-    setCurrentAiMessage(prev => 
-      prev ? { ...prev, content: prev.content + delta } : null
-    );
-  }, [currentAiMessage]);
+  }, []);
 
   const completeAiMessage = useCallback(() => {
-    if (!currentAiMessage) return;
-    
-    setDisplayMessages(prev => 
-      prev.map(msg => 
-        msg.id === currentAiMessage.id 
-          ? { ...msg, isComplete: true }
-          : msg
-      )
-    );
-    
-    setCurrentAiMessage(null);
-  }, [currentAiMessage]);
+    // Message is already complete, nothing to do
+  }, []);
 
   const { sendMessage, isProcessing } = useEnhancedTextChat({
     agent,
     onUserMessage: addUserMessage,
     onAiMessageStart: startAiMessage,
     onAiTextDelta: addAiTextDelta,
-    onAiMessageComplete: (messageId: string) => {
-      console.log('AI message completed:', messageId);
-      completeAiMessage();
-      // Save AI response to database if we have a conversation
-      const currentMessage = displayMessages.find(m => m.id === messageId);
-      if (conversation?.id && currentMessage && currentMessage.content) {
-        conversationService.addMessage(conversation.id, 'system', currentMessage.content);
-      }
-    }
+    onAiMessageComplete: completeAiMessage
   });
 
   const handleSendMessage = useCallback(async (messageText: string) => {
     if (!messageText?.trim() || isProcessing) return;
 
-    console.log('Sending message:', messageText);
-    
-    // Save user message to database if we have a conversation
-    if (conversation?.id) {
-      await conversationService.addMessage(conversation.id, 'user', messageText);
-    }
-    
-    // Send message via chat hook
     await sendMessage(messageText);
-    
     setInput('');
     inputRef.current?.focus();
-  }, [conversation?.id, isProcessing, sendMessage, displayMessages]);
+  }, [isProcessing, sendMessage]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -215,11 +110,11 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ agent, onBack }) => {
         scrollElement.scrollTop = scrollElement.scrollHeight;
       }
     }
-  }, [displayMessages, isProcessing]);
+  }, [messages]);
 
   return (
     <div className="h-screen flex flex-col bg-background">
-      {/* Header - Fixed height */}
+      {/* Header */}
       <div className="flex-shrink-0 flex items-center gap-4 p-4 border-b border-border bg-card">
         <Avatar className="h-10 w-10">
           <AvatarImage src={agent.avatar} alt={agent.name} />
@@ -235,18 +130,11 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ agent, onBack }) => {
         </div>
       </div>
 
-      {/* Messages Area - Flexible height with scroll */}
-      <div className="flex-1 min-h-0 overflow-hidden">
+      {/* Messages Area */}
+      <div className="flex-1 min-h-0">
         <ScrollArea ref={scrollAreaRef} className="h-full">
           <div className="p-4 space-y-4 max-w-4xl mx-auto">
-            {isInitializing && (
-              <div className="flex items-center justify-center py-12">
-                <Loader2 className="h-8 w-8 animate-spin text-primary mr-2" />
-                <p className="text-muted-foreground">Initializing chat...</p>
-              </div>
-            )}
-            
-            {displayMessages.map((message) => (
+            {messages.map((message) => (
               <div
                 key={message.id}
                 className={`flex gap-3 ${
@@ -270,10 +158,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ agent, onBack }) => {
                   }`}
                 >
                   <div className="text-sm whitespace-pre-wrap">
-                    {message.content || ''}
-                    {!message.isComplete && (
-                      <span className="inline-block w-2 h-4 bg-current animate-pulse ml-1" />
-                    )}
+                    {message.content}
                   </div>
                 </div>
                 
