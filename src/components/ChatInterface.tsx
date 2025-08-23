@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -20,9 +19,10 @@ interface ChatInterfaceProps {
   agent: AgentType;
   onToggleAudio?: () => void;
   isAudioEnabled?: boolean;
+  onBack?: () => void;
 }
 
-export const ChatInterface = ({ agent, onToggleAudio, isAudioEnabled = false }: ChatInterfaceProps) => {
+export const ChatInterface = ({ agent, onToggleAudio, isAudioEnabled = false, onBack }: ChatInterfaceProps) => {
   const [inputMessage, setInputMessage] = useState('');
   const [messages, setMessages] = useState<Message[]>([]);
   const [conversation, setConversation] = useState<Conversation | null>(null);
