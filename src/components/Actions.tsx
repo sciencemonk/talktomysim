@@ -46,7 +46,7 @@ const Actions = () => {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Shield className="h-5 w-5" />
-            Actions & Intelligence
+            Actions
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -55,50 +55,61 @@ const Actions = () => {
           </p>
 
           {/* Main Content */}
-          <Tabs defaultValue="gatekeeper" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-3">
+          <Tabs defaultValue="overview" className="space-y-6">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="overview" className="flex items-center gap-2">
+                <BarChart3 className="h-4 w-4" />
+                Overview
+              </TabsTrigger>
               <TabsTrigger value="gatekeeper" className="flex items-center gap-2">
                 <Shield className="h-4 w-4" />
                 Smart Gatekeeper
               </TabsTrigger>
-              <TabsTrigger value="conversations" className="flex items-center gap-2">
-                <MessageSquare className="h-4 w-4" />
-                Conversations
-              </TabsTrigger>
-              <TabsTrigger value="analytics" className="flex items-center gap-2">
-                <BarChart3 className="h-4 w-4" />
-                Analytics
-              </TabsTrigger>
             </TabsList>
+
+            <TabsContent value="overview" className="space-y-6">
+              <Tabs defaultValue="conversations" className="space-y-6">
+                <TabsList className="grid w-full grid-cols-2">
+                  <TabsTrigger value="conversations" className="flex items-center gap-2">
+                    <MessageSquare className="h-4 w-4" />
+                    Conversations
+                  </TabsTrigger>
+                  <TabsTrigger value="analytics" className="flex items-center gap-2">
+                    <BarChart3 className="h-4 w-4" />
+                    Analytics
+                  </TabsTrigger>
+                </TabsList>
+
+                <TabsContent value="conversations" className="space-y-6">
+                  <ConversationsDashboard advisorId={sim.id} />
+                </TabsContent>
+
+                <TabsContent value="analytics" className="space-y-6">
+                  <div className="grid gap-6">
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>Coming Soon</CardTitle>
+                        <p className="text-sm text-muted-foreground">
+                          Advanced analytics and insights will be available here
+                        </p>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="text-center py-12">
+                          <BarChart3 className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+                          <h3 className="text-lg font-semibold text-foreground mb-2">Analytics Dashboard</h3>
+                          <p className="text-muted-foreground">
+                            Detailed conversation analytics, conversion rates, and performance metrics coming soon
+                          </p>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
+                </TabsContent>
+              </Tabs>
+            </TabsContent>
 
             <TabsContent value="gatekeeper" className="space-y-6">
               <GatekeeperSettings advisorId={sim.id} />
-            </TabsContent>
-
-            <TabsContent value="conversations" className="space-y-6">
-              <ConversationsDashboard advisorId={sim.id} />
-            </TabsContent>
-
-            <TabsContent value="analytics" className="space-y-6">
-              <div className="grid gap-6">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Coming Soon</CardTitle>
-                    <p className="text-sm text-muted-foreground">
-                      Advanced analytics and insights will be available here
-                    </p>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-center py-12">
-                      <BarChart3 className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-                      <h3 className="text-lg font-semibold text-foreground mb-2">Analytics Dashboard</h3>
-                      <p className="text-muted-foreground">
-                        Detailed conversation analytics, conversion rates, and performance metrics coming soon
-                      </p>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
             </TabsContent>
           </Tabs>
         </CardContent>
