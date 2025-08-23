@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -8,7 +9,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { CalendarIcon, X, Plus, Upload, Camera, FileText, User } from "lucide-react";
+import { CalendarIcon, X, Plus, Upload, Camera, FileText, User, PenTool } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { useSim } from "@/hooks/useSim";
@@ -29,6 +30,7 @@ const BasicInfo = () => {
     yearsExperience: "",
     areasOfExpertise: "",
     additionalBackground: "",
+    writingSample: "",
     avatarUrl: "",
     customUrl: ""
   });
@@ -96,6 +98,7 @@ const BasicInfo = () => {
         yearsExperience: sim.years_experience?.toString() || "",
         areasOfExpertise: sim.areas_of_expertise || "",
         additionalBackground: sim.additional_background || "",
+        writingSample: sim.writing_sample || "",
         avatarUrl: sim.avatar_url || "",
         customUrl: sim.custom_url || ""
       });
@@ -250,6 +253,7 @@ const BasicInfo = () => {
         years_experience: formData.yearsExperience ? parseInt(formData.yearsExperience) : undefined,
         areas_of_expertise: formData.areasOfExpertise,
         additional_background: formData.additionalBackground,
+        writing_sample: formData.writingSample,
         custom_url: formData.customUrl,
         avatar_url: finalAvatarUrl,
         interests,
@@ -608,6 +612,52 @@ const BasicInfo = () => {
                 rows={4}
               />
             </div>
+          </div>
+
+          {/* Writing Sample */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold flex items-center gap-2">
+              <PenTool className="h-5 w-5" />
+              Writing Sample
+            </h3>
+            <div className="space-y-2">
+              <Label htmlFor="writingSample">Your Writing Style</Label>
+              <p className="text-sm text-muted-foreground">
+                Paste examples of your writing - emails, messages, essays, or any text that represents how you communicate. 
+                This helps your Sim learn your unique tone, style, tempo, and voice.
+              </p>
+              <Textarea
+                id="writingSample"
+                value={formData.writingSample}
+                onChange={(e) => handleInputChange('writingSample', e.target.value)}
+                placeholder="Paste your writing samples here. Include emails you've sent, messages, blog posts, or any text that shows how you naturally communicate. The more varied the samples, the better your Sim will understand your voice.
+
+Examples of good writing samples:
+• Professional emails
+• Casual messages to friends
+• Social media posts
+• Blog articles or essays
+• Meeting notes or summaries
+• Creative writing or personal reflections"
+                className="min-h-[300px] resize-none"
+              />
+              <div className="text-xs text-muted-foreground text-right">
+                {formData.writingSample.length.toLocaleString()} characters
+              </div>
+            </div>
+
+            <Card className="border-blue-200 bg-blue-50">
+              <CardContent className="p-4">
+                <h4 className="font-medium text-blue-900 mb-2">💡 Writing Sample Tips</h4>
+                <ul className="text-sm text-blue-800 space-y-1">
+                  <li>• Include both formal and informal writing styles</li>
+                  <li>• Add examples of how you explain complex topics</li>
+                  <li>• Include your typical greetings and sign-offs</li>
+                  <li>• Show how you express emotions or enthusiasm</li>
+                  <li>• Include examples of your humor or personality quirks</li>
+                </ul>
+              </CardContent>
+            </Card>
           </div>
 
           {/* Save Button */}
