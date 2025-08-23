@@ -45,6 +45,10 @@ serve(async (req) => {
     const userMessages = messages.filter(msg => msg.role === 'user')
     const latestUserMessage = userMessages[userMessages.length - 1]?.content || ''
 
+    // Analyze conversation context and intent
+    const conversationContext = analyzeConversationContext(messages, latestUserMessage)
+    console.log('Conversation context analysis:', conversationContext)
+
     // Retrieve relevant context with enhanced search
     let contextData = null
     if (latestUserMessage) {
@@ -156,11 +160,12 @@ serve(async (req) => {
       }
     }
 
-    // Generate enhanced system prompt with source attribution
+    // Generate enhanced system prompt with improved instructions
     const personalitySection = buildPersonalitySection(advisor)
     const communicationSection = buildCommunicationSection(advisor)
     const expertiseSection = buildExpertiseSection(advisor)
     const knowledgeSection = contextData ? buildKnowledgeSection(contextData.contextText, contextData.sources) : ''
+    const conversationIntelligence = buildConversationIntelligence(conversationContext)
     
     const enhancedSystemPrompt = `You are ${advisor.full_name || advisor.name}, ${advisor.professional_title || 'an AI assistant'}.
 
@@ -172,30 +177,46 @@ ${expertiseSection}
 
 ${knowledgeSection}
 
-CONVERSATION STYLE:
-- Keep responses SHORT (1-4 sentences, usually 1-2 sentences)
-- Be conversational like talking to a friend, not academic or lecture-like
-- DO NOT end every response with a question - this is unrealistic and robotic
-- Mix your response endings naturally:
-  * Sometimes end with a statement or observation (50% of the time)
-  * Sometimes end with a question (30% of the time)  
-  * Sometimes end with a reaction or comment (20% of the time)
-- Be authentic to your personality and background
-- Use your expertise to provide valuable insights
-- Stay true to your established communication patterns
+${conversationIntelligence}
+
+ENHANCED CONVERSATION GUIDELINES:
+- You are a REAL PERSON (${advisor.full_name || advisor.name}) responding authentically
+- NEVER make assumptions about what people want without understanding their context first
+- When someone mentions business topics, ask clarifying questions to understand their specific needs
+- DO NOT immediately jump to scheduling or solutions - focus on understanding first
+- If someone asks about business opportunities, explore what they're looking for before suggesting next steps
+- Be genuinely curious about their situation and needs
+- Avoid robotic responses like "I'd be happy to help" - respond naturally as yourself
+- When appropriate, share relevant experiences or insights from your background
+- Only suggest specific actions (like scheduling) after you understand their context and needs
+
+RESPONSE QUALITY RULES:
+- Keep responses conversational and natural (1-3 sentences typically)
+- Ask thoughtful follow-up questions to understand context better
+- Don't end every response with a question - vary your response patterns naturally
+- Sometimes make observations or share insights without asking anything
+- Match the user's communication style and energy level
+- Be authentic to your personality while staying professional
+
+BUSINESS INTERACTION PROTOCOL:
+- When business topics arise, first understand: What specifically are they looking for?
+- Ask about their current situation, challenges, or goals before offering solutions
+- Share relevant insights from your expertise when it adds value
+- Only suggest next steps (meetings, calls, etc.) after understanding their needs
+- If scheduling comes up, ask about their preferred communication method and availability rather than assuming
 
 ${contextData && contextData.sources.length > 0 ? `
-SOURCE ATTRIBUTION:
-When referencing information from your knowledge base, you may naturally mention the source if relevant to the conversation. Don't force citations, but when appropriate, you can say things like:
-- "Based on [document name]..."
-- "I recall from [source]..."
-- "According to the [document type] I have on [topic]..."
+KNOWLEDGE BASE INTEGRATION:
+When referencing your knowledge base, do it naturally without explicitly mentioning "documents" or "sources":
+- "In my experience with [topic]..."
+- "I've found that [insight]..."
+- "Based on my work in [area]..."
 
-Available sources for this response:
+Available context for this conversation:
 ${contextData.sources.map(source => `- ${source.title} (${source.documentType}, similarity: ${source.similarity.toFixed(2)})`).join('\n')}
 ` : ''}
 
-Remember: You are not just an AI assistant - you are ${advisor.full_name || advisor.name} with your own unique background, expertise, and personality.`
+Remember: You are ${advisor.full_name || advisor.name} - respond as yourself with your unique personality, background, and expertise. Focus on building genuine connections and understanding before jumping to solutions.`
 
     // Prepare the messages for OpenAI
     const systemMessage = {
@@ -205,7 +226,7 @@ Remember: You are not just an AI assistant - you are ${advisor.full_name || advi
 
     const chatMessages = [systemMessage, ...messages]
 
-    console.log('Sending enhanced request to OpenAI with personality-driven prompt')
+    console.log('Sending enhanced request to OpenAI with improved conversation intelligence')
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -242,7 +263,8 @@ Remember: You are not just an AI assistant - you are ${advisor.full_name || advi
         usage: data.usage,
         contextUsed: contextData ? contextData.contextText.length > 0 : false,
         sources: contextData?.sources || [],
-        searchMetrics: contextData?.searchMetrics || null
+        searchMetrics: contextData?.searchMetrics || null,
+        conversationContext: conversationContext
       }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -262,6 +284,71 @@ Remember: You are not just an AI assistant - you are ${advisor.full_name || advi
     )
   }
 })
+
+function analyzeConversationContext(messages: any[], latestMessage: string): any {
+  const lowerMessage = latestMessage.toLowerCase()
+  
+  // Analyze intent and context
+  const businessKeywords = ['business', 'work', 'project', 'collaboration', 'opportunity', 'partnership', 'consulting', 'advice', 'help with', 'expertise']
+  const schedulingKeywords = ['meet', 'call', 'schedule', 'available', 'time', 'appointment', 'free']
+  const questionIndicators = ['how', 'what', 'why', 'when', 'where', 'can you', 'do you', 'would you']
+  
+  const hasBusinessKeywords = businessKeywords.some(keyword => lowerMessage.includes(keyword))
+  const hasSchedulingKeywords = schedulingKeywords.some(keyword => lowerMessage.includes(keyword))
+  const hasQuestionIndicators = questionIndicators.some(indicator => lowerMessage.includes(indicator))
+  const isQuestion = lowerMessage.includes('?') || hasQuestionIndicators
+  
+  // Determine conversation stage
+  const messageCount = messages.length
+  const isEarlyConversation = messageCount <= 4
+  const isEstablishedConversation = messageCount > 4
+  
+  // Analyze user's communication style
+  const messageLength = latestMessage.length
+  const isDetailed = messageLength > 100
+  const isCasual = messageLength < 50
+  
+  return {
+    intent: hasBusinessKeywords ? 'business_inquiry' : hasSchedulingKeywords ? 'scheduling' : 'general',
+    isQuestion,
+    hasBusinessContext: hasBusinessKeywords,
+    hasSchedulingContext: hasSchedulingKeywords,
+    conversationStage: isEarlyConversation ? 'early' : 'established',
+    userStyle: isDetailed ? 'detailed' : isCasual ? 'casual' : 'moderate',
+    shouldAskClarifyingQuestions: hasBusinessKeywords && isQuestion && isEarlyConversation,
+    shouldAvoidAssumptions: hasBusinessKeywords || hasSchedulingKeywords,
+    messageCount
+  }
+}
+
+function buildConversationIntelligence(context: any): string {
+  let intelligence = 'CURRENT CONVERSATION CONTEXT:\n'
+  
+  if (context.intent === 'business_inquiry') {
+    intelligence += `- The user is asking about business/professional topics
+- Focus on understanding their specific needs before suggesting solutions
+- Ask clarifying questions about their situation, challenges, or goals`
+  } else if (context.intent === 'scheduling') {
+    intelligence += `- The user mentioned scheduling/meeting topics
+- Don't assume they want to schedule immediately - understand the purpose first
+- Ask what they'd like to discuss or accomplish before suggesting meeting logistics`
+  } else {
+    intelligence += `- General conversation - respond naturally and authentically
+- Build rapport and understanding based on the topic they've brought up`
+  }
+  
+  if (context.conversationStage === 'early') {
+    intelligence += `\n- This is early in the conversation - focus on understanding and building connection
+- Don't rush to solutions or scheduling - take time to learn about them`
+  }
+  
+  if (context.shouldAvoidAssumptions) {
+    intelligence += `\n- IMPORTANT: Avoid making assumptions about what they want
+- Ask thoughtful questions to understand their context and needs first`
+  }
+  
+  return intelligence + '\n'
+}
 
 function buildPersonalitySection(advisor: any): string {
   const sections = []
@@ -340,7 +427,7 @@ ${knowledgeContext}
 SOURCES CONSULTED:
 ${sourcesList}
 
-Use this information to inform your responses when relevant, but don't explicitly mention that you're referencing a knowledge base unless it adds value to the conversation.`
+Use this information to inform your responses when relevant. Reference it naturally as part of your expertise and experience.`
 }
 
 function analyzeCommuncationPatterns(scenarios: any[]): string[] {
