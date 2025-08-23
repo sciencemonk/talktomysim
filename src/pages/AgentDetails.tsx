@@ -1,4 +1,3 @@
-
 import { useParams, useNavigate } from "react-router-dom";
 import { useAgentDetails } from "@/hooks/useAgentDetails";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -136,7 +135,7 @@ const AgentDetails = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <AgentConfigSettings agent={agent} onAgentUpdate={handleAgentUpdate} showSuccessToast={showSuccessToast} showTeachingInstructions={true} />
+                <AgentConfigSettings agentId={agentId!} />
               </CardContent>
             </Card>
           </div>
