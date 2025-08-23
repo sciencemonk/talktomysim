@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -19,16 +18,16 @@ import {
   Loader2
 } from 'lucide-react';
 import { useAgentDetails } from '@/hooks/useAgentDetails';
-import { agentService } from '@/services/agentService';
 import { GatekeeperSettings } from './GatekeeperSettings';
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
 
 interface AgentConfigSettingsProps {
   agentId: string;
 }
 
 export const AgentConfigSettings = ({ agentId }: AgentConfigSettingsProps) => {
-  const { agent, isLoading, refetch } = useAgentDetails(agentId);
+  const { agent, isLoading, refetchAgent } = useAgentDetails(agentId);
   const [isSaving, setIsSaving] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
@@ -50,7 +49,7 @@ export const AgentConfigSettings = ({ agentId }: AgentConfigSettingsProps) => {
         prompt: agent.prompt || '',
         welcomeMessage: agent.welcomeMessage || '',
         isPublic: agent.isPublic || false,
-        customUrl: agent.customUrl || '',
+        customUrl: agent.custom_url || '',
         subject: agent.subject || '',
         gradeLevel: agent.gradeLevel || '',
         learningObjective: agent.learningObjective || ''
@@ -63,9 +62,26 @@ export const AgentConfigSettings = ({ agentId }: AgentConfigSettingsProps) => {
 
     setIsSaving(true);
     try {
-      await agentService.updateAgent(agent.id, formData);
+      const { error } = await supabase
+        .from('advisors')
+        .update({
+          name: formData.name,
+          description: formData.description,
+          prompt: formData.prompt,
+          welcome_message: formData.welcomeMessage,
+          is_public: formData.isPublic,
+          custom_url: formData.customUrl,
+          subject: formData.subject,
+          grade_level: formData.gradeLevel,
+          learning_objective: formData.learningObjective,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', agent.id);
+
+      if (error) throw error;
+
       toast.success('Agent settings saved successfully!');
-      refetch();
+      refetchAgent();
     } catch (error) {
       console.error('Error saving agent:', error);
       toast.error('Failed to save agent settings');

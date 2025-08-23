@@ -109,7 +109,11 @@ class EscalationService {
       return [];
     }
 
-    return data || [];
+    // Type assertion to ensure proper typing of status field
+    return (data || []).map(capture => ({
+      ...capture,
+      status: capture.status as 'new' | 'contacted' | 'converted' | 'archived'
+    }));
   }
 
   async createConversationCapture(capture: Omit<ConversationCapture, 'id' | 'created_at'>): Promise<ConversationCapture | null> {
@@ -124,7 +128,11 @@ class EscalationService {
       return null;
     }
 
-    return data;
+    // Type assertion to ensure proper typing of status field
+    return {
+      ...data,
+      status: data.status as 'new' | 'contacted' | 'converted' | 'archived'
+    };
   }
 
   async updateCaptureStatus(captureId: string, status: ConversationCapture['status'], notes?: string): Promise<boolean> {
