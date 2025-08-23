@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -6,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { CalendarIcon, X, Plus, Upload, Camera, User, PenTool } from "lucide-react";
 import { format } from "date-fns";
@@ -46,6 +48,44 @@ const BasicInfo = () => {
 
   // Track if there are unsaved changes
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+
+  // Date picker state for easier year selection
+  const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear() - 30);
+  const [selectedMonth, setSelectedMonth] = useState<number>(0);
+
+  // Generate year options (from 1900 to current year)
+  const yearOptions = useMemo(() => {
+    const currentYear = new Date().getFullYear();
+    const years = [];
+    for (let year = currentYear; year >= 1900; year--) {
+      years.push(year);
+    }
+    return years;
+  }, []);
+
+  // Generate month options
+  const monthOptions = [
+    { value: 0, label: "January" },
+    { value: 1, label: "February" },
+    { value: 2, label: "March" },
+    { value: 3, label: "April" },
+    { value: 4, label: "May" },
+    { value: 5, label: "June" },
+    { value: 6, label: "July" },
+    { value: 7, label: "August" },
+    { value: 8, label: "September" },
+    { value: 9, label: "October" },
+    { value: 10, label: "November" },
+    { value: 11, label: "December" }
+  ];
+
+  // Update year and month when date changes
+  useEffect(() => {
+    if (formData.dateOfBirth) {
+      setSelectedYear(formData.dateOfBirth.getFullYear());
+      setSelectedMonth(formData.dateOfBirth.getMonth());
+    }
+  }, [formData.dateOfBirth]);
 
   // Memoize the generated prompt to prevent infinite re-renders
   const generatedPrompt = useMemo(() => {
@@ -288,6 +328,20 @@ const BasicInfo = () => {
     }
   };
 
+  const handleYearMonthChange = (year: number, month: number) => {
+    const newDate = new Date(year, month, 1);
+    setSelectedYear(year);
+    setSelectedMonth(month);
+    
+    // If there's already a selected date, preserve the day
+    if (formData.dateOfBirth) {
+      const day = Math.min(formData.dateOfBirth.getDate(), new Date(year, month + 1, 0).getDate());
+      newDate.setDate(day);
+    }
+    
+    setFormData(prev => ({ ...prev, dateOfBirth: newDate }));
+  };
+
   return (
     <div className="max-w-4xl mx-auto p-6 space-y-6">
       <Card>
@@ -427,14 +481,48 @@ const BasicInfo = () => {
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={formData.dateOfBirth}
-                      onSelect={(date) => setFormData(prev => ({ ...prev, dateOfBirth: date }))}
-                      disabled={(date) => date > new Date() || date < new Date("1900-01-01")}
-                      initialFocus
-                      className={cn("p-3 pointer-events-auto")}
-                    />
+                    <div className="p-3 space-y-3">
+                      {/* Year and Month selectors */}
+                      <div className="flex gap-2">
+                        <Select value={selectedYear.toString()} onValueChange={(value) => handleYearMonthChange(parseInt(value), selectedMonth)}>
+                          <SelectTrigger className="w-24">
+                            <SelectValue placeholder="Year" />
+                          </SelectTrigger>
+                          <SelectContent className="h-[200px]">
+                            {yearOptions.map((year) => (
+                              <SelectItem key={year} value={year.toString()}>
+                                {year}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <Select value={selectedMonth.toString()} onValueChange={(value) => handleYearMonthChange(selectedYear, parseInt(value))}>
+                          <SelectTrigger className="w-32">
+                            <SelectValue placeholder="Month" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {monthOptions.map((month) => (
+                              <SelectItem key={month.value} value={month.value.toString()}>
+                                {month.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <Calendar
+                        mode="single"
+                        selected={formData.dateOfBirth}
+                        onSelect={(date) => setFormData(prev => ({ ...prev, dateOfBirth: date }))}
+                        disabled={(date) => date > new Date() || date < new Date("1900-01-01")}
+                        month={new Date(selectedYear, selectedMonth)}
+                        onMonthChange={(date) => {
+                          setSelectedYear(date.getFullYear());
+                          setSelectedMonth(date.getMonth());
+                        }}
+                        initialFocus
+                        className={cn("p-0 pointer-events-auto")}
+                      />
+                    </div>
                   </PopoverContent>
                 </Popover>
               </div>
