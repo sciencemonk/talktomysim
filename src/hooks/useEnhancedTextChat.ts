@@ -1,14 +1,14 @@
 
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { AgentType } from '@/types/agent';
 import { supabase } from '@/integrations/supabase/client';
 
 interface UseEnhancedTextChatProps {
   agent: AgentType;
-  onUserMessage: (message: string) => void;
+  onUserMessage: (message: string) => Promise<void>;
   onAiMessageStart: () => string;
   onAiTextDelta: (delta: string) => void;
-  onAiMessageComplete: () => void;
+  onAiMessageComplete: (finalContent: string) => Promise<void>;
 }
 
 export const useEnhancedTextChat = ({
@@ -18,115 +18,71 @@ export const useEnhancedTextChat = ({
   onAiTextDelta,
   onAiMessageComplete
 }: UseEnhancedTextChatProps) => {
-  const [connectionStatus, setConnectionStatus] = useState<'connecting' | 'connected' | 'error' | 'disconnected'>('disconnected');
   const [isProcessing, setIsProcessing] = useState(false);
-  const [conversationHistory, setConversationHistory] = useState<Array<{role: string, content: string}>>([]);
-  const [lastSearchMetrics, setLastSearchMetrics] = useState<any>(null);
-  const [lastSources, setLastSources] = useState<any[]>([]);
-  const abortControllerRef = useRef<AbortController | null>(null);
 
-  useEffect(() => {
-    // Simulate connection for text chat (no actual persistent connection needed)
-    setConnectionStatus('connected');
-  }, [agent]);
+  const sendMessage = useCallback(async (message: string) => {
+    if (!agent?.id || isProcessing) return;
 
-  const sendMessage = useCallback(async (message: string, searchFilters?: any) => {
-    if (!message.trim() || isProcessing) return;
-
-    console.log('Sending enhanced message to', agent.name, ':', message);
-    
-    setIsProcessing(true);
-    
-    // Add user message immediately
-    onUserMessage(message);
-    
-    // Update conversation history
-    const newHistory = [...conversationHistory, { role: 'user', content: message }];
-    setConversationHistory(newHistory);
-    
-    // Start AI message and get the message ID
-    const aiMessageId = onAiMessageStart();
-    console.log('Started AI message with ID:', aiMessageId);
-    
     try {
-      // Cancel any ongoing request
-      if (abortControllerRef.current) {
-        abortControllerRef.current.abort();
-      }
+      setIsProcessing(true);
       
-      abortControllerRef.current = new AbortController();
+      // Add user message
+      await onUserMessage(message);
       
-      // Use enhanced chat completion with search filters
-      const requestBody = {
-        messages: newHistory,
-        advisorId: agent.id,
-        searchFilters: {
-          minSimilarity: 0.7,
-          maxResults: 5,
-          ...searchFilters
-        }
-      };
+      // Start AI message
+      const aiMessageId = onAiMessageStart();
+      
+      // Prepare messages for the API
+      const messages = [
+        { role: 'user', content: message }
+      ];
 
-      console.log('Calling enhanced-chat-completion with:', requestBody);
+      console.log('Sending enhanced chat request:', { advisorId: agent.id, messages });
 
+      // Call the enhanced chat completion function
       const { data, error } = await supabase.functions.invoke('enhanced-chat-completion', {
-        body: requestBody
+        body: {
+          messages,
+          advisorId: agent.id,
+          searchFilters: {
+            minSimilarity: 0.7,
+            maxResults: 5
+          }
+        }
       });
 
-      console.log('Enhanced response data:', data);
-      console.log('Enhanced response error:', error);
-      
       if (error) {
-        console.error('Supabase function error:', error);
+        console.error('Enhanced chat error:', error);
         throw error;
       }
 
+      console.log('Enhanced chat response:', data);
+
       if (data?.content) {
-        console.log('Adding enhanced AI response to message ID:', aiMessageId);
-        console.log('Context was used:', data.contextUsed);
-        console.log('Sources found:', data.sources?.length || 0);
-        console.log('Search metrics:', data.searchMetrics);
-        
-        // Store search metrics and sources for potential display
-        setLastSearchMetrics(data.searchMetrics);
-        setLastSources(data.sources || []);
-        
-        // Add the AI response as a single message
+        // Add the complete AI response at once
         onAiTextDelta(data.content);
         
-        // Update conversation history with AI response
-        setConversationHistory(prev => [...prev, { role: 'assistant', content: data.content }]);
-        
-        // Complete the message
-        onAiMessageComplete();
+        // Complete the AI message with the final content
+        await onAiMessageComplete(data.content);
       } else {
-        throw new Error('No content in response');
+        console.error('No content in enhanced chat response');
+        throw new Error('No response content received');
       }
-    } catch (error: any) {
-      if (error.name === 'AbortError') {
-        console.log('Request was aborted');
-        return;
-      }
+
+    } catch (error) {
+      console.error('Error in enhanced text chat:', error);
       
-      console.error('Error sending enhanced message:', error);
-      onAiTextDelta('Sorry, I encountered an error. Please try again.');
-      onAiMessageComplete();
+      // Add error message
+      const errorMessage = 'Sorry, I encountered an error. Please try again.';
+      onAiTextDelta(errorMessage);
+      await onAiMessageComplete(errorMessage);
     } finally {
       setIsProcessing(false);
-      abortControllerRef.current = null;
     }
-  }, [agent, isProcessing, conversationHistory, onUserMessage, onAiMessageStart, onAiTextDelta, onAiMessageComplete]);
-
-  const sendMessageWithFilters = useCallback((message: string, filters: any) => {
-    return sendMessage(message, filters);
-  }, [sendMessage]);
+  }, [agent?.id, isProcessing, onUserMessage, onAiMessageStart, onAiTextDelta, onAiMessageComplete]);
 
   return {
     sendMessage,
-    sendMessageWithFilters,
-    connectionStatus,
-    isProcessing,
-    lastSearchMetrics,
-    lastSources
+    isProcessing
   };
 };

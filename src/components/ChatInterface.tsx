@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -26,6 +27,7 @@ export const ChatInterface = ({ agent, onToggleAudio, isAudioEnabled = false, on
   const [inputMessage, setInputMessage] = useState('');
   const [messages, setMessages] = useState<Message[]>([]);
   const [conversation, setConversation] = useState<Conversation | null>(null);
+  const [currentAiMessage, setCurrentAiMessage] = useState<string>('');
 
   // Initialize conversation on component mount
   useEffect(() => {
@@ -72,16 +74,20 @@ export const ChatInterface = ({ agent, onToggleAudio, isAudioEnabled = false, on
   }, [conversation?.id]);
 
   const startAiMessage = useCallback(() => {
-    // Don't add an empty message, just return an ID for tracking
+    // Clear current AI message and return ID for tracking
+    setCurrentAiMessage('');
     const aiMessageId = `ai-${Date.now()}`;
     return aiMessageId;
   }, []);
 
   const addAiTextDelta = useCallback((delta: string) => {
+    // Update current AI message content
+    setCurrentAiMessage(prev => prev + delta);
+    
     setMessages(prev => {
-      // Check if the last message is from the system and has content
+      // Check if the last message is from the system
       const lastMessage = prev[prev.length - 1];
-      if (lastMessage && lastMessage.role === 'system' && lastMessage.content) {
+      if (lastMessage && lastMessage.role === 'system') {
         // Update existing AI message
         return prev.map((msg, index) => 
           index === prev.length - 1 && msg.role === 'system'
@@ -101,15 +107,15 @@ export const ChatInterface = ({ agent, onToggleAudio, isAudioEnabled = false, on
     });
   }, []);
 
-  const completeAiMessage = useCallback(async () => {
-    // Save the completed AI message to database
-    if (conversation?.id) {
-      const lastMessage = messages[messages.length - 1];
-      if (lastMessage && lastMessage.role === 'system' && lastMessage.content) {
-        await conversationService.addMessage(conversation.id, 'system', lastMessage.content);
-      }
+  const completeAiMessage = useCallback(async (finalContent: string) => {
+    // Save the completed AI message to database using the final content
+    if (conversation?.id && finalContent && finalContent.trim()) {
+      console.log('Saving AI message to database:', finalContent);
+      await conversationService.addMessage(conversation.id, 'system', finalContent);
     }
-  }, [conversation?.id, messages]);
+    // Clear current AI message
+    setCurrentAiMessage('');
+  }, [conversation?.id]);
 
   const { sendMessage, isProcessing } = useEnhancedTextChat({
     agent,
