@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -292,7 +293,7 @@ const BasicInfo = () => {
             <DialogTrigger asChild>
               <Button variant="outline" size="sm">
                 <FileText className="h-4 w-4 mr-2" />
-                Manually Edit Context Window
+                Edit Context Window
               </Button>
             </DialogTrigger>
             <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
