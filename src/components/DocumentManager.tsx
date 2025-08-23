@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { FileText, Eye, Download, Trash2, Clock, CheckCircle2, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -11,11 +10,13 @@ import { toast } from 'sonner';
 interface DocumentManagerProps {
   advisorId: string;
   onDocumentsChange?: () => void;
+  refreshTrigger?: number;
 }
 
 export const DocumentManager: React.FC<DocumentManagerProps> = ({ 
   advisorId, 
-  onDocumentsChange 
+  onDocumentsChange,
+  refreshTrigger = 0
 }) => {
   const [documents, setDocuments] = useState<AdvisorDocument[]>([]);
   const [loading, setLoading] = useState(true);
@@ -24,7 +25,7 @@ export const DocumentManager: React.FC<DocumentManagerProps> = ({
 
   useEffect(() => {
     loadDocuments();
-  }, [advisorId]);
+  }, [advisorId, refreshTrigger]);
 
   const loadDocuments = async () => {
     try {
@@ -107,7 +108,7 @@ export const DocumentManager: React.FC<DocumentManagerProps> = ({
           <FileText className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
           <h4 className="font-medium mb-2">No documents uploaded yet</h4>
           <p className="text-sm text-muted-foreground">
-            Upload documents to start building your vector database
+            Upload documents or paste text to start building your knowledge base
           </p>
         </CardContent>
       </Card>

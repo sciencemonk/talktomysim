@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 
 export interface AdvisorDocument {
@@ -14,15 +13,88 @@ export interface AdvisorDocument {
   updated_at: string;
 }
 
+export interface ProcessingResult {
+  success: boolean;
+  documentId?: string;
+  chunksProcessed?: number;
+  totalChunks?: number;
+  failedChunks?: number;
+  error?: string;
+}
+
 export const documentService = {
-  // Upload and process a document for an advisor
+  // Process a file upload (PDF, TXT, DOCX, etc.)
+  async processFile(
+    advisorId: string,
+    file: File
+  ): Promise<ProcessingResult> {
+    try {
+      console.log('Processing file:', file.name, 'type:', file.type, 'size:', file.size);
+      
+      // First, extract text from the file
+      const extractionResult = await this.extractTextFromFile(file);
+      
+      if (!extractionResult.success || !extractionResult.text) {
+        return { 
+          success: false, 
+          error: extractionResult.error || 'Failed to extract text from file' 
+        };
+      }
+
+      // Then process the extracted text
+      return await this.processDocument(
+        advisorId,
+        file.name,
+        extractionResult.text,
+        this.getFileTypeFromFile(file),
+        file.size
+      );
+    } catch (error: any) {
+      console.error('Error in processFile:', error);
+      return { success: false, error: error.message || 'Failed to process file' };
+    }
+  },
+
+  // Extract text from various file types
+  async extractTextFromFile(file: File): Promise<{
+    success: boolean;
+    text?: string;
+    metadata?: any;
+    error?: string;
+  }> {
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('fileType', this.getFileTypeFromFile(file));
+
+      const { data, error } = await supabase.functions.invoke('extract-document-text', {
+        body: formData
+      });
+
+      if (error) {
+        console.error('Error extracting text:', error);
+        return { success: false, error: error.message };
+      }
+
+      return {
+        success: true,
+        text: data.text,
+        metadata: data.metadata
+      };
+    } catch (error: any) {
+      console.error('Error in extractTextFromFile:', error);
+      return { success: false, error: error.message || 'Failed to extract text' };
+    }
+  },
+
+  // Process extracted text content
   async processDocument(
     advisorId: string, 
     title: string, 
     content: string, 
     fileType: string = 'text',
     fileSize?: number
-  ): Promise<{ success: boolean; documentId?: string; chunksProcessed?: number; error?: string }> {
+  ): Promise<ProcessingResult> {
     try {
       console.log('Processing document for advisor:', advisorId);
       
@@ -45,11 +117,29 @@ export const documentService = {
       return {
         success: true,
         documentId: data.documentId,
-        chunksProcessed: data.chunksProcessed
+        chunksProcessed: data.chunksProcessed,
+        totalChunks: data.totalChunks,
+        failedChunks: data.failedChunks
       };
     } catch (error: any) {
       console.error('Error in processDocument:', error);
       return { success: false, error: error.message || 'Failed to process document' };
+    }
+  },
+
+  // Determine file type from File object
+  getFileTypeFromFile(file: File): string {
+    const extension = file.name.split('.').pop()?.toLowerCase();
+    const mimeType = file.type.toLowerCase();
+    
+    if (mimeType === 'application/pdf' || extension === 'pdf') {
+      return 'pdf';
+    } else if (mimeType.includes('text') || extension === 'txt') {
+      return 'txt';
+    } else if (mimeType.includes('wordprocessingml') || extension === 'docx') {
+      return 'docx';
+    } else {
+      return 'text'; // Default fallback
     }
   },
 
