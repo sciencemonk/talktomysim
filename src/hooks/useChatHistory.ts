@@ -16,7 +16,6 @@ export const useChatHistory = (agent: AgentType) => {
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [welcomeMessageSent, setWelcomeMessageSent] = useState(false);
-  const [isAnonymous, setIsAnonymous] = useState(false);
   
   const { sendMessage: sendEnhancedMessage, isLoading: isSending } = useEnhancedTextChat(agent);
 
@@ -30,7 +29,7 @@ export const useChatHistory = (agent: AgentType) => {
       console.log('Loading chat history for agent:', agent.name);
 
       try {
-        // Always try to create a conversation (handles both authenticated and anonymous users)
+        // Create anonymous conversation
         const conversation = await conversationService.getOrCreateConversation(agent.id);
         
         if (!conversation) {
@@ -42,23 +41,12 @@ export const useChatHistory = (agent: AgentType) => {
         }
 
         setConversationId(conversation.id);
-        setIsAnonymous(conversation.id.startsWith('temp-'));
 
-        // Load existing messages (will be empty for anonymous users)
-        const existingMessages = await conversationService.getMessages(conversation.id);
-        
-        const chatMessages: ChatMessage[] = existingMessages.map((msg: Message) => ({
-          id: msg.id,
-          role: msg.role,
-          content: msg.content,
-          isComplete: true
-        }));
+        // Anonymous conversations are always new, so no existing messages to load
+        setMessages([]);
 
-        setMessages(chatMessages);
-        console.log(`Loaded ${chatMessages.length} messages for ${agent.name}:`, chatMessages);
-
-        // Add welcome message if no existing messages and welcome message exists
-        if (chatMessages.length === 0 && agent.welcomeMessage && agent.welcomeMessage.trim()) {
+        // Add welcome message if it exists
+        if (agent.welcomeMessage && agent.welcomeMessage.trim()) {
           const welcomeMessage: ChatMessage = {
             id: `welcome-${Date.now()}`,
             role: 'system',
@@ -69,23 +57,21 @@ export const useChatHistory = (agent: AgentType) => {
           setMessages([welcomeMessage]);
           setWelcomeMessageSent(true);
           
-          // Save welcome message to database (only for authenticated users)
-          if (!conversation.id.startsWith('temp-')) {
-            const savedWelcomeMessage = await conversationService.addMessage(
-              conversation.id, 
-              'system', 
-              agent.welcomeMessage
-            );
-            
-            if (savedWelcomeMessage) {
-              setMessages([{
-                id: savedWelcomeMessage.id,
-                role: 'system',
-                content: agent.welcomeMessage,
-                isComplete: true
-              }]);
-              console.log('Welcome message saved to database');
-            }
+          // Save welcome message to database
+          const savedWelcomeMessage = await conversationService.addMessage(
+            conversation.id, 
+            'system', 
+            agent.welcomeMessage
+          );
+          
+          if (savedWelcomeMessage) {
+            setMessages([{
+              id: savedWelcomeMessage.id,
+              role: 'system',
+              content: agent.welcomeMessage,
+              isComplete: true
+            }]);
+            console.log('Welcome message saved to database');
           }
         }
         
@@ -122,9 +108,9 @@ export const useChatHistory = (agent: AgentType) => {
     setMessages(prev => [...prev, tempMessage]);
 
     try {
-      // Save user message (will be skipped for anonymous users)
+      // Save user message
       const savedMessage = await conversationService.addMessage(conversationId, 'user', content);
-      if (savedMessage && !savedMessage.id.startsWith('temp-')) {
+      if (savedMessage) {
         setMessages(prev => 
           prev.map(msg => 
             msg.id === tempMessage.id 
@@ -208,8 +194,8 @@ export const useChatHistory = (agent: AgentType) => {
 
       console.log('Completing AI message:', currentMessage.content);
 
-      // Save to database if we have a conversation (only for authenticated users)
-      if (conversationId && !conversationId.startsWith('temp-')) {
+      // Save to database
+      if (conversationId) {
         conversationService.addMessage(
           conversationId, 
           'system', 
@@ -257,7 +243,7 @@ export const useChatHistory = (agent: AgentType) => {
   return {
     messages,
     isLoading: isLoading || isSending,
-    isPublicChat: isAnonymous, // Anonymous users are treated as public chat
+    isPublicChat: true, // All chats are public/anonymous
     welcomeMessageSent,
     addUserMessage,
     startAiMessage,

@@ -20,47 +20,16 @@ export interface Message {
 }
 
 export const conversationService = {
-  // Get or create a conversation for anonymous or authenticated users
+  // Create a conversation for anonymous users (no auth required)
   async getOrCreateConversation(advisorId: string): Promise<Conversation | null> {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      // For anonymous users, create a temporary conversation without saving to DB
-      if (!user) {
-        console.log('Creating temporary conversation for anonymous user');
-        const tempConversation: Conversation = {
-          id: `temp-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-          user_id: 'anonymous',
-          advisor_id: null,
-          tutor_id: advisorId,
-          title: null,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        };
-        return tempConversation;
-      }
+      console.log('Creating anonymous conversation for advisor:', advisorId);
 
-      console.log('Getting or creating conversation for authenticated user:', user.id);
-
-      // First try to get existing conversation for this advisor
-      const { data: existingConversation } = await supabase
-        .from('conversations')
-        .select('*')
-        .eq('user_id', user.id)
-        .eq('tutor_id', advisorId)
-        .maybeSingle();
-
-      if (existingConversation) {
-        console.log('Found existing conversation:', existingConversation.id);
-        return existingConversation;
-      }
-
-      // Create new conversation if it doesn't exist
-      console.log('Creating new conversation for user:', user.id, 'advisor:', advisorId);
+      // Create new conversation for anonymous user
       const { data: newConversation, error } = await supabase
         .from('conversations')
         .insert({
-          user_id: user.id,
+          user_id: 'anonymous', // Use a fixed anonymous user ID
           tutor_id: advisorId,
           title: null
         })
@@ -68,26 +37,21 @@ export const conversationService = {
         .single();
 
       if (error) {
-        console.error('Error creating conversation:', error);
+        console.error('Error creating anonymous conversation:', error);
         return null;
       }
 
-      console.log('Created new conversation:', newConversation.id);
+      console.log('Created anonymous conversation:', newConversation.id);
       return newConversation;
       
     } catch (error) {
-      console.error('Error getting or creating conversation:', error);
+      console.error('Error creating anonymous conversation:', error);
       return null;
     }
   },
 
-  // Get messages for a conversation (only works for authenticated users with real conversations)
+  // Get messages for a conversation
   async getMessages(conversationId: string): Promise<Message[]> {
-    // Skip database query for temporary conversations
-    if (conversationId.startsWith('temp-')) {
-      return [];
-    }
-
     try {
       const { data, error } = await supabase
         .from('messages')
@@ -97,7 +61,6 @@ export const conversationService = {
 
       if (error) throw error;
       
-      // Type cast the role field to ensure it matches our Message interface
       return (data || []).map(msg => ({
         ...msg,
         role: msg.role as 'user' | 'system'
@@ -108,20 +71,8 @@ export const conversationService = {
     }
   },
 
-  // Add a message to a conversation (only saves for authenticated users with real conversations)
+  // Add a message to a conversation
   async addMessage(conversationId: string, role: 'user' | 'system', content: string): Promise<Message | null> {
-    // Skip database save for temporary conversations
-    if (conversationId.startsWith('temp-')) {
-      console.log('Skipping message save for temporary conversation');
-      return {
-        id: `temp-msg-${Date.now()}`,
-        conversation_id: conversationId,
-        role,
-        content,
-        created_at: new Date().toISOString()
-      };
-    }
-
     try {
       const { data, error } = await supabase
         .from('messages')
@@ -135,7 +86,6 @@ export const conversationService = {
 
       if (error) throw error;
       
-      // Type cast the role field to ensure it matches our Message interface
       return {
         ...data,
         role: data.role as 'user' | 'system'
@@ -185,7 +135,7 @@ export const conversationService = {
           highest_score: scores.length > 0 ? Math.max(...scores) : 0,
           intents: [...new Set(userMessages.map(m => m.intent).filter(Boolean))],
           escalated: scores.some(s => s >= 7) || messages.length >= 5,
-          is_anonymous: false // Remove anonymous support for now
+          is_anonymous: conversation.user_id === 'anonymous'
         };
       });
     } catch (error) {
