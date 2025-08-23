@@ -1,8 +1,6 @@
-
 import { useState, useEffect, useCallback } from 'react';
 import { AgentType } from '@/types/agent';
 import { conversationService, Message } from '@/services/conversationService';
-import { useEnhancedTextChat } from './useEnhancedTextChat';
 
 interface ChatMessage {
   id: string;
@@ -15,9 +13,8 @@ export const useChatHistory = (agent: AgentType) => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isPublicChat, setIsPublicChat] = useState(false);
   const [welcomeMessageSent, setWelcomeMessageSent] = useState(false);
-  
-  const { sendMessage: sendEnhancedMessage, isLoading: isSending } = useEnhancedTextChat(agent);
 
   // Load conversation and messages when agent changes
   useEffect(() => {
@@ -29,24 +26,51 @@ export const useChatHistory = (agent: AgentType) => {
       console.log('Loading chat history for agent:', agent.name);
 
       try {
-        // Create anonymous conversation
+        // Always try to create a conversation (works for both authenticated and anonymous users)
         const conversation = await conversationService.getOrCreateConversation(agent.id);
         
         if (!conversation) {
-          console.error('Failed to create conversation');
-          setMessages([]);
+          // Fallback to in-memory chat if conversation creation fails
+          console.log('No conversation created - using in-memory chat');
+          setIsPublicChat(true);
           setConversationId(null);
+          setMessages([]);
+          
+          // Add welcome message for fallback case if it exists
+          if (agent.welcomeMessage && agent.welcomeMessage.trim()) {
+            const welcomeMessage: ChatMessage = {
+              id: `welcome-${Date.now()}`,
+              role: 'system',
+              content: agent.welcomeMessage,
+              isComplete: true
+            };
+            setMessages([welcomeMessage]);
+            setWelcomeMessageSent(true);
+          }
+          
           setIsLoading(false);
           return;
         }
 
+        // Set conversation type based on whether user_id starts with 'anonymous_'
+        setIsPublicChat(conversation.user_id.startsWith('anonymous_'));
         setConversationId(conversation.id);
 
-        // Anonymous conversations are always new, so no existing messages to load
-        setMessages([]);
+        // Load existing messages
+        const existingMessages = await conversationService.getMessages(conversation.id);
+        
+        const chatMessages: ChatMessage[] = existingMessages.map((msg: Message) => ({
+          id: msg.id,
+          role: msg.role,
+          content: msg.content,
+          isComplete: true
+        }));
 
-        // Add welcome message if it exists
-        if (agent.welcomeMessage && agent.welcomeMessage.trim()) {
+        setMessages(chatMessages);
+        console.log(`Loaded ${chatMessages.length} messages for ${agent.name}:`, chatMessages);
+
+        // Add welcome message if no existing messages and welcome message exists
+        if (chatMessages.length === 0 && agent.welcomeMessage && agent.welcomeMessage.trim()) {
           const welcomeMessage: ChatMessage = {
             id: `welcome-${Date.now()}`,
             role: 'system',
@@ -77,8 +101,23 @@ export const useChatHistory = (agent: AgentType) => {
         
       } catch (error) {
         console.error('Error loading chat history:', error);
-        setMessages([]);
+        // Fallback to in-memory chat
+        setIsPublicChat(true);
         setConversationId(null);
+        
+        // Add welcome message for fallback case if it exists
+        if (agent.welcomeMessage && agent.welcomeMessage.trim()) {
+          const welcomeMessage: ChatMessage = {
+            id: `welcome-${Date.now()}`,
+            role: 'system',
+            content: agent.welcomeMessage,
+            isComplete: true
+          };
+          setMessages([welcomeMessage]);
+          setWelcomeMessageSent(true);
+        } else {
+          setMessages([]);
+        }
       }
       
       setIsLoading(false);
@@ -87,17 +126,13 @@ export const useChatHistory = (agent: AgentType) => {
     // Reset messages when switching agents
     setMessages([]);
     setConversationId(null);
+    setIsPublicChat(false);
     setWelcomeMessageSent(false);
     loadChatHistory();
   }, [agent?.id, agent?.welcomeMessage]);
 
-  // Add user message and send to enhanced chat
+  // Add user message
   const addUserMessage = useCallback(async (content: string) => {
-    if (!conversationId) {
-      console.error('No conversation ID available - cannot send message');
-      return;
-    }
-
     const tempMessage: ChatMessage = {
       id: `temp-user-${Date.now()}`,
       role: 'user',
@@ -107,8 +142,8 @@ export const useChatHistory = (agent: AgentType) => {
 
     setMessages(prev => [...prev, tempMessage]);
 
-    try {
-      // Save user message
+    // Save to database if we have a conversation
+    if (conversationId) {
       const savedMessage = await conversationService.addMessage(conversationId, 'user', content);
       if (savedMessage) {
         setMessages(prev => 
@@ -119,50 +154,10 @@ export const useChatHistory = (agent: AgentType) => {
           )
         );
       }
-
-      // Send message using enhanced chat
-      await sendEnhancedMessage(
-        content,
-        conversationId,
-        () => {
-          const aiMessage: ChatMessage = {
-            id: `ai-${Date.now()}`,
-            role: 'system',
-            content: '',
-            isComplete: false
-          };
-          setMessages(prev => [...prev, aiMessage]);
-          return aiMessage.id;
-        },
-        (messageId: string, delta: string) => {
-          setMessages(prev => 
-            prev.map(msg => 
-              msg.id === messageId 
-                ? { ...msg, content: msg.content + delta }
-                : msg
-            )
-          );
-        },
-        (messageId: string) => {
-          setMessages(prev => 
-            prev.map(msg => 
-              msg.id === messageId 
-                ? { ...msg, isComplete: true }
-                : msg
-            )
-          );
-        }
-      );
-
-    } catch (error) {
-      console.error('Error sending message:', error);
-      // Remove the temp message on error
-      setMessages(prev => prev.filter(msg => msg.id !== tempMessage.id));
-      throw error;
     }
-  }, [conversationId, sendEnhancedMessage]);
+  }, [conversationId]);
 
-  // Legacy functions for compatibility
+  // Start AI message
   const startAiMessage = useCallback(() => {
     const aiMessage: ChatMessage = {
       id: `ai-${Date.now()}`,
@@ -170,10 +165,12 @@ export const useChatHistory = (agent: AgentType) => {
       content: '',
       isComplete: false
     };
+
     setMessages(prev => [...prev, aiMessage]);
     return aiMessage.id;
   }, []);
 
+  // Add text delta to AI message
   const addAiTextDelta = useCallback((messageId: string, delta: string) => {
     setMessages(prev => 
       prev.map(msg => 
@@ -184,7 +181,9 @@ export const useChatHistory = (agent: AgentType) => {
     );
   }, []);
 
+  // Complete AI message
   const completeAiMessage = useCallback(async (messageId: string) => {
+    // Use a function to get the current message content
     setMessages(prev => {
       const currentMessage = prev.find(msg => msg.id === messageId);
       if (!currentMessage || !currentMessage.content.trim()) {
@@ -194,7 +193,7 @@ export const useChatHistory = (agent: AgentType) => {
 
       console.log('Completing AI message:', currentMessage.content);
 
-      // Save to database
+      // Save to database if we have a conversation
       if (conversationId) {
         conversationService.addMessage(
           conversationId, 
@@ -212,6 +211,7 @@ export const useChatHistory = (agent: AgentType) => {
             );
           } else {
             console.error('Failed to save AI message to database');
+            // Still mark as complete even if save failed
             setMessages(prevMessages => 
               prevMessages.map(msg => 
                 msg.id === messageId 
@@ -222,6 +222,7 @@ export const useChatHistory = (agent: AgentType) => {
           }
         }).catch(error => {
           console.error('Error saving AI message:', error);
+          // Still mark as complete even if save failed
           setMessages(prevMessages => 
             prevMessages.map(msg => 
               msg.id === messageId 
@@ -232,6 +233,7 @@ export const useChatHistory = (agent: AgentType) => {
         });
       }
 
+      // Mark as complete immediately in the UI
       return prev.map(msg => 
         msg.id === messageId 
           ? { ...msg, isComplete: true }
@@ -242,8 +244,8 @@ export const useChatHistory = (agent: AgentType) => {
 
   return {
     messages,
-    isLoading: isLoading || isSending,
-    isPublicChat: true, // All chats are public/anonymous
+    isLoading,
+    isPublicChat,
     welcomeMessageSent,
     addUserMessage,
     startAiMessage,

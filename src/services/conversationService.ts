@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 
 export interface Conversation {
@@ -19,42 +20,65 @@ export interface Message {
 }
 
 export const conversationService = {
-  // Create a conversation for anonymous users (no auth required)
+  // Get or create a conversation for a user and advisor
   async getOrCreateConversation(advisorId: string): Promise<Conversation | null> {
     try {
-      console.log('Creating anonymous conversation for advisor:', advisorId);
-
-      // Create new conversation for anonymous user
-      const conversationData = {
-        user_id: 'anonymous',
-        tutor_id: advisorId,
-        title: null
-      };
-
-      console.log('Inserting conversation with data:', conversationData);
-
-      const { data: newConversation, error } = await supabase
-        .from('conversations')
-        .insert(conversationData)
-        .select()
-        .single();
-
-      if (error) {
-        console.error('Error creating anonymous conversation:', error);
-        console.error('Error details:', {
-          message: error.message,
-          code: error.code,
-          details: error.details,
-          hint: error.hint
-        });
-        return null;
-      }
-
-      console.log('Created anonymous conversation:', newConversation.id);
-      return newConversation;
+      const { data: { user } } = await supabase.auth.getUser();
       
+      if (user) {
+        // Authenticated user - normal flow
+        // First try to get existing conversation for this advisor
+        const { data: existingConversation } = await supabase
+          .from('conversations')
+          .select('*')
+          .eq('user_id', user.id)
+          .eq('tutor_id', advisorId)
+          .maybeSingle();
+
+        if (existingConversation) {
+          return existingConversation;
+        }
+
+        // Create new conversation if it doesn't exist
+        const { data: newConversation, error } = await supabase
+          .from('conversations')
+          .insert({
+            user_id: user.id,
+            tutor_id: advisorId,
+            title: null
+          })
+          .select()
+          .single();
+
+        if (error) throw error;
+        return newConversation;
+      } else {
+        // Unauthenticated user - create anonymous conversation
+        console.log('Creating anonymous conversation for public access');
+        
+        // Create a temporary user ID for anonymous conversations
+        const anonymousUserId = `anonymous_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        
+        const { data: newConversation, error } = await supabase
+          .from('conversations')
+          .insert({
+            user_id: anonymousUserId,
+            tutor_id: advisorId,
+            title: 'Anonymous Conversation'
+          })
+          .select()
+          .single();
+
+        if (error) {
+          console.error('Error creating anonymous conversation:', error);
+          return null;
+        }
+        
+        console.log('Created anonymous conversation:', newConversation);
+        return newConversation;
+      }
     } catch (error) {
-      console.error('Error creating anonymous conversation:', error);
+      console.error('Error getting or creating conversation:', error);
       return null;
     }
   },
@@ -70,6 +94,7 @@ export const conversationService = {
 
       if (error) throw error;
       
+      // Type cast the role field to ensure it matches our Message interface
       return (data || []).map(msg => ({
         ...msg,
         role: msg.role as 'user' | 'system'
@@ -95,6 +120,7 @@ export const conversationService = {
 
       if (error) throw error;
       
+      // Type cast the role field to ensure it matches our Message interface
       return {
         ...data,
         role: data.role as 'user' | 'system'
@@ -144,7 +170,7 @@ export const conversationService = {
           highest_score: scores.length > 0 ? Math.max(...scores) : 0,
           intents: [...new Set(userMessages.map(m => m.intent).filter(Boolean))],
           escalated: scores.some(s => s >= 7) || messages.length >= 5,
-          is_anonymous: conversation.user_id === 'anonymous'
+          is_anonymous: conversation.user_id.startsWith('anonymous_')
         };
       });
     } catch (error) {
