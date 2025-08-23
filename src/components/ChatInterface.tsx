@@ -4,8 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Card, CardContent } from "@/components/ui/card";
-import { Send, ArrowLeft, Loader2, Bot, User } from "lucide-react";
+import { Send, Loader2, Bot, User } from "lucide-react";
 import { AgentType } from "@/types/agent";
 import { useEnhancedTextChat } from "@/hooks/useEnhancedTextChat";
 import { conversationService } from "@/services/conversationService";
@@ -219,9 +218,9 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ agent, onBack }) => {
   }, [displayMessages, isProcessing]);
 
   return (
-    <div className="flex flex-col h-full bg-background">
-      {/* Header */}
-      <div className="flex items-center gap-4 p-4 border-b border-border bg-card">
+    <div className="h-screen flex flex-col bg-background">
+      {/* Header - Fixed height */}
+      <div className="flex-shrink-0 flex items-center gap-4 p-4 border-b border-border bg-card">
         <Avatar className="h-10 w-10">
           <AvatarImage src={agent.avatar} alt={agent.name} />
           <AvatarFallback>
@@ -236,78 +235,80 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ agent, onBack }) => {
         </div>
       </div>
 
-      {/* Messages */}
-      <ScrollArea ref={scrollAreaRef} className="flex-1 p-4">
-        <div className="space-y-4 max-w-4xl mx-auto">
-          {isInitializing && (
-            <div className="flex items-center justify-center py-12">
-              <Loader2 className="h-8 w-8 animate-spin text-primary mr-2" />
-              <p className="text-muted-foreground">Initializing chat...</p>
-            </div>
-          )}
-          
-          {displayMessages.map((message) => (
-            <div
-              key={message.id}
-              className={`flex gap-3 ${
-                message.role === 'user' ? 'justify-end' : 'justify-start'
-              }`}
-            >
-              {message.role === 'system' && (
+      {/* Messages Area - Flexible height with scroll */}
+      <div className="flex-1 min-h-0 overflow-hidden">
+        <ScrollArea ref={scrollAreaRef} className="h-full">
+          <div className="p-4 space-y-4 max-w-4xl mx-auto">
+            {isInitializing && (
+              <div className="flex items-center justify-center py-12">
+                <Loader2 className="h-8 w-8 animate-spin text-primary mr-2" />
+                <p className="text-muted-foreground">Initializing chat...</p>
+              </div>
+            )}
+            
+            {displayMessages.map((message) => (
+              <div
+                key={message.id}
+                className={`flex gap-3 ${
+                  message.role === 'user' ? 'justify-end' : 'justify-start'
+                }`}
+              >
+                {message.role === 'system' && (
+                  <Avatar className="h-8 w-8 flex-shrink-0">
+                    <AvatarImage src={agent.avatar} alt={agent.name} />
+                    <AvatarFallback>
+                      <Bot className="h-4 w-4" />
+                    </AvatarFallback>
+                  </Avatar>
+                )}
+                
+                <div
+                  className={`max-w-[85%] md:max-w-[70%] rounded-lg px-4 py-3 ${
+                    message.role === 'user'
+                      ? 'bg-primary text-primary-foreground'
+                      : 'bg-muted text-foreground'
+                  }`}
+                >
+                  <div className="text-sm whitespace-pre-wrap">
+                    {message.content || ''}
+                    {!message.isComplete && (
+                      <span className="inline-block w-2 h-4 bg-current animate-pulse ml-1" />
+                    )}
+                  </div>
+                </div>
+                
+                {message.role === 'user' && (
+                  <Avatar className="h-8 w-8 flex-shrink-0">
+                    <AvatarFallback>
+                      <User className="h-4 w-4" />
+                    </AvatarFallback>
+                  </Avatar>
+                )}
+              </div>
+            ))}
+
+            {/* Typing indicator */}
+            {isProcessing && (
+              <div className="flex gap-3 justify-start">
                 <Avatar className="h-8 w-8 flex-shrink-0">
                   <AvatarImage src={agent.avatar} alt={agent.name} />
                   <AvatarFallback>
                     <Bot className="h-4 w-4" />
                   </AvatarFallback>
                 </Avatar>
-              )}
-              
-              <div
-                className={`max-w-[85%] md:max-w-[70%] rounded-lg px-4 py-3 ${
-                  message.role === 'user'
-                    ? 'bg-primary text-primary-foreground'
-                    : 'bg-muted text-foreground'
-                }`}
-              >
-                <div className="text-sm whitespace-pre-wrap">
-                  {message.content || ''}
-                  {!message.isComplete && (
-                    <span className="inline-block w-2 h-4 bg-current animate-pulse ml-1" />
-                  )}
+                <div className="bg-muted text-foreground rounded-lg px-4 py-3">
+                  <div className="text-sm text-muted-foreground">
+                    {agent.name} is typing...
+                  </div>
                 </div>
               </div>
-              
-              {message.role === 'user' && (
-                <Avatar className="h-8 w-8 flex-shrink-0">
-                  <AvatarFallback>
-                    <User className="h-4 w-4" />
-                  </AvatarFallback>
-                </Avatar>
-              )}
-            </div>
-          ))}
+            )}
+          </div>
+        </ScrollArea>
+      </div>
 
-          {/* Typing indicator */}
-          {isProcessing && (
-            <div className="flex gap-3 justify-start">
-              <Avatar className="h-8 w-8 flex-shrink-0">
-                <AvatarImage src={agent.avatar} alt={agent.name} />
-                <AvatarFallback>
-                  <Bot className="h-4 w-4" />
-                </AvatarFallback>
-              </Avatar>
-              <div className="bg-muted text-foreground rounded-lg px-4 py-3">
-                <div className="text-sm text-muted-foreground">
-                  {agent.name} is typing...
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-      </ScrollArea>
-
-      {/* Fixed Input at bottom */}
-      <div className="p-4 border-t border-border bg-card">
+      {/* Input Area - Fixed at bottom */}
+      <div className="flex-shrink-0 p-4 border-t border-border bg-card">
         <form onSubmit={handleSubmit} className="flex gap-2 max-w-4xl mx-auto">
           <Input
             ref={inputRef}
