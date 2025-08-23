@@ -1,5 +1,4 @@
-
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -45,10 +44,12 @@ const BasicInfo = () => {
   const [isCheckingUrl, setIsCheckingUrl] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
 
-  // Generate the current system prompt for the sim
-  const generatedPrompt = sim ? promptGenerationService.generateSystemPrompt(sim) : null;
+  // Memoize the generated prompt to prevent infinite re-renders
+  const generatedPrompt = useMemo(() => {
+    return sim ? promptGenerationService.generateSystemPrompt(sim) : null;
+  }, [sim?.id, sim?.full_name, sim?.professional_title, sim?.areas_of_expertise, sim?.additional_background, sim?.writing_sample, sim?.interests, sim?.skills]);
 
-  // Load existing sim data
+  // Load existing sim data - only run when sim changes, not when generatedPrompt changes
   useEffect(() => {
     if (sim) {
       setFormData({
@@ -77,7 +78,14 @@ const BasicInfo = () => {
         setPreviewUrl("");
       }
     }
-  }, [sim, generatedPrompt]);
+  }, [sim]); // Remove generatedPrompt from dependencies
+
+  // Update prompt when generatedPrompt changes, but only if user hasn't set a custom prompt
+  useEffect(() => {
+    if (generatedPrompt?.systemPrompt && sim && !sim.prompt) {
+      setFormData(prev => ({ ...prev, prompt: generatedPrompt.systemPrompt }));
+    }
+  }, [generatedPrompt?.systemPrompt, sim?.prompt]);
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
