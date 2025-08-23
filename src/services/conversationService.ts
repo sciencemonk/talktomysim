@@ -25,20 +25,42 @@ export const conversationService = {
     try {
       console.log('Creating anonymous conversation for advisor:', advisorId);
 
+      // First verify the advisor exists
+      const { data: advisor, error: advisorError } = await supabase
+        .from('advisors')
+        .select('id')
+        .eq('id', advisorId)
+        .single();
+
+      if (advisorError || !advisor) {
+        console.error('Advisor not found:', advisorId, advisorError);
+        return null;
+      }
+
       // Create new conversation for anonymous user
+      const conversationData = {
+        user_id: 'anonymous',
+        tutor_id: advisorId,
+        title: null,
+        advisor_id: null
+      };
+
+      console.log('Inserting conversation with data:', conversationData);
+
       const { data: newConversation, error } = await supabase
         .from('conversations')
-        .insert({
-          user_id: 'anonymous', // Use a fixed anonymous user ID
-          tutor_id: advisorId,
-          title: null,
-          advisor_id: null // Explicitly set advisor_id to null
-        })
+        .insert(conversationData)
         .select()
         .single();
 
       if (error) {
         console.error('Error creating anonymous conversation:', error);
+        console.error('Error details:', {
+          message: error.message,
+          code: error.code,
+          details: error.details,
+          hint: error.hint
+        });
         return null;
       }
 
