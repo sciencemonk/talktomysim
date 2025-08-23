@@ -111,64 +111,63 @@ export const CoreKnowledge: React.FC<CoreKnowledgeProps> = ({ advisorId }) => {
   };
 
   return (
-    <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle>Knowledge Base</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <VectorStats 
-            advisorId={advisorId} 
-            refreshTrigger={refreshDocuments}
-          />
-        </CardContent>
-      </Card>
+    <div className="max-w-6xl mx-auto p-6 space-y-6">
+      {/* Knowledge Base Stats */}
+      <div className="mb-8">
+        <h2 className="text-2xl font-semibold text-fg mb-6">Knowledge Base</h2>
+        <VectorStats 
+          advisorId={advisorId} 
+          refreshTrigger={refreshDocuments}
+        />
+      </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Add Knowledge</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Tabs defaultValue="upload" className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="upload">Upload Files</TabsTrigger>
-              <TabsTrigger value="text">Paste Text</TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="upload" className="space-y-4">
-              <FileUpload
-                onFileSelect={handleFileSelect}
-                onFileProcess={handleFileProcess}
-                isProcessing={isProcessing}
-                processingProgress={processingProgress}
-                acceptedTypes={['.pdf', '.txt', '.docx']}
-                maxFiles={10}
-                maxFileSize={25}
-              />
-            </TabsContent>
-            
-            <TabsContent value="text" className="space-y-4">
-              <TextContentInput
-                onProcess={handleTextProcess}
-                isProcessing={isProcessing}
-              />
-            </TabsContent>
-          </Tabs>
-        </CardContent>
-      </Card>
+      {/* Add Knowledge Section */}
+      <div className="mb-8">
+        <h2 className="text-2xl font-semibold text-fg mb-6">Add Knowledge</h2>
+        <Card>
+          <CardContent className="p-6">
+            <Tabs defaultValue="upload" className="w-full">
+              <TabsList className="grid w-full grid-cols-2 mb-6">
+                <TabsTrigger value="upload">Upload Files</TabsTrigger>
+                <TabsTrigger value="text">Paste Text</TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="upload" className="space-y-4">
+                <FileUpload
+                  onFileSelect={handleFileSelect}
+                  onFileProcess={handleFileProcess}
+                  isProcessing={isProcessing}
+                  processingProgress={processingProgress}
+                  acceptedTypes={['.pdf', '.txt', '.docx']}
+                  maxFiles={10}
+                  maxFileSize={25}
+                />
+              </TabsContent>
+              
+              <TabsContent value="text" className="space-y-4">
+                <TextContentInput
+                  onProcess={handleTextProcess}
+                  isProcessing={isProcessing}
+                />
+              </TabsContent>
+            </Tabs>
+          </CardContent>
+        </Card>
+      </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Uploaded Documents</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <DocumentManager
-            advisorId={advisorId}
-            onDocumentsChange={handleDocumentsChange}
-            refreshTrigger={refreshDocuments}
-          />
-        </CardContent>
-      </Card>
+      {/* Uploaded Documents Section */}
+      <div>
+        <h2 className="text-2xl font-semibold text-fg mb-6">Uploaded Documents</h2>
+        <Card>
+          <CardContent className="p-6">
+            <DocumentManager
+              advisorId={advisorId}
+              onDocumentsChange={handleDocumentsChange}
+              refreshTrigger={refreshDocuments}
+            />
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 };
