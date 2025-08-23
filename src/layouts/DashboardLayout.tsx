@@ -19,6 +19,7 @@ const DashboardLayout = () => {
         onNavigateToInteractionModel={() => {}}
         onNavigateToCoreKnowledge={() => {}}
         onNavigateToIntegrations={() => {}}
+        onNavigateToActions={() => {}}
         onNavigateToSearch={() => {}}
         activeView="directory"
       />
