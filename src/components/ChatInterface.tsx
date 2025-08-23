@@ -42,7 +42,7 @@ export const ChatInterface = ({ agent, onToggleAudio, isAudioEnabled = false, on
   }, [agent?.id]);
 
   // Load existing messages when conversation is available
-  const { messages: historyMessages, isLoading } = useChatHistory(conversation?.id || null);
+  const { messages: historyMessages, isLoading, loadMessages } = useChatHistory(conversation?.id || null);
 
   // Update local messages when history loads
   useEffect(() => {
@@ -70,8 +70,10 @@ export const ChatInterface = ({ agent, onToggleAudio, isAudioEnabled = false, on
     // Save to database if conversation exists
     if (conversation?.id) {
       await conversationService.addMessage(conversation.id, 'user', message);
+      // Reload messages to ensure consistency
+      await loadMessages();
     }
-  }, [conversation?.id]);
+  }, [conversation?.id, loadMessages]);
 
   const startAiMessage = useCallback(() => {
     // Clear current AI message and return ID for tracking
@@ -112,10 +114,12 @@ export const ChatInterface = ({ agent, onToggleAudio, isAudioEnabled = false, on
     if (conversation?.id && finalContent && finalContent.trim()) {
       console.log('Saving AI message to database:', finalContent);
       await conversationService.addMessage(conversation.id, 'system', finalContent);
+      // Reload messages to ensure consistency with database
+      await loadMessages();
     }
     // Clear current AI message
     setCurrentAiMessage('');
-  }, [conversation?.id]);
+  }, [conversation?.id, loadMessages]);
 
   const { sendMessage, isProcessing } = useEnhancedTextChat({
     agent,
