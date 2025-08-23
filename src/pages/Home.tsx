@@ -226,7 +226,12 @@ const Home = () => {
       case 'interaction-model':
         return <InteractionModel />;
       case 'core-knowledge':
-        return <CoreKnowledge />;
+        // Use the first available advisor ID, or user ID if no advisors
+        const advisorId = selectedPublicAdvisorId || 
+                         (advisorsAsAgents.length > 0 ? advisorsAsAgents[0].id : '') ||
+                         user?.id || 
+                         'default';
+        return <CoreKnowledge advisorId={advisorId} />;
       case 'integrations':
         return <Integrations />;
       case 'search':
