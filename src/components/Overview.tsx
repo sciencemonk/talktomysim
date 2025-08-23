@@ -1,15 +1,43 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { BarChart3, ExternalLink, Globe } from 'lucide-react';
+import { BarChart3, ExternalLink, Globe, MessageSquare, Clock, User } from 'lucide-react';
 import { ConversationsDashboard } from '@/components/ConversationsDashboard';
+import { ChatModal } from '@/components/ChatModal';
 import { useSim } from '@/hooks/useSim';
+import { useQuery } from '@tanstack/react-query';
+import { conversationService } from '@/services/conversationService';
 
 const Overview = () => {
   const { sim, isLoading } = useSim();
+  const [selectedConversation, setSelectedConversation] = useState<any>(null);
+  const [isChatModalOpen, setIsChatModalOpen] = useState(false);
+
+  // Fetch conversations for this sim
+  const { data: conversations = [], isLoading: conversationsLoading } = useQuery({
+    queryKey: ['advisor-conversations', sim?.id],
+    queryFn: () => conversationService.getAdvisorConversations(sim?.id || ''),
+    enabled: !!sim?.id,
+  });
+
+  const handleConversationClick = (conversation: any) => {
+    setSelectedConversation(conversation);
+    setIsChatModalOpen(true);
+  };
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
+    
+    if (diffInHours < 1) return 'Just now';
+    if (diffInHours < 24) return `${diffInHours}h ago`;
+    if (diffInHours < 48) return 'Yesterday';
+    return date.toLocaleDateString();
+  };
 
   if (isLoading) {
     return (
@@ -64,23 +92,96 @@ const Overview = () => {
         </CardContent>
       </Card>
 
-      {/* Top Overview Section */}
+      {/* Activity Section */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <BarChart3 className="h-5 w-5" />
-            Overview
+            <MessageSquare className="h-5 w-5" />
+            Activity
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-muted-foreground">
-            Monitor your Sim's conversations and performance analytics. Get insights into user interactions and engagement patterns.
-          </p>
+          {conversationsLoading ? (
+            <div className="space-y-4">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="animate-pulse border rounded-lg p-4">
+                  <div className="flex items-center gap-3">
+                    <div className="h-8 w-8 bg-muted rounded-full"></div>
+                    <div className="flex-1 space-y-2">
+                      <div className="h-4 bg-muted rounded w-1/4"></div>
+                      <div className="h-3 bg-muted rounded w-3/4"></div>
+                    </div>
+                    <div className="h-3 bg-muted rounded w-16"></div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : conversations.length === 0 ? (
+            <div className="text-center py-8">
+              <MessageSquare className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+              <p className="text-muted-foreground">No conversations yet</p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {conversations.map((conversation) => (
+                <div
+                  key={conversation.id}
+                  onClick={() => handleConversationClick(conversation)}
+                  className="border rounded-lg p-4 hover:bg-muted/50 cursor-pointer transition-colors"
+                >
+                  <div className="flex items-start gap-3">
+                    <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                      {conversation.is_anonymous ? (
+                        <User className="h-4 w-4 text-primary" />
+                      ) : (
+                        <MessageSquare className="h-4 w-4 text-primary" />
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-sm font-medium">
+                          {conversation.is_anonymous ? 'Anonymous User' : 'User'}
+                        </span>
+                        <Badge variant="secondary" className="text-xs">
+                          {conversation.message_count} messages
+                        </Badge>
+                        {conversation.escalated && (
+                          <Badge variant="destructive" className="text-xs">
+                            Escalated
+                          </Badge>
+                        )}
+                      </div>
+                      <p className="text-sm text-muted-foreground line-clamp-2">
+                        {conversation.latest_message}
+                      </p>
+                      <div className="flex items-center gap-4 mt-2 text-xs text-muted-foreground">
+                        <div className="flex items-center gap-1">
+                          <Clock className="h-3 w-3" />
+                          {formatDate(conversation.updated_at)}
+                        </div>
+                        {conversation.avg_score > 0 && (
+                          <div>Score: {conversation.avg_score.toFixed(1)}/10</div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </CardContent>
       </Card>
 
-      {/* Conversations Section */}
-      <ConversationsDashboard advisorId={sim?.id || 'demo'} />
+      {/* Chat Modal */}
+      <ChatModal 
+        isOpen={isChatModalOpen}
+        onClose={() => {
+          setIsChatModalOpen(false);
+          setSelectedConversation(null);
+        }}
+        conversation={selectedConversation}
+        simName={sim?.name || 'Sim'}
+      />
 
       {/* Analytics Section */}
       <Card>
