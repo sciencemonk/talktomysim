@@ -29,12 +29,13 @@ const AdvisorDirectory = ({
 
   // Add debugging
   useEffect(() => {
-    console.log("AdvisorDirectory - Total agents:", agents.length);
+    console.log("AdvisorDirectory - isLoading:", isLoading);
+    console.log("AdvisorDirectory - Total agents:", agents?.length || 0);
     console.log("AdvisorDirectory - All agents:", agents);
-  }, [agents]);
+  }, [agents, isLoading]);
 
-  // Filter advisors based on search term only - removed the overly restrictive isActive check
-  const filteredAdvisors = agents.filter(advisor => {
+  // Filter advisors based on search term
+  const filteredAdvisors = (agents || []).filter(advisor => {
     if (!searchTerm) return true;
     
     return (
@@ -103,12 +104,18 @@ const AdvisorDirectory = ({
       {/* Advisors Grid */}
       <div className="flex-1 overflow-auto p-6">
         <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 max-w-6xl mx-auto">
-          {filteredAdvisors.length === 0 ? (
+          {!agents || agents.length === 0 ? (
             <div className="col-span-full text-center py-12">
               <p className="text-muted-foreground">
-                {searchTerm ? "No sims found matching your search." : "No active sims available."}
+                No sims available yet.
               </p>
-              {agents.length > 0 && searchTerm && (
+            </div>
+          ) : filteredAdvisors.length === 0 ? (
+            <div className="col-span-full text-center py-12">
+              <p className="text-muted-foreground">
+                {searchTerm ? "No sims found matching your search." : "No sims available."}
+              </p>
+              {searchTerm && (
                 <p className="text-sm text-muted-foreground mt-2">
                   Try adjusting your search terms.
                 </p>

@@ -72,6 +72,7 @@ export const useAllAdvisors = () => {
       } catch (err: any) {
         console.error('Error fetching advisors:', err);
         setError(err.message || 'Failed to fetch advisors');
+        setAgents([]); // Ensure we set empty array on error
       } finally {
         setIsLoading(false);
       }
