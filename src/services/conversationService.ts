@@ -26,16 +26,16 @@ export const conversationService = {
       const { data: { user } } = await supabase.auth.getUser();
       
       if (user && isUserSim) {
-        // Signed-in user talking to their own sim - use advisors table
+        // Signed-in user talking to their own sim - use tutors table
         console.log('Creating conversation for user sim:', agentId);
         
-        // First try to get existing conversation for this advisor (user's own sim)
+        // First try to get existing conversation for this tutor
         const { data: existingConversation } = await supabase
           .from('conversations')
           .select('*')
           .eq('user_id', user.id)
-          .eq('advisor_id', agentId)
           .eq('tutor_id', agentId)
+          .is('advisor_id', null)
           .maybeSingle();
 
         if (existingConversation) {
@@ -48,7 +48,7 @@ export const conversationService = {
           .insert({
             user_id: user.id,
             tutor_id: agentId,
-            advisor_id: agentId,
+            advisor_id: null,
             title: 'My Sim Chat'
           })
           .select()
@@ -67,7 +67,6 @@ export const conversationService = {
           .select('*')
           .eq('user_id', user.id)
           .eq('advisor_id', agentId)
-          .eq('tutor_id', agentId)
           .maybeSingle();
 
         if (existingConversation) {
@@ -80,7 +79,7 @@ export const conversationService = {
           .insert({
             user_id: user.id,
             advisor_id: agentId,
-            tutor_id: agentId,
+            tutor_id: agentId, // Set tutor_id to agentId for compatibility
             title: null
           })
           .select()
