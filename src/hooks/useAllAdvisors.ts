@@ -31,35 +31,39 @@ export const useAllAdvisors = () => {
         }
 
         // Transform advisors to AgentType format
-        const transformedAdvisors: AgentType[] = (advisors || []).map(advisor => ({
-          id: advisor.id,
-          name: advisor.name,
-          description: advisor.description || '',
-          type: 'General Tutor' as any, // Default type for advisors
-          status: 'active' as any,
-          createdAt: advisor.created_at,
-          updatedAt: advisor.updated_at,
-          avatar: advisor.avatar_url,
-          prompt: advisor.prompt,
-          subject: advisor.category || 'General',
-          title: advisor.title, // Include the title field from advisors table
-          url: advisor.url, // Include the url field from advisors table
-          custom_url: advisor.custom_url, // Include the custom_url field from advisors table
-          is_featured: false, // Default to false since advisors table doesn't have this field yet
-          isActive: advisor.is_active !== false, // Map the is_active field properly
-          // Set default values for tutor-specific fields
-          model: 'GPT-4',
-          interactions: 0,
-          studentsSaved: 0,
-          helpfulnessScore: 0,
-          avmScore: 0,
-          csat: 0,
-          performance: 0,
-          channels: [],
-          channelConfigs: {},
-          isPersonal: false,
-          voiceTraits: []
-        }));
+        const transformedAdvisors: AgentType[] = (advisors || []).map(advisor => {
+          console.log(`Transforming advisor ${advisor.name}: is_active=${advisor.is_active}, is_public=${advisor.is_public}`);
+          
+          return {
+            id: advisor.id,
+            name: advisor.name,
+            description: advisor.description || '',
+            type: 'General Tutor' as any, // Default type for advisors
+            status: 'active' as any,
+            createdAt: advisor.created_at,
+            updatedAt: advisor.updated_at,
+            avatar: advisor.avatar_url,
+            prompt: advisor.prompt,
+            subject: advisor.category || 'General',
+            title: advisor.title, // Include the title field from advisors table
+            url: advisor.url, // Include the url field from advisors table
+            custom_url: advisor.custom_url, // Include the custom_url field from advisors table
+            is_featured: false, // Default to false since advisors table doesn't have this field yet
+            isActive: advisor.is_active === true, // Ensure this is explicitly true
+            // Set default values for tutor-specific fields
+            model: 'GPT-4',
+            interactions: 0,
+            studentsSaved: 0,
+            helpfulnessScore: 0,
+            avmScore: 0,
+            csat: 0,
+            performance: 0,
+            channels: [],
+            channelConfigs: {},
+            isPersonal: false,
+            voiceTraits: []
+          };
+        });
 
         console.log('Transformed advisors:', transformedAdvisors);
         setAgents(transformedAdvisors);

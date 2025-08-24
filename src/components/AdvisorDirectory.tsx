@@ -27,11 +27,24 @@ const AdvisorDirectory = ({
   const { agents, isLoading, error } = useAllAdvisors();
   const [searchTerm, setSearchTerm] = useState("");
 
+  // Add debugging
+  useEffect(() => {
+    console.log("AdvisorDirectory - Total agents:", agents.length);
+    console.log("AdvisorDirectory - All agents:", agents);
+    agents.forEach(agent => {
+      console.log(`Agent ${agent.name}: isActive=${agent.isActive}, is_featured=${agent.is_featured}`);
+    });
+  }, [agents]);
+
   // Filter advisors based on search term and active status
   const filteredAdvisors = agents.filter(advisor => {
-    // Only show active sims - use the isActive property from AgentType
-    const isActive = advisor.isActive !== false;
+    // Only show active sims - be more explicit about the check
+    const isActive = advisor.isActive === true;
+    console.log(`Filtering ${advisor.name}: isActive=${isActive}`);
+    
     if (!isActive) return false;
+    
+    if (!searchTerm) return true;
     
     return (
       advisor.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -39,6 +52,8 @@ const AdvisorDirectory = ({
       advisor.subject?.toLowerCase().includes(searchTerm.toLowerCase())
     );
   });
+
+  console.log("Filtered advisors:", filteredAdvisors.length);
 
   const handleAdvisorSelect = (advisor: AgentType) => {
     // Use custom URL if available, otherwise fall back to agent ID route
@@ -101,6 +116,11 @@ const AdvisorDirectory = ({
               <p className="text-muted-foreground">
                 {searchTerm ? "No sims found matching your search." : "No sims available."}
               </p>
+              {agents.length > 0 && (
+                <p className="text-sm text-muted-foreground mt-2">
+                  Found {agents.length} total sims, but none are currently active.
+                </p>
+              )}
             </div>
           ) : (
             filteredAdvisors.map((advisor) => (
