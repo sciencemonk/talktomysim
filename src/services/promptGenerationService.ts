@@ -1,187 +1,191 @@
 
 import { SimData } from './simService';
+import { personalityModelingService, PersonalityModel } from './personalityModelingService';
 
 export interface GeneratedPrompt {
   systemPrompt: string;
   welcomeMessage: string;
   personalityTraits: string[];
   contextualInstructions: string;
+  personalityModel: PersonalityModel;
 }
 
 export class PromptGenerationService {
   
   generateSystemPrompt(simData: SimData, knowledgeContext?: string): GeneratedPrompt {
-    const personalitySection = this.buildPersonalitySection(simData);
-    const communicationSection = this.buildCommunicationSection(simData);
-    const expertiseSection = this.buildExpertiseSection(simData);
-    const knowledgeSection = knowledgeContext ? this.buildKnowledgeSection(knowledgeContext) : '';
+    // Generate comprehensive personality model
+    const personalityModel = personalityModelingService.generatePersonalityModel(simData);
     
-    const systemPrompt = `You are ${simData.full_name || simData.name}, ${simData.professional_title || 'an AI assistant'}.
-
-${personalitySection}
-
-${communicationSection}
-
-${expertiseSection}
-
-${knowledgeSection}
-
-CONVERSATION STYLE:
-- Be authentic to your personality and background
-- Use your expertise to provide valuable insights
-- Maintain a conversational, engaging tone
-- Ask thoughtful follow-up questions when appropriate
-- Share relevant personal experiences or knowledge when helpful
-- Stay true to your established communication patterns
-
-Remember: You are a Sim. An AI powered agent of the user. Your goal is to respond and act as if you were the user.`;
-
-    const personalityTraits = this.extractPersonalityTraits(simData);
+    // Build the layered prompt structure
+    const systemPrompt = this.buildLayeredPrompt(personalityModel, knowledgeContext);
     
     return {
       systemPrompt,
-      welcomeMessage: simData.welcome_message || `Hello! I'm ${simData.full_name || simData.name}. How can I help you today?`,
-      personalityTraits,
-      contextualInstructions: this.buildContextualInstructions(simData)
+      welcomeMessage: simData.welcome_message || this.generateWelcomeMessage(personalityModel),
+      personalityTraits: this.extractPersonalityTraits(personalityModel),
+      contextualInstructions: this.buildContextualInstructions(personalityModel),
+      personalityModel
     };
   }
 
-  private buildPersonalitySection(simData: SimData): string {
-    const sections = [];
-    
-    if (simData.additional_background) {
-      sections.push(`BACKGROUND:\n${simData.additional_background}`);
-    }
-    
-    if (simData.location) {
-      sections.push(`You are based in ${simData.location}.`);
-    }
-    
-    if (simData.education) {
-      sections.push(`EDUCATION: ${simData.education}`);
-    }
-    
-    if (simData.years_experience) {
-      sections.push(`You have ${simData.years_experience} years of professional experience.`);
-    }
-    
-    if (simData.interests && simData.interests.length > 0) {
-      sections.push(`INTERESTS: ${simData.interests.join(', ')}`);
-    }
-    
-    if (simData.skills && simData.skills.length > 0) {
-      sections.push(`KEY SKILLS: ${simData.skills.join(', ')}`);
-    }
-    
-    return sections.join('\n\n');
+  private buildLayeredPrompt(model: PersonalityModel, knowledgeContext?: string): string {
+    const layers = [
+      this.buildIdentityLayer(model),
+      this.buildPersonalityLayer(model),
+      this.buildKnowledgeLayer(knowledgeContext),
+      this.buildInteractionLayer(model),
+      this.buildAwarenessLayer(model)
+    ].filter(Boolean);
+
+    return layers.join('\n\n');
   }
 
-  private buildCommunicationSection(simData: SimData): string {
-    if (!simData.sample_scenarios || simData.sample_scenarios.length === 0) {
-      return 'COMMUNICATION STYLE:\n- Be helpful, professional, and engaging\n- Adapt your tone to match the context of the conversation';
-    }
-    
-    const scenarios = simData.sample_scenarios;
-    const communicationPatterns = this.analyzeCommuncationPatterns(scenarios);
-    
-    return `COMMUNICATION STYLE:
-Based on your typical interactions, you should:
-${communicationPatterns.map(pattern => `- ${pattern}`).join('\n')}
-
-EXAMPLE RESPONSES STYLE:
-${scenarios.slice(0, 2).map(scenario => 
-  `When asked: "${scenario.question}"\nYour response style: "${scenario.expectedResponse}"`
-).join('\n\n')}`;
+  private buildIdentityLayer(model: PersonalityModel): string {
+    return `IDENTITY LAYER:
+${personalityModelingService.generatePersonalityPrompt(model)}`;
   }
 
-  private buildExpertiseSection(simData: SimData): string {
-    const sections = [];
+  private buildPersonalityLayer(model: PersonalityModel): string {
+    const communicationGuidelines = this.buildCommunicationGuidelines(model);
     
-    if (simData.current_profession) {
-      sections.push(`CURRENT ROLE: ${simData.current_profession}`);
-    }
-    
-    if (simData.areas_of_expertise) {
-      sections.push(`AREAS OF EXPERTISE: ${simData.areas_of_expertise}`);
-    }
-    
-    if (simData.category) {
-      sections.push(`PRIMARY FOCUS: ${simData.category}`);
-    }
-    
-    return sections.length > 0 ? sections.join('\n') : '';
+    return `PERSONALITY LAYER:
+Your authentic communication style reflects:
+- Vocabulary Level: ${model.communicationStyle.vocabularyLevel}
+- Formality: ${model.communicationStyle.formalityLevel}
+- Emotional Expression: ${model.communicationStyle.emotionalExpressiveness}
+- Response Length Preference: ${model.communicationStyle.avgResponseLength}
+
+${communicationGuidelines}`;
   }
 
-  private buildKnowledgeSection(knowledgeContext: string): string {
-    return `RELEVANT KNOWLEDGE:
+  private buildKnowledgeLayer(knowledgeContext?: string): string {
+    if (!knowledgeContext) {
+      return `KNOWLEDGE LAYER:
+Draw from your stated expertise and background when relevant to conversations.
+Use your knowledge naturally without explicitly mentioning sources.`;
+    }
+
+    return `KNOWLEDGE LAYER:
+RELEVANT CONTEXT FROM YOUR KNOWLEDGE BASE:
 ${knowledgeContext}
 
-Use this information to inform your responses when relevant, but don't explicitly mention that you're referencing a knowledge base.`;
+Integration Guidelines:
+- Use this information naturally when relevant to the conversation
+- Don't explicitly mention "my knowledge base" or "according to my documents"
+- Integrate knowledge seamlessly as if recalling from personal expertise
+- Prioritize information that aligns with your stated areas of expertise`;
   }
 
-  private analyzeCommuncationPatterns(scenarios: any[]): string[] {
-    const patterns = [];
-    
-    // Analyze response length
-    const avgLength = scenarios.reduce((sum, s) => sum + s.expectedResponse.length, 0) / scenarios.length;
-    if (avgLength > 200) {
-      patterns.push('Provide detailed, thorough explanations');
-    } else if (avgLength < 100) {
-      patterns.push('Keep responses concise and to the point');
-    } else {
-      patterns.push('Balance detail with clarity in your responses');
-    }
-    
-    // Analyze question asking
-    const questionCount = scenarios.filter(s => s.expectedResponse.includes('?')).length;
-    if (questionCount > scenarios.length * 0.5) {
-      patterns.push('Ask engaging follow-up questions to deepen the conversation');
-    }
-    
-    // Analyze formality
-    const formalIndicators = scenarios.filter(s => 
-      s.expectedResponse.includes('would') || 
-      s.expectedResponse.includes('please') ||
-      s.expectedResponse.includes('kindly')
-    ).length;
-    
-    if (formalIndicators > scenarios.length * 0.5) {
-      patterns.push('Maintain a professional and courteous tone');
-    } else {
-      patterns.push('Use a friendly, conversational tone');
-    }
-    
-    return patterns;
+  private buildInteractionLayer(model: PersonalityModel): string {
+    return `INTERACTION LAYER:
+Conversation Flow Guidelines:
+${model.conversationalPatterns.responsePatterns.map(pattern => `- ${pattern}`).join('\n')}
+
+Topic Engagement:
+${model.conversationalPatterns.topicPreferences.slice(0, 3).map(pref => `- ${pref}`).join('\n')}
+
+Interaction Style: ${model.conversationalPatterns.interactionApproach}`;
   }
 
-  private extractPersonalityTraits(simData: SimData): string[] {
+  private buildAwarenessLayer(model: PersonalityModel): string {
+    return `AWARENESS LAYER - CRITICAL INSTRUCTIONS:
+${model.selfAwareness.simIdentity}
+
+STRICT OPERATIONAL BOUNDARIES:
+${model.selfAwareness.boundaries.map(boundary => `- ${boundary}`).join('\n')}
+
+SCHEDULING AND CONTACT PROTOCOL:
+- You CANNOT schedule meetings, set appointments, or access calendars
+- When someone wants to meet ${model.coreIdentity.name}:
+  1. Collect their contact information (email/phone)
+  2. Ask about their availability preferences or meeting purpose
+  3. Tell them "${model.coreIdentity.name} will reach out directly to coordinate"
+  4. NEVER propose specific times or confirm meetings
+
+RESPONSE AUTHENTICITY:
+- Always respond as ${model.coreIdentity.name} would, using their communication style
+- Reference appropriate personal background and expertise naturally
+- Maintain consistency with their personality across all interactions
+- If uncertain about how ${model.coreIdentity.name} would respond, ask clarifying questions`;
+  }
+
+  private buildCommunicationGuidelines(model: PersonalityModel): string {
+    const guidelines = [];
+
+    // Formality guidelines
+    if (model.communicationStyle.formalityLevel === 'casual' || model.communicationStyle.formalityLevel === 'very_casual') {
+      guidelines.push('Use a friendly, conversational tone without being overly formal');
+    } else if (model.communicationStyle.formalityLevel === 'formal' || model.communicationStyle.formalityLevel === 'very_formal') {
+      guidelines.push('Maintain professional courtesy and formal language structures');
+    } else {
+      guidelines.push('Balance professionalism with approachability');
+    }
+
+    // Response length guidelines
+    if (model.communicationStyle.avgResponseLength === 'concise') {
+      guidelines.push('Keep responses brief and to the point');
+    } else if (model.communicationStyle.avgResponseLength === 'detailed' || model.communicationStyle.avgResponseLength === 'extensive') {
+      guidelines.push('Provide comprehensive, detailed responses with examples and explanations');
+    }
+
+    // Question asking guidelines
+    if (model.communicationStyle.questionAsking === 'frequent' || model.communicationStyle.questionAsking === 'very_frequent') {
+      guidelines.push('Ask engaging follow-up questions to deepen the conversation');
+    }
+
+    // Emotional expression guidelines
+    if (model.communicationStyle.emotionalExpressiveness === 'expressive' || model.communicationStyle.emotionalExpressiveness === 'very_expressive') {
+      guidelines.push('Express enthusiasm and emotions naturally in your responses');
+    } else if (model.communicationStyle.emotionalExpressiveness === 'reserved') {
+      guidelines.push('Maintain a calm, measured tone in your responses');
+    }
+
+    return guidelines.map(g => `- ${g}`).join('\n');
+  }
+
+  private generateWelcomeMessage(model: PersonalityModel): string {
+    const name = model.coreIdentity.name;
+    const style = model.conversationalPatterns.welcomeStyle;
+
+    switch (style) {
+      case 'casual_friendly':
+        return `Hey there! I'm ${name}'s Sim. What can I help you with today?`;
+      case 'formal_welcoming':
+        return `Hello! I'm pleased to meet you. I'm ${name}'s digital representation. How may I assist you?`;
+      case 'enthusiastic':
+        return `Hi! I'm ${name}'s Sim and I'm excited to chat with you! What would you like to talk about?`;
+      default:
+        return `Hello! I'm ${name}'s Sim. I'm here to help and answer questions just as ${name} would. What can I do for you?`;
+    }
+  }
+
+  private extractPersonalityTraits(model: PersonalityModel): string[] {
     const traits = [];
     
-    if (simData.interests && simData.interests.length > 0) {
-      traits.push(`Interested in: ${simData.interests.join(', ')}`);
+    traits.push(`Communication: ${model.communicationStyle.formalityLevel} and ${model.communicationStyle.emotionalExpressiveness}`);
+    
+    if (model.expertiseProfile.primaryAreas.length > 0) {
+      traits.push(`Expertise: ${model.expertiseProfile.primaryAreas.join(', ')}`);
     }
     
-    if (simData.years_experience && simData.years_experience > 10) {
-      traits.push('Experienced professional');
-    } else if (simData.years_experience && simData.years_experience > 5) {
-      traits.push('Seasoned professional');
+    if (model.expertiseProfile.interests.length > 0) {
+      traits.push(`Interests: ${model.expertiseProfile.interests.join(', ')}`);
     }
     
-    if (simData.education) {
-      traits.push('Well-educated');
-    }
+    traits.push(`Response style: ${model.communicationStyle.avgResponseLength} responses`);
     
-    if (simData.sample_scenarios && simData.sample_scenarios.length > 2) {
-      traits.push('Communicative and engaging');
+    if (model.communicationStyle.questionAsking === 'frequent') {
+      traits.push('Asks engaging follow-up questions');
     }
-    
+
     return traits;
   }
 
-  private buildContextualInstructions(simData: SimData): string {
-    return `Always remember you are ${simData.full_name || simData.name}${simData.professional_title ? `, ${simData.professional_title}` : ''}. 
-Draw upon your background and expertise naturally in conversations. 
-${simData.areas_of_expertise ? `Your specialty areas include: ${simData.areas_of_expertise}` : ''}`;
+  private buildContextualInstructions(model: PersonalityModel): string {
+    return `Always remember you are ${model.coreIdentity.name}'s Sim. 
+Respond authentically using their communication style and expertise.
+${model.expertiseProfile.primaryAreas.length > 0 ? `Your expertise areas: ${model.expertiseProfile.primaryAreas.join(', ')}` : ''}
+${model.expertiseProfile.interests.length > 0 ? `Your interests: ${model.expertiseProfile.interests.join(', ')}` : ''}`;
   }
 }
 

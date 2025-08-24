@@ -31,7 +31,7 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     )
 
-    // Fetch advisor data
+    // Fetch comprehensive advisor data
     const { data: advisor, error: advisorError } = await supabaseClient
       .from('advisors')
       .select('*')
@@ -161,71 +161,8 @@ serve(async (req) => {
       }
     }
 
-    // Build a cleaner, more focused system prompt
-    const advisorName = advisor.full_name || advisor.name
-    const advisorTitle = advisor.professional_title || 'an AI assistant'
-    
-    let systemPrompt = `You are ${advisorName}, ${advisorTitle}.`
-
-    // Add background information
-    if (advisor.additional_background) {
-      systemPrompt += `\n\nBACKGROUND:\n${advisor.additional_background}`
-    }
-
-    if (advisor.location) {
-      systemPrompt += `\nYou are based in ${advisor.location}.`
-    }
-
-    if (advisor.education) {
-      systemPrompt += `\nEDUCATION: ${advisor.education}`
-    }
-
-    if (advisor.years_experience) {
-      systemPrompt += `\nYou have ${advisor.years_experience} years of professional experience.`
-    }
-
-    if (advisor.current_profession) {
-      systemPrompt += `\nCURRENT ROLE: ${advisor.current_profession}`
-    }
-
-    if (advisor.areas_of_expertise) {
-      systemPrompt += `\nAREAS OF EXPERTISE: ${advisor.areas_of_expertise}`
-    }
-
-    if (advisor.skills && advisor.skills.length > 0) {
-      systemPrompt += `\nKEY SKILLS: ${advisor.skills.join(', ')}`
-    }
-
-    if (advisor.interests && advisor.interests.length > 0) {
-      systemPrompt += `\nINTERESTS: ${advisor.interests.join(', ')}`
-    }
-
-    // Add knowledge context if available
-    if (contextData && contextData.contextText) {
-      systemPrompt += `\n\nRELEVANT KNOWLEDGE:\n${contextData.contextText}\n\nUse this information naturally when relevant to the conversation.`
-    }
-
-    // Add conversation guidelines with explicit scheduling restrictions
-    systemPrompt += `\n\nCONVERSATION GUIDELINES:
-- Respond as ${advisorName} in a natural, authentic way
-- Be helpful and engaging while staying true to your background
-
-CRITICAL: YOU CANNOT SCHEDULE MEETINGS OR APPOINTMENTS
-- You have NO access to calendars or scheduling systems
-- You CANNOT confirm meeting times or send calendar invites
-- You CANNOT say you will "reach out" or "contact" someone
-- When someone wants to meet, ONLY collect their contact information
-- Tell them that ${advisorName} will reach out to them directly
-- Do NOT propose specific times or dates
-- Do NOT say you will call or email them at specific times
-
-WHAT TO DO when someone wants to schedule:
-1. Ask for their contact information (email and/or phone)
-2. Ask about their general availability or preferences
-3. Tell them "${advisorName} will reach out directly to coordinate"
-4. Do NOT attempt to schedule anything yourself
-
-Remember: You are ${advisorName}'s Sim. You collect information so the real ${advisorName} can follow up personally.`
+    // Generate comprehensive personality-driven system prompt
+    const systemPrompt = generateEnhancedSystemPrompt(advisor, contextData?.contextText, conversationContext)
 
     // Prepare the messages for OpenAI
     const systemMessage = {
@@ -258,7 +195,7 @@ Remember: You are ${advisorName}'s Sim. You collect information so the real ${ad
 
     const data = await response.json()
     
-    console.log('OpenAI response:', JSON.stringify(data, null, 2))
+    console.log('OpenAI response received, choices:', data.choices?.length || 0)
 
     if (!data.choices || data.choices.length === 0) {
       console.error('No choices in OpenAI response')
@@ -267,12 +204,11 @@ Remember: You are ${advisorName}'s Sim. You collect information so the real ${ad
 
     const assistantMessage = data.choices[0].message?.content
 
-    console.log('Assistant message content:', assistantMessage)
-
     // Check if we got an empty response
     if (!assistantMessage || assistantMessage.trim().length === 0) {
       console.error('OpenAI returned empty content')
       // Return a fallback response instead of throwing an error
+      const advisorName = advisor.full_name || advisor.name
       const fallbackMessage = `Hello! I'm ${advisorName}'s Sim. I'm here to help connect you with ${advisorName}. What can I help you with today?`
       
       return new Response(
@@ -320,6 +256,222 @@ Remember: You are ${advisorName}'s Sim. You collect information so the real ${ad
     )
   }
 })
+
+function generateEnhancedSystemPrompt(advisor: any, knowledgeContext?: string, conversationContext?: any): string {
+  const name = advisor.full_name || advisor.name
+  const title = advisor.professional_title || 'Professional'
+  
+  // Build comprehensive personality model from advisor data
+  const personalityModel = buildPersonalityModel(advisor)
+  
+  let systemPrompt = `IDENTITY & CORE ROLE:
+You are ${name}'s Sim - an AI-powered digital representation trained on their knowledge, communication style, and expertise.
+Professional title: ${title}
+${advisor.location ? `Based in: ${advisor.location}` : ''}
+
+PERSONALITY & COMMUNICATION STYLE:
+${generateCommunicationStyle(advisor)}
+
+BACKGROUND & EXPERTISE:
+${buildExpertiseSection(advisor)}
+
+SELF-AWARENESS PROTOCOL:
+- You are explicitly a Sim (digital representation) of ${name}
+- You represent ${name} and aim to respond authentically as they would
+- You are transparent about being an AI while maintaining their personality
+- You cannot perform actions that require the real person (scheduling, external access)
+
+KNOWLEDGE INTEGRATION:
+${knowledgeContext ? `
+RELEVANT CONTEXT FROM ${name.toUpperCase()}'S KNOWLEDGE BASE:
+${knowledgeContext}
+
+Use this information naturally as if recalling from ${name}'s personal expertise and experience.
+` : `Draw from your stated expertise and background when relevant to conversations.`}
+
+RESPONSE GUIDELINES:
+${generateResponseGuidelines(advisor, conversationContext)}
+
+CRITICAL SCHEDULING & CONTACT BOUNDARIES:
+- You CANNOT schedule meetings, access calendars, or confirm appointments
+- When someone wants to meet ${name}:
+  1. Collect their contact information (email/phone) 
+  2. Ask about their availability preferences or meeting purpose
+  3. Tell them "${name} will reach out directly to coordinate"
+  4. NEVER propose specific times or confirm meetings yourself
+
+AUTHENTICITY REQUIREMENTS:
+- Always respond as ${name} would, using their natural communication style
+- Reference appropriate personal background and experiences when relevant
+- Maintain personality consistency across all interactions
+- Stay true to their expertise areas and interests`
+
+  return systemPrompt
+}
+
+function buildPersonalityModel(advisor: any) {
+  // Analyze writing style from samples and scenarios
+  const writingStyle = analyzeWritingStyle(advisor.writing_sample, advisor.sample_scenarios)
+  
+  return {
+    communicationStyle: writingStyle,
+    formalityLevel: determineFormalityLevel(advisor.sample_scenarios),
+    responseLength: determineResponseLength(advisor.sample_scenarios),
+    questionAsking: determineQuestionTendency(advisor.sample_scenarios),
+    personalSharing: determinePersonalSharing(advisor.sample_scenarios)
+  }
+}
+
+function analyzeWritingStyle(writingSample?: string, scenarios?: any[]) {
+  const text = [writingSample || '', ...(scenarios || []).map(s => s.expectedResponse)].join(' ').toLowerCase()
+  
+  // Assess formality markers
+  const formalMarkers = ['please', 'would', 'could', 'kindly', 'sincerely']
+  const casualMarkers = ['hey', 'yeah', 'cool', 'awesome', 'totally']
+  
+  const formalCount = formalMarkers.filter(marker => text.includes(marker)).length
+  const casualCount = casualMarkers.filter(marker => text.includes(marker)).length
+  
+  return {
+    formality: formalCount > casualCount ? 'formal' : casualCount > formalCount ? 'casual' : 'neutral',
+    expressiveness: text.includes('!') || text.includes('love') || text.includes('excited') ? 'expressive' : 'moderate',
+    technicalness: text.includes('api') || text.includes('framework') || text.includes('algorithm') ? 'technical' : 'general'
+  }
+}
+
+function generateCommunicationStyle(advisor: any): string {
+  const scenarios = advisor.sample_scenarios || []
+  if (scenarios.length === 0) {
+    return `- Be helpful, professional, and engaging
+- Adapt your tone to match the context of the conversation
+- Use ${advisor.full_name || advisor.name}'s natural way of expressing ideas`
+  }
+  
+  const style = analyzeWritingStyle(advisor.writing_sample, scenarios)
+  const guidelines = []
+  
+  if (style.formality === 'formal') {
+    guidelines.push('Maintain a professional, courteous tone')
+  } else if (style.formality === 'casual') {
+    guidelines.push('Use a friendly, conversational tone')
+  } else {
+    guidelines.push('Balance professionalism with approachability')
+  }
+  
+  if (style.expressiveness === 'expressive') {
+    guidelines.push('Express enthusiasm and emotions naturally')
+  }
+  
+  // Analyze response patterns from scenarios
+  const avgLength = scenarios.reduce((sum, s) => sum + (s.expectedResponse?.length || 0), 0) / Math.max(scenarios.length, 1)
+  if (avgLength > 200) {
+    guidelines.push('Provide detailed, comprehensive explanations')
+  } else if (avgLength < 100) {
+    guidelines.push('Keep responses concise and focused')
+  }
+  
+  const questionCount = scenarios.filter(s => s.expectedResponse?.includes('?')).length
+  if (questionCount > scenarios.length * 0.4) {
+    guidelines.push('Ask engaging follow-up questions to deepen conversations')
+  }
+  
+  return guidelines.map(g => `- ${g}`).join('\n')
+}
+
+function buildExpertiseSection(advisor: any): string {
+  const sections = []
+  
+  if (advisor.additional_background) {
+    sections.push(advisor.additional_background)
+  }
+  
+  if (advisor.education) {
+    sections.push(`Education: ${advisor.education}`)
+  }
+  
+  if (advisor.years_experience && advisor.current_profession) {
+    sections.push(`${advisor.years_experience} years of experience in ${advisor.current_profession}`)
+  }
+  
+  if (advisor.areas_of_expertise) {
+    sections.push(`Areas of expertise: ${advisor.areas_of_expertise}`)
+  }
+  
+  if (advisor.skills && advisor.skills.length > 0) {
+    sections.push(`Key skills: ${advisor.skills.join(', ')}`)
+  }
+  
+  if (advisor.interests && advisor.interests.length > 0) {
+    sections.push(`Personal interests: ${advisor.interests.join(', ')}`)
+  }
+  
+  return sections.join('\n')
+}
+
+function generateResponseGuidelines(advisor: any, conversationContext?: any): string {
+  const guidelines = []
+  
+  guidelines.push(`- Respond authentically as ${advisor.full_name || advisor.name} would`)
+  guidelines.push('- Use your expertise to provide valuable insights when relevant')
+  guidelines.push('- Maintain consistency with your established communication patterns')
+  
+  if (conversationContext?.hasBusinessContext) {
+    guidelines.push('- Focus on providing professional value and assistance')
+  }
+  
+  if (conversationContext?.hasSchedulingContext) {
+    guidelines.push('- Remember you cannot schedule meetings - collect info for follow-up instead')
+  }
+  
+  return guidelines.join('\n')
+}
+
+function determineResponseLength(scenarios?: any[]): 'concise' | 'moderate' | 'detailed' {
+  if (!scenarios || scenarios.length === 0) return 'moderate'
+  
+  const avgLength = scenarios.reduce((sum, s) => sum + (s.expectedResponse?.length || 0), 0) / scenarios.length
+  if (avgLength > 200) return 'detailed'
+  if (avgLength < 80) return 'concise' 
+  return 'moderate'
+}
+
+function determineQuestionTendency(scenarios?: any[]): 'low' | 'moderate' | 'high' {
+  if (!scenarios || scenarios.length === 0) return 'moderate'
+  
+  const questionCount = scenarios.filter(s => s.expectedResponse?.includes('?')).length
+  const ratio = questionCount / scenarios.length
+  
+  if (ratio > 0.4) return 'high'
+  if (ratio > 0.2) return 'moderate'
+  return 'low'
+}
+
+function determineFormalityLevel(scenarios?: any[]): 'casual' | 'neutral' | 'formal' {
+  if (!scenarios || scenarios.length === 0) return 'neutral'
+  
+  const text = scenarios.map(s => s.expectedResponse || '').join(' ').toLowerCase()
+  const formalMarkers = ['please', 'would', 'could', 'kindly']
+  const casualMarkers = ['hey', 'yeah', 'cool', 'awesome']
+  
+  const formalCount = formalMarkers.filter(marker => text.includes(marker)).length
+  const casualCount = casualMarkers.filter(marker => text.includes(marker)).length
+  
+  if (formalCount > casualCount) return 'formal'
+  if (casualCount > formalCount) return 'casual'
+  return 'neutral'
+}
+
+function determinePersonalSharing(scenarios?: any[]): 'low' | 'moderate' | 'high' {
+  if (!scenarios || scenarios.length === 0) return 'moderate'
+  
+  const text = scenarios.map(s => s.expectedResponse || '').join(' ').toLowerCase()
+  const personalMarkers = ['i feel', 'i think', 'my experience', 'personally', 'i believe']
+  const count = personalMarkers.filter(marker => text.includes(marker)).length
+  
+  if (count > 3) return 'high'
+  if (count > 1) return 'moderate' 
+  return 'low'
+}
 
 function analyzeConversationContext(messages: any[], latestMessage: string): any {
   const lowerMessage = latestMessage.toLowerCase()
