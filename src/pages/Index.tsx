@@ -1,12 +1,17 @@
 
+import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { Navigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
-import { Bot, Sparkles, Shield, Users } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Search } from "lucide-react";
+import AuthModal from "@/components/AuthModal";
+import AdvisorDirectory from "@/components/AdvisorDirectory";
 
 const Index = () => {
   const { user, loading } = useAuth();
+  const [searchTerm, setSearchTerm] = useState("");
+  const [showAuthModal, setShowAuthModal] = useState(false);
 
   if (loading) {
     return (
@@ -21,80 +26,97 @@ const Index = () => {
     return <Navigate to="/app" replace />;
   }
 
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    // Scroll to the directory section
+    document.getElementById('directory-section')?.scrollIntoView({ 
+      behavior: 'smooth' 
+    });
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-gray-50">
-      {/* Header */}
-      <header className="container mx-auto px-4 py-6 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <img 
-            src="/lovable-uploads/55ccce33-98a1-45d2-9e9e-7b446a02a417.png" 
-            alt="Think With Me" 
-            className="h-8 w-8"
+      {/* Main Google-style homepage */}
+      <div className="min-h-screen flex flex-col">
+        {/* Header with Sign In */}
+        <header className="p-6 flex justify-end">
+          <Button 
+            variant="outline" 
+            onClick={() => setShowAuthModal(true)}
+          >
+            Sign In
+          </Button>
+        </header>
+
+        {/* Centered content */}
+        <div className="flex-1 flex flex-col items-center justify-center px-4 -mt-20">
+          {/* Logo */}
+          <div className="mb-8">
+            <img 
+              src="/lovable-uploads/55ccce33-98a1-45d2-9e9e-7b446a02a417.png" 
+              alt="Think With Me" 
+              className="h-20 w-20 mx-auto mb-4"
+            />
+            <h1 className="text-4xl font-light text-gray-900 text-center">Think With Me</h1>
+          </div>
+
+          {/* "Find a Sim" text */}
+          <p className="text-lg text-gray-600 mb-8">Find a Sim</p>
+
+          {/* Search Bar */}
+          <form onSubmit={handleSearch} className="w-full max-w-md mb-6">
+            <div className="relative">
+              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+              <Input
+                type="text"
+                placeholder="Search for a Sim..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-12 h-12 text-lg border-2 border-gray-200 rounded-full hover:border-gray-300 focus:border-primary transition-colors"
+              />
+            </div>
+          </form>
+
+          {/* Create Sim link */}
+          <button
+            onClick={() => setShowAuthModal(true)}
+            className="text-sm text-gray-600 hover:text-primary hover:underline transition-colors"
+          >
+            Create your own Sim today for free
+          </button>
+        </div>
+
+        {/* Scroll to Explore */}
+        <div className="pb-8 text-center">
+          <button
+            onClick={() => document.getElementById('directory-section')?.scrollIntoView({ behavior: 'smooth' })}
+            className="text-sm text-gray-500 hover:text-gray-700 transition-colors"
+          >
+            Scroll to Explore
+          </button>
+        </div>
+      </div>
+
+      {/* Directory Section */}
+      <div id="directory-section" className="min-h-screen bg-white border-t border-gray-200">
+        <div className="py-8">
+          <h2 className="text-3xl font-bold text-center mb-8">Explore All Sims</h2>
+          <AdvisorDirectory
+            onSelectAdvisor={(advisorId, advisor) => {
+              // Handle advisor selection - open in new tab
+              const chatUrl = advisor?.custom_url ? `/${advisor.custom_url}` : `/tutors/${advisorId}/chat`;
+              window.open(chatUrl, '_blank');
+            }}
+            showLoginInHeader={false}
           />
-          <h1 className="font-bold text-xl">Think With Me</h1>
         </div>
-        <Link to="/login">
-          <Button variant="outline">Sign In</Button>
-        </Link>
-      </header>
+      </div>
 
-      {/* Hero Section */}
-      <main className="container mx-auto px-4 py-20 text-center">
-        <div className="max-w-4xl mx-auto">
-          <h1 className="text-5xl font-bold tracking-tight mb-6">
-            AI-Powered Learning
-            <span className="block text-primary">Made Personal</span>
-          </h1>
-          <p className="text-xl text-gray-600 mb-8 leading-relaxed">
-            Create personalized AI tutors that adapt to your child's learning style. 
-            From math to science, language arts to history - every subject becomes an engaging conversation.
-          </p>
-          
-          <div className="flex gap-4 justify-center mb-16">
-            <Link to="/login">
-              <Button size="lg" className="px-8">
-                Get Started Free
-              </Button>
-            </Link>
-            <Button size="lg" variant="outline" className="px-8">
-              Watch Demo
-            </Button>
-          </div>
-
-          {/* Features Grid */}
-          <div className="grid md:grid-cols-3 gap-8 mt-20">
-            <div className="p-6 rounded-xl bg-white shadow-sm border">
-              <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4 mx-auto">
-                <Bot className="h-6 w-6 text-primary" />
-              </div>
-              <h3 className="font-semibold text-lg mb-2">Personalized AI Tutors</h3>
-              <p className="text-gray-600">
-                Create custom AI tutors tailored to your child's grade level, learning style, and interests.
-              </p>
-            </div>
-
-            <div className="p-6 rounded-xl bg-white shadow-sm border">
-              <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4 mx-auto">
-                <Sparkles className="h-6 w-6 text-primary" />
-              </div>
-              <h3 className="font-semibold text-lg mb-2">Adaptive Learning</h3>
-              <p className="text-gray-600">
-                Our AI adapts to your child's pace, providing just the right level of challenge and support.
-              </p>
-            </div>
-
-            <div className="p-6 rounded-xl bg-white shadow-sm border">
-              <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4 mx-auto">
-                <Shield className="h-6 w-6 text-primary" />
-              </div>
-              <h3 className="font-semibold text-lg mb-2">Safe & Secure</h3>
-              <p className="text-gray-600">
-                Built with privacy in mind. Your child's data is protected with enterprise-grade security.
-              </p>
-            </div>
-          </div>
-        </div>
-      </main>
+      {/* Auth Modal */}
+      <AuthModal 
+        isOpen={showAuthModal}
+        onClose={() => setShowAuthModal(false)}
+      />
     </div>
   );
 };
