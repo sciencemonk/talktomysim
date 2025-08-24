@@ -65,7 +65,7 @@ export const SidebarContent = ({
   onAuthRequired
 }: SidebarContentProps) => {
   const { user } = useAuth();
-  const { completionStatus } = useSim();
+  const { completionStatus, sim } = useSim();
 
   return (
     <div className="flex flex-col h-full bg-card border-r border-border">
@@ -239,7 +239,20 @@ export const SidebarContent = ({
         {/* User Settings at Bottom */}
         {user && (
           <div className="p-4 border-t border-border">
-            <UserSettingsDropdown simplified={true} />
+            <div className="flex items-center gap-3">
+              <Avatar className="h-8 w-8 flex-shrink-0">
+                <AvatarImage src={sim?.avatar_url} alt={sim?.name || "User Avatar"} />
+                <AvatarFallback className="bg-primary/10 text-primary">
+                  {sim?.name?.charAt(0)?.toUpperCase() || user.email?.charAt(0)?.toUpperCase() || "U"}
+                </AvatarFallback>
+              </Avatar>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium truncate">
+                  {sim?.name || user.email}
+                </p>
+              </div>
+              <UserSettingsDropdown simplified={true} />
+            </div>
           </div>
         )}
       </div>
