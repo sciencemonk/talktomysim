@@ -28,6 +28,7 @@ export const ChatInterface = ({ agent, onToggleAudio, isAudioEnabled = false, on
   const [messages, setMessages] = useState<Message[]>([]);
   const [conversation, setConversation] = useState<Conversation | null>(null);
   const [currentAiMessage, setCurrentAiMessage] = useState<string>('');
+  const [hasLoadedInitialMessages, setHasLoadedInitialMessages] = useState(false);
 
   // Initialize conversation on component mount
   useEffect(() => {
@@ -44,18 +45,30 @@ export const ChatInterface = ({ agent, onToggleAudio, isAudioEnabled = false, on
   // Load existing messages when conversation is available
   const { messages: historyMessages, isLoading, loadMessages } = useChatHistory(conversation?.id || null);
 
-  // Update local messages when history loads
+  // Update local messages when history loads and show welcome message if needed
   useEffect(() => {
-    if (historyMessages && historyMessages.length > 0) {
-      const formattedMessages: Message[] = historyMessages.map(msg => ({
-        id: msg.id,
-        role: msg.role,
-        content: msg.content,
-        timestamp: new Date(msg.created_at).getTime()
-      }));
-      setMessages(formattedMessages);
+    if (historyMessages && conversation?.id && !hasLoadedInitialMessages) {
+      if (historyMessages.length > 0) {
+        const formattedMessages: Message[] = historyMessages.map(msg => ({
+          id: msg.id,
+          role: msg.role,
+          content: msg.content,
+          timestamp: new Date(msg.created_at).getTime()
+        }));
+        setMessages(formattedMessages);
+      } else if (agent?.welcomeMessage) {
+        // Show welcome message if no existing messages and agent has a welcome message
+        const welcomeMsg: Message = {
+          id: 'welcome-message',
+          role: 'system',
+          content: agent.welcomeMessage,
+          timestamp: Date.now()
+        };
+        setMessages([welcomeMsg]);
+      }
+      setHasLoadedInitialMessages(true);
     }
-  }, [historyMessages]);
+  }, [historyMessages, conversation?.id, agent?.welcomeMessage, hasLoadedInitialMessages]);
 
   const addUserMessage = useCallback(async (message: string) => {
     const userMsg: Message = {
@@ -70,10 +83,8 @@ export const ChatInterface = ({ agent, onToggleAudio, isAudioEnabled = false, on
     // Save to database if conversation exists
     if (conversation?.id) {
       await conversationService.addMessage(conversation.id, 'user', message);
-      // Reload messages to ensure consistency
-      await loadMessages();
     }
-  }, [conversation?.id, loadMessages]);
+  }, [conversation?.id]);
 
   const startAiMessage = useCallback(() => {
     // Clear current AI message and return ID for tracking
@@ -89,10 +100,10 @@ export const ChatInterface = ({ agent, onToggleAudio, isAudioEnabled = false, on
     setMessages(prev => {
       // Check if the last message is from the system
       const lastMessage = prev[prev.length - 1];
-      if (lastMessage && lastMessage.role === 'system') {
+      if (lastMessage && lastMessage.role === 'system' && lastMessage.id.startsWith('ai-')) {
         // Update existing AI message
         return prev.map((msg, index) => 
-          index === prev.length - 1 && msg.role === 'system'
+          index === prev.length - 1 && msg.role === 'system' && msg.id.startsWith('ai-')
             ? { ...msg, content: msg.content + delta }
             : msg
         );
@@ -114,12 +125,23 @@ export const ChatInterface = ({ agent, onToggleAudio, isAudioEnabled = false, on
     if (conversation?.id && finalContent && finalContent.trim()) {
       console.log('Saving AI message to database:', finalContent);
       await conversationService.addMessage(conversation.id, 'system', finalContent);
-      // Reload messages to ensure consistency with database
-      await loadMessages();
+      
+      // Update the local message with the final content and a proper database ID
+      setMessages(prev => {
+        const lastMessage = prev[prev.length - 1];
+        if (lastMessage && lastMessage.role === 'system' && lastMessage.id.startsWith('ai-')) {
+          return prev.map((msg, index) => 
+            index === prev.length - 1 && msg.role === 'system' && msg.id.startsWith('ai-')
+              ? { ...msg, content: finalContent, id: `saved-${Date.now()}` }
+              : msg
+          );
+        }
+        return prev;
+      });
     }
     // Clear current AI message
     setCurrentAiMessage('');
-  }, [conversation?.id, loadMessages]);
+  }, [conversation?.id]);
 
   const { sendMessage, isProcessing } = useEnhancedTextChat({
     agent,
@@ -145,7 +167,7 @@ export const ChatInterface = ({ agent, onToggleAudio, isAudioEnabled = false, on
     }
   };
 
-  if (isLoading) {
+  if (isLoading && !hasLoadedInitialMessages) {
     return (
       <div className="flex items-center justify-center h-full">
         <div className="animate-pulse">Loading conversation...</div>
