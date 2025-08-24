@@ -225,6 +225,7 @@ const Home = () => {
       return (
         <ChatInterface
           agent={currentChatAgent}
+          isUserOwnSim={isUserOwnSim}
           onBack={() => {
             setSelectedAgent(null);
             setSelectedAdvisor(null);

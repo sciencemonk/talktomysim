@@ -58,10 +58,11 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
       if (!agent?.id) return;
       
       setIsInitializing(true);
-      console.log('Initializing conversation for agent:', agent.id);
+      console.log('Initializing conversation for agent:', agent.id, 'isUserSim:', isUserOwnSim);
       
       try {
-        const conv = await conversationService.getOrCreateConversation(agent.id);
+        // Pass the isUserSim flag to distinguish between user sims and public advisors
+        const conv = await conversationService.getOrCreateConversation(agent.id, isUserOwnSim);
         if (conv) {
           console.log('Got conversation:', conv.id);
           setConversation(conv);
@@ -86,7 +87,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
     };
 
     initializeConversation();
-  }, [agent?.id, toast]);
+  }, [agent?.id, isUserOwnSim, toast]);
 
   // Load messages when conversation is ready
   useEffect(() => {

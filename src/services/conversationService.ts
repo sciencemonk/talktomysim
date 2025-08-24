@@ -20,31 +20,66 @@ export interface Message {
 }
 
 export const conversationService = {
-  // Get or create a conversation for a user and advisor
-  async getOrCreateConversation(advisorId: string): Promise<Conversation | null> {
+  // Get or create a conversation - handles both user sims and public advisors
+  async getOrCreateConversation(agentId: string, isUserSim: boolean = false): Promise<Conversation | null> {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       
-      if (user) {
-        // Authenticated user - normal flow
-        // First try to get existing conversation for this advisor
+      if (user && isUserSim) {
+        // Signed-in user talking to their own sim - use tutors table
+        console.log('Creating conversation for user sim:', agentId);
+        
+        // First try to get existing conversation for this tutor
         const { data: existingConversation } = await supabase
           .from('conversations')
           .select('*')
           .eq('user_id', user.id)
-          .eq('tutor_id', advisorId)
+          .eq('tutor_id', agentId)
+          .is('advisor_id', null)
           .maybeSingle();
 
         if (existingConversation) {
           return existingConversation;
         }
 
-        // Create new conversation if it doesn't exist
+        // Create new conversation for user sim
         const { data: newConversation, error } = await supabase
           .from('conversations')
           .insert({
             user_id: user.id,
-            tutor_id: advisorId,
+            tutor_id: agentId,
+            advisor_id: null,
+            title: 'My Sim Chat'
+          })
+          .select()
+          .single();
+
+        if (error) throw error;
+        return newConversation;
+        
+      } else if (user && !isUserSim) {
+        // Signed-in user talking to a public advisor - use advisors table
+        console.log('Creating conversation for signed-in user with public advisor:', agentId);
+        
+        // First try to get existing conversation for this advisor
+        const { data: existingConversation } = await supabase
+          .from('conversations')
+          .select('*')
+          .eq('user_id', user.id)
+          .eq('advisor_id', agentId)
+          .maybeSingle();
+
+        if (existingConversation) {
+          return existingConversation;
+        }
+
+        // Create new conversation with public advisor
+        const { data: newConversation, error } = await supabase
+          .from('conversations')
+          .insert({
+            user_id: user.id,
+            advisor_id: agentId,
+            tutor_id: agentId, // Set tutor_id to agentId for compatibility
             title: null
           })
           .select()
@@ -52,10 +87,13 @@ export const conversationService = {
 
         if (error) throw error;
         return newConversation;
+        
       } else {
+        // Anonymous user on public advisor page
+        console.log('Creating anonymous conversation for public advisor:', agentId);
+        
         // For anonymous users, create a single conversation per session
-        // Use localStorage to track if we already have a conversation for this advisor
-        const sessionKey = `anon_conversation_${advisorId}`;
+        const sessionKey = `anon_conversation_${agentId}`;
         const existingConversationId = localStorage.getItem(sessionKey);
         
         if (existingConversationId) {
@@ -64,7 +102,8 @@ export const conversationService = {
             .from('conversations')
             .select('*')
             .eq('id', existingConversationId)
-            .eq('tutor_id', advisorId)
+            .eq('tutor_id', agentId)
+            .is('user_id', null)
             .maybeSingle();
             
           if (existingConversation) {
@@ -76,14 +115,13 @@ export const conversationService = {
           }
         }
 
-        console.log('Creating new anonymous conversation for advisor:', advisorId);
-        
-        // Create new anonymous conversation
+        // Create new anonymous conversation with public advisor
         const { data: newConversation, error } = await supabase
           .from('conversations')
           .insert({
             user_id: null,
-            tutor_id: advisorId,
+            advisor_id: null,
+            tutor_id: agentId, // For anonymous users, store advisor ID in tutor_id field
             title: 'Anonymous Chat'
           })
           .select()
