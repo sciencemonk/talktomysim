@@ -1,348 +1,170 @@
-import { useState, useEffect } from "react";
+import React, { useState, useCallback } from "react";
 import { useAuth } from "@/hooks/useAuth";
-import { Navigate } from "react-router-dom";
-import AdvisorDirectory from "@/components/AdvisorDirectory";
-import { ChatInterface } from "@/components/ChatInterface";
-import AuthModal from "@/components/AuthModal";
-import UserSidebar, { SidebarContent } from "@/components/UserSidebar";
+import { useSim } from "@/hooks/useSim";
+import { useQuery } from "@tanstack/react-query";
+import { AgentType } from "@/types/agent";
+import { advisorService } from "@/services/advisorService";
+import { publicAgentService } from "@/services/publicAgentService";
+import UserSidebar from "@/components/UserSidebar";
 import MySim from "@/components/MySim";
 import BasicInfo from "@/components/BasicInfo";
 import InteractionModel from "@/components/InteractionModel";
-import { CoreKnowledge } from "@/components/CoreKnowledge";
+import CoreKnowledge from "@/components/CoreKnowledge";
 import Integrations from "@/components/Integrations";
 import Actions from "@/components/Actions";
-import { AgentType } from "@/types/agent";
-import { useUserAdvisors } from "@/hooks/useUserAdvisors";
-import { useToast } from "@/hooks/use-toast";
-import { useIsMobile } from "@/hooks/use-mobile";
-import { Menu } from "lucide-react";
+import AdvisorDirectory from "@/components/AdvisorDirectory";
+import AuthModal from "@/components/AuthModal";
+import { ChatInterface } from "@/components/ChatInterface";
 import { Button } from "@/components/ui/button";
-import {
-  Sheet,
-  SheetContent,
-  SheetTrigger,
-} from "@/components/ui/sheet";
-import { useSim } from "@/hooks/useSim";
-
-type ViewType = 'directory' | 'my-sim' | 'basic-info' | 'interaction-model' | 'core-knowledge' | 'integrations' | 'actions' | 'search' | 'talk-to-sim';
+import { Menu } from "lucide-react";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
 const Home = () => {
-  const { user, loading } = useAuth();
-  const { advisorsAsAgents, addAdvisor, removeAdvisor } = useUserAdvisors();
-  const { toast } = useToast();
-  const isMobile = useIsMobile();
-  const { sim } = useSim(); // Move this to top level
-  const [selectedAdvisor, setSelectedAdvisor] = useState<AgentType | null>(null);
+  const { user } = useAuth();
+  const { sim } = useSim();
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [selectedAgent, setSelectedAgent] = useState<AgentType | null>(null);
   const [selectedPublicAdvisorId, setSelectedPublicAdvisorId] = useState<string | null>(null);
-  // Default to 'my-sim' for authenticated users, 'directory' for non-authenticated
-  const [currentView, setCurrentView] = useState<ViewType>(user ? 'my-sim' : 'directory');
-  const [mobileSheetOpen, setMobileSheetOpen] = useState(false);
+  const [selectedPublicAdvisors, setSelectedPublicAdvisors] = useState<AgentType[]>([]);
+  
+  // Change default view to "talk-to-sim" instead of "my-sim"
+  const [activeView, setActiveView] = useState<string>("talk-to-sim");
 
-  // Update default view when user authentication state changes
-  useEffect(() => {
-    if (user && currentView === 'directory') {
-      setCurrentView('my-sim');
-    } else if (!user && currentView !== 'directory') {
-      setCurrentView('directory');
-    }
-  }, [user, currentView]);
+  const { data: agents = [], isLoading: agentsLoading } = useQuery({
+    queryKey: ['agents'],
+    queryFn: advisorService.getAdvisors,
+  });
 
-  // Handle auth modal close
-  const handleAuthModalClose = (open: boolean) => {
-    setShowAuthModal(open);
-  };
+  const { data: publicAdvisors = [], isLoading: publicAdvisorsLoading } = useQuery({
+    queryKey: ['public-advisors'],
+    queryFn: publicAgentService.getPublicAgents,
+  });
 
-  // Handle auth required (when non-signed-in user tries to start chat)
-  const handleAuthRequired = () => {
-    setShowAuthModal(true);
-  };
-
-  // Handle advisor selection from directory
-  const handleAdvisorSelect = async (advisorId: string, advisor?: AgentType) => {
-    if (!user) {
-      // Show auth modal for non-signed-in users
-      setShowAuthModal(true);
-    } else {
-      // User is signed in, proceed directly
-      if (advisor) {
-        // Check if advisor is already in user's list
-        const isAlreadyAdded = advisorsAsAgents.some(a => a.id === advisor.id);
-        
-        if (!isAlreadyAdded) {
-          try {
-            await addAdvisor(advisor);
-          } catch (error) {
-            console.error("Failed to add advisor:", error);
-            toast({
-              title: "Error",
-              description: "Failed to add advisor to your list.",
-              variant: "destructive"
-            });
-          }
-        }
-        
-        setSelectedAdvisor(advisor);
-        setSelectedPublicAdvisorId(advisor.id);
-        setCurrentView('search'); // Keep the search view when selecting advisor
-      }
-    }
-  };
-
-  // Handle agent selection from sidebar
-  const handleAgentSelect = (agent: AgentType) => {
+  const handleSelectAgent = (agent: AgentType) => {
     setSelectedAgent(agent);
-    setSelectedAdvisor(null);
-    setSelectedPublicAdvisorId(null);
-    setCurrentView('directory'); // Reset view when selecting agent
-    setMobileSheetOpen(false); // Close mobile sheet
   };
 
-  // Handle public advisor selection from sidebar
-  const handlePublicAdvisorSelect = (advisorId: string, advisor?: AgentType) => {
+  const handleSelectPublicAdvisor = (advisorId: string, advisor?: AgentType) => {
     setSelectedPublicAdvisorId(advisorId);
     if (advisor) {
-      setSelectedAdvisor(advisor);
-    }
-    setSelectedAgent(null);
-    setCurrentView('directory'); // Reset view when selecting public advisor
-    setMobileSheetOpen(false); // Close mobile sheet
-  };
-
-  // Handle removing public advisor
-  const handleRemovePublicAdvisor = async (advisorId: string) => {
-    try {
-      await removeAdvisor(advisorId);
-      if (selectedPublicAdvisorId === advisorId) {
-        setSelectedPublicAdvisorId(null);
-        setSelectedAdvisor(null);
-      }
-    } catch (error) {
-      console.error("Failed to remove advisor:", error);
-      toast({
-        title: "Error",
-        description: "Failed to remove advisor.",
-        variant: "destructive"
+      setSelectedPublicAdvisors(prev => {
+        if (prev.find(a => a.id === advisorId)) {
+          return prev;
+        }
+        return [...prev, advisor];
       });
     }
   };
 
-  // Handle showing advisor directory
+  const handleRemovePublicAdvisor = (advisorId: string) => {
+    setSelectedPublicAdvisors(prev => prev.filter(advisor => advisor.id !== advisorId));
+  };
+
   const handleShowAdvisorDirectory = () => {
-    setSelectedAgent(null);
-    setSelectedAdvisor(null);
-    setSelectedPublicAdvisorId(null);
-    setCurrentView('directory');
-    setMobileSheetOpen(false); // Close mobile sheet
+    setActiveView("directory");
   };
 
-  // Handle search navigation
-  const handleNavigateToSearch = () => {
-    setCurrentView('search');
-    setSelectedAgent(null);
-    setSelectedAdvisor(null);
-    setSelectedPublicAdvisorId(null);
-    setMobileSheetOpen(false); // Close mobile sheet
-  };
-
-  // Handle navigation to different views
   const handleNavigateToMySim = () => {
-    setCurrentView('my-sim');
-    setSelectedAgent(null);
-    setSelectedAdvisor(null);
-    setSelectedPublicAdvisorId(null);
-    setMobileSheetOpen(false); // Close mobile sheet
+    setActiveView("my-sim");
   };
 
   const handleNavigateToBasicInfo = () => {
-    setCurrentView('basic-info');
-    setSelectedAgent(null);
-    setSelectedAdvisor(null);
-    setSelectedPublicAdvisorId(null);
-    setMobileSheetOpen(false); // Close mobile sheet
+    setActiveView("basic-info");
   };
 
   const handleNavigateToInteractionModel = () => {
-    setCurrentView('interaction-model');
-    setSelectedAgent(null);
-    setSelectedAdvisor(null);
-    setSelectedPublicAdvisorId(null);
-    setMobileSheetOpen(false); // Close mobile sheet
+    setActiveView("interaction-model");
   };
 
   const handleNavigateToCoreKnowledge = () => {
-    setCurrentView('core-knowledge');
-    setSelectedAgent(null);
-    setSelectedAdvisor(null);
-    setSelectedPublicAdvisorId(null);
-    setMobileSheetOpen(false); // Close mobile sheet
+    setActiveView("core-knowledge");
   };
 
   const handleNavigateToIntegrations = () => {
-    setCurrentView('integrations');
-    setSelectedAgent(null);
-    setSelectedAdvisor(null);
-    setSelectedPublicAdvisorId(null);
-    setMobileSheetOpen(false); // Close mobile sheet
+    setActiveView("integrations");
   };
 
   const handleNavigateToActions = () => {
-    setCurrentView('actions');
-    setSelectedAgent(null);
-    setSelectedAdvisor(null);
-    setSelectedPublicAdvisorId(null);
-    setMobileSheetOpen(false); // Close mobile sheet
+    setActiveView("actions");
   };
 
-  // Handle navigation to talk to sim
+  const handleNavigateToSearch = () => {
+    setActiveView("search");
+  };
+
   const handleNavigateToTalkToSim = () => {
-    setCurrentView('talk-to-sim');
-    setSelectedAgent(null);
-    setSelectedAdvisor(null);
-    setSelectedPublicAdvisorId(null);
-    setMobileSheetOpen(false); // Close mobile sheet
+    setActiveView("talk-to-sim");
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-      </div>
-    );
-  }
-
-  // Determine which agent/advisor to show in chat
-  const currentChatAgent = selectedAgent || selectedAdvisor;
-
-  // Render the appropriate content based on current view and selections
-  const renderMainContent = () => {
-    // If there's a chat agent selected, show chat interface
-    if (currentChatAgent) {
-      // Check if this is the user's own sim
-      const isUserOwnSim = currentView === 'talk-to-sim';
-      
+  const renderContent = () => {
+    if (!user) {
       return (
-        <ChatInterface
-          agent={currentChatAgent}
-          isUserOwnSim={isUserOwnSim}
-          onBack={() => {
-            setSelectedAgent(null);
-            setSelectedAdvisor(null);
-            setSelectedPublicAdvisorId(null);
-            // Return to the previous view context
-            if (currentView === 'search') {
-              setCurrentView('search');
-            } else if (currentView === 'talk-to-sim') {
-              setCurrentView('my-sim');
-            } else {
-              setCurrentView('directory');
-            }
-          }}
-        />
+        <div className="flex-1 flex items-center justify-center">
+          <div className="text-center">
+            <h2 className="text-2xl font-bold mb-4">Welcome to My Sim</h2>
+            <p className="text-muted-foreground mb-6">Sign in to create and manage your AI simulation</p>
+            <Button onClick={() => setShowAuthModal(true)}>Sign In</Button>
+          </div>
+        </div>
       );
     }
 
-    // Otherwise, show the appropriate view
-    switch (currentView) {
-      case 'my-sim':
+    switch (activeView) {
+      case "talk-to-sim":
+        return sim ? (
+          <ChatInterface 
+            agent={sim} 
+            isUserOwnSim={true}
+          />
+        ) : (
+          <div className="flex-1 flex items-center justify-center">
+            <div className="text-center">
+              <h2 className="text-2xl font-bold mb-4">Create Your Sim</h2>
+              <p className="text-muted-foreground mb-6">Start by setting up your basic information</p>
+              <Button onClick={() => setActiveView("basic-info")}>Get Started</Button>
+            </div>
+          </div>
+        );
+      case "my-sim":
         return <MySim />;
-      case 'talk-to-sim':
-        // Show chat interface with user's own sim
-        if (sim) {
-          const userSimAsAgent: AgentType = {
-            id: sim.id,
-            name: sim.name || 'My Sim',
-            title: sim.professional_title || 'Assistant',
-            description: sim.description || 'Your personal AI assistant',
-            type: 'General Tutor',
-            status: 'active',
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
-            subject: 'General',
-            gradeLevel: 'All',
-            learningObjective: sim.description || 'General assistance',
-            avatar: sim.avatar_url || '',
-            prompt: sim.prompt || '',
-            welcomeMessage: sim.welcome_message || `Hello! I'm ${sim.name || 'your assistant'}. How can I help you today?`
-          };
-          return (
-            <ChatInterface
-              agent={userSimAsAgent}
-              isUserOwnSim={true}
-              onBack={() => setCurrentView('my-sim')}
-            />
-          );
-        }
-        return <div className="flex items-center justify-center h-full text-muted-foreground">No sim found</div>;
-      case 'basic-info':
+      case "basic-info":
         return <BasicInfo />;
-      case 'interaction-model':
+      case "interaction-model":
         return <InteractionModel />;
-      case 'core-knowledge':
-        // Use the first available advisor ID, or user ID if no advisors
-        const advisorId = selectedPublicAdvisorId || 
-                         (advisorsAsAgents.length > 0 ? advisorsAsAgents[0].id : '') ||
-                         user?.id || 
-                         'default';
-        return <CoreKnowledge advisorId={advisorId} />;
-      case 'integrations':
+      case "core-knowledge":
+        return <CoreKnowledge />;
+      case "integrations":
         return <Integrations />;
-      case 'actions':
+      case "actions":
         return <Actions />;
-      case 'search':
-        return (
-          <AdvisorDirectory 
-            onSelectAdvisor={handleAdvisorSelect}
-            onAuthRequired={handleAuthRequired}
-            showLoginInHeader={!user}
-            onLoginClick={() => setShowAuthModal(true)}
-          />
-        );
-      case 'directory':
+      case "directory":
+        return <AdvisorDirectory
+          agents={agents}
+          publicAdvisors={publicAdvisors}
+          onSelectAgent={handleSelectAgent}
+          onSelectPublicAdvisor={handleSelectPublicAdvisor}
+          selectedPublicAdvisors={selectedPublicAdvisors}
+        />;
+      case "search":
+        return <div className="flex-1 flex items-center justify-center">
+          <div className="text-center">
+            <h2 className="text-2xl font-bold mb-4">Search</h2>
+            <p className="text-muted-foreground mb-6">Coming soon...</p>
+          </div>
+        </div>;
       default:
-        return (
-          <AdvisorDirectory 
-            onSelectAdvisor={handleAdvisorSelect}
-            onAuthRequired={handleAuthRequired}
-            showLoginInHeader={!user}
-            onLoginClick={() => setShowAuthModal(true)}
-          />
-        );
+        return <MySim />;
     }
   };
 
-  // For non-signed in users, show the clean layout without header
-  if (!user) {
-    return (
-      <div className="flex flex-col h-screen bg-background">
-        {/* Directory Content with integrated header */}
-        <div className="flex-1">
-          <AdvisorDirectory 
-            onSelectAdvisor={handleAdvisorSelect}
-            onAuthRequired={handleAuthRequired}
-            showLoginInHeader={true}
-            onLoginClick={() => setShowAuthModal(true)}
-          />
-        </div>
-        
-        <AuthModal 
-          open={showAuthModal} 
-          onOpenChange={setShowAuthModal}
-        />
-      </div>
-    );
-  }
-
-  // For signed-in users, show the regular layout
   return (
-    <div className="flex h-screen bg-background">
+    <div className="min-h-screen bg-background flex">
       <UserSidebar
         selectedAgent={selectedAgent}
         selectedPublicAdvisorId={selectedPublicAdvisorId}
-        selectedPublicAdvisors={advisorsAsAgents}
-        onSelectAgent={handleAgentSelect}
-        onSelectPublicAdvisor={handlePublicAdvisorSelect}
+        selectedPublicAdvisors={selectedPublicAdvisors}
+        onSelectAgent={handleSelectAgent}
+        onSelectPublicAdvisor={handleSelectPublicAdvisor}
         onRemovePublicAdvisor={handleRemovePublicAdvisor}
         onShowAdvisorDirectory={handleShowAdvisorDirectory}
         onNavigateToMySim={handleNavigateToMySim}
@@ -353,64 +175,14 @@ const Home = () => {
         onNavigateToActions={handleNavigateToActions}
         onNavigateToSearch={handleNavigateToSearch}
         onNavigateToTalkToSim={handleNavigateToTalkToSim}
-        activeView={currentView}
-        onAuthRequired={handleAuthRequired}
+        activeView={activeView}
+        onAuthRequired={() => setShowAuthModal(true)}
       />
       
-      {/* Main content with left margin to account for fixed sidebar on desktop */}
-      <div className="flex-1 flex flex-col md:ml-80">
-        {/* Mobile Header - shared across all views */}
-        <div className="md:hidden bg-card border-b border-border p-4">
-          <div className="flex items-center">
-            <Sheet open={mobileSheetOpen} onOpenChange={setMobileSheetOpen}>
-              <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="flex-shrink-0">
-                  <Menu className="h-5 w-5" />
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="left" className="p-0 w-80">
-                <SidebarContent
-                  selectedAgent={selectedAgent}
-                  selectedPublicAdvisorId={selectedPublicAdvisorId}
-                  selectedPublicAdvisors={advisorsAsAgents}
-                  onSelectAgent={handleAgentSelect}
-                  onSelectPublicAdvisor={handlePublicAdvisorSelect}
-                  onRemovePublicAdvisor={handleRemovePublicAdvisor}
-                  onShowAdvisorDirectory={handleShowAdvisorDirectory}
-                  onNavigateToMySim={handleNavigateToMySim}
-                  onNavigateToBasicInfo={handleNavigateToBasicInfo}
-                  onNavigateToInteractionModel={handleNavigateToInteractionModel}
-                  onNavigateToCoreKnowledge={handleNavigateToCoreKnowledge}
-                  onNavigateToIntegrations={handleNavigateToIntegrations}
-                  onNavigateToActions={handleNavigateToActions}
-                  onNavigateToSearch={handleNavigateToSearch}
-                  onNavigateToTalkToSim={handleNavigateToTalkToSim}
-                  activeView={currentView}
-                  onClose={() => setMobileSheetOpen(false)}
-                  onAuthRequired={handleAuthRequired}
-                />
-              </SheetContent>
-            </Sheet>
-            
-            <div className="flex-1 flex justify-center">
-              <img 
-                src="/lovable-uploads/d1283b59-7cfa-45f5-b151-4c32b24f3621.png" 
-                alt="Logo" 
-                className="h-8 w-8 object-contain"
-              />
-            </div>
-            
-            {/* Invisible spacer to balance the hamburger menu */}
-            <div className="flex-shrink-0 w-10"></div>
-          </div>
-        </div>
-        
-        {/* Main Content */}
-        <div className="flex-1">
-          {renderMainContent()}
-        </div>
+      <div className="flex-1">
+        {renderContent()}
       </div>
-      
+
       <AuthModal 
         open={showAuthModal} 
         onOpenChange={setShowAuthModal}
