@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -37,16 +38,27 @@ export const ChatInterface = ({
   const [conversation, setConversation] = useState<Conversation | null>(null);
   const [currentAiMessage, setCurrentAiMessage] = useState<string>('');
   const [hasLoadedInitialMessages, setHasLoadedInitialMessages] = useState(false);
+  const [shouldAutoScroll, setShouldAutoScroll] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
 
-  // Auto-scroll to bottom when messages change
-  const scrollToBottom = useCallback(() => {
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+  // Check if user is near bottom to determine auto-scroll behavior
+  const checkScrollPosition = useCallback(() => {
+    if (messagesContainerRef.current) {
+      const { scrollTop, scrollHeight, clientHeight } = messagesContainerRef.current;
+      const isNearBottom = scrollHeight - scrollTop - clientHeight < 100;
+      setShouldAutoScroll(isNearBottom);
     }
   }, []);
 
-  // Scroll to bottom when messages update
+  // Auto-scroll to bottom only if user is near bottom or it's a new conversation
+  const scrollToBottom = useCallback(() => {
+    if (shouldAutoScroll && messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [shouldAutoScroll]);
+
+  // Scroll to bottom when messages update, but only if user hasn't scrolled up
   useEffect(() => {
     scrollToBottom();
   }, [messages, scrollToBottom]);
@@ -77,6 +89,8 @@ export const ChatInterface = ({
           timestamp: new Date(msg.created_at).getTime()
         }));
         setMessages(formattedMessages);
+        // Auto-scroll to bottom for initial load
+        setShouldAutoScroll(true);
       } else if (agent?.welcomeMessage) {
         // Show welcome message if no existing messages and agent has a welcome message
         const welcomeMsg: Message = {
@@ -86,6 +100,7 @@ export const ChatInterface = ({
           timestamp: Date.now()
         };
         setMessages([welcomeMsg]);
+        setShouldAutoScroll(true);
       }
       setHasLoadedInitialMessages(true);
     }
@@ -100,6 +115,8 @@ export const ChatInterface = ({
     };
     
     setMessages(prev => [...prev, userMsg]);
+    // Always auto-scroll when user sends a message
+    setShouldAutoScroll(true);
 
     // Save to database if conversation exists
     if (conversation?.id) {
@@ -111,6 +128,8 @@ export const ChatInterface = ({
     // Clear current AI message and return ID for tracking
     setCurrentAiMessage('');
     const aiMessageId = `ai-${Date.now()}`;
+    // Auto-scroll when AI starts responding
+    setShouldAutoScroll(true);
     return aiMessageId;
   }, []);
 
@@ -198,45 +217,45 @@ export const ChatInterface = ({
 
   return (
     <div className="flex flex-col h-screen bg-background relative w-full max-w-full overflow-hidden">
-      {/* Header - Only show for non-user sims */}
-      {!isUserOwnSim && (
-        <div className="fixed top-0 left-0 right-0 z-10 flex items-center justify-between p-4 border-b border-border bg-card">
-          <div className="flex items-center gap-3">
-            <Avatar className="h-10 w-10">
-              <AvatarImage src={agent?.avatar} alt={agent?.name} />
-              <AvatarFallback className="bg-primary/10 text-primary font-medium">
-                {agent?.name?.charAt(0)}
-              </AvatarFallback>
-            </Avatar>
-            <div>
-              <h2 className="font-semibold text-foreground">{agent?.name}</h2>
-              <p className="text-sm text-muted-foreground">{agent?.title}</p>
-            </div>
+      {/* Header - Fixed to top for all cases */}
+      <div className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between p-4 border-b border-border bg-card/95 backdrop-blur-sm">
+        <div className="flex items-center gap-3">
+          <Avatar className="h-10 w-10">
+            <AvatarImage src={agent?.avatar} alt={agent?.name} />
+            <AvatarFallback className="bg-primary/10 text-primary font-medium">
+              {agent?.name?.charAt(0)}
+            </AvatarFallback>
+          </Avatar>
+          <div>
+            <h2 className="font-semibold text-foreground">{agent?.name}</h2>
+            <p className="text-sm text-muted-foreground">{agent?.title}</p>
           </div>
+        </div>
+        
+        <div className="flex items-center gap-2">
+          {onToggleAudio && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={onToggleAudio}
+              className="flex items-center gap-2"
+            >
+              {isAudioEnabled ? (
+                <>
+                  <MicOff className="h-4 w-4" />
+                  Audio Off
+                </>
+              ) : (
+                <>
+                  <Mic className="h-4 w-4" />
+                  Audio On
+                </>
+              )}
+            </Button>
+          )}
           
-          <div className="flex items-center gap-2">
-            {onToggleAudio && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={onToggleAudio}
-                className="flex items-center gap-2"
-              >
-                {isAudioEnabled ? (
-                  <>
-                    <MicOff className="h-4 w-4" />
-                    Audio Off
-                  </>
-                ) : (
-                  <>
-                    <Mic className="h-4 w-4" />
-                    Audio On
-                  </>
-                )}
-              </Button>
-            )}
-            
-            {/* Login Logo */}
+          {/* Login Logo - only show for non-user sims */}
+          {!isUserOwnSim && onLoginClick && (
             <Button
               variant="ghost"
               size="sm"
@@ -249,14 +268,16 @@ export const ChatInterface = ({
                 className="h-6 w-6 object-contain"
               />
             </Button>
-          </div>
+          )}
         </div>
-      )}
+      </div>
 
-      {/* Messages - Adjust padding for input at bottom */}
-      <div className={`flex-1 overflow-y-auto p-4 space-y-4 w-full ${
-        isUserOwnSim ? 'pt-4 pb-24' : 'pt-24 pb-24'
-      }`}>
+      {/* Messages - With proper spacing for fixed header and input */}
+      <div 
+        ref={messagesContainerRef}
+        onScroll={checkScrollPosition}
+        className="flex-1 overflow-y-auto p-4 space-y-4 w-full pt-24 pb-24"
+      >
         {messages.length === 0 && (
           <div className="text-center text-muted-foreground py-8">
             <p>Start a conversation with {agent?.name}</p>
@@ -322,8 +343,8 @@ export const ChatInterface = ({
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Input - Always fixed to bottom */}
-      <div className="fixed bottom-0 left-0 right-0 z-10 p-4 border-t border-border bg-card">
+      {/* Input - Fixed to bottom */}
+      <div className="fixed bottom-0 left-0 right-0 z-50 p-4 border-t border-border bg-card/95 backdrop-blur-sm">
         <div className="flex gap-2 w-full max-w-full">
           <Input
             value={inputMessage}
