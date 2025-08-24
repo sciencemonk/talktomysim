@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -29,6 +29,19 @@ export const ChatInterface = ({ agent, onToggleAudio, isAudioEnabled = false, on
   const [conversation, setConversation] = useState<Conversation | null>(null);
   const [currentAiMessage, setCurrentAiMessage] = useState<string>('');
   const [hasLoadedInitialMessages, setHasLoadedInitialMessages] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Auto-scroll to bottom when messages change
+  const scrollToBottom = useCallback(() => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, []);
+
+  // Scroll to bottom when messages update
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages, scrollToBottom]);
 
   // Initialize conversation on component mount
   useEffect(() => {
@@ -176,7 +189,7 @@ export const ChatInterface = ({ agent, onToggleAudio, isAudioEnabled = false, on
   }
 
   return (
-    <div className="flex flex-col h-screen bg-background relative">
+    <div className="flex flex-col h-screen bg-background relative w-full max-w-full overflow-hidden">
       {/* Header - Fixed at top */}
       <div className="fixed top-0 left-0 right-0 z-10 flex items-center justify-between p-4 border-b border-border bg-card">
         <div className="flex items-center gap-3">
@@ -215,7 +228,7 @@ export const ChatInterface = ({ agent, onToggleAudio, isAudioEnabled = false, on
       </div>
 
       {/* Messages - Scrollable with padding for fixed elements */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4 pt-24 pb-20">
+      <div className="flex-1 overflow-y-auto p-4 space-y-4 pt-24 pb-20 w-full">
         {messages.length === 0 && (
           <div className="text-center text-muted-foreground py-8">
             <p>Start a conversation with {agent?.name}</p>
@@ -276,11 +289,14 @@ export const ChatInterface = ({ agent, onToggleAudio, isAudioEnabled = false, on
             </div>
           </div>
         )}
+        
+        {/* Invisible element to scroll to */}
+        <div ref={messagesEndRef} />
       </div>
 
-      {/* Input - Fixed at bottom */}
+      {/* Input - Fixed at bottom, full width */}
       <div className="fixed bottom-0 left-0 right-0 z-10 p-4 border-t border-border bg-card">
-        <div className="flex gap-2">
+        <div className="flex gap-2 w-full max-w-full">
           <Input
             value={inputMessage}
             onChange={(e) => setInputMessage(e.target.value)}
