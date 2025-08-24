@@ -59,13 +59,6 @@ export type Database = {
             referencedRelation: "advisors"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "advisor_documents_advisor_id_fkey"
-            columns: ["advisor_id"]
-            isOneToOne: false
-            referencedRelation: "public_advisors"
-            referencedColumns: ["id"]
-          },
         ]
       }
       advisor_embeddings: {
@@ -102,13 +95,6 @@ export type Database = {
             columns: ["advisor_id"]
             isOneToOne: false
             referencedRelation: "advisors"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "advisor_embeddings_advisor_id_fkey"
-            columns: ["advisor_id"]
-            isOneToOne: false
-            referencedRelation: "public_advisors"
             referencedColumns: ["id"]
           },
           {
@@ -653,60 +639,7 @@ export type Database = {
       }
     }
     Views: {
-      public_advisors: {
-        Row: {
-          avatar_url: string | null
-          category: string | null
-          created_at: string | null
-          current_profession: string | null
-          custom_url: string | null
-          description: string | null
-          id: string | null
-          is_active: boolean | null
-          is_public: boolean | null
-          is_verified: boolean | null
-          location: string | null
-          name: string | null
-          title: string | null
-          updated_at: string | null
-          years_experience: number | null
-        }
-        Insert: {
-          avatar_url?: string | null
-          category?: string | null
-          created_at?: string | null
-          current_profession?: string | null
-          custom_url?: string | null
-          description?: string | null
-          id?: string | null
-          is_active?: boolean | null
-          is_public?: boolean | null
-          is_verified?: boolean | null
-          location?: string | null
-          name?: string | null
-          title?: string | null
-          updated_at?: string | null
-          years_experience?: number | null
-        }
-        Update: {
-          avatar_url?: string | null
-          category?: string | null
-          created_at?: string | null
-          current_profession?: string | null
-          custom_url?: string | null
-          description?: string | null
-          id?: string | null
-          is_active?: boolean | null
-          is_public?: boolean | null
-          is_verified?: boolean | null
-          location?: string | null
-          name?: string | null
-          title?: string | null
-          updated_at?: string | null
-          years_experience?: number | null
-        }
-        Relationships: []
-      }
+      [_ in never]: never
     }
     Functions: {
       search_advisor_embeddings: {

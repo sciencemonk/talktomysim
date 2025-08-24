@@ -18,10 +18,10 @@ const isChannelConfigsRecord = (value: any): value is Record<string, AgentChanne
 };
 
 export const fetchPublicAgentById = async (id: string): Promise<AgentType> => {
-  console.log("Fetching public advisor by ID from secure view:", id);
+  console.log("Fetching public advisor by ID:", id);
   
   const { data: advisor, error } = await supabase
-    .from('public_advisors')
+    .from('advisors')
     .select('*')
     .eq('id', id)
     .maybeSingle();
@@ -47,11 +47,11 @@ export const fetchPublicAgentById = async (id: string): Promise<AgentType> => {
     createdAt: advisor.created_at,
     updatedAt: advisor.updated_at,
     avatar: advisor.avatar_url,
-    prompt: '', // Prompts not exposed in public view for security
+    prompt: advisor.prompt,
     title: advisor.title,
-    url: '', // URL not exposed in public view for security
-    custom_url: advisor.custom_url, // Safe field from public_advisors view
-    welcomeMessage: '', // Welcome message not exposed in public view for security
+    url: advisor.url, // Include the url field from advisors table
+    custom_url: advisor.custom_url, // Include the custom_url field from advisors table
+    welcomeMessage: advisor.welcome_message, // Include welcome message
     // Default values for fields that don't exist in advisors table
     model: 'gpt-4',
     voice: 'default',

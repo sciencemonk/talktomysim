@@ -1,221 +1,209 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card, CardContent } from "@/components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { useAuth } from "@/hooks/useAuth";
-import { useChatHistory } from "@/hooks/useChatHistory";
-import { useTextChat } from "@/hooks/useTextChat";
-import { conversationService, Conversation } from "@/services/conversationService";
-import { AgentType } from "@/types/agent";
-import { Send, ArrowLeft, User, LogIn } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Send, Mic, MicOff, User } from 'lucide-react';
+import { AgentType } from '@/types/agent';
+import { useEnhancedTextChat } from '@/hooks/useEnhancedTextChat';
+import { conversationService, Conversation } from '@/services/conversationService';
+import { useChatHistory } from '@/hooks/useChatHistory';
+
+interface Message {
+  id: string;
+  role: 'user' | 'system';
+  content: string;
+  timestamp: number;
+}
 
 interface ChatInterfaceProps {
   agent: AgentType;
-  isUserOwnSim?: boolean;
+  onToggleAudio?: () => void;
+  isAudioEnabled?: boolean;
   onBack?: () => void;
   onLoginClick?: () => void;
+  isUserOwnSim?: boolean;
 }
 
-interface ChatMessage {
-  id: string;
-  role: 'user' | 'assistant';
-  content: string;
-  timestamp: Date;
-  isStreaming?: boolean;
-}
-
-export const ChatInterface: React.FC<ChatInterfaceProps> = ({
-  agent,
-  isUserOwnSim = false,
-  onBack,
-  onLoginClick
-}) => {
-  const { user } = useAuth();
-  const { toast } = useToast();
-  const [conversation, setConversation] = useState<Conversation | null>(null);
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
+export const ChatInterface = ({ 
+  agent, 
+  onToggleAudio, 
+  isAudioEnabled = false, 
+  onBack, 
+  onLoginClick, 
+  isUserOwnSim = false 
+}: ChatInterfaceProps) => {
   const [inputMessage, setInputMessage] = useState('');
-  const [isInitializing, setIsInitializing] = useState(true);
-  const [hasAddedWelcomeMessage, setHasAddedWelcomeMessage] = useState(false);
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [conversation, setConversation] = useState<Conversation | null>(null);
+  const [currentAiMessage, setCurrentAiMessage] = useState<string>('');
+  const [hasLoadedInitialMessages, setHasLoadedInitialMessages] = useState(false);
+  const [isUserNearBottom, setIsUserNearBottom] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
 
-  const { messages: dbMessages, loadMessages } = useChatHistory(conversation?.id || null);
+  // Check if user is near bottom of chat
+  const checkIfNearBottom = useCallback(() => {
+    if (!messagesContainerRef.current) return true;
+    
+    const container = messagesContainerRef.current;
+    const threshold = 150; // pixels from bottom
+    const isNearBottom = container.scrollHeight - container.scrollTop - container.clientHeight < threshold;
+    
+    setIsUserNearBottom(isNearBottom);
+    return isNearBottom;
+  }, []);
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
+  // Smart scroll to bottom - only if user is near bottom
+  const scrollToBottom = useCallback((force = false) => {
+    if (messagesEndRef.current && (force || isUserNearBottom)) {
+      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [isUserNearBottom]);
 
+  // Handle scroll events to track user position
+  const handleScroll = useCallback(() => {
+    checkIfNearBottom();
+  }, [checkIfNearBottom]);
+
+  // Scroll to bottom when messages update (only if user is near bottom)
   useEffect(() => {
     scrollToBottom();
-  }, [messages]);
+  }, [messages, scrollToBottom]);
 
-  // Initialize conversation when component mounts or agent changes
+  // Force scroll to bottom when new message starts (user sends message)
   useEffect(() => {
-    const initializeConversation = async () => {
-      if (!agent?.id) return;
-      
-      setIsInitializing(true);
-      console.log('Initializing conversation for agent:', agent.id, 'isUserSim:', isUserOwnSim);
-      
-      try {
-        // Pass the isUserSim flag to distinguish between user sims and public advisors
-        const conv = await conversationService.getOrCreateConversation(agent.id, isUserOwnSim);
-        if (conv) {
-          console.log('Got conversation:', conv.id);
-          setConversation(conv);
-        } else {
-          console.error('Failed to get or create conversation');
-          toast({
-            title: "Error",
-            description: "Failed to start conversation. Please try again.",
-            variant: "destructive"
-          });
-        }
-      } catch (error) {
-        console.error('Error initializing conversation:', error);
-        toast({
-          title: "Connection Error",
-          description: "Failed to connect to the chat service. Please try again.",
-          variant: "destructive"
-        });
-      } finally {
-        setIsInitializing(false);
+    if (messages.length > 0) {
+      const lastMessage = messages[messages.length - 1];
+      if (lastMessage.role === 'user') {
+        setIsUserNearBottom(true);
+        scrollToBottom(true);
+      }
+    }
+  }, [messages.length, scrollToBottom]);
+
+  // Initialize conversation on component mount
+  useEffect(() => {
+    const initConversation = async () => {
+      if (agent?.id) {
+        const conv = await conversationService.getOrCreateConversation(agent.id);
+        setConversation(conv);
       }
     };
+    
+    initConversation();
+  }, [agent?.id]);
 
-    initializeConversation();
-  }, [agent?.id, isUserOwnSim, toast]);
+  const { messages: historyMessages, isLoading, loadMessages } = useChatHistory(conversation?.id || null);
 
-  // Load messages when conversation is ready
+  // Update local messages when history loads and show welcome message if needed
   useEffect(() => {
-    if (conversation && dbMessages.length > 0) {
-      console.log('Loading messages from database:', dbMessages.length);
-      const chatMessages: ChatMessage[] = dbMessages.map(msg => ({
-        id: msg.id,
-        role: msg.role === 'system' ? 'assistant' : msg.role,
-        content: msg.content,
-        timestamp: new Date(msg.created_at)
-      }));
-      setMessages(chatMessages);
-      setHasAddedWelcomeMessage(true); // Messages exist, so welcome was already added
-    } else if (conversation && dbMessages.length === 0 && !hasAddedWelcomeMessage && !isInitializing) {
-      // This is a new conversation with no messages - add welcome message
-      console.log('Adding welcome message for new conversation');
-      addWelcomeMessage();
-    }
-  }, [conversation, dbMessages, hasAddedWelcomeMessage, isInitializing]);
-
-  const addWelcomeMessage = async () => {
-    if (!conversation || hasAddedWelcomeMessage) return;
-    
-    const welcomeText = agent.welcomeMessage || 
-      `Hello! I'm ${agent.name}. I'm here to help and answer questions. What can I do for you?`;
-    
-    console.log('Adding welcome message:', welcomeText);
-    
-    try {
-      // Add to database
-      const savedMessage = await conversationService.addMessage(conversation.id, 'system', welcomeText);
-      
-      if (savedMessage) {
-        // Add to local state
-        const welcomeMessage: ChatMessage = {
-          id: savedMessage.id,
-          role: 'assistant',
-          content: welcomeText,
-          timestamp: new Date()
+    if (historyMessages && conversation?.id && !hasLoadedInitialMessages) {
+      if (historyMessages.length > 0) {
+        const formattedMessages: Message[] = historyMessages.map(msg => ({
+          id: msg.id,
+          role: msg.role,
+          content: msg.content,
+          timestamp: new Date(msg.created_at).getTime()
+        }));
+        setMessages(formattedMessages);
+      } else if (agent?.welcomeMessage) {
+        // Show welcome message if no existing messages and agent has a welcome message
+        const welcomeMsg: Message = {
+          id: 'welcome-message',
+          role: 'system',
+          content: agent.welcomeMessage,
+          timestamp: Date.now()
         };
-        
-        setMessages([welcomeMessage]);
-        setHasAddedWelcomeMessage(true);
-        console.log('Welcome message added successfully');
+        setMessages([welcomeMsg]);
       }
-    } catch (error) {
-      console.error('Error adding welcome message:', error);
-      // Still show welcome message in UI even if database save fails
-      const welcomeMessage: ChatMessage = {
-        id: 'welcome-' + Date.now(),
-        role: 'assistant',
-        content: welcomeText,
-        timestamp: new Date()
-      };
-      
-      setMessages([welcomeMessage]);
-      setHasAddedWelcomeMessage(true);
+      setHasLoadedInitialMessages(true);
+      // Force scroll to bottom on initial load
+      setTimeout(() => {
+        setIsUserNearBottom(true);
+        scrollToBottom(true);
+      }, 100);
     }
-  };
+  }, [historyMessages, conversation?.id, agent?.welcomeMessage, hasLoadedInitialMessages, scrollToBottom]);
 
-  const handleUserMessage = (content: string) => {
-    const userMessage: ChatMessage = {
-      id: 'user-' + Date.now(),
+  const addUserMessage = useCallback(async (message: string) => {
+    const userMsg: Message = {
+      id: `user-${Date.now()}`,
       role: 'user',
-      content,
-      timestamp: new Date()
+      content: message,
+      timestamp: Date.now()
     };
     
-    setMessages(prev => [...prev, userMessage]);
-    
-    // Save to database
-    if (conversation) {
-      conversationService.addMessage(conversation.id, 'user', content).catch(console.error);
+    setMessages(prev => [...prev, userMsg]);
+
+    if (conversation?.id) {
+      await conversationService.addMessage(conversation.id, 'user', message);
     }
-  };
+  }, [conversation?.id]);
 
-  const handleAiMessageStart = (): string => {
-    const messageId = 'ai-' + Date.now();
-    const aiMessage: ChatMessage = {
-      id: messageId,
-      role: 'assistant',
-      content: '',
-      timestamp: new Date(),
-      isStreaming: true
-    };
+  const startAiMessage = useCallback(() => {
+    setCurrentAiMessage('');
+    const aiMessageId = `ai-${Date.now()}`;
+    return aiMessageId;
+  }, []);
+
+  const addAiTextDelta = useCallback((delta: string) => {
+    setCurrentAiMessage(prev => prev + delta);
     
-    setMessages(prev => [...prev, aiMessage]);
-    return messageId;
-  };
-
-  const handleAiTextDelta = (messageId: string, delta: string) => {
-    setMessages(prev => prev.map(msg => 
-      msg.id === messageId 
-        ? { ...msg, content: msg.content + delta }
-        : msg
-    ));
-  };
-
-  const handleAiMessageComplete = (messageId: string) => {
-    setMessages(prev => prev.map(msg => 
-      msg.id === messageId 
-        ? { ...msg, isStreaming: false }
-        : msg
-    ));
-    
-    // Save to database
-    if (conversation) {
-      const message = messages.find(m => m.id === messageId);
-      if (message) {
-        conversationService.addMessage(conversation.id, 'system', message.content).catch(console.error);
+    setMessages(prev => {
+      const lastMessage = prev[prev.length - 1];
+      if (lastMessage && lastMessage.role === 'system' && lastMessage.id.startsWith('ai-')) {
+        return prev.map((msg, index) => 
+          index === prev.length - 1 && msg.role === 'system' && msg.id.startsWith('ai-')
+            ? { ...msg, content: msg.content + delta }
+            : msg
+        );
+      } else {
+        const aiMsg: Message = {
+          id: `ai-${Date.now()}`,
+          role: 'system',
+          content: delta,
+          timestamp: Date.now()
+        };
+        return [...prev, aiMsg];
       }
-    }
-  };
+    });
+  }, []);
 
-  const { sendMessage, isProcessing } = useTextChat({
+  const completeAiMessage = useCallback(async (finalContent: string) => {
+    if (conversation?.id && finalContent && finalContent.trim()) {
+      console.log('Saving AI message to database:', finalContent);
+      await conversationService.addMessage(conversation.id, 'system', finalContent);
+      
+      setMessages(prev => {
+        const lastMessage = prev[prev.length - 1];
+        if (lastMessage && lastMessage.role === 'system' && lastMessage.id.startsWith('ai-')) {
+          return prev.map((msg, index) => 
+            index === prev.length - 1 && msg.role === 'system' && msg.id.startsWith('ai-')
+              ? { ...msg, content: finalContent, id: `saved-${Date.now()}` }
+              : msg
+          );
+        }
+        return prev;
+      });
+    }
+    setCurrentAiMessage('');
+  }, [conversation?.id]);
+
+  const { sendMessage, isProcessing } = useEnhancedTextChat({
     agent,
-    onUserMessage: handleUserMessage,
-    onAiMessageStart: handleAiMessageStart,
-    onAiTextDelta: handleAiTextDelta,
-    onAiMessageComplete: handleAiMessageComplete
+    onUserMessage: addUserMessage,
+    onAiMessageStart: startAiMessage,
+    onAiTextDelta: addAiTextDelta,
+    onAiMessageComplete: completeAiMessage
   });
 
   const handleSendMessage = async () => {
-    if (!inputMessage.trim() || isProcessing || !conversation) return;
+    if (!inputMessage.trim() || isProcessing) return;
     
-    const message = inputMessage.trim();
+    const messageToSend = inputMessage.trim();
     setInputMessage('');
-    await sendMessage(message);
+    
+    await sendMessage(messageToSend);
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -225,113 +213,155 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
     }
   };
 
-  if (isInitializing) {
+  if (isLoading && !hasLoadedInitialMessages) {
     return (
       <div className="flex items-center justify-center h-full">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Connecting to {agent.name}...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (!conversation) {
-    return (
-      <div className="flex items-center justify-center h-full">
-        <div className="text-center">
-          <p className="text-destructive mb-4">Failed to start conversation</p>
-          <Button onClick={() => window.location.reload()}>Try Again</Button>
-        </div>
+        <div className="animate-pulse">Loading conversation...</div>
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col h-full bg-background">
-      {/* Header */}
-      <div className="flex items-center gap-3 p-4 border-b bg-card">
-        {onBack && (
-          <Button variant="ghost" size="icon" onClick={onBack}>
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
-        )}
-        
-        <Avatar className="h-10 w-10">
-          <AvatarImage src={agent.avatar} alt={agent.name} />
-          <AvatarFallback>{agent.name.charAt(0)}</AvatarFallback>
-        </Avatar>
-        
-        <div className="flex-1">
-          <h2 className="font-semibold text-foreground">{agent.name}</h2>
-          {agent.title && (
-            <p className="text-sm text-muted-foreground">{agent.title}</p>
-          )}
-        </div>
-
-        {!user && onLoginClick && (
-          <Button variant="outline" size="sm" onClick={onLoginClick}>
-            <LogIn className="h-4 w-4 mr-2" />
-            Login
-          </Button>
-        )}
-      </div>
-
-      {/* Messages */}
-      <ScrollArea className="flex-1 p-4">
-        <div className="space-y-4 max-w-4xl mx-auto">
-          {messages.map((message) => (
-            <div
-              key={message.id}
-              className={`flex gap-3 ${
-                message.role === 'user' ? 'flex-row-reverse' : 'flex-row'
-              }`}
-            >
-              <Avatar className="h-8 w-8 flex-shrink-0">
-                {message.role === 'user' ? (
-                  <AvatarFallback>
-                    <User className="h-4 w-4" />
-                  </AvatarFallback>
+    <div className="flex flex-col h-screen bg-background relative w-full max-w-full overflow-hidden">
+      {/* Header - Only show for non-user sims */}
+      {!isUserOwnSim && (
+        <div className="fixed top-0 left-0 right-0 z-10 flex items-center justify-between p-4 border-b border-border bg-card">
+          <div className="flex items-center gap-3">
+            <Avatar className="h-10 w-10">
+              <AvatarImage src={agent?.avatar} alt={agent?.name} />
+              <AvatarFallback className="bg-primary/10 text-primary font-medium">
+                {agent?.name?.charAt(0)}
+              </AvatarFallback>
+            </Avatar>
+            <div>
+              <h2 className="font-semibold text-foreground">{agent?.name}</h2>
+              <p className="text-sm text-muted-foreground">{agent?.title}</p>
+            </div>
+          </div>
+          
+          <div className="flex items-center gap-2">
+            {onToggleAudio && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={onToggleAudio}
+                className="flex items-center gap-2"
+              >
+                {isAudioEnabled ? (
+                  <>
+                    <MicOff className="h-4 w-4" />
+                    Audio Off
+                  </>
                 ) : (
                   <>
-                    <AvatarImage src={agent.avatar} alt={agent.name} />
-                    <AvatarFallback>{agent.name.charAt(0)}</AvatarFallback>
+                    <Mic className="h-4 w-4" />
+                    Audio On
                   </>
                 )}
-              </Avatar>
-              
-              <Card className={`flex-1 max-w-[80%] ${
-                message.role === 'user' 
-                  ? 'bg-primary text-primary-foreground' 
-                  : 'bg-muted'
-              }`}>
-                <CardContent className="p-3">
-                  <p className="text-sm whitespace-pre-wrap">
-                    {message.content}
-                    {message.isStreaming && (
-                      <span className="inline-block w-2 h-4 bg-current animate-pulse ml-1" />
-                    )}
-                  </p>
-                </CardContent>
-              </Card>
-            </div>
-          ))}
-          <div ref={messagesEndRef} />
+              </Button>
+            )}
+            
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onLoginClick}
+              className="p-2"
+            >
+              <img 
+                src="/lovable-uploads/bd1798e5-2033-45c5-a39b-4e8192a4b046.png" 
+                alt="Login" 
+                className="h-6 w-6 object-contain"
+              />
+            </Button>
+          </div>
         </div>
-      </ScrollArea>
+      )}
 
-      {/* Input */}
-      <div className="border-t bg-card p-4">
-        <div className="flex gap-2 max-w-4xl mx-auto">
+      {/* Messages - Improved scrolling behavior */}
+      <div 
+        ref={messagesContainerRef}
+        onScroll={handleScroll}
+        className={`flex-1 overflow-y-auto p-4 space-y-4 w-full ${
+          isUserOwnSim ? 'pt-4 pb-24' : 'pt-24 pb-24'
+        }`}
+      >
+        {messages.length === 0 && (
+          <div className="text-center text-muted-foreground py-8">
+            <p>Start a conversation with {agent?.name}</p>
+          </div>
+        )}
+        
+        {messages.map((message) => (
+          <div
+            key={message.id}
+            className={`flex gap-3 ${
+              message.role === 'user' ? 'justify-end' : 'justify-start'
+            }`}
+          >
+            {message.role === 'system' && (
+              <Avatar className="h-8 w-8 flex-shrink-0">
+                <AvatarImage src={agent?.avatar} alt={agent?.name} />
+                <AvatarFallback className="bg-primary/10 text-primary text-xs">
+                  {agent?.name?.charAt(0)}
+                </AvatarFallback>
+              </Avatar>
+            )}
+            
+            <div
+              className={`max-w-[70%] rounded-lg px-4 py-2 ${
+                message.role === 'user'
+                  ? 'bg-primary text-primary-foreground'
+                  : 'bg-muted text-foreground'
+              }`}
+            >
+              <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+            </div>
+            
+            {message.role === 'user' && (
+              <Avatar className="h-8 w-8 flex-shrink-0">
+                <AvatarFallback className="bg-secondary text-secondary-foreground text-xs">
+                  <User className="h-3 w-3" />
+                </AvatarFallback>
+              </Avatar>
+            )}
+          </div>
+        ))}
+
+        {/* Typing indicator - only show when processing */}
+        {isProcessing && (
+          <div className="flex gap-3 justify-start">
+            <Avatar className="h-8 w-8 flex-shrink-0">
+              <AvatarImage src={agent?.avatar} alt={agent?.name} />
+              <AvatarFallback className="bg-primary/10 text-primary text-xs">
+                {agent?.name?.charAt(0)}
+              </AvatarFallback>
+            </Avatar>
+            <div className="bg-muted rounded-lg px-4 py-2 flex items-center">
+              <div className="flex space-x-1 items-center">
+                <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce"></div>
+                <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+              </div>
+            </div>
+          </div>
+        )}
+        
+        {/* Invisible element to scroll to */}
+        <div ref={messagesEndRef} />
+      </div>
+
+      {/* Input - Always fixed to bottom */}
+      <div className="fixed bottom-0 left-0 right-0 z-10 p-4 border-t border-border bg-card">
+        <div className="flex gap-2 w-full max-w-full">
           <Input
             value={inputMessage}
             onChange={(e) => setInputMessage(e.target.value)}
             onKeyPress={handleKeyPress}
-            placeholder={`Message ${agent.name}...`}
+            placeholder={`Message ${agent?.name}...`}
             disabled={isProcessing}
             className="flex-1"
           />
-          <Button 
+          <Button
             onClick={handleSendMessage}
             disabled={!inputMessage.trim() || isProcessing}
             size="icon"

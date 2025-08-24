@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { Navigate } from "react-router-dom";
@@ -269,6 +270,7 @@ const Home = () => {
           return (
             <ChatInterface
               agent={userSimAsAgent}
+              isUserOwnSim={true}
               onBack={() => setCurrentView('my-sim')}
             />
           );
