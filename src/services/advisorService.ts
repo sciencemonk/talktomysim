@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { Advisor } from "@/pages/Admin";
 
@@ -82,13 +81,4 @@ export const removeAdvisor = async (advisorId: string) => {
     console.error('Error removing advisor:', error);
     throw new Error('Failed to remove advisor');
   }
-};
-
-// Export a service object that contains all the functions
-export const advisorService = {
-  getAdvisors: fetchAdvisors,
-  createAdvisor,
-  updateAdvisor,
-  deleteAdvisor,
-  removeAdvisor
 };

@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useSim } from "@/hooks/useSim";
@@ -244,7 +245,7 @@ export const SidebarContent = ({
                     </Avatar>
                     <div className="flex flex-col items-start text-left flex-1 min-w-0">
                       <span className="text-sm font-medium truncate">
-                        {sim?.full_name || sim?.name || user.email}
+                        {sim?.name || user.email}
                       </span>
                       <span className="text-xs text-muted-foreground">Plus</span>
                     </div>
