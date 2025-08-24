@@ -236,26 +236,30 @@ export const SidebarContent = ({
           </div>
         </ScrollArea>
 
-        {/* User Settings at Bottom */}
+        {/* User Settings at Bottom - Single Avatar with Dropdown */}
         {user && (
           <div className="p-4 border-t border-border">
-            <div className="flex items-center gap-3">
-              <Avatar className="h-8 w-8 flex-shrink-0">
-                <AvatarImage src={sim?.avatar_url} alt={sim?.name || "User Avatar"} />
-                <AvatarFallback className="bg-primary/10 text-primary">
-                  {sim?.name?.charAt(0)?.toUpperCase() || user.email?.charAt(0)?.toUpperCase() || "U"}
-                </AvatarFallback>
-              </Avatar>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium truncate">
-                  {sim?.name || user.email}
-                </p>
-                <Badge variant="secondary" className="text-xs mt-1">
-                  Plus
-                </Badge>
-              </div>
-              <UserSettingsDropdown simplified={true} />
-            </div>
+            <UserSettingsDropdown 
+              simplified={true} 
+              trigger={
+                <Button variant="ghost" className="w-full justify-start p-2 h-auto">
+                  <div className="flex items-center space-x-3">
+                    <Avatar className="h-8 w-8">
+                      <AvatarImage src={sim?.avatar_url} alt={sim?.name || "User Avatar"} />
+                      <AvatarFallback className="bg-primary/10 text-primary">
+                        {sim?.name?.charAt(0)?.toUpperCase() || user.email?.charAt(0)?.toUpperCase() || "U"}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex flex-col items-start text-left flex-1 min-w-0">
+                      <span className="text-sm font-medium truncate">
+                        {sim?.name || user.email}
+                      </span>
+                      <span className="text-xs text-muted-foreground">Plus</span>
+                    </div>
+                  </div>
+                </Button>
+              }
+            />
           </div>
         )}
       </div>
