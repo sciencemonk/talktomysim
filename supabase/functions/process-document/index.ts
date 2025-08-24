@@ -35,6 +35,28 @@ serve(async (req) => {
     console.log(`Processing document "${title}" for advisor: ${advisorId}`)
     console.log(`Content length: ${content.length} characters`)
 
+    // Get the authorization header to extract user context
+    const authHeader = req.headers.get('Authorization');
+    
+    // Validate that the advisor exists and get user context
+    const { data: advisor, error: advisorError } = await supabaseClient
+      .from('advisors')
+      .select('id, name, user_id')
+      .eq('id', advisorId)
+      .single()
+
+    if (advisorError) {
+      console.error('Error fetching advisor:', advisorError)
+      throw new Error(`Advisor not found: ${advisorError.message}`)
+    }
+
+    if (!advisor) {
+      console.error('Advisor not found:', advisorId)
+      throw new Error('Advisor not found')
+    }
+
+    console.log(`Processing document for advisor: ${advisor.name} (${advisor.id}) owned by user: ${advisor.user_id}`)
+
     // First, save the document to the advisor_documents table
     const { data: document, error: docError } = await supabaseClient
       .from('advisor_documents')
@@ -52,6 +74,8 @@ serve(async (req) => {
       console.error('Error saving document:', docError)
       throw new Error(`Failed to save document: ${docError.message}`)
     }
+
+    console.log('Document saved successfully:', document.id)
 
     // Enhanced chunking with semantic boundaries and overlap
     const chunks = createSemanticChunks(content, {
@@ -121,6 +145,7 @@ serve(async (req) => {
         // Continue with other batches
       } else {
         totalSaved += batch.length
+        console.log(`Saved batch ${Math.floor(i/batchSize) + 1}: ${batch.length} embeddings`)
       }
     }
 

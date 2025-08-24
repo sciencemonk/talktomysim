@@ -9,12 +9,14 @@ import { Database } from 'lucide-react';
 import { documentService } from '@/services/documentService';
 import { toast } from 'sonner';
 import { useSim } from '@/hooks/useSim';
+import { useAuth } from '@/hooks/useAuth';
 
 interface CoreKnowledgeProps {
   advisorId?: string;
 }
 
 export const CoreKnowledge: React.FC<CoreKnowledgeProps> = ({ advisorId: propAdvisorId }) => {
+  const { user } = useAuth();
   const { sim, isLoading: simLoading, error: simError } = useSim();
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -22,12 +24,13 @@ export const CoreKnowledge: React.FC<CoreKnowledgeProps> = ({ advisorId: propAdv
   const [refreshDocuments, setRefreshDocuments] = useState(0);
 
   // Use the sim ID as advisor ID if no advisorId prop is provided
-  // Ensure we have a valid advisor ID before proceeding
   const advisorId = propAdvisorId || sim?.id;
 
-  console.log('CoreKnowledge - sim:', sim);
-  console.log('CoreKnowledge - advisorId:', advisorId);
-  console.log('CoreKnowledge - propAdvisorId:', propAdvisorId);
+  console.log('CoreKnowledge Debug Info:');
+  console.log('- User:', user?.id);
+  console.log('- Sim from useSim:', sim);
+  console.log('- Advisor ID being used:', advisorId);
+  console.log('- Prop advisor ID:', propAdvisorId);
 
   const handleFileSelect = (files: File[]) => {
     setSelectedFiles(files);
@@ -35,6 +38,11 @@ export const CoreKnowledge: React.FC<CoreKnowledgeProps> = ({ advisorId: propAdv
 
   const handleFileProcess = async (file: File) => {
     try {
+      if (!user) {
+        toast.error('Please log in to upload documents.');
+        return;
+      }
+
       if (!advisorId) {
         toast.error('No sim selected. Please complete your sim setup first.');
         console.error('No advisor ID available for file processing');
@@ -44,7 +52,7 @@ export const CoreKnowledge: React.FC<CoreKnowledgeProps> = ({ advisorId: propAdv
       setIsProcessing(true);
       setProcessingProgress(10);
       
-      console.log('Processing file:', file.name, 'for advisor:', advisorId);
+      console.log('Processing file:', file.name, 'for advisor:', advisorId, 'user:', user.id);
       
       setProcessingProgress(30);
       const result = await documentService.processFile(advisorId, file);
@@ -72,15 +80,7 @@ export const CoreKnowledge: React.FC<CoreKnowledgeProps> = ({ advisorId: propAdv
       setProcessingProgress(100);
     } catch (error: any) {
       console.error('Error processing file:', error);
-      
-      // Provide more specific error messages based on the error type
-      if (error.message.includes('foreign key constraint')) {
-        toast.error('Invalid sim selected. Please refresh the page and try again.');
-      } else if (error.message.includes('FunctionsHttpError')) {
-        toast.error('Server error occurred while processing the document. Please try again.');
-      } else {
-        toast.error(error.message || 'Failed to process file');
-      }
+      toast.error(error.message || 'Failed to process file');
     } finally {
       setTimeout(() => {
         setIsProcessing(false);
@@ -91,6 +91,11 @@ export const CoreKnowledge: React.FC<CoreKnowledgeProps> = ({ advisorId: propAdv
 
   const handleTextProcess = async (title: string, content: string) => {
     try {
+      if (!user) {
+        toast.error('Please log in to process text.');
+        return;
+      }
+
       if (!advisorId) {
         toast.error('No sim selected. Please complete your sim setup first.');
         console.error('No advisor ID available for text processing');
@@ -100,7 +105,7 @@ export const CoreKnowledge: React.FC<CoreKnowledgeProps> = ({ advisorId: propAdv
       setIsProcessing(true);
       setProcessingProgress(20);
       
-      console.log('Processing text for advisor:', advisorId);
+      console.log('Processing text for advisor:', advisorId, 'user:', user.id);
       
       const result = await documentService.processDocument(
         advisorId,
@@ -131,15 +136,7 @@ export const CoreKnowledge: React.FC<CoreKnowledgeProps> = ({ advisorId: propAdv
       setProcessingProgress(100);
     } catch (error: any) {
       console.error('Error processing text:', error);
-      
-      // Provide more specific error messages based on the error type
-      if (error.message.includes('foreign key constraint')) {
-        toast.error('Invalid sim selected. Please refresh the page and try again.');
-      } else if (error.message.includes('FunctionsHttpError')) {
-        toast.error('Server error occurred while processing the text. Please try again.');
-      } else {
-        toast.error(error.message || 'Failed to process text');
-      }
+      toast.error(error.message || 'Failed to process text');
     } finally {
       setTimeout(() => {
         setIsProcessing(false);
@@ -151,6 +148,23 @@ export const CoreKnowledge: React.FC<CoreKnowledgeProps> = ({ advisorId: propAdv
   const handleDocumentsChange = () => {
     setRefreshDocuments(prev => prev + 1);
   };
+
+  // Check if user is authenticated
+  if (!user) {
+    return (
+      <div className="max-w-4xl mx-auto p-6">
+        <Card>
+          <CardContent className="p-8 text-center">
+            <Database className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-foreground mb-2">Authentication Required</h3>
+            <p className="text-muted-foreground">
+              Please log in to manage your sim's knowledge base.
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   // Show loading state while sim is loading
   if (simLoading) {
@@ -198,8 +212,8 @@ export const CoreKnowledge: React.FC<CoreKnowledgeProps> = ({ advisorId: propAdv
             <p className="text-muted-foreground">
               No sim was found for your account. Please create a sim first before managing knowledge.
             </p>
-            <p className="text-sm text-muted-foreground mt-2">
-              Debug info - Sim: {sim ? JSON.stringify(sim, null, 2) : 'null'}
+            <p className="text-sm text-muted-foreground mt-2 bg-muted p-2 rounded">
+              Debug: User ID: {user.id} | Sim: {sim ? JSON.stringify({id: sim.id, name: sim.name}) : 'null'}
             </p>
           </CardContent>
         </Card>
@@ -211,7 +225,7 @@ export const CoreKnowledge: React.FC<CoreKnowledgeProps> = ({ advisorId: propAdv
     <div className="max-w-4xl mx-auto p-6 space-y-6">
       {/* Debug info */}
       <div className="text-xs text-muted-foreground bg-muted p-2 rounded">
-        Debug: Using advisor ID: {advisorId} | Sim ID: {sim.id} | Sim Name: {sim.name}
+        Debug: User: {user.id} | Sim ID: {sim.id} | Sim Name: {sim.name} | Using advisor ID: {advisorId}
       </div>
 
       {/* Page Header */}
