@@ -1,3 +1,4 @@
+
 import React, { useState, useCallback } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useSim } from "@/hooks/useSim";
@@ -9,7 +10,7 @@ import UserSidebar from "@/components/UserSidebar";
 import MySim from "@/components/MySim";
 import BasicInfo from "@/components/BasicInfo";
 import InteractionModel from "@/components/InteractionModel";
-import CoreKnowledge from "@/components/CoreKnowledge";
+import { CoreKnowledge } from "@/components/CoreKnowledge";
 import Integrations from "@/components/Integrations";
 import Actions from "@/components/Actions";
 import AdvisorDirectory from "@/components/AdvisorDirectory";
@@ -96,6 +97,52 @@ const Home = () => {
     setActiveView("talk-to-sim");
   };
 
+  // Convert SimData to AgentType for ChatInterface
+  const getSimAsAgent = (): AgentType | null => {
+    if (!sim) return null;
+    
+    return {
+      id: sim.id || '',
+      name: sim.name || sim.full_name || 'My Sim',
+      description: sim.description || '',
+      type: 'General Tutor' as any,
+      status: 'active' as any,
+      createdAt: sim.created_at || new Date().toISOString(),
+      updatedAt: sim.updated_at || new Date().toISOString(),
+      avatar: sim.avatar_url,
+      prompt: sim.prompt,
+      title: sim.professional_title,
+      welcomeMessage: sim.welcome_message,
+      // Default values for required AgentType fields
+      model: 'gpt-4',
+      voice: 'default',
+      voiceProvider: 'openai',
+      customVoiceId: null,
+      voiceTraits: [],
+      interactions: 0,
+      studentsSaved: 0,
+      helpfulnessScore: 0,
+      avmScore: 0,
+      csat: 0,
+      performance: 0,
+      channels: [],
+      channelConfigs: {},
+      isPersonal: true,
+      phone: null,
+      email: null,
+      purpose: null,
+      subject: null,
+      gradeLevel: null,
+      teachingStyle: null,
+      customSubject: null,
+      learningObjective: null,
+      is_featured: false,
+      url: sim.url,
+      custom_url: sim.custom_url,
+      isPublic: sim.is_public
+    };
+  };
+
   const renderContent = () => {
     if (!user) {
       return (
@@ -111,9 +158,10 @@ const Home = () => {
 
     switch (activeView) {
       case "talk-to-sim":
-        return sim ? (
+        const simAsAgent = getSimAsAgent();
+        return simAsAgent ? (
           <ChatInterface 
-            agent={sim} 
+            agent={simAsAgent} 
             isUserOwnSim={true}
           />
         ) : (
@@ -132,18 +180,21 @@ const Home = () => {
       case "interaction-model":
         return <InteractionModel />;
       case "core-knowledge":
-        return <CoreKnowledge />;
+        return sim?.id ? <CoreKnowledge advisorId={sim.id} /> : (
+          <div className="flex-1 flex items-center justify-center">
+            <div className="text-center">
+              <p className="text-muted-foreground">Please complete your basic information first</p>
+            </div>
+          </div>
+        );
       case "integrations":
         return <Integrations />;
       case "actions":
         return <Actions />;
       case "directory":
         return <AdvisorDirectory
-          agents={agents}
-          publicAdvisors={publicAdvisors}
-          onSelectAgent={handleSelectAgent}
-          onSelectPublicAdvisor={handleSelectPublicAdvisor}
-          selectedPublicAdvisors={selectedPublicAdvisors}
+          onSelectAdvisor={handleSelectPublicAdvisor}
+          onAuthRequired={() => setShowAuthModal(true)}
         />;
       case "search":
         return <div className="flex-1 flex items-center justify-center">
