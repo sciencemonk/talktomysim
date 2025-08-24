@@ -276,12 +276,6 @@ export const ConversationsDashboard = ({ advisorId }: ConversationsDashboardProp
                             <Badge variant="outline">
                               {conversation.message_count} messages
                             </Badge>
-                            {conversation.is_anonymous && (
-                              <Badge variant="secondary">
-                                <Globe className="h-3 w-3 mr-1" />
-                                Public
-                              </Badge>
-                            )}
                             {conversation.intents.map((intent) => (
                               <Badge 
                                 key={intent}
@@ -341,18 +335,6 @@ export const ConversationsDashboard = ({ advisorId }: ConversationsDashboardProp
                             <Badge variant="outline">
                               {conversation.message_count} messages
                             </Badge>
-                            {conversation.is_anonymous && (
-                              <Badge variant="secondary">
-                                <Globe className="h-3 w-3 mr-1" />
-                                Public
-                              </Badge>
-                            )}
-                            {conversation.escalated && (
-                              <Badge variant="destructive">
-                                <AlertTriangle className="h-3 w-3 mr-1" />
-                                Escalated
-                              </Badge>
-                            )}
                           </div>
 
                           <p className="text-sm text-muted-foreground line-clamp-2">
