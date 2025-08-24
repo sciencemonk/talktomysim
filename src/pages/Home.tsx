@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { Navigate } from "react-router-dom";
@@ -36,14 +37,14 @@ const Home = () => {
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [selectedAgent, setSelectedAgent] = useState<AgentType | null>(null);
   const [selectedPublicAdvisorId, setSelectedPublicAdvisorId] = useState<string | null>(null);
-  // Default to 'my-sim' for authenticated users, 'directory' for non-authenticated
-  const [currentView, setCurrentView] = useState<ViewType>(user ? 'my-sim' : 'directory');
+  // Default to 'talk-to-sim' for authenticated users, 'directory' for non-authenticated
+  const [currentView, setCurrentView] = useState<ViewType>(user ? 'talk-to-sim' : 'directory');
   const [mobileSheetOpen, setMobileSheetOpen] = useState(false);
 
   // Update default view when user authentication state changes
   useEffect(() => {
     if (user && currentView === 'directory') {
-      setCurrentView('my-sim');
+      setCurrentView('talk-to-sim');
     } else if (!user && currentView !== 'directory') {
       setCurrentView('directory');
     }
