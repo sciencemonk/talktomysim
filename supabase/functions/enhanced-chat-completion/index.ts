@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
@@ -42,13 +41,39 @@ serve(async (req) => {
       throw new Error('Advisor not found')
     }
 
-    // Get the latest user message for context retrieval
+    // Get the latest user message for context retrieval and relevance checking
     const userMessages = messages.filter(msg => msg.role === 'user')
     const latestUserMessage = userMessages[userMessages.length - 1]?.content || ''
 
     // Analyze conversation context and intent
     const conversationContext = analyzeConversationContext(messages, latestUserMessage)
     console.log('Conversation context analysis:', conversationContext)
+
+    // First, check if the question is relevant to the advisor's knowledge domain
+    const relevanceCheck = await checkQuestionRelevance(advisor, latestUserMessage, openaiApiKey)
+    console.log('Question relevance check:', relevanceCheck)
+
+    // If question is not relevant, return polite redirect
+    if (!relevanceCheck.isRelevant) {
+      const advisorName = advisor.full_name || advisor.name
+      const redirectMessage = `I appreciate your question, but I don't have information about that topic in my knowledge base. As ${advisorName}'s Sim, I'm here to help with topics related to ${getAdvisorExpertiseAreas(advisor)}. Is there anything specific about ${advisorName}'s work or expertise I can help you with?`
+      
+      return new Response(
+        JSON.stringify({ 
+          content: redirectMessage,
+          usage: { prompt_tokens: 0, completion_tokens: 0, total_tokens: 0 },
+          contextUsed: false,
+          sources: [],
+          searchMetrics: null,
+          conversationContext: conversationContext,
+          relevanceCheck: relevanceCheck,
+          guardRailTriggered: true
+        }),
+        {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        },
+      )
+    }
 
     // Retrieve relevant context with enhanced search
     let contextData = null
@@ -161,7 +186,31 @@ serve(async (req) => {
       }
     }
 
-    // Generate comprehensive personality-driven system prompt
+    // If no relevant context found and question is about specific knowledge, trigger guard rail
+    if (!contextData || contextData.sources.length === 0) {
+      const advisorName = advisor.full_name || advisor.name
+      if (requiresSpecificKnowledge(latestUserMessage)) {
+        const redirectMessage = `I don't have specific information about that in my knowledge base. As ${advisorName}'s Sim, I can help you with questions related to ${getAdvisorExpertiseAreas(advisor)} based on the information I have available. Is there something specific about ${advisorName}'s background or expertise I can help you with?`
+        
+        return new Response(
+          JSON.stringify({ 
+            content: redirectMessage,
+            usage: { prompt_tokens: 0, completion_tokens: 0, total_tokens: 0 },
+            contextUsed: false,
+            sources: [],
+            searchMetrics: null,
+            conversationContext: conversationContext,
+            relevanceCheck: relevanceCheck,
+            guardRailTriggered: true
+          }),
+          {
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          },
+        )
+      }
+    }
+
+    // Generate comprehensive personality-driven system prompt with guard rails
     const systemPrompt = generateEnhancedSystemPrompt(advisor, contextData?.contextText, conversationContext)
 
     // Prepare the messages for OpenAI
@@ -236,7 +285,8 @@ serve(async (req) => {
         contextUsed: contextData ? contextData.contextText.length > 0 : false,
         sources: contextData?.sources || [],
         searchMetrics: contextData?.searchMetrics || null,
-        conversationContext: conversationContext
+        conversationContext: conversationContext,
+        relevanceCheck: relevanceCheck
       }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -257,6 +307,100 @@ serve(async (req) => {
   }
 })
 
+async function checkQuestionRelevance(advisor: any, userMessage: string, openaiApiKey: string): Promise<{isRelevant: boolean, reason: string}> {
+  const advisorContext = buildAdvisorContext(advisor)
+  
+  const relevancePrompt = `You are evaluating whether a user question is relevant to a specific person's expertise and background.
+
+PERSON'S CONTEXT:
+${advisorContext}
+
+USER QUESTION: "${userMessage}"
+
+Determine if this question is relevant to this person's expertise, background, or the topics they would reasonably be expected to discuss as a professional.
+
+Questions are RELEVANT if they relate to:
+- Their stated expertise areas
+- Their professional background
+- Their industry or field
+- General professional topics they would engage with
+- Questions about their background, experience, or work
+- Business-related inquiries appropriate to their role
+
+Questions are NOT RELEVANT if they:
+- Ask about completely unrelated topics (sports when they're in finance, cooking when they're in tech, etc.)
+- Request information about other people or companies they're not associated with
+- Ask about current events or news unless directly related to their field
+- Request factual information outside their domain of expertise
+
+Respond with JSON format: {"isRelevant": true/false, "reason": "brief explanation"}`
+
+  try {
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${openaiApiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'gpt-5-mini-2025-08-07',
+        messages: [
+          { role: 'user', content: relevancePrompt }
+        ],
+        max_completion_tokens: 200,
+      }),
+    })
+
+    if (response.ok) {
+      const data = await response.json()
+      const result = JSON.parse(data.choices[0].message.content)
+      return result
+    }
+  } catch (error) {
+    console.warn('Failed to check question relevance:', error)
+  }
+
+  // Default to allowing the question if relevance check fails
+  return { isRelevant: true, reason: 'Unable to determine relevance' }
+}
+
+function requiresSpecificKnowledge(message: string): boolean {
+  const specificKnowledgeIndicators = [
+    'what is', 'how does', 'explain', 'tell me about', 'information about',
+    'details on', 'definition of', 'meaning of', 'help me understand',
+    'can you describe', 'what are the', 'how to', 'steps to', 'process of'
+  ]
+  
+  const lowerMessage = message.toLowerCase()
+  return specificKnowledgeIndicators.some(indicator => lowerMessage.includes(indicator))
+}
+
+function buildAdvisorContext(advisor: any): string {
+  const sections = []
+  
+  if (advisor.full_name) sections.push(`Name: ${advisor.full_name}`)
+  if (advisor.professional_title) sections.push(`Title: ${advisor.professional_title}`)
+  if (advisor.current_profession) sections.push(`Profession: ${advisor.current_profession}`)
+  if (advisor.areas_of_expertise) sections.push(`Expertise: ${advisor.areas_of_expertise}`)
+  if (advisor.education) sections.push(`Education: ${advisor.education}`)
+  if (advisor.additional_background) sections.push(`Background: ${advisor.additional_background}`)
+  if (advisor.skills && advisor.skills.length > 0) sections.push(`Skills: ${advisor.skills.join(', ')}`)
+  if (advisor.interests && advisor.interests.length > 0) sections.push(`Interests: ${advisor.interests.join(', ')}`)
+  
+  return sections.join('\n')
+}
+
+function getAdvisorExpertiseAreas(advisor: any): string {
+  const areas = []
+  if (advisor.areas_of_expertise) areas.push(advisor.areas_of_expertise)
+  if (advisor.current_profession) areas.push(advisor.current_profession)
+  if (advisor.professional_title) areas.push(`their role as ${advisor.professional_title}`)
+  
+  if (areas.length === 0) return 'their area of expertise'
+  if (areas.length === 1) return areas[0]
+  return areas.slice(0, -1).join(', ') + ' and ' + areas[areas.length - 1]
+}
+
 function generateEnhancedSystemPrompt(advisor: any, knowledgeContext?: string, conversationContext?: any): string {
   const name = advisor.full_name || advisor.name
   const title = advisor.professional_title || 'Professional'
@@ -274,6 +418,12 @@ ${generateCommunicationStyle(advisor)}
 
 BACKGROUND & EXPERTISE:
 ${buildExpertiseSection(advisor)}
+
+KNOWLEDGE BOUNDARIES & GUARD RAILS:
+- You can ONLY discuss topics related to ${getAdvisorExpertiseAreas(advisor)}
+- If asked about topics outside your expertise, politely redirect: "I don't have information about that topic. I can help with questions about ${getAdvisorExpertiseAreas(advisor)}. What would you like to know?"
+- Stay within the scope of ${name}'s professional background and documented knowledge
+- Do not make up information or speculate beyond your knowledge base
 
 SELF-AWARENESS PROTOCOL:
 - You are explicitly a Sim (digital representation) of ${name}
@@ -304,7 +454,8 @@ AUTHENTICITY REQUIREMENTS:
 - Always respond as ${name} would, using their natural communication style
 - Reference appropriate personal background and experiences when relevant
 - Maintain personality consistency across all interactions
-- Stay true to their expertise areas and interests`
+- Stay true to their expertise areas and interests
+- If uncertain about a topic, acknowledge the limitation rather than guessing`
 
   return systemPrompt
 }
@@ -414,6 +565,7 @@ function generateResponseGuidelines(advisor: any, conversationContext?: any): st
   guidelines.push(`- Respond authentically as ${advisor.full_name || advisor.name} would`)
   guidelines.push('- Use your expertise to provide valuable insights when relevant')
   guidelines.push('- Maintain consistency with your established communication patterns')
+  guidelines.push('- Stay within your knowledge boundaries - redirect if asked about unrelated topics')
   
   if (conversationContext?.hasBusinessContext) {
     guidelines.push('- Focus on providing professional value and assistance')
