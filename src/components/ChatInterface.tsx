@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -369,8 +368,10 @@ export const ChatInterface = ({
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Input - Always fixed to bottom */}
-      <div className="fixed bottom-0 left-0 right-0 z-10 p-4 border-t border-border bg-card">
+      {/* Input - Fixed to bottom but only on the right side, not behind sidebar */}
+      <div className={`fixed bottom-0 z-10 p-4 border-t border-border bg-card ${
+        isUserOwnSim ? 'left-0 right-0' : 'left-80 right-0'
+      } md:left-80 md:right-0`}>
         <div className="flex gap-2 w-full max-w-full">
           <Input
             value={inputMessage}
