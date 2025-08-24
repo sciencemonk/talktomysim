@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 
 export interface AdvisorDocument {
@@ -31,11 +30,12 @@ export const documentService = {
   ): Promise<ProcessingResult> {
     try {
       console.log('Processing file:', file.name, 'type:', file.type, 'size:', file.size);
+      console.log('For advisor ID:', advisorId);
       
-      // Validate that the sim/advisor exists in the advisors table
+      // Validate that the advisor exists and belongs to the current user
       const { data: advisorExists, error: advisorError } = await supabase
         .from('advisors')
-        .select('id, name')
+        .select('id, name, user_id')
         .eq('id', advisorId)
         .maybeSingle();
 
@@ -45,34 +45,18 @@ export const documentService = {
       }
 
       if (!advisorExists) {
-        console.error('Sim not found in database:', advisorId);
-        
-        // Try to get current user's sim
-        const { data: { user } } = await supabase.auth.getUser();
-        if (user) {
-          const { data: userSim, error: simError } = await supabase
-            .from('advisors')
-            .select('id, name')
-            .eq('user_id', user.id)
-            .maybeSingle();
-          
-          if (simError) {
-            console.error('Error fetching user sim:', simError);
-            return { success: false, error: 'Please complete your sim setup first before uploading documents.' };
-          }
-          
-          if (!userSim) {
-            return { success: false, error: 'Please create your sim first before uploading documents.' };
-          }
-          
-          // If we found a different sim, suggest using that instead
-          return { success: false, error: `Sim not found. Please refresh the page and try again.` };
-        }
-        
-        return { success: false, error: 'Please create your sim first before uploading documents.' };
+        console.error('Advisor not found:', advisorId);
+        return { success: false, error: 'Advisor not found. Please make sure your sim is properly set up.' };
       }
 
-      console.log(`Processing file for sim: ${advisorExists.name} (${advisorExists.id})`);
+      // Check if the advisor belongs to the current user
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user && advisorExists.user_id !== user.id) {
+        console.error('Advisor does not belong to current user');
+        return { success: false, error: 'You do not have permission to upload documents to this sim.' };
+      }
+
+      console.log(`Processing file for advisor: ${advisorExists.name} (${advisorExists.id})`);
       
       // First, extract text from the file
       const extractionResult = await this.extractTextFromFile(file);
@@ -139,23 +123,30 @@ export const documentService = {
     fileSize?: number
   ): Promise<ProcessingResult> {
     try {
-      console.log('Processing document for sim:', advisorId);
+      console.log('Processing document for advisor:', advisorId);
       
-      // Validate that the sim/advisor exists
+      // Validate that the advisor exists and belongs to the current user
       const { data: advisorExists, error: advisorError } = await supabase
         .from('advisors')
-        .select('id, name')
+        .select('id, name, user_id')
         .eq('id', advisorId)
         .maybeSingle();
 
       if (advisorError) {
         console.error('Error checking advisor:', advisorError);
-        return { success: false, error: 'Failed to validate sim' };
+        return { success: false, error: 'Failed to validate advisor' };
       }
 
       if (!advisorExists) {
-        console.error('Sim not found:', advisorId);
-        return { success: false, error: 'Sim not found. Please refresh the page and try again.' };
+        console.error('Advisor not found:', advisorId);
+        return { success: false, error: 'Advisor not found. Please make sure your sim is properly set up.' };
+      }
+
+      // Check if the advisor belongs to the current user
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user && advisorExists.user_id !== user.id) {
+        console.error('Advisor does not belong to current user');
+        return { success: false, error: 'You do not have permission to process documents for this sim.' };
       }
       
       const { data, error } = await supabase.functions.invoke('process-document', {

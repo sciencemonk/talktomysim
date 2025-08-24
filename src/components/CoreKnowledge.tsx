@@ -15,7 +15,7 @@ interface CoreKnowledgeProps {
 }
 
 export const CoreKnowledge: React.FC<CoreKnowledgeProps> = ({ advisorId: propAdvisorId }) => {
-  const { sim } = useSim();
+  const { sim, loading: simLoading, error: simError } = useSim();
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const [processingProgress, setProcessingProgress] = useState(0);
@@ -38,7 +38,7 @@ export const CoreKnowledge: React.FC<CoreKnowledgeProps> = ({ advisorId: propAdv
       setIsProcessing(true);
       setProcessingProgress(10);
       
-      console.log('Processing file:', file.name, 'for sim:', advisorId);
+      console.log('Processing file:', file.name, 'for advisor:', advisorId);
       
       setProcessingProgress(30);
       const result = await documentService.processFile(advisorId, file);
@@ -93,7 +93,7 @@ export const CoreKnowledge: React.FC<CoreKnowledgeProps> = ({ advisorId: propAdv
       setIsProcessing(true);
       setProcessingProgress(20);
       
-      console.log('Processing text for sim:', advisorId);
+      console.log('Processing text for advisor:', advisorId);
       
       const result = await documentService.processDocument(
         advisorId,
@@ -144,6 +144,38 @@ export const CoreKnowledge: React.FC<CoreKnowledgeProps> = ({ advisorId: propAdv
   const handleDocumentsChange = () => {
     setRefreshDocuments(prev => prev + 1);
   };
+
+  // Show loading state while sim is loading
+  if (simLoading) {
+    return (
+      <div className="max-w-4xl mx-auto p-6">
+        <Card>
+          <CardContent className="p-8 text-center">
+            <Database className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-foreground mb-2">Loading Sim...</h3>
+            <p className="text-muted-foreground">Please wait while we load your sim information.</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  // Show error state if sim loading failed
+  if (simError) {
+    return (
+      <div className="max-w-4xl mx-auto p-6">
+        <Card>
+          <CardContent className="p-8 text-center">
+            <Database className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-foreground mb-2">Error Loading Sim</h3>
+            <p className="text-muted-foreground">
+              There was an error loading your sim. Please refresh the page and try again.
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   // Validate sim exists
   if (!advisorId || advisorId.trim() === '') {
