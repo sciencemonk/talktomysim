@@ -14,8 +14,7 @@ import {
   Brain,
   Settings,
   Search,
-  Trash2,
-  Shield
+  Trash2
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import UserSettingsDropdown from "./UserSettingsDropdown";
@@ -140,19 +139,6 @@ export const SidebarContent = ({
                     >
                       <Brain className="mr-2 h-4 w-4" />
                       Vector Embedding
-                    </Button>
-
-                    <Button
-                      variant={activeView === 'actions' ? "secondary" : "ghost"}
-                      size="sm"
-                      onClick={() => {
-                        onNavigateToActions();
-                        onClose?.();
-                      }}
-                      className="w-full justify-start h-9"
-                    >
-                      <Shield className="mr-2 h-4 w-4" />
-                      Actions
                     </Button>
                     
                     <div className="relative">

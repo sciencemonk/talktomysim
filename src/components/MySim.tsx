@@ -88,14 +88,6 @@ const MySim = () => {
               </div>
             </div>
             <div className="flex gap-2">
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={() => refetch()}
-                className="flex-shrink-0"
-              >
-                Refresh
-              </Button>
               <Button variant="outline" asChild size="sm" className="flex-shrink-0">
                 <a href={`/${sim?.custom_url || sim?.id}`} target="_blank" rel="noopener noreferrer">
                   <ExternalLink className="h-4 w-4 mr-2" />
