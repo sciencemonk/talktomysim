@@ -5,39 +5,52 @@ import { AgentType } from "@/types/agent";
 export const fetchPublicAgentByUrl = async (url: string): Promise<AgentType> => {
   console.log("Fetching public advisor by URL:", url);
   
-  // Use the secure public_advisors view instead of direct advisors table access
-  const { data: advisor, error } = await supabase
+  // First, get the basic public info from the secure view
+  const { data: publicAdvisor, error: publicError } = await supabase
     .from('public_advisors')
     .select('*')
     .eq('custom_url', url)
     .maybeSingle();
 
-  if (error) {
-    console.error("Error fetching public advisor by URL:", error);
-    throw new Error(`Failed to fetch advisor: ${error.message}`);
+  if (publicError) {
+    console.error("Error fetching public advisor by URL:", publicError);
+    throw new Error(`Failed to fetch advisor: ${publicError.message}`);
   }
 
-  if (!advisor) {
+  if (!publicAdvisor) {
     throw new Error("Advisor not found");
   }
 
-  console.log("Fetched public advisor by URL:", advisor);
+  // Then, fetch the welcome message from the full advisors table (only this specific field)
+  const { data: advisorWelcomeData, error: welcomeError } = await supabase
+    .from('advisors')
+    .select('welcome_message')
+    .eq('id', publicAdvisor.id)
+    .eq('is_public', true)  // Additional security check
+    .eq('is_active', true)  // Additional security check
+    .maybeSingle();
+
+  console.log("Fetched public advisor by URL:", publicAdvisor);
+
+  // Use the welcome message from the advisors table, or fall back to default
+  const welcomeMessage = advisorWelcomeData?.welcome_message || 
+    `Hello! I'm ${publicAdvisor.name}'s Sim. I'm here to help and answer questions just as ${publicAdvisor.name} would. What can I do for you?`;
 
   // Transform the advisor data to match AgentType interface
   return {
-    id: advisor.id,
-    name: advisor.name,
-    description: advisor.description || '',
+    id: publicAdvisor.id,
+    name: publicAdvisor.name,
+    description: publicAdvisor.description || '',
     type: 'General Tutor' as any,
     status: 'active' as any,
-    createdAt: advisor.created_at,
-    updatedAt: advisor.updated_at,
-    avatar: advisor.avatar_url,
+    createdAt: publicAdvisor.created_at,
+    updatedAt: publicAdvisor.updated_at,
+    avatar: publicAdvisor.avatar_url,
     prompt: '', // Prompts not exposed in public view for security
-    title: advisor.title,
+    title: publicAdvisor.title,
     url: '', // URL not exposed in public view for security
-    custom_url: advisor.custom_url, // Safe field from public_advisors view
-    welcomeMessage: `Hello! I'm ${advisor.name}'s Sim. I'm here to help and answer questions just as ${advisor.name} would. What can I do for you?`, // Default welcome message for public visitors
+    custom_url: publicAdvisor.custom_url, // Safe field from public_advisors view
+    welcomeMessage: welcomeMessage, // Welcome message from interaction model
     // Default values for fields that don't exist in public_advisors view
     model: 'gpt-4',
     voice: 'default',
