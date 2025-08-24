@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 
 export interface AdvisorDocument {
@@ -31,22 +32,47 @@ export const documentService = {
     try {
       console.log('Processing file:', file.name, 'type:', file.type, 'size:', file.size);
       
-      // Validate advisor exists before processing
+      // Validate that the sim/advisor exists in the advisors table
       const { data: advisorExists, error: advisorError } = await supabase
         .from('advisors')
-        .select('id')
+        .select('id, name')
         .eq('id', advisorId)
         .maybeSingle();
 
       if (advisorError) {
         console.error('Error checking advisor:', advisorError);
-        return { success: false, error: 'Failed to validate advisor' };
+        return { success: false, error: 'Failed to validate sim' };
       }
 
       if (!advisorExists) {
-        console.error('Advisor not found:', advisorId);
-        return { success: false, error: 'Advisor not found. Please select a valid advisor.' };
+        console.error('Sim not found in database:', advisorId);
+        
+        // Try to get current user's sim
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          const { data: userSim, error: simError } = await supabase
+            .from('advisors')
+            .select('id, name')
+            .eq('user_id', user.id)
+            .maybeSingle();
+          
+          if (simError) {
+            console.error('Error fetching user sim:', simError);
+            return { success: false, error: 'Please complete your sim setup first before uploading documents.' };
+          }
+          
+          if (!userSim) {
+            return { success: false, error: 'Please create your sim first before uploading documents.' };
+          }
+          
+          // If we found a different sim, suggest using that instead
+          return { success: false, error: `Sim not found. Please refresh the page and try again.` };
+        }
+        
+        return { success: false, error: 'Please create your sim first before uploading documents.' };
       }
+
+      console.log(`Processing file for sim: ${advisorExists.name} (${advisorExists.id})`);
       
       // First, extract text from the file
       const extractionResult = await this.extractTextFromFile(file);
@@ -113,23 +139,23 @@ export const documentService = {
     fileSize?: number
   ): Promise<ProcessingResult> {
     try {
-      console.log('Processing document for advisor:', advisorId);
+      console.log('Processing document for sim:', advisorId);
       
-      // Validate advisor exists before processing
+      // Validate that the sim/advisor exists
       const { data: advisorExists, error: advisorError } = await supabase
         .from('advisors')
-        .select('id')
+        .select('id, name')
         .eq('id', advisorId)
         .maybeSingle();
 
       if (advisorError) {
         console.error('Error checking advisor:', advisorError);
-        return { success: false, error: 'Failed to validate advisor' };
+        return { success: false, error: 'Failed to validate sim' };
       }
 
       if (!advisorExists) {
-        console.error('Advisor not found:', advisorId);
-        return { success: false, error: 'Advisor not found. Please select a valid advisor.' };
+        console.error('Sim not found:', advisorId);
+        return { success: false, error: 'Sim not found. Please refresh the page and try again.' };
       }
       
       const { data, error } = await supabase.functions.invoke('process-document', {
@@ -177,7 +203,6 @@ export const documentService = {
     }
   },
 
-  // Get all documents for an advisor
   async getAdvisorDocuments(advisorId: string): Promise<AdvisorDocument[]> {
     try {
       const { data, error } = await supabase
@@ -198,7 +223,6 @@ export const documentService = {
     }
   },
 
-  // Delete a document and its embeddings
   async deleteDocument(documentId: string): Promise<void> {
     try {
       const { error } = await supabase
@@ -218,7 +242,6 @@ export const documentService = {
     }
   },
 
-  // Get embedding statistics for an advisor
   async getEmbeddingStats(advisorId: string): Promise<{ totalChunks: number; totalDocuments: number }> {
     try {
       const { data: chunksData, error: chunksError } = await supabase

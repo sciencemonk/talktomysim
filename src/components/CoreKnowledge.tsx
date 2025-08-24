@@ -8,16 +8,21 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Database } from 'lucide-react';
 import { documentService } from '@/services/documentService';
 import { toast } from 'sonner';
+import { useSim } from '@/hooks/useSim';
 
 interface CoreKnowledgeProps {
-  advisorId: string;
+  advisorId?: string;
 }
 
-export const CoreKnowledge: React.FC<CoreKnowledgeProps> = ({ advisorId }) => {
+export const CoreKnowledge: React.FC<CoreKnowledgeProps> = ({ advisorId: propAdvisorId }) => {
+  const { sim } = useSim();
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const [processingProgress, setProcessingProgress] = useState(0);
   const [refreshDocuments, setRefreshDocuments] = useState(0);
+
+  // Use the sim ID as advisor ID if no advisorId prop is provided
+  const advisorId = propAdvisorId || sim?.id;
 
   const handleFileSelect = (files: File[]) => {
     setSelectedFiles(files);
@@ -26,14 +31,14 @@ export const CoreKnowledge: React.FC<CoreKnowledgeProps> = ({ advisorId }) => {
   const handleFileProcess = async (file: File) => {
     try {
       if (!advisorId) {
-        toast.error('No advisor selected. Please select an advisor first.');
+        toast.error('No sim selected. Please complete your sim setup first.');
         return;
       }
 
       setIsProcessing(true);
       setProcessingProgress(10);
       
-      console.log('Processing file:', file.name, 'for advisor:', advisorId);
+      console.log('Processing file:', file.name, 'for sim:', advisorId);
       
       setProcessingProgress(30);
       const result = await documentService.processFile(advisorId, file);
@@ -64,7 +69,7 @@ export const CoreKnowledge: React.FC<CoreKnowledgeProps> = ({ advisorId }) => {
       
       // Provide more specific error messages based on the error type
       if (error.message.includes('foreign key constraint')) {
-        toast.error('Invalid advisor selected. Please refresh the page and try again.');
+        toast.error('Invalid sim selected. Please refresh the page and try again.');
       } else if (error.message.includes('FunctionsHttpError')) {
         toast.error('Server error occurred while processing the document. Please try again.');
       } else {
@@ -81,14 +86,14 @@ export const CoreKnowledge: React.FC<CoreKnowledgeProps> = ({ advisorId }) => {
   const handleTextProcess = async (title: string, content: string) => {
     try {
       if (!advisorId) {
-        toast.error('No advisor selected. Please select an advisor first.');
+        toast.error('No sim selected. Please complete your sim setup first.');
         return;
       }
 
       setIsProcessing(true);
       setProcessingProgress(20);
       
-      console.log('Processing text for advisor:', advisorId);
+      console.log('Processing text for sim:', advisorId);
       
       const result = await documentService.processDocument(
         advisorId,
@@ -122,7 +127,7 @@ export const CoreKnowledge: React.FC<CoreKnowledgeProps> = ({ advisorId }) => {
       
       // Provide more specific error messages based on the error type
       if (error.message.includes('foreign key constraint')) {
-        toast.error('Invalid advisor selected. Please refresh the page and try again.');
+        toast.error('Invalid sim selected. Please refresh the page and try again.');
       } else if (error.message.includes('FunctionsHttpError')) {
         toast.error('Server error occurred while processing the text. Please try again.');
       } else {
@@ -140,16 +145,16 @@ export const CoreKnowledge: React.FC<CoreKnowledgeProps> = ({ advisorId }) => {
     setRefreshDocuments(prev => prev + 1);
   };
 
-  // Validate advisor ID exists
+  // Validate sim exists
   if (!advisorId || advisorId.trim() === '') {
     return (
       <div className="max-w-4xl mx-auto p-6">
         <Card>
           <CardContent className="p-8 text-center">
             <Database className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-foreground mb-2">No Advisor Selected</h3>
+            <h3 className="text-lg font-medium text-foreground mb-2">No Sim Selected</h3>
             <p className="text-muted-foreground">
-              Please select an advisor first to manage their knowledge base.
+              Please complete your sim setup first to manage their knowledge base.
             </p>
           </CardContent>
         </Card>
