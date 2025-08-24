@@ -27,12 +27,18 @@ const AdvisorDirectory = ({
   const { agents, isLoading, error } = useAllAdvisors();
   const [searchTerm, setSearchTerm] = useState("");
 
-  // Filter advisors based on search term
-  const filteredAdvisors = agents.filter(advisor =>
-    advisor.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    advisor.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    advisor.subject?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // Filter advisors based on search term and active status
+  const filteredAdvisors = agents.filter(advisor => {
+    // Only show active sims (default to true if is_active is not set)
+    const isActive = advisor.isActive !== false;
+    if (!isActive) return false;
+    
+    return (
+      advisor.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      advisor.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      advisor.subject?.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  });
 
   const handleAdvisorSelect = (advisor: AgentType) => {
     // Use custom URL if available, otherwise fall back to agent ID route
