@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -21,9 +20,10 @@ interface ChatInterfaceProps {
   onToggleAudio?: () => void;
   isAudioEnabled?: boolean;
   onBack?: () => void;
+  onLoginClick?: () => void;
 }
 
-export const ChatInterface = ({ agent, onToggleAudio, isAudioEnabled = false, onBack }: ChatInterfaceProps) => {
+export const ChatInterface = ({ agent, onToggleAudio, isAudioEnabled = false, onBack, onLoginClick }: ChatInterfaceProps) => {
   const [inputMessage, setInputMessage] = useState('');
   const [messages, setMessages] = useState<Message[]>([]);
   const [conversation, setConversation] = useState<Conversation | null>(null);
@@ -205,26 +205,42 @@ export const ChatInterface = ({ agent, onToggleAudio, isAudioEnabled = false, on
           </div>
         </div>
         
-        {onToggleAudio && (
+        <div className="flex items-center gap-2">
+          {onToggleAudio && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={onToggleAudio}
+              className="flex items-center gap-2"
+            >
+              {isAudioEnabled ? (
+                <>
+                  <MicOff className="h-4 w-4" />
+                  Audio Off
+                </>
+              ) : (
+                <>
+                  <Mic className="h-4 w-4" />
+                  Audio On
+                </>
+              )}
+            </Button>
+          )}
+          
+          {/* Login Logo */}
           <Button
-            variant="outline"
+            variant="ghost"
             size="sm"
-            onClick={onToggleAudio}
-            className="flex items-center gap-2"
+            onClick={onLoginClick}
+            className="p-2"
           >
-            {isAudioEnabled ? (
-              <>
-                <MicOff className="h-4 w-4" />
-                Audio Off
-              </>
-            ) : (
-              <>
-                <Mic className="h-4 w-4" />
-                Audio On
-              </>
-            )}
+            <img 
+              src="/lovable-uploads/bd1798e5-2033-45c5-a39b-4e8192a4b046.png" 
+              alt="Login" 
+              className="h-6 w-6 object-contain"
+            />
           </Button>
-        )}
+        </div>
       </div>
 
       {/* Messages - Scrollable with padding for fixed elements */}
