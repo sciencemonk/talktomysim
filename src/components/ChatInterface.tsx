@@ -37,19 +37,49 @@ export const ChatInterface = ({
   const [conversation, setConversation] = useState<Conversation | null>(null);
   const [currentAiMessage, setCurrentAiMessage] = useState<string>('');
   const [hasLoadedInitialMessages, setHasLoadedInitialMessages] = useState(false);
+  const [isUserNearBottom, setIsUserNearBottom] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
 
-  // Auto-scroll to bottom when messages change
-  const scrollToBottom = useCallback(() => {
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
-    }
+  // Check if user is near bottom of chat
+  const checkIfNearBottom = useCallback(() => {
+    if (!messagesContainerRef.current) return true;
+    
+    const container = messagesContainerRef.current;
+    const threshold = 150; // pixels from bottom
+    const isNearBottom = container.scrollHeight - container.scrollTop - container.clientHeight < threshold;
+    
+    setIsUserNearBottom(isNearBottom);
+    return isNearBottom;
   }, []);
 
-  // Scroll to bottom when messages update
+  // Smart scroll to bottom - only if user is near bottom
+  const scrollToBottom = useCallback((force = false) => {
+    if (messagesEndRef.current && (force || isUserNearBottom)) {
+      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [isUserNearBottom]);
+
+  // Handle scroll events to track user position
+  const handleScroll = useCallback(() => {
+    checkIfNearBottom();
+  }, [checkIfNearBottom]);
+
+  // Scroll to bottom when messages update (only if user is near bottom)
   useEffect(() => {
     scrollToBottom();
   }, [messages, scrollToBottom]);
+
+  // Force scroll to bottom when new message starts (user sends message)
+  useEffect(() => {
+    if (messages.length > 0) {
+      const lastMessage = messages[messages.length - 1];
+      if (lastMessage.role === 'user') {
+        setIsUserNearBottom(true);
+        scrollToBottom(true);
+      }
+    }
+  }, [messages.length, scrollToBottom]);
 
   // Initialize conversation on component mount
   useEffect(() => {
@@ -63,7 +93,6 @@ export const ChatInterface = ({
     initConversation();
   }, [agent?.id]);
 
-  // Load existing messages when conversation is available
   const { messages: historyMessages, isLoading, loadMessages } = useChatHistory(conversation?.id || null);
 
   // Update local messages when history loads and show welcome message if needed
@@ -88,8 +117,13 @@ export const ChatInterface = ({
         setMessages([welcomeMsg]);
       }
       setHasLoadedInitialMessages(true);
+      // Force scroll to bottom on initial load
+      setTimeout(() => {
+        setIsUserNearBottom(true);
+        scrollToBottom(true);
+      }, 100);
     }
-  }, [historyMessages, conversation?.id, agent?.welcomeMessage, hasLoadedInitialMessages]);
+  }, [historyMessages, conversation?.id, agent?.welcomeMessage, hasLoadedInitialMessages, scrollToBottom]);
 
   const addUserMessage = useCallback(async (message: string) => {
     const userMsg: Message = {
@@ -101,35 +135,29 @@ export const ChatInterface = ({
     
     setMessages(prev => [...prev, userMsg]);
 
-    // Save to database if conversation exists
     if (conversation?.id) {
       await conversationService.addMessage(conversation.id, 'user', message);
     }
   }, [conversation?.id]);
 
   const startAiMessage = useCallback(() => {
-    // Clear current AI message and return ID for tracking
     setCurrentAiMessage('');
     const aiMessageId = `ai-${Date.now()}`;
     return aiMessageId;
   }, []);
 
   const addAiTextDelta = useCallback((delta: string) => {
-    // Update current AI message content
     setCurrentAiMessage(prev => prev + delta);
     
     setMessages(prev => {
-      // Check if the last message is from the system
       const lastMessage = prev[prev.length - 1];
       if (lastMessage && lastMessage.role === 'system' && lastMessage.id.startsWith('ai-')) {
-        // Update existing AI message
         return prev.map((msg, index) => 
           index === prev.length - 1 && msg.role === 'system' && msg.id.startsWith('ai-')
             ? { ...msg, content: msg.content + delta }
             : msg
         );
       } else {
-        // Create new AI message with the delta content
         const aiMsg: Message = {
           id: `ai-${Date.now()}`,
           role: 'system',
@@ -142,12 +170,10 @@ export const ChatInterface = ({
   }, []);
 
   const completeAiMessage = useCallback(async (finalContent: string) => {
-    // Save the completed AI message to database using the final content
     if (conversation?.id && finalContent && finalContent.trim()) {
       console.log('Saving AI message to database:', finalContent);
       await conversationService.addMessage(conversation.id, 'system', finalContent);
       
-      // Update the local message with the final content and a proper database ID
       setMessages(prev => {
         const lastMessage = prev[prev.length - 1];
         if (lastMessage && lastMessage.role === 'system' && lastMessage.id.startsWith('ai-')) {
@@ -160,7 +186,6 @@ export const ChatInterface = ({
         return prev;
       });
     }
-    // Clear current AI message
     setCurrentAiMessage('');
   }, [conversation?.id]);
 
@@ -236,7 +261,6 @@ export const ChatInterface = ({
               </Button>
             )}
             
-            {/* Login Logo */}
             <Button
               variant="ghost"
               size="sm"
@@ -253,10 +277,14 @@ export const ChatInterface = ({
         </div>
       )}
 
-      {/* Messages - Adjust padding for input at bottom */}
-      <div className={`flex-1 overflow-y-auto p-4 space-y-4 w-full ${
-        isUserOwnSim ? 'pt-4 pb-24' : 'pt-24 pb-24'
-      }`}>
+      {/* Messages - Improved scrolling behavior */}
+      <div 
+        ref={messagesContainerRef}
+        onScroll={handleScroll}
+        className={`flex-1 overflow-y-auto p-4 space-y-4 w-full ${
+          isUserOwnSim ? 'pt-4 pb-24' : 'pt-24 pb-24'
+        }`}
+      >
         {messages.length === 0 && (
           <div className="text-center text-muted-foreground py-8">
             <p>Start a conversation with {agent?.name}</p>
