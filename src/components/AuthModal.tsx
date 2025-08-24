@@ -4,20 +4,24 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 
 interface AuthModalProps {
-  isOpen: boolean;
-  onClose: () => void;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
 }
 
-const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
+const AuthModal = ({ open, onOpenChange }: AuthModalProps) => {
   const navigate = useNavigate();
 
   const handleSignIn = () => {
-    onClose();
+    onOpenChange(false);
     navigate('/login');
   };
 
+  const handleClose = () => {
+    onOpenChange(false);
+  };
+
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Get Started with Think With Me</DialogTitle>
@@ -33,7 +37,7 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
               Sign In / Sign Up
             </Button>
             
-            <Button variant="outline" onClick={onClose} className="w-full">
+            <Button variant="outline" onClick={handleClose} className="w-full">
               Continue Exploring
             </Button>
           </div>
