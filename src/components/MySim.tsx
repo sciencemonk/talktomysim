@@ -61,44 +61,6 @@ const MySim = () => {
   }
 
   return <div className="max-w-6xl mx-auto p-4 md:p-6 space-y-4 md:space-y-6">
-      {/* Compact Header Section */}
-      <Card>
-        <CardContent>
-          <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-            <div className="flex items-center gap-4 flex-1 min-w-0">
-              <Avatar className="h-12 w-12 flex-shrink-0">
-                <AvatarImage src={sim?.avatar_url} alt={sim?.name || "Sim Avatar"} />
-                <AvatarFallback>
-                  {sim?.name?.charAt(0)?.toUpperCase() || "S"}
-                </AvatarFallback>
-              </Avatar>
-              <div className="flex-1 min-w-0">
-                <h3 className="text-lg font-semibold truncate">
-                  {sim?.name || "Unnamed Sim"}
-                </h3>
-                {sim?.professional_title && (
-                  <p className="text-sm text-muted-foreground truncate">{sim.professional_title}</p>
-                )}
-                <div className="flex items-center gap-2 mt-1">
-                  <Badge variant="default" className="text-xs">
-                    <Globe className="h-3 w-3 mr-1" />
-                    Public
-                  </Badge>
-                </div>
-              </div>
-            </div>
-            <div className="flex gap-2">
-              <Button variant="outline" asChild size="sm" className="flex-shrink-0">
-                <a href={`/${sim?.custom_url || sim?.id}`} target="_blank" rel="noopener noreferrer">
-                  <ExternalLink className="h-4 w-4 mr-2" />
-                  Talk to Your Sim
-                </a>
-              </Button>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
       {/* All Conversations List */}
       <Card>
         <CardHeader>
