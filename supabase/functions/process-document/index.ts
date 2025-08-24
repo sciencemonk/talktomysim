@@ -77,10 +77,10 @@ serve(async (req) => {
 
     console.log('Document saved successfully:', document.id)
 
-    // Enhanced chunking with semantic boundaries and overlap
+    // FIXED: Better chunking with smaller, more manageable chunks
     const chunks = createSemanticChunks(content, {
-      maxChunkSize: 800,
-      overlapSize: 100,
+      maxChunkSize: 500, // Reduced from 800 to ensure we stay well under token limits
+      overlapSize: 50,   // Reduced overlap
       preserveParagraphs: true
     })
     
@@ -99,6 +99,13 @@ serve(async (req) => {
     for (let i = 0; i < chunks.length; i++) {
       const chunk = chunks[i]
       console.log(`Processing chunk ${i + 1}/${chunks.length} (${chunk.text.length} chars)`)
+      
+      // Skip chunks that are too large (safety check)
+      if (chunk.text.length > 2000) { // Conservative limit
+        console.warn(`Skipping chunk ${i} - too large (${chunk.text.length} chars)`)
+        failedEmbeddings++
+        continue
+      }
       
       try {
         const embedding = await generateEmbeddingWithRetry(chunk.text, openaiApiKey, 3)
@@ -207,28 +214,65 @@ function createSemanticChunks(text: string, options: {
   for (const paragraph of paragraphs) {
     const trimmedParagraph = paragraph.trim()
     
-    // If adding this paragraph would exceed the chunk size
-    if (currentChunk.length + trimmedParagraph.length > options.maxChunkSize && currentChunk.length > 0) {
-      // Save current chunk
-      chunks.push({
-        text: currentChunk.trim(),
-        index: chunkIndex++,
-        startChar: chunkStartChar,
-        endChar: chunkStartChar + currentChunk.length
-      })
+    // If this paragraph alone is too big, split it by sentences
+    if (trimmedParagraph.length > options.maxChunkSize) {
+      const sentences = trimmedParagraph.split(/[.!?]+/).filter(s => s.trim().length > 0)
       
-      // Start new chunk with overlap from previous chunk
-      const overlap = getOverlapText(currentChunk, options.overlapSize)
-      currentChunk = overlap + (overlap ? '\n\n' : '') + trimmedParagraph
-      chunkStartChar = globalCharIndex - overlap.length
-    } else {
-      // Add paragraph to current chunk
-      if (currentChunk.length > 0) {
-        currentChunk += '\n\n'
-      } else {
-        chunkStartChar = globalCharIndex
+      for (const sentence of sentences) {
+        const trimmedSentence = sentence.trim()
+        if (trimmedSentence.length === 0) continue
+        
+        // If adding this sentence would exceed the chunk size
+        if (currentChunk.length + trimmedSentence.length + 2 > options.maxChunkSize && currentChunk.length > 0) {
+          // Save current chunk
+          chunks.push({
+            text: currentChunk.trim(),
+            index: chunkIndex++,
+            startChar: chunkStartChar,
+            endChar: chunkStartChar + currentChunk.length
+          })
+          
+          // Start new chunk with overlap from previous chunk
+          const overlap = getOverlapText(currentChunk, options.overlapSize)
+          currentChunk = overlap + (overlap ? '. ' : '') + trimmedSentence
+          chunkStartChar = globalCharIndex - overlap.length
+        } else {
+          // Add sentence to current chunk
+          if (currentChunk.length > 0) {
+            currentChunk += '. '
+          } else {
+            chunkStartChar = globalCharIndex
+          }
+          currentChunk += trimmedSentence
+        }
+        
+        globalCharIndex += sentence.length + 1
       }
-      currentChunk += trimmedParagraph
+    } else {
+      // Regular paragraph processing
+      // If adding this paragraph would exceed the chunk size
+      if (currentChunk.length + trimmedParagraph.length > options.maxChunkSize && currentChunk.length > 0) {
+        // Save current chunk
+        chunks.push({
+          text: currentChunk.trim(),
+          index: chunkIndex++,
+          startChar: chunkStartChar,
+          endChar: chunkStartChar + currentChunk.length
+        })
+        
+        // Start new chunk with overlap from previous chunk
+        const overlap = getOverlapText(currentChunk, options.overlapSize)
+        currentChunk = overlap + (overlap ? '\n\n' : '') + trimmedParagraph
+        chunkStartChar = globalCharIndex - overlap.length
+      } else {
+        // Add paragraph to current chunk
+        if (currentChunk.length > 0) {
+          currentChunk += '\n\n'
+        } else {
+          chunkStartChar = globalCharIndex
+        }
+        currentChunk += trimmedParagraph
+      }
     }
     
     globalCharIndex += paragraph.length + 2 // +2 for paragraph separator
