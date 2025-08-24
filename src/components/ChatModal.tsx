@@ -8,7 +8,7 @@ import {
 } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { User, Bot, Clock } from 'lucide-react';
 import { conversationService, Message } from '@/services/conversationService';
 
@@ -50,9 +50,6 @@ export const ChatModal: React.FC<ChatModalProps> = ({
       <DialogContent className="max-w-4xl h-[80vh] flex flex-col">
         <DialogHeader className="flex-shrink-0 pb-4">
           <DialogTitle className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
-              <User className="h-4 w-4 text-primary" />
-            </div>
             <div>
               <div className="flex items-center gap-2">
                 <span>
@@ -61,11 +58,6 @@ export const ChatModal: React.FC<ChatModalProps> = ({
                 <Badge variant="secondary" className="text-xs">
                   {conversation.message_count} messages
                 </Badge>
-                {conversation.escalated && (
-                  <Badge variant="destructive" className="text-xs">
-                    Escalated
-                  </Badge>
-                )}
               </div>
               <div className="text-sm text-muted-foreground mt-1">
                 Started {formatMessageTime(conversation.created_at)}
@@ -91,6 +83,7 @@ export const ChatModal: React.FC<ChatModalProps> = ({
                   >
                     {message.role === 'system' && (
                       <Avatar className="h-8 w-8 flex-shrink-0">
+                        <AvatarImage src={conversation.sim?.avatar} alt={simName} />
                         <AvatarFallback className="bg-primary/10">
                           <Bot className="h-4 w-4 text-primary" />
                         </AvatarFallback>
