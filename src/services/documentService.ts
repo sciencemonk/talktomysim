@@ -31,6 +31,23 @@ export const documentService = {
     try {
       console.log('Processing file:', file.name, 'type:', file.type, 'size:', file.size);
       
+      // Validate advisor exists before processing
+      const { data: advisorExists, error: advisorError } = await supabase
+        .from('advisors')
+        .select('id')
+        .eq('id', advisorId)
+        .maybeSingle();
+
+      if (advisorError) {
+        console.error('Error checking advisor:', advisorError);
+        return { success: false, error: 'Failed to validate advisor' };
+      }
+
+      if (!advisorExists) {
+        console.error('Advisor not found:', advisorId);
+        return { success: false, error: 'Advisor not found. Please select a valid advisor.' };
+      }
+      
       // First, extract text from the file
       const extractionResult = await this.extractTextFromFile(file);
       
@@ -97,6 +114,23 @@ export const documentService = {
   ): Promise<ProcessingResult> {
     try {
       console.log('Processing document for advisor:', advisorId);
+      
+      // Validate advisor exists before processing
+      const { data: advisorExists, error: advisorError } = await supabase
+        .from('advisors')
+        .select('id')
+        .eq('id', advisorId)
+        .maybeSingle();
+
+      if (advisorError) {
+        console.error('Error checking advisor:', advisorError);
+        return { success: false, error: 'Failed to validate advisor' };
+      }
+
+      if (!advisorExists) {
+        console.error('Advisor not found:', advisorId);
+        return { success: false, error: 'Advisor not found. Please select a valid advisor.' };
+      }
       
       const { data, error } = await supabase.functions.invoke('process-document', {
         body: {

@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { FileUpload } from './FileUpload';
 import { DocumentManager } from './DocumentManager';
@@ -24,10 +25,15 @@ export const CoreKnowledge: React.FC<CoreKnowledgeProps> = ({ advisorId }) => {
 
   const handleFileProcess = async (file: File) => {
     try {
+      if (!advisorId) {
+        toast.error('No advisor selected. Please select an advisor first.');
+        return;
+      }
+
       setIsProcessing(true);
       setProcessingProgress(10);
       
-      console.log('Processing file:', file.name);
+      console.log('Processing file:', file.name, 'for advisor:', advisorId);
       
       setProcessingProgress(30);
       const result = await documentService.processFile(advisorId, file);
@@ -49,12 +55,21 @@ export const CoreKnowledge: React.FC<CoreKnowledgeProps> = ({ advisorId }) => {
         setRefreshDocuments(prev => prev + 1);
       } else {
         toast.error(result.error || 'Failed to process document');
+        console.error('Document processing failed:', result);
       }
       
       setProcessingProgress(100);
     } catch (error: any) {
       console.error('Error processing file:', error);
-      toast.error(error.message || 'Failed to process file');
+      
+      // Provide more specific error messages based on the error type
+      if (error.message.includes('foreign key constraint')) {
+        toast.error('Invalid advisor selected. Please refresh the page and try again.');
+      } else if (error.message.includes('FunctionsHttpError')) {
+        toast.error('Server error occurred while processing the document. Please try again.');
+      } else {
+        toast.error(error.message || 'Failed to process file');
+      }
     } finally {
       setTimeout(() => {
         setIsProcessing(false);
@@ -65,8 +80,15 @@ export const CoreKnowledge: React.FC<CoreKnowledgeProps> = ({ advisorId }) => {
 
   const handleTextProcess = async (title: string, content: string) => {
     try {
+      if (!advisorId) {
+        toast.error('No advisor selected. Please select an advisor first.');
+        return;
+      }
+
       setIsProcessing(true);
       setProcessingProgress(20);
+      
+      console.log('Processing text for advisor:', advisorId);
       
       const result = await documentService.processDocument(
         advisorId,
@@ -91,12 +113,21 @@ export const CoreKnowledge: React.FC<CoreKnowledgeProps> = ({ advisorId }) => {
         setRefreshDocuments(prev => prev + 1);
       } else {
         toast.error(result.error || 'Failed to process text');
+        console.error('Text processing failed:', result);
       }
       
       setProcessingProgress(100);
     } catch (error: any) {
       console.error('Error processing text:', error);
-      toast.error(error.message || 'Failed to process text');
+      
+      // Provide more specific error messages based on the error type
+      if (error.message.includes('foreign key constraint')) {
+        toast.error('Invalid advisor selected. Please refresh the page and try again.');
+      } else if (error.message.includes('FunctionsHttpError')) {
+        toast.error('Server error occurred while processing the text. Please try again.');
+      } else {
+        toast.error(error.message || 'Failed to process text');
+      }
     } finally {
       setTimeout(() => {
         setIsProcessing(false);
@@ -108,6 +139,23 @@ export const CoreKnowledge: React.FC<CoreKnowledgeProps> = ({ advisorId }) => {
   const handleDocumentsChange = () => {
     setRefreshDocuments(prev => prev + 1);
   };
+
+  // Validate advisor ID exists
+  if (!advisorId || advisorId.trim() === '') {
+    return (
+      <div className="max-w-4xl mx-auto p-6">
+        <Card>
+          <CardContent className="p-8 text-center">
+            <Database className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-foreground mb-2">No Advisor Selected</h3>
+            <p className="text-muted-foreground">
+              Please select an advisor first to manage their knowledge base.
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-4xl mx-auto p-6 space-y-6">
