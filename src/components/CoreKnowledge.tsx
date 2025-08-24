@@ -23,12 +23,13 @@ export const CoreKnowledge: React.FC<CoreKnowledgeProps> = ({ advisorId: propAdv
   const [processingProgress, setProcessingProgress] = useState(0);
   const [refreshDocuments, setRefreshDocuments] = useState(0);
 
-  // Use the sim ID as advisor ID if no advisorId prop is provided
+  // FIXED: Use the actual sim ID, not the user ID or prop
   const advisorId = propAdvisorId || sim?.id;
 
   console.log('CoreKnowledge Debug Info:');
   console.log('- User:', user?.id);
   console.log('- Sim from useSim:', sim);
+  console.log('- Actual Sim ID:', sim?.id);
   console.log('- Advisor ID being used:', advisorId);
   console.log('- Prop advisor ID:', propAdvisorId);
 
@@ -52,7 +53,7 @@ export const CoreKnowledge: React.FC<CoreKnowledgeProps> = ({ advisorId: propAdv
       setIsProcessing(true);
       setProcessingProgress(10);
       
-      console.log('Processing file:', file.name, 'for advisor:', advisorId, 'user:', user.id);
+      console.log('Processing file:', file.name, 'for sim ID:', advisorId, 'user:', user.id);
       
       setProcessingProgress(30);
       const result = await documentService.processFile(advisorId, file);
@@ -105,7 +106,7 @@ export const CoreKnowledge: React.FC<CoreKnowledgeProps> = ({ advisorId: propAdv
       setIsProcessing(true);
       setProcessingProgress(20);
       
-      console.log('Processing text for advisor:', advisorId, 'user:', user.id);
+      console.log('Processing text for sim ID:', advisorId, 'user:', user.id);
       
       const result = await documentService.processDocument(
         advisorId,
