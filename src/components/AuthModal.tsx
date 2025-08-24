@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
@@ -162,12 +161,17 @@ const AuthModal = ({ open, onOpenChange }: AuthModalProps) => {
           ) : (
             // Regular auth flow
             <>
-              <div className="flex items-center justify-center">
-                <img 
-                  src="/lovable-uploads/a5a8957b-48cb-40f5-9097-0ab747b74077.png" 
-                  alt="Think With Me" 
-                  className="w-8 h-8"
-                />
+              <div className="flex flex-col items-center space-y-3">
+                <div className="flex items-center justify-center">
+                  <img 
+                    src="/lovable-uploads/a5a8957b-48cb-40f5-9097-0ab747b74077.png" 
+                    alt="Think With Me" 
+                    className="w-8 h-8"
+                  />
+                </div>
+                <p className="text-lg font-medium text-foreground text-center">
+                  Create your own Sim today for free
+                </p>
               </div>
 
               {!showEmailForm ? (
