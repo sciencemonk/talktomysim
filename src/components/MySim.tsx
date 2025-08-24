@@ -163,23 +163,9 @@ const MySim = () => {
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
-                        <span className="text-sm font-medium">
-                          {conversation.is_anonymous ? 'Anonymous User' : 'Registered User'}
-                        </span>
                         <Badge variant="secondary" className="text-xs">
                           {conversation.message_count} messages
                         </Badge>
-                        {conversation.escalated && (
-                          <Badge variant="destructive" className="text-xs">
-                            Escalated
-                          </Badge>
-                        )}
-                        {conversation.is_anonymous && (
-                          <Badge variant="outline" className="text-xs">
-                            <Globe className="h-3 w-3 mr-1" />
-                            Public
-                          </Badge>
-                        )}
                       </div>
                       <p className="text-sm text-muted-foreground line-clamp-2">
                         {conversation.latest_message}
@@ -192,9 +178,6 @@ const MySim = () => {
                         {conversation.avg_score > 0 && (
                           <div>Score: {conversation.avg_score.toFixed(1)}/10</div>
                         )}
-                        <div className="text-xs opacity-50">
-                          ID: {conversation.user_id ? conversation.user_id.substring(0, 8) + '...' : 'N/A'}
-                        </div>
                       </div>
                     </div>
                   </div>
