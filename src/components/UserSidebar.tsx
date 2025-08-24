@@ -74,7 +74,7 @@ export const SidebarContent = ({
           <div className="p-4 space-y-2">
             {user && (
               <>
-                {/* My Sim Section with Logo - Always show for authenticated users */}
+                {/* My Sim Section with Logo */}
                 <div className="pt-4">
                   <div className="flex items-center justify-center mb-6">
                     <img 
