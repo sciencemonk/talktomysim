@@ -69,27 +69,20 @@ export const SidebarContent = ({
 
   return (
     <div className="flex flex-col h-full bg-card border-r border-border">
-      {/* Header */}
-      <div className="p-6 border-b border-border">
-        <div className="flex items-center justify-center">
-          <img 
-            src="/lovable-uploads/d1283b59-7cfa-45f5-b151-4c32b24f3621.png" 
-            alt="Logo" 
-            className="h-8 w-8 object-contain"
-          />
-        </div>
-      </div>
-
       <div className="flex-1 overflow-hidden flex flex-col">
         <ScrollArea className="flex-1">
           <div className="p-4 space-y-2">
             {user && (
               <>
-                {/* My Sim Section */}
+                {/* My Sim Section with Logo */}
                 <div className="pt-4">
-                  <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2 px-2">
-                    My Sim
-                  </h3>
+                  <div className="flex items-center justify-center mb-6">
+                    <img 
+                      src="/lovable-uploads/df065858-3d57-47a9-a087-d06ad0f65397.png" 
+                      alt="My Sim Logo" 
+                      className="h-8 w-auto object-contain"
+                    />
+                  </div>
                   <div className="space-y-1">
                     <Button
                       variant={activeView === 'talk-to-sim' ? "secondary" : "ghost"}
