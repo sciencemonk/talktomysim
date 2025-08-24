@@ -22,8 +22,9 @@ import {
   SheetContent,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import { useSim } from "@/hooks/useSim";
 
-type ViewType = 'directory' | 'my-sim' | 'basic-info' | 'interaction-model' | 'core-knowledge' | 'integrations' | 'actions' | 'search';
+type ViewType = 'directory' | 'my-sim' | 'basic-info' | 'interaction-model' | 'core-knowledge' | 'integrations' | 'actions' | 'search' | 'talk-to-sim';
 
 const Home = () => {
   const { user, loading } = useAuth();
@@ -193,6 +194,15 @@ const Home = () => {
     setMobileSheetOpen(false); // Close mobile sheet
   };
 
+  // Handle navigation to talk to sim
+  const handleNavigateToTalkToSim = () => {
+    setCurrentView('talk-to-sim');
+    setSelectedAgent(null);
+    setSelectedAdvisor(null);
+    setSelectedPublicAdvisorId(null);
+    setMobileSheetOpen(false); // Close mobile sheet
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -230,6 +240,31 @@ const Home = () => {
     switch (currentView) {
       case 'my-sim':
         return <MySim />;
+      case 'talk-to-sim':
+        // Show chat interface with user's own sim
+        const { sim } = useSim();
+        if (sim) {
+          const userSimAsAgent: AgentType = {
+            id: sim.id,
+            name: sim.name || 'My Sim',
+            title: sim.professional_title || 'Assistant',
+            description: sim.description || 'Your personal AI assistant',
+            type: 'general',
+            subject: 'General',
+            gradeLevel: 'All',
+            learningObjective: sim.learning_objective || 'General assistance',
+            avatar: sim.avatar_url || '',
+            prompt: sim.personality_prompt || '',
+            welcomeMessage: sim.welcome_message || `Hello! I'm ${sim.name || 'your assistant'}. How can I help you today?`
+          };
+          return (
+            <ChatInterface
+              agent={userSimAsAgent}
+              onBack={() => setCurrentView('my-sim')}
+            />
+          );
+        }
+        return <div className="flex items-center justify-center h-full text-muted-foreground">No sim found</div>;
       case 'basic-info':
         return <BasicInfo />;
       case 'interaction-model':
@@ -307,6 +342,7 @@ const Home = () => {
         onNavigateToIntegrations={handleNavigateToIntegrations}
         onNavigateToActions={handleNavigateToActions}
         onNavigateToSearch={handleNavigateToSearch}
+        onNavigateToTalkToSim={handleNavigateToTalkToSim}
         activeView={currentView}
         onAuthRequired={handleAuthRequired}
       />
@@ -338,6 +374,7 @@ const Home = () => {
                   onNavigateToIntegrations={handleNavigateToIntegrations}
                   onNavigateToActions={handleNavigateToActions}
                   onNavigateToSearch={handleNavigateToSearch}
+                  onNavigateToTalkToSim={handleNavigateToTalkToSim}
                   activeView={currentView}
                   onClose={() => setMobileSheetOpen(false)}
                   onAuthRequired={handleAuthRequired}

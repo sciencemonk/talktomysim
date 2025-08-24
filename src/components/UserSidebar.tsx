@@ -14,7 +14,8 @@ import {
   Brain,
   Settings,
   Search,
-  Trash2
+  Trash2,
+  Bot
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import UserSettingsDropdown from "./UserSettingsDropdown";
@@ -34,6 +35,7 @@ interface UserSidebarProps {
   onNavigateToIntegrations: () => void;
   onNavigateToActions: () => void;
   onNavigateToSearch: () => void;
+  onNavigateToTalkToSim: () => void;
   activeView: string;
   onAuthRequired?: () => void;
 }
@@ -57,6 +59,7 @@ export const SidebarContent = ({
   onNavigateToIntegrations,
   onNavigateToActions,
   onNavigateToSearch,
+  onNavigateToTalkToSim,
   activeView,
   onClose,
   onAuthRequired
@@ -97,8 +100,21 @@ export const SidebarContent = ({
                       }}
                       className="w-full justify-start h-9"
                     >
-                      <Home className="mr-2 h-4 w-4" />
-                      Overview
+                      <MessageSquare className="mr-2 h-4 w-4" />
+                      Conversations
+                    </Button>
+                    
+                    <Button
+                      variant={activeView === 'talk-to-sim' ? "secondary" : "ghost"}
+                      size="sm"
+                      onClick={() => {
+                        onNavigateToTalkToSim();
+                        onClose?.();
+                      }}
+                      className="w-full justify-start h-9"
+                    >
+                      <Bot className="mr-2 h-4 w-4" />
+                      Talk to my Sim
                     </Button>
                     
                     <Button
