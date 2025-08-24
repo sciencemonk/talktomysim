@@ -13,9 +13,16 @@ import { AgentType } from "@/types/agent";
 interface AdvisorDirectoryProps {
   onSelectAdvisor: (advisorId: string, advisor?: AgentType) => void;
   onAuthRequired?: () => void;
+  showLoginInHeader?: boolean;
+  onLoginClick?: () => void;
 }
 
-const AdvisorDirectory = ({ onSelectAdvisor, onAuthRequired }: AdvisorDirectoryProps) => {
+const AdvisorDirectory = ({ 
+  onSelectAdvisor, 
+  onAuthRequired, 
+  showLoginInHeader = false,
+  onLoginClick 
+}: AdvisorDirectoryProps) => {
   const { user } = useAuth();
   const { agents, isLoading, error } = useAllAdvisors();
   const [searchTerm, setSearchTerm] = useState("");
@@ -54,16 +61,38 @@ const AdvisorDirectory = ({ onSelectAdvisor, onAuthRequired }: AdvisorDirectoryP
 
   return (
     <div className="flex-1 flex flex-col h-full">
-      {/* Search Section */}
+      {/* Search Section with optional login */}
       <div className="p-6 border-b border-border">
         <div className="relative max-w-6xl mx-auto">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Search"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-9"
-          />
+          <div className="flex items-center gap-4">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-9"
+              />
+            </div>
+            
+            {showLoginInHeader && (
+              <div className="flex items-center gap-3">
+                <img 
+                  src="/lovable-uploads/d1283b59-7cfa-45f5-b151-4c32b24f3621.png" 
+                  alt="Logo" 
+                  className="h-8 w-8 object-contain cursor-pointer"
+                  onClick={onLoginClick}
+                />
+                <Button 
+                  onClick={onLoginClick}
+                  size="sm"
+                  className="bg-gradient-to-r from-purple-600 via-pink-500 to-blue-500 text-white hover:opacity-90 animate-pulse"
+                >
+                  Get Started
+                </Button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 

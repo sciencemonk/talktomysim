@@ -250,6 +250,8 @@ const Home = () => {
           <AdvisorDirectory 
             onSelectAdvisor={handleAdvisorSelect}
             onAuthRequired={handleAuthRequired}
+            showLoginInHeader={!user}
+            onLoginClick={() => setShowAuthModal(true)}
           />
         );
       case 'directory':
@@ -258,41 +260,24 @@ const Home = () => {
           <AdvisorDirectory 
             onSelectAdvisor={handleAdvisorSelect}
             onAuthRequired={handleAuthRequired}
+            showLoginInHeader={!user}
+            onLoginClick={() => setShowAuthModal(true)}
           />
         );
     }
   };
 
-  // For non-signed in users, show the clean layout with header
+  // For non-signed in users, show the clean layout without header
   if (!user) {
     return (
       <div className="flex flex-col h-screen bg-background">
-        {/* Header for non-signed in users */}
-        <div className="bg-card border-b border-border p-4">
-          <div className="container mx-auto flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <img 
-                src="/lovable-uploads/d1283b59-7cfa-45f5-b151-4c32b24f3621.png" 
-                alt="Logo" 
-                className="h-8 w-8 object-contain"
-              />
-            </div>
-            
-            <Button 
-              onClick={() => setShowAuthModal(true)}
-              size="sm"
-              className="bg-gradient-to-r from-purple-600 via-pink-500 to-blue-500 text-white hover:opacity-90 animate-pulse"
-            >
-              Get Started
-            </Button>
-          </div>
-        </div>
-        
-        {/* Directory Content */}
+        {/* Directory Content with integrated header */}
         <div className="flex-1">
           <AdvisorDirectory 
             onSelectAdvisor={handleAdvisorSelect}
             onAuthRequired={handleAuthRequired}
+            showLoginInHeader={true}
+            onLoginClick={() => setShowAuthModal(true)}
           />
         </div>
         
