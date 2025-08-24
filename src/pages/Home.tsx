@@ -257,7 +257,7 @@ const Home = () => {
             gradeLevel: 'All',
             learningObjective: sim.description || 'General assistance',
             avatar: sim.avatar_url || '',
-            prompt: sim.context_window || '',
+            prompt: sim.prompt || '',
             welcomeMessage: sim.welcome_message || `Hello! I'm ${sim.name || 'your assistant'}. How can I help you today?`
           };
           return (
