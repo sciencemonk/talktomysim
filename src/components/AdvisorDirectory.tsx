@@ -31,25 +31,17 @@ const AdvisorDirectory = ({
   useEffect(() => {
     console.log("AdvisorDirectory - Total agents:", agents.length);
     console.log("AdvisorDirectory - All agents:", agents);
-    agents.forEach(agent => {
-      console.log(`Agent ${agent.name}: isActive=${agent.isActive}, is_featured=${agent.is_featured}`);
-    });
   }, [agents]);
 
-  // Filter advisors based on search term and active status
+  // Filter advisors based on search term only - removed the overly restrictive isActive check
   const filteredAdvisors = agents.filter(advisor => {
-    // Only show active sims - be more explicit about the check
-    const isActive = advisor.isActive === true;
-    console.log(`Filtering ${advisor.name}: isActive=${isActive}`);
-    
-    if (!isActive) return false;
-    
     if (!searchTerm) return true;
     
     return (
       advisor.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       advisor.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      advisor.subject?.toLowerCase().includes(searchTerm.toLowerCase())
+      advisor.subject?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      advisor.title?.toLowerCase().includes(searchTerm.toLowerCase())
     );
   });
 
@@ -73,7 +65,7 @@ const AdvisorDirectory = ({
     return (
       <div className="flex-1 flex items-center justify-center min-h-0">
         <div className="text-center">
-          <p className="text-muted-foreground">Failed to load advisors</p>
+          <p className="text-muted-foreground">Failed to load sims</p>
           <p className="text-sm text-muted-foreground mt-1">{error}</p>
         </div>
       </div>
@@ -89,7 +81,7 @@ const AdvisorDirectory = ({
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Search"
+                placeholder="Search sims..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-9"
@@ -114,11 +106,11 @@ const AdvisorDirectory = ({
           {filteredAdvisors.length === 0 ? (
             <div className="col-span-full text-center py-12">
               <p className="text-muted-foreground">
-                {searchTerm ? "No sims found matching your search." : "No sims available."}
+                {searchTerm ? "No sims found matching your search." : "No active sims available."}
               </p>
-              {agents.length > 0 && (
+              {agents.length > 0 && searchTerm && (
                 <p className="text-sm text-muted-foreground mt-2">
-                  Found {agents.length} total sims, but none are currently active.
+                  Try adjusting your search terms.
                 </p>
               )}
             </div>

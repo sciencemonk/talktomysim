@@ -14,12 +14,13 @@ export const useAllAdvisors = () => {
         setIsLoading(true);
         setError(null);
 
-        console.log('Fetching advisors from Supabase...');
+        console.log('Fetching all active advisors from Supabase...');
 
-        // Fetch from advisors table
+        // Fetch from advisors table - this now works with the new RLS policy
         const { data: advisors, error: advisorsError } = await supabase
           .from('advisors')
           .select('*')
+          .eq('is_active', true) // Only fetch active advisors
           .order('created_at', { ascending: false });
 
         console.log('Supabase response - advisors:', advisors);
@@ -32,24 +33,24 @@ export const useAllAdvisors = () => {
 
         // Transform advisors to AgentType format
         const transformedAdvisors: AgentType[] = (advisors || []).map(advisor => {
-          console.log(`Transforming advisor ${advisor.name}: is_active=${advisor.is_active}, is_public=${advisor.is_public}`);
+          console.log(`Transforming advisor ${advisor.name}: is_active=${advisor.is_active}`);
           
           return {
             id: advisor.id,
             name: advisor.name,
             description: advisor.description || '',
-            type: 'General Tutor' as any, // Default type for advisors
+            type: 'General Tutor' as any,
             status: 'active' as any,
             createdAt: advisor.created_at,
             updatedAt: advisor.updated_at,
             avatar: advisor.avatar_url,
             prompt: advisor.prompt,
             subject: advisor.category || 'General',
-            title: advisor.title, // Include the title field from advisors table
-            url: advisor.url, // Include the url field from advisors table
-            custom_url: advisor.custom_url, // Include the custom_url field from advisors table
-            is_featured: false, // Default to false since advisors table doesn't have this field yet
-            isActive: advisor.is_active === true, // Ensure this is explicitly true
+            title: advisor.title,
+            url: advisor.url,
+            custom_url: advisor.custom_url,
+            is_featured: false,
+            isActive: advisor.is_active === true,
             // Set default values for tutor-specific fields
             model: 'GPT-4',
             interactions: 0,
