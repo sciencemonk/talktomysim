@@ -146,13 +146,6 @@ const MySim = () => {
                   className="border rounded-lg p-4 hover:bg-muted/50 cursor-pointer transition-colors"
                 >
                   <div className="flex items-start gap-3">
-                    <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                      {conversation.is_anonymous ? (
-                        <User className="h-4 w-4 text-primary" />
-                      ) : (
-                        <MessageCircle className="h-4 w-4 text-primary" />
-                      )}
-                    </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
                         <Badge variant="secondary" className="text-xs">
