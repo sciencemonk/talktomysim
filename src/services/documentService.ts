@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 
 export interface AdvisorDocument {
@@ -41,12 +42,25 @@ export const documentService = {
 
       if (advisorError) {
         console.error('Error checking advisor:', advisorError);
-        return { success: false, error: 'Failed to validate sim' };
+        return { success: false, error: 'Failed to validate sim: ' + advisorError.message };
       }
 
       if (!advisorExists) {
         console.error('Advisor not found:', advisorId);
-        return { success: false, error: 'Advisor not found. Please make sure your sim is properly set up.' };
+        
+        // Let's also check if the advisor exists in user_advisors table
+        const { data: userAdvisorExists, error: userAdvisorError } = await supabase
+          .from('user_advisors')
+          .select('advisor_id, name')
+          .eq('user_id', (await supabase.auth.getUser()).data.user?.id)
+          .maybeSingle();
+        
+        console.log('User advisor check:', userAdvisorExists, userAdvisorError);
+        
+        return { 
+          success: false, 
+          error: `Sim not found in database: ${advisorId}. Please refresh the page and try again.` 
+        };
       }
 
       // Check if the advisor belongs to the current user
@@ -134,12 +148,25 @@ export const documentService = {
 
       if (advisorError) {
         console.error('Error checking advisor:', advisorError);
-        return { success: false, error: 'Failed to validate advisor' };
+        return { success: false, error: 'Failed to validate advisor: ' + advisorError.message };
       }
 
       if (!advisorExists) {
         console.error('Advisor not found:', advisorId);
-        return { success: false, error: 'Advisor not found. Please make sure your sim is properly set up.' };
+        
+        // Additional debugging - check user_advisors table
+        const { data: { user } } = await supabase.auth.getUser();
+        const { data: userAdvisors, error: userAdvisorsError } = await supabase
+          .from('user_advisors')
+          .select('*')
+          .eq('user_id', user?.id);
+        
+        console.log('Available user advisors:', userAdvisors);
+        
+        return { 
+          success: false, 
+          error: `Advisor not found in database: ${advisorId}. Please make sure your sim is properly set up.` 
+        };
       }
 
       // Check if the advisor belongs to the current user

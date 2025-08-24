@@ -22,7 +22,12 @@ export const CoreKnowledge: React.FC<CoreKnowledgeProps> = ({ advisorId: propAdv
   const [refreshDocuments, setRefreshDocuments] = useState(0);
 
   // Use the sim ID as advisor ID if no advisorId prop is provided
+  // Ensure we have a valid advisor ID before proceeding
   const advisorId = propAdvisorId || sim?.id;
+
+  console.log('CoreKnowledge - sim:', sim);
+  console.log('CoreKnowledge - advisorId:', advisorId);
+  console.log('CoreKnowledge - propAdvisorId:', propAdvisorId);
 
   const handleFileSelect = (files: File[]) => {
     setSelectedFiles(files);
@@ -32,6 +37,7 @@ export const CoreKnowledge: React.FC<CoreKnowledgeProps> = ({ advisorId: propAdv
     try {
       if (!advisorId) {
         toast.error('No sim selected. Please complete your sim setup first.');
+        console.error('No advisor ID available for file processing');
         return;
       }
 
@@ -87,6 +93,7 @@ export const CoreKnowledge: React.FC<CoreKnowledgeProps> = ({ advisorId: propAdv
     try {
       if (!advisorId) {
         toast.error('No sim selected. Please complete your sim setup first.');
+        console.error('No advisor ID available for text processing');
         return;
       }
 
@@ -169,7 +176,10 @@ export const CoreKnowledge: React.FC<CoreKnowledgeProps> = ({ advisorId: propAdv
             <Database className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
             <h3 className="text-lg font-medium text-foreground mb-2">Error Loading Sim</h3>
             <p className="text-muted-foreground">
-              There was an error loading your sim. Please refresh the page and try again.
+              There was an error loading your sim: {simError}
+            </p>
+            <p className="text-muted-foreground mt-2">
+              Please refresh the page and try again.
             </p>
           </CardContent>
         </Card>
@@ -177,16 +187,19 @@ export const CoreKnowledge: React.FC<CoreKnowledgeProps> = ({ advisorId: propAdv
     );
   }
 
-  // Validate sim exists
-  if (!advisorId || advisorId.trim() === '') {
+  // Validate sim exists and has proper ID
+  if (!sim || !sim.id || sim.id.trim() === '') {
     return (
       <div className="max-w-4xl mx-auto p-6">
         <Card>
           <CardContent className="p-8 text-center">
             <Database className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-foreground mb-2">No Sim Selected</h3>
+            <h3 className="text-lg font-medium text-foreground mb-2">No Sim Found</h3>
             <p className="text-muted-foreground">
-              Please complete your sim setup first to manage their knowledge base.
+              No sim was found for your account. Please create a sim first before managing knowledge.
+            </p>
+            <p className="text-sm text-muted-foreground mt-2">
+              Debug info - Sim: {sim ? JSON.stringify(sim, null, 2) : 'null'}
             </p>
           </CardContent>
         </Card>
@@ -196,12 +209,17 @@ export const CoreKnowledge: React.FC<CoreKnowledgeProps> = ({ advisorId: propAdv
 
   return (
     <div className="max-w-4xl mx-auto p-6 space-y-6">
+      {/* Debug info */}
+      <div className="text-xs text-muted-foreground bg-muted p-2 rounded">
+        Debug: Using advisor ID: {advisorId} | Sim ID: {sim.id} | Sim Name: {sim.name}
+      </div>
+
       {/* Page Header */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Database className="h-5 w-5" />
-            Vector Embedding
+            Vector Embedding - {sim.name || 'Unknown Sim'}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -245,7 +263,7 @@ export const CoreKnowledge: React.FC<CoreKnowledgeProps> = ({ advisorId: propAdv
         </CardHeader>
         <CardContent>
           <DocumentManager
-            advisorId={advisorId}
+            advisorId={advisorId!}
             onDocumentsChange={handleDocumentsChange}
             refreshTrigger={refreshDocuments}
           />
