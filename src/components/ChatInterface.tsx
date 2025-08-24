@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -7,6 +8,7 @@ import { AgentType } from '@/types/agent';
 import { useEnhancedTextChat } from '@/hooks/useEnhancedTextChat';
 import { conversationService, Conversation } from '@/services/conversationService';
 import { useChatHistory } from '@/hooks/useChatHistory';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface Message {
   id: string;
@@ -38,8 +40,10 @@ export const ChatInterface = ({
   const [currentAiMessage, setCurrentAiMessage] = useState<string>('');
   const [hasLoadedInitialMessages, setHasLoadedInitialMessages] = useState(false);
   const [isUserNearBottom, setIsUserNearBottom] = useState(true);
+  const [shouldAutoScroll, setShouldAutoScroll] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
+  const isMobile = useIsMobile();
 
   // Check if user is near bottom of chat
   const checkIfNearBottom = useCallback(() => {
@@ -53,33 +57,24 @@ export const ChatInterface = ({
     return isNearBottom;
   }, []);
 
-  // Smart scroll to bottom - only if user is near bottom
+  // Smart scroll to bottom - only when appropriate
   const scrollToBottom = useCallback((force = false) => {
-    if (messagesEndRef.current && (force || isUserNearBottom)) {
+    if (messagesEndRef.current && (force || (shouldAutoScroll && isUserNearBottom))) {
       messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
     }
-  }, [isUserNearBottom]);
+  }, [shouldAutoScroll, isUserNearBottom]);
 
   // Handle scroll events to track user position
   const handleScroll = useCallback(() => {
     checkIfNearBottom();
   }, [checkIfNearBottom]);
 
-  // Scroll to bottom when messages update (only if user is near bottom)
+  // Only auto-scroll when there's active AI streaming or user sends a message
   useEffect(() => {
-    scrollToBottom();
-  }, [messages, scrollToBottom]);
-
-  // Force scroll to bottom when new message starts (user sends message)
-  useEffect(() => {
-    if (messages.length > 0) {
-      const lastMessage = messages[messages.length - 1];
-      if (lastMessage.role === 'user') {
-        setIsUserNearBottom(true);
-        scrollToBottom(true);
-      }
+    if (shouldAutoScroll) {
+      scrollToBottom();
     }
-  }, [messages.length, scrollToBottom]);
+  }, [messages, scrollToBottom, shouldAutoScroll]);
 
   // Initialize conversation on component mount
   useEffect(() => {
@@ -106,6 +101,15 @@ export const ChatInterface = ({
           timestamp: new Date(msg.created_at).getTime()
         }));
         setMessages(formattedMessages);
+        
+        // On mobile, don't auto-scroll to bottom for existing conversations
+        if (!isMobile) {
+          setTimeout(() => {
+            setShouldAutoScroll(true);
+            setIsUserNearBottom(true);
+            scrollToBottom(true);
+          }, 100);
+        }
       } else if (agent?.welcomeMessage) {
         // Show welcome message if no existing messages and agent has a welcome message
         const welcomeMsg: Message = {
@@ -115,15 +119,19 @@ export const ChatInterface = ({
           timestamp: Date.now()
         };
         setMessages([welcomeMsg]);
+        
+        // Don't auto-scroll on mobile for welcome message either
+        if (!isMobile) {
+          setTimeout(() => {
+            setShouldAutoScroll(true);
+            setIsUserNearBottom(true);
+            scrollToBottom(true);
+          }, 100);
+        }
       }
       setHasLoadedInitialMessages(true);
-      // Force scroll to bottom on initial load
-      setTimeout(() => {
-        setIsUserNearBottom(true);
-        scrollToBottom(true);
-      }, 100);
     }
-  }, [historyMessages, conversation?.id, agent?.welcomeMessage, hasLoadedInitialMessages, scrollToBottom]);
+  }, [historyMessages, conversation?.id, agent?.welcomeMessage, hasLoadedInitialMessages, scrollToBottom, isMobile]);
 
   const addUserMessage = useCallback(async (message: string) => {
     const userMsg: Message = {
@@ -134,6 +142,10 @@ export const ChatInterface = ({
     };
     
     setMessages(prev => [...prev, userMsg]);
+    
+    // Enable auto-scroll when user sends a message
+    setShouldAutoScroll(true);
+    setIsUserNearBottom(true);
 
     if (conversation?.id) {
       await conversationService.addMessage(conversation.id, 'user', message);
@@ -143,6 +155,10 @@ export const ChatInterface = ({
   const startAiMessage = useCallback(() => {
     setCurrentAiMessage('');
     const aiMessageId = `ai-${Date.now()}`;
+    
+    // Enable auto-scroll when AI starts responding
+    setShouldAutoScroll(true);
+    
     return aiMessageId;
   }, []);
 
@@ -187,6 +203,9 @@ export const ChatInterface = ({
       });
     }
     setCurrentAiMessage('');
+    
+    // Disable auto-scroll after AI completes message
+    setShouldAutoScroll(false);
   }, [conversation?.id]);
 
   const { sendMessage, isProcessing } = useEnhancedTextChat({
@@ -277,7 +296,7 @@ export const ChatInterface = ({
         </div>
       )}
 
-      {/* Messages - Improved scrolling behavior */}
+      {/* Messages - Improved scrolling behavior for mobile */}
       <div 
         ref={messagesContainerRef}
         onScroll={handleScroll}
