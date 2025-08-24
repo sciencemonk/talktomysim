@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { Navigate } from "react-router-dom";
@@ -31,6 +32,7 @@ const Home = () => {
   const { advisorsAsAgents, addAdvisor, removeAdvisor } = useUserAdvisors();
   const { toast } = useToast();
   const isMobile = useIsMobile();
+  const { sim } = useSim(); // Move this to top level
   const [selectedAdvisor, setSelectedAdvisor] = useState<AgentType | null>(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [selectedAgent, setSelectedAgent] = useState<AgentType | null>(null);
@@ -242,7 +244,6 @@ const Home = () => {
         return <MySim />;
       case 'talk-to-sim':
         // Show chat interface with user's own sim
-        const { sim } = useSim();
         if (sim) {
           const userSimAsAgent: AgentType = {
             id: sim.id,
