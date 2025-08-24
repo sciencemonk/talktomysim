@@ -46,6 +46,7 @@ export const useAllAdvisors = () => {
           url: advisor.url, // Include the url field from advisors table
           custom_url: advisor.custom_url, // Include the custom_url field from advisors table
           is_featured: false, // Default to false since advisors table doesn't have this field yet
+          isActive: advisor.is_active !== false, // Map the is_active field properly
           // Set default values for tutor-specific fields
           model: 'GPT-4',
           interactions: 0,
