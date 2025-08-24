@@ -9,7 +9,6 @@ import { useSim } from "@/hooks/useSim";
 import { useQuery } from '@tanstack/react-query';
 import { conversationService } from '@/services/conversationService';
 import { ChatModal } from './ChatModal';
-import { ChatInterface } from './ChatInterface';
 
 const MySim = () => {
   const {
@@ -21,7 +20,6 @@ const MySim = () => {
 
   const [selectedConversation, setSelectedConversation] = useState<any>(null);
   const [isChatModalOpen, setIsChatModalOpen] = useState(false);
-  const [showChat, setShowChat] = useState(false);
 
   // Fetch conversations for this sim
   const { data: conversations = [], isLoading: conversationsLoading, refetch } = useQuery({
@@ -40,10 +38,6 @@ const MySim = () => {
     console.log('Opening conversation:', conversation);
     setSelectedConversation(conversation);
     setIsChatModalOpen(true);
-  };
-
-  const handleTalkToSim = () => {
-    setShowChat(true);
   };
 
   const formatDate = (dateString: string) => {
@@ -66,40 +60,7 @@ const MySim = () => {
       </div>;
   }
 
-  // Show chat interface if user wants to talk to their sim
-  if (showChat && sim) {
-    return (
-      <div className="h-full">
-        <ChatInterface 
-          agent={sim}
-          onBack={() => setShowChat(false)}
-          isUserOwnSim={true}
-        />
-      </div>
-    );
-  }
-
   return <div className="max-w-6xl mx-auto p-4 md:p-6 space-y-4 md:space-y-6">
-      {/* Talk to Your Sim Button */}
-      {sim && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <MessageCircle className="h-5 w-5" />
-              Talk to Your Sim
-            </CardTitle>
-            <p className="text-sm text-muted-foreground">
-              Test and interact with your sim directly
-            </p>
-          </CardHeader>
-          <CardContent>
-            <Button onClick={handleTalkToSim} className="w-full">
-              Start Conversation with {sim.name}
-            </Button>
-          </CardContent>
-        </Card>
-      )}
-
       {/* All Conversations List */}
       <Card>
         <CardHeader>
