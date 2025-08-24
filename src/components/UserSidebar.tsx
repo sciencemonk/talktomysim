@@ -63,7 +63,6 @@ export const SidebarContent = ({
 }: SidebarContentProps) => {
   const { user } = useAuth();
   const { completionStatus } = useSim();
-  const [showComingSoon, setShowComingSoon] = useState(false);
 
   return (
     <div className="flex flex-col h-full bg-card border-r border-border">
@@ -141,24 +140,18 @@ export const SidebarContent = ({
                       Vector Embedding
                     </Button>
                     
-                    <div className="relative">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setShowComingSoon(!showComingSoon)}
-                        onMouseEnter={() => setShowComingSoon(true)}
-                        onMouseLeave={() => setShowComingSoon(false)}
-                        className="w-full justify-start h-9 cursor-not-allowed opacity-60"
-                      >
-                        <Settings className="mr-2 h-4 w-4" />
-                        Integrations
-                        {showComingSoon && (
-                          <Badge variant="muted" className="ml-auto text-xs">
-                            Coming soon
-                          </Badge>
-                        )}
-                      </Button>
-                    </div>
+                    <Button
+                      variant={activeView === 'integrations' ? "secondary" : "ghost"}
+                      size="sm"
+                      onClick={() => {
+                        onNavigateToIntegrations();
+                        onClose?.();
+                      }}
+                      className="w-full justify-start h-9"
+                    >
+                      <Settings className="mr-2 h-4 w-4" />
+                      Integrations
+                    </Button>
                   </div>
                 </div>
 
