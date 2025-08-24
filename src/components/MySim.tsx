@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -8,6 +9,7 @@ import { useSim } from "@/hooks/useSim";
 import { useQuery } from '@tanstack/react-query';
 import { conversationService } from '@/services/conversationService';
 import { ChatModal } from './ChatModal';
+
 const MySim = () => {
   const {
     sim,
@@ -15,15 +17,12 @@ const MySim = () => {
     isLoading,
     updateBasicInfo
   } = useSim();
+
   const [selectedConversation, setSelectedConversation] = useState<any>(null);
   const [isChatModalOpen, setIsChatModalOpen] = useState(false);
 
   // Fetch conversations for this sim
-  const {
-    data: conversations = [],
-    isLoading: conversationsLoading,
-    refetch
-  } = useQuery({
+  const { data: conversations = [], isLoading: conversationsLoading, refetch } = useQuery({
     queryKey: ['advisor-conversations', sim?.id],
     queryFn: async () => {
       console.log('Fetching conversations for sim:', sim?.id);
@@ -32,22 +31,26 @@ const MySim = () => {
       return result;
     },
     enabled: !!sim?.id,
-    refetchInterval: 10000 // Refetch every 10 seconds to show new conversations
+    refetchInterval: 10000, // Refetch every 10 seconds to show new conversations
   });
+
   const handleConversationClick = (conversation: any) => {
     console.log('Opening conversation:', conversation);
     setSelectedConversation(conversation);
     setIsChatModalOpen(true);
   };
+
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     const now = new Date();
     const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
+    
     if (diffInHours < 1) return 'Just now';
     if (diffInHours < 24) return `${diffInHours}h ago`;
     if (diffInHours < 48) return 'Yesterday';
     return date.toLocaleDateString();
   };
+
   if (isLoading) {
     return <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center">
@@ -56,6 +59,7 @@ const MySim = () => {
         </div>
       </div>;
   }
+
   return <div className="max-w-6xl mx-auto p-4 md:p-6 space-y-4 md:space-y-6">
       {/* Compact Header Section */}
       <Card>
@@ -72,7 +76,9 @@ const MySim = () => {
                 <h3 className="text-lg font-semibold truncate">
                   {sim?.name || "Unnamed Sim"}
                 </h3>
-                {sim?.professional_title && <p className="text-sm text-muted-foreground truncate">{sim.professional_title}</p>}
+                {sim?.professional_title && (
+                  <p className="text-sm text-muted-foreground truncate">{sim.professional_title}</p>
+                )}
                 <div className="flex items-center gap-2 mt-1">
                   <Badge variant="default" className="text-xs">
                     <Globe className="h-3 w-3 mr-1" />
@@ -82,7 +88,12 @@ const MySim = () => {
               </div>
             </div>
             <div className="flex gap-2">
-              <Button variant="outline" size="sm" onClick={() => refetch()} className="flex-shrink-0">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => refetch()}
+                className="flex-shrink-0"
+              >
                 Refresh
               </Button>
               <Button variant="outline" asChild size="sm" className="flex-shrink-0">
@@ -108,8 +119,10 @@ const MySim = () => {
           </p>
         </CardHeader>
         <CardContent>
-          {conversationsLoading ? <div className="space-y-4">
-              {[1, 2, 3, 4, 5].map(i => <div key={i} className="animate-pulse border rounded-lg p-4">
+          {conversationsLoading ? (
+            <div className="space-y-4">
+              {[1, 2, 3, 4, 5].map((i) => (
+                <div key={i} className="animate-pulse border rounded-lg p-4">
                   <div className="flex items-center gap-3">
                     <div className="h-8 w-8 bg-muted rounded-full"></div>
                     <div className="flex-1 space-y-2">
@@ -118,8 +131,11 @@ const MySim = () => {
                     </div>
                     <div className="h-3 bg-muted rounded w-16"></div>
                   </div>
-                </div>)}
-            </div> : conversations.length === 0 ? <div className="text-center py-12">
+                </div>
+              ))}
+            </div>
+          ) : conversations.length === 0 ? (
+            <div className="text-center py-12">
               <MessageCircle className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
               <h3 className="text-lg font-semibold text-foreground mb-2">No conversations yet</h3>
               <p className="text-muted-foreground">
@@ -128,25 +144,28 @@ const MySim = () => {
               <p className="text-sm text-muted-foreground mt-2">
                 Debug: Sim ID = {sim?.id}
               </p>
-            </div> : <div className="space-y-3">
-              {conversations.map(conversation => <div key={conversation.id} onClick={() => handleConversationClick(conversation)} className="border rounded-lg p-4 hover:bg-muted/50 cursor-pointer transition-colors">
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {conversations.map((conversation) => (
+                <div
+                  key={conversation.id}
+                  onClick={() => handleConversationClick(conversation)}
+                  className="border rounded-lg p-4 hover:bg-muted/50 cursor-pointer transition-colors"
+                >
                   <div className="flex items-start gap-3">
-                    
+                    <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                      {conversation.is_anonymous ? (
+                        <User className="h-4 w-4 text-primary" />
+                      ) : (
+                        <MessageCircle className="h-4 w-4 text-primary" />
+                      )}
+                    </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
-                        <span className="text-sm font-medium">
-                          {conversation.is_anonymous ? 'Anonymous User' : 'Registered User'}
-                        </span>
                         <Badge variant="secondary" className="text-xs">
                           {conversation.message_count} messages
                         </Badge>
-                        {conversation.escalated && <Badge variant="destructive" className="text-xs">
-                            Escalated
-                          </Badge>}
-                        {conversation.is_anonymous && <Badge variant="outline" className="text-xs">
-                            <Globe className="h-3 w-3 mr-1" />
-                            Public
-                          </Badge>}
                       </div>
                       <p className="text-sm text-muted-foreground line-clamp-2">
                         {conversation.latest_message}
@@ -156,23 +175,30 @@ const MySim = () => {
                           <Clock className="h-3 w-3" />
                           {formatDate(conversation.updated_at)}
                         </div>
-                        {conversation.avg_score > 0 && <div>Score: {conversation.avg_score.toFixed(1)}/10</div>}
-                        <div className="text-xs opacity-50">
-                          ID: {conversation.user_id ? conversation.user_id.substring(0, 8) + '...' : 'N/A'}
-                        </div>
+                        {conversation.avg_score > 0 && (
+                          <div>Score: {conversation.avg_score.toFixed(1)}/10</div>
+                        )}
                       </div>
                     </div>
                   </div>
-                </div>)}
-            </div>}
+                </div>
+              ))}
+            </div>
+          )}
         </CardContent>
       </Card>
 
       {/* Chat Modal */}
-      <ChatModal isOpen={isChatModalOpen} onClose={() => {
-      setIsChatModalOpen(false);
-      setSelectedConversation(null);
-    }} conversation={selectedConversation} simName={sim?.name || 'Sim'} />
+      <ChatModal 
+        isOpen={isChatModalOpen}
+        onClose={() => {
+          setIsChatModalOpen(false);
+          setSelectedConversation(null);
+        }}
+        conversation={selectedConversation}
+        simName={sim?.name || 'Sim'}
+      />
     </div>;
 };
+
 export default MySim;
