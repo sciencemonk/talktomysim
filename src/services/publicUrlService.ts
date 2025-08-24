@@ -5,8 +5,9 @@ import { AgentType } from "@/types/agent";
 export const fetchPublicAgentByUrl = async (url: string): Promise<AgentType> => {
   console.log("Fetching public advisor by URL:", url);
   
+  // Use the secure public_advisors view instead of direct advisors table access
   const { data: advisor, error } = await supabase
-    .from('advisors')
+    .from('public_advisors')
     .select('*')
     .eq('custom_url', url)
     .maybeSingle();
@@ -32,11 +33,12 @@ export const fetchPublicAgentByUrl = async (url: string): Promise<AgentType> => 
     createdAt: advisor.created_at,
     updatedAt: advisor.updated_at,
     avatar: advisor.avatar_url,
-    prompt: advisor.prompt,
+    prompt: '', // Prompts not exposed in public view for security
     title: advisor.title,
-    url: advisor.custom_url,
-    welcomeMessage: advisor.welcome_message, // Include welcome message
-    // Default values for fields that don't exist in advisors table
+    url: '', // URL not exposed in public view for security
+    custom_url: advisor.custom_url, // Safe field from public_advisors view
+    welcomeMessage: '', // Welcome message not exposed in public view for security
+    // Default values for fields that don't exist in public_advisors view
     model: 'gpt-4',
     voice: 'default',
     voiceProvider: 'openai',
