@@ -37,7 +37,7 @@ export const fetchPublicAgentByUrl = async (url: string): Promise<AgentType> => 
     title: advisor.title,
     url: '', // URL not exposed in public view for security
     custom_url: advisor.custom_url, // Safe field from public_advisors view
-    welcomeMessage: advisor.welcome_message || `Hello! I'm ${advisor.name}'s Sim. I'm here to help and answer questions just as ${advisor.name} would. What can I do for you?`, // Include welcome message for public visitors
+    welcomeMessage: `Hello! I'm ${advisor.name}'s Sim. I'm here to help and answer questions just as ${advisor.name} would. What can I do for you?`, // Default welcome message for public visitors
     // Default values for fields that don't exist in public_advisors view
     model: 'gpt-4',
     voice: 'default',
