@@ -253,9 +253,9 @@ export const ChatInterface = ({
         </div>
       )}
 
-      {/* Messages - Adjust padding based on whether header is shown and input positioning */}
+      {/* Messages - Adjust padding for input at bottom */}
       <div className={`flex-1 overflow-y-auto p-4 space-y-4 w-full ${
-        isUserOwnSim ? 'pt-4 pb-20' : 'pt-24 pb-20'
+        isUserOwnSim ? 'pt-4 pb-24' : 'pt-24 pb-24'
       }`}>
         {messages.length === 0 && (
           <div className="text-center text-muted-foreground py-8">
@@ -322,11 +322,8 @@ export const ChatInterface = ({
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Input - Use different positioning based on isUserOwnSim */}
-      <div className={isUserOwnSim 
-        ? "relative p-4 border-t border-border bg-card" 
-        : "fixed bottom-0 left-0 right-0 z-10 p-4 border-t border-border bg-card"
-      }>
+      {/* Input - Always fixed to bottom */}
+      <div className="fixed bottom-0 left-0 right-0 z-10 p-4 border-t border-border bg-card">
         <div className="flex gap-2 w-full max-w-full">
           <Input
             value={inputMessage}
