@@ -15,7 +15,7 @@ interface CoreKnowledgeProps {
 }
 
 export const CoreKnowledge: React.FC<CoreKnowledgeProps> = ({ advisorId: propAdvisorId }) => {
-  const { sim, loading: simLoading, error: simError } = useSim();
+  const { sim, isLoading: simLoading, error: simError } = useSim();
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const [processingProgress, setProcessingProgress] = useState(0);
