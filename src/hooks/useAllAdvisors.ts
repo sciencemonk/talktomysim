@@ -16,9 +16,9 @@ export const useAllAdvisors = () => {
 
         console.log('Fetching advisors from Supabase...');
 
-        // Fetch from advisors table
+        // Fetch from secure public_advisors view (protects sensitive prompts and business logic)
         const { data: advisors, error: advisorsError } = await supabase
-          .from('advisors')
+          .from('public_advisors')
           .select('*')
           .order('created_at', { ascending: false });
 
@@ -40,11 +40,11 @@ export const useAllAdvisors = () => {
           createdAt: advisor.created_at,
           updatedAt: advisor.updated_at,
           avatar: advisor.avatar_url,
-          prompt: advisor.prompt,
+          prompt: '', // Prompts not exposed in public view for security
           subject: advisor.category || 'General',
-          title: advisor.title, // Include the title field from advisors table
-          url: advisor.url, // Include the url field from advisors table
-          custom_url: advisor.custom_url, // Include the custom_url field from advisors table
+          title: advisor.title, // Safe field from public_advisors view
+          url: '', // URL not exposed in public view for security
+          custom_url: advisor.custom_url, // Safe field from public_advisors view
           is_featured: false, // Default to false since advisors table doesn't have this field yet
           isActive: advisor.is_active !== false, // Map the is_active field properly
           // Set default values for tutor-specific fields
