@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { Navigate } from "react-router-dom";
@@ -220,9 +219,13 @@ const Home = () => {
   const renderMainContent = () => {
     // If there's a chat agent selected, show chat interface
     if (currentChatAgent) {
+      // Check if this is the user's own sim
+      const isUserOwnSim = currentView === 'talk-to-sim';
+      
       return (
         <ChatInterface
           agent={currentChatAgent}
+          isUserOwnSim={isUserOwnSim}
           onBack={() => {
             setSelectedAgent(null);
             setSelectedAdvisor(null);
@@ -230,6 +233,8 @@ const Home = () => {
             // Return to the previous view context
             if (currentView === 'search') {
               setCurrentView('search');
+            } else if (currentView === 'talk-to-sim') {
+              setCurrentView('my-sim');
             } else {
               setCurrentView('directory');
             }
@@ -264,6 +269,7 @@ const Home = () => {
           return (
             <ChatInterface
               agent={userSimAsAgent}
+              isUserOwnSim={true}
               onBack={() => setCurrentView('my-sim')}
             />
           );

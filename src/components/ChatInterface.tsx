@@ -21,9 +21,17 @@ interface ChatInterfaceProps {
   isAudioEnabled?: boolean;
   onBack?: () => void;
   onLoginClick?: () => void;
+  isUserOwnSim?: boolean;
 }
 
-export const ChatInterface = ({ agent, onToggleAudio, isAudioEnabled = false, onBack, onLoginClick }: ChatInterfaceProps) => {
+export const ChatInterface = ({ 
+  agent, 
+  onToggleAudio, 
+  isAudioEnabled = false, 
+  onBack, 
+  onLoginClick, 
+  isUserOwnSim = false 
+}: ChatInterfaceProps) => {
   const [inputMessage, setInputMessage] = useState('');
   const [messages, setMessages] = useState<Message[]>([]);
   const [conversation, setConversation] = useState<Conversation | null>(null);
@@ -190,61 +198,65 @@ export const ChatInterface = ({ agent, onToggleAudio, isAudioEnabled = false, on
 
   return (
     <div className="flex flex-col h-screen bg-background relative w-full max-w-full overflow-hidden">
-      {/* Header - Fixed at top */}
-      <div className="fixed top-0 left-0 right-0 z-10 flex items-center justify-between p-4 border-b border-border bg-card">
-        <div className="flex items-center gap-3">
-          <Avatar className="h-10 w-10">
-            <AvatarImage src={agent?.avatar} alt={agent?.name} />
-            <AvatarFallback className="bg-primary/10 text-primary font-medium">
-              {agent?.name?.charAt(0)}
-            </AvatarFallback>
-          </Avatar>
-          <div>
-            <h2 className="font-semibold text-foreground">{agent?.name}</h2>
-            <p className="text-sm text-muted-foreground">{agent?.title}</p>
+      {/* Header - Only show for non-user sims */}
+      {!isUserOwnSim && (
+        <div className="fixed top-0 left-0 right-0 z-10 flex items-center justify-between p-4 border-b border-border bg-card">
+          <div className="flex items-center gap-3">
+            <Avatar className="h-10 w-10">
+              <AvatarImage src={agent?.avatar} alt={agent?.name} />
+              <AvatarFallback className="bg-primary/10 text-primary font-medium">
+                {agent?.name?.charAt(0)}
+              </AvatarFallback>
+            </Avatar>
+            <div>
+              <h2 className="font-semibold text-foreground">{agent?.name}</h2>
+              <p className="text-sm text-muted-foreground">{agent?.title}</p>
+            </div>
+          </div>
+          
+          <div className="flex items-center gap-2">
+            {onToggleAudio && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={onToggleAudio}
+                className="flex items-center gap-2"
+              >
+                {isAudioEnabled ? (
+                  <>
+                    <MicOff className="h-4 w-4" />
+                    Audio Off
+                  </>
+                ) : (
+                  <>
+                    <Mic className="h-4 w-4" />
+                    Audio On
+                  </>
+                )}
+              </Button>
+            )}
+            
+            {/* Login Logo */}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onLoginClick}
+              className="p-2"
+            >
+              <img 
+                src="/lovable-uploads/bd1798e5-2033-45c5-a39b-4e8192a4b046.png" 
+                alt="Login" 
+                className="h-6 w-6 object-contain"
+              />
+            </Button>
           </div>
         </div>
-        
-        <div className="flex items-center gap-2">
-          {onToggleAudio && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={onToggleAudio}
-              className="flex items-center gap-2"
-            >
-              {isAudioEnabled ? (
-                <>
-                  <MicOff className="h-4 w-4" />
-                  Audio Off
-                </>
-              ) : (
-                <>
-                  <Mic className="h-4 w-4" />
-                  Audio On
-                </>
-              )}
-            </Button>
-          )}
-          
-          {/* Login Logo */}
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onLoginClick}
-            className="p-2"
-          >
-            <img 
-              src="/lovable-uploads/bd1798e5-2033-45c5-a39b-4e8192a4b046.png" 
-              alt="Login" 
-              className="h-6 w-6 object-contain"
-            />
-          </Button>
-        </div>
-      </div>
+      )}
 
-      {/* Messages - Scrollable with padding for fixed elements */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4 pt-24 pb-20 w-full">
+      {/* Messages - Adjust padding based on whether header is shown */}
+      <div className={`flex-1 overflow-y-auto p-4 space-y-4 w-full ${
+        isUserOwnSim ? 'pt-4 pb-20' : 'pt-24 pb-20'
+      }`}>
         {messages.length === 0 && (
           <div className="text-center text-muted-foreground py-8">
             <p>Start a conversation with {agent?.name}</p>
