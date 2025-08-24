@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useSim } from "@/hooks/useSim";
@@ -250,6 +249,9 @@ export const SidebarContent = ({
                 <p className="text-sm font-medium truncate">
                   {sim?.name || user.email}
                 </p>
+                <Badge variant="secondary" className="text-xs mt-1">
+                  Plus
+                </Badge>
               </div>
               <UserSettingsDropdown simplified={true} />
             </div>
