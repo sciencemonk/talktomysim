@@ -29,8 +29,8 @@ const AdvisorDirectory = ({
 
   // Filter advisors based on search term and active status
   const filteredAdvisors = agents.filter(advisor => {
-    // Only show active sims - check both isActive and the database field
-    const isActive = advisor.isActive !== false && advisor.is_active !== false;
+    // Only show active sims - use the isActive property from AgentType
+    const isActive = advisor.isActive !== false;
     if (!isActive) return false;
     
     return (
