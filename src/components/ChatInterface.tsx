@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,6 +14,7 @@ import { useToast } from "@/hooks/use-toast";
 
 interface ChatInterfaceProps {
   agent: AgentType;
+  isUserOwnSim?: boolean;
   onBack?: () => void;
   onLoginClick?: () => void;
 }
@@ -29,6 +29,7 @@ interface ChatMessage {
 
 export const ChatInterface: React.FC<ChatInterfaceProps> = ({
   agent,
+  isUserOwnSim = false,
   onBack,
   onLoginClick
 }) => {
