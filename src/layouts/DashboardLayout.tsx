@@ -21,6 +21,7 @@ const DashboardLayout = () => {
         onNavigateToIntegrations={() => {}}
         onNavigateToActions={() => {}}
         onNavigateToSearch={() => {}}
+        onNavigateToTalkToSim={() => {}}
         activeView="directory"
       />
       

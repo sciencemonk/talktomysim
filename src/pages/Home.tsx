@@ -249,12 +249,15 @@ const Home = () => {
             name: sim.name || 'My Sim',
             title: sim.professional_title || 'Assistant',
             description: sim.description || 'Your personal AI assistant',
-            type: 'general',
+            type: 'General Tutor',
+            status: 'active',
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
             subject: 'General',
             gradeLevel: 'All',
-            learningObjective: sim.learning_objective || 'General assistance',
+            learningObjective: sim.description || 'General assistance',
             avatar: sim.avatar_url || '',
-            prompt: sim.personality_prompt || '',
+            prompt: sim.context_window || '',
             welcomeMessage: sim.welcome_message || `Hello! I'm ${sim.name || 'your assistant'}. How can I help you today?`
           };
           return (
