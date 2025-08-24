@@ -23,15 +23,15 @@ export const CoreKnowledge: React.FC<CoreKnowledgeProps> = ({ advisorId: propAdv
   const [processingProgress, setProcessingProgress] = useState(0);
   const [refreshDocuments, setRefreshDocuments] = useState(0);
 
-  // FIXED: Use the actual sim ID, not the user ID or prop
-  const advisorId = propAdvisorId || sim?.id;
+  // FIXED: Always use the sim ID, never use propAdvisorId for document processing
+  const advisorId = sim?.id;
 
   console.log('CoreKnowledge Debug Info:');
   console.log('- User:', user?.id);
   console.log('- Sim from useSim:', sim);
   console.log('- Actual Sim ID:', sim?.id);
   console.log('- Advisor ID being used:', advisorId);
-  console.log('- Prop advisor ID:', propAdvisorId);
+  console.log('- Prop advisor ID (IGNORED):', propAdvisorId);
 
   const handleFileSelect = (files: File[]) => {
     setSelectedFiles(files);
