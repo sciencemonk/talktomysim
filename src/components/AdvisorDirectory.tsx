@@ -76,21 +76,12 @@ const AdvisorDirectory = ({
             </div>
             
             {showLoginInHeader && (
-              <div className="flex items-center gap-3">
-                <img 
-                  src="/lovable-uploads/d1283b59-7cfa-45f5-b151-4c32b24f3621.png" 
-                  alt="Logo" 
-                  className="h-8 w-8 object-contain cursor-pointer"
-                  onClick={onLoginClick}
-                />
-                <Button 
-                  onClick={onLoginClick}
-                  size="sm"
-                  className="bg-gradient-to-r from-purple-600 via-pink-500 to-blue-500 text-white hover:opacity-90 animate-pulse"
-                >
-                  Get Started
-                </Button>
-              </div>
+              <img 
+                src="/lovable-uploads/d1283b59-7cfa-45f5-b151-4c32b24f3621.png" 
+                alt="Logo" 
+                className="h-8 w-8 object-contain cursor-pointer"
+                onClick={onLoginClick}
+              />
             )}
           </div>
         </div>
