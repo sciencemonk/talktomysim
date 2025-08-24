@@ -92,6 +92,19 @@ export const SidebarContent = ({
                   </h3>
                   <div className="space-y-1">
                     <Button
+                      variant={activeView === 'talk-to-sim' ? "secondary" : "ghost"}
+                      size="sm"
+                      onClick={() => {
+                        onNavigateToTalkToSim();
+                        onClose?.();
+                      }}
+                      className="w-full justify-start h-9"
+                    >
+                      <User className="mr-2 h-4 w-4" />
+                      Talk to My Sim
+                    </Button>
+                    
+                    <Button
                       variant={activeView === 'my-sim' ? "secondary" : "ghost"}
                       size="sm"
                       onClick={() => {
@@ -105,19 +118,6 @@ export const SidebarContent = ({
                     </Button>
                     
                     <Button
-                      variant={activeView === 'talk-to-sim' ? "secondary" : "ghost"}
-                      size="sm"
-                      onClick={() => {
-                        onNavigateToTalkToSim();
-                        onClose?.();
-                      }}
-                      className="w-full justify-start h-9"
-                    >
-                      <Bot className="mr-2 h-4 w-4" />
-                      Talk to my Sim
-                    </Button>
-                    
-                    <Button
                       variant={activeView === 'basic-info' ? "secondary" : "ghost"}
                       size="sm"
                       onClick={() => {
@@ -126,7 +126,7 @@ export const SidebarContent = ({
                       }}
                       className="w-full justify-start h-9"
                     >
-                      <User className="mr-2 h-4 w-4" />
+                      <Search className="mr-2 h-4 w-4" />
                       Context Window
                     </Button>
                     
