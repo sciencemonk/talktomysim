@@ -76,7 +76,9 @@ export type Database = {
           created_at: string
           document_id: string
           embedding: string | null
+          end_char: number | null
           id: string
+          start_char: number | null
         }
         Insert: {
           advisor_id: string
@@ -85,7 +87,9 @@ export type Database = {
           created_at?: string
           document_id: string
           embedding?: string | null
+          end_char?: number | null
           id?: string
+          start_char?: number | null
         }
         Update: {
           advisor_id?: string
@@ -94,7 +98,9 @@ export type Database = {
           created_at?: string
           document_id?: string
           embedding?: string | null
+          end_char?: number | null
           id?: string
+          start_char?: number | null
         }
         Relationships: [
           {
