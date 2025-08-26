@@ -35,6 +35,7 @@ export interface SimData {
   
   // Interaction Model
   welcome_message?: string;
+  owner_welcome_message?: string; // Separate welcome message for the owner
   sample_scenarios?: Array<{
     id: string;
     question: string;
@@ -178,6 +179,7 @@ class SimService {
 
   async updateInteractionModel(interactionData: {
     welcome_message?: string;
+    owner_welcome_message?: string;
     sample_scenarios?: Array<{
       id: string;
       question: string;

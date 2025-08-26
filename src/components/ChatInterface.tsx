@@ -314,29 +314,48 @@ export const ChatInterface = ({
       }
     } 
     // Only show welcome message if we haven't loaded messages yet AND there are no existing messages
-    else if (!hasLoadedInitialMessages && agent?.welcomeMessage && messages.length === 0) {
-      console.log('No messages found, showing welcome message');
-      const welcomeMsg: Message = {
-        id: 'welcome-message',
-        role: 'system',
-        content: agent.welcomeMessage,
-        timestamp: Date.now()
-      };
-      setMessages([welcomeMsg]);
-      setHasLoadedInitialMessages(true);
+    else if (!hasLoadedInitialMessages && messages.length === 0) {
+      console.log('No messages found, checking for welcome message');
       
-      // For welcome message, always scroll to show it properly
-      setTimeout(() => {
-        setShouldAutoScroll(true);
-        setIsUserNearBottom(true);
-        scrollToBottom(false); // Don't force, let natural scroll happen
-      }, 100);
+      // Determine which welcome message to show based on whether this is the owner's session
+      let welcomeMessageContent = '';
+      
+      if (isUserOwnSim && agent?.owner_welcome_message) {
+        // Owner is viewing their own Sim and has set an owner-specific welcome message
+        welcomeMessageContent = agent.owner_welcome_message;
+        console.log('Using owner-specific welcome message');
+      } else if (agent?.welcomeMessage) {
+        // Public user or owner without a specific message
+        welcomeMessageContent = agent.welcomeMessage;
+        console.log('Using public welcome message');
+      }
+      
+      if (welcomeMessageContent) {
+        const welcomeMsg: Message = {
+          id: 'welcome-message',
+          role: 'system',
+          content: welcomeMessageContent,
+          timestamp: Date.now()
+        };
+        setMessages([welcomeMsg]);
+        setHasLoadedInitialMessages(true);
+        
+        // For welcome message, always scroll to show it properly
+        setTimeout(() => {
+          setShouldAutoScroll(true);
+          setIsUserNearBottom(true);
+          scrollToBottom(false); // Don't force, let natural scroll happen
+        }, 100);
+      } else {
+        // No welcome message available, just mark as loaded
+        setHasLoadedInitialMessages(true);
+      }
     } else if (messages.length > 0 && !hasLoadedInitialMessages) {
       // If we already have messages but haven't marked as loaded, mark as loaded to prevent welcome message
       console.log('Messages already exist, marking as loaded to prevent welcome message');
       setHasLoadedInitialMessages(true);
     }
-  }, [historyMessages, conversation?.id, agent?.welcomeMessage, hasLoadedInitialMessages, scrollToBottom, messages.length]);
+  }, [historyMessages, conversation?.id, agent?.welcomeMessage, agent?.owner_welcome_message, isUserOwnSim, hasLoadedInitialMessages, scrollToBottom, messages.length]);
 
   // Cleanup scroll timeout on unmount
   useEffect(() => {

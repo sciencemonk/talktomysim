@@ -55,7 +55,8 @@ export interface AgentType {
   is_featured?: boolean; // Add the missing is_featured property
   url?: string; // Add url field for custom paths
   custom_url?: string; // Add custom_url field for custom URLs
-  welcomeMessage?: string; // Add welcome message field
+  welcomeMessage?: string; // Add welcome message field for public users
+  owner_welcome_message?: string; // Add separate welcome message for owner
   isPublic?: boolean; // Add isPublic field for public/private agents
   isActive?: boolean; // Add isActive field for on/off toggle
 }
