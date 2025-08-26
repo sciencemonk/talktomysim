@@ -320,16 +320,9 @@ export const ChatInterface = ({
       console.log('Messages already exist, marking as loaded to prevent welcome message');
       setHasLoadedInitialMessages(true);
     }
-  }, [historyMessages, conversation?.id, agent?.welcomeMessage, isUserOwnSim, hasLoadedInitialMessages, scrollToBottom, messages.length, agent]);
+  }, [historyMessages, conversation?.id, agent?.welcomeMessage, isUserOwnSim, hasLoadedInitialMessages, messages.length, agent]);
 
-  // Cleanup scroll timeout on unmount
-  useEffect(() => {
-    return () => {
-      if (scrollTimeoutRef.current) {
-        clearTimeout(scrollTimeoutRef.current);
-      }
-    };
-  }, []);
+
 
   const addUserMessage = useCallback(async (message: string) => {
     if (!message.trim()) {
