@@ -131,19 +131,6 @@ export const SidebarContent = ({
                     </Button>
                     
                     <Button
-                      variant={activeView === 'integrations' ? "secondary" : "ghost"}
-                      size="sm"
-                      onClick={() => {
-                        onNavigateToIntegrations();
-                        onClose?.();
-                      }}
-                      className="w-full justify-start h-9"
-                    >
-                      <Settings className="mr-2 h-4 w-4" />
-                      Integrations
-                    </Button>
-                    
-                    <Button
                       variant={activeView === 'interaction-model' ? "secondary" : "ghost"}
                       size="sm"
                       onClick={() => {
@@ -154,6 +141,19 @@ export const SidebarContent = ({
                     >
                       <MessageSquare className="mr-2 h-4 w-4" />
                       Interaction Model
+                    </Button>
+                    
+                    <Button
+                      variant={activeView === 'integrations' ? "secondary" : "ghost"}
+                      size="sm"
+                      onClick={() => {
+                        onNavigateToIntegrations();
+                        onClose?.();
+                      }}
+                      className="w-full justify-start h-9"
+                    >
+                      <Settings className="mr-2 h-4 w-4" />
+                      Integrations
                     </Button>
                     
                     <Button

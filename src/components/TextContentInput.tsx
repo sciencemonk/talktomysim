@@ -1,25 +1,27 @@
 
 import React, { useState } from 'react';
-import { Save } from 'lucide-react';
+import { Save, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
 interface TextContentInputProps {
-  onProcess: (title: string, content: string) => Promise<void>;
+  onProcess?: (title: string, content: string) => Promise<void>;
   onProcessStart?: () => void;
+  premiumRequired?: boolean;
 }
 
 export const TextContentInput: React.FC<TextContentInputProps> = ({ 
   onProcess,
-  onProcessStart
+  onProcessStart,
+  premiumRequired = false
 }) => {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
 
   const handleSave = async () => {
-    if (!title.trim() || !content.trim()) {
+    if (!title.trim() || !content.trim() || premiumRequired) {
       return;
     }
 
@@ -34,7 +36,9 @@ export const TextContentInput: React.FC<TextContentInputProps> = ({
     onProcessStart?.();
     
     // Start processing in background
-    await onProcess(titleToProcess, contentToProcess);
+    if (onProcess) {
+      await onProcess(titleToProcess, contentToProcess);
+    }
   };
 
   return (
@@ -67,9 +71,19 @@ export const TextContentInput: React.FC<TextContentInputProps> = ({
         <Button 
           onClick={handleSave}
           disabled={!title.trim() || !content.trim()}
+          variant={premiumRequired ? "secondary" : "default"}
         >
-          <Save className="h-4 w-4 mr-2" />
-          Save Content
+          {premiumRequired ? (
+            <>
+              <Lock className="h-4 w-4 mr-2" />
+              Premium Feature
+            </>
+          ) : (
+            <>
+              <Save className="h-4 w-4 mr-2" />
+              Save Content
+            </>
+          )}
         </Button>
       </div>
     </div>

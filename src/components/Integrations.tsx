@@ -6,8 +6,10 @@ import {
   Linkedin, 
   Mail, 
   Twitter,
-  Clock
+  Clock,
+  Lock
 } from "lucide-react";
+import { useUserPlan } from '@/hooks/useUserPlan';
 
 interface Integration {
   id: string;
@@ -57,18 +59,32 @@ const integrations: Integration[] = [
 ];
 
 const Integrations = () => {
+  const { plan, hasActiveSubscription } = useUserPlan();
+  const isPremium = plan !== 'free' && hasActiveSubscription;
+  
   return (
     <div className="max-w-4xl mx-auto p-6 space-y-6">
       <Card>
         <CardHeader>
           <CardTitle>
-            Integrations
+            Integrations {!isPremium && <span className="ml-2 text-sm font-normal text-amber-500">(Premium Feature)</span>}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
           <p className="text-muted-foreground">
             Connect your Sim with external services to enhance its knowledge and capabilities.
           </p>
+          
+          {!isPremium && (
+            <Card className="bg-muted border-border">
+              <CardContent className="p-4 flex items-center space-x-3">
+                <Lock className="h-5 w-5 text-primary" />
+                <p className="text-sm text-foreground">
+                  Integrations are available on Plus and Pro plans. Upgrade your plan to access this feature.
+                </p>
+              </CardContent>
+            </Card>
+          )}
 
         {/* Integration Cards Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -119,8 +135,17 @@ const Integrations = () => {
                       disabled 
                       className="w-full bg-bgMuted text-fgMuted border-border"
                     >
-                      <Clock className="w-4 h-4 mr-2" />
-                      Coming Soon
+                      {!isPremium ? (
+                        <>
+                          <Lock className="w-4 h-4 mr-2" />
+                          Premium Feature
+                        </>
+                      ) : (
+                        <>
+                          <Clock className="w-4 h-4 mr-2" />
+                          Coming Soon
+                        </>
+                      )}
                     </Button>
                   </div>
                 </CardContent>

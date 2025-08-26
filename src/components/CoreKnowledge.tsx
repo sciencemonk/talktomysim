@@ -4,13 +4,15 @@ import { DocumentManager } from './DocumentManager';
 import { TextContentInput } from './TextContentInput';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Database } from 'lucide-react';
+import { Database, Lock } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 import { documentService } from '@/services/documentService';
 import { conversationEmbeddingService } from '@/services/conversationEmbeddingService';
 
 import { useSim } from '@/hooks/useSim';
 import { useAuth } from '@/hooks/useAuth';
+import { useUserPlan } from '@/hooks/useUserPlan';
 
 interface CoreKnowledgeProps {
   advisorId?: string;
@@ -19,8 +21,11 @@ interface CoreKnowledgeProps {
 export const CoreKnowledge: React.FC<CoreKnowledgeProps> = ({ advisorId: propAdvisorId }) => {
   const { user } = useAuth();
   const { sim, isLoading: simLoading, error: simError } = useSim();
+  const { plan, hasActiveSubscription } = useUserPlan();
   const [refreshDocuments, setRefreshDocuments] = useState(0);
   const [autoProcessed, setAutoProcessed] = useState(false);
+  
+  const isPremium = plan !== 'free' && hasActiveSubscription;
 
   // FIXED: Always use the sim ID, never use propAdvisorId for document processing
   const advisorId = sim?.id;
@@ -136,18 +141,30 @@ export const CoreKnowledge: React.FC<CoreKnowledgeProps> = ({ advisorId: propAdv
       <Card>
         <CardHeader>
           <CardTitle>
-            Vector Embedding
+            Vector Embedding {!isPremium && <span className="ml-2 text-sm font-normal text-amber-500">(Premium Feature)</span>}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
           <p className="text-muted-foreground">
             Add personal experiences, knowledge, and expertise to build your Sim's brain. Paste or write content directly to create a comprehensive knowledge base. We'll convert it into vector embeddings so that information is readily available for conversations.
           </p>
+          
+          {!isPremium && (
+            <Card className="bg-muted border-border">
+              <CardContent className="p-4 flex items-center space-x-3">
+                <Lock className="h-5 w-5 text-primary" />
+                <p className="text-sm text-foreground">
+                  Vector Embedding is available on Plus and Pro plans. Upgrade your plan to access this feature.
+                </p>
+              </CardContent>
+            </Card>
+          )}
 
           {/* Text Content Input - simplified interface */}
           <TextContentInput
-            onProcess={handleTextProcess}
+            onProcess={isPremium ? handleTextProcess : undefined}
             onProcessStart={handleProcessStart}
+            premiumRequired={!isPremium}
           />
         </CardContent>
       </Card>
