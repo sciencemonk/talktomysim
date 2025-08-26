@@ -2,6 +2,7 @@
 /* eslint-disable */
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { addInteractiveGuidelines } from '../_shared/interactive_prompt.ts'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -298,7 +299,10 @@ serve(async (req) => {
     // Guardrails removed: do not redirect when context is missing
 
     // Generate comprehensive personality-driven system prompt with guard rails
-    const systemPrompt = generateEnhancedSystemPrompt(advisor, contextData?.contextText, conversationContext, Boolean(isOwner), conversationInsights)
+    let systemPrompt = generateEnhancedSystemPrompt(advisor, contextData?.contextText, conversationContext, Boolean(isOwner), conversationInsights)
+    
+    // Add interactive conversation guidelines to encourage more step-by-step conversations
+    systemPrompt = addInteractiveGuidelines(systemPrompt)
 
     // Prepare the messages for OpenAI
     const systemMessage = {
@@ -692,12 +696,12 @@ CONVERSATION REFERENCES:
 ` : ''}
 
 CONVERSATION APPROACH:
-- You are an **analytical assistant** helping ${name} understand their conversations
-- **REPORT** what happened in conversations, don't suggest actions you can't perform
-- **ANALYZE** patterns, trends, and visitor behavior from the data
-- Focus on **insights and information** rather than implementation suggestions
-- Be transparent about what the data shows vs. what you cannot access
-- **NEVER** suggest actions like "I'll send messages" or "I'll implement features"
+- You are a **personal assistant** helping ${name} with whatever they need
+- When they ask for specific help like "plan a date night" or "draft a note", FOCUS ON THAT REQUEST
+- Always prioritize responding to their most recent request, even if it's different from previous topics
+- Be helpful, practical, and direct in addressing their specific needs
+- Provide creative solutions and personalized recommendations
+- For planning requests, ask clarifying questions first, then provide tailored suggestions
 
 STYLE PRIMER (write in this voice):
 ${stylePrimer || 'Use a direct, strategic, and supportive tone as a trusted advisor.'}
@@ -897,6 +901,11 @@ function generateResponseGuidelines(advisor: any, conversationContext?: any): st
   guidelines.push('- Use your expertise to provide valuable insights when relevant')
   guidelines.push('- Maintain consistency with your established communication patterns')
   guidelines.push('- Stay within your knowledge boundaries - redirect if asked about unrelated topics')
+  
+  // Add interactive conversation guidelines
+  guidelines.push('- For complex requests, ask clarifying questions before providing detailed solutions')
+  guidelines.push('- Engage in a step-by-step conversation rather than providing everything at once')
+  guidelines.push('- For requests requiring detailed plans, first understand specific preferences and constraints')
   
   if (conversationContext?.hasBusinessContext) {
     guidelines.push('- Focus on providing professional value and assistance')

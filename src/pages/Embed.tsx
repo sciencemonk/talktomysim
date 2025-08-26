@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Send } from 'lucide-react';
+import { Send, User } from 'lucide-react';
 import { publicAgentService } from '@/services/publicAgentService';
 import { AgentType } from '@/types/agent';
 import { useEnhancedTextChat } from '@/hooks/useEnhancedTextChat';
@@ -24,6 +24,16 @@ const Embed: React.FC = () => {
   const [inputMessage, setInputMessage] = useState('');
   const [messages, setMessages] = useState<Message[]>([]);
   const [themeColor, setThemeColor] = useState('#ffffff');
+  
+  // Scrolling state
+  const [isUserNearBottom, setIsUserNearBottom] = useState(true);
+  const [shouldAutoScroll, setShouldAutoScroll] = useState(true);
+  const [isUserScrolling, setIsUserScrolling] = useState(false);
+  
+  // Refs
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Parse query parameters
   useEffect(() => {
@@ -33,6 +43,64 @@ const Embed: React.FC = () => {
       setThemeColor(`#${theme}`);
     }
   }, [location]);
+  
+  // Check if user is near the bottom of the chat
+  const checkIfNearBottom = useCallback(() => {
+    if (!messagesContainerRef.current) return true;
+    
+    const container = messagesContainerRef.current;
+    const threshold = 50; // Smaller threshold for more responsive scrolling
+    const isNearBottom = container.scrollHeight - container.scrollTop - container.clientHeight < threshold;
+    
+    setIsUserNearBottom(isNearBottom);
+    return isNearBottom;
+  }, []);
+  
+  // Extreme force scroll to absolute bottom
+  const scrollToBottom = useCallback(() => {
+    if (!messagesContainerRef.current) return;
+    
+    // Always scroll to absolute bottom
+    const container = messagesContainerRef.current;
+    
+    // Function to ensure we're at the very bottom
+    const forceToBottom = () => {
+      // Set scroll directly to maximum possible value with extra padding
+      container.scrollTop = container.scrollHeight + 1000;
+      
+      // Also use scrollIntoView as a backup method
+      if (messagesEndRef.current) {
+        messagesEndRef.current.scrollIntoView({
+          behavior: 'auto',
+          block: 'end'
+        });
+      }
+    };
+    
+    // Execute multiple times to ensure it works
+    forceToBottom();
+    
+    // And again after a tiny delay
+    setTimeout(forceToBottom, 5);
+  }, []);
+  
+  // Handle scroll events
+  const handleScroll = useCallback(() => {
+    checkIfNearBottom();
+    
+    // Detect if user is actively scrolling
+    setIsUserScrolling(true);
+    
+    // Clear existing timeout
+    if (scrollTimeoutRef.current) {
+      clearTimeout(scrollTimeoutRef.current);
+    }
+    
+    // Reset scrolling state after user stops scrolling
+    scrollTimeoutRef.current = setTimeout(() => {
+      setIsUserScrolling(false);
+    }, 150);
+  }, [checkIfNearBottom]);
 
   // Load agent data
   useEffect(() => {
@@ -69,6 +137,30 @@ const Embed: React.FC = () => {
     loadAgent();
   }, [id]);
 
+  // Extremely aggressive scroll to bottom on every message change
+  useEffect(() => {
+    // Multiple scroll attempts with increasing delays to ensure it works
+    if (messages.length > 0) {
+      // Immediate scroll attempt
+      scrollToBottom();
+      
+      // Follow-up attempts with delays to ensure rendering is complete
+      const delays = [10, 20, 50, 100, 200, 300, 500, 800];
+      delays.forEach(delay => {
+        setTimeout(() => scrollToBottom(), delay);
+      });
+    }
+  }, [messages, scrollToBottom]);
+  
+  // Cleanup scroll timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (scrollTimeoutRef.current) {
+        clearTimeout(scrollTimeoutRef.current);
+      }
+    };
+  }, []);
+
   const addUserMessage = (message: string) => {
     const userMsg: Message = {
       id: `user-${Date.now()}`,
@@ -77,6 +169,15 @@ const Embed: React.FC = () => {
       timestamp: Date.now()
     };
     setMessages(prev => [...prev, userMsg]);
+    
+    // Auto-scroll when user sends a message
+    setShouldAutoScroll(true);
+    setIsUserNearBottom(true);
+    
+    // Force multiple scroll attempts
+    scrollToBottom();
+    setTimeout(() => scrollToBottom(), 50);
+    setTimeout(() => scrollToBottom(), 150);
   };
 
   const startAiMessage = () => {
@@ -152,9 +253,9 @@ const Embed: React.FC = () => {
 
   return (
     <div className="flex flex-col h-screen bg-background">
-      {/* Header */}
+      {/* Header - Fixed position */}
       <div 
-        className="flex items-center p-3 border-b"
+        className="fixed top-0 left-0 right-0 z-10 flex items-center p-3 border-b bg-card"
         style={{ backgroundColor: themeColor !== '#ffffff' ? themeColor : undefined }}
       >
         <Avatar className="h-8 w-8 mr-3">
@@ -172,8 +273,18 @@ const Embed: React.FC = () => {
         </div>
       </div>
 
-      {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+      {/* Messages - With padding for fixed header and footer */}
+      <div 
+        ref={messagesContainerRef}
+        onScroll={handleScroll}
+        className="flex-1 overflow-y-auto p-4 pt-16 pb-32 space-y-4 mobile-chat-container"
+      >
+        {messages.length === 0 && !isLoading && (
+          <div className="text-center text-muted-foreground py-8">
+            Start a conversation with {agent.name}
+          </div>
+        )}
+        
         {messages.map((message) => (
           <div
             key={message.id}
@@ -206,7 +317,7 @@ const Embed: React.FC = () => {
             {message.role === 'user' && (
               <Avatar className="h-8 w-8 flex-shrink-0">
                 <AvatarFallback className="bg-secondary text-secondary-foreground text-xs">
-                  You
+                  <User className="h-3 w-3" />
                 </AvatarFallback>
               </Avatar>
             )}
@@ -234,11 +345,14 @@ const Embed: React.FC = () => {
             </div>
           </div>
         )}
+        
+        {/* Invisible element to scroll to with extra padding */}
+        <div ref={messagesEndRef} className="h-16" />
       </div>
 
-      {/* Input */}
-      <div className="p-3 border-t">
-        <div className="flex gap-2">
+      {/* Input - Fixed to bottom */}
+      <div className="fixed bottom-0 z-10 border-t border-border bg-card left-0 right-0 p-3">
+        <div className="flex gap-2 w-full max-w-full">
           <Input
             value={inputMessage}
             onChange={(e) => setInputMessage(e.target.value)}

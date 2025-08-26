@@ -69,28 +69,33 @@ export const ChatInterface = ({
     return isNearBottom;
   }, [isMobile]);
 
-  // Smart scroll to bottom - only when appropriate, gentler on mobile (iMessage-like)
+  // Extreme force scroll to absolute bottom
   const scrollToBottom = useCallback((force = false) => {
-    if (!messagesEndRef.current) return;
+    if (!messagesContainerRef.current) return;
     
-    // Don't auto-scroll if user is actively scrolling (like iMessage)
-    if (isUserScrolling && !force) {
-      return;
-    }
+    // Always scroll to absolute bottom
+    const container = messagesContainerRef.current;
     
-    // On mobile, be more conservative about auto-scrolling
-    if (isMobile && !force && !isUserNearBottom) {
-      return;
-    }
+    // Function to ensure we're at the very bottom
+    const forceToBottom = () => {
+      // Set scroll directly to maximum possible value with extra padding
+      container.scrollTop = container.scrollHeight + 1000;
+      
+      // Also use scrollIntoView as a backup method
+      if (messagesEndRef.current) {
+        messagesEndRef.current.scrollIntoView({
+          behavior: 'auto',
+          block: 'end'
+        });
+      }
+    };
     
-    if (force || (shouldAutoScroll && isUserNearBottom)) {
-      // Use different behavior for mobile vs desktop
-      messagesEndRef.current.scrollIntoView({ 
-        behavior: isMobile ? 'auto' : 'smooth',
-        block: 'end'
-      });
-    }
-  }, [shouldAutoScroll, isUserNearBottom, isMobile, isUserScrolling]);
+    // Execute multiple times to ensure it works
+    forceToBottom();
+    
+    // And again after a tiny delay
+    setTimeout(forceToBottom, 5);
+  }, []);
 
   // Handle scroll events to track user position and detect active scrolling
   const handleScroll = useCallback(() => {
@@ -110,12 +115,20 @@ export const ChatInterface = ({
     }, 150);
   }, [checkIfNearBottom]);
 
-  // Only auto-scroll when there's active AI streaming or user sends a message
+  // Extremely aggressive scroll to bottom on every message change
   useEffect(() => {
-    if (shouldAutoScroll) {
+    // Multiple scroll attempts with increasing delays to ensure it works
+    if (messages.length > 0) {
+      // Immediate scroll attempt
       scrollToBottom();
+      
+      // Follow-up attempts with delays to ensure rendering is complete
+      const delays = [10, 20, 50, 100, 200, 300, 500, 800];
+      delays.forEach(delay => {
+        setTimeout(() => scrollToBottom(), delay);
+      });
     }
-  }, [messages, scrollToBottom, shouldAutoScroll]);
+  }, [messages, scrollToBottom]);
 
   // Initialize conversation on component mount - with stable conversation management
   useEffect(() => {
@@ -304,15 +317,15 @@ export const ChatInterface = ({
       
       setHasLoadedInitialMessages(true);
       
-      // Only auto-scroll if this is a new conversation or we're on mobile and have just a few messages
-      const shouldInitialScroll = historyMessages.length <= 2 || (!isMobile && historyMessages.length <= 5);
-      if (shouldInitialScroll) {
-        setTimeout(() => {
-          setShouldAutoScroll(true);
-          setIsUserNearBottom(true);
-          scrollToBottom(true);
-        }, 100);
-      }
+      // Always scroll to bottom after loading messages
+      // Use a longer timeout to ensure DOM has fully rendered
+      setTimeout(() => {
+        setShouldAutoScroll(true);
+        setIsUserNearBottom(true);
+        
+        // Always force scroll to bottom to ensure latest message is visible
+        scrollToBottom(true);
+      }, 300);
     } 
     // Only show welcome message if we haven't loaded messages yet AND there are no existing messages
     else if (!hasLoadedInitialMessages && messages.length === 0) {
@@ -320,12 +333,14 @@ export const ChatInterface = ({
       
       const showWelcomeMessage = async () => {
         let welcomeMessageContent = '';
+        let welcomeMessageId = 'welcome-message';
         
         if (isUserOwnSim) {
           try {
             // For owner sessions, generate a dynamic welcome message
             console.log('Generating dynamic welcome message for owner');
             welcomeMessageContent = await welcomeMessageService.generateOwnerWelcomeMessage(agent);
+            welcomeMessageId = `welcome-message-owner-${Date.now()}`;
           } catch (error) {
             console.error('Error generating dynamic welcome message:', error);
             // Fall back to standard welcome message if generation fails
@@ -334,24 +349,35 @@ export const ChatInterface = ({
         } else if (agent?.welcomeMessage) {
           // Public user gets the standard welcome message
           welcomeMessageContent = agent.welcomeMessage;
+          welcomeMessageId = `welcome-message-public-${Date.now()}`;
           console.log('Using public welcome message');
         }
         
         if (welcomeMessageContent) {
-          const welcomeMsg: Message = {
-            id: 'welcome-message',
-            role: 'system',
-            content: welcomeMessageContent,
-            timestamp: Date.now()
-          };
-          setMessages([welcomeMsg]);
+          // Check if we already have this welcome message to prevent duplicates
+          const existingWelcomeMessage = messages.find(msg => 
+            msg.role === 'system' && 
+            msg.content === welcomeMessageContent
+          );
           
-          // For welcome message, always scroll to show it properly
-          setTimeout(() => {
-            setShouldAutoScroll(true);
-            setIsUserNearBottom(true);
-            scrollToBottom(false); // Don't force, let natural scroll happen
-          }, 100);
+          if (!existingWelcomeMessage) {
+            const welcomeMsg: Message = {
+              id: welcomeMessageId,
+              role: 'system',
+              content: welcomeMessageContent,
+              timestamp: Date.now()
+            };
+            setMessages([welcomeMsg]);
+            
+            // For welcome message, also scroll to bottom
+            setTimeout(() => {
+              setShouldAutoScroll(true);
+              setIsUserNearBottom(true);
+              scrollToBottom(true);
+            }, 300);
+          } else {
+            console.log('Skipping duplicate welcome message');
+          }
         }
         
         // Mark as loaded regardless of whether we showed a welcome message
@@ -432,6 +458,8 @@ export const ChatInterface = ({
     
     setMessages(prev => {
       const lastMessage = prev[prev.length - 1];
+      
+      // Check if this is a continuation of the last message
       if (lastMessage && lastMessage.role === 'system' && lastMessage.id.startsWith('ai-')) {
         return prev.map((msg, index) => 
           index === prev.length - 1 && msg.role === 'system' && msg.id.startsWith('ai-')
@@ -439,6 +467,38 @@ export const ChatInterface = ({
             : msg
         );
       } else {
+        // Only check for duplicates if this is a new complete message (not a delta/streaming chunk)
+        // and only for system messages (AI responses)
+        if (delta.length > 30) {  // Only check substantial messages, not small chunks
+          const recentSystemMessages = prev
+            .filter(msg => msg.role === 'system')
+            .slice(-2); // Look at last 2 system messages only
+          
+          // Check for exact duplicates or very similar content
+          const isDuplicate = recentSystemMessages.some(msg => {
+            // Skip very short messages
+            if (msg.content.length < 30) return false;
+            
+            // Exact match check - very strict
+            if (msg.content === delta) return true;
+            
+            // Check if this is a duplicate introduction message
+            if (delta.includes('Hello!') && delta.includes('I\'m') && 
+                msg.content.includes('Hello!') && msg.content.includes('I\'m')) {
+              return true;
+            }
+            
+            // For longer messages, only check exact duplicates to avoid false positives
+            return false;
+          });
+          
+          if (isDuplicate) {
+            console.log('Prevented duplicate system message:', delta.substring(0, 50) + '...');
+            return prev;
+          }
+        }
+        
+        // If we get here, it's not a duplicate, so add the message
         const aiMsg: Message = {
           id: `ai-${Date.now()}`,
           role: 'system',
@@ -675,14 +735,20 @@ export const ChatInterface = ({
   }
 
   return (
-    <div className="flex flex-col h-screen bg-background relative w-full max-w-full overflow-hidden">
+    <div className="flex flex-col h-full min-h-screen bg-background relative w-full max-w-full overflow-hidden">
       {/* Mobile viewport fix */}
       <style jsx>{`
         @media (max-width: 768px) {
           .mobile-chat-container {
             height: 100vh;
             height: 100dvh; /* Dynamic viewport height for mobile */
+            max-height: -webkit-fill-available; /* iOS Safari fix */
           }
+        }
+        
+        /* Ensure messages container takes up available space */
+        .mobile-chat-container {
+          min-height: 300px; /* Minimum height to ensure scrolling works */
         }
       `}</style>
       {/* Header - Only show for non-user sims */}
@@ -743,14 +809,14 @@ export const ChatInterface = ({
       <div 
         ref={messagesContainerRef}
         onScroll={handleScroll}
-        className={`flex-1 overflow-y-auto p-4 space-y-4 w-full ${
+        className={`flex-1 overflow-y-auto p-4 space-y-4 w-full h-full ${
           isUserOwnSim 
             ? isMobile 
-              ? 'pt-4 pb-20' 
-              : 'pt-4 pb-24'
+              ? 'pt-4 pb-28' 
+              : 'pt-4 pb-32'
             : isMobile 
-              ? 'pt-20 pb-20'
-              : 'pt-24 pb-24'
+              ? 'pt-20 pb-28'
+              : 'pt-24 pb-32'
         } mobile-chat-container`}
       >
         {/* Debug message count - using useEffect to avoid React node issues */}
@@ -840,8 +906,8 @@ export const ChatInterface = ({
           </div>
         )}
         
-        {/* Invisible element to scroll to */}
-        <div ref={messagesEndRef} />
+        {/* Invisible element to scroll to with extra padding */}
+        <div ref={messagesEndRef} className="h-16" />
       </div>
 
       {/* Input - Fixed to bottom. When a sidebar exists, offset on desktop widths. */}
