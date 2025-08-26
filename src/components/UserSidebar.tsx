@@ -66,6 +66,28 @@ export const SidebarContent = ({
 }: SidebarContentProps) => {
   const { user } = useAuth();
   const { completionStatus, sim } = useSim();
+  
+  // TODO: Replace with actual user plan and credits from database
+  const userPlan = 'free'; // Default new users to free
+  const userCredits = 25; // Example: 25 out of 30 free credits remaining
+
+  const getPlanDisplayName = (plan: string) => {
+    switch (plan) {
+      case 'free': return 'Free';
+      case 'plus': return 'Plus';
+      case 'pro': return 'Pro';
+      default: return 'Free';
+    }
+  };
+
+  const getPlanCredits = (plan: string) => {
+    switch (plan) {
+      case 'free': return 30;
+      case 'plus': return 100;
+      case 'pro': return 1000;
+      default: return 30;
+    }
+  };
 
   return (
     <div className="flex flex-col h-full bg-card border-r border-border">
@@ -247,7 +269,9 @@ export const SidebarContent = ({
                       <span className="text-sm font-medium truncate">
                         {sim?.name || user.email}
                       </span>
-                      <span className="text-xs text-muted-foreground">Plus</span>
+                      <span className="text-xs text-muted-foreground">
+                        {getPlanDisplayName(userPlan)} • {userCredits}/{getPlanCredits(userPlan)} credits
+                      </span>
                     </div>
                   </div>
                 </Button>
