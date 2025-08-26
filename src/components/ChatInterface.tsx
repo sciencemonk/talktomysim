@@ -52,6 +52,9 @@ export const ChatInterface = ({
   const [isChatModalOpen, setIsChatModalOpen] = useState(false);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
+  
+  // State to prevent multiple welcome message attempts
+  const [welcomeMessageAttempted, setWelcomeMessageAttempted] = useState(false);
 
   // iMessage-like behavior: if the user is near the bottom, keep pinned; if they scroll up, don't jump
   const handleScroll = useCallback(() => {
@@ -261,17 +264,24 @@ export const ChatInterface = ({
       setStickToBottom(true);
     } 
     // Only show welcome message if we haven't loaded messages yet AND there are no existing messages
-    else if (!hasLoadedInitialMessages && messages.length === 0 && conversation?.id) {
+    else if (!hasLoadedInitialMessages && messages.length === 0 && conversation?.id && !welcomeMessageAttempted) {
       console.log('No messages found, checking for welcome message');
       
-      // Check if we've already shown a welcome message for this conversation
-      const welcomeShownKey = `welcome_shown_${conversation.id}`;
-      const welcomeAlreadyShown = localStorage.getItem(welcomeShownKey);
+      // Check if we've already shown a welcome message for this agent (more robust than per-conversation)
+      const agentWelcomeKey = `welcome_shown_agent_${agent?.id}`;
+      const conversationWelcomeKey = `welcome_shown_${conversation.id}`;
+      const agentWelcomeShown = localStorage.getItem(agentWelcomeKey);
+      const conversationWelcomeShown = localStorage.getItem(conversationWelcomeKey);
       
-      if (welcomeAlreadyShown) {
-        console.log('Welcome message already shown for this conversation, skipping');
+      if (agentWelcomeShown || conversationWelcomeShown) {
+        console.log('Welcome message already shown for this agent/conversation, skipping');
+        setHasLoadedInitialMessages(true);
+        setWelcomeMessageAttempted(true);
         return;
       }
+      
+      // Mark that we're attempting a welcome message to prevent duplicates
+      setWelcomeMessageAttempted(true);
       
       const showWelcomeMessage = async () => {
         let welcomeMessageContent = '';
@@ -288,11 +298,11 @@ export const ChatInterface = ({
             // Fall back to standard welcome message if generation fails
             welcomeMessageContent = agent?.welcomeMessage || '';
           }
-        } else if (agent?.welcomeMessage) {
-          // Public user gets the standard welcome message
-          welcomeMessageContent = agent.welcomeMessage;
+        } else {
+          // For public users, use a simple, non-Sim-referencing welcome message
+          welcomeMessageContent = `Peace be with you. I'm here to help with anything related to Christianity—Scripture, prayer, forgiveness, discipleship, or life decisions through a faith lens. What's on your heart today?`;
           welcomeMessageId = `welcome-message-public-${Date.now()}`;
-          console.log('Using public welcome message');
+          console.log('Using simplified public welcome message');
         }
         
         if (welcomeMessageContent) {
@@ -311,8 +321,9 @@ export const ChatInterface = ({
             };
             setMessages([welcomeMsg]);
             
-            // Mark welcome message as shown for this conversation
-            localStorage.setItem(welcomeShownKey, 'true');
+            // Mark welcome message as shown for both agent and conversation
+            localStorage.setItem(conversationWelcomeKey, 'true');
+            localStorage.setItem(agentWelcomeKey, 'true');
             
             // For welcome message, keep pinned
             setStickToBottom(true);
