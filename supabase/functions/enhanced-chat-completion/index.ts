@@ -356,7 +356,7 @@ serve(async (req) => {
     const assistantMessage = data.choices[0].message?.content
 
     // Validate and potentially improve response quality
-    const validatedMessage = validateResponseQuality(assistantMessage, conversationContext, Boolean(isOwner), advisor)
+    const validatedMessage = validateResponseQuality(assistantMessage || '', conversationContext, Boolean(isOwner), advisor)
 
     // Check if we got an empty response
     if (!validatedMessage || validatedMessage.trim().length === 0) {
@@ -364,7 +364,8 @@ serve(async (req) => {
       // Return a fallback response instead of throwing an error
       const advisorName = advisor.full_name || advisor.name
       // Build a contextual fallback that asks clarifying questions based on the latest user message intent
-      const latestUser = messages.filter((m: any) => m.role === 'user').slice(-1)[0]?.content?.toLowerCase() || ''
+      const latestUserMsg = messages.filter((m: any) => m.role === 'user').slice(-1)[0]
+      const latestUser = (latestUserMsg?.content || '').toLowerCase()
       let fallbackMessage = ''
       if (Boolean(isOwner)) {
         // Owner mode – be proactive and task-oriented
@@ -1183,10 +1184,11 @@ function addQualityGuidelines(conversationContext: any, isOwner: boolean): strin
 function validateResponseQuality(message: string, conversationContext: any, isOwner: boolean, advisor: any): string {
   if (!message || message.trim().length === 0) return message
   
-  let validatedMessage = message
-  
-  // Check for common quality issues and flag them
-  const qualityIssues = []
+  try {
+    let validatedMessage = message
+    
+    // Check for common quality issues and flag them
+    const qualityIssues = []
   
   // Check for generic responses
   const genericPatterns = [
@@ -1295,12 +1297,17 @@ function validateResponseQuality(message: string, conversationContext: any, isOw
     qualityIssues.push('too_long_for_simple_query')
   }
   
-  // Log quality issues for monitoring (don't modify message)
-  if (qualityIssues.length > 0) {
-    console.log('Response quality issues detected:', qualityIssues)
+    // Log quality issues for monitoring (don't modify message)
+    if (qualityIssues.length > 0) {
+      console.log('Response quality issues detected:', qualityIssues)
+    }
+    
+    return validatedMessage
+  } catch (error) {
+    console.error('Error in validateResponseQuality:', error)
+    // Return the original message if validation fails
+    return message
   }
-  
-  return validatedMessage
 }
 
 function calculateQualityScore(message: string, conversationContext: any): number {
