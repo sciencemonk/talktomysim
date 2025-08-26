@@ -1,7 +1,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useNavigate, Link, Navigate } from "react-router-dom";
+import { useNavigate, Navigate } from "react-router-dom";
 import { Bot, Search, User, Filter, ArrowRight } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
@@ -12,6 +12,9 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/hooks/useAuth";
 import AuthModal from "@/components/AuthModal";
+import AboutModal from "@/components/AboutModal";
+import TermsModal from "@/components/TermsModal";
+import PrivacyModal from "@/components/PrivacyModal";
 
 const Landing = () => {
   const navigate = useNavigate();
@@ -22,6 +25,9 @@ const Landing = () => {
   // All useState hooks must be at the top level
   const [searchQuery, setSearchQuery] = useState("");
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const [showAboutModal, setShowAboutModal] = useState(false);
+  const [showTermsModal, setShowTermsModal] = useState(false);
+  const [showPrivacyModal, setShowPrivacyModal] = useState(false);
   
   // Simple logging for advisor count - MUST be before conditional returns
   useEffect(() => {
@@ -63,7 +69,16 @@ const Landing = () => {
   return (
     <div className="min-h-screen bg-white">
       {/* Header */}
-      <header className="w-full py-4 px-6 flex justify-end items-center">
+      <header className="w-full py-4 px-6 flex justify-between items-center">
+        <Button 
+          onClick={() => setShowAboutModal(true)}
+          variant="ghost" 
+          size="sm"
+          className="text-sm"
+        >
+          About
+        </Button>
+        
         <Button 
           onClick={() => setShowAuthModal(true)}
           variant="outline" 
@@ -72,9 +87,15 @@ const Landing = () => {
         >
           Login
         </Button>
+        
         <AuthModal 
           open={showAuthModal} 
           onOpenChange={(open) => setShowAuthModal(open)} 
+        />
+        
+        <AboutModal
+          isOpen={showAboutModal}
+          onClose={() => setShowAboutModal(false)}
         />
       </header>
 
@@ -181,12 +202,38 @@ const Landing = () => {
       {/* Footer */}
       <footer className="border-t border-gray-200 py-6 px-4">
         <div className="container mx-auto">
-          <div className="flex justify-center">
+          <div className="flex justify-between items-center">
             <p className="text-xs text-neutral-500">
-              © 2025 Sim. All rights reserved.
+              © {new Date().getFullYear()} Sim. All rights reserved.
             </p>
+            
+            <div className="flex space-x-4">
+              <button 
+                onClick={() => setShowTermsModal(true)}
+                className="text-xs text-muted-foreground hover:text-primary hover:underline"
+              >
+                Terms of Service
+              </button>
+              
+              <button 
+                onClick={() => setShowPrivacyModal(true)}
+                className="text-xs text-muted-foreground hover:text-primary hover:underline"
+              >
+                Privacy Policy
+              </button>
+            </div>
           </div>
         </div>
+        
+        <TermsModal
+          isOpen={showTermsModal}
+          onClose={() => setShowTermsModal(false)}
+        />
+        
+        <PrivacyModal
+          isOpen={showPrivacyModal}
+          onClose={() => setShowPrivacyModal(false)}
+        />
       </footer>
     </div>
   );

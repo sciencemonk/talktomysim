@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -297,7 +298,7 @@ const AuthModal = ({ open, onOpenChange }: AuthModalProps) => {
               )}
 
               <p className="text-xs text-muted-foreground text-center px-6">
-                By continuing, you agree to our Terms of Service and Privacy Policy
+                By continuing, you agree to our <Link to="/terms" className="text-primary hover:underline">Terms of Service</Link> and <Link to="/privacy" className="text-primary hover:underline">Privacy Policy</Link>
               </p>
             </>
           )}

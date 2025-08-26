@@ -18,6 +18,8 @@ import StudentChat from "./pages/StudentChat";
 import NotFound from "./pages/NotFound";
 import DebugAdvisors from "./pages/DebugAdvisors";
 import Embed from "./pages/Embed";
+import Privacy from "./pages/Privacy";
+import Terms from "./pages/Terms";
 
 const queryClient = new QueryClient();
 
@@ -50,6 +52,10 @@ const App = () => (
             
             {/* Embed route for iframes */}
             <Route path="/embed/:id" element={<Embed />} />
+            
+            {/* Legal pages */}
+            <Route path="/privacy" element={<Privacy />} />
+            <Route path="/terms" element={<Terms />} />
             
             {/* New custom URL routes for public chats */}
             <Route path="/:customUrl" element={<StudentChat />} />
