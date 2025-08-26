@@ -12,10 +12,19 @@ import { useState, useEffect } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 const StudentChat = () => {
-  const { agentId, customUrl } = useParams<{ agentId?: string; customUrl?: string }>();
+  const params = useParams();
   const { user } = useAuth();
   const [showAuthModal, setShowAuthModal] = useState(false);
   const isMobile = useIsMobile();
+  
+  // Extract parameters based on the route structure
+  // For /tutors/:agentId/chat -> params.agentId
+  // For /:customUrl -> params.customUrl
+  const agentId = params.agentId;
+  const customUrl = params.customUrl;
+  
+  console.log('StudentChat params:', params);
+  console.log('agentId:', agentId, 'customUrl:', customUrl);
   
   // Determine which hook to use based on the route parameters
   const publicAgentQuery = usePublicAgent(agentId || "");
