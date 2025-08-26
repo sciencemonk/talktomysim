@@ -1187,119 +1187,29 @@ function validateResponseQuality(message: string, conversationContext: any, isOw
   try {
     let validatedMessage = message
     
-    // Check for common quality issues and flag them
-    const qualityIssues = []
-  
-  // Check for generic responses
-  const genericPatterns = [
-    /^(Hello!? )?I'?m an? AI/i,
-    /^As an AI/i,
-    /I don'?t have the ability to/i,
-    /I'?m not able to/i
-  ]
-  
-  // Define patterns for introduction messages
-  const introPatterns = [
-    /Hello!?\s*I'?m\s+(a\s+)?(sim|digital assistant|assistant|ai|clone|version)(\s+of|\s+representing|\s+for)?\s+/i,
-    /Peace\s+be\s+with\s+you/i,
-    /I'?m\s+Jesus\s+Christ'?s\s+Sim/i,
-    /I'?m\s+a\s+Sim\s+of\s+Jesus/i,
-    /I'?m\s+here\s+to\s+help\s+connect\s+you/i
-  ]
-  
-  // Define patterns for self-reference as a Sim
-  const simReferencePatterns = [
-    /As\s+(a|the)\s+Sim\s+of/i,
-    /As\s+[^\.]+?'s\s+Sim/i,
-    /I'?m\s+a\s+Sim\s+that/i,
-    /I'?m\s+a\s+digital\s+(assistant|representation|clone|version)/i,
-    /I\s+represent\s+[^\.]+?\s+as\s+(a|their)\s+Sim/i
-  ]
-  
-  // Check if this is a mid-conversation (not the first AI message)
-  const isMidConversation = conversationContext?.conversationStage !== 'early' || 
-                           (conversationContext?.messageCount && conversationContext.messageCount > 2)
-  
-  // If mid-conversation and contains intro pattern, fix it
-  if (isMidConversation && introPatterns.some(pattern => pattern.test(validatedMessage))) {
-    qualityIssues.push('inappropriate_introduction')
-    console.log('Detected inappropriate introduction in mid-conversation')
-    
-    // Remove the introduction part
-    for (const pattern of introPatterns) {
-      if (pattern.test(validatedMessage)) {
-        // Find the first sentence that contains the introduction
-        const sentences = validatedMessage.split(/(?<=[.!?])\s+/)
-        const introSentenceIndex = sentences.findIndex(s => pattern.test(s))
-        
-        if (introSentenceIndex >= 0) {
-          // Remove the introduction sentence
-          sentences.splice(introSentenceIndex, 1)
-          validatedMessage = sentences.join(' ')
-          console.log('Removed introduction sentence')
-        }
-      }
+    // Simple check for generic AI language and fix it
+    if (validatedMessage.includes('As an AI') || 
+        validatedMessage.includes('I\'m an AI') || 
+        validatedMessage.includes('I don\'t have personal') ||
+        validatedMessage.includes('I don\'t have the ability')) {
+      console.log('Detected generic AI language')
     }
-  }
-  
-  // Always check for and remove self-references as a Sim
-  if (simReferencePatterns.some(pattern => pattern.test(validatedMessage))) {
-    qualityIssues.push('sim_self_reference')
-    console.log('Detected self-reference as a Sim')
     
-    // Process each sentence to remove or rephrase Sim references
-    const sentences = validatedMessage.split(/(?<=[.!?])\s+/)
-    const cleanedSentences = sentences.map(sentence => {
-      // Check if the sentence contains a Sim reference
-      if (simReferencePatterns.some(pattern => pattern.test(sentence))) {
-        // Try to fix the sentence by removing the Sim reference
-        let fixed = sentence
-        
-        // Replace "As a Sim of [name], I..." with "I..."
-        fixed = fixed.replace(/As\s+(a|the)\s+Sim\s+of\s+[^,]+,\s*/i, '')
-        
-        // Replace "As [name]'s Sim, I..." with "I..."
-        fixed = fixed.replace(/As\s+[^\']+\'s\s+Sim,\s*/i, '')
-        
-        // Replace "I'm a Sim that..." with "I..."
-        fixed = fixed.replace(/I'?m\s+a\s+Sim\s+that\s*/i, 'I ')
-        
-        // Replace "I'm a digital assistant/representation..." with "I..."
-        fixed = fixed.replace(/I'?m\s+a\s+digital\s+(assistant|representation|clone|version)[^\.]*?(\s+that|\s+who)?\s*/i, 'I ')
-        
-        return fixed
-      }
-      return sentence
-    })
-    
-    validatedMessage = cleanedSentences.join(' ')
-    console.log('Removed Sim self-references')
-  }
-  
-  if (genericPatterns.some(pattern => pattern.test(validatedMessage))) {
-    qualityIssues.push('generic_ai_response')
-  }
-  
-  // Check for personality consistency
-  const name = advisor.full_name || advisor.name
-  if (!validatedMessage.toLowerCase().includes(name.toLowerCase().split(' ')[0].toLowerCase()) && 
-      validatedMessage.length > 100 && 
-      conversationContext?.conversationStage === 'early') {
-    // Could add name naturally for introductions
-    qualityIssues.push('missing_personal_touch')
-  }
-  
-  // Check for appropriate length
-  const wordCount = validatedMessage.split(' ').length
-  if (conversationContext?.isComplexQuery && wordCount < 20) {
-    qualityIssues.push('too_short_for_complex_query')
-  } else if (!conversationContext?.isComplexQuery && wordCount > 200) {
-    qualityIssues.push('too_long_for_simple_query')
-  }
-  
-    // Log quality issues for monitoring (don't modify message)
-    if (qualityIssues.length > 0) {
-      console.log('Response quality issues detected:', qualityIssues)
+    // Simple check for Sim self-references and remove them
+    if (validatedMessage.includes('I\'m a Sim of') || 
+        validatedMessage.includes('As a Sim of') ||
+        validatedMessage.includes('I\'m Jesus Christ\'s Sim') ||
+        validatedMessage.includes('Hello! I\'m a Sim')) {
+      console.log('Detected Sim self-reference, cleaning up')
+      
+      // Simple replacements
+      validatedMessage = validatedMessage.replace(/Hello!\s*I'm\s+a\s+Sim\s+of\s+[^.]+\./i, '')
+      validatedMessage = validatedMessage.replace(/I'm\s+Jesus\s+Christ's\s+Sim[^.]*\./i, '')
+      validatedMessage = validatedMessage.replace(/As\s+a\s+Sim\s+of\s+[^,]+,\s*/i, '')
+      validatedMessage = validatedMessage.replace(/I'm\s+a\s+Sim\s+that\s*/i, 'I ')
+      
+      // Clean up any double spaces
+      validatedMessage = validatedMessage.replace(/\s+/g, ' ').trim()
     }
     
     return validatedMessage

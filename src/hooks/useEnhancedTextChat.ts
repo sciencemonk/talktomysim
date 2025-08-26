@@ -63,8 +63,8 @@ export const useEnhancedTextChat = ({
       
       console.log('Sending enhanced chat request:', { advisorId: agent.id, isOwner, messagesCount: messages.length });
 
-      // Call the enhanced chat completion function
-      const { data, error } = await supabase.functions.invoke('enhanced-chat-completion', {
+      // Call the test chat completion function temporarily
+      const { data, error } = await supabase.functions.invoke('test-chat', {
         body: {
           messages,
           advisorId: agent.id,
