@@ -1,8 +1,9 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useSim } from "@/hooks/useSim";
 import { AgentToggle } from "@/components/AgentToggle";
+import { UserSettingsModal } from "@/components/UserSettingsModal";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
@@ -26,6 +27,7 @@ const UserSettingsDropdown: React.FC<UserSettingsDropdownProps> = ({
 }) => {
   const { user, signOut } = useAuth();
   const { sim, toggleSimActive } = useSim();
+  const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
 
   const handleSignOut = async () => {
     await signOut();
@@ -37,6 +39,10 @@ const UserSettingsDropdown: React.FC<UserSettingsDropdownProps> = ({
     if (sim) {
       await toggleSimActive(!sim.is_active);
     }
+  };
+
+  const handleSettingsClick = () => {
+    setIsSettingsModalOpen(true);
   };
 
   const defaultTrigger = (
@@ -61,6 +67,7 @@ const UserSettingsDropdown: React.FC<UserSettingsDropdownProps> = ({
   );
 
   return (
+    <>
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         {trigger || defaultTrigger}
@@ -112,7 +119,10 @@ const UserSettingsDropdown: React.FC<UserSettingsDropdownProps> = ({
           <span>Upgrade</span>
         </DropdownMenuItem>
         
-        <DropdownMenuItem className="flex items-center space-x-2 cursor-pointer">
+        <DropdownMenuItem 
+          className="flex items-center space-x-2 cursor-pointer"
+          onClick={handleSettingsClick}
+        >
           <Settings className="h-4 w-4" />
           <span>Settings</span>
         </DropdownMenuItem>
@@ -128,6 +138,13 @@ const UserSettingsDropdown: React.FC<UserSettingsDropdownProps> = ({
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
+
+    {/* Settings Modal */}
+    <UserSettingsModal 
+      isOpen={isSettingsModalOpen}
+      onClose={() => setIsSettingsModalOpen(false)}
+    />
+  </>
   );
 };
 
