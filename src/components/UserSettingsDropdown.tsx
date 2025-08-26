@@ -2,9 +2,11 @@
 import React, { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useSim } from "@/hooks/useSim";
+import { useUserPlan } from "@/hooks/useUserPlan";
 import { AgentToggle } from "@/components/AgentToggle";
 import { UserSettingsModal } from "@/components/UserSettingsModal";
 import { PlanUpgradeModal } from "@/components/PlanUpgradeModal";
+import { STRIPE_PLANS } from "@/lib/stripe";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
@@ -28,12 +30,9 @@ const UserSettingsDropdown: React.FC<UserSettingsDropdownProps> = ({
 }) => {
   const { user, signOut } = useAuth();
   const { sim, toggleSimActive } = useSim();
+  const { plan: userPlan, credits: userCredits, maxCredits, isLoading: planLoading } = useUserPlan();
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
   const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false);
-
-  // TODO: Replace with actual user plan and credits from database
-  const userPlan = 'free'; // Default new users to free
-  const userCredits = 25; // Example: 25 out of 30 free credits remaining
 
   const handleSignOut = async () => {
     await signOut();
@@ -56,21 +55,7 @@ const UserSettingsDropdown: React.FC<UserSettingsDropdownProps> = ({
   };
 
   const getPlanDisplayName = (plan: string) => {
-    switch (plan) {
-      case 'free': return 'Free';
-      case 'plus': return 'Plus';
-      case 'pro': return 'Pro';
-      default: return 'Free';
-    }
-  };
-
-  const getPlanCredits = (plan: string) => {
-    switch (plan) {
-      case 'free': return 30;
-      case 'plus': return 100;
-      case 'pro': return 1000;
-      default: return 30;
-    }
+    return STRIPE_PLANS[plan as keyof typeof STRIPE_PLANS]?.name || 'Free';
   };
 
   const defaultTrigger = (
@@ -88,7 +73,7 @@ const UserSettingsDropdown: React.FC<UserSettingsDropdownProps> = ({
                 {sim?.name || user?.email}
               </span>
               <span className="text-xs text-muted-foreground">
-                {getPlanDisplayName(userPlan)} • {userCredits}/{getPlanCredits(userPlan)} credits
+                {planLoading ? 'Loading...' : `${getPlanDisplayName(userPlan)} • ${userCredits}/${maxCredits} credits`}
               </span>
             </div>
         )}
@@ -116,7 +101,7 @@ const UserSettingsDropdown: React.FC<UserSettingsDropdownProps> = ({
                 {sim?.name || user?.email}
               </span>
               <span className="text-xs text-muted-foreground">
-                {getPlanDisplayName(userPlan)} • {userCredits}/{getPlanCredits(userPlan)} credits
+                {planLoading ? 'Loading...' : `${getPlanDisplayName(userPlan)} • ${userCredits}/${maxCredits} credits`}
               </span>
             </div>
           </div>
@@ -184,8 +169,10 @@ const UserSettingsDropdown: React.FC<UserSettingsDropdownProps> = ({
     <PlanUpgradeModal 
       isOpen={isUpgradeModalOpen}
       onClose={() => setIsUpgradeModalOpen(false)}
-      currentPlan={userPlan}
-      currentCredits={userCredits}
+      onPlanChanged={() => {
+        // Refresh page or reload user data after plan change
+        window.location.reload();
+      }}
     />
   </>
   );

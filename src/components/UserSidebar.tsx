@@ -2,6 +2,8 @@
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useSim } from "@/hooks/useSim";
+import { useUserPlan } from "@/hooks/useUserPlan";
+import { STRIPE_PLANS } from "@/lib/stripe";
 import { AgentType } from "@/types/agent";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -66,27 +68,10 @@ export const SidebarContent = ({
 }: SidebarContentProps) => {
   const { user } = useAuth();
   const { completionStatus, sim } = useSim();
-  
-  // TODO: Replace with actual user plan and credits from database
-  const userPlan = 'free'; // Default new users to free
-  const userCredits = 25; // Example: 25 out of 30 free credits remaining
+  const { plan: userPlan, credits: userCredits, maxCredits, isLoading: planLoading } = useUserPlan();
 
   const getPlanDisplayName = (plan: string) => {
-    switch (plan) {
-      case 'free': return 'Free';
-      case 'plus': return 'Plus';
-      case 'pro': return 'Pro';
-      default: return 'Free';
-    }
-  };
-
-  const getPlanCredits = (plan: string) => {
-    switch (plan) {
-      case 'free': return 30;
-      case 'plus': return 100;
-      case 'pro': return 1000;
-      default: return 30;
-    }
+    return STRIPE_PLANS[plan as keyof typeof STRIPE_PLANS]?.name || 'Free';
   };
 
   return (
@@ -270,7 +255,7 @@ export const SidebarContent = ({
                         {sim?.name || user.email}
                       </span>
                       <span className="text-xs text-muted-foreground">
-                        {getPlanDisplayName(userPlan)} • {userCredits}/{getPlanCredits(userPlan)} credits
+                        {planLoading ? 'Loading...' : `${getPlanDisplayName(userPlan)} • ${userCredits}/${maxCredits} credits`}
                       </span>
                     </div>
                   </div>

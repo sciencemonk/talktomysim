@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
-import { supabase } from '@/integrations/supabase/client';
+import { paymentService } from '@/services/paymentService';
+import { STRIPE_PLANS, PlanId } from '@/lib/stripe';
 import {
   Dialog,
   DialogContent,
@@ -11,116 +12,100 @@ import {
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Check, Crown, Zap, Star } from 'lucide-react';
+import { Check, Crown, Zap, Star, CreditCard, ExternalLink } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
 interface PlanUpgradeModalProps {
   isOpen: boolean;
   onClose: () => void;
-  currentPlan?: string;
-  currentCredits?: number;
-}
-
-interface Plan {
-  id: string;
-  name: string;
-  price: number;
-  priceDisplay: string;
-  icon: React.ReactNode;
-  features: string[];
-  credits: number;
-  popular?: boolean;
-  current?: boolean;
+  onPlanChanged?: () => void;
 }
 
 export const PlanUpgradeModal: React.FC<PlanUpgradeModalProps> = ({
   isOpen,
   onClose,
-  currentPlan = 'free',
-  currentCredits = 30,
+  onPlanChanged,
 }) => {
   const { user } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
+  const [loadingPlan, setLoadingPlan] = useState<PlanId | null>(null);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [userPlan, setUserPlan] = useState<PlanId>('free');
+  const [userCredits, setUserCredits] = useState(30);
+  const [maxCredits, setMaxCredits] = useState(30);
+  const [hasActiveSubscription, setHasActiveSubscription] = useState(false);
 
-  const plans: Plan[] = [
-    {
-      id: 'free',
-      name: 'Free',
-      price: 0,
-      priceDisplay: 'Free',
-      icon: <Zap className="h-5 w-5" />,
-      features: [
-        '30 monthly messages',
-        'Basic AI conversations',
-        'Standard support',
-        'Community access'
-      ],
-      credits: 30,
-      current: currentPlan === 'free'
-    },
-    {
-      id: 'plus',
-      name: 'Plus',
-      price: 20,
-      priceDisplay: '$20/month',
-      icon: <Crown className="h-5 w-5" />,
-      features: [
-        '100 monthly messages',
-        'Advanced AI conversations',
-        'Priority support',
-        'Enhanced features',
-        'Conversation history'
-      ],
-      credits: 100,
-      popular: true,
-      current: currentPlan === 'plus'
-    },
-    {
-      id: 'pro',
-      name: 'Pro',
-      price: 200,
-      priceDisplay: '$200/month',
-      icon: <Star className="h-5 w-5" />,
-      features: [
-        '1,000+ monthly messages',
-        'Unlimited AI conversations',
-        'Premium support',
-        'All features included',
-        'Advanced analytics',
-        'Custom integrations'
-      ],
-      credits: 1000,
-      current: currentPlan === 'pro'
-    }
-  ];
+  // Load user subscription data
+  useEffect(() => {
+    const loadUserData = async () => {
+      if (!isOpen || !user) return;
+      
+      setIsLoading(true);
+      try {
+        const planData = await paymentService.getUserPlanAndCredits();
+        setUserPlan(planData.plan);
+        setUserCredits(planData.credits);
+        setMaxCredits(planData.maxCredits);
+        setHasActiveSubscription(!!planData.subscription);
+      } catch (error) {
+        console.error('Error loading user data:', error);
+        setMessage({ type: 'error', text: 'Failed to load subscription data' });
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-  const handlePlanSelect = async (planId: string) => {
-    if (planId === currentPlan) {
+    loadUserData();
+  }, [isOpen, user]);
+
+  const plans = Object.values(STRIPE_PLANS).map(plan => ({
+    ...plan,
+    icon: plan.id === 'free' ? <Zap className="h-5 w-5" /> : 
+          plan.id === 'plus' ? <Crown className="h-5 w-5" /> : 
+          <Star className="h-5 w-5" />,
+    popular: plan.id === 'plus',
+    current: plan.id === userPlan
+  }));
+
+  const handlePlanSelect = async (planId: PlanId) => {
+    if (planId === userPlan) {
       setMessage({ type: 'error', text: 'You are already on this plan' });
       return;
     }
 
-    setIsLoading(true);
+    if (planId === 'free') {
+      setMessage({ type: 'error', text: 'To downgrade to the free plan, please cancel your subscription from the billing portal.' });
+      return;
+    }
+
+    setLoadingPlan(planId);
     setMessage(null);
 
     try {
-      // For now, just show a message about contacting support
-      // In a real implementation, you'd integrate with a payment processor
-      if (planId === 'free') {
-        setMessage({ 
-          type: 'success', 
-          text: 'Successfully downgraded to Free plan! Your credits will reset at the next billing cycle.' 
-        });
-      } else {
-        setMessage({ 
-          type: 'success', 
-          text: `Thank you for your interest in the ${plans.find(p => p.id === planId)?.name} plan! Please contact support to complete your upgrade.` 
-        });
-      }
+      // Redirect to Stripe checkout
+      await paymentService.redirectToCheckout(planId);
+      // Note: User will be redirected to Stripe, so this won't execute
     } catch (error: any) {
-      console.error('Error updating plan:', error);
-      setMessage({ type: 'error', text: 'Failed to update plan. Please try again.' });
+      console.error('Error starting checkout:', error);
+      setMessage({ type: 'error', text: 'Failed to start checkout. Please try again.' });
+    } finally {
+      setLoadingPlan(null);
+    }
+  };
+
+  const handleManageBilling = async () => {
+    if (!hasActiveSubscription) {
+      setMessage({ type: 'error', text: 'No active subscription to manage' });
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      await paymentService.redirectToBillingPortal();
+      // Note: User will be redirected to Stripe billing portal
+    } catch (error: any) {
+      console.error('Error opening billing portal:', error);
+      setMessage({ type: 'error', text: 'Failed to open billing portal. Please try again.' });
     } finally {
       setIsLoading(false);
     }
@@ -128,12 +113,9 @@ export const PlanUpgradeModal: React.FC<PlanUpgradeModalProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[900px] max-h-[90vh] overflow-y-auto">
+      <DialogContent className="w-[95vw] max-w-none h-[95vh] max-h-none overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-center">Choose Your Plan</DialogTitle>
-          <DialogDescription className="text-center">
-            Upgrade your account to unlock more conversations and advanced features
-          </DialogDescription>
         </DialogHeader>
 
         <div className="py-6">
@@ -141,14 +123,28 @@ export const PlanUpgradeModal: React.FC<PlanUpgradeModalProps> = ({
           <div className="mb-8 p-4 bg-muted/50 rounded-lg">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="font-semibold">Current Plan: {plans.find(p => p.current)?.name}</h3>
+                <h3 className="font-semibold">Current Plan: {STRIPE_PLANS[userPlan]?.name}</h3>
                 <p className="text-sm text-muted-foreground">
-                  {currentCredits} messages remaining this month
+                  {userCredits} of {maxCredits} messages remaining this month
                 </p>
               </div>
-              <Badge variant="secondary" className="capitalize">
-                {currentPlan}
-              </Badge>
+              <div className="flex items-center gap-2">
+                <Badge variant="secondary" className="capitalize">
+                  {userPlan}
+                </Badge>
+                {hasActiveSubscription && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleManageBilling}
+                    disabled={isLoading}
+                    className="flex items-center gap-1"
+                  >
+                    <ExternalLink className="h-3 w-3" />
+                    Manage Billing
+                  </Button>
+                )}
+              </div>
             </div>
           </div>
 
@@ -213,12 +209,26 @@ export const PlanUpgradeModal: React.FC<PlanUpgradeModalProps> = ({
                   </div>
 
                   <Button
-                    onClick={() => handlePlanSelect(plan.id)}
-                    disabled={isLoading || plan.current}
+                    onClick={() => handlePlanSelect(plan.id as PlanId)}
+                    disabled={isLoading || loadingPlan !== null || plan.current}
                     className={`w-full ${plan.popular ? 'bg-primary hover:bg-primary/90' : ''}`}
                     variant={plan.current ? 'secondary' : plan.popular ? 'default' : 'outline'}
                   >
-                    {plan.current ? 'Current Plan' : isLoading ? 'Processing...' : `Choose ${plan.name}`}
+                    {plan.current ? (
+                      'Current Plan'
+                    ) : loadingPlan === plan.id ? (
+                      <div className="flex items-center gap-2">
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current"></div>
+                        Redirecting...
+                      </div>
+                    ) : plan.id === 'free' ? (
+                      'Free Plan'
+                    ) : (
+                      <div className="flex items-center gap-2">
+                        <CreditCard className="h-4 w-4" />
+                        Upgrade to {plan.name}
+                      </div>
+                    )}
                   </Button>
                 </CardContent>
               </Card>
