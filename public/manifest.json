@@ -1,6 +1,6 @@
 {
-  "name": "TalkToMySim",
-  "short_name": "TalkToMySim", 
+  "name": "Sim",
+  "short_name": "Sim", 
   "description": "AI Powered Personal Assistant and Digital Clone",
   "start_url": "/",
   "display": "standalone",

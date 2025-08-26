@@ -2,14 +2,13 @@ import { supabase } from '@/integrations/supabase/client';
 
 export interface Conversation {
   id: string;
-  user_id: string;
-  tutor_id?: string;
+  user_id: string | null;
+  tutor_id: string;
   advisor_id?: string;
   title?: string;
   created_at: string;
   updated_at: string;
   is_anonymous?: boolean;
-  message_count?: number;
 }
 
 export interface Message {
@@ -23,7 +22,7 @@ export interface Message {
 export const conversationService = {
   // Scan localStorage for public conversations with a specific advisor
   async scanLocalStorageForPublicConversations(advisorId: string): Promise<any[]> {
-    console.log(`Scanning localStorage for public conversations with advisor ${advisorId}`);
+    
     const publicConversations = [];
     
     // Iterate through localStorage to find public conversation IDs
@@ -31,7 +30,7 @@ export const conversationService = {
       const key = localStorage.key(i);
       if (key && key.startsWith('public_conversation_') && key.includes(advisorId)) {
         const conversationId = localStorage.getItem(key);
-        if (conversationId && conversationId.startsWith('public_')) {
+        if (conversationId) {
           console.log(`Found public conversation in localStorage: ${conversationId}`);
           
           // Get messages for this conversation
@@ -54,15 +53,14 @@ export const conversationService = {
           // Create a conversation object
           publicConversations.push({
             id: conversationId,
-            user_id: userId,
+            user_id: userId !== 'anonymous' ? userId : null,
             tutor_id: advisorId,
             advisor_id: advisorId,
             title: 'Public Chat',
-            is_anonymous: userId === 'anonymous',
             created_at: messages.length > 0 ? messages[0].created_at : new Date().toISOString(),
             updated_at: messages.length > 0 ? messages[messages.length - 1].created_at : new Date().toISOString(),
             message_count: messages.length,
-            latest_message: messages.length > 0 ? messages[messages.length - 1].content : null
+            is_anonymous: userId === 'anonymous'
           });
         }
       }
@@ -71,6 +69,7 @@ export const conversationService = {
     console.log(`Found ${publicConversations.length} public conversations in localStorage`);
     return publicConversations;
   },
+  
   // Get or create a conversation for public use
   async getOrCreateConversation(advisorId: string): Promise<Conversation | null> {
     try {
@@ -79,62 +78,48 @@ export const conversationService = {
       
       console.log(`Creating public conversation for advisor ${advisorId}, user: ${user?.id || 'anonymous'}`);
       
-      // Use memory approach for caching but still save to database
+      // Use localStorage only for caching the conversation ID, not for storing the actual conversation
       const publicCacheKey = `public_conversation_${user?.id || 'anonymous'}_${advisorId}`;
-      const publicConversationId = localStorage.getItem(publicCacheKey);
+      const cachedConversationId = localStorage.getItem(publicCacheKey);
       
       // If we have a cached ID, try to use it
-      if (publicConversationId) {
-        console.log(`Checking cached public conversation ID: ${publicConversationId}`);
+      if (cachedConversationId) {
+        console.log(`Checking cached conversation ID: ${cachedConversationId}`);
         
-        // If it's a UUID (database conversation), try to fetch from database
-        if (!publicConversationId.startsWith('public_')) {
-          try {
-            const { data: existingConversation, error } = await supabase
-              .from('conversations')
-              .select('*')
-              .eq('id', publicConversationId)
-              .maybeSingle();
-            
-            if (existingConversation && !error) {
-              console.log(`Found existing database conversation: ${publicConversationId}`);
-              return existingConversation;
-            }
-          } catch (dbError) {
-            console.log(`Database lookup failed:`, dbError);
+        try {
+          const { data: existingConversation, error } = await supabase
+            .from('conversations')
+            .select('*')
+            .eq('id', cachedConversationId)
+            .maybeSingle();
+          
+          if (existingConversation && !error) {
+            console.log(`Found existing database conversation: ${cachedConversationId}`);
+            return existingConversation;
+          } else {
+            console.log(`Cached conversation not found or invalid, creating new one`);
+            // Clear the invalid cache
+            localStorage.removeItem(publicCacheKey);
           }
-        } else {
-          // It's a localStorage-only conversation (public_ prefix)
-          console.log(`Using cached localStorage conversation: ${publicConversationId}`);
-          return {
-            id: publicConversationId,
-            user_id: user?.id || null,
-            tutor_id: advisorId,
-            advisor_id: advisorId,
-            title: 'Public Chat',
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString()
-          };
+        } catch (dbError) {
+          console.log(`Database lookup failed:`, dbError);
+          localStorage.removeItem(publicCacheKey);
         }
-        
-        console.log(`Cached conversation not found or invalid, creating new one`);
-        // Clear the invalid cache
-        localStorage.removeItem(publicCacheKey);
       }
       
-      // Create UUIDs for database but keep public display ID for localStorage
+      // Create a new conversation in the database
       const databaseId = crypto.randomUUID();
-      const publicDisplayId = `public_${Date.now()}_${Math.random().toString(36).substring(2, 10)}`;
       
       const conversationData = {
         id: databaseId,
-        user_id: user?.id || null,
+        user_id: user?.id || null, // null for anonymous users
         tutor_id: advisorId,
         advisor_id: advisorId,
-        title: 'Public Chat'
+        title: 'Public Chat',
+        is_anonymous: user?.id ? false : true // Mark as anonymous if no user_id
       };
       
-      // Try to save to database with UUID
+      // Always try to save to database first
       const { data: newConversation, error: createError } = await supabase
         .from('conversations')
         .insert(conversationData)
@@ -142,30 +127,29 @@ export const conversationService = {
         .single();
       
       if (createError) {
-        console.error('Error creating public conversation in database:', createError);
-        console.log('Falling back to localStorage-only conversation');
+        console.error('Error creating conversation in database:', createError);
         
-        // Fall back to localStorage-only conversation with public ID
-        const fallbackConversation = {
-          id: publicDisplayId,
+        // If we still can't create in the database, only then fall back to a temporary ID
+        // This should be rare with the new RLS policies
+        const tempId = `temp_${Date.now()}_${Math.random().toString(36).substring(2, 10)}`;
+        console.log(`Using temporary conversation ID: ${tempId}`);
+        
+        // Return a temporary conversation object
+        return {
+          id: tempId,
           user_id: user?.id || null,
           tutor_id: advisorId,
           advisor_id: advisorId,
           title: 'Public Chat',
           created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
+          updated_at: new Date().toISOString(),
+          is_anonymous: user?.id ? false : true
         };
-        
-        // Cache the fallback conversation ID
-        localStorage.setItem(publicCacheKey, publicDisplayId);
-        console.log(`Created fallback localStorage conversation: ${publicDisplayId}`);
-        
-        return fallbackConversation;
       }
       
-      // Success - cache the database UUID (not the public display ID)
+      // Success - cache the database UUID
       localStorage.setItem(publicCacheKey, databaseId);
-      console.log(`Created new public conversation in database: ${databaseId}`);
+      console.log(`Created new conversation in database: ${databaseId}`);
       
       return newConversation;
     } catch (error) {
@@ -174,219 +158,79 @@ export const conversationService = {
     }
   },
 
-  // Explicit owner conversation getter to guarantee a single persistent thread
+  // Get or create a conversation for owner use
   async getOrCreateOwnerConversation(advisorId: string): Promise<Conversation | null> {
     try {
+      // Check if user is authenticated
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return null;
-
-      // Use a consistent key format for localStorage
-      const cacheKey = `owner_conversation_${user.id}_${advisorId}`;
       
-      // MEMORY-ONLY APPROACH:
-      // Generate a consistent ID based on user and advisor IDs
-      // This avoids database issues while maintaining persistence through localStorage
-      console.log('Using memory-only approach for owner conversation');
-      
-      // Get or create a stable ID
-      let conversationId = localStorage.getItem(cacheKey);
-      if (!conversationId) {
-        // Create a deterministic ID by combining user and advisor IDs
-        // This ensures we get the same ID for the same user-advisor pair
-        conversationId = `memory_${user.id.substring(0, 8)}_${advisorId.substring(0, 8)}_${Date.now()}`;
-        localStorage.setItem(cacheKey, conversationId);
-        console.log(`Created new memory conversation ID: ${conversationId}`);
-      } else {
-        console.log(`Using existing memory conversation ID: ${conversationId}`);
+      if (!user) {
+        console.error('Cannot create owner conversation: User not authenticated');
+        return null;
       }
       
-      // Return a memory-only conversation object
-      return {
-        id: conversationId,
+      console.log(`Creating owner conversation for user ${user.id} and advisor ${advisorId}`);
+      
+      // Check for existing cached conversation ID
+      const ownerCacheKey = `owner_conversation_${user.id}_${advisorId}`;
+      const cachedConversationId = localStorage.getItem(ownerCacheKey);
+      
+      if (cachedConversationId) {
+        console.log(`Checking cached owner conversation ID: ${cachedConversationId}`);
+        
+        // Try to fetch from database
+        try {
+          const { data: existingConversation, error } = await supabase
+            .from('conversations')
+            .select('*')
+            .eq('id', cachedConversationId)
+            .eq('user_id', user.id)
+            .eq('tutor_id', advisorId)
+            .maybeSingle();
+          
+          if (existingConversation && !error) {
+            console.log(`Found existing owner conversation: ${cachedConversationId}`);
+            return existingConversation;
+          }
+        } catch (dbError) {
+          console.log(`Database lookup failed:`, dbError);
+        }
+        
+        console.log(`Cached owner conversation not found or invalid, creating new one`);
+        localStorage.removeItem(ownerCacheKey);
+      }
+      
+      // Create a new owner conversation
+      const databaseId = crypto.randomUUID();
+      
+      const conversationData = {
+        id: databaseId,
         user_id: user.id,
         tutor_id: advisorId,
         advisor_id: advisorId,
         title: 'Owner Chat',
-        is_anonymous: false,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
+        is_anonymous: false
       };
-    } catch (e) {
-      console.error('Error in getOrCreateOwnerConversation:', e);
-      return null;
-    }
-  },
-
-  // Get messages for a conversation
-  async getMessages(conversationId: string): Promise<Message[]> {
-    try {
-      if (!conversationId) {
-        console.log('getMessages: No conversation ID provided');
-        return [];
-      }
       
-      console.log(`getMessages: Fetching messages for conversation: ${conversationId}`);
-      
-      // Check if this is a memory-only conversation (memory_ or public_)
-      if (conversationId.startsWith('memory_') || conversationId.startsWith('public_')) {
-        console.log('This is a memory conversation, retrieving from localStorage');
-        const messagesJson = localStorage.getItem(`messages_${conversationId}`);
-        if (messagesJson) {
-          try {
-            const messages = JSON.parse(messagesJson);
-            console.log(`Retrieved ${messages.length} messages from localStorage`);
-            return messages;
-          } catch (e) {
-            console.error('Error parsing messages from localStorage:', e);
-            return [];
-          }
-        }
-        console.log('No messages found in localStorage');
-        return [];
-      }
-      
-      // Try regular database lookup first
-      try {
-        const { data, error } = await supabase
-          .from('messages')
-          .select('*')
-          .eq('conversation_id', conversationId)
-          .order('created_at', { ascending: true });
-  
-        if (error) {
-          throw error;
-        }
-        
-        console.log(`getMessages: Found ${data?.length || 0} messages for conversation ${conversationId}`);
-        
-        // Check if we also have fallback messages
-        const fallbackKey = `fallback_messages_${conversationId}`;
-        const fallbackJson = localStorage.getItem(fallbackKey);
-        let combinedMessages = [...(data || [])];
-        
-        if (fallbackJson) {
-          try {
-            const fallbackMessages = JSON.parse(fallbackJson);
-            console.log(`Found ${fallbackMessages.length} fallback messages in localStorage`);
-            combinedMessages = [...combinedMessages, ...fallbackMessages];
-            
-            // Sort by created_at
-            combinedMessages.sort((a, b) => 
-              new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
-            );
-          } catch (e) {
-            console.error('Error parsing fallback messages:', e);
-          }
-        }
-        
-        // Type cast the role field to ensure it matches our Message interface
-        return combinedMessages.map(msg => ({
-          ...msg,
-          role: msg.role as 'user' | 'system'
-        }));
-      } catch (dbError) {
-        console.error('Database error fetching messages:', dbError);
-        
-        // Try fallback messages if database fails
-        const fallbackKey = `fallback_messages_${conversationId}`;
-        const fallbackJson = localStorage.getItem(fallbackKey);
-        
-        if (fallbackJson) {
-          try {
-            const fallbackMessages = JSON.parse(fallbackJson);
-            console.log(`Retrieved ${fallbackMessages.length} fallback messages from localStorage`);
-            return fallbackMessages;
-          } catch (e) {
-            console.error('Error parsing fallback messages:', e);
-          }
-        }
-        
-        console.log('No messages found in database or localStorage');
-        return [];
-      }
-    } catch (error) {
-      console.error('Error fetching messages:', error);
-      return [];
-    }
-  },
-
-  // Get a specific conversation by ID
-  async getConversationById(conversationId: string): Promise<Conversation | null> {
-    try {
-      if (!conversationId) {
-        console.error('getConversationById: No conversation ID provided');
-        return null;
-      }
-
-      console.log(`getConversationById: Looking for conversation: ${conversationId}`);
-
-      // First check if it's a public localStorage conversation
-      if (conversationId.startsWith('public_')) {
-        console.log(`Getting localStorage conversation: ${conversationId}`);
-        
-        // Find localStorage entry for this conversation
-        for (let i = 0; i < localStorage.length; i++) {
-          const key = localStorage.key(i);
-          if (key && key.startsWith('public_conversation_')) {
-            const storedId = localStorage.getItem(key);
-            if (storedId === conversationId) {
-              // Extract advisor ID from key
-              const advisorId = key.replace('public_conversation_', '');
-              console.log(`Found localStorage conversation for advisor: ${advisorId}`);
-              
-              return {
-                id: conversationId,
-                user_id: '',
-                advisor_id: advisorId,
-                title: 'Public Chat',
-                created_at: new Date().toISOString(),
-                updated_at: new Date().toISOString(),
-                is_anonymous: true
-              };
-            }
-          }
-        }
-        
-        console.error(`Public conversation ${conversationId} not found in localStorage`);
-        return null;
-      }
-
-      // Otherwise, fetch from database
-      console.log(`Querying database for conversation: ${conversationId}`);
-      const { data, error } = await supabase
+      // Save to database
+      const { data: newConversation, error: createError } = await supabase
         .from('conversations')
-        .select('*')
-        .eq('id', conversationId);
-
-      if (error) {
-        console.error('Error fetching conversation from database:', {
-          error,
-          conversationId,
-          errorCode: error.code,
-          errorMessage: error.message
-        });
+        .insert(conversationData)
+        .select()
+        .single();
+      
+      if (createError) {
+        console.error('Error creating owner conversation in database:', createError);
         return null;
       }
-
-      console.log(`Database query result:`, {
-        conversationId,
-        found: data?.length || 0,
-        data: data?.[0] || null
-      });
-
-      // Check if conversation exists
-      if (!data || data.length === 0) {
-        console.warn(`Conversation ${conversationId} not found in database. This might be a stale reference from embeddings.`);
-        return null;
-      }
-
-      return data[0];
+      
+      // Cache the conversation ID
+      localStorage.setItem(ownerCacheKey, databaseId);
+      console.log(`Created new owner conversation in database: ${databaseId}`);
+      
+      return newConversation;
     } catch (error) {
-      console.error('Error getting conversation by ID:', {
-        error,
-        conversationId,
-        stack: error.stack
-      });
+      console.error('Error creating owner conversation:', error);
       return null;
     }
   },
@@ -406,12 +250,31 @@ export const conversationService = {
       
       console.log(`addMessage: Adding ${role} message to conversation ${conversationId}`);
       
-      // Check if this is a memory-only conversation (memory_ or public_)
-      if (conversationId.startsWith('memory_') || conversationId.startsWith('public_')) {
-        console.log('This is a memory conversation, storing in localStorage');
+      // Always try to save to database first, regardless of conversation ID format
+      const messageId = crypto.randomUUID();
+      const timestamp = new Date().toISOString();
+      
+      const messageData = {
+        id: messageId,
+        conversation_id: conversationId,
+        role,
+        content,
+        created_at: timestamp
+      };
+      
+      // Try to save to database
+      const { data: savedMessage, error } = await supabase
+        .from('messages')
+        .insert(messageData)
+        .select()
+        .single();
+      
+      if (error) {
+        console.log('Database save failed, using localStorage as fallback:', error);
         
-        // Get existing messages or initialize empty array
-        const messagesJson = localStorage.getItem(`messages_${conversationId}`);
+        // Fall back to localStorage for temporary conversations
+        const messagesKey = `messages_${conversationId}`;
+        const messagesJson = localStorage.getItem(messagesKey);
         let messages = [];
         
         if (messagesJson) {
@@ -448,57 +311,89 @@ export const conversationService = {
           conversation_id: conversationId,
           role,
           content,
-          created_at: new Date().toISOString()
+          created_at: timestamp
         };
         
-        // Add new message and save back to localStorage
+        // Add to messages array
         messages.push(newMessage);
-        localStorage.setItem(`messages_${conversationId}`, JSON.stringify(messages));
         
+        // Save back to localStorage
+        localStorage.setItem(messagesKey, JSON.stringify(messages));
         console.log(`Added message to localStorage, now ${messages.length} messages`);
+        
         return newMessage;
       }
       
-      // Try database insert first
-      try {
-        const { data, error } = await supabase
-          .from('messages')
-          .insert({
-            conversation_id: conversationId,
-            role,
-            content
-          })
-          .select()
-          .single();
-  
-        if (error) {
-          throw error;
+      return savedMessage;
+    } catch (error) {
+      console.error('Error adding message:', error);
+      return null;
+    }
+  },
+
+  // Get messages for a conversation
+  async getMessages(conversationId: string): Promise<Message[]> {
+    try {
+      console.log('getMessages: Fetching messages for conversation:', conversationId);
+      
+      // Always try database first, regardless of conversation ID format
+      const { data: dbMessages, error } = await supabase
+        .from('messages')
+        .select('*')
+        .eq('conversation_id', conversationId)
+        .order('created_at', { ascending: true });
+      
+      if (!error && dbMessages && dbMessages.length > 0) {
+        console.log(`Found ${dbMessages.length} messages in database for conversation ${conversationId}`);
+        return dbMessages;
+      }
+      
+      // If database lookup failed or returned no results, check localStorage
+      console.log('This is a memory conversation, retrieving from localStorage');
+      const messagesKey = `messages_${conversationId}`;
+      const messagesJson = localStorage.getItem(messagesKey);
+      
+      if (messagesJson) {
+        try {
+          const messages = JSON.parse(messagesJson);
+          console.log(`Found ${messages.length} messages in localStorage for conversation ${conversationId}`);
+          return messages;
+        } catch (e) {
+          console.error('Error parsing messages from localStorage:', e);
         }
+      }
+      
+      console.log('No messages found in localStorage');
+      return [];
+    } catch (error) {
+      console.error('Error getting messages:', error);
+      return [];
+    }
+  },
+
+  // Get a conversation by ID
+  async getConversationById(conversationId: string): Promise<Conversation | null> {
+    try {
+      console.log(`getConversationById: Fetching conversation ${conversationId}`);
+      
+      // Always try database first, regardless of conversation ID format
+      const { data: conversation, error } = await supabase
+        .from('conversations')
+        .select('*')
+        .eq('id', conversationId)
+        .maybeSingle();
+      
+      if (!error && conversation) {
+        console.log(`Found conversation in database: ${conversationId}`);
+        return conversation;
+      }
+      
+      // If it's a localStorage-only conversation (public_ or temp_ prefix)
+      if (conversationId.startsWith('public_') || conversationId.startsWith('temp_')) {
+        console.log(`Looking for localStorage conversation: ${conversationId}`);
         
-        console.log(`addMessage: Successfully added message ${data.id} to conversation ${conversationId}`);
-        
-        // Type cast the role field to ensure it matches our Message interface
-        return {
-          ...data,
-          role: data.role as 'user' | 'system'
-        };
-      } catch (dbError) {
-        console.error('Database error adding message:', dbError);
-        
-        // Fallback to localStorage if database fails
-        console.log('Falling back to localStorage for message storage');
-        
-        // Create a new message
-        const fallbackMessage = {
-          id: `fallback_${Date.now()}_${Math.random().toString(36).substring(2, 10)}`,
-          conversation_id: conversationId,
-          role,
-          content,
-          created_at: new Date().toISOString()
-        };
-        
-        // Get existing messages or initialize empty array
-        const messagesKey = `fallback_messages_${conversationId}`;
+        // Get messages to determine creation/update times
+        const messagesKey = `messages_${conversationId}`;
         const messagesJson = localStorage.getItem(messagesKey);
         let messages = [];
         
@@ -506,312 +401,105 @@ export const conversationService = {
           try {
             messages = JSON.parse(messagesJson);
           } catch (e) {
-            console.error('Error parsing fallback messages from localStorage:', e);
+            console.error('Error parsing messages from localStorage:', e);
           }
         }
         
-        // Add new message and save back to localStorage
-        messages.push(fallbackMessage);
-        localStorage.setItem(messagesKey, JSON.stringify(messages));
+        // Try to extract advisor ID from conversation ID or from localStorage keys
+        let advisorId = '';
+        let userId = null;
         
-        console.log(`Added fallback message to localStorage, now ${messages.length} messages`);
-        return fallbackMessage;
-      }
-    } catch (error) {
-      console.error('Error adding message:', error);
-      
-      // Last resort - create an in-memory message that won't be persisted
-      console.log('Creating non-persisted message as last resort');
-      return {
-        id: `error_${Date.now()}`,
-        conversation_id: conversationId,
-        role,
-        content,
-        created_at: new Date().toISOString()
-      };
-    }
-  },
-
-  // Get conversations for an advisor. By default includes ALL conversations.
-  // Pass { excludeOwner: true } to hide the owner's own conversations with their Sim.
-  async getAdvisorConversations(advisorId: string, options?: { excludeOwner?: boolean }): Promise<any[]> {
-    try {
-      console.log('Fetching ALL conversations for advisor:', advisorId);
-      const { data: authUserResult } = await supabase.auth.getUser();
-      const ownerUserId = authUserResult?.user?.id || null;
-      console.log('Current user ID:', ownerUserId);
-      
-      // MEMORY-BASED APPROACH: Find all localStorage keys for public conversations with this advisor
-      console.log('Looking for memory-based public conversations in localStorage');
-      const publicConversations = [];
-      
-      // Iterate through localStorage to find public conversation IDs
-      for (let i = 0; i < localStorage.length; i++) {
-        const key = localStorage.key(i);
-        if (key && key.startsWith('public_conversation_') && key.includes(advisorId)) {
-          const conversationId = localStorage.getItem(key);
-          if (conversationId && conversationId.startsWith('public_')) {
-            console.log(`Found public conversation in localStorage: ${conversationId}`);
-            
-            // Get messages for this conversation
-            const messagesKey = `messages_${conversationId}`;
-            const messagesJson = localStorage.getItem(messagesKey);
-            let messages = [];
-            
-            if (messagesJson) {
-              try {
-                messages = JSON.parse(messagesJson);
-              } catch (e) {
-                console.error('Error parsing messages from localStorage:', e);
-              }
-            }
-            
-            // Extract user ID from the key (format: public_conversation_USER_ID_ADVISOR_ID)
+        // Check all localStorage keys for this conversation ID
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+          if (key && key.startsWith('public_conversation_') && localStorage.getItem(key) === conversationId) {
+            // Extract from key (format: public_conversation_USER_ID_ADVISOR_ID)
             const keyParts = key.split('_');
-            const userId = keyParts.length > 2 ? keyParts[2] : 'anonymous';
-            
-            // Skip if this is the owner's conversation and we're excluding owner
-            if (options?.excludeOwner && userId === ownerUserId) {
-              console.log(`Skipping owner conversation: ${conversationId}`);
-              continue;
+            if (keyParts.length > 3) {
+              userId = keyParts[2] !== 'anonymous' ? keyParts[2] : null;
+              advisorId = keyParts[3];
+              break;
             }
-            
-            // Create a conversation object
-            publicConversations.push({
-              id: conversationId,
-              user_id: userId,
-              tutor_id: advisorId,
-              advisor_id: advisorId,
-              title: 'Public Chat',
-              is_anonymous: userId === 'anonymous',
-              created_at: messages.length > 0 ? messages[0].created_at : new Date().toISOString(),
-              updated_at: messages.length > 0 ? messages[messages.length - 1].created_at : new Date().toISOString(),
-              message_count: messages.length,
-              latest_message: messages.length > 0 ? messages[messages.length - 1].content : null
-            });
           }
         }
-      }
-      
-      console.log(`Found ${publicConversations.length} memory-based public conversations`);
-      
-      // If we found memory-based conversations, return them
-      if (publicConversations.length > 0) {
-        return publicConversations;
-      }
-      
-      // DIRECT DEBUGGING QUERY - get all conversations to see what's in the database
-      console.log('PERFORMING DIRECT QUERY to see all conversations');
-      const { data: allConvs, error: allError } = await supabase
-        .from('conversations')
-        .select('*')
-        .limit(100);
-      
-      console.log(`Found ${allConvs?.length || 0} total conversations in database`);
-      if (allConvs && allConvs.length > 0) {
-        allConvs.forEach((c, i) => {
-          console.log(`DB Conv ${i}: id=${c.id}, user_id=${c.user_id || 'null'}, tutor_id=${c.tutor_id || 'null'}, advisor_id=${c.advisor_id || 'null'}, is_anonymous=${c.is_anonymous}`);
-        });
-      }
-      
-      // Try a simpler approach - let's just get all conversations and filter in code
-      console.log('DIRECT DEBUG: Getting all conversations and filtering in code');
-      try {
-        const { data: allConvs, error: allError } = await supabase
-          .from('conversations')
-          .select('*')
-          .limit(100);
         
-        if (allError) {
-          console.error('Error fetching all conversations:', allError);
-        } else {
-          console.log(`Found ${allConvs?.length || 0} total conversations`);
-          
-          // Filter for this advisor's conversations - use string comparison for safety
-          const filteredConvs = allConvs?.filter(c => {
-            console.log(`Comparing: tutor_id=${c.tutor_id} vs ${advisorId}, advisor_id=${c.advisor_id} vs ${advisorId}`);
-            return (
-              (c.tutor_id && c.tutor_id.toString() === advisorId.toString()) || 
-              (c.advisor_id && c.advisor_id.toString() === advisorId.toString())
-            );
-          }) || [];
-          
-          // Filter out owner conversations if requested
-          const finalFilteredConvs = options?.excludeOwner && ownerUserId 
-            ? filteredConvs.filter(c => c.user_id !== ownerUserId)
-            : filteredConvs;
-          
-          console.log(`After filtering: ${finalFilteredConvs.length} conversations for advisor ${advisorId}`);
-          
-          // Log the filtered conversations
-          finalFilteredConvs.forEach((c, i) => {
-            console.log(`Filtered Conv ${i}: id=${c.id}, user_id=${c.user_id || 'null'}, tutor_id=${c.tutor_id || 'null'}, advisor_id=${c.advisor_id || 'null'}`);
-          });
-          
-          // Return these conversations directly if we found any
-          if (finalFilteredConvs.length > 0) {
-            // Process conversations to add message counts
-            const conversations = await Promise.all(finalFilteredConvs.map(async (conv) => {
-              // Get messages for this conversation
-              const { data: messages } = await supabase
-                .from('messages')
-                .select('*')
-                .eq('conversation_id', conv.id)
-                .order('created_at', { ascending: true });
-              
-              return {
-                ...conv,
-                message_count: messages?.length || 0,
-                latest_message: messages?.length > 0 ? messages[messages.length - 1].content : null,
-                messages: undefined
-              };
-            }));
-            
-            console.log(`Processed ${conversations.length} conversations with message counts`);
-            return conversations;
-          }
+        if (advisorId) {
+          return {
+            id: conversationId,
+            user_id: userId,
+            tutor_id: advisorId,
+            advisor_id: advisorId,
+            title: 'Public Chat',
+            created_at: messages.length > 0 ? messages[0].created_at : new Date().toISOString(),
+            updated_at: messages.length > 0 ? messages[messages.length - 1].created_at : new Date().toISOString(),
+            is_anonymous: !userId
+          };
         }
-      } catch (err) {
-        console.error('Error in direct debug query:', err);
       }
       
-      // If we already found conversations with the direct approach, return them
-      // Otherwise, return an empty array
-      console.log('No conversations found for advisor', advisorId);
-      return [];
+      console.log(`Conversation not found: ${conversationId}`);
+      return null;
     } catch (error) {
-      console.error('Error in getAdvisorConversations:', error);
-      return [];
+      console.error('Error getting conversation:', error);
+      return null;
     }
   },
 
-  // Delete a conversation and all its messages
-  async deleteConversation(conversationId: string): Promise<boolean> {
+  // Get conversations for an advisor
+  async getAdvisorConversations(advisorId: string): Promise<any[]> {
     try {
-      // Check if this is a localStorage-based conversation (public_ prefix)
-      if (conversationId.startsWith('public_')) {
-        console.log(`Deleting localStorage-based conversation: ${conversationId}`);
-        
-        // Find and remove the conversation reference in localStorage
-        for (let i = 0; i < localStorage.length; i++) {
-          const key = localStorage.key(i);
-          if (key && key.startsWith('public_conversation_')) {
-            const storedId = localStorage.getItem(key);
-            if (storedId === conversationId) {
-              console.log(`Removing conversation reference: ${key}`);
-              localStorage.removeItem(key);
-            }
-          }
-        }
-        
-        // Remove the messages for this conversation
-        const messagesKey = `messages_${conversationId}`;
-        localStorage.removeItem(messagesKey);
-        console.log(`Removed messages for conversation: ${messagesKey}`);
-        
-        return true;
-      }
+      console.log(`Getting conversations for advisor ${advisorId}`);
       
-      // For database-stored conversations, proceed with normal deletion
-      // First delete any conversation captures (if they exist)
-      try {
-        const { error: capturesError } = await supabase
-          .from('conversation_captures')
-          .delete()
-          .eq('conversation_id', conversationId);
-          
-        if (capturesError) {
-          console.warn('Error deleting conversation captures:', capturesError);
-        }
-      } catch (e) {
-        console.warn('Failed to delete conversation captures:', e);
-        // Continue with conversation deletion even if captures deletion fails
-      }
-
-      // Now delete the conversation (which will cascade delete messages)
-      const { error } = await supabase
+      // Get conversations from database
+      const { data: dbConversations, error } = await supabase
         .from('conversations')
-        .delete()
-        .eq('id', conversationId);
-
+        .select(`
+          id,
+          user_id,
+          tutor_id,
+          advisor_id,
+          title,
+          created_at,
+          updated_at,
+          is_anonymous
+        `)
+        .eq('advisor_id', advisorId)
+        .order('updated_at', { ascending: false });
+      
       if (error) {
-        console.error('Error deleting conversation:', error);
-        throw error;
+        console.error('Error fetching advisor conversations:', error);
+        return [];
       }
-
-      return true;
-    } catch (error) {
-      console.error('Failed to delete conversation:', error);
-      return false;
-    }
-  },
-
-  // Delete multiple conversations
-  async deleteConversations(conversationIds: string[]): Promise<boolean> {
-    try {
-      if (!conversationIds.length) return true;
       
-      // Separate localStorage-based conversations from database conversations
-      const localStorageConversations = conversationIds.filter(id => id.startsWith('public_'));
-      const databaseConversations = conversationIds.filter(id => !id.startsWith('public_'));
-      
-      console.log(`Deleting ${localStorageConversations.length} localStorage conversations and ${databaseConversations.length} database conversations`);
-      
-      // Handle localStorage-based conversations
-      for (const conversationId of localStorageConversations) {
-        // Find and remove the conversation reference in localStorage
-        for (let i = 0; i < localStorage.length; i++) {
-          const key = localStorage.key(i);
-          if (key && key.startsWith('public_conversation_')) {
-            const storedId = localStorage.getItem(key);
-            if (storedId === conversationId) {
-              console.log(`Removing conversation reference: ${key}`);
-              localStorage.removeItem(key);
-            }
-          }
+      // Get conversation counts and metadata
+      const enhancedConversations = await Promise.all((dbConversations || []).map(async (conv) => {
+        // Get message count
+        const { count: messageCount, error: countError } = await supabase
+          .from('messages')
+          .select('id', { count: 'exact', head: true })
+          .eq('conversation_id', conv.id);
+        
+        if (countError) {
+          console.error(`Error getting message count for conversation ${conv.id}:`, countError);
         }
         
-        // Remove the messages for this conversation
-        const messagesKey = `messages_${conversationId}`;
-        localStorage.removeItem(messagesKey);
-        console.log(`Removed messages for conversation: ${messagesKey}`);
-      }
+        return {
+          ...conv,
+          message_count: messageCount || 0
+        };
+      }));
       
-      // If there are no database conversations, we're done
-      if (databaseConversations.length === 0) {
-        return true;
-      }
+      // Also get conversations from localStorage
+      const localConversations = await this.scanLocalStorageForPublicConversations(advisorId);
       
-      // Handle database conversations
-      // First delete any conversation captures
-      try {
-        const { error: capturesError } = await supabase
-          .from('conversation_captures')
-          .delete()
-          .in('conversation_id', databaseConversations);
-          
-        if (capturesError) {
-          console.warn('Error deleting conversation captures:', capturesError);
-        }
-      } catch (e) {
-        console.warn('Failed to delete conversation captures:', e);
-      }
-
-      // Now delete the conversations
-      const { error } = await supabase
-        .from('conversations')
-        .delete()
-        .in('id', databaseConversations);
-
-      if (error) {
-        console.error('Error deleting conversations:', error);
-        throw error;
-      }
-
-      return true;
+      // Combine and deduplicate (prefer database versions)
+      const dbIds = new Set(enhancedConversations.map(c => c.id));
+      const uniqueLocalConversations = localConversations.filter(c => !dbIds.has(c.id));
+      
+      return [...enhancedConversations, ...uniqueLocalConversations];
     } catch (error) {
-      console.error('Failed to delete conversations:', error);
-      return false;
+      console.error('Error getting advisor conversations:', error);
+      return [];
     }
   }
 };
