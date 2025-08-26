@@ -6,6 +6,7 @@ import { useUserPlan } from "@/hooks/useUserPlan";
 import { AgentToggle } from "@/components/AgentToggle";
 import { UserSettingsModal } from "@/components/UserSettingsModal";
 import { PlanUpgradeModal } from "@/components/PlanUpgradeModal";
+import EmbedModal from "@/components/EmbedModal";
 import { STRIPE_PLANS } from "@/lib/stripe";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -17,7 +18,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { LogOut, Settings, Crown } from "lucide-react";
+import { LogOut, Settings, Crown, Code } from "lucide-react";
 
 interface UserSettingsDropdownProps {
   simplified?: boolean;
@@ -33,6 +34,7 @@ const UserSettingsDropdown: React.FC<UserSettingsDropdownProps> = ({
   const { plan: userPlan, credits: userCredits, maxCredits, isLoading: planLoading } = useUserPlan();
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
   const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false);
+  const [isEmbedModalOpen, setIsEmbedModalOpen] = useState(false);
 
   const handleSignOut = async () => {
     await signOut();
@@ -52,6 +54,10 @@ const UserSettingsDropdown: React.FC<UserSettingsDropdownProps> = ({
 
   const handleUpgradeClick = () => {
     setIsUpgradeModalOpen(true);
+  };
+
+  const handleEmbedClick = () => {
+    setIsEmbedModalOpen(true);
   };
 
   const getPlanDisplayName = (plan: string) => {
@@ -133,6 +139,14 @@ const UserSettingsDropdown: React.FC<UserSettingsDropdownProps> = ({
         
         <DropdownMenuItem 
           className="flex items-center space-x-2 cursor-pointer"
+          onClick={handleEmbedClick}
+        >
+          <Code className="h-4 w-4 text-blue-500" />
+          <span>Embed</span>
+        </DropdownMenuItem>
+
+        <DropdownMenuItem 
+          className="flex items-center space-x-2 cursor-pointer"
           onClick={handleUpgradeClick}
         >
           <Crown className="h-4 w-4 text-yellow-500" />
@@ -173,6 +187,13 @@ const UserSettingsDropdown: React.FC<UserSettingsDropdownProps> = ({
         // Refresh page or reload user data after plan change
         window.location.reload();
       }}
+    />
+
+    {/* Embed Modal */}
+    <EmbedModal
+      isOpen={isEmbedModalOpen}
+      onClose={() => setIsEmbedModalOpen(false)}
+      sim={sim}
     />
   </>
   );

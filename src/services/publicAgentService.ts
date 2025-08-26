@@ -17,7 +17,8 @@ const isChannelConfigsRecord = (value: any): value is Record<string, AgentChanne
   return typeof value === 'object' && value !== null && !Array.isArray(value);
 };
 
-export const fetchPublicAgentById = async (id: string): Promise<AgentType> => {
+class PublicAgentService {
+  async fetchPublicAgentById(id: string): Promise<AgentType> {
   console.log("Fetching public advisor by ID:", id);
   
   const { data: advisor, error } = await supabase
@@ -78,4 +79,7 @@ export const fetchPublicAgentById = async (id: string): Promise<AgentType> => {
     learningObjective: null,
     is_featured: false
   };
-};
+  }
+}
+
+export const publicAgentService = new PublicAgentService();

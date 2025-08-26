@@ -17,6 +17,7 @@ import PublicTutorDetail from "./pages/PublicTutorDetail";
 import StudentChat from "./pages/StudentChat";
 import NotFound from "./pages/NotFound";
 import DebugAdvisors from "./pages/DebugAdvisors";
+import Embed from "./pages/Embed";
 
 const queryClient = new QueryClient();
 
@@ -46,6 +47,9 @@ const App = () => (
             {/* Public tutor share links - accessible by non-signed in users */}
             <Route path="/tutors/:agentId" element={<PublicTutorDetail />} />
             <Route path="/tutors/:agentId/chat" element={<StudentChat />} />
+            
+            {/* Embed route for iframes */}
+            <Route path="/embed/:id" element={<Embed />} />
             
             {/* New custom URL routes for public chats */}
             <Route path="/:customUrl" element={<StudentChat />} />
