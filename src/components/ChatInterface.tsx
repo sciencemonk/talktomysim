@@ -46,89 +46,29 @@ export const ChatInterface = ({
   const [conversation, setConversation] = useState<Conversation | null>(null);
   const [currentAiMessage, setCurrentAiMessage] = useState<string>('');
   const [hasLoadedInitialMessages, setHasLoadedInitialMessages] = useState(false);
-  const [isUserNearBottom, setIsUserNearBottom] = useState(true);
-  const [shouldAutoScroll, setShouldAutoScroll] = useState(false);
-  const [isUserScrolling, setIsUserScrolling] = useState(false);
-  const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  // iMessage-like autoscroll: stick to bottom unless the user scrolls up
+  const [stickToBottom, setStickToBottom] = useState(true);
   const [selectedConversation, setSelectedConversation] = useState<any>(null);
   const [isChatModalOpen, setIsChatModalOpen] = useState(false);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
 
-  // Check if user is near bottom of chat - improved for mobile
-  const checkIfNearBottom = useCallback(() => {
-    if (!messagesContainerRef.current) return true;
-    
-    const container = messagesContainerRef.current;
-    // Smaller threshold for mobile to be less aggressive
-    const threshold = isMobile ? 50 : 150; 
-    const isNearBottom = container.scrollHeight - container.scrollTop - container.clientHeight < threshold;
-    
-    setIsUserNearBottom(isNearBottom);
-    return isNearBottom;
+  // iMessage-like behavior: if the user is near the bottom, keep pinned; if they scroll up, don't jump
+  const handleScroll = useCallback(() => {
+    const el = messagesContainerRef.current;
+    if (!el) return;
+    const threshold = isMobile ? 24 : 40;
+    const atBottom = el.scrollHeight - (el.scrollTop + el.clientHeight) <= threshold;
+    setStickToBottom(atBottom);
   }, [isMobile]);
 
-  // Extreme force scroll to absolute bottom
-  const scrollToBottom = useCallback((force = false) => {
-    if (!messagesContainerRef.current) return;
-    
-    // Always scroll to absolute bottom
-    const container = messagesContainerRef.current;
-    
-    // Function to ensure we're at the very bottom
-    const forceToBottom = () => {
-      // Set scroll directly to maximum possible value with extra padding
-      container.scrollTop = container.scrollHeight + 1000;
-      
-      // Also use scrollIntoView as a backup method
-      if (messagesEndRef.current) {
-        messagesEndRef.current.scrollIntoView({
-          behavior: 'auto',
-          block: 'end'
-        });
-      }
-    };
-    
-    // Execute multiple times to ensure it works
-    forceToBottom();
-    
-    // And again after a tiny delay
-    setTimeout(forceToBottom, 5);
-  }, []);
-
-  // Handle scroll events to track user position and detect active scrolling
-  const handleScroll = useCallback(() => {
-    checkIfNearBottom();
-    
-    // Detect if user is actively scrolling (like iMessage behavior)
-    setIsUserScrolling(true);
-    
-    // Clear existing timeout
-    if (scrollTimeoutRef.current) {
-      clearTimeout(scrollTimeoutRef.current);
-    }
-    
-    // Reset scrolling state after user stops scrolling
-    scrollTimeoutRef.current = setTimeout(() => {
-      setIsUserScrolling(false);
-    }, 150);
-  }, [checkIfNearBottom]);
-
-  // Extremely aggressive scroll to bottom on every message change
   useEffect(() => {
-    // Multiple scroll attempts with increasing delays to ensure it works
-    if (messages.length > 0) {
-      // Immediate scroll attempt
-      scrollToBottom();
-      
-      // Follow-up attempts with delays to ensure rendering is complete
-      const delays = [10, 20, 50, 100, 200, 300, 500, 800];
-      delays.forEach(delay => {
-        setTimeout(() => scrollToBottom(), delay);
-      });
+    const el = messagesContainerRef.current;
+    if (!el) return;
+    if (stickToBottom) {
+      el.scrollTop = el.scrollHeight;
     }
-  }, [messages, scrollToBottom]);
+  }, [messages, stickToBottom]);
 
   // Initialize conversation on component mount - with stable conversation management
   useEffect(() => {
@@ -317,15 +257,8 @@ export const ChatInterface = ({
       
       setHasLoadedInitialMessages(true);
       
-      // Always scroll to bottom after loading messages
-      // Use a longer timeout to ensure DOM has fully rendered
-      setTimeout(() => {
-        setShouldAutoScroll(true);
-        setIsUserNearBottom(true);
-        
-        // Always force scroll to bottom to ensure latest message is visible
-        scrollToBottom(true);
-      }, 300);
+      // Initial load: pin to bottom
+      setStickToBottom(true);
     } 
     // Only show welcome message if we haven't loaded messages yet AND there are no existing messages
     else if (!hasLoadedInitialMessages && messages.length === 0) {
@@ -369,12 +302,8 @@ export const ChatInterface = ({
             };
             setMessages([welcomeMsg]);
             
-            // For welcome message, also scroll to bottom
-            setTimeout(() => {
-              setShouldAutoScroll(true);
-              setIsUserNearBottom(true);
-              scrollToBottom(true);
-            }, 300);
+            // For welcome message, keep pinned
+            setStickToBottom(true);
           } else {
             console.log('Skipping duplicate welcome message');
           }
@@ -418,12 +347,8 @@ export const ChatInterface = ({
 
     setMessages(prev => [...prev, userMsg]);
     
-    // Auto-scroll when user sends a message - but only if already near bottom or on mobile
-    const wasNearBottom = checkIfNearBottom();
-    if (wasNearBottom || isMobile) {
-      setShouldAutoScroll(true);
-      setIsUserNearBottom(true);
-    }
+    // When user sends a message, keep pinned to bottom
+    setStickToBottom(true);
     
     // Save to localStorage for public conversations (database conversations are handled by Edge Function)
     if (conversation?.id && conversation.id.startsWith('public_')) {
@@ -447,8 +372,8 @@ export const ChatInterface = ({
     setCurrentAiMessage('');
     const aiMessageId = `ai-${Date.now()}`;
     
-    // Enable auto-scroll when AI starts responding
-    setShouldAutoScroll(true);
+    // Enable pin-to-bottom when AI starts responding
+    setStickToBottom(true);
     
     return aiMessageId;
   }, []);
@@ -556,8 +481,7 @@ export const ChatInterface = ({
     
     setCurrentAiMessage('');
     
-    // Disable auto-scroll after AI completes message
-    setShouldAutoScroll(false);
+    // Keep stick-to-bottom behavior; user can scroll up to pause
   }, [conversation?.id, isUserOwnSim, user, agent?.id]);
 
   // Combine historical messages with current session messages for conversation context
@@ -906,8 +830,7 @@ export const ChatInterface = ({
           </div>
         )}
         
-        {/* Invisible element to scroll to with extra padding */}
-        <div ref={messagesEndRef} className="h-16" />
+        {/* End of messages */}
       </div>
 
       {/* Input - Fixed to bottom. When a sidebar exists, offset on desktop widths. */}
