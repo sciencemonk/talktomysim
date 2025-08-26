@@ -6,6 +6,7 @@ import { Send, Mic, MicOff, User } from 'lucide-react';
 import { AgentType } from '@/types/agent';
 import { useEnhancedTextChat } from '@/hooks/useEnhancedTextChat';
 import { conversationService, Conversation } from '@/services/conversationService';
+import { welcomeMessageService } from '@/services/welcomeMessageService';
 import { useChatHistory } from '@/hooks/useChatHistory';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useAuth } from '@/hooks/useAuth';
@@ -317,45 +318,54 @@ export const ChatInterface = ({
     else if (!hasLoadedInitialMessages && messages.length === 0) {
       console.log('No messages found, checking for welcome message');
       
-      // Determine which welcome message to show based on whether this is the owner's session
-      let welcomeMessageContent = '';
-      
-      if (isUserOwnSim && agent?.owner_welcome_message) {
-        // Owner is viewing their own Sim and has set an owner-specific welcome message
-        welcomeMessageContent = agent.owner_welcome_message;
-        console.log('Using owner-specific welcome message');
-      } else if (agent?.welcomeMessage) {
-        // Public user or owner without a specific message
-        welcomeMessageContent = agent.welcomeMessage;
-        console.log('Using public welcome message');
-      }
-      
-      if (welcomeMessageContent) {
-        const welcomeMsg: Message = {
-          id: 'welcome-message',
-          role: 'system',
-          content: welcomeMessageContent,
-          timestamp: Date.now()
-        };
-        setMessages([welcomeMsg]);
-        setHasLoadedInitialMessages(true);
+      const showWelcomeMessage = async () => {
+        let welcomeMessageContent = '';
         
-        // For welcome message, always scroll to show it properly
-        setTimeout(() => {
-          setShouldAutoScroll(true);
-          setIsUserNearBottom(true);
-          scrollToBottom(false); // Don't force, let natural scroll happen
-        }, 100);
-      } else {
-        // No welcome message available, just mark as loaded
+        if (isUserOwnSim) {
+          try {
+            // For owner sessions, generate a dynamic welcome message
+            console.log('Generating dynamic welcome message for owner');
+            welcomeMessageContent = await welcomeMessageService.generateOwnerWelcomeMessage(agent);
+          } catch (error) {
+            console.error('Error generating dynamic welcome message:', error);
+            // Fall back to standard welcome message if generation fails
+            welcomeMessageContent = agent?.welcomeMessage || '';
+          }
+        } else if (agent?.welcomeMessage) {
+          // Public user gets the standard welcome message
+          welcomeMessageContent = agent.welcomeMessage;
+          console.log('Using public welcome message');
+        }
+        
+        if (welcomeMessageContent) {
+          const welcomeMsg: Message = {
+            id: 'welcome-message',
+            role: 'system',
+            content: welcomeMessageContent,
+            timestamp: Date.now()
+          };
+          setMessages([welcomeMsg]);
+          
+          // For welcome message, always scroll to show it properly
+          setTimeout(() => {
+            setShouldAutoScroll(true);
+            setIsUserNearBottom(true);
+            scrollToBottom(false); // Don't force, let natural scroll happen
+          }, 100);
+        }
+        
+        // Mark as loaded regardless of whether we showed a welcome message
         setHasLoadedInitialMessages(true);
-      }
+      };
+      
+      // Call the async function to show the welcome message
+      showWelcomeMessage();
     } else if (messages.length > 0 && !hasLoadedInitialMessages) {
       // If we already have messages but haven't marked as loaded, mark as loaded to prevent welcome message
       console.log('Messages already exist, marking as loaded to prevent welcome message');
       setHasLoadedInitialMessages(true);
     }
-  }, [historyMessages, conversation?.id, agent?.welcomeMessage, agent?.owner_welcome_message, isUserOwnSim, hasLoadedInitialMessages, scrollToBottom, messages.length]);
+  }, [historyMessages, conversation?.id, agent?.welcomeMessage, isUserOwnSim, hasLoadedInitialMessages, scrollToBottom, messages.length, agent]);
 
   // Cleanup scroll timeout on unmount
   useEffect(() => {

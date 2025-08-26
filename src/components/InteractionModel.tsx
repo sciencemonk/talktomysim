@@ -6,8 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus, Trash2, HelpCircle, User, Users } from "lucide-react";
+import { Plus, Trash2, HelpCircle } from "lucide-react";
 import { useSim } from "@/hooks/useSim";
 import { cn } from "@/lib/utils";
 
@@ -20,28 +19,23 @@ interface SampleScenario {
 const InteractionModel = () => {
   const { sim, updateInteractionModel, isLoading } = useSim();
   
-  const [publicWelcomeMessage, setPublicWelcomeMessage] = useState('');
-  const [ownerWelcomeMessage, setOwnerWelcomeMessage] = useState('');
+  const [welcomeMessage, setWelcomeMessage] = useState('');
   const [scenarios, setScenarios] = useState<SampleScenario[]>([
     { id: '1', question: '', expectedResponse: '' }
   ]);
 
   // Track if there are unsaved changes
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
-  // Track which tab is active
-  const [activeTab, setActiveTab] = useState('public');
 
   // Load existing sim data
   useEffect(() => {
     if (sim) {
-      const newPublicWelcomeMessage = sim.welcome_message || '';
-      const newOwnerWelcomeMessage = sim.owner_welcome_message || '';
+      const newWelcomeMessage = sim.welcome_message || '';
       const newScenarios = sim.sample_scenarios && sim.sample_scenarios.length > 0 
         ? sim.sample_scenarios 
         : [{ id: '1', question: '', expectedResponse: '' }];
       
-      setPublicWelcomeMessage(newPublicWelcomeMessage);
-      setOwnerWelcomeMessage(newOwnerWelcomeMessage || newPublicWelcomeMessage); // Default to public message if owner message not set
+      setWelcomeMessage(newWelcomeMessage);
       setScenarios(newScenarios);
       
       // Reset unsaved changes when loading new data
@@ -52,13 +46,11 @@ const InteractionModel = () => {
   // Auto-save when changes are detected
   useEffect(() => {
     if (sim && !isLoading) { // Only track after initial load
-      const originalPublicWelcomeMessage = sim.welcome_message || '';
-      const originalOwnerWelcomeMessage = sim.owner_welcome_message || '';
+      const originalWelcomeMessage = sim.welcome_message || '';
       const originalScenarios = sim.sample_scenarios || [{ id: '1', question: '', expectedResponse: '' }];
       
       const hasChanges = 
-        publicWelcomeMessage !== originalPublicWelcomeMessage ||
-        ownerWelcomeMessage !== originalOwnerWelcomeMessage ||
+        welcomeMessage !== originalWelcomeMessage ||
         JSON.stringify(scenarios) !== JSON.stringify(originalScenarios);
       
       setHasUnsavedChanges(hasChanges);
@@ -72,7 +64,7 @@ const InteractionModel = () => {
         return () => clearTimeout(timeoutId);
       }
     }
-  }, [publicWelcomeMessage, ownerWelcomeMessage, scenarios, sim, isLoading]);
+  }, [welcomeMessage, scenarios, sim, isLoading]);
 
   const addScenario = () => {
     const newScenario: SampleScenario = {
@@ -98,8 +90,7 @@ const InteractionModel = () => {
   const handleSave = async () => {
     try {
       const interactionData = {
-        welcome_message: publicWelcomeMessage,
-        owner_welcome_message: ownerWelcomeMessage,
+        welcome_message: welcomeMessage,
         sample_scenarios: scenarios.filter(s => s.question.trim() && s.expectedResponse.trim())
       };
 
@@ -124,53 +115,23 @@ const InteractionModel = () => {
             tone, and response patterns so others can chat with a version of you.
           </p>
 
-          {/* Welcome Message Section with Tabs */}
+          {/* Welcome Message Section */}
           <div className="space-y-3">
             <Label htmlFor="welcome-message" className="text-base font-medium">
-              Welcome Messages
+              Welcome Message
             </Label>
             <p className="text-sm text-muted-foreground">
-              Set different welcome messages for public users and yourself (when you're logged in).
+              The first message visitors will see when they start chatting with your Sim.
+              <br/>
+              <span className="text-primary">Note: When you chat with your own Sim, it will generate a personalized welcome message based on your conversations and context.</span>
             </p>
-            
-            <Tabs defaultValue="public" value={activeTab} onValueChange={setActiveTab} className="w-full">
-              <TabsList className="grid grid-cols-2 mb-4">
-                <TabsTrigger value="public" className="flex items-center gap-1">
-                  <Users className="h-4 w-4" />
-                  <span>Public Users</span>
-                </TabsTrigger>
-                <TabsTrigger value="owner" className="flex items-center gap-1">
-                  <User className="h-4 w-4" />
-                  <span>You (Owner)</span>
-                </TabsTrigger>
-              </TabsList>
-              
-              <TabsContent value="public" className="space-y-2">
-                <p className="text-sm text-muted-foreground">
-                  The first message public users will see when they start chatting with your Sim.
-                </p>
-                <Textarea
-                  id="public-welcome-message"
-                  placeholder="Hey there! I'm the Sim version of [Your Name]. I'm here to chat about whatever's on your mind. What would you like to talk about?"
-                  value={publicWelcomeMessage}
-                  onChange={(e) => setPublicWelcomeMessage(e.target.value)}
-                  className="min-h-[100px]"
-                />
-              </TabsContent>
-              
-              <TabsContent value="owner" className="space-y-2">
-                <p className="text-sm text-muted-foreground">
-                  The first message you'll see when you chat with your own Sim (when logged in).
-                </p>
-                <Textarea
-                  id="owner-welcome-message"
-                  placeholder="Hi [Your Name]! I'm your personal Sim assistant. What would you like to discuss or work on today?"
-                  value={ownerWelcomeMessage}
-                  onChange={(e) => setOwnerWelcomeMessage(e.target.value)}
-                  className="min-h-[100px]"
-                />
-              </TabsContent>
-            </Tabs>
+            <Textarea
+              id="welcome-message"
+              placeholder="Hey there! I'm the Sim version of [Your Name]. I'm here to chat about whatever's on your mind. What would you like to talk about?"
+              value={welcomeMessage}
+              onChange={(e) => setWelcomeMessage(e.target.value)}
+              className="min-h-[100px]"
+            />
           </div>
 
           <Separator />

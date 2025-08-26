@@ -621,10 +621,8 @@ User: ${s.question || '—'}
 ${name}: ${s.expectedResponse || '—'}`).join('\n\n')
     : ''
     
-  // Get the appropriate welcome message based on whether this is an owner session
-  const welcomeMessage = isOwner && advisor.owner_welcome_message 
-    ? advisor.owner_welcome_message 
-    : advisor.welcome_message || ''
+  // We don't need to use welcome messages in the system prompt anymore
+  // The welcome message is now handled dynamically by the frontend
 
   if (isOwner) {
     // 🔒 OWNER SESSION: Personal Assistant Mode
