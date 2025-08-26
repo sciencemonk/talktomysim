@@ -26,17 +26,13 @@ const AboutModal: React.FC<AboutModalProps> = ({ isOpen, onClose }) => {
         <div className="space-y-6 py-4">
           <div className="text-center">
             <p className="text-xl font-medium mb-6">
-              Replace your email. Get back your time and attention.
+              Replace email. Get back time and attention.
             </p>
           </div>
           
           <div className="space-y-4">
             <p className="text-muted-foreground">
               Your Sim is a digital representation of you. An AI layer between you and the rest of the world. It can handle communications, answer questions, and perform tasks on your behalf.
-            </p>
-            
-            <p className="text-muted-foreground">
-              A world-class executive assistant for everyone.
             </p>
           </div>
         </div>
