@@ -261,8 +261,17 @@ export const ChatInterface = ({
       setStickToBottom(true);
     } 
     // Only show welcome message if we haven't loaded messages yet AND there are no existing messages
-    else if (!hasLoadedInitialMessages && messages.length === 0) {
+    else if (!hasLoadedInitialMessages && messages.length === 0 && conversation?.id) {
       console.log('No messages found, checking for welcome message');
+      
+      // Check if we've already shown a welcome message for this conversation
+      const welcomeShownKey = `welcome_shown_${conversation.id}`;
+      const welcomeAlreadyShown = localStorage.getItem(welcomeShownKey);
+      
+      if (welcomeAlreadyShown) {
+        console.log('Welcome message already shown for this conversation, skipping');
+        return;
+      }
       
       const showWelcomeMessage = async () => {
         let welcomeMessageContent = '';
@@ -301,6 +310,9 @@ export const ChatInterface = ({
               timestamp: Date.now()
             };
             setMessages([welcomeMsg]);
+            
+            // Mark welcome message as shown for this conversation
+            localStorage.setItem(welcomeShownKey, 'true');
             
             // For welcome message, keep pinned
             setStickToBottom(true);
@@ -392,22 +404,13 @@ export const ChatInterface = ({
             .filter(msg => msg.role === 'system')
             .slice(-2); // Look at last 2 system messages only
           
-          // Check for exact duplicates or very similar content
+          // Check for exact duplicates only - much less aggressive filtering
           const isDuplicate = recentSystemMessages.some(msg => {
             // Skip very short messages
             if (msg.content.length < 30) return false;
             
-            // Exact match check - very strict
-            if (msg.content === delta) return true;
-            
-            // Check if this is a duplicate introduction message
-            if (delta.includes('Hello!') && delta.includes('I\'m') && 
-                msg.content.includes('Hello!') && msg.content.includes('I\'m')) {
-              return true;
-            }
-            
-            // For longer messages, only check exact duplicates to avoid false positives
-            return false;
+            // Exact match check only - very strict
+            return msg.content === delta;
           });
           
           if (isDuplicate) {
@@ -654,7 +657,7 @@ export const ChatInterface = ({
   return (
     <div className="flex flex-col h-full min-h-screen bg-background relative w-full max-w-full overflow-hidden">
       {/* Mobile viewport fix */}
-      <style jsx>{`
+      <style>{`
         @media (max-width: 768px) {
           .mobile-chat-container {
             height: 100vh;
