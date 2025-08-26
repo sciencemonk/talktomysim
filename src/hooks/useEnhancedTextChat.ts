@@ -9,6 +9,9 @@ interface UseEnhancedTextChatProps {
   onAiMessageStart: () => string;
   onAiTextDelta: (delta: string) => void;
   onAiMessageComplete: (finalContent: string) => Promise<void>;
+  isOwner?: boolean;
+  conversationId?: string;
+  conversationHistory?: Array<{role: 'user' | 'system', content: string}>;
 }
 
 export const useEnhancedTextChat = ({
@@ -16,7 +19,10 @@ export const useEnhancedTextChat = ({
   onUserMessage,
   onAiMessageStart,
   onAiTextDelta,
-  onAiMessageComplete
+  onAiMessageComplete,
+  isOwner = false,
+  conversationId,
+  conversationHistory = []
 }: UseEnhancedTextChatProps) => {
   const [isProcessing, setIsProcessing] = useState(false);
 
@@ -32,18 +38,32 @@ export const useEnhancedTextChat = ({
       // Start AI message
       const aiMessageId = onAiMessageStart();
       
-      // Prepare messages for the API
+      // Prepare messages for the API with conversation context
+      // Take recent conversation history (last 20 messages) to maintain context while managing token usage
+      const recentHistory = conversationHistory.slice(-20);
+      
+      // Convert message format for OpenAI API (system -> assistant)
+      const contextMessages = recentHistory.map(msg => ({
+        role: msg.role === 'system' ? 'assistant' : msg.role,
+        content: msg.content
+      }));
+      
+      // Add the current message
       const messages = [
+        ...contextMessages,
         { role: 'user', content: message }
       ];
 
-      console.log('Sending enhanced chat request:', { advisorId: agent.id, messages });
+      console.log('Sending enhanced chat request:', { advisorId: agent.id, isOwner, messages });
 
       // Call the enhanced chat completion function
       const { data, error } = await supabase.functions.invoke('enhanced-chat-completion', {
         body: {
           messages,
           advisorId: agent.id,
+          isOwner,
+          conversationId,
+          saveToDatabase: true,
           searchFilters: {
             minSimilarity: 0.7,
             maxResults: 5
@@ -79,7 +99,7 @@ export const useEnhancedTextChat = ({
     } finally {
       setIsProcessing(false);
     }
-  }, [agent?.id, isProcessing, onUserMessage, onAiMessageStart, onAiTextDelta, onAiMessageComplete]);
+  }, [agent?.id, isProcessing, onUserMessage, onAiMessageStart, onAiTextDelta, onAiMessageComplete, conversationId, conversationHistory]);
 
   return {
     sendMessage,

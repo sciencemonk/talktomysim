@@ -2,7 +2,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { simService, SimData, SimCompletionStatus } from '@/services/simService';
 import { useAuth } from '@/hooks/useAuth';
-import { toast } from 'sonner';
+
 
 export const useSim = () => {
   const { user } = useAuth();
@@ -19,14 +19,17 @@ export const useSim = () => {
     if (!user) {
       setSim(null);
       setIsLoading(false);
+      console.log('useSim: No user found, skipping sim load');
       return;
     }
 
     try {
       setIsLoading(true);
       setError(null);
+      console.log('useSim: Loading sim for user:', user.id);
       
       const simData = await simService.getUserSim();
+      console.log('useSim: Sim loaded:', simData ? `ID: ${simData.id}, Name: ${simData.name}` : 'No sim found');
       setSim(simData);
       
       const status = await simService.getCompletionStatus();
@@ -49,12 +52,12 @@ export const useSim = () => {
       const updatedSim = await simService.updateBasicInfo(basicInfo);
       setSim(updatedSim);
       setCompletionStatus(prev => ({ ...prev, basic_info: true }));
-      toast.success('Basic info saved successfully!');
+
       return updatedSim;
     } catch (err: any) {
       const errorMessage = err.message || 'Failed to save basic info';
       setError(errorMessage);
-      toast.error(errorMessage);
+
       throw err;
     }
   };
@@ -72,12 +75,12 @@ export const useSim = () => {
       const updatedSim = await simService.updateInteractionModel(interactionData);
       setSim(updatedSim);
       setCompletionStatus(prev => ({ ...prev, interaction_model: true }));
-      toast.success('Interaction model saved successfully!');
+
       return updatedSim;
     } catch (err: any) {
       const errorMessage = err.message || 'Failed to save interaction model';
       setError(errorMessage);
-      toast.error(errorMessage);
+
       throw err;
     }
   };
@@ -92,7 +95,7 @@ export const useSim = () => {
     } catch (err: any) {
       const errorMessage = err.message || 'Failed to update core knowledge status';
       setError(errorMessage);
-      toast.error(errorMessage);
+
       throw err;
     }
   };
@@ -102,12 +105,12 @@ export const useSim = () => {
       setError(null);
       const updatedSim = await simService.makeSimPublic(isPublic);
       setSim(updatedSim);
-      toast.success(isPublic ? 'Sim is now public!' : 'Sim is now private');
+
       return updatedSim;
     } catch (err: any) {
       const errorMessage = err.message || 'Failed to update sim visibility';
       setError(errorMessage);
-      toast.error(errorMessage);
+
       throw err;
     }
   };
@@ -117,12 +120,12 @@ export const useSim = () => {
       setError(null);
       const updatedSim = await simService.toggleSimActive(isActive);
       setSim(updatedSim);
-      toast.success(isActive ? 'Sim is now active!' : 'Sim is now inactive');
+
       return updatedSim;
     } catch (err: any) {
       const errorMessage = err.message || 'Failed to toggle sim status';
       setError(errorMessage);
-      toast.error(errorMessage);
+
       throw err;
     }
   };

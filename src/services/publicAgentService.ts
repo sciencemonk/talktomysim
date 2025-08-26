@@ -46,7 +46,8 @@ export const fetchPublicAgentById = async (id: string): Promise<AgentType> => {
     status: 'active' as any, // Default status
     createdAt: advisor.created_at,
     updatedAt: advisor.updated_at,
-    avatar: advisor.avatar_url,
+    avatar: advisor.avatar,
+    avatar_url: advisor.avatar_url,
     prompt: advisor.prompt,
     title: advisor.title,
     url: advisor.url, // Include the url field from advisors table

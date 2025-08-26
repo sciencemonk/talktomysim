@@ -16,10 +16,29 @@ export const useChatHistory = (conversationId: string | null) => {
     try {
       setIsLoading(true);
       setError(null);
-      console.log('Loading messages for conversation:', conversationId);
       
-      const fetchedMessages = await conversationService.getMessages(conversationId);
-      console.log('Fetched messages:', fetchedMessages);
+      // Use a retry mechanism to ensure we get the messages
+      let attempts = 0;
+      const maxAttempts = 3;
+      let fetchedMessages: Message[] = [];
+      
+      while (attempts < maxAttempts) {
+        attempts++;
+        console.log(`Loading messages for conversation ${conversationId} (attempt ${attempts}/${maxAttempts})`);
+        
+        fetchedMessages = await conversationService.getMessages(conversationId);
+        
+        if (fetchedMessages.length > 0) {
+          console.log(`Found ${fetchedMessages.length} messages on attempt ${attempts}`);
+          break;
+        }
+        
+        // Wait a bit before retrying
+        if (attempts < maxAttempts) {
+          console.log(`No messages found, waiting before retry ${attempts}/${maxAttempts}`);
+          await new Promise(resolve => setTimeout(resolve, 500 * attempts));
+        }
+      }
       
       // Filter out any messages with null or undefined content
       const validMessages = fetchedMessages.filter(msg => 
@@ -29,6 +48,7 @@ export const useChatHistory = (conversationId: string | null) => {
         msg.content.trim().length > 0
       );
       
+      console.log(`Final result: ${validMessages.length} valid messages for conversation ${conversationId}`);
       setMessages(validMessages);
     } catch (err: any) {
       console.error('Error loading chat history:', err);
@@ -40,8 +60,17 @@ export const useChatHistory = (conversationId: string | null) => {
   }, [conversationId]);
 
   useEffect(() => {
-    loadMessages();
-  }, [loadMessages]);
+    if (conversationId) {
+      console.log(`useChatHistory: Loading messages for conversation ${conversationId}`);
+      // Clear messages first to avoid showing stale data
+      setMessages([]);
+      // Load new messages
+      loadMessages();
+    } else {
+      console.log('useChatHistory: No conversation ID provided, skipping message load');
+      setMessages([]);
+    }
+  }, [conversationId, loadMessages]);
 
   const addMessage = useCallback((message: Message) => {
     // Validate message before adding

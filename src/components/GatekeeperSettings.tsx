@@ -9,14 +9,13 @@ import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { X, Plus, Shield, Settings, AlertTriangle, Users } from 'lucide-react';
 import { escalationService, EscalationRule } from '@/services/escalationService';
-import { toast } from 'sonner';
+
 
 interface GatekeeperSettingsProps {
   advisorId: string;
-  onSettingsChange?: (hasChanges: boolean) => void;
 }
 
-export const GatekeeperSettings = ({ advisorId, onSettingsChange }: GatekeeperSettingsProps) => {
+export const GatekeeperSettings = ({ advisorId }: GatekeeperSettingsProps) => {
   const [rules, setRules] = useState<EscalationRule | null>(null);
   const [originalRules, setOriginalRules] = useState<EscalationRule | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -27,13 +26,21 @@ export const GatekeeperSettings = ({ advisorId, onSettingsChange }: GatekeeperSe
     loadEscalationRules();
   }, [advisorId]);
 
-  // Check for changes whenever rules change
+  // Auto-save when changes are detected
   useEffect(() => {
-    if (rules && originalRules && onSettingsChange) {
+    if (rules && originalRules) {
       const hasChanges = JSON.stringify(rules) !== JSON.stringify(originalRules);
-      onSettingsChange(hasChanges);
+      
+      // Auto-save after 2 seconds of no changes
+      if (hasChanges) {
+        const timeoutId = setTimeout(() => {
+          handleSave();
+        }, 2000);
+        
+        return () => clearTimeout(timeoutId);
+      }
     }
-  }, [rules, originalRules, onSettingsChange]);
+  }, [rules, originalRules]);
 
   const loadEscalationRules = async () => {
     setIsLoading(true);
@@ -70,12 +77,6 @@ export const GatekeeperSettings = ({ advisorId, onSettingsChange }: GatekeeperSe
     if (savedRules) {
       setRules(savedRules);
       setOriginalRules(JSON.parse(JSON.stringify(savedRules))); // Deep copy
-      toast.success('Gatekeeper settings saved successfully!');
-      if (onSettingsChange) {
-        onSettingsChange(false); // No more unsaved changes
-      }
-    } else {
-      toast.error('Failed to save gatekeeper settings');
     }
     setIsSaving(false);
   };

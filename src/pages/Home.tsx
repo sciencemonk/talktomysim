@@ -251,6 +251,7 @@ const Home = () => {
       case 'talk-to-sim':
         // Show chat interface with user's own sim
         if (sim) {
+          console.log('Rendering Talk to My Sim with sim:', sim.id, sim.name);
           const userSimAsAgent: AgentType = {
             id: sim.id,
             name: sim.name || 'My Sim',
@@ -263,7 +264,8 @@ const Home = () => {
             subject: 'General',
             gradeLevel: 'All',
             learningObjective: sim.description || 'General assistance',
-            avatar: sim.avatar_url || '',
+            avatar: sim.avatar || '',
+            avatar_url: sim.avatar_url || '',
             prompt: sim.prompt || '',
             welcomeMessage: sim.welcome_message || `Hello! I'm ${sim.name || 'your assistant'}. How can I help you today?`
           };
@@ -275,7 +277,9 @@ const Home = () => {
             />
           );
         }
-        return <div className="flex items-center justify-center h-full text-muted-foreground">No sim found</div>;
+        // No placeholder message while loading/creating sim
+        console.log('No sim found for Talk to My Sim view');
+        return null;
       case 'basic-info':
         return <BasicInfo />;
       case 'interaction-model':

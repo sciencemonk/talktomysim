@@ -17,6 +17,7 @@ interface ChatModalProps {
   onClose: () => void;
   conversation: any;
   simName: string;
+  simAvatar?: string;
 }
 
 export const ChatModal: React.FC<ChatModalProps> = ({
@@ -24,6 +25,7 @@ export const ChatModal: React.FC<ChatModalProps> = ({
   onClose,
   conversation,
   simName,
+  simAvatar,
 }) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -31,12 +33,22 @@ export const ChatModal: React.FC<ChatModalProps> = ({
   useEffect(() => {
     if (conversation?.id && isOpen) {
       setIsLoading(true);
+      
+      // Debug avatar information
+      console.log('ChatModal - Conversation:', {
+        id: conversation.id,
+        simAvatar: simAvatar,
+        conversationSim: conversation.sim,
+        hasAvatar: !!conversation.sim?.avatar,
+        hasAvatarUrl: !!conversation.sim?.avatar_url
+      });
+      
       conversationService.getMessages(conversation.id)
         .then(setMessages)
         .catch(console.error)
         .finally(() => setIsLoading(false));
     }
-  }, [conversation?.id, isOpen]);
+  }, [conversation?.id, isOpen, simAvatar]);
 
   const formatMessageTime = (dateString: string) => {
     const date = new Date(dateString);
@@ -83,9 +95,16 @@ export const ChatModal: React.FC<ChatModalProps> = ({
                   >
                     {message.role === 'system' && (
                       <Avatar className="h-8 w-8 flex-shrink-0">
-                        <AvatarImage src={conversation.sim?.avatar} alt={simName} />
+                        <AvatarImage 
+                          src={
+                            // Try multiple possible avatar sources
+                            conversation?.sim?.avatar_url || 
+                            (conversation?.sim?.avatar ? `/lovable-uploads/${conversation.sim.avatar}` : simAvatar)
+                          } 
+                          alt={simName} 
+                        />
                         <AvatarFallback className="bg-primary/10">
-                          <Bot className="h-4 w-4 text-primary" />
+                          {simName.charAt(0)}
                         </AvatarFallback>
                       </Avatar>
                     )}

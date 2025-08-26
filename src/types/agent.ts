@@ -27,6 +27,7 @@ export interface AgentType {
   createdAt: string;
   updatedAt: string;
   avatar?: string;
+  avatar_url?: string;
   prompt?: string;
   subject?: string;
   title?: string; // Add title field for advisors
@@ -64,4 +65,5 @@ export interface PublicAgentType {
   name: string;
   description: string;
   avatar?: string;
+  avatar_url?: string;
 }

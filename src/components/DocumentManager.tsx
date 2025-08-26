@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { documentService, AdvisorDocument } from '@/services/documentService';
-import { toast } from 'sonner';
+
 
 interface DocumentManagerProps {
   advisorId: string;
@@ -27,14 +27,28 @@ export const DocumentManager: React.FC<DocumentManagerProps> = ({
     loadDocuments();
   }, [advisorId, refreshTrigger]);
 
+  // Polling effect to update processing status
+  useEffect(() => {
+    const hasProcessingDocuments = documents.some(doc => !doc.processed_at);
+    
+    if (hasProcessingDocuments) {
+      const interval = setInterval(() => {
+        loadDocuments();
+      }, 10000); // Poll every 10 seconds (less frequent to avoid UI flickering)
+      
+      return () => clearInterval(interval);
+    }
+  }, [documents, advisorId]);
+
   const loadDocuments = async () => {
     try {
       setLoading(true);
+      console.log('DocumentManager: Loading documents for advisor ID:', advisorId);
       const docs = await documentService.getAdvisorDocuments(advisorId);
+      console.log('DocumentManager: Loaded documents:', docs);
       setDocuments(docs);
     } catch (error) {
-      console.error('Error loading documents:', error);
-      toast.error('Failed to load documents');
+      console.error('DocumentManager: Error loading documents:', error);
     } finally {
       setLoading(false);
     }
@@ -43,12 +57,10 @@ export const DocumentManager: React.FC<DocumentManagerProps> = ({
   const handleDeleteDocument = async (documentId: string) => {
     try {
       await documentService.deleteDocument(documentId);
-      toast.success('Document deleted successfully');
       loadDocuments();
       onDocumentsChange?.();
     } catch (error) {
       console.error('Error deleting document:', error);
-      toast.error('Failed to delete document');
     }
   };
 
@@ -106,9 +118,9 @@ export const DocumentManager: React.FC<DocumentManagerProps> = ({
       <Card className="border-dashed">
         <CardContent className="p-8 text-center">
           <FileText className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-          <h4 className="font-medium mb-2">No documents uploaded yet</h4>
+          <h4 className="font-medium mb-2">No content saved yet</h4>
           <p className="text-sm text-muted-foreground">
-            Upload documents or paste text to start building your knowledge base
+            Add text content above to start building your knowledge base
           </p>
         </CardContent>
       </Card>

@@ -72,7 +72,10 @@ serve(async (req) => {
         const embeddings = []
         
         // Generate embeddings for this batch
-        for (const chunk of batch) {
+        for (let j = 0; j < batch.length; j++) {
+          const chunk = batch[j];
+          const chunkIndex = i + j; // Global chunk index
+          
           try {
             const response = await fetch('https://api.openai.com/v1/embeddings', {
               method: 'POST',
@@ -88,7 +91,7 @@ serve(async (req) => {
 
             if (!response.ok) {
               const errorText = await response.text()
-              console.error(`OpenAI API error for chunk: ${response.status} ${errorText}`)
+              console.error(`OpenAI API error for chunk ${chunkIndex}: ${response.status} ${errorText}`)
               failedChunks++
               continue
             }
@@ -96,14 +99,15 @@ serve(async (req) => {
             const embeddingData = await response.json()
             const embedding = embeddingData.data[0].embedding
 
+            // Convert embedding array to vector format for PostgreSQL
+            const vectorString = `[${embedding.join(',')}]`;
+
             embeddings.push({
               advisor_id: advisorId,
               document_id: documentId,
               chunk_text: chunk.text,
-              start_char: chunk.startChar,
-              end_char: chunk.endChar,
-              embedding: JSON.stringify(embedding),
-              created_at: new Date().toISOString()
+              chunk_index: chunkIndex,
+              embedding: vectorString // Use vector format, not JSON string
             })
           } catch (chunkError) {
             console.error('Error processing chunk:', chunkError)

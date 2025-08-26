@@ -58,15 +58,17 @@ const integrations: Integration[] = [
 
 const Integrations = () => {
   return (
-    <div className="p-6">
-      <div className="bg-card border border-border rounded-lg p-6">
-        {/* Header */}
-        <div className="space-y-2 mb-6">
-          <h2 className="text-2xl font-semibold text-fg">Integrations</h2>
-          <p className="text-fgMuted text-sm">
+    <div className="max-w-4xl mx-auto p-6 space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle>
+            Integrations
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <p className="text-muted-foreground">
             Connect your Sim with external services to enhance its knowledge and capabilities.
           </p>
-        </div>
 
         {/* Integration Cards Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -76,7 +78,7 @@ const Integrations = () => {
             return (
               <Card 
                 key={integration.id} 
-                className="bg-card border-border transition-all duration-200 hover:shadow-sm"
+                className="bg-card transition-all duration-200"
               >
                 <CardHeader className="pb-3">
                   <div className="flex items-start justify-between">
@@ -126,7 +128,8 @@ const Integrations = () => {
             );
           })}
         </div>
-      </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };

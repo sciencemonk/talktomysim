@@ -90,36 +90,21 @@ serve(async (req) => {
 
 async function extractPDFText(file: File): Promise<TextExtractionResult> {
   try {
-    // For PDF processing, we'll use a simple approach first
-    // In production, you'd use a proper PDF parsing library
-    const arrayBuffer = await file.arrayBuffer()
-    const uint8Array = new Uint8Array(arrayBuffer)
+    console.log(`Attempting to extract text from PDF: ${file.name}`)
     
-    // Simple text extraction - look for text between BT and ET markers
-    const decoder = new TextDecoder('utf-8', { fatal: false })
-    let pdfContent = decoder.decode(uint8Array)
+    // For now, since PDF parsing is complex, let's use a workaround
+    // In production, you'd want to use a proper PDF parsing service like:
+    // - PDF.js (Mozilla's PDF parser)
+    // - PDFtk server
+    // - Adobe PDF Services API
+    // - Or other third-party services
     
-    // Basic PDF text extraction (very simplified)
-    const textMatches = pdfContent.match(/\(([^)]+)\)/g) || []
-    const extractedText = textMatches
-      .map(match => match.slice(1, -1)) // Remove parentheses
-      .filter(text => text.length > 2) // Filter out short fragments
-      .join(' ')
-
-    if (!extractedText.trim()) {
-      throw new Error('Could not extract text from PDF. The PDF might be image-based or encrypted.')
-    }
-
-    return {
-      text: extractedText,
-      metadata: {
-        pageCount: (pdfContent.match(/\/Page\W/g) || []).length,
-        wordCount: extractedText.split(/\s+/).length
-      }
-    }
+    // Temporary solution: Inform user that PDF parsing needs improvement
+    throw new Error(`PDF text extraction is not fully supported yet. Please convert your PDF to a text file (.txt) or copy-paste the content directly using the "Paste Text" tab. We're working on improving PDF support.`)
+    
   } catch (error) {
     console.error('PDF extraction error:', error)
-    throw new Error(`Failed to extract text from PDF: ${error.message}`)
+    throw error
   }
 }
 

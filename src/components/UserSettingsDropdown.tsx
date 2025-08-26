@@ -5,6 +5,7 @@ import { useSim } from "@/hooks/useSim";
 import { AgentToggle } from "@/components/AgentToggle";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -86,11 +87,21 @@ const UserSettingsDropdown: React.FC<UserSettingsDropdownProps> = ({
         
         <div className="px-3 py-2">
           <div className="flex items-center justify-between">
-            <span className="text-sm font-medium">Sim Status</span>
-            <AgentToggle 
-              isActive={sim?.is_active ?? true}
-              onToggle={handleToggleActive}
-            />
+            <div className="flex flex-col">
+              <span className="text-base font-medium">Sim Status</span>
+              <span className="text-xs text-muted-foreground">(Online/Offline)</span>
+            </div>
+            <div className="flex items-center">
+              <Switch 
+                checked={sim?.is_active ?? true}
+                onCheckedChange={() => {}}
+                onClick={handleToggleActive}
+                className="data-[state=checked]:bg-brand-purple"
+              />
+              <span className="ml-2 text-sm font-medium">
+                {(sim?.is_active ?? true) ? 'Active' : 'Inactive'}
+              </span>
+            </div>
           </div>
         </div>
         

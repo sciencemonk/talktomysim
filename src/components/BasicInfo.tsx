@@ -9,13 +9,13 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { CalendarIcon, X, Plus, Upload, Camera, User, PenTool } from "lucide-react";
+import { CalendarIcon, X, Plus, Upload, Camera, PenTool } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { useSim } from "@/hooks/useSim";
 import { supabase } from "@/integrations/supabase/client";
 import { promptGenerationService } from "@/services/promptGenerationService";
-import { toast } from "sonner";
+
 
 const BasicInfo = () => {
   const { sim, updateBasicInfo, checkCustomUrlAvailability, isLoading } = useSim();
@@ -134,7 +134,7 @@ const BasicInfo = () => {
     }
   }, [generatedPrompt?.systemPrompt, sim?.prompt]);
 
-  // Track changes to form data and mark as having unsaved changes
+  // Auto-save when changes are detected
   useEffect(() => {
     if (sim && formData.fullName !== "" && !isLoading) { // Only track after initial load
       const hasChanges = 
@@ -155,6 +155,15 @@ const BasicInfo = () => {
         selectedFile !== null;
       
       setHasUnsavedChanges(hasChanges);
+      
+      // Auto-save after 2 seconds of no changes
+      if (hasChanges) {
+        const timeoutId = setTimeout(() => {
+          handleSave();
+        }, 2000);
+        
+        return () => clearTimeout(timeoutId);
+      }
     }
   }, [formData, interests, skills, selectedFile, sim, isLoading]);
 
@@ -187,7 +196,6 @@ const BasicInfo = () => {
       return publicUrl;
     } catch (error) {
       console.error('Failed to upload image:', error);
-      toast.error('Failed to upload image. Please try again.');
       throw error;
     } finally {
       setIsUploading(false);
@@ -198,12 +206,10 @@ const BasicInfo = () => {
     const file = event.target.files?.[0];
     if (file) {
       if (file.size > 5 * 1024 * 1024) { // 5MB limit
-        toast.error("File too large. Please select an image smaller than 5MB.");
         return;
       }
 
       if (!file.type.startsWith('image/')) {
-        toast.error("Please select an image file.");
         return;
       }
 
@@ -346,28 +352,14 @@ const BasicInfo = () => {
     <div className="max-w-4xl mx-auto p-6 space-y-6">
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle className="flex items-center gap-2">
-              <User className="h-5 w-5" />
-              Context Window
-            </CardTitle>
-            <Button 
-              onClick={handleSave} 
-              variant={hasUnsavedChanges ? "default" : "outline"}
-              className={cn(
-                "relative",
-                hasUnsavedChanges && "pr-6"
-              )}
-              disabled={isLoading || isUploading || (formData.customUrl && isUrlAvailable === false)}
-            >
-              {isLoading || isUploading ? 'Saving...' : 'Save'}
-              {hasUnsavedChanges && (
-                <div className="absolute top-1 right-1 w-2 h-2 bg-orange-500 rounded-full" />
-              )}
-            </Button>
-          </div>
+          <CardTitle>
+            Context Window
+          </CardTitle>
         </CardHeader>
         <CardContent className="space-y-8">
+          <p className="text-muted-foreground">
+            Provide basic information about yourself to personalize your Sim and create a unique public profile.
+          </p>
           {/* Avatar Upload */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold">Profile Picture</h3>
@@ -709,23 +701,7 @@ Examples of good writing samples:
             </Card>
           </div>
 
-          {/* Save Button */}
-          <div className="flex justify-end pt-4">
-            <Button 
-              onClick={handleSave} 
-              className={cn(
-                "px-8 relative",
-                hasUnsavedChanges && "pr-10"
-              )}
-              variant={hasUnsavedChanges ? "default" : "outline"}
-              disabled={isLoading || isUploading || (formData.customUrl && isUrlAvailable === false)}
-            >
-              {isLoading || isUploading ? 'Saving...' : 'Save Context Window'}
-              {hasUnsavedChanges && (
-                <div className="absolute top-1 right-1 w-2 h-2 bg-orange-500 rounded-full" />
-              )}
-            </Button>
-          </div>
+
         </CardContent>
       </Card>
     </div>

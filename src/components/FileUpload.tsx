@@ -2,15 +2,12 @@
 import React, { useState, useRef } from 'react';
 import { Upload, File, X, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { toast } from 'sonner';
+
 
 interface FileUploadProps {
   onFileSelect: (files: File[]) => void;
   onFileProcess?: (file: File) => Promise<void>;
-  isProcessing?: boolean;
-  processingProgress?: number;
   acceptedTypes?: string[];
   maxFiles?: number;
   maxFileSize?: number; // in MB
@@ -19,8 +16,6 @@ interface FileUploadProps {
 export const FileUpload: React.FC<FileUploadProps> = ({
   onFileSelect,
   onFileProcess,
-  isProcessing = false,
-  processingProgress = 0,
   acceptedTypes = ['.pdf', '.txt', '.docx'],
   maxFiles = 10,
   maxFileSize = 25 // 25MB default
@@ -93,7 +88,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({
     // Set errors if any
     if (validationErrors.length > 0) {
       setErrors(validationErrors);
-      toast.error(`${validationErrors.length} file(s) were rejected`);
+      console.error(`${validationErrors.length} file(s) were rejected`);
     } else {
       setErrors([]);
     }
@@ -104,9 +99,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({
       setSelectedFiles(newFiles);
       onFileSelect(newFiles);
       
-      if (validFiles.length > 0) {
-        toast.success(`${validFiles.length} file(s) added successfully`);
-      }
+
     }
   };
 
@@ -125,18 +118,16 @@ export const FileUpload: React.FC<FileUploadProps> = ({
     if (!onFileProcess) return;
     
     try {
-      setProcessingFile(file.name);
-      await onFileProcess(file);
-      
-      // Remove processed file from the list
+      // Immediately remove file from selected files list when processing starts
       const newFiles = selectedFiles.filter(f => f !== file);
       setSelectedFiles(newFiles);
       onFileSelect(newFiles);
       
-      toast.success(`${file.name} processed successfully`);
+      setProcessingFile(file.name);
+      await onFileProcess(file);
+      
     } catch (error) {
       console.error('Error processing file:', error);
-      toast.error(`Failed to process ${file.name}`);
     } finally {
       setProcessingFile(null);
     }
@@ -160,7 +151,6 @@ export const FileUpload: React.FC<FileUploadProps> = ({
             ? 'border-primary bg-primary/5' 
             : 'border-border hover:border-primary/50'
           }
-          ${isProcessing ? 'opacity-50 pointer-events-none' : ''}
         `}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
@@ -171,7 +161,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({
         <p className="text-sm text-muted-foreground mb-4">
           Supports PDF, TXT, and DOCX files up to {maxFileSize}MB each
         </p>
-        <Button onClick={handleUploadClick} variant="outline" disabled={isProcessing}>
+        <Button onClick={handleUploadClick} variant="outline">
           Choose Files
         </Button>
         
@@ -218,7 +208,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({
                   <div className="text-xs text-muted-foreground">Processing...</div>
                 )}
                 
-                {onFileProcess && !isProcessing && processingFile !== file.name && (
+                {onFileProcess && processingFile !== file.name && (
                   <Button
                     onClick={() => processFile(file)}
                     variant="outline"
@@ -229,7 +219,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({
                   </Button>
                 )}
                 
-                {!isProcessing && processingFile !== file.name && (
+                {processingFile !== file.name && (
                   <Button
                     onClick={() => removeFile(index)}
                     variant="ghost"
@@ -245,15 +235,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({
         </div>
       )}
 
-      {isProcessing && (
-        <div className="space-y-2">
-          <div className="flex items-center justify-between">
-            <span className="text-sm font-medium">Processing files...</span>
-            <span className="text-sm text-muted-foreground">{processingProgress}%</span>
-          </div>
-          <Progress value={processingProgress} className="h-2" />
-        </div>
-      )}
+
     </div>
   );
 };

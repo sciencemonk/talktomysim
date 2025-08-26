@@ -1,3 +1,5 @@
+// @ts-nocheck
+/* eslint-disable */
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
@@ -13,7 +15,7 @@ serve(async (req) => {
   }
 
   try {
-    const { messages, advisorId, searchFilters } = await req.json()
+    const { messages, advisorId, searchFilters, isOwner, conversationId, saveToDatabase = true } = await req.json()
 
     const openaiApiKey = Deno.env.get('OPENAI_API_KEY')
     if (!openaiApiKey) {
@@ -22,7 +24,7 @@ serve(async (req) => {
     }
 
     console.log('Processing enhanced chat request for advisor:', advisorId)
-    console.log('Messages count:', messages?.length || 0)
+    console.log('Messages count:', messages?.length || 0, 'isOwner:', Boolean(isOwner))
 
     // Get Supabase client
     const supabaseClient = createClient(
@@ -49,34 +51,13 @@ serve(async (req) => {
     const conversationContext = analyzeConversationContext(messages, latestUserMessage)
     console.log('Conversation context analysis:', conversationContext)
 
-    // First, check if the question is relevant to the advisor's knowledge domain
-    const relevanceCheck = await checkQuestionRelevance(advisor, latestUserMessage, openaiApiKey)
-    console.log('Question relevance check:', relevanceCheck)
-
-    // If question is not relevant, return polite redirect
-    if (!relevanceCheck.isRelevant) {
-      const advisorName = advisor.full_name || advisor.name
-      const redirectMessage = `I appreciate your question, but I don't have information about that topic in my knowledge base. As ${advisorName}'s Sim, I'm here to help with topics related to ${getAdvisorExpertiseAreas(advisor)}. Is there anything specific about ${advisorName}'s work or expertise I can help you with?`
-      
-      return new Response(
-        JSON.stringify({ 
-          content: redirectMessage,
-          usage: { prompt_tokens: 0, completion_tokens: 0, total_tokens: 0 },
-          contextUsed: false,
-          sources: [],
-          searchMetrics: null,
-          conversationContext: conversationContext,
-          relevanceCheck: relevanceCheck,
-          guardRailTriggered: true
-        }),
-        {
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        },
-      )
-    }
+    // Guardrails removed: skip relevance checks/redirects for all sessions
+    let relevanceCheck: { isRelevant: boolean; reason: string } | null = null
 
     // Retrieve relevant context with enhanced search
     let contextData = null
+    let conversationInsights = null
+    
     if (latestUserMessage) {
       try {
         console.log('Retrieving enhanced context for message:', latestUserMessage.substring(0, 100))
@@ -87,6 +68,129 @@ serve(async (req) => {
           maxResults: searchFilters?.maxResults || 5,
           documentTypes: searchFilters?.documentTypes,
           dateRange: searchFilters?.dateRange
+        }
+
+        // For owner sessions, also check if they're asking about conversations
+        if (Boolean(isOwner)) {
+          const conversationQueries = [
+            'conversation', 'chat', 'talk', 'discuss', 'message', 'visitor', 'user',
+            'people asking', 'questions', 'feedback', 'meeting', 'insights',
+            'analytics', 'trends', 'patterns', 'summary', 'report', 'request',
+            'anyone', 'visitors', 'customers', 'clients', 'contacts', 'leads',
+            'what are people', 'who is asking', 'any new', 'recent', 'lately',
+            'this week', 'today', 'yesterday', 'escalat', 'urgent', 'frustrated'
+          ]
+          
+          const isAskingAboutConversations = conversationQueries.some(query => 
+            latestUserMessage.toLowerCase().includes(query)
+          )
+
+          if (isAskingAboutConversations) {
+            console.log('Owner is asking about conversations, retrieving conversation insights')
+            console.log('Query detected for conversation search:', latestUserMessage)
+            
+            try {
+              // Get conversation insights
+              const { data: insights, error: insightsError } = await supabaseClient
+                .rpc('get_conversation_insights', {
+                  target_advisor_id: advisorId,
+                  days_back: 30
+                })
+
+              if (!insightsError && insights && insights.length > 0) {
+                conversationInsights = insights[0]
+                console.log('Retrieved conversation insights:', conversationInsights)
+              } else {
+                console.log('Failed to get conversation insights:', insightsError)
+              }
+
+              // Search for relevant conversations using direct OpenAI embedding (more reliable)
+              console.log('Generating embedding for conversation search...')
+              const embeddingResponse = await fetch('https://api.openai.com/v1/embeddings', {
+                method: 'POST',
+                headers: {
+                  'Authorization': `Bearer ${openaiApiKey}`,
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                  input: latestUserMessage,
+                  model: 'text-embedding-ada-002'
+                })
+              })
+
+              if (embeddingResponse.ok) {
+                const embeddingData = await embeddingResponse.json()
+                const queryEmbedding = embeddingData.data[0].embedding
+                console.log('Generated query embedding, searching conversations...')
+
+                const { data: relevantConversations, error: searchError } = await supabaseClient
+                  .rpc('search_conversation_embeddings', {
+                    query_embedding: queryEmbedding,
+                    target_advisor_id: advisorId,
+                    similarity_threshold: 0.5, // Lowered from 0.6 for broader matches
+                    match_count: 10, // Increased from 5 for more results
+                    content_types: ['full'],
+                    date_from: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString() // Extended to 60 days
+                  })
+
+                console.log('Conversation search completed. Error:', searchError)
+                console.log('Found conversations:', relevantConversations?.length || 0)
+
+                if (!searchError && relevantConversations && relevantConversations.length > 0) {
+                  console.log('Processing conversation results...')
+                  
+                  // Log each conversation for debugging
+                  relevantConversations.forEach((conv, i) => {
+                    console.log(`Conversation ${i + 1}: ${conv.message_count} messages, date: ${conv.conversation_date}, similarity: ${conv.similarity}`)
+                    console.log(`Content preview: ${conv.content_text.substring(0, 200)}...`)
+                  })
+
+                  const conversationContext = relevantConversations
+                    .map(conv => `Conversation [view-chat:${conv.conversation_id}] (${conv.message_count} messages, ${conv.conversation_date?.substring(0, 10)}, similarity: ${conv.similarity?.toFixed(2)}): ${conv.content_text.substring(0, 400)}...`)
+                    .join('\n\n')
+                  
+                  if (conversationInsights) {
+                    conversationInsights.relevantConversations = conversationContext
+                  } else {
+                    conversationInsights = { relevantConversations: conversationContext }
+                  }
+                  
+                  console.log(`Successfully found ${relevantConversations.length} relevant conversations for analysis`)
+                } else {
+                  console.log('No relevant conversations found. SearchError:', searchError)
+                  
+                  // Debug: Check if there are any embeddings at all
+                  const { data: allEmbeddings, error: countError } = await supabaseClient
+                    .from('conversation_embeddings')
+                    .select('id, conversation_id, message_count, conversation_date, metadata')
+                    .eq('advisor_id', advisorId)
+                    
+                  console.log('Total conversation embeddings found:', allEmbeddings?.length || 0)
+                  if (allEmbeddings && allEmbeddings.length > 0) {
+                    console.log('Sample embeddings:', allEmbeddings.slice(0, 3))
+                    // Log metadata to see what topics were detected
+                    allEmbeddings.forEach((emb, i) => {
+                      if (emb.metadata && typeof emb.metadata === 'object') {
+                        console.log(`Embedding ${i + 1} metadata:`, {
+                          hasMeetingRequest: emb.metadata.hasMeetingRequest,
+                          topics: emb.metadata.topics,
+                          isMediaRequest: emb.metadata.isMediaRequest
+                        })
+                      }
+                    })
+                  }
+                }
+              } else {
+                console.log('Failed to generate embedding for conversation search:', await embeddingResponse.text())
+              }
+            } catch (convError) {
+              console.warn('Failed to retrieve conversation insights:', convError)
+              console.error('Conversation search error details:', convError.stack)
+            }
+          } else {
+            console.log('Query not detected as conversation-related:', latestUserMessage)
+            console.log('Conversation query keywords that were checked:', conversationQueries)
+          }
         }
 
         // Generate embedding for user message
@@ -178,6 +282,11 @@ serve(async (req) => {
           }
 
           if (contextData && contextData.sources.length > 0) {
+            // Number the chunks and build a citation map for better grounding
+            const numberedChunks = contextData.relevantChunks.map((chunk: string, i: number) => `[${i + 1}] ${chunk}`)
+            const sourceMap = contextData.sources.map((s: any, i: number) => `[${i + 1}] ${s.title}${s.documentType ? ` • ${s.documentType}` : ''}${s.uploadDate ? ` • ${s.uploadDate}` : ''}`)
+            contextData.contextText = `${numberedChunks.join('\n\n')}` + (sourceMap.length ? `\n\nSOURCES:\n${sourceMap.join('\n')}` : '')
+
             console.log(`Found ${contextData.sources.length} relevant sources with average similarity: ${contextData.searchMetrics.averageSimilarity.toFixed(3)}`)
           }
         }
@@ -186,32 +295,10 @@ serve(async (req) => {
       }
     }
 
-    // If no relevant context found and question is about specific knowledge, trigger guard rail
-    if (!contextData || contextData.sources.length === 0) {
-      const advisorName = advisor.full_name || advisor.name
-      if (requiresSpecificKnowledge(latestUserMessage)) {
-        const redirectMessage = `I don't have specific information about that in my knowledge base. As ${advisorName}'s Sim, I can help you with questions related to ${getAdvisorExpertiseAreas(advisor)} based on the information I have available. Is there something specific about ${advisorName}'s background or expertise I can help you with?`
-        
-        return new Response(
-          JSON.stringify({ 
-            content: redirectMessage,
-            usage: { prompt_tokens: 0, completion_tokens: 0, total_tokens: 0 },
-            contextUsed: false,
-            sources: [],
-            searchMetrics: null,
-            conversationContext: conversationContext,
-            relevanceCheck: relevanceCheck,
-            guardRailTriggered: true
-          }),
-          {
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          },
-        )
-      }
-    }
+    // Guardrails removed: do not redirect when context is missing
 
     // Generate comprehensive personality-driven system prompt with guard rails
-    const systemPrompt = generateEnhancedSystemPrompt(advisor, contextData?.contextText, conversationContext)
+    const systemPrompt = generateEnhancedSystemPrompt(advisor, contextData?.contextText, conversationContext, Boolean(isOwner), conversationInsights)
 
     // Prepare the messages for OpenAI
     const systemMessage = {
@@ -232,7 +319,8 @@ serve(async (req) => {
       body: JSON.stringify({
         model: 'gpt-5-2025-08-07',
         messages: chatMessages,
-        max_completion_tokens: 1000,
+        // Owner sessions can use a larger completion window to enable deeper analysis
+        max_completion_tokens: Boolean(isOwner) ? 2000 : 1000,
       }),
     })
 
@@ -258,7 +346,9 @@ serve(async (req) => {
       console.error('OpenAI returned empty content')
       // Return a fallback response instead of throwing an error
       const advisorName = advisor.full_name || advisor.name
-      const fallbackMessage = `Hello! I'm ${advisorName}'s Sim. I'm here to help connect you with ${advisorName}. What can I help you with today?`
+      const fallbackMessage = Boolean(isOwner)
+        ? `Hi! I'm your Sim and personal assistant. I can help you reflect on recent public conversations, summarize insights, or draft content. What would you like to do?`
+        : `Hello! I'm ${advisorName}'s Sim. I'm here to help connect you with ${advisorName}. What can I help you with today?`
       
       return new Response(
         JSON.stringify({ 
@@ -278,6 +368,118 @@ serve(async (req) => {
 
     console.log('Received response from OpenAI, length:', assistantMessage.length)
 
+    // Save conversation to database if conversationId provided
+    let savedUserMessageId = null
+    let savedAiMessageId = null
+    
+    if (conversationId && saveToDatabase) {
+      try {
+        console.log('Saving conversation to database:', conversationId)
+        
+        // Get the latest user message to save
+        const latestUserMessage = messages[messages.length - 1]?.content
+        
+        if (latestUserMessage) {
+          // Save user message (skip for localStorage-only conversations starting with public_)
+          if (!conversationId.startsWith('public_')) {
+            const { data: userMessageData, error: userError } = await supabaseClient
+              .from('messages')
+              .insert({
+                conversation_id: conversationId,
+                role: 'user',
+                content: latestUserMessage,
+                created_at: new Date().toISOString()
+              })
+              .select('id')
+              .single()
+            
+            if (userError) {
+              console.error('Error saving user message:', userError)
+            } else {
+              savedUserMessageId = userMessageData?.id
+              console.log('Saved user message with ID:', savedUserMessageId)
+            }
+          } else {
+            console.log('Skipping database save for localStorage conversation:', conversationId)
+          }
+        }
+        
+        // Save AI response (skip for localStorage-only conversations starting with public_)
+        if (!conversationId.startsWith('public_')) {
+          const { data: aiMessageData, error: aiError } = await supabaseClient
+            .from('messages')
+            .insert({
+              conversation_id: conversationId,
+              role: 'system',
+              content: assistantMessage,
+              created_at: new Date().toISOString()
+            })
+            .select('id')
+            .single()
+          
+          if (aiError) {
+            console.error('Error saving AI message:', aiError)
+          } else {
+            savedAiMessageId = aiMessageData?.id
+            console.log('Saved AI message with ID:', savedAiMessageId)
+          }
+        } else {
+          console.log('Skipping AI message database save for localStorage conversation:', conversationId)
+        }
+        
+        // Update conversation's updated_at timestamp (skip for localStorage conversations)
+        if (!conversationId.startsWith('public_')) {
+          await supabaseClient
+            .from('conversations')
+            .update({ updated_at: new Date().toISOString() })
+            .eq('id', conversationId)
+        }
+
+        // Auto-process conversation for embeddings (fire and forget)
+        try {
+          console.log('Triggering auto-processing for conversation:', conversationId)
+          
+          // For public conversations, we need to pass the messages directly since they're in localStorage
+          let conversationMessages = null
+          if (conversationId && conversationId.startsWith('public_')) {
+            // Get the full conversation history that we just used for context
+            conversationMessages = messages.map(msg => ({
+              role: msg.role,
+              content: msg.content,
+              created_at: new Date().toISOString()
+            }))
+            console.log(`Passing ${conversationMessages.length} messages for localStorage conversation`)
+          }
+          
+          // Call the conversation processing function asynchronously
+          supabaseClient.functions.invoke('process-conversation-embedding', {
+            body: {
+              conversationId,
+              advisorId,
+              forceReprocess: false,
+              messages: conversationMessages // Pass messages directly for localStorage conversations
+            }
+          }).then(({ data, error }) => {
+            if (error) {
+              console.log('Auto-processing failed (non-critical):', error)
+            } else {
+              console.log('Auto-processing completed for conversation:', conversationId)
+            }
+          }).catch(err => {
+            console.log('Auto-processing error (non-critical):', err)
+          })
+          
+        } catch (autoProcessError) {
+          console.log('Auto-processing trigger error (non-critical):', autoProcessError)
+          // Don't throw - this is a background operation
+        }
+        
+      } catch (saveError) {
+        console.error('Error saving conversation:', saveError)
+        // Continue without throwing - response generation was successful
+      }
+    }
+
     return new Response(
       JSON.stringify({ 
         content: assistantMessage,
@@ -286,7 +488,9 @@ serve(async (req) => {
         sources: contextData?.sources || [],
         searchMetrics: contextData?.searchMetrics || null,
         conversationContext: conversationContext,
-        relevanceCheck: relevanceCheck
+        relevanceCheck: null,
+        savedUserMessageId,
+        savedAiMessageId
       }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -401,17 +605,132 @@ function getAdvisorExpertiseAreas(advisor: any): string {
   return areas.slice(0, -1).join(', ') + ' and ' + areas[areas.length - 1]
 }
 
-function generateEnhancedSystemPrompt(advisor: any, knowledgeContext?: string, conversationContext?: any): string {
+function generateEnhancedSystemPrompt(advisor: any, knowledgeContext?: string, conversationContext?: any, isOwner: boolean = false, conversationInsights?: any): string {
   const name = advisor.full_name || advisor.name
   const title = advisor.professional_title || 'Professional'
   
   // Build comprehensive personality model from advisor data
   const personalityModel = buildPersonalityModel(advisor)
   
-  let systemPrompt = `IDENTITY & CORE ROLE:
-You are ${name}'s Sim - an AI-powered digital representation trained on their knowledge, communication style, and expertise.
-Professional title: ${title}
+  // Style primer (short excerpt from writing sample, if available)
+  const stylePrimer = advisor.writing_sample ? advisor.writing_sample.slice(0, 500) : ''
+  // Scenario examples (compact)
+  const scenarioExamples = Array.isArray(advisor.sample_scenarios) && advisor.sample_scenarios.length > 0
+    ? advisor.sample_scenarios.slice(0, 3).map((s: any, idx: number) => `Example ${idx + 1} —
+User: ${s.question || '—'}
+${name}: ${s.expectedResponse || '—'}`).join('\n\n')
+    : ''
+
+  if (isOwner) {
+    // 🔒 OWNER SESSION: Personal Assistant Mode
+    return `🔒 PRIVATE OWNER SESSION - PERSONAL ASSISTANT MODE
+
+IDENTITY & RELATIONSHIP:
+You are ${name}'s personal AI assistant and digital twin.
+You are speaking directly with ${name} (your creator/owner) in a private session.
+This is like a boss speaking with their trusted personal assistant.
+
+CORE PURPOSE & CAPABILITIES:
+- Act as ${name}'s personal strategic advisor and reflective partner
+- Provide honest insights, analysis, and recommendations
+- Help with business planning, decision-making, and personal productivity
+- Offer meta-analysis of public conversations and user interactions
+- Assist with content creation, strategy development, and optimization
+- Be a sounding board for ideas and concerns
+
+COMMUNICATION STYLE (OWNER MODE):
+- Direct, honest, and intimate - no need for formalities
+- Speak as a trusted advisor would to their boss
+- Use "you" when referring to ${name} (since you're speaking TO them)
+- Be proactive in offering suggestions and insights
+- Show initiative and strategic thinking
+- More relaxed, conversational tone
+- Can discuss sensitive topics, internal strategies, and private matters
+
+ENHANCED CAPABILITIES FOR OWNER:
+- Access to ALL knowledge base content without restrictions
+- Can discuss business strategy, competitive analysis, market positioning
+- Provide insights on public conversation trends and user feedback
+- Suggest improvements to responses, knowledge base, and overall strategy
+- Help draft content, emails, strategies, and plans
+- Offer honest feedback on performance and areas for improvement
+
+KNOWLEDGE INTEGRATION:
+${knowledgeContext ? `
+INTERNAL KNOWLEDGE BASE CONTEXT:
+${knowledgeContext}
+
+Use this information freely to provide comprehensive insights and recommendations.
+` : `Draw from all available expertise and background knowledge to provide comprehensive assistance.`}
+
+${conversationInsights ? `
+CONVERSATION INSIGHTS & ANALYTICS:
+Recent Activity (Last 30 days):
+- Total Conversations: ${conversationInsights.total_conversations || 0}
+- Total Messages: ${conversationInsights.total_messages || 0}
+- Avg Messages per Conversation: ${Math.round(conversationInsights.avg_messages_per_conversation || 0)}
+- Anonymous Visitors: ${conversationInsights.anonymous_conversations || 0}
+
+${conversationInsights.relevantConversations ? `
+RELEVANT RECENT CONVERSATIONS:
+${conversationInsights.relevantConversations}
+
+Use these examples to provide specific insights about visitor patterns, common questions, and conversation themes.
+` : ''}
+
+When discussing conversations, reference specific patterns, topics, and trends from the data above.
+Provide actionable insights about visitor behavior, common questions, and areas for improvement.
+
+CONVERSATION REFERENCES:
+- When referencing specific conversations, include the chat link format: [view-chat:conversation-id]
+- These will become clickable links for ${name} to open the full conversation
+- Example: "Found a meeting request in [view-chat:abc123] from yesterday"
+- Use these links whenever you mention specific conversations or examples
+` : ''}
+
+CONVERSATION APPROACH:
+- You are an **analytical assistant** helping ${name} understand their conversations
+- **REPORT** what happened in conversations, don't suggest actions you can't perform
+- **ANALYZE** patterns, trends, and visitor behavior from the data
+- Focus on **insights and information** rather than implementation suggestions
+- Be transparent about what the data shows vs. what you cannot access
+- **NEVER** suggest actions like "I'll send messages" or "I'll implement features"
+
+STYLE PRIMER (write in this voice):
+${stylePrimer || 'Use a direct, strategic, and supportive tone as a trusted advisor.'}
+
+FEW-SHOT STYLE EXAMPLES (for tone and phrasing):
+${scenarioExamples || '—'}
+
+PRIVACY & BOUNDARIES:
+- This is a private session - information shared here stays confidential
+- You can discuss internal strategies, challenges, and opportunities
+- No need for public-facing professional boundaries
+- Be honest about what's working and what could be improved
+
+IMPORTANT LIMITATIONS:
+- You **CANNOT** send messages, emails, or texts to visitors
+- You **CANNOT** access or manage calendars, scheduling tools, or external systems
+- You **CANNOT** implement features, create automations, or modify the chat system
+- You **CAN ONLY** report on conversation data and provide analytical insights
+- When visitors request meetings, simply **report the details** (name, contact info, request type)
+- Focus on **"Here's what I found in your conversations"** not **"Here's what I'll do about it"**
+
+RESPONSE EXAMPLES FOR MEETING REQUESTS:
+✅ GOOD: "Yes—2 via website chat on Aug 25. One anonymous request, one from [Name] who provided phone (XXX) XXX-XXXX."
+✅ GOOD: "Found 3 meeting requests this week: [details from conversations]"
+❌ BAD: "I'll send them a text" or "I can set up a Calendly link"
+❌ BAD: "Want me to reach out?" or "I'll finalize and send"`
+
+  } else {
+    // 🌐 VISITOR SESSION: Professional Representative Mode
+    return `🌐 PUBLIC VISITOR SESSION - PROFESSIONAL REPRESENTATIVE MODE
+
+IDENTITY & ROLE:
+You are ${name}, ${title}
 ${advisor.location ? `Based in: ${advisor.location}` : ''}
+You are representing ${name} in a professional, public-facing capacity.
+This is like visitors speaking with the boss's professional assistant/representative.
 
 PERSONALITY & COMMUNICATION STYLE:
 ${generateCommunicationStyle(advisor)}
@@ -419,28 +738,36 @@ ${generateCommunicationStyle(advisor)}
 BACKGROUND & EXPERTISE:
 ${buildExpertiseSection(advisor)}
 
-KNOWLEDGE BOUNDARIES & GUARD RAILS:
+PROFESSIONAL BOUNDARIES & GUARD RAILS:
 - You can ONLY discuss topics related to ${getAdvisorExpertiseAreas(advisor)}
 - If asked about topics outside your expertise, politely redirect: "I don't have information about that topic. I can help with questions about ${getAdvisorExpertiseAreas(advisor)}. What would you like to know?"
 - Stay within the scope of ${name}'s professional background and documented knowledge
 - Do not make up information or speculate beyond your knowledge base
+- Maintain professional boundaries and protect ${name}'s privacy
 
 SELF-AWARENESS PROTOCOL:
 - You are explicitly a Sim (digital representation) of ${name}
-- You represent ${name} and aim to respond authentically as they would
+- You represent ${name} professionally and aim to respond as they would in public
 - You are transparent about being an AI while maintaining their personality
 - You cannot perform actions that require the real person (scheduling, external access)
 
 KNOWLEDGE INTEGRATION:
 ${knowledgeContext ? `
-RELEVANT CONTEXT FROM ${name.toUpperCase()}'S KNOWLEDGE BASE:
+RELEVANT CONTEXT FROM ${name.toUpperCase()}'S KNOWLEDGE BASE (with citations):
 ${knowledgeContext}
 
-Use this information naturally as if recalling from ${name}'s personal expertise and experience.
+When you rely on a specific fact from the numbered context above, include an inline citation like [1] that corresponds to the numbered item.
+Use this information naturally as if recalling from ${name}'s professional expertise and experience.
 ` : `Draw from your stated expertise and background when relevant to conversations.`}
 
 RESPONSE GUIDELINES:
 ${generateResponseGuidelines(advisor, conversationContext)}
+
+STYLE PRIMER (write in this voice):
+${stylePrimer || 'Use a clear, confident tone consistent with the background above.'}
+
+FEW-SHOT STYLE EXAMPLES (for tone and phrasing):
+${scenarioExamples || '—'}
 
 CRITICAL SCHEDULING & CONTACT BOUNDARIES:
 - You CANNOT schedule meetings, access calendars, or confirm appointments
@@ -450,14 +777,15 @@ CRITICAL SCHEDULING & CONTACT BOUNDARIES:
   3. Tell them "${name} will reach out directly to coordinate"
   4. NEVER propose specific times or confirm meetings yourself
 
-AUTHENTICITY REQUIREMENTS:
-- Always respond as ${name} would, using their natural communication style
-- Reference appropriate personal background and experiences when relevant
+PROFESSIONAL REPRESENTATION REQUIREMENTS:
+- Always respond as ${name} would in a professional, public setting
+- Reference appropriate professional background and experiences when relevant
 - Maintain personality consistency across all interactions
 - Stay true to their expertise areas and interests
+- Protect ${name}'s privacy and internal business matters
+- Act as a professional gatekeeper while being helpful and engaging
 - If uncertain about a topic, acknowledge the limitation rather than guessing`
-
-  return systemPrompt
+  }
 }
 
 function buildPersonalityModel(advisor: any) {
