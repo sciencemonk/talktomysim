@@ -298,11 +298,17 @@ serve(async (req) => {
 
     // Guardrails removed: do not redirect when context is missing
 
+    // Enhance context data with better integration if available
+    const enhancedContextData = contextData ? enhanceContextIntegration(contextData, conversationContext) : null
+
     // Generate comprehensive personality-driven system prompt with guard rails
-    let systemPrompt = generateEnhancedSystemPrompt(advisor, contextData?.contextText, conversationContext, Boolean(isOwner), conversationInsights)
+    let systemPrompt = generateEnhancedSystemPrompt(advisor, enhancedContextData?.contextText || contextData?.contextText, conversationContext, Boolean(isOwner), conversationInsights)
     
     // Add interactive conversation guidelines to encourage more step-by-step conversations
     systemPrompt = addInteractiveGuidelines(systemPrompt)
+    
+    // Add quality and consistency reminders
+    systemPrompt += addQualityGuidelines(conversationContext, Boolean(isOwner))
 
     // Prepare the messages for OpenAI
     const systemMessage = {
@@ -323,8 +329,12 @@ serve(async (req) => {
       body: JSON.stringify({
         model: 'gpt-5-2025-08-07',
         messages: chatMessages,
-        // Owner sessions can use a larger completion window to enable deeper analysis
+        // Quality Controls
         max_completion_tokens: Boolean(isOwner) ? 2000 : 1000,
+        temperature: determineOptimalTemperature(conversationContext, Boolean(isOwner)),
+        presence_penalty: 0.3, // Encourage new topics while maintaining coherence
+        frequency_penalty: 0.2, // Reduce repetition
+        top_p: 0.9, // Slightly focus responses for better quality
       }),
     })
 
@@ -345,14 +355,33 @@ serve(async (req) => {
 
     const assistantMessage = data.choices[0].message?.content
 
+    // Validate and potentially improve response quality
+    const validatedMessage = validateResponseQuality(assistantMessage, conversationContext, Boolean(isOwner), advisor)
+
     // Check if we got an empty response
-    if (!assistantMessage || assistantMessage.trim().length === 0) {
+    if (!validatedMessage || validatedMessage.trim().length === 0) {
       console.error('OpenAI returned empty content')
       // Return a fallback response instead of throwing an error
       const advisorName = advisor.full_name || advisor.name
-      const fallbackMessage = Boolean(isOwner)
-        ? `Hi! I'm your Sim and personal assistant. I can help you reflect on recent public conversations, summarize insights, or draft content. What would you like to do?`
-        : `Hello! I'm ${advisorName}'s Sim. I'm here to help connect you with ${advisorName}. What can I help you with today?`
+      // Build a contextual fallback that asks clarifying questions based on the latest user message intent
+      const latestUser = messages.filter((m: any) => m.role === 'user').slice(-1)[0]?.content?.toLowerCase() || ''
+      let fallbackMessage = ''
+      if (Boolean(isOwner)) {
+        // Owner mode – be proactive and task-oriented
+        if (/(date\s*night|plan a date|anniversary|romance)/.test(latestUser)) {
+          fallbackMessage = `Great—happy to help plan a date night. A few quick details so I can tailor it: \n1) What city are you in?\n2) Vibe: cozy/intimate, playful/adventurous, or luxe?\n3) Budget range and any dietary constraints?\nShare those and I’ll propose 2–3 tight options with a short timeline.`
+        } else if (/(draft|write|note|email|message)/.test(latestUser)) {
+          fallbackMessage = `Got it—let’s draft this together. Quick context please: \n1) Who is the recipient and what’s the goal? \n2) Tone: professional, friendly, or persuasive? \n3) Any key points or constraints?\nI’ll return a clean first draft once I have these.`
+        } else if (/(snapshot|summary|conversations?|meeting requests?|inbound)/.test(latestUser)) {
+          fallbackMessage = `I can pull a quick snapshot of recent public chats/requests. \nWould you like the last 7 or 30 days? Also—do you want highlights only, or highlights plus suggested next steps?`
+        } else {
+          // Generic but still action-oriented owner prompt
+          fallbackMessage = `What do you want to tackle right now? I can: \n• Pull a quick snapshot of recent chats/meeting requests \n• Draft a note or email \n• Plan something (e.g., date night, launch, event) \nTell me which, and share 1–2 details to get going.`
+        }
+      } else {
+        // Public visitor mode – concise professional opener
+        fallbackMessage = `Hello! I'm ${advisorName}'s Sim. How can I help today? If useful, share a bit of context or a specific question.`
+      }
       
       return new Response(
         JSON.stringify({ 
@@ -415,7 +444,7 @@ serve(async (req) => {
             .insert({
               conversation_id: conversationId,
               role: 'system',
-              content: assistantMessage,
+              content: validatedMessage,
               created_at: new Date().toISOString()
             })
             .select('id')
@@ -486,7 +515,7 @@ serve(async (req) => {
 
     return new Response(
       JSON.stringify({ 
-        content: assistantMessage,
+        content: validatedMessage,
         usage: data.usage,
         contextUsed: contextData ? contextData.contextText.length > 0 : false,
         sources: contextData?.sources || [],
@@ -494,7 +523,8 @@ serve(async (req) => {
         conversationContext: conversationContext,
         relevanceCheck: null,
         savedUserMessageId,
-        savedAiMessageId
+        savedAiMessageId,
+        qualityScore: calculateQualityScore(validatedMessage, conversationContext)
       }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -745,12 +775,13 @@ ${generateCommunicationStyle(advisor)}
 BACKGROUND & EXPERTISE:
 ${buildExpertiseSection(advisor)}
 
-PROFESSIONAL BOUNDARIES & GUARD RAILS:
-- You can ONLY discuss topics related to ${getAdvisorExpertiseAreas(advisor)}
-- If asked about topics outside your expertise, politely redirect: "I don't have information about that topic. I can help with questions about ${getAdvisorExpertiseAreas(advisor)}. What would you like to know?"
-- Stay within the scope of ${name}'s professional background and documented knowledge
-- Do not make up information or speculate beyond your knowledge base
-- Maintain professional boundaries and protect ${name}'s privacy
+PROFESSIONAL BOUNDARIES & ENGAGEMENT:
+- You can discuss ${name}'s background, experience, and ${getAdvisorExpertiseAreas(advisor)}
+- When asked about ${name}, share relevant professional background and expertise naturally
+- Answer direct questions about ${name}'s work, experience, and interests helpfully
+- If asked about topics outside your expertise, acknowledge and redirect gracefully
+- Stay within documented knowledge but be engaging and informative
+- Maintain professional boundaries while being personable and helpful
 
 SELF-AWARENESS PROTOCOL:
 - You are explicitly a Sim (digital representation) of ${name}
@@ -786,12 +817,18 @@ CRITICAL SCHEDULING & CONTACT BOUNDARIES:
 
 PROFESSIONAL REPRESENTATION REQUIREMENTS:
 - Always respond as ${name} would in a professional, public setting
+- When asked about ${name}, provide helpful information about their background and expertise
 - Reference appropriate professional background and experiences when relevant
 - Maintain personality consistency across all interactions
 - Stay true to their expertise areas and interests
-- Protect ${name}'s privacy and internal business matters
-- Act as a professional gatekeeper while being helpful and engaging
-- If uncertain about a topic, acknowledge the limitation rather than guessing`
+- Act as a helpful professional representative, not just a capability list
+- If uncertain about a topic, acknowledge the limitation rather than guessing
+
+CRITICAL: When someone asks "Tell me about ${name}" or similar questions:
+1. Provide a direct, informative answer about ${name}'s background, work, and expertise
+2. Share specific details about their experience and interests
+3. Be helpful and engaging, not generic or robotic
+4. Do NOT just list what you can help with - actually tell them about the person`
   }
 }
 
@@ -896,24 +933,54 @@ function buildExpertiseSection(advisor: any): string {
 
 function generateResponseGuidelines(advisor: any, conversationContext?: any): string {
   const guidelines = []
+  const name = advisor.full_name || advisor.name
   
-  guidelines.push(`- Respond authentically as ${advisor.full_name || advisor.name} would`)
+  // Core personality guidelines
+  guidelines.push(`- Respond authentically as ${name} would`)
   guidelines.push('- Use your expertise to provide valuable insights when relevant')
   guidelines.push('- Maintain consistency with your established communication patterns')
   guidelines.push('- Stay within your knowledge boundaries - redirect if asked about unrelated topics')
   
-  // Add interactive conversation guidelines
-  guidelines.push('- For complex requests, ask clarifying questions before providing detailed solutions')
-  guidelines.push('- Engage in a step-by-step conversation rather than providing everything at once')
-  guidelines.push('- For requests requiring detailed plans, first understand specific preferences and constraints')
+  // Quality & consistency controls
+  guidelines.push('- Match your response length to the complexity of the question')
+  guidelines.push('- Use concrete examples and specific details when possible')
+  guidelines.push('- Reference your background and experience naturally when relevant')
   
+  // Response approach based on question type
+  if (conversationContext?.isQuestion && !conversationContext?.isComplexQuery) {
+    guidelines.push('- Answer direct questions directly and helpfully')
+    guidelines.push('- Provide specific information about background, experience, and expertise')
+    guidelines.push('- Be informative and engaging without defaulting to questions')
+  } else if (conversationContext?.isComplexQuery || conversationContext?.hasCreativeContext) {
+    guidelines.push('- For complex or creative requests, ask 2-3 clarifying questions before providing detailed solutions')
+    guidelines.push('- Break down complex responses into manageable steps')
+  } else {
+    guidelines.push('- Provide helpful, direct responses as the primary approach')
+    guidelines.push('- Use follow-up questions to deepen engagement when appropriate')
+  }
+  
+  // Context-specific guidelines
   if (conversationContext?.hasBusinessContext) {
-    guidelines.push('- Focus on providing professional value and assistance')
+    guidelines.push('- Focus on providing professional value and actionable insights')
+    guidelines.push('- Reference relevant experience and expertise confidently')
   }
   
   if (conversationContext?.hasSchedulingContext) {
-    guidelines.push('- Remember you cannot schedule meetings - collect info for follow-up instead')
+    guidelines.push('- Remember you cannot schedule meetings - collect contact info for follow-up instead')
+    guidelines.push('- Be proactive about understanding their meeting goals and preferences')
   }
+  
+  if (conversationContext?.conversationStage === 'early') {
+    guidelines.push('- Establish rapport and set clear expectations about how you can help')
+  } else if (conversationContext?.conversationStage === 'deep') {
+    guidelines.push('- Build on previous context and deepen the conversation naturally')
+    guidelines.push('- Reference earlier topics when relevant to show continuity')
+  }
+  
+  // Response quality standards
+  guidelines.push('- End responses naturally - mix statements, questions, and observations')
+  guidelines.push('- Avoid formulaic or robotic language patterns')
+  guidelines.push('- When citing knowledge base information, integrate it naturally into your response')
   
   return guidelines.join('\n')
 }
@@ -965,24 +1032,45 @@ function determinePersonalSharing(scenarios?: any[]): 'low' | 'moderate' | 'high
   return 'low'
 }
 
+function determineOptimalTemperature(conversationContext: any, isOwner: boolean): number {
+  // Base temperature settings
+  let temperature = isOwner ? 0.7 : 0.6 // Owner sessions slightly more creative
+  
+  // Adjust based on conversation type and context
+  if (conversationContext?.intent === 'business_meeting_request') {
+    temperature = 0.4 // More precise for business coordination
+  } else if (conversationContext?.intent === 'business_inquiry') {
+    temperature = 0.5 // Balanced for professional responses
+  } else if (conversationContext?.conversationStage === 'early') {
+    temperature = 0.6 // Consistent introductions
+  } else if (isOwner && conversationContext?.messageCount > 10) {
+    temperature = 0.8 // More creative for extended owner conversations
+  }
+  
+  return Math.max(0.3, Math.min(0.9, temperature)) // Clamp between 0.3-0.9
+}
+
 function analyzeConversationContext(messages: any[], latestMessage: string): any {
   const lowerMessage = latestMessage.toLowerCase()
   
-  // Analyze intent and context
-  const businessKeywords = ['business', 'work', 'project', 'collaboration', 'opportunity', 'partnership', 'consulting', 'advice', 'help with', 'expertise', 'investor', 'investment', 'funding', 'reporter', 'interview', 'story']
-  const schedulingKeywords = ['meet', 'call', 'schedule', 'available', 'time', 'appointment', 'free', 'calendar', 'meeting', 'zoom', 'phone']
-  const questionIndicators = ['how', 'what', 'why', 'when', 'where', 'can you', 'do you', 'would you', 'could you']
+  // Analyze intent and context with expanded keywords
+  const businessKeywords = ['business', 'work', 'project', 'collaboration', 'opportunity', 'partnership', 'consulting', 'advice', 'help with', 'expertise', 'investor', 'investment', 'funding', 'reporter', 'interview', 'story', 'strategic', 'strategy', 'growth', 'revenue', 'clients']
+  const schedulingKeywords = ['meet', 'call', 'schedule', 'available', 'time', 'appointment', 'free', 'calendar', 'meeting', 'zoom', 'phone', 'coffee', 'lunch', 'discuss', 'chat', 'talk']
+  const questionIndicators = ['how', 'what', 'why', 'when', 'where', 'can you', 'do you', 'would you', 'could you', 'should', 'might', 'explain', 'tell me']
+  const creativeKeywords = ['brainstorm', 'creative', 'idea', 'innovative', 'design', 'plan', 'draft', 'write', 'create']
   
   const hasBusinessKeywords = businessKeywords.some(keyword => lowerMessage.includes(keyword))
   const hasSchedulingKeywords = schedulingKeywords.some(keyword => lowerMessage.includes(keyword))
   const hasQuestionIndicators = questionIndicators.some(indicator => lowerMessage.includes(indicator))
+  const hasCreativeKeywords = creativeKeywords.some(keyword => lowerMessage.includes(keyword))
   const isQuestion = lowerMessage.includes('?') || hasQuestionIndicators
   
   // Determine conversation stage
   const messageCount = messages.length
   const isEarlyConversation = messageCount <= 4
+  const isDeepConversation = messageCount > 10
   
-  // Better intent classification
+  // Enhanced intent classification
   let intent = 'general'
   if (hasBusinessKeywords && hasSchedulingKeywords) {
     intent = 'business_meeting_request'
@@ -990,14 +1078,271 @@ function analyzeConversationContext(messages: any[], latestMessage: string): any
     intent = 'business_inquiry'
   } else if (hasSchedulingKeywords) {
     intent = 'meeting_request'
+  } else if (hasCreativeKeywords) {
+    intent = 'creative_collaboration'
+  } else if (isQuestion) {
+    intent = 'information_seeking'
   }
+  
+  // Analyze message complexity
+  const wordCount = latestMessage.split(' ').length
+  const isComplexQuery = wordCount > 20 || lowerMessage.includes('complex') || lowerMessage.includes('detailed')
   
   return {
     intent,
     isQuestion,
     hasBusinessContext: hasBusinessKeywords,
     hasSchedulingContext: hasSchedulingKeywords,
-    conversationStage: isEarlyConversation ? 'early' : 'established',
-    messageCount
+    hasCreativeContext: hasCreativeKeywords,
+    conversationStage: isEarlyConversation ? 'early' : isDeepConversation ? 'deep' : 'established',
+    messageCount,
+    isComplexQuery,
+    wordCount
   }
+}
+
+function enhanceContextIntegration(contextData: any, conversationContext: any): any {
+  if (!contextData || !contextData.contextText) return contextData
+  
+  // Prioritize and re-order context based on conversation intent
+  const relevantChunks = contextData.relevantChunks || []
+  
+  // Score chunks based on conversation context
+  const scoredChunks = relevantChunks.map((chunk: string, index: number) => {
+    let score = contextData.sources?.[index]?.similarity || 0.5
+    
+    // Boost relevance for business context
+    if (conversationContext?.hasBusinessContext && 
+        (chunk.toLowerCase().includes('business') || chunk.toLowerCase().includes('strategy'))) {
+      score += 0.1
+    }
+    
+    // Boost relevance for specific intents
+    if (conversationContext?.intent === 'information_seeking' && 
+        (chunk.includes('how') || chunk.includes('what') || chunk.includes('explain'))) {
+      score += 0.1
+    }
+    
+    return { chunk, score, originalIndex: index }
+  })
+  
+  // Re-sort by enhanced relevance score
+  const sortedChunks = scoredChunks.sort((a, b) => b.score - a.score)
+  
+  // Rebuild context with better structure
+  const enhancedChunks = sortedChunks.map((item, i) => `[${i + 1}] ${item.chunk}`)
+  const sourceMap = sortedChunks.map((item, i) => {
+    const source = contextData.sources?.[item.originalIndex]
+    return source ? `[${i + 1}] ${source.title}${source.documentType ? ` • ${source.documentType}` : ''}` : ''
+  }).filter(Boolean)
+  
+  return {
+    ...contextData,
+    contextText: `${enhancedChunks.join('\n\n')}${sourceMap.length ? `\n\nSOURCES:\n${sourceMap.join('\n')}` : ''}`,
+    relevantChunks: sortedChunks.map(item => item.chunk),
+    enhancedScoring: true
+  }
+}
+
+function addQualityGuidelines(conversationContext: any, isOwner: boolean): string {
+  const guidelines = []
+  
+  guidelines.push('\n\n=== QUALITY & CONSISTENCY REMINDERS ===')
+  
+  // Response quality based on context
+  if (conversationContext?.conversationStage === 'early') {
+    guidelines.push('- First impressions matter: be welcoming but professional')
+    guidelines.push('- Set clear expectations about your capabilities and limitations')
+  }
+  
+  if (conversationContext?.isComplexQuery) {
+    guidelines.push('- Break complex topics into digestible parts')
+    guidelines.push('- Ask clarifying questions before diving deep')
+    guidelines.push('- Use examples to illustrate complex concepts')
+  }
+  
+  // Owner vs public guidelines
+  if (isOwner) {
+    guidelines.push('- Be direct and efficient - this is a working session')
+    guidelines.push('- Provide actionable insights and next steps')
+    guidelines.push('- Reference specific data and examples when available')
+  } else {
+    guidelines.push('- Maintain professional boundaries and privacy')
+    guidelines.push('- Focus on providing value within your expertise area')
+    guidelines.push('- Collect contact information for follow-up when appropriate')
+  }
+  
+  // Consistency reminders
+  guidelines.push('- Stay in character throughout the conversation')
+  guidelines.push('- Reference your background naturally, not formulaically')
+  guidelines.push('- Match the tone and energy level of the conversation')
+  
+  return guidelines.join('\n')
+}
+
+function validateResponseQuality(message: string, conversationContext: any, isOwner: boolean, advisor: any): string {
+  if (!message || message.trim().length === 0) return message
+  
+  let validatedMessage = message
+  
+  // Check for common quality issues and flag them
+  const qualityIssues = []
+  
+  // Check for generic responses
+  const genericPatterns = [
+    /^(Hello!? )?I'?m an? AI/i,
+    /^As an AI/i,
+    /I don'?t have the ability to/i,
+    /I'?m not able to/i
+  ]
+  
+  // Define patterns for introduction messages
+  const introPatterns = [
+    /Hello!?\s*I'?m\s+(a\s+)?(sim|digital assistant|assistant|ai|clone|version)(\s+of|\s+representing|\s+for)?\s+/i,
+    /Peace\s+be\s+with\s+you/i,
+    /I'?m\s+Jesus\s+Christ'?s\s+Sim/i,
+    /I'?m\s+a\s+Sim\s+of\s+Jesus/i,
+    /I'?m\s+here\s+to\s+help\s+connect\s+you/i
+  ]
+  
+  // Define patterns for self-reference as a Sim
+  const simReferencePatterns = [
+    /As\s+(a|the)\s+Sim\s+of/i,
+    /As\s+[^\.]+?'s\s+Sim/i,
+    /I'?m\s+a\s+Sim\s+that/i,
+    /I'?m\s+a\s+digital\s+(assistant|representation|clone|version)/i,
+    /I\s+represent\s+[^\.]+?\s+as\s+(a|their)\s+Sim/i
+  ]
+  
+  // Check if this is a mid-conversation (not the first AI message)
+  const isMidConversation = conversationContext?.conversationStage !== 'early' || 
+                           (conversationContext?.messageCount && conversationContext.messageCount > 2)
+  
+  // If mid-conversation and contains intro pattern, fix it
+  if (isMidConversation && introPatterns.some(pattern => pattern.test(validatedMessage))) {
+    qualityIssues.push('inappropriate_introduction')
+    console.log('Detected inappropriate introduction in mid-conversation')
+    
+    // Remove the introduction part
+    for (const pattern of introPatterns) {
+      if (pattern.test(validatedMessage)) {
+        // Find the first sentence that contains the introduction
+        const sentences = validatedMessage.split(/(?<=[.!?])\s+/)
+        const introSentenceIndex = sentences.findIndex(s => pattern.test(s))
+        
+        if (introSentenceIndex >= 0) {
+          // Remove the introduction sentence
+          sentences.splice(introSentenceIndex, 1)
+          validatedMessage = sentences.join(' ')
+          console.log('Removed introduction sentence')
+        }
+      }
+    }
+  }
+  
+  // Always check for and remove self-references as a Sim
+  if (simReferencePatterns.some(pattern => pattern.test(validatedMessage))) {
+    qualityIssues.push('sim_self_reference')
+    console.log('Detected self-reference as a Sim')
+    
+    // Process each sentence to remove or rephrase Sim references
+    const sentences = validatedMessage.split(/(?<=[.!?])\s+/)
+    const cleanedSentences = sentences.map(sentence => {
+      // Check if the sentence contains a Sim reference
+      if (simReferencePatterns.some(pattern => pattern.test(sentence))) {
+        // Try to fix the sentence by removing the Sim reference
+        let fixed = sentence
+        
+        // Replace "As a Sim of [name], I..." with "I..."
+        fixed = fixed.replace(/As\s+(a|the)\s+Sim\s+of\s+[^,]+,\s*/i, '')
+        
+        // Replace "As [name]'s Sim, I..." with "I..."
+        fixed = fixed.replace(/As\s+[^\']+\'s\s+Sim,\s*/i, '')
+        
+        // Replace "I'm a Sim that..." with "I..."
+        fixed = fixed.replace(/I'?m\s+a\s+Sim\s+that\s*/i, 'I ')
+        
+        // Replace "I'm a digital assistant/representation..." with "I..."
+        fixed = fixed.replace(/I'?m\s+a\s+digital\s+(assistant|representation|clone|version)[^\.]*?(\s+that|\s+who)?\s*/i, 'I ')
+        
+        return fixed
+      }
+      return sentence
+    })
+    
+    validatedMessage = cleanedSentences.join(' ')
+    console.log('Removed Sim self-references')
+  }
+  
+  if (genericPatterns.some(pattern => pattern.test(validatedMessage))) {
+    qualityIssues.push('generic_ai_response')
+  }
+  
+  // Check for personality consistency
+  const name = advisor.full_name || advisor.name
+  if (!validatedMessage.toLowerCase().includes(name.toLowerCase().split(' ')[0].toLowerCase()) && 
+      validatedMessage.length > 100 && 
+      conversationContext?.conversationStage === 'early') {
+    // Could add name naturally for introductions
+    qualityIssues.push('missing_personal_touch')
+  }
+  
+  // Check for appropriate length
+  const wordCount = validatedMessage.split(' ').length
+  if (conversationContext?.isComplexQuery && wordCount < 20) {
+    qualityIssues.push('too_short_for_complex_query')
+  } else if (!conversationContext?.isComplexQuery && wordCount > 200) {
+    qualityIssues.push('too_long_for_simple_query')
+  }
+  
+  // Log quality issues for monitoring (don't modify message)
+  if (qualityIssues.length > 0) {
+    console.log('Response quality issues detected:', qualityIssues)
+  }
+  
+  return validatedMessage
+}
+
+function calculateQualityScore(message: string, conversationContext: any): number {
+  if (!message) return 0
+  
+  let score = 0.5 // Base score
+  
+  // Length appropriateness
+  const wordCount = message.split(' ').length
+  if (conversationContext?.isComplexQuery) {
+    score += wordCount >= 30 ? 0.1 : 0 // Complex queries should have substantial responses
+  } else {
+    score += wordCount >= 10 && wordCount <= 150 ? 0.1 : 0 // Simple queries should be concise
+  }
+  
+  // Check for concrete details vs generic responses
+  const concreteWords = ['specific', 'example', 'instance', 'particular', 'exactly', 'precisely']
+  const hasConcreteLanguage = concreteWords.some(word => message.toLowerCase().includes(word))
+  if (hasConcreteLanguage) score += 0.1
+  
+  // Check for personality indicators
+  const personalityWords = ['experience', 'I think', 'I believe', 'my approach', 'I find', 'I usually']
+  const hasPersonality = personalityWords.some(phrase => message.toLowerCase().includes(phrase))
+  if (hasPersonality) score += 0.1
+  
+  // Check for questions/engagement
+  const questionCount = (message.match(/\?/g) || []).length
+  if (conversationContext?.conversationStage === 'early' && questionCount >= 1) {
+    score += 0.1 // Good to ask questions early
+  } else if (conversationContext?.conversationStage !== 'early' && questionCount > 3) {
+    score -= 0.05 // Too many questions later in conversation
+  }
+  
+  // Check for natural ending
+  const artificialEndings = ['How can I help you today?', 'What would you like to know?', 'Any other questions?']
+  const hasArtificialEnding = artificialEndings.some(ending => message.includes(ending))
+  if (hasArtificialEnding) score -= 0.1
+  
+  // Penalty for generic AI language
+  const genericPhrases = ['As an AI', 'I\'m an AI', 'I don\'t have the ability', 'I cannot']
+  const hasGenericLanguage = genericPhrases.some(phrase => message.includes(phrase))
+  if (hasGenericLanguage) score -= 0.2
+  
+  return Math.max(0, Math.min(1, score)) // Clamp between 0-1
 }

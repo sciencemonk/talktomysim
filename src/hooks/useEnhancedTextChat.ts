@@ -230,12 +230,19 @@ function deduplicateSystemMessages(
       continue; // Skip exact duplicates
     }
     
-    // Check if this is a welcome message
+    // Check if this is a welcome/introduction message
     const isWelcomeMessage = welcomePatterns.some(pattern => pattern.test(content.toLowerCase()));
     
-    // If this is a welcome message but not the last one, skip it
-    if (isWelcomeMessage && hasWelcomeMessage && i !== lastWelcomeMessageIndex) {
-      console.log('Skipping duplicate welcome message:', content.substring(0, 50) + '...');
+    // Prevent welcome messages in the middle of conversations
+    // If there are any user messages in the system messages array, it's mid-conversation
+    const hasUserMessagesInHistory = systemMessages.some((msg, idx) => idx < i && msg.role === 'user');
+      
+    // Skip welcome messages in these cases:
+    // 1. If it's a duplicate welcome message (not the last one)
+    // 2. If it appears after user messages (mid-conversation introduction)
+    if (isWelcomeMessage && 
+        ((hasWelcomeMessage && i !== lastWelcomeMessageIndex) || hasUserMessagesInHistory)) {
+      console.log('Skipping inappropriate welcome message:', content.substring(0, 50) + '...');
       continue;
     }
     
