@@ -47,34 +47,66 @@ export const ChatInterface = ({
   const [hasLoadedInitialMessages, setHasLoadedInitialMessages] = useState(false);
   const [isUserNearBottom, setIsUserNearBottom] = useState(true);
   const [shouldAutoScroll, setShouldAutoScroll] = useState(false);
+  const [isUserScrolling, setIsUserScrolling] = useState(false);
+  const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const [selectedConversation, setSelectedConversation] = useState<any>(null);
   const [isChatModalOpen, setIsChatModalOpen] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
 
-  // Check if user is near bottom of chat
+  // Check if user is near bottom of chat - improved for mobile
   const checkIfNearBottom = useCallback(() => {
     if (!messagesContainerRef.current) return true;
     
     const container = messagesContainerRef.current;
-    const threshold = 150; // pixels from bottom
+    // Smaller threshold for mobile to be less aggressive
+    const threshold = isMobile ? 50 : 150; 
     const isNearBottom = container.scrollHeight - container.scrollTop - container.clientHeight < threshold;
     
     setIsUserNearBottom(isNearBottom);
     return isNearBottom;
-  }, []);
+  }, [isMobile]);
 
-  // Smart scroll to bottom - only when appropriate
+  // Smart scroll to bottom - only when appropriate, gentler on mobile (iMessage-like)
   const scrollToBottom = useCallback((force = false) => {
-    if (messagesEndRef.current && (force || (shouldAutoScroll && isUserNearBottom))) {
-      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    if (!messagesEndRef.current) return;
+    
+    // Don't auto-scroll if user is actively scrolling (like iMessage)
+    if (isUserScrolling && !force) {
+      return;
     }
-  }, [shouldAutoScroll, isUserNearBottom]);
+    
+    // On mobile, be more conservative about auto-scrolling
+    if (isMobile && !force && !isUserNearBottom) {
+      return;
+    }
+    
+    if (force || (shouldAutoScroll && isUserNearBottom)) {
+      // Use different behavior for mobile vs desktop
+      messagesEndRef.current.scrollIntoView({ 
+        behavior: isMobile ? 'auto' : 'smooth',
+        block: 'end'
+      });
+    }
+  }, [shouldAutoScroll, isUserNearBottom, isMobile, isUserScrolling]);
 
-  // Handle scroll events to track user position
+  // Handle scroll events to track user position and detect active scrolling
   const handleScroll = useCallback(() => {
     checkIfNearBottom();
+    
+    // Detect if user is actively scrolling (like iMessage behavior)
+    setIsUserScrolling(true);
+    
+    // Clear existing timeout
+    if (scrollTimeoutRef.current) {
+      clearTimeout(scrollTimeoutRef.current);
+    }
+    
+    // Reset scrolling state after user stops scrolling
+    scrollTimeoutRef.current = setTimeout(() => {
+      setIsUserScrolling(false);
+    }, 150);
   }, [checkIfNearBottom]);
 
   // Only auto-scroll when there's active AI streaming or user sends a message
@@ -271,12 +303,15 @@ export const ChatInterface = ({
       
       setHasLoadedInitialMessages(true);
       
-      // Scroll to bottom
-      setTimeout(() => {
-        setShouldAutoScroll(true);
-        setIsUserNearBottom(true);
-        scrollToBottom(true);
-      }, 100);
+      // Only auto-scroll if this is a new conversation or we're on mobile and have just a few messages
+      const shouldInitialScroll = historyMessages.length <= 2 || (!isMobile && historyMessages.length <= 5);
+      if (shouldInitialScroll) {
+        setTimeout(() => {
+          setShouldAutoScroll(true);
+          setIsUserNearBottom(true);
+          scrollToBottom(true);
+        }, 100);
+      }
     } 
     // Only show welcome message if we haven't loaded messages yet AND there are no existing messages
     else if (!hasLoadedInitialMessages && agent?.welcomeMessage && messages.length === 0) {
@@ -290,10 +325,11 @@ export const ChatInterface = ({
       setMessages([welcomeMsg]);
       setHasLoadedInitialMessages(true);
       
+      // For welcome message, always scroll to show it properly
       setTimeout(() => {
         setShouldAutoScroll(true);
         setIsUserNearBottom(true);
-        scrollToBottom(true);
+        scrollToBottom(false); // Don't force, let natural scroll happen
       }, 100);
     } else if (messages.length > 0 && !hasLoadedInitialMessages) {
       // If we already have messages but haven't marked as loaded, mark as loaded to prevent welcome message
@@ -301,6 +337,15 @@ export const ChatInterface = ({
       setHasLoadedInitialMessages(true);
     }
   }, [historyMessages, conversation?.id, agent?.welcomeMessage, hasLoadedInitialMessages, scrollToBottom, messages.length]);
+
+  // Cleanup scroll timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (scrollTimeoutRef.current) {
+        clearTimeout(scrollTimeoutRef.current);
+      }
+    };
+  }, []);
 
   const addUserMessage = useCallback(async (message: string) => {
     if (!message.trim()) {
@@ -318,9 +363,12 @@ export const ChatInterface = ({
 
     setMessages(prev => [...prev, userMsg]);
     
-    // Auto-scroll when user sends a message
-    setShouldAutoScroll(true);
-    setIsUserNearBottom(true);
+    // Auto-scroll when user sends a message - but only if already near bottom or on mobile
+    const wasNearBottom = checkIfNearBottom();
+    if (wasNearBottom || isMobile) {
+      setShouldAutoScroll(true);
+      setIsUserNearBottom(true);
+    }
     
     // Save to localStorage for public conversations (database conversations are handled by Edge Function)
     if (conversation?.id && conversation.id.startsWith('public_')) {
@@ -599,6 +647,15 @@ export const ChatInterface = ({
 
   return (
     <div className="flex flex-col h-screen bg-background relative w-full max-w-full overflow-hidden">
+      {/* Mobile viewport fix */}
+      <style jsx>{`
+        @media (max-width: 768px) {
+          .mobile-chat-container {
+            height: 100vh;
+            height: 100dvh; /* Dynamic viewport height for mobile */
+          }
+        }
+      `}</style>
       {/* Header - Only show for non-user sims */}
       {!isUserOwnSim && (
         <div className="fixed top-0 left-0 right-0 z-10 flex items-center justify-between p-4 border-b border-border bg-card">
@@ -658,8 +715,14 @@ export const ChatInterface = ({
         ref={messagesContainerRef}
         onScroll={handleScroll}
         className={`flex-1 overflow-y-auto p-4 space-y-4 w-full ${
-          isUserOwnSim ? 'pt-4 pb-24' : 'pt-24 pb-24'
-        }`}
+          isUserOwnSim 
+            ? isMobile 
+              ? 'pt-4 pb-20' 
+              : 'pt-4 pb-24'
+            : isMobile 
+              ? 'pt-20 pb-20'
+              : 'pt-24 pb-24'
+        } mobile-chat-container`}
       >
         {/* Debug message count - using useEffect to avoid React node issues */}
         <div className="hidden">{messages.length}</div>
@@ -753,9 +816,9 @@ export const ChatInterface = ({
       </div>
 
       {/* Input - Fixed to bottom. When a sidebar exists, offset on desktop widths. */}
-      <div className={`fixed bottom-0 z-10 p-4 border-t border-border bg-card ${
+      <div className={`fixed bottom-0 z-10 border-t border-border bg-card ${
         hasSidebar ? 'left-0 right-0 md:left-80 md:right-0' : 'left-0 right-0'
-      }`}>
+      } ${isMobile ? 'p-3' : 'p-4'}`}>
         <div className="flex gap-2 w-full max-w-full">
           <Input
             value={inputMessage}

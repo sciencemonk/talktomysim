@@ -4,6 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useSim } from "@/hooks/useSim";
 import { AgentToggle } from "@/components/AgentToggle";
 import { UserSettingsModal } from "@/components/UserSettingsModal";
+import { PlanUpgradeModal } from "@/components/PlanUpgradeModal";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
@@ -28,6 +29,11 @@ const UserSettingsDropdown: React.FC<UserSettingsDropdownProps> = ({
   const { user, signOut } = useAuth();
   const { sim, toggleSimActive } = useSim();
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
+  const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false);
+
+  // TODO: Replace with actual user plan and credits from database
+  const userPlan = 'free'; // Default new users to free
+  const userCredits = 25; // Example: 25 out of 30 free credits remaining
 
   const handleSignOut = async () => {
     await signOut();
@@ -45,6 +51,28 @@ const UserSettingsDropdown: React.FC<UserSettingsDropdownProps> = ({
     setIsSettingsModalOpen(true);
   };
 
+  const handleUpgradeClick = () => {
+    setIsUpgradeModalOpen(true);
+  };
+
+  const getPlanDisplayName = (plan: string) => {
+    switch (plan) {
+      case 'free': return 'Free';
+      case 'plus': return 'Plus';
+      case 'pro': return 'Pro';
+      default: return 'Free';
+    }
+  };
+
+  const getPlanCredits = (plan: string) => {
+    switch (plan) {
+      case 'free': return 30;
+      case 'plus': return 100;
+      case 'pro': return 1000;
+      default: return 30;
+    }
+  };
+
   const defaultTrigger = (
     <Button variant="ghost" className="w-full justify-start p-2 h-auto">
       <div className="flex items-center space-x-3">
@@ -55,12 +83,14 @@ const UserSettingsDropdown: React.FC<UserSettingsDropdownProps> = ({
           </AvatarFallback>
         </Avatar>
         {!simplified && (
-          <div className="flex flex-col items-start text-left flex-1 min-w-0">
-            <span className="text-sm font-medium truncate">
-              {sim?.name || user?.email}
-            </span>
-            <span className="text-xs text-muted-foreground">Plus</span>
-          </div>
+                      <div className="flex flex-col items-start text-left flex-1 min-w-0">
+              <span className="text-sm font-medium truncate">
+                {sim?.name || user?.email}
+              </span>
+              <span className="text-xs text-muted-foreground">
+                {getPlanDisplayName(userPlan)} • {userCredits}/{getPlanCredits(userPlan)} credits
+              </span>
+            </div>
         )}
       </div>
     </Button>
@@ -85,7 +115,9 @@ const UserSettingsDropdown: React.FC<UserSettingsDropdownProps> = ({
               <span className="text-sm font-medium truncate">
                 {sim?.name || user?.email}
               </span>
-              <span className="text-xs text-muted-foreground">Plus</span>
+              <span className="text-xs text-muted-foreground">
+                {getPlanDisplayName(userPlan)} • {userCredits}/{getPlanCredits(userPlan)} credits
+              </span>
             </div>
           </div>
         </div>
@@ -114,7 +146,10 @@ const UserSettingsDropdown: React.FC<UserSettingsDropdownProps> = ({
         
         <DropdownMenuSeparator />
         
-        <DropdownMenuItem className="flex items-center space-x-2 cursor-pointer">
+        <DropdownMenuItem 
+          className="flex items-center space-x-2 cursor-pointer"
+          onClick={handleUpgradeClick}
+        >
           <Crown className="h-4 w-4 text-yellow-500" />
           <span>Upgrade</span>
         </DropdownMenuItem>
@@ -143,6 +178,14 @@ const UserSettingsDropdown: React.FC<UserSettingsDropdownProps> = ({
     <UserSettingsModal 
       isOpen={isSettingsModalOpen}
       onClose={() => setIsSettingsModalOpen(false)}
+    />
+
+    {/* Plan Upgrade Modal */}
+    <PlanUpgradeModal 
+      isOpen={isUpgradeModalOpen}
+      onClose={() => setIsUpgradeModalOpen(false)}
+      currentPlan={userPlan}
+      currentCredits={userCredits}
     />
   </>
   );
