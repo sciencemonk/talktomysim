@@ -35,7 +35,6 @@ export const fetchAdvisorById = async (id: string): Promise<AgentType> => {
     prompt: advisor.prompt,
     subject: advisor.category || 'General',
     title: advisor.title, // Include the title field from advisors table
-    url: (advisor as any).url || null, // Handle missing url field gracefully
     is_featured: false, // Default to false since advisors table doesn't have this field yet
     // Set default values for tutor-specific fields
     model: 'GPT-4',

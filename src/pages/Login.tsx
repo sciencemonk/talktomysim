@@ -9,7 +9,6 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
-import EmailConfirmation from '@/components/EmailConfirmation';
 
 interface AuthForm {
   email: string;
@@ -20,8 +19,6 @@ const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isTestLoading, setIsTestLoading] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
-  const [showEmailConfirmation, setShowEmailConfirmation] = useState(false);
-  const [signupEmail, setSignupEmail] = useState('');
   const { user } = useAuth();
   const navigate = useNavigate();
 
@@ -131,9 +128,8 @@ const Login = () => {
         }
 
         if (signUpData.user) {
-          setSignupEmail(data.email);
-          setShowEmailConfirmation(true);
-          // Don't show success toast here since we're showing the confirmation screen
+          toast.success('Account created successfully! Please check your email to confirm your account.');
+          // Don't redirect immediately for signup, user needs to confirm email
         }
       } else {
         const { data: signInData, error } = await supabase.auth.signInWithPassword({
@@ -159,24 +155,8 @@ const Login = () => {
     }
   };
 
-  const handleBackFromConfirmation = () => {
-    setShowEmailConfirmation(false);
-    setSignupEmail('');
-    setIsSignUp(false);
-    form.reset();
-  };
-
   if (user) {
     return null; // Will redirect via useEffect
-  }
-
-  if (showEmailConfirmation) {
-    return (
-      <EmailConfirmation 
-        email={signupEmail} 
-        onBack={handleBackFromConfirmation}
-      />
-    );
   }
 
   return (
@@ -236,7 +216,7 @@ const Login = () => {
                 className="w-full bg-gradient-to-r from-purple-600 via-pink-500 to-blue-500 text-white hover:opacity-90 animate-pulse"
                 size="lg"
               >
-                {isLoading ? 'Processing...' : (isSignUp ? 'Sign Up' : 'Get Started for Free')}
+                {isLoading ? 'Processing...' : 'Get Started for Free'}
               </Button>
             </form>
           </Form>

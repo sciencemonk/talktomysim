@@ -24,12 +24,7 @@ export const conversationService = {
   async getOrCreateConversation(advisorId: string): Promise<Conversation | null> {
     try {
       const { data: { user } } = await supabase.auth.getUser();
-      
-      // If no user is authenticated, return null (public chats will handle this)
-      if (!user) {
-        console.log('No authenticated user for conversation - using in-memory chat');
-        return null;
-      }
+      if (!user) throw new Error('User not authenticated');
 
       // First try to get existing conversation for this advisor
       const { data: existingConversation } = await supabase

@@ -1,35 +1,67 @@
 
 import { useParams } from "react-router-dom";
 import { usePublicAgent } from "@/hooks/usePublicAgent";
-import { usePublicAgentByUrl } from "@/hooks/usePublicAgentByUrl";
-import ChatInterface from "@/components/ChatInterface";
-import UserSidebar from "@/components/UserSidebar";
-import { Bot, Loader2, AlertCircle } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
+import { useRealtimeChat } from "@/hooks/useRealtimeChat";
+import { TextInput } from "@/components/TextInput";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Bot, Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useIsMobile } from "@/hooks/use-mobile";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerTrigger,
+} from "@/components/ui/drawer";
+import { useState } from "react";
+import { ShareButton } from "@/components/ShareButton";
+import { InfoModal } from "@/components/InfoModal";
 
 const StudentChat = () => {
-  const { agentId, customUrl } = useParams<{ agentId?: string; customUrl?: string }>();
+  const { agentId } = useParams<{ agentId: string }>();
+  const { agent, isLoading, error } = usePublicAgent(agentId);
+  const realtimeChat = useRealtimeChat({ agent: agent! });
   const isMobile = useIsMobile();
-  
-  // Determine which hook to use based on the route parameters
-  const isLegacyRoute = !!agentId;
-  const isCustomUrlRoute = !!customUrl && !agentId;
-  
-  // Use the appropriate hook based on the route type
-  const legacyAgentResult = usePublicAgent(isLegacyRoute ? agentId : undefined);
-  const customUrlAgentResult = usePublicAgentByUrl(isCustomUrlRoute ? customUrl : undefined);
-  
-  // Use the result from the appropriate hook
-  const { agent, isLoading, error } = isLegacyRoute ? legacyAgentResult : customUrlAgentResult;
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+
+  // Combine messages with current partial message if speaking
+  const allMessages = [...realtimeChat.messages];
+  if (realtimeChat.currentMessage && realtimeChat.isSpeaking) {
+    allMessages.push({
+      id: 'current',
+      role: 'system' as const,
+      content: realtimeChat.currentMessage,
+      timestamp: new Date(),
+      isComplete: false
+    });
+  }
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="flex flex-col items-center gap-4">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          <p className="text-sm text-muted-foreground">Loading conversation...</p>
+      <div className="h-screen flex flex-col">
+        {/* Header Skeleton */}
+        <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-4 sm:px-6 py-5 sticky top-0 z-10">
+          <div className="flex items-center justify-between max-w-4xl mx-auto">
+            <div className="flex items-center gap-3">
+              {isMobile && (
+                <Skeleton className="h-10 w-10" />
+              )}
+              <Skeleton className="h-10 w-10 rounded-full" />
+              <div className="space-y-2">
+                <Skeleton className="h-5 w-32" />
+                <Skeleton className="h-4 w-24" />
+              </div>
+            </div>
+            <Skeleton className="h-9 w-16" />
+          </div>
+        </div>
+        
+        {/* Content Skeleton */}
+        <div className="flex-1 flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary mx-auto mb-4"></div>
+            <p className="text-base text-muted-foreground">Loading your learning buddy...</p>
+          </div>
         </div>
       </div>
     );
@@ -37,55 +69,157 @@ const StudentChat = () => {
 
   if (error || !agent) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center p-4">
-        <Card className="w-full max-w-md">
-          <CardContent className="pt-6">
-            <div className="flex flex-col items-center text-center space-y-4">
-              <AlertCircle className="h-12 w-12 text-destructive" />
-              <div>
-                <h3 className="font-semibold mb-2">Tutor Not Available</h3>
-                <p className="text-sm text-muted-foreground mb-4">
-                  {error || "The tutor you're looking for is not available right now."}
-                </p>
-                <Button 
-                  variant="outline" 
-                  onClick={() => window.location.href = '/'}
-                >
-                  Go Home
-                </Button>
+      <div className="h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-20 h-20 bg-muted rounded-2xl flex items-center justify-center mb-6">
+            <Bot className="h-10 w-10 text-muted-foreground" />
+          </div>
+          <h3 className="font-semibold text-xl mb-3">Learning Buddy Not Available</h3>
+          <p className="text-base text-muted-foreground">
+            {error || "This learning buddy is not available for chat."}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  const MobileMenu = () => (
+    <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
+      <DrawerTrigger asChild>
+        <Button variant="ghost" size="sm" className="h-10 w-10 p-0">
+          <Menu className="h-5 w-5" />
+        </Button>
+      </DrawerTrigger>
+      <DrawerContent className="h-[300px]">
+        <div className="p-6 space-y-4">
+          <div className="flex items-center gap-3 mb-4">
+            <Avatar className="h-12 w-12">
+              <AvatarImage src={agent.avatar} alt={agent.name} />
+              <AvatarFallback className="bg-primary text-primary-foreground">
+                <Bot className="h-6 w-6" />
+              </AvatarFallback>
+            </Avatar>
+            <div>
+              <h2 className="font-semibold text-lg">{agent.name}</h2>
+              <p className="text-sm text-muted-foreground">{agent.title || agent.type}</p>
+            </div>
+          </div>
+          
+          <ShareButton 
+            tutorId={agent.id}
+            tutorName={agent.name}
+            className="w-full justify-start"
+          />
+        </div>
+      </DrawerContent>
+    </Drawer>
+  );
+
+  return (
+    <div className="h-screen flex flex-col w-full">
+      {/* Header - Always visible and sticky on mobile */}
+      <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-4 sm:px-6 py-5 sticky top-0 z-10 flex-shrink-0">
+        <div className="flex items-center justify-between max-w-4xl mx-auto">
+          <div className="flex items-center gap-3 min-w-0 flex-1">
+            {isMobile && <MobileMenu />}
+            <Avatar className="h-10 w-10 flex-shrink-0">
+              <AvatarImage src={agent.avatar} alt={agent.name} />
+              <AvatarFallback className="bg-primary text-primary-foreground text-sm">
+                <Bot className="h-5 w-5" />
+              </AvatarFallback>
+            </Avatar>
+            <div className="min-w-0 flex-1">
+              <h1 className="font-semibold text-lg truncate">{agent.name}</h1>
+              <p className="text-sm text-muted-foreground truncate">{agent.title || agent.type}</p>
+            </div>
+          </div>
+          
+          {/* ShareButton and InfoModal */}
+          <div className="flex items-center gap-2 flex-shrink-0">
+            {!isMobile && (
+              <ShareButton 
+                tutorId={agent.id}
+                tutorName={agent.name}
+              />
+            )}
+            <InfoModal />
+          </div>
+        </div>
+      </div>
+
+      {/* Chat Content Area - Scrollable between header and input */}
+      <div className="flex-1 flex flex-col overflow-hidden min-h-0">
+        {/* Messages Container */}
+        <div className="flex-1 overflow-y-auto">
+          {allMessages.length === 0 ? (
+            <div className="h-full flex flex-col items-center justify-center px-4 sm:px-6">
+              <div className="w-16 h-16 bg-muted rounded-xl flex items-center justify-center mb-6">
+                <Bot className="h-8 w-8 text-muted-foreground" />
+              </div>
+              <h2 className="text-xl sm:text-2xl font-semibold mb-3 text-center">How can I help you today?</h2>
+              <p className="text-sm sm:text-base text-muted-foreground text-center max-w-md leading-relaxed">
+                {realtimeChat.connectionStatus === 'connecting' 
+                  ? 'Getting ready to chat...' 
+                  : realtimeChat.connectionStatus === 'error'
+                  ? 'Connection error - please refresh'
+                  : `I'm ${agent.name}, ready to help you learn and explore ideas together!`
+                }
+              </p>
+            </div>
+          ) : (
+            <div className="max-w-4xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
+              <div className="space-y-6 sm:space-y-8">
+                {allMessages.map((message) => (
+                  <div key={message.id} className="flex gap-3 sm:gap-4">
+                    {message.role === 'system' && (
+                      <Avatar className="h-8 w-8 sm:h-10 sm:w-10 flex-shrink-0">
+                        <AvatarImage src={agent.avatar} alt={agent.name} />
+                        <AvatarFallback className="bg-primary text-primary-foreground text-sm">
+                          <Bot className="h-4 w-4 sm:h-5 sm:w-5" />
+                        </AvatarFallback>
+                      </Avatar>
+                    )}
+                    
+                    {message.role === 'user' && (
+                      <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
+                        <span className="text-xs sm:text-sm font-medium">You</span>
+                      </div>
+                    )}
+                    
+                    <div className="flex-1 min-w-0">
+                      <div className="prose prose-sm max-w-none">
+                        <p className="text-sm sm:text-base leading-relaxed whitespace-pre-wrap break-words mb-0 font-medium">
+                          {message.content}
+                        </p>
+                      </div>
+                      
+                      {!message.isComplete && message.role === 'system' && (
+                        <div className="flex items-center gap-1 mt-3">
+                          <div className="w-2 h-2 bg-muted-foreground rounded-full animate-pulse" />
+                          <div className="w-2 h-2 bg-muted-foreground rounded-full animate-pulse" style={{ animationDelay: '0.2s' }} />
+                          <div className="w-2 h-2 bg-muted-foreground rounded-full animate-pulse" style={{ animationDelay: '0.4s' }} />
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
-  const handleBack = () => {
-    window.history.back();
-  };
-
-  // On mobile, render just the chat interface
-  if (isMobile) {
-    return (
-      <div className="h-screen bg-background">
-        <ChatInterface 
-          agent={agent}
-          onBack={handleBack}
-        />
-      </div>
-    );
-  }
-
-  // On desktop, render with sidebar
-  return (
-    <div className="h-screen bg-background flex">
-      <UserSidebar />
-      <div className="flex-1">
-        <ChatInterface 
-          agent={agent}
-          onBack={handleBack}
-        />
+          )}
+        </div>
+        
+        {/* Input Area - Always visible and sticky at bottom */}
+        <div className="border-t bg-background sticky bottom-0 z-10 flex-shrink-0">
+          <TextInput
+            onSendMessage={realtimeChat.sendTextMessage}
+            disabled={!realtimeChat.isConnected}
+            placeholder={
+              !realtimeChat.isConnected 
+                ? "Connecting..." 
+                : `Message ${agent.name}...`
+            }
+          />
+        </div>
       </div>
     </div>
   );

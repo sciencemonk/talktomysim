@@ -1,215 +1,255 @@
 
-import React, { useState } from "react";
+import { useState } from "react";
+import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { useAgents } from "@/hooks/useAgents";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Separator } from "@/components/ui/separator";
-import { Sheet, SheetContent } from "@/components/ui/sheet";
-import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import {
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { 
+  Bot, 
+  Plus, 
+  MessageSquare, 
   Search,
-  Plus,
-  MessageCircle,
   User,
-  Sparkles,
-  Brain,
-  BookOpen,
-  Home,
-  X,
   Settings,
-  Crown,
-  Bot,
-  Zap
+  BarChart3,
+  Users,
+  X,
+  ChevronDown,
+  ChevronRight
 } from "lucide-react";
 import { AgentType } from "@/types/agent";
-import { useIsMobile } from "@/hooks/use-mobile";
 import UserSettingsDropdown from "./UserSettingsDropdown";
+import AdvisorForm from "./AdvisorForm";
 
 interface UserSidebarProps {
   selectedAgent?: AgentType | null;
   selectedPublicAdvisorId?: string | null;
-  selectedPublicAdvisors?: AgentType[];
+  selectedPublicAdvisors: AgentType[];
   onSelectAgent?: (agent: AgentType) => void;
   onSelectPublicAdvisor?: (advisorId: string, advisor?: AgentType) => void;
   onRemovePublicAdvisor?: (advisorId: string) => void;
-  onShowAdvisorDirectory?: () => void;
-  onNavigateToMySim?: () => void;
-  onNavigateToBasicInfo?: () => void;
-  onNavigateToInteractionModel?: () => void;
-  onNavigateToCoreKnowledge?: () => void;
-  onNavigateToIntegrations?: () => void;
-  activeView?: string; // Add this prop to track the active view
+  onShowAdvisorDirectory: () => void;
+  className?: string;
 }
 
-export interface SidebarContentProps extends UserSidebarProps {
-  onClose?: () => void;
-}
-
-export const SidebarContent: React.FC<SidebarContentProps> = ({
-  selectedAgent,
-  selectedPublicAdvisorId,
-  selectedPublicAdvisors = [],
-  onSelectAgent,
-  onSelectPublicAdvisor,
+export const SidebarContent = ({ 
+  selectedAgent, 
+  selectedPublicAdvisorId, 
+  selectedPublicAdvisors, 
+  onSelectAgent, 
+  onSelectPublicAdvisor, 
   onRemovePublicAdvisor,
   onShowAdvisorDirectory,
-  onNavigateToMySim,
-  onNavigateToBasicInfo,
-  onNavigateToInteractionModel,
-  onNavigateToCoreKnowledge,
-  onNavigateToIntegrations,
-  activeView,
   onClose
-}) => {
+}: UserSidebarProps & { onClose?: () => void }) => {
   const { user } = useAuth();
+  const { agents, refetch } = useAgents();
+  const location = useLocation();
+  const [conversationsExpanded, setConversationsExpanded] = useState(true);
+  const [isCreateSimOpen, setIsCreateSimOpen] = useState(false);
 
-  const menuItems = [
-    {
-      icon: User,
-      label: "My Sim",
-      onClick: () => {
-        onNavigateToMySim?.();
-        onClose?.();
-      },
-      viewKey: "my-sim"
-    },
-    {
-      icon: Sparkles,
-      label: "Basic Info",
-      onClick: () => {
-        onNavigateToBasicInfo?.();
-        onClose?.();
-      },
-      viewKey: "basic-info"
-    },
-    {
-      icon: Brain,
-      label: "Interaction Model",
-      onClick: () => {
-        onNavigateToInteractionModel?.();
-        onClose?.();
-      },
-      viewKey: "interaction-model"
-    },
-    {
-      icon: BookOpen,
-      label: "Core Knowledge",
-      onClick: () => {
-        onNavigateToCoreKnowledge?.();
-        onClose?.();
-      },
-      viewKey: "core-knowledge"
-    },
-    {
-      icon: Zap,
-      label: "Integrations",
-      onClick: () => {
-        onNavigateToIntegrations?.();
-        onClose?.();
-      },
-      viewKey: "integrations"
-    },
-    {
-      icon: Search,
-      label: "Search",
-      onClick: () => {
-        onShowAdvisorDirectory?.();
-        onClose?.();
-      },
-      viewKey: "search"
-    }
-  ];
+  const isOnHomePage = location.pathname === '/';
 
-  const userTrigger = user ? (
-    <Button variant="ghost" className="w-full justify-start p-3 h-auto">
-      <div className="flex items-center space-x-3 w-full">
-        <Avatar className="h-10 w-10">
-          <AvatarImage src={user?.user_metadata?.avatar_url} alt="Profile" />
-          <AvatarFallback>
-            {user?.email?.charAt(0)?.toUpperCase() || "U"}
-          </AvatarFallback>
-        </Avatar>
-        <div className="flex-1 min-w-0 text-left">
-          <p className="text-sm font-medium text-fg truncate">
-            {user?.user_metadata?.full_name || "User"}
-          </p>
-          <p className="text-xs text-fgMuted truncate">
-            {user?.email}
-          </p>
-        </div>
-      </div>
-    </Button>
-  ) : null;
+  const handleCreateSimSuccess = () => {
+    setIsCreateSimOpen(false);
+    refetch();
+  };
 
   return (
-    <div className="flex flex-col h-full bg-card border-r border-border">
+    <div className="flex flex-col h-full bg-background border-r border-border">
       {/* Header */}
       <div className="p-4 border-b border-border">
         <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center gap-2">
             <img 
               src="/lovable-uploads/d1283b59-7cfa-45f5-b151-4c32b24f3621.png" 
-              alt="Logo" 
-              className="h-8 w-8 object-contain"
+              alt="Simulacra" 
+              className="h-6 w-6"
             />
-            <h2 className="text-lg font-semibold text-fg">Sim</h2>
+            <h1 className="font-semibold">Simulacra</h1>
           </div>
+          {onClose && (
+            <Button variant="ghost" size="sm" onClick={onClose} className="p-1 h-auto">
+              <X className="h-4 w-4" />
+            </Button>
+          )}
         </div>
       </div>
 
-      {/* Scrollable Content */}
       <ScrollArea className="flex-1">
         <div className="p-4 space-y-6">
-          {/* Navigation Menu */}
-          <div className="space-y-2">
-            {menuItems.map((item, index) => {
-              // Only highlight if there's an explicit activeView match
-              const isActive = activeView === item.viewKey;
-              
-              return (
-                <Button
-                  key={index}
-                  variant="ghost"
-                  className={`w-full justify-start text-left ${
-                    isActive 
-                      ? "bg-primary/10 text-primary border border-primary/20" 
-                      : "text-fgMuted hover:text-fg hover:bg-bgMuted"
-                  }`}
-                  onClick={item.onClick}
-                >
-                  <item.icon className="mr-3 h-4 w-4" />
-                  <span className="flex-1">{item.label}</span>
-                </Button>
-              );
-            })}
-          </div>
+          {/* Search Sims Button */}
+          <Button 
+            onClick={() => {
+              onShowAdvisorDirectory();
+              onClose?.();
+            }}
+            variant={isOnHomePage && !selectedAgent && !selectedPublicAdvisorId ? "secondary" : "ghost"}
+            className="w-full justify-start gap-2"
+          >
+            <Search className="h-4 w-4" />
+            Search Sims
+          </Button>
+
+          {user && (
+            <>
+              {/* My Sim Section */}
+              <div className="space-y-3">
+                <div className="flex items-center gap-2">
+                  <User className="h-4 w-4 text-muted-foreground" />
+                  <h3 className="text-sm font-medium text-foreground">My Sim</h3>
+                </div>
+                
+                <div className="ml-6 space-y-2">
+                  {agents.length > 0 ? (
+                    <>
+                      {agents.map((agent) => (
+                        <div key={agent.id} className="space-y-1">
+                          <div className="flex items-center gap-2 p-2 rounded-lg bg-muted/50">
+                            <Avatar className="h-6 w-6">
+                              <AvatarImage src={agent.avatar || ''} />
+                              <AvatarFallback className="text-xs">
+                                <Bot className="h-3 w-3" />
+                              </AvatarFallback>
+                            </Avatar>
+                            <span className="text-sm font-medium flex-1 truncate">{agent.name}</span>
+                            <Badge variant="outline" className="text-xs">
+                              {agent.status}
+                            </Badge>
+                          </div>
+                          
+                          {/* Sim Management Actions */}
+                          <div className="ml-8 space-y-1">
+                            <Button 
+                              variant="ghost" 
+                              size="sm" 
+                              className="w-full justify-start gap-2 text-xs h-7"
+                              onClick={() => setIsCreateSimOpen(true)}
+                            >
+                              <Settings className="h-3 w-3" />
+                              Edit Sim
+                            </Button>
+                            <Button 
+                              variant="ghost" 
+                              size="sm" 
+                              className="w-full justify-start gap-2 text-xs h-7"
+                              onClick={() => window.open(`/tutors/${agent.id}/chat`, '_blank')}
+                            >
+                              <Users className="h-3 w-3" />
+                              View Public Page
+                            </Button>
+                          </div>
+                        </div>
+                      ))}
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="w-full gap-2"
+                        onClick={() => setIsCreateSimOpen(true)}
+                      >
+                        <Plus className="h-3 w-3" />
+                        Create Another Sim
+                      </Button>
+                    </>
+                  ) : (
+                    <Button 
+                      variant="outline" 
+                      className="w-full gap-2"
+                      onClick={() => setIsCreateSimOpen(true)}
+                    >
+                      <Plus className="h-4 w-4" />
+                      Create Your Sim
+                    </Button>
+                  )}
+                </div>
+              </div>
+
+              <Separator />
+
+              {/* Conversations Section */}
+              {selectedPublicAdvisors.length > 0 && (
+                <div className="space-y-3">
+                  <button
+                    onClick={() => setConversationsExpanded(!conversationsExpanded)}
+                    className="flex items-center gap-2 w-full text-left"
+                  >
+                    {conversationsExpanded ? (
+                      <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                    ) : (
+                      <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                    )}
+                    <MessageSquare className="h-4 w-4 text-muted-foreground" />
+                    <h3 className="text-sm font-medium text-foreground">Conversations</h3>
+                    <Badge variant="secondary" className="ml-auto text-xs">
+                      {selectedPublicAdvisors.length}
+                    </Badge>
+                  </button>
+                  
+                  {conversationsExpanded && (
+                    <div className="ml-6 space-y-1">
+                      {selectedPublicAdvisors.map((advisor) => (
+                        <div key={advisor.id} className="flex items-center gap-2 group">
+                          <Button
+                            variant={selectedPublicAdvisorId === advisor.id ? "secondary" : "ghost"}
+                            size="sm"
+                            className="flex-1 justify-start gap-2 h-8"
+                            onClick={() => {
+                              onSelectPublicAdvisor?.(advisor.id, advisor);
+                              onClose?.();
+                            }}
+                          >
+                            <Avatar className="h-5 w-5">
+                              <AvatarImage src={advisor.avatar || ''} />
+                              <AvatarFallback className="text-xs">
+                                {advisor.name.charAt(0)}
+                              </AvatarFallback>
+                            </Avatar>
+                            <span className="truncate text-xs">{advisor.name}</span>
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="opacity-0 group-hover:opacity-100 transition-opacity p-1 h-6 w-6"
+                            onClick={() => onRemovePublicAdvisor?.(advisor.id)}
+                          >
+                            <X className="h-3 w-3" />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+            </>
+          )}
         </div>
       </ScrollArea>
 
-      {/* User Info at Bottom */}
+      {/* Footer */}
       {user && (
-        <>
-          <Separator />
-          <div className="p-4">
-            <UserSettingsDropdown trigger={userTrigger} simplified={true} />
-          </div>
-        </>
+        <div className="p-4 border-t border-border">
+          <UserSettingsDropdown />
+        </div>
       )}
+
+      {/* Create Sim Modal */}
+      <AdvisorForm
+        open={isCreateSimOpen}
+        onOpenChange={setIsCreateSimOpen}
+        advisor={null}
+        onSuccess={handleCreateSimSuccess}
+      />
     </div>
   );
 };
 
-const UserSidebar: React.FC<UserSidebarProps> = (props) => {
-  const isMobile = useIsMobile();
-
-  if (isMobile) {
-    return null; // Mobile sidebar is handled in Home component with Sheet
-  }
-
+const UserSidebar = (props: UserSidebarProps) => {
   return (
-    <div className="fixed left-0 top-0 h-screen w-80 z-40">
+    <div className={`w-64 ${props.className || ''}`}>
       <SidebarContent {...props} />
     </div>
   );

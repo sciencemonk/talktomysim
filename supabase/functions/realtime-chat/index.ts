@@ -1,3 +1,4 @@
+
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
@@ -131,6 +132,7 @@ serve(async (req) => {
       content: enhancedPrompt
     }
 
+    const model = conversation.tutors?.model || 'gpt-4'
     const chatMessages = [systemMessage, ...messages]
 
     const openaiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -140,9 +142,10 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-5-2025-08-07',
+        model: model,
         messages: chatMessages,
-        max_completion_tokens: 1000,
+        max_tokens: 1000,
+        temperature: 0.7,
         stream: false
       }),
     })

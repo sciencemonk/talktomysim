@@ -185,8 +185,8 @@ The student should be talking at least 50% of the time about ${learningObjective
 
       console.log('Getting ephemeral token...');
       
-      const { data: tokenData, error: tokenError } = await supabase.functions.invoke('realtime-token', {
-        body: {}
+      const { data: tokenData, error: tokenError } = await supabase.functions.invoke('realtime-chat', {
+        body: { agent_id: agent.id }
       });
 
       if (tokenError || !tokenData) {

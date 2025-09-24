@@ -119,7 +119,6 @@ export type Database = {
           prompt: string
           title: string | null
           updated_at: string
-          url: string | null
         }
         Insert: {
           avatar_url?: string | null
@@ -133,7 +132,6 @@ export type Database = {
           prompt: string
           title?: string | null
           updated_at?: string
-          url?: string | null
         }
         Update: {
           avatar_url?: string | null
@@ -147,7 +145,6 @@ export type Database = {
           prompt?: string
           title?: string | null
           updated_at?: string
-          url?: string | null
         }
         Relationships: []
       }

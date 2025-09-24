@@ -1,7 +1,6 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { AgentType } from '@/types/agent';
-import { supabase } from '@/integrations/supabase/client';
 
 interface Message {
   id: string;
@@ -12,7 +11,7 @@ interface Message {
 }
 
 interface UseRealtimeChatProps {
-  agent: AgentType | null;
+  agent: AgentType;
 }
 
 export const useRealtimeChat = ({ agent }: UseRealtimeChatProps) => {
@@ -25,7 +24,6 @@ export const useRealtimeChat = ({ agent }: UseRealtimeChatProps) => {
   const wsRef = useRef<WebSocket | null>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
   const currentMessageIdRef = useRef<string>('');
-  const reconnectTimeoutRef = useRef<NodeJS.Timeout>();
 
   const initializeAudioContext = useCallback(async () => {
     if (!audioContextRef.current) {
@@ -96,46 +94,29 @@ export const useRealtimeChat = ({ agent }: UseRealtimeChatProps) => {
   }, [createWavFromPCM]);
 
   const connectWebSocket = useCallback(async () => {
-    if (!agent) {
-      console.log('No agent available, cannot connect WebSocket');
-      return;
-    }
-
-    // Clear any existing reconnection timeout
-    if (reconnectTimeoutRef.current) {
-      clearTimeout(reconnectTimeoutRef.current);
-    }
-
     console.log('Connecting to WebSocket...');
     setConnectionStatus('connecting');
 
     try {
-      // Get an ephemeral token from our edge function
-      const { data: tokenData, error: tokenError } = await supabase.functions.invoke('realtime-token', {
-        body: {}
+      // First, get an ephemeral token from our edge function
+      const tokenResponse = await fetch('/functions/v1/realtime-chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
       });
 
-      if (tokenError || !tokenData) {
-        throw new Error(tokenError?.message || 'Failed to get ephemeral token');
+      if (!tokenResponse.ok) {
+        throw new Error(`Failed to get token: ${tokenResponse.status}`);
       }
 
-      if (!tokenData.client_secret?.value) {
-        throw new Error("No ephemeral token received");
-      }
-
+      const tokenData = await tokenResponse.json();
       console.log('Got ephemeral token');
 
-      // Close existing connection if any
-      if (wsRef.current) {
-        wsRef.current.close();
-        wsRef.current = null;
-      }
-
-      // Connect to OpenAI WebSocket with the ephemeral token and proper headers
+      // Connect to OpenAI WebSocket with the ephemeral token
       const ws = new WebSocket(`wss://api.openai.com/v1/realtime?model=gpt-4o-realtime-preview-2024-12-17`, [
         'realtime',
         `openai-insecure-api-key.${tokenData.client_secret.value}`,
-        'openai-beta.realtime-v1'
       ]);
 
       ws.onopen = () => {
@@ -167,7 +148,6 @@ export const useRealtimeChat = ({ agent }: UseRealtimeChatProps) => {
           }
         };
         
-        console.log('Sending session config:', sessionConfig);
         ws.send(JSON.stringify(sessionConfig));
       };
 
@@ -237,7 +217,6 @@ export const useRealtimeChat = ({ agent }: UseRealtimeChatProps) => {
 
           case 'error':
             console.error('WebSocket error:', data);
-            setConnectionStatus('error');
             break;
         }
       };
@@ -248,20 +227,12 @@ export const useRealtimeChat = ({ agent }: UseRealtimeChatProps) => {
         setIsConnected(false);
       };
 
-      ws.onclose = (event) => {
-        console.log('WebSocket disconnected, code:', event.code, 'reason:', event.reason);
+      ws.onclose = () => {
+        console.log('WebSocket disconnected');
         setIsConnected(false);
         setConnectionStatus('disconnected');
         setIsSpeaking(false);
         wsRef.current = null;
-
-        // Auto-reconnect after a delay unless it's a normal closure
-        if (event.code !== 1000 && agent) {
-          console.log('Attempting to reconnect in 3 seconds...');
-          reconnectTimeoutRef.current = setTimeout(() => {
-            connectWebSocket();
-          }, 3000);
-        }
       };
 
     } catch (error) {
@@ -272,12 +243,8 @@ export const useRealtimeChat = ({ agent }: UseRealtimeChatProps) => {
   }, [agent, currentMessage, playAudioData]);
 
   const sendTextMessage = useCallback((text: string) => {
-    if (!wsRef.current || !isConnected) {
-      console.log('Cannot send message: WebSocket not connected');
-      return;
-    }
+    if (!wsRef.current || !isConnected) return;
 
-    // Add user message to chat immediately
     const userMessage: Message = {
       id: `user_${Date.now()}`,
       role: 'user',
@@ -300,21 +267,15 @@ export const useRealtimeChat = ({ agent }: UseRealtimeChatProps) => {
       }
     };
 
-    console.log('Sending message:', event);
     wsRef.current.send(JSON.stringify(event));
     wsRef.current.send(JSON.stringify({ type: 'response.create' }));
   }, [isConnected]);
 
   useEffect(() => {
-    if (agent) {
-      initializeAudioContext();
-      connectWebSocket();
-    }
+    initializeAudioContext();
+    connectWebSocket();
 
     return () => {
-      if (reconnectTimeoutRef.current) {
-        clearTimeout(reconnectTimeoutRef.current);
-      }
       if (wsRef.current) {
         wsRef.current.close();
       }
@@ -322,7 +283,7 @@ export const useRealtimeChat = ({ agent }: UseRealtimeChatProps) => {
         audioContextRef.current.close();
       }
     };
-  }, [agent, connectWebSocket, initializeAudioContext]);
+  }, [connectWebSocket, initializeAudioContext]);
 
   return {
     messages,
