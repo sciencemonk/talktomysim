@@ -33,7 +33,7 @@ const Admin = () => {
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
   // Check if user is admin
-  if (!user || user.email !== 'artolaya@gmail.com') {
+  if (!user || !['artolaya@gmail.com', 'michael@dexterlearning.com'].includes(user.email || '')) {
     return (
       <div className="flex-1 flex items-center justify-center p-6">
         <div className="text-center">

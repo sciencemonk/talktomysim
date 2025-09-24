@@ -69,7 +69,9 @@ export type Database = {
           created_at: string
           document_id: string
           embedding: string | null
+          end_char: number | null
           id: string
+          start_char: number | null
         }
         Insert: {
           advisor_id: string
@@ -78,7 +80,9 @@ export type Database = {
           created_at?: string
           document_id: string
           embedding?: string | null
+          end_char?: number | null
           id?: string
+          start_char?: number | null
         }
         Update: {
           advisor_id?: string
@@ -87,7 +91,9 @@ export type Database = {
           created_at?: string
           document_id?: string
           embedding?: string | null
+          end_char?: number | null
           id?: string
+          start_char?: number | null
         }
         Relationships: [
           {
@@ -108,73 +114,385 @@ export type Database = {
       }
       advisors: {
         Row: {
+          additional_background: string | null
+          areas_of_expertise: string | null
           avatar_url: string | null
           background_content: string | null
           category: string | null
+          completion_status: Json | null
           created_at: string
+          current_profession: string | null
+          custom_url: string | null
+          date_of_birth: string | null
           description: string | null
+          education: string | null
+          full_name: string | null
           id: string
+          interests: Json | null
+          is_active: boolean
+          is_public: boolean | null
+          is_verified: boolean
           knowledge_summary: string | null
+          location: string | null
           name: string
+          owner_welcome_message: string | null
+          professional_title: string | null
           prompt: string
+          sample_scenarios: Json | null
+          skills: Json | null
           title: string | null
+          updated_at: string
+          url: string | null
+          user_id: string | null
+          welcome_message: string | null
+          writing_sample: string | null
+          years_experience: number | null
+        }
+        Insert: {
+          additional_background?: string | null
+          areas_of_expertise?: string | null
+          avatar_url?: string | null
+          background_content?: string | null
+          category?: string | null
+          completion_status?: Json | null
+          created_at?: string
+          current_profession?: string | null
+          custom_url?: string | null
+          date_of_birth?: string | null
+          description?: string | null
+          education?: string | null
+          full_name?: string | null
+          id?: string
+          interests?: Json | null
+          is_active?: boolean
+          is_public?: boolean | null
+          is_verified?: boolean
+          knowledge_summary?: string | null
+          location?: string | null
+          name: string
+          owner_welcome_message?: string | null
+          professional_title?: string | null
+          prompt: string
+          sample_scenarios?: Json | null
+          skills?: Json | null
+          title?: string | null
+          updated_at?: string
+          url?: string | null
+          user_id?: string | null
+          welcome_message?: string | null
+          writing_sample?: string | null
+          years_experience?: number | null
+        }
+        Update: {
+          additional_background?: string | null
+          areas_of_expertise?: string | null
+          avatar_url?: string | null
+          background_content?: string | null
+          category?: string | null
+          completion_status?: Json | null
+          created_at?: string
+          current_profession?: string | null
+          custom_url?: string | null
+          date_of_birth?: string | null
+          description?: string | null
+          education?: string | null
+          full_name?: string | null
+          id?: string
+          interests?: Json | null
+          is_active?: boolean
+          is_public?: boolean | null
+          is_verified?: boolean
+          knowledge_summary?: string | null
+          location?: string | null
+          name?: string
+          owner_welcome_message?: string | null
+          professional_title?: string | null
+          prompt?: string
+          sample_scenarios?: Json | null
+          skills?: Json | null
+          title?: string | null
+          updated_at?: string
+          url?: string | null
+          user_id?: string | null
+          welcome_message?: string | null
+          writing_sample?: string | null
+          years_experience?: number | null
+        }
+        Relationships: []
+      }
+      conversation_captures: {
+        Row: {
+          advisor_id: string
+          conversation_id: string
+          conversation_score: number | null
+          created_at: string | null
+          email: string | null
+          id: string
+          message_count: number | null
+          name: string | null
+          notes: string | null
+          phone: string | null
+          status: string | null
+          trigger_reason: string | null
+        }
+        Insert: {
+          advisor_id: string
+          conversation_id: string
+          conversation_score?: number | null
+          created_at?: string | null
+          email?: string | null
+          id?: string
+          message_count?: number | null
+          name?: string | null
+          notes?: string | null
+          phone?: string | null
+          status?: string | null
+          trigger_reason?: string | null
+        }
+        Update: {
+          advisor_id?: string
+          conversation_id?: string
+          conversation_score?: number | null
+          created_at?: string | null
+          email?: string | null
+          id?: string
+          message_count?: number | null
+          name?: string | null
+          notes?: string | null
+          phone?: string | null
+          status?: string | null
+          trigger_reason?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conversation_captures_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      conversation_embeddings: {
+        Row: {
+          advisor_id: string
+          content_text: string
+          content_type: string
+          conversation_date: string | null
+          conversation_id: string
+          created_at: string
+          embedding: string | null
+          id: string
+          message_count: number | null
+          metadata: Json | null
+          participant_type: string | null
           updated_at: string
         }
         Insert: {
-          avatar_url?: string | null
-          background_content?: string | null
-          category?: string | null
+          advisor_id: string
+          content_text: string
+          content_type?: string
+          conversation_date?: string | null
+          conversation_id: string
           created_at?: string
-          description?: string | null
+          embedding?: string | null
           id?: string
-          knowledge_summary?: string | null
-          name: string
-          prompt: string
-          title?: string | null
+          message_count?: number | null
+          metadata?: Json | null
+          participant_type?: string | null
           updated_at?: string
         }
         Update: {
-          avatar_url?: string | null
-          background_content?: string | null
-          category?: string | null
+          advisor_id?: string
+          content_text?: string
+          content_type?: string
+          conversation_date?: string | null
+          conversation_id?: string
           created_at?: string
-          description?: string | null
+          embedding?: string | null
           id?: string
-          knowledge_summary?: string | null
-          name?: string
-          prompt?: string
-          title?: string | null
+          message_count?: number | null
+          metadata?: Json | null
+          participant_type?: string | null
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "conversation_embeddings_advisor_id_fkey"
+            columns: ["advisor_id"]
+            isOneToOne: false
+            referencedRelation: "advisors"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       conversations: {
         Row: {
           advisor_id: string | null
           created_at: string | null
           id: string
+          is_anonymous: boolean | null
           title: string | null
           tutor_id: string
           updated_at: string | null
-          user_id: string
+          user_id: string | null
         }
         Insert: {
           advisor_id?: string | null
           created_at?: string | null
           id?: string
+          is_anonymous?: boolean | null
           title?: string | null
           tutor_id: string
           updated_at?: string | null
-          user_id: string
+          user_id?: string | null
         }
         Update: {
           advisor_id?: string | null
           created_at?: string | null
           id?: string
+          is_anonymous?: boolean | null
           title?: string | null
           tutor_id?: string
           updated_at?: string | null
-          user_id?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      document_versions: {
+        Row: {
+          change_summary: string | null
+          content: string
+          content_hash: string
+          created_at: string
+          created_by: string | null
+          document_id: string
+          file_size: number | null
+          id: string
+          title: string
+          version_number: number
+        }
+        Insert: {
+          change_summary?: string | null
+          content: string
+          content_hash: string
+          created_at?: string
+          created_by?: string | null
+          document_id: string
+          file_size?: number | null
+          id?: string
+          title: string
+          version_number: number
+        }
+        Update: {
+          change_summary?: string | null
+          content?: string
+          content_hash?: string
+          created_at?: string
+          created_by?: string | null
+          document_id?: string
+          file_size?: number | null
+          id?: string
+          title?: string
+          version_number?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "document_versions_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "advisor_documents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      escalation_rules: {
+        Row: {
+          advisor_id: string
+          contact_capture_enabled: boolean | null
+          contact_capture_message: string | null
+          created_at: string | null
+          custom_keywords: string[] | null
+          id: string
+          is_active: boolean | null
+          message_count_threshold: number | null
+          score_threshold: number | null
+          updated_at: string | null
+          urgency_keywords: string[] | null
+          value_keywords: string[] | null
+          vip_keywords: string[] | null
+        }
+        Insert: {
+          advisor_id: string
+          contact_capture_enabled?: boolean | null
+          contact_capture_message?: string | null
+          created_at?: string | null
+          custom_keywords?: string[] | null
+          id?: string
+          is_active?: boolean | null
+          message_count_threshold?: number | null
+          score_threshold?: number | null
+          updated_at?: string | null
+          urgency_keywords?: string[] | null
+          value_keywords?: string[] | null
+          vip_keywords?: string[] | null
+        }
+        Update: {
+          advisor_id?: string
+          contact_capture_enabled?: boolean | null
+          contact_capture_message?: string | null
+          created_at?: string | null
+          custom_keywords?: string[] | null
+          id?: string
+          is_active?: boolean | null
+          message_count_threshold?: number | null
+          score_threshold?: number | null
+          updated_at?: string | null
+          urgency_keywords?: string[] | null
+          value_keywords?: string[] | null
+          vip_keywords?: string[] | null
+        }
+        Relationships: []
+      }
+      form_submissions: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          interest: string
+          message: string | null
+          name: string
+          organization: string
+          phone: string | null
+          region: string | null
+          submitted_at: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          interest: string
+          message?: string | null
+          name: string
+          organization: string
+          phone?: string | null
+          region?: string | null
+          submitted_at?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          interest?: string
+          message?: string | null
+          name?: string
+          organization?: string
+          phone?: string | null
+          region?: string | null
+          submitted_at?: string
+          updated_at?: string
         }
         Relationships: []
       }
@@ -184,21 +502,33 @@ export type Database = {
           conversation_id: string
           created_at: string | null
           id: string
+          intent: string | null
+          metadata: Json | null
           role: string
+          score: number | null
+          urgency_level: string | null
         }
         Insert: {
           content: string
           conversation_id: string
           created_at?: string | null
           id?: string
+          intent?: string | null
+          metadata?: Json | null
           role: string
+          score?: number | null
+          urgency_level?: string | null
         }
         Update: {
           content?: string
           conversation_id?: string
           created_at?: string | null
           id?: string
+          intent?: string | null
+          metadata?: Json | null
           role?: string
+          score?: number | null
+          urgency_level?: string | null
         }
         Relationships: [
           {
@@ -219,6 +549,7 @@ export type Database = {
           parent_first_name: string | null
           parent_last_name: string | null
           passcode: string
+          progress: Json | null
           student_dob: string | null
           student_first_name: string | null
           student_last_name: string | null
@@ -235,6 +566,7 @@ export type Database = {
           parent_first_name?: string | null
           parent_last_name?: string | null
           passcode: string
+          progress?: Json | null
           student_dob?: string | null
           student_first_name?: string | null
           student_last_name?: string | null
@@ -251,6 +583,7 @@ export type Database = {
           parent_first_name?: string | null
           parent_last_name?: string | null
           passcode?: string
+          progress?: Json | null
           student_dob?: string | null
           student_first_name?: string | null
           student_last_name?: string | null
@@ -258,6 +591,45 @@ export type Database = {
           updated_at?: string | null
           username?: string
           wallet_address?: string | null
+        }
+        Relationships: []
+      }
+      purchased_seats: {
+        Row: {
+          created_at: string
+          email: string
+          expires_at: string | null
+          id: string
+          purchase_date: string
+          seats_purchased: number
+          seats_used: number
+          stripe_payment_intent_id: string | null
+          total_paid: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          expires_at?: string | null
+          id?: string
+          purchase_date?: string
+          seats_purchased?: number
+          seats_used?: number
+          stripe_payment_intent_id?: string | null
+          total_paid: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          expires_at?: string | null
+          id?: string
+          purchase_date?: string
+          seats_purchased?: number
+          seats_used?: number
+          stripe_payment_intent_id?: string | null
+          total_paid?: number
+          updated_at?: string
         }
         Relationships: []
       }
@@ -419,6 +791,16 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_conversation_insights: {
+        Args: { days_back?: number; target_advisor_id: string }
+        Returns: {
+          anonymous_conversations: number
+          avg_messages_per_conversation: number
+          recent_themes: Json
+          total_conversations: number
+          total_messages: number
+        }[]
+      }
       search_advisor_embeddings: {
         Args: {
           match_count?: number
@@ -430,6 +812,33 @@ export type Database = {
           chunk_text: string
           document_id: string
           id: string
+          similarity: number
+        }[]
+      }
+      search_conversation_embeddings: {
+        Args:
+          | {
+              content_types?: string[]
+              date_from?: string
+              date_to?: string
+              match_count?: number
+              query_embedding: string
+              similarity_threshold?: number
+              target_advisor_id: string
+            }
+          | {
+              match_count?: number
+              query_embedding: string
+              similarity_threshold?: number
+              target_advisor_id: string
+            }
+        Returns: {
+          content_text: string
+          content_type: string
+          conversation_date: string
+          conversation_id: string
+          message_count: number
+          metadata: Json
           similarity: number
         }[]
       }
