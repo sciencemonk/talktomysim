@@ -14,13 +14,12 @@ export const useAllAdvisors = () => {
         setIsLoading(true);
         setError(null);
 
-        console.log('Fetching all active advisors from Supabase...');
+        console.log('Fetching advisors from Supabase...');
 
-        // Fetch from advisors table - this now works with the new RLS policy
+        // Fetch from advisors table
         const { data: advisors, error: advisorsError } = await supabase
           .from('advisors')
           .select('*')
-          .eq('is_active', true) // Only fetch active advisors
           .order('created_at', { ascending: false });
 
         console.log('Supabase response - advisors:', advisors);
@@ -32,39 +31,32 @@ export const useAllAdvisors = () => {
         }
 
         // Transform advisors to AgentType format
-        const transformedAdvisors: AgentType[] = (advisors || []).map(advisor => {
-          console.log(`Transforming advisor ${advisor.name}: is_active=${advisor.is_active}`);
-          
-          return {
-            id: advisor.id,
-            name: advisor.name,
-            description: advisor.description || '',
-            type: 'General Tutor' as any,
-            status: 'active' as any,
-            createdAt: advisor.created_at,
-            updatedAt: advisor.updated_at,
-            avatar: advisor.avatar_url,
-            prompt: advisor.prompt,
-            subject: advisor.category || 'General',
-            title: advisor.title,
-            url: advisor.url,
-            custom_url: advisor.custom_url,
-            is_featured: false,
-            isActive: advisor.is_active === true,
-            // Set default values for tutor-specific fields
-            model: 'GPT-4',
-            interactions: 0,
-            studentsSaved: 0,
-            helpfulnessScore: 0,
-            avmScore: 0,
-            csat: 0,
-            performance: 0,
-            channels: [],
-            channelConfigs: {},
-            isPersonal: false,
-            voiceTraits: []
-          };
-        });
+        const transformedAdvisors: AgentType[] = (advisors || []).map(advisor => ({
+          id: advisor.id,
+          name: advisor.name,
+          description: advisor.description || '',
+          type: 'General Tutor' as any, // Default type for advisors
+          status: 'active' as any,
+          createdAt: advisor.created_at,
+          updatedAt: advisor.updated_at,
+          avatar: advisor.avatar_url,
+          prompt: advisor.prompt,
+          subject: advisor.category || 'General',
+          title: advisor.title, // Include the title field from advisors table
+          is_featured: false, // Default to false since advisors table doesn't have this field yet
+          // Set default values for tutor-specific fields
+          model: 'GPT-4',
+          interactions: 0,
+          studentsSaved: 0,
+          helpfulnessScore: 0,
+          avmScore: 0,
+          csat: 0,
+          performance: 0,
+          channels: [],
+          channelConfigs: {},
+          isPersonal: false,
+          voiceTraits: []
+        }));
 
         console.log('Transformed advisors:', transformedAdvisors);
         setAgents(transformedAdvisors);
@@ -72,7 +64,6 @@ export const useAllAdvisors = () => {
       } catch (err: any) {
         console.error('Error fetching advisors:', err);
         setError(err.message || 'Failed to fetch advisors');
-        setAgents([]); // Ensure we set empty array on error
       } finally {
         setIsLoading(false);
       }

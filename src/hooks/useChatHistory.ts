@@ -1,65 +1,195 @@
 
 import { useState, useEffect, useCallback } from 'react';
+import { AgentType } from '@/types/agent';
 import { conversationService, Message } from '@/services/conversationService';
 
-export const useChatHistory = (conversationId: string | null) => {
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+interface ChatMessage {
+  id: string;
+  role: 'user' | 'system';
+  content: string;
+  isComplete: boolean;
+}
 
-  const loadMessages = useCallback(async () => {
-    if (!conversationId) {
-      setMessages([]);
-      return;
-    }
+export const useChatHistory = (agent: AgentType) => {
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [conversationId, setConversationId] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isPublicChat, setIsPublicChat] = useState(false);
 
-    try {
+  // Load conversation and messages when agent changes
+  useEffect(() => {
+    const loadChatHistory = async () => {
+      if (!agent?.id) return;
+      
       setIsLoading(true);
-      setError(null);
-      console.log('Loading messages for conversation:', conversationId);
+      console.log('Loading chat history for agent:', agent.name);
+
+      try {
+        // For public agents, we'll create a conversation using the public agent ID
+        // The conversation service will handle both personal and public agents
+        const conversation = await conversationService.getOrCreateConversation(agent.id);
+        
+        if (!conversation) {
+          // No conversation means user is not authenticated - use in-memory chat for public access
+          console.log('No conversation created - using in-memory chat for public access');
+          setIsPublicChat(true);
+          setConversationId(null);
+          setMessages([]);
+          setIsLoading(false);
+          return;
+        }
+
+        setIsPublicChat(false);
+        setConversationId(conversation.id);
+
+        // Load existing messages
+        const existingMessages = await conversationService.getMessages(conversation.id);
+        
+        const chatMessages: ChatMessage[] = existingMessages.map((msg: Message) => ({
+          id: msg.id,
+          role: msg.role,
+          content: msg.content,
+          isComplete: true
+        }));
+
+        setMessages(chatMessages);
+        console.log(`Loaded ${chatMessages.length} messages for ${agent.name}:`, chatMessages);
+      } catch (error) {
+        console.error('Error loading chat history:', error);
+        // Fallback to in-memory chat
+        setIsPublicChat(true);
+        setConversationId(null);
+        setMessages([]);
+      }
       
-      const fetchedMessages = await conversationService.getMessages(conversationId);
-      console.log('Fetched messages:', fetchedMessages);
-      
-      // Filter out any messages with null or undefined content
-      const validMessages = fetchedMessages.filter(msg => 
-        msg && 
-        msg.content && 
-        typeof msg.content === 'string' && 
-        msg.content.trim().length > 0
-      );
-      
-      setMessages(validMessages);
-    } catch (err: any) {
-      console.error('Error loading chat history:', err);
-      setError(err.message || 'Failed to load chat history');
-      setMessages([]);
-    } finally {
       setIsLoading(false);
+    };
+
+    // Reset messages when switching agents
+    setMessages([]);
+    setConversationId(null);
+    setIsPublicChat(false);
+    loadChatHistory();
+  }, [agent?.id]);
+
+  // Add user message
+  const addUserMessage = useCallback(async (content: string) => {
+    const tempMessage: ChatMessage = {
+      id: `temp-user-${Date.now()}`,
+      role: 'user',
+      content,
+      isComplete: true
+    };
+
+    setMessages(prev => [...prev, tempMessage]);
+
+    // Only save to database if we have a conversation (authenticated user)
+    if (conversationId) {
+      const savedMessage = await conversationService.addMessage(conversationId, 'user', content);
+      if (savedMessage) {
+        setMessages(prev => 
+          prev.map(msg => 
+            msg.id === tempMessage.id 
+              ? { ...msg, id: savedMessage.id }
+              : msg
+          )
+        );
+      }
     }
   }, [conversationId]);
 
-  useEffect(() => {
-    loadMessages();
-  }, [loadMessages]);
+  // Start AI message
+  const startAiMessage = useCallback(() => {
+    const aiMessage: ChatMessage = {
+      id: `ai-${Date.now()}`,
+      role: 'system',
+      content: '',
+      isComplete: false
+    };
 
-  const addMessage = useCallback((message: Message) => {
-    // Validate message before adding
-    if (message && message.content && typeof message.content === 'string') {
-      setMessages(prev => [...prev, message]);
-    }
+    setMessages(prev => [...prev, aiMessage]);
+    return aiMessage.id;
   }, []);
 
-  const clearMessages = useCallback(() => {
-    setMessages([]);
+  // Add text delta to AI message
+  const addAiTextDelta = useCallback((messageId: string, delta: string) => {
+    setMessages(prev => 
+      prev.map(msg => 
+        msg.id === messageId 
+          ? { ...msg, content: msg.content + delta }
+          : msg
+      )
+    );
   }, []);
+
+  // Complete AI message
+  const completeAiMessage = useCallback(async (messageId: string) => {
+    // Use a function to get the current message content
+    setMessages(prev => {
+      const currentMessage = prev.find(msg => msg.id === messageId);
+      if (!currentMessage || !currentMessage.content.trim()) {
+        console.error('No message content found for ID:', messageId);
+        return prev;
+      }
+
+      console.log('Completing AI message:', currentMessage.content);
+
+      // Only save to database if we have a conversation (authenticated user)
+      if (conversationId) {
+        conversationService.addMessage(
+          conversationId, 
+          'system', 
+          currentMessage.content
+        ).then(savedMessage => {
+          if (savedMessage) {
+            console.log('AI message saved to database:', savedMessage);
+            setMessages(prevMessages => 
+              prevMessages.map(msg => 
+                msg.id === messageId 
+                  ? { ...msg, id: savedMessage.id, isComplete: true }
+                  : msg
+              )
+            );
+          } else {
+            console.error('Failed to save AI message to database');
+            // Still mark as complete even if save failed
+            setMessages(prevMessages => 
+              prevMessages.map(msg => 
+                msg.id === messageId 
+                  ? { ...msg, isComplete: true }
+                  : msg
+              )
+            );
+          }
+        }).catch(error => {
+          console.error('Error saving AI message:', error);
+          // Still mark as complete even if save failed
+          setMessages(prevMessages => 
+            prevMessages.map(msg => 
+              msg.id === messageId 
+                ? { ...msg, isComplete: true }
+                : msg
+            )
+          );
+        });
+      }
+
+      // Mark as complete immediately in the UI
+      return prev.map(msg => 
+        msg.id === messageId 
+          ? { ...msg, isComplete: true }
+          : msg
+      );
+    });
+  }, [conversationId]);
 
   return {
     messages,
     isLoading,
-    error,
-    loadMessages,
-    addMessage,
-    clearMessages
+    isPublicChat,
+    addUserMessage,
+    startAiMessage,
+    addAiTextDelta,
+    completeAiMessage
   };
 };

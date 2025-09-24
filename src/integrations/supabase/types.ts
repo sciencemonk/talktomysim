@@ -59,13 +59,6 @@ export type Database = {
             referencedRelation: "advisors"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "advisor_documents_advisor_id_fkey"
-            columns: ["advisor_id"]
-            isOneToOne: false
-            referencedRelation: "public_advisors"
-            referencedColumns: ["id"]
-          },
         ]
       }
       advisor_embeddings: {
@@ -76,9 +69,7 @@ export type Database = {
           created_at: string
           document_id: string
           embedding: string | null
-          end_char: number | null
           id: string
-          start_char: number | null
         }
         Insert: {
           advisor_id: string
@@ -87,9 +78,7 @@ export type Database = {
           created_at?: string
           document_id: string
           embedding?: string | null
-          end_char?: number | null
           id?: string
-          start_char?: number | null
         }
         Update: {
           advisor_id?: string
@@ -98,9 +87,7 @@ export type Database = {
           created_at?: string
           document_id?: string
           embedding?: string | null
-          end_char?: number | null
           id?: string
-          start_char?: number | null
         }
         Relationships: [
           {
@@ -108,13 +95,6 @@ export type Database = {
             columns: ["advisor_id"]
             isOneToOne: false
             referencedRelation: "advisors"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "advisor_embeddings_advisor_id_fkey"
-            columns: ["advisor_id"]
-            isOneToOne: false
-            referencedRelation: "public_advisors"
             referencedColumns: ["id"]
           },
           {
@@ -143,7 +123,6 @@ export type Database = {
           full_name: string | null
           id: string
           interests: Json | null
-          is_active: boolean
           is_public: boolean | null
           is_verified: boolean
           knowledge_summary: string | null
@@ -158,7 +137,6 @@ export type Database = {
           url: string | null
           user_id: string | null
           welcome_message: string | null
-          writing_sample: string | null
           years_experience: number | null
         }
         Insert: {
@@ -177,7 +155,6 @@ export type Database = {
           full_name?: string | null
           id?: string
           interests?: Json | null
-          is_active?: boolean
           is_public?: boolean | null
           is_verified?: boolean
           knowledge_summary?: string | null
@@ -192,7 +169,6 @@ export type Database = {
           url?: string | null
           user_id?: string | null
           welcome_message?: string | null
-          writing_sample?: string | null
           years_experience?: number | null
         }
         Update: {
@@ -211,7 +187,6 @@ export type Database = {
           full_name?: string | null
           id?: string
           interests?: Json | null
-          is_active?: boolean
           is_public?: boolean | null
           is_verified?: boolean
           knowledge_summary?: string | null
@@ -226,63 +201,9 @@ export type Database = {
           url?: string | null
           user_id?: string | null
           welcome_message?: string | null
-          writing_sample?: string | null
           years_experience?: number | null
         }
         Relationships: []
-      }
-      conversation_captures: {
-        Row: {
-          advisor_id: string
-          conversation_id: string
-          conversation_score: number | null
-          created_at: string | null
-          email: string | null
-          id: string
-          message_count: number | null
-          name: string | null
-          notes: string | null
-          phone: string | null
-          status: string | null
-          trigger_reason: string | null
-        }
-        Insert: {
-          advisor_id: string
-          conversation_id: string
-          conversation_score?: number | null
-          created_at?: string | null
-          email?: string | null
-          id?: string
-          message_count?: number | null
-          name?: string | null
-          notes?: string | null
-          phone?: string | null
-          status?: string | null
-          trigger_reason?: string | null
-        }
-        Update: {
-          advisor_id?: string
-          conversation_id?: string
-          conversation_score?: number | null
-          created_at?: string | null
-          email?: string | null
-          id?: string
-          message_count?: number | null
-          name?: string | null
-          notes?: string | null
-          phone?: string | null
-          status?: string | null
-          trigger_reason?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "conversation_captures_conversation_id_fkey"
-            columns: ["conversation_id"]
-            isOneToOne: false
-            referencedRelation: "conversations"
-            referencedColumns: ["id"]
-          },
-        ]
       }
       conversations: {
         Row: {
@@ -292,7 +213,7 @@ export type Database = {
           title: string | null
           tutor_id: string
           updated_at: string | null
-          user_id: string | null
+          user_id: string
         }
         Insert: {
           advisor_id?: string | null
@@ -301,7 +222,7 @@ export type Database = {
           title?: string | null
           tutor_id: string
           updated_at?: string | null
-          user_id?: string | null
+          user_id: string
         }
         Update: {
           advisor_id?: string | null
@@ -310,102 +231,7 @@ export type Database = {
           title?: string | null
           tutor_id?: string
           updated_at?: string | null
-          user_id?: string | null
-        }
-        Relationships: []
-      }
-      document_versions: {
-        Row: {
-          change_summary: string | null
-          content: string
-          content_hash: string
-          created_at: string
-          created_by: string | null
-          document_id: string
-          file_size: number | null
-          id: string
-          title: string
-          version_number: number
-        }
-        Insert: {
-          change_summary?: string | null
-          content: string
-          content_hash: string
-          created_at?: string
-          created_by?: string | null
-          document_id: string
-          file_size?: number | null
-          id?: string
-          title: string
-          version_number: number
-        }
-        Update: {
-          change_summary?: string | null
-          content?: string
-          content_hash?: string
-          created_at?: string
-          created_by?: string | null
-          document_id?: string
-          file_size?: number | null
-          id?: string
-          title?: string
-          version_number?: number
-        }
-        Relationships: [
-          {
-            foreignKeyName: "document_versions_document_id_fkey"
-            columns: ["document_id"]
-            isOneToOne: false
-            referencedRelation: "advisor_documents"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      escalation_rules: {
-        Row: {
-          advisor_id: string
-          contact_capture_enabled: boolean | null
-          contact_capture_message: string | null
-          created_at: string | null
-          custom_keywords: string[] | null
-          id: string
-          is_active: boolean | null
-          message_count_threshold: number | null
-          score_threshold: number | null
-          updated_at: string | null
-          urgency_keywords: string[] | null
-          value_keywords: string[] | null
-          vip_keywords: string[] | null
-        }
-        Insert: {
-          advisor_id: string
-          contact_capture_enabled?: boolean | null
-          contact_capture_message?: string | null
-          created_at?: string | null
-          custom_keywords?: string[] | null
-          id?: string
-          is_active?: boolean | null
-          message_count_threshold?: number | null
-          score_threshold?: number | null
-          updated_at?: string | null
-          urgency_keywords?: string[] | null
-          value_keywords?: string[] | null
-          vip_keywords?: string[] | null
-        }
-        Update: {
-          advisor_id?: string
-          contact_capture_enabled?: boolean | null
-          contact_capture_message?: string | null
-          created_at?: string | null
-          custom_keywords?: string[] | null
-          id?: string
-          is_active?: boolean | null
-          message_count_threshold?: number | null
-          score_threshold?: number | null
-          updated_at?: string | null
-          urgency_keywords?: string[] | null
-          value_keywords?: string[] | null
-          vip_keywords?: string[] | null
+          user_id?: string
         }
         Relationships: []
       }
@@ -415,33 +241,21 @@ export type Database = {
           conversation_id: string
           created_at: string | null
           id: string
-          intent: string | null
-          metadata: Json | null
           role: string
-          score: number | null
-          urgency_level: string | null
         }
         Insert: {
           content: string
           conversation_id: string
           created_at?: string | null
           id?: string
-          intent?: string | null
-          metadata?: Json | null
           role: string
-          score?: number | null
-          urgency_level?: string | null
         }
         Update: {
           content?: string
           conversation_id?: string
           created_at?: string | null
           id?: string
-          intent?: string | null
-          metadata?: Json | null
           role?: string
-          score?: number | null
-          urgency_level?: string | null
         }
         Relationships: [
           {
@@ -659,60 +473,7 @@ export type Database = {
       }
     }
     Views: {
-      public_advisors: {
-        Row: {
-          avatar_url: string | null
-          category: string | null
-          created_at: string | null
-          current_profession: string | null
-          custom_url: string | null
-          description: string | null
-          id: string | null
-          is_active: boolean | null
-          is_public: boolean | null
-          is_verified: boolean | null
-          location: string | null
-          name: string | null
-          title: string | null
-          updated_at: string | null
-          years_experience: number | null
-        }
-        Insert: {
-          avatar_url?: string | null
-          category?: string | null
-          created_at?: string | null
-          current_profession?: string | null
-          custom_url?: string | null
-          description?: string | null
-          id?: string | null
-          is_active?: boolean | null
-          is_public?: boolean | null
-          is_verified?: boolean | null
-          location?: string | null
-          name?: string | null
-          title?: string | null
-          updated_at?: string | null
-          years_experience?: number | null
-        }
-        Update: {
-          avatar_url?: string | null
-          category?: string | null
-          created_at?: string | null
-          current_profession?: string | null
-          custom_url?: string | null
-          description?: string | null
-          id?: string | null
-          is_active?: boolean | null
-          is_public?: boolean | null
-          is_verified?: boolean | null
-          location?: string | null
-          name?: string | null
-          title?: string | null
-          updated_at?: string | null
-          years_experience?: number | null
-        }
-        Relationships: []
-      }
+      [_ in never]: never
     }
     Functions: {
       search_advisor_embeddings: {

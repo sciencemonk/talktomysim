@@ -1,17 +1,15 @@
-
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { Navigate } from "react-router-dom";
 import AdvisorDirectory from "@/components/AdvisorDirectory";
-import { ChatInterface } from "@/components/ChatInterface";
+import ChatInterface from "@/components/ChatInterface";
 import AuthModal from "@/components/AuthModal";
 import UserSidebar, { SidebarContent } from "@/components/UserSidebar";
 import MySim from "@/components/MySim";
 import BasicInfo from "@/components/BasicInfo";
 import InteractionModel from "@/components/InteractionModel";
-import { CoreKnowledge } from "@/components/CoreKnowledge";
+import CoreKnowledge from "@/components/CoreKnowledge";
 import Integrations from "@/components/Integrations";
-import Actions from "@/components/Actions";
 import { AgentType } from "@/types/agent";
 import { useUserAdvisors } from "@/hooks/useUserAdvisors";
 import { useToast } from "@/hooks/use-toast";
@@ -23,28 +21,26 @@ import {
   SheetContent,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { useSim } from "@/hooks/useSim";
 
-type ViewType = 'directory' | 'my-sim' | 'basic-info' | 'interaction-model' | 'core-knowledge' | 'integrations' | 'actions' | 'search' | 'talk-to-sim';
+type ViewType = 'directory' | 'my-sim' | 'basic-info' | 'interaction-model' | 'core-knowledge' | 'integrations' | 'search';
 
 const Home = () => {
   const { user, loading } = useAuth();
   const { advisorsAsAgents, addAdvisor, removeAdvisor } = useUserAdvisors();
   const { toast } = useToast();
   const isMobile = useIsMobile();
-  const { sim } = useSim(); // Move this to top level
   const [selectedAdvisor, setSelectedAdvisor] = useState<AgentType | null>(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [selectedAgent, setSelectedAgent] = useState<AgentType | null>(null);
   const [selectedPublicAdvisorId, setSelectedPublicAdvisorId] = useState<string | null>(null);
-  // Default to 'talk-to-sim' for authenticated users, 'directory' for non-authenticated
-  const [currentView, setCurrentView] = useState<ViewType>(user ? 'talk-to-sim' : 'directory');
+  // Default to 'my-sim' for authenticated users, 'directory' for non-authenticated
+  const [currentView, setCurrentView] = useState<ViewType>(user ? 'my-sim' : 'directory');
   const [mobileSheetOpen, setMobileSheetOpen] = useState(false);
 
   // Update default view when user authentication state changes
   useEffect(() => {
     if (user && currentView === 'directory') {
-      setCurrentView('talk-to-sim');
+      setCurrentView('my-sim');
     } else if (!user && currentView !== 'directory') {
       setCurrentView('directory');
     }
@@ -188,23 +184,6 @@ const Home = () => {
     setMobileSheetOpen(false); // Close mobile sheet
   };
 
-  const handleNavigateToActions = () => {
-    setCurrentView('actions');
-    setSelectedAgent(null);
-    setSelectedAdvisor(null);
-    setSelectedPublicAdvisorId(null);
-    setMobileSheetOpen(false); // Close mobile sheet
-  };
-
-  // Handle navigation to talk to sim
-  const handleNavigateToTalkToSim = () => {
-    setCurrentView('talk-to-sim');
-    setSelectedAgent(null);
-    setSelectedAdvisor(null);
-    setSelectedPublicAdvisorId(null);
-    setMobileSheetOpen(false); // Close mobile sheet
-  };
-
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -220,13 +199,9 @@ const Home = () => {
   const renderMainContent = () => {
     // If there's a chat agent selected, show chat interface
     if (currentChatAgent) {
-      // Check if this is the user's own sim
-      const isUserOwnSim = currentView === 'talk-to-sim';
-      
       return (
         <ChatInterface
           agent={currentChatAgent}
-          isUserOwnSim={isUserOwnSim}
           onBack={() => {
             setSelectedAgent(null);
             setSelectedAdvisor(null);
@@ -234,8 +209,6 @@ const Home = () => {
             // Return to the previous view context
             if (currentView === 'search') {
               setCurrentView('search');
-            } else if (currentView === 'talk-to-sim') {
-              setCurrentView('my-sim');
             } else {
               setCurrentView('directory');
             }
@@ -248,56 +221,19 @@ const Home = () => {
     switch (currentView) {
       case 'my-sim':
         return <MySim />;
-      case 'talk-to-sim':
-        // Show chat interface with user's own sim
-        if (sim) {
-          const userSimAsAgent: AgentType = {
-            id: sim.id,
-            name: sim.name || 'My Sim',
-            title: sim.professional_title || 'Assistant',
-            description: sim.description || 'Your personal AI assistant',
-            type: 'General Tutor',
-            status: 'active',
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
-            subject: 'General',
-            gradeLevel: 'All',
-            learningObjective: sim.description || 'General assistance',
-            avatar: sim.avatar_url || '',
-            prompt: sim.prompt || '',
-            welcomeMessage: sim.welcome_message || `Hello! I'm ${sim.name || 'your assistant'}. How can I help you today?`
-          };
-          return (
-            <ChatInterface
-              agent={userSimAsAgent}
-              isUserOwnSim={true}
-              onBack={() => setCurrentView('my-sim')}
-            />
-          );
-        }
-        return <div className="flex items-center justify-center h-full text-muted-foreground">No sim found</div>;
       case 'basic-info':
         return <BasicInfo />;
       case 'interaction-model':
         return <InteractionModel />;
       case 'core-knowledge':
-        // Use the first available advisor ID, or user ID if no advisors
-        const advisorId = selectedPublicAdvisorId || 
-                         (advisorsAsAgents.length > 0 ? advisorsAsAgents[0].id : '') ||
-                         user?.id || 
-                         'default';
-        return <CoreKnowledge advisorId={advisorId} />;
+        return <CoreKnowledge />;
       case 'integrations':
         return <Integrations />;
-      case 'actions':
-        return <Actions />;
       case 'search':
         return (
           <AdvisorDirectory 
             onSelectAdvisor={handleAdvisorSelect}
             onAuthRequired={handleAuthRequired}
-            showLoginInHeader={!user}
-            onLoginClick={() => setShowAuthModal(true)}
           />
         );
       case 'directory':
@@ -306,25 +242,73 @@ const Home = () => {
           <AdvisorDirectory 
             onSelectAdvisor={handleAdvisorSelect}
             onAuthRequired={handleAuthRequired}
-            showLoginInHeader={!user}
-            onLoginClick={() => setShowAuthModal(true)}
           />
         );
     }
   };
 
-  // For non-signed in users, show the clean layout without header
+  // For non-signed in users, show the special layout with left sidebar
   if (!user) {
     return (
-      <div className="flex flex-col h-screen bg-background">
-        {/* Directory Content with integrated header */}
-        <div className="flex-1">
-          <AdvisorDirectory 
-            onSelectAdvisor={handleAdvisorSelect}
-            onAuthRequired={handleAuthRequired}
-            showLoginInHeader={true}
-            onLoginClick={() => setShowAuthModal(true)}
-          />
+      <div className="flex h-screen bg-background">
+        {/* Left Sidebar for non-signed in users */}
+        <div className="hidden md:flex w-80 bg-card border-r border-border flex-col">
+          <div className="p-6 border-b border-border">
+            <div className="flex items-center justify-center">
+              <img 
+                src="/lovable-uploads/d1283b59-7cfa-45f5-b151-4c32b24f3621.png" 
+                alt="Logo" 
+                className="h-8 w-8 object-contain"
+              />
+            </div>
+          </div>
+          
+          <div className="flex-1 flex items-center justify-center p-6">
+            <div className="space-y-6 text-center">
+              <div>
+                <h2 className="text-xl font-semibold mb-2">Create your free Sim today</h2>
+              </div>
+              
+              <Button 
+                onClick={() => setShowAuthModal(true)}
+                className="w-full bg-gradient-to-r from-purple-600 via-pink-500 to-blue-500 text-white hover:opacity-90 animate-pulse rounded-lg py-3"
+              >
+                Get Started
+              </Button>
+            </div>
+          </div>
+        </div>
+        
+        {/* Main content */}
+        <div className="flex-1 flex flex-col">
+          {/* Mobile Header */}
+          <div className="md:hidden bg-card border-b border-border p-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <img 
+                  src="/lovable-uploads/d1283b59-7cfa-45f5-b151-4c32b24f3621.png" 
+                  alt="Logo" 
+                  className="h-8 w-8 object-contain"
+                />
+              </div>
+              
+              <Button 
+                onClick={() => setShowAuthModal(true)}
+                size="sm"
+                className="bg-gradient-to-r from-purple-600 via-pink-500 to-blue-500 text-white hover:opacity-90 animate-pulse"
+              >
+                Get Started
+              </Button>
+            </div>
+          </div>
+          
+          {/* Directory Content */}
+          <div className="flex-1">
+            <AdvisorDirectory 
+              onSelectAdvisor={handleAdvisorSelect}
+              onAuthRequired={handleAuthRequired}
+            />
+          </div>
         </div>
         
         <AuthModal 
@@ -351,9 +335,7 @@ const Home = () => {
         onNavigateToInteractionModel={handleNavigateToInteractionModel}
         onNavigateToCoreKnowledge={handleNavigateToCoreKnowledge}
         onNavigateToIntegrations={handleNavigateToIntegrations}
-        onNavigateToActions={handleNavigateToActions}
         onNavigateToSearch={handleNavigateToSearch}
-        onNavigateToTalkToSim={handleNavigateToTalkToSim}
         activeView={currentView}
         onAuthRequired={handleAuthRequired}
       />
@@ -383,9 +365,7 @@ const Home = () => {
                   onNavigateToInteractionModel={handleNavigateToInteractionModel}
                   onNavigateToCoreKnowledge={handleNavigateToCoreKnowledge}
                   onNavigateToIntegrations={handleNavigateToIntegrations}
-                  onNavigateToActions={handleNavigateToActions}
                   onNavigateToSearch={handleNavigateToSearch}
-                  onNavigateToTalkToSim={handleNavigateToTalkToSim}
                   activeView={currentView}
                   onClose={() => setMobileSheetOpen(false)}
                   onAuthRequired={handleAuthRequired}

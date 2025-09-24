@@ -21,9 +21,7 @@ export interface SimData {
   interests?: string[];
   skills?: string[];
   additional_background?: string;
-  writing_sample?: string;
   custom_url?: string;
-  url?: string; // Add the url field from database
   avatar_url?: string;
   
   // Core fields
@@ -50,7 +48,6 @@ export interface SimData {
   
   // Public settings
   is_public?: boolean;
-  is_active?: boolean;
 }
 
 export interface SimCompletionStatus {
@@ -123,7 +120,6 @@ class SimService {
           user_id: user.id,
           name: simData.name || simData.full_name || 'My Sim',
           prompt: simData.prompt || 'You are a helpful AI assistant.',
-          is_active: simData.is_active !== undefined ? simData.is_active : true,
           completion_status: {
             basic_info: false,
             interaction_model: false,
@@ -210,10 +206,6 @@ class SimService {
 
   async makeSimPublic(isPublic: boolean): Promise<SimData> {
     return this.createOrUpdateSim({ is_public: isPublic });
-  }
-
-  async toggleSimActive(isActive: boolean): Promise<SimData> {
-    return this.createOrUpdateSim({ is_active: isActive });
   }
 
   async checkCustomUrlAvailability(customUrl: string): Promise<boolean> {

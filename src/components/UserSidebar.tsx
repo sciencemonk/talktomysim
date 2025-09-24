@@ -13,9 +13,9 @@ import {
   MessageSquare,
   Brain,
   Settings,
+  CheckCircle,
   Search,
-  Trash2,
-  Bot
+  Trash2
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import UserSettingsDropdown from "./UserSettingsDropdown";
@@ -33,9 +33,7 @@ interface UserSidebarProps {
   onNavigateToInteractionModel: () => void;
   onNavigateToCoreKnowledge: () => void;
   onNavigateToIntegrations: () => void;
-  onNavigateToActions: () => void;
   onNavigateToSearch: () => void;
-  onNavigateToTalkToSim: () => void;
   activeView: string;
   onAuthRequired?: () => void;
 }
@@ -57,46 +55,39 @@ export const SidebarContent = ({
   onNavigateToInteractionModel,
   onNavigateToCoreKnowledge,
   onNavigateToIntegrations,
-  onNavigateToActions,
   onNavigateToSearch,
-  onNavigateToTalkToSim,
   activeView,
   onClose,
   onAuthRequired
 }: SidebarContentProps) => {
   const { user } = useAuth();
-  const { completionStatus, sim } = useSim();
+  const { completionStatus } = useSim();
+  const [showComingSoon, setShowComingSoon] = useState(false);
 
   return (
     <div className="flex flex-col h-full bg-card border-r border-border">
+      {/* Header */}
+      <div className="p-6 border-b border-border">
+        <div className="flex items-center justify-center">
+          <img 
+            src="/lovable-uploads/d1283b59-7cfa-45f5-b151-4c32b24f3621.png" 
+            alt="Logo" 
+            className="h-8 w-8 object-contain"
+          />
+        </div>
+      </div>
+
       <div className="flex-1 overflow-hidden flex flex-col">
         <ScrollArea className="flex-1">
           <div className="p-4 space-y-2">
             {user && (
               <>
-                {/* My Sim Section with Logo */}
+                {/* My Sim Section */}
                 <div className="pt-4">
-                  <div className="flex items-center justify-center mb-6">
-                    <img 
-                      src="/lovable-uploads/df065858-3d57-47a9-a087-d06ad0f65397.png" 
-                      alt="My Sim Logo" 
-                      className="h-8 w-auto object-contain"
-                    />
-                  </div>
+                  <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2 px-2">
+                    My Sim
+                  </h3>
                   <div className="space-y-1">
-                    <Button
-                      variant={activeView === 'talk-to-sim' ? "secondary" : "ghost"}
-                      size="sm"
-                      onClick={() => {
-                        onNavigateToTalkToSim();
-                        onClose?.();
-                      }}
-                      className="w-full justify-start h-9"
-                    >
-                      <User className="mr-2 h-4 w-4" />
-                      Talk to My Sim
-                    </Button>
-                    
                     <Button
                       variant={activeView === 'my-sim' ? "secondary" : "ghost"}
                       size="sm"
@@ -106,8 +97,8 @@ export const SidebarContent = ({
                       }}
                       className="w-full justify-start h-9"
                     >
-                      <MessageSquare className="mr-2 h-4 w-4" />
-                      Conversations
+                      <Home className="mr-2 h-4 w-4" />
+                      Overview
                     </Button>
                     
                     <Button
@@ -119,21 +110,11 @@ export const SidebarContent = ({
                       }}
                       className="w-full justify-start h-9"
                     >
-                      <Search className="mr-2 h-4 w-4" />
-                      Context Window
-                    </Button>
-                    
-                    <Button
-                      variant={activeView === 'integrations' ? "secondary" : "ghost"}
-                      size="sm"
-                      onClick={() => {
-                        onNavigateToIntegrations();
-                        onClose?.();
-                      }}
-                      className="w-full justify-start h-9"
-                    >
-                      <Settings className="mr-2 h-4 w-4" />
-                      Integrations
+                      <User className="mr-2 h-4 w-4" />
+                      Basic Info
+                      {completionStatus.basic_info && (
+                        <CheckCircle className="ml-auto h-3 w-3 text-green-500" />
+                      )}
                     </Button>
                     
                     <Button
@@ -147,6 +128,9 @@ export const SidebarContent = ({
                     >
                       <MessageSquare className="mr-2 h-4 w-4" />
                       Interaction Model
+                      {completionStatus.interaction_model && (
+                        <CheckCircle className="ml-auto h-3 w-3 text-green-500" />
+                      )}
                     </Button>
                     
                     <Button
@@ -159,8 +143,30 @@ export const SidebarContent = ({
                       className="w-full justify-start h-9"
                     >
                       <Brain className="mr-2 h-4 w-4" />
-                      Vector Embedding
+                      Core Knowledge
+                      {completionStatus.core_knowledge && (
+                        <CheckCircle className="ml-auto h-3 w-3 text-green-500" />
+                      )}
                     </Button>
+                    
+                    <div className="relative">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setShowComingSoon(!showComingSoon)}
+                        onMouseEnter={() => setShowComingSoon(true)}
+                        onMouseLeave={() => setShowComingSoon(false)}
+                        className="w-full justify-start h-9 cursor-not-allowed opacity-60"
+                      >
+                        <Settings className="mr-2 h-4 w-4" />
+                        Integrations
+                        {showComingSoon && (
+                          <Badge variant="muted" className="ml-auto text-xs">
+                            Coming soon
+                          </Badge>
+                        )}
+                      </Button>
+                    </div>
                   </div>
                 </div>
 
@@ -229,30 +235,10 @@ export const SidebarContent = ({
           </div>
         </ScrollArea>
 
-        {/* User Settings at Bottom - Single Avatar with Dropdown */}
+        {/* User Settings at Bottom */}
         {user && (
           <div className="p-4 border-t border-border">
-            <UserSettingsDropdown 
-              simplified={true} 
-              trigger={
-                <Button variant="ghost" className="w-full justify-start p-2 h-auto">
-                  <div className="flex items-center space-x-3">
-                    <Avatar className="h-8 w-8">
-                      <AvatarImage src={sim?.avatar_url} alt={sim?.name || "User Avatar"} />
-                      <AvatarFallback className="bg-primary/10 text-primary">
-                        {sim?.name?.charAt(0)?.toUpperCase() || user.email?.charAt(0)?.toUpperCase() || "U"}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="flex flex-col items-start text-left flex-1 min-w-0">
-                      <span className="text-sm font-medium truncate">
-                        {sim?.name || user.email}
-                      </span>
-                      <span className="text-xs text-muted-foreground">Plus</span>
-                    </div>
-                  </div>
-                </Button>
-              }
-            />
+            <UserSettingsDropdown simplified={true} />
           </div>
         )}
       </div>

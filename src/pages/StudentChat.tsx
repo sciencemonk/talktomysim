@@ -2,20 +2,18 @@
 import { useParams } from "react-router-dom";
 import { usePublicAgent } from "@/hooks/usePublicAgent";
 import { usePublicAgentByUrl } from "@/hooks/usePublicAgentByUrl";
-import { ChatInterface } from "@/components/ChatInterface";
+import ChatInterface from "@/components/ChatInterface";
 import AuthModal from "@/components/AuthModal";
 import { useAuth } from "@/hooks/useAuth";
 import { Bot, Loader2, AlertCircle } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
-import { useIsMobile } from "@/hooks/use-mobile";
 
 const StudentChat = () => {
   const { agentId, customUrl } = useParams<{ agentId?: string; customUrl?: string }>();
   const { user } = useAuth();
   const [showAuthModal, setShowAuthModal] = useState(false);
-  const isMobile = useIsMobile();
   
   // Determine which hook to use based on the route parameters
   const publicAgentQuery = usePublicAgent(agentId || "");
@@ -25,11 +23,11 @@ const StudentChat = () => {
   const query = agentId ? publicAgentQuery : publicAgentByUrlQuery;
   const { agent, isLoading, error } = query;
 
-  // Redirect from legacy /tutors/:agentId route to custom URL route
+  // Redirect to custom URL if agent has one and we're using the old route
   useEffect(() => {
     if (agent && agent.url && agentId && !customUrl) {
-      // Replace the current URL with the custom URL route
-      window.history.replaceState(null, '', `/${agent.url}`);
+      // Redirect to the custom URL route
+      window.location.href = `/${agent.url}`;
     }
   }, [agent, agentId, customUrl]);
 
@@ -69,15 +67,69 @@ const StudentChat = () => {
     window.location.href = '/';
   };
 
+  const handleAuthRequired = () => {
+    setShowAuthModal(true);
+  };
+
+  // Use the same layout as non-signed-in home page
   return (
     <div className="flex h-screen bg-background">
-      {/* Main content - full width */}
+      {/* Left Sidebar - same as non-signed in home page */}
+      <div className="hidden md:flex w-80 bg-card border-r border-border flex-col">
+        <div className="p-6 border-b border-border">
+          <div className="flex items-center justify-center">
+            <img 
+              src="/lovable-uploads/d1283b59-7cfa-45f5-b151-4c32b24f3621.png" 
+              alt="Logo" 
+              className="h-8 w-8 object-contain"
+            />
+          </div>
+        </div>
+        
+        <div className="flex-1 flex items-center justify-center p-6">
+          <div className="space-y-6 text-center">
+            <div>
+              <h2 className="text-xl font-semibold mb-2">Create your free Sim today</h2>
+            </div>
+            
+            <Button 
+              onClick={() => setShowAuthModal(true)}
+              className="w-full bg-gradient-to-r from-purple-600 via-pink-500 to-blue-500 text-white hover:opacity-90 animate-pulse rounded-lg py-3"
+            >
+              Get Started
+            </Button>
+          </div>
+        </div>
+      </div>
+      
+      {/* Main content */}
       <div className="flex-1 flex flex-col">
+        {/* Mobile Header */}
+        <div className="md:hidden bg-card border-b border-border p-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <img 
+                src="/lovable-uploads/d1283b59-7cfa-45f5-b151-4c32b24f3621.png" 
+                alt="Logo" 
+                className="h-8 w-8 object-contain"
+              />
+            </div>
+            
+            <Button 
+              onClick={() => setShowAuthModal(true)}
+              size="sm"
+              className="bg-gradient-to-r from-purple-600 via-pink-500 to-blue-500 text-white hover:opacity-90 animate-pulse"
+            >
+              Get Started
+            </Button>
+          </div>
+        </div>
+        
+        {/* Chat Content */}
         <div className="flex-1">
           <ChatInterface 
             agent={agent}
             onBack={handleBack}
-            onLoginClick={() => setShowAuthModal(true)}
           />
         </div>
       </div>

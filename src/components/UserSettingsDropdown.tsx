@@ -1,122 +1,141 @@
 
-import React from "react";
-import { useAuth } from "@/hooks/useAuth";
-import { useSim } from "@/hooks/useSim";
-import { AgentToggle } from "@/components/AgentToggle";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { LogOut, Settings, Crown } from "lucide-react";
+} from "@/components/ui/dropdown-menu"
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
+import { Button } from "@/components/ui/button"
+import { useAuth } from "@/hooks/useAuth";
+import { Settings, LogOut, User, Home, CreditCard } from "lucide-react";
+import { Link } from "react-router-dom";
+import { useState } from "react";
+import UpgradeModal from "./UpgradeModal";
 
 interface UserSettingsDropdownProps {
-  simplified?: boolean;
+  onShowBilling?: () => void;
   trigger?: React.ReactNode;
+  simplified?: boolean; // New prop to control which items to show
 }
 
-const UserSettingsDropdown: React.FC<UserSettingsDropdownProps> = ({ 
-  simplified = false, 
-  trigger 
-}) => {
+const UserSettingsDropdown = ({ onShowBilling, trigger, simplified = false }: UserSettingsDropdownProps) => {
   const { user, signOut } = useAuth();
-  const { sim, toggleSimActive } = useSim();
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
   const handleSignOut = async () => {
     await signOut();
   };
 
-  const handleToggleActive = async (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (sim) {
-      await toggleSimActive(!sim.is_active);
-    }
-  };
-
-  const defaultTrigger = (
+  const defaultTrigger = simplified ? (
     <Button variant="ghost" className="w-full justify-start p-2 h-auto">
       <div className="flex items-center space-x-3">
         <Avatar className="h-8 w-8">
-          <AvatarImage src={sim?.avatar_url} alt={sim?.name || "User Avatar"} />
-          <AvatarFallback className="bg-primary/10 text-primary">
-            {sim?.name?.charAt(0)?.toUpperCase() || user?.email?.charAt(0)?.toUpperCase() || "U"}
+          <AvatarImage src={user?.user_metadata?.avatar_url} alt="Profile" />
+          <AvatarFallback>
+            {user?.email?.charAt(0)?.toUpperCase() || "U"}
           </AvatarFallback>
         </Avatar>
-        {!simplified && (
-          <div className="flex flex-col items-start text-left flex-1 min-w-0">
-            <span className="text-sm font-medium truncate">
-              {sim?.name || user?.email}
-            </span>
-            <span className="text-xs text-muted-foreground">Plus</span>
-          </div>
-        )}
+        <div className="flex flex-col items-start text-left">
+          <span className="text-sm font-medium">
+            {user?.user_metadata?.full_name || user?.email?.split('@')[0] || "User"}
+          </span>
+          <span className="text-xs text-muted-foreground">Plus</span>
+        </div>
       </div>
+    </Button>
+  ) : (
+    <Button variant="ghost" size="sm" className="h-8 w-8 rounded-full">
+      <Avatar className="h-8 w-8">
+        <AvatarImage src={user?.user_metadata?.avatar_url} alt="Profile" />
+        <AvatarFallback>
+          {user?.email?.charAt(0)?.toUpperCase() || "U"}
+        </AvatarFallback>
+      </Avatar>
     </Button>
   );
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        {trigger || defaultTrigger}
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-56">
-        <div className="px-3 py-2">
-          <div className="flex items-center space-x-3">
-            <Avatar className="h-8 w-8">
-              <AvatarImage src={sim?.avatar_url} alt={sim?.name || "User Avatar"} />
-              <AvatarFallback className="bg-primary/10 text-primary">
-                {sim?.name?.charAt(0)?.toUpperCase() || user?.email?.charAt(0)?.toUpperCase() || "U"}
-              </AvatarFallback>
-            </Avatar>
-            <div className="flex flex-col items-start text-left flex-1 min-w-0">
-              <span className="text-sm font-medium truncate">
-                {sim?.name || user?.email}
-              </span>
-              <span className="text-xs text-muted-foreground">Plus</span>
-            </div>
-          </div>
-        </div>
-        
-        <DropdownMenuSeparator />
-        
-        <div className="px-3 py-2">
-          <div className="flex items-center justify-between">
-            <span className="text-sm font-medium">Sim Status</span>
-            <AgentToggle 
-              isActive={sim?.is_active ?? true}
-              onToggle={handleToggleActive}
-            />
-          </div>
-        </div>
-        
-        <DropdownMenuSeparator />
-        
-        <DropdownMenuItem className="flex items-center space-x-2 cursor-pointer">
-          <Crown className="h-4 w-4 text-yellow-500" />
-          <span>Upgrade</span>
-        </DropdownMenuItem>
-        
-        <DropdownMenuItem className="flex items-center space-x-2 cursor-pointer">
-          <Settings className="h-4 w-4" />
-          <span>Settings</span>
-        </DropdownMenuItem>
-        
-        <DropdownMenuSeparator />
-        
-        <DropdownMenuItem 
-          className="flex items-center space-x-2 cursor-pointer"
-          onClick={handleSignOut}
-        >
-          <LogOut className="h-4 w-4" />
-          <span>Sign Out</span>
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          {trigger || defaultTrigger}
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="start" className="w-56">
+          {simplified && (
+            <>
+              <DropdownMenuLabel className="font-normal">
+                <div className="flex flex-col space-y-1">
+                  <p className="text-sm font-medium leading-none">
+                    {user?.user_metadata?.full_name || "User"}
+                  </p>
+                  <p className="text-xs leading-none text-muted-foreground">
+                    {user?.email}
+                  </p>
+                </div>
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator />
+            </>
+          )}
+          {!simplified && (
+            <>
+              <DropdownMenuLabel className="font-normal">
+                <div className="flex flex-col space-y-1">
+                  <p className="text-sm font-medium leading-none">
+                    {user?.user_metadata?.full_name || "User"}
+                  </p>
+                  <p className="text-xs leading-none text-muted-foreground">
+                    {user?.email}
+                  </p>
+                  {onShowBilling && (
+                    <button
+                      onClick={onShowBilling}
+                      className="text-xs text-primary hover:text-primary/80 underline font-medium text-left mt-1"
+                    >
+                      0.0 hours left
+                    </button>
+                  )}
+                </div>
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem asChild>
+                <Link to="/agents" className="w-full flex items-center">
+                  <Home className="mr-2 h-4 w-4" />
+                  <span>Home</span>
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link to="/child-profile" className="w-full flex items-center">
+                  <User className="mr-2 h-4 w-4" />
+                  <span>Child Profile</span>
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link to="/settings" className="w-full flex items-center">
+                  <Settings className="mr-2 h-4 w-4" />
+                  <span>Settings</span>
+                </Link>
+              </DropdownMenuItem>
+            </>
+          )}
+          <DropdownMenuItem onClick={() => setShowUpgradeModal(true)}>
+            <CreditCard className="mr-2 h-4 w-4" />
+            <span>Upgrade</span>
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={handleSignOut}>
+            <LogOut className="mr-2 h-4 w-4" />
+            <span>Log out</span>
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+
+      <UpgradeModal 
+        open={showUpgradeModal} 
+        onOpenChange={setShowUpgradeModal} 
+      />
+    </>
   );
 };
 

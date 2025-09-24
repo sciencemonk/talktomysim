@@ -1,14 +1,14 @@
 
-import { useState, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { AgentType } from '@/types/agent';
 import { supabase } from '@/integrations/supabase/client';
 
 interface UseEnhancedTextChatProps {
   agent: AgentType;
-  onUserMessage: (message: string) => Promise<void>;
+  onUserMessage: (message: string) => void;
   onAiMessageStart: () => string;
-  onAiTextDelta: (delta: string) => void;
-  onAiMessageComplete: (finalContent: string) => Promise<void>;
+  onAiTextDelta: (messageId: string, delta: string) => void;
+  onAiMessageComplete: (messageId: string) => void;
 }
 
 export const useEnhancedTextChat = ({
@@ -18,71 +18,89 @@ export const useEnhancedTextChat = ({
   onAiTextDelta,
   onAiMessageComplete
 }: UseEnhancedTextChatProps) => {
+  const [connectionStatus, setConnectionStatus] = useState<'connecting' | 'connected' | 'error' | 'disconnected'>('disconnected');
   const [isProcessing, setIsProcessing] = useState(false);
+  const [conversationHistory, setConversationHistory] = useState<Array<{role: string, content: string}>>([]);
+  const abortControllerRef = useRef<AbortController | null>(null);
+
+  useEffect(() => {
+    // Simulate connection for text chat (no actual persistent connection needed)
+    setConnectionStatus('connected');
+  }, [agent]);
 
   const sendMessage = useCallback(async (message: string) => {
-    if (!agent?.id || isProcessing) return;
+    if (!message.trim() || isProcessing) return;
 
+    console.log('Sending enhanced message to', agent.name, ':', message);
+    
+    setIsProcessing(true);
+    
+    // Add user message immediately
+    onUserMessage(message);
+    
+    // Update conversation history
+    const newHistory = [...conversationHistory, { role: 'user', content: message }];
+    setConversationHistory(newHistory);
+    
+    // Start AI message and get the message ID
+    const aiMessageId = onAiMessageStart();
+    console.log('Started AI message with ID:', aiMessageId);
+    
     try {
-      setIsProcessing(true);
+      // Cancel any ongoing request
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
       
-      // Add user message
-      await onUserMessage(message);
+      abortControllerRef.current = new AbortController();
       
-      // Start AI message
-      const aiMessageId = onAiMessageStart();
-      
-      // Prepare messages for the API
-      const messages = [
-        { role: 'user', content: message }
-      ];
-
-      console.log('Sending enhanced chat request:', { advisorId: agent.id, messages });
-
-      // Call the enhanced chat completion function
+      // Use enhanced chat completion with personality and knowledge
       const { data, error } = await supabase.functions.invoke('enhanced-chat-completion', {
         body: {
-          messages,
-          advisorId: agent.id,
-          searchFilters: {
-            minSimilarity: 0.7,
-            maxResults: 5
-          }
+          messages: newHistory,
+          advisorId: agent.id
         }
       });
 
+      console.log('Enhanced response data:', data);
+      
       if (error) {
-        console.error('Enhanced chat error:', error);
+        console.error('Supabase function error:', error);
         throw error;
       }
 
-      console.log('Enhanced chat response:', data);
-
       if (data?.content) {
-        // Add the complete AI response at once
-        onAiTextDelta(data.content);
+        console.log('Adding enhanced AI response to message ID:', aiMessageId);
+        console.log('Context was used:', data.contextUsed);
         
-        // Complete the AI message with the final content
-        await onAiMessageComplete(data.content);
+        // Add the AI response as a single message
+        onAiTextDelta(aiMessageId, data.content);
+        
+        // Update conversation history with AI response
+        setConversationHistory(prev => [...prev, { role: 'assistant', content: data.content }]);
       } else {
-        console.error('No content in enhanced chat response');
-        throw new Error('No response content received');
+        throw new Error('No content in response');
       }
 
-    } catch (error) {
-      console.error('Error in enhanced text chat:', error);
+      onAiMessageComplete(aiMessageId);
+    } catch (error: any) {
+      if (error.name === 'AbortError') {
+        console.log('Request was aborted');
+        return;
+      }
       
-      // Add error message
-      const errorMessage = 'Sorry, I encountered an error. Please try again.';
-      onAiTextDelta(errorMessage);
-      await onAiMessageComplete(errorMessage);
+      console.error('Error sending enhanced message:', error);
+      onAiTextDelta(aiMessageId, 'Sorry, I encountered an error. Please try again.');
+      onAiMessageComplete(aiMessageId);
     } finally {
       setIsProcessing(false);
+      abortControllerRef.current = null;
     }
-  }, [agent?.id, isProcessing, onUserMessage, onAiMessageStart, onAiTextDelta, onAiMessageComplete]);
+  }, [agent, isProcessing, conversationHistory, onUserMessage, onAiMessageStart, onAiTextDelta, onAiMessageComplete]);
 
   return {
     sendMessage,
+    connectionStatus,
     isProcessing
   };
 };

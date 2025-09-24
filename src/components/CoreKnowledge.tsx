@@ -1,289 +1,200 @@
-
-import React, { useState } from 'react';
-import { FileUpload } from './FileUpload';
-import { DocumentManager } from './DocumentManager';
-import { TextContentInput } from './TextContentInput';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Database } from 'lucide-react';
-import { documentService } from '@/services/documentService';
-import { toast } from 'sonner';
-import { useSim } from '@/hooks/useSim';
-import { useAuth } from '@/hooks/useAuth';
+import React, { useState, useEffect } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
+import { BookOpen, Upload, FileText, Trash2, Plus, Brain } from "lucide-react";
+import { useSim } from "@/hooks/useSim";
 
 interface CoreKnowledgeProps {
   advisorId?: string;
+  advisorName?: string;
 }
 
-export const CoreKnowledge: React.FC<CoreKnowledgeProps> = ({ advisorId: propAdvisorId }) => {
-  const { user } = useAuth();
-  const { sim, isLoading: simLoading, error: simError } = useSim();
-  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [processingProgress, setProcessingProgress] = useState(0);
-  const [refreshDocuments, setRefreshDocuments] = useState(0);
+const CoreKnowledge = ({ advisorId, advisorName }: CoreKnowledgeProps) => {
+  const { sim, updateCoreKnowledgeStatus, isLoading } = useSim();
+  const [knowledgeItems, setKnowledgeItems] = useState<Array<{
+    id: string;
+    title: string;
+    content: string;
+    type: 'text' | 'document';
+  }>>([]);
 
-  // FIXED: Always use the sim ID, never use propAdvisorId for document processing
-  const advisorId = sim?.id;
+  // Use sim?.id if available, fallback to advisorId prop
+  const effectiveAdvisorId = sim?.id || advisorId;
+  const effectiveAdvisorName = sim?.name || advisorName;
 
-  console.log('CoreKnowledge Debug Info:');
-  console.log('- User:', user?.id);
-  console.log('- Sim from useSim:', sim);
-  console.log('- Actual Sim ID:', sim?.id);
-  console.log('- Advisor ID being used:', advisorId);
-  console.log('- Prop advisor ID (IGNORED):', propAdvisorId);
-
-  const handleFileSelect = (files: File[]) => {
-    setSelectedFiles(files);
+  const addKnowledgeItem = () => {
+    const newItem = {
+      id: Date.now().toString(),
+      title: '',
+      content: '',
+      type: 'text' as const
+    };
+    setKnowledgeItems([...knowledgeItems, newItem]);
   };
 
-  const handleFileProcess = async (file: File) => {
+  const removeKnowledgeItem = (id: string) => {
+    setKnowledgeItems(knowledgeItems.filter(item => item.id !== id));
+  };
+
+  const updateKnowledgeItem = (id: string, field: 'title' | 'content', value: string) => {
+    setKnowledgeItems(knowledgeItems.map(item => 
+      item.id === id ? { ...item, [field]: value } : item
+    ));
+  };
+
+  const handleSave = async () => {
     try {
-      if (!user) {
-        toast.error('Please log in to upload documents.');
-        return;
-      }
-
-      if (!advisorId) {
-        toast.error('No sim selected. Please complete your sim setup first.');
-        console.error('No advisor ID available for file processing');
-        return;
-      }
-
-      setIsProcessing(true);
-      setProcessingProgress(10);
-      
-      console.log('Processing file:', file.name, 'for sim ID:', advisorId, 'user:', user.id);
-      
-      setProcessingProgress(30);
-      const result = await documentService.processFile(advisorId, file);
-      
-      setProcessingProgress(90);
-      
-      if (result.success) {
-        toast.success(
-          `Document processed successfully! Generated ${result.chunksProcessed} text chunks.`
-        );
-        
-        if (result.failedChunks && result.failedChunks > 0) {
-          toast.warning(
-            `${result.failedChunks} chunks failed to process, but ${result.chunksProcessed} were successful.`
-          );
-        }
-        
-        // Refresh the document list
-        setRefreshDocuments(prev => prev + 1);
-      } else {
-        toast.error(result.error || 'Failed to process document');
-        console.error('Document processing failed:', result);
-      }
-      
-      setProcessingProgress(100);
-    } catch (error: any) {
-      console.error('Error processing file:', error);
-      toast.error(error.message || 'Failed to process file');
-    } finally {
-      setTimeout(() => {
-        setIsProcessing(false);
-        setProcessingProgress(0);
-      }, 1000);
+      // For now, we'll just mark core knowledge as complete
+      // In Phase 2, we'll implement actual document processing and embedding
+      await updateCoreKnowledgeStatus();
+    } catch (error) {
+      console.error('Error saving core knowledge:', error);
     }
   };
-
-  const handleTextProcess = async (title: string, content: string) => {
-    try {
-      if (!user) {
-        toast.error('Please log in to process text.');
-        return;
-      }
-
-      if (!advisorId) {
-        toast.error('No sim selected. Please complete your sim setup first.');
-        console.error('No advisor ID available for text processing');
-        return;
-      }
-
-      setIsProcessing(true);
-      setProcessingProgress(20);
-      
-      console.log('Processing text for sim ID:', advisorId, 'user:', user.id);
-      
-      const result = await documentService.processDocument(
-        advisorId,
-        title,
-        content,
-        'text'
-      );
-      
-      setProcessingProgress(90);
-      
-      if (result.success) {
-        toast.success(
-          `Text processed successfully! Generated ${result.chunksProcessed} text chunks.`
-        );
-        
-        if (result.failedChunks && result.failedChunks > 0) {
-          toast.warning(
-            `${result.failedChunks} chunks failed to process, but ${result.chunksProcessed} were successful.`
-          );
-        }
-        
-        setRefreshDocuments(prev => prev + 1);
-      } else {
-        toast.error(result.error || 'Failed to process text');
-        console.error('Text processing failed:', result);
-      }
-      
-      setProcessingProgress(100);
-    } catch (error: any) {
-      console.error('Error processing text:', error);
-      toast.error(error.message || 'Failed to process text');
-    } finally {
-      setTimeout(() => {
-        setIsProcessing(false);
-        setProcessingProgress(0);
-      }, 1000);
-    }
-  };
-
-  const handleDocumentsChange = () => {
-    setRefreshDocuments(prev => prev + 1);
-  };
-
-  // Check if user is authenticated
-  if (!user) {
-    return (
-      <div className="max-w-4xl mx-auto p-6">
-        <Card>
-          <CardContent className="p-8 text-center">
-            <Database className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-foreground mb-2">Authentication Required</h3>
-            <p className="text-muted-foreground">
-              Please log in to manage your sim's knowledge base.
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
-  // Show loading state while sim is loading
-  if (simLoading) {
-    return (
-      <div className="max-w-4xl mx-auto p-6">
-        <Card>
-          <CardContent className="p-8 text-center">
-            <Database className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-foreground mb-2">Loading Sim...</h3>
-            <p className="text-muted-foreground">Please wait while we load your sim information.</p>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
-  // Show error state if sim loading failed
-  if (simError) {
-    return (
-      <div className="max-w-4xl mx-auto p-6">
-        <Card>
-          <CardContent className="p-8 text-center">
-            <Database className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-foreground mb-2">Error Loading Sim</h3>
-            <p className="text-muted-foreground">
-              There was an error loading your sim: {simError}
-            </p>
-            <p className="text-muted-foreground mt-2">
-              Please refresh the page and try again.
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
-  // Validate sim exists and has proper ID
-  if (!sim || !sim.id || sim.id.trim() === '') {
-    return (
-      <div className="max-w-4xl mx-auto p-6">
-        <Card>
-          <CardContent className="p-8 text-center">
-            <Database className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-foreground mb-2">No Sim Found</h3>
-            <p className="text-muted-foreground">
-              No sim was found for your account. Please create a sim first before managing knowledge.
-            </p>
-            <p className="text-sm text-muted-foreground mt-2 bg-muted p-2 rounded">
-              Debug: User ID: {user.id} | Sim: {sim ? JSON.stringify({id: sim.id, name: sim.name}) : 'null'}
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
 
   return (
     <div className="max-w-4xl mx-auto p-6 space-y-6">
-      {/* Debug info */}
-      <div className="text-xs text-muted-foreground bg-muted p-2 rounded">
-        Debug: User: {user.id} | Sim ID: {sim.id} | Sim Name: {sim.name} | Using advisor ID: {advisorId}
-      </div>
-
-      {/* Page Header */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Database className="h-5 w-5" />
-            Vector Embedding - {sim.name || 'Unknown Sim'}
+            <Brain className="h-5 w-5" />
+            Core Knowledge
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
           <p className="text-muted-foreground">
-            Upload documents, add personal experiences, and share your expertise to build your Sim's brain. We'll convert it into a vector embedding so that huge amounts of information are readily available.
+            Upload documents, add personal experiences, and share your expertise to build your Sim's knowledge base. 
+            This helps your Sim give more accurate and personalized responses.
           </p>
 
-          {/* Add Knowledge Tabs - directly in the card content */}
-          <Tabs defaultValue="upload" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 mb-6">
-              <TabsTrigger value="upload">Upload Files</TabsTrigger>
-              <TabsTrigger value="text">Paste Text</TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="upload" className="space-y-4">
-              <FileUpload
-                onFileSelect={handleFileSelect}
-                onFileProcess={handleFileProcess}
-                isProcessing={isProcessing}
-                processingProgress={processingProgress}
-                acceptedTypes={['.pdf', '.txt', '.docx']}
-                maxFiles={10}
-                maxFileSize={25}
-              />
-            </TabsContent>
-            
-            <TabsContent value="text" className="space-y-4">
-              <TextContentInput
-                onProcess={handleTextProcess}
-                isProcessing={isProcessing}
-              />
-            </TabsContent>
-          </Tabs>
+          {/* Knowledge Items */}
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <Label className="text-base font-medium">Knowledge Items</Label>
+              <Button onClick={addKnowledgeItem} variant="outline" size="sm">
+                <Plus className="h-4 w-4 mr-2" />
+                Add Knowledge
+              </Button>
+            </div>
+
+            {knowledgeItems.length === 0 ? (
+              <Card className="border-dashed">
+                <CardContent className="p-8 text-center">
+                  <BookOpen className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                  <h4 className="font-medium mb-2">No knowledge items yet</h4>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Add your expertise, experiences, and documents to help your Sim provide better responses.
+                  </p>
+                  <Button onClick={addKnowledgeItem} variant="outline">
+                    <Plus className="h-4 w-4 mr-2" />
+                    Add Your First Knowledge Item
+                  </Button>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="space-y-4">
+                {knowledgeItems.map((item, index) => (
+                  <Card key={item.id} className="border-dashed">
+                    <CardContent className="p-4 space-y-4">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <Badge variant="outline">
+                            <FileText className="h-3 w-3 mr-1" />
+                            Knowledge Item {index + 1}
+                          </Badge>
+                        </div>
+                        <Button
+                          onClick={() => removeKnowledgeItem(item.id)}
+                          variant="ghost"
+                          size="sm"
+                          className="text-destructive hover:text-destructive"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+
+                      <div className="space-y-3">
+                        <div>
+                          <Label htmlFor={`title-${item.id}`} className="text-sm">
+                            Title/Topic
+                          </Label>
+                          <Input
+                            id={`title-${item.id}`}
+                            placeholder="e.g., My experience with project management, Marketing strategies I've used..."
+                            value={item.title}
+                            onChange={(e) => updateKnowledgeItem(item.id, 'title', e.target.value)}
+                            className="mt-1"
+                          />
+                        </div>
+
+                        <div>
+                          <Label htmlFor={`content-${item.id}`} className="text-sm">
+                            Content/Details
+                          </Label>
+                          <Textarea
+                            id={`content-${item.id}`}
+                            placeholder="Share your knowledge, experiences, methodologies, or any information that would help your Sim respond as you would..."
+                            value={item.content}
+                            onChange={(e) => updateKnowledgeItem(item.id, 'content', e.target.value)}
+                            className="mt-1 min-h-[120px]"
+                          />
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Document Upload Section - Placeholder for Phase 2 */}
+          <div className="space-y-3">
+            <Label className="text-base font-medium">Document Upload</Label>
+            <p className="text-sm text-muted-foreground">
+              Upload PDFs, Word documents, or text files to add to your Sim's knowledge base.
+            </p>
+            <Card className="border-dashed border-muted">
+              <CardContent className="p-6 text-center">
+                <Upload className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
+                <p className="text-sm text-muted-foreground">
+                  Document upload coming in Phase 2
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Save Button */}
+          <div className="flex justify-end pt-4">
+            <Button 
+              onClick={handleSave} 
+              className="px-8"
+              disabled={isLoading}
+            >
+              {isLoading ? 'Saving...' : 'Save Core Knowledge'}
+            </Button>
+          </div>
         </CardContent>
       </Card>
 
-      {/* Uploaded Documents Section */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Uploaded Documents</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <DocumentManager
-            advisorId={advisorId!}
-            onDocumentsChange={handleDocumentsChange}
-            refreshTrigger={refreshDocuments}
-          />
+      {/* Tips Card */}
+      <Card className="border-blue-200 bg-blue-50">
+        <CardContent className="p-4">
+          <h4 className="font-medium text-blue-900 mb-2">💡 Tips for Building Your Knowledge Base</h4>
+          <ul className="text-sm text-blue-800 space-y-1">
+            <li>• Include your professional experiences and methodologies</li>
+            <li>• Add personal anecdotes that show your perspective and approach</li>
+            <li>• Share your expertise in specific domains or industries</li>
+            <li>• Include your opinions on topics you're passionate about</li>
+            <li>• Add any frameworks or processes you use in your work</li>
+          </ul>
         </CardContent>
       </Card>
     </div>
   );
 };
+
+export default CoreKnowledge;

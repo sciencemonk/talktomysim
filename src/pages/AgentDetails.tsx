@@ -135,7 +135,7 @@ const AgentDetails = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <AgentConfigSettings agentId={agentId!} />
+                <AgentConfigSettings agent={agent} onAgentUpdate={handleAgentUpdate} showSuccessToast={showSuccessToast} showTeachingInstructions={true} />
               </CardContent>
             </Card>
           </div>

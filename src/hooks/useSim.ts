@@ -112,21 +112,6 @@ export const useSim = () => {
     }
   };
 
-  const toggleSimActive = async (isActive: boolean) => {
-    try {
-      setError(null);
-      const updatedSim = await simService.toggleSimActive(isActive);
-      setSim(updatedSim);
-      toast.success(isActive ? 'Sim is now active!' : 'Sim is now inactive');
-      return updatedSim;
-    } catch (err: any) {
-      const errorMessage = err.message || 'Failed to toggle sim status';
-      setError(errorMessage);
-      toast.error(errorMessage);
-      throw err;
-    }
-  };
-
   const checkCustomUrlAvailability = async (customUrl: string): Promise<boolean> => {
     try {
       return await simService.checkCustomUrlAvailability(customUrl);
@@ -149,7 +134,6 @@ export const useSim = () => {
     updateInteractionModel,
     updateCoreKnowledgeStatus,
     makeSimPublic,
-    toggleSimActive,
     checkCustomUrlAvailability,
     refetch
   };

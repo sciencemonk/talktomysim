@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { ArrowLeft, CheckCircle2, Loader2 } from "lucide-react";
@@ -174,7 +175,10 @@ Always be patient, supportive, and adapt to each child's learning pace and style
         <div className="bg-bg border border-border rounded-xl shadow-sm overflow-hidden">
           <div className="p-8">
             <AgentConfigSettings 
-              agentId={tempAgent.id}
+              agent={tempAgent}
+              onAgentUpdate={handleAgentUpdate}
+              showSuccessToast={() => {}} // Disable auto-save toasts during creation
+              showTeachingInstructions={false} // Hide teaching instructions during creation
             />
           </div>
           
