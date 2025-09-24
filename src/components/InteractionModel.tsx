@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,7 +7,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Plus, Trash2, MessageCircle, HelpCircle } from "lucide-react";
-import { useSim } from "@/hooks/useSim";
 
 interface SampleScenario {
   id: string;
@@ -15,23 +15,10 @@ interface SampleScenario {
 }
 
 const InteractionModel = () => {
-  const { sim, updateInteractionModel, isLoading } = useSim();
-  
   const [welcomeMessage, setWelcomeMessage] = useState('');
   const [scenarios, setScenarios] = useState<SampleScenario[]>([
     { id: '1', question: '', expectedResponse: '' }
   ]);
-
-  // Load existing sim data
-  useEffect(() => {
-    if (sim) {
-      setWelcomeMessage(sim.welcome_message || '');
-      
-      if (sim.sample_scenarios && sim.sample_scenarios.length > 0) {
-        setScenarios(sim.sample_scenarios);
-      }
-    }
-  }, [sim]);
 
   const addScenario = () => {
     const newScenario: SampleScenario = {
@@ -54,17 +41,9 @@ const InteractionModel = () => {
     ));
   };
 
-  const handleSave = async () => {
-    try {
-      const interactionData = {
-        welcome_message: welcomeMessage,
-        sample_scenarios: scenarios.filter(s => s.question.trim() && s.expectedResponse.trim())
-      };
-
-      await updateInteractionModel(interactionData);
-    } catch (error) {
-      console.error('Error saving interaction model:', error);
-    }
+  const handleSave = () => {
+    console.log('Saving interaction model:', { welcomeMessage, scenarios });
+    // TODO: Implement save functionality
   };
 
   return (
@@ -173,12 +152,8 @@ const InteractionModel = () => {
 
           {/* Save Button */}
           <div className="flex justify-end pt-4">
-            <Button 
-              onClick={handleSave} 
-              className="px-8"
-              disabled={isLoading}
-            >
-              {isLoading ? 'Saving...' : 'Save Interaction Model'}
+            <Button onClick={handleSave} className="px-8">
+              Save Interaction Model
             </Button>
           </div>
         </CardContent>

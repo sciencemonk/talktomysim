@@ -3,40 +3,33 @@ import { useParams } from "react-router-dom";
 import { usePublicAgent } from "@/hooks/usePublicAgent";
 import { usePublicAgentByUrl } from "@/hooks/usePublicAgentByUrl";
 import ChatInterface from "@/components/ChatInterface";
-import AuthModal from "@/components/AuthModal";
-import { useAuth } from "@/hooks/useAuth";
+import UserSidebar from "@/components/UserSidebar";
 import { Bot, Loader2, AlertCircle } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { useState, useEffect } from "react";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const StudentChat = () => {
   const { agentId, customUrl } = useParams<{ agentId?: string; customUrl?: string }>();
-  const { user } = useAuth();
-  const [showAuthModal, setShowAuthModal] = useState(false);
+  const isMobile = useIsMobile();
   
   // Determine which hook to use based on the route parameters
-  const publicAgentQuery = usePublicAgent(agentId || "");
-  const publicAgentByUrlQuery = usePublicAgentByUrl(customUrl || "");
+  const isLegacyRoute = !!agentId;
+  const isCustomUrlRoute = !!customUrl && !agentId;
   
-  // Use the appropriate query based on which parameter is present
-  const query = agentId ? publicAgentQuery : publicAgentByUrlQuery;
-  const { agent, isLoading, error } = query;
-
-  // Redirect to custom URL if agent has one and we're using the old route
-  useEffect(() => {
-    if (agent && agent.url && agentId && !customUrl) {
-      // Redirect to the custom URL route
-      window.location.href = `/${agent.url}`;
-    }
-  }, [agent, agentId, customUrl]);
+  // Use the appropriate hook based on the route type
+  const legacyAgentResult = usePublicAgent(isLegacyRoute ? agentId : undefined);
+  const customUrlAgentResult = usePublicAgentByUrl(isCustomUrlRoute ? customUrl : undefined);
+  
+  // Use the result from the appropriate hook
+  const { agent, isLoading, error } = isLegacyRoute ? legacyAgentResult : customUrlAgentResult;
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="flex flex-col items-center space-y-4">
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          <p className="text-sm text-muted-foreground">Loading chat...</p>
+          <p className="text-sm text-muted-foreground">Loading conversation...</p>
         </div>
       </div>
     );
@@ -44,18 +37,23 @@ const StudentChat = () => {
 
   if (error || !agent) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background p-4">
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
         <Card className="w-full max-w-md">
-          <CardContent className="flex flex-col items-center space-y-4 p-6">
-            <AlertCircle className="h-12 w-12 text-destructive" />
-            <div className="text-center">
-              <h2 className="text-lg font-semibold mb-2">Chat Not Found</h2>
-              <p className="text-sm text-muted-foreground mb-4">
-                The chat you're looking for doesn't exist or is no longer available.
-              </p>
-              <Button onClick={() => window.location.href = '/'}>
-                Go Home
-              </Button>
+          <CardContent className="pt-6">
+            <div className="flex flex-col items-center text-center space-y-4">
+              <AlertCircle className="h-12 w-12 text-destructive" />
+              <div>
+                <h3 className="font-semibold mb-2">Tutor Not Available</h3>
+                <p className="text-sm text-muted-foreground mb-4">
+                  {error || "The tutor you're looking for is not available right now."}
+                </p>
+                <Button 
+                  variant="outline" 
+                  onClick={() => window.location.href = '/'}
+                >
+                  Go Home
+                </Button>
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -64,80 +62,31 @@ const StudentChat = () => {
   }
 
   const handleBack = () => {
-    window.location.href = '/';
+    window.history.back();
   };
 
-  const handleAuthRequired = () => {
-    setShowAuthModal(true);
-  };
+  // On mobile, render just the chat interface
+  if (isMobile) {
+    return (
+      <div className="h-screen bg-background">
+        <ChatInterface 
+          agent={agent}
+          onBack={handleBack}
+        />
+      </div>
+    );
+  }
 
-  // Use the same layout as non-signed-in home page
+  // On desktop, render with sidebar
   return (
-    <div className="flex h-screen bg-background">
-      {/* Left Sidebar - same as non-signed in home page */}
-      <div className="hidden md:flex w-80 bg-card border-r border-border flex-col">
-        <div className="p-6 border-b border-border">
-          <div className="flex items-center justify-center">
-            <img 
-              src="/lovable-uploads/d1283b59-7cfa-45f5-b151-4c32b24f3621.png" 
-              alt="Logo" 
-              className="h-8 w-8 object-contain"
-            />
-          </div>
-        </div>
-        
-        <div className="flex-1 flex items-center justify-center p-6">
-          <div className="space-y-6 text-center">
-            <div>
-              <h2 className="text-xl font-semibold mb-2">Create your free Sim today</h2>
-            </div>
-            
-            <Button 
-              onClick={() => setShowAuthModal(true)}
-              className="w-full bg-gradient-to-r from-purple-600 via-pink-500 to-blue-500 text-white hover:opacity-90 animate-pulse rounded-lg py-3"
-            >
-              Get Started
-            </Button>
-          </div>
-        </div>
+    <div className="h-screen bg-background flex">
+      <UserSidebar />
+      <div className="flex-1">
+        <ChatInterface 
+          agent={agent}
+          onBack={handleBack}
+        />
       </div>
-      
-      {/* Main content */}
-      <div className="flex-1 flex flex-col">
-        {/* Mobile Header */}
-        <div className="md:hidden bg-card border-b border-border p-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <img 
-                src="/lovable-uploads/d1283b59-7cfa-45f5-b151-4c32b24f3621.png" 
-                alt="Logo" 
-                className="h-8 w-8 object-contain"
-              />
-            </div>
-            
-            <Button 
-              onClick={() => setShowAuthModal(true)}
-              size="sm"
-              className="bg-gradient-to-r from-purple-600 via-pink-500 to-blue-500 text-white hover:opacity-90 animate-pulse"
-            >
-              Get Started
-            </Button>
-          </div>
-        </div>
-        
-        {/* Chat Content */}
-        <div className="flex-1">
-          <ChatInterface 
-            agent={agent}
-            onBack={handleBack}
-          />
-        </div>
-      </div>
-      
-      <AuthModal 
-        open={showAuthModal} 
-        onOpenChange={setShowAuthModal}
-      />
     </div>
   );
 };

@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
@@ -41,7 +40,7 @@ const AuthModal = ({ open, onOpenChange }: AuthModalProps) => {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/`
+          redirectTo: `${window.location.origin}/app`
         }
       });
       
@@ -65,7 +64,7 @@ const AuthModal = ({ open, onOpenChange }: AuthModalProps) => {
           email: data.email,
           password: data.password,
           options: {
-            emailRedirectTo: `${window.location.origin}/`
+            emailRedirectTo: `${window.location.origin}/app`
           }
         });
 

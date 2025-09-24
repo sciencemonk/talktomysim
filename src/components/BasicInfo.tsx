@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,11 +11,8 @@ import { Badge } from "@/components/ui/badge";
 import { CalendarIcon, X, Plus, Upload, Camera } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
-import { useSim } from "@/hooks/useSim";
 
 const BasicInfo = () => {
-  const { sim, updateBasicInfo, checkCustomUrlAvailability, isLoading } = useSim();
-  
   const [formData, setFormData] = useState({
     fullName: "",
     professionalTitle: "",
@@ -35,34 +33,6 @@ const BasicInfo = () => {
   const [newSkill, setNewSkill] = useState("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string>("");
-  const [isUrlAvailable, setIsUrlAvailable] = useState<boolean | null>(null);
-  const [isCheckingUrl, setIsCheckingUrl] = useState(false);
-
-  // Load existing sim data
-  useEffect(() => {
-    if (sim) {
-      setFormData({
-        fullName: sim.full_name || "",
-        professionalTitle: sim.professional_title || "",
-        dateOfBirth: sim.date_of_birth ? new Date(sim.date_of_birth) : undefined,
-        location: sim.location || "",
-        education: sim.education || "",
-        currentProfession: sim.current_profession || "",
-        yearsExperience: sim.years_experience?.toString() || "",
-        areasOfExpertise: sim.areas_of_expertise || "",
-        additionalBackground: sim.additional_background || "",
-        avatarUrl: sim.avatar_url || "",
-        customUrl: sim.custom_url || ""
-      });
-      
-      setInterests(sim.interests || []);
-      setSkills(sim.skills || []);
-      
-      if (sim.avatar_url) {
-        setPreviewUrl(sim.avatar_url);
-      }
-    }
-  }, [sim]);
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -119,7 +89,12 @@ const BasicInfo = () => {
     setSkills(prev => prev.filter(s => s !== skill));
   };
 
-  const handleCustomUrlChange = async (value: string) => {
+  const handleSave = () => {
+    console.log("Saving basic info:", { ...formData, interests, skills, selectedFile });
+    // Here you would typically save the data to your backend
+  };
+
+  const handleCustomUrlChange = (value: string) => {
     // Remove any leading slash and ensure it's URL-friendly
     const cleanUrl = value.toLowerCase()
       .replace(/^\/+/, '') // Remove leading slashes
@@ -128,49 +103,6 @@ const BasicInfo = () => {
       .trim();
     
     handleInputChange('customUrl', cleanUrl);
-
-    if (cleanUrl && cleanUrl !== sim?.custom_url) {
-      setIsCheckingUrl(true);
-      try {
-        const available = await checkCustomUrlAvailability(cleanUrl);
-        setIsUrlAvailable(available);
-      } catch (error) {
-        console.error('Error checking URL availability:', error);
-        setIsUrlAvailable(null);
-      } finally {
-        setIsCheckingUrl(false);
-      }
-    } else {
-      setIsUrlAvailable(null);
-    }
-  };
-
-  const handleSave = async () => {
-    try {
-      const basicInfoData = {
-        full_name: formData.fullName,
-        professional_title: formData.professionalTitle,
-        date_of_birth: formData.dateOfBirth?.toISOString().split('T')[0],
-        location: formData.location,
-        education: formData.education,
-        current_profession: formData.currentProfession,
-        years_experience: formData.yearsExperience ? parseInt(formData.yearsExperience) : undefined,
-        areas_of_expertise: formData.areasOfExpertise,
-        additional_background: formData.additionalBackground,
-        custom_url: formData.customUrl,
-        avatar_url: previewUrl,
-        interests,
-        skills,
-        // Use full name as the display name if provided
-        name: formData.fullName || 'My Sim',
-        title: formData.professionalTitle,
-        description: formData.areasOfExpertise || formData.additionalBackground || 'Personal AI assistant'
-      };
-
-      await updateBasicInfo(basicInfoData);
-    } catch (error) {
-      console.error('Error saving basic info:', error);
-    }
   };
 
   return (
@@ -243,14 +175,7 @@ const BasicInfo = () => {
                   placeholder="your-name"
                   className="flex-1"
                 />
-                {isCheckingUrl && <span className="ml-2 text-sm text-muted-foreground">Checking...</span>}
               </div>
-              {isUrlAvailable === false && (
-                <p className="text-xs text-destructive">This URL is already taken</p>
-              )}
-              {isUrlAvailable === true && (
-                <p className="text-xs text-green-600">This URL is available</p>
-              )}
               <p className="text-xs text-muted-foreground">
                 This will be your personal URL path. Only lowercase letters, numbers, and hyphens allowed.
               </p>
@@ -448,12 +373,8 @@ const BasicInfo = () => {
 
           {/* Save Button */}
           <div className="flex justify-end pt-4">
-            <Button 
-              onClick={handleSave} 
-              className="px-8"
-              disabled={isLoading || (formData.customUrl && isUrlAvailable === false)}
-            >
-              {isLoading ? 'Saving...' : 'Save Basic Info'}
+            <Button onClick={handleSave} className="px-8">
+              Save Basic Info
             </Button>
           </div>
         </CardContent>

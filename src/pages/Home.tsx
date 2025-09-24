@@ -1,400 +1,195 @@
-import { useState, useEffect } from "react";
-import { useAuth } from "@/hooks/useAuth";
-import { Navigate } from "react-router-dom";
-import AdvisorDirectory from "@/components/AdvisorDirectory";
-import ChatInterface from "@/components/ChatInterface";
-import AuthModal from "@/components/AuthModal";
-import UserSidebar, { SidebarContent } from "@/components/UserSidebar";
-import MySim from "@/components/MySim";
-import BasicInfo from "@/components/BasicInfo";
-import InteractionModel from "@/components/InteractionModel";
-import CoreKnowledge from "@/components/CoreKnowledge";
-import Integrations from "@/components/Integrations";
-import { AgentType } from "@/types/agent";
-import { useUserAdvisors } from "@/hooks/useUserAdvisors";
-import { useToast } from "@/hooks/use-toast";
-import { useIsMobile } from "@/hooks/use-mobile";
-import { Menu } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import {
-  Sheet,
-  SheetContent,
-  SheetTrigger,
-} from "@/components/ui/sheet";
 
-type ViewType = 'directory' | 'my-sim' | 'basic-info' | 'interaction-model' | 'core-knowledge' | 'integrations' | 'search';
+import { useState } from 'react';
+import { useAuth } from '@/hooks/useAuth';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Search, Menu, X } from 'lucide-react';
+import { usePublicAdvisors } from '@/hooks/usePublicAdvisors';
+import { Link } from 'react-router-dom';
+import AuthModal from '@/components/AuthModal';
 
 const Home = () => {
-  const { user, loading } = useAuth();
-  const { advisorsAsAgents, addAdvisor, removeAdvisor } = useUserAdvisors();
-  const { toast } = useToast();
-  const isMobile = useIsMobile();
-  const [selectedAdvisor, setSelectedAdvisor] = useState<AgentType | null>(null);
+  const { user } = useAuth();
+  const { advisors, isLoading, error } = usePublicAdvisors();
+  const [searchTerm, setSearchTerm] = useState('');
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
-  const [selectedAgent, setSelectedAgent] = useState<AgentType | null>(null);
-  const [selectedPublicAdvisorId, setSelectedPublicAdvisorId] = useState<string | null>(null);
-  // Default to 'my-sim' for authenticated users, 'directory' for non-authenticated
-  const [currentView, setCurrentView] = useState<ViewType>(user ? 'my-sim' : 'directory');
-  const [mobileSheetOpen, setMobileSheetOpen] = useState(false);
 
-  // Update default view when user authentication state changes
-  useEffect(() => {
-    if (user && currentView === 'directory') {
-      setCurrentView('my-sim');
-    } else if (!user && currentView !== 'directory') {
-      setCurrentView('directory');
-    }
-  }, [user, currentView]);
+  const filteredAdvisors = advisors.filter(advisor =>
+    advisor.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    advisor.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    advisor.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    advisor.category?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
-  // Handle auth modal close
-  const handleAuthModalClose = (open: boolean) => {
-    setShowAuthModal(open);
-  };
-
-  // Handle auth required (when non-signed-in user tries to start chat)
-  const handleAuthRequired = () => {
-    setShowAuthModal(true);
-  };
-
-  // Handle advisor selection from directory
-  const handleAdvisorSelect = async (advisorId: string, advisor?: AgentType) => {
-    if (!user) {
-      // Show auth modal for non-signed-in users
-      setShowAuthModal(true);
-    } else {
-      // User is signed in, proceed directly
-      if (advisor) {
-        // Check if advisor is already in user's list
-        const isAlreadyAdded = advisorsAsAgents.some(a => a.id === advisor.id);
-        
-        if (!isAlreadyAdded) {
-          try {
-            await addAdvisor(advisor);
-          } catch (error) {
-            console.error("Failed to add advisor:", error);
-            toast({
-              title: "Error",
-              description: "Failed to add advisor to your list.",
-              variant: "destructive"
-            });
-          }
-        }
-        
-        setSelectedAdvisor(advisor);
-        setSelectedPublicAdvisorId(advisor.id);
-        setCurrentView('search'); // Keep the search view when selecting advisor
-      }
-    }
-  };
-
-  // Handle agent selection from sidebar
-  const handleAgentSelect = (agent: AgentType) => {
-    setSelectedAgent(agent);
-    setSelectedAdvisor(null);
-    setSelectedPublicAdvisorId(null);
-    setCurrentView('directory'); // Reset view when selecting agent
-    setMobileSheetOpen(false); // Close mobile sheet
-  };
-
-  // Handle public advisor selection from sidebar
-  const handlePublicAdvisorSelect = (advisorId: string, advisor?: AgentType) => {
-    setSelectedPublicAdvisorId(advisorId);
-    if (advisor) {
-      setSelectedAdvisor(advisor);
-    }
-    setSelectedAgent(null);
-    setCurrentView('directory'); // Reset view when selecting public advisor
-    setMobileSheetOpen(false); // Close mobile sheet
-  };
-
-  // Handle removing public advisor
-  const handleRemovePublicAdvisor = async (advisorId: string) => {
-    try {
-      await removeAdvisor(advisorId);
-      if (selectedPublicAdvisorId === advisorId) {
-        setSelectedPublicAdvisorId(null);
-        setSelectedAdvisor(null);
-      }
-    } catch (error) {
-      console.error("Failed to remove advisor:", error);
-      toast({
-        title: "Error",
-        description: "Failed to remove advisor.",
-        variant: "destructive"
-      });
-    }
-  };
-
-  // Handle showing advisor directory
-  const handleShowAdvisorDirectory = () => {
-    setSelectedAgent(null);
-    setSelectedAdvisor(null);
-    setSelectedPublicAdvisorId(null);
-    setCurrentView('directory');
-    setMobileSheetOpen(false); // Close mobile sheet
-  };
-
-  // Handle search navigation
-  const handleNavigateToSearch = () => {
-    setCurrentView('search');
-    setSelectedAgent(null);
-    setSelectedAdvisor(null);
-    setSelectedPublicAdvisorId(null);
-    setMobileSheetOpen(false); // Close mobile sheet
-  };
-
-  // Handle navigation to different views
-  const handleNavigateToMySim = () => {
-    setCurrentView('my-sim');
-    setSelectedAgent(null);
-    setSelectedAdvisor(null);
-    setSelectedPublicAdvisorId(null);
-    setMobileSheetOpen(false); // Close mobile sheet
-  };
-
-  const handleNavigateToBasicInfo = () => {
-    setCurrentView('basic-info');
-    setSelectedAgent(null);
-    setSelectedAdvisor(null);
-    setSelectedPublicAdvisorId(null);
-    setMobileSheetOpen(false); // Close mobile sheet
-  };
-
-  const handleNavigateToInteractionModel = () => {
-    setCurrentView('interaction-model');
-    setSelectedAgent(null);
-    setSelectedAdvisor(null);
-    setSelectedPublicAdvisorId(null);
-    setMobileSheetOpen(false); // Close mobile sheet
-  };
-
-  const handleNavigateToCoreKnowledge = () => {
-    setCurrentView('core-knowledge');
-    setSelectedAgent(null);
-    setSelectedAdvisor(null);
-    setSelectedPublicAdvisorId(null);
-    setMobileSheetOpen(false); // Close mobile sheet
-  };
-
-  const handleNavigateToIntegrations = () => {
-    setCurrentView('integrations');
-    setSelectedAgent(null);
-    setSelectedAdvisor(null);
-    setSelectedPublicAdvisorId(null);
-    setMobileSheetOpen(false); // Close mobile sheet
-  };
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-      </div>
-    );
+  if (user) {
+    // Authenticated user view - redirect to main app
+    window.location.href = '/app';
+    return null;
   }
 
-  // Determine which agent/advisor to show in chat
-  const currentChatAgent = selectedAgent || selectedAdvisor;
-
-  // Render the appropriate content based on current view and selections
-  const renderMainContent = () => {
-    // If there's a chat agent selected, show chat interface
-    if (currentChatAgent) {
-      return (
-        <ChatInterface
-          agent={currentChatAgent}
-          onBack={() => {
-            setSelectedAgent(null);
-            setSelectedAdvisor(null);
-            setSelectedPublicAdvisorId(null);
-            // Return to the previous view context
-            if (currentView === 'search') {
-              setCurrentView('search');
-            } else {
-              setCurrentView('directory');
-            }
-          }}
-        />
-      );
-    }
-
-    // Otherwise, show the appropriate view
-    switch (currentView) {
-      case 'my-sim':
-        return <MySim />;
-      case 'basic-info':
-        return <BasicInfo />;
-      case 'interaction-model':
-        return <InteractionModel />;
-      case 'core-knowledge':
-        return <CoreKnowledge />;
-      case 'integrations':
-        return <Integrations />;
-      case 'search':
-        return (
-          <AdvisorDirectory 
-            onSelectAdvisor={handleAdvisorSelect}
-            onAuthRequired={handleAuthRequired}
-          />
-        );
-      case 'directory':
-      default:
-        return (
-          <AdvisorDirectory 
-            onSelectAdvisor={handleAdvisorSelect}
-            onAuthRequired={handleAuthRequired}
-          />
-        );
-    }
-  };
-
-  // For non-signed in users, show the special layout with left sidebar
-  if (!user) {
-    return (
-      <div className="flex h-screen bg-background">
-        {/* Left Sidebar for non-signed in users */}
-        <div className="hidden md:flex w-80 bg-card border-r border-border flex-col">
-          <div className="p-6 border-b border-border">
-            <div className="flex items-center justify-center">
-              <img 
-                src="/lovable-uploads/d1283b59-7cfa-45f5-b151-4c32b24f3621.png" 
-                alt="Logo" 
-                className="h-8 w-8 object-contain"
-              />
-            </div>
-          </div>
-          
-          <div className="flex-1 flex items-center justify-center p-6">
-            <div className="space-y-6 text-center">
-              <div>
-                <h2 className="text-xl font-semibold mb-2">Create your free Sim today</h2>
-              </div>
-              
-              <Button 
-                onClick={() => setShowAuthModal(true)}
-                className="w-full bg-gradient-to-r from-purple-600 via-pink-500 to-blue-500 text-white hover:opacity-90 animate-pulse rounded-lg py-3"
-              >
-                Get Started
-              </Button>
-            </div>
-          </div>
-        </div>
-        
-        {/* Main content */}
-        <div className="flex-1 flex flex-col">
-          {/* Mobile Header */}
-          <div className="md:hidden bg-card border-b border-border p-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <img 
-                  src="/lovable-uploads/d1283b59-7cfa-45f5-b151-4c32b24f3621.png" 
-                  alt="Logo" 
-                  className="h-8 w-8 object-contain"
-                />
-              </div>
-              
-              <Button 
-                onClick={() => setShowAuthModal(true)}
-                size="sm"
-                className="bg-gradient-to-r from-purple-600 via-pink-500 to-blue-500 text-white hover:opacity-90 animate-pulse"
-              >
-                Get Started
-              </Button>
-            </div>
-          </div>
-          
-          {/* Directory Content */}
-          <div className="flex-1">
-            <AdvisorDirectory 
-              onSelectAdvisor={handleAdvisorSelect}
-              onAuthRequired={handleAuthRequired}
-            />
-          </div>
-        </div>
-        
-        <AuthModal 
-          open={showAuthModal} 
-          onOpenChange={setShowAuthModal}
-        />
-      </div>
-    );
-  }
-
-  // For signed-in users, show the regular layout
   return (
-    <div className="flex h-screen bg-background">
-      <UserSidebar
-        selectedAgent={selectedAgent}
-        selectedPublicAdvisorId={selectedPublicAdvisorId}
-        selectedPublicAdvisors={advisorsAsAgents}
-        onSelectAgent={handleAgentSelect}
-        onSelectPublicAdvisor={handlePublicAdvisorSelect}
-        onRemovePublicAdvisor={handleRemovePublicAdvisor}
-        onShowAdvisorDirectory={handleShowAdvisorDirectory}
-        onNavigateToMySim={handleNavigateToMySim}
-        onNavigateToBasicInfo={handleNavigateToBasicInfo}
-        onNavigateToInteractionModel={handleNavigateToInteractionModel}
-        onNavigateToCoreKnowledge={handleNavigateToCoreKnowledge}
-        onNavigateToIntegrations={handleNavigateToIntegrations}
-        onNavigateToSearch={handleNavigateToSearch}
-        activeView={currentView}
-        onAuthRequired={handleAuthRequired}
-      />
-      
-      {/* Main content with left margin to account for fixed sidebar on desktop */}
-      <div className="flex-1 flex flex-col md:ml-80">
-        {/* Mobile Header - shared across all views */}
-        <div className="md:hidden bg-card border-b border-border p-4">
-          <div className="flex items-center">
-            <Sheet open={mobileSheetOpen} onOpenChange={setMobileSheetOpen}>
-              <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="flex-shrink-0">
-                  <Menu className="h-5 w-5" />
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="left" className="p-0 w-80">
-                <SidebarContent
-                  selectedAgent={selectedAgent}
-                  selectedPublicAdvisorId={selectedPublicAdvisorId}
-                  selectedPublicAdvisors={advisorsAsAgents}
-                  onSelectAgent={handleAgentSelect}
-                  onSelectPublicAdvisor={handlePublicAdvisorSelect}
-                  onRemovePublicAdvisor={handleRemovePublicAdvisor}
-                  onShowAdvisorDirectory={handleShowAdvisorDirectory}
-                  onNavigateToMySim={handleNavigateToMySim}
-                  onNavigateToBasicInfo={handleNavigateToBasicInfo}
-                  onNavigateToInteractionModel={handleNavigateToInteractionModel}
-                  onNavigateToCoreKnowledge={handleNavigateToCoreKnowledge}
-                  onNavigateToIntegrations={handleNavigateToIntegrations}
-                  onNavigateToSearch={handleNavigateToSearch}
-                  activeView={currentView}
-                  onClose={() => setMobileSheetOpen(false)}
-                  onAuthRequired={handleAuthRequired}
-                />
-              </SheetContent>
-            </Sheet>
-            
-            <div className="flex-1 flex justify-center">
-              <img 
-                src="/lovable-uploads/d1283b59-7cfa-45f5-b151-4c32b24f3621.png" 
-                alt="Logo" 
-                className="h-8 w-8 object-contain"
-              />
+    <div className="min-h-screen bg-background text-foreground">
+      {/* Mobile Header */}
+      <div className="lg:hidden border-b border-border bg-background">
+        <div className="flex items-center justify-between p-4">
+          <div className="flex items-center space-x-2">
+            <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center">
+              <span className="text-white text-sm font-bold">S</span>
             </div>
-            
-            {/* Invisible spacer to balance the hamburger menu */}
-            <div className="flex-shrink-0 w-10"></div>
+            <h1 className="text-xl font-bold text-fg">Sim</h1>
           </div>
-        </div>
-        
-        {/* Main Content */}
-        <div className="flex-1">
-          {renderMainContent()}
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+          >
+            {isSidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </Button>
         </div>
       </div>
-      
+
+      <div className="flex h-screen lg:h-screen">
+        {/* Sidebar */}
+        <div className={`
+          ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} 
+          lg:translate-x-0 transition-transform duration-300 ease-in-out
+          fixed lg:static inset-y-0 left-0 z-50 w-80 bg-background border-r border-border
+          flex flex-col
+        `}>
+          {/* Desktop Header */}
+          <div className="hidden lg:block border-b border-border p-6">
+            <div className="flex items-center space-x-2">
+              <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center">
+                <span className="text-white text-sm font-bold">S</span>
+              </div>
+              <h1 className="text-xl font-bold text-fg">Sim</h1>
+            </div>
+          </div>
+
+          {/* Login Section */}
+          <div className="flex-1 flex items-center justify-center p-6">
+            <div className="text-center space-y-6 max-w-sm">
+              <h2 className="text-lg font-medium text-fg">Create your free Sim today.</h2>
+              <Button 
+                onClick={() => setShowAuthModal(true)}
+                className="w-full bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 text-white hover:from-purple-700 hover:via-pink-700 hover:to-blue-700"
+              >
+                Get Started
+              </Button>
+            </div>
+          </div>
+        </div>
+
+        {/* Main Content */}
+        <div className="flex-1 flex flex-col overflow-hidden">
+          {/* Search Header - Desktop */}
+          <div className="hidden lg:flex items-center justify-between border-b border-border p-6">
+            <div className="flex-1 max-w-md relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+              <Input
+                type="text"
+                placeholder="Search sims..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+            <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-2">
+                <div className="w-6 h-6 bg-black rounded-full flex items-center justify-center">
+                  <span className="text-white text-xs font-bold">S</span>
+                </div>
+                <h2 className="text-lg font-semibold text-fg">Sim</h2>
+              </div>
+              <Button 
+                size="sm" 
+                onClick={() => setShowAuthModal(true)}
+                className="bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 text-white hover:from-purple-700 hover:via-pink-700 hover:to-blue-700"
+              >
+                Get Started
+              </Button>
+            </div>
+          </div>
+
+          {/* Search Bar - Mobile */}
+          <div className="lg:hidden border-b border-border p-4">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+              <Input
+                type="text"
+                placeholder="Search sims..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+          </div>
+
+          {/* Content */}
+          <div className="flex-1 overflow-auto p-6">
+            <div className="max-w-4xl mx-auto">
+              {isLoading ? (
+                <div className="flex items-center justify-center py-12">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                </div>
+              ) : error ? (
+                <div className="text-center py-12">
+                  <p className="text-muted-foreground">Failed to load sims</p>
+                  <p className="text-sm text-muted-foreground mt-1">{error}</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {filteredAdvisors.map((advisor) => (
+                    <Link
+                      key={advisor.id}
+                      to={advisor.url ? `/${advisor.url}` : `/tutors/${advisor.id}`}
+                      className="block group"
+                    >
+                      <div className="bg-card border border-border rounded-lg p-6 hover:shadow-lg transition-all duration-200 group-hover:border-primary/20">
+                        <div className="flex items-center space-x-4">
+                          <img
+                            src={advisor.avatar_url || "/placeholder.svg"}
+                            alt={advisor.name}
+                            className="w-12 h-12 rounded-full object-cover"
+                          />
+                          <div className="flex-1 min-w-0">
+                            <h3 className="font-semibold text-fg group-hover:text-primary transition-colors text-lg">
+                              {advisor.name}
+                            </h3>
+                            {advisor.title && (
+                              <p className="text-sm text-muted-foreground mt-1">{advisor.title}</p>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              )}
+
+              {!isLoading && filteredAdvisors.length === 0 && (
+                <div className="text-center py-12">
+                  <p className="text-muted-foreground">No sims found matching your search.</p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Mobile Sidebar Overlay */}
+      {isSidebarOpen && (
+        <div 
+          className="lg:hidden fixed inset-0 bg-black bg-opacity-50 z-40"
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
+
+      {/* Auth Modal */}
       <AuthModal 
         open={showAuthModal} 
-        onOpenChange={setShowAuthModal}
+        onOpenChange={setShowAuthModal} 
       />
     </div>
   );

@@ -5,7 +5,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { TextInput } from "@/components/TextInput";
 import { useChatHistory } from "@/hooks/useChatHistory";
-import { useEnhancedTextChat } from "@/hooks/useEnhancedTextChat";
+import { useTextChat } from "@/hooks/useTextChat";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { AgentType } from "@/types/agent";
 import {
@@ -29,8 +29,7 @@ const ChatInterface = ({ agent, onBack }: ChatInterfaceProps) => {
   const isMobile = useIsMobile();
   
   const chatHistory = useChatHistory(currentAgent);
-  
-  const textChat = useEnhancedTextChat({
+  const textChat = useTextChat({
     agent: currentAgent,
     onUserMessage: chatHistory.addUserMessage,
     onAiMessageStart: chatHistory.startAiMessage,
@@ -65,10 +64,7 @@ const ChatInterface = ({ agent, onBack }: ChatInterfaceProps) => {
                 </SheetTrigger>
                 <SheetContent side="left" className="w-80 p-0">
                   <SidebarContent
-                    selectedAgent={null}
-                    selectedPublicAdvisorId={null}
                     selectedPublicAdvisors={[]}
-                    onSelectAgent={() => {}}
                     onSelectPublicAdvisor={() => {
                       setIsSheetOpen(false);
                     }}
@@ -77,25 +73,6 @@ const ChatInterface = ({ agent, onBack }: ChatInterfaceProps) => {
                       onBack();
                       setIsSheetOpen(false);
                     }}
-                    onNavigateToMySim={() => {
-                      setIsSheetOpen(false);
-                    }}
-                    onNavigateToBasicInfo={() => {
-                      setIsSheetOpen(false);
-                    }}
-                    onNavigateToInteractionModel={() => {
-                      setIsSheetOpen(false);
-                    }}
-                    onNavigateToCoreKnowledge={() => {
-                      setIsSheetOpen(false);
-                    }}
-                    onNavigateToIntegrations={() => {
-                      setIsSheetOpen(false);
-                    }}
-                    onNavigateToSearch={() => {
-                      setIsSheetOpen(false);
-                    }}
-                    activeView="directory"
                     onClose={() => setIsSheetOpen(false)}
                   />
                 </SheetContent>

@@ -108,100 +108,46 @@ export type Database = {
       }
       advisors: {
         Row: {
-          additional_background: string | null
-          areas_of_expertise: string | null
           avatar_url: string | null
           background_content: string | null
           category: string | null
-          completion_status: Json | null
           created_at: string
-          current_profession: string | null
-          custom_url: string | null
-          date_of_birth: string | null
           description: string | null
-          education: string | null
-          full_name: string | null
           id: string
-          interests: Json | null
-          is_public: boolean | null
-          is_verified: boolean
           knowledge_summary: string | null
-          location: string | null
           name: string
-          professional_title: string | null
           prompt: string
-          sample_scenarios: Json | null
-          skills: Json | null
           title: string | null
           updated_at: string
           url: string | null
-          user_id: string | null
-          welcome_message: string | null
-          years_experience: number | null
         }
         Insert: {
-          additional_background?: string | null
-          areas_of_expertise?: string | null
           avatar_url?: string | null
           background_content?: string | null
           category?: string | null
-          completion_status?: Json | null
           created_at?: string
-          current_profession?: string | null
-          custom_url?: string | null
-          date_of_birth?: string | null
           description?: string | null
-          education?: string | null
-          full_name?: string | null
           id?: string
-          interests?: Json | null
-          is_public?: boolean | null
-          is_verified?: boolean
           knowledge_summary?: string | null
-          location?: string | null
           name: string
-          professional_title?: string | null
           prompt: string
-          sample_scenarios?: Json | null
-          skills?: Json | null
           title?: string | null
           updated_at?: string
           url?: string | null
-          user_id?: string | null
-          welcome_message?: string | null
-          years_experience?: number | null
         }
         Update: {
-          additional_background?: string | null
-          areas_of_expertise?: string | null
           avatar_url?: string | null
           background_content?: string | null
           category?: string | null
-          completion_status?: Json | null
           created_at?: string
-          current_profession?: string | null
-          custom_url?: string | null
-          date_of_birth?: string | null
           description?: string | null
-          education?: string | null
-          full_name?: string | null
           id?: string
-          interests?: Json | null
-          is_public?: boolean | null
-          is_verified?: boolean
           knowledge_summary?: string | null
-          location?: string | null
           name?: string
-          professional_title?: string | null
           prompt?: string
-          sample_scenarios?: Json | null
-          skills?: Json | null
           title?: string | null
           updated_at?: string
           url?: string | null
-          user_id?: string | null
-          welcome_message?: string | null
-          years_experience?: number | null
         }
         Relationships: []
       }
