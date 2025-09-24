@@ -129,8 +129,8 @@ const Home = () => {
   const currentChatAgent = selectedAgent || selectedAdvisor;
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
-      <div className="flex flex-1">
+    <div className="h-screen flex flex-col bg-background">
+      <div className="flex flex-1 overflow-hidden">
         <UserSidebar
           selectedAgent={selectedAgent}
           selectedPublicAdvisorId={selectedPublicAdvisorId}
@@ -141,7 +141,7 @@ const Home = () => {
           onShowAdvisorDirectory={handleShowAdvisorDirectory}
         />
         
-        <div className="flex-1">
+        <div className="flex-1 overflow-auto">
           {currentChatAgent ? (
             <ChatInterface
               agent={currentChatAgent}
