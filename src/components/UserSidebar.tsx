@@ -34,6 +34,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { AgentType } from "@/types/agent";
 import AuthModal from "./AuthModal";
+import { useToast } from "@/hooks/use-toast";
 
 interface UserSidebarProps {
   onShowSettings?: () => void;
@@ -79,6 +80,7 @@ const SidebarContent = ({
   const [hoveredAdvisorId, setHoveredAdvisorId] = useState<string | null>(null);
   const [isLogoHovered, setIsLogoHovered] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const { toast } = useToast();
 
   useEffect(() => {
     if (refreshTrigger) {
@@ -111,6 +113,24 @@ const SidebarContent = ({
   const handleAdvisorRemove = async (advisorId: string) => {
     await handleRemoveAdvisor(advisorId);
     setHoveredAdvisorId(null);
+  };
+
+  const copyCAToClipboard = async () => {
+    const ca = "66gmaksi3kdlak34AtJnWqFW6H2L5YQDRy4W41y6zbpump";
+    try {
+      await navigator.clipboard.writeText(ca);
+      toast({
+        title: "Copied!",
+        description: "Contract address copied to clipboard",
+      });
+    } catch (error) {
+      console.error("Failed to copy:", error);
+      toast({
+        title: "Failed to copy",
+        description: "Could not copy to clipboard",
+        variant: "destructive"
+      });
+    }
   };
 
   return (
@@ -395,6 +415,22 @@ const SidebarContent = ({
         open={showAuthModal} 
         onOpenChange={setShowAuthModal} 
       />
+
+      {/* Sim Coin Note */}
+      {(!isCollapsed || !onToggleCollapse) && (
+        <div className="p-3 border-t border-border">
+          <div className="text-xs text-muted-foreground text-center space-y-1">
+            <p>Sim is made possible by Sim Coin.</p>
+            <button
+              onClick={copyCAToClipboard}
+              className="text-primary hover:underline cursor-pointer font-mono text-xs break-all"
+              title="Click to copy contract address"
+            >
+              Official CA: 66gmaksi3kdlak34AtJnWqFW6H2L5YQDRy4W41y6zbpump
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
