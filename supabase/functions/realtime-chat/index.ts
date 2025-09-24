@@ -85,7 +85,7 @@ serve(async (req) => {
 
           if (!searchError && relevantChunks && relevantChunks.length > 0) {
             relevantContext = relevantChunks
-              .map(chunk => chunk.chunk_text)
+              .map((chunk: any) => chunk.chunk_text)
               .join('\n\n')
             
             console.log(`Found ${relevantChunks.length} relevant context chunks`)
@@ -191,9 +191,10 @@ serve(async (req) => {
 
   } catch (error) {
     console.error('Error in realtime-chat function:', error)
+    const errorMessage = error instanceof Error ? error.message : 'Internal server error'
     return new Response(
       JSON.stringify({ 
-        error: error.message || 'Internal server error'
+        error: errorMessage
       }),
       {
         status: 500,

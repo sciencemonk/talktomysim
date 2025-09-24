@@ -112,9 +112,10 @@ Always be patient, supportive, and adapt to each user's learning pace and style.
 
   } catch (error) {
     console.error('Error in chat-completion function:', error)
+    const errorMessage = error instanceof Error ? error.message : 'Internal server error'
     return new Response(
       JSON.stringify({ 
-        error: error.message || 'Internal server error'
+        error: errorMessage
       }),
       {
         status: 500,
