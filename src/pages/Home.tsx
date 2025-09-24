@@ -129,18 +129,18 @@ const Home = () => {
   const currentChatAgent = selectedAgent || selectedAdvisor;
 
   return (
-    <div className="flex h-screen bg-background">
-      <UserSidebar
-        selectedAgent={selectedAgent}
-        selectedPublicAdvisorId={selectedPublicAdvisorId}
-        selectedPublicAdvisors={advisorsAsAgents}
-        onSelectAgent={handleAgentSelect}
-        onSelectPublicAdvisor={handlePublicAdvisorSelect}
-        onRemovePublicAdvisor={handleRemovePublicAdvisor}
-        onShowAdvisorDirectory={handleShowAdvisorDirectory}
-      />
-      
-      <div className="flex-1 flex flex-col">
+    <div className="min-h-screen flex flex-col bg-background">
+      <div className="flex flex-1">
+        <UserSidebar
+          selectedAgent={selectedAgent}
+          selectedPublicAdvisorId={selectedPublicAdvisorId}
+          selectedPublicAdvisors={advisorsAsAgents}
+          onSelectAgent={handleAgentSelect}
+          onSelectPublicAdvisor={handlePublicAdvisorSelect}
+          onRemovePublicAdvisor={handleRemovePublicAdvisor}
+          onShowAdvisorDirectory={handleShowAdvisorDirectory}
+        />
+        
         <div className="flex-1">
           {currentChatAgent ? (
             <ChatInterface
@@ -158,8 +158,9 @@ const Home = () => {
             />
           )}
         </div>
-        <Footer />
       </div>
+      
+      <Footer />
       
       <AuthModal 
         open={showAuthModal} 
