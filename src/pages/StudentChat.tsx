@@ -1,10 +1,10 @@
 
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { usePublicAgent } from "@/hooks/usePublicAgent";
 import { useRealtimeChat } from "@/hooks/useRealtimeChat";
 import { TextInput } from "@/components/TextInput";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Bot, Menu } from "lucide-react";
+import { Bot, Menu, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -13,16 +13,26 @@ import {
   DrawerContent,
   DrawerTrigger,
 } from "@/components/ui/drawer";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ShareButton } from "@/components/ShareButton";
 import { InfoModal } from "@/components/InfoModal";
+import { useAuth } from "@/hooks/useAuth";
 
 const StudentChat = () => {
   const { agentId } = useParams<{ agentId: string }>();
+  const navigate = useNavigate();
+  const { user, loading: authLoading } = useAuth();
   const { agent, isLoading, error } = usePublicAgent(agentId);
   const realtimeChat = useRealtimeChat({ agent: agent! });
   const isMobile = useIsMobile();
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+
+  // Redirect non-authenticated users back to the tutor detail page
+  useEffect(() => {
+    if (!authLoading && !user) {
+      navigate(`/tutors/${agentId}`, { replace: true });
+    }
+  }, [user, authLoading, navigate, agentId]);
 
   // Combine messages with current partial message if speaking
   const allMessages = [...realtimeChat.messages];
@@ -34,6 +44,23 @@ const StudentChat = () => {
       timestamp: new Date(),
       isComplete: false
     });
+  }
+
+  // Show loading while checking authentication
+  if (authLoading) {
+    return (
+      <div className="h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-base text-muted-foreground">Checking access...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Don't render anything if user is not authenticated (will redirect)
+  if (!user) {
+    return null;
   }
 
   if (isLoading) {
