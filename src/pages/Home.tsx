@@ -6,6 +6,7 @@ import AdvisorDirectory from "@/components/AdvisorDirectory";
 import ChatInterface from "@/components/ChatInterface";
 import AuthModal from "@/components/AuthModal";
 import UserSidebar from "@/components/UserSidebar";
+import Footer from "@/components/Footer";
 import { AgentType } from "@/types/agent";
 import { useUserAdvisors } from "@/hooks/useUserAdvisors";
 import { useToast } from "@/hooks/use-toast";
@@ -139,22 +140,25 @@ const Home = () => {
         onShowAdvisorDirectory={handleShowAdvisorDirectory}
       />
       
-      <div className="flex-1">
-        {currentChatAgent ? (
-          <ChatInterface
-            agent={currentChatAgent}
-            onBack={() => {
-              setSelectedAgent(null);
-              setSelectedAdvisor(null);
-              setSelectedPublicAdvisorId(null);
-            }}
-          />
-        ) : (
-          <AdvisorDirectory 
-            onSelectAdvisor={handleAdvisorSelect}
-            onAuthRequired={handleAuthRequired}
-          />
-        )}
+      <div className="flex-1 flex flex-col">
+        <div className="flex-1">
+          {currentChatAgent ? (
+            <ChatInterface
+              agent={currentChatAgent}
+              onBack={() => {
+                setSelectedAgent(null);
+                setSelectedAdvisor(null);
+                setSelectedPublicAdvisorId(null);
+              }}
+            />
+          ) : (
+            <AdvisorDirectory 
+              onSelectAdvisor={handleAdvisorSelect}
+              onAuthRequired={handleAuthRequired}
+            />
+          )}
+        </div>
+        <Footer />
       </div>
       
       <AuthModal 

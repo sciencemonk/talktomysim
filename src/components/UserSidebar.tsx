@@ -415,22 +415,6 @@ const SidebarContent = ({
         open={showAuthModal} 
         onOpenChange={setShowAuthModal} 
       />
-
-      {/* Sim Coin Note */}
-      {(!isCollapsed || !onToggleCollapse) && (
-        <div className="p-3 border-t border-border">
-          <div className="text-xs text-muted-foreground text-center space-y-1">
-            <p>Sim is made possible by Sim Coin.</p>
-            <button
-              onClick={copyCAToClipboard}
-              className="text-primary hover:underline cursor-pointer font-mono text-xs break-all"
-              title="Click to copy contract address"
-            >
-              Official CA: 66gmaksi3kdlak34AtJnWqFW6H2L5YQDRy4W41y6zbpump
-            </button>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
