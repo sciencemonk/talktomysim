@@ -9,17 +9,12 @@ import { AuthProvider } from "@/hooks/useAuth";
 
 // Pages
 import Index from "./pages/Index";
-import Landing from "./pages/Landing";
 import Login from "./pages/Login";
 import Home from "./pages/Home";
 import Admin from "./pages/Admin";
 import PublicTutorDetail from "./pages/PublicTutorDetail";
 import StudentChat from "./pages/StudentChat";
 import NotFound from "./pages/NotFound";
-import DebugAdvisors from "./pages/DebugAdvisors";
-import Embed from "./pages/Embed";
-import Privacy from "./pages/Privacy";
-import Terms from "./pages/Terms";
 
 const queryClient = new QueryClient();
 
@@ -31,31 +26,20 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <Routes>
-            {/* Landing page as default route for non-authenticated users */}
-            <Route path="/" element={<Landing />} />
+            {/* Main app as default route */}
+            <Route path="/" element={<Home />} />
             
             {/* Admin route */}
             <Route path="/admin" element={<Admin />} />
-            
-            {/* Debug route */}
-            <Route path="/debug" element={<DebugAdvisors />} />
             
             {/* Legacy routes */}
             <Route path="/index" element={<Index />} />
             <Route path="/login" element={<Login />} />
             <Route path="/app" element={<Home />} />
-            <Route path="/home" element={<Home />} />
             
             {/* Public tutor share links - accessible by non-signed in users */}
             <Route path="/tutors/:agentId" element={<PublicTutorDetail />} />
             <Route path="/tutors/:agentId/chat" element={<StudentChat />} />
-            
-            {/* Embed route for iframes */}
-            <Route path="/embed/:id" element={<Embed />} />
-            
-            {/* Legal pages */}
-            <Route path="/privacy" element={<Privacy />} />
-            <Route path="/terms" element={<Terms />} />
             
             {/* New custom URL routes for public chats */}
             <Route path="/:customUrl" element={<StudentChat />} />

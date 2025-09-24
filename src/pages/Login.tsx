@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -280,10 +280,6 @@ const Login = () => {
           >
             {isTestLoading ? 'Creating test account...' : 'Test Sign In (Preview Only)'}
           </Button>
-          
-          <div className="text-xs text-center mt-6 text-muted-foreground">
-            By continuing, you agree to our <Link to="/terms" className="text-primary hover:underline">Terms of Service</Link> and <Link to="/privacy" className="text-primary hover:underline">Privacy Policy</Link>
-          </div>
         </CardContent>
       </Card>
     </div>

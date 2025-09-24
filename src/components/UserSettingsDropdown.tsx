@@ -1,16 +1,10 @@
 
-import React, { useState } from "react";
+import React from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useSim } from "@/hooks/useSim";
-import { useUserPlan } from "@/hooks/useUserPlan";
 import { AgentToggle } from "@/components/AgentToggle";
-import { UserSettingsModal } from "@/components/UserSettingsModal";
-import { PlanUpgradeModal } from "@/components/PlanUpgradeModal";
-import EmbedModal from "@/components/EmbedModal";
-import { STRIPE_PLANS } from "@/lib/stripe";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,7 +12,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { LogOut, Settings, Crown, Code } from "lucide-react";
+import { LogOut, Settings, Crown } from "lucide-react";
 
 interface UserSettingsDropdownProps {
   simplified?: boolean;
@@ -31,10 +25,6 @@ const UserSettingsDropdown: React.FC<UserSettingsDropdownProps> = ({
 }) => {
   const { user, signOut } = useAuth();
   const { sim, toggleSimActive } = useSim();
-  const { plan: userPlan, credits: userCredits, maxCredits, isLoading: planLoading } = useUserPlan();
-  const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
-  const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false);
-  const [isEmbedModalOpen, setIsEmbedModalOpen] = useState(false);
 
   const handleSignOut = async () => {
     await signOut();
@@ -48,22 +38,6 @@ const UserSettingsDropdown: React.FC<UserSettingsDropdownProps> = ({
     }
   };
 
-  const handleSettingsClick = () => {
-    setIsSettingsModalOpen(true);
-  };
-
-  const handleUpgradeClick = () => {
-    setIsUpgradeModalOpen(true);
-  };
-
-  const handleEmbedClick = () => {
-    setIsEmbedModalOpen(true);
-  };
-
-  const getPlanDisplayName = (plan: string) => {
-    return STRIPE_PLANS[plan as keyof typeof STRIPE_PLANS]?.name || 'Free';
-  };
-
   const defaultTrigger = (
     <Button variant="ghost" className="w-full justify-start p-2 h-auto">
       <div className="flex items-center space-x-3">
@@ -74,21 +48,18 @@ const UserSettingsDropdown: React.FC<UserSettingsDropdownProps> = ({
           </AvatarFallback>
         </Avatar>
         {!simplified && (
-                      <div className="flex flex-col items-start text-left flex-1 min-w-0">
-              <span className="text-sm font-medium truncate">
-                {sim?.name || user?.email}
-              </span>
-              <span className="text-xs text-muted-foreground">
-                {planLoading ? 'Loading...' : `${getPlanDisplayName(userPlan)} • ${userCredits}/${maxCredits} credits`}
-              </span>
-            </div>
+          <div className="flex flex-col items-start text-left flex-1 min-w-0">
+            <span className="text-sm font-medium truncate">
+              {sim?.name || user?.email}
+            </span>
+            <span className="text-xs text-muted-foreground">Plus</span>
+          </div>
         )}
       </div>
     </Button>
   );
 
   return (
-    <>
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         {trigger || defaultTrigger}
@@ -106,9 +77,7 @@ const UserSettingsDropdown: React.FC<UserSettingsDropdownProps> = ({
               <span className="text-sm font-medium truncate">
                 {sim?.name || user?.email}
               </span>
-              <span className="text-xs text-muted-foreground">
-                {planLoading ? 'Loading...' : `${getPlanDisplayName(userPlan)} • ${userCredits}/${maxCredits} credits`}
-              </span>
+              <span className="text-xs text-muted-foreground">Plus</span>
             </div>
           </div>
         </div>
@@ -117,46 +86,22 @@ const UserSettingsDropdown: React.FC<UserSettingsDropdownProps> = ({
         
         <div className="px-3 py-2">
           <div className="flex items-center justify-between">
-            <div className="flex flex-col">
-              <span className="text-base font-medium">Sim Status</span>
-              <span className="text-xs text-muted-foreground">(Online/Offline)</span>
-            </div>
-            <div className="flex items-center">
-              <Switch 
-                checked={sim?.is_active ?? true}
-                onCheckedChange={() => {}}
-                onClick={handleToggleActive}
-                className="data-[state=checked]:bg-brand-purple"
-              />
-              <span className="ml-2 text-sm font-medium">
-                {(sim?.is_active ?? true) ? 'Active' : 'Inactive'}
-              </span>
-            </div>
+            <span className="text-sm font-medium">Sim Status</span>
+            <AgentToggle 
+              isActive={sim?.is_active ?? true}
+              onToggle={handleToggleActive}
+            />
           </div>
         </div>
         
         <DropdownMenuSeparator />
         
-        <DropdownMenuItem 
-          className="flex items-center space-x-2 cursor-pointer"
-          onClick={handleEmbedClick}
-        >
-          <Code className="h-4 w-4 text-blue-500" />
-          <span>Embed</span>
-        </DropdownMenuItem>
-
-        <DropdownMenuItem 
-          className="flex items-center space-x-2 cursor-pointer"
-          onClick={handleUpgradeClick}
-        >
+        <DropdownMenuItem className="flex items-center space-x-2 cursor-pointer">
           <Crown className="h-4 w-4 text-yellow-500" />
           <span>Upgrade</span>
         </DropdownMenuItem>
         
-        <DropdownMenuItem 
-          className="flex items-center space-x-2 cursor-pointer"
-          onClick={handleSettingsClick}
-        >
+        <DropdownMenuItem className="flex items-center space-x-2 cursor-pointer">
           <Settings className="h-4 w-4" />
           <span>Settings</span>
         </DropdownMenuItem>
@@ -172,30 +117,6 @@ const UserSettingsDropdown: React.FC<UserSettingsDropdownProps> = ({
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
-
-    {/* Settings Modal */}
-    <UserSettingsModal 
-      isOpen={isSettingsModalOpen}
-      onClose={() => setIsSettingsModalOpen(false)}
-    />
-
-    {/* Plan Upgrade Modal */}
-    <PlanUpgradeModal 
-      isOpen={isUpgradeModalOpen}
-      onClose={() => setIsUpgradeModalOpen(false)}
-      onPlanChanged={() => {
-        // Refresh page or reload user data after plan change
-        window.location.reload();
-      }}
-    />
-
-    {/* Embed Modal */}
-    <EmbedModal
-      isOpen={isEmbedModalOpen}
-      onClose={() => setIsEmbedModalOpen(false)}
-      sim={sim}
-    />
-  </>
   );
 };
 

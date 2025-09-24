@@ -12,19 +12,10 @@ import { useState, useEffect } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 const StudentChat = () => {
-  const params = useParams();
+  const { agentId, customUrl } = useParams<{ agentId?: string; customUrl?: string }>();
   const { user } = useAuth();
   const [showAuthModal, setShowAuthModal] = useState(false);
   const isMobile = useIsMobile();
-  
-  // Extract parameters based on the route structure
-  // For /tutors/:agentId/chat -> params.agentId
-  // For /:customUrl -> params.customUrl
-  const agentId = params.agentId;
-  const customUrl = params.customUrl;
-  
-  console.log('StudentChat params:', params);
-  console.log('agentId:', agentId, 'customUrl:', customUrl);
   
   // Determine which hook to use based on the route parameters
   const publicAgentQuery = usePublicAgent(agentId || "");
@@ -60,9 +51,9 @@ const StudentChat = () => {
           <CardContent className="flex flex-col items-center space-y-4 p-6">
             <AlertCircle className="h-12 w-12 text-destructive" />
             <div className="text-center">
-              <h2 className="text-lg font-semibold mb-2">Sim Not Found</h2>
+              <h2 className="text-lg font-semibold mb-2">Chat Not Found</h2>
               <p className="text-sm text-muted-foreground mb-4">
-                The Sim you're looking for isn't active.
+                The chat you're looking for doesn't exist or is no longer available.
               </p>
               <Button onClick={() => window.location.href = '/'}>
                 Go Home
@@ -83,16 +74,10 @@ const StudentChat = () => {
       {/* Main content - full width */}
       <div className="flex-1 flex flex-col">
         <div className="flex-1">
-          {/* Log agent details for debugging */}
-          <div className="hidden">
-            {console.log('StudentChat rendering with agent:', agent.id, agent.name)}
-          </div>
           <ChatInterface 
             agent={agent}
             onBack={handleBack}
             onLoginClick={() => setShowAuthModal(true)}
-            hasSidebar={false}
-            key={`public-chat-${agent.id}`} /* Force re-render with unique key */
           />
         </div>
       </div>

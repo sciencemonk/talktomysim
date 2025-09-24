@@ -17,8 +17,7 @@ const isChannelConfigsRecord = (value: any): value is Record<string, AgentChanne
   return typeof value === 'object' && value !== null && !Array.isArray(value);
 };
 
-class PublicAgentService {
-  async fetchPublicAgentById(id: string): Promise<AgentType> {
+export const fetchPublicAgentById = async (id: string): Promise<AgentType> => {
   console.log("Fetching public advisor by ID:", id);
   
   const { data: advisor, error } = await supabase
@@ -47,8 +46,7 @@ class PublicAgentService {
     status: 'active' as any, // Default status
     createdAt: advisor.created_at,
     updatedAt: advisor.updated_at,
-    avatar: advisor.avatar,
-    avatar_url: advisor.avatar_url,
+    avatar: advisor.avatar_url,
     prompt: advisor.prompt,
     title: advisor.title,
     url: advisor.url, // Include the url field from advisors table
@@ -79,7 +77,4 @@ class PublicAgentService {
     learningObjective: null,
     is_featured: false
   };
-  }
-}
-
-export const publicAgentService = new PublicAgentService();
+};

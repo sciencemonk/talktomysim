@@ -76,12 +76,7 @@ class SimService {
 
   async getUserSim(): Promise<SimData | null> {
     const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
-      console.log('getUserSim: No authenticated user found');
-      return null;
-    }
-    
-    console.log('getUserSim: Fetching sim for user ID:', user.id);
+    if (!user) return null;
 
     const { data, error } = await supabase
       .from('advisors')
@@ -89,16 +84,11 @@ class SimService {
       .eq('user_id', user.id)
       .single();
 
-    if (error) {
-      if (error.code === 'PGRST116') { // PGRST116 = no rows returned
-        console.log('getUserSim: No sim found for user ID:', user.id);
-        return null;
-      }
+    if (error && error.code !== 'PGRST116') { // PGRST116 = no rows returned
       console.error('Error fetching user sim:', error);
       throw error;
     }
 
-    console.log('getUserSim: Found sim with ID:', data?.id);
     return data ? this.convertDatabaseRow(data) : null;
   }
 
@@ -134,7 +124,6 @@ class SimService {
           name: simData.name || simData.full_name || 'My Sim',
           prompt: simData.prompt || 'You are a helpful AI assistant.',
           is_active: simData.is_active !== undefined ? simData.is_active : true,
-          is_public: simData.is_public !== undefined ? simData.is_public : true,
           completion_status: {
             basic_info: false,
             interaction_model: false,

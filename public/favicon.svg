@@ -1,6 +1,0 @@
-<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-  <!-- Left circle (outline only) -->
-  <circle cx="35" cy="50" r="25" fill="none" stroke="black" stroke-width="6"/>
-  <!-- Right circle (filled) -->
-  <circle cx="65" cy="50" r="25" fill="black"/>
-</svg>

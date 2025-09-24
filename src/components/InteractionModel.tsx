@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { Plus, Trash2, HelpCircle } from "lucide-react";
+import { Plus, Trash2, MessageCircle, HelpCircle } from "lucide-react";
 import { useSim } from "@/hooks/useSim";
 import { cn } from "@/lib/utils";
 
@@ -43,9 +43,9 @@ const InteractionModel = () => {
     }
   }, [sim]);
 
-  // Auto-save when changes are detected
+  // Track changes to detect unsaved changes
   useEffect(() => {
-    if (sim && !isLoading) { // Only track after initial load
+    if (sim && welcomeMessage !== "" && !isLoading) { // Only track after initial load
       const originalWelcomeMessage = sim.welcome_message || '';
       const originalScenarios = sim.sample_scenarios || [{ id: '1', question: '', expectedResponse: '' }];
       
@@ -54,15 +54,6 @@ const InteractionModel = () => {
         JSON.stringify(scenarios) !== JSON.stringify(originalScenarios);
       
       setHasUnsavedChanges(hasChanges);
-      
-      // Auto-save after 2 seconds of no changes
-      if (hasChanges) {
-        const timeoutId = setTimeout(() => {
-          handleSave();
-        }, 2000);
-        
-        return () => clearTimeout(timeoutId);
-      }
     }
   }, [welcomeMessage, scenarios, sim, isLoading]);
 
@@ -105,9 +96,26 @@ const InteractionModel = () => {
     <div className="max-w-4xl mx-auto p-6 space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle>
-            Interaction Model
-          </CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle className="flex items-center gap-2">
+              <MessageCircle className="h-5 w-5" />
+              Interaction Model
+            </CardTitle>
+            <Button 
+              onClick={handleSave} 
+              variant={hasUnsavedChanges ? "default" : "outline"}
+              className={cn(
+                "relative",
+                hasUnsavedChanges && "pr-6"
+              )}
+              disabled={isLoading}
+            >
+              {isLoading ? 'Saving...' : 'Save'}
+              {hasUnsavedChanges && (
+                <div className="absolute top-1 right-1 w-2 h-2 bg-orange-500 rounded-full" />
+              )}
+            </Button>
+          </div>
         </CardHeader>
         <CardContent className="space-y-6">
           <p className="text-muted-foreground">
@@ -121,9 +129,7 @@ const InteractionModel = () => {
               Welcome Message
             </Label>
             <p className="text-sm text-muted-foreground">
-              The first message visitors will see when they start chatting with your Sim.
-              <br/>
-              <span className="text-primary">Note: When you chat with your own Sim, it will generate a personalized welcome message based on your conversations and context.</span>
+              The first message people will see when they start chatting with your Sim.
             </p>
             <Textarea
               id="welcome-message"
@@ -206,7 +212,23 @@ const InteractionModel = () => {
             </div>
           </div>
 
-
+          {/* Save Button */}
+          <div className="flex justify-end pt-4">
+            <Button 
+              onClick={handleSave} 
+              className={cn(
+                "px-8 relative",
+                hasUnsavedChanges && "pr-10"
+              )}
+              variant={hasUnsavedChanges ? "default" : "outline"}
+              disabled={isLoading}
+            >
+              {isLoading ? 'Saving...' : 'Save Interaction Model'}
+              {hasUnsavedChanges && (
+                <div className="absolute top-1 right-1 w-2 h-2 bg-orange-500 rounded-full" />
+              )}
+            </Button>
+          </div>
         </CardContent>
       </Card>
 

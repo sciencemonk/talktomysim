@@ -6,13 +6,8 @@ import { Send, Mic, MicOff, User } from 'lucide-react';
 import { AgentType } from '@/types/agent';
 import { useEnhancedTextChat } from '@/hooks/useEnhancedTextChat';
 import { conversationService, Conversation } from '@/services/conversationService';
-import { welcomeMessageService } from '@/services/welcomeMessageService';
 import { useChatHistory } from '@/hooks/useChatHistory';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { useAuth } from '@/hooks/useAuth';
-import { supabase } from '@/integrations/supabase/client';
-import { ChatModal } from '@/components/ChatModal';
-import { MessageWithChatLinks } from '@/components/MessageWithChatLinks';
 
 interface Message {
   id: string;
@@ -28,7 +23,6 @@ interface ChatInterfaceProps {
   onBack?: () => void;
   onLoginClick?: () => void;
   isUserOwnSim?: boolean;
-  hasSidebar?: boolean;
 }
 
 export const ChatInterface = ({ 
@@ -37,359 +31,132 @@ export const ChatInterface = ({
   isAudioEnabled = false, 
   onBack, 
   onLoginClick, 
-  isUserOwnSim = false,
-  hasSidebar = true
+  isUserOwnSim = false 
 }: ChatInterfaceProps) => {
-  const { user, loading: authLoading } = useAuth();
   const [inputMessage, setInputMessage] = useState('');
   const [messages, setMessages] = useState<Message[]>([]);
   const [conversation, setConversation] = useState<Conversation | null>(null);
   const [currentAiMessage, setCurrentAiMessage] = useState<string>('');
   const [hasLoadedInitialMessages, setHasLoadedInitialMessages] = useState(false);
-  // iMessage-like autoscroll: stick to bottom unless the user scrolls up
-  const [stickToBottom, setStickToBottom] = useState(true);
-  const [selectedConversation, setSelectedConversation] = useState<any>(null);
-  const [isChatModalOpen, setIsChatModalOpen] = useState(false);
+  const [isUserNearBottom, setIsUserNearBottom] = useState(true);
+  const [shouldAutoScroll, setShouldAutoScroll] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
-  
-  // State to prevent multiple welcome message attempts
-  const [welcomeMessageAttempted, setWelcomeMessageAttempted] = useState(false);
 
-  // iMessage-like behavior: if the user is near the bottom, keep pinned; if they scroll up, don't jump
-  const handleScroll = useCallback(() => {
-    const el = messagesContainerRef.current;
-    if (!el) return;
-    const threshold = isMobile ? 24 : 40;
-    const atBottom = el.scrollHeight - (el.scrollTop + el.clientHeight) <= threshold;
-    setStickToBottom(atBottom);
-  }, [isMobile]);
+  // Check if user is near bottom of chat
+  const checkIfNearBottom = useCallback(() => {
+    if (!messagesContainerRef.current) return true;
+    
+    const container = messagesContainerRef.current;
+    const threshold = 150; // pixels from bottom
+    const isNearBottom = container.scrollHeight - container.scrollTop - container.clientHeight < threshold;
+    
+    setIsUserNearBottom(isNearBottom);
+    return isNearBottom;
+  }, []);
 
-  useEffect(() => {
-    const el = messagesContainerRef.current;
-    if (!el) return;
-    if (stickToBottom) {
-      el.scrollTop = el.scrollHeight;
+  // Smart scroll to bottom - only when appropriate
+  const scrollToBottom = useCallback((force = false) => {
+    if (messagesEndRef.current && (force || (shouldAutoScroll && isUserNearBottom))) {
+      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
     }
-  }, [messages, stickToBottom]);
+  }, [shouldAutoScroll, isUserNearBottom]);
 
-  // Initialize conversation on component mount - with stable conversation management
+  // Handle scroll events to track user position
+  const handleScroll = useCallback(() => {
+    checkIfNearBottom();
+  }, [checkIfNearBottom]);
+
+  // Only auto-scroll when there's active AI streaming or user sends a message
+  useEffect(() => {
+    if (shouldAutoScroll) {
+      scrollToBottom();
+    }
+  }, [messages, scrollToBottom, shouldAutoScroll]);
+
+  // Initialize conversation on component mount
   useEffect(() => {
     const initConversation = async () => {
-      if (!agent?.id) {
-        console.log('No agent ID provided, skipping conversation initialization');
-        return;
-      }
-      
-      // Check if we already have a stable conversation for this session
-      const currentConvId = conversation?.id;
-      if (currentConvId && !currentConvId.includes('temp_')) {
-        console.log(`Stable conversation already exists: ${currentConvId}, skipping re-initialization`);
-        return;
-      }
-      
-      // For owner sessions, ensure auth is ready so we don't accidentally
-      // create an anonymous conversation before the user is available.
-      if (isUserOwnSim) {
-        if (authLoading) {
-          console.log('Auth is still loading, waiting before creating owner conversation');
-          return; // wait until auth resolves
-        }
-        
-        if (!user) {
-          console.log('No user found for owner conversation, skipping');
-          return; // user not signed in; don't create anon for owner chat
-        }
-        
-        // Additional stability check - ensure user has been stable for at least 1 second
-        // This prevents conversation recreation during token refreshes
-        const stableUserKey = `stable_user_${agent.id}`;
-        const lastUserTime = sessionStorage.getItem(stableUserKey);
-        const currentTime = Date.now();
-        
-        if (!lastUserTime || (currentTime - parseInt(lastUserTime)) < 1000) {
-          sessionStorage.setItem(stableUserKey, currentTime.toString());
-          if (lastUserTime) {
-            console.log('User state too recent, waiting for stability');
-            return;
-          }
-        }
-        
-        console.log(`Initializing owner conversation for user ${user.id} and agent:`, agent.id);
-        
-        try {
-          const conv = await conversationService.getOrCreateOwnerConversation(agent.id);
-          
-          if (conv) {
-            console.log(`Owner conversation initialized with ID: ${conv.id}`);
-            
-            // Only set conversation if it's different from current one
-            if (conv.id !== currentConvId) {
-              setConversation(conv);
-              
-              // Force a refresh of the conversation in localStorage to ensure persistence
-              localStorage.setItem(`owner_conversation_${user.id}_${agent.id}`, conv.id);
-            }
-          } else {
-            console.error('Failed to create or retrieve owner conversation');
-          }
-        } catch (error) {
-          console.error('Error initializing owner conversation:', error);
-        }
-      } else {
-        // Public conversation
-        console.log(`Initializing public conversation for agent:`, agent.id);
-        
-        try {
-          // Force a fresh conversation for public chats to ensure it's properly created
-          // This ensures both tutor_id and advisor_id are set correctly
-          console.log('Creating fresh public conversation');
-          
-          // Get current auth state
-          const { data: { user: currentUser } } = await supabase.auth.getUser();
-          console.log('Current user for public chat:', currentUser?.id || 'anonymous');
-          
-          const conv = await conversationService.getOrCreateConversation(agent.id);
-          
-          if (conv) {
-            console.log(`Public conversation initialized with ID: ${conv.id}`);
-            console.log(`Public conversation details: tutor_id=${conv.tutor_id}, advisor_id=${conv.advisor_id}, user_id=${conv.user_id || 'null'}, is_anonymous=${conv.is_anonymous}`);
-            
-            // Only set conversation if it's different from current one
-            if (conv.id !== currentConvId) {
-              setConversation(conv);
-            }
-          } else {
-            console.error('Failed to create or retrieve public conversation');
-          }
-        } catch (error) {
-          console.error('Error initializing public conversation:', error);
-        }
+      if (agent?.id) {
+        const conv = await conversationService.getOrCreateConversation(agent.id);
+        setConversation(conv);
       }
     };
     
     initConversation();
-  }, [agent?.id, isUserOwnSim]); // Removed authLoading and user?.id to prevent auth-triggered resets
-
-  // Separate effect to handle delayed re-initialization for owner sessions when auth stabilizes
-  useEffect(() => {
-    if (isUserOwnSim && !authLoading && user && !conversation?.id) {
-      console.log('Auth stabilized for owner session, checking if conversation needs initialization');
-      const timeoutId = setTimeout(() => {
-        // Re-check after delay to ensure conversation is created for authenticated owner sessions
-        if (!conversation?.id) {
-          console.log('No conversation found after auth stabilization, triggering initialization');
-          const initEvent = new CustomEvent('force-conversation-init');
-          window.dispatchEvent(initEvent);
-        }
-      }, 2000);
-      
-      return () => clearTimeout(timeoutId);
-    }
-  }, [isUserOwnSim, authLoading, user, conversation?.id]);
+  }, [agent?.id]);
 
   const { messages: historyMessages, isLoading, loadMessages } = useChatHistory(conversation?.id || null);
 
-  // Reset message state when conversation changes - but only for genuine conversation changes
-  const previousConversationId = useRef<string | null>(null);
+  // Update local messages when history loads and show welcome message if needed
   useEffect(() => {
-    if (conversation?.id) {
-      // Only reset if this is truly a different conversation (not just auth refresh)
-      if (previousConversationId.current && previousConversationId.current !== conversation.id) {
-        console.log(`Conversation changed from ${previousConversationId.current} to ${conversation.id}, resetting message state`);
-        setHasLoadedInitialMessages(false);
-        setMessages([]); // Clear messages to avoid showing stale data
-      } else if (!previousConversationId.current) {
-        console.log(`Initial conversation set: ${conversation.id}`);
-        setHasLoadedInitialMessages(false);
-        setMessages([]);
-      }
-      
-      previousConversationId.current = conversation.id;
-    }
-  }, [conversation?.id]);
-  
-  // Debug effect to log messages
-  useEffect(() => {
-    console.log(`Current UI messages: ${messages.length}, History messages: ${historyMessages?.length || 0}`);
-  }, [messages.length, historyMessages?.length]);
-
-  // Separate effect to handle message loading
-  useEffect(() => {
-    if (!conversation?.id) {
-      return;
-    }
-    
-    if (!historyMessages) {
-      console.log(`Waiting for history messages for conversation ${conversation.id}`);
-      return;
-    }
-    
-    console.log(`Processing ${historyMessages.length} messages for conversation ${conversation.id}, hasLoadedInitialMessages=${hasLoadedInitialMessages}, current UI messages=${messages.length}`);
-    
-    // For public conversations, don't overwrite if we already have more messages in the UI
-    const isPublicConversation = conversation.id.startsWith('public_');
-    const hasMoreMessagesInUI = messages.length > historyMessages.length;
-    
-    if (isPublicConversation && hasMoreMessagesInUI && hasLoadedInitialMessages) {
-      console.log(`Skipping history reload for public conversation - UI has ${messages.length} messages vs history ${historyMessages.length}`);
-      return;
-    }
-    
-    // Always load messages if we have them, regardless of hasLoadedInitialMessages state
-    if (historyMessages.length > 0) {
-      console.log(`Setting ${historyMessages.length} messages from history`);
-      
-      // Log the first few messages to debug
-      historyMessages.slice(0, 3).forEach((msg, i) => {
-        console.log(`Message ${i}: ${msg.role} - ${msg.content.substring(0, 30)}...`);
-      });
-      
-      const formattedMessages: Message[] = historyMessages.map(msg => ({
-        id: msg.id,
-        role: msg.role,
-        content: msg.content,
-        timestamp: new Date(msg.created_at).getTime()
-      }));
-      
-      // Only update if we don't already have more recent messages
-      if (!hasMoreMessagesInUI || !hasLoadedInitialMessages) {
-        console.log(`Setting UI with ${formattedMessages.length} formatted messages`);
-        setMessages([...formattedMessages]);
-      }
-      
-      setHasLoadedInitialMessages(true);
-      
-      // Initial load: pin to bottom
-      setStickToBottom(true);
-    } 
-    // Only show welcome message if we haven't loaded messages yet AND there are no existing messages
-    else if (!hasLoadedInitialMessages && messages.length === 0 && conversation?.id && !welcomeMessageAttempted) {
-      console.log('No messages found, checking for welcome message');
-      
-      // Check if we've already shown a welcome message for this agent (more robust than per-conversation)
-      const agentWelcomeKey = `welcome_shown_agent_${agent?.id}`;
-      const conversationWelcomeKey = `welcome_shown_${conversation.id}`;
-      const agentWelcomeShown = localStorage.getItem(agentWelcomeKey);
-      const conversationWelcomeShown = localStorage.getItem(conversationWelcomeKey);
-      
-      if (agentWelcomeShown || conversationWelcomeShown) {
-        console.log('Welcome message already shown for this agent/conversation, skipping');
-        setHasLoadedInitialMessages(true);
-        setWelcomeMessageAttempted(true);
-        return;
-      }
-      
-      // Mark that we're attempting a welcome message to prevent duplicates
-      setWelcomeMessageAttempted(true);
-      
-      const showWelcomeMessage = async () => {
-        let welcomeMessageContent = '';
-        let welcomeMessageId = 'welcome-message';
+    if (historyMessages && conversation?.id && !hasLoadedInitialMessages) {
+      if (historyMessages.length > 0) {
+        const formattedMessages: Message[] = historyMessages.map(msg => ({
+          id: msg.id,
+          role: msg.role,
+          content: msg.content,
+          timestamp: new Date(msg.created_at).getTime()
+        }));
+        setMessages(formattedMessages);
         
-        if (isUserOwnSim) {
-          try {
-            // For owner sessions, generate a dynamic welcome message
-            console.log('Generating dynamic welcome message for owner');
-            welcomeMessageContent = await welcomeMessageService.generateOwnerWelcomeMessage(agent);
-            welcomeMessageId = `welcome-message-owner-${Date.now()}`;
-          } catch (error) {
-            console.error('Error generating dynamic welcome message:', error);
-            // Fall back to standard welcome message if generation fails
-            welcomeMessageContent = agent?.welcomeMessage || '';
-          }
-        } else {
-          // For public users, use a simple, non-Sim-referencing welcome message
-          welcomeMessageContent = `Peace be with you. I'm here to help with anything related to Christianity—Scripture, prayer, forgiveness, discipleship, or life decisions through a faith lens. What's on your heart today?`;
-          welcomeMessageId = `welcome-message-public-${Date.now()}`;
-          console.log('Using simplified public welcome message');
+        // On mobile, don't auto-scroll to bottom for existing conversations
+        if (!isMobile) {
+          setTimeout(() => {
+            setShouldAutoScroll(true);
+            setIsUserNearBottom(true);
+            scrollToBottom(true);
+          }, 100);
         }
+      } else if (agent?.welcomeMessage) {
+        // Show welcome message if no existing messages and agent has a welcome message
+        const welcomeMsg: Message = {
+          id: 'welcome-message',
+          role: 'system',
+          content: agent.welcomeMessage,
+          timestamp: Date.now()
+        };
+        setMessages([welcomeMsg]);
         
-        if (welcomeMessageContent) {
-          // Check if we already have this welcome message to prevent duplicates
-          const existingWelcomeMessage = messages.find(msg => 
-            msg.role === 'system' && 
-            msg.content === welcomeMessageContent
-          );
-          
-          if (!existingWelcomeMessage) {
-            const welcomeMsg: Message = {
-              id: welcomeMessageId,
-              role: 'system',
-              content: welcomeMessageContent,
-              timestamp: Date.now()
-            };
-            setMessages([welcomeMsg]);
-            
-            // Mark welcome message as shown for both agent and conversation
-            localStorage.setItem(conversationWelcomeKey, 'true');
-            localStorage.setItem(agentWelcomeKey, 'true');
-            
-            // For welcome message, keep pinned
-            setStickToBottom(true);
-          } else {
-            console.log('Skipping duplicate welcome message');
-          }
+        // Don't auto-scroll on mobile for welcome message either
+        if (!isMobile) {
+          setTimeout(() => {
+            setShouldAutoScroll(true);
+            setIsUserNearBottom(true);
+            scrollToBottom(true);
+          }, 100);
         }
-        
-        // Mark as loaded regardless of whether we showed a welcome message
-        setHasLoadedInitialMessages(true);
-      };
-      
-      // Call the async function to show the welcome message
-      showWelcomeMessage();
-    } else if (messages.length > 0 && !hasLoadedInitialMessages) {
-      // If we already have messages but haven't marked as loaded, mark as loaded to prevent welcome message
-      console.log('Messages already exist, marking as loaded to prevent welcome message');
+      }
       setHasLoadedInitialMessages(true);
     }
-  }, [historyMessages, conversation?.id, agent?.welcomeMessage, isUserOwnSim, hasLoadedInitialMessages, messages.length, agent]);
-
-
+  }, [historyMessages, conversation?.id, agent?.welcomeMessage, hasLoadedInitialMessages, scrollToBottom, isMobile]);
 
   const addUserMessage = useCallback(async (message: string) => {
-    if (!message.trim()) {
-      console.error('Cannot add user message: Empty content');
-      return;
-    }
-    
-    // Create temporary message for UI
     const userMsg: Message = {
       id: `user-${Date.now()}`,
       role: 'user',
       content: message,
       timestamp: Date.now()
     };
-
+    
     setMessages(prev => [...prev, userMsg]);
     
-    // When user sends a message, keep pinned to bottom
-    setStickToBottom(true);
-    
-    // Save to localStorage for public conversations (database conversations are handled by Edge Function)
-    if (conversation?.id && conversation.id.startsWith('public_')) {
-      console.log(`Saving user message to localStorage conversation ${conversation.id}`);
-      
-      try {
-        const savedMessage = await conversationService.addMessage(conversation.id, 'user', message);
-        
-        if (savedMessage) {
-          console.log(`Successfully saved user message ${savedMessage.id} to localStorage conversation ${conversation.id}`);
-        } else {
-          console.error('Failed to save user message to localStorage');
-        }
-      } catch (error) {
-        console.error('Error saving user message:', error);
-      }
+    // Enable auto-scroll when user sends a message
+    setShouldAutoScroll(true);
+    setIsUserNearBottom(true);
+
+    if (conversation?.id) {
+      await conversationService.addMessage(conversation.id, 'user', message);
     }
-  }, [conversation?.id, isUserOwnSim, user, agent?.id]);
+  }, [conversation?.id]);
 
   const startAiMessage = useCallback(() => {
     setCurrentAiMessage('');
     const aiMessageId = `ai-${Date.now()}`;
     
-    // Enable pin-to-bottom when AI starts responding
-    setStickToBottom(true);
+    // Enable auto-scroll when AI starts responding
+    setShouldAutoScroll(true);
     
     return aiMessageId;
   }, []);
@@ -399,8 +166,6 @@ export const ChatInterface = ({
     
     setMessages(prev => {
       const lastMessage = prev[prev.length - 1];
-      
-      // Check if this is a continuation of the last message
       if (lastMessage && lastMessage.role === 'system' && lastMessage.id.startsWith('ai-')) {
         return prev.map((msg, index) => 
           index === prev.length - 1 && msg.role === 'system' && msg.id.startsWith('ai-')
@@ -408,29 +173,6 @@ export const ChatInterface = ({
             : msg
         );
       } else {
-        // Only check for duplicates if this is a new complete message (not a delta/streaming chunk)
-        // and only for system messages (AI responses)
-        if (delta.length > 30) {  // Only check substantial messages, not small chunks
-          const recentSystemMessages = prev
-            .filter(msg => msg.role === 'system')
-            .slice(-2); // Look at last 2 system messages only
-          
-          // Check for exact duplicates only - much less aggressive filtering
-          const isDuplicate = recentSystemMessages.some(msg => {
-            // Skip very short messages
-            if (msg.content.length < 30) return false;
-            
-            // Exact match check only - very strict
-            return msg.content === delta;
-          });
-          
-          if (isDuplicate) {
-            console.log('Prevented duplicate system message:', delta.substring(0, 50) + '...');
-            return prev;
-          }
-        }
-        
-        // If we get here, it's not a duplicate, so add the message
         const aiMsg: Message = {
           id: `ai-${Date.now()}`,
           role: 'system',
@@ -443,92 +185,34 @@ export const ChatInterface = ({
   }, []);
 
   const completeAiMessage = useCallback(async (finalContent: string) => {
-    if (!conversation?.id) {
-      console.error('Cannot save AI message: No conversation ID available');
-      return;
-    }
-    
-    if (!finalContent || !finalContent.trim()) {
-      console.error('Cannot save AI message: Empty content');
-      return;
-    }
-    
-    console.log(`Saving AI message to conversation ${conversation.id}`);
-    
-    try {
-      // Ensure the conversation is persisted in localStorage
-      if (isUserOwnSim && user) {
-        localStorage.setItem(`owner_conversation_${user.id}_${agent.id}`, conversation.id);
-      }
+    if (conversation?.id && finalContent && finalContent.trim()) {
+      console.log('Saving AI message to database:', finalContent);
+      await conversationService.addMessage(conversation.id, 'system', finalContent);
       
-      // Save message to database
-      const savedMessage = await conversationService.addMessage(conversation.id, 'system', finalContent);
-      
-      if (savedMessage) {
-        console.log(`Successfully saved AI message ${savedMessage.id} to conversation ${conversation.id}`);
-      } else {
-        console.error('Failed to save AI message to database');
-      }
-      
-      // Update UI
       setMessages(prev => {
         const lastMessage = prev[prev.length - 1];
         if (lastMessage && lastMessage.role === 'system' && lastMessage.id.startsWith('ai-')) {
           return prev.map((msg, index) => 
             index === prev.length - 1 && msg.role === 'system' && msg.id.startsWith('ai-')
-              ? { ...msg, content: finalContent, id: savedMessage?.id || `saved-${Date.now()}` }
+              ? { ...msg, content: finalContent, id: `saved-${Date.now()}` }
               : msg
           );
         }
         return prev;
       });
-    } catch (error) {
-      console.error('Error saving AI message:', error);
     }
-    
     setCurrentAiMessage('');
     
-    // Keep stick-to-bottom behavior; user can scroll up to pause
-  }, [conversation?.id, isUserOwnSim, user, agent?.id]);
-
-  // Combine historical messages with current session messages for conversation context
-  const conversationHistory = React.useMemo(() => {
-    // Start with persisted messages from database
-    const allMessages = [...(historyMessages || [])];
-    
-    // Add any current session messages that aren't already persisted
-    // (This handles the case where messages are added to UI before being saved)
-    messages.forEach(msg => {
-      const existsInHistory = allMessages.some(histMsg => histMsg.id === msg.id);
-      if (!existsInHistory) {
-        allMessages.push({
-          id: msg.id,
-          role: msg.role,
-          content: msg.content,
-          created_at: new Date(msg.timestamp).toISOString(),
-          conversation_id: conversation?.id || ''
-        });
-      }
-    });
-    
-    // Sort by timestamp and convert to the format expected by useEnhancedTextChat
-    return allMessages
-      .sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime())
-      .map(msg => ({
-        role: msg.role,
-        content: msg.content
-      }));
-  }, [historyMessages, messages, conversation?.id]);
+    // Disable auto-scroll after AI completes message
+    setShouldAutoScroll(false);
+  }, [conversation?.id]);
 
   const { sendMessage, isProcessing } = useEnhancedTextChat({
     agent,
     onUserMessage: addUserMessage,
     onAiMessageStart: startAiMessage,
     onAiTextDelta: addAiTextDelta,
-    onAiMessageComplete: completeAiMessage,
-    isOwner: isUserOwnSim,
-    conversationId: conversation?.id,
-    conversationHistory
+    onAiMessageComplete: completeAiMessage
   });
 
   const handleSendMessage = async () => {
@@ -537,85 +221,6 @@ export const ChatInterface = ({
     const messageToSend = inputMessage.trim();
     setInputMessage('');
     
-    // V1 Owner Insights: If the user is talking to their own Sim and
-    // they send a command like "/insights" (optionally with a time window like "7d"),
-    // generate a quick analytics summary of public conversations instead of
-    // calling the regular AI completion. This keeps behavior explicit and simple.
-    if (isUserOwnSim && messageToSend.toLowerCase().startsWith('/insights')) {
-      try {
-        // Persist the user's command as a message
-        await addUserMessage(messageToSend);
-        const aiId = startAiMessage();
-
-        // Parse optional time window like "/insights 7d"
-        const daysMatch = messageToSend.match(/\b(\d+)d\b/i);
-        const daysWindow = daysMatch ? parseInt(daysMatch[1], 10) : undefined;
-
-        // Fetch conversation summaries for this Sim (advisor)
-        const summaries = await conversationService.getAdvisorConversations(agent.id);
-
-        // If a time window is provided, filter by updated_at within that window
-        const now = Date.now();
-        const filtered = Array.isArray(summaries) ? summaries.filter((s: any) => {
-          if (!daysWindow) return true;
-          const updated = new Date(s.updated_at).getTime();
-          return updated >= now - daysWindow * 24 * 60 * 60 * 1000;
-        }) : [];
-
-        // Compute basic metrics
-        const totalConversations = filtered.length;
-        const totalMessages = filtered.reduce((sum: number, c: any) => sum + (Number(c.message_count) || 0), 0);
-        const avgMessages = totalConversations > 0 ? (totalMessages / totalConversations) : 0;
-        const escalated = filtered.filter((c: any) => !!c.escalated).length;
-        const anonymous = filtered.filter((c: any) => c.is_anonymous === true).length;
-        const anonPct = totalConversations > 0 ? Math.round((anonymous / totalConversations) * 100) : 0;
-        const mostRecent = filtered.reduce((latest: number, c: any) => {
-          const t = new Date(c.updated_at).getTime();
-          return t > latest ? t : latest;
-        }, 0);
-
-        // Aggregate intents
-        const intentCounts: Record<string, number> = {};
-        filtered.forEach((c: any) => {
-          const intents: string[] = Array.isArray(c.intents) ? c.intents : [];
-          intents.forEach((i) => {
-            if (!i) return;
-            const key = String(i);
-            intentCounts[key] = (intentCounts[key] || 0) + 1;
-          });
-        });
-        const topIntents = Object.entries(intentCounts)
-          .sort((a, b) => b[1] - a[1])
-          .slice(0, 5)
-          .map(([k, v]) => `${k} (${v})`)
-          .join(', ');
-
-        // Build simple natural language summary
-        const windowText = daysWindow ? `last ${daysWindow} day(s)` : 'all time';
-        const recentText = mostRecent ? new Date(mostRecent).toLocaleString() : 'N/A';
-        const summary = totalConversations === 0
-          ? `No conversations found in the ${windowText}.`
-          : [
-              `Insights for ${agent.name} — ${windowText}:`,
-              `- Conversations: ${totalConversations}`,
-              `- Total messages: ${totalMessages} (avg ${avgMessages.toFixed(1)} per conversation)`,
-              `- Escalations (approx): ${escalated}`,
-              `- Anonymous: ${anonymous} (${anonPct}%)`,
-              topIntents ? `- Top intents: ${topIntents}` : `- Top intents: N/A`,
-              `- Most recent activity: ${recentText}`
-            ].join('\n');
-
-        addAiTextDelta(summary);
-        await completeAiMessage(summary);
-      } catch (err) {
-        const fallback = 'Unable to generate insights right now.';
-        addAiTextDelta(fallback);
-        await completeAiMessage(fallback);
-      }
-      return;
-    }
-
-    // Default path: use the enhanced text chat flow
     await sendMessage(messageToSend);
   };
 
@@ -623,37 +228,6 @@ export const ChatInterface = ({
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSendMessage();
-    }
-  };
-
-  const handleChatLinkClick = async (conversationId: string) => {
-    try {
-      console.log(`Attempting to load conversation: ${conversationId}`);
-      
-      // Fetch the conversation data
-      const conversationData = await conversationService.getConversationById(conversationId);
-      if (conversationData) {
-        console.log('Conversation data loaded successfully:', conversationData);
-        
-        // Add sim data to the conversation object (similar to MySim.tsx)
-        const enhancedConversation = {
-          ...conversationData,
-          sim: {
-            name: agent.name,
-            avatar: agent.avatar,
-            avatar_url: agent.avatar_url
-          }
-        };
-        setSelectedConversation(enhancedConversation);
-        setIsChatModalOpen(true);
-      } else {
-        console.warn(`Conversation ${conversationId} not found or no longer available`);
-        // Could add a toast notification here if needed
-        // For now, just log the issue - the link simply won't work
-      }
-    } catch (error) {
-      console.error('Failed to load conversation:', error);
-      // Could add error notification here if needed
     }
   };
 
@@ -666,28 +240,13 @@ export const ChatInterface = ({
   }
 
   return (
-    <div className="flex flex-col h-full min-h-screen bg-background relative w-full max-w-full overflow-hidden">
-      {/* Mobile viewport fix */}
-      <style>{`
-        @media (max-width: 768px) {
-          .mobile-chat-container {
-            height: 100vh;
-            height: 100dvh; /* Dynamic viewport height for mobile */
-            max-height: -webkit-fill-available; /* iOS Safari fix */
-          }
-        }
-        
-        /* Ensure messages container takes up available space */
-        .mobile-chat-container {
-          min-height: 300px; /* Minimum height to ensure scrolling works */
-        }
-      `}</style>
+    <div className="flex flex-col h-screen bg-background relative w-full max-w-full overflow-hidden">
       {/* Header - Only show for non-user sims */}
       {!isUserOwnSim && (
         <div className="fixed top-0 left-0 right-0 z-10 flex items-center justify-between p-4 border-b border-border bg-card">
           <div className="flex items-center gap-3">
             <Avatar className="h-10 w-10">
-              <AvatarImage src={(agent as any)?.avatar_url || (agent?.avatar ? `/lovable-uploads/${agent?.avatar}` : undefined)} alt={agent?.name} />
+              <AvatarImage src={agent?.avatar} alt={agent?.name} />
               <AvatarFallback className="bg-primary/10 text-primary font-medium">
                 {agent?.name?.charAt(0)}
               </AvatarFallback>
@@ -740,30 +299,13 @@ export const ChatInterface = ({
       <div 
         ref={messagesContainerRef}
         onScroll={handleScroll}
-        className={`flex-1 overflow-y-auto p-4 space-y-4 w-full h-full ${
-          isUserOwnSim 
-            ? isMobile 
-              ? 'pt-4 pb-28' 
-              : 'pt-4 pb-32'
-            : isMobile 
-              ? 'pt-20 pb-28'
-              : 'pt-24 pb-32'
-        } mobile-chat-container`}
+        className={`flex-1 overflow-y-auto p-4 space-y-4 w-full ${
+          isUserOwnSim ? 'pt-4 pb-24' : 'pt-24 pb-24'
+        }`}
       >
-        {/* Debug message count - using useEffect to avoid React node issues */}
-        <div className="hidden">{messages.length}</div>
-        
-        {/* Show loading indicator if still loading messages */}
-        {isLoading && messages.length === 0 && (
-          <div className="flex justify-center items-center h-full">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-          </div>
-        )}
-        
-        {/* No placeholder message; show nothing while empty */}
-        {!isLoading && messages.length === 0 && (
+        {messages.length === 0 && (
           <div className="text-center text-muted-foreground py-8">
-            Start a conversation with {agent?.name}
+            <p>Start a conversation with {agent?.name}</p>
           </div>
         )}
         
@@ -776,10 +318,7 @@ export const ChatInterface = ({
           >
             {message.role === 'system' && (
               <Avatar className="h-8 w-8 flex-shrink-0">
-                <AvatarImage 
-                  src={(agent as any)?.avatar_url || (agent?.avatar ? `/lovable-uploads/${agent?.avatar}` : undefined)} 
-                  alt={agent?.name} 
-                />
+                <AvatarImage src={agent?.avatar} alt={agent?.name} />
                 <AvatarFallback className="bg-primary/10 text-primary text-xs">
                   {agent?.name?.charAt(0)}
                 </AvatarFallback>
@@ -793,16 +332,7 @@ export const ChatInterface = ({
                   : 'bg-muted text-foreground'
               }`}
             >
-              <div className="text-sm">
-                {isUserOwnSim ? (
-                  <MessageWithChatLinks 
-                    content={message.content}
-                    onChatLinkClick={handleChatLinkClick}
-                  />
-                ) : (
-                  <span className="whitespace-pre-wrap">{message.content}</span>
-                )}
-              </div>
+              <p className="text-sm whitespace-pre-wrap">{message.content}</p>
             </div>
             
             {message.role === 'user' && (
@@ -819,10 +349,7 @@ export const ChatInterface = ({
         {isProcessing && (
           <div className="flex gap-3 justify-start">
             <Avatar className="h-8 w-8 flex-shrink-0">
-              <AvatarImage 
-                src={(agent as any)?.avatar_url || (agent?.avatar ? `/lovable-uploads/${agent?.avatar}` : undefined)} 
-                alt={agent?.name} 
-              />
+              <AvatarImage src={agent?.avatar} alt={agent?.name} />
               <AvatarFallback className="bg-primary/10 text-primary text-xs">
                 {agent?.name?.charAt(0)}
               </AvatarFallback>
@@ -837,13 +364,14 @@ export const ChatInterface = ({
           </div>
         )}
         
-        {/* End of messages */}
+        {/* Invisible element to scroll to */}
+        <div ref={messagesEndRef} />
       </div>
 
-      {/* Input - Fixed to bottom. When a sidebar exists, offset on desktop widths. */}
-      <div className={`fixed bottom-0 z-10 border-t border-border bg-card ${
-        hasSidebar ? 'left-0 right-0 md:left-80 md:right-0' : 'left-0 right-0'
-      } ${isMobile ? 'p-3' : 'p-4'}`}>
+      {/* Input - Fixed to bottom but only on the right side, not behind sidebar */}
+      <div className={`fixed bottom-0 z-10 p-4 border-t border-border bg-card ${
+        isUserOwnSim ? 'left-0 right-0' : 'left-80 right-0'
+      } md:left-80 md:right-0`}>
         <div className="flex gap-2 w-full max-w-full">
           <Input
             value={inputMessage}
@@ -862,18 +390,6 @@ export const ChatInterface = ({
           </Button>
         </div>
       </div>
-
-      {/* Chat Modal for viewing referenced conversations */}
-      <ChatModal 
-        isOpen={isChatModalOpen}
-        onClose={() => {
-          setIsChatModalOpen(false);
-          setSelectedConversation(null);
-        }}
-        conversation={selectedConversation}
-        simName={agent.name}
-        simAvatar={agent.avatar_url}
-      />
     </div>
   );
 };

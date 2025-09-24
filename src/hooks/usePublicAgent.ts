@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { publicAgentService } from '@/services/publicAgentService';
+import { fetchPublicAgentById } from '@/services/publicAgentService';
 import { AgentType } from '@/types/agent';
 
 export const usePublicAgent = (agentId: string | undefined) => {
@@ -18,7 +18,7 @@ export const usePublicAgent = (agentId: string | undefined) => {
     const loadAgentDetails = async () => {
       setIsLoading(true);
       try {
-        const data = await publicAgentService.fetchPublicAgentById(agentId);
+        const data = await fetchPublicAgentById(agentId);
         setAgent(data);
         setError(null);
       } catch (err: any) {

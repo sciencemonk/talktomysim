@@ -2,8 +2,6 @@
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useSim } from "@/hooks/useSim";
-import { useUserPlan } from "@/hooks/useUserPlan";
-import { STRIPE_PLANS } from "@/lib/stripe";
 import { AgentType } from "@/types/agent";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -68,11 +66,6 @@ export const SidebarContent = ({
 }: SidebarContentProps) => {
   const { user } = useAuth();
   const { completionStatus, sim } = useSim();
-  const { plan: userPlan, credits: userCredits, maxCredits, isLoading: planLoading } = useUserPlan();
-
-  const getPlanDisplayName = (plan: string) => {
-    return STRIPE_PLANS[plan as keyof typeof STRIPE_PLANS]?.name || 'Free';
-  };
 
   return (
     <div className="flex flex-col h-full bg-card border-r border-border">
@@ -131,19 +124,6 @@ export const SidebarContent = ({
                     </Button>
                     
                     <Button
-                      variant={activeView === 'interaction-model' ? "secondary" : "ghost"}
-                      size="sm"
-                      onClick={() => {
-                        onNavigateToInteractionModel();
-                        onClose?.();
-                      }}
-                      className="w-full justify-start h-9"
-                    >
-                      <MessageSquare className="mr-2 h-4 w-4" />
-                      Interaction Model
-                    </Button>
-                    
-                    <Button
                       variant={activeView === 'integrations' ? "secondary" : "ghost"}
                       size="sm"
                       onClick={() => {
@@ -154,6 +134,19 @@ export const SidebarContent = ({
                     >
                       <Settings className="mr-2 h-4 w-4" />
                       Integrations
+                    </Button>
+                    
+                    <Button
+                      variant={activeView === 'interaction-model' ? "secondary" : "ghost"}
+                      size="sm"
+                      onClick={() => {
+                        onNavigateToInteractionModel();
+                        onClose?.();
+                      }}
+                      className="w-full justify-start h-9"
+                    >
+                      <MessageSquare className="mr-2 h-4 w-4" />
+                      Interaction Model
                     </Button>
                     
                     <Button
@@ -254,9 +247,7 @@ export const SidebarContent = ({
                       <span className="text-sm font-medium truncate">
                         {sim?.name || user.email}
                       </span>
-                      <span className="text-xs text-muted-foreground">
-                        {planLoading ? 'Loading...' : `${getPlanDisplayName(userPlan)} • ${userCredits}/${maxCredits} credits`}
-                      </span>
+                      <span className="text-xs text-muted-foreground">Plus</span>
                     </div>
                   </div>
                 </Button>
