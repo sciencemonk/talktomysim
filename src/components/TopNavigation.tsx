@@ -127,8 +127,8 @@ const TopNavigation = ({
   return (
     <nav className="bg-card border-b border-border px-4 py-3">
       <div className="flex items-center justify-between">
-        {/* Left side - Logo/Back button and navigation */}
-        <div className="flex items-center gap-6">
+        {/* Left side - Logo/Back button */}
+        <div className="flex items-center gap-3">
           {showBackButton ? (
             <Button 
               variant="ghost" 
@@ -140,16 +140,35 @@ const TopNavigation = ({
               {!isMobile && "Back"}
             </Button>
           ) : (
-            <div className="flex items-center gap-3">
-              <img 
-                src="/lovable-uploads/d1283b59-7cfa-45f5-b151-4c32b24f3621.png" 
-                alt="Sim" 
-                className="h-8 w-8 object-contain"
-              />
-              <h1 className="font-semibold text-lg">Sim</h1>
-            </div>
+            <>
+              <div className="flex items-center gap-3">
+                <img 
+                  src="/lovable-uploads/d1283b59-7cfa-45f5-b151-4c32b24f3621.png" 
+                  alt="Sim" 
+                  className="h-8 w-8 object-contain"
+                />
+                <h1 className="font-semibold text-lg">Sim</h1>
+              </div>
+              
+              {/* Mobile Menu */}
+              {isMobile && (
+                <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+                  <SheetTrigger asChild>
+                    <Button variant="ghost" size="sm">
+                      <Menu className="h-5 w-5" />
+                    </Button>
+                  </SheetTrigger>
+                  <SheetContent side="left" className="w-80">
+                    <MobileMenu />
+                  </SheetContent>
+                </Sheet>
+              )}
+            </>
           )}
-          
+        </div>
+
+        {/* Right side - Navigation Links and User menu */}
+        <div className="flex items-center gap-4">
           {/* Desktop Navigation Links */}
           {!isMobile && !showBackButton && (
             <div className="flex items-center gap-4">
@@ -175,24 +194,8 @@ const TopNavigation = ({
             </div>
           )}
 
-          {/* Mobile Menu */}
-          {isMobile && !showBackButton && (
-            <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
-              <SheetTrigger asChild>
-                <Button variant="ghost" size="sm">
-                  <Menu className="h-5 w-5" />
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="left" className="w-80">
-                <MobileMenu />
-              </SheetContent>
-            </Sheet>
-          )}
-        </div>
-
-        {/* Right side - User menu (only show if authenticated) */}
-        {user && (
-          <div className="flex items-center gap-2">
+          {/* User menu (only show if authenticated) */}
+          {user && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="flex items-center gap-2">
@@ -224,8 +227,8 @@ const TopNavigation = ({
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </nav>
   );
