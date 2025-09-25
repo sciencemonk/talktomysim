@@ -1,7 +1,8 @@
 
 import { useState, useEffect, useRef } from "react";
-import { Bot } from "lucide-react";
+import { Bot, ChevronLeft } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import { TextInput } from "@/components/TextInput";
 import { useChatHistory } from "@/hooks/useChatHistory";
 import { useTextChat } from "@/hooks/useTextChat";
@@ -9,9 +10,10 @@ import { AgentType } from "@/types/agent";
 
 interface ChatInterfaceProps {
   agent: AgentType;
+  onBack: () => void;
 }
 
-const ChatInterface = ({ agent }: ChatInterfaceProps) => {
+const ChatInterface = ({ agent, onBack }: ChatInterfaceProps) => {
   const [currentAgent, setCurrentAgent] = useState(agent);
   const [isAiResponding, setIsAiResponding] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -39,9 +41,17 @@ const ChatInterface = ({ agent }: ChatInterfaceProps) => {
 
   return (
     <div className="flex flex-col h-full w-full bg-background">
-      {/* Header with advisor info */}
+      {/* Header with advisor info and back button */}
       <div className="flex-shrink-0 border-b bg-background px-4 py-3">
         <div className="flex items-center gap-3">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onBack}
+            className="p-2 h-auto"
+          >
+            <ChevronLeft className="h-5 w-5" />
+          </Button>
           <Avatar className="h-10 w-10">
             <AvatarImage src={currentAgent.avatar} alt={currentAgent.name} />
             <AvatarFallback className="bg-primary text-primary-foreground text-lg">
