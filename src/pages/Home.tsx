@@ -5,7 +5,8 @@ import { Navigate } from "react-router-dom";
 import AdvisorDirectory from "@/components/AdvisorDirectory";
 import ChatInterface from "@/components/ChatInterface";
 import AuthModal from "@/components/AuthModal";
-import UserSidebar from "@/components/UserSidebar";
+import TopNavigation from "@/components/TopNavigation";
+import SimpleFooter from "@/components/SimpleFooter";
 
 import { AgentType } from "@/types/agent";
 import { useUserAdvisors } from "@/hooks/useUserAdvisors";
@@ -124,38 +125,38 @@ const Home = () => {
   const currentChatAgent = selectedAgent || selectedAdvisor;
 
   return (
-    <div className="h-screen flex flex-col bg-background">
-      <div className="flex flex-1 overflow-hidden">
-        <UserSidebar
-          selectedAgent={selectedAgent}
-          selectedPublicAdvisorId={selectedPublicAdvisorId}
-          selectedPublicAdvisors={advisorsAsAgents}
-          onSelectAgent={handleAgentSelect}
-          onSelectPublicAdvisor={handlePublicAdvisorSelect}
-          onRemovePublicAdvisor={handleRemovePublicAdvisor}
-          onShowAdvisorDirectory={handleShowAdvisorDirectory}
-        />
-        
-        <div className="flex-1 flex flex-col overflow-hidden">
-          {currentChatAgent ? (
-            <ChatInterface
-              agent={currentChatAgent}
-              onBack={() => {
-                setSelectedAgent(null);
-                setSelectedAdvisor(null);
-                setSelectedPublicAdvisorId(null);
-              }}
+    <div className="min-h-screen flex flex-col bg-background">
+      <TopNavigation
+        selectedAgent={selectedAgent}
+        selectedPublicAdvisorId={selectedPublicAdvisorId}
+        selectedPublicAdvisors={advisorsAsAgents}
+        onSelectAgent={handleAgentSelect}
+        onSelectPublicAdvisor={handlePublicAdvisorSelect}
+        onRemovePublicAdvisor={handleRemovePublicAdvisor}
+        onShowAdvisorDirectory={handleShowAdvisorDirectory}
+      />
+      
+      <div className="flex-1 flex flex-col overflow-hidden">
+        {currentChatAgent ? (
+          <ChatInterface
+            agent={currentChatAgent}
+            onBack={() => {
+              setSelectedAgent(null);
+              setSelectedAdvisor(null);
+              setSelectedPublicAdvisorId(null);
+            }}
+          />
+        ) : (
+          <div className="flex-1 overflow-auto">
+            <AdvisorDirectory 
+              onSelectAdvisor={handleAdvisorSelect}
+              onAuthRequired={handleAuthRequired}
             />
-          ) : (
-            <div className="flex-1 overflow-auto">
-              <AdvisorDirectory 
-                onSelectAdvisor={handleAdvisorSelect}
-                onAuthRequired={handleAuthRequired}
-              />
-            </div>
-          )}
-        </div>
+          </div>
+        )}
       </div>
+
+      <SimpleFooter />
       
       <AuthModal 
         open={showAuthModal} 
