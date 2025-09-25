@@ -6,7 +6,7 @@ import AdvisorDirectory from "@/components/AdvisorDirectory";
 import ChatInterface from "@/components/ChatInterface";
 import AuthModal from "@/components/AuthModal";
 import UserSidebar from "@/components/UserSidebar";
-import Footer from "@/components/Footer";
+
 import { AgentType } from "@/types/agent";
 import { useUserAdvisors } from "@/hooks/useUserAdvisors";
 import { useToast } from "@/hooks/use-toast";
@@ -156,8 +156,6 @@ const Home = () => {
           )}
         </div>
       </div>
-      
-      <Footer />
       
       <AuthModal 
         open={showAuthModal} 
