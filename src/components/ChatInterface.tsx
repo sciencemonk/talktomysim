@@ -85,22 +85,29 @@ const ChatInterface = ({ agent, onBack }: ChatInterfaceProps) => {
           </div>
         ) : (
           <>
-            {chatHistory.messages.map((message) => (
-              <div
-                key={message.id}
-                className={`mb-4 flex flex-col ${message.role === 'user' ? 'items-end' : 'items-start'}`}
-              >
+            {chatHistory.messages.map((message) => {
+              // Don't render AI messages that are incomplete and have no content
+              if (message.role === 'system' && !message.isComplete && !message.content.trim()) {
+                return null;
+              }
+              
+              return (
                 <div
-                  className={`rounded-2xl px-4 py-2 text-sm max-w-[85%] ${
-                    message.role === 'user' 
-                      ? 'bg-primary text-primary-foreground' 
-                      : 'bg-muted text-foreground'
-                  }`}
+                  key={message.id}
+                  className={`mb-4 flex flex-col ${message.role === 'user' ? 'items-end' : 'items-start'}`}
                 >
-                  {message.content}
+                  <div
+                    className={`rounded-2xl px-4 py-2 text-sm max-w-[85%] ${
+                      message.role === 'user' 
+                        ? 'bg-primary text-primary-foreground' 
+                        : 'bg-muted text-foreground'
+                    }`}
+                  >
+                    {message.content}
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
             
             {/* Typing indicator */}
             {textChat.isProcessing && (
