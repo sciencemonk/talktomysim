@@ -9,7 +9,7 @@ import { useNavigate } from "react-router-dom";
 const WhitePaper = () => {
   const navigate = useNavigate();
   const copyCAToClipboard = async () => {
-    const ca = "66gmaksi3kdlak34AtJnWqFW6H2L5YQDRy4W41y6zbpump";
+    const ca = "ca coming soon";
     try {
       await navigator.clipboard.writeText(ca);
     } catch (error) {
@@ -263,7 +263,7 @@ const WhitePaper = () => {
                 <div className="text-center">
                   <p className="text-xs text-muted-foreground mb-1">Contract Address:</p>
                   <code className="text-xs bg-muted px-2 py-1 rounded font-mono">
-                    66gmaksi3kdlak34AtJnWqFW6H2L5YQDRy4W41y6zbpump
+                    ca coming soon
                   </code>
                 </div>
               </div>
