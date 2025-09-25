@@ -10,6 +10,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { deleteAdvisor } from "@/services/advisorService";
 import { toast } from "@/components/ui/use-toast";
+import AuthModal from "@/components/AuthModal";
 
 export interface Advisor {
   id: string;
@@ -31,9 +32,29 @@ const Admin = () => {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingAdvisor, setEditingAdvisor] = useState<Advisor | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [showLoginModal, setShowLoginModal] = useState(false);
+
+  // Check if user is logged in
+  if (!user) {
+    return (
+      <div className="flex-1 flex items-center justify-center p-6">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold mb-4">Admin Access Required</h1>
+          <p className="text-muted-foreground mb-6">Please sign in to access the admin panel.</p>
+          <Button onClick={() => setShowLoginModal(true)}>
+            Sign In
+          </Button>
+        </div>
+        <AuthModal 
+          open={showLoginModal} 
+          onOpenChange={setShowLoginModal}
+        />
+      </div>
+    );
+  }
 
   // Check if user is admin
-  if (!user || !['artolaya@gmail.com', 'michael@dexterlearning.com'].includes(user.email || '')) {
+  if (!['artolaya@gmail.com', 'michael@dexterlearning.com'].includes(user.email || '')) {
     return (
       <div className="flex-1 flex items-center justify-center p-6">
         <div className="text-center">
