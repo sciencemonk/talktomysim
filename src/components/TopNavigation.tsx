@@ -182,8 +182,9 @@ const TopNavigation = ({
               <Button
                 variant="ghost"
                 className="text-sm font-medium hover:text-primary"
+                asChild
               >
-                White Paper
+                <a href="/whitepaper">White Paper</a>
               </Button>
               <Button
                 variant="ghost"
