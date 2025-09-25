@@ -142,9 +142,9 @@ const Home = () => {
         }}
       />
       
-      <div className="flex-1 flex flex-col overflow-hidden">
+      <div className="flex-1 flex flex-col">
         {currentChatAgent ? (
-          <div className="flex-1">
+          <div className="flex-1 flex flex-col">
             <ChatInterface
               agent={currentChatAgent}
               onBack={() => {
@@ -164,7 +164,7 @@ const Home = () => {
         )}
       </div>
 
-      {!currentChatAgent && <SimpleFooter />}
+      <SimpleFooter />
       
       <AuthModal 
         open={showAuthModal} 
