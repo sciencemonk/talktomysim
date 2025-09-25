@@ -69,8 +69,8 @@ const ChatInterface = ({ agent, onBack }: ChatInterfaceProps) => {
         </div>
       </div>
 
-      {/* Messages - Scrollable area */}
-      <div className="flex-1 overflow-auto px-4 sm:p-4 pb-20 sm:pb-24">
+      {/* Messages - Scrollable area with bottom padding for input */}
+      <div className="flex-1 overflow-auto px-4 sm:p-4 pb-32">
         {chatHistory.messages.length === 0 && !textChat.isProcessing ? (
           <div className="flex flex-col items-center justify-center h-full text-center px-4">
             <Avatar className="h-16 w-16 mb-4">
@@ -124,9 +124,9 @@ const ChatInterface = ({ agent, onBack }: ChatInterfaceProps) => {
         )}
       </div>
 
-      {/* Input - Fixed at bottom - Only show if not initial loading */}
+      {/* Input - Fixed at bottom above footer */}
       {(chatHistory.messages.length > 0 || !textChat.isProcessing) && (
-        <div className="absolute bottom-0 left-0 right-0 border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 z-10">
+        <div className="fixed bottom-16 left-0 right-0 border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 z-30">
           <TextInput 
             onSendMessage={textChat.sendMessage}
             disabled={textChat.isProcessing || isAiResponding}
