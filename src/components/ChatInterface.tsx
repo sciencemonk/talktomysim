@@ -106,15 +106,11 @@ const ChatInterface = ({ agent, onBack }: ChatInterfaceProps) => {
             
             {/* Typing indicator */}
             {textChat.isProcessing && (
-              <div className="mb-4 flex flex-col items-start">
-                <div className="rounded-2xl px-4 py-3 bg-muted text-foreground max-w-[85%] sm:max-w-[75%] md:max-w-[60%] lg:max-w-[50%]">
-                  <div className="flex items-center gap-1">
-                    <div className="flex space-x-1">
-                      <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce [animation-delay:-0.3s]"></div>
-                      <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce [animation-delay:-0.15s]"></div>
-                      <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce"></div>
-                    </div>
-                  </div>
+              <div className="mb-4 flex flex-col items-start pl-4">
+                <div className="flex space-x-1">
+                  <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+                  <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+                  <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce"></div>
                 </div>
               </div>
             )}
