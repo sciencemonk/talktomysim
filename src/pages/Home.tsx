@@ -142,18 +142,16 @@ const Home = () => {
         }}
       />
       
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col min-h-0">
         {currentChatAgent ? (
-          <div className="flex-1 flex flex-col">
-            <ChatInterface
-              agent={currentChatAgent}
-              onBack={() => {
-                setSelectedAgent(null);
-                setSelectedAdvisor(null);
-                setSelectedPublicAdvisorId(null);
-              }}
-            />
-          </div>
+          <ChatInterface
+            agent={currentChatAgent}
+            onBack={() => {
+              setSelectedAgent(null);
+              setSelectedAdvisor(null);
+              setSelectedPublicAdvisorId(null);
+            }}
+          />
         ) : (
           <div className="flex-1 overflow-auto">
             <AdvisorDirectory 
@@ -164,7 +162,7 @@ const Home = () => {
         )}
       </div>
 
-      <SimpleFooter />
+      {!currentChatAgent && <SimpleFooter />}
       
       <AuthModal 
         open={showAuthModal} 

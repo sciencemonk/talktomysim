@@ -40,7 +40,7 @@ const ChatInterface = ({ agent, onBack }: ChatInterfaceProps) => {
   }, [chatHistory.messages]);
 
   return (
-    <div className="flex flex-col h-screen w-full bg-background">
+    <div className="flex flex-col h-full w-full bg-background">
       {/* Header with advisor info */}
       <div className="flex-shrink-0 border-b bg-background px-4 py-3">
         <div className="flex items-center gap-3">
