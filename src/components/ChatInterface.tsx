@@ -7,6 +7,7 @@ import { TextInput } from "@/components/TextInput";
 import { useChatHistory } from "@/hooks/useChatHistory";
 import { useTextChat } from "@/hooks/useTextChat";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useIOSKeyboard } from "@/hooks/useIOSKeyboard";
 import { AgentType } from "@/types/agent";
 
 interface ChatInterfaceProps {
@@ -19,6 +20,7 @@ const ChatInterface = ({ agent, onBack }: ChatInterfaceProps) => {
   const [isAiResponding, setIsAiResponding] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
+  const { keyboardHeight, isKeyboardVisible } = useIOSKeyboard();
   
   const chatHistory = useChatHistory(currentAgent);
   const textChat = useTextChat({
@@ -43,9 +45,12 @@ const ChatInterface = ({ agent, onBack }: ChatInterfaceProps) => {
 
   return (
     <div 
-      className={`flex flex-col w-full bg-background overflow-hidden ${
-        isMobile ? 'mobile-safe-height' : 'h-screen'
-      }`}
+      className="flex flex-col w-full bg-background overflow-hidden h-screen"
+      style={{
+        height: isMobile && isKeyboardVisible 
+          ? `${window.innerHeight - keyboardHeight}px` 
+          : '100vh'
+      }}
     >
       {/* Header with advisor info and back button - Flex header */}
       <div className="flex-shrink-0 border-b bg-background px-4 py-3 z-50">
@@ -133,7 +138,14 @@ const ChatInterface = ({ agent, onBack }: ChatInterfaceProps) => {
 
       {/* Input - Flex footer */}
       {(chatHistory.messages.length > 0 || !textChat.isProcessing) && (
-        <div className="flex-shrink-0 border-t bg-background p-4">
+        <div 
+          className="flex-shrink-0 border-t bg-background p-4"
+          style={{
+            transform: isMobile && isKeyboardVisible 
+              ? `translateY(-${Math.max(0, keyboardHeight - window.innerHeight + window.visualViewport?.height || 0)}px)` 
+              : 'none'
+          }}
+        >
           <TextInput 
             onSendMessage={textChat.sendMessage}
             disabled={textChat.isProcessing || isAiResponding}

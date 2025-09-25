@@ -93,23 +93,4 @@
   .font-system {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
   }
-  
-  /* Mobile viewport handling */
-  .mobile-safe-height {
-    height: 100vh;
-    height: 100dvh;
-  }
-  
-  /* Prevent body scroll when keyboard is open */
-  body.keyboard-open {
-    position: fixed;
-    width: 100%;
-  }
-}
-
-/* Mobile keyboard handling */
-@supports (height: 100dvh) {
-  .mobile-safe-height {
-    height: 100dvh;
-  }
 }
