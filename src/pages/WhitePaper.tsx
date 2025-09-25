@@ -4,8 +4,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import TopNavigation from "@/components/TopNavigation";
 import SimpleFooter from "@/components/SimpleFooter";
+import { useNavigate } from "react-router-dom";
 
 const WhitePaper = () => {
+  const navigate = useNavigate();
   const copyCAToClipboard = async () => {
     const ca = "66gmaksi3kdlak34AtJnWqFW6H2L5YQDRy4W41y6zbpump";
     try {
@@ -17,7 +19,9 @@ const WhitePaper = () => {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      <TopNavigation />
+      <TopNavigation 
+        onShowAdvisorDirectory={() => navigate('/')}
+      />
       <div className="flex-1">
         <div className="max-w-4xl mx-auto px-6 py-12">
         {/* Hero Section */}
