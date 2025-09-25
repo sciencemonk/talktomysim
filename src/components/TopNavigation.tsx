@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
-import { LogIn, LogOut, Settings, User, Menu, X } from "lucide-react";
+import { LogOut, Settings, User, Menu, X, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import {
@@ -14,7 +14,6 @@ import {
   SheetContent,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import AuthModal from "./AuthModal";
 import { AgentType } from "@/types/agent";
 import { useAgents } from "@/hooks/useAgents";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -27,6 +26,8 @@ interface TopNavigationProps {
   onSelectPublicAdvisor?: (advisorId: string, advisor?: AgentType) => void;
   onRemovePublicAdvisor?: (advisorId: string) => void;
   onShowAdvisorDirectory?: () => void;
+  showBackButton?: boolean;
+  onBack?: () => void;
 }
 
 const TopNavigation = ({
@@ -37,11 +38,12 @@ const TopNavigation = ({
   onSelectPublicAdvisor,
   onRemovePublicAdvisor,
   onShowAdvisorDirectory,
+  showBackButton = false,
+  onBack,
 }: TopNavigationProps) => {
   const { user, signOut } = useAuth();
   const { agents } = useAgents();
   const isMobile = useIsMobile();
-  const [showAuthModal, setShowAuthModal] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const handleSignOut = async () => {
@@ -125,19 +127,18 @@ const TopNavigation = ({
   return (
     <nav className="bg-card border-b border-border px-4 py-3">
       <div className="flex items-center justify-between">
-        {/* Left side - Logo and mobile menu */}
-        <div className="flex items-center gap-4">
-          {isMobile ? (
-            <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
-              <SheetTrigger asChild>
-                <Button variant="ghost" size="sm">
-                  <Menu className="h-5 w-5" />
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="left" className="w-80">
-                <MobileMenu />
-              </SheetContent>
-            </Sheet>
+        {/* Left side - Logo/Back button and navigation */}
+        <div className="flex items-center gap-6">
+          {showBackButton ? (
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={onBack}
+              className="flex items-center gap-2"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              {!isMobile && "Back"}
+            </Button>
           ) : (
             <div className="flex items-center gap-3">
               <img 
@@ -148,11 +149,50 @@ const TopNavigation = ({
               <h1 className="font-semibold text-lg">Sim</h1>
             </div>
           )}
+          
+          {/* Desktop Navigation Links */}
+          {!isMobile && !showBackButton && (
+            <div className="flex items-center gap-4">
+              <Button
+                variant="ghost"
+                onClick={onShowAdvisorDirectory}
+                className="text-sm font-medium hover:text-primary"
+              >
+                Home
+              </Button>
+              <Button
+                variant="ghost"
+                className="text-sm font-medium hover:text-primary"
+              >
+                White Paper
+              </Button>
+              <Button
+                variant="ghost"
+                className="text-sm font-medium hover:text-primary"
+              >
+                Request a Sim
+              </Button>
+            </div>
+          )}
+
+          {/* Mobile Menu */}
+          {isMobile && !showBackButton && (
+            <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="sm">
+                  <Menu className="h-5 w-5" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="left" className="w-80">
+                <MobileMenu />
+              </SheetContent>
+            </Sheet>
+          )}
         </div>
 
-        {/* Right side - User menu */}
-        <div className="flex items-center gap-2">
-          {user ? (
+        {/* Right side - User menu (only show if authenticated) */}
+        {user && (
+          <div className="flex items-center gap-2">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="flex items-center gap-2">
@@ -184,22 +224,9 @@ const TopNavigation = ({
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-          ) : (
-            <Button
-              onClick={() => setShowAuthModal(true)}
-              className="bg-gradient-to-r from-purple-600 via-pink-500 to-blue-500 text-white hover:opacity-90"
-            >
-              <LogIn className="mr-2 h-4 w-4" />
-              Login
-            </Button>
-          )}
-        </div>
+          </div>
+        )}
       </div>
-
-      <AuthModal 
-        open={showAuthModal} 
-        onOpenChange={setShowAuthModal} 
-      />
     </nav>
   );
 };

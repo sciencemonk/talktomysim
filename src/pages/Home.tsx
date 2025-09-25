@@ -134,6 +134,12 @@ const Home = () => {
         onSelectPublicAdvisor={handlePublicAdvisorSelect}
         onRemovePublicAdvisor={handleRemovePublicAdvisor}
         onShowAdvisorDirectory={handleShowAdvisorDirectory}
+        showBackButton={!!currentChatAgent}
+        onBack={() => {
+          setSelectedAgent(null);
+          setSelectedAdvisor(null);
+          setSelectedPublicAdvisorId(null);
+        }}
       />
       
       <div className="flex-1 flex flex-col overflow-hidden">
