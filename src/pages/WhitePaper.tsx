@@ -1,4 +1,4 @@
-import { ArrowRight, Brain, BookOpen, Mic, Users, TrendingUp, Coins } from "lucide-react";
+import { ArrowRight, TrendingUp, Coins } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -64,78 +64,131 @@ const WhitePaper = () => {
 
         {/* The Three Stages */}
         <section className="mb-16">
-          <h2 className="text-3xl font-bold mb-8">The Three-Stage Roadmap</h2>
+          <h2 className="text-3xl font-bold mb-8 bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+            The Three-Stage Roadmap
+          </h2>
           
           <div className="grid gap-8 mb-12">
             {/* Stage 1 */}
-            <Card className="border-l-4 border-l-purple-500">
-              <CardHeader>
-                <div className="flex items-center gap-3">
-                  <Brain className="h-8 w-8 text-purple-500" />
-                  <div>
-                    <CardTitle className="text-xl">Stage 1: Complex System Prompts</CardTitle>
-                    <Badge variant="secondary">Currently Live</Badge>
+            <Card className="relative overflow-hidden border-0 bg-gradient-to-r from-background to-muted/30 shadow-lg hover:shadow-xl transition-all duration-300">
+              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-purple-500 to-purple-600"></div>
+              <CardHeader className="pb-4">
+                <div className="flex items-start justify-between">
+                  <div className="space-y-2">
+                    <div className="text-sm font-medium text-purple-600 tracking-wide uppercase">Stage 01</div>
+                    <CardTitle className="text-2xl font-light">Complex System Prompts</CardTitle>
+                    <div className="inline-flex items-center px-3 py-1 rounded-full bg-green-100 text-green-800 text-xs font-medium">
+                      Currently Live
+                    </div>
                   </div>
                 </div>
               </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground mb-4">
-                  Our foundation begins with meticulously crafted system prompts that capture the essence of each historical figure. These prompts encode:
+              <CardContent className="pt-0">
+                <p className="text-muted-foreground mb-6 text-lg leading-relaxed">
+                  Our foundation begins with meticulously crafted system prompts that capture the essence of each historical figure.
                 </p>
-                <ul className="list-disc list-inside text-muted-foreground space-y-2">
-                  <li>Personality traits and communication styles</li>
-                  <li>Core philosophical frameworks and methodologies</li>
-                  <li>Historical context and time-period awareness</li>
-                  <li>Signature thought patterns and decision-making processes</li>
-                </ul>
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-3">
+                      <div className="w-2 h-2 rounded-full bg-purple-500"></div>
+                      <span className="text-muted-foreground">Personality traits and communication styles</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="w-2 h-2 rounded-full bg-purple-500"></div>
+                      <span className="text-muted-foreground">Core philosophical frameworks</span>
+                    </div>
+                  </div>
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-3">
+                      <div className="w-2 h-2 rounded-full bg-purple-500"></div>
+                      <span className="text-muted-foreground">Historical context awareness</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="w-2 h-2 rounded-full bg-purple-500"></div>
+                      <span className="text-muted-foreground">Signature thought patterns</span>
+                    </div>
+                  </div>
+                </div>
               </CardContent>
             </Card>
 
             {/* Stage 2 */}
-            <Card className="border-l-4 border-l-pink-500">
-              <CardHeader>
-                <div className="flex items-center gap-3">
-                  <BookOpen className="h-8 w-8 text-pink-500" />
-                  <div>
-                    <CardTitle className="text-xl">Stage 2: Vector Embeddings Integration</CardTitle>
-                    <Badge variant="outline">Q2 2025</Badge>
+            <Card className="relative overflow-hidden border-0 bg-gradient-to-r from-background to-muted/30 shadow-lg hover:shadow-xl transition-all duration-300">
+              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-pink-500 to-pink-600"></div>
+              <CardHeader className="pb-4">
+                <div className="flex items-start justify-between">
+                  <div className="space-y-2">
+                    <div className="text-sm font-medium text-pink-600 tracking-wide uppercase">Stage 02</div>
+                    <CardTitle className="text-2xl font-light">Vector Embeddings Integration</CardTitle>
                   </div>
                 </div>
               </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground mb-4">
-                  Deep knowledge integration through vector embeddings of complete works:
+              <CardContent className="pt-0">
+                <p className="text-muted-foreground mb-6 text-lg leading-relaxed">
+                  Deep knowledge integration through vector embeddings of complete works and historical documents.
                 </p>
-                <ul className="list-disc list-inside text-muted-foreground space-y-2">
-                  <li>Full text analysis of published works, letters, and speeches</li>
-                  <li>Real-time retrieval of specific quotes and concepts</li>
-                  <li>Contextual understanding of evolving thoughts over time</li>
-                  <li>Cross-referencing capabilities between different works</li>
-                </ul>
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-3">
+                      <div className="w-2 h-2 rounded-full bg-pink-500"></div>
+                      <span className="text-muted-foreground">Full text analysis of published works</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="w-2 h-2 rounded-full bg-pink-500"></div>
+                      <span className="text-muted-foreground">Real-time retrieval of specific quotes</span>
+                    </div>
+                  </div>
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-3">
+                      <div className="w-2 h-2 rounded-full bg-pink-500"></div>
+                      <span className="text-muted-foreground">Contextual understanding over time</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="w-2 h-2 rounded-full bg-pink-500"></div>
+                      <span className="text-muted-foreground">Cross-referencing capabilities</span>
+                    </div>
+                  </div>
+                </div>
               </CardContent>
             </Card>
 
             {/* Stage 3 */}
-            <Card className="border-l-4 border-l-blue-500">
-              <CardHeader>
-                <div className="flex items-center gap-3">
-                  <Mic className="h-8 w-8 text-blue-500" />
-                  <div>
-                    <CardTitle className="text-xl">Stage 3: Real-Time Voice Synthesis</CardTitle>
-                    <Badge variant="outline">Q4 2025</Badge>
+            <Card className="relative overflow-hidden border-0 bg-gradient-to-r from-background to-muted/30 shadow-lg hover:shadow-xl transition-all duration-300">
+              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 to-blue-600"></div>
+              <CardHeader className="pb-4">
+                <div className="flex items-start justify-between">
+                  <div className="space-y-2">
+                    <div className="text-sm font-medium text-blue-600 tracking-wide uppercase">Stage 03</div>
+                    <CardTitle className="text-2xl font-light">Real-Time Voice Synthesis</CardTitle>
                   </div>
                 </div>
               </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground mb-4">
-                  The ultimate experience—natural voice conversations with historical figures:
+              <CardContent className="pt-0">
+                <p className="text-muted-foreground mb-6 text-lg leading-relaxed">
+                  The ultimate experience—natural voice conversations with historical figures through advanced AI synthesis.
                 </p>
-                <ul className="list-disc list-inside text-muted-foreground space-y-2">
-                  <li>AI-generated voice synthesis matching historical speech patterns</li>
-                  <li>Real-time conversational flow with natural interruptions</li>
-                  <li>Emotional intelligence and contextual responses</li>
-                  <li>Multi-language support for global accessibility</li>
-                </ul>
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-3">
+                      <div className="w-2 h-2 rounded-full bg-blue-500"></div>
+                      <span className="text-muted-foreground">AI-generated voice synthesis</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="w-2 h-2 rounded-full bg-blue-500"></div>
+                      <span className="text-muted-foreground">Real-time conversational flow</span>
+                    </div>
+                  </div>
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-3">
+                      <div className="w-2 h-2 rounded-full bg-blue-500"></div>
+                      <span className="text-muted-foreground">Emotional intelligence responses</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="w-2 h-2 rounded-full bg-blue-500"></div>
+                      <span className="text-muted-foreground">Multi-language support</span>
+                    </div>
+                  </div>
+                </div>
               </CardContent>
             </Card>
           </div>
