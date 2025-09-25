@@ -1,6 +1,6 @@
 
 import { useState, useEffect, useRef } from "react";
-import { Bot, Menu } from "lucide-react";
+import { Bot, ChevronLeft } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { TextInput } from "@/components/TextInput";
@@ -8,13 +8,6 @@ import { useChatHistory } from "@/hooks/useChatHistory";
 import { useTextChat } from "@/hooks/useTextChat";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { AgentType } from "@/types/agent";
-import {
-  Sheet,
-  SheetContent,
-  SheetTrigger,
-} from "@/components/ui/sheet";
-import { SidebarContent } from "./UserSidebar";
-import { InfoModal } from "./InfoModal";
 
 interface ChatInterfaceProps {
   agent: AgentType;
@@ -24,9 +17,7 @@ interface ChatInterfaceProps {
 const ChatInterface = ({ agent, onBack }: ChatInterfaceProps) => {
   const [currentAgent, setCurrentAgent] = useState(agent);
   const [isAiResponding, setIsAiResponding] = useState(false);
-  const [isSheetOpen, setIsSheetOpen] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const isMobile = useIsMobile();
   
   const chatHistory = useChatHistory(currentAgent);
   const textChat = useTextChat({
@@ -54,6 +45,14 @@ const ChatInterface = ({ agent, onBack }: ChatInterfaceProps) => {
       {/* Header with advisor info - Fixed at top */}
       <div className="fixed top-0 left-0 right-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-4 sm:px-6 py-4">
         <div className="flex items-center gap-3">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onBack}
+            className="p-2 h-auto"
+          >
+            <ChevronLeft className="h-5 w-5" />
+          </Button>
           <Avatar className="h-10 w-10 sm:h-12 sm:w-12">
             <AvatarImage src={currentAgent.avatar} alt={currentAgent.name} />
             <AvatarFallback className="bg-primary text-primary-foreground text-lg">
