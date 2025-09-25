@@ -136,7 +136,7 @@ const Home = () => {
           onShowAdvisorDirectory={handleShowAdvisorDirectory}
         />
         
-        <div className="flex-1 overflow-auto">
+        <div className="flex-1 flex flex-col overflow-hidden">
           {currentChatAgent ? (
             <ChatInterface
               agent={currentChatAgent}
@@ -147,10 +147,12 @@ const Home = () => {
               }}
             />
           ) : (
-            <AdvisorDirectory 
-              onSelectAdvisor={handleAdvisorSelect}
-              onAuthRequired={handleAuthRequired}
-            />
+            <div className="flex-1 overflow-auto">
+              <AdvisorDirectory 
+                onSelectAdvisor={handleAdvisorSelect}
+                onAuthRequired={handleAuthRequired}
+              />
+            </div>
           )}
         </div>
       </div>

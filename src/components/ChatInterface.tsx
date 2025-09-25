@@ -50,9 +50,9 @@ const ChatInterface = ({ agent, onBack }: ChatInterfaceProps) => {
   }, [chatHistory.messages]);
 
   return (
-    <div className="flex flex-col h-screen w-full">
-      {/* Header - Always visible on mobile */}
-      <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-4 sm:px-6 py-4 flex-shrink-0 sticky top-0 z-10">
+    <div className="flex flex-col h-full w-full relative">
+      {/* Header - Fixed at top */}
+      <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-4 sm:px-6 py-4 flex-shrink-0 sticky top-0 z-20">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             {isMobile && (
@@ -95,25 +95,47 @@ const ChatInterface = ({ agent, onBack }: ChatInterfaceProps) => {
         </div>
       </div>
 
-      {/* Messages - Scrollable area between header and input */}
-      <div className="flex-1 overflow-auto px-4 sm:p-4 min-h-0">
-        {chatHistory.messages.map((message) => (
-          <div
-            key={message.id}
-            className={`mb-2 flex flex-col ${message.role === 'user' ? 'items-end' : 'items-start'}`}
-          >
-            <div
-              className={`rounded-lg px-3 py-2 text-sm max-w-[85%] sm:max-w-[75%] md:max-w-[60%] lg:max-w-[40%] xl:max-w-[30%] ${message.role === 'user' ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground'}`}
-            >
-              {message.content}
-            </div>
+      {/* Messages - Scrollable area with padding for fixed input */}
+      <div className="flex-1 overflow-auto px-4 sm:p-4 pb-20 sm:pb-24">
+        {chatHistory.messages.length === 0 ? (
+          <div className="flex flex-col items-center justify-center h-full text-center px-4">
+            <Avatar className="h-16 w-16 mb-4">
+              <AvatarImage src={currentAgent.avatar} alt={currentAgent.name} />
+              <AvatarFallback className="bg-primary text-primary-foreground text-2xl">
+                <Bot className="h-8 w-8" />
+              </AvatarFallback>
+            </Avatar>
+            <h2 className="text-lg font-medium mb-2">{currentAgent.name}</h2>
+            <p className="text-muted-foreground text-sm mb-4 max-w-sm">
+              {currentAgent.description || `Start a conversation with ${currentAgent.name}`}
+            </p>
+            <p className="text-xs text-muted-foreground">What will you ask?</p>
           </div>
-        ))}
-        <div ref={messagesEndRef} />
+        ) : (
+          <>
+            {chatHistory.messages.map((message) => (
+              <div
+                key={message.id}
+                className={`mb-4 flex flex-col ${message.role === 'user' ? 'items-end' : 'items-start'}`}
+              >
+                <div
+                  className={`rounded-2xl px-4 py-2 text-sm max-w-[85%] sm:max-w-[75%] md:max-w-[60%] lg:max-w-[50%] ${
+                    message.role === 'user' 
+                      ? 'bg-primary text-primary-foreground' 
+                      : 'bg-muted text-foreground'
+                  }`}
+                >
+                  {message.content}
+                </div>
+              </div>
+            ))}
+            <div ref={messagesEndRef} />
+          </>
+        )}
       </div>
 
-      {/* Input - Always visible and sticky on mobile */}
-      <div className="border-t bg-background flex-shrink-0 sticky bottom-0 z-10">
+      {/* Input - Fixed at bottom */}
+      <div className="absolute bottom-0 left-0 right-0 border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 z-10">
         <TextInput 
           onSendMessage={textChat.sendMessage}
           disabled={textChat.isProcessing || isAiResponding}
