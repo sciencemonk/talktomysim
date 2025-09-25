@@ -15,6 +15,7 @@ import PublicTutorDetail from "./pages/PublicTutorDetail";
 import StudentChat from "./pages/StudentChat";
 import NotFound from "./pages/NotFound";
 import WhitePaper from "./pages/WhitePaper";
+import Contact from "./pages/Contact";
 
 const queryClient = new QueryClient();
 
@@ -34,8 +35,9 @@ const App = () => (
             
             {/* Legacy routes */}
             <Route path="/index" element={<Index />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/whitepaper" element={<WhitePaper />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/whitepaper" element={<WhitePaper />} />
+            <Route path="/contact" element={<Contact />} />
             <Route path="/app" element={<Home />} />
             
             {/* Public tutor share links - accessible by non-signed in users */}

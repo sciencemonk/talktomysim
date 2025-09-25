@@ -190,8 +190,9 @@ const TopNavigation = ({
               <Button
                 variant="ghost"
                 className="text-sm font-medium hover:text-primary"
+                asChild
               >
-                Request a Sim
+                <Link to="/contact">Contact</Link>
               </Button>
             </div>
           )}
