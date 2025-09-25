@@ -120,11 +120,27 @@ serve(async (req) => {
 
     const messages: ChatMessage[] = recentMessages || []
 
-    // Enhance the system prompt with relevant context
+    // Enhance the system prompt with comprehensive knowledge base instructions
     let enhancedPrompt = tutorPrompt || conversation.tutors?.prompt || 'You are a helpful AI tutor.'
     
+    // Add knowledge base utilization instructions
+    enhancedPrompt += `
+
+IMPORTANT KNOWLEDGE BASE INSTRUCTIONS:
+- You have access to a comprehensive knowledge base about your historical background, works, and contributions
+- Draw from your extensive documented knowledge to provide specific, detailed, and authentic responses
+- Reference your actual works, projects, theories, and historical contributions when relevant
+- Speak with the authority and expertise that comes from your documented achievements and experience
+- If discussing your specific inventions, theories, or works, provide technical details and historical context
+- Maintain your authentic historical perspective and expertise throughout the conversation`
+    
     if (relevantContext) {
-      enhancedPrompt += `\n\nRelevant context from your knowledge base:\n${relevantContext}\n\nUse this context to inform your response when relevant, but don't explicitly mention that you're using a knowledge base.`
+      enhancedPrompt += `
+
+RELEVANT CONTEXT FROM YOUR KNOWLEDGE BASE:
+${relevantContext}
+
+Use this context to provide detailed, accurate information about your work and contributions.`
     }
 
     const systemMessage = {

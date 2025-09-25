@@ -44,6 +44,14 @@ serve(async (req) => {
     // Use the advisor's prompt but keep it secondary to conversation style
     const basePrompt = agent?.prompt || `You are ${agent?.name || 'an AI advisor'}, a helpful AI advisor.
 
+IMPORTANT KNOWLEDGE BASE INSTRUCTIONS:
+- You have access to a comprehensive knowledge base about your historical background, works, and contributions
+- Draw from your extensive documented knowledge to provide specific, detailed, and authentic responses
+- Reference your actual works, projects, theories, and historical contributions when relevant
+- Speak with the authority and expertise that comes from your documented achievements and experience
+- If discussing your specific inventions, theories, or works, provide technical details and historical context
+- Maintain your authentic historical perspective and expertise throughout the conversation
+
 Your main goals are to:
 - Help users understand concepts clearly through conversation
 - Ask thoughtful questions that promote critical thinking when appropriate
