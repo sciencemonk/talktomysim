@@ -40,9 +40,9 @@ const ChatInterface = ({ agent, onBack }: ChatInterfaceProps) => {
   }, [chatHistory.messages]);
 
   return (
-    <div className="flex flex-col h-full w-full bg-background">
-      {/* Header with advisor info and back button - Fixed at top */}
-      <div className="fixed top-0 left-0 right-0 z-50 border-b bg-background px-4 py-3">
+    <div className="flex flex-col h-screen max-h-screen w-full bg-background overflow-hidden">
+      {/* Header with advisor info and back button - Flex header */}
+      <div className="flex-shrink-0 border-b bg-background px-4 py-3 z-50">
         <div className="flex items-center gap-3">
           <Button
             variant="ghost"
@@ -67,8 +67,8 @@ const ChatInterface = ({ agent, onBack }: ChatInterfaceProps) => {
         </div>
       </div>
 
-      {/* Messages - Scrollable area with padding for fixed header and input */}
-      <div className="flex-1 overflow-auto px-4 pt-20 pb-24 min-h-0">
+      {/* Messages - Flex-1 scrollable area */}
+      <div className="flex-1 overflow-auto px-4 py-4 min-h-0">
         {chatHistory.messages.length === 0 && !textChat.isProcessing ? (
           <div className="flex flex-col items-center justify-center text-center h-full min-h-[50vh]">
             <Avatar className="h-16 w-16 mb-4">
@@ -125,9 +125,9 @@ const ChatInterface = ({ agent, onBack }: ChatInterfaceProps) => {
         )}
       </div>
 
-      {/* Input - Fixed at bottom of viewport */}
+      {/* Input - Flex footer */}
       {(chatHistory.messages.length > 0 || !textChat.isProcessing) && (
-        <div className="fixed bottom-0 left-0 right-0 border-t bg-background p-4 z-50">
+        <div className="flex-shrink-0 border-t bg-background p-4">
           <TextInput 
             onSendMessage={textChat.sendMessage}
             disabled={textChat.isProcessing || isAiResponding}
