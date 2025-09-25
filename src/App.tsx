@@ -16,6 +16,7 @@ import StudentChat from "./pages/StudentChat";
 import NotFound from "./pages/NotFound";
 import WhitePaper from "./pages/WhitePaper";
 import Contact from "./pages/Contact";
+import KnowledgeEnhancement from "./pages/KnowledgeEnhancement";
 
 const queryClient = new QueryClient();
 
@@ -32,6 +33,7 @@ const App = () => (
             
             {/* Admin route */}
             <Route path="/admin" element={<Admin />} />
+            <Route path="/knowledge-enhancement" element={<KnowledgeEnhancement />} />
             
             {/* Legacy routes */}
             <Route path="/index" element={<Index />} />
