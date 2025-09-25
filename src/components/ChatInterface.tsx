@@ -70,9 +70,9 @@ const ChatInterface = ({ agent, onBack }: ChatInterfaceProps) => {
       </div>
 
       {/* Messages - Scrollable area with bottom padding for input */}
-      <div className="flex-1 overflow-auto px-4 sm:p-4 pb-32">
+      <div className="flex-1 overflow-auto px-4 sm:p-4 pb-32 min-h-0">
         {chatHistory.messages.length === 0 && !textChat.isProcessing ? (
-          <div className="flex flex-col items-center justify-center h-full text-center px-4">
+          <div className="flex flex-col items-center justify-center min-h-full text-center px-4">
             <Avatar className="h-16 w-16 mb-4">
               <AvatarImage src={currentAgent.avatar} alt={currentAgent.name} />
               <AvatarFallback className="bg-primary text-primary-foreground text-2xl">
