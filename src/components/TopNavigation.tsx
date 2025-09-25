@@ -121,34 +121,18 @@ const TopNavigation = ({
               {!isMobile && "Back"}
             </Button>
           ) : (
-            <>
-              <div className="flex items-center gap-3">
-                <img 
-                  src="/lovable-uploads/d1283b59-7cfa-45f5-b151-4c32b24f3621.png" 
-                  alt="Sim" 
-                  className="h-8 w-8 object-contain"
-                />
-                <h1 className="font-semibold text-lg">Sim</h1>
-              </div>
-              
-              {/* Mobile Menu */}
-              {isMobile && (
-                <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
-                  <SheetTrigger asChild>
-                    <Button variant="ghost" size="sm">
-                      <Menu className="h-5 w-5" />
-                    </Button>
-                  </SheetTrigger>
-                  <SheetContent side="left" className="w-80">
-                    <MobileMenu />
-                  </SheetContent>
-                </Sheet>
-              )}
-            </>
+            <div className="flex items-center gap-3">
+              <img 
+                src="/lovable-uploads/d1283b59-7cfa-45f5-b151-4c32b24f3621.png" 
+                alt="Sim" 
+                className="h-8 w-8 object-contain"
+              />
+              <h1 className="font-semibold text-lg">Sim</h1>
+            </div>
           )}
         </div>
 
-        {/* Right side - Navigation Links and User menu */}
+        {/* Right side - Navigation Links and Menu */}
         <div className="flex items-center gap-4">
           {/* Desktop Navigation Links */}
           {!isMobile && !showBackButton && (
@@ -175,6 +159,20 @@ const TopNavigation = ({
                 <Link to="/contact">Contact</Link>
               </Button>
             </div>
+          )}
+
+          {/* Mobile Menu */}
+          {isMobile && !showBackButton && (
+            <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="sm">
+                  <Menu className="h-5 w-5" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="right" className="w-80">
+                <MobileMenu />
+              </SheetContent>
+            </Sheet>
           )}
 
           {/* User menu (only show if authenticated) */}
