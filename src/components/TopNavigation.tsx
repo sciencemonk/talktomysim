@@ -17,6 +17,7 @@ import {
 import { AgentType } from "@/types/agent";
 import { useAgents } from "@/hooks/useAgents";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { Link } from "react-router-dom";
 
 interface TopNavigationProps {
   selectedAgent?: AgentType | null;
@@ -184,7 +185,7 @@ const TopNavigation = ({
                 className="text-sm font-medium hover:text-primary"
                 asChild
               >
-                <a href="/whitepaper">White Paper</a>
+                <Link to="/whitepaper">White Paper</Link>
               </Button>
               <Button
                 variant="ghost"
