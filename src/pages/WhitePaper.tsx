@@ -29,9 +29,13 @@ const WhitePaper = () => {
           <Badge variant="secondary" className="mb-4">
             White Paper v1.0
           </Badge>
-          <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-purple-600 via-pink-500 to-blue-500 bg-clip-text text-transparent">
-            The Sim Protocol
-          </h1>
+          <div className="flex justify-center mb-6">
+            <img 
+              src="/lovable-uploads/d1283b59-7cfa-45f5-b151-4c32b24f3621.png" 
+              alt="Sim" 
+              className="h-16 w-16 object-contain"
+            />
+          </div>
           <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
             Democratizing access to history's greatest minds through AI, powered by the $SIM ecosystem
           </p>

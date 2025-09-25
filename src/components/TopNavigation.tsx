@@ -54,13 +54,12 @@ const TopNavigation = ({
   const MobileMenu = () => (
     <div className="flex flex-col space-y-4 p-4">
       {/* Logo */}
-      <div className="flex items-center gap-3 mb-6">
+      <div className="flex items-center mb-6">
         <img 
           src="/lovable-uploads/d1283b59-7cfa-45f5-b151-4c32b24f3621.png" 
           alt="Sim" 
-          className="h-8 w-8 object-contain"
+          className="h-8 w-8 object-contain mx-auto"
         />
-        <h1 className="font-semibold text-lg">Sim</h1>
       </div>
 
       {/* Navigation Links */}
@@ -121,13 +120,12 @@ const TopNavigation = ({
               {!isMobile && "Back"}
             </Button>
           ) : (
-            <div className="flex items-center gap-3">
+            <div className="flex items-center">
               <img 
                 src="/lovable-uploads/d1283b59-7cfa-45f5-b151-4c32b24f3621.png" 
                 alt="Sim" 
                 className="h-8 w-8 object-contain"
               />
-              <h1 className="font-semibold text-lg">Sim</h1>
             </div>
           )}
         </div>
