@@ -20,7 +20,7 @@ const ChatInterface = ({ agent, onBack }: ChatInterfaceProps) => {
   const [isAiResponding, setIsAiResponding] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
-  const { keyboardHeight, isKeyboardVisible } = useIOSKeyboard();
+  const { isKeyboardVisible, viewportHeight } = useIOSKeyboard();
   
   const chatHistory = useChatHistory(currentAgent);
   const textChat = useTextChat({
@@ -45,10 +45,10 @@ const ChatInterface = ({ agent, onBack }: ChatInterfaceProps) => {
 
   return (
     <div 
-      className="flex flex-col w-full bg-background overflow-hidden h-screen"
+      className="flex flex-col w-full bg-background overflow-hidden"
       style={{
         height: isMobile && isKeyboardVisible 
-          ? `${window.innerHeight - keyboardHeight}px` 
+          ? `${viewportHeight}px` 
           : '100vh'
       }}
     >
@@ -138,14 +138,7 @@ const ChatInterface = ({ agent, onBack }: ChatInterfaceProps) => {
 
       {/* Input - Flex footer */}
       {(chatHistory.messages.length > 0 || !textChat.isProcessing) && (
-        <div 
-          className="flex-shrink-0 border-t bg-background p-4"
-          style={{
-            transform: isMobile && isKeyboardVisible 
-              ? `translateY(-${Math.max(0, keyboardHeight - window.innerHeight + window.visualViewport?.height || 0)}px)` 
-              : 'none'
-          }}
-        >
+        <div className="flex-shrink-0 border-t bg-background p-4">
           <TextInput 
             onSendMessage={textChat.sendMessage}
             disabled={textChat.isProcessing || isAiResponding}
