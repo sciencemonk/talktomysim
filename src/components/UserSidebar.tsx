@@ -362,15 +362,12 @@ const SidebarContent = ({
       {/* Sim Coin Information */}
       {(!isCollapsed || !onToggleCollapse) && (
         <div className="p-3 border-t border-border">
-          <div className="text-center space-y-2">
-            <p className="text-xs text-muted-foreground">
-              Sim is made possible by <span className="font-semibold text-foreground">Sim Coin</span>
-            </p>
+          <div className="text-center space-y-1">
             <div className="space-y-1">
-              <p className="text-xs text-muted-foreground">Official CA:</p>
+              <p className="text-[10px] text-muted-foreground">Official CA:</p>
               <button
                 onClick={copyCAToClipboard}
-                className="text-xs font-mono bg-muted px-2 py-1 rounded text-foreground hover:bg-muted/80 transition-colors cursor-pointer w-full break-all"
+                className="text-[9px] font-mono bg-muted px-2 py-1 rounded text-foreground hover:bg-muted/80 transition-colors cursor-pointer w-full break-all"
                 title="Click to copy"
               >
                 66gmaksi3kdlak34AtJnWqFW6H2L5YQDRy4W41y6zbpump

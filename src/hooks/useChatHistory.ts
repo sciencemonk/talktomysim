@@ -2,6 +2,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { AgentType } from '@/types/agent';
 import { conversationService, Message } from '@/services/conversationService';
+import { supabase } from '@/integrations/supabase/client';
 
 interface ChatMessage {
   id: string;
@@ -24,31 +25,43 @@ export const useChatHistory = (agent: AgentType) => {
       console.log('Loading chat history for agent:', agent.name);
 
       try {
-        // For public agents, we'll create a conversation using the public agent ID
-        // The conversation service will handle both personal and public agents
-        const conversation = await conversationService.getOrCreateConversation(agent.id);
-        if (!conversation) {
-          console.error('Failed to get or create conversation');
-          setIsLoading(false);
-          return;
-        }
-
-        setConversationId(conversation.id);
-
-        // Load existing messages
-        const existingMessages = await conversationService.getMessages(conversation.id);
+        // Check if user is authenticated
+        const { data: { user } } = await supabase.auth.getUser();
         
-        const chatMessages: ChatMessage[] = existingMessages.map((msg: Message) => ({
-          id: msg.id,
-          role: msg.role,
-          content: msg.content,
-          isComplete: true
-        }));
+        if (user) {
+          // For authenticated users, use the database
+          const conversation = await conversationService.getOrCreateConversation(agent.id);
+          if (!conversation) {
+            console.error('Failed to get or create conversation');
+            setIsLoading(false);
+            return;
+          }
 
-        setMessages(chatMessages);
-        console.log(`Loaded ${chatMessages.length} messages for ${agent.name}:`, chatMessages);
+          setConversationId(conversation.id);
+
+          // Load existing messages
+          const existingMessages = await conversationService.getMessages(conversation.id);
+          
+          const chatMessages: ChatMessage[] = existingMessages.map((msg: Message) => ({
+            id: msg.id,
+            role: msg.role,
+            content: msg.content,
+            isComplete: true
+          }));
+
+          setMessages(chatMessages);
+          console.log(`Loaded ${chatMessages.length} messages for ${agent.name}:`, chatMessages);
+        } else {
+          // For unauthenticated users, start with empty messages
+          console.log('User not authenticated, starting with empty chat');
+          setMessages([]);
+          setConversationId(null);
+        }
       } catch (error) {
         console.error('Error loading chat history:', error);
+        // Fallback to empty messages if anything fails
+        setMessages([]);
+        setConversationId(null);
       }
       
       setIsLoading(false);
@@ -62,8 +75,6 @@ export const useChatHistory = (agent: AgentType) => {
 
   // Add user message
   const addUserMessage = useCallback(async (content: string) => {
-    if (!conversationId) return;
-
     const tempMessage: ChatMessage = {
       id: `temp-user-${Date.now()}`,
       role: 'user',
@@ -73,16 +84,18 @@ export const useChatHistory = (agent: AgentType) => {
 
     setMessages(prev => [...prev, tempMessage]);
 
-    // Save to database
-    const savedMessage = await conversationService.addMessage(conversationId, 'user', content);
-    if (savedMessage) {
-      setMessages(prev => 
-        prev.map(msg => 
-          msg.id === tempMessage.id 
-            ? { ...msg, id: savedMessage.id }
-            : msg
-        )
-      );
+    // Only save to database if user is authenticated and we have a conversation
+    if (conversationId) {
+      const savedMessage = await conversationService.addMessage(conversationId, 'user', content);
+      if (savedMessage) {
+        setMessages(prev => 
+          prev.map(msg => 
+            msg.id === tempMessage.id 
+              ? { ...msg, id: savedMessage.id }
+              : msg
+          )
+        );
+      }
     }
   }, [conversationId]);
 
@@ -112,8 +125,6 @@ export const useChatHistory = (agent: AgentType) => {
 
   // Complete AI message
   const completeAiMessage = useCallback(async (messageId: string) => {
-    if (!conversationId) return;
-
     // Use a function to get the current message content
     setMessages(prev => {
       const currentMessage = prev.find(msg => msg.id === messageId);
@@ -124,23 +135,36 @@ export const useChatHistory = (agent: AgentType) => {
 
       console.log('Completing AI message:', currentMessage.content);
 
-      // Save to database in the background
-      conversationService.addMessage(
-        conversationId, 
-        'system', 
-        currentMessage.content
-      ).then(savedMessage => {
-        if (savedMessage) {
-          console.log('AI message saved to database:', savedMessage);
-          setMessages(prevMessages => 
-            prevMessages.map(msg => 
-              msg.id === messageId 
-                ? { ...msg, id: savedMessage.id, isComplete: true }
-                : msg
-            )
-          );
-        } else {
-          console.error('Failed to save AI message to database');
+      // Only save to database if user is authenticated and we have a conversation
+      if (conversationId) {
+        // Save to database in the background
+        conversationService.addMessage(
+          conversationId, 
+          'system', 
+          currentMessage.content
+        ).then(savedMessage => {
+          if (savedMessage) {
+            console.log('AI message saved to database:', savedMessage);
+            setMessages(prevMessages => 
+              prevMessages.map(msg => 
+                msg.id === messageId 
+                  ? { ...msg, id: savedMessage.id, isComplete: true }
+                  : msg
+              )
+            );
+          } else {
+            console.error('Failed to save AI message to database');
+            // Still mark as complete even if save failed
+            setMessages(prevMessages => 
+              prevMessages.map(msg => 
+                msg.id === messageId 
+                  ? { ...msg, isComplete: true }
+                  : msg
+              )
+            );
+          }
+        }).catch(error => {
+          console.error('Error saving AI message:', error);
           // Still mark as complete even if save failed
           setMessages(prevMessages => 
             prevMessages.map(msg => 
@@ -149,18 +173,8 @@ export const useChatHistory = (agent: AgentType) => {
                 : msg
             )
           );
-        }
-      }).catch(error => {
-        console.error('Error saving AI message:', error);
-        // Still mark as complete even if save failed
-        setMessages(prevMessages => 
-          prevMessages.map(msg => 
-            msg.id === messageId 
-              ? { ...msg, isComplete: true }
-              : msg
-          )
-        );
-      });
+        });
+      }
 
       // Mark as complete immediately in the UI
       return prev.map(msg => 
