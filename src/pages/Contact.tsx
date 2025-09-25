@@ -176,28 +176,6 @@ const Contact = () => {
             </CardContent>
           </Card>
 
-          {/* Additional Contact Info */}
-          <div className="mt-12 text-center">
-            <Card className="bg-muted/50">
-              <CardContent className="pt-6">
-                <div className="flex flex-col items-center gap-4">
-                  <Mail className="h-8 w-8 text-primary" />
-                  <div>
-                    <h3 className="font-semibold mb-2">Direct Email</h3>
-                    <p className="text-muted-foreground">
-                      For urgent matters, you can also reach us directly at{" "}
-                      <a 
-                        href="mailto:hello@sim.ai" 
-                        className="text-primary hover:underline"
-                      >
-                        hello@sim.ai
-                      </a>
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
         </div>
       </div>
       

@@ -54,7 +54,7 @@ const TopNavigation = ({
   const MobileMenu = () => (
     <div className="flex flex-col space-y-4 p-4">
       {/* Logo */}
-      <div className="flex items-center gap-3 mb-4">
+      <div className="flex items-center gap-3 mb-6">
         <img 
           src="/lovable-uploads/d1283b59-7cfa-45f5-b151-4c32b24f3621.png" 
           alt="Sim" 
@@ -63,65 +63,45 @@ const TopNavigation = ({
         <h1 className="font-semibold text-lg">Sim</h1>
       </div>
 
-      {/* Find a Sim Button */}
-      <Button
-        onClick={() => {
-          onShowAdvisorDirectory?.();
-          setMobileMenuOpen(false);
-        }}
-        variant="outline"
-        className="w-full justify-start"
-      >
-        Find a Sim
-      </Button>
-
-      {/* User's Agents */}
-      {user && agents.length > 0 && (
-        <div className="space-y-2">
-          <p className="text-sm font-medium text-muted-foreground">Your Agents</p>
-          {agents.map((agent) => (
-            <Button
-              key={agent.id}
-              onClick={() => {
-                onSelectAgent?.(agent);
-                setMobileMenuOpen(false);
-              }}
-              variant="ghost"
-              className="w-full justify-start"
-            >
-              <Avatar className="h-6 w-6 mr-2">
-                <AvatarImage src={agent.avatar} alt={agent.name} />
-                <AvatarFallback>{agent.name.charAt(0)}</AvatarFallback>
-              </Avatar>
-              {agent.name}
-            </Button>
-          ))}
-        </div>
-      )}
-
-      {/* Public Advisors */}
-      {selectedPublicAdvisors.length > 0 && (
-        <div className="space-y-2">
-          <p className="text-sm font-medium text-muted-foreground">Your Sims</p>
-          {selectedPublicAdvisors.map((advisor) => (
-            <Button
-              key={advisor.id}
-              onClick={() => {
-                onSelectPublicAdvisor?.(advisor.id, advisor);
-                setMobileMenuOpen(false);
-              }}
-              variant="ghost"
-              className="w-full justify-start"
-            >
-              <Avatar className="h-6 w-6 mr-2">
-                <AvatarImage src={advisor.avatar} alt={advisor.name} />
-                <AvatarFallback>{advisor.name.charAt(0)}</AvatarFallback>
-              </Avatar>
-              {advisor.name}
-            </Button>
-          ))}
-        </div>
-      )}
+      {/* Navigation Links */}
+      <div className="space-y-2">
+        <Button
+          onClick={() => {
+            onShowAdvisorDirectory?.();
+            setMobileMenuOpen(false);
+          }}
+          variant="ghost"
+          className="w-full justify-start text-left"
+        >
+          Home
+        </Button>
+        
+        <Button
+          variant="ghost"
+          className="w-full justify-start text-left"
+          asChild
+        >
+          <Link 
+            to="/whitepaper"
+            onClick={() => setMobileMenuOpen(false)}
+          >
+            White Paper
+          </Link>
+        </Button>
+        
+        <Button
+          variant="ghost"
+          className="w-full justify-start text-left"
+          asChild
+        >
+          <Link 
+            to="/contact"
+            onClick={() => setMobileMenuOpen(false)}
+          >
+            Contact
+          </Link>
+        </Button>
+      </div>
     </div>
   );
 
