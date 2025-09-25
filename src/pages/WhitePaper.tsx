@@ -2,6 +2,8 @@ import { ArrowRight, Brain, BookOpen, Mic, Users, TrendingUp, Coins } from "luci
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import TopNavigation from "@/components/TopNavigation";
+import SimpleFooter from "@/components/SimpleFooter";
 
 const WhitePaper = () => {
   const copyCAToClipboard = async () => {
@@ -14,8 +16,10 @@ const WhitePaper = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="max-w-4xl mx-auto px-6 py-12">
+    <div className="min-h-screen bg-background flex flex-col">
+      <TopNavigation />
+      <div className="flex-1">
+        <div className="max-w-4xl mx-auto px-6 py-12">
         {/* Hero Section */}
         <div className="text-center mb-16">
           <Badge variant="secondary" className="mb-4">
@@ -133,7 +137,7 @@ const WhitePaper = () => {
         <section className="mb-16">
           <h2 className="text-3xl font-bold mb-8">$SIM Tokenomics & Platform Economics</h2>
           
-          <div className="grid md:grid-cols-2 gap-8 mb-8">
+          <div className="grid md:grid-cols-1 gap-8 mb-8">
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -150,26 +154,6 @@ const WhitePaper = () => {
                   <li>Content researchers and validators</li>
                   <li>Community moderators</li>
                   <li>Platform infrastructure contributors</li>
-                </ul>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Users className="h-6 w-6 text-blue-500" />
-                  Community Ownership
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground mb-4">
-                  $SIM holders gain progressive platform benefits:
-                </p>
-                <ul className="list-disc list-inside text-muted-foreground space-y-2">
-                  <li>Early access to new Sim releases</li>
-                  <li>Governance voting on new historical figures</li>
-                  <li>Revenue sharing from premium features</li>
-                  <li>Custom Sim creation rights (Stage 4)</li>
                 </ul>
               </CardContent>
             </Card>
@@ -278,7 +262,9 @@ const WhitePaper = () => {
             </CardContent>
           </Card>
         </section>
+        </div>
       </div>
+      <SimpleFooter />
     </div>
   );
 };
