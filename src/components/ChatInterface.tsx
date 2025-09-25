@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { TextInput } from "@/components/TextInput";
 import { useChatHistory } from "@/hooks/useChatHistory";
 import { useTextChat } from "@/hooks/useTextChat";
-import { useIsMobile } from "@/hooks/use-mobile";
 import { AgentType } from "@/types/agent";
 
 interface ChatInterfaceProps {
@@ -41,9 +40,9 @@ const ChatInterface = ({ agent, onBack }: ChatInterfaceProps) => {
   }, [chatHistory.messages]);
 
   return (
-    <div className="flex flex-col h-full w-full relative bg-background">
-      {/* Header with advisor info - Fixed at top */}
-      <div className="fixed top-0 left-0 right-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-4 sm:px-6 py-4">
+    <div className="flex flex-col h-screen w-full bg-background">
+      {/* Header with advisor info */}
+      <div className="flex-shrink-0 border-b bg-background px-4 py-3">
         <div className="flex items-center gap-3">
           <Button
             variant="ghost"
@@ -53,25 +52,25 @@ const ChatInterface = ({ agent, onBack }: ChatInterfaceProps) => {
           >
             <ChevronLeft className="h-5 w-5" />
           </Button>
-          <Avatar className="h-10 w-10 sm:h-12 sm:w-12">
+          <Avatar className="h-10 w-10">
             <AvatarImage src={currentAgent.avatar} alt={currentAgent.name} />
             <AvatarFallback className="bg-primary text-primary-foreground text-lg">
-              <Bot className="h-5 w-5 sm:h-6 sm:w-6" />
+              <Bot className="h-5 w-5" />
             </AvatarFallback>
           </Avatar>
           <div className="min-w-0 flex-1">
-            <h1 className="text-lg sm:text-xl font-semibold truncate">{currentAgent.name}</h1>
-            <p className="text-xs sm:text-sm text-muted-foreground truncate">
+            <h1 className="text-lg font-semibold truncate">{currentAgent.name}</h1>
+            <p className="text-sm text-muted-foreground truncate">
               {currentAgent.title || currentAgent.subject || currentAgent.type}
             </p>
           </div>
         </div>
       </div>
 
-      {/* Messages - Scrollable area with top padding for fixed header and bottom padding for input */}
-      <div className="flex-1 overflow-auto px-4 sm:p-4 pt-20 pb-32 min-h-0">
+      {/* Messages - Scrollable area */}
+      <div className="flex-1 overflow-auto px-4 py-4 min-h-0">
         {chatHistory.messages.length === 0 && !textChat.isProcessing ? (
-          <div className="flex flex-col items-center justify-center text-center px-4" style={{ minHeight: 'calc(100vh - 220px)' }}>
+          <div className="flex flex-col items-center justify-center text-center h-full">
             <Avatar className="h-16 w-16 mb-4">
               <AvatarImage src={currentAgent.avatar} alt={currentAgent.name} />
               <AvatarFallback className="bg-primary text-primary-foreground text-2xl">
@@ -92,7 +91,7 @@ const ChatInterface = ({ agent, onBack }: ChatInterfaceProps) => {
                 className={`mb-4 flex flex-col ${message.role === 'user' ? 'items-end' : 'items-start'}`}
               >
                 <div
-                  className={`rounded-2xl px-4 py-2 text-sm max-w-[85%] sm:max-w-[75%] md:max-w-[60%] lg:max-w-[50%] ${
+                  className={`rounded-2xl px-4 py-2 text-sm max-w-[85%] ${
                     message.role === 'user' 
                       ? 'bg-primary text-primary-foreground' 
                       : 'bg-muted text-foreground'
@@ -117,9 +116,9 @@ const ChatInterface = ({ agent, onBack }: ChatInterfaceProps) => {
         )}
       </div>
 
-      {/* Input - Fixed at bottom above footer */}
+      {/* Input - Fixed at bottom */}
       {(chatHistory.messages.length > 0 || !textChat.isProcessing) && (
-        <div className="fixed bottom-16 left-0 right-0 border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 z-30">
+        <div className="flex-shrink-0 border-t bg-background p-4">
           <TextInput 
             onSendMessage={textChat.sendMessage}
             disabled={textChat.isProcessing || isAiResponding}
