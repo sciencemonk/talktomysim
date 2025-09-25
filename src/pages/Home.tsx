@@ -7,7 +7,7 @@ import ChatInterface from "@/components/ChatInterface";
 import AuthModal from "@/components/AuthModal";
 import TopNavigation from "@/components/TopNavigation";
 import SimpleFooter from "@/components/SimpleFooter";
-import { TestKnowledgeEnhancement } from "@/components/TestKnowledgeEnhancement";
+import { enhanceFullerKnowledge } from "@/utils/enhanceFullerKnowledge";
 
 import { AgentType } from "@/types/agent";
 import { useUserAdvisors } from "@/hooks/useUserAdvisors";
@@ -114,6 +114,14 @@ const Home = () => {
     }
   }, [user, pendingAdvisor, selectedAdvisor]);
 
+  // Auto-enhance Fuller's knowledge on first load
+  useEffect(() => {
+    const runEnhancement = async () => {
+      await enhanceFullerKnowledge();
+    };
+    runEnhancement();
+  }, []);
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -157,11 +165,6 @@ const Home = () => {
               onSelectAdvisor={handleAdvisorSelect}
               onAuthRequired={handleAuthRequired}
             />
-            
-            {/* Temporary test component */}
-            <div className="fixed bottom-4 right-4 z-50">
-              <TestKnowledgeEnhancement />
-            </div>
           </div>
         )}
       </div>
