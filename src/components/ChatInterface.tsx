@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { TextInput } from "@/components/TextInput";
 import { useChatHistory } from "@/hooks/useChatHistory";
 import { useTextChat } from "@/hooks/useTextChat";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { AgentType } from "@/types/agent";
 
 interface ChatInterfaceProps {
@@ -17,6 +18,7 @@ const ChatInterface = ({ agent, onBack }: ChatInterfaceProps) => {
   const [currentAgent, setCurrentAgent] = useState(agent);
   const [isAiResponding, setIsAiResponding] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const isMobile = useIsMobile();
   
   const chatHistory = useChatHistory(currentAgent);
   const textChat = useTextChat({
@@ -40,7 +42,11 @@ const ChatInterface = ({ agent, onBack }: ChatInterfaceProps) => {
   }, [chatHistory.messages]);
 
   return (
-    <div className="flex flex-col h-screen max-h-screen w-full bg-background overflow-hidden">
+    <div 
+      className={`flex flex-col w-full bg-background overflow-hidden ${
+        isMobile ? 'mobile-safe-height' : 'h-screen'
+      }`}
+    >
       {/* Header with advisor info and back button - Flex header */}
       <div className="flex-shrink-0 border-b bg-background px-4 py-3 z-50">
         <div className="flex items-center gap-3">
