@@ -57,46 +57,6 @@ const AdvisorDirectory = ({ onSelectAdvisor, onAuthRequired }: AdvisorDirectoryP
 
   return (
     <div className="flex flex-col h-full bg-background">
-      {/* Mobile Header with Sidebar Toggle */}
-      {isMobile && (
-        <div className="flex items-center justify-between p-4 border-b border-border">
-          <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
-            <SheetTrigger asChild>
-              <Button variant="ghost" size="sm" className="p-2">
-                <Menu className="h-5 w-5" />
-              </Button>
-            </SheetTrigger>
-            <SheetContent side="left" className="w-80 p-0">
-              <SidebarContent
-                selectedPublicAdvisors={advisorsAsAgents}
-                onSelectPublicAdvisor={(advisorId, advisor) => {
-                  if (advisor) {
-                    onSelectAdvisor(advisorId, advisor);
-                  }
-                  setIsSheetOpen(false);
-                }}
-                onRemovePublicAdvisor={handleRemovePublicAdvisor}
-                onShowAdvisorDirectory={() => {
-                  setIsSheetOpen(false);
-                }}
-                onClose={() => setIsSheetOpen(false)}
-              />
-            </SheetContent>
-          </Sheet>
-          
-          <div className="flex items-center gap-2">
-            <img 
-              src="/lovable-uploads/d1283b59-7cfa-45f5-b151-4c32b24f3621.png" 
-              alt="Simulacra" 
-              className="h-6 w-6"
-            />
-            <h1 className="font-semibold hidden sm:block">Simulacra</h1>
-          </div>
-          
-          <div className="w-10" /> {/* Spacer for balance */}
-        </div>
-      )}
-
       {/* Main Content */}
       <div className="flex-1 overflow-auto">
         <div className="max-w-6xl mx-auto p-6">
