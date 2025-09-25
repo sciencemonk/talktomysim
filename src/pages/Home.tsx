@@ -36,16 +36,10 @@ const Home = () => {
 
   // Handle advisor selection from directory
   const handleAdvisorSelect = async (advisorId: string, advisor?: AgentType) => {
-    if (!user) {
-      // Store the advisor selection and show auth modal
-      if (advisor) {
-        setPendingAdvisor(advisor);
-      }
-      setShowAuthModal(true);
-    } else {
-      // User is signed in, proceed directly
-      if (advisor) {
-        // Check if advisor is already in user's list
+    // Allow immediate chat for all users, authenticated or not
+    if (advisor) {
+      // If user is signed in, try to add to their list
+      if (user) {
         const isAlreadyAdded = advisorsAsAgents.some(a => a.id === advisor.id);
         
         if (!isAlreadyAdded) {
@@ -60,10 +54,11 @@ const Home = () => {
             });
           }
         }
-        
-        setSelectedAdvisor(advisor);
-        setSelectedPublicAdvisorId(advisor.id);
       }
+      
+      // Always allow chat regardless of authentication status
+      setSelectedAdvisor(advisor);
+      setSelectedPublicAdvisorId(advisor.id);
     }
   };
 

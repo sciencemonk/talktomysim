@@ -35,11 +35,7 @@ const AdvisorDirectory = ({ onSelectAdvisor, onAuthRequired }: AdvisorDirectoryP
   const isMobile = useIsMobile();
 
   const handleAdvisorSelect = async (advisor: AgentType) => {
-    if (!user) {
-      onAuthRequired?.();
-      return;
-    }
-
+    // Allow immediate chat for all users
     onSelectAdvisor(advisor.id, advisor);
   };
 
