@@ -51,8 +51,8 @@ const ChatInterface = ({ agent, onBack }: ChatInterfaceProps) => {
 
   return (
     <div className="flex flex-col h-full w-full relative bg-background">
-      {/* Header with advisor info */}
-      <div className="border-b bg-background px-4 sm:px-6 py-4 flex-shrink-0">
+      {/* Header with advisor info - Fixed at top */}
+      <div className="fixed top-0 left-0 right-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-4 sm:px-6 py-4">
         <div className="flex items-center gap-3">
           <Avatar className="h-10 w-10 sm:h-12 sm:w-12">
             <AvatarImage src={currentAgent.avatar} alt={currentAgent.name} />
@@ -69,10 +69,10 @@ const ChatInterface = ({ agent, onBack }: ChatInterfaceProps) => {
         </div>
       </div>
 
-      {/* Messages - Scrollable area with bottom padding for input */}
-      <div className="flex-1 overflow-auto px-4 sm:p-4 pb-32 min-h-0">
+      {/* Messages - Scrollable area with top padding for fixed header and bottom padding for input */}
+      <div className="flex-1 overflow-auto px-4 sm:p-4 pt-20 pb-32 min-h-0">
         {chatHistory.messages.length === 0 && !textChat.isProcessing ? (
-          <div className="flex flex-col items-center justify-center text-center px-4" style={{ minHeight: 'calc(100vh - 300px)' }}>
+          <div className="flex flex-col items-center justify-center text-center px-4" style={{ minHeight: 'calc(100vh - 220px)' }}>
             <Avatar className="h-16 w-16 mb-4">
               <AvatarImage src={currentAgent.avatar} alt={currentAgent.name} />
               <AvatarFallback className="bg-primary text-primary-foreground text-2xl">
