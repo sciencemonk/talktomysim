@@ -146,11 +146,6 @@ const Home = () => {
         {currentChatAgent ? (
           <ChatInterface
             agent={currentChatAgent}
-            onBack={() => {
-              setSelectedAgent(null);
-              setSelectedAdvisor(null);
-              setSelectedPublicAdvisorId(null);
-            }}
           />
         ) : (
           <div className="flex-1 overflow-auto">
