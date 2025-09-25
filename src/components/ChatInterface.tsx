@@ -50,7 +50,7 @@ const ChatInterface = ({ agent, onBack }: ChatInterfaceProps) => {
   }, [chatHistory.messages]);
 
   return (
-    <div className="flex flex-col h-full w-full relative">
+    <div className="flex flex-col h-screen w-full relative">
       {/* Header - Fixed at top */}
       <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-4 sm:px-6 py-4 flex-shrink-0 sticky top-0 z-20">
         <div className="flex items-center justify-between">
@@ -95,9 +95,9 @@ const ChatInterface = ({ agent, onBack }: ChatInterfaceProps) => {
         </div>
       </div>
 
-      {/* Messages - Scrollable area with padding for fixed input */}
+      {/* Messages - Scrollable area */}
       <div className="flex-1 overflow-auto px-4 sm:p-4 pb-20 sm:pb-24">
-        {chatHistory.messages.length === 0 ? (
+        {chatHistory.messages.length === 0 && !textChat.isProcessing ? (
           <div className="flex flex-col items-center justify-center h-full text-center px-4">
             <Avatar className="h-16 w-16 mb-4">
               <AvatarImage src={currentAgent.avatar} alt={currentAgent.name} />
@@ -150,14 +150,16 @@ const ChatInterface = ({ agent, onBack }: ChatInterfaceProps) => {
         )}
       </div>
 
-      {/* Input - Fixed at bottom */}
-      <div className="absolute bottom-0 left-0 right-0 border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 z-10">
-        <TextInput 
-          onSendMessage={textChat.sendMessage}
-          disabled={textChat.isProcessing || isAiResponding}
-          placeholder={isAiResponding ? `${currentAgent.name} is typing...` : `Message ${currentAgent.name}...`}
-        />
-      </div>
+      {/* Input - Fixed at bottom - Only show if not initial loading */}
+      {(chatHistory.messages.length > 0 || !textChat.isProcessing) && (
+        <div className="absolute bottom-0 left-0 right-0 border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 z-10">
+          <TextInput 
+            onSendMessage={textChat.sendMessage}
+            disabled={textChat.isProcessing || isAiResponding}
+            placeholder={isAiResponding ? `${currentAgent.name} is typing...` : `Message ${currentAgent.name}...`}
+          />
+        </div>
+      )}
     </div>
   );
 };
