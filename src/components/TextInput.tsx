@@ -75,7 +75,7 @@ export const TextInput: React.FC<TextInputProps> = ({
               onInput={handleInput}
               placeholder={placeholder}
               disabled={disabled}
-              className="flex-1 min-h-[24px] max-h-[150px] resize-none border-0 p-0 shadow-none focus-visible:ring-0 focus:ring-0 focus:outline-none bg-transparent text-sm placeholder:text-muted-foreground"
+              className="flex-1 min-h-[24px] max-h-[150px] resize-none border-0 p-0 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0 focus:ring-0 focus:outline-none bg-transparent text-sm placeholder:text-muted-foreground"
               rows={1}
             />
             <Button 
