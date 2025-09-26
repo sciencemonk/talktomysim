@@ -212,31 +212,30 @@ async function shouldDoWebResearch(userMessage: string, agent: Agent, openaiApiK
         messages: [
           {
             role: 'system',
-            content: `You are an AI assistant that determines if a user's question requires current/recent information to answer properly. 
+            content: `You are determining if web research is needed to answer a user's question accurately.
+
+            The user is talking to ${agent.name}, a specialized AI agent.
             
-            The user is talking to ${agent.name}, who specializes in ${agent.subject}.
+            Return "YES" for web research if the question:
+            - Asks about specific concepts, inventions, or ideas associated with ${agent.name}
+            - Requests factual information that should be verified
+            - Mentions specific terms, projects, or concepts that may need accurate details
+            - Could benefit from current or comprehensive information
+            - Is asking "what is" about any specific concept or term
+            - Seeks information about historical figures, their work, or contributions
             
-            Return "YES" if the question asks about:
-            - Current events, recent news, or today's information
-            - Recent developments, updates, or changes
-            - Current prices, statistics, or data
-            - Recent research or discoveries
-            - Current status of companies, people, or projects
-            - Anything that might have recent updates or changes
-            - Basic factual questions that benefit from verified current information
-            - Simple "what is" questions about topics that may have evolved
+            Return "NO" only if the question is:
+            - Purely philosophical or opinion-based
+            - About general concepts that don't need specific facts
+            - Simple greetings or casual conversation
             
-            Return "NO" if the question is about:
-            - Well-established historical facts
-            - Personal opinions or creative responses
-            - Questions the agent can answer from their core expertise
-            - Philosophical or theoretical discussions
+            When in doubt, choose "YES" - it's better to research and provide accurate information.
             
             Respond with only "YES" or "NO".`
           },
           {
             role: 'user',
-            content: userMessage
+            content: `User asking ${agent.name}: ${userMessage}`
           }
         ],
         max_tokens: 10,
@@ -249,14 +248,14 @@ async function shouldDoWebResearch(userMessage: string, agent: Agent, openaiApiK
     return decision === 'YES';
   } catch (error) {
     console.error('Error determining research need:', error);
-    return false; // Default to no research on error
+    return true; // Default to research on error - better to over-research than under-research
   }
 }
 
 async function performWebResearch(userMessage: string, agent: Agent, perplexityApiKey: string): Promise<string> {
   try {
-    // Create a search query optimized for the agent's domain
-    const searchQuery = `${userMessage} ${agent.subject} recent information current`;
+    // Create a search query optimized for the agent's domain and specific knowledge
+    const searchQuery = `${agent.name} "${userMessage}" ${agent.subject}`;
     
     const response = await fetch('https://api.perplexity.ai/chat/completions', {
       method: 'POST',
@@ -269,14 +268,14 @@ async function performWebResearch(userMessage: string, agent: Agent, perplexityA
         messages: [
           {
             role: 'system',
-            content: `You are researching information for ${agent.name}, an expert in ${agent.subject}. 
-            Provide current, accurate information that would be relevant to their expertise.
-            Focus on recent developments, current status, and factual information.
-            Be concise but comprehensive.`
+            content: `You are researching information specifically about ${agent.name}'s work, ideas, and contributions in ${agent.subject}. 
+            Focus on finding accurate, specific information about ${agent.name}'s concepts, inventions, theories, and ideas.
+            Provide factual, detailed information that would be relevant to their expertise and historical contributions.
+            Be precise and comprehensive about their specific work and ideas.`
           },
           {
             role: 'user',
-            content: `Research current information about: ${userMessage}`
+            content: `Research ${agent.name}'s specific work related to: ${userMessage}`
           }
         ],
         temperature: 0.2,
@@ -284,7 +283,7 @@ async function performWebResearch(userMessage: string, agent: Agent, perplexityA
         max_tokens: 800,
         return_images: false,
         return_related_questions: false,
-        search_recency_filter: 'month',
+        search_recency_filter: 'year',
       }),
     });
 
