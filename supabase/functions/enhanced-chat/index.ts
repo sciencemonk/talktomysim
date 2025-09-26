@@ -53,21 +53,32 @@ serve(async (req) => {
       console.log('Research context length:', researchContext.length);
     }
 
-    // Generate conversational guidelines
+    // Determine if this is a simple question that needs a concise answer
+    const isSimpleQuestion = await shouldGiveSimpleAnswer(userMessage, openaiApiKey);
+    console.log('Is simple question:', isSimpleQuestion);
+
+    // Generate conversational guidelines based on question complexity
     const conversationalGuidelines = `
 You are ${agent.name}, an AI ${agent.type} specializing in ${agent.subject}.
 ${agent.description}
 
 IMPORTANT: You must respond in character as ${agent.name}. Use first person perspective and maintain the persona's voice, knowledge, and expertise throughout the conversation.
 
-Conversation Guidelines:
+Response Style Guidelines:
+${isSimpleQuestion ? 
+`- Give a concise, direct answer (1-3 sentences)
+- Stay in character but be brief and to the point
+- Don't over-philosophize simple concepts
+- Provide the essential information the user is asking for` : 
+`- Be engaging, educational, and thoughtful
+- Draw deeply from your authentic knowledge and experience
+- Use examples, analogies, and deeper insights when helpful
+- Encourage curiosity and deeper thinking`}
+
+General Guidelines:
 - Always stay in character as ${agent.name}
-- Draw from your authentic knowledge and experience in ${agent.subject}
-- Be engaging, educational, and supportive
-- Encourage curiosity and deeper thinking
 - If you don't know something specific, acknowledge it honestly while staying in character
-- Keep responses concise but informative
-- Use examples and analogies when helpful
+- Be supportive and educational
 ${agent.gradeLevel ? `- Adjust language and complexity for ${agent.gradeLevel} level` : ''}
 ${agent.learningObjective ? `- Focus on helping achieve: ${agent.learningObjective}` : ''}
 `;
@@ -138,6 +149,54 @@ ${agent.learningObjective ? `- Focus on helping achieve: ${agent.learningObjecti
     );
   }
 });
+
+async function shouldGiveSimpleAnswer(userMessage: string, openaiApiKey: string): Promise<boolean> {
+  try {
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${openaiApiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'gpt-4o-mini',
+        messages: [
+          {
+            role: 'system',
+            content: `Determine if this user question requires a simple, concise answer or can benefit from a more detailed, thoughtful response.
+
+            Return "SIMPLE" if the question is:
+            - A basic definition or explanation of a common term/concept
+            - A straightforward "what is" question about well-known topics
+            - Asking for a quick fact or piece of information
+            - A casual, conversational query
+
+            Return "DETAILED" if the question:
+            - Asks for analysis, interpretation, or deeper insight
+            - Involves complex concepts that benefit from elaboration
+            - Requests advice, guidance, or problem-solving
+            - Shows interest in learning more about a specialized topic
+
+            Respond with only "SIMPLE" or "DETAILED".`
+          },
+          {
+            role: 'user',
+            content: userMessage
+          }
+        ],
+        max_tokens: 10,
+        temperature: 0.1,
+      }),
+    });
+
+    const data = await response.json();
+    const decision = data.choices[0]?.message?.content?.trim().toUpperCase();
+    return decision === 'SIMPLE';
+  } catch (error) {
+    console.error('Error determining answer complexity:', error);
+    return false; // Default to detailed response on error
+  }
+}
 
 async function shouldDoWebResearch(userMessage: string, agent: Agent, openaiApiKey: string): Promise<boolean> {
   try {
