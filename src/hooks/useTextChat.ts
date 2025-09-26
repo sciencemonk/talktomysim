@@ -55,8 +55,8 @@ export const useTextChat = ({
       
       abortControllerRef.current = new AbortController();
       
-      // Use Supabase client to call the edge function
-      const { data, error } = await supabase.functions.invoke('chat-completion', {
+      // Use Supabase client to call the enhanced chat edge function
+      const { data, error } = await supabase.functions.invoke('enhanced-chat', {
         body: {
           messages: newHistory,
           agent: {
