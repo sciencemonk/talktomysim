@@ -66,10 +66,10 @@ IMPORTANT: You must respond in character as ${agent.name}. Use first person pers
 
 Response Style Guidelines:
 ${isSimpleQuestion ? 
-`- Give a concise, direct answer (1-3 sentences)
-- Stay in character but be brief and to the point
-- Don't over-philosophize simple concepts
-- Provide the essential information the user is asking for` : 
+`- Give a direct, factual answer in 1-2 sentences maximum
+- Be straightforward and informative, not philosophical
+- Stay in character but prioritize clarity over personality
+- Just answer what they asked - don't elaborate unnecessarily` : 
 `- Be engaging, educational, and thoughtful
 - Draw deeply from your authentic knowledge and experience
 - Use examples, analogies, and deeper insights when helpful
@@ -163,19 +163,20 @@ async function shouldGiveSimpleAnswer(userMessage: string, openaiApiKey: string)
         messages: [
           {
             role: 'system',
-            content: `Determine if this user question requires a simple, concise answer or can benefit from a more detailed, thoughtful response.
+            content: `Determine if this user question requires a simple, direct answer or can benefit from a more detailed response.
 
             Return "SIMPLE" if the question is:
-            - A basic definition or explanation of a common term/concept
-            - A straightforward "what is" question about well-known topics
-            - Asking for a quick fact or piece of information
-            - A casual, conversational query
+            - Basic "what is" or "tell me about" questions for common terms
+            - Simple definitions or explanations
+            - Quick factual questions
+            - Basic informational queries
+            - Questions that can be answered in 1-2 sentences
 
             Return "DETAILED" if the question:
-            - Asks for analysis, interpretation, or deeper insight
-            - Involves complex concepts that benefit from elaboration
-            - Requests advice, guidance, or problem-solving
-            - Shows interest in learning more about a specialized topic
+            - Asks for analysis, opinions, or interpretation
+            - Requests advice or problem-solving
+            - Shows interest in philosophical or complex topics
+            - Asks "how" or "why" for complex subjects
 
             Respond with only "SIMPLE" or "DETAILED".`
           },
@@ -221,13 +222,15 @@ async function shouldDoWebResearch(userMessage: string, agent: Agent, openaiApiK
             - Current prices, statistics, or data
             - Recent research or discoveries
             - Current status of companies, people, or projects
-            - Anything that might have changed recently
+            - Anything that might have recent updates or changes
+            - Basic factual questions that benefit from verified current information
+            - Simple "what is" questions about topics that may have evolved
             
             Return "NO" if the question is about:
-            - Historical facts or well-established information
-            - General concepts, theories, or principles
+            - Well-established historical facts
             - Personal opinions or creative responses
-            - Educational explanations of established topics
+            - Questions the agent can answer from their core expertise
+            - Philosophical or theoretical discussions
             
             Respond with only "YES" or "NO".`
           },
