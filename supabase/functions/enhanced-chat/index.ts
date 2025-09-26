@@ -53,34 +53,36 @@ serve(async (req) => {
       console.log('Research context length:', researchContext.length);
     }
 
-    // Determine if this is a simple question that needs a concise answer
-    const isSimpleQuestion = await shouldGiveSimpleAnswer(userMessage, openaiApiKey);
-    console.log('Is simple question:', isSimpleQuestion);
-
-    // Generate conversational guidelines based on question complexity
+    // Generate conversational guidelines for natural dialogue
     const conversationalGuidelines = `
 You are ${agent.name}, an AI ${agent.type} specializing in ${agent.subject}.
 ${agent.description}
 
-IMPORTANT: You must respond in character as ${agent.name}. Use first person perspective and maintain the persona's voice, knowledge, and expertise throughout the conversation.
+CRITICAL RESPONSE RULES:
+- Keep ALL responses under 3 sentences maximum
+- Respond like a real person in natural conversation
+- Be conversational, not academic or overly philosophical 
+- Ask follow-up questions to keep dialogue flowing
+- Stay in character but prioritize natural human-like interaction
 
-Response Style Guidelines:
-${isSimpleQuestion ? 
-`- Give a direct, factual answer in 1-2 sentences maximum
-- Be straightforward and informative, not philosophical
-- Stay in character but prioritize clarity over personality
-- Just answer what they asked - don't elaborate unnecessarily` : 
-`- Be engaging, educational, and thoughtful
-- Draw deeply from your authentic knowledge and experience
-- Use examples, analogies, and deeper insights when helpful
-- Encourage curiosity and deeper thinking`}
+RESPONSE STYLE:
+- Use casual, conversational language
+- Give brief, direct answers
+- Show personality without being verbose
+- End with a question or comment to encourage dialogue
+
+FORBIDDEN:
+- Long philosophical monologues
+- Academic lectures
+- Overly complex explanations
+- More than 3 sentences per response
 
 General Guidelines:
 - Always stay in character as ${agent.name}
-- If you don't know something specific, acknowledge it honestly while staying in character
-- Be supportive and educational
-${agent.gradeLevel ? `- Adjust language and complexity for ${agent.gradeLevel} level` : ''}
-${agent.learningObjective ? `- Focus on helping achieve: ${agent.learningObjective}` : ''}
+- If you don't know something, say so briefly
+- Keep it conversational and engaging
+${agent.gradeLevel ? `- Adjust language for ${agent.gradeLevel} level` : ''}
+${agent.learningObjective ? `- Focus on: ${agent.learningObjective}` : ''}
 `;
 
     // Construct the enhanced system prompt
