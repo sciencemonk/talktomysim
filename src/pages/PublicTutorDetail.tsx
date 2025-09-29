@@ -2,6 +2,8 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { usePublicAgent } from "@/hooks/usePublicAgent";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import BotCheck from "@/components/BotCheck";
+import { useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -12,11 +14,21 @@ const PublicTutorDetail = () => {
   const { agentId } = useParams<{ agentId: string }>();
   const navigate = useNavigate();
   const { agent, isLoading, error } = usePublicAgent(agentId);
+  const [showBotCheck, setShowBotCheck] = useState(false);
 
   const handleStartChat = () => {
+    setShowBotCheck(true);
+  };
+
+  const handleBotCheckComplete = () => {
+    setShowBotCheck(false);
     if (agentId) {
       navigate(`/tutors/${agentId}/chat`);
     }
+  };
+
+  const handleBotCheckCancel = () => {
+    setShowBotCheck(false);
   };
 
   if (isLoading) {
@@ -164,6 +176,13 @@ const PublicTutorDetail = () => {
           </Card>
         )}
       </div>
+
+      {showBotCheck && (
+        <BotCheck
+          onVerificationComplete={handleBotCheckComplete}
+          onCancel={handleBotCheckCancel}
+        />
+      )}
     </div>
   );
 };

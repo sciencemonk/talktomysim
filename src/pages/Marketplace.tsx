@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
+import BotCheck from "@/components/BotCheck";
 import { Bot, Users, Search, Filter, Star, TrendingUp, Clock, Target } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -16,6 +17,8 @@ const Marketplace = () => {
   const [sortBy, setSortBy] = useState("trending");
   const [subjectFilter, setSubjectFilter] = useState("all");
   const [gradeLevelFilter, setGradeLevelFilter] = useState("all");
+  const [showBotCheck, setShowBotCheck] = useState(false);
+  const [selectedAgentId, setSelectedAgentId] = useState<string | null>(null);
   const {
     agents,
     isLoading
@@ -27,7 +30,21 @@ const Marketplace = () => {
 
   const handleDemoTutor = (tutorId: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    navigate(`/tutors/${tutorId}/chat`);
+    setSelectedAgentId(tutorId);
+    setShowBotCheck(true);
+  };
+
+  const handleBotCheckComplete = () => {
+    setShowBotCheck(false);
+    if (selectedAgentId) {
+      navigate(`/tutors/${selectedAgentId}/chat`);
+      setSelectedAgentId(null);
+    }
+  };
+
+  const handleBotCheckCancel = () => {
+    setShowBotCheck(false);
+    setSelectedAgentId(null);
   };
 
   const truncateLearningObjective = (text: string) => {
@@ -274,6 +291,13 @@ const Marketplace = () => {
             Clear Filters
           </Button>
         </div>
+      )}
+
+      {showBotCheck && (
+        <BotCheck
+          onVerificationComplete={handleBotCheckComplete}
+          onCancel={handleBotCheckCancel}
+        />
       )}
     </div>
   );
