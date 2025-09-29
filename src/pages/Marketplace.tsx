@@ -25,7 +25,8 @@ const Marketplace = () => {
   } = useAgents('all-agents');
 
   const handleTutorClick = (tutorId: string) => {
-    navigate(`/agents/${tutorId}`);
+    setSelectedAgentId(tutorId);
+    setShowBotCheck(true);
   };
 
   const handleDemoTutor = (tutorId: string, e: React.MouseEvent) => {
@@ -37,7 +38,9 @@ const Marketplace = () => {
   const handleBotCheckComplete = () => {
     setShowBotCheck(false);
     if (selectedAgentId) {
-      navigate(`/tutors/${selectedAgentId}/chat`);
+      // For demo button clicks, go directly to chat
+      // For tile clicks, go to agent details first
+      navigate(`/agents/${selectedAgentId}`);
       setSelectedAgentId(null);
     }
   };
