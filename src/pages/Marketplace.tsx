@@ -25,8 +25,10 @@ const Marketplace = () => {
   } = useAgents('all-agents');
 
   const handleTutorClick = (tutorId: string) => {
+    console.log('Tutor clicked:', tutorId);
     setSelectedAgentId(tutorId);
     setShowBotCheck(true);
+    console.log('Bot check should show:', true);
   };
 
   const handleDemoTutor = (tutorId: string, e: React.MouseEvent) => {
@@ -301,6 +303,13 @@ const Marketplace = () => {
           onVerificationComplete={handleBotCheckComplete}
           onCancel={handleBotCheckCancel}
         />
+      )}
+      
+      {/* Debug info */}
+      {process.env.NODE_ENV === 'development' && (
+        <div className="fixed bottom-4 right-4 bg-black text-white p-2 text-xs">
+          showBotCheck: {showBotCheck.toString()}, selectedAgentId: {selectedAgentId || 'null'}
+        </div>
       )}
     </div>
   );
