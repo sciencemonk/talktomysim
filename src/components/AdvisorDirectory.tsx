@@ -1,5 +1,6 @@
 
 import { useState, useEffect } from "react";
+import BotCheck from "@/components/BotCheck";
 import { useAdvisors } from "@/hooks/useAdvisors";
 import { useAllAdvisors } from "@/hooks/useAllAdvisors";
 import { useUserAdvisors } from "@/hooks/useUserAdvisors";
@@ -27,12 +28,32 @@ interface AdvisorDirectoryProps {
 const AdvisorDirectory = ({ onSelectAdvisor, onAuthRequired }: AdvisorDirectoryProps) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [isSheetOpen, setIsSheetOpen] = useState(false);
+  const [showBotCheck, setShowBotCheck] = useState(false);
+  const [selectedAdvisor, setSelectedAdvisor] = useState<AgentType | null>(null);
   
   const { user } = useAuth();
   const { advisors, isLoading } = useAdvisors();
   const { agents: allAdvisors, isLoading: isLoadingAll } = useAllAdvisors();
   const { advisorsAsAgents, removeAdvisor } = useUserAdvisors();
   const isMobile = useIsMobile();
+
+  const handleAdvisorClick = (advisor: AgentType) => {
+    setSelectedAdvisor(advisor);
+    setShowBotCheck(true);
+  };
+
+  const handleBotCheckComplete = () => {
+    setShowBotCheck(false);
+    if (selectedAdvisor) {
+      onSelectAdvisor(selectedAdvisor.id, selectedAdvisor);
+      setSelectedAdvisor(null);
+    }
+  };
+
+  const handleBotCheckCancel = () => {
+    setShowBotCheck(false);
+    setSelectedAdvisor(null);
+  };
 
   const handleAdvisorSelect = async (advisor: AgentType) => {
     // Allow immediate chat for all users
@@ -102,7 +123,7 @@ const AdvisorDirectory = ({ onSelectAdvisor, onAuthRequired }: AdvisorDirectoryP
                 <Card 
                   key={advisor.id} 
                   className="cursor-pointer hover:shadow-md transition-shadow group"
-                  onClick={() => handleAdvisorSelect(advisor)}
+                  onClick={() => handleAdvisorClick(advisor)}
                 >
                   <CardHeader className="p-4">
                     <div className="flex items-center space-x-4">
@@ -143,6 +164,13 @@ const AdvisorDirectory = ({ onSelectAdvisor, onAuthRequired }: AdvisorDirectoryP
           )}
         </div>
       </div>
+
+      {showBotCheck && (
+        <BotCheck
+          onVerificationComplete={handleBotCheckComplete}
+          onCancel={handleBotCheckCancel}
+        />
+      )}
     </div>
   );
 };
