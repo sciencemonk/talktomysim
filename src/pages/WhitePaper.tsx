@@ -37,7 +37,7 @@ const WhitePaper = () => {
             />
           </div>
           <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-            Democratizing access to history's greatest minds through AI, powered by the $SIM ecosystem
+            Democratizing AI conversations through user-created simulations, powered by the $SIM ecosystem
           </p>
           <div className="text-center mb-8">
             <p className="text-sm text-muted-foreground mb-2">Contract Address:</p>
@@ -56,10 +56,13 @@ const WhitePaper = () => {
           <h2 className="text-3xl font-bold mb-6">The Vision</h2>
           <div className="prose prose-lg max-w-none text-muted-foreground">
             <p className="text-lg mb-6">
-              Throughout history, humanity's greatest breakthrough moments have come from the minds of extraordinary individuals—Einstein's theories of relativity, Tesla's electrical innovations, Leonardo's artistic genius, Socrates' philosophical insights. Yet access to their wisdom has been limited to books, recordings, and second-hand interpretations.
+              Throughout history, humanity&apos;s greatest breakthrough moments have come from the minds of extraordinary individuals—Einstein&apos;s theories of relativity, Tesla&apos;s electrical innovations, Leonardo&apos;s artistic genius, Socrates&apos; philosophical insights. Yet access to their wisdom has been limited to books, recordings, and second-hand interpretations.
             </p>
             <p className="text-lg mb-6">
-              <strong className="text-foreground">Sim Protocol</strong> is building the infrastructure to democratize access to these intellectual giants through advanced AI simulations. Our platform creates interactive, conversational AI representations of history's most influential minds, allowing anyone to engage directly with their thoughts, methodologies, and creative processes.
+              <strong className="text-foreground">Sim Protocol</strong> is building the infrastructure to democratize AI conversations for everyone. Our platform creates interactive, conversational AI simulations—not just of historical figures, but allowing <strong className="text-foreground">anyone</strong> to create their own AI personas. From historical intellectuals to modern thought leaders, fictional characters to personalized tutors, domain experts to creative companions—the possibilities are limitless.
+            </p>
+            <p className="text-lg mb-6">
+              Whether you want to chat with Einstein about physics, create a virtual mentor based on your favorite author, or build a custom AI assistant with a unique personality—Sim Protocol makes it possible for creators everywhere to share their AI simulations with the world.
             </p>
           </div>
         </section>
@@ -84,7 +87,7 @@ const WhitePaper = () => {
               </CardHeader>
               <CardContent className="pt-0">
                 <p className="text-muted-foreground mb-6 leading-relaxed">
-                  Our foundation begins with meticulously crafted system prompts that capture the essence of each historical figure.
+                  Our foundation begins with meticulously crafted system prompts that capture the essence of any persona—historical figures, modern experts, or entirely original creations.
                 </p>
                 <div className="grid md:grid-cols-2 gap-4">
                   <div className="space-y-3">
@@ -100,7 +103,7 @@ const WhitePaper = () => {
                   <div className="space-y-3">
                     <div className="flex items-center gap-3">
                       <div className="w-1.5 h-1.5 rounded-full bg-primary"></div>
-                      <span className="text-sm text-muted-foreground">Historical context awareness</span>
+                      <span className="text-sm text-muted-foreground">Contextual awareness and background</span>
                     </div>
                     <div className="flex items-center gap-3">
                       <div className="w-1.5 h-1.5 rounded-full bg-primary"></div>
@@ -123,27 +126,27 @@ const WhitePaper = () => {
               </CardHeader>
               <CardContent className="pt-0">
                 <p className="text-muted-foreground mb-6 leading-relaxed">
-                  Deep knowledge integration through vector embeddings of complete works and historical documents.
+                  Deep knowledge integration through vector embeddings—creators can upload documents, articles, books, or any content to enhance their sim&apos;s knowledge base.
                 </p>
                 <div className="grid md:grid-cols-2 gap-4">
                   <div className="space-y-3">
                     <div className="flex items-center gap-3">
                       <div className="w-1.5 h-1.5 rounded-full bg-primary"></div>
-                      <span className="text-sm text-muted-foreground">Full text analysis of published works</span>
+                      <span className="text-sm text-muted-foreground">Full text analysis of uploaded content</span>
                     </div>
                     <div className="flex items-center gap-3">
                       <div className="w-1.5 h-1.5 rounded-full bg-primary"></div>
-                      <span className="text-sm text-muted-foreground">Real-time retrieval of specific quotes</span>
+                      <span className="text-sm text-muted-foreground">Real-time retrieval of specific information</span>
                     </div>
                   </div>
                   <div className="space-y-3">
                     <div className="flex items-center gap-3">
                       <div className="w-1.5 h-1.5 rounded-full bg-primary"></div>
-                      <span className="text-sm text-muted-foreground">Contextual understanding over time</span>
+                      <span className="text-sm text-muted-foreground">Contextual understanding and memory</span>
                     </div>
                     <div className="flex items-center gap-3">
                       <div className="w-1.5 h-1.5 rounded-full bg-primary"></div>
-                      <span className="text-sm text-muted-foreground">Cross-referencing capabilities</span>
+                      <span className="text-sm text-muted-foreground">Custom knowledge base capabilities</span>
                     </div>
                   </div>
                 </div>
@@ -162,7 +165,7 @@ const WhitePaper = () => {
               </CardHeader>
               <CardContent className="pt-0">
                 <p className="text-muted-foreground mb-6 leading-relaxed">
-                  The ultimate experience—natural voice conversations with historical figures through advanced AI synthesis.
+                  The ultimate experience—natural voice conversations with any sim through advanced AI synthesis and real-time audio streaming.
                 </p>
                 <div className="grid md:grid-cols-2 gap-4">
                   <div className="space-y-3">
@@ -208,7 +211,7 @@ const WhitePaper = () => {
                   Platform development and maintenance is funded through $SIM creator rewards distributed to:
                 </p>
                 <ul className="list-disc list-inside text-muted-foreground space-y-2">
-                  <li>Historical Sim developers</li>
+                  <li>Historical and living sim developers</li>
                   <li>Content researchers and validators</li>
                   <li>Community moderators</li>
                   <li>Platform infrastructure contributors</li>
@@ -219,24 +222,24 @@ const WhitePaper = () => {
 
           <Card className="bg-gradient-to-r from-purple-50 via-pink-50 to-blue-50 border-2 border-primary/20">
             <CardHeader>
-              <CardTitle className="text-xl">Future: Monetizable Custom Sims</CardTitle>
+              <CardTitle className="text-xl">User-Created Sims: Available Now</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-muted-foreground mb-4">
-                <strong>Stage 4 Vision:</strong> $SIM holders will be empowered to create their own monetizable Sims, opening new revenue streams:
+                <strong>Currently Live:</strong> Anyone can create and share their own custom sims with shareable links. Future monetization features coming soon:
               </p>
               <div className="grid md:grid-cols-2 gap-6">
                 <div>
                   <h4 className="font-semibold mb-2">Creator Economy</h4>
                   <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
-                    <li>Build Sims of modern thought leaders</li>
+                    <li>Build sims of modern thought leaders</li>
                     <li>Create fictional character interactions</li>
                     <li>Develop specialized expert consultants</li>
                     <li>Design educational tutoring personas</li>
                   </ul>
                 </div>
                 <div>
-                  <h4 className="font-semibold mb-2">Monetization Models</h4>
+                  <h4 className="font-semibold mb-2">Future Monetization Models</h4>
                   <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
                     <li>Per-conversation pricing</li>
                     <li>Subscription-based access</li>
