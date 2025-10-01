@@ -189,9 +189,8 @@ const TopNavigation = ({
               </Button>
               <Button
                 onClick={handleCreateSimClick}
-                className="text-sm font-medium"
+                className="h-10 bg-gradient-to-r from-purple-600 via-pink-500 to-blue-500 text-white hover:opacity-90 text-sm font-medium"
               >
-                <Plus className="h-4 w-4 mr-2" />
                 Create a Sim
               </Button>
             </>
