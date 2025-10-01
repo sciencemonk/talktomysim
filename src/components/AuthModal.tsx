@@ -237,17 +237,6 @@ const AuthModal = ({ open, onOpenChange, defaultMode = 'signup' }: AuthModalProp
                     </Button>
                   </div>
                 )}
-
-                <div className="text-center">
-                  <Button
-                    type="button"
-                    variant="link"
-                    onClick={() => setShowEmailForm(false)}
-                    className="text-sm text-muted-foreground"
-                  >
-                    ← Back to login options
-                  </Button>
-                </div>
               </CardContent>
             </Card>
           )}
