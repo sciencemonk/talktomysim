@@ -44,6 +44,7 @@ export const useAllAdvisors = () => {
           subject: advisor.category || 'General',
           title: advisor.title, // Include the title field from advisors table
           is_featured: false, // Default to false since advisors table doesn't have this field yet
+          sim_type: (advisor.sim_type || 'historical') as 'historical' | 'living', // Include sim_type for filtering
           // Set default values for tutor-specific fields
           model: 'GPT-4',
           interactions: 0,

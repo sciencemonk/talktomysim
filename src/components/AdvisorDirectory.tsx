@@ -7,7 +7,7 @@ import { useUserAdvisors } from "@/hooks/useUserAdvisors";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, Users, Star, Sparkles, Menu } from "lucide-react";
+import { Search, Users, Star, Sparkles, Menu, Award, History } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -19,6 +19,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { AgentType } from "@/types/agent";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface AdvisorDirectoryProps {
   onSelectAdvisor: (advisorId: string, advisor?: AgentType) => void;
@@ -30,6 +31,7 @@ const AdvisorDirectory = ({ onSelectAdvisor, onAuthRequired }: AdvisorDirectoryP
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [showBotCheck, setShowBotCheck] = useState(false);
   const [selectedAdvisor, setSelectedAdvisor] = useState<AgentType | null>(null);
+  const [simFilter, setSimFilter] = useState<'historical' | 'living'>('historical');
   
   const { user } = useAuth();
   const { advisors, isLoading } = useAdvisors();
@@ -68,12 +70,17 @@ const AdvisorDirectory = ({ onSelectAdvisor, onAuthRequired }: AdvisorDirectoryP
     }
   };
 
-  // Filter advisors based on search term only
+  // Filter advisors based on search term and sim type
   const filteredAdvisors = allAdvisors.filter(advisor => {
     const matchesSearch = advisor.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          advisor.description?.toLowerCase().includes(searchTerm.toLowerCase());
     
-    return matchesSearch;
+    // Filter by sim type from database
+    const matchesType = simFilter === 'historical' 
+      ? (!advisor.sim_type || advisor.sim_type === 'historical')
+      : advisor.sim_type === 'living';
+    
+    return matchesSearch && matchesType;
   });
 
   return (
@@ -81,8 +88,8 @@ const AdvisorDirectory = ({ onSelectAdvisor, onAuthRequired }: AdvisorDirectoryP
       {/* Main Content */}
       <div className="flex-1 overflow-auto">
         <div className="max-w-6xl mx-auto p-6">
-          {/* Search Only */}
-          <div className="mb-6">
+          {/* Search and Filter */}
+          <div className="mb-6 space-y-4">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
               <Input
@@ -92,6 +99,19 @@ const AdvisorDirectory = ({ onSelectAdvisor, onAuthRequired }: AdvisorDirectoryP
                 className="pl-10"
               />
             </div>
+            
+            <Tabs value={simFilter} onValueChange={(value) => setSimFilter(value as 'historical' | 'living')} className="w-full">
+              <TabsList className="grid w-full max-w-md grid-cols-2">
+                <TabsTrigger value="historical" className="flex items-center gap-2">
+                  <History className="h-4 w-4" />
+                  Historical
+                </TabsTrigger>
+                <TabsTrigger value="living" className="flex items-center gap-2">
+                  <Users className="h-4 w-4" />
+                  Living
+                </TabsTrigger>
+              </TabsList>
+            </Tabs>
           </div>
 
           {/* Advisors Grid */}
