@@ -179,7 +179,7 @@ const AdvisorDirectory = ({ onSelectAdvisor, onAuthRequired }: AdvisorDirectoryP
 
           {filteredAdvisors.length === 0 && !isLoadingAll && (
             <div className="text-center py-12">
-              <p className="text-muted-foreground">No advisors found matching your criteria.</p>
+              <p className="text-muted-foreground">No sims found matching your criteria.</p>
             </div>
           )}
         </div>
