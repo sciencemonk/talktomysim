@@ -1,16 +1,65 @@
 
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { Bot, Shield, CheckCircle, Award, Lightbulb, Zap, Sparkles } from "lucide-react";
+import { Bot, Shield, CheckCircle, Award, Lightbulb, Zap, Sparkles, Users, Plus } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { AgentType } from "@/types/agent";
 
 const Landing = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isSigningIn, setIsSigningIn] = useState(false);
+  const [historicalSims, setHistoricalSims] = useState<AgentType[]>([]);
+  const [livingSims, setLivingSims] = useState<AgentType[]>([]);
+  const [isLoadingSims, setIsLoadingSims] = useState(true);
+
+  useEffect(() => {
+    fetchSims();
+  }, []);
+
+  const mapAdvisorToAgent = (advisor: any): AgentType => ({
+    id: advisor.id,
+    name: advisor.name,
+    description: advisor.description || '',
+    type: 'General Tutor',
+    status: advisor.is_active ? 'active' : 'inactive',
+    createdAt: advisor.created_at,
+    updatedAt: advisor.updated_at,
+    avatar: advisor.avatar_url,
+    prompt: advisor.prompt,
+    title: advisor.title,
+    is_featured: advisor.is_verified,
+  });
+
+  const fetchSims = async () => {
+    try {
+      setIsLoadingSims(true);
+      const { data, error } = await supabase
+        .from('advisors')
+        .select('*')
+        .eq('is_public', true)
+        .eq('is_active', true)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      const historical = data?.filter(sim => sim.sim_type === 'historical').map(mapAdvisorToAgent) || [];
+      const living = data?.filter(sim => sim.sim_type === 'living').map(mapAdvisorToAgent) || [];
+
+      setHistoricalSims(historical);
+      setLivingSims(living);
+    } catch (error) {
+      console.error('Error fetching sims:', error);
+    } finally {
+      setIsLoadingSims(false);
+    }
+  };
 
   const handleSignInWithGoogle = async () => {
     try {
@@ -202,6 +251,142 @@ const Landing = () => {
                   interactive learning experiences.
                 </p>
               </div>
+            </div>
+
+            {/* Sims Section */}
+            <div className="mt-32">
+              <h2 className="text-4xl font-semibold text-neutral-900 dark:text-white mb-4 text-center">
+                Explore Our Sims
+              </h2>
+              <p className="text-lg text-neutral-600 dark:text-neutral-400 mb-12 text-center max-w-2xl mx-auto">
+                Chat with historical figures or discover sims created by our community
+              </p>
+
+              <Tabs defaultValue="historical" className="w-full">
+                <TabsList className="grid w-full max-w-md mx-auto grid-cols-2 mb-8">
+                  <TabsTrigger value="historical" className="flex items-center gap-2">
+                    <Award className="h-4 w-4" />
+                    Historical
+                  </TabsTrigger>
+                  <TabsTrigger value="living" className="flex items-center gap-2">
+                    <Users className="h-4 w-4" />
+                    Living
+                  </TabsTrigger>
+                </TabsList>
+
+                <TabsContent value="historical" className="mt-8">
+                  {isLoadingSims ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                      {[...Array(6)].map((_, i) => (
+                        <Card key={i} className="animate-pulse">
+                          <CardHeader className="space-y-4 p-6">
+                            <div className="flex items-center space-x-4">
+                              <div className="rounded-full bg-muted h-16 w-16" />
+                              <div className="space-y-2 flex-1">
+                                <div className="h-5 bg-muted rounded w-3/4" />
+                                <div className="h-4 bg-muted rounded w-1/2" />
+                              </div>
+                            </div>
+                          </CardHeader>
+                        </Card>
+                      ))}
+                    </div>
+                  ) : historicalSims.length > 0 ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                      {historicalSims.map((sim) => (
+                        <Card 
+                          key={sim.id} 
+                          className="cursor-pointer hover:shadow-lg transition-all group bg-white/80 dark:bg-neutral-900/80 backdrop-blur-sm border-neutral-200/50 dark:border-neutral-800/50"
+                          onClick={() => navigate(`/app?sim=${sim.id}`)}
+                        >
+                          <CardHeader className="p-6">
+                            <div className="flex items-center space-x-4">
+                              <Avatar className="h-16 w-16 border-2 border-neutral-200 dark:border-neutral-700">
+                                <AvatarImage src={sim.avatar || ''} alt={sim.name} />
+                                <AvatarFallback className="text-lg font-semibold">{sim.name.charAt(0)}</AvatarFallback>
+                              </Avatar>
+                              <div className="flex-1">
+                                <CardTitle className="text-xl text-neutral-900 dark:text-white">{sim.name}</CardTitle>
+                                <CardDescription className="text-sm text-neutral-600 dark:text-neutral-400">
+                                  {sim.title || "Historical Figure"}
+                                </CardDescription>
+                              </div>
+                            </div>
+                          </CardHeader>
+                          <CardContent className="p-6 pt-0">
+                            <p className="text-sm text-neutral-600 dark:text-neutral-400 line-clamp-3">
+                              {sim.description}
+                            </p>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-12 text-neutral-500 dark:text-neutral-400">
+                      No historical sims available yet.
+                    </div>
+                  )}
+                </TabsContent>
+
+                <TabsContent value="living" className="mt-8">
+                  {isLoadingSims ? (
+                    <div className="flex justify-center py-12">
+                      <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                    </div>
+                  ) : livingSims.length > 0 ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                      {livingSims.map((sim) => (
+                        <Card 
+                          key={sim.id} 
+                          className="cursor-pointer hover:shadow-lg transition-all group bg-white/80 dark:bg-neutral-900/80 backdrop-blur-sm border-neutral-200/50 dark:border-neutral-800/50"
+                          onClick={() => navigate(`/app?sim=${sim.id}`)}
+                        >
+                          <CardHeader className="p-6">
+                            <div className="flex items-center space-x-4">
+                              <Avatar className="h-16 w-16 border-2 border-neutral-200 dark:border-neutral-700">
+                                <AvatarImage src={sim.avatar || ''} alt={sim.name} />
+                                <AvatarFallback className="text-lg font-semibold">{sim.name.charAt(0)}</AvatarFallback>
+                              </Avatar>
+                              <div className="flex-1">
+                                <CardTitle className="text-xl text-neutral-900 dark:text-white">{sim.name}</CardTitle>
+                                <CardDescription className="text-sm text-neutral-600 dark:text-neutral-400">
+                                  Created by community
+                                </CardDescription>
+                              </div>
+                            </div>
+                          </CardHeader>
+                          <CardContent className="p-6 pt-0">
+                            <p className="text-sm text-neutral-600 dark:text-neutral-400 line-clamp-3">
+                              {sim.description}
+                            </p>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-16">
+                      <div className="max-w-md mx-auto">
+                        <div className="w-20 h-20 mx-auto mb-6 bg-gradient-to-br from-purple-500 to-blue-600 rounded-2xl flex items-center justify-center">
+                          <Plus className="h-10 w-10 text-white" />
+                        </div>
+                        <h3 className="text-2xl font-semibold text-neutral-900 dark:text-white mb-3">
+                          Create Your Own Sim
+                        </h3>
+                        <p className="text-neutral-600 dark:text-neutral-400 mb-6">
+                          Connect your wallet to create a personalized AI sim with a shareable link
+                        </p>
+                        <Button 
+                          size="lg"
+                          onClick={handleSignInWithGoogle}
+                          className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white rounded-full px-8"
+                        >
+                          Connect Wallet (Coming Soon)
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+                </TabsContent>
+              </Tabs>
             </div>
           </div>
         </div>

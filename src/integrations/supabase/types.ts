@@ -139,6 +139,7 @@ export type Database = {
           professional_title: string | null
           prompt: string
           sample_scenarios: Json | null
+          sim_type: string | null
           skills: Json | null
           title: string | null
           updated_at: string
@@ -174,6 +175,7 @@ export type Database = {
           professional_title?: string | null
           prompt: string
           sample_scenarios?: Json | null
+          sim_type?: string | null
           skills?: Json | null
           title?: string | null
           updated_at?: string
@@ -209,6 +211,7 @@ export type Database = {
           professional_title?: string | null
           prompt?: string
           sample_scenarios?: Json | null
+          sim_type?: string | null
           skills?: Json | null
           title?: string | null
           updated_at?: string
@@ -356,6 +359,42 @@ export type Database = {
           tutor_id?: string
           updated_at?: string | null
           user_id?: string | null
+        }
+        Relationships: []
+      }
+      demo_requests: {
+        Row: {
+          created_at: string
+          district: string
+          email: string
+          first_name: string
+          id: string
+          last_name: string
+          phone: string | null
+          role: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          district: string
+          email: string
+          first_name: string
+          id?: string
+          last_name: string
+          phone?: string | null
+          role: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          district?: string
+          email?: string
+          first_name?: string
+          id?: string
+          last_name?: string
+          phone?: string | null
+          role?: string
+          updated_at?: string
         }
         Relationships: []
       }
