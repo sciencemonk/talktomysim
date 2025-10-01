@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
-import { LogOut, Settings, User, Menu, X, ArrowLeft, Plus } from "lucide-react";
+import { LogOut, Settings, User, Menu, X, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import {
@@ -17,8 +17,7 @@ import {
 import { AgentType } from "@/types/agent";
 import { useAgents } from "@/hooks/useAgents";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { Link, useNavigate } from "react-router-dom";
-import AuthModal from "./AuthModal";
+import { Link } from "react-router-dom";
 
 interface TopNavigationProps {
   selectedAgent?: AgentType | null;
@@ -46,27 +45,10 @@ const TopNavigation = ({
   const { user, signOut } = useAuth();
   const { agents } = useAgents();
   const isMobile = useIsMobile();
-  const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [showAuthModal, setShowAuthModal] = useState(false);
-  const [authModalMode, setAuthModalMode] = useState<'login' | 'signup'>('signup');
 
   const handleSignOut = async () => {
     await signOut();
-  };
-
-  const handleLoginClick = () => {
-    setAuthModalMode('login');
-    setShowAuthModal(true);
-  };
-
-  const handleCreateSimClick = () => {
-    if (user) {
-      navigate('/dashboard');
-    } else {
-      setAuthModalMode('signup');
-      setShowAuthModal(true);
-    }
   };
 
   const MobileMenu = () => (
@@ -177,25 +159,6 @@ const TopNavigation = ({
             </div>
           )}
 
-          {/* Login and Create Sim buttons (only show when not authenticated) */}
-          {!user && !showBackButton && (
-            <>
-              <Button
-                variant="ghost"
-                onClick={handleLoginClick}
-                className="text-sm font-medium"
-              >
-                Login
-              </Button>
-              <Button
-                onClick={handleCreateSimClick}
-                className="h-10 bg-gradient-to-r from-purple-600 via-pink-500 to-blue-500 text-white hover:opacity-90 text-sm font-medium"
-              >
-                Create a Sim
-              </Button>
-            </>
-          )}
-
           {/* Mobile Menu */}
           {isMobile && !showBackButton && (
             <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
@@ -246,13 +209,6 @@ const TopNavigation = ({
           )}
         </div>
       </div>
-
-      {/* Auth Modal */}
-      <AuthModal 
-        open={showAuthModal} 
-        onOpenChange={setShowAuthModal}
-        defaultMode={authModalMode}
-      />
     </nav>
   );
 };

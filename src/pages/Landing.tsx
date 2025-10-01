@@ -62,7 +62,33 @@ const Landing = () => {
   };
 
   const handleSignInWithGoogle = async () => {
-    navigate('/dashboard');
+    try {
+      setIsSigningIn(true);
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/dashboard`,
+        },
+      });
+
+      if (error) {
+        console.error('Google sign in error:', error);
+        toast({
+          title: "Sign In Failed",
+          description: error.message || "There was an error signing in with Google. Please try again.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error('Unexpected error during Google sign in:', error);
+      toast({
+        title: "Sign In Failed",
+        description: "An unexpected error occurred. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSigningIn(false);
+    }
   };
 
   return (
@@ -354,7 +380,7 @@ const Landing = () => {
                           onClick={handleSignInWithGoogle}
                           className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white rounded-full px-8"
                         >
-                          Create a Sim
+                          Connect Wallet (Coming Soon)
                         </Button>
                       </div>
                     </div>

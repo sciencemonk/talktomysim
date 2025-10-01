@@ -17,8 +17,6 @@ import NotFound from "./pages/NotFound";
 import WhitePaper from "./pages/WhitePaper";
 import Contact from "./pages/Contact";
 import KnowledgeEnhancement from "./pages/KnowledgeEnhancement";
-import UserDashboard from "./pages/UserDashboard";
-import PublicSimDetail from "./pages/PublicSimDetail";
 
 const queryClient = new QueryClient();
 
@@ -37,9 +35,6 @@ const App = () => (
             <Route path="/admin" element={<Admin />} />
             <Route path="/knowledge-enhancement" element={<KnowledgeEnhancement />} />
             
-            {/* User dashboard for sim creation */}
-            <Route path="/dashboard" element={<UserDashboard />} />
-            
             {/* Legacy routes */}
             <Route path="/index" element={<Index />} />
             <Route path="/login" element={<Login />} />
@@ -50,9 +45,6 @@ const App = () => (
             {/* Public tutor share links - accessible by non-signed in users */}
             <Route path="/tutors/:agentId" element={<PublicTutorDetail />} />
             <Route path="/tutors/:agentId/chat" element={<StudentChat />} />
-            
-            {/* Public sim share links */}
-            <Route path="/sim/:customUrl" element={<PublicSimDetail />} />
             
             {/* Catch all - redirect to home */}
             <Route path="*" element={<NotFound />} />
