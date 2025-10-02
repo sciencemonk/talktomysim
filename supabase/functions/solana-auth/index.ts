@@ -39,7 +39,7 @@ serve(async (req) => {
       throw new Error('Invalid signature');
     }
 
-    console.log('Signature valid, creating/finding user...');
+    console.log('Signature valid, authenticating user...');
 
     // Create Supabase admin client
     const supabaseAdmin = createClient(
@@ -49,52 +49,79 @@ serve(async (req) => {
 
     const userEmail = `${publicKey}@solana.wallet`;
 
-    // Check if user exists
-    const { data: existingUsers } = await supabaseAdmin.auth.admin.listUsers();
-    const existingUser = existingUsers?.users.find(u => u.email === userEmail);
+    // Check if profile exists with this wallet address
+    const { data: existingProfile } = await supabaseAdmin
+      .from('profiles')
+      .select('id')
+      .eq('wallet_address', publicKey)
+      .single();
 
     let userId: string;
 
-    if (!existingUser) {
+    if (!existingProfile) {
       console.log('Creating new user for wallet:', publicKey);
       
       // Create new user with a random password (won't be used)
       const tempPassword = crypto.randomUUID();
-      const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
-        email: userEmail,
-        password: tempPassword,
-        email_confirm: true,
-        user_metadata: {
-          wallet_address: publicKey,
-          auth_method: 'solana',
-        },
-      });
-
-      if (authError) {
-        console.error('Error creating user:', authError);
-        throw authError;
-      }
       
-      userId = authData.user.id;
-      console.log('User created:', userId);
+      try {
+        const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
+          email: userEmail,
+          password: tempPassword,
+          email_confirm: true,
+          user_metadata: {
+            wallet_address: publicKey,
+            auth_method: 'solana',
+          },
+        });
 
-      // Create profile
-      const { error: profileError } = await supabaseAdmin.from('profiles').insert({
-        id: userId,
-        wallet_address: publicKey,
-        username: `${publicKey.slice(0, 4)}...${publicKey.slice(-4)}`,
-        passcode: '0000',
-      });
+        if (authError) throw authError;
+        
+        userId = authData.user.id;
+        console.log('User created:', userId);
 
-      if (profileError) {
-        console.error('Error creating profile:', profileError);
+        // Create profile
+        const { error: profileError } = await supabaseAdmin.from('profiles').insert({
+          id: userId,
+          wallet_address: publicKey,
+          username: `${publicKey.slice(0, 4)}...${publicKey.slice(-4)}`,
+          passcode: '0000',
+        });
+
+        if (profileError) {
+          console.error('Error creating profile:', profileError);
+        }
+      } catch (createError: any) {
+        // If user already exists but profile doesn't, get the user by email
+        if (createError.code === 'email_exists' || createError.status === 422) {
+          console.log('User already exists, fetching by email...');
+          const { data: { users } } = await supabaseAdmin.auth.admin.listUsers();
+          const existingUser = users.find(u => u.email === userEmail);
+          
+          if (!existingUser) {
+            throw new Error('User creation failed and cannot find existing user');
+          }
+          
+          userId = existingUser.id;
+          console.log('Found existing user:', userId);
+          
+          // Create profile if it doesn't exist
+          await supabaseAdmin.from('profiles').upsert({
+            id: userId,
+            wallet_address: publicKey,
+            username: `${publicKey.slice(0, 4)}...${publicKey.slice(-4)}`,
+            passcode: '0000',
+          }, { onConflict: 'id' });
+        } else {
+          throw createError;
+        }
       }
     } else {
-      console.log('Existing user found:', existingUser.id);
-      userId = existingUser.id;
+      console.log('Existing profile found:', existingProfile.id);
+      userId = existingProfile.id;
     }
 
-    console.log('Generating access token...');
+    console.log('Generating session tokens...');
 
     // Generate a recovery link which includes session tokens
     const { data: linkData, error: linkError } = await supabaseAdmin.auth.admin.generateLink({
