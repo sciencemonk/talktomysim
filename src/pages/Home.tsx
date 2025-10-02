@@ -40,11 +40,6 @@ const Home = () => {
     }
   }, [user, pendingAdvisor, selectedAdvisor]);
 
-  // Redirect authenticated users to dashboard
-  if (!loading && user) {
-    return <Navigate to="/dashboard" replace />;
-  }
-
   // Handle auth modal close
   const handleAuthModalClose = (open: boolean) => {
     setShowAuthModal(open);
@@ -57,8 +52,6 @@ const Home = () => {
   const handleAuthRequired = () => {
     setShowAuthModal(true);
   };
-
-  // Handle advisor selection from directory
   const handleAdvisorSelect = async (advisorId: string, advisor?: AgentType) => {
     // Allow immediate chat for all users, authenticated or not
     if (advisor) {
