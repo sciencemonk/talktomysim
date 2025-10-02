@@ -166,48 +166,49 @@ const TopNavigation = ({
           {/* Desktop Navigation Links */}
           {!isMobile && !showBackButton && (
             <div className="flex items-center gap-4">
-              <Button
-                variant="ghost"
-                onClick={onShowAdvisorDirectory}
-                className="text-sm font-medium hover:text-primary"
-              >
-                Home
-              </Button>
-              <Button
-                variant="ghost"
-                className="text-sm font-medium hover:text-primary"
-                asChild
-              >
-                <Link to="/whitepaper">White Paper</Link>
-              </Button>
-              <Button
-                variant="ghost"
-                className="text-sm font-medium hover:text-primary"
-                asChild
-              >
-                <Link to="/contact">Contact</Link>
-              </Button>
+              {user ? (
+                <>
+                  <Button
+                    variant="ghost"
+                    onClick={onShowAdvisorDirectory}
+                    className="text-sm font-medium hover:text-primary"
+                  >
+                    My Sim
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    onClick={() => navigate('/dashboard')}
+                    className="text-sm font-medium hover:text-primary"
+                  >
+                    Directory
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Button
+                    variant="ghost"
+                    onClick={onShowAdvisorDirectory}
+                    className="text-sm font-medium hover:text-primary"
+                  >
+                    Home
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    className="text-sm font-medium hover:text-primary"
+                    asChild
+                  >
+                    <Link to="/whitepaper">White Paper</Link>
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    className="text-sm font-medium hover:text-primary"
+                    asChild
+                  >
+                    <Link to="/contact">Contact</Link>
+                  </Button>
+                </>
+              )}
             </div>
-          )}
-
-          {/* Dashboard button for authenticated users */}
-          {user && !showBackButton && !isMobile && (
-            <>
-              <Button
-                variant="ghost"
-                onClick={() => navigate('/dashboard')}
-                className="text-sm font-medium hover:text-primary"
-              >
-                Dashboard
-              </Button>
-              <Button
-                onClick={handleCreateSimClick}
-                className="h-10 bg-gradient-to-r from-purple-600 via-pink-500 to-blue-500 text-white hover:opacity-90 text-sm font-medium"
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                Create Sim
-              </Button>
-            </>
           )}
 
           {/* Login and Create Sim buttons (only show when not authenticated) */}
@@ -264,15 +265,7 @@ const TopNavigation = ({
                   )}
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuItem onClick={() => navigate('/dashboard')}>
-                  <User className="mr-2 h-4 w-4" />
-                  <span>Dashboard</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <Settings className="mr-2 h-4 w-4" />
-                  <span>Settings</span>
-                </DropdownMenuItem>
+              <DropdownMenuContent align="end" className="w-56 bg-popover z-50">
                 <DropdownMenuItem onClick={handleSignOut}>
                   <LogOut className="mr-2 h-4 w-4" />
                   <span>Log out</span>
