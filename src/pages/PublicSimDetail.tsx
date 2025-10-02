@@ -109,14 +109,11 @@ const PublicSimDetail = () => {
         <div className="container mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <img src="/sim-logo.png" alt="Sim Logo" className="h-8 w-8" />
-            <span className="font-bold text-lg bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-              Sim
-            </span>
           </div>
           
           <Button 
             onClick={() => navigate('/dashboard')}
-            className="bg-gradient-to-r from-primary to-accent hover:opacity-90 text-primary-foreground shadow-lg shadow-primary/20"
+            className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold shadow-lg shadow-primary/20"
           >
             <Sparkles className="h-4 w-4 mr-2" />
             Create a Sim
@@ -161,7 +158,7 @@ const PublicSimDetail = () => {
               <Button 
                 size="lg" 
                 onClick={() => setShowChat(true)}
-                className="bg-gradient-to-r from-primary to-accent hover:opacity-90 text-primary-foreground rounded-full px-12 py-6 text-lg shadow-2xl shadow-primary/30 hover:shadow-primary/40 transition-all duration-300 hover:scale-105"
+                className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold rounded-full px-12 py-6 text-lg shadow-2xl shadow-primary/30 hover:shadow-primary/40 transition-all duration-300 hover:scale-105"
               >
                 <Sparkles className="h-5 w-5 mr-2" />
                 Start Chatting
