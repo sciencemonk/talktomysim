@@ -170,14 +170,14 @@ const TopNavigation = ({
                 <>
                   <Button
                     variant="ghost"
-                    onClick={onShowAdvisorDirectory}
+                    onClick={() => navigate('/dashboard')}
                     className="text-sm font-medium hover:text-primary"
                   >
                     My Sim
                   </Button>
                   <Button
                     variant="ghost"
-                    onClick={() => navigate('/dashboard')}
+                    onClick={() => navigate('/')}
                     className="text-sm font-medium hover:text-primary"
                   >
                     Directory
