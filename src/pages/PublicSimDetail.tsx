@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, ArrowLeft } from "lucide-react";
+import { Loader2, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import ChatInterface from "@/components/ChatInterface";
@@ -99,56 +99,84 @@ const PublicSimDetail = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-neutral-50 via-white to-blue-50/30 dark:from-neutral-950 dark:via-neutral-900 dark:to-blue-950/30">
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 relative overflow-hidden">
+      {/* Futuristic background effects */}
+      <div className="absolute inset-0 bg-grid-pattern opacity-[0.02] dark:opacity-[0.05]" />
+      <div className="absolute inset-0 bg-gradient-to-tr from-primary/5 via-transparent to-accent/5" />
+      
       {/* Header */}
-      <header className="border-b border-neutral-200/50 dark:border-neutral-800/50 bg-white/60 dark:bg-neutral-900/60 backdrop-blur-xl">
-        <div className="container mx-auto px-6 py-4">
-          <Button variant="ghost" onClick={() => navigate('/')}>
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Home
+      <header className="relative border-b border-border/40 bg-background/80 backdrop-blur-xl">
+        <div className="container mx-auto px-6 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <img src="/sim-logo.png" alt="Sim Logo" className="h-8 w-8" />
+            <span className="font-bold text-lg bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+              Sim
+            </span>
+          </div>
+          
+          <Button 
+            onClick={() => navigate('/dashboard')}
+            className="bg-gradient-to-r from-primary to-accent hover:opacity-90 text-primary-foreground shadow-lg shadow-primary/20"
+          >
+            <Sparkles className="h-4 w-4 mr-2" />
+            Create a Sim
           </Button>
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="container mx-auto px-6 py-12">
-        <div className="max-w-2xl mx-auto text-center">
-          <Avatar className="h-32 w-32 mx-auto mb-6 border-4 border-white dark:border-neutral-800 shadow-lg">
-            <AvatarImage src={sim.avatar || ''} alt={sim.name} />
-            <AvatarFallback className="text-4xl font-bold bg-gradient-to-br from-purple-500 to-blue-600 text-white">
-              {sim.name.charAt(0)}
-            </AvatarFallback>
-          </Avatar>
+      <main className="relative container mx-auto px-6 py-20">
+        <div className="max-w-2xl mx-auto">
+          {/* Glow effect behind avatar */}
+          <div className="relative mb-8">
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="w-40 h-40 bg-primary/20 rounded-full blur-3xl" />
+            </div>
+            <Avatar className="relative h-40 w-40 mx-auto border-4 border-background shadow-2xl shadow-primary/20 ring-2 ring-primary/10">
+              <AvatarImage src={sim.avatar || ''} alt={sim.name} />
+              <AvatarFallback className="text-5xl font-bold bg-gradient-to-br from-primary to-accent text-primary-foreground">
+                {sim.name.charAt(0)}
+              </AvatarFallback>
+            </Avatar>
+          </div>
 
-          <h1 className="text-4xl font-bold mb-3 text-neutral-900 dark:text-white">
-            {sim.name}
-          </h1>
+          <div className="text-center space-y-4">
+            <h1 className="text-5xl font-bold bg-gradient-to-r from-foreground via-foreground to-foreground/70 bg-clip-text text-transparent">
+              {sim.name}
+            </h1>
 
-          {sim.title && (
-            <p className="text-xl text-neutral-600 dark:text-neutral-400 mb-6">
-              {sim.title}
+            {sim.title && (
+              <p className="text-xl text-muted-foreground font-medium">
+                {sim.title}
+              </p>
+            )}
+
+            {sim.description && (
+              <p className="text-base text-muted-foreground/80 max-w-xl mx-auto leading-relaxed pt-2">
+                {sim.description}
+              </p>
+            )}
+
+            <div className="pt-6">
+              <Button 
+                size="lg" 
+                onClick={() => setShowChat(true)}
+                className="bg-gradient-to-r from-primary to-accent hover:opacity-90 text-primary-foreground rounded-full px-12 py-6 text-lg shadow-2xl shadow-primary/30 hover:shadow-primary/40 transition-all duration-300 hover:scale-105"
+              >
+                <Sparkles className="h-5 w-5 mr-2" />
+                Start Chatting
+              </Button>
+            </div>
+
+            <p className="text-sm text-muted-foreground/60 pt-4">
+              This is a user-created AI sim. Chat responsibly.
             </p>
-          )}
-
-          {sim.description && (
-            <p className="text-lg text-neutral-600 dark:text-neutral-400 mb-8 max-w-xl mx-auto">
-              {sim.description}
-            </p>
-          )}
-
-          <Button 
-            size="lg" 
-            onClick={() => setShowChat(true)}
-            className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white rounded-full px-8 shadow-lg"
-          >
-            Start Chatting
-          </Button>
-
-          <p className="text-sm text-muted-foreground mt-6">
-            This is a user-created AI sim. Chat responsibly.
-          </p>
+          </div>
         </div>
       </main>
+
+      {/* Bottom gradient fade */}
+      <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-background/50 to-transparent pointer-events-none" />
     </div>
   );
 };
