@@ -23,6 +23,11 @@ const Home = () => {
   const [selectedAgent, setSelectedAgent] = useState<AgentType | null>(null);
   const [selectedPublicAdvisorId, setSelectedPublicAdvisorId] = useState<string | null>(null);
 
+  // Redirect authenticated users to dashboard
+  if (!loading && user) {
+    return <Navigate to="/dashboard" replace />;
+  }
+
   // Handle auth modal close
   const handleAuthModalClose = (open: boolean) => {
     setShowAuthModal(open);

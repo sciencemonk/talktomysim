@@ -16,7 +16,7 @@ serve(async (req) => {
   try {
     const { publicKey, signature, message } = await req.json();
 
-    console.log('Solana auth request:', { publicKey, hasSignature: !!signature, hasMessage: !!message });
+    console.log('Solana auth request:', { publicKey });
 
     if (!publicKey || !signature || !message) {
       throw new Error('Missing required fields');
@@ -27,7 +27,6 @@ serve(async (req) => {
     const signatureBytes = bs58.decode(signature);
     const publicKeyBytes = bs58.decode(publicKey);
 
-    console.log('Verifying signature...');
     const isValid = nacl.sign.detached.verify(
       messageBytes,
       signatureBytes,
@@ -35,11 +34,10 @@ serve(async (req) => {
     );
 
     if (!isValid) {
-      console.error('Invalid signature');
       throw new Error('Invalid signature');
     }
 
-    console.log('Signature valid, authenticating user...');
+    console.log('Signature valid');
 
     // Create Supabase admin client
     const supabaseAdmin = createClient(
@@ -59,9 +57,8 @@ serve(async (req) => {
     let userId: string;
 
     if (!existingProfile) {
-      console.log('Creating new user for wallet:', publicKey);
+      console.log('Creating new user');
       
-      // Create new user with a random password (won't be used)
       const tempPassword = crypto.randomUUID();
       
       try {
@@ -78,34 +75,24 @@ serve(async (req) => {
         if (authError) throw authError;
         
         userId = authData.user.id;
-        console.log('User created:', userId);
 
-        // Create profile
-        const { error: profileError } = await supabaseAdmin.from('profiles').insert({
+        await supabaseAdmin.from('profiles').insert({
           id: userId,
           wallet_address: publicKey,
           username: `${publicKey.slice(0, 4)}...${publicKey.slice(-4)}`,
           passcode: '0000',
         });
-
-        if (profileError) {
-          console.error('Error creating profile:', profileError);
-        }
       } catch (createError: any) {
-        // If user already exists but profile doesn't, get the user by email
         if (createError.code === 'email_exists' || createError.status === 422) {
-          console.log('User already exists, fetching by email...');
           const { data: { users } } = await supabaseAdmin.auth.admin.listUsers();
           const existingUser = users.find(u => u.email === userEmail);
           
           if (!existingUser) {
-            throw new Error('User creation failed and cannot find existing user');
+            throw new Error('User creation failed');
           }
           
           userId = existingUser.id;
-          console.log('Found existing user:', userId);
           
-          // Create profile if it doesn't exist
           await supabaseAdmin.from('profiles').upsert({
             id: userId,
             wallet_address: publicKey,
@@ -117,15 +104,14 @@ serve(async (req) => {
         }
       }
     } else {
-      console.log('Existing profile found:', existingProfile.id);
       userId = existingProfile.id;
     }
 
-    console.log('Generating session tokens...');
+    console.log('Generating tokens for user:', userId);
 
-    // Generate a recovery link which includes session tokens
+    // Generate magic link which contains session tokens
     const { data: linkData, error: linkError } = await supabaseAdmin.auth.admin.generateLink({
-      type: 'recovery',
+      type: 'magiclink',
       email: userEmail,
     });
 
@@ -134,22 +120,35 @@ serve(async (req) => {
       throw linkError;
     }
 
-    // Extract the tokens from the verification URL
-    const url = new URL(linkData.properties.action_link);
-    const accessToken = url.searchParams.get('access_token');
-    const refreshToken = url.searchParams.get('refresh_token');
-
-    if (!accessToken || !refreshToken) {
-      throw new Error('Failed to generate session tokens');
+    // The hashed_token from the link is what we need
+    const hashedToken = linkData.properties.hashed_token;
+    
+    if (!hashedToken) {
+      throw new Error('No token in magic link');
     }
 
-    console.log('Session tokens generated successfully');
+    // Verify the OTP to get session tokens
+    const { data: sessionData, error: verifyError } = await supabaseAdmin.auth.verifyOtp({
+      token_hash: hashedToken,
+      type: 'magiclink',
+    });
+
+    if (verifyError) {
+      console.error('Error verifying OTP:', verifyError);
+      throw verifyError;
+    }
+
+    if (!sessionData?.session) {
+      throw new Error('No session created');
+    }
+
+    console.log('Session created');
 
     return new Response(
       JSON.stringify({ 
         success: true,
-        access_token: accessToken,
-        refresh_token: refreshToken,
+        access_token: sessionData.session.access_token,
+        refresh_token: sessionData.session.refresh_token,
       }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
