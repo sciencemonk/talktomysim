@@ -205,7 +205,7 @@ const Contact = () => {
                 </CardHeader>
                 <CardContent>
                   <p className="text-muted-foreground mb-4">
-                    Need help using Sim? Have questions about our AI advisors or technical issues?
+                    Need help using Sim? Have questions about our AI sims or technical issues?
                   </p>
                   <div className="space-y-2">
                     <div className="flex items-center gap-3">

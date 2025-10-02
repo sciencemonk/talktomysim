@@ -147,13 +147,13 @@ const AdvisorForm = ({ open, onOpenChange, advisor, onSuccess }: AdvisorFormProp
         await updateAdvisor(advisor.id, submitData);
         toast({
           title: "Success",
-          description: "Advisor updated successfully"
+          description: "Sim updated successfully"
         });
       } else {
         await createAdvisor(submitData);
         toast({
           title: "Success",
-          description: "Advisor created successfully"
+          description: "Sim created successfully"
         });
       }
       onSuccess();
@@ -161,7 +161,7 @@ const AdvisorForm = ({ open, onOpenChange, advisor, onSuccess }: AdvisorFormProp
       console.error('Failed to save advisor:', error);
       toast({
         title: "Error",
-        description: "Failed to save advisor",
+        description: "Failed to save sim",
         variant: "destructive"
       });
     } finally {
@@ -179,9 +179,9 @@ const AdvisorForm = ({ open, onOpenChange, advisor, onSuccess }: AdvisorFormProp
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
         <DialogHeader>
-          <DialogTitle>{advisor ? 'Edit Advisor' : 'Create New Advisor'}</DialogTitle>
+          <DialogTitle>{advisor ? 'Edit Sim' : 'Create New Sim'}</DialogTitle>
           <DialogDescription>
-            {advisor ? 'Update the advisor information and manage source materials.' : 'Fill in the details to create a new advisor and add source materials.'}
+            {advisor ? 'Update the sim information and manage source materials.' : 'Fill in the details to create a new sim and add source materials.'}
           </DialogDescription>
         </DialogHeader>
         
@@ -222,7 +222,7 @@ const AdvisorForm = ({ open, onOpenChange, advisor, onSuccess }: AdvisorFormProp
                   id="prompt"
                   value={formData.prompt}
                   onChange={(e) => handleInputChange('prompt', e.target.value)}
-                  placeholder="The system prompt that defines how this advisor behaves"
+                  placeholder="The system prompt that defines how this sim behaves"
                   rows={4}
                   required
                 />
@@ -285,7 +285,7 @@ const AdvisorForm = ({ open, onOpenChange, advisor, onSuccess }: AdvisorFormProp
               />
             ) : (
               <div className="text-center py-8 text-muted-foreground">
-                Please save the advisor first to manage source materials.
+                Please save the sim first to manage source materials.
               </div>
             )}
           </TabsContent>

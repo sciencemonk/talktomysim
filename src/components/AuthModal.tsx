@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -18,12 +18,13 @@ interface AuthForm {
 interface AuthModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  defaultMode?: 'login' | 'signup';
 }
 
-const AuthModal = ({ open, onOpenChange }: AuthModalProps) => {
+const AuthModal = ({ open, onOpenChange, defaultMode = 'signup' }: AuthModalProps) => {
   const [isLoading, setIsLoading] = useState(false);
-  const [showEmailForm, setShowEmailForm] = useState(false);
-  const [isSignUp, setIsSignUp] = useState(false);
+  const [showEmailForm, setShowEmailForm] = useState(true); // Show email form by default
+  const [isSignUp, setIsSignUp] = useState(defaultMode === 'signup');
 
   const form = useForm<AuthForm>({
     defaultValues: {
@@ -31,6 +32,15 @@ const AuthModal = ({ open, onOpenChange }: AuthModalProps) => {
       password: '',
     },
   });
+
+  // Reset modal state when opened
+  useEffect(() => {
+    if (open) {
+      setShowEmailForm(true);
+      setIsSignUp(defaultMode === 'signup');
+      form.reset();
+    }
+  }, [open, defaultMode, form]);
 
   const handleGoogleSignIn = async () => {
     setIsLoading(true);
@@ -227,17 +237,6 @@ const AuthModal = ({ open, onOpenChange }: AuthModalProps) => {
                     </Button>
                   </div>
                 )}
-
-                <div className="text-center">
-                  <Button
-                    type="button"
-                    variant="link"
-                    onClick={() => setShowEmailForm(false)}
-                    className="text-sm text-muted-foreground"
-                  >
-                    ← Back to login options
-                  </Button>
-                </div>
               </CardContent>
             </Card>
           )}

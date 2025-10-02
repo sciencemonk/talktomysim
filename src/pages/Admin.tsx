@@ -82,13 +82,13 @@ const Admin = () => {
       await refetch();
       toast({
         title: "Success",
-        description: "Advisor deleted successfully"
+        description: "Sim deleted successfully"
       });
     } catch (error) {
-      console.error('Failed to delete advisor:', error);
+      console.error('Failed to delete sim:', error);
       toast({
         title: "Error",
-        description: "Failed to delete advisor"
+        description: "Failed to delete sim"
       });
     } finally {
       setDeletingId(null);
@@ -137,7 +137,7 @@ const Admin = () => {
       <div className="flex-1 flex items-center justify-center p-6">
         <div className="text-center">
           <Bot className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-          <h2 className="text-xl font-semibold mb-2">Error loading advisors</h2>
+          <h2 className="text-xl font-semibold mb-2">Error loading sims</h2>
           <p className="text-muted-foreground">{error}</p>
           <Button onClick={() => refetch()} className="mt-4">
             Try Again
@@ -152,14 +152,14 @@ const Admin = () => {
       <div className="max-w-6xl mx-auto">
         <div className="flex justify-between items-center mb-6">
           <div>
-            <h1 className="text-2xl font-bold mb-2">Admin - Manage Advisors</h1>
+            <h1 className="text-2xl font-bold mb-2">Admin - Manage Sims</h1>
             <p className="text-muted-foreground">
-              Create and manage global advisors that all users can interact with
+              Create and manage global sims that all users can interact with
             </p>
           </div>
           <Button onClick={handleCreateAdvisor}>
             <Plus className="h-4 w-4 mr-2" />
-            Add Advisor
+            Add Sim
           </Button>
         </div>
 
@@ -213,7 +213,7 @@ const Admin = () => {
                       </AlertDialogTrigger>
                       <AlertDialogContent>
                         <AlertDialogHeader>
-                          <AlertDialogTitle>Delete Advisor</AlertDialogTitle>
+                          <AlertDialogTitle>Delete Sim</AlertDialogTitle>
                           <AlertDialogDescription>
                             Are you sure you want to delete "{advisor.name}"? This action cannot be undone.
                           </AlertDialogDescription>
@@ -237,13 +237,13 @@ const Admin = () => {
         ) : (
           <div className="text-center py-12">
             <Bot className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-            <h2 className="text-xl font-semibold mb-2">No advisors yet</h2>
+            <h2 className="text-xl font-semibold mb-2">No sims yet</h2>
             <p className="text-muted-foreground mb-4">
-              Create your first advisor to get started.
+              Create your first sim to get started.
             </p>
             <Button onClick={handleCreateAdvisor}>
               <Plus className="h-4 w-4 mr-2" />
-              Add First Advisor
+              Add First Sim
             </Button>
           </div>
         )}
