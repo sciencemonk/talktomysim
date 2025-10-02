@@ -1,13 +1,13 @@
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, Share2, ExternalLink, Copy } from "lucide-react";
+import { Loader2, Plus, Edit, Eye, LogOut } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import AuthModal from "@/components/AuthModal";
-import UserSimForm from "@/components/UserSimForm";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface UserSim {
   id: string;
@@ -20,12 +20,11 @@ interface UserSim {
 }
 
 const UserDashboard = () => {
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading, signOut } = useAuth();
   const navigate = useNavigate();
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [userSim, setUserSim] = useState<UserSim | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [showSimForm, setShowSimForm] = useState(false);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -52,11 +51,6 @@ const UserDashboard = () => {
       if (error) throw error;
       
       setUserSim(data);
-      
-      // If no sim exists, show the form automatically
-      if (!data) {
-        setShowSimForm(true);
-      }
     } catch (error) {
       console.error('Error fetching user sim:', error);
       toast({
@@ -69,25 +63,14 @@ const UserDashboard = () => {
     }
   };
 
-  const copyShareLink = () => {
-    if (!userSim?.custom_url) return;
-    
-    const shareUrl = `${window.location.origin}/sim/${userSim.custom_url}`;
-    navigator.clipboard.writeText(shareUrl);
-    toast({
-      title: "Link copied!",
-      description: "Share link copied to clipboard"
-    });
-  };
-
-  const handleSimCreated = () => {
-    setShowSimForm(false);
-    fetchUserSim();
+  const handleSignOut = async () => {
+    await signOut();
+    navigate('/');
   };
 
   if (authLoading || isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-neutral-50 via-white to-blue-50/30 dark:from-neutral-950 dark:via-neutral-900 dark:to-blue-950/30">
+      <div className="min-h-screen flex items-center justify-center bg-background">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
@@ -96,7 +79,7 @@ const UserDashboard = () => {
   if (!user) {
     return (
       <>
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-neutral-50 via-white to-blue-50/30 dark:from-neutral-950 dark:via-neutral-900 dark:to-blue-950/30">
+        <div className="min-h-screen flex items-center justify-center bg-background">
           <div className="text-center p-8">
             <h1 className="text-2xl font-bold mb-4">Sign in to create your sim</h1>
             <p className="text-muted-foreground mb-6">Create a personalized AI sim that others can chat with</p>
@@ -114,99 +97,135 @@ const UserDashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-neutral-50 via-white to-blue-50/30 dark:from-neutral-950 dark:via-neutral-900 dark:to-blue-950/30">
+    <div className="min-h-screen flex flex-col bg-background">
       {/* Header */}
-      <header className="border-b border-neutral-200/50 dark:border-neutral-800/50 bg-white/60 dark:bg-neutral-900/60 backdrop-blur-xl">
+      <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
         <div className="container mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="p-2 rounded-2xl bg-gradient-to-br from-blue-500 to-purple-600">
+            <div className="p-2 rounded-2xl bg-gradient-to-br from-primary to-primary/80">
               <img 
                 src="/lovable-uploads/1a618b3c-11e7-43e4-a2d5-c1e6f36e48ba.png" 
-                alt="Sim" 
+                alt="Logo" 
                 className="h-7 w-7"
               />
             </div>
-            <h1 className="text-xl font-semibold">My Sim</h1>
+            <h1 className="text-xl font-semibold">My Dashboard</h1>
           </div>
-          <Button variant="outline" onClick={() => navigate('/')}>
-            Back to Home
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button 
+              variant="ghost" 
+              size="sm"
+              onClick={() => navigate('/')}
+            >
+              Browse Sims
+            </Button>
+            <Button 
+              variant="ghost" 
+              size="sm"
+              onClick={handleSignOut}
+              className="gap-2"
+            >
+              <LogOut className="h-4 w-4" />
+              Sign Out
+            </Button>
+          </div>
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="container mx-auto px-6 py-12">
-        <div className="max-w-4xl mx-auto">
-          {userSim ? (
-            <Card className="p-8">
-              <div className="flex items-start gap-6 mb-8">
-                {userSim.avatar_url ? (
-                  <img 
-                    src={userSim.avatar_url} 
-                    alt={userSim.name}
-                    className="w-24 h-24 rounded-full object-cover border-2 border-neutral-200 dark:border-neutral-700"
-                  />
-                ) : (
-                  <div className="w-24 h-24 rounded-full bg-gradient-to-br from-purple-500 to-blue-600 flex items-center justify-center text-white text-3xl font-bold">
-                    {userSim.name.charAt(0)}
+      <main className="flex-1 overflow-auto">
+        <div className="container mx-auto px-6 py-12">
+          <div className="max-w-5xl mx-auto">
+            {/* Page Header */}
+            <div className="mb-8">
+              <h2 className="text-3xl font-bold mb-2">My Sim</h2>
+              <p className="text-muted-foreground">
+                Create and manage your personalized AI sim
+              </p>
+            </div>
+
+            {/* Sim Card or Create Prompt */}
+            {userSim ? (
+              <Card>
+                <CardHeader>
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-start gap-4">
+                      <Avatar className="h-16 w-16">
+                        <AvatarImage src={userSim.avatar_url} alt={userSim.name} />
+                        <AvatarFallback className="bg-gradient-to-br from-primary to-primary/80 text-primary-foreground text-xl">
+                          {userSim.name.charAt(0)}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <CardTitle className="text-2xl">{userSim.name}</CardTitle>
+                        {userSim.title && (
+                          <CardDescription className="text-base mt-1">
+                            {userSim.title}
+                          </CardDescription>
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => navigate(`/sim-create?id=${userSim.id}`)}
+                        className="gap-2"
+                      >
+                        <Edit className="h-4 w-4" />
+                        Edit
+                      </Button>
+                      <Button 
+                        size="sm"
+                        onClick={() => window.open(`/sim/${userSim.custom_url}`, '_blank')}
+                        className="gap-2"
+                      >
+                        <Eye className="h-4 w-4" />
+                        Preview
+                      </Button>
+                    </div>
                   </div>
-                )}
-                <div className="flex-1">
-                  <h2 className="text-3xl font-bold mb-2">{userSim.name}</h2>
-                  {userSim.title && (
-                    <p className="text-lg text-muted-foreground mb-4">{userSim.title}</p>
-                  )}
+                </CardHeader>
+                <CardContent className="space-y-4">
                   {userSim.description && (
-                    <p className="text-neutral-600 dark:text-neutral-400">{userSim.description}</p>
+                    <p className="text-muted-foreground">{userSim.description}</p>
                   )}
-                </div>
-              </div>
-
-              <div className="border-t pt-6">
-                <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                  <Share2 className="h-5 w-5" />
-                  Share Your Sim
-                </h3>
-                <div className="bg-neutral-100 dark:bg-neutral-800 rounded-lg p-4 flex items-center justify-between gap-4">
-                  <code className="text-sm flex-1 overflow-x-auto">
-                    {window.location.origin}/sim/{userSim.custom_url}
-                  </code>
-                  <div className="flex gap-2">
-                    <Button variant="outline" size="sm" onClick={copyShareLink}>
-                      <Copy className="h-4 w-4 mr-2" />
-                      Copy
-                    </Button>
-                    <Button 
-                      size="sm" 
-                      onClick={() => window.open(`/sim/${userSim.custom_url}`, '_blank')}
-                    >
-                      <ExternalLink className="h-4 w-4 mr-2" />
-                      Preview
-                    </Button>
+                  
+                  <div className="border-t pt-4">
+                    <h4 className="text-sm font-medium mb-2">Shareable Link</h4>
+                    <div className="bg-muted/50 rounded-lg p-3">
+                      <code className="text-sm break-all">
+                        {window.location.origin}/sim/{userSim.custom_url}
+                      </code>
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-2">
+                      Share this link with anyone to let them chat with your sim
+                    </p>
                   </div>
-                </div>
-                <p className="text-sm text-muted-foreground mt-3">
-                  Share this link with anyone to let them chat with your sim
-                </p>
-              </div>
-
-              <div className="mt-6">
-                <Button variant="outline" onClick={() => setShowSimForm(true)}>
-                  Edit Sim
-                </Button>
-              </div>
-            </Card>
-          ) : null}
+                </CardContent>
+              </Card>
+            ) : (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Create Your First Sim</CardTitle>
+                  <CardDescription>
+                    Build a personalized AI that others can chat with via a shareable link
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Button 
+                    onClick={() => navigate('/sim-create')}
+                    className="gap-2"
+                  >
+                    <Plus className="h-4 w-4" />
+                    Create Sim
+                  </Button>
+                </CardContent>
+              </Card>
+            )}
+          </div>
         </div>
       </main>
-
-      {/* Sim Creation/Edit Form */}
-      <UserSimForm
-        open={showSimForm}
-        onOpenChange={setShowSimForm}
-        existingSim={userSim}
-        onSuccess={handleSimCreated}
-      />
     </div>
   );
 };
