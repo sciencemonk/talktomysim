@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
@@ -18,6 +18,7 @@ interface UserSimFormProps {
 
 const UserSimForm = ({ open, onOpenChange, existingSim, onSuccess }: UserSimFormProps) => {
   const { user } = useAuth();
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [formData, setFormData] = useState({
     name: '',
     title: '',
@@ -313,13 +314,18 @@ const UserSimForm = ({ open, onOpenChange, existingSim, onSuccess }: UserSimForm
                   </button>
                 </div>
               ) : (
-                <div className="w-20 h-20 rounded-full border-2 border-dashed border-muted-foreground/25 flex items-center justify-center">
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="w-20 h-20 rounded-full border-2 border-dashed border-muted-foreground/25 flex items-center justify-center hover:border-muted-foreground/50 transition-colors cursor-pointer"
+                >
                   <Upload className="h-6 w-6 text-muted-foreground" />
-                </div>
+                </button>
               )}
               
               <div>
                 <Input
+                  ref={fileInputRef}
                   type="file"
                   accept="image/*"
                   onChange={handleFileSelect}
