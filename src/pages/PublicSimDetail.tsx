@@ -113,9 +113,8 @@ const PublicSimDetail = () => {
           
           <Button 
             onClick={() => navigate('/dashboard')}
-            className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold shadow-lg shadow-primary/20"
+            className="bg-neutral-900 hover:bg-neutral-800 text-white dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-100 rounded-full px-8 py-3 font-medium shadow-lg hover:shadow-xl transition-all duration-300"
           >
-            <Sparkles className="h-4 w-4 mr-2" />
             Create a Sim
           </Button>
         </div>
