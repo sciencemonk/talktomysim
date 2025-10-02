@@ -62,7 +62,7 @@ const Login = () => {
         });
         
         toast.success('Connected successfully!');
-        navigate('/app');
+        navigate('/dashboard');
       }
     } catch (error: any) {
       console.error('Error signing in with Solana:', error);

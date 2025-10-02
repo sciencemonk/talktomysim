@@ -1,10 +1,11 @@
 
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import bs58 from 'bs58';
+import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
 
 interface AuthModalProps {
   open: boolean;
@@ -57,6 +58,7 @@ const AuthModal = ({ open, onOpenChange, defaultMode = 'signup' }: AuthModalProp
         
         toast.success('Connected successfully!');
         onOpenChange(false);
+        window.location.href = '/dashboard';
       }
     } catch (error: any) {
       console.error('Error signing in with Solana:', error);
@@ -70,6 +72,9 @@ const AuthModal = ({ open, onOpenChange, defaultMode = 'signup' }: AuthModalProp
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
+        <VisuallyHidden>
+          <DialogTitle>Sign in with Solana Wallet</DialogTitle>
+        </VisuallyHidden>
         <div className="flex flex-col items-center space-y-6 py-4">
           <div className="flex items-center justify-center">
             <img 

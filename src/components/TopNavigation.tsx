@@ -93,6 +93,19 @@ const TopNavigation = ({
           Home
         </Button>
         
+        {user && (
+          <Button
+            variant="ghost"
+            className="w-full justify-start text-left"
+            onClick={() => {
+              navigate('/dashboard');
+              setMobileMenuOpen(false);
+            }}
+          >
+            Dashboard
+          </Button>
+        )}
+        
         <Button
           variant="ghost"
           className="w-full justify-start text-left"
@@ -177,6 +190,26 @@ const TopNavigation = ({
             </div>
           )}
 
+          {/* Dashboard button for authenticated users */}
+          {user && !showBackButton && !isMobile && (
+            <>
+              <Button
+                variant="ghost"
+                onClick={() => navigate('/dashboard')}
+                className="text-sm font-medium hover:text-primary"
+              >
+                Dashboard
+              </Button>
+              <Button
+                onClick={handleCreateSimClick}
+                className="h-10 bg-gradient-to-r from-purple-600 via-pink-500 to-blue-500 text-white hover:opacity-90 text-sm font-medium"
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Create Sim
+              </Button>
+            </>
+          )}
+
           {/* Login and Create Sim buttons (only show when not authenticated) */}
           {!user && !showBackButton && (
             <>
@@ -218,20 +251,23 @@ const TopNavigation = ({
                   <Avatar className="h-8 w-8">
                     <AvatarImage src={user?.user_metadata?.avatar_url} alt="Profile" />
                     <AvatarFallback>
-                      {user?.email?.charAt(0)?.toUpperCase() || "U"}
+                      {user?.user_metadata?.wallet_address?.slice(0, 2)?.toUpperCase() || user?.email?.charAt(0)?.toUpperCase() || "U"}
                     </AvatarFallback>
                   </Avatar>
                   {!isMobile && (
-                    <span className="text-sm font-medium">
-                      {user?.user_metadata?.full_name || "User"}
+                    <span className="text-sm font-medium font-mono">
+                      {user?.user_metadata?.wallet_address 
+                        ? `${user.user_metadata.wallet_address.slice(0, 4)}...${user.user_metadata.wallet_address.slice(-4)}`
+                        : user?.email?.split('@')[0] || "User"
+                      }
                     </span>
                   )}
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate('/dashboard')}>
                   <User className="mr-2 h-4 w-4" />
-                  <span>Profile</span>
+                  <span>Dashboard</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem>
                   <Settings className="mr-2 h-4 w-4" />
