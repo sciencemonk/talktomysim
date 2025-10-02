@@ -37,7 +37,7 @@ const WhitePaper = () => {
             />
           </div>
           <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-            Democratizing AI conversations through user-created simulations, powered by the $SIM ecosystem
+            Create your own ai.
           </p>
           <div className="text-center mb-8">
             <p className="text-sm text-muted-foreground mb-2">Contract Address:</p>
