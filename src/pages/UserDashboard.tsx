@@ -1,7 +1,7 @@
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2, Upload, X, Eye, Copy, ExternalLink } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
@@ -29,6 +29,7 @@ interface UserSim {
 const UserDashboard = () => {
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [userSim, setUserSim] = useState<UserSim | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -586,13 +587,18 @@ Stay true to the tone, values, and personality of [Name].`,
                               </button>
                             </div>
                           ) : (
-                            <div className="w-20 h-20 rounded-full border-2 border-dashed border-muted-foreground/25 flex items-center justify-center">
+                            <button
+                              type="button"
+                              onClick={() => fileInputRef.current?.click()}
+                              className="w-20 h-20 rounded-full border-2 border-dashed border-muted-foreground/25 flex items-center justify-center hover:border-muted-foreground/50 transition-colors cursor-pointer"
+                            >
                               <Upload className="h-6 w-6 text-muted-foreground" />
-                            </div>
+                            </button>
                           )}
                           
                           <div>
                             <Input
+                              ref={fileInputRef}
                               type="file"
                               accept="image/*"
                               onChange={handleFileSelect}
