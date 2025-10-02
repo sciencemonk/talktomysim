@@ -47,21 +47,22 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    // Check if user exists by wallet address
-    const { data: existingProfile } = await supabaseAdmin
-      .from('profiles')
-      .select('id')
-      .eq('wallet_address', publicKey)
-      .single();
+    const userEmail = `${publicKey}@solana.wallet`;
 
-    let userId = existingProfile?.id;
+    // Check if user exists
+    const { data: existingUsers } = await supabaseAdmin.auth.admin.listUsers();
+    const existingUser = existingUsers?.users.find(u => u.email === userEmail);
 
-    if (!userId) {
+    let userId: string;
+
+    if (!existingUser) {
       console.log('Creating new user for wallet:', publicKey);
       
-      // Create new user
+      // Create new user with a random password (won't be used)
+      const tempPassword = crypto.randomUUID();
       const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
-        email: `${publicKey}@solana.wallet`,
+        email: userEmail,
+        password: tempPassword,
         email_confirm: true,
         user_metadata: {
           wallet_address: publicKey,
@@ -89,33 +90,39 @@ serve(async (req) => {
         console.error('Error creating profile:', profileError);
       }
     } else {
-      console.log('Existing user found:', userId);
+      console.log('Existing user found:', existingUser.id);
+      userId = existingUser.id;
     }
 
-    console.log('Creating session...');
+    console.log('Generating access token...');
 
-    // Create a session using the admin API
-    const { data: { session }, error: sessionError } = await supabaseAdmin.auth.admin.createSession({
-      user_id: userId,
+    // Generate a recovery link which includes session tokens
+    const { data: linkData, error: linkError } = await supabaseAdmin.auth.admin.generateLink({
+      type: 'recovery',
+      email: userEmail,
     });
 
-    if (sessionError) {
-      console.error('Error creating session:', sessionError);
-      throw sessionError;
+    if (linkError) {
+      console.error('Error generating link:', linkError);
+      throw linkError;
     }
 
-    if (!session) {
-      throw new Error('Failed to create session');
+    // Extract the tokens from the verification URL
+    const url = new URL(linkData.properties.action_link);
+    const accessToken = url.searchParams.get('access_token');
+    const refreshToken = url.searchParams.get('refresh_token');
+
+    if (!accessToken || !refreshToken) {
+      throw new Error('Failed to generate session tokens');
     }
 
-    console.log('Session created successfully');
+    console.log('Session tokens generated successfully');
 
     return new Response(
       JSON.stringify({ 
         success: true,
-        access_token: session.access_token,
-        refresh_token: session.refresh_token,
-        user: session.user,
+        access_token: accessToken,
+        refresh_token: refreshToken,
       }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
