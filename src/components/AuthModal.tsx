@@ -88,7 +88,7 @@ const AuthModal = ({ open, onOpenChange, defaultMode = 'signup' }: AuthModalProp
             <Button
               onClick={handleSolanaSignIn}
               disabled={isLoading}
-              className="w-full h-12 text-base bg-gradient-to-r from-purple-600 via-pink-500 to-blue-500 text-white hover:opacity-90"
+              className="w-full h-12 text-base bg-neutral-900 hover:bg-neutral-800 text-white dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-100 rounded-full font-medium shadow-lg hover:shadow-xl transition-all duration-300"
               size="lg"
             >
               {isLoading ? 'Connecting...' : 'Connect Solana Wallet'}

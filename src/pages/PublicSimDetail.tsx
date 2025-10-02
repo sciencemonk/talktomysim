@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, Sparkles } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import ChatInterface from "@/components/ChatInterface";
+import AuthModal from "@/components/AuthModal";
 import { AgentType } from "@/types/agent";
 
 const PublicSimDetail = () => {
@@ -13,12 +14,29 @@ const PublicSimDetail = () => {
   const [sim, setSim] = useState<AgentType | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [showChat, setShowChat] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [currentUser, setCurrentUser] = useState<any>(null);
 
   useEffect(() => {
+    checkUser();
     if (customUrl) {
       fetchSim();
     }
   }, [customUrl]);
+
+  const checkUser = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    setCurrentUser(user);
+  };
+
+  const handleCreateSimClick = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      navigate('/dashboard');
+    } else {
+      setShowAuthModal(true);
+    }
+  };
 
   const fetchSim = async () => {
     try {
@@ -112,7 +130,7 @@ const PublicSimDetail = () => {
           </div>
           
           <Button 
-            onClick={() => navigate('/dashboard')}
+            onClick={handleCreateSimClick}
             className="bg-neutral-900 hover:bg-neutral-800 text-white dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-100 rounded-full px-8 py-3 font-medium shadow-lg hover:shadow-xl transition-all duration-300"
           >
             Create a Sim
@@ -157,9 +175,8 @@ const PublicSimDetail = () => {
               <Button 
                 size="lg" 
                 onClick={() => setShowChat(true)}
-                className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold rounded-full px-12 py-6 text-lg shadow-2xl shadow-primary/30 hover:shadow-primary/40 transition-all duration-300 hover:scale-105"
+                className="bg-neutral-900 hover:bg-neutral-800 text-white dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-100 rounded-full px-12 py-6 text-lg font-medium shadow-2xl hover:shadow-xl transition-all duration-300 hover:scale-105"
               >
-                <Sparkles className="h-5 w-5 mr-2" />
                 Start Chatting
               </Button>
             </div>
@@ -173,6 +190,13 @@ const PublicSimDetail = () => {
 
       {/* Bottom gradient fade */}
       <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-background/50 to-transparent pointer-events-none" />
+
+      {/* Auth Modal */}
+      <AuthModal 
+        open={showAuthModal} 
+        onOpenChange={setShowAuthModal}
+        defaultMode="signup"
+      />
     </div>
   );
 };
