@@ -56,13 +56,13 @@ const WhitePaper = () => {
           <h2 className="text-3xl font-bold mb-6">The Vision</h2>
           <div className="prose prose-lg max-w-none text-muted-foreground">
             <p className="text-lg mb-6">
-              <strong className="text-foreground">Sim Protocol</strong> empowers anyone to create and share their own AI personas. Our platform provides the infrastructure to build interactive, conversational AI simulations—from personalized tutors and domain experts to creative companions and fictional characters. The possibilities are limitless.
+              <strong className="text-foreground">Sim Protocol</strong> empowers anyone to create and share their own AI. Our platform provides the infrastructure to build interactive, conversational AI simulations—from personalized tutors and domain experts to creative companions and fictional characters. The possibilities are limitless.
             </p>
             <p className="text-lg mb-6">
               Whether you want to create a virtual mentor based on your favorite author, build a custom AI assistant with a unique personality, design an expert consultant in your field, or even recreate conversations with historical figures—Sim Protocol makes it possible for creators everywhere to bring their AI visions to life and share them with the world.
             </p>
             <p className="text-lg mb-6">
-              This is more than just AI chatbots—it&apos;s a creator platform where <strong className="text-foreground">your ideas</strong> become interactive experiences. Build once, share globally, and let others engage with the AI personas you create.
+              This is more than just AI chatbots—it&apos;s a creator platform where <strong className="text-foreground">your ideas</strong> become interactive experiences. Build once, share globally, and let others engage with the AI you create.
             </p>
           </div>
         </section>
