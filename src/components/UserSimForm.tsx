@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { Upload, X } from 'lucide-react';
+import { Upload, X, Loader2 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 
 interface UserSimFormProps {
@@ -19,6 +19,7 @@ interface UserSimFormProps {
 const UserSimForm = ({ open, onOpenChange, existingSim, onSuccess }: UserSimFormProps) => {
   const { user } = useAuth();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const autoSaveTimerRef = useRef<NodeJS.Timeout | null>(null);
   const [formData, setFormData] = useState({
     name: '',
     title: '',
@@ -29,6 +30,7 @@ const UserSimForm = ({ open, onOpenChange, existingSim, onSuccess }: UserSimForm
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [isAutoSaving, setIsAutoSaving] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string>('');
 
@@ -57,8 +59,41 @@ const UserSimForm = ({ open, onOpenChange, existingSim, onSuccess }: UserSimForm
     setSelectedFile(null);
   }, [existingSim, open]);
 
+  // Cleanup auto-save timer on unmount
+  useEffect(() => {
+    return () => {
+      if (autoSaveTimerRef.current) {
+        clearTimeout(autoSaveTimerRef.current);
+      }
+    };
+  }, []);
+
+  const autoSave = useCallback(async (data: typeof formData) => {
+    if (!existingSim || !data.name.trim()) return;
+
+    setIsAutoSaving(true);
+    try {
+      const { error } = await supabase
+        .from('advisors')
+        .update({
+          name: data.name,
+          title: data.title,
+          description: data.description,
+          prompt: data.prompt || 'You are a helpful AI assistant. Be friendly, informative, and engaging in conversations.',
+          avatar_url: data.avatar_url
+        })
+        .eq('id', existingSim.id);
+
+      if (error) throw error;
+    } catch (error) {
+      console.error('Auto-save failed:', error);
+    } finally {
+      setIsAutoSaving(false);
+    }
+  }, [existingSim]);
+
   const handleInputChange = (field: string, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    const updatedData = { ...formData, [field]: value };
     
     // Auto-generate custom_url from name if creating new sim
     if (field === 'name' && !existingSim) {
@@ -66,7 +101,19 @@ const UserSimForm = ({ open, onOpenChange, existingSim, onSuccess }: UserSimForm
         .toLowerCase()
         .replace(/[^a-z0-9]+/g, '-')
         .replace(/^-|-$/g, '');
-      setFormData(prev => ({ ...prev, custom_url: urlSlug }));
+      updatedData.custom_url = urlSlug;
+    }
+    
+    setFormData(updatedData);
+
+    // Trigger auto-save with debounce (only for existing sims)
+    if (existingSim) {
+      if (autoSaveTimerRef.current) {
+        clearTimeout(autoSaveTimerRef.current);
+      }
+      autoSaveTimerRef.current = setTimeout(() => {
+        autoSave(updatedData);
+      }, 1000); // 1 second debounce
     }
   };
 
@@ -224,10 +271,18 @@ const UserSimForm = ({ open, onOpenChange, existingSim, onSuccess }: UserSimForm
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>{existingSim ? 'Edit Your Sim' : 'Create Your Sim'}</DialogTitle>
+          <DialogTitle className="flex items-center gap-2">
+            {existingSim ? 'Edit Your Sim' : 'Create Your Sim'}
+            {isAutoSaving && (
+              <span className="flex items-center gap-1 text-xs text-muted-foreground font-normal">
+                <Loader2 className="h-3 w-3 animate-spin" />
+                Saving...
+              </span>
+            )}
+          </DialogTitle>
           <DialogDescription>
             {existingSim 
-              ? 'Update your sim details below.' 
+              ? 'Changes are automatically saved as you type.' 
               : 'Create a personalized AI sim that others can chat with via a shareable link.'}
           </DialogDescription>
         </DialogHeader>
