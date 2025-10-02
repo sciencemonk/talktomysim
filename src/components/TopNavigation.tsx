@@ -130,19 +130,6 @@ const TopNavigation = ({
                 White Paper
               </Link>
             </Button>
-            
-            <Button
-              variant="ghost"
-              className="w-full justify-start text-left"
-              asChild
-            >
-              <Link 
-                to="/contact"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Contact
-              </Link>
-            </Button>
           </>
         )}
       </div>
@@ -212,13 +199,6 @@ const TopNavigation = ({
                     asChild
                   >
                     <Link to="/whitepaper">White Paper</Link>
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    className="text-sm font-medium hover:text-primary"
-                    asChild
-                  >
-                    <Link to="/contact">Contact</Link>
                   </Button>
                 </>
               )}
