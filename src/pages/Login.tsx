@@ -22,25 +22,50 @@ const Login = () => {
   const handleSolanaSignIn = async () => {
     setIsLoading(true);
     try {
-      if (!(window as any).solana) {
-        toast.error('Please install a Solana wallet (e.g., Phantom, Solflare)');
+      const solana = (window as any).solana;
+      
+      if (!solana) {
+        toast.error('Please install Phantom wallet');
         setIsLoading(false);
         return;
       }
 
-      // Use Supabase's Web3 auth with Solana - type assertion for now
-      const { data, error } = await (supabase.auth as any).signInWithOAuth({
-        provider: 'web3',
-        options: {
-          statement: 'Sign in to Sim with your Solana wallet',
-          redirectTo: `${window.location.origin}/app`
+      // Connect to wallet
+      const response = await solana.connect();
+      const publicKey = response.publicKey.toString();
+
+      // Create message to sign
+      const message = `Sign in to Sim\n\nWallet: ${publicKey}\nTimestamp: ${new Date().toISOString()}`;
+      const encodedMessage = new TextEncoder().encode(message);
+      
+      // Request signature
+      const signedMessage = await solana.signMessage(encodedMessage, 'utf8');
+      const signature = btoa(String.fromCharCode(...signedMessage.signature));
+
+      // Authenticate with backend
+      const { data, error } = await supabase.functions.invoke('solana-auth', {
+        body: { 
+          publicKey,
+          signature,
+          message 
         }
       });
-      
+
       if (error) throw error;
-    } catch (error) {
+      
+      if (data?.session) {
+        // Set the session
+        await supabase.auth.setSession({
+          access_token: data.session.properties.access_token,
+          refresh_token: data.session.properties.refresh_token,
+        });
+        
+        toast.success('Connected successfully!');
+        navigate('/app');
+      }
+    } catch (error: any) {
       console.error('Error signing in with Solana:', error);
-      toast.error('Failed to connect Solana wallet');
+      toast.error(error?.message || 'Failed to connect wallet');
     } finally {
       setIsLoading(false);
     }
