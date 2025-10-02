@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import bs58 from 'bs58';
 
 interface AuthModalProps {
   open: boolean;
@@ -35,7 +36,7 @@ const AuthModal = ({ open, onOpenChange, defaultMode = 'signup' }: AuthModalProp
       
       // Request signature
       const signedMessage = await solana.signMessage(encodedMessage, 'utf8');
-      const signature = btoa(String.fromCharCode(...signedMessage.signature));
+      const signature = bs58.encode(signedMessage.signature);
 
       // Authenticate with backend
       const { data, error } = await supabase.functions.invoke('solana-auth', {

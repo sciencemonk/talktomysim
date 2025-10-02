@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
+import bs58 from 'bs58';
 
 const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -40,7 +41,7 @@ const Login = () => {
       
       // Request signature
       const signedMessage = await solana.signMessage(encodedMessage, 'utf8');
-      const signature = btoa(String.fromCharCode(...signedMessage.signature));
+      const signature = bs58.encode(signedMessage.signature);
 
       // Authenticate with backend
       const { data, error } = await supabase.functions.invoke('solana-auth', {
