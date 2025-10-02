@@ -19,7 +19,6 @@ import Contact from "./pages/Contact";
 import KnowledgeEnhancement from "./pages/KnowledgeEnhancement";
 import UserDashboard from "./pages/UserDashboard";
 import PublicSimDetail from "./pages/PublicSimDetail";
-import SimCreate from "./pages/SimCreate";
 
 const queryClient = new QueryClient();
 
@@ -40,7 +39,6 @@ const App = () => (
             
             {/* User dashboard for sim creation */}
             <Route path="/dashboard" element={<UserDashboard />} />
-            <Route path="/sim-create" element={<SimCreate />} />
             
             {/* Legacy routes */}
             <Route path="/index" element={<Index />} />

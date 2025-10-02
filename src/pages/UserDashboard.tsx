@@ -3,11 +3,17 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, Plus, Edit, Eye, LogOut } from "lucide-react";
+import { Loader2, Upload, X, Eye, Copy, ExternalLink } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import AuthModal from "@/components/AuthModal";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import TopNavigation from "@/components/TopNavigation";
+import SimpleFooter from "@/components/SimpleFooter";
+import { Badge } from "@/components/ui/badge";
 
 interface UserSim {
   id: string;
@@ -17,14 +23,28 @@ interface UserSim {
   custom_url: string;
   avatar_url: string;
   created_at: string;
+  prompt: string;
 }
 
 const UserDashboard = () => {
-  const { user, loading: authLoading, signOut } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [userSim, setUserSim] = useState<UserSim | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState('basic');
+  const [formData, setFormData] = useState({
+    name: '',
+    title: '',
+    description: '',
+    prompt: 'You are a helpful AI assistant. Be friendly, informative, and engaging in conversations.',
+    custom_url: '',
+    avatar_url: ''
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string>('');
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -43,7 +63,7 @@ const UserDashboard = () => {
       setIsLoading(true);
       const { data, error } = await supabase
         .from('advisors')
-        .select('id, name, title, description, custom_url, avatar_url, created_at')
+        .select('id, name, title, description, custom_url, avatar_url, created_at, prompt')
         .eq('user_id', user?.id)
         .eq('sim_type', 'living')
         .maybeSingle();
@@ -51,6 +71,19 @@ const UserDashboard = () => {
       if (error) throw error;
       
       setUserSim(data);
+      
+      // If sim exists, populate form with data
+      if (data) {
+        setFormData({
+          name: data.name || '',
+          title: data.title || '',
+          description: data.description || '',
+          prompt: data.prompt || 'You are a helpful AI assistant. Be friendly, informative, and engaging in conversations.',
+          custom_url: data.custom_url || '',
+          avatar_url: data.avatar_url || ''
+        });
+        setPreviewUrl(data.avatar_url || '');
+      }
     } catch (error) {
       console.error('Error fetching user sim:', error);
       toast({
@@ -63,9 +96,178 @@ const UserDashboard = () => {
     }
   };
 
-  const handleSignOut = async () => {
-    await signOut();
-    navigate('/');
+  const handleInputChange = (field: string, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+    
+    // Auto-generate custom_url from name if creating new sim
+    if (field === 'name' && !userSim) {
+      const urlSlug = value
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-|-$/g, '');
+      setFormData(prev => ({ ...prev, custom_url: urlSlug }));
+    }
+  };
+
+  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        toast({
+          title: "File too large",
+          description: "Please select an image smaller than 5MB",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      if (!file.type.startsWith('image/')) {
+        toast({
+          title: "Invalid file type",
+          description: "Please select an image file",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      setSelectedFile(file);
+      setPreviewUrl(URL.createObjectURL(file));
+    }
+  };
+
+  const uploadImage = async (): Promise<string | null> => {
+    if (!selectedFile) return formData.avatar_url;
+
+    setIsUploading(true);
+    try {
+      const fileExt = selectedFile.name.split('.').pop();
+      const fileName = `${Math.random()}.${fileExt}`;
+      const filePath = `user-sim-avatars/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('avatars')
+        .upload(filePath, selectedFile);
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('avatars')
+        .getPublicUrl(filePath);
+
+      return publicUrl;
+    } catch (error) {
+      console.error('Failed to upload image:', error);
+      toast({
+        title: "Upload failed",
+        description: "Failed to upload image. Please try again.",
+        variant: "destructive"
+      });
+      throw error;
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!formData.name.trim() || !formData.custom_url.trim()) {
+      toast({
+        title: "Validation Error",
+        description: "Name and custom URL are required fields",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Check if custom_url is available (only for new sims)
+    if (!userSim) {
+      const { data: existing } = await supabase
+        .from('advisors')
+        .select('id')
+        .eq('custom_url', formData.custom_url)
+        .maybeSingle();
+
+      if (existing) {
+        toast({
+          title: "URL not available",
+          description: "This custom URL is already taken. Please choose another.",
+          variant: "destructive"
+        });
+        return;
+      }
+    }
+
+    setIsSubmitting(true);
+    try {
+      const avatarUrl = await uploadImage();
+      
+      const submitData = {
+        name: formData.name,
+        title: formData.title,
+        description: formData.description,
+        prompt: formData.prompt || 'You are a helpful AI assistant. Be friendly, informative, and engaging in conversations.',
+        custom_url: formData.custom_url,
+        avatar_url: avatarUrl || '',
+        sim_type: 'living',
+        is_public: true,
+        is_active: true,
+        user_id: user?.id
+      };
+
+      if (userSim) {
+        const { error } = await supabase
+          .from('advisors')
+          .update(submitData)
+          .eq('id', userSim.id);
+
+        if (error) throw error;
+
+        toast({
+          title: "Success",
+          description: "Your sim has been updated"
+        });
+      } else {
+        const { error } = await supabase
+          .from('advisors')
+          .insert([submitData]);
+
+        if (error) throw error;
+
+        toast({
+          title: "Success",
+          description: "Your sim has been created!"
+        });
+      }
+      
+      fetchUserSim();
+    } catch (error) {
+      console.error('Failed to save sim:', error);
+      toast({
+        title: "Error",
+        description: "Failed to save your sim",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const removeImage = () => {
+    setSelectedFile(null);
+    setPreviewUrl('');
+    setFormData(prev => ({ ...prev, avatar_url: '' }));
+  };
+
+  const copyShareLink = () => {
+    if (!userSim?.custom_url) return;
+    
+    const shareUrl = `${window.location.origin}/sim/${userSim.custom_url}`;
+    navigator.clipboard.writeText(shareUrl);
+    toast({
+      title: "Link copied!",
+      description: "Share link copied to clipboard"
+    });
   };
 
   if (authLoading || isLoading) {
@@ -98,134 +300,225 @@ const UserDashboard = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      {/* Header */}
-      <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
-        <div className="container mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-2xl bg-gradient-to-br from-primary to-primary/80">
-              <img 
-                src="/lovable-uploads/1a618b3c-11e7-43e4-a2d5-c1e6f36e48ba.png" 
-                alt="Logo" 
-                className="h-7 w-7"
-              />
-            </div>
-            <h1 className="text-xl font-semibold">My Dashboard</h1>
-          </div>
-          <div className="flex items-center gap-2">
-            <Button 
-              variant="ghost" 
-              size="sm"
-              onClick={() => navigate('/')}
-            >
-              Browse Sims
-            </Button>
-            <Button 
-              variant="ghost" 
-              size="sm"
-              onClick={handleSignOut}
-              className="gap-2"
-            >
-              <LogOut className="h-4 w-4" />
-              Sign Out
-            </Button>
-          </div>
-        </div>
-      </header>
-
-      {/* Main Content */}
+      <TopNavigation />
+      
       <main className="flex-1 overflow-auto">
         <div className="container mx-auto px-6 py-12">
-          <div className="max-w-5xl mx-auto">
+          <div className="max-w-4xl mx-auto">
             {/* Page Header */}
             <div className="mb-8">
-              <h2 className="text-3xl font-bold mb-2">My Sim</h2>
+              <h2 className="text-3xl font-bold mb-2">Create Your Sim</h2>
               <p className="text-muted-foreground">
-                Create and manage your personalized AI sim
+                Build a personalized AI sim that others can chat with via a shareable link
               </p>
             </div>
 
-            {/* Sim Card or Create Prompt */}
-            {userSim ? (
-              <Card>
+            {/* Sim Preview Card (if exists) */}
+            {userSim && (
+              <Card className="mb-8 bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20">
                 <CardHeader>
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-start gap-4">
-                      <Avatar className="h-16 w-16">
-                        <AvatarImage src={userSim.avatar_url} alt={userSim.name} />
-                        <AvatarFallback className="bg-gradient-to-br from-primary to-primary/80 text-primary-foreground text-xl">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                      {previewUrl ? (
+                        <img
+                          src={previewUrl}
+                          alt={userSim.name}
+                          className="w-12 h-12 rounded-full object-cover border-2 border-primary"
+                        />
+                      ) : (
+                        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center text-primary-foreground font-semibold">
                           {userSim.name.charAt(0)}
-                        </AvatarFallback>
-                      </Avatar>
+                        </div>
+                      )}
                       <div>
-                        <CardTitle className="text-2xl">{userSim.name}</CardTitle>
+                        <CardTitle className="text-xl">{userSim.name}</CardTitle>
                         {userSim.title && (
-                          <CardDescription className="text-base mt-1">
-                            {userSim.title}
-                          </CardDescription>
+                          <CardDescription>{userSim.title}</CardDescription>
                         )}
                       </div>
                     </div>
                     <div className="flex gap-2">
                       <Button 
-                        variant="outline" 
                         size="sm"
-                        onClick={() => navigate(`/sim-create?id=${userSim.id}`)}
+                        variant="outline"
+                        onClick={copyShareLink}
                         className="gap-2"
                       >
-                        <Edit className="h-4 w-4" />
-                        Edit
+                        <Copy className="h-4 w-4" />
+                        Copy Link
                       </Button>
                       <Button 
                         size="sm"
                         onClick={() => window.open(`/sim/${userSim.custom_url}`, '_blank')}
                         className="gap-2"
                       >
-                        <Eye className="h-4 w-4" />
+                        <ExternalLink className="h-4 w-4" />
                         Preview
                       </Button>
                     </div>
                   </div>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  {userSim.description && (
-                    <p className="text-muted-foreground">{userSim.description}</p>
-                  )}
-                  
-                  <div className="border-t pt-4">
-                    <h4 className="text-sm font-medium mb-2">Shareable Link</h4>
-                    <div className="bg-muted/50 rounded-lg p-3">
-                      <code className="text-sm break-all">
-                        {window.location.origin}/sim/{userSim.custom_url}
-                      </code>
-                    </div>
-                    <p className="text-xs text-muted-foreground mt-2">
-                      Share this link with anyone to let them chat with your sim
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-            ) : (
-              <Card>
-                <CardHeader>
-                  <CardTitle>Create Your First Sim</CardTitle>
-                  <CardDescription>
-                    Build a personalized AI that others can chat with via a shareable link
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Button 
-                    onClick={() => navigate('/sim-create')}
-                    className="gap-2"
-                  >
-                    <Plus className="h-4 w-4" />
-                    Create Sim
-                  </Button>
-                </CardContent>
               </Card>
             )}
+
+            {/* Sim Creation Form */}
+            <Card>
+              <CardHeader>
+                <CardTitle>{userSim ? 'Edit Your Sim' : 'Sim Details'}</CardTitle>
+                <CardDescription>
+                  {userSim 
+                    ? 'Update your sim information below' 
+                    : 'Fill in the details to create your personalized AI sim'}
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Tabs value={activeTab} onValueChange={setActiveTab}>
+                  <TabsList className="grid w-full grid-cols-2">
+                    <TabsTrigger value="basic">Basic Info</TabsTrigger>
+                    <TabsTrigger value="knowledge" disabled>
+                      Vector Embeddings <Badge variant="secondary" className="ml-2">Coming Soon</Badge>
+                    </TabsTrigger>
+                  </TabsList>
+                  
+                  <TabsContent value="basic" className="mt-6 space-y-6">
+                    <form onSubmit={handleSubmit} className="space-y-6">
+                      <div>
+                        <Label htmlFor="name">Sim Name *</Label>
+                        <Input
+                          id="name"
+                          value={formData.name}
+                          onChange={(e) => handleInputChange('name', e.target.value)}
+                          placeholder="e.g., Tech Advisor Alex"
+                          required
+                          className="mt-2"
+                        />
+                      </div>
+
+                      <div>
+                        <Label htmlFor="title">Title / Role</Label>
+                        <Input
+                          id="title"
+                          value={formData.title}
+                          onChange={(e) => handleInputChange('title', e.target.value)}
+                          placeholder="e.g., Technology Consultant"
+                          className="mt-2"
+                        />
+                      </div>
+
+                      <div>
+                        <Label htmlFor="description">Description</Label>
+                        <Textarea
+                          id="description"
+                          value={formData.description}
+                          onChange={(e) => handleInputChange('description', e.target.value)}
+                          placeholder="Brief description of your sim..."
+                          rows={3}
+                          className="mt-2"
+                        />
+                      </div>
+
+                      <div>
+                        <Label htmlFor="custom_url">Custom URL *</Label>
+                        <div className="flex items-center gap-2 mt-2">
+                          <span className="text-sm text-muted-foreground whitespace-nowrap">
+                            {window.location.origin}/sim/
+                          </span>
+                          <Input
+                            id="custom_url"
+                            value={formData.custom_url}
+                            onChange={(e) => handleInputChange('custom_url', e.target.value)}
+                            placeholder="my-sim-name"
+                            pattern="[a-z0-9-]+"
+                            disabled={!!userSim}
+                            required
+                          />
+                        </div>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Only lowercase letters, numbers, and hyphens. {userSim && 'Cannot be changed after creation.'}
+                        </p>
+                      </div>
+
+                      <div>
+                        <Label htmlFor="prompt">Personality & Instructions</Label>
+                        <Textarea
+                          id="prompt"
+                          value={formData.prompt}
+                          onChange={(e) => handleInputChange('prompt', e.target.value)}
+                          placeholder="You are a helpful AI assistant. Be friendly, informative, and engaging in conversations."
+                          rows={4}
+                          className="mt-2"
+                        />
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Describe how your sim should behave and respond to users
+                        </p>
+                      </div>
+
+                      <div>
+                        <Label>Avatar Image</Label>
+                        <div className="space-y-3 mt-2">
+                          {previewUrl ? (
+                            <div className="relative inline-block">
+                              <img
+                                src={previewUrl}
+                                alt="Avatar preview"
+                                className="w-20 h-20 rounded-full object-cover border"
+                              />
+                              <button
+                                type="button"
+                                onClick={removeImage}
+                                className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground rounded-full p-1 hover:bg-destructive/90"
+                              >
+                                <X className="h-3 w-3" />
+                              </button>
+                            </div>
+                          ) : (
+                            <div className="w-20 h-20 rounded-full border-2 border-dashed border-muted-foreground/25 flex items-center justify-center">
+                              <Upload className="h-6 w-6 text-muted-foreground" />
+                            </div>
+                          )}
+                          
+                          <div>
+                            <Input
+                              type="file"
+                              accept="image/*"
+                              onChange={handleFileSelect}
+                              className="cursor-pointer"
+                            />
+                            <p className="text-xs text-muted-foreground mt-1">
+                              Max file size: 5MB. Supported formats: JPG, PNG, GIF
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="flex gap-3 pt-4">
+                        <Button 
+                          type="submit" 
+                          disabled={isSubmitting || isUploading}
+                          className="flex-1"
+                        >
+                          {isSubmitting || isUploading ? 'Saving...' : userSim ? 'Update Sim' : 'Create Sim'}
+                        </Button>
+                      </div>
+                    </form>
+                  </TabsContent>
+                  
+                  <TabsContent value="knowledge" className="mt-6">
+                    <div className="text-center py-12 text-muted-foreground">
+                      <p className="text-lg font-medium mb-2">Vector Embeddings Coming Soon</p>
+                      <p className="text-sm">
+                        Upload documents and files to enhance your sim's knowledge base
+                      </p>
+                    </div>
+                  </TabsContent>
+                </Tabs>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </main>
+
+      <SimpleFooter />
     </div>
   );
 };
