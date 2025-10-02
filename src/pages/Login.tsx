@@ -54,11 +54,10 @@ const Login = () => {
 
       if (error) throw error;
       
-      if (data?.session) {
-        // Set the session
+      if (data?.access_token && data?.refresh_token) {
         await supabase.auth.setSession({
-          access_token: data.session.properties.access_token,
-          refresh_token: data.session.properties.refresh_token,
+          access_token: data.access_token,
+          refresh_token: data.refresh_token,
         });
         
         toast.success('Connected successfully!');

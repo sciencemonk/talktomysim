@@ -88,19 +88,24 @@ serve(async (req) => {
       if (profileError) {
         console.error('Error creating profile:', profileError);
       }
+    } else {
+      console.log('Existing user found:', userId);
     }
 
-    console.log('Generating session token...');
+    console.log('Creating session...');
 
-    // Generate a session for the user
-    const { data: sessionData, error: sessionError } = await supabaseAdmin.auth.admin.generateLink({
-      type: 'magiclink',
-      email: `${publicKey}@solana.wallet`,
+    // Create a session using the admin API
+    const { data: { session }, error: sessionError } = await supabaseAdmin.auth.admin.createSession({
+      user_id: userId,
     });
 
     if (sessionError) {
-      console.error('Error generating session:', sessionError);
+      console.error('Error creating session:', sessionError);
       throw sessionError;
+    }
+
+    if (!session) {
+      throw new Error('Failed to create session');
     }
 
     console.log('Session created successfully');
@@ -108,7 +113,9 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({ 
         success: true,
-        session: sessionData 
+        access_token: session.access_token,
+        refresh_token: session.refresh_token,
+        user: session.user,
       }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
