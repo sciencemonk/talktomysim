@@ -89,8 +89,8 @@ const AdvisorDirectory = ({ onSelectAdvisor, onAuthRequired }: AdvisorDirectoryP
       <div className="flex-1 overflow-auto">
         <div className="max-w-6xl mx-auto p-6">
           {/* Search and Filter */}
-          <div className="mb-6 space-y-4">
-            <div className="relative">
+          <div className="mb-6 flex flex-col sm:flex-row gap-3">
+            <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
               <Input
                 placeholder="Search sims..."
@@ -100,8 +100,8 @@ const AdvisorDirectory = ({ onSelectAdvisor, onAuthRequired }: AdvisorDirectoryP
               />
             </div>
             
-            <Tabs value={simFilter} onValueChange={(value) => setSimFilter(value as 'historical' | 'living')} className="w-full">
-              <TabsList className="grid w-full max-w-md grid-cols-2">
+            <Tabs value={simFilter} onValueChange={(value) => setSimFilter(value as 'historical' | 'living')} className="sm:w-auto">
+              <TabsList className="grid grid-cols-2 w-full sm:w-auto">
                 <TabsTrigger value="historical" className="flex items-center gap-2">
                   <History className="h-4 w-4" />
                   Historical
