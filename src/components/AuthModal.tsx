@@ -17,17 +17,21 @@ const AuthModal = ({ open, onOpenChange, defaultMode = 'signup' }: AuthModalProp
   const handleSolanaSignIn = async () => {
     setIsLoading(true);
     try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'solana' as any,
+      if (!(window as any).solana) {
+        toast.error('Please install a Solana wallet');
+        setIsLoading(false);
+        return;
+      }
+
+      const { error } = await (supabase.auth as any).signInWithOAuth({
+        provider: 'web3',
         options: {
+          statement: 'Sign in to Sim with your Solana wallet',
           redirectTo: `${window.location.origin}/app`
         }
       });
       
-      if (error) {
-        console.error('Error signing in with Solana:', error);
-        toast.error('Failed to connect Solana wallet');
-      }
+      if (error) throw error;
     } catch (error) {
       console.error('Error signing in with Solana:', error);
       toast.error('Failed to connect Solana wallet');

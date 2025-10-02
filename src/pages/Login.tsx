@@ -1,11 +1,9 @@
-
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-
 import { toast } from 'sonner';
 
 const Login = () => {
@@ -24,17 +22,22 @@ const Login = () => {
   const handleSolanaSignIn = async () => {
     setIsLoading(true);
     try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'solana' as any,
+      if (!(window as any).solana) {
+        toast.error('Please install a Solana wallet (e.g., Phantom, Solflare)');
+        setIsLoading(false);
+        return;
+      }
+
+      // Use Supabase's Web3 auth with Solana - type assertion for now
+      const { data, error } = await (supabase.auth as any).signInWithOAuth({
+        provider: 'web3',
         options: {
+          statement: 'Sign in to Sim with your Solana wallet',
           redirectTo: `${window.location.origin}/app`
         }
       });
       
-      if (error) {
-        console.error('Error signing in with Solana:', error);
-        toast.error('Failed to connect Solana wallet');
-      }
+      if (error) throw error;
     } catch (error) {
       console.error('Error signing in with Solana:', error);
       toast.error('Failed to connect Solana wallet');
