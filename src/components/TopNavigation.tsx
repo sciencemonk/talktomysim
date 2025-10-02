@@ -82,55 +82,69 @@ const TopNavigation = ({
 
       {/* Navigation Links */}
       <div className="space-y-2">
-        <Button
-          onClick={() => {
-            onShowAdvisorDirectory?.();
-            setMobileMenuOpen(false);
-          }}
-          variant="ghost"
-          className="w-full justify-start text-left"
-        >
-          Home
-        </Button>
-        
-        {user && (
-          <Button
-            variant="ghost"
-            className="w-full justify-start text-left"
-            onClick={() => {
-              navigate('/dashboard');
-              setMobileMenuOpen(false);
-            }}
-          >
-            Dashboard
-          </Button>
+        {user ? (
+          <>
+            <Button
+              variant="ghost"
+              className="w-full justify-start text-left"
+              onClick={() => {
+                navigate('/dashboard');
+                setMobileMenuOpen(false);
+              }}
+            >
+              My Sim
+            </Button>
+            <Button
+              variant="ghost"
+              className="w-full justify-start text-left"
+              onClick={() => {
+                navigate('/');
+                setMobileMenuOpen(false);
+              }}
+            >
+              Directory
+            </Button>
+          </>
+        ) : (
+          <>
+            <Button
+              onClick={() => {
+                onShowAdvisorDirectory?.();
+                setMobileMenuOpen(false);
+              }}
+              variant="ghost"
+              className="w-full justify-start text-left"
+            >
+              Home
+            </Button>
+            
+            <Button
+              variant="ghost"
+              className="w-full justify-start text-left"
+              asChild
+            >
+              <Link 
+                to="/whitepaper"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                White Paper
+              </Link>
+            </Button>
+            
+            <Button
+              variant="ghost"
+              className="w-full justify-start text-left"
+              asChild
+            >
+              <Link 
+                to="/contact"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Contact
+              </Link>
+            </Button>
+          </>
         )}
-        
-        <Button
-          variant="ghost"
-          className="w-full justify-start text-left"
-          asChild
-        >
-          <Link 
-            to="/whitepaper"
-            onClick={() => setMobileMenuOpen(false)}
-          >
-            White Paper
-          </Link>
-        </Button>
-        
-        <Button
-          variant="ghost"
-          className="w-full justify-start text-left"
-          asChild
-        >
-          <Link 
-            to="/contact"
-            onClick={() => setMobileMenuOpen(false)}
-          >
-            Contact
-          </Link>
-        </Button>
       </div>
     </div>
   );
