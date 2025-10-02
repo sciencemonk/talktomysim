@@ -23,6 +23,23 @@ const Home = () => {
   const [selectedAgent, setSelectedAgent] = useState<AgentType | null>(null);
   const [selectedPublicAdvisorId, setSelectedPublicAdvisorId] = useState<string | null>(null);
 
+  // Auto-enhance Fuller's knowledge on first load
+  useEffect(() => {
+    const runEnhancement = async () => {
+      await enhanceFullerKnowledge();
+    };
+    runEnhancement();
+  }, []);
+
+  // Effect to handle post-authentication advisor selection
+  useEffect(() => {
+    if (user && pendingAdvisor && !selectedAdvisor) {
+      handleAdvisorSelect(pendingAdvisor.id, pendingAdvisor);
+      setPendingAdvisor(null);
+      setShowAuthModal(false);
+    }
+  }, [user, pendingAdvisor, selectedAdvisor]);
+
   // Redirect authenticated users to dashboard
   if (!loading && user) {
     return <Navigate to="/dashboard" replace />;
@@ -110,22 +127,6 @@ const Home = () => {
     setSelectedPublicAdvisorId(null);
   };
 
-  // Effect to handle post-authentication advisor selection
-  useEffect(() => {
-    if (user && pendingAdvisor && !selectedAdvisor) {
-      handleAdvisorSelect(pendingAdvisor.id, pendingAdvisor);
-      setPendingAdvisor(null);
-      setShowAuthModal(false);
-    }
-  }, [user, pendingAdvisor, selectedAdvisor]);
-
-  // Auto-enhance Fuller's knowledge on first load
-  useEffect(() => {
-    const runEnhancement = async () => {
-      await enhanceFullerKnowledge();
-    };
-    runEnhancement();
-  }, []);
 
   if (loading) {
     return (
