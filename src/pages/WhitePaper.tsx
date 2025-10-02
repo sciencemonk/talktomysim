@@ -56,13 +56,13 @@ const WhitePaper = () => {
           <h2 className="text-3xl font-bold mb-6">The Vision</h2>
           <div className="prose prose-lg max-w-none text-muted-foreground">
             <p className="text-lg mb-6">
-              Throughout history, humanity&apos;s greatest breakthrough moments have come from the minds of extraordinary individuals—Einstein&apos;s theories of relativity, Tesla&apos;s electrical innovations, Leonardo&apos;s artistic genius, Socrates&apos; philosophical insights. Yet access to their wisdom has been limited to books, recordings, and second-hand interpretations.
+              <strong className="text-foreground">Sim Protocol</strong> empowers anyone to create and share their own AI personas. Our platform provides the infrastructure to build interactive, conversational AI simulations—from personalized tutors and domain experts to creative companions and fictional characters. The possibilities are limitless.
             </p>
             <p className="text-lg mb-6">
-              <strong className="text-foreground">Sim Protocol</strong> is building the infrastructure to democratize AI conversations for everyone. Our platform creates interactive, conversational AI simulations—not just of historical figures, but allowing <strong className="text-foreground">anyone</strong> to create their own AI personas. From historical intellectuals to modern thought leaders, fictional characters to personalized tutors, domain experts to creative companions—the possibilities are limitless.
+              Whether you want to create a virtual mentor based on your favorite author, build a custom AI assistant with a unique personality, design an expert consultant in your field, or even recreate conversations with historical figures—Sim Protocol makes it possible for creators everywhere to bring their AI visions to life and share them with the world.
             </p>
             <p className="text-lg mb-6">
-              Whether you want to chat with Einstein about physics, create a virtual mentor based on your favorite author, or build a custom AI assistant with a unique personality—Sim Protocol makes it possible for creators everywhere to share their AI simulations with the world.
+              This is more than just AI chatbots—it&apos;s a creator platform where <strong className="text-foreground">your ideas</strong> become interactive experiences. Build once, share globally, and let others engage with the AI personas you create.
             </p>
           </div>
         </section>
@@ -87,7 +87,7 @@ const WhitePaper = () => {
               </CardHeader>
               <CardContent className="pt-0">
                 <p className="text-muted-foreground mb-6 leading-relaxed">
-                  Our foundation begins with meticulously crafted system prompts that capture the essence of any persona—historical figures, modern experts, or entirely original creations.
+                  Our foundation begins with meticulously crafted system prompts that capture the essence of any persona—whether you're creating original characters, domain experts, fictional personalities, or recreating historical figures.
                 </p>
                 <div className="grid md:grid-cols-2 gap-4">
                   <div className="space-y-3">
@@ -211,7 +211,7 @@ const WhitePaper = () => {
                   Platform development and maintenance is funded through $SIM creator rewards distributed to:
                 </p>
                 <ul className="list-disc list-inside text-muted-foreground space-y-2">
-                  <li>Historical and living sim developers</li>
+                  <li>Sim creators and developers</li>
                   <li>Content researchers and validators</li>
                   <li>Community moderators</li>
                   <li>Platform infrastructure contributors</li>
