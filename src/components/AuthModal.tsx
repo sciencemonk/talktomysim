@@ -40,8 +40,12 @@ const AuthModal = ({ open, onOpenChange, defaultMode = 'signup' }: AuthModalProp
       }
 
       // Connect to wallet
-      const response = await wallet.connect();
-      const publicKey = response.publicKey.toString();
+      await wallet.connect();
+      
+      // Get public key - different wallets have different structures
+      const publicKey = walletType === 'phantom' 
+        ? wallet.publicKey.toString()
+        : wallet.publicKey.toString();
 
       // Create message to sign
       const message = `Sign in to Sim\n\nWallet: ${publicKey}\nTimestamp: ${new Date().toISOString()}`;
