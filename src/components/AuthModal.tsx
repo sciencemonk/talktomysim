@@ -78,7 +78,7 @@ const AuthModal = ({ open, onOpenChange, defaultMode = 'signup' }: AuthModalProp
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <VisuallyHidden>
-          <DialogTitle>Sign in with Solana Wallet</DialogTitle>
+          <DialogTitle>Sign in with Phantom or Solflare</DialogTitle>
         </VisuallyHidden>
         <div className="flex flex-col items-center space-y-6 py-4">
           <div className="flex items-center justify-center">
@@ -96,7 +96,7 @@ const AuthModal = ({ open, onOpenChange, defaultMode = 'signup' }: AuthModalProp
               className="w-full h-12 text-base bg-neutral-900 hover:bg-neutral-800 text-white dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-100 rounded-full font-medium shadow-lg hover:shadow-xl transition-all duration-300"
               size="lg"
             >
-              {isLoading ? 'Connecting...' : 'Connect Solana Wallet'}
+              {isLoading ? 'Connecting...' : 'Connect Wallet (Phantom or Solflare)'}
             </Button>
           </div>
 
