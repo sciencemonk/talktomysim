@@ -19,16 +19,21 @@ const AuthModal = ({ open, onOpenChange, defaultMode = 'signup' }: AuthModalProp
   const handleSolanaSignIn = async () => {
     setIsLoading(true);
     try {
-      const solana = (window as any).solana;
+      // Check for Phantom or Solflare
+      const phantom = (window as any).solana;
+      const solflare = (window as any).solflare;
       
-      if (!solana) {
-        toast.error('Please install Phantom wallet');
+      // Prefer Phantom if both are installed, otherwise use whichever is available
+      const wallet = phantom?.isPhantom ? phantom : solflare;
+      
+      if (!wallet) {
+        toast.error('Please install Phantom or Solflare wallet');
         setIsLoading(false);
         return;
       }
 
       // Connect to wallet
-      const response = await solana.connect();
+      const response = await wallet.connect();
       const publicKey = response.publicKey.toString();
 
       // Create message to sign
@@ -36,7 +41,7 @@ const AuthModal = ({ open, onOpenChange, defaultMode = 'signup' }: AuthModalProp
       const encodedMessage = new TextEncoder().encode(message);
       
       // Request signature
-      const signedMessage = await solana.signMessage(encodedMessage, 'utf8');
+      const signedMessage = await wallet.signMessage(encodedMessage, 'utf8');
       const signature = bs58.encode(signedMessage.signature);
 
       // Authenticate with backend
