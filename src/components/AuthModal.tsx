@@ -6,6 +6,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import bs58 from 'bs58';
 import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
+import phantomIcon from '@/assets/phantom-icon.png';
+import solflareIcon from '@/assets/solflare-icon.png';
 
 interface AuthModalProps {
   open: boolean;
@@ -98,18 +100,20 @@ const AuthModal = ({ open, onOpenChange, defaultMode = 'signup' }: AuthModalProp
             <Button
               onClick={() => handleWalletSignIn('phantom')}
               disabled={!!isLoading}
-              className="w-full h-12 text-base bg-[#512DA8] hover:bg-[#4527A0] text-white rounded-full font-medium shadow-lg hover:shadow-xl transition-all duration-300"
+              className="w-full h-12 text-base bg-white hover:bg-neutral-50 text-neutral-900 border border-neutral-200 rounded-full font-medium shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center gap-3"
               size="lg"
             >
+              <img src={phantomIcon} alt="Phantom" className="w-6 h-6" />
               {isLoading === 'phantom' ? 'Connecting...' : 'Connect Phantom'}
             </Button>
             
             <Button
               onClick={() => handleWalletSignIn('solflare')}
               disabled={!!isLoading}
-              className="w-full h-12 text-base bg-[#FC6432] hover:bg-[#E55A2D] text-white rounded-full font-medium shadow-lg hover:shadow-xl transition-all duration-300"
+              className="w-full h-12 text-base bg-white hover:bg-neutral-50 text-neutral-900 border border-neutral-200 rounded-full font-medium shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center gap-3"
               size="lg"
             >
+              <img src={solflareIcon} alt="Solflare" className="w-6 h-6" />
               {isLoading === 'solflare' ? 'Connecting...' : 'Connect Solflare'}
             </Button>
           </div>
