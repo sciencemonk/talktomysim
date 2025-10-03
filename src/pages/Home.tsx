@@ -7,8 +7,6 @@ import ChatInterface from "@/components/ChatInterface";
 import AuthModal from "@/components/AuthModal";
 import TopNavigation from "@/components/TopNavigation";
 import SimpleFooter from "@/components/SimpleFooter";
-import { enhanceFullerKnowledge } from "@/utils/enhanceFullerKnowledge";
-
 import { AgentType } from "@/types/agent";
 import { useUserAdvisors } from "@/hooks/useUserAdvisors";
 import { useToast } from "@/hooks/use-toast";
@@ -22,14 +20,6 @@ const Home = () => {
   const [pendingAdvisor, setPendingAdvisor] = useState<AgentType | null>(null);
   const [selectedAgent, setSelectedAgent] = useState<AgentType | null>(null);
   const [selectedPublicAdvisorId, setSelectedPublicAdvisorId] = useState<string | null>(null);
-
-  // Auto-enhance Fuller's knowledge on first load
-  useEffect(() => {
-    const runEnhancement = async () => {
-      await enhanceFullerKnowledge();
-    };
-    runEnhancement();
-  }, []);
 
   // Effect to handle post-authentication advisor selection
   useEffect(() => {
