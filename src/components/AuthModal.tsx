@@ -14,22 +14,27 @@ interface AuthModalProps {
 }
 
 const AuthModal = ({ open, onOpenChange, defaultMode = 'signup' }: AuthModalProps) => {
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState<string | null>(null);
 
-  const handleSolanaSignIn = async () => {
-    setIsLoading(true);
+  const handleWalletSignIn = async (walletType: 'phantom' | 'solflare') => {
+    setIsLoading(walletType);
     try {
-      // Check for Phantom or Solflare
-      const phantom = (window as any).solana;
-      const solflare = (window as any).solflare;
+      let wallet;
       
-      // Prefer Phantom if both are installed, otherwise use whichever is available
-      const wallet = phantom?.isPhantom ? phantom : solflare;
-      
-      if (!wallet) {
-        toast.error('Please install Phantom or Solflare wallet');
-        setIsLoading(false);
-        return;
+      if (walletType === 'phantom') {
+        wallet = (window as any).solana;
+        if (!wallet?.isPhantom) {
+          toast.error('Please install Phantom wallet');
+          setIsLoading(null);
+          return;
+        }
+      } else {
+        wallet = (window as any).solflare;
+        if (!wallet) {
+          toast.error('Please install Solflare wallet');
+          setIsLoading(null);
+          return;
+        }
       }
 
       // Connect to wallet
@@ -69,7 +74,7 @@ const AuthModal = ({ open, onOpenChange, defaultMode = 'signup' }: AuthModalProp
       console.error('Error signing in with Solana:', error);
       toast.error(error?.message || 'Failed to connect wallet');
     } finally {
-      setIsLoading(false);
+      setIsLoading(null);
     }
   };
 
@@ -89,14 +94,23 @@ const AuthModal = ({ open, onOpenChange, defaultMode = 'signup' }: AuthModalProp
             />
           </div>
 
-          <div className="w-full space-y-4">
+          <div className="w-full space-y-3">
             <Button
-              onClick={handleSolanaSignIn}
-              disabled={isLoading}
-              className="w-full h-12 text-base bg-neutral-900 hover:bg-neutral-800 text-white dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-100 rounded-full font-medium shadow-lg hover:shadow-xl transition-all duration-300"
+              onClick={() => handleWalletSignIn('phantom')}
+              disabled={!!isLoading}
+              className="w-full h-12 text-base bg-[#512DA8] hover:bg-[#4527A0] text-white rounded-full font-medium shadow-lg hover:shadow-xl transition-all duration-300"
               size="lg"
             >
-              {isLoading ? 'Connecting...' : 'Connect Wallet (Phantom or Solflare)'}
+              {isLoading === 'phantom' ? 'Connecting...' : 'Connect Phantom'}
+            </Button>
+            
+            <Button
+              onClick={() => handleWalletSignIn('solflare')}
+              disabled={!!isLoading}
+              className="w-full h-12 text-base bg-[#FC6432] hover:bg-[#E55A2D] text-white rounded-full font-medium shadow-lg hover:shadow-xl transition-all duration-300"
+              size="lg"
+            >
+              {isLoading === 'solflare' ? 'Connecting...' : 'Connect Solflare'}
             </Button>
           </div>
 
