@@ -47,14 +47,20 @@ const LiveChat = () => {
   const debateStartTimeRef = useRef<number>(0);
   const conversationIndexRef = useRef(0);
 
-  // Fetch all sims on mount
+  // Fetch historical sims on mount
   useEffect(() => {
     const fetchSims = async () => {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from('advisors')
         .select('*')
         .eq('is_public', true)
+        .eq('sim_type', 'historical')
         .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Error fetching historical sims:', error);
+        return;
+      }
 
       if (data && data.length > 0) {
         const transformedSims = data.map((advisor: any) => ({
@@ -70,6 +76,7 @@ const LiveChat = () => {
         } as AgentType));
         
         setAllHistoricalSims(transformedSims);
+        console.log('Loaded historical sims:', transformedSims.length);
       }
     };
 
@@ -173,13 +180,18 @@ Respond to the latest point made. Build on the conversation, agree or disagree, 
         }
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Edge function error:', error);
+        throw error;
+      }
+
+      console.log('Received response:', data);
 
       const newMessage: Message = {
         id: `${sim.id}-${Date.now()}`,
         simName: sim.name,
         simAvatar: sim.avatar,
-        content: data.message || '',
+        content: data?.content || '',
         timestamp: new Date()
       };
 
