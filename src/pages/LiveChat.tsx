@@ -98,9 +98,25 @@ const LiveChat = () => {
         // Animate selectors moving around grid - 4 seconds total
         let moveCount = 0;
         const maxMoves = 16; // 4 seconds at 250ms intervals
+        
+        // Initialize with truly random positions
+        const initialIndex1 = Math.floor(Math.random() * transformedSims.length);
+        let initialIndex2 = Math.floor(Math.random() * transformedSims.length);
+        while (initialIndex2 === initialIndex1) {
+          initialIndex2 = Math.floor(Math.random() * transformedSims.length);
+        }
+        setSelector1Index(initialIndex1);
+        setSelector2Index(initialIndex2);
+        
         const selectorInterval = setInterval(() => {
-          setSelector1Index(Math.floor(Math.random() * transformedSims.length));
-          setSelector2Index(Math.floor(Math.random() * transformedSims.length));
+          let newIndex1 = Math.floor(Math.random() * transformedSims.length);
+          let newIndex2 = Math.floor(Math.random() * transformedSims.length);
+          // Ensure they're different
+          while (newIndex2 === newIndex1) {
+            newIndex2 = Math.floor(Math.random() * transformedSims.length);
+          }
+          setSelector1Index(newIndex1);
+          setSelector2Index(newIndex2);
           moveCount++;
           
           if (moveCount >= maxMoves) {
@@ -315,6 +331,12 @@ Keep it conversational, authentic, and varied. 2-3 sentences maximum.`;
                 <div className="inline-flex items-center gap-2 px-4 py-2 bg-card border border-border rounded-full">
                   <Sparkles className="h-4 w-4 text-primary animate-pulse" />
                   <span className="font-mono text-lg font-bold">{formatTime(timeRemaining)} until next topic</span>
+                  <button
+                    onClick={resetDebate}
+                    className="ml-2 px-3 py-1 text-xs font-medium bg-primary text-primary-foreground rounded-full hover:bg-primary/90 transition-colors"
+                  >
+                    New Debate
+                  </button>
                 </div>
               </div>
             )}
