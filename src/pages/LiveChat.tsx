@@ -326,9 +326,10 @@ Keep it conversational, authentic, and varied. 2-3 sentences maximum.`;
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0, scale: 0.95 }}
-                  className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-gradient-to-br from-background via-background to-primary/5 p-4 md:p-8"
+                  className="fixed inset-0 z-50 flex flex-col bg-gradient-to-br from-background via-background to-primary/5"
                 >
-                  <div className="w-full max-w-6xl h-full flex flex-col space-y-3 md:space-y-4 py-4">
+                  <div className="flex-1 flex flex-col max-w-6xl mx-auto w-full px-4 md:px-8 py-4 md:py-6 overflow-hidden">
+                    {/* Header Section */}
                     <motion.div
                       initial={{ y: -20, opacity: 0 }}
                       animate={{ y: 0, opacity: 1 }}
@@ -347,9 +348,10 @@ Keep it conversational, authentic, and varied. 2-3 sentences maximum.`;
                       </h2>
                     </motion.div>
 
-                    {/* Avatar Grid with Moving Selectors - Scrollable */}
-                    <div className="flex-1 overflow-y-auto px-2 md:px-4">
-                      <div className="relative grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-2 sm:gap-2.5 md:gap-3 py-2">
+
+                    {/* Avatar Grid with Moving Selectors - Scrollable with constrained height */}
+                    <div className="flex-1 overflow-y-auto min-h-0 px-2 md:px-4 scrollbar-thin scrollbar-thumb-primary/20 scrollbar-track-transparent">
+                      <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-2 sm:gap-2.5 md:gap-3 pb-4">
                         {allHistoricalSims.map((sim, index) => {
                           const isSelected = selector1Index === index || selector2Index === index;
                           return (
@@ -412,8 +414,10 @@ Keep it conversational, authentic, and varied. 2-3 sentences maximum.`;
                       </div>
                     </div>
 
+                    {/* Footer Message */}
+
                     <motion.div
-                      className="text-center space-y-1 px-4 flex-shrink-0 pb-2"
+                      className="flex-shrink-0 text-center px-4 py-2"
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       transition={{ delay: 0.5 }}
