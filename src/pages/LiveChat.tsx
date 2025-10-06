@@ -50,20 +50,35 @@ const LiveChat = () => {
   // Fetch historical sims on mount
   useEffect(() => {
     const fetchSims = async () => {
-      const { data, error } = await supabase
+      console.log('Fetching sims for live chat...');
+      
+      // First try to get historical sims
+      const { data: historicalData, error: historicalError } = await supabase
         .from('advisors')
         .select('*')
         .eq('is_public', true)
         .eq('sim_type', 'historical')
         .order('created_at', { ascending: false });
 
-      if (error) {
-        console.error('Error fetching historical sims:', error);
-        return;
+      console.log('Historical sims query result:', historicalData?.length || 0);
+
+      // If we don't have enough historical sims, fall back to all public advisors
+      let finalData = historicalData;
+      if (!historicalData || historicalData.length < 2) {
+        console.log('Not enough historical sims, fetching all public advisors...');
+        const { data: allData, error: allError } = await supabase
+          .from('advisors')
+          .select('*')
+          .eq('is_public', true)
+          .order('created_at', { ascending: false })
+          .limit(10);
+        
+        finalData = allData;
+        console.log('All public advisors:', allData?.length || 0);
       }
 
-      if (data && data.length > 0) {
-        const transformedSims = data.map((advisor: any) => ({
+      if (finalData && finalData.length >= 2) {
+        const transformedSims = finalData.map((advisor: any) => ({
           id: advisor.id,
           name: advisor.name,
           description: advisor.description || advisor.title || '',
@@ -76,7 +91,10 @@ const LiveChat = () => {
         } as AgentType));
         
         setAllHistoricalSims(transformedSims);
-        console.log('Loaded historical sims:', transformedSims.length);
+        console.log('Loaded sims for debate:', transformedSims.length);
+      } else {
+        console.error('Not enough sims available for debate');
+        setIsSelecting(false);
       }
     };
 
@@ -101,7 +119,13 @@ const LiveChat = () => {
   }, [isDebating]);
 
   const selectRandomSims = () => {
-    if (allHistoricalSims.length < 2) return;
+    console.log('selectRandomSims called, available sims:', allHistoricalSims.length);
+    
+    if (allHistoricalSims.length < 2) {
+      console.error('Not enough sims to select');
+      setIsSelecting(false);
+      return;
+    }
 
     setIsSelecting(true);
     setMessages([]);
@@ -118,9 +142,13 @@ const LiveChat = () => {
     const sim1 = allHistoricalSims[index1];
     const sim2 = allHistoricalSims[index2 === index1 ? (index2 + 1) % allHistoricalSims.length : index2];
     
+    console.log('Selected sims:', sim1.name, 'vs', sim2.name);
+    
     // Deterministic question selection
     const questionIndex = Math.floor(seed / DEBATE_DURATION) % philosophicalQuestions.length;
     const selectedQuestion = philosophicalQuestions[questionIndex];
+    
+    console.log('Selected question:', selectedQuestion);
     
     // Animate selection
     setTimeout(() => {
@@ -132,13 +160,16 @@ const LiveChat = () => {
   };
 
   const startDebate = async (sim1: AgentType, sim2: AgentType, question: string) => {
+    console.log('Starting debate between', sim1.name, 'and', sim2.name);
     setIsDebating(true);
     debateStartTimeRef.current = Date.now();
     conversationIndexRef.current = 0;
 
     // Initial opening statements
+    console.log('Generating first response...');
     await generateResponse(sim1, question, [], true);
     await new Promise(resolve => setTimeout(resolve, 2000));
+    console.log('Generating second response...');
     await generateResponse(sim2, question, [], false);
 
     // Continue conversation
