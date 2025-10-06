@@ -161,21 +161,26 @@ const LiveChat = () => {
     debateStartTimeRef.current = Date.now();
     conversationIndexRef.current = 0;
 
+    const debateMessages: Message[] = [];
+
     // Initial opening statements
     console.log('Generating first response...');
-    const firstResponse = await generateResponse(sim1, question, []);
+    const firstResponse = await generateResponse(sim1, question, [], debateMessages);
     if (!firstResponse) return;
+    debateMessages.push(firstResponse);
     
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    await new Promise(resolve => setTimeout(resolve, 3000));
     
     console.log('Generating second response...');
-    await generateResponse(sim2, question, [firstResponse]);
+    const secondResponse = await generateResponse(sim2, question, debateMessages, debateMessages);
+    if (!secondResponse) return;
+    debateMessages.push(secondResponse);
 
     // Continue conversation
-    continueDebate(sim1, sim2, question);
+    continueDebate(sim1, sim2, question, debateMessages);
   };
 
-  const continueDebate = async (sim1: AgentType, sim2: AgentType, question: string) => {
+  const continueDebate = async (sim1: AgentType, sim2: AgentType, question: string, debateMessages: Message[]) => {
     const maxExchanges = 10;
     
     for (let i = 0; i < maxExchanges; i++) {
@@ -185,32 +190,35 @@ const LiveChat = () => {
       
       await new Promise(resolve => setTimeout(resolve, 15000)); // Wait 15 seconds between responses
       
-      // Get recent messages to pass as context
-      const recentMessages = messages.slice(-3);
-      await generateResponse(currentSim, question, recentMessages);
+      const newResponse = await generateResponse(currentSim, question, debateMessages, debateMessages);
+      if (newResponse) {
+        debateMessages.push(newResponse);
+      }
     }
   };
 
-  const generateResponse = async (sim: AgentType, question: string, previousMessages: Message[]): Promise<Message | null> => {
+  const generateResponse = async (sim: AgentType, question: string, previousMessages: Message[], allMessages: Message[]): Promise<Message | null> => {
     try {
-      const context = previousMessages.map(m => `${m.simName}: ${m.content}`).join('\n\n');
+      const isFirstMessage = previousMessages.length === 0;
+      const lastMessage = previousMessages[previousMessages.length - 1];
+      const otherDebater = lastMessage ? lastMessage.simName : '';
       
-      const prompt = previousMessages.length === 0
+      const prompt = isFirstMessage
         ? `You are ${sim.name} in a live philosophical debate. The question is: "${question}". 
 
 Provide a compelling opening statement that represents your unique perspective and philosophy. Stay true to your historical character and beliefs. Be thoughtful, direct, and engaging. 2-3 sentences.`
-        : `You are ${sim.name} in a live philosophical debate. The debate topic is: "${question}". 
+        : `You are ${sim.name} in a live philosophical debate about: "${question}". 
 
-The other debater just said:
-${previousMessages[previousMessages.length - 1]?.content}
+${otherDebater} just argued:
+"${lastMessage?.content}"
 
-Respond directly to their point. You can:
-- Respectfully challenge their view with your own philosophy
-- Build on what they said and add your perspective  
-- Provide a counter-example from your experience
-- Ask a probing question that reveals deeper issues
+Respond DIRECTLY to ${otherDebater}'s specific point. You must:
+- Address what they just said explicitly
+- Either challenge their reasoning or build upon it from your perspective
+- Bring in your own philosophical framework or historical experience
+- Make it a real back-and-forth conversation
 
-Be conversational and authentic to who you are. Reference your own ideas, experiences, or historical context when relevant. 2-3 sentences.`;
+Stay in character. Be conversational and engaging. 2-3 sentences maximum.`;
 
       console.log('Sending debate prompt for', sim.name);
 
