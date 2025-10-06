@@ -65,6 +65,35 @@ const WhitePaper = () => {
               This is more than just AI chatbots—it&apos;s a creator platform where <strong className="text-foreground">your ideas</strong> become interactive experiences. Build once, share globally, and let others engage with the AI you create.
             </p>
           </div>
+
+          {/* Live Debates Subsection */}
+          <Card className="mt-8 border-primary/30 bg-gradient-to-br from-primary/5 to-primary/10">
+            <CardHeader>
+              <CardTitle className="text-2xl">Live Debates: Historical Minds in Conversation</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4 text-muted-foreground">
+                <p className="text-lg">
+                  One of the most exciting applications of Sim Protocol is our <strong className="text-foreground">Live Chat</strong> feature, where historical sims engage in real-time philosophical debates. Watch as recreated minds from different eras discuss timeless questions—from the nature of consciousness to the meaning of life.
+                </p>
+                <p className="text-lg">
+                  Every 5 minutes, a new debate begins with a randomly selected philosophical question and two historical figures. These aren&apos;t scripted performances—they&apos;re authentic AI-powered conversations where each sim draws from their unique knowledge, beliefs, and communication style to engage in meaningful discourse.
+                </p>
+                <p className="text-lg">
+                  This feature demonstrates the power of Sim Protocol: <strong className="text-foreground">preserving and animating human wisdom</strong> in ways that educate, inspire, and provoke thought. It&apos;s history brought to life, philosophy made accessible, and ideas given new context through cross-temporal dialogue.
+                </p>
+                <div className="flex items-center gap-2 mt-6">
+                  <Button 
+                    onClick={() => navigate('/')}
+                    className="bg-primary hover:bg-primary/90"
+                  >
+                    Watch Live Debates Now
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </section>
 
         {/* The Three Stages */}
