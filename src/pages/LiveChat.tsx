@@ -213,14 +213,15 @@ const LiveChat = () => {
   };
 
   const continueDebate = async (sim1: AgentType, sim2: AgentType, question: string, debateMessages: Message[]) => {
-    const maxExchanges = 10;
+    let exchangeCount = 0;
 
-    for (let i = 0; i < maxExchanges; i++) {
-      if (Date.now() - debateStartTimeRef.current >= DEBATE_DURATION) break;
-
-      const currentSim = i % 2 === 0 ? sim1 : sim2;
+    while (Date.now() - debateStartTimeRef.current < DEBATE_DURATION) {
+      const currentSim = exchangeCount % 2 === 0 ? sim1 : sim2;
 
       await new Promise((resolve) => setTimeout(resolve, 9000)); // Wait for reading time
+
+      // Check again after waiting to avoid generating after time is up
+      if (Date.now() - debateStartTimeRef.current >= DEBATE_DURATION) break;
 
       setTypingIndicator(currentSim.name);
       const newResponse = await generateResponse(currentSim, question, debateMessages, debateMessages);
@@ -228,6 +229,7 @@ const LiveChat = () => {
 
       if (newResponse) {
         debateMessages.push(newResponse);
+        exchangeCount++;
       }
     }
   };
