@@ -196,20 +196,31 @@ const LiveChat = () => {
       const context = previousMessages.map(m => `${m.simName}: ${m.content}`).join('\n\n');
       
       const prompt = previousMessages.length === 0
-        ? `You are ${sim.name}. The question is: "${question}". Provide your initial perspective in 2-3 sentences. Be thoughtful and stay in character.`
-        : `You are ${sim.name}. The debate topic is: "${question}". 
+        ? `You are ${sim.name} in a live philosophical debate. The question is: "${question}". 
 
-Previous discussion:
-${context}
+Provide a compelling opening statement that represents your unique perspective and philosophy. Stay true to your historical character and beliefs. Be thoughtful, direct, and engaging. 2-3 sentences.`
+        : `You are ${sim.name} in a live philosophical debate. The debate topic is: "${question}". 
 
-Respond to the latest point made by the other person. Build on the conversation, agree or disagree thoughtfully, and add new insights. Keep it to 2-3 sentences. Be engaging and philosophical.`;
+The other debater just said:
+${previousMessages[previousMessages.length - 1]?.content}
 
-      console.log('Sending prompt for', sim.name);
+Respond directly to their point. You can:
+- Respectfully challenge their view with your own philosophy
+- Build on what they said and add your perspective  
+- Provide a counter-example from your experience
+- Ask a probing question that reveals deeper issues
+
+Be conversational and authentic to who you are. Reference your own ideas, experiences, or historical context when relevant. 2-3 sentences.`;
+
+      console.log('Sending debate prompt for', sim.name);
 
       const { data, error } = await supabase.functions.invoke('chat-completion', {
         body: {
           messages: [{ role: 'user', content: prompt }],
-          agent: { prompt: sim.prompt || '', name: sim.name }
+          agent: { 
+            prompt: sim.prompt || '', 
+            name: sim.name 
+          }
         }
       });
 
@@ -262,101 +273,108 @@ Respond to the latest point made by the other person. Build on the conversation,
     <div className="min-h-screen bg-background flex flex-col">
       <TopNavigation />
       
-      <div className="flex-1 container mx-auto px-4 py-4 max-w-6xl flex flex-col overflow-hidden">
-        {/* Timer and Question - Compact */}
-        <div className="mb-4 space-y-3">
-          {isDebating && (
-            <div className="text-center">
-              <div className="inline-flex items-center gap-2 px-4 py-2 bg-card border border-border rounded-full">
-                <Sparkles className="h-4 w-4 text-primary animate-pulse" />
-                <span className="font-mono text-lg font-bold">{formatTime(timeRemaining)}</span>
+      {/* Fixed Header Section */}
+      <div className="sticky top-0 z-10 bg-background border-b border-border">
+        <div className="container mx-auto px-4 py-4 max-w-6xl">
+          {/* Timer and Question - Compact */}
+          <div className="mb-4 space-y-3">
+            {isDebating && (
+              <div className="text-center">
+                <div className="inline-flex items-center gap-2 px-4 py-2 bg-card border border-border rounded-full">
+                  <Sparkles className="h-4 w-4 text-primary animate-pulse" />
+                  <span className="font-mono text-lg font-bold">{formatTime(timeRemaining)}</span>
+                </div>
               </div>
-            </div>
-          )}
+            )}
 
-          {/* Selection Animation */}
-          <AnimatePresence mode="wait">
-            {isSelecting && (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.8 }}
-                className="flex flex-col items-center justify-center py-12"
-              >
-                <Loader2 className="h-12 w-12 text-primary animate-spin mb-4" />
-                <h2 className="text-xl font-semibold mb-1">Selecting Debaters...</h2>
-                <p className="text-sm text-muted-foreground">Finding the perfect minds for today's debate</p>
+            {/* Selection Animation */}
+            <AnimatePresence mode="wait">
+              {isSelecting && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.8 }}
+                  className="flex flex-col items-center justify-center py-12"
+                >
+                  <Loader2 className="h-12 w-12 text-primary animate-spin mb-4" />
+                  <h2 className="text-xl font-semibold mb-1">Selecting Debaters...</h2>
+                  <p className="text-sm text-muted-foreground">Finding the perfect minds for today&apos;s debate</p>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* Question Card - Compact */}
+            {!isSelecting && question && (
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+                <Card className="p-4 bg-gradient-to-r from-primary/10 to-primary/5 border-primary/20">
+                  <div className="flex items-center justify-center gap-2 mb-2">
+                    <MessageCircle className="h-4 w-4 text-primary" />
+                    <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                      Today&apos;s Question
+                    </h3>
+                  </div>
+                  <p className="text-xl font-bold text-center">{question}</p>
+                </Card>
               </motion.div>
             )}
-          </AnimatePresence>
+          </div>
 
-          {/* Question Card - Compact */}
-          {!isSelecting && question && (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-              <Card className="p-4 bg-gradient-to-r from-primary/10 to-primary/5 border-primary/20">
-                <div className="flex items-center justify-center gap-2 mb-2">
-                  <MessageCircle className="h-4 w-4 text-primary" />
-                  <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-                    Today's Question
-                  </h3>
-                </div>
-                <p className="text-xl font-bold text-center">{question}</p>
-              </Card>
+          {/* Debaters - Compact Side by Side */}
+          {!isSelecting && selectedSims[0] && selectedSims[1] && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="grid grid-cols-2 gap-4"
+            >
+              {selectedSims.map((sim) => sim && (
+                <Card key={sim.id} className="p-4 text-center">
+                  <Avatar className="h-16 w-16 mx-auto mb-2 border-2 border-primary/20">
+                    <AvatarImage src={sim.avatar} alt={sim.name} />
+                    <AvatarFallback className="text-lg">{sim.name[0]}</AvatarFallback>
+                  </Avatar>
+                  <h3 className="text-lg font-bold mb-1">{sim.name}</h3>
+                  <p className="text-xs text-muted-foreground line-clamp-2">{sim.description}</p>
+                </Card>
+              ))}
             </motion.div>
           )}
         </div>
+      </div>
 
-        {/* Debaters - Compact Side by Side */}
-        {!isSelecting && selectedSims[0] && selectedSims[1] && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="grid grid-cols-2 gap-4 mb-4"
-          >
-            {selectedSims.map((sim, idx) => sim && (
-              <Card key={sim.id} className="p-4 text-center">
-                <Avatar className="h-16 w-16 mx-auto mb-2 border-2 border-primary/20">
-                  <AvatarImage src={sim.avatar} alt={sim.name} />
-                  <AvatarFallback className="text-lg">{sim.name[0]}</AvatarFallback>
-                </Avatar>
-                <h3 className="text-lg font-bold mb-1">{sim.name}</h3>
-                <p className="text-xs text-muted-foreground line-clamp-2">{sim.description}</p>
-              </Card>
-            ))}
-          </motion.div>
-        )}
-
-        {/* Messages - Scrollable with Fixed Height */}
-        <div className="flex-1 overflow-y-auto min-h-0 space-y-3">
-          <AnimatePresence>
-            {messages.map((message) => (
-              <motion.div
-                key={message.id}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.2 }}
-              >
-                <Card className="p-4">
-                  <div className="flex items-start gap-3">
-                    <Avatar className="h-10 w-10 border-2 border-primary/30 flex-shrink-0">
-                      <AvatarImage src={message.simAvatar} alt={message.simName} />
-                      <AvatarFallback>{message.simName[0]}</AvatarFallback>
-                    </Avatar>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
-                        <h4 className="font-bold text-sm">{message.simName}</h4>
-                        <span className="text-xs text-muted-foreground">
-                          {message.timestamp.toLocaleTimeString()}
-                        </span>
+      {/* Scrollable Chat Section */}
+      <div className="flex-1 overflow-y-auto">
+        <div className="container mx-auto px-4 py-4 max-w-6xl">
+          <div className="space-y-3">
+            <AnimatePresence>
+              {messages.map((message) => (
+                <motion.div
+                  key={message.id}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <Card className="p-4">
+                    <div className="flex items-start gap-3">
+                      <Avatar className="h-10 w-10 border-2 border-primary/30 flex-shrink-0">
+                        <AvatarImage src={message.simAvatar} alt={message.simName} />
+                        <AvatarFallback>{message.simName[0]}</AvatarFallback>
+                      </Avatar>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          <h4 className="font-bold text-sm">{message.simName}</h4>
+                          <span className="text-xs text-muted-foreground">
+                            {message.timestamp.toLocaleTimeString()}
+                          </span>
+                        </div>
+                        <p className="text-sm text-foreground leading-relaxed">{message.content}</p>
                       </div>
-                      <p className="text-sm text-foreground leading-relaxed">{message.content}</p>
                     </div>
-                  </div>
-                </Card>
-              </motion.div>
-            ))}
-          </AnimatePresence>
-          <div ref={messagesEndRef} />
+                  </Card>
+                </motion.div>
+              ))}
+            </AnimatePresence>
+            <div ref={messagesEndRef} />
+          </div>
         </div>
       </div>
 
