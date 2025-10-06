@@ -33,7 +33,7 @@ const philosophicalQuestions = [
   "What makes an action right or wrong?",
   "Can artificial intelligence truly think?",
   "What is the self?",
-  "Is death necessary for life to have meaning?"
+  "Is death necessary for life to have meaning?",
 ];
 
 const LiveChat = () => {
@@ -51,46 +51,49 @@ const LiveChat = () => {
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
   // Fetch verified historical sims for debate
   useEffect(() => {
     const fetchSims = async () => {
-      console.log('Fetching verified historical sims for live chat...');
-      
-      const { data: historicalSims, error } = await supabase
-        .from('advisors')
-        .select('*')
-        .eq('is_verified', true)
-        .eq('sim_type', 'historical')
-        .order('created_at', { ascending: false });
+      console.log("Fetching verified historical sims for live chat...");
 
-      console.log('Verified historical sims:', historicalSims?.length || 0);
-      
+      const { data: historicalSims, error } = await supabase
+        .from("advisors")
+        .select("*")
+        .eq("is_verified", true)
+        .eq("sim_type", "historical")
+        .order("created_at", { ascending: false });
+
+      console.log("Verified historical sims:", historicalSims?.length || 0);
+
       if (error) {
-        console.error('Error fetching historical sims:', error);
+        console.error("Error fetching historical sims:", error);
         setIsSelecting(false);
         return;
       }
 
       if (historicalSims && historicalSims.length >= 2) {
-        const transformedSims = historicalSims.map((advisor: any) => ({
-          id: advisor.id,
-          name: advisor.name,
-          description: advisor.description || advisor.title || '',
-          type: 'General Tutor' as any,
-          status: 'active' as any,
-          createdAt: advisor.created_at,
-          updatedAt: advisor.updated_at,
-          avatar: advisor.avatar_url,
-          prompt: advisor.prompt,
-        } as AgentType));
-        
+        const transformedSims = historicalSims.map(
+          (advisor: any) =>
+            ({
+              id: advisor.id,
+              name: advisor.name,
+              description: advisor.description || advisor.title || "",
+              type: "General Tutor" as any,
+              status: "active" as any,
+              createdAt: advisor.created_at,
+              updatedAt: advisor.updated_at,
+              avatar: advisor.avatar_url,
+              prompt: advisor.prompt,
+            }) as AgentType,
+        );
+
         setAllHistoricalSims(transformedSims);
-        console.log('Loaded historical sims for debate:', transformedSims.map(s => s.name).join(', '));
+        console.log("Loaded historical sims for debate:", transformedSims.map((s) => s.name).join(", "));
       } else {
-        console.error('Not enough historical sims for debate. Need at least 2, found:', historicalSims?.length || 0);
+        console.error("Not enough historical sims for debate. Need at least 2, found:", historicalSims?.length || 0);
         setIsSelecting(false);
       }
     };
@@ -116,37 +119,37 @@ const LiveChat = () => {
   }, [isDebating]);
 
   const selectRandomSims = () => {
-    console.log('selectRandomSims called, available sims:', allHistoricalSims.length);
-    
+    console.log("selectRandomSims called, available sims:", allHistoricalSims.length);
+
     if (allHistoricalSims.length < 2) {
-      console.error('Not enough sims to select');
+      console.error("Not enough sims to select");
       setIsSelecting(false);
       return;
     }
 
     setIsSelecting(true);
     setMessages([]);
-    
+
     // Use deterministic selection based on current time (5-minute intervals)
     // This ensures all viewers see the same debate at the same time
     const intervalStart = Math.floor(Date.now() / DEBATE_DURATION) * DEBATE_DURATION;
     const seed = intervalStart;
-    
+
     // Deterministic pseudo-random selection using time-based seed
     const index1 = seed % allHistoricalSims.length;
     const index2 = (seed + 1) % allHistoricalSims.length;
-    
+
     const sim1 = allHistoricalSims[index1];
     const sim2 = allHistoricalSims[index2 === index1 ? (index2 + 1) % allHistoricalSims.length : index2];
-    
-    console.log('Selected sims:', sim1.name, 'vs', sim2.name);
-    
+
+    console.log("Selected sims:", sim1.name, "vs", sim2.name);
+
     // Deterministic question selection
     const questionIndex = Math.floor(seed / DEBATE_DURATION) % philosophicalQuestions.length;
     const selectedQuestion = philosophicalQuestions[questionIndex];
-    
-    console.log('Selected question:', selectedQuestion);
-    
+
+    console.log("Selected question:", selectedQuestion);
+
     // Animate selection
     setTimeout(() => {
       setSelectedSims([sim1, sim2]);
@@ -157,7 +160,7 @@ const LiveChat = () => {
   };
 
   const startDebate = async (sim1: AgentType, sim2: AgentType, question: string) => {
-    console.log('Starting debate between', sim1.name, 'and', sim2.name);
+    console.log("Starting debate between", sim1.name, "and", sim2.name);
     setIsDebating(true);
     debateStartTimeRef.current = Date.now();
     conversationIndexRef.current = 0;
@@ -165,16 +168,16 @@ const LiveChat = () => {
     const debateMessages: Message[] = [];
 
     // Initial opening statements
-    console.log('Generating first response...');
+    console.log("Generating first response...");
     setTypingIndicator(sim1.name);
     const firstResponse = await generateResponse(sim1, question, [], debateMessages);
     setTypingIndicator(null);
     if (!firstResponse) return;
     debateMessages.push(firstResponse);
-    
-    await new Promise(resolve => setTimeout(resolve, 9000)); // Give time to read
-    
-    console.log('Generating second response...');
+
+    await new Promise((resolve) => setTimeout(resolve, 9000)); // Give time to read
+
+    console.log("Generating second response...");
     setTypingIndicator(sim2.name);
     const secondResponse = await generateResponse(sim2, question, debateMessages, debateMessages);
     setTypingIndicator(null);
@@ -187,30 +190,35 @@ const LiveChat = () => {
 
   const continueDebate = async (sim1: AgentType, sim2: AgentType, question: string, debateMessages: Message[]) => {
     const maxExchanges = 10;
-    
+
     for (let i = 0; i < maxExchanges; i++) {
       if (Date.now() - debateStartTimeRef.current >= DEBATE_DURATION) break;
-      
+
       const currentSim = i % 2 === 0 ? sim1 : sim2;
-      
-      await new Promise(resolve => setTimeout(resolve, 9000)); // Wait for reading time
-      
+
+      await new Promise((resolve) => setTimeout(resolve, 9000)); // Wait for reading time
+
       setTypingIndicator(currentSim.name);
       const newResponse = await generateResponse(currentSim, question, debateMessages, debateMessages);
       setTypingIndicator(null);
-      
+
       if (newResponse) {
         debateMessages.push(newResponse);
       }
     }
   };
 
-  const generateResponse = async (sim: AgentType, question: string, previousMessages: Message[], allMessages: Message[]): Promise<Message | null> => {
+  const generateResponse = async (
+    sim: AgentType,
+    question: string,
+    previousMessages: Message[],
+    allMessages: Message[],
+  ): Promise<Message | null> => {
     try {
       const isFirstMessage = previousMessages.length === 0;
       const lastMessage = previousMessages[previousMessages.length - 1];
-      const otherDebater = lastMessage ? lastMessage.simName : '';
-      
+      const otherDebater = lastMessage ? lastMessage.simName : "";
+
       const prompt = isFirstMessage
         ? `You are ${sim.name} in a live philosophical debate. The question is: "${question}". 
 
@@ -228,39 +236,39 @@ Respond naturally to their point. You can:
 
 Important: Be conversational and authentic. You don't need to use their name every time - vary your responses. Sometimes reference them directly, sometimes just respond to the idea itself. Keep it engaging and natural. 2-3 sentences maximum.`;
 
-      console.log('Sending debate prompt for', sim.name);
+      console.log("Sending debate prompt for", sim.name);
 
-      const { data, error } = await supabase.functions.invoke('chat-completion', {
+      const { data, error } = await supabase.functions.invoke("chat-completion", {
         body: {
-          messages: [{ role: 'user', content: prompt }],
-          agent: { 
-            prompt: sim.prompt || '', 
-            name: sim.name 
-          }
-        }
+          messages: [{ role: "user", content: prompt }],
+          agent: {
+            prompt: sim.prompt || "",
+            name: sim.name,
+          },
+        },
       });
 
       if (error) {
-        console.error('Edge function error:', error);
+        console.error("Edge function error:", error);
         return null;
       }
 
-      console.log('Received response for', sim.name, ':', data?.content?.substring(0, 100));
+      console.log("Received response for", sim.name, ":", data?.content?.substring(0, 100));
 
       const newMessage: Message = {
         id: `${sim.id}-${Date.now()}`,
         simName: sim.name,
         simAvatar: sim.avatar,
-        content: data?.content || '',
-        timestamp: new Date()
+        content: data?.content || "",
+        timestamp: new Date(),
       };
 
-      setMessages(prev => [...prev, newMessage]);
+      setMessages((prev) => [...prev, newMessage]);
       conversationIndexRef.current++;
-      
+
       return newMessage;
     } catch (error) {
-      console.error('Error generating response:', error);
+      console.error("Error generating response:", error);
       return null;
     }
   };
@@ -282,13 +290,13 @@ Important: Be conversational and authentic. You don't need to use their name eve
   const formatTime = (ms: number) => {
     const minutes = Math.floor(ms / 60000);
     const seconds = Math.floor((ms % 60000) / 1000);
-    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+    return `${minutes}:${seconds.toString().padStart(2, "0")}`;
   };
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <TopNavigation />
-      
+
       {/* Fixed Header Section */}
       <div className="sticky top-0 z-10 bg-background border-b border-border">
         <div className="container mx-auto px-4 py-4 max-w-6xl">
@@ -313,7 +321,7 @@ Important: Be conversational and authentic. You don't need to use their name eve
                   className="flex flex-col items-center justify-center py-12"
                 >
                   <Loader2 className="h-12 w-12 text-primary animate-spin mb-4" />
-                  <h2 className="text-xl font-semibold mb-1">Selecting Debaters...</h2>
+                  <h2 className="text-xl font-semibold mb-1">Selecting Sims...</h2>
                   <p className="text-sm text-muted-foreground">Finding the perfect minds for today&apos;s debate</p>
                 </motion.div>
               )}
@@ -337,21 +345,20 @@ Important: Be conversational and authentic. You don't need to use their name eve
 
           {/* Debaters - Compact Side by Side */}
           {!isSelecting && selectedSims[0] && selectedSims[1] && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="grid grid-cols-2 gap-4"
-            >
-              {selectedSims.map((sim) => sim && (
-                <Card key={sim.id} className="p-4 text-center">
-                  <Avatar className="h-16 w-16 mx-auto mb-2 border-2 border-primary/20">
-                    <AvatarImage src={sim.avatar} alt={sim.name} />
-                    <AvatarFallback className="text-lg">{sim.name[0]}</AvatarFallback>
-                  </Avatar>
-                  <h3 className="text-lg font-bold mb-1">{sim.name}</h3>
-                  <p className="text-xs text-muted-foreground line-clamp-2">{sim.description}</p>
-                </Card>
-              ))}
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="grid grid-cols-2 gap-4">
+              {selectedSims.map(
+                (sim) =>
+                  sim && (
+                    <Card key={sim.id} className="p-4 text-center">
+                      <Avatar className="h-16 w-16 mx-auto mb-2 border-2 border-primary/20">
+                        <AvatarImage src={sim.avatar} alt={sim.name} />
+                        <AvatarFallback className="text-lg">{sim.name[0]}</AvatarFallback>
+                      </Avatar>
+                      <h3 className="text-lg font-bold mb-1">{sim.name}</h3>
+                      <p className="text-xs text-muted-foreground line-clamp-2">{sim.description}</p>
+                    </Card>
+                  ),
+              )}
             </motion.div>
           )}
         </div>
@@ -388,20 +395,16 @@ Important: Be conversational and authentic. You don't need to use their name eve
                   </Card>
                 </motion.div>
               ))}
-              
+
               {/* Typing Indicator */}
               {typingIndicator && (
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0 }}
-                >
+                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
                   <Card className="p-4 bg-muted/50">
                     <div className="flex items-start gap-3">
                       <Avatar className="h-10 w-10 border-2 border-primary/30 flex-shrink-0">
-                        <AvatarImage 
-                          src={selectedSims.find(s => s?.name === typingIndicator)?.avatar} 
-                          alt={typingIndicator} 
+                        <AvatarImage
+                          src={selectedSims.find((s) => s?.name === typingIndicator)?.avatar}
+                          alt={typingIndicator}
                         />
                         <AvatarFallback>{typingIndicator[0]}</AvatarFallback>
                       </Avatar>
