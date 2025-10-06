@@ -56,20 +56,25 @@ const LiveChat = () => {
   // Fetch historical sims on mount
   useEffect(() => {
     const fetchSims = async () => {
-      console.log('Fetching historical sims for live chat...');
+      console.log('Fetching sims for live chat...');
       
-      const { data: historicalData, error: historicalError } = await supabase
+      // First, fetch ALL public advisors to see what we have
+      const { data: allAdvisors, error: allError } = await supabase
         .from('advisors')
         .select('*')
         .eq('is_public', true)
-        .eq('sim_type', 'historical')
         .order('created_at', { ascending: false });
 
-      console.log('Historical sims query result:', historicalData?.length || 0, 'sims');
+      console.log('All public advisors:', allAdvisors?.length || 0);
+      console.log('Advisor sim_types:', allAdvisors?.map(a => ({ name: a.name, sim_type: a.sim_type })));
       
-      if (historicalError) {
-        console.error('Error fetching historical sims:', historicalError);
-      }
+      // Filter for historical sims (including null, since default is historical)
+      const historicalData = allAdvisors?.filter((advisor: any) => 
+        advisor.sim_type === 'historical' || advisor.sim_type === null
+      );
+
+      console.log('Historical sims (including null):', historicalData?.length || 0);
+      console.log('Historical sim names:', historicalData?.map((a: any) => a.name).join(', '));
 
       if (historicalData && historicalData.length >= 2) {
         const transformedSims = historicalData.map((advisor: any) => ({
