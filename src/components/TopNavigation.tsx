@@ -124,6 +124,19 @@ const TopNavigation = ({
               asChild
             >
               <Link 
+                to="/live-chat"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Live Chat
+              </Link>
+            </Button>
+            
+            <Button
+              variant="ghost"
+              className="w-full justify-start text-left"
+              asChild
+            >
+              <Link 
                 to="/whitepaper"
                 onClick={() => setMobileMenuOpen(false)}
               >
@@ -192,6 +205,13 @@ const TopNavigation = ({
                     className="text-sm font-medium hover:text-primary"
                   >
                     Home
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    className="text-sm font-medium hover:text-primary"
+                    asChild
+                  >
+                    <Link to="/live-chat">Live Chat</Link>
                   </Button>
                   <Button
                     variant="ghost"

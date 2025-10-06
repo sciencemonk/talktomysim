@@ -1,0 +1,325 @@
+import { useState, useEffect, useRef } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import TopNavigation from "@/components/TopNavigation";
+import SimpleFooter from "@/components/SimpleFooter";
+import { AgentType } from "@/types/agent";
+import { Card } from "@/components/ui/card";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Loader2, Sparkles, MessageCircle } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+
+interface Message {
+  id: string;
+  simName: string;
+  simAvatar?: string;
+  content: string;
+  timestamp: Date;
+}
+
+const DEBATE_DURATION = 5 * 60 * 1000; // 5 minutes
+
+const philosophicalQuestions = [
+  "Is free will real or an illusion?",
+  "What is the nature of consciousness?",
+  "Does objective morality exist?",
+  "What is the meaning of life?",
+  "Is knowledge more valuable than wisdom?",
+  "Can we ever truly know reality?",
+  "What is the relationship between mind and body?",
+  "Is happiness the ultimate goal of human life?",
+  "Do we have moral obligations to future generations?",
+  "What is the nature of time?",
+  "Is truth absolute or relative?",
+  "What makes an action right or wrong?",
+  "Can artificial intelligence truly think?",
+  "What is the self?",
+  "Is death necessary for life to have meaning?"
+];
+
+const LiveChat = () => {
+  const [selectedSims, setSelectedSims] = useState<[AgentType | null, AgentType | null]>([null, null]);
+  const [question, setQuestion] = useState<string>("");
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [isSelecting, setIsSelecting] = useState(true);
+  const [isDebating, setIsDebating] = useState(false);
+  const [allHistoricalSims, setAllHistoricalSims] = useState<AgentType[]>([]);
+  const [timeRemaining, setTimeRemaining] = useState(DEBATE_DURATION);
+  const debateStartTimeRef = useRef<number>(0);
+  const conversationIndexRef = useRef(0);
+
+  // Fetch all historical sims on mount
+  useEffect(() => {
+    const fetchHistoricalSims = async () => {
+      const { data } = await supabase
+        .from('tutors')
+        .select('*')
+        .eq('status', 'active');
+
+      if (data && data.length > 0) {
+        // Filter for historical sims and transform
+        const historicalSims = data
+          .filter((tutor: any) => {
+            return tutor.sim_type === 'historical';
+          })
+          .map((tutor: any) => ({
+            id: tutor.id,
+            name: tutor.name,
+            description: tutor.description || '',
+            type: tutor.type as any,
+            status: tutor.status as any,
+            createdAt: tutor.created_at,
+            updatedAt: tutor.updated_at,
+            avatar: tutor.avatar,
+            prompt: tutor.prompt,
+            sim_type: 'historical' as const
+          } as AgentType));
+        
+        setAllHistoricalSims(historicalSims);
+      }
+    };
+
+    fetchHistoricalSims();
+  }, []);
+
+  // Timer countdown
+  useEffect(() => {
+    if (!isDebating) return;
+
+    const interval = setInterval(() => {
+      const elapsed = Date.now() - debateStartTimeRef.current;
+      const remaining = Math.max(0, DEBATE_DURATION - elapsed);
+      setTimeRemaining(remaining);
+
+      if (remaining === 0) {
+        resetDebate();
+      }
+    }, 100);
+
+    return () => clearInterval(interval);
+  }, [isDebating]);
+
+  const selectRandomSims = () => {
+    if (allHistoricalSims.length < 2) return;
+
+    setIsSelecting(true);
+    setMessages([]);
+    
+    // Randomly select 2 different sims
+    const shuffled = [...allHistoricalSims].sort(() => Math.random() - 0.5);
+    const sim1 = shuffled[0];
+    const sim2 = shuffled[1];
+    
+    // Randomly select a question
+    const randomQuestion = philosophicalQuestions[Math.floor(Math.random() * philosophicalQuestions.length)];
+    
+    // Animate selection
+    setTimeout(() => {
+      setSelectedSims([sim1, sim2]);
+      setQuestion(randomQuestion);
+      setIsSelecting(false);
+      startDebate(sim1, sim2, randomQuestion);
+    }, 3000);
+  };
+
+  const startDebate = async (sim1: AgentType, sim2: AgentType, question: string) => {
+    setIsDebating(true);
+    debateStartTimeRef.current = Date.now();
+    conversationIndexRef.current = 0;
+
+    // Initial opening statements
+    await generateResponse(sim1, question, [], true);
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    await generateResponse(sim2, question, [], false);
+
+    // Continue conversation
+    continueDebate(sim1, sim2, question);
+  };
+
+  const continueDebate = async (sim1: AgentType, sim2: AgentType, question: string) => {
+    const maxExchanges = 12; // 6 exchanges each over 5 minutes
+    
+    for (let i = 0; i < maxExchanges; i++) {
+      if (Date.now() - debateStartTimeRef.current >= DEBATE_DURATION) break;
+      
+      const currentSim = i % 2 === 0 ? sim1 : sim2;
+      const isFirstSim = i % 2 === 0;
+      
+      await new Promise(resolve => setTimeout(resolve, 20000)); // Wait 20 seconds between responses
+      
+      await generateResponse(currentSim, question, [], isFirstSim);
+    }
+  };
+
+  const generateResponse = async (sim: AgentType, question: string, previousMessages: Message[], isFirstSim: boolean) => {
+    try {
+      const context = previousMessages.slice(-4).map(m => `${m.simName}: ${m.content}`).join('\n');
+      
+      const prompt = conversationIndexRef.current === 0 
+        ? `You are ${sim.name}. The question is: "${question}". Provide your initial perspective in 2-3 sentences. Be thoughtful and true to your historical character.`
+        : `You are ${sim.name}. The debate topic is: "${question}". 
+        
+Previous discussion:
+${context}
+
+Respond to the latest point made. Build on the conversation, agree or disagree, and add new insights. Keep it to 2-3 sentences. Be engaging and philosophical.`;
+
+      const { data, error } = await supabase.functions.invoke('chat-completion', {
+        body: {
+          messages: [{ role: 'user', content: prompt }],
+          agent: { prompt: sim.prompt || '' }
+        }
+      });
+
+      if (error) throw error;
+
+      const newMessage: Message = {
+        id: `${sim.id}-${Date.now()}`,
+        simName: sim.name,
+        simAvatar: sim.avatar,
+        content: data.message || '',
+        timestamp: new Date()
+      };
+
+      setMessages(prev => [...prev, newMessage]);
+      conversationIndexRef.current++;
+    } catch (error) {
+      console.error('Error generating response:', error);
+    }
+  };
+
+  const resetDebate = () => {
+    setIsDebating(false);
+    setMessages([]);
+    setTimeRemaining(DEBATE_DURATION);
+    selectRandomSims();
+  };
+
+  // Initial selection on mount
+  useEffect(() => {
+    if (allHistoricalSims.length >= 2 && !selectedSims[0]) {
+      selectRandomSims();
+    }
+  }, [allHistoricalSims]);
+
+  const formatTime = (ms: number) => {
+    const minutes = Math.floor(ms / 60000);
+    const seconds = Math.floor((ms % 60000) / 1000);
+    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+  };
+
+  return (
+    <div className="min-h-screen bg-background flex flex-col">
+      <TopNavigation />
+      
+      <div className="flex-1 container mx-auto px-4 py-8 max-w-6xl">
+        <div className="mb-8 text-center">
+          <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+            Live Philosophical Debate
+          </h1>
+          <p className="text-muted-foreground">Watch historical figures discuss life's biggest questions</p>
+        </div>
+
+        {/* Timer */}
+        {isDebating && (
+          <div className="text-center mb-6">
+            <div className="inline-flex items-center gap-2 px-6 py-3 bg-card border border-border rounded-full">
+              <Sparkles className="h-5 w-5 text-primary animate-pulse" />
+              <span className="font-mono text-2xl font-bold">{formatTime(timeRemaining)}</span>
+            </div>
+          </div>
+        )}
+
+        {/* Selection Animation */}
+        <AnimatePresence mode="wait">
+          {isSelecting && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.8 }}
+              className="flex flex-col items-center justify-center py-20"
+            >
+              <Loader2 className="h-16 w-16 text-primary animate-spin mb-6" />
+              <h2 className="text-2xl font-semibold mb-2">Selecting Debaters...</h2>
+              <p className="text-muted-foreground">Finding the perfect minds for today's debate</p>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Debaters and Question */}
+        {!isSelecting && selectedSims[0] && selectedSims[1] && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-8"
+          >
+            <Card className="p-6 mb-6 bg-gradient-to-r from-primary/10 to-primary/5 border-primary/20">
+              <div className="flex items-center justify-center gap-2 mb-4">
+                <MessageCircle className="h-5 w-5 text-primary" />
+                <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+                  Today's Question
+                </h3>
+              </div>
+              <p className="text-2xl font-bold text-center">{question}</p>
+            </Card>
+
+            <div className="grid grid-cols-2 gap-6 mb-8">
+              {selectedSims.map((sim, idx) => sim && (
+                <motion.div
+                  key={sim.id}
+                  initial={{ opacity: 0, x: idx === 0 ? -50 : 50 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.2 }}
+                >
+                  <Card className="p-6 text-center hover:shadow-lg transition-shadow">
+                    <Avatar className="h-24 w-24 mx-auto mb-4 border-4 border-primary/20">
+                      <AvatarImage src={sim.avatar} alt={sim.name} />
+                      <AvatarFallback className="text-2xl">{sim.name[0]}</AvatarFallback>
+                    </Avatar>
+                    <h3 className="text-xl font-bold mb-2">{sim.name}</h3>
+                    <p className="text-sm text-muted-foreground">{sim.description}</p>
+                  </Card>
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
+        )}
+
+        {/* Debate Messages */}
+        <div className="space-y-4 max-h-[600px] overflow-y-auto">
+          <AnimatePresence>
+            {messages.map((message, idx) => (
+              <motion.div
+                key={message.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 }}
+              >
+                <Card className="p-6 hover:shadow-md transition-shadow">
+                  <div className="flex items-start gap-4">
+                    <Avatar className="h-12 w-12 border-2 border-primary/30">
+                      <AvatarImage src={message.simAvatar} alt={message.simName} />
+                      <AvatarFallback>{message.simName[0]}</AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-2">
+                        <h4 className="font-bold">{message.simName}</h4>
+                        <span className="text-xs text-muted-foreground">
+                          {message.timestamp.toLocaleTimeString()}
+                        </span>
+                      </div>
+                      <p className="text-foreground leading-relaxed">{message.content}</p>
+                    </div>
+                  </div>
+                </Card>
+              </motion.div>
+            ))}
+          </AnimatePresence>
+        </div>
+      </div>
+
+      <SimpleFooter />
+    </div>
+  );
+};
+
+export default LiveChat;
