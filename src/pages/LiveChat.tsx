@@ -172,7 +172,7 @@ const LiveChat = () => {
     if (!firstResponse) return;
     debateMessages.push(firstResponse);
     
-    await new Promise(resolve => setTimeout(resolve, 16000)); // Give time to read
+    await new Promise(resolve => setTimeout(resolve, 9000)); // Give time to read
     
     console.log('Generating second response...');
     setTypingIndicator(sim2.name);
@@ -193,7 +193,7 @@ const LiveChat = () => {
       
       const currentSim = i % 2 === 0 ? sim1 : sim2;
       
-      await new Promise(resolve => setTimeout(resolve, 18000)); // Wait for reading time
+      await new Promise(resolve => setTimeout(resolve, 9000)); // Wait for reading time
       
       setTypingIndicator(currentSim.name);
       const newResponse = await generateResponse(currentSim, question, debateMessages, debateMessages);
@@ -298,7 +298,7 @@ Stay in character. Be conversational and engaging. 2-3 sentences maximum.`;
               <div className="text-center">
                 <div className="inline-flex items-center gap-2 px-4 py-2 bg-card border border-border rounded-full">
                   <Sparkles className="h-4 w-4 text-primary animate-pulse" />
-                  <span className="font-mono text-lg font-bold">{formatTime(timeRemaining)}</span>
+                  <span className="font-mono text-lg font-bold">{formatTime(timeRemaining)} until next topic</span>
                 </div>
               </div>
             )}
