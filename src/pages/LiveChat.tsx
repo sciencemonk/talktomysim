@@ -326,34 +326,30 @@ Keep it conversational, authentic, and varied. 2-3 sentences maximum.`;
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0, scale: 0.95 }}
-                  className="fixed top-0 left-0 right-0 bottom-0 z-40 flex flex-col bg-gradient-to-br from-background via-background to-primary/5"
-                  style={{ height: '100vh', maxHeight: '-webkit-fill-available' }}
+                  className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-gradient-to-br from-background via-background to-primary/5 p-4 md:p-8"
                 >
-                  {/* Content container with safe area - accounts for top nav */}
-                  <div className="flex-1 flex flex-col max-w-6xl mx-auto w-full px-3 md:px-8 pt-20 md:pt-24 pb-20 md:pb-24 overflow-hidden">
-                    {/* Header Section - Compact */}
+                  <div className="w-full max-w-6xl h-full flex flex-col space-y-3 md:space-y-4 py-4">
                     <motion.div
                       initial={{ y: -20, opacity: 0 }}
                       animate={{ y: 0, opacity: 1 }}
-                      className="text-center space-y-1.5 md:space-y-2 flex-shrink-0 mb-2 md:mb-3"
+                      className="text-center space-y-2 md:space-y-3 flex-shrink-0"
                     >
                       <motion.img 
                         src={debateIcon} 
                         alt="Debate" 
-                        className="h-8 w-8 md:h-12 lg:h-14 md:w-12 lg:w-14 mx-auto"
+                        className="h-10 w-10 md:h-14 lg:h-16 md:w-14 lg:w-16 mx-auto"
                         initial={{ scale: 0.8, opacity: 0 }}
                         animate={{ scale: 1, opacity: 1 }}
                         transition={{ duration: 0.5 }}
                       />
-                      <h2 className="text-lg md:text-2xl lg:text-3xl font-bold text-foreground px-4 leading-tight">
+                      <h2 className="text-xl md:text-2xl lg:text-3xl font-bold text-foreground px-4">
                         Selecting Sims for debate
                       </h2>
                     </motion.div>
 
-
-                    {/* Avatar Grid - Scrollable with max height */}
-                    <div className="flex-1 overflow-y-auto min-h-0 -mx-1 px-1 md:px-2">
-                      <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-1.5 sm:gap-2 md:gap-3 pb-2">
+                    {/* Avatar Grid with Moving Selectors - Scrollable */}
+                    <div className="flex-1 overflow-y-auto px-2 md:px-4">
+                      <div className="relative grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-2 sm:gap-2.5 md:gap-3 py-2">
                         {allHistoricalSims.map((sim, index) => {
                           const isSelected = selector1Index === index || selector2Index === index;
                           return (
@@ -380,22 +376,22 @@ Keep it conversational, authentic, and varied. 2-3 sentences maximum.`;
                               transition={{ duration: 0.4 }}
                             >
                               <Avatar 
-                                className={`h-11 w-11 sm:h-12 sm:w-12 md:h-14 md:w-14 lg:h-16 lg:w-16 mx-auto border-2 transition-all duration-300 ${
+                                className={`h-12 w-12 sm:h-14 sm:w-14 md:h-16 md:w-16 lg:h-20 lg:w-20 mx-auto border-2 transition-all duration-300 ${
                                   isSelected
-                                    ? 'border-primary shadow-lg shadow-primary/50 ring-2 ring-primary/40 brightness-110'
-                                    : 'border-border/20'
+                                    ? 'border-primary shadow-xl shadow-primary/50 ring-2 sm:ring-4 ring-primary/40 brightness-110'
+                                    : 'border-border/20 group-hover:border-primary/30'
                                 }`}
                               >
                                 <AvatarImage src={sim.avatar} alt={sim.name} />
-                                <AvatarFallback className="text-xs sm:text-sm md:text-base font-bold">{sim.name[0]}</AvatarFallback>
+                                <AvatarFallback className="text-xs sm:text-sm md:text-base lg:text-lg font-bold">{sim.name[0]}</AvatarFallback>
                               </Avatar>
                             </motion.div>
                             
-                            <div className="text-center mt-0.5 px-0.5">
-                              <p className={`text-[8px] sm:text-[9px] md:text-[10px] font-medium truncate transition-all leading-tight ${
+                            <div className="text-center mt-1 px-0.5">
+                              <p className={`text-[9px] sm:text-[10px] md:text-xs font-medium truncate transition-all leading-tight ${
                                 isSelected ? 'text-primary font-bold' : 'text-muted-foreground'
                               }`}>
-                                {sim.name.split(" ")[0]}
+                                {sim.name.split(" ").slice(0, 2).join(" ")}
                               </p>
                             </div>
                             
@@ -416,23 +412,22 @@ Keep it conversational, authentic, and varied. 2-3 sentences maximum.`;
                       </div>
                     </div>
 
-                    {/* Footer Message - Compact */}
                     <motion.div
-                      className="flex-shrink-0 text-center px-3 py-1.5 md:py-2 mt-1"
+                      className="text-center space-y-1 px-4 flex-shrink-0 pb-2"
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       transition={{ delay: 0.5 }}
                     >
                       <motion.div 
-                        className="flex items-center justify-center gap-1 md:gap-1.5"
+                        className="flex items-center justify-center gap-1.5 md:gap-2"
                         animate={{ opacity: [0.4, 1, 0.4] }}
                         transition={{ duration: 1.5, repeat: Infinity }}
                       >
-                        <MessageCircle className="h-3 w-3 text-primary flex-shrink-0" />
-                        <span className="text-[9px] sm:text-[10px] md:text-xs font-medium text-primary">
+                        <MessageCircle className="h-3 w-3 md:h-4 md:w-4 text-primary flex-shrink-0" />
+                        <span className="text-[10px] sm:text-xs md:text-sm font-medium text-primary">
                           Preparing an epic philosophical showdown
                         </span>
-                        <MessageCircle className="h-3 w-3 text-primary flex-shrink-0" />
+                        <MessageCircle className="h-3 w-3 md:h-4 md:w-4 text-primary flex-shrink-0" />
                       </motion.div>
                     </motion.div>
                   </div>
