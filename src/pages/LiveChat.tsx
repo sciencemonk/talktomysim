@@ -5,7 +5,7 @@ import SimpleFooter from "@/components/SimpleFooter";
 import { AgentType } from "@/types/agent";
 import { Card } from "@/components/ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { Loader2, Sparkles, MessageCircle } from "lucide-react";
+import { Loader2, Sparkles, MessageCircle, RefreshCw } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import debateIcon from "@/assets/debate-icon.png";
 
@@ -332,10 +332,11 @@ Keep it conversational, authentic, and varied. 2-3 sentences maximum.`;
                   <Sparkles className="h-4 w-4 text-primary animate-pulse" />
                   <span className="font-mono text-lg font-bold">{formatTime(timeRemaining)} until next topic</span>
                   <button
-                    onClick={resetDebate}
-                    className="ml-2 px-3 py-1 text-xs font-medium bg-primary text-primary-foreground rounded-full hover:bg-primary/90 transition-colors"
+                    onClick={() => window.location.reload()}
+                    className="ml-2 p-1.5 bg-primary text-primary-foreground rounded-full hover:bg-primary/90 transition-colors"
+                    aria-label="Refresh debate"
                   >
-                    New Debate
+                    <RefreshCw className="h-4 w-4" />
                   </button>
                 </div>
               </div>
