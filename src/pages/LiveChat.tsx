@@ -329,8 +329,8 @@ Keep it conversational, authentic, and varied. 2-3 sentences maximum.`;
                   className="fixed top-0 left-0 right-0 bottom-0 z-40 flex flex-col bg-gradient-to-br from-background via-background to-primary/5"
                   style={{ height: '100vh', maxHeight: '-webkit-fill-available' }}
                 >
-                  {/* Content container with safe area */}
-                  <div className="flex-1 flex flex-col max-w-6xl mx-auto w-full px-3 md:px-8 pt-3 pb-20 md:pb-24 overflow-hidden">
+                  {/* Content container with safe area - accounts for top nav */}
+                  <div className="flex-1 flex flex-col max-w-6xl mx-auto w-full px-3 md:px-8 pt-20 md:pt-24 pb-20 md:pb-24 overflow-hidden">
                     {/* Header Section - Compact */}
                     <motion.div
                       initial={{ y: -20, opacity: 0 }}
