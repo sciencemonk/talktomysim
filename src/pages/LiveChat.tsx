@@ -47,38 +47,33 @@ const LiveChat = () => {
   const debateStartTimeRef = useRef<number>(0);
   const conversationIndexRef = useRef(0);
 
-  // Fetch all historical sims on mount
+  // Fetch all sims on mount
   useEffect(() => {
-    const fetchHistoricalSims = async () => {
+    const fetchSims = async () => {
       const { data } = await supabase
-        .from('tutors')
+        .from('advisors')
         .select('*')
-        .eq('status', 'active');
+        .eq('is_public', true)
+        .order('created_at', { ascending: false });
 
       if (data && data.length > 0) {
-        // Filter for historical sims and transform
-        const historicalSims = data
-          .filter((tutor: any) => {
-            return tutor.sim_type === 'historical';
-          })
-          .map((tutor: any) => ({
-            id: tutor.id,
-            name: tutor.name,
-            description: tutor.description || '',
-            type: tutor.type as any,
-            status: tutor.status as any,
-            createdAt: tutor.created_at,
-            updatedAt: tutor.updated_at,
-            avatar: tutor.avatar,
-            prompt: tutor.prompt,
-            sim_type: 'historical' as const
-          } as AgentType));
+        const transformedSims = data.map((advisor: any) => ({
+          id: advisor.id,
+          name: advisor.name,
+          description: advisor.description || advisor.title || '',
+          type: 'General Tutor' as any,
+          status: 'active' as any,
+          createdAt: advisor.created_at,
+          updatedAt: advisor.updated_at,
+          avatar: advisor.avatar_url,
+          prompt: advisor.prompt,
+        } as AgentType));
         
-        setAllHistoricalSims(historicalSims);
+        setAllHistoricalSims(transformedSims);
       }
     };
 
-    fetchHistoricalSims();
+    fetchSims();
   }, []);
 
   // Timer countdown
@@ -104,20 +99,28 @@ const LiveChat = () => {
     setIsSelecting(true);
     setMessages([]);
     
-    // Randomly select 2 different sims
-    const shuffled = [...allHistoricalSims].sort(() => Math.random() - 0.5);
-    const sim1 = shuffled[0];
-    const sim2 = shuffled[1];
+    // Use deterministic selection based on current time (5-minute intervals)
+    // This ensures all viewers see the same debate at the same time
+    const intervalStart = Math.floor(Date.now() / DEBATE_DURATION) * DEBATE_DURATION;
+    const seed = intervalStart;
     
-    // Randomly select a question
-    const randomQuestion = philosophicalQuestions[Math.floor(Math.random() * philosophicalQuestions.length)];
+    // Deterministic pseudo-random selection using time-based seed
+    const index1 = seed % allHistoricalSims.length;
+    const index2 = (seed + 1) % allHistoricalSims.length;
+    
+    const sim1 = allHistoricalSims[index1];
+    const sim2 = allHistoricalSims[index2 === index1 ? (index2 + 1) % allHistoricalSims.length : index2];
+    
+    // Deterministic question selection
+    const questionIndex = Math.floor(seed / DEBATE_DURATION) % philosophicalQuestions.length;
+    const selectedQuestion = philosophicalQuestions[questionIndex];
     
     // Animate selection
     setTimeout(() => {
       setSelectedSims([sim1, sim2]);
-      setQuestion(randomQuestion);
+      setQuestion(selectedQuestion);
       setIsSelecting(false);
-      startDebate(sim1, sim2, randomQuestion);
+      startDebate(sim1, sim2, selectedQuestion);
     }, 3000);
   };
 
