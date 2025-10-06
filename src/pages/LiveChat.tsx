@@ -53,31 +53,27 @@ const LiveChat = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  // Fetch historical sims on mount
+  // Fetch public advisors for debate
   useEffect(() => {
     const fetchSims = async () => {
       console.log('Fetching sims for live chat...');
       
-      // First, fetch ALL public advisors to see what we have
-      const { data: allAdvisors, error: allError } = await supabase
+      const { data: allAdvisors, error } = await supabase
         .from('advisors')
         .select('*')
         .eq('is_public', true)
         .order('created_at', { ascending: false });
 
       console.log('All public advisors:', allAdvisors?.length || 0);
-      console.log('Advisor sim_types:', allAdvisors?.map(a => ({ name: a.name, sim_type: a.sim_type })));
       
-      // Filter for historical sims (including null, since default is historical)
-      const historicalData = allAdvisors?.filter((advisor: any) => 
-        advisor.sim_type === 'historical' || advisor.sim_type === null
-      );
+      if (error) {
+        console.error('Error fetching advisors:', error);
+        setIsSelecting(false);
+        return;
+      }
 
-      console.log('Historical sims (including null):', historicalData?.length || 0);
-      console.log('Historical sim names:', historicalData?.map((a: any) => a.name).join(', '));
-
-      if (historicalData && historicalData.length >= 2) {
-        const transformedSims = historicalData.map((advisor: any) => ({
+      if (allAdvisors && allAdvisors.length >= 2) {
+        const transformedSims = allAdvisors.map((advisor: any) => ({
           id: advisor.id,
           name: advisor.name,
           description: advisor.description || advisor.title || '',
@@ -90,9 +86,9 @@ const LiveChat = () => {
         } as AgentType));
         
         setAllHistoricalSims(transformedSims);
-        console.log('Loaded historical sims for debate:', transformedSims.map(s => s.name).join(', '));
+        console.log('Loaded sims for debate:', transformedSims.map(s => s.name).join(', '));
       } else {
-        console.error('Not enough historical sims available for debate. Need at least 2, found:', historicalData?.length || 0);
+        console.error('Not enough public advisors for debate. Need at least 2, found:', allAdvisors?.length || 0);
         setIsSelecting(false);
       }
     };
