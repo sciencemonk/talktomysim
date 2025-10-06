@@ -333,25 +333,9 @@ Keep it conversational, authentic, and varied. 2-3 sentences maximum.`;
                       animate={{ y: 0, opacity: 1 }}
                       className="text-center space-y-3"
                     >
-                      <motion.div
-                        animate={{ 
-                          scale: [1, 1.2, 1],
-                          rotate: [0, 180, 360]
-                        }}
-                        transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-                      >
-                        <Sparkles className="h-16 w-16 text-primary mx-auto" />
-                      </motion.div>
                       <h2 className="text-4xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
-                        Assembling Great Minds
+                        Selecting Sims for debate
                       </h2>
-                      <motion.p 
-                        className="text-lg text-muted-foreground"
-                        animate={{ opacity: [0.5, 1, 0.5] }}
-                        transition={{ duration: 2, repeat: Infinity }}
-                      >
-                        Scanning history for the perfect debate...
-                      </motion.p>
                     </motion.div>
 
                     {/* Avatar Grid with Moving Selectors */}
