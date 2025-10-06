@@ -326,29 +326,29 @@ Keep it conversational, authentic, and varied. 2-3 sentences maximum.`;
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0, scale: 0.95 }}
-                  className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-gradient-to-br from-background via-background to-primary/5 p-8 overflow-auto"
+                  className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-gradient-to-br from-background via-background to-primary/5 p-4 md:p-8 overflow-auto"
                 >
-                  <div className="w-full max-w-6xl space-y-6">
+                  <div className="w-full max-w-6xl space-y-4 md:space-y-6">
                     <motion.div
                       initial={{ y: -20, opacity: 0 }}
                       animate={{ y: 0, opacity: 1 }}
-                      className="text-center space-y-4"
+                      className="text-center space-y-3 md:space-y-4"
                     >
                       <motion.img 
                         src={debateIcon} 
                         alt="Debate" 
-                        className="h-20 w-20 mx-auto"
+                        className="h-12 w-12 md:h-16 lg:h-20 md:w-16 lg:w-20 mx-auto"
                         initial={{ scale: 0.8, opacity: 0 }}
                         animate={{ scale: 1, opacity: 1 }}
                         transition={{ duration: 0.5 }}
                       />
-                      <h2 className="text-4xl font-bold text-foreground">
+                      <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-foreground px-4">
                         Selecting Sims for debate
                       </h2>
                     </motion.div>
 
                     {/* Avatar Grid with Moving Selectors */}
-                    <div className="relative grid grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3 p-6">
+                    <div className="relative grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-2 sm:gap-3 p-3 sm:p-4 md:p-6">
                       {allHistoricalSims.map((sim, index) => {
                         const isSelected = selector1Index === index || selector2Index === index;
                         return (
@@ -375,19 +375,19 @@ Keep it conversational, authentic, and varied. 2-3 sentences maximum.`;
                               transition={{ duration: 0.4 }}
                             >
                               <Avatar 
-                                className={`h-20 w-20 mx-auto border-2 transition-all duration-300 ${
+                                className={`h-14 w-14 sm:h-16 sm:w-16 md:h-20 md:w-20 mx-auto border-2 transition-all duration-300 ${
                                   isSelected
                                     ? 'border-primary shadow-xl shadow-primary/50 ring-4 ring-primary/40 brightness-110'
                                     : 'border-border/20 group-hover:border-primary/30'
                                 }`}
                               >
                                 <AvatarImage src={sim.avatar} alt={sim.name} />
-                                <AvatarFallback className="text-lg font-bold">{sim.name[0]}</AvatarFallback>
+                                <AvatarFallback className="text-sm sm:text-base md:text-lg font-bold">{sim.name[0]}</AvatarFallback>
                               </Avatar>
                             </motion.div>
                             
-                            <div className="text-center mt-2 px-1">
-                              <p className={`text-xs font-medium truncate transition-all ${
+                            <div className="text-center mt-1 md:mt-2 px-1">
+                              <p className={`text-[10px] sm:text-xs font-medium truncate transition-all ${
                                 isSelected ? 'text-primary font-bold' : 'text-muted-foreground'
                               }`}>
                                 {sim.name.split(" ").slice(0, 2).join(" ")}
@@ -411,7 +411,7 @@ Keep it conversational, authentic, and varied. 2-3 sentences maximum.`;
                     </div>
 
                     <motion.div
-                      className="text-center space-y-2"
+                      className="text-center space-y-2 px-4"
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       transition={{ delay: 0.5 }}
@@ -421,11 +421,11 @@ Keep it conversational, authentic, and varied. 2-3 sentences maximum.`;
                         animate={{ opacity: [0.4, 1, 0.4] }}
                         transition={{ duration: 1.5, repeat: Infinity }}
                       >
-                        <MessageCircle className="h-5 w-5 text-primary" />
-                        <span className="text-sm font-medium text-primary">
+                        <MessageCircle className="h-4 w-4 md:h-5 md:w-5 text-primary" />
+                        <span className="text-xs md:text-sm font-medium text-primary">
                           Preparing an epic philosophical showdown
                         </span>
-                        <MessageCircle className="h-5 w-5 text-primary" />
+                        <MessageCircle className="h-4 w-4 md:h-5 md:w-5 text-primary" />
                       </motion.div>
                     </motion.div>
                   </div>
