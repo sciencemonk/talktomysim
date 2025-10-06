@@ -7,6 +7,7 @@ import { Card } from "@/components/ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Loader2, Sparkles, MessageCircle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import debateIcon from "@/assets/debate-icon.png";
 
 interface Message {
   id: string;
@@ -331,9 +332,17 @@ Keep it conversational, authentic, and varied. 2-3 sentences maximum.`;
                     <motion.div
                       initial={{ y: -20, opacity: 0 }}
                       animate={{ y: 0, opacity: 1 }}
-                      className="text-center space-y-3"
+                      className="text-center space-y-4"
                     >
-                      <h2 className="text-4xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+                      <motion.img 
+                        src={debateIcon} 
+                        alt="Debate" 
+                        className="h-20 w-20 mx-auto"
+                        initial={{ scale: 0.8, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        transition={{ duration: 0.5 }}
+                      />
+                      <h2 className="text-4xl font-bold text-foreground">
                         Selecting Sims for debate
                       </h2>
                     </motion.div>
