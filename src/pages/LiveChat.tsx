@@ -225,16 +225,16 @@ const LiveChat = () => {
 Provide a compelling opening statement that represents your unique perspective and philosophy. Stay true to your historical character and beliefs. Be thoughtful, direct, and engaging. 2-3 sentences.`
         : `You are ${sim.name} in a live philosophical debate about: "${question}". 
 
-${otherDebater} just argued:
+${otherDebater} just said:
 "${lastMessage?.content}"
 
-Respond naturally to their point. You can:
-- Challenge their reasoning or logic
-- Build upon what they said with a contrasting view
-- Question their assumptions
-- Offer a counter-example from your philosophy or experience
+Respond naturally and authentically to their point. DO NOT start with "Ah, [name]" - that pattern is overused. Instead:
+- Jump directly into addressing their idea
+- Use varied opening phrases or none at all
+- Sometimes reference them, sometimes don't
+- Focus on the substance of the debate, not formalities
 
-Important: Be conversational and authentic. You don't need to use their name every time - vary your responses. Sometimes reference them directly, sometimes just respond to the idea itself. Keep it engaging and natural. 2-3 sentences maximum.`;
+Keep it conversational, authentic, and varied. 2-3 sentences maximum.`;
 
       console.log("Sending debate prompt for", sim.name);
 
