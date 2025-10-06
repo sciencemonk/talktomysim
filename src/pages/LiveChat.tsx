@@ -46,13 +46,18 @@ const LiveChat = () => {
   const [timeRemaining, setTimeRemaining] = useState(DEBATE_DURATION);
   const debateStartTimeRef = useRef<number>(0);
   const conversationIndexRef = useRef(0);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Auto-scroll to bottom when new messages arrive
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
 
   // Fetch historical sims on mount
   useEffect(() => {
     const fetchSims = async () => {
-      console.log('Fetching sims for live chat...');
+      console.log('Fetching historical sims for live chat...');
       
-      // First try to get historical sims
       const { data: historicalData, error: historicalError } = await supabase
         .from('advisors')
         .select('*')
@@ -60,25 +65,14 @@ const LiveChat = () => {
         .eq('sim_type', 'historical')
         .order('created_at', { ascending: false });
 
-      console.log('Historical sims query result:', historicalData?.length || 0);
-
-      // If we don't have enough historical sims, fall back to all public advisors
-      let finalData = historicalData;
-      if (!historicalData || historicalData.length < 2) {
-        console.log('Not enough historical sims, fetching all public advisors...');
-        const { data: allData, error: allError } = await supabase
-          .from('advisors')
-          .select('*')
-          .eq('is_public', true)
-          .order('created_at', { ascending: false })
-          .limit(10);
-        
-        finalData = allData;
-        console.log('All public advisors:', allData?.length || 0);
+      console.log('Historical sims query result:', historicalData?.length || 0, 'sims');
+      
+      if (historicalError) {
+        console.error('Error fetching historical sims:', historicalError);
       }
 
-      if (finalData && finalData.length >= 2) {
-        const transformedSims = finalData.map((advisor: any) => ({
+      if (historicalData && historicalData.length >= 2) {
+        const transformedSims = historicalData.map((advisor: any) => ({
           id: advisor.id,
           name: advisor.name,
           description: advisor.description || advisor.title || '',
@@ -91,9 +85,9 @@ const LiveChat = () => {
         } as AgentType));
         
         setAllHistoricalSims(transformedSims);
-        console.log('Loaded sims for debate:', transformedSims.length);
+        console.log('Loaded historical sims for debate:', transformedSims.map(s => s.name).join(', '));
       } else {
-        console.error('Not enough sims available for debate');
+        console.error('Not enough historical sims available for debate. Need at least 2, found:', historicalData?.length || 0);
         setIsSelecting(false);
       }
     };
@@ -360,6 +354,7 @@ Respond to the latest point made by the other person. Build on the conversation,
               </motion.div>
             ))}
           </AnimatePresence>
+          <div ref={messagesEndRef} />
         </div>
       </div>
 
