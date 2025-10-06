@@ -44,6 +44,7 @@ const LiveChat = () => {
   const [isDebating, setIsDebating] = useState(false);
   const [allHistoricalSims, setAllHistoricalSims] = useState<AgentType[]>([]);
   const [timeRemaining, setTimeRemaining] = useState(DEBATE_DURATION);
+  const [typingIndicator, setTypingIndicator] = useState<string | null>(null);
   const debateStartTimeRef = useRef<number>(0);
   const conversationIndexRef = useRef(0);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -165,14 +166,18 @@ const LiveChat = () => {
 
     // Initial opening statements
     console.log('Generating first response...');
+    setTypingIndicator(sim1.name);
     const firstResponse = await generateResponse(sim1, question, [], debateMessages);
+    setTypingIndicator(null);
     if (!firstResponse) return;
     debateMessages.push(firstResponse);
     
-    await new Promise(resolve => setTimeout(resolve, 3000));
+    await new Promise(resolve => setTimeout(resolve, 5000)); // Give time to read
     
     console.log('Generating second response...');
+    setTypingIndicator(sim2.name);
     const secondResponse = await generateResponse(sim2, question, debateMessages, debateMessages);
+    setTypingIndicator(null);
     if (!secondResponse) return;
     debateMessages.push(secondResponse);
 
@@ -188,9 +193,12 @@ const LiveChat = () => {
       
       const currentSim = i % 2 === 0 ? sim1 : sim2;
       
-      await new Promise(resolve => setTimeout(resolve, 15000)); // Wait 15 seconds between responses
+      await new Promise(resolve => setTimeout(resolve, 8000)); // Wait for reading time
       
+      setTypingIndicator(currentSim.name);
       const newResponse = await generateResponse(currentSim, question, debateMessages, debateMessages);
+      setTypingIndicator(null);
+      
       if (newResponse) {
         debateMessages.push(newResponse);
       }
@@ -380,6 +388,33 @@ Stay in character. Be conversational and engaging. 2-3 sentences maximum.`;
                   </Card>
                 </motion.div>
               ))}
+              
+              {/* Typing Indicator */}
+              {typingIndicator && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0 }}
+                >
+                  <Card className="p-4 bg-muted/50">
+                    <div className="flex items-start gap-3">
+                      <Avatar className="h-10 w-10 border-2 border-primary/30 flex-shrink-0">
+                        <AvatarImage 
+                          src={selectedSims.find(s => s?.name === typingIndicator)?.avatar} 
+                          alt={typingIndicator} 
+                        />
+                        <AvatarFallback>{typingIndicator[0]}</AvatarFallback>
+                      </Avatar>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          <h4 className="font-bold text-sm">{typingIndicator}</h4>
+                        </div>
+                        <p className="text-sm text-muted-foreground italic">is typing...</p>
+                      </div>
+                    </div>
+                  </Card>
+                </motion.div>
+              )}
             </AnimatePresence>
             <div ref={messagesEndRef} />
           </div>
