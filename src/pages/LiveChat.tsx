@@ -45,7 +45,8 @@ const LiveChat = () => {
   const [allHistoricalSims, setAllHistoricalSims] = useState<AgentType[]>([]);
   const [timeRemaining, setTimeRemaining] = useState(DEBATE_DURATION);
   const [typingIndicator, setTypingIndicator] = useState<string | null>(null);
-  const [cyclingAvatars, setCyclingAvatars] = useState<AgentType[]>([]);
+  const [selector1Index, setSelector1Index] = useState<number>(0);
+  const [selector2Index, setSelector2Index] = useState<number>(1);
   const debateStartTimeRef = useRef<number>(0);
   const conversationIndexRef = useRef(0);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -93,15 +94,18 @@ const LiveChat = () => {
 
         setAllHistoricalSims(transformedSims);
         
-        // Start cycling animation
-        const cycleInterval = setInterval(() => {
-          const randomSims = [...transformedSims].sort(() => Math.random() - 0.5).slice(0, 6);
-          setCyclingAvatars(randomSims);
-        }, 200);
-
-        setTimeout(() => {
-          clearInterval(cycleInterval);
-        }, 2800);
+        // Animate selectors moving around grid
+        let moveCount = 0;
+        const maxMoves = 40; // ~10 seconds at 250ms intervals
+        const selectorInterval = setInterval(() => {
+          setSelector1Index(Math.floor(Math.random() * transformedSims.length));
+          setSelector2Index(Math.floor(Math.random() * transformedSims.length));
+          moveCount++;
+          
+          if (moveCount >= maxMoves) {
+            clearInterval(selectorInterval);
+          }
+        }, 250);
 
         console.log("Loaded historical sims for debate:", transformedSims.map((s) => s.name).join(", "));
       } else {
@@ -142,10 +146,9 @@ const LiveChat = () => {
     setIsSelecting(true);
     setMessages([]);
 
-    // Truly random selection for each visitor
-    const shuffled = [...allHistoricalSims].sort(() => Math.random() - 0.5);
-    const sim1 = shuffled[0];
-    const sim2 = shuffled[1];
+    // Truly random selection for each visitor - use final selector positions
+    const sim1 = allHistoricalSims[selector1Index];
+    const sim2 = allHistoricalSims[selector2Index];
 
     console.log("Selected sims:", sim1.name, "vs", sim2.name);
 
@@ -154,13 +157,13 @@ const LiveChat = () => {
 
     console.log("Selected question:", selectedQuestion);
 
-    // Animate selection with 3 second delay
+    // Finish selection after 10 seconds
     setTimeout(() => {
       setSelectedSims([sim1, sim2]);
       setQuestion(selectedQuestion);
       setIsSelecting(false);
       startDebate(sim1, sim2, selectedQuestion);
-    }, 3000);
+    }, 10000);
   };
 
   const startDebate = async (sim1: AgentType, sim2: AgentType, question: string) => {
@@ -315,56 +318,79 @@ Keep it conversational, authentic, and varied. 2-3 sentences maximum.`;
               </div>
             )}
 
-            {/* Selection Animation - Full Page */}
+            {/* Selection Animation - Full Page Grid */}
             <AnimatePresence mode="wait">
-              {isSelecting && (
+              {isSelecting && allHistoricalSims.length > 0 && (
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
-                  className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-background"
+                  className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-background p-8"
                 >
-                  <div className="text-center space-y-8 px-4">
+                  <div className="w-full max-w-6xl space-y-8">
                     <motion.div
-                      initial={{ scale: 0.8, opacity: 0 }}
-                      animate={{ scale: 1, opacity: 1 }}
-                      transition={{ duration: 0.5 }}
+                      initial={{ y: -20, opacity: 0 }}
+                      animate={{ y: 0, opacity: 1 }}
+                      className="text-center"
                     >
-                      <Sparkles className="h-16 w-16 text-primary mx-auto mb-4 animate-pulse" />
-                      <h2 className="text-3xl font-bold mb-2">Preparing Your Debate</h2>
-                      <p className="text-muted-foreground">Selecting minds from history...</p>
+                      <Sparkles className="h-12 w-12 text-primary mx-auto mb-4 animate-pulse" />
+                      <h2 className="text-3xl font-bold mb-2">Selecting Debate Participants</h2>
+                      <p className="text-muted-foreground">Watch as we choose two minds from history...</p>
                     </motion.div>
 
-                    {/* Cycling Avatars */}
-                    <div className="flex justify-center gap-6 min-h-[200px] items-center">
-                      <AnimatePresence mode="wait">
-                        {cyclingAvatars.slice(0, 6).map((sim, index) => (
-                          <motion.div
-                            key={`${sim.id}-${index}`}
-                            initial={{ scale: 0, opacity: 0, rotateY: -180 }}
-                            animate={{ scale: 1, opacity: 1, rotateY: 0 }}
-                            exit={{ scale: 0, opacity: 0, rotateY: 180 }}
-                            transition={{ duration: 0.3, delay: index * 0.05 }}
-                            className="relative"
+                    {/* Avatar Grid with Moving Selectors */}
+                    <div className="relative grid grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-4 p-8">
+                      {allHistoricalSims.map((sim, index) => (
+                        <motion.div
+                          key={sim.id}
+                          initial={{ scale: 0, opacity: 0 }}
+                          animate={{ scale: 1, opacity: 1 }}
+                          transition={{ delay: index * 0.02 }}
+                          className="relative"
+                        >
+                          <Avatar 
+                            className={`h-20 w-20 mx-auto border-2 transition-all duration-300 ${
+                              selector1Index === index || selector2Index === index
+                                ? 'border-primary shadow-lg shadow-primary/50 scale-110 ring-4 ring-primary/30'
+                                : 'border-border/30'
+                            }`}
                           >
-                            <Avatar className="h-24 w-24 border-4 border-primary/30 shadow-lg">
-                              <AvatarImage src={sim.avatar} alt={sim.name} />
-                              <AvatarFallback className="text-2xl">{sim.name[0]}</AvatarFallback>
-                            </Avatar>
-                            <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-primary/10 backdrop-blur-sm px-2 py-1 rounded-full">
-                              <span className="text-xs font-medium">{sim.name.split(" ")[0]}</span>
-                            </div>
-                          </motion.div>
-                        ))}
-                      </AnimatePresence>
+                            <AvatarImage src={sim.avatar} alt={sim.name} />
+                            <AvatarFallback className="text-lg">{sim.name[0]}</AvatarFallback>
+                          </Avatar>
+                          <div className="text-center mt-2">
+                            <p className="text-xs font-medium truncate">{sim.name.split(" ")[0]}</p>
+                          </div>
+                          
+                          {/* Selector Labels */}
+                          {selector1Index === index && (
+                            <motion.div
+                              initial={{ scale: 0 }}
+                              animate={{ scale: 1 }}
+                              className="absolute -top-2 -right-2 bg-primary text-primary-foreground rounded-full w-8 h-8 flex items-center justify-center text-xs font-bold shadow-lg"
+                            >
+                              1
+                            </motion.div>
+                          )}
+                          {selector2Index === index && (
+                            <motion.div
+                              initial={{ scale: 0 }}
+                              animate={{ scale: 1 }}
+                              className="absolute -top-2 -right-2 bg-secondary text-secondary-foreground rounded-full w-8 h-8 flex items-center justify-center text-xs font-bold shadow-lg"
+                            >
+                              2
+                            </motion.div>
+                          )}
+                        </motion.div>
+                      ))}
                     </div>
 
                     <motion.div
                       animate={{ opacity: [0.5, 1, 0.5] }}
                       transition={{ duration: 1.5, repeat: Infinity }}
-                      className="text-sm text-muted-foreground"
+                      className="text-center text-sm text-muted-foreground"
                     >
-                      Finding the perfect philosophical match...
+                      Randomly selecting debaters...
                     </motion.div>
                   </div>
                 </motion.div>
