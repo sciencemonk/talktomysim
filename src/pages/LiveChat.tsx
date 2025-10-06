@@ -45,6 +45,7 @@ const LiveChat = () => {
   const [allHistoricalSims, setAllHistoricalSims] = useState<AgentType[]>([]);
   const [timeRemaining, setTimeRemaining] = useState(DEBATE_DURATION);
   const [typingIndicator, setTypingIndicator] = useState<string | null>(null);
+  const [cyclingAvatars, setCyclingAvatars] = useState<AgentType[]>([]);
   const debateStartTimeRef = useRef<number>(0);
   const conversationIndexRef = useRef(0);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -91,6 +92,17 @@ const LiveChat = () => {
         );
 
         setAllHistoricalSims(transformedSims);
+        
+        // Start cycling animation
+        const cycleInterval = setInterval(() => {
+          const randomSims = [...transformedSims].sort(() => Math.random() - 0.5).slice(0, 6);
+          setCyclingAvatars(randomSims);
+        }, 200);
+
+        setTimeout(() => {
+          clearInterval(cycleInterval);
+        }, 2800);
+
         console.log("Loaded historical sims for debate:", transformedSims.map((s) => s.name).join(", "));
       } else {
         console.error("Not enough historical sims for debate. Need at least 2, found:", historicalSims?.length || 0);
@@ -130,27 +142,19 @@ const LiveChat = () => {
     setIsSelecting(true);
     setMessages([]);
 
-    // Use deterministic selection based on current time (5-minute intervals)
-    // This ensures all viewers see the same debate at the same time
-    const intervalStart = Math.floor(Date.now() / DEBATE_DURATION) * DEBATE_DURATION;
-    const seed = intervalStart;
-
-    // Deterministic pseudo-random selection using time-based seed
-    const index1 = seed % allHistoricalSims.length;
-    const index2 = (seed + 1) % allHistoricalSims.length;
-
-    const sim1 = allHistoricalSims[index1];
-    const sim2 = allHistoricalSims[index2 === index1 ? (index2 + 1) % allHistoricalSims.length : index2];
+    // Truly random selection for each visitor
+    const shuffled = [...allHistoricalSims].sort(() => Math.random() - 0.5);
+    const sim1 = shuffled[0];
+    const sim2 = shuffled[1];
 
     console.log("Selected sims:", sim1.name, "vs", sim2.name);
 
-    // Deterministic question selection
-    const questionIndex = Math.floor(seed / DEBATE_DURATION) % philosophicalQuestions.length;
-    const selectedQuestion = philosophicalQuestions[questionIndex];
+    // Random question selection
+    const selectedQuestion = philosophicalQuestions[Math.floor(Math.random() * philosophicalQuestions.length)];
 
     console.log("Selected question:", selectedQuestion);
 
-    // Animate selection
+    // Animate selection with 3 second delay
     setTimeout(() => {
       setSelectedSims([sim1, sim2]);
       setQuestion(selectedQuestion);
@@ -311,18 +315,58 @@ Keep it conversational, authentic, and varied. 2-3 sentences maximum.`;
               </div>
             )}
 
-            {/* Selection Animation */}
+            {/* Selection Animation - Full Page */}
             <AnimatePresence mode="wait">
               {isSelecting && (
                 <motion.div
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.8 }}
-                  className="flex flex-col items-center justify-center py-12"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-background"
                 >
-                  <Loader2 className="h-12 w-12 text-primary animate-spin mb-4" />
-                  <h2 className="text-xl font-semibold mb-1">Selecting Sims...</h2>
-                  <p className="text-sm text-muted-foreground">Finding the perfect minds for today&apos;s debate</p>
+                  <div className="text-center space-y-8 px-4">
+                    <motion.div
+                      initial={{ scale: 0.8, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      transition={{ duration: 0.5 }}
+                    >
+                      <Sparkles className="h-16 w-16 text-primary mx-auto mb-4 animate-pulse" />
+                      <h2 className="text-3xl font-bold mb-2">Preparing Your Debate</h2>
+                      <p className="text-muted-foreground">Selecting minds from history...</p>
+                    </motion.div>
+
+                    {/* Cycling Avatars */}
+                    <div className="flex justify-center gap-6 min-h-[200px] items-center">
+                      <AnimatePresence mode="wait">
+                        {cyclingAvatars.slice(0, 6).map((sim, index) => (
+                          <motion.div
+                            key={`${sim.id}-${index}`}
+                            initial={{ scale: 0, opacity: 0, rotateY: -180 }}
+                            animate={{ scale: 1, opacity: 1, rotateY: 0 }}
+                            exit={{ scale: 0, opacity: 0, rotateY: 180 }}
+                            transition={{ duration: 0.3, delay: index * 0.05 }}
+                            className="relative"
+                          >
+                            <Avatar className="h-24 w-24 border-4 border-primary/30 shadow-lg">
+                              <AvatarImage src={sim.avatar} alt={sim.name} />
+                              <AvatarFallback className="text-2xl">{sim.name[0]}</AvatarFallback>
+                            </Avatar>
+                            <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-primary/10 backdrop-blur-sm px-2 py-1 rounded-full">
+                              <span className="text-xs font-medium">{sim.name.split(" ")[0]}</span>
+                            </div>
+                          </motion.div>
+                        ))}
+                      </AnimatePresence>
+                    </div>
+
+                    <motion.div
+                      animate={{ opacity: [0.5, 1, 0.5] }}
+                      transition={{ duration: 1.5, repeat: Infinity }}
+                      className="text-sm text-muted-foreground"
+                    >
+                      Finding the perfect philosophical match...
+                    </motion.div>
+                  </div>
                 </motion.div>
               )}
             </AnimatePresence>
