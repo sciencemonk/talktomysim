@@ -167,56 +167,62 @@ const LiveChat = () => {
 
     // Initial opening statements
     console.log('Generating first response...');
-    await generateResponse(sim1, question, [], true);
+    const firstResponse = await generateResponse(sim1, question, []);
+    if (!firstResponse) return;
+    
     await new Promise(resolve => setTimeout(resolve, 2000));
+    
     console.log('Generating second response...');
-    await generateResponse(sim2, question, [], false);
+    await generateResponse(sim2, question, [firstResponse]);
 
     // Continue conversation
     continueDebate(sim1, sim2, question);
   };
 
   const continueDebate = async (sim1: AgentType, sim2: AgentType, question: string) => {
-    const maxExchanges = 12; // 6 exchanges each over 5 minutes
+    const maxExchanges = 10;
     
     for (let i = 0; i < maxExchanges; i++) {
       if (Date.now() - debateStartTimeRef.current >= DEBATE_DURATION) break;
       
       const currentSim = i % 2 === 0 ? sim1 : sim2;
-      const isFirstSim = i % 2 === 0;
       
-      await new Promise(resolve => setTimeout(resolve, 20000)); // Wait 20 seconds between responses
+      await new Promise(resolve => setTimeout(resolve, 15000)); // Wait 15 seconds between responses
       
-      await generateResponse(currentSim, question, [], isFirstSim);
+      // Get recent messages to pass as context
+      const recentMessages = messages.slice(-3);
+      await generateResponse(currentSim, question, recentMessages);
     }
   };
 
-  const generateResponse = async (sim: AgentType, question: string, previousMessages: Message[], isFirstSim: boolean) => {
+  const generateResponse = async (sim: AgentType, question: string, previousMessages: Message[]): Promise<Message | null> => {
     try {
-      const context = previousMessages.slice(-4).map(m => `${m.simName}: ${m.content}`).join('\n');
+      const context = previousMessages.map(m => `${m.simName}: ${m.content}`).join('\n\n');
       
-      const prompt = conversationIndexRef.current === 0 
-        ? `You are ${sim.name}. The question is: "${question}". Provide your initial perspective in 2-3 sentences. Be thoughtful and true to your historical character.`
+      const prompt = previousMessages.length === 0
+        ? `You are ${sim.name}. The question is: "${question}". Provide your initial perspective in 2-3 sentences. Be thoughtful and stay in character.`
         : `You are ${sim.name}. The debate topic is: "${question}". 
-        
+
 Previous discussion:
 ${context}
 
-Respond to the latest point made. Build on the conversation, agree or disagree, and add new insights. Keep it to 2-3 sentences. Be engaging and philosophical.`;
+Respond to the latest point made by the other person. Build on the conversation, agree or disagree thoughtfully, and add new insights. Keep it to 2-3 sentences. Be engaging and philosophical.`;
+
+      console.log('Sending prompt for', sim.name);
 
       const { data, error } = await supabase.functions.invoke('chat-completion', {
         body: {
           messages: [{ role: 'user', content: prompt }],
-          agent: { prompt: sim.prompt || '' }
+          agent: { prompt: sim.prompt || '', name: sim.name }
         }
       });
 
       if (error) {
         console.error('Edge function error:', error);
-        throw error;
+        return null;
       }
 
-      console.log('Received response:', data);
+      console.log('Received response for', sim.name, ':', data?.content?.substring(0, 100));
 
       const newMessage: Message = {
         id: `${sim.id}-${Date.now()}`,
@@ -228,8 +234,11 @@ Respond to the latest point made. Build on the conversation, agree or disagree, 
 
       setMessages(prev => [...prev, newMessage]);
       conversationIndexRef.current++;
+      
+      return newMessage;
     } catch (error) {
       console.error('Error generating response:', error);
+      return null;
     }
   };
 
@@ -257,103 +266,94 @@ Respond to the latest point made. Build on the conversation, agree or disagree, 
     <div className="min-h-screen bg-background flex flex-col">
       <TopNavigation />
       
-      <div className="flex-1 container mx-auto px-4 py-8 max-w-6xl">
-        <div className="mb-8 text-center">
-          <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
-            Live Philosophical Debate
-          </h1>
-          <p className="text-muted-foreground">Watch historical figures discuss life's biggest questions</p>
-        </div>
-
-        {/* Timer */}
-        {isDebating && (
-          <div className="text-center mb-6">
-            <div className="inline-flex items-center gap-2 px-6 py-3 bg-card border border-border rounded-full">
-              <Sparkles className="h-5 w-5 text-primary animate-pulse" />
-              <span className="font-mono text-2xl font-bold">{formatTime(timeRemaining)}</span>
+      <div className="flex-1 container mx-auto px-4 py-4 max-w-6xl flex flex-col overflow-hidden">
+        {/* Timer and Question - Compact */}
+        <div className="mb-4 space-y-3">
+          {isDebating && (
+            <div className="text-center">
+              <div className="inline-flex items-center gap-2 px-4 py-2 bg-card border border-border rounded-full">
+                <Sparkles className="h-4 w-4 text-primary animate-pulse" />
+                <span className="font-mono text-lg font-bold">{formatTime(timeRemaining)}</span>
+              </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {/* Selection Animation */}
-        <AnimatePresence mode="wait">
-          {isSelecting && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.8 }}
-              className="flex flex-col items-center justify-center py-20"
-            >
-              <Loader2 className="h-16 w-16 text-primary animate-spin mb-6" />
-              <h2 className="text-2xl font-semibold mb-2">Selecting Debaters...</h2>
-              <p className="text-muted-foreground">Finding the perfect minds for today's debate</p>
+          {/* Selection Animation */}
+          <AnimatePresence mode="wait">
+            {isSelecting && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.8 }}
+                className="flex flex-col items-center justify-center py-12"
+              >
+                <Loader2 className="h-12 w-12 text-primary animate-spin mb-4" />
+                <h2 className="text-xl font-semibold mb-1">Selecting Debaters...</h2>
+                <p className="text-sm text-muted-foreground">Finding the perfect minds for today's debate</p>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Question Card - Compact */}
+          {!isSelecting && question && (
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+              <Card className="p-4 bg-gradient-to-r from-primary/10 to-primary/5 border-primary/20">
+                <div className="flex items-center justify-center gap-2 mb-2">
+                  <MessageCircle className="h-4 w-4 text-primary" />
+                  <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                    Today's Question
+                  </h3>
+                </div>
+                <p className="text-xl font-bold text-center">{question}</p>
+              </Card>
             </motion.div>
           )}
-        </AnimatePresence>
+        </div>
 
-        {/* Debaters and Question */}
+        {/* Debaters - Compact Side by Side */}
         {!isSelecting && selectedSims[0] && selectedSims[1] && (
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="mb-8"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="grid grid-cols-2 gap-4 mb-4"
           >
-            <Card className="p-6 mb-6 bg-gradient-to-r from-primary/10 to-primary/5 border-primary/20">
-              <div className="flex items-center justify-center gap-2 mb-4">
-                <MessageCircle className="h-5 w-5 text-primary" />
-                <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
-                  Today's Question
-                </h3>
-              </div>
-              <p className="text-2xl font-bold text-center">{question}</p>
-            </Card>
-
-            <div className="grid grid-cols-2 gap-6 mb-8">
-              {selectedSims.map((sim, idx) => sim && (
-                <motion.div
-                  key={sim.id}
-                  initial={{ opacity: 0, x: idx === 0 ? -50 : 50 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.2 }}
-                >
-                  <Card className="p-6 text-center hover:shadow-lg transition-shadow">
-                    <Avatar className="h-24 w-24 mx-auto mb-4 border-4 border-primary/20">
-                      <AvatarImage src={sim.avatar} alt={sim.name} />
-                      <AvatarFallback className="text-2xl">{sim.name[0]}</AvatarFallback>
-                    </Avatar>
-                    <h3 className="text-xl font-bold mb-2">{sim.name}</h3>
-                    <p className="text-sm text-muted-foreground">{sim.description}</p>
-                  </Card>
-                </motion.div>
-              ))}
-            </div>
+            {selectedSims.map((sim, idx) => sim && (
+              <Card key={sim.id} className="p-4 text-center">
+                <Avatar className="h-16 w-16 mx-auto mb-2 border-2 border-primary/20">
+                  <AvatarImage src={sim.avatar} alt={sim.name} />
+                  <AvatarFallback className="text-lg">{sim.name[0]}</AvatarFallback>
+                </Avatar>
+                <h3 className="text-lg font-bold mb-1">{sim.name}</h3>
+                <p className="text-xs text-muted-foreground line-clamp-2">{sim.description}</p>
+              </Card>
+            ))}
           </motion.div>
         )}
 
-        {/* Debate Messages */}
-        <div className="space-y-4 max-h-[600px] overflow-y-auto">
+        {/* Messages - Scrollable with Fixed Height */}
+        <div className="flex-1 overflow-y-auto min-h-0 space-y-3">
           <AnimatePresence>
-            {messages.map((message, idx) => (
+            {messages.map((message) => (
               <motion.div
                 key={message.id}
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.1 }}
+                transition={{ duration: 0.2 }}
               >
-                <Card className="p-6 hover:shadow-md transition-shadow">
-                  <div className="flex items-start gap-4">
-                    <Avatar className="h-12 w-12 border-2 border-primary/30">
+                <Card className="p-4">
+                  <div className="flex items-start gap-3">
+                    <Avatar className="h-10 w-10 border-2 border-primary/30 flex-shrink-0">
                       <AvatarImage src={message.simAvatar} alt={message.simName} />
                       <AvatarFallback>{message.simName[0]}</AvatarFallback>
                     </Avatar>
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-2">
-                        <h4 className="font-bold">{message.simName}</h4>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <h4 className="font-bold text-sm">{message.simName}</h4>
                         <span className="text-xs text-muted-foreground">
                           {message.timestamp.toLocaleTimeString()}
                         </span>
                       </div>
-                      <p className="text-foreground leading-relaxed">{message.content}</p>
+                      <p className="text-sm text-foreground leading-relaxed">{message.content}</p>
                     </div>
                   </div>
                 </Card>
