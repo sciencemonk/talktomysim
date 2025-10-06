@@ -172,7 +172,7 @@ const LiveChat = () => {
     if (!firstResponse) return;
     debateMessages.push(firstResponse);
     
-    await new Promise(resolve => setTimeout(resolve, 5000)); // Give time to read
+    await new Promise(resolve => setTimeout(resolve, 12000)); // Give time to read
     
     console.log('Generating second response...');
     setTypingIndicator(sim2.name);
@@ -193,7 +193,7 @@ const LiveChat = () => {
       
       const currentSim = i % 2 === 0 ? sim1 : sim2;
       
-      await new Promise(resolve => setTimeout(resolve, 8000)); // Wait for reading time
+      await new Promise(resolve => setTimeout(resolve, 18000)); // Wait for reading time
       
       setTypingIndicator(currentSim.name);
       const newResponse = await generateResponse(currentSim, question, debateMessages, debateMessages);
