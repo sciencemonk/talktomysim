@@ -53,27 +53,28 @@ const LiveChat = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  // Fetch public advisors for debate
+  // Fetch verified historical sims for debate
   useEffect(() => {
     const fetchSims = async () => {
-      console.log('Fetching sims for live chat...');
+      console.log('Fetching verified historical sims for live chat...');
       
-      const { data: allAdvisors, error } = await supabase
+      const { data: historicalSims, error } = await supabase
         .from('advisors')
         .select('*')
-        .eq('is_public', true)
+        .eq('is_verified', true)
+        .eq('sim_type', 'historical')
         .order('created_at', { ascending: false });
 
-      console.log('All public advisors:', allAdvisors?.length || 0);
+      console.log('Verified historical sims:', historicalSims?.length || 0);
       
       if (error) {
-        console.error('Error fetching advisors:', error);
+        console.error('Error fetching historical sims:', error);
         setIsSelecting(false);
         return;
       }
 
-      if (allAdvisors && allAdvisors.length >= 2) {
-        const transformedSims = allAdvisors.map((advisor: any) => ({
+      if (historicalSims && historicalSims.length >= 2) {
+        const transformedSims = historicalSims.map((advisor: any) => ({
           id: advisor.id,
           name: advisor.name,
           description: advisor.description || advisor.title || '',
@@ -86,9 +87,9 @@ const LiveChat = () => {
         } as AgentType));
         
         setAllHistoricalSims(transformedSims);
-        console.log('Loaded sims for debate:', transformedSims.map(s => s.name).join(', '));
+        console.log('Loaded historical sims for debate:', transformedSims.map(s => s.name).join(', '));
       } else {
-        console.error('Not enough public advisors for debate. Need at least 2, found:', allAdvisors?.length || 0);
+        console.error('Not enough historical sims for debate. Need at least 2, found:', historicalSims?.length || 0);
         setIsSelecting(false);
       }
     };
