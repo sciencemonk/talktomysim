@@ -220,13 +220,13 @@ Provide a compelling opening statement that represents your unique perspective a
 ${otherDebater} just argued:
 "${lastMessage?.content}"
 
-Respond DIRECTLY to ${otherDebater}'s specific point. You must:
-- Address what they just said explicitly
-- Either challenge their reasoning or build upon it from your perspective
-- Bring in your own philosophical framework or historical experience
-- Make it a real back-and-forth conversation
+Respond naturally to their point. You can:
+- Challenge their reasoning or logic
+- Build upon what they said with a contrasting view
+- Question their assumptions
+- Offer a counter-example from your philosophy or experience
 
-Stay in character. Be conversational and engaging. 2-3 sentences maximum.`;
+Important: Be conversational and authentic. You don't need to use their name every time - vary your responses. Sometimes reference them directly, sometimes just respond to the idea itself. Keep it engaging and natural. 2-3 sentences maximum.`;
 
       console.log('Sending debate prompt for', sim.name);
 
