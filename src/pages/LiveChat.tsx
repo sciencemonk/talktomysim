@@ -51,6 +51,7 @@ const LiveChat = () => {
   const debateStartTimeRef = useRef<number>(0);
   const conversationIndexRef = useRef(0);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const currentDebateIdRef = useRef<string>(Date.now().toString());
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
@@ -185,6 +186,12 @@ const LiveChat = () => {
 
   const startDebate = async (sim1: AgentType, sim2: AgentType, question: string) => {
     console.log("Starting debate between", sim1.name, "and", sim2.name);
+    
+    // Generate new debate ID and clear all messages
+    const debateId = Date.now().toString();
+    currentDebateIdRef.current = debateId;
+    setMessages([]);
+    
     setIsDebating(true);
     debateStartTimeRef.current = Date.now();
     conversationIndexRef.current = 0;
@@ -194,7 +201,7 @@ const LiveChat = () => {
     // Initial opening statements
     console.log("Generating first response...");
     setTypingIndicator(sim1.name);
-    const firstResponse = await generateResponse(sim1, question, [], debateMessages);
+    const firstResponse = await generateResponse(sim1, question, [], debateMessages, debateId);
     setTypingIndicator(null);
     if (!firstResponse) return;
     debateMessages.push(firstResponse);
@@ -203,28 +210,35 @@ const LiveChat = () => {
 
     console.log("Generating second response...");
     setTypingIndicator(sim2.name);
-    const secondResponse = await generateResponse(sim2, question, debateMessages, debateMessages);
+    const secondResponse = await generateResponse(sim2, question, debateMessages, debateMessages, debateId);
     setTypingIndicator(null);
     if (!secondResponse) return;
     debateMessages.push(secondResponse);
 
     // Continue conversation
-    continueDebate(sim1, sim2, question, debateMessages);
+    continueDebate(sim1, sim2, question, debateMessages, debateId);
   };
 
-  const continueDebate = async (sim1: AgentType, sim2: AgentType, question: string, debateMessages: Message[]) => {
+  const continueDebate = async (sim1: AgentType, sim2: AgentType, question: string, debateMessages: Message[], debateId: string) => {
     let exchangeCount = 0;
 
     while (Date.now() - debateStartTimeRef.current < DEBATE_DURATION) {
+      // Check if this debate session is still active
+      if (currentDebateIdRef.current !== debateId) {
+        console.log("Debate session ended, stopping message generation");
+        break;
+      }
+
       const currentSim = exchangeCount % 2 === 0 ? sim1 : sim2;
 
       await new Promise((resolve) => setTimeout(resolve, 9000)); // Wait for reading time
 
-      // Check again after waiting to avoid generating after time is up
+      // Check again after waiting to avoid generating after time is up or debate changed
       if (Date.now() - debateStartTimeRef.current >= DEBATE_DURATION) break;
+      if (currentDebateIdRef.current !== debateId) break;
 
       setTypingIndicator(currentSim.name);
-      const newResponse = await generateResponse(currentSim, question, debateMessages, debateMessages);
+      const newResponse = await generateResponse(currentSim, question, debateMessages, debateMessages, debateId);
       setTypingIndicator(null);
 
       if (newResponse) {
@@ -239,6 +253,7 @@ const LiveChat = () => {
     question: string,
     previousMessages: Message[],
     allMessages: Message[],
+    debateId: string
   ): Promise<Message | null> => {
     try {
       const isFirstMessage = previousMessages.length === 0;
@@ -290,8 +305,14 @@ Keep it conversational, authentic, and varied. 2-3 sentences maximum.`;
         timestamp: new Date(),
       };
 
-      setMessages((prev) => [...prev, newMessage]);
-      conversationIndexRef.current++;
+      // Only add message if this debate session is still active
+      if (currentDebateIdRef.current === debateId) {
+        setMessages((prev) => [...prev, newMessage]);
+        conversationIndexRef.current++;
+      } else {
+        console.log("Debate session changed, discarding message from old debate");
+        return null;
+      }
 
       return newMessage;
     } catch (error) {
@@ -301,8 +322,12 @@ Keep it conversational, authentic, and varied. 2-3 sentences maximum.`;
   };
 
   const resetDebate = () => {
+    // Generate new debate ID to invalidate any pending message operations
+    currentDebateIdRef.current = Date.now().toString();
+    
     setIsDebating(false);
     setMessages([]);
+    setTypingIndicator(null);
     setTimeRemaining(DEBATE_DURATION);
     selectRandomSims();
   };
