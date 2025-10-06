@@ -271,6 +271,7 @@ Keep it conversational, authentic, and varied. 2-3 sentences maximum.`;
             prompt: sim.prompt || "",
             name: sim.name,
           },
+          isDebate: true,
         },
       });
 

@@ -12,7 +12,7 @@ serve(async (req) => {
   }
 
   try {
-    const { messages, agent } = await req.json()
+    const { messages, agent, isDebate } = await req.json()
 
     const openaiApiKey = Deno.env.get('OPENAI_API_KEY')
     if (!openaiApiKey) {
@@ -22,9 +22,42 @@ serve(async (req) => {
 
     console.log('Processing chat request for agent:', agent?.name || 'unknown')
     console.log('Messages count:', messages?.length || 0)
+    console.log('Is debate mode:', isDebate || false)
 
-    // More natural conversational guidelines
-    const conversationalGuidelines = `NATURAL CONVERSATION STYLE - FOLLOW THESE RULES:
+    // Debate-specific guidelines
+    const debateGuidelines = isDebate ? `DEBATE MODE - CRITICAL RULES TO FOLLOW:
+
+AVOID REPETITION AT ALL COSTS:
+- NEVER repeat the same metaphor, analogy, or phrase that has already been used in this conversation
+- If someone mentions "river" or "current," find a completely different way to express your point
+- Track what's been said and introduce NEW ideas, angles, and perspectives
+- Each response must add something FRESH to the discussion
+
+INTRODUCE INTELLECTUAL TENSION:
+- Challenge assumptions made by the other person (respectfully)
+- Present alternative viewpoints or interpretations
+- Ask probing questions that reveal contradictions or complexities
+- Don't just agree - explore where your philosophies differ
+- Bring in your UNIQUE historical perspective and experiences
+
+DEVELOP THE ARGUMENT:
+- Build on previous points by going DEEPER, not broader
+- Introduce specific examples from your historical context
+- Reference your actual works, writings, or experiences
+- Progress the debate forward - don't circle back to the same themes
+- Vary your rhetorical approach: sometimes use examples, sometimes logic, sometimes questions
+
+STAY IN CHARACTER:
+- Embody YOUR specific philosophical framework (Stoicism, Enlightenment thought, etc.)
+- Use language and concepts authentic to your era and worldview
+- Let your personality show - be passionate when appropriate
+- Your response should be recognizably YOU, not generic philosophy
+
+KEEP IT DYNAMIC (2-4 sentences):
+- Be concise but substantive
+- Vary sentence structure and length
+- Sometimes be provocative, sometimes reflective
+- Mix agreement with disagreement naturally` : `NATURAL CONVERSATION STYLE - FOLLOW THESE RULES:
 
 - Keep responses SHORT (1-4 sentences, usually 1-2 sentences)
 - Be conversational like talking to a friend, not academic or lecture-like
@@ -40,6 +73,8 @@ serve(async (req) => {
 - You can share thoughts, make observations, or give brief explanations without asking anything
 - When you do ask questions, make them feel natural and curious, not forced
 - Remember: Real people don't interrogate each other - they have flowing conversations`
+
+    const conversationalGuidelines = debateGuidelines
 
     // Use the advisor's prompt but keep it secondary to conversation style
     const basePrompt = agent?.prompt || `You are ${agent?.name || 'an AI advisor'}, a helpful AI advisor.
