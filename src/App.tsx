@@ -31,9 +31,9 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <Routes>
-            {/* Main app as default route */}
-            <Route path="/" element={<Home />} />
-            <Route path="/live-chat" element={<LiveChat />} />
+            {/* Main app as default route - Live Chat */}
+            <Route path="/" element={<LiveChat />} />
+            <Route path="/sim-directory" element={<Home />} />
             
             {/* Admin route */}
             <Route path="/admin" element={<Admin />} />

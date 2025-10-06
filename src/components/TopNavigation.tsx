@@ -98,24 +98,26 @@ const TopNavigation = ({
               variant="ghost"
               className="w-full justify-start text-left"
               onClick={() => {
-                navigate('/');
+                navigate('/sim-directory');
                 setMobileMenuOpen(false);
               }}
             >
-              Directory
+              Sim Directory
             </Button>
           </>
         ) : (
           <>
             <Button
-              onClick={() => {
-                onShowAdvisorDirectory?.();
-                setMobileMenuOpen(false);
-              }}
               variant="ghost"
               className="w-full justify-start text-left"
+              asChild
             >
-              Home
+              <Link 
+                to="/"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Home
+              </Link>
             </Button>
             
             <Button
@@ -124,10 +126,10 @@ const TopNavigation = ({
               asChild
             >
               <Link 
-                to="/live-chat"
+                to="/sim-directory"
                 onClick={() => setMobileMenuOpen(false)}
               >
-                Live Chat
+                Sim Directory
               </Link>
             </Button>
             
@@ -191,27 +193,27 @@ const TopNavigation = ({
                   </Button>
                   <Button
                     variant="ghost"
-                    onClick={() => navigate('/')}
+                    onClick={() => navigate('/sim-directory')}
                     className="text-sm font-medium hover:text-primary"
                   >
-                    Directory
+                    Sim Directory
                   </Button>
                 </>
               ) : (
                 <>
                   <Button
                     variant="ghost"
-                    onClick={onShowAdvisorDirectory}
                     className="text-sm font-medium hover:text-primary"
+                    asChild
                   >
-                    Home
+                    <Link to="/">Home</Link>
                   </Button>
                   <Button
                     variant="ghost"
                     className="text-sm font-medium hover:text-primary"
                     asChild
                   >
-                    <Link to="/live-chat">Live Chat</Link>
+                    <Link to="/sim-directory">Sim Directory</Link>
                   </Button>
                   <Button
                     variant="ghost"
