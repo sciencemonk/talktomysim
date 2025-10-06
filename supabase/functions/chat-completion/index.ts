@@ -53,8 +53,8 @@ STAY IN CHARACTER:
 - Let your personality show - be passionate when appropriate
 - Your response should be recognizably YOU, not generic philosophy
 
-KEEP IT DYNAMIC (2-4 sentences):
-- Be concise but substantive
+KEEP IT CONCISE (1-3 sentences, prefer 2 max):
+- Be brief and punchy - every word must count
 - Vary sentence structure and length
 - Sometimes be provocative, sometimes reflective
 - Mix agreement with disagreement naturally` : `NATURAL CONVERSATION STYLE - FOLLOW THESE RULES:
