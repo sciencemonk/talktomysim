@@ -94,9 +94,9 @@ const LiveChat = () => {
 
         setAllHistoricalSims(transformedSims);
         
-        // Animate selectors moving around grid
+        // Animate selectors moving around grid - 4 seconds total
         let moveCount = 0;
-        const maxMoves = 40; // ~10 seconds at 250ms intervals
+        const maxMoves = 16; // 4 seconds at 250ms intervals
         const selectorInterval = setInterval(() => {
           setSelector1Index(Math.floor(Math.random() * transformedSims.length));
           setSelector2Index(Math.floor(Math.random() * transformedSims.length));
@@ -157,13 +157,13 @@ const LiveChat = () => {
 
     console.log("Selected question:", selectedQuestion);
 
-    // Finish selection after 10 seconds
+    // Finish selection after 4 seconds
     setTimeout(() => {
       setSelectedSims([sim1, sim2]);
       setQuestion(selectedQuestion);
       setIsSelecting(false);
       startDebate(sim1, sim2, selectedQuestion);
-    }, 10000);
+    }, 4000);
   };
 
   const startDebate = async (sim1: AgentType, sim2: AgentType, question: string) => {
@@ -324,73 +324,116 @@ Keep it conversational, authentic, and varied. 2-3 sentences maximum.`;
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-background p-8"
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-gradient-to-br from-background via-background to-primary/5 p-8 overflow-auto"
                 >
-                  <div className="w-full max-w-6xl space-y-8">
+                  <div className="w-full max-w-6xl space-y-6">
                     <motion.div
                       initial={{ y: -20, opacity: 0 }}
                       animate={{ y: 0, opacity: 1 }}
-                      className="text-center"
+                      className="text-center space-y-3"
                     >
-                      <Sparkles className="h-12 w-12 text-primary mx-auto mb-4 animate-pulse" />
-                      <h2 className="text-3xl font-bold mb-2">Selecting Debate Participants</h2>
-                      <p className="text-muted-foreground">Watch as we choose two minds from history...</p>
+                      <motion.div
+                        animate={{ 
+                          scale: [1, 1.2, 1],
+                          rotate: [0, 180, 360]
+                        }}
+                        transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                      >
+                        <Sparkles className="h-16 w-16 text-primary mx-auto" />
+                      </motion.div>
+                      <h2 className="text-4xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+                        Assembling Great Minds
+                      </h2>
+                      <motion.p 
+                        className="text-lg text-muted-foreground"
+                        animate={{ opacity: [0.5, 1, 0.5] }}
+                        transition={{ duration: 2, repeat: Infinity }}
+                      >
+                        Scanning history for the perfect debate...
+                      </motion.p>
                     </motion.div>
 
                     {/* Avatar Grid with Moving Selectors */}
-                    <div className="relative grid grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-4 p-8">
-                      {allHistoricalSims.map((sim, index) => (
-                        <motion.div
-                          key={sim.id}
-                          initial={{ scale: 0, opacity: 0 }}
-                          animate={{ scale: 1, opacity: 1 }}
-                          transition={{ delay: index * 0.02 }}
-                          className="relative"
-                        >
-                          <Avatar 
-                            className={`h-20 w-20 mx-auto border-2 transition-all duration-300 ${
-                              selector1Index === index || selector2Index === index
-                                ? 'border-primary shadow-lg shadow-primary/50 scale-110 ring-4 ring-primary/30'
-                                : 'border-border/30'
-                            }`}
+                    <div className="relative grid grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3 p-6">
+                      {allHistoricalSims.map((sim, index) => {
+                        const isSelected = selector1Index === index || selector2Index === index;
+                        return (
+                          <motion.div
+                            key={sim.id}
+                            initial={{ scale: 0, opacity: 0, rotateY: -180 }}
+                            animate={{ 
+                              scale: 1, 
+                              opacity: 1,
+                              rotateY: 0
+                            }}
+                            transition={{ 
+                              delay: index * 0.015,
+                              type: "spring",
+                              stiffness: 200
+                            }}
+                            className="relative group"
                           >
-                            <AvatarImage src={sim.avatar} alt={sim.name} />
-                            <AvatarFallback className="text-lg">{sim.name[0]}</AvatarFallback>
-                          </Avatar>
-                          <div className="text-center mt-2">
-                            <p className="text-xs font-medium truncate">{sim.name.split(" ")[0]}</p>
-                          </div>
-                          
-                          {/* Selector Labels */}
-                          {selector1Index === index && (
                             <motion.div
-                              initial={{ scale: 0 }}
-                              animate={{ scale: 1 }}
-                              className="absolute -top-2 -right-2 bg-primary text-primary-foreground rounded-full w-8 h-8 flex items-center justify-center text-xs font-bold shadow-lg"
+                              animate={isSelected ? {
+                                scale: [1, 1.15, 1],
+                                y: [0, -8, 0]
+                              } : {}}
+                              transition={{ duration: 0.4 }}
                             >
-                              1
+                              <Avatar 
+                                className={`h-20 w-20 mx-auto border-2 transition-all duration-300 ${
+                                  isSelected
+                                    ? 'border-primary shadow-xl shadow-primary/50 ring-4 ring-primary/40 brightness-110'
+                                    : 'border-border/20 group-hover:border-primary/30'
+                                }`}
+                              >
+                                <AvatarImage src={sim.avatar} alt={sim.name} />
+                                <AvatarFallback className="text-lg font-bold">{sim.name[0]}</AvatarFallback>
+                              </Avatar>
                             </motion.div>
-                          )}
-                          {selector2Index === index && (
-                            <motion.div
-                              initial={{ scale: 0 }}
-                              animate={{ scale: 1 }}
-                              className="absolute -top-2 -right-2 bg-secondary text-secondary-foreground rounded-full w-8 h-8 flex items-center justify-center text-xs font-bold shadow-lg"
-                            >
-                              2
-                            </motion.div>
-                          )}
-                        </motion.div>
-                      ))}
+                            
+                            <div className="text-center mt-2 px-1">
+                              <p className={`text-xs font-medium truncate transition-all ${
+                                isSelected ? 'text-primary font-bold' : 'text-muted-foreground'
+                              }`}>
+                                {sim.name.split(" ").slice(0, 2).join(" ")}
+                              </p>
+                            </div>
+                            
+                            {/* Animated glow effect for selected */}
+                            {isSelected && (
+                              <motion.div
+                                className="absolute inset-0 rounded-full bg-primary/20 blur-xl -z-10"
+                                animate={{ 
+                                  scale: [1, 1.5, 1],
+                                  opacity: [0.5, 0.8, 0.5]
+                                }}
+                                transition={{ duration: 1, repeat: Infinity }}
+                              />
+                            )}
+                          </motion.div>
+                        );
+                      })}
                     </div>
 
                     <motion.div
-                      animate={{ opacity: [0.5, 1, 0.5] }}
-                      transition={{ duration: 1.5, repeat: Infinity }}
-                      className="text-center text-sm text-muted-foreground"
+                      className="text-center space-y-2"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ delay: 0.5 }}
                     >
-                      Randomly selecting debaters...
+                      <motion.div 
+                        className="flex items-center justify-center gap-2"
+                        animate={{ opacity: [0.4, 1, 0.4] }}
+                        transition={{ duration: 1.5, repeat: Infinity }}
+                      >
+                        <MessageCircle className="h-5 w-5 text-primary" />
+                        <span className="text-sm font-medium text-primary">
+                          Preparing an epic philosophical showdown
+                        </span>
+                        <MessageCircle className="h-5 w-5 text-primary" />
+                      </motion.div>
                     </motion.div>
                   </div>
                 </motion.div>
