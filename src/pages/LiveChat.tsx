@@ -266,6 +266,12 @@ const LiveChat = () => {
       const isFirstMessage = previousMessages.length === 0;
       const lastMessage = previousMessages[previousMessages.length - 1];
       const otherDebater = lastMessage ? lastMessage.simName : "";
+      
+      // Get last 4-6 messages for context
+      const recentMessages = allMessages.slice(-6);
+      const conversationHistory = recentMessages
+        .map(msg => `${msg.simName}: "${msg.content}"`)
+        .join("\n");
 
       const prompt = isFirstMessage
         ? `You are ${sim.name} in a live philosophical debate. The question is: "${question}". 
@@ -273,10 +279,14 @@ const LiveChat = () => {
 Give a short, punchy opening. This is LIVE entertainment - viewers are WATCHING, not reading an essay. 1-2 sentences MAX. Make every word count.`
         : `You are ${sim.name} in a live philosophical debate about: "${question}". 
 
-${otherDebater} just said:
-"${lastMessage?.content}"
+Recent conversation:
+${conversationHistory}
 
-This is LIVE TV - keep it SHORT and watchable. Respond in 1-2 sentences. Sometimes just one punchy sentence. NO essays. Jump straight to your point without "Ah, [name]" or formalities.`;
+${otherDebater} just said: "${lastMessage?.content}"
+
+DIRECTLY respond to what ${otherDebater} just said. Challenge their specific point, agree and build on it, or pivot the argument. Make it feel like a real back-and-forth conversation. 
+
+Keep it SHORT - 1-2 sentences max. This is LIVE TV. Jump straight to your response - no "Ah, ${otherDebater}" or formalities.`;
 
       console.log("Sending debate prompt for", sim.name);
 
