@@ -134,31 +134,32 @@ const Landing = () => {
             <img 
               src="/lovable-uploads/d1283b59-7cfa-45f5-b151-4c32b24f3621.png" 
               alt="Sim" 
-              className="h-8 w-8 object-contain"
+              className="h-6 w-6 sm:h-8 sm:w-8 object-contain"
             />
           </div>
           <button
             onClick={copyCAToClipboard}
-            className="text-[10px] sm:text-xs font-mono bg-muted hover:bg-muted/80 px-2 sm:px-3 py-1 rounded-md text-fg transition-colors cursor-pointer"
+            className="text-[8px] sm:text-[10px] md:text-xs font-mono bg-muted hover:bg-muted/80 px-1.5 sm:px-2 md:px-3 py-1 rounded-md text-fg transition-colors cursor-pointer truncate max-w-[140px] sm:max-w-none"
             title="Click to copy contract address"
           >
-            FFqwoZ7phjoupWjLeE5yFeLqGi8jkGEFrTz6jnsUpump
+            <span className="hidden sm:inline">FFqwoZ7phjoupWjLeE5yFeLqGi8jkGEFrTz6jnsUpump</span>
+            <span className="sm:hidden">FFqwoZ...nsUpump</span>
           </button>
         </div>
       </header>
 
       {/* Main Section - All Features */}
-      <section className="flex-1 flex items-center justify-center container mx-auto px-4 py-6">
+      <section className="flex-1 flex items-center justify-center container mx-auto px-3 sm:px-4 py-4 sm:py-6">
         <div 
-          className="grid gap-3 max-w-6xl w-full"
+          className="grid gap-3 max-w-6xl w-full grid-cols-1 md:grid-cols-4"
           style={{
-            gridTemplateAreas: `
-              "create create talk talk"
-              "debate debate talk talk"
-              "whitepaper whitepaper talk talk"
-            `,
-            gridTemplateColumns: "repeat(4, 1fr)",
-            gridTemplateRows: "auto auto auto"
+            gridTemplateAreas: window.innerWidth < 768 
+              ? `"create" "talk" "debate" "whitepaper"`
+              : `
+                "create create talk talk"
+                "debate debate talk talk"
+                "whitepaper whitepaper talk talk"
+              `,
           }}
         >
           {features.map((feature, index) => {
@@ -170,16 +171,16 @@ const Landing = () => {
                 style={{ gridArea: feature.gridArea }}
                 onClick={!feature.showSims ? feature.action : undefined}
               >
-                <CardHeader className="pb-3 p-4">
-                  <CardTitle className={`${isMainFeature ? 'text-lg' : 'text-base'} font-bold text-fg`}>
+                <CardHeader className="pb-3 p-3 sm:p-4">
+                  <CardTitle className={`${isMainFeature ? 'text-base sm:text-lg' : 'text-sm sm:text-base'} font-bold text-fg`}>
                     {feature.title}
                   </CardTitle>
-                  <CardDescription className={`text-sm text-fgMuted ${isMainFeature ? '' : 'line-clamp-2'}`}>
+                  <CardDescription className={`text-xs sm:text-sm text-fgMuted ${isMainFeature ? '' : 'line-clamp-2'}`}>
                     {feature.description}
                   </CardDescription>
                   
                   {feature.showSims && historicalSims && historicalSims.length > 0 && (
-                    <div className="grid grid-cols-4 gap-2 mt-4">
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-3 sm:mt-4">
                       {historicalSims.map((sim) => (
                         <button
                           key={sim.id}
@@ -192,9 +193,9 @@ const Landing = () => {
                           <img 
                             src={sim.avatar} 
                             alt={sim.name}
-                            className="w-14 h-14 rounded-full object-cover border-2 border-border shadow-sm"
+                            className="w-12 h-12 sm:w-14 sm:h-14 rounded-full object-cover border-2 border-border shadow-sm"
                           />
-                          <span className="text-[10px] font-medium text-fg text-center line-clamp-2 leading-tight">
+                          <span className="text-[9px] sm:text-[10px] font-medium text-fg text-center line-clamp-2 leading-tight w-full">
                             {sim.name}
                           </span>
                         </button>
@@ -202,11 +203,11 @@ const Landing = () => {
                     </div>
                   )}
                 </CardHeader>
-                <CardContent className="pt-0 mt-auto p-4">
+                <CardContent className="pt-0 mt-auto p-3 sm:p-4">
                   <Button 
                     variant="outline" 
                     size="sm"
-                    className="w-full group-hover:translate-x-1 transition-transform"
+                    className="w-full group-hover:translate-x-1 transition-transform text-xs sm:text-sm"
                     onClick={feature.showSims ? (e) => {
                       e.stopPropagation();
                       navigate("/sim-directory");
