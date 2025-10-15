@@ -70,18 +70,46 @@ const AdvisorDirectory = ({ onSelectAdvisor, onAuthRequired }: AdvisorDirectoryP
     }
   };
 
+  // Featured sims to show first (most popular/recognizable)
+  const featuredSimNames = [
+    'Socrates', 'Plato', 'Aristotle', 'Albert Einstein', 'Marie Curie',
+    'Mahatma Gandhi', 'Martin Luther King Jr.', 'Nelson Mandela',
+    'Leonardo da Vinci', 'Nikola Tesla', 'Ada Lovelace', 'Rosa Parks',
+    'Abraham Lincoln', 'Winston Churchill', 'Napoleon', 'Cleopatra',
+    'Alexander the Great', 'Joan of Arc', 'Sun Tzu', 'Confucius'
+  ];
+
   // Filter advisors based on search term and sim type
-  const filteredAdvisors = allAdvisors.filter(advisor => {
-    const matchesSearch = advisor.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         advisor.description?.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    // Filter by sim type from database
-    const matchesType = simFilter === 'historical' 
-      ? (!advisor.sim_type || advisor.sim_type === 'historical')
-      : advisor.sim_type === 'living';
-    
-    return matchesSearch && matchesType;
-  });
+  const filteredAdvisors = allAdvisors
+    .filter(advisor => {
+      const matchesSearch = advisor.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           advisor.description?.toLowerCase().includes(searchTerm.toLowerCase());
+      
+      // Filter by sim type from database
+      const matchesType = simFilter === 'historical' 
+        ? (!advisor.sim_type || advisor.sim_type === 'historical')
+        : advisor.sim_type === 'living';
+      
+      return matchesSearch && matchesType;
+    })
+    .sort((a, b) => {
+      // If no search term, prioritize featured sims
+      if (!searchTerm) {
+        const aIsFeatured = featuredSimNames.includes(a.name);
+        const bIsFeatured = featuredSimNames.includes(b.name);
+        
+        if (aIsFeatured && !bIsFeatured) return -1;
+        if (!aIsFeatured && bIsFeatured) return 1;
+        
+        // Both featured: sort by order in featuredSimNames
+        if (aIsFeatured && bIsFeatured) {
+          return featuredSimNames.indexOf(a.name) - featuredSimNames.indexOf(b.name);
+        }
+      }
+      
+      // Default: alphabetical
+      return a.name.localeCompare(b.name);
+    });
 
   return (
     <div className="flex flex-col h-full bg-background">
