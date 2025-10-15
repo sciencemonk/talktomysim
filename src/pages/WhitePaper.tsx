@@ -6,14 +6,26 @@ import TopNavigation from "@/components/TopNavigation";
 import SimpleFooter from "@/components/SimpleFooter";
 import { useNavigate } from "react-router-dom";
 
+import { useToast } from "@/hooks/use-toast";
+
 const WhitePaper = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const copyCAToClipboard = async () => {
     const ca = "FFqwoZ7phjoupWjLeE5yFeLqGi8jkGEFrTz6jnsUpump";
     try {
       await navigator.clipboard.writeText(ca);
+      toast({
+        title: "Copied!",
+        description: "Contract address copied to clipboard",
+      });
     } catch (error) {
       console.error("Failed to copy:", error);
+      toast({
+        title: "Failed to copy",
+        description: "Could not copy to clipboard",
+        variant: "destructive"
+      });
     }
   };
 
