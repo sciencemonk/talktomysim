@@ -95,14 +95,14 @@ const TopNavigation = ({
             <>
               <Button
                 variant="ghost"
-                className="w-full justify-start text-left pointer-events-auto"
+                className="w-full justify-start text-left"
                 onClick={() => handleNavigate('/dashboard')}
               >
                 My Sim
               </Button>
               <Button
                 variant="ghost"
-                className="w-full justify-start text-left pointer-events-auto"
+                className="w-full justify-start text-left"
                 onClick={() => handleNavigate('/sim-directory')}
               >
                 Sim Directory
@@ -112,7 +112,7 @@ const TopNavigation = ({
             <>
               <Button
                 variant="ghost"
-                className="w-full justify-start text-left pointer-events-auto"
+                className="w-full justify-start text-left"
                 onClick={() => handleNavigate('/')}
               >
                 Home
@@ -120,7 +120,7 @@ const TopNavigation = ({
               
               <Button
                 variant="ghost"
-                className="w-full justify-start text-left pointer-events-auto"
+                className="w-full justify-start text-left"
                 onClick={() => handleNavigate('/sim-directory')}
               >
                 Sim Directory
@@ -128,7 +128,7 @@ const TopNavigation = ({
               
               <Button
                 variant="ghost"
-                className="w-full justify-start text-left pointer-events-auto"
+                className="w-full justify-start text-left"
                 onClick={() => handleNavigate('/whitepaper')}
               >
                 White Paper
@@ -243,7 +243,7 @@ const TopNavigation = ({
                   <Menu className="h-5 w-5" />
                 </Button>
               </SheetTrigger>
-              <SheetContent side="right" className="w-80 z-[151] bg-background overflow-y-auto pointer-events-auto">
+              <SheetContent side="right" className="w-80 z-[151] bg-background overflow-y-auto">
                 <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
                 <SheetDescription className="sr-only">Navigate to different sections of the app</SheetDescription>
                 <MobileMenu onClose={() => setMobileMenuOpen(false)} />
