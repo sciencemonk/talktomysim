@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
-import { Brain, MessageSquare, Users, Coins, FileText, Sparkles } from "lucide-react";
+import { Brain, MessageSquare, Users, Coins, FileText } from "lucide-react";
 
 const Landing = () => {
   const navigate = useNavigate();
@@ -51,13 +51,16 @@ const Landing = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-bg via-bgMuted to-bg">
+    <div className="min-h-screen bg-gradient-to-b from-bg via-bgMuted to-bg flex flex-col">
       {/* Header */}
       <header className="border-b border-border backdrop-blur-sm bg-bg/80 sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Brain className="h-8 w-8 text-primary" />
-            <h1 className="text-2xl font-bold text-fg">SIMAI</h1>
+            <img 
+              src="/lovable-uploads/d1283b59-7cfa-45f5-b151-4c32b24f3621.png" 
+              alt="Sim" 
+              className="h-8 w-8 object-contain"
+            />
           </div>
           <Button variant="brandGradient" onClick={() => window.open("https://pump.fun", "_blank")}>
             Buy $SIMAI
@@ -65,49 +68,9 @@ const Landing = () => {
         </div>
       </header>
 
-      {/* Hero Section */}
-      <section className="container mx-auto px-4 py-12 md:py-16 text-center">
-        <div className="max-w-4xl mx-auto space-y-6 animate-fade-in">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 mb-4">
-            <Sparkles className="h-4 w-4 text-primary" />
-            <span className="text-sm font-medium text-primary">The Future of AI Simulations</span>
-          </div>
-          
-          <h1 className="text-4xl md:text-6xl font-bold bg-gradient-to-r from-fg via-primary to-fg bg-clip-text text-transparent leading-tight">
-            Think With AI.
-            <br />
-            Powered by $SIMAI
-          </h1>
-          
-          <p className="text-lg md:text-xl text-fgMuted max-w-2xl mx-auto">
-            Create, interact, and invest in the next generation of AI simulation technology.
-          </p>
-
-          <div className="flex flex-col sm:flex-row gap-3 justify-center pt-4">
-            <Button 
-              size="default" 
-              variant="brandGradient"
-              className="px-6"
-              onClick={() => window.open("https://pump.fun", "_blank")}
-            >
-              <Coins className="mr-2 h-4 w-4" />
-              Buy $SIMAI Now
-            </Button>
-            <Button 
-              size="default" 
-              variant="outline"
-              className="px-6"
-              onClick={() => navigate("/live")}
-            >
-              Try It Free
-            </Button>
-          </div>
-        </div>
-      </section>
-
-      {/* Features Grid */}
-      <section className="container mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 max-w-7xl mx-auto">
+      {/* Main Section - All Features */}
+      <section className="flex-1 flex items-center justify-center container mx-auto px-4 py-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 max-w-7xl w-full">
           {features.map((feature, index) => {
             const Icon = feature.icon;
             return (
@@ -152,7 +115,7 @@ const Landing = () => {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-border mt-20">
+      <footer className="border-t border-border mt-auto">
         <div className="container mx-auto px-4 py-8">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <div className="flex items-center gap-2">
