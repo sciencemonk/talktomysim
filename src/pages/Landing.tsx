@@ -1,7 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
-import { Brain, MessageSquare, Users, Coins, FileText } from "lucide-react";
 import SimpleFooter from "@/components/SimpleFooter";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
@@ -11,19 +10,19 @@ const Landing = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  // Fetch historical sim avatars
+  // Fetch historical sims with full data
   const { data: historicalSims } = useQuery({
     queryKey: ['historical-sims'],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('advisors')
-        .select('avatar_url')
+        .select('id, name, avatar_url, custom_url')
         .eq('sim_type', 'historical')
         .eq('is_active', true)
         .limit(4);
       
       if (error) throw error;
-      return data?.map(sim => sim.avatar_url).filter(Boolean) || [];
+      return data || [];
     },
   });
 
@@ -47,50 +46,32 @@ const Landing = () => {
 
   const features = [
     {
-      icon: Brain,
       title: "Create Your Own AI",
       description: "Build custom AI simulations tailored to your needs with our powerful creation tools.",
       action: () => navigate("/dashboard"),
       gradient: "from-primary/20 to-primary/5",
-      iconColor: "text-primary",
       gridArea: "create",
     },
     {
-      icon: MessageSquare,
       title: "Talk to a Sim",
       description: "Engage in conversations with AI personalities across various domains and expertise.",
       action: () => navigate("/live"),
       gradient: "from-accent/20 to-accent/5",
-      iconColor: "text-accent",
       gridArea: "talk",
-      showAvatars: true,
+      showSims: true,
     },
     {
-      icon: Users,
       title: "Watch Sims Debate",
       description: "Experience dynamic debates between AI simulations on trending topics and ideas.",
       action: () => navigate("/sim-directory"),
       gradient: "from-secondary/20 to-secondary/5",
-      iconColor: "text-secondary",
       gridArea: "debate",
     },
     {
-      icon: Coins,
-      title: "Buy $SIMAI",
-      description: "Invest in the future of AI simulations. Get $SIMAI tokens and join our ecosystem.",
-      action: () => window.open("https://pump.fun", "_blank"),
-      gradient: "from-brandAccent/20 to-brandAccent/5",
-      iconColor: "text-brandAccent",
-      featured: true,
-      gridArea: "buy",
-    },
-    {
-      icon: FileText,
       title: "Read the Whitepaper",
       description: "Dive deep into our vision, technology, and roadmap for AI simulation platforms.",
       action: () => navigate("/whitepaper"),
       gradient: "from-muted/20 to-muted/5",
-      iconColor: "text-fgMuted",
       gridArea: "whitepaper",
     },
   ];
@@ -125,62 +106,64 @@ const Landing = () => {
             gridTemplateAreas: `
               "create create talk talk"
               "debate debate talk talk"
-              "buy whitepaper talk talk"
+              "whitepaper whitepaper talk talk"
             `,
             gridTemplateColumns: "repeat(4, 1fr)",
             gridTemplateRows: "auto auto auto"
           }}
         >
           {features.map((feature, index) => {
-            const Icon = feature.icon;
             const isMainFeature = ['create', 'talk', 'debate'].includes(feature.gridArea);
             return (
               <Card 
                 key={index}
-                className={`group cursor-pointer transition-all duration-300 hover:scale-[1.02] hover:shadow-xl border-2 ${
-                  feature.featured ? 'border-brandAccent' : 'border-border'
-                } bg-gradient-to-br ${feature.gradient} flex flex-col`}
+                className={`group cursor-pointer transition-all duration-300 hover:scale-[1.02] hover:shadow-xl border-2 border-border bg-gradient-to-br ${feature.gradient} flex flex-col`}
                 style={{ gridArea: feature.gridArea }}
-                onClick={feature.action}
+                onClick={!feature.showSims ? feature.action : undefined}
               >
                 <CardHeader className="pb-3 p-4">
-                  <div className={`${isMainFeature ? 'w-10 h-10' : 'w-8 h-8'} rounded-lg bg-bg flex items-center justify-center mb-2 group-hover:scale-110 transition-transform ${
-                    feature.featured ? 'ring-2 ring-brandAccent' : ''
-                  }`}>
-                    <Icon className={`${isMainFeature ? 'h-5 w-5' : 'h-4 w-4'} ${feature.iconColor}`} />
-                  </div>
                   <CardTitle className={`${isMainFeature ? 'text-lg' : 'text-base'} font-bold text-fg`}>
                     {feature.title}
-                    {feature.featured && (
-                      <span className="ml-1 text-xs px-1.5 py-0.5 rounded-full bg-brandAccent text-white">
-                        Hot
-                      </span>
-                    )}
                   </CardTitle>
                   <CardDescription className={`text-sm text-fgMuted ${isMainFeature ? '' : 'line-clamp-2'}`}>
                     {feature.description}
                   </CardDescription>
                   
-                  {feature.showAvatars && historicalSims && historicalSims.length > 0 && (
-                    <div className="flex gap-2 mt-3 flex-wrap">
-                      {historicalSims.map((avatar, i) => (
-                        <img 
-                          key={i}
-                          src={avatar} 
-                          alt={`Historical sim ${i + 1}`}
-                          className="w-10 h-10 rounded-full object-cover border-2 border-bg shadow-sm"
-                        />
+                  {feature.showSims && historicalSims && historicalSims.length > 0 && (
+                    <div className="grid grid-cols-2 gap-3 mt-4">
+                      {historicalSims.map((sim) => (
+                        <button
+                          key={sim.id}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            navigate(`/sim/${sim.custom_url || sim.id}`);
+                          }}
+                          className="flex flex-col items-center gap-2 p-3 rounded-lg bg-bg/50 hover:bg-bg transition-colors"
+                        >
+                          <img 
+                            src={sim.avatar_url} 
+                            alt={sim.name}
+                            className="w-16 h-16 rounded-full object-cover border-2 border-border shadow-sm"
+                          />
+                          <span className="text-xs font-medium text-fg text-center line-clamp-2">
+                            {sim.name}
+                          </span>
+                        </button>
                       ))}
                     </div>
                   )}
                 </CardHeader>
                 <CardContent className="pt-0 mt-auto p-4">
                   <Button 
-                    variant={feature.featured ? "brandGradient" : "outline"} 
+                    variant="outline" 
                     size="sm"
                     className="w-full group-hover:translate-x-1 transition-transform"
+                    onClick={feature.showSims ? (e) => {
+                      e.stopPropagation();
+                      navigate("/sim-directory");
+                    } : undefined}
                   >
-                    {feature.featured ? "Get Started" : "Learn More"}
+                    {feature.showSims ? "View All" : "Learn More"}
                   </Button>
                 </CardContent>
               </Card>
