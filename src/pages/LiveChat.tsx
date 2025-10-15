@@ -8,6 +8,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Loader2, Sparkles, MessageCircle, RefreshCw } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import debateIcon from "@/assets/debate-icon.png";
+import { useNavigate } from "react-router-dom";
 
 interface Message {
   id: string;
@@ -38,6 +39,7 @@ const philosophicalQuestions = [
 ];
 
 const LiveChat = () => {
+  const navigate = useNavigate();
   const [selectedSims, setSelectedSims] = useState<[AgentType | null, AgentType | null]>([null, null]);
   const [question, setQuestion] = useState<string>("");
   const [messages, setMessages] = useState<Message[]>([]);
@@ -145,12 +147,12 @@ const LiveChat = () => {
       setTimeRemaining(remaining);
 
       if (remaining === 0) {
-        resetDebate();
+        navigate("/");
       }
     }, 100);
 
     return () => clearInterval(interval);
-  }, [isDebating]);
+  }, [isDebating, navigate]);
 
   const selectRandomSims = () => {
     console.log("selectRandomSims called, available sims:", allHistoricalSims.length);
