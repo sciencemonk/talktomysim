@@ -146,8 +146,11 @@ const LiveChat = () => {
       const remaining = Math.max(0, DEBATE_DURATION - elapsed);
       setTimeRemaining(remaining);
 
-      if (remaining === 0) {
-        window.location.reload();
+      if (remaining <= 0) {
+        clearInterval(interval);
+        setTimeout(() => {
+          window.location.reload();
+        }, 100);
       }
     }, 100);
 
