@@ -164,7 +164,7 @@ const Landing = () => {
   const features = [
     {
       title: "Create Your Own AI",
-      description: "Build custom AI simulations tailored to your needs with our powerful creation tools.",
+      description: "Build and share your own ai based on your personality or your wildest ideas.",
       action: () => navigate("/dashboard"),
       gradient: "from-primary/20 to-primary/5",
       gridArea: "create",
