@@ -4,10 +4,28 @@ import { useNavigate } from "react-router-dom";
 import { Brain, MessageSquare, Users, Coins, FileText } from "lucide-react";
 import SimpleFooter from "@/components/SimpleFooter";
 import { useToast } from "@/hooks/use-toast";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 const Landing = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  // Fetch historical sim avatars
+  const { data: historicalSims } = useQuery({
+    queryKey: ['historical-sims'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('advisors')
+        .select('avatar_url')
+        .eq('sim_type', 'historical')
+        .eq('is_active', true)
+        .limit(4);
+      
+      if (error) throw error;
+      return data?.map(sim => sim.avatar_url).filter(Boolean) || [];
+    },
+  });
 
   const copyCAToClipboard = async () => {
     const ca = "FFqwoZ7phjoupWjLeE5yFeLqGi8jkGEFrTz6jnsUpump";
@@ -35,7 +53,7 @@ const Landing = () => {
       action: () => navigate("/dashboard"),
       gradient: "from-primary/20 to-primary/5",
       iconColor: "text-primary",
-      size: "large",
+      gridArea: "create",
     },
     {
       icon: MessageSquare,
@@ -44,7 +62,7 @@ const Landing = () => {
       action: () => navigate("/live"),
       gradient: "from-accent/20 to-accent/5",
       iconColor: "text-accent",
-      size: "large",
+      gridArea: "talk",
       showAvatars: true,
     },
     {
@@ -54,7 +72,7 @@ const Landing = () => {
       action: () => navigate("/sim-directory"),
       gradient: "from-secondary/20 to-secondary/5",
       iconColor: "text-secondary",
-      size: "large",
+      gridArea: "debate",
     },
     {
       icon: Coins,
@@ -64,7 +82,7 @@ const Landing = () => {
       gradient: "from-brandAccent/20 to-brandAccent/5",
       iconColor: "text-brandAccent",
       featured: true,
-      size: "small",
+      gridArea: "buy",
     },
     {
       icon: FileText,
@@ -73,15 +91,8 @@ const Landing = () => {
       action: () => navigate("/whitepaper"),
       gradient: "from-muted/20 to-muted/5",
       iconColor: "text-fgMuted",
-      size: "small",
+      gridArea: "whitepaper",
     },
-  ];
-
-  const avatarPreviews = [
-    "/lovable-uploads/1a618b3c-11e7-43e4-a2d5-c1e6f36e48ba.png",
-    "/lovable-uploads/1bcbaef9-d3ee-43db-88b5-00437f50935e.png",
-    "/lovable-uploads/29ef3bcb-9544-4a2c-bfbd-57ce889d1989.png",
-    "/lovable-uploads/31a26b17-27fc-463a-9eb2-a5e764de804e.png",
   ];
 
   return (
@@ -107,28 +118,38 @@ const Landing = () => {
       </header>
 
       {/* Main Section - All Features */}
-      <section className="flex-1 flex items-center justify-center container mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-w-7xl w-full auto-rows-fr">
+      <section className="flex-1 flex items-center justify-center container mx-auto px-4 py-6">
+        <div 
+          className="grid gap-3 max-w-6xl w-full"
+          style={{
+            gridTemplateAreas: `
+              "create create talk talk"
+              "debate debate talk talk"
+              "buy whitepaper talk talk"
+            `,
+            gridTemplateColumns: "repeat(4, 1fr)",
+            gridTemplateRows: "auto auto auto"
+          }}
+        >
           {features.map((feature, index) => {
             const Icon = feature.icon;
-            const isLarge = feature.size === "large";
+            const isMainFeature = ['create', 'talk', 'debate'].includes(feature.gridArea);
             return (
               <Card 
                 key={index}
-                className={`group cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-xl border-2 ${
+                className={`group cursor-pointer transition-all duration-300 hover:scale-[1.02] hover:shadow-xl border-2 ${
                   feature.featured ? 'border-brandAccent' : 'border-border'
-                } bg-gradient-to-br ${feature.gradient} ${
-                  isLarge ? 'md:row-span-2' : ''
-                } flex flex-col`}
+                } bg-gradient-to-br ${feature.gradient} flex flex-col`}
+                style={{ gridArea: feature.gridArea }}
                 onClick={feature.action}
               >
-                <CardHeader className={isLarge ? "pb-4" : "pb-3"}>
-                  <div className={`${isLarge ? 'w-12 h-12' : 'w-10 h-10'} rounded-lg bg-bg flex items-center justify-center mb-2 group-hover:scale-110 transition-transform ${
+                <CardHeader className="pb-3 p-4">
+                  <div className={`${isMainFeature ? 'w-10 h-10' : 'w-8 h-8'} rounded-lg bg-bg flex items-center justify-center mb-2 group-hover:scale-110 transition-transform ${
                     feature.featured ? 'ring-2 ring-brandAccent' : ''
                   }`}>
-                    <Icon className={`${isLarge ? 'h-6 w-6' : 'h-5 w-5'} ${feature.iconColor}`} />
+                    <Icon className={`${isMainFeature ? 'h-5 w-5' : 'h-4 w-4'} ${feature.iconColor}`} />
                   </div>
-                  <CardTitle className={`${isLarge ? 'text-xl' : 'text-base'} font-bold text-fg`}>
+                  <CardTitle className={`${isMainFeature ? 'text-lg' : 'text-base'} font-bold text-fg`}>
                     {feature.title}
                     {feature.featured && (
                       <span className="ml-1 text-xs px-1.5 py-0.5 rounded-full bg-brandAccent text-white">
@@ -136,27 +157,27 @@ const Landing = () => {
                       </span>
                     )}
                   </CardTitle>
-                  <CardDescription className={`${isLarge ? 'text-base' : 'text-sm'} text-fgMuted ${isLarge ? '' : 'line-clamp-2'}`}>
+                  <CardDescription className={`text-sm text-fgMuted ${isMainFeature ? '' : 'line-clamp-2'}`}>
                     {feature.description}
                   </CardDescription>
                   
-                  {feature.showAvatars && (
-                    <div className="flex gap-2 mt-4 flex-wrap">
-                      {avatarPreviews.map((avatar, i) => (
+                  {feature.showAvatars && historicalSims && historicalSims.length > 0 && (
+                    <div className="flex gap-2 mt-3 flex-wrap">
+                      {historicalSims.map((avatar, i) => (
                         <img 
                           key={i}
                           src={avatar} 
-                          alt={`Sim avatar ${i + 1}`}
-                          className="w-12 h-12 rounded-full object-cover border-2 border-bg shadow-sm"
+                          alt={`Historical sim ${i + 1}`}
+                          className="w-10 h-10 rounded-full object-cover border-2 border-bg shadow-sm"
                         />
                       ))}
                     </div>
                   )}
                 </CardHeader>
-                <CardContent className="pt-0 mt-auto">
+                <CardContent className="pt-0 mt-auto p-4">
                   <Button 
                     variant={feature.featured ? "brandGradient" : "outline"} 
-                    size={isLarge ? "default" : "sm"}
+                    size="sm"
                     className="w-full group-hover:translate-x-1 transition-transform"
                   >
                     {feature.featured ? "Get Started" : "Learn More"}
