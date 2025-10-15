@@ -8,6 +8,8 @@ import { supabase } from "@/integrations/supabase/client";
 import BotCheck from "@/components/BotCheck";
 import { useState } from "react";
 import { AgentType } from "@/types/agent";
+import phantomIcon from "@/assets/phantom-icon.png";
+import solflareIcon from "@/assets/solflare-icon.png";
 
 const Landing = () => {
   const navigate = useNavigate();
@@ -100,6 +102,7 @@ const Landing = () => {
       action: () => navigate("/dashboard"),
       gradient: "from-primary/20 to-primary/5",
       gridArea: "create",
+      showWalletButtons: true,
     },
     {
       title: "Talk to a Sim",
@@ -164,12 +167,13 @@ const Landing = () => {
         >
           {features.map((feature, index) => {
             const isMainFeature = ['create', 'talk', 'debate'].includes(feature.gridArea);
+            const showButton = !feature.showSims && !feature.showWalletButtons;
             return (
               <Card 
                 key={index}
                 className={`group cursor-pointer transition-all duration-300 hover:scale-[1.02] hover:shadow-xl border-2 border-border bg-gradient-to-br ${feature.gradient} flex flex-col`}
                 style={{ gridArea: feature.gridArea }}
-                onClick={!feature.showSims ? feature.action : undefined}
+                onClick={(!feature.showSims && !feature.showWalletButtons) ? feature.action : undefined}
               >
                 <CardHeader className="pb-3 p-3 sm:p-4">
                   <CardTitle className={`${isMainFeature ? 'text-base sm:text-lg' : 'text-sm sm:text-base'} font-bold text-fg`}>
@@ -202,20 +206,57 @@ const Landing = () => {
                       ))}
                     </div>
                   )}
+
+                  {feature.showWalletButtons && (
+                    <div className="flex flex-col gap-2 mt-4">
+                      <Button
+                        variant="outline"
+                        className="w-full justify-start gap-3 h-auto py-3"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          // TODO: Add Phantom wallet connection
+                          toast({
+                            title: "Coming soon",
+                            description: "Phantom wallet integration will be available soon",
+                          });
+                        }}
+                      >
+                        <img src={phantomIcon} alt="Phantom" className="w-5 h-5" />
+                        <span className="text-sm font-medium">Connect Phantom</span>
+                      </Button>
+                      <Button
+                        variant="outline"
+                        className="w-full justify-start gap-3 h-auto py-3"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          // TODO: Add Solflare wallet connection
+                          toast({
+                            title: "Coming soon",
+                            description: "Solflare wallet integration will be available soon",
+                          });
+                        }}
+                      >
+                        <img src={solflareIcon} alt="Solflare" className="w-5 h-5" />
+                        <span className="text-sm font-medium">Connect Solflare</span>
+                      </Button>
+                    </div>
+                  )}
                 </CardHeader>
-                <CardContent className="pt-0 mt-auto p-3 sm:p-4">
-                  <Button 
-                    variant="outline" 
-                    size="sm"
-                    className="w-full group-hover:translate-x-1 transition-transform text-xs sm:text-sm"
-                    onClick={feature.showSims ? (e) => {
-                      e.stopPropagation();
-                      navigate("/sim-directory");
-                    } : undefined}
-                  >
-                    {feature.showSims ? "View All" : "Learn More"}
-                  </Button>
-                </CardContent>
+                {feature.showSims && (
+                  <CardContent className="pt-0 mt-auto p-3 sm:p-4">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      className="w-full group-hover:translate-x-1 transition-transform text-xs sm:text-sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        navigate("/sim-directory");
+                      }}
+                    >
+                      View All
+                    </Button>
+                  </CardContent>
+                )}
               </Card>
             );
           })}
