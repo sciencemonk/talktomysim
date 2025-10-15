@@ -147,12 +147,12 @@ const LiveChat = () => {
       setTimeRemaining(remaining);
 
       if (remaining === 0) {
-        navigate("/");
+        window.location.reload();
       }
     }, 100);
 
     return () => clearInterval(interval);
-  }, [isDebating, navigate]);
+  }, [isDebating]);
 
   const selectRandomSims = () => {
     console.log("selectRandomSims called, available sims:", allHistoricalSims.length);
