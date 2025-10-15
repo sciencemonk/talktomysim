@@ -13,6 +13,8 @@ import {
   Sheet,
   SheetContent,
   SheetTrigger,
+  SheetTitle,
+  SheetDescription,
 } from "@/components/ui/sheet";
 import { AgentType } from "@/types/agent";
 import { useAgents } from "@/hooks/useAgents";
@@ -69,81 +71,74 @@ const TopNavigation = ({
     }
   };
 
-  const MobileMenu = ({ onClose }: { onClose: () => void }) => (
-    <div className="flex flex-col space-y-4 p-4">
-      {/* Logo */}
-      <div className="flex items-center mb-6">
-        <img 
-          src="/lovable-uploads/d1283b59-7cfa-45f5-b151-4c32b24f3621.png" 
-          alt="Sim" 
-          className="h-8 w-8 object-contain mx-auto"
-        />
-      </div>
+  const MobileMenu = ({ onClose }: { onClose: () => void }) => {
+    const handleNavigate = (path: string) => {
+      console.log('Navigating to:', path);
+      navigate(path);
+      setTimeout(() => onClose(), 100);
+    };
 
-      {/* Navigation Links */}
-      <div className="space-y-2">
-        {user ? (
-          <>
-            <Button
-              variant="ghost"
-              className="w-full justify-start text-left"
-              onClick={() => {
-                navigate('/dashboard');
-                onClose();
-              }}
-            >
-              My Sim
-            </Button>
-            <Button
-              variant="ghost"
-              className="w-full justify-start text-left"
-              onClick={() => {
-                navigate('/sim-directory');
-                onClose();
-              }}
-            >
-              Sim Directory
-            </Button>
-          </>
-        ) : (
-          <>
-            <Button
-              variant="ghost"
-              className="w-full justify-start text-left"
-              onClick={() => {
-                navigate('/');
-                onClose();
-              }}
-            >
-              Home
-            </Button>
-            
-            <Button
-              variant="ghost"
-              className="w-full justify-start text-left"
-              onClick={() => {
-                navigate('/sim-directory');
-                onClose();
-              }}
-            >
-              Sim Directory
-            </Button>
-            
-            <Button
-              variant="ghost"
-              className="w-full justify-start text-left"
-              onClick={() => {
-                navigate('/whitepaper');
-                onClose();
-              }}
-            >
-              White Paper
-            </Button>
-          </>
-        )}
+    return (
+      <div className="flex flex-col space-y-4 p-4">
+        {/* Logo */}
+        <div className="flex items-center mb-6">
+          <img 
+            src="/lovable-uploads/d1283b59-7cfa-45f5-b151-4c32b24f3621.png" 
+            alt="Sim" 
+            className="h-8 w-8 object-contain mx-auto"
+          />
+        </div>
+
+        {/* Navigation Links */}
+        <div className="space-y-2">
+          {user ? (
+            <>
+              <Button
+                variant="ghost"
+                className="w-full justify-start text-left pointer-events-auto"
+                onClick={() => handleNavigate('/dashboard')}
+              >
+                My Sim
+              </Button>
+              <Button
+                variant="ghost"
+                className="w-full justify-start text-left pointer-events-auto"
+                onClick={() => handleNavigate('/sim-directory')}
+              >
+                Sim Directory
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button
+                variant="ghost"
+                className="w-full justify-start text-left pointer-events-auto"
+                onClick={() => handleNavigate('/')}
+              >
+                Home
+              </Button>
+              
+              <Button
+                variant="ghost"
+                className="w-full justify-start text-left pointer-events-auto"
+                onClick={() => handleNavigate('/sim-directory')}
+              >
+                Sim Directory
+              </Button>
+              
+              <Button
+                variant="ghost"
+                className="w-full justify-start text-left pointer-events-auto"
+                onClick={() => handleNavigate('/whitepaper')}
+              >
+                White Paper
+              </Button>
+            </>
+          )}
+        </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   return (
     <nav className="bg-card border-b border-border px-4 py-3">
@@ -248,7 +243,9 @@ const TopNavigation = ({
                   <Menu className="h-5 w-5" />
                 </Button>
               </SheetTrigger>
-              <SheetContent side="right" className="w-80 z-[101] bg-background overflow-y-auto">
+              <SheetContent side="right" className="w-80 z-[151] bg-background overflow-y-auto pointer-events-auto">
+                <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
+                <SheetDescription className="sr-only">Navigate to different sections of the app</SheetDescription>
                 <MobileMenu onClose={() => setMobileMenuOpen(false)} />
               </SheetContent>
             </Sheet>
