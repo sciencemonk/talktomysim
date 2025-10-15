@@ -1,201 +1,53 @@
-import { useState } from "react";
-import { useAuth } from "@/hooks/useAuth";
-import { LogOut, ArrowLeft } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { AgentType } from "@/types/agent";
-import { useAgents } from "@/hooks/useAgents";
-import { useIsMobile } from "@/hooks/use-mobile";
-import { Link, useNavigate } from "react-router-dom";
-import AuthModal from "./AuthModal";
+import { useToast } from "@/hooks/use-toast";
+import { useNavigate } from "react-router-dom";
 
-interface TopNavigationProps {
-  selectedAgent?: AgentType | null;
-  selectedPublicAdvisorId?: string | null;
-  selectedPublicAdvisors?: AgentType[];
-  onSelectAgent?: (agent: AgentType) => void;
-  onSelectPublicAdvisor?: (advisorId: string, advisor?: AgentType) => void;
-  onRemovePublicAdvisor?: (advisorId: string) => void;
-  onShowAdvisorDirectory?: () => void;
-  showBackButton?: boolean;
-  onBack?: () => void;
-}
-
-const TopNavigation = ({
-  selectedAgent,
-  selectedPublicAdvisorId,
-  selectedPublicAdvisors = [],
-  onSelectAgent,
-  onSelectPublicAdvisor,
-  onRemovePublicAdvisor,
-  onShowAdvisorDirectory,
-  showBackButton = false,
-  onBack,
-}: TopNavigationProps) => {
-  const { user, signOut } = useAuth();
-  const { agents } = useAgents();
-  const isMobile = useIsMobile();
+const TopNavigation = () => {
   const navigate = useNavigate();
-  const [showAuthModal, setShowAuthModal] = useState(false);
-  const [authModalMode, setAuthModalMode] = useState<'login' | 'signup'>('signup');
+  const { toast } = useToast();
 
-  const handleSignOut = async () => {
-    await signOut();
-  };
-
-  const handleLoginClick = () => {
-    setAuthModalMode('login');
-    setShowAuthModal(true);
-  };
-
-  const handleCreateSimClick = () => {
-    if (user) {
-      navigate('/dashboard');
-    } else {
-      setAuthModalMode('signup');
-      setShowAuthModal(true);
+  const copyCAToClipboard = async () => {
+    const ca = "FFqwoZ7phjoupWjLeE5yFeLqGi8jkGEFrTz6jnsUpump";
+    try {
+      await navigator.clipboard.writeText(ca);
+      toast({
+        title: "Copied!",
+        description: "Contract address copied to clipboard",
+      });
+    } catch (error) {
+      console.error("Failed to copy:", error);
+      toast({
+        title: "Failed to copy",
+        description: "Could not copy to clipboard",
+        variant: "destructive"
+      });
     }
   };
 
   return (
-    <nav className="bg-card border-b border-border px-2 sm:px-4 py-2 sm:py-3 relative z-[200]">
-      <div className="flex items-center justify-between gap-1 sm:gap-4">
-        {/* Left side - Logo/Back button */}
-        <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
-          {showBackButton ? (
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              onClick={onBack}
-              className="flex items-center gap-1 sm:gap-2 p-1 sm:p-2"
-            >
-              <ArrowLeft className="h-4 w-4" />
-              {!isMobile && "Back"}
-            </Button>
-          ) : (
-            <div className="flex items-center">
-              <img 
-                src="/lovable-uploads/d1283b59-7cfa-45f5-b151-4c32b24f3621.png" 
-                alt="Sim" 
-                className="h-6 w-6 sm:h-8 sm:w-8 object-contain"
-              />
-            </div>
-          )}
-        </div>
+    <nav className="bg-card border-b border-border px-4 py-4">
+      <div className="flex items-center justify-between">
+        {/* Logo - clickable to home */}
+        <button 
+          onClick={() => navigate('/')}
+          className="flex items-center hover:opacity-80 transition-opacity"
+        >
+          <img 
+            src="/lovable-uploads/d1283b59-7cfa-45f5-b151-4c32b24f3621.png" 
+            alt="Sim" 
+            className="h-6 w-6 sm:h-8 sm:w-8 object-contain"
+          />
+        </button>
 
-        {/* Center - Navigation Links */}
-        {!showBackButton && (
-          <div className="flex items-center gap-1 sm:gap-3 flex-1 justify-center">
-            {user ? (
-              <>
-                <Button
-                  variant="ghost"
-                  onClick={() => navigate('/dashboard')}
-                  className="text-[10px] sm:text-sm font-medium hover:text-primary px-1 sm:px-3 h-7 sm:h-9"
-                >
-                  My Sim
-                </Button>
-                <Button
-                  variant="ghost"
-                  onClick={() => navigate('/sim-directory')}
-                  className="text-[10px] sm:text-sm font-medium hover:text-primary px-1 sm:px-3 h-7 sm:h-9"
-                >
-                  Directory
-                </Button>
-              </>
-            ) : (
-              <>
-                <Button
-                  variant="ghost"
-                  className="text-[10px] sm:text-sm font-medium hover:text-primary px-1 sm:px-3 h-7 sm:h-9"
-                  asChild
-                >
-                  <Link to="/">Home</Link>
-                </Button>
-                <Button
-                  variant="ghost"
-                  className="text-[10px] sm:text-sm font-medium hover:text-primary px-1 sm:px-3 h-7 sm:h-9"
-                  asChild
-                >
-                  <Link to="/sim-directory">Directory</Link>
-                </Button>
-                <Button
-                  variant="ghost"
-                  className="text-[10px] sm:text-sm font-medium hover:text-primary px-1 sm:px-3 h-7 sm:h-9"
-                  asChild
-                >
-                  <Link to="/whitepaper">Roadmap</Link>
-                </Button>
-              </>
-            )}
-          </div>
-        )}
-
-        {/* Right side - Auth buttons / User menu */}
-        <div className="flex items-center gap-1 sm:gap-4 flex-shrink-0">
-          {/* Login and Create Sim buttons (only show when not authenticated and not on back button view) */}
-          {!user && !showBackButton && (
-            <>
-              <Button
-                variant="ghost"
-                onClick={handleLoginClick}
-                className="text-[10px] sm:text-sm font-medium px-1 sm:px-3 h-7 sm:h-9"
-              >
-                Login
-              </Button>
-              <Button
-                onClick={handleCreateSimClick}
-                className="h-7 sm:h-10 bg-neutral-900 hover:bg-neutral-800 text-white dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-100 rounded-full px-2 sm:px-6 font-medium shadow-lg hover:shadow-xl transition-all duration-300 text-[10px] sm:text-sm"
-              >
-                Create
-              </Button>
-            </>
-          )}
-
-          {/* User menu (only show if authenticated) */}
-          {user && (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="flex items-center gap-1 sm:gap-2 p-1 sm:p-2">
-                  <Avatar className="h-6 w-6 sm:h-8 sm:w-8">
-                    <AvatarImage src={user?.user_metadata?.avatar_url} alt="Profile" />
-                    <AvatarFallback>
-                      {user?.user_metadata?.wallet_address?.slice(0, 2)?.toUpperCase() || user?.email?.charAt(0)?.toUpperCase() || "U"}
-                    </AvatarFallback>
-                  </Avatar>
-                  {!isMobile && (
-                    <span className="text-xs sm:text-sm font-medium font-mono">
-                      {user?.user_metadata?.wallet_address 
-                        ? `${user.user_metadata.wallet_address.slice(0, 4)}...${user.user_metadata.wallet_address.slice(-4)}`
-                        : user?.email?.split('@')[0] || "User"
-                      }
-                    </span>
-                  )}
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56 bg-popover z-50">
-                <DropdownMenuItem onClick={handleSignOut}>
-                  <LogOut className="mr-2 h-4 w-4" />
-                  <span>Log out</span>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          )}
-        </div>
+        {/* Contract Address */}
+        <button
+          onClick={copyCAToClipboard}
+          className="text-[8px] sm:text-[10px] md:text-xs font-mono bg-muted hover:bg-muted/80 px-1.5 sm:px-2 md:px-3 py-1 rounded-md text-fg transition-colors cursor-pointer truncate max-w-[140px] sm:max-w-none"
+          title="Click to copy contract address"
+        >
+          <span className="hidden sm:inline">FFqwoZ7phjoupWjLeE5yFeLqGi8jkGEFrTz6jnsUpump</span>
+          <span className="sm:hidden">FFqwoZ...nsUpump</span>
+        </button>
       </div>
-
-      {/* Auth Modal */}
-      <AuthModal 
-        open={showAuthModal} 
-        onOpenChange={setShowAuthModal}
-        defaultMode={authModalMode}
-      />
     </nav>
   );
 };

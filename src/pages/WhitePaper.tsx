@@ -31,9 +31,7 @@ const WhitePaper = () => {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      <TopNavigation 
-        onShowAdvisorDirectory={() => navigate('/')}
-      />
+      <TopNavigation />
       <div className="flex-1">
         <div className="max-w-4xl mx-auto px-6 py-12">
         {/* Hero Section */}

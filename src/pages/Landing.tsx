@@ -115,7 +115,7 @@ const Landing = () => {
     {
       title: "Watch Sims Debate",
       description: "Experience dynamic debates between AI simulations on trending topics and ideas.",
-      action: () => navigate("/sim-directory"),
+      action: () => navigate("/live"),
       gradient: "from-secondary/20 to-secondary/5",
       gridArea: "debate",
     },

@@ -135,19 +135,7 @@ const Home = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      {!currentChatAgent && (
-        <TopNavigation
-          selectedAgent={selectedAgent}
-          selectedPublicAdvisorId={selectedPublicAdvisorId}
-          selectedPublicAdvisors={advisorsAsAgents}
-          onSelectAgent={handleAgentSelect}
-          onSelectPublicAdvisor={handlePublicAdvisorSelect}
-          onRemovePublicAdvisor={handleRemovePublicAdvisor}
-          onShowAdvisorDirectory={handleShowAdvisorDirectory}
-          showBackButton={false}
-          onBack={() => {}}
-        />
-      )}
+      {!currentChatAgent && <TopNavigation />}
       
       <div className="flex-1 flex flex-col min-h-0">
         {currentChatAgent ? (
