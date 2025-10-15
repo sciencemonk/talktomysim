@@ -21,21 +21,23 @@ interface Message {
 const DEBATE_DURATION = 5 * 60 * 1000; // 5 minutes
 
 const philosophicalQuestions = [
-  "Is free will real or an illusion?",
-  "What is the nature of consciousness?",
-  "Does objective morality exist?",
-  "What is the meaning of life?",
-  "Is knowledge more valuable than wisdom?",
-  "Can we ever truly know reality?",
-  "What is the relationship between mind and body?",
-  "Is happiness the ultimate goal of human life?",
-  "Do we have moral obligations to future generations?",
-  "What is the nature of time?",
-  "Is truth absolute or relative?",
-  "What makes an action right or wrong?",
-  "Can artificial intelligence truly think?",
-  "What is the self?",
-  "Is death necessary for life to have meaning?",
+  "Should AI have rights?",
+  "Is social media making us more connected or more isolated?",
+  "Can cryptocurrency replace traditional money?",
+  "Should we colonize Mars?",
+  "Is remote work better than office culture?",
+  "Will AI replace human creativity?",
+  "Should billionaires exist?",
+  "Is cancel culture good or bad for society?",
+  "Can we trust AI to make ethical decisions?",
+  "Should we extend human lifespan indefinitely?",
+  "Is the metaverse the future or a distraction?",
+  "Does social media do more harm than good?",
+  "Should gene editing be allowed in humans?",
+  "Can technology solve climate change?",
+  "Is privacy dead in the digital age?",
+  "Should universal basic income be implemented?",
+  "Will quantum computing change everything?",
 ];
 
 const LiveChat = () => {
