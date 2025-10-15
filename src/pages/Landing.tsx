@@ -187,7 +187,7 @@ const Landing = () => {
     },
     {
       title: "Read the Whitepaper",
-      description: "Dive deep into our vision, technology, and roadmap for AI simulation platforms.",
+      description: "Dive deep into our vision, technology, and roadmap for Sim.",
       action: () => navigate("/whitepaper"),
       gradient: "from-muted/20 to-muted/5",
       gridArea: "whitepaper",
