@@ -5,26 +5,75 @@ import SimpleFooter from "@/components/SimpleFooter";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import BotCheck from "@/components/BotCheck";
+import { useState } from "react";
+import { AgentType } from "@/types/agent";
 
 const Landing = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [showBotCheck, setShowBotCheck] = useState(false);
+  const [selectedSim, setSelectedSim] = useState<AgentType | null>(null);
 
   // Fetch historical sims with full data
   const { data: historicalSims } = useQuery({
-    queryKey: ['historical-sims'],
+    queryKey: ['historical-sims-landing'],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('advisors')
-        .select('id, name, avatar_url, custom_url')
+        .select('*')
         .eq('sim_type', 'historical')
         .eq('is_active', true)
         .limit(8);
       
       if (error) throw error;
-      return data || [];
+      
+      // Transform to AgentType
+      return (data || []).map(sim => ({
+        id: sim.id,
+        name: sim.name,
+        description: sim.description || '',
+        type: 'General Tutor' as const,
+        status: 'active' as const,
+        createdAt: sim.created_at,
+        updatedAt: sim.updated_at,
+        avatar: sim.avatar_url,
+        prompt: sim.prompt,
+        title: sim.title,
+        sim_type: 'historical' as const,
+        is_featured: false,
+        model: 'GPT-4',
+        interactions: 0,
+        studentsSaved: 0,
+        helpfulnessScore: 0,
+        avmScore: 0,
+        csat: 0,
+        performance: 0,
+        channels: [],
+        channelConfigs: {},
+        isPersonal: false,
+        voiceTraits: []
+      } as AgentType));
     },
   });
+
+  const handleSimClick = (sim: AgentType) => {
+    setSelectedSim(sim);
+    setShowBotCheck(true);
+  };
+
+  const handleBotCheckComplete = () => {
+    setShowBotCheck(false);
+    if (selectedSim) {
+      // Navigate to sim-directory with state to pre-select this sim
+      navigate('/sim-directory', { state: { selectedAdvisor: selectedSim } });
+    }
+  };
+
+  const handleBotCheckCancel = () => {
+    setShowBotCheck(false);
+    setSelectedSim(null);
+  };
 
   const copyCAToClipboard = async () => {
     const ca = "FFqwoZ7phjoupWjLeE5yFeLqGi8jkGEFrTz6jnsUpump";
@@ -136,12 +185,12 @@ const Landing = () => {
                           key={sim.id}
                           onClick={(e) => {
                             e.stopPropagation();
-                            navigate(`/sim/${sim.custom_url || sim.id}`);
+                            handleSimClick(sim);
                           }}
                           className="flex flex-col items-center gap-1.5 p-2 rounded-lg bg-bg/50 hover:bg-bg transition-colors"
                         >
                           <img 
-                            src={sim.avatar_url} 
+                            src={sim.avatar} 
                             alt={sim.name}
                             className="w-14 h-14 rounded-full object-cover border-2 border-border shadow-sm"
                           />
@@ -171,6 +220,13 @@ const Landing = () => {
           })}
         </div>
       </section>
+
+      {showBotCheck && (
+        <BotCheck
+          onVerificationComplete={handleBotCheckComplete}
+          onCancel={handleBotCheckCancel}
+        />
+      )}
 
       <SimpleFooter />
     </div>

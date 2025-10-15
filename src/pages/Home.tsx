@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
-import { Navigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import AdvisorDirectory from "@/components/AdvisorDirectory";
 import ChatInterface from "@/components/ChatInterface";
 import AuthModal from "@/components/AuthModal";
@@ -12,6 +12,7 @@ import { useUserAdvisors } from "@/hooks/useUserAdvisors";
 import { useToast } from "@/hooks/use-toast";
 
 const Home = () => {
+  const location = useLocation();
   const { user, loading } = useAuth();
   const { advisorsAsAgents, addAdvisor, removeAdvisor } = useUserAdvisors();
   const { toast } = useToast();
@@ -20,6 +21,16 @@ const Home = () => {
   const [pendingAdvisor, setPendingAdvisor] = useState<AgentType | null>(null);
   const [selectedAgent, setSelectedAgent] = useState<AgentType | null>(null);
   const [selectedPublicAdvisorId, setSelectedPublicAdvisorId] = useState<string | null>(null);
+
+  // Check if we were passed a selected advisor from navigation state
+  useEffect(() => {
+    const state = location.state as { selectedAdvisor?: AgentType };
+    if (state?.selectedAdvisor) {
+      handleAdvisorSelect(state.selectedAdvisor.id, state.selectedAdvisor);
+      // Clear the state after using it
+      window.history.replaceState({}, document.title);
+    }
+  }, [location]);
 
   // Effect to handle post-authentication advisor selection
   useEffect(() => {
