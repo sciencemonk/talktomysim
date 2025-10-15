@@ -69,7 +69,7 @@ const TopNavigation = ({
     }
   };
 
-  const MobileMenu = () => (
+  const MobileMenu = ({ onClose }: { onClose: () => void }) => (
     <div className="flex flex-col space-y-4 p-4">
       {/* Logo */}
       <div className="flex items-center mb-6">
@@ -89,7 +89,7 @@ const TopNavigation = ({
               className="w-full justify-start text-left"
               onClick={() => {
                 navigate('/dashboard');
-                setMobileMenuOpen(false);
+                onClose();
               }}
             >
               My Sim
@@ -99,7 +99,7 @@ const TopNavigation = ({
               className="w-full justify-start text-left"
               onClick={() => {
                 navigate('/sim-directory');
-                setMobileMenuOpen(false);
+                onClose();
               }}
             >
               Sim Directory
@@ -114,7 +114,7 @@ const TopNavigation = ({
             >
               <Link 
                 to="/"
-                onClick={() => setMobileMenuOpen(false)}
+                onClick={onClose}
               >
                 Home
               </Link>
@@ -127,7 +127,7 @@ const TopNavigation = ({
             >
               <Link 
                 to="/sim-directory"
-                onClick={() => setMobileMenuOpen(false)}
+                onClick={onClose}
               >
                 Sim Directory
               </Link>
@@ -140,7 +140,7 @@ const TopNavigation = ({
             >
               <Link 
                 to="/whitepaper"
-                onClick={() => setMobileMenuOpen(false)}
+                onClick={onClose}
               >
                 White Paper
               </Link>
@@ -255,7 +255,7 @@ const TopNavigation = ({
                 </Button>
               </SheetTrigger>
               <SheetContent side="right" className="w-80 z-[100] bg-background">
-                <MobileMenu />
+                <MobileMenu onClose={() => setMobileMenuOpen(false)} />
               </SheetContent>
             </Sheet>
           )}
