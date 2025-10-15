@@ -20,7 +20,6 @@ const Home = () => {
   const [pendingAdvisor, setPendingAdvisor] = useState<AgentType | null>(null);
   const [selectedAgent, setSelectedAgent] = useState<AgentType | null>(null);
   const [selectedPublicAdvisorId, setSelectedPublicAdvisorId] = useState<string | null>(null);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Effect to handle post-authentication advisor selection
   useEffect(() => {
@@ -136,7 +135,6 @@ const Home = () => {
           onShowAdvisorDirectory={handleShowAdvisorDirectory}
           showBackButton={false}
           onBack={() => {}}
-          onMobileMenuChange={setIsMobileMenuOpen}
         />
       )}
       

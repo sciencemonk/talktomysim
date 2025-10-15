@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
-import { LogOut, Settings, User, Menu, X, ArrowLeft, Plus } from "lucide-react";
+import { LogOut, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import {
@@ -9,13 +9,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  Sheet,
-  SheetContent,
-  SheetTrigger,
-  SheetTitle,
-  SheetDescription,
-} from "@/components/ui/sheet";
 import { AgentType } from "@/types/agent";
 import { useAgents } from "@/hooks/useAgents";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -32,7 +25,6 @@ interface TopNavigationProps {
   onShowAdvisorDirectory?: () => void;
   showBackButton?: boolean;
   onBack?: () => void;
-  onMobileMenuChange?: (isOpen: boolean) => void;
 }
 
 const TopNavigation = ({
@@ -45,20 +37,13 @@ const TopNavigation = ({
   onShowAdvisorDirectory,
   showBackButton = false,
   onBack,
-  onMobileMenuChange,
 }: TopNavigationProps) => {
   const { user, signOut } = useAuth();
   const { agents } = useAgents();
   const isMobile = useIsMobile();
   const navigate = useNavigate();
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [authModalMode, setAuthModalMode] = useState<'login' | 'signup'>('signup');
-
-  const handleMobileMenuChange = (isOpen: boolean) => {
-    setMobileMenuOpen(isOpen);
-    onMobileMenuChange?.(isOpen);
-  };
 
   const handleSignOut = async () => {
     await signOut();
@@ -78,86 +63,17 @@ const TopNavigation = ({
     }
   };
 
-  const MobileMenu = ({ onClose }: { onClose: () => void }) => {
-    const handleNavigate = (path: string) => {
-      console.log('Navigating to:', path);
-      handleMobileMenuChange(false);
-      navigate(path);
-    };
-
-    return (
-      <div className="flex flex-col space-y-4 p-4">
-        {/* Logo */}
-        <div className="flex items-center mb-6">
-          <img 
-            src="/lovable-uploads/d1283b59-7cfa-45f5-b151-4c32b24f3621.png" 
-            alt="Sim" 
-            className="h-8 w-8 object-contain mx-auto"
-          />
-        </div>
-
-        {/* Navigation Links */}
-        <div className="space-y-2">
-          {user ? (
-            <>
-              <Button
-                variant="ghost"
-                className="w-full justify-start text-left"
-                onClick={() => handleNavigate('/dashboard')}
-              >
-                My Sim
-              </Button>
-              <Button
-                variant="ghost"
-                className="w-full justify-start text-left"
-                onClick={() => handleNavigate('/sim-directory')}
-              >
-                Sim Directory
-              </Button>
-            </>
-          ) : (
-            <>
-              <Button
-                variant="ghost"
-                className="w-full justify-start text-left"
-                onClick={() => handleNavigate('/')}
-              >
-                Home
-              </Button>
-              
-              <Button
-                variant="ghost"
-                className="w-full justify-start text-left"
-                onClick={() => handleNavigate('/sim-directory')}
-              >
-                Sim Directory
-              </Button>
-              
-              <Button
-                variant="ghost"
-                className="w-full justify-start text-left"
-                onClick={() => handleNavigate('/whitepaper')}
-              >
-                White Paper
-              </Button>
-            </>
-          )}
-        </div>
-      </div>
-    );
-  };
-
   return (
-    <nav className="bg-card border-b border-border px-4 py-3 relative z-[200]">
-      <div className="flex items-center justify-between">
+    <nav className="bg-card border-b border-border px-2 sm:px-4 py-2 sm:py-3 relative z-[200]">
+      <div className="flex items-center justify-between gap-1 sm:gap-4">
         {/* Left side - Logo/Back button */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
           {showBackButton ? (
             <Button 
               variant="ghost" 
               size="sm" 
               onClick={onBack}
-              className="flex items-center gap-2"
+              className="flex items-center gap-1 sm:gap-2 p-1 sm:p-2"
             >
               <ArrowLeft className="h-4 w-4" />
               {!isMobile && "Back"}
@@ -167,110 +83,94 @@ const TopNavigation = ({
               <img 
                 src="/lovable-uploads/d1283b59-7cfa-45f5-b151-4c32b24f3621.png" 
                 alt="Sim" 
-                className="h-8 w-8 object-contain"
+                className="h-6 w-6 sm:h-8 sm:w-8 object-contain"
               />
             </div>
           )}
         </div>
 
-        {/* Right side - Navigation Links and Menu */}
-        <div className="flex items-center gap-4">
-          {/* Desktop Navigation Links */}
-          {!isMobile && !showBackButton && (
-            <div className="flex items-center gap-4">
-              {user ? (
-                <>
-                  <Button
-                    variant="ghost"
-                    onClick={() => navigate('/dashboard')}
-                    className="text-sm font-medium hover:text-primary"
-                  >
-                    My Sim
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    onClick={() => navigate('/sim-directory')}
-                    className="text-sm font-medium hover:text-primary"
-                  >
-                    Sim Directory
-                  </Button>
-                </>
-              ) : (
-                <>
-                  <Button
-                    variant="ghost"
-                    className="text-sm font-medium hover:text-primary"
-                    asChild
-                  >
-                    <Link to="/">Home</Link>
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    className="text-sm font-medium hover:text-primary"
-                    asChild
-                  >
-                    <Link to="/sim-directory">Sim Directory</Link>
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    className="text-sm font-medium hover:text-primary"
-                    asChild
-                  >
-                    <Link to="/whitepaper">White Paper</Link>
-                  </Button>
-                </>
-              )}
-            </div>
-          )}
+        {/* Center - Navigation Links */}
+        {!showBackButton && (
+          <div className="flex items-center gap-1 sm:gap-3 flex-1 justify-center">
+            {user ? (
+              <>
+                <Button
+                  variant="ghost"
+                  onClick={() => navigate('/dashboard')}
+                  className="text-[10px] sm:text-sm font-medium hover:text-primary px-1 sm:px-3 h-7 sm:h-9"
+                >
+                  My Sim
+                </Button>
+                <Button
+                  variant="ghost"
+                  onClick={() => navigate('/sim-directory')}
+                  className="text-[10px] sm:text-sm font-medium hover:text-primary px-1 sm:px-3 h-7 sm:h-9"
+                >
+                  Directory
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button
+                  variant="ghost"
+                  className="text-[10px] sm:text-sm font-medium hover:text-primary px-1 sm:px-3 h-7 sm:h-9"
+                  asChild
+                >
+                  <Link to="/">Home</Link>
+                </Button>
+                <Button
+                  variant="ghost"
+                  className="text-[10px] sm:text-sm font-medium hover:text-primary px-1 sm:px-3 h-7 sm:h-9"
+                  asChild
+                >
+                  <Link to="/sim-directory">Directory</Link>
+                </Button>
+                <Button
+                  variant="ghost"
+                  className="text-[10px] sm:text-sm font-medium hover:text-primary px-1 sm:px-3 h-7 sm:h-9"
+                  asChild
+                >
+                  <Link to="/whitepaper">Paper</Link>
+                </Button>
+              </>
+            )}
+          </div>
+        )}
 
-          {/* Login and Create Sim buttons (only show when not authenticated) */}
+        {/* Right side - Auth buttons / User menu */}
+        <div className="flex items-center gap-1 sm:gap-4 flex-shrink-0">
+          {/* Login and Create Sim buttons (only show when not authenticated and not on back button view) */}
           {!user && !showBackButton && (
             <>
               <Button
                 variant="ghost"
                 onClick={handleLoginClick}
-                className="text-sm font-medium"
+                className="text-[10px] sm:text-sm font-medium px-1 sm:px-3 h-7 sm:h-9"
               >
                 Login
               </Button>
               <Button
                 onClick={handleCreateSimClick}
-                className="h-10 bg-neutral-900 hover:bg-neutral-800 text-white dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-100 rounded-full px-6 font-medium shadow-lg hover:shadow-xl transition-all duration-300 text-sm"
+                className="h-7 sm:h-10 bg-neutral-900 hover:bg-neutral-800 text-white dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-100 rounded-full px-2 sm:px-6 font-medium shadow-lg hover:shadow-xl transition-all duration-300 text-[10px] sm:text-sm"
               >
-                Create a Sim
+                Create
               </Button>
             </>
-          )}
-
-          {/* Mobile Menu */}
-          {isMobile && !showBackButton && (
-            <Sheet open={mobileMenuOpen} onOpenChange={handleMobileMenuChange}>
-              <SheetTrigger asChild>
-                <Button variant="ghost" size="sm">
-                  <Menu className="h-5 w-5" />
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="right" className="w-80 z-[151] bg-background overflow-y-auto">
-                <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
-                <SheetDescription className="sr-only">Navigate to different sections of the app</SheetDescription>
-                <MobileMenu onClose={() => handleMobileMenuChange(false)} />
-              </SheetContent>
-            </Sheet>
           )}
 
           {/* User menu (only show if authenticated) */}
           {user && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="flex items-center gap-2">
-                  <Avatar className="h-8 w-8">
+                <Button variant="ghost" className="flex items-center gap-1 sm:gap-2 p-1 sm:p-2">
+                  <Avatar className="h-6 w-6 sm:h-8 sm:w-8">
                     <AvatarImage src={user?.user_metadata?.avatar_url} alt="Profile" />
                     <AvatarFallback>
                       {user?.user_metadata?.wallet_address?.slice(0, 2)?.toUpperCase() || user?.email?.charAt(0)?.toUpperCase() || "U"}
                     </AvatarFallback>
                   </Avatar>
                   {!isMobile && (
-                    <span className="text-sm font-medium font-mono">
+                    <span className="text-xs sm:text-sm font-medium font-mono">
                       {user?.user_metadata?.wallet_address 
                         ? `${user.user_metadata.wallet_address.slice(0, 4)}...${user.user_metadata.wallet_address.slice(-4)}`
                         : user?.email?.split('@')[0] || "User"
