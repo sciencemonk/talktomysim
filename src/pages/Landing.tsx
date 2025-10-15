@@ -219,18 +219,7 @@ const Landing = () => {
 
       {/* Main Section - All Features */}
       <section className="flex-1 flex items-center justify-center container mx-auto px-3 sm:px-4 py-4 sm:py-6">
-        <div 
-          className="grid gap-3 max-w-6xl w-full grid-cols-1 md:grid-cols-4"
-          style={{
-            gridTemplateAreas: window.innerWidth < 768 
-              ? `"create" "talk" "debate" "whitepaper"`
-              : `
-                "create create talk talk"
-                "debate debate talk talk"
-                "whitepaper whitepaper talk talk"
-              `,
-          }}
-        >
+        <div className="grid gap-3 max-w-6xl w-full [grid-template-areas:'create'_'talk'_'debate'_'whitepaper'] md:[grid-template-areas:'create_create_talk_talk'_'debate_debate_talk_talk'_'whitepaper_whitepaper_talk_talk'] grid-cols-1 md:grid-cols-4">
           {features.map((feature, index) => {
             const isMainFeature = ['create', 'talk', 'debate'].includes(feature.gridArea);
             const showButton = !feature.showSims && !feature.showWalletButtons;
