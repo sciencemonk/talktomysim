@@ -9,7 +9,7 @@ import { useNavigate } from "react-router-dom";
 const WhitePaper = () => {
   const navigate = useNavigate();
   const copyCAToClipboard = async () => {
-    const ca = "ca coming soon";
+    const ca = "FFqwoZ7phjoupWjLeE5yFeLqGi8jkGEFrTz6jnsUpump";
     try {
       await navigator.clipboard.writeText(ca);
     } catch (error) {
@@ -46,7 +46,7 @@ const WhitePaper = () => {
               className="text-sm font-mono bg-muted px-4 py-2 rounded-lg text-foreground hover:bg-muted/80 transition-colors cursor-pointer border"
               title="Click to copy contract address"
             >
-              ca coming soon
+              FFqwoZ7phjoupWjLeE5yFeLqGi8jkGEFrTz6jnsUpump
             </button>
           </div>
         </div>
@@ -340,7 +340,7 @@ const WhitePaper = () => {
                   className="text-sm font-mono bg-muted px-4 py-2 rounded-lg text-foreground hover:bg-muted/80 transition-colors cursor-pointer border"
                   title="Click to copy contract address"
                 >
-                  ca coming soon
+                  FFqwoZ7phjoupWjLeE5yFeLqGi8jkGEFrTz6jnsUpump
                 </button>
               </div>
             </CardContent>

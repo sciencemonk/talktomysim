@@ -4,7 +4,7 @@ const SimpleFooter = () => {
   const { toast } = useToast();
 
   const copyCAToClipboard = async () => {
-    const ca = "ca coming soon";
+    const ca = "FFqwoZ7phjoupWjLeE5yFeLqGi8jkGEFrTz6jnsUpump";
     try {
       await navigator.clipboard.writeText(ca);
       toast({
@@ -37,7 +37,7 @@ const SimpleFooter = () => {
             className="text-xs font-mono bg-muted hover:bg-muted/80 px-3 py-1 rounded-md text-foreground transition-colors cursor-pointer select-all"
             title="Click to copy contract address"
           >
-            ca coming soon
+            FFqwoZ7phjoupWjLeE5yFeLqGi8jkGEFrTz6jnsUpump
           </button>
         </div>
       </div>

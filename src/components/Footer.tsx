@@ -4,7 +4,7 @@ const Footer = () => {
   const { toast } = useToast();
 
   const copyCAToClipboard = async () => {
-    const ca = "ca coming soon";
+    const ca = "FFqwoZ7phjoupWjLeE5yFeLqGi8jkGEFrTz6jnsUpump";
     try {
       await navigator.clipboard.writeText(ca);
       toast({
@@ -37,7 +37,7 @@ const Footer = () => {
               title="Click to copy contract address"
             >
               <span className="text-foreground group-hover:text-primary transition-colors">
-                ca coming soon
+                FFqwoZ7phjoupWjLeE5yFeLqGi8jkGEFrTz6jnsUpump
               </span>
               <svg
                 className="ml-2 h-3 w-3 text-muted-foreground group-hover:text-primary transition-colors"
