@@ -1,9 +1,13 @@
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
+import { LogOut } from "lucide-react";
+import { Button } from "./ui/button";
 
 const TopNavigation = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { user, signOut } = useAuth();
 
   const copyCAToClipboard = async () => {
     const ca = "FFqwoZ7phjoupWjLeE5yFeLqGi8jkGEFrTz6jnsUpump";
@@ -21,6 +25,15 @@ const TopNavigation = () => {
         variant: "destructive"
       });
     }
+  };
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate('/');
+    toast({
+      title: "Signed out",
+      description: "You have been signed out successfully",
+    });
   };
 
   return (
@@ -47,6 +60,17 @@ const TopNavigation = () => {
           <span className="hidden sm:inline">FFqwoZ7phjoupWjLeE5yFeLqGi8jkGEFrTz6jnsUpump</span>
           <span className="sm:hidden">FFqwoZ...nsUpump</span>
         </button>
+        {user && (
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={handleSignOut}
+            className="ml-2"
+            title="Sign out"
+          >
+            <LogOut className="h-4 w-4" />
+          </Button>
+        )}
       </div>
     </nav>
   );
