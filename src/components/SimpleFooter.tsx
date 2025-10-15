@@ -30,11 +30,11 @@ const SimpleFooter = () => {
           </p>
         </div>
         
-        <div className="text-center sm:text-right">
+        <div className="text-center sm:text-right w-full sm:w-auto">
           <p className="text-xs text-muted-foreground mb-1">Official Contract Address:</p>
           <button
             onClick={copyCAToClipboard}
-            className="text-xs font-mono bg-muted hover:bg-muted/80 px-3 py-1 rounded-md text-foreground transition-colors cursor-pointer select-all"
+            className="text-[10px] sm:text-xs font-mono bg-muted hover:bg-muted/80 px-2 sm:px-3 py-1 rounded-md text-foreground transition-colors cursor-pointer break-all max-w-full"
             title="Click to copy contract address"
           >
             FFqwoZ7phjoupWjLeE5yFeLqGi8jkGEFrTz6jnsUpump

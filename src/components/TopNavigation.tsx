@@ -130,7 +130,7 @@ const TopNavigation = ({
                   className="text-[10px] sm:text-sm font-medium hover:text-primary px-1 sm:px-3 h-7 sm:h-9"
                   asChild
                 >
-                  <Link to="/whitepaper">Paper</Link>
+                  <Link to="/whitepaper">Roadmap</Link>
                 </Button>
               </>
             )}

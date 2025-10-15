@@ -29,18 +29,18 @@ const Footer = () => {
             Sim is made possible by{" "}
             <span className="font-medium text-foreground">Sim Coin</span>
           </p>
-          <div className="flex items-center space-x-2">
+          <div className="flex flex-col sm:flex-row items-center gap-2">
             <span className="text-xs text-muted-foreground">Official CA:</span>
             <button
               onClick={copyCAToClipboard}
-              className="group inline-flex items-center px-3 py-1.5 rounded-md text-xs font-mono bg-muted hover:bg-muted/80 transition-colors cursor-pointer border"
+              className="group inline-flex items-center px-2 sm:px-3 py-1.5 rounded-md text-[10px] sm:text-xs font-mono bg-muted hover:bg-muted/80 transition-colors cursor-pointer border break-all max-w-full"
               title="Click to copy contract address"
             >
               <span className="text-foreground group-hover:text-primary transition-colors">
                 FFqwoZ7phjoupWjLeE5yFeLqGi8jkGEFrTz6jnsUpump
               </span>
               <svg
-                className="ml-2 h-3 w-3 text-muted-foreground group-hover:text-primary transition-colors"
+                className="ml-2 h-3 w-3 text-muted-foreground group-hover:text-primary transition-colors flex-shrink-0"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
