@@ -141,7 +141,7 @@ const TopNavigation = ({
   };
 
   return (
-    <nav className="bg-card border-b border-border px-4 py-3">
+    <nav className="bg-card border-b border-border px-4 py-3 relative z-[200]">
       <div className="flex items-center justify-between">
         {/* Left side - Logo/Back button */}
         <div className="flex items-center gap-3">
