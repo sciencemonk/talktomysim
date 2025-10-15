@@ -140,7 +140,7 @@ const Home = () => {
         />
       )}
       
-      <div className={`flex-1 flex flex-col min-h-0 ${isMobileMenuOpen ? 'pointer-events-none opacity-50' : ''}`}>
+      <div className="flex-1 flex flex-col min-h-0">
         {currentChatAgent ? (
           <ChatInterface
             agent={currentChatAgent}
