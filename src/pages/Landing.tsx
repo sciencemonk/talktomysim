@@ -1,391 +1,215 @@
-
 import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router-dom";
-import { Bot, Shield, CheckCircle, Award, Lightbulb, Zap, Sparkles, Users, Plus } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
-import { useState, useEffect } from "react";
-import { useToast } from "@/hooks/use-toast";
-import { Loader2 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { AgentType } from "@/types/agent";
+import { useNavigate } from "react-router-dom";
+import { Brain, MessageSquare, Users, Coins, FileText, Sparkles } from "lucide-react";
 
 const Landing = () => {
   const navigate = useNavigate();
-  const { toast } = useToast();
-  const [isSigningIn, setIsSigningIn] = useState(false);
-  const [historicalSims, setHistoricalSims] = useState<AgentType[]>([]);
-  const [livingSims, setLivingSims] = useState<AgentType[]>([]);
-  const [isLoadingSims, setIsLoadingSims] = useState(true);
 
-  useEffect(() => {
-    fetchSims();
-  }, []);
-
-  const mapAdvisorToAgent = (advisor: any): AgentType => ({
-    id: advisor.id,
-    name: advisor.name,
-    description: advisor.description || '',
-    type: 'General Tutor',
-    status: advisor.is_active ? 'active' : 'inactive',
-    createdAt: advisor.created_at,
-    updatedAt: advisor.updated_at,
-    avatar: advisor.avatar_url,
-    prompt: advisor.prompt,
-    title: advisor.title,
-    is_featured: advisor.is_verified,
-  });
-
-  const fetchSims = async () => {
-    try {
-      setIsLoadingSims(true);
-      const { data, error } = await supabase
-        .from('advisors')
-        .select('*')
-        .eq('is_public', true)
-        .eq('is_active', true)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-
-      const historical = data?.filter(sim => sim.sim_type === 'historical').map(mapAdvisorToAgent) || [];
-      const living = data?.filter(sim => sim.sim_type === 'living').map(mapAdvisorToAgent) || [];
-
-      setHistoricalSims(historical);
-      setLivingSims(living);
-    } catch (error) {
-      console.error('Error fetching sims:', error);
-    } finally {
-      setIsLoadingSims(false);
-    }
-  };
-
-  const handleSignInWithGoogle = async () => {
-    navigate('/dashboard');
-  };
+  const features = [
+    {
+      icon: Brain,
+      title: "Create Your Own AI",
+      description: "Build custom AI simulations tailored to your needs with our powerful creation tools.",
+      action: () => navigate("/dashboard"),
+      gradient: "from-primary/20 to-primary/5",
+      iconColor: "text-primary",
+    },
+    {
+      icon: MessageSquare,
+      title: "Talk to a Sim",
+      description: "Engage in conversations with AI personalities across various domains and expertise.",
+      action: () => navigate("/live"),
+      gradient: "from-accent/20 to-accent/5",
+      iconColor: "text-accent",
+    },
+    {
+      icon: Users,
+      title: "Watch Sims Debate",
+      description: "Experience dynamic debates between AI simulations on trending topics and ideas.",
+      action: () => navigate("/sim-directory"),
+      gradient: "from-secondary/20 to-secondary/5",
+      iconColor: "text-secondary",
+    },
+    {
+      icon: Coins,
+      title: "Buy $SIMAI",
+      description: "Invest in the future of AI simulations. Get $SIMAI tokens and join our ecosystem.",
+      action: () => window.open("https://pump.fun", "_blank"),
+      gradient: "from-brandAccent/20 to-brandAccent/5",
+      iconColor: "text-brandAccent",
+      featured: true,
+    },
+    {
+      icon: FileText,
+      title: "Read the Whitepaper",
+      description: "Dive deep into our vision, technology, and roadmap for AI simulation platforms.",
+      action: () => navigate("/whitepaper"),
+      gradient: "from-muted/20 to-muted/5",
+      iconColor: "text-fgMuted",
+    },
+  ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-neutral-50 via-white to-blue-50/30 dark:from-neutral-950 dark:via-neutral-900 dark:to-blue-950/30">
-      {/* Minimal Header */}
-      <header className="absolute top-0 w-full z-50 bg-white/60 dark:bg-neutral-900/60 backdrop-blur-xl border-b border-neutral-200/20 dark:border-neutral-800/20">
-        <div className="container mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <div className="p-2 rounded-2xl bg-gradient-to-br from-blue-500 to-purple-600 shadow-lg">
-                <img 
-                  src="/lovable-uploads/1a618b3c-11e7-43e4-a2d5-c1e6f36e48ba.png" 
-                  alt="Think With Me" 
-                  className="h-7 w-7"
-                />
-              </div>
-              <h1 className="text-xl font-semibold tracking-tight text-neutral-900 dark:text-white">
-                Think With Me
-              </h1>
-            </div>
+    <div className="min-h-screen bg-gradient-to-b from-bg via-bgMuted to-bg">
+      {/* Header */}
+      <header className="border-b border-border backdrop-blur-sm bg-bg/80 sticky top-0 z-50">
+        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Brain className="h-8 w-8 text-primary" />
+            <h1 className="text-2xl font-bold text-fg">SIMAI</h1>
           </div>
+          <Button variant="brandGradient" onClick={() => window.open("https://pump.fun", "_blank")}>
+            Buy $SIMAI
+          </Button>
         </div>
       </header>
 
       {/* Hero Section */}
-      <main className="pt-24 pb-20">
-        <div className="container mx-auto px-6 text-center">
-          <div className="max-w-4xl mx-auto">
-            {/* Trust Indicators */}
-            <div className="inline-flex items-center gap-6 px-6 py-3 mb-8 bg-blue-50/80 dark:bg-blue-950/30 rounded-full border border-blue-100/50 dark:border-blue-900/30 backdrop-blur-sm">
-              <div className="flex items-center gap-2 text-sm text-blue-700 dark:text-blue-300">
-                <Shield className="h-4 w-4" />
-                <span>COPPA Compliant</span>
-              </div>
-              <div className="flex items-center gap-2 text-sm text-blue-700 dark:text-blue-300">
-                <CheckCircle className="h-4 w-4" />
-                <span>Built for Education</span>
-              </div>
-              <div className="flex items-center gap-2 text-sm text-blue-700 dark:text-blue-300">
-                <Award className="h-4 w-4" />
-                <span>Free to Start</span>
-              </div>
-            </div>
+      <section className="container mx-auto px-4 py-20 md:py-32 text-center">
+        <div className="max-w-4xl mx-auto space-y-6 animate-fade-in">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 mb-4">
+            <Sparkles className="h-4 w-4 text-primary" />
+            <span className="text-sm font-medium text-primary">The Future of AI Simulations</span>
+          </div>
+          
+          <h1 className="text-5xl md:text-7xl font-bold bg-gradient-to-r from-fg via-primary to-fg bg-clip-text text-transparent leading-tight">
+            Think With AI.
+            <br />
+            Powered by $SIMAI
+          </h1>
+          
+          <p className="text-xl md:text-2xl text-fgMuted max-w-2xl mx-auto">
+            Create, interact, and invest in the next generation of AI simulation technology.
+            Join the revolution.
+          </p>
 
-            {/* Main Headline */}
-            <h1 className="text-5xl sm:text-6xl lg:text-7xl font-light tracking-tight text-neutral-900 dark:text-white mb-6 leading-none">
-              Thinking Partners
-              <br />
-              <span className="bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 bg-clip-text text-transparent font-medium">
-                for Classrooms
-              </span>
-            </h1>
-
-            {/* Subheadline */}
-            <p className="text-xl sm:text-2xl text-neutral-600 dark:text-neutral-300 mb-12 max-w-3xl mx-auto font-light leading-relaxed">
-              AI tutors designed to engage students in meaningful conversations 
-              that promote critical thinking and deep understanding.
-            </p>
-
-            {/* CTA Section */}
-            <div className="mb-16">
-              <Button 
-                onClick={handleSignInWithGoogle}
-                disabled={isSigningIn}
-                size="lg"
-                className="bg-neutral-900 hover:bg-neutral-800 text-white dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-100 rounded-full px-8 py-4 text-lg font-medium shadow-lg hover:shadow-xl transition-all duration-300 inline-flex items-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {isSigningIn ? (
-                  <Loader2 className="h-5 w-5 animate-spin" />
-                ) : (
-                  <img 
-                    src="/lovable-uploads/b0174e22-c5cc-4bc5-8b34-8df738173560.png" 
-                    alt="Google" 
-                    className="h-5 w-5"
-                  />
-                )}
-                <span>{isSigningIn ? "Signing in..." : "Get started with Google"}</span>
-              </Button>
-              <p className="text-sm text-neutral-500 dark:text-neutral-400 mt-4">
-                No credit card required. Start teaching in minutes.
-              </p>
-            </div>
-
-            {/* Product Preview */}
-            <div className="relative mb-20">
-              <div className="bg-white/80 dark:bg-neutral-900/80 backdrop-blur-xl rounded-3xl border border-neutral-200/50 dark:border-neutral-800/50 p-8 shadow-2xl max-w-4xl mx-auto">
-                <div className="grid md:grid-cols-2 gap-8 items-center">
-                  <div className="text-left space-y-6">
-                    <div className="flex items-center gap-3">
-                      <div className="p-3 rounded-2xl bg-blue-500/10 dark:bg-blue-500/20">
-                        <Bot className="h-6 w-6 text-blue-600 dark:text-blue-400" />
-                      </div>
-                      <h3 className="text-xl font-semibold text-neutral-900 dark:text-white">
-                        Meet Your AI Teaching Assistant
-                      </h3>
-                    </div>
-                    <p className="text-neutral-600 dark:text-neutral-300">
-                      "Hello! I'm excited to explore this topic with you! My name is Science, 
-                      and I'm here to help you learn about the fascinating world around us. 
-                      What would you like to discover today?"
-                    </p>
-                    <div className="flex flex-wrap gap-2">
-                      <span className="px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-full text-sm font-medium">
-                        Science
-                      </span>
-                      <span className="px-3 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded-full text-sm font-medium">
-                        Grades 3-5
-                      </span>
-                    </div>
-                  </div>
-                  <div className="bg-neutral-100 dark:bg-neutral-800 rounded-2xl p-6 text-center">
-                    <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center">
-                      <Bot className="h-8 w-8 text-white" />
-                    </div>
-                    <p className="text-sm text-neutral-600 dark:text-neutral-400">
-                      Interactive AI Tutor Ready to Engage
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Three Pillars */}
-            <div className="grid md:grid-cols-3 gap-8 mb-20">
-              <div className="text-center space-y-4">
-                <div className="w-16 h-16 mx-auto bg-purple-100 dark:bg-purple-900/30 rounded-2xl flex items-center justify-center mb-4">
-                  <Lightbulb className="h-8 w-8 text-purple-600 dark:text-purple-400" />
-                </div>
-                <h3 className="text-xl font-semibold text-neutral-900 dark:text-white">
-                  Thinking Partners
-                </h3>
-                <p className="text-neutral-600 dark:text-neutral-400 leading-relaxed">
-                  AI tutors that engage students in deep, meaningful conversations 
-                  promoting critical thinking.
-                </p>
-              </div>
-
-              <div className="text-center space-y-4">
-                <div className="w-16 h-16 mx-auto bg-green-100 dark:bg-green-900/30 rounded-2xl flex items-center justify-center mb-4">
-                  <Zap className="h-8 w-8 text-green-600 dark:text-green-400" />
-                </div>
-                <h3 className="text-xl font-semibold text-neutral-900 dark:text-white">
-                  True Differentiation
-                </h3>
-                <p className="text-neutral-600 dark:text-neutral-400 leading-relaxed">
-                  Personalized support that adapts to each student's learning style 
-                  and pace in real-time.
-                </p>
-              </div>
-
-              <div className="text-center space-y-4">
-                <div className="w-16 h-16 mx-auto bg-blue-100 dark:bg-blue-900/30 rounded-2xl flex items-center justify-center mb-4">
-                  <Sparkles className="h-8 w-8 text-blue-600 dark:text-blue-400" />
-                </div>
-                <h3 className="text-xl font-semibold text-neutral-900 dark:text-white">
-                  Transformative Learning
-                </h3>
-                <p className="text-neutral-600 dark:text-neutral-400 leading-relaxed">
-                  Move beyond traditional instruction to create dynamic, 
-                  interactive learning experiences.
-                </p>
-              </div>
-            </div>
-
-            {/* Sims Section */}
-            <div className="mt-32">
-              <h2 className="text-4xl font-semibold text-neutral-900 dark:text-white mb-4 text-center">
-                Explore Our Sims
-              </h2>
-              <p className="text-lg text-neutral-600 dark:text-neutral-400 mb-12 text-center max-w-2xl mx-auto">
-                Chat with historical figures or discover sims created by our community
-              </p>
-
-              <Tabs defaultValue="historical" className="w-full">
-                <TabsList className="grid w-full max-w-md mx-auto grid-cols-2 mb-8">
-                  <TabsTrigger value="historical" className="flex items-center gap-2">
-                    <Award className="h-4 w-4" />
-                    Historical
-                  </TabsTrigger>
-                  <TabsTrigger value="living" className="flex items-center gap-2">
-                    <Users className="h-4 w-4" />
-                    Living
-                  </TabsTrigger>
-                </TabsList>
-
-                <TabsContent value="historical" className="mt-8">
-                  {isLoadingSims ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                      {[...Array(6)].map((_, i) => (
-                        <Card key={i} className="animate-pulse">
-                          <CardHeader className="space-y-4 p-6">
-                            <div className="flex items-center space-x-4">
-                              <div className="rounded-full bg-muted h-16 w-16" />
-                              <div className="space-y-2 flex-1">
-                                <div className="h-5 bg-muted rounded w-3/4" />
-                                <div className="h-4 bg-muted rounded w-1/2" />
-                              </div>
-                            </div>
-                          </CardHeader>
-                        </Card>
-                      ))}
-                    </div>
-                  ) : historicalSims.length > 0 ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                      {historicalSims.map((sim) => (
-                        <Card 
-                          key={sim.id} 
-                          className="cursor-pointer hover:shadow-lg transition-all group bg-white/80 dark:bg-neutral-900/80 backdrop-blur-sm border-neutral-200/50 dark:border-neutral-800/50"
-                          onClick={() => navigate(`/app?sim=${sim.id}`)}
-                        >
-                          <CardHeader className="p-6">
-                            <div className="flex items-center space-x-4">
-                              <Avatar className="h-16 w-16 border-2 border-neutral-200 dark:border-neutral-700">
-                                <AvatarImage src={sim.avatar || ''} alt={sim.name} />
-                                <AvatarFallback className="text-lg font-semibold">{sim.name.charAt(0)}</AvatarFallback>
-                              </Avatar>
-                              <div className="flex-1">
-                                <CardTitle className="text-xl text-neutral-900 dark:text-white">{sim.name}</CardTitle>
-                                <CardDescription className="text-sm text-neutral-600 dark:text-neutral-400">
-                                  {sim.title || "Historical Figure"}
-                                </CardDescription>
-                              </div>
-                            </div>
-                          </CardHeader>
-                          <CardContent className="p-6 pt-0">
-                            <p className="text-sm text-neutral-600 dark:text-neutral-400 line-clamp-3">
-                              {sim.description}
-                            </p>
-                          </CardContent>
-                        </Card>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="text-center py-12 text-neutral-500 dark:text-neutral-400">
-                      No historical sims available yet.
-                    </div>
-                  )}
-                </TabsContent>
-
-                <TabsContent value="living" className="mt-8">
-                  {isLoadingSims ? (
-                    <div className="flex justify-center py-12">
-                      <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                    </div>
-                  ) : livingSims.length > 0 ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                      {livingSims.map((sim) => (
-                        <Card 
-                          key={sim.id} 
-                          className="cursor-pointer hover:shadow-lg transition-all group bg-white/80 dark:bg-neutral-900/80 backdrop-blur-sm border-neutral-200/50 dark:border-neutral-800/50"
-                          onClick={() => navigate(`/app?sim=${sim.id}`)}
-                        >
-                          <CardHeader className="p-6">
-                            <div className="flex items-center space-x-4">
-                              <Avatar className="h-16 w-16 border-2 border-neutral-200 dark:border-neutral-700">
-                                <AvatarImage src={sim.avatar || ''} alt={sim.name} />
-                                <AvatarFallback className="text-lg font-semibold">{sim.name.charAt(0)}</AvatarFallback>
-                              </Avatar>
-                              <div className="flex-1">
-                                <CardTitle className="text-xl text-neutral-900 dark:text-white">{sim.name}</CardTitle>
-                                <CardDescription className="text-sm text-neutral-600 dark:text-neutral-400">
-                                  Created by community
-                                </CardDescription>
-                              </div>
-                            </div>
-                          </CardHeader>
-                          <CardContent className="p-6 pt-0">
-                            <p className="text-sm text-neutral-600 dark:text-neutral-400 line-clamp-3">
-                              {sim.description}
-                            </p>
-                          </CardContent>
-                        </Card>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="text-center py-16">
-                      <div className="max-w-md mx-auto">
-                        <div className="w-20 h-20 mx-auto mb-6 bg-gradient-to-br from-purple-500 to-blue-600 rounded-2xl flex items-center justify-center">
-                          <Plus className="h-10 w-10 text-white" />
-                        </div>
-                        <h3 className="text-2xl font-semibold text-neutral-900 dark:text-white mb-3">
-                          Create Your Own Sim
-                        </h3>
-                        <p className="text-neutral-600 dark:text-neutral-400 mb-6">
-                          Connect your wallet to create a personalized AI sim with a shareable link
-                        </p>
-                        <Button 
-                          size="lg"
-                          onClick={handleSignInWithGoogle}
-                          className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white rounded-full px-8"
-                        >
-                          Create a Sim
-                        </Button>
-                      </div>
-                    </div>
-                  )}
-                </TabsContent>
-              </Tabs>
-            </div>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center pt-6">
+            <Button 
+              size="lg" 
+              variant="brandGradient"
+              className="text-lg px-8"
+              onClick={() => window.open("https://pump.fun", "_blank")}
+            >
+              <Coins className="mr-2 h-5 w-5" />
+              Buy $SIMAI Now
+            </Button>
+            <Button 
+              size="lg" 
+              variant="outline"
+              className="text-lg px-8"
+              onClick={() => navigate("/live")}
+            >
+              Try It Free
+            </Button>
           </div>
         </div>
-      </main>
+      </section>
 
-      {/* Minimal Footer */}
-      <footer className="border-t border-neutral-200/50 dark:border-neutral-800/50 bg-white/60 dark:bg-neutral-900/60 backdrop-blur-xl">
-        <div className="container mx-auto px-6 py-8">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <div className="flex items-center space-x-3">
-              <div className="p-2 rounded-2xl bg-gradient-to-br from-blue-500 to-purple-600">
-                <img 
-                  src="/lovable-uploads/1a618b3c-11e7-43e4-a2d5-c1e6f36e48ba.png" 
-                  alt="Think With Me" 
-                  className="h-6 w-6"
-                />
-              </div>
-              <div>
-                <h3 className="font-semibold text-neutral-900 dark:text-white">Think With Me</h3>
-                <p className="text-sm text-neutral-500 dark:text-neutral-400">Empowering educators with AI</p>
-              </div>
+      {/* Features Grid */}
+      <section className="container mx-auto px-4 py-20">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
+          {features.map((feature, index) => {
+            const Icon = feature.icon;
+            return (
+              <Card 
+                key={index}
+                className={`group cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-xl border-2 ${
+                  feature.featured ? 'border-brandAccent md:col-span-2 lg:col-span-1' : 'border-border'
+                } bg-gradient-to-br ${feature.gradient}`}
+                onClick={feature.action}
+              >
+                <CardHeader>
+                  <div className={`w-12 h-12 rounded-lg bg-bg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform ${
+                    feature.featured ? 'ring-2 ring-brandAccent' : ''
+                  }`}>
+                    <Icon className={`h-6 w-6 ${feature.iconColor}`} />
+                  </div>
+                  <CardTitle className="text-xl font-bold text-fg">
+                    {feature.title}
+                    {feature.featured && (
+                      <span className="ml-2 text-xs px-2 py-1 rounded-full bg-brandAccent text-white">
+                        Featured
+                      </span>
+                    )}
+                  </CardTitle>
+                  <CardDescription className="text-fgMuted">
+                    {feature.description}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Button 
+                    variant={feature.featured ? "brandGradient" : "outline"} 
+                    className="w-full group-hover:translate-x-1 transition-transform"
+                  >
+                    {feature.featured ? "Get Started" : "Learn More"}
+                  </Button>
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* Stats Section */}
+      <section className="container mx-auto px-4 py-20 bg-gradient-to-r from-primary/5 via-accent/5 to-secondary/5 rounded-3xl my-20">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+          <div className="space-y-2">
+            <h3 className="text-4xl md:text-5xl font-bold text-primary">10K+</h3>
+            <p className="text-fgMuted">Active Simulations</p>
+          </div>
+          <div className="space-y-2">
+            <h3 className="text-4xl md:text-5xl font-bold text-accent">50K+</h3>
+            <p className="text-fgMuted">Conversations</p>
+          </div>
+          <div className="space-y-2">
+            <h3 className="text-4xl md:text-5xl font-bold text-secondary">24/7</h3>
+            <p className="text-fgMuted">AI Availability</p>
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="container mx-auto px-4 py-20 text-center">
+        <div className="max-w-3xl mx-auto space-y-6 p-8 rounded-3xl bg-gradient-to-br from-primary/10 via-accent/10 to-secondary/10 border border-border">
+          <h2 className="text-3xl md:text-5xl font-bold text-fg">
+            Ready to Join the AI Revolution?
+          </h2>
+          <p className="text-xl text-fgMuted">
+            Get $SIMAI tokens today and be part of the future of AI simulations.
+          </p>
+          <Button 
+            size="lg" 
+            variant="brandGradient"
+            className="text-lg px-12"
+            onClick={() => window.open("https://pump.fun", "_blank")}
+          >
+            <Coins className="mr-2 h-5 w-5" />
+            Buy $SIMAI
+          </Button>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="border-t border-border mt-20">
+        <div className="container mx-auto px-4 py-8">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+            <div className="flex items-center gap-2">
+              <Brain className="h-6 w-6 text-primary" />
+              <span className="font-semibold text-fg">SIMAI</span>
             </div>
-            <p className="text-sm text-neutral-500 dark:text-neutral-400">
-              © 2024 Think With Me. Built for educators, by educators.
-            </p>
+            <div className="flex gap-6">
+              <button onClick={() => navigate("/whitepaper")} className="text-fgMuted hover:text-fg transition-colors">
+                Whitepaper
+              </button>
+              <button onClick={() => navigate("/contact")} className="text-fgMuted hover:text-fg transition-colors">
+                Contact
+              </button>
+              <button onClick={() => navigate("/sim-directory")} className="text-fgMuted hover:text-fg transition-colors">
+                Sims
+              </button>
+            </div>
+            <p className="text-sm text-fgMuted">© 2025 SIMAI. All rights reserved.</p>
           </div>
         </div>
       </footer>

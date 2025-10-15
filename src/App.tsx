@@ -10,6 +10,7 @@ import { AuthProvider } from "@/hooks/useAuth";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import Home from "./pages/Home";
+import Landing from "./pages/Landing";
 import LiveChat from "./pages/LiveChat";
 import Admin from "./pages/Admin";
 import PublicTutorDetail from "./pages/PublicTutorDetail";
@@ -31,8 +32,9 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <Routes>
-            {/* Main app as default route - Live Chat */}
-            <Route path="/" element={<LiveChat />} />
+            {/* New landing page for token */}
+            <Route path="/" element={<Landing />} />
+            <Route path="/live" element={<LiveChat />} />
             <Route path="/sim-directory" element={<Home />} />
             
             {/* Admin route */}
