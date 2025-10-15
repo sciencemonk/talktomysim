@@ -487,40 +487,50 @@ Respond conversationally. NO lengthy speeches. Think fast-paced debate, not phil
               )}
             </AnimatePresence>
 
-            {/* Question Card - Compact */}
-            {!isSelecting && question && (
+            {/* Question Card with Debaters on Either Side */}
+            {!isSelecting && question && selectedSims[0] && selectedSims[1] && (
               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
                 <Card className="p-4 bg-gradient-to-r from-primary/10 to-primary/5 border-primary/20">
-                  <div className="flex items-center justify-center gap-2 mb-2">
-                    <MessageCircle className="h-4 w-4 text-primary" />
-                    <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-                      Today&apos;s Question
-                    </h3>
+                  <div className="flex items-center justify-between gap-4">
+                    {/* Left Debater */}
+                    <div className="flex items-center gap-3 flex-shrink-0">
+                      <Avatar className="h-12 w-12 md:h-14 md:w-14 border-2 border-primary/20">
+                        <AvatarImage src={selectedSims[0].avatar} alt={selectedSims[0].name} />
+                        <AvatarFallback className="text-lg">{selectedSims[0].name[0]}</AvatarFallback>
+                      </Avatar>
+                      <div className="text-left">
+                        <h3 className="text-sm md:text-base font-bold">{selectedSims[0].name}</h3>
+                        <p className="text-xs text-muted-foreground">{selectedSims[0].description.split(',')[0]}</p>
+                      </div>
+                    </div>
+
+                    {/* Question in Center */}
+                    <div className="flex-1 text-center px-4">
+                      <div className="flex items-center justify-center gap-2 mb-1">
+                        <MessageCircle className="h-4 w-4 text-primary" />
+                        <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                          Today&apos;s Question
+                        </h3>
+                      </div>
+                      <p className="text-lg md:text-xl font-bold">{question}</p>
+                    </div>
+
+                    {/* Right Debater */}
+                    <div className="flex items-center gap-3 flex-shrink-0">
+                      <div className="text-right">
+                        <h3 className="text-sm md:text-base font-bold">{selectedSims[1].name}</h3>
+                        <p className="text-xs text-muted-foreground">{selectedSims[1].description.split(',')[0]}</p>
+                      </div>
+                      <Avatar className="h-12 w-12 md:h-14 md:w-14 border-2 border-primary/20">
+                        <AvatarImage src={selectedSims[1].avatar} alt={selectedSims[1].name} />
+                        <AvatarFallback className="text-lg">{selectedSims[1].name[0]}</AvatarFallback>
+                      </Avatar>
+                    </div>
                   </div>
-                  <p className="text-xl font-bold text-center">{question}</p>
                 </Card>
               </motion.div>
             )}
           </div>
-
-          {/* Debaters - Compact Side by Side */}
-          {!isSelecting && selectedSims[0] && selectedSims[1] && (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="grid grid-cols-2 gap-4">
-              {selectedSims.map(
-                (sim) =>
-                  sim && (
-                    <Card key={sim.id} className="p-4 text-center">
-                      <Avatar className="h-16 w-16 mx-auto mb-2 border-2 border-primary/20">
-                        <AvatarImage src={sim.avatar} alt={sim.name} />
-                        <AvatarFallback className="text-lg">{sim.name[0]}</AvatarFallback>
-                      </Avatar>
-                      <h3 className="text-lg font-bold mb-1">{sim.name}</h3>
-                      <p className="text-xs text-muted-foreground line-clamp-2">{sim.description}</p>
-                    </Card>
-                  ),
-              )}
-            </motion.div>
-          )}
         </div>
       </div>
 
