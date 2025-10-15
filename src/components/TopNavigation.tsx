@@ -254,7 +254,7 @@ const TopNavigation = ({
                   <Menu className="h-5 w-5" />
                 </Button>
               </SheetTrigger>
-              <SheetContent side="right" className="w-80">
+              <SheetContent side="right" className="w-80 z-[100] bg-background">
                 <MobileMenu />
               </SheetContent>
             </Sheet>
