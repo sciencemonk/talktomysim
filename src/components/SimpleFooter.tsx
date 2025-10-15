@@ -26,7 +26,7 @@ const SimpleFooter = () => {
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
         <div className="text-center sm:text-left">
           <p className="text-sm text-muted-foreground">
-            Powered by <span className="font-semibold text-foreground">$SIM</span> coin
+            Powered by <span className="font-semibold text-foreground">$SIMAI</span> coin
           </p>
         </div>
         
