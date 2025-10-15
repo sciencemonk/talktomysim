@@ -151,45 +151,6 @@ const Landing = () => {
         </div>
       </section>
 
-      {/* Stats Section */}
-      <section className="container mx-auto px-4 py-12 bg-gradient-to-r from-primary/5 via-accent/5 to-secondary/5 rounded-3xl my-12">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
-          <div className="space-y-2">
-            <h3 className="text-4xl md:text-5xl font-bold text-primary">10K+</h3>
-            <p className="text-fgMuted">Active Simulations</p>
-          </div>
-          <div className="space-y-2">
-            <h3 className="text-4xl md:text-5xl font-bold text-accent">50K+</h3>
-            <p className="text-fgMuted">Conversations</p>
-          </div>
-          <div className="space-y-2">
-            <h3 className="text-4xl md:text-5xl font-bold text-secondary">24/7</h3>
-            <p className="text-fgMuted">AI Availability</p>
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="container mx-auto px-4 py-20 text-center">
-        <div className="max-w-3xl mx-auto space-y-6 p-8 rounded-3xl bg-gradient-to-br from-primary/10 via-accent/10 to-secondary/10 border border-border">
-          <h2 className="text-3xl md:text-5xl font-bold text-fg">
-            Ready to Join the AI Revolution?
-          </h2>
-          <p className="text-xl text-fgMuted">
-            Get $SIMAI tokens today and be part of the future of AI simulations.
-          </p>
-          <Button 
-            size="lg" 
-            variant="brandGradient"
-            className="text-lg px-12"
-            onClick={() => window.open("https://pump.fun", "_blank")}
-          >
-            <Coins className="mr-2 h-5 w-5" />
-            Buy $SIMAI
-          </Button>
-        </div>
-      </section>
-
       {/* Footer */}
       <footer className="border-t border-border mt-20">
         <div className="container mx-auto px-4 py-8">
