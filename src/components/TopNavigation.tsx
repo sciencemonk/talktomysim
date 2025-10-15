@@ -110,40 +110,34 @@ const TopNavigation = ({
             <Button
               variant="ghost"
               className="w-full justify-start text-left"
-              asChild
+              onClick={() => {
+                navigate('/');
+                onClose();
+              }}
             >
-              <Link 
-                to="/"
-                onClick={onClose}
-              >
-                Home
-              </Link>
+              Home
             </Button>
             
             <Button
               variant="ghost"
               className="w-full justify-start text-left"
-              asChild
+              onClick={() => {
+                navigate('/sim-directory');
+                onClose();
+              }}
             >
-              <Link 
-                to="/sim-directory"
-                onClick={onClose}
-              >
-                Sim Directory
-              </Link>
+              Sim Directory
             </Button>
             
             <Button
               variant="ghost"
               className="w-full justify-start text-left"
-              asChild
+              onClick={() => {
+                navigate('/whitepaper');
+                onClose();
+              }}
             >
-              <Link 
-                to="/whitepaper"
-                onClick={onClose}
-              >
-                White Paper
-              </Link>
+              White Paper
             </Button>
           </>
         )}
