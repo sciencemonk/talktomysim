@@ -19,7 +19,7 @@ const Landing = () => {
         .select('id, name, avatar_url, custom_url')
         .eq('sim_type', 'historical')
         .eq('is_active', true)
-        .limit(4);
+        .limit(8);
       
       if (error) throw error;
       return data || [];
@@ -130,7 +130,7 @@ const Landing = () => {
                   </CardDescription>
                   
                   {feature.showSims && historicalSims && historicalSims.length > 0 && (
-                    <div className="grid grid-cols-2 gap-3 mt-4">
+                    <div className="grid grid-cols-4 gap-2 mt-4">
                       {historicalSims.map((sim) => (
                         <button
                           key={sim.id}
@@ -138,14 +138,14 @@ const Landing = () => {
                             e.stopPropagation();
                             navigate(`/sim/${sim.custom_url || sim.id}`);
                           }}
-                          className="flex flex-col items-center gap-2 p-3 rounded-lg bg-bg/50 hover:bg-bg transition-colors"
+                          className="flex flex-col items-center gap-1.5 p-2 rounded-lg bg-bg/50 hover:bg-bg transition-colors"
                         >
                           <img 
                             src={sim.avatar_url} 
                             alt={sim.name}
-                            className="w-16 h-16 rounded-full object-cover border-2 border-border shadow-sm"
+                            className="w-14 h-14 rounded-full object-cover border-2 border-border shadow-sm"
                           />
-                          <span className="text-xs font-medium text-fg text-center line-clamp-2">
+                          <span className="text-[10px] font-medium text-fg text-center line-clamp-2 leading-tight">
                             {sim.name}
                           </span>
                         </button>
