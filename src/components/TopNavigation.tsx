@@ -32,6 +32,7 @@ interface TopNavigationProps {
   onShowAdvisorDirectory?: () => void;
   showBackButton?: boolean;
   onBack?: () => void;
+  onMobileMenuChange?: (isOpen: boolean) => void;
 }
 
 const TopNavigation = ({
@@ -44,6 +45,7 @@ const TopNavigation = ({
   onShowAdvisorDirectory,
   showBackButton = false,
   onBack,
+  onMobileMenuChange,
 }: TopNavigationProps) => {
   const { user, signOut } = useAuth();
   const { agents } = useAgents();
@@ -52,6 +54,11 @@ const TopNavigation = ({
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [authModalMode, setAuthModalMode] = useState<'login' | 'signup'>('signup');
+
+  const handleMobileMenuChange = (isOpen: boolean) => {
+    setMobileMenuOpen(isOpen);
+    onMobileMenuChange?.(isOpen);
+  };
 
   const handleSignOut = async () => {
     await signOut();
@@ -74,8 +81,8 @@ const TopNavigation = ({
   const MobileMenu = ({ onClose }: { onClose: () => void }) => {
     const handleNavigate = (path: string) => {
       console.log('Navigating to:', path);
+      handleMobileMenuChange(false);
       navigate(path);
-      setTimeout(() => onClose(), 100);
     };
 
     return (
@@ -237,7 +244,7 @@ const TopNavigation = ({
 
           {/* Mobile Menu */}
           {isMobile && !showBackButton && (
-            <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+            <Sheet open={mobileMenuOpen} onOpenChange={handleMobileMenuChange}>
               <SheetTrigger asChild>
                 <Button variant="ghost" size="sm">
                   <Menu className="h-5 w-5" />
@@ -246,7 +253,7 @@ const TopNavigation = ({
               <SheetContent side="right" className="w-80 z-[151] bg-background overflow-y-auto">
                 <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
                 <SheetDescription className="sr-only">Navigate to different sections of the app</SheetDescription>
-                <MobileMenu onClose={() => setMobileMenuOpen(false)} />
+                <MobileMenu onClose={() => handleMobileMenuChange(false)} />
               </SheetContent>
             </Sheet>
           )}

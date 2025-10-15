@@ -20,6 +20,7 @@ const Home = () => {
   const [pendingAdvisor, setPendingAdvisor] = useState<AgentType | null>(null);
   const [selectedAgent, setSelectedAgent] = useState<AgentType | null>(null);
   const [selectedPublicAdvisorId, setSelectedPublicAdvisorId] = useState<string | null>(null);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Effect to handle post-authentication advisor selection
   useEffect(() => {
@@ -135,10 +136,11 @@ const Home = () => {
           onShowAdvisorDirectory={handleShowAdvisorDirectory}
           showBackButton={false}
           onBack={() => {}}
+          onMobileMenuChange={setIsMobileMenuOpen}
         />
       )}
       
-      <div className="flex-1 flex flex-col min-h-0">
+      <div className={`flex-1 flex flex-col min-h-0 ${isMobileMenuOpen ? 'pointer-events-none opacity-50' : ''}`}>
         {currentChatAgent ? (
           <ChatInterface
             agent={currentChatAgent}
