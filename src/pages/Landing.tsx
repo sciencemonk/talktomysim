@@ -10,14 +10,15 @@ import { useState } from "react";
 import { AgentType } from "@/types/agent";
 import phantomIcon from "@/assets/phantom-icon.png";
 import solflareIcon from "@/assets/solflare-icon.png";
-import AuthModal from "@/components/AuthModal";
+import { toast as sonnerToast } from "sonner";
+import bs58 from "bs58";
 
 const Landing = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [showBotCheck, setShowBotCheck] = useState(false);
   const [selectedSim, setSelectedSim] = useState<AgentType | null>(null);
-  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [isLoading, setIsLoading] = useState<string | null>(null);
 
   // Fetch historical sims with full data
   const { data: historicalSims } = useQuery({
@@ -94,6 +95,69 @@ const Landing = () => {
         description: "Could not copy to clipboard",
         variant: "destructive"
       });
+    }
+  };
+
+  const handleWalletSignIn = async (walletType: 'phantom' | 'solflare') => {
+    setIsLoading(walletType);
+    try {
+      let wallet;
+      
+      if (walletType === 'phantom') {
+        wallet = (window as any).solana;
+        if (!wallet?.isPhantom) {
+          sonnerToast.error('Please install Phantom wallet');
+          setIsLoading(null);
+          return;
+        }
+      } else {
+        wallet = (window as any).solflare;
+        if (!wallet) {
+          sonnerToast.error('Please install Solflare wallet');
+          setIsLoading(null);
+          return;
+        }
+      }
+
+      // Connect to wallet
+      await wallet.connect();
+      
+      // Get public key
+      const publicKey = wallet.publicKey.toString();
+
+      // Create message to sign
+      const message = `Sign in to Sim\n\nWallet: ${publicKey}\nTimestamp: ${new Date().toISOString()}`;
+      const encodedMessage = new TextEncoder().encode(message);
+      
+      // Request signature
+      const signedMessage = await wallet.signMessage(encodedMessage, 'utf8');
+      const signature = bs58.encode(signedMessage.signature);
+
+      // Authenticate with backend
+      const { data, error } = await supabase.functions.invoke('solana-auth', {
+        body: { 
+          publicKey,
+          signature,
+          message 
+        }
+      });
+
+      if (error) throw error;
+      
+      if (data?.access_token && data?.refresh_token) {
+        await supabase.auth.setSession({
+          access_token: data.access_token,
+          refresh_token: data.refresh_token,
+        });
+        
+        sonnerToast.success('Connected successfully!');
+        navigate('/dashboard');
+      }
+    } catch (error: any) {
+      console.error('Error signing in with Solana:', error);
+      sonnerToast.error(error?.message || 'Failed to connect wallet');
+    } finally {
+      setIsLoading(null);
     }
   };
 
@@ -216,22 +280,28 @@ const Landing = () => {
                         className="w-full justify-start gap-3 h-auto py-3"
                         onClick={(e) => {
                           e.stopPropagation();
-                          setShowAuthModal(true);
+                          handleWalletSignIn('phantom');
                         }}
+                        disabled={!!isLoading}
                       >
                         <img src={phantomIcon} alt="Phantom" className="w-5 h-5" />
-                        <span className="text-sm font-medium">Connect Phantom</span>
+                        <span className="text-sm font-medium">
+                          {isLoading === 'phantom' ? 'Connecting...' : 'Connect Phantom'}
+                        </span>
                       </Button>
                       <Button
                         variant="outline"
                         className="w-full justify-start gap-3 h-auto py-3"
                         onClick={(e) => {
                           e.stopPropagation();
-                          setShowAuthModal(true);
+                          handleWalletSignIn('solflare');
                         }}
+                        disabled={!!isLoading}
                       >
                         <img src={solflareIcon} alt="Solflare" className="w-5 h-5" />
-                        <span className="text-sm font-medium">Connect Solflare</span>
+                        <span className="text-sm font-medium">
+                          {isLoading === 'solflare' ? 'Connecting...' : 'Connect Solflare'}
+                        </span>
                       </Button>
                     </div>
                   )}
@@ -263,11 +333,6 @@ const Landing = () => {
           onCancel={handleBotCheckCancel}
         />
       )}
-
-      <AuthModal
-        open={showAuthModal}
-        onOpenChange={setShowAuthModal}
-      />
 
       <SimpleFooter />
     </div>
