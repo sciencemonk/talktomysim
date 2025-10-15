@@ -10,12 +10,14 @@ import { useState } from "react";
 import { AgentType } from "@/types/agent";
 import phantomIcon from "@/assets/phantom-icon.png";
 import solflareIcon from "@/assets/solflare-icon.png";
+import AuthModal from "@/components/AuthModal";
 
 const Landing = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [showBotCheck, setShowBotCheck] = useState(false);
   const [selectedSim, setSelectedSim] = useState<AgentType | null>(null);
+  const [showAuthModal, setShowAuthModal] = useState(false);
 
   // Fetch historical sims with full data
   const { data: historicalSims } = useQuery({
@@ -214,11 +216,7 @@ const Landing = () => {
                         className="w-full justify-start gap-3 h-auto py-3"
                         onClick={(e) => {
                           e.stopPropagation();
-                          // TODO: Add Phantom wallet connection
-                          toast({
-                            title: "Coming soon",
-                            description: "Phantom wallet integration will be available soon",
-                          });
+                          setShowAuthModal(true);
                         }}
                       >
                         <img src={phantomIcon} alt="Phantom" className="w-5 h-5" />
@@ -229,11 +227,7 @@ const Landing = () => {
                         className="w-full justify-start gap-3 h-auto py-3"
                         onClick={(e) => {
                           e.stopPropagation();
-                          // TODO: Add Solflare wallet connection
-                          toast({
-                            title: "Coming soon",
-                            description: "Solflare wallet integration will be available soon",
-                          });
+                          setShowAuthModal(true);
                         }}
                       >
                         <img src={solflareIcon} alt="Solflare" className="w-5 h-5" />
@@ -269,6 +263,11 @@ const Landing = () => {
           onCancel={handleBotCheckCancel}
         />
       )}
+
+      <AuthModal
+        open={showAuthModal}
+        onOpenChange={setShowAuthModal}
+      />
 
       <SimpleFooter />
     </div>
