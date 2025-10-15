@@ -66,38 +66,37 @@ const Landing = () => {
       </header>
 
       {/* Hero Section */}
-      <section className="container mx-auto px-4 py-20 md:py-32 text-center">
+      <section className="container mx-auto px-4 py-12 md:py-16 text-center">
         <div className="max-w-4xl mx-auto space-y-6 animate-fade-in">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 mb-4">
             <Sparkles className="h-4 w-4 text-primary" />
             <span className="text-sm font-medium text-primary">The Future of AI Simulations</span>
           </div>
           
-          <h1 className="text-5xl md:text-7xl font-bold bg-gradient-to-r from-fg via-primary to-fg bg-clip-text text-transparent leading-tight">
+          <h1 className="text-4xl md:text-6xl font-bold bg-gradient-to-r from-fg via-primary to-fg bg-clip-text text-transparent leading-tight">
             Think With AI.
             <br />
             Powered by $SIMAI
           </h1>
           
-          <p className="text-xl md:text-2xl text-fgMuted max-w-2xl mx-auto">
+          <p className="text-lg md:text-xl text-fgMuted max-w-2xl mx-auto">
             Create, interact, and invest in the next generation of AI simulation technology.
-            Join the revolution.
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center pt-6">
+          <div className="flex flex-col sm:flex-row gap-3 justify-center pt-4">
             <Button 
-              size="lg" 
+              size="default" 
               variant="brandGradient"
-              className="text-lg px-8"
+              className="px-6"
               onClick={() => window.open("https://pump.fun", "_blank")}
             >
-              <Coins className="mr-2 h-5 w-5" />
+              <Coins className="mr-2 h-4 w-4" />
               Buy $SIMAI Now
             </Button>
             <Button 
-              size="lg" 
+              size="default" 
               variant="outline"
-              className="text-lg px-8"
+              className="px-6"
               onClick={() => navigate("/live")}
             >
               Try It Free
@@ -107,39 +106,40 @@ const Landing = () => {
       </section>
 
       {/* Features Grid */}
-      <section className="container mx-auto px-4 py-20">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
+      <section className="container mx-auto px-4 py-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 max-w-7xl mx-auto">
           {features.map((feature, index) => {
             const Icon = feature.icon;
             return (
               <Card 
                 key={index}
                 className={`group cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-xl border-2 ${
-                  feature.featured ? 'border-brandAccent md:col-span-2 lg:col-span-1' : 'border-border'
+                  feature.featured ? 'border-brandAccent' : 'border-border'
                 } bg-gradient-to-br ${feature.gradient}`}
                 onClick={feature.action}
               >
-                <CardHeader>
-                  <div className={`w-12 h-12 rounded-lg bg-bg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform ${
+                <CardHeader className="pb-3">
+                  <div className={`w-10 h-10 rounded-lg bg-bg flex items-center justify-center mb-2 group-hover:scale-110 transition-transform ${
                     feature.featured ? 'ring-2 ring-brandAccent' : ''
                   }`}>
-                    <Icon className={`h-6 w-6 ${feature.iconColor}`} />
+                    <Icon className={`h-5 w-5 ${feature.iconColor}`} />
                   </div>
-                  <CardTitle className="text-xl font-bold text-fg">
+                  <CardTitle className="text-base font-bold text-fg">
                     {feature.title}
                     {feature.featured && (
-                      <span className="ml-2 text-xs px-2 py-1 rounded-full bg-brandAccent text-white">
-                        Featured
+                      <span className="ml-1 text-xs px-1.5 py-0.5 rounded-full bg-brandAccent text-white">
+                        Hot
                       </span>
                     )}
                   </CardTitle>
-                  <CardDescription className="text-fgMuted">
+                  <CardDescription className="text-sm text-fgMuted line-clamp-2">
                     {feature.description}
                   </CardDescription>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="pt-0">
                   <Button 
                     variant={feature.featured ? "brandGradient" : "outline"} 
+                    size="sm"
                     className="w-full group-hover:translate-x-1 transition-transform"
                   >
                     {feature.featured ? "Get Started" : "Learn More"}
@@ -152,7 +152,7 @@ const Landing = () => {
       </section>
 
       {/* Stats Section */}
-      <section className="container mx-auto px-4 py-20 bg-gradient-to-r from-primary/5 via-accent/5 to-secondary/5 rounded-3xl my-20">
+      <section className="container mx-auto px-4 py-12 bg-gradient-to-r from-primary/5 via-accent/5 to-secondary/5 rounded-3xl my-12">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
           <div className="space-y-2">
             <h3 className="text-4xl md:text-5xl font-bold text-primary">10K+</h3>
