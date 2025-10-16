@@ -385,20 +385,20 @@ Keep it SHORT - 1-2 sentences max. This is LIVE TV. Jump straight to your respon
 
       {/* Fixed Header Section */}
       <div className="sticky top-0 z-10 bg-background border-b border-border">
-        <div className="container mx-auto px-4 py-4 max-w-6xl">
+        <div className="container mx-auto px-3 sm:px-4 py-3 sm:py-4 max-w-6xl">
           {/* Timer and Question - Compact */}
-          <div className="mb-4 space-y-3">
+          <div className="mb-3 sm:mb-4 space-y-3">
             {isDebating && (
               <div className="text-center">
-                <div className="inline-flex items-center gap-2 px-4 py-2 bg-card border border-border rounded-full">
-                  <Sparkles className="h-4 w-4 text-primary animate-pulse" />
-                  <span className="font-mono text-lg font-bold">{formatTime(timeRemaining)} until next topic</span>
+                <div className="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-card border border-border rounded-full">
+                  <Sparkles className="h-3 w-3 sm:h-4 sm:w-4 text-primary animate-pulse flex-shrink-0" />
+                  <span className="font-mono text-sm sm:text-base md:text-lg font-bold whitespace-nowrap">{formatTime(timeRemaining)} until next topic</span>
                   <button
                     onClick={() => window.location.reload()}
-                    className="ml-2 p-1.5 bg-primary text-primary-foreground rounded-full hover:bg-primary/90 transition-colors"
+                    className="ml-1 sm:ml-2 p-1 sm:p-1.5 bg-primary text-primary-foreground rounded-full hover:bg-primary/90 transition-colors flex-shrink-0"
                     aria-label="Refresh debate"
                   >
-                    <RefreshCw className="h-4 w-4" />
+                    <RefreshCw className="h-3 w-3 sm:h-4 sm:w-4" />
                   </button>
                 </div>
               </div>
@@ -523,8 +523,48 @@ Keep it SHORT - 1-2 sentences max. This is LIVE TV. Jump straight to your respon
             {/* Question Card with Debaters on Either Side */}
             {!isSelecting && question && selectedSims[0] && selectedSims[1] && (
               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-                <Card className="p-4 bg-gradient-to-r from-primary/10 to-primary/5 border-primary/20">
-                  <div className="flex items-center justify-between gap-4">
+                <Card className="p-3 sm:p-4 bg-gradient-to-r from-primary/10 to-primary/5 border-primary/20">
+                  {/* Mobile Layout: Stacked */}
+                  <div className="md:hidden space-y-3">
+                    {/* Question First on Mobile */}
+                    <div className="text-center">
+                      <div className="flex items-center justify-center gap-2 mb-2">
+                        <MessageCircle className="h-3 w-3 text-primary flex-shrink-0" />
+                        <h3 className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">
+                          Today&apos;s Question
+                        </h3>
+                      </div>
+                      <p className="text-base font-bold leading-tight">{question}</p>
+                    </div>
+                    
+                    {/* Debaters Below on Mobile */}
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-2 flex-1 min-w-0">
+                        <Avatar className="h-10 w-10 border-2 border-primary/20 flex-shrink-0">
+                          <AvatarImage src={selectedSims[0].avatar} alt={selectedSims[0].name} />
+                          <AvatarFallback className="text-sm">{selectedSims[0].name[0]}</AvatarFallback>
+                        </Avatar>
+                        <div className="text-left min-w-0">
+                          <h3 className="text-xs font-bold truncate">{selectedSims[0].name}</h3>
+                          <p className="text-[10px] text-muted-foreground truncate">{selectedSims[0].description.split(',')[0]}</p>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center gap-2 flex-1 min-w-0 justify-end">
+                        <div className="text-right min-w-0">
+                          <h3 className="text-xs font-bold truncate">{selectedSims[1].name}</h3>
+                          <p className="text-[10px] text-muted-foreground truncate">{selectedSims[1].description.split(',')[0]}</p>
+                        </div>
+                        <Avatar className="h-10 w-10 border-2 border-primary/20 flex-shrink-0">
+                          <AvatarImage src={selectedSims[1].avatar} alt={selectedSims[1].name} />
+                          <AvatarFallback className="text-sm">{selectedSims[1].name[0]}</AvatarFallback>
+                        </Avatar>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Desktop Layout: Original Horizontal */}
+                  <div className="hidden md:flex items-center justify-between gap-4">
                     {/* Left Debater */}
                     <div className="flex items-center gap-3 flex-shrink-0">
                       <Avatar className="h-12 w-12 md:h-14 md:w-14 border-2 border-primary/20">
@@ -569,8 +609,8 @@ Keep it SHORT - 1-2 sentences max. This is LIVE TV. Jump straight to your respon
 
       {/* Scrollable Chat Section */}
       <div className="flex-1 overflow-y-auto">
-        <div className="container mx-auto px-4 py-4 max-w-6xl">
-          <div className="space-y-3">
+        <div className="container mx-auto px-3 sm:px-4 py-3 sm:py-4 max-w-6xl">
+          <div className="space-y-2 sm:space-y-3">
             <AnimatePresence>
               {messages.map((message) => (
                 <motion.div
@@ -579,20 +619,20 @@ Keep it SHORT - 1-2 sentences max. This is LIVE TV. Jump straight to your respon
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.2 }}
                 >
-                  <Card className="p-4">
-                    <div className="flex items-start gap-3">
-                      <Avatar className="h-10 w-10 border-2 border-primary/30 flex-shrink-0">
+                  <Card className="p-3 sm:p-4">
+                    <div className="flex items-start gap-2 sm:gap-3">
+                      <Avatar className="h-8 w-8 sm:h-10 sm:w-10 border-2 border-primary/30 flex-shrink-0">
                         <AvatarImage src={message.simAvatar} alt={message.simName} />
-                        <AvatarFallback>{message.simName[0]}</AvatarFallback>
+                        <AvatarFallback className="text-xs sm:text-sm">{message.simName[0]}</AvatarFallback>
                       </Avatar>
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-1">
-                          <h4 className="font-bold text-sm">{message.simName}</h4>
-                          <span className="text-xs text-muted-foreground">
+                        <div className="flex items-center gap-1.5 sm:gap-2 mb-1">
+                          <h4 className="font-bold text-xs sm:text-sm truncate">{message.simName}</h4>
+                          <span className="text-[10px] sm:text-xs text-muted-foreground whitespace-nowrap">
                             {message.timestamp.toLocaleTimeString()}
                           </span>
                         </div>
-                        <p className="text-base md:text-lg text-foreground leading-relaxed font-medium">{message.content}</p>
+                        <p className="text-sm sm:text-base md:text-lg text-foreground leading-relaxed font-medium">{message.content}</p>
                       </div>
                     </div>
                   </Card>
@@ -602,20 +642,20 @@ Keep it SHORT - 1-2 sentences max. This is LIVE TV. Jump straight to your respon
               {/* Typing Indicator */}
               {typingIndicator && (
                 <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
-                  <Card className="p-4 bg-muted/50">
-                    <div className="flex items-start gap-3">
-                      <Avatar className="h-10 w-10 border-2 border-primary/30 flex-shrink-0">
+                  <Card className="p-3 sm:p-4 bg-muted/50">
+                    <div className="flex items-start gap-2 sm:gap-3">
+                      <Avatar className="h-8 w-8 sm:h-10 sm:w-10 border-2 border-primary/30 flex-shrink-0">
                         <AvatarImage
                           src={selectedSims.find((s) => s?.name === typingIndicator)?.avatar}
                           alt={typingIndicator}
                         />
-                        <AvatarFallback>{typingIndicator[0]}</AvatarFallback>
+                        <AvatarFallback className="text-xs sm:text-sm">{typingIndicator[0]}</AvatarFallback>
                       </Avatar>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
-                          <h4 className="font-bold text-sm">{typingIndicator}</h4>
+                          <h4 className="font-bold text-xs sm:text-sm truncate">{typingIndicator}</h4>
                         </div>
-                        <p className="text-sm text-muted-foreground italic">is typing...</p>
+                        <p className="text-xs sm:text-sm text-muted-foreground italic">is typing...</p>
                       </div>
                     </div>
                   </Card>
