@@ -50,7 +50,7 @@ const SimConversations = () => {
       // First get the user's advisors
       const { data: advisors, error: advisorsError } = await supabase
         .from('advisors')
-        .select('id')
+        .select('id, name, avatar_url')
         .eq('user_id', user?.id);
 
       if (advisorsError) throw advisorsError;
@@ -74,14 +74,16 @@ const SimConversations = () => {
           updated_at,
           is_anonymous,
           tutor_id,
-          user_id,
-          advisors!conversations_tutor_id_fkey(name, avatar_url)
+          user_id
         `)
         .in('tutor_id', advisorIds)
         .or(`user_id.neq.${user?.id},user_id.is.null`)
         .order('updated_at', { ascending: false });
 
       if (convosError) throw convosError;
+
+      // Create a map of advisor data for easy lookup
+      const advisorMap = new Map(advisors.map(a => [a.id, a]));
 
       // Get message counts for each conversation
       const conversationsWithCounts = await Promise.all(
@@ -99,11 +101,14 @@ const SimConversations = () => {
             .limit(1)
             .single();
 
+          // Get advisor data from our map
+          const advisor = advisorMap.get(convo.tutor_id);
+
           return {
             ...convo,
             messageCount: count || 0,
             lastMessage: lastMsg?.content || '',
-            advisor: Array.isArray(convo.advisors) ? convo.advisors[0] : convo.advisors
+            advisor: advisor ? { name: advisor.name, avatar_url: advisor.avatar_url } : undefined
           };
         })
       );
