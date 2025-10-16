@@ -27,11 +27,10 @@ const StudentChat = () => {
   const isMobile = useIsMobile();
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
-  // Redirect non-authenticated users back to the tutor detail page
+  // Redirect non-authenticated users to bot check first
   useEffect(() => {
-    if (!authLoading && !user) {
-      navigate(`/tutors/${agentId}`, { replace: true });
-    }
+    // Allow both authenticated and anonymous users to access this page
+    // No redirect needed - anonymous users can chat with public sims
   }, [user, authLoading, navigate, agentId]);
 
   // Combine messages with current partial message if speaking
@@ -52,15 +51,10 @@ const StudentChat = () => {
       <div className="h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-base text-muted-foreground">Checking access...</p>
+          <p className="text-base text-muted-foreground">Loading...</p>
         </div>
       </div>
     );
-  }
-
-  // Don't render anything if user is not authenticated (will redirect)
-  if (!user) {
-    return null;
   }
 
   if (isLoading) {

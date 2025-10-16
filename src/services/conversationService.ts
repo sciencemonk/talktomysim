@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 export interface Conversation {
   id: string;
-  user_id: string;
+  user_id: string | null;
   advisor_id: string | null;
   tutor_id: string;
   title: string | null;
@@ -20,31 +20,49 @@ export interface Message {
 }
 
 export const conversationService = {
-  // Get or create a conversation for a user and advisor
+  // Get or create a conversation for a user and advisor (supports anonymous users)
   async getOrCreateConversation(advisorId: string): Promise<Conversation | null> {
     try {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('User not authenticated');
+      
+      // For authenticated users
+      if (user) {
+        // First try to get existing conversation for this advisor
+        const { data: existingConversation } = await supabase
+          .from('conversations')
+          .select('*')
+          .eq('user_id', user.id)
+          .eq('tutor_id', advisorId)
+          .maybeSingle();
 
-      // First try to get existing conversation for this advisor
-      const { data: existingConversation } = await supabase
-        .from('conversations')
-        .select('*')
-        .eq('user_id', user.id)
-        .eq('tutor_id', advisorId) // Using tutor_id field for advisor IDs for now
-        .maybeSingle();
+        if (existingConversation) {
+          return existingConversation;
+        }
 
-      if (existingConversation) {
-        return existingConversation;
+        // Create new conversation if it doesn't exist
+        const { data: newConversation, error } = await supabase
+          .from('conversations')
+          .insert({
+            user_id: user.id,
+            tutor_id: advisorId,
+            title: null,
+            is_anonymous: false
+          })
+          .select()
+          .single();
+
+        if (error) throw error;
+        return newConversation;
       }
-
-      // Create new conversation if it doesn't exist
+      
+      // For anonymous users - always create a new conversation
       const { data: newConversation, error } = await supabase
         .from('conversations')
         .insert({
-          user_id: user.id,
-          tutor_id: advisorId, // Using tutor_id field for advisor IDs for now
-          title: null
+          user_id: null,
+          tutor_id: advisorId,
+          title: null,
+          is_anonymous: true
         })
         .select()
         .single();
