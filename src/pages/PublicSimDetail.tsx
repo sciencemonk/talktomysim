@@ -125,9 +125,12 @@ const PublicSimDetail = () => {
       {/* Header */}
       <header className="relative border-b border-border/40 bg-background/80 backdrop-blur-xl">
         <div className="container mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
+          <button 
+            onClick={() => navigate('/')}
+            className="flex items-center gap-3 hover:opacity-80 transition-opacity cursor-pointer"
+          >
             <img src="/sim-logo.png" alt="Sim Logo" className="h-8 w-8" />
-          </div>
+          </button>
           
           <Button 
             onClick={handleCreateSimClick}
