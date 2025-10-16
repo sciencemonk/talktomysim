@@ -601,10 +601,14 @@ Keep it SHORT - 1-2 sentences max. This is LIVE TV. Jump straight to your respon
           <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-4 h-full">
             
             {/* Left Column - Debate */}
-            <div className="flex flex-col h-full">
-              {/* Fixed Debate Header - Topic and Sims */}
+            <div className="flex flex-col h-full overflow-hidden">
+              {/* Fixed Debate Header - Topic and Sims - Always Visible */}
               {!isSelecting && question && selectedSims[0] && selectedSims[1] && (
-                <div className="flex-shrink-0 mb-3">
+                <motion.div 
+                  initial={{ opacity: 0, y: -20 }} 
+                  animate={{ opacity: 1, y: 0 }}
+                  className="flex-shrink-0 mb-3"
+                >
                   <Card className="p-4 bg-gradient-to-br from-primary/15 via-primary/5 to-background border border-primary/30">
                     {/* Topic */}
                     <div className="text-center mb-4">
@@ -621,7 +625,7 @@ Keep it SHORT - 1-2 sentences max. This is LIVE TV. Jump straight to your respon
                         </Avatar>
                         <div className="text-center">
                           <h3 className="text-sm font-bold">{selectedSims[0].name}</h3>
-                          <p className="text-xs text-muted-foreground">{selectedSims[0].description?.split(',')[0]}</p>
+                          <p className="text-xs text-muted-foreground line-clamp-1">{selectedSims[0].description?.split(',')[0]}</p>
                         </div>
                       </div>
 
@@ -635,12 +639,12 @@ Keep it SHORT - 1-2 sentences max. This is LIVE TV. Jump straight to your respon
                         </Avatar>
                         <div className="text-center">
                           <h3 className="text-sm font-bold">{selectedSims[1].name}</h3>
-                          <p className="text-xs text-muted-foreground">{selectedSims[1].description?.split(',')[0]}</p>
+                          <p className="text-xs text-muted-foreground line-clamp-1">{selectedSims[1].description?.split(',')[0]}</p>
                         </div>
                       </div>
                     </div>
                   </Card>
-                </div>
+                </motion.div>
               )}
               
               {/* Selection Animation - Full Page Grid */}
@@ -759,8 +763,8 @@ Keep it SHORT - 1-2 sentences max. This is LIVE TV. Jump straight to your respon
               )}
             </AnimatePresence>
 
-              {/* Scrollable Messages Area */}
-              <div className="flex-1 overflow-y-auto space-y-1.5 min-h-0">
+              {/* Scrollable Messages Area - Only messages scroll */}
+              <div className="flex-1 overflow-y-auto space-y-2 min-h-0 pr-2">
                 <AnimatePresence>
                   {messages.map((message) => (
                     <motion.div
@@ -769,16 +773,16 @@ Keep it SHORT - 1-2 sentences max. This is LIVE TV. Jump straight to your respon
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ duration: 0.2 }}
                     >
-                      <Card className="p-2 bg-card/80 backdrop-blur">
-                        <div className="flex items-start gap-2">
-                          <Avatar className="h-8 w-8 border-2 border-primary/40 flex-shrink-0">
+                      <Card className="p-3 bg-card/80 backdrop-blur">
+                        <div className="flex items-start gap-3">
+                          <Avatar className="h-10 w-10 border-2 border-primary/40 flex-shrink-0">
                             <AvatarImage src={message.simAvatar} alt={message.simName} />
-                            <AvatarFallback className="text-xs">{message.simName[0]}</AvatarFallback>
+                            <AvatarFallback className="text-sm">{message.simName[0]}</AvatarFallback>
                           </Avatar>
                           <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2 mb-0.5">
-                              <h4 className="font-bold text-xs">{message.simName}</h4>
-                              <span className="text-[10px] text-muted-foreground">
+                            <div className="flex items-center gap-2 mb-1">
+                              <h4 className="font-bold text-sm">{message.simName}</h4>
+                              <span className="text-xs text-muted-foreground">
                                 {message.timestamp.toLocaleTimeString()}
                               </span>
                             </div>
@@ -798,19 +802,19 @@ Keep it SHORT - 1-2 sentences max. This is LIVE TV. Jump straight to your respon
                       animate={{ opacity: 1 }} 
                       exit={{ opacity: 0 }}
                     >
-                      <Card className="p-2 bg-muted/50">
-                        <div className="flex items-center gap-2">
-                          <Avatar className="h-8 w-8 border-2 border-primary/40 flex-shrink-0">
+                      <Card className="p-3 bg-muted/50">
+                        <div className="flex items-center gap-3">
+                          <Avatar className="h-10 w-10 border-2 border-primary/40 flex-shrink-0">
                             <AvatarImage
                               src={selectedSims.find((s) => s?.name === typingIndicator)?.avatar}
                               alt={typingIndicator}
                             />
-                            <AvatarFallback className="text-xs">{typingIndicator[0]}</AvatarFallback>
+                            <AvatarFallback className="text-sm">{typingIndicator[0]}</AvatarFallback>
                           </Avatar>
                           <div>
-                            <h4 className="font-bold text-xs mb-0.5">{typingIndicator}</h4>
+                            <h4 className="font-bold text-sm mb-1">{typingIndicator}</h4>
                             <motion.p 
-                              className="text-[10px] text-muted-foreground"
+                              className="text-xs text-muted-foreground"
                               animate={{ opacity: [0.5, 1, 0.5] }}
                               transition={{ duration: 1.5, repeat: Infinity }}
                             >
