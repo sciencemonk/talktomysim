@@ -10,6 +10,8 @@ import { useToast } from '@/hooks/use-toast';
 import { formatDistanceToNow } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
+import TopNavigation from '@/components/TopNavigation';
+import SimpleFooter from '@/components/SimpleFooter';
 
 interface Conversation {
   id: string;
@@ -153,16 +155,10 @@ const SimConversations = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="container mx-auto py-8 px-4">
+    <div className="min-h-screen bg-background flex flex-col">
+      <TopNavigation />
+      <div className="container mx-auto py-8 px-4 flex-1">
         <div className="mb-8">
-          <Button
-            variant="ghost"
-            onClick={() => navigate('/dashboard')}
-            className="mb-4"
-          >
-            ← Back to Dashboard
-          </Button>
           <h1 className="text-4xl font-bold mb-2">Sim Conversations</h1>
           <p className="text-muted-foreground">
             See what people are talking about with your sim
@@ -290,6 +286,7 @@ const SimConversations = () => {
           </div>
         )}
       </div>
+      <SimpleFooter />
     </div>
   );
 };

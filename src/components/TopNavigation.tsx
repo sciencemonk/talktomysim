@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
-import { LogOut, LogIn, Home, Folder, Radio } from "lucide-react";
+import { LogOut, LogIn, Home, Folder, Radio, MessageCircle } from "lucide-react";
 import { Button } from "./ui/button";
 import AuthModal from "./AuthModal";
 
@@ -65,6 +65,15 @@ const TopNavigation = () => {
               className="h-8 w-8 sm:h-10 sm:w-10"
             >
               <Home className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => navigate('/sim-conversations')}
+              title="Conversations"
+              className="h-8 w-8 sm:h-10 sm:w-10"
+            >
+              <MessageCircle className="h-4 w-4" />
             </Button>
             <Button
               variant="ghost"
