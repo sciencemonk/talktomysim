@@ -63,7 +63,7 @@ const SimConversations = () => {
 
       const advisorIds = advisors.map(a => a.id);
 
-      // Get conversations where advisor_id is in the user's advisors
+      // Get conversations where tutor_id is in the user's advisors
       // and user_id is NOT the current user (exclude creator's own conversations)
       const { data: convos, error: convosError } = await supabase
         .from('conversations')
@@ -73,12 +73,12 @@ const SimConversations = () => {
           created_at,
           updated_at,
           is_anonymous,
-          advisor_id,
+          tutor_id,
           user_id,
-          advisors!conversations_advisor_id_fkey(name, avatar_url)
+          advisors!conversations_tutor_id_fkey(name, avatar_url)
         `)
-        .in('advisor_id', advisorIds)
-        .neq('user_id', user?.id)
+        .in('tutor_id', advisorIds)
+        .or(`user_id.neq.${user?.id},user_id.is.null`)
         .order('updated_at', { ascending: false });
 
       if (convosError) throw convosError;
