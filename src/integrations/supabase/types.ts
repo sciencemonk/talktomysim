@@ -398,6 +398,20 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "debate_queue_sim1_id_fkey"
+            columns: ["sim1_id"]
+            isOneToOne: false
+            referencedRelation: "advisors"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "debate_queue_sim2_id_fkey"
+            columns: ["sim2_id"]
+            isOneToOne: false
+            referencedRelation: "advisors"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "fk_sim1"
             columns: ["sim1_id"]
             isOneToOne: false

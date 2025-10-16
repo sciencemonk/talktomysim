@@ -270,7 +270,6 @@ const LiveChat = () => {
       return;
     }
 
-    setIsSelecting(true);
     setMessages([]);
 
     // Check for user-generated debates in queue first
@@ -298,11 +297,13 @@ const LiveChat = () => {
     let sim1: AgentType;
     let sim2: AgentType;
     let selectedQuestion: string;
+    let skipAnimation = false;
 
     if (!queueError && queuedDebate) {
-      // Use queued debate
+      // Use queued debate - skip animation
       console.log("Using queued debate:", queuedDebate.id);
       setCurrentQueueId(queuedDebate.id);
+      skipAnimation = true;
       
       // Mark as in progress
       await supabase
@@ -351,26 +352,33 @@ const LiveChat = () => {
       if (queuedDebate.voter_name) {
         selectedQuestion = `${selectedQuestion} (suggested by ${queuedDebate.voter_name})`;
       }
-    } else {
-      // Fall back to random selection
-      console.log("No queued debates, using random selection");
-      setCurrentQueueId(null);
-      
-      sim1 = allHistoricalSims[selector1Index];
-      sim2 = allHistoricalSims[selector2Index];
-      selectedQuestion = philosophicalQuestions[Math.floor(Math.random() * philosophicalQuestions.length)];
-    }
 
-    console.log("Selected sims:", sim1.name, "vs", sim2.name);
-    console.log("Selected question:", selectedQuestion);
-
-    // Finish selection after 4 seconds
-    setTimeout(() => {
+      // Load debate immediately without animation
       setSelectedSims([sim1, sim2]);
       setQuestion(selectedQuestion);
       setIsSelecting(false);
       startDebate(sim1, sim2, selectedQuestion);
-    }, 4000);
+    } else {
+      // Fall back to random selection with animation
+      console.log("No queued debates, using random selection");
+      setCurrentQueueId(null);
+      setIsSelecting(true);
+      
+      sim1 = allHistoricalSims[selector1Index];
+      sim2 = allHistoricalSims[selector2Index];
+      selectedQuestion = philosophicalQuestions[Math.floor(Math.random() * philosophicalQuestions.length)];
+
+      console.log("Selected sims:", sim1.name, "vs", sim2.name);
+      console.log("Selected question:", selectedQuestion);
+
+      // Show selection animation for 4 seconds
+      setTimeout(() => {
+        setSelectedSims([sim1, sim2]);
+        setQuestion(selectedQuestion);
+        setIsSelecting(false);
+        startDebate(sim1, sim2, selectedQuestion);
+      }, 4000);
+    }
   };
 
   const startDebate = async (sim1: AgentType, sim2: AgentType, question: string) => {
