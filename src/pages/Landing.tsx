@@ -13,7 +13,7 @@ import solflareIcon from "@/assets/solflare-icon.png";
 import { toast as sonnerToast } from "sonner";
 import bs58 from "bs58";
 import AuthModal from "@/components/AuthModal";
-import { LogIn } from "lucide-react";
+import landingBackground from "@/assets/landing-background.jpg";
 
 const Landing = () => {
   const navigate = useNavigate();
@@ -198,9 +198,20 @@ const Landing = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-bg via-bgMuted to-bg flex flex-col">
+    <div 
+      className="min-h-screen flex flex-col relative"
+      style={{
+        backgroundImage: `url(${landingBackground})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundAttachment: 'fixed'
+      }}
+    >
+      {/* Overlay for better readability */}
+      <div className="absolute inset-0 bg-black/40 z-0" />
+      
       {/* Header */}
-      <header className="border-b border-border backdrop-blur-sm bg-bg/80 sticky top-0 z-50">
+      <header className="border-b border-white/20 backdrop-blur-md bg-black/20 sticky top-0 z-50 relative">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <img 
@@ -210,19 +221,17 @@ const Landing = () => {
             />
           </div>
           <Button
-            variant="default"
-            size="sm"
             onClick={() => setAuthModalOpen(true)}
-            className="flex items-center gap-2"
+            className="bg-white text-black hover:bg-white/90 font-medium px-6"
+            size="sm"
           >
-            <LogIn className="h-4 w-4" />
-            <span className="hidden sm:inline">Sign In</span>
+            Sign In
           </Button>
         </div>
       </header>
 
       {/* Main Section - All Features */}
-      <section className="flex-1 flex items-center justify-center container mx-auto px-3 sm:px-4 py-4 sm:py-6">
+      <section className="flex-1 flex items-center justify-center container mx-auto px-3 sm:px-4 py-4 sm:py-6 relative z-10">
         <div className="grid gap-3 max-w-6xl w-full [grid-template-areas:'create'_'talk'_'debate'_'whitepaper'] md:[grid-template-areas:'create_create_talk_talk'_'debate_debate_talk_talk'_'whitepaper_whitepaper_talk_talk'] grid-cols-1 md:grid-cols-4">
           {features.map((feature, index) => {
             const isMainFeature = ['create', 'talk', 'debate'].includes(feature.gridArea);
@@ -332,7 +341,9 @@ const Landing = () => {
         onOpenChange={setAuthModalOpen}
       />
 
-      <SimpleFooter />
+      <div className="relative z-10">
+        <SimpleFooter />
+      </div>
     </div>
   );
 };
