@@ -136,10 +136,18 @@ export const FloatingChat = () => {
       {!isOpen && (
         <Button
           onClick={() => setIsOpen(true)}
-          className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-lg z-50"
+          className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-lg z-50 p-0 overflow-hidden"
           size="icon"
         >
-          <MessageCircle className="h-6 w-6" />
+          {advisor?.avatar_url ? (
+            <img 
+              src={advisor.avatar_url} 
+              alt={advisor.name}
+              className="h-full w-full object-cover"
+            />
+          ) : (
+            <MessageCircle className="h-6 w-6" />
+          )}
         </Button>
       )}
 
