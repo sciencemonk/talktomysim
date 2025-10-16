@@ -21,46 +21,75 @@ interface Message {
 const DEBATE_DURATION = 5 * 60 * 1000; // 5 minutes
 
 const philosophicalQuestions = [
-  // AI & Technology
-  "Will AI save humanity or destroy it?",
-  "Should we merge with machines or stay purely human?",
-  "Is social media connecting us or isolating us?",
-  "Do we own our data or do tech companies own us?",
+  // Technology & Future
+  "Is consciousness transferable to digital form?",
+  "Should we create artificial life forms with rights?",
+  "Will quantum computing make privacy obsolete?",
+  "Can humanity survive without exploring space?",
+  "Should we edit human DNA to prevent disease?",
   
-  // Modern Society
-  "Is cancel culture accountability or mob justice?",
-  "Should billionaires exist?",
-  "Is meritocracy real or a myth?",
-  "Does hard work actually lead to success anymore?",
-  "Is traditional masculinity toxic or essential?",
+  // Society & Power
+  "Is tribalism inevitable in human nature?",
+  "Can true equality exist without sacrificing freedom?",
+  "Should nations dissolve into global governance?",
+  "Is surveillance the price of modern security?",
+  "Can revolution ever be bloodless?",
   
-  // Politics & Power
-  "Is democracy dying or evolving?",
-  "Should we have open borders or strong nations?",
-  "Is free speech absolute or should there be limits?",
-  "Can capitalism survive climate change?",
-  "Should elites rule or should power be distributed?",
+  // Mind & Reality
+  "Is time travel philosophically possible?",
+  "Do parallel universes change how we make choices?",
+  "Can machines ever truly understand beauty?",
+  "Is consciousness an illusion or the only truth?",
+  "Should we trust gut instinct over data?",
   
-  // Culture & Values
-  "Is woke culture progress or regression?",
-  "Is tradition holding us back or keeping us grounded?",
-  "Should we prioritize individual freedom or collective good?",
-  "Is religion still relevant in the modern world?",
-  "Is comfort making us weak?",
+  // Ethics & Existence
+  "Is suffering necessary for meaning?",
+  "Can evil exist without free will?",
+  "Should we resurrect extinct species?",
+  "Is immortality desirable or terrifying?",
+  "Does the universe have a purpose?",
   
-  // Philosophy & Truth
-  "Can objective truth exist in the age of information?",
-  "Is morality universal or culturally relative?",
-  "Does life have inherent meaning or do we create it?",
-  "Is violence ever justified for a just cause?",
-  "Can there be justice without power?",
+  // Culture & Identity
+  "Is cultural appropriation theft or evolution?",
+  "Can art be truly objective or always subjective?",
+  "Should we preserve dying languages?",
+  "Is authenticity possible in the digital age?",
+  "Does technology erode or enhance creativity?",
   
-  // Future & Progress
-  "Should we colonize Mars or fix Earth first?",
-  "Is progress always good or are we moving too fast?",
-  "Will universal basic income liberate or infantilize us?",
-  "Should we extend human lifespan indefinitely?",
-  "Is degrowth the answer or economic suicide?",
+  // Knowledge & Truth
+  "Can science answer all questions worth asking?",
+  "Is ignorance sometimes better than knowledge?",
+  "Should we pursue dangerous knowledge?",
+  "Can history be objective or always biased?",
+  "Is mathematics discovered or invented?",
+  
+  // Economics & Resources
+  "Should water be privatized or a human right?",
+  "Can growth-based economies survive climate limits?",
+  "Is automation liberating or economically catastrophic?",
+  "Should inheritance be abolished?",
+  "Can currency exist without government?",
+  
+  // Relationships & Love
+  "Is monogamy natural or socially constructed?",
+  "Can robots provide genuine companionship?",
+  "Should we engineer better emotional bonds?",
+  "Is romantic love rational or purely chemical?",
+  "Can friendship be deeper than family?",
+  
+  // Power & Justice
+  "Is redemption possible for all crimes?",
+  "Should we punish potential future crimes?",
+  "Can the powerful ever truly be held accountable?",
+  "Is forgiveness weakness or strength?",
+  "Should vigilante justice ever be tolerated?",
+  
+  // Wild Cards
+  "Would first contact with aliens unite or divide us?",
+  "Is humor a universal language?",
+  "Should we simulate reality if we can?",
+  "Can art save the world?",
+  "Is boredom the greatest human threat?",
 ];
 
 const LiveChat = () => {
