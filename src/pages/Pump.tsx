@@ -24,14 +24,23 @@ const Pump = () => {
   const [selectedSim1, setSelectedSim1] = useState<string>("");
   const [selectedSim2, setSelectedSim2] = useState<string>("");
   const [topic, setTopic] = useState<string>("");
-  const [voterName, setVoterName] = useState<string>("");
+  const [mathAnswer, setMathAnswer] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [queueCount, setQueueCount] = useState(0);
+  const [mathQuestion, setMathQuestion] = useState({ num1: 0, num2: 0, answer: 0 });
 
   useEffect(() => {
     fetchSims();
     fetchQueueCount();
+    generateMathQuestion();
   }, []);
+
+  const generateMathQuestion = () => {
+    const num1 = Math.floor(Math.random() * 10) + 1;
+    const num2 = Math.floor(Math.random() * 10) + 1;
+    setMathQuestion({ num1, num2, answer: num1 + num2 });
+    setMathAnswer("");
+  };
 
   const fetchSims = async () => {
     const { data, error } = await supabase
@@ -79,6 +88,13 @@ const Pump = () => {
       return;
     }
 
+    // Verify math answer
+    if (parseInt(mathAnswer) !== mathQuestion.answer) {
+      toast.error("Incorrect answer to the math question");
+      generateMathQuestion(); // Generate new question
+      return;
+    }
+
     setIsSubmitting(true);
 
     const { error } = await supabase
@@ -87,7 +103,7 @@ const Pump = () => {
         sim1_id: selectedSim1,
         sim2_id: selectedSim2,
         topic: topic.trim(),
-        voter_name: voterName.trim() || null,
+        voter_name: null,
       });
 
     if (error) {
@@ -101,9 +117,10 @@ const Pump = () => {
     setSelectedSim1("");
     setSelectedSim2("");
     setTopic("");
-    setVoterName("");
+    setMathAnswer("");
     setIsSubmitting(false);
     fetchQueueCount();
+    generateMathQuestion();
   };
 
   return (
@@ -116,24 +133,23 @@ const Pump = () => {
           animate={{ opacity: 1, y: 0 }}
           className="space-y-6"
         >
-          {/* Header */}
-          <div className="text-center space-y-4">
-            <img 
-              src={debateIcon} 
-              alt="Debate" 
-              className="h-16 w-16 mx-auto"
-            />
-            <h1 className="text-4xl font-bold">Pump a Debate</h1>
-            <p className="text-muted-foreground text-lg">
-              Choose two sims and a topic - watch them debate live at /live
-            </p>
+          {/* Info Card */}
+          <Card className="p-6 bg-primary/5 border-primary/20">
+            <h3 className="font-semibold mb-2">How it works</h3>
+            <ul className="space-y-2 text-sm text-muted-foreground">
+              <li>• Choose two sims from our historical figures</li>
+              <li>• Pick any topic you want them to debate</li>
+              <li>• Solve a simple math question to prove you're human</li>
+              <li>• Your debate gets added to the queue</li>
+              <li>• Watch it happen live at /live</li>
+            </ul>
             {queueCount > 0 && (
-              <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 border border-primary/20 rounded-full">
+              <div className="flex items-center gap-2 mt-4 px-4 py-2 bg-background border border-primary/20 rounded-lg">
                 <Sparkles className="h-4 w-4 text-primary" />
                 <span className="text-sm font-medium">{queueCount} debates in queue</span>
               </div>
             )}
-          </div>
+          </Card>
 
           {/* Form */}
           <Card className="p-6">
@@ -220,15 +236,21 @@ const Pump = () => {
                 </p>
               </div>
 
-              {/* Optional Name */}
+              {/* Math Verification */}
               <div className="space-y-2">
-                <Label htmlFor="voterName">Your Name (Optional)</Label>
+                <Label htmlFor="mathAnswer">Verify you're human</Label>
+                <div className="flex items-center gap-3">
+                  <span className="text-lg font-medium">
+                    What is {mathQuestion.num1} + {mathQuestion.num2}?
+                  </span>
+                </div>
                 <Input
-                  id="voterName"
-                  value={voterName}
-                  onChange={(e) => setVoterName(e.target.value)}
-                  placeholder="Want credit for this debate?"
-                  maxLength={50}
+                  id="mathAnswer"
+                  type="number"
+                  value={mathAnswer}
+                  onChange={(e) => setMathAnswer(e.target.value)}
+                  placeholder="Enter your answer"
+                  required
                 />
               </div>
 
@@ -249,17 +271,6 @@ const Pump = () => {
                 )}
               </Button>
             </form>
-          </Card>
-
-          {/* Info Card */}
-          <Card className="p-6 bg-primary/5 border-primary/20">
-            <h3 className="font-semibold mb-2">How it works</h3>
-            <ul className="space-y-2 text-sm text-muted-foreground">
-              <li>• Choose two sims from our historical figures</li>
-              <li>• Pick any topic you want them to debate</li>
-              <li>• Your debate gets added to the queue</li>
-              <li>• Watch it happen live at /live</li>
-            </ul>
           </Card>
         </motion.div>
       </div>
