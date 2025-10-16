@@ -11,6 +11,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import debateIcon from "@/assets/debate-icon.png";
 import pumpLogo from "@/assets/pump-logo.png";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
 
 interface QueuedDebate {
   id: string;
@@ -104,6 +105,7 @@ const philosophicalQuestions = [
 
 const LiveChat = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [selectedSims, setSelectedSims] = useState<[AgentType | null, AgentType | null]>([null, null]);
   const [question, setQuestion] = useState<string>("");
   const [messages, setMessages] = useState<Message[]>([]);
@@ -120,6 +122,30 @@ const LiveChat = () => {
   const currentDebateIdRef = useRef<string>(Date.now().toString());
   const [currentQueueId, setCurrentQueueId] = useState<string | null>(null);
   const [upcomingDebates, setUpcomingDebates] = useState<QueuedDebate[]>([]);
+
+  const ADMIN_WALLET = "ArfuojkvAUXauU9wPTpRzGwyYjq6YeUtRNwUXT6PjnQ6";
+
+  // Check admin access
+  useEffect(() => {
+    const checkAccess = async () => {
+      if (!user) {
+        navigate("/pump");
+        return;
+      }
+
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("wallet_address")
+        .eq("id", user.id)
+        .single();
+
+      if (profile?.wallet_address !== ADMIN_WALLET) {
+        navigate("/pump");
+      }
+    };
+
+    checkAccess();
+  }, [user, navigate]);
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
