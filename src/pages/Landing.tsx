@@ -12,6 +12,8 @@ import phantomIcon from "@/assets/phantom-icon.png";
 import solflareIcon from "@/assets/solflare-icon.png";
 import { toast as sonnerToast } from "sonner";
 import bs58 from "bs58";
+import AuthModal from "@/components/AuthModal";
+import { LogIn } from "lucide-react";
 
 const Landing = () => {
   const navigate = useNavigate();
@@ -19,6 +21,7 @@ const Landing = () => {
   const [showBotCheck, setShowBotCheck] = useState(false);
   const [selectedSim, setSelectedSim] = useState<AgentType | null>(null);
   const [isLoading, setIsLoading] = useState<string | null>(null);
+  const [authModalOpen, setAuthModalOpen] = useState(false);
 
   // Fetch historical sims with full data
   const { data: historicalSims } = useQuery({
@@ -206,14 +209,15 @@ const Landing = () => {
               className="h-6 w-6 sm:h-8 sm:w-8 object-contain"
             />
           </div>
-          <button
-            onClick={copyCAToClipboard}
-            className="text-[8px] sm:text-[10px] md:text-xs font-mono bg-muted hover:bg-muted/80 px-1.5 sm:px-2 md:px-3 py-1 rounded-md text-fg transition-colors cursor-pointer truncate max-w-[140px] sm:max-w-none"
-            title="Click to copy contract address"
+          <Button
+            variant="default"
+            size="sm"
+            onClick={() => setAuthModalOpen(true)}
+            className="flex items-center gap-2"
           >
-            <span className="hidden sm:inline">FFqwoZ7phjoupWjLeE5yFeLqGi8jkGEFrTz6jnsUpump</span>
-            <span className="sm:hidden">FFqwoZ...nsUpump</span>
-          </button>
+            <LogIn className="h-4 w-4" />
+            <span className="hidden sm:inline">Sign In</span>
+          </Button>
         </div>
       </header>
 
@@ -322,6 +326,11 @@ const Landing = () => {
           onCancel={handleBotCheckCancel}
         />
       )}
+
+      <AuthModal 
+        open={authModalOpen} 
+        onOpenChange={setAuthModalOpen}
+      />
 
       <SimpleFooter />
     </div>
