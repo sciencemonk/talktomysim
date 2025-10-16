@@ -5,6 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
+import { FloatingChat } from "@/components/FloatingChat";
 
 // Pages
 import Index from "./pages/Index";
@@ -63,6 +64,7 @@ const App = () => (
             {/* Catch all - redirect to home */}
             <Route path="*" element={<NotFound />} />
           </Routes>
+          <FloatingChat />
         </BrowserRouter>
       </AuthProvider>
     </TooltipProvider>
