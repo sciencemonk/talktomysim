@@ -199,7 +199,7 @@ const SimConversations = () => {
                         </Avatar>
                         <div className="flex-1 min-w-0">
                           <CardTitle className="text-base truncate">
-                            {conversation.title || 'Untitled Conversation'}
+                            {conversation.advisor?.name || 'Unknown Sim'}
                           </CardTitle>
                           <CardDescription className="text-xs flex items-center gap-2 mt-1">
                             <Calendar className="h-3 w-3" />
@@ -240,7 +240,7 @@ const SimConversations = () => {
                   </Avatar>
                 )}
                 <div>
-                  <div>{selectedConversation?.title || 'Untitled Conversation'}</div>
+                  <div>{selectedConversation?.advisor?.name || 'Unknown Sim'}</div>
                   {selectedConversation && (
                     <p className="text-xs text-muted-foreground font-normal">
                       {formatDistanceToNow(new Date(selectedConversation.updated_at), {
