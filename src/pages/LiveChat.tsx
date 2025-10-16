@@ -858,14 +858,13 @@ Keep it SHORT - 1-2 sentences max. This is LIVE TV. Jump straight to your respon
                   ) : (
                     upcomingDebates.map((debate, index) => (
                       <Card key={debate.id} className="p-2 bg-muted/50">
-                        <div className="flex items-center gap-1.5 mb-1.5">
-                          <Badge variant="outline" className="text-[10px] px-1.5 py-0">{index + 1}</Badge>
-                          {debate.voter_name && (
+                        {debate.voter_name && (
+                          <div className="mb-1.5">
                             <span className="text-[10px] text-muted-foreground truncate">
                               by {debate.voter_name}
                             </span>
-                          )}
-                        </div>
+                          </div>
+                        )}
                         <p className="text-xs font-medium mb-2 line-clamp-2">{debate.topic}</p>
                         <div className="flex items-center justify-between gap-2 text-[10px]">
                           <div className="flex items-center gap-1 min-w-0">
