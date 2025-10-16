@@ -105,7 +105,7 @@ const philosophicalQuestions = [
 
 const LiveChat = () => {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const [selectedSims, setSelectedSims] = useState<[AgentType | null, AgentType | null]>([null, null]);
   const [question, setQuestion] = useState<string>("");
   const [messages, setMessages] = useState<Message[]>([]);
@@ -128,6 +128,9 @@ const LiveChat = () => {
   // Check admin access
   useEffect(() => {
     const checkAccess = async () => {
+      // Don't check while auth is loading
+      if (loading) return;
+      
       if (!user) {
         navigate("/pump");
         return;
@@ -145,7 +148,7 @@ const LiveChat = () => {
     };
 
     checkAccess();
-  }, [user, navigate]);
+  }, [user, loading, navigate]);
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
