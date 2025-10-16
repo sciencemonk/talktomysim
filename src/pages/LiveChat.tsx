@@ -5,10 +5,19 @@ import SimpleFooter from "@/components/SimpleFooter";
 import { AgentType } from "@/types/agent";
 import { Card } from "@/components/ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { Loader2, Sparkles, MessageCircle, RefreshCw } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Loader2, Sparkles, MessageCircle, RefreshCw, Clock, Users } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import debateIcon from "@/assets/debate-icon.png";
 import { useNavigate } from "react-router-dom";
+
+interface QueuedDebate {
+  id: string;
+  topic: string;
+  voter_name: string | null;
+  sim1: { name: string; avatar_url: string | null };
+  sim2: { name: string; avatar_url: string | null };
+}
 
 interface Message {
   id: string;
@@ -109,11 +118,38 @@ const LiveChat = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const currentDebateIdRef = useRef<string>(Date.now().toString());
   const [currentQueueId, setCurrentQueueId] = useState<string | null>(null);
+  const [upcomingDebates, setUpcomingDebates] = useState<QueuedDebate[]>([]);
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
+
+  // Fetch upcoming debates from queue
+  useEffect(() => {
+    const fetchQueue = async () => {
+      const { data, error } = await supabase
+        .from("debate_queue")
+        .select(`
+          id,
+          topic,
+          voter_name,
+          sim1:advisors!debate_queue_sim1_id_fkey(name, avatar_url),
+          sim2:advisors!debate_queue_sim2_id_fkey(name, avatar_url)
+        `)
+        .eq("status", "pending")
+        .order("created_at", { ascending: true })
+        .limit(5);
+
+      if (!error && data) {
+        setUpcomingDebates(data as any);
+      }
+    };
+
+    fetchQueue();
+    const interval = setInterval(fetchQueue, 5000); // Refresh every 5 seconds
+    return () => clearInterval(interval);
+  }, []);
 
   // Fetch verified historical sims for debate
   useEffect(() => {
@@ -514,28 +550,54 @@ Keep it SHORT - 1-2 sentences max. This is LIVE TV. Jump straight to your respon
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
       <TopNavigation />
 
-      {/* Fixed Header Section */}
-      <div className="sticky top-0 z-10 bg-background border-b border-border">
-        <div className="container mx-auto px-3 sm:px-4 py-3 sm:py-4 max-w-6xl">
-          {/* Timer and Question - Compact */}
-          <div className="mb-3 sm:mb-4 space-y-3">
+      {/* Stream Layout */}
+      <div className="container mx-auto px-4 py-4 max-w-7xl">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
+          
+          {/* Main Content - Takes 3 columns on large screens */}
+          <div className="lg:col-span-3 space-y-4">
+            
+            {/* Live Badge & Timer */}
             {isDebating && (
-              <div className="text-center">
-                <div className="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-card border border-border rounded-full">
-                  <Sparkles className="h-3 w-3 sm:h-4 sm:w-4 text-primary animate-pulse flex-shrink-0" />
-                  <span className="font-mono text-sm sm:text-base md:text-lg font-bold whitespace-nowrap">{formatTime(timeRemaining)} until next topic</span>
+              <motion.div 
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="flex items-center justify-between gap-4 p-4 bg-gradient-to-r from-red-500/20 via-red-500/10 to-transparent border border-red-500/30 rounded-lg"
+              >
+                <div className="flex items-center gap-3">
+                  <motion.div
+                    animate={{ scale: [1, 1.2, 1] }}
+                    transition={{ duration: 2, repeat: Infinity }}
+                    className="w-3 h-3 bg-red-500 rounded-full"
+                  />
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <Badge variant="destructive" className="text-sm font-bold">LIVE</Badge>
+                      <span className="text-lg font-bold">Debate in Progress</span>
+                    </div>
+                    <p className="text-sm text-muted-foreground">Streaming now</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-4">
+                  <div className="text-right">
+                    <div className="flex items-center gap-2 justify-end">
+                      <Clock className="h-4 w-4 text-muted-foreground" />
+                      <span className="font-mono text-2xl font-bold">{formatTime(timeRemaining)}</span>
+                    </div>
+                    <p className="text-xs text-muted-foreground">until next debate</p>
+                  </div>
                   <button
                     onClick={() => window.location.reload()}
-                    className="ml-1 sm:ml-2 p-1 sm:p-1.5 bg-primary text-primary-foreground rounded-full hover:bg-primary/90 transition-colors flex-shrink-0"
-                    aria-label="Refresh debate"
+                    className="p-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
+                    aria-label="Skip to next"
                   >
-                    <RefreshCw className="h-3 w-3 sm:h-4 sm:w-4" />
+                    <RefreshCw className="h-5 w-5" />
                   </button>
                 </div>
-              </div>
+              </motion.div>
             )}
 
             {/* Selection Animation - Full Page Grid */}
@@ -654,154 +716,230 @@ Keep it SHORT - 1-2 sentences max. This is LIVE TV. Jump straight to your respon
               )}
             </AnimatePresence>
 
-            {/* Question Card with Debaters on Either Side */}
+            {/* Debaters and Topic Card */}
             {!isSelecting && question && selectedSims[0] && selectedSims[1] && (
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-                <Card className="p-3 sm:p-4 bg-gradient-to-r from-primary/10 to-primary/5 border-primary/20">
-                  {/* Mobile Layout: Stacked */}
-                  <div className="md:hidden space-y-3">
-                    {/* Question First on Mobile */}
-                    <div className="text-center">
-                      <div className="flex items-center justify-center gap-2 mb-2">
-                        <MessageCircle className="h-3 w-3 text-primary flex-shrink-0" />
-                        <h3 className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">
-                          Today&apos;s Question
-                        </h3>
-                      </div>
-                      <p className="text-base font-bold leading-tight">{question}</p>
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.95 }} 
+                animate={{ opacity: 1, scale: 1 }}
+                className="relative overflow-hidden"
+              >
+                <Card className="p-6 bg-gradient-to-br from-primary/15 via-primary/5 to-background border-2 border-primary/30">
+                  {/* Topic */}
+                  <div className="mb-6 text-center">
+                    <div className="flex items-center justify-center gap-2 mb-3">
+                      <MessageCircle className="h-5 w-5 text-primary" />
+                      <h3 className="text-sm font-bold text-muted-foreground uppercase tracking-wider">
+                        Debate Topic
+                      </h3>
                     </div>
-                    
-                    {/* Debaters Below on Mobile */}
-                    <div className="flex items-center justify-between gap-3">
-                      <div className="flex items-center gap-2 flex-1 min-w-0">
-                        <Avatar className="h-10 w-10 border-2 border-primary/20 flex-shrink-0">
-                          <AvatarImage src={selectedSims[0].avatar} alt={selectedSims[0].name} />
-                          <AvatarFallback className="text-sm">{selectedSims[0].name[0]}</AvatarFallback>
-                        </Avatar>
-                        <div className="text-left min-w-0">
-                          <h3 className="text-xs font-bold truncate">{selectedSims[0].name}</h3>
-                          <p className="text-[10px] text-muted-foreground truncate">{selectedSims[0].description.split(',')[0]}</p>
-                        </div>
-                      </div>
-                      
-                      <div className="flex items-center gap-2 flex-1 min-w-0 justify-end">
-                        <div className="text-right min-w-0">
-                          <h3 className="text-xs font-bold truncate">{selectedSims[1].name}</h3>
-                          <p className="text-[10px] text-muted-foreground truncate">{selectedSims[1].description.split(',')[0]}</p>
-                        </div>
-                        <Avatar className="h-10 w-10 border-2 border-primary/20 flex-shrink-0">
-                          <AvatarImage src={selectedSims[1].avatar} alt={selectedSims[1].name} />
-                          <AvatarFallback className="text-sm">{selectedSims[1].name[0]}</AvatarFallback>
-                        </Avatar>
-                      </div>
-                    </div>
+                    <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold leading-tight px-4">
+                      {question}
+                    </h2>
                   </div>
                   
-                  {/* Desktop Layout: Original Horizontal */}
-                  <div className="hidden md:flex items-center justify-between gap-4">
-                    {/* Left Debater */}
-                    <div className="flex items-center gap-3 flex-shrink-0">
-                      <Avatar className="h-12 w-12 md:h-14 md:w-14 border-2 border-primary/20">
+                  {/* VS Section */}
+                  <div className="flex items-center justify-center gap-8">
+                    {/* Sim 1 */}
+                    <motion.div 
+                      initial={{ x: -20, opacity: 0 }}
+                      animate={{ x: 0, opacity: 1 }}
+                      className="flex flex-col items-center gap-3"
+                    >
+                      <Avatar className="h-20 w-20 md:h-24 md:w-24 lg:h-32 lg:w-32 border-4 border-primary/40 ring-4 ring-primary/20">
                         <AvatarImage src={selectedSims[0].avatar} alt={selectedSims[0].name} />
-                        <AvatarFallback className="text-lg">{selectedSims[0].name[0]}</AvatarFallback>
+                        <AvatarFallback className="text-2xl">{selectedSims[0].name[0]}</AvatarFallback>
                       </Avatar>
-                      <div className="text-left">
-                        <h3 className="text-sm md:text-base font-bold">{selectedSims[0].name}</h3>
-                        <p className="text-xs text-muted-foreground">{selectedSims[0].description.split(',')[0]}</p>
+                      <div className="text-center">
+                        <h3 className="text-lg md:text-xl font-bold">{selectedSims[0].name}</h3>
+                        <p className="text-sm text-muted-foreground">{selectedSims[0].description?.split(',')[0]}</p>
                       </div>
-                    </div>
+                    </motion.div>
 
-                    {/* Question in Center */}
-                    <div className="flex-1 text-center px-4">
-                      <div className="flex items-center justify-center gap-2 mb-1">
-                        <MessageCircle className="h-4 w-4 text-primary" />
-                        <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-                          Today&apos;s Question
-                        </h3>
-                      </div>
-                      <p className="text-lg md:text-xl font-bold">{question}</p>
-                    </div>
+                    {/* VS Badge */}
+                    <motion.div
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      transition={{ delay: 0.2, type: "spring" }}
+                    >
+                      <Badge variant="destructive" className="text-2xl md:text-3xl px-6 py-2 font-black">
+                        VS
+                      </Badge>
+                    </motion.div>
 
-                    {/* Right Debater */}
-                    <div className="flex items-center gap-3 flex-shrink-0">
-                      <div className="text-right">
-                        <h3 className="text-sm md:text-base font-bold">{selectedSims[1].name}</h3>
-                        <p className="text-xs text-muted-foreground">{selectedSims[1].description.split(',')[0]}</p>
-                      </div>
-                      <Avatar className="h-12 w-12 md:h-14 md:w-14 border-2 border-primary/20">
+                    {/* Sim 2 */}
+                    <motion.div 
+                      initial={{ x: 20, opacity: 0 }}
+                      animate={{ x: 0, opacity: 1 }}
+                      className="flex flex-col items-center gap-3"
+                    >
+                      <Avatar className="h-20 w-20 md:h-24 md:w-24 lg:h-32 lg:w-32 border-4 border-primary/40 ring-4 ring-primary/20">
                         <AvatarImage src={selectedSims[1].avatar} alt={selectedSims[1].name} />
-                        <AvatarFallback className="text-lg">{selectedSims[1].name[0]}</AvatarFallback>
+                        <AvatarFallback className="text-2xl">{selectedSims[1].name[0]}</AvatarFallback>
                       </Avatar>
-                    </div>
+                      <div className="text-center">
+                        <h3 className="text-lg md:text-xl font-bold">{selectedSims[1].name}</h3>
+                        <p className="text-sm text-muted-foreground">{selectedSims[1].description?.split(',')[0]}</p>
+                      </div>
+                    </motion.div>
                   </div>
                 </Card>
               </motion.div>
             )}
-          </div>
-        </div>
-      </div>
 
-      {/* Scrollable Chat Section */}
-      <div className="flex-1 overflow-y-auto">
-        <div className="container mx-auto px-3 sm:px-4 py-3 sm:py-4 max-w-6xl">
-          <div className="space-y-2 sm:space-y-3">
-            <AnimatePresence>
-              {messages.map((message) => (
-                <motion.div
-                  key={message.id}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.2 }}
+            {/* Messages */}
+            <div className="space-y-3">
+              <AnimatePresence>
+                {messages.map((message) => (
+                  <motion.div
+                    key={message.id}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <Card className="p-5 bg-card/80 backdrop-blur hover:bg-card/90 transition-colors">
+                      <div className="flex items-start gap-4">
+                        <Avatar className="h-12 w-12 md:h-14 md:w-14 border-2 border-primary/40 flex-shrink-0">
+                          <AvatarImage src={message.simAvatar} alt={message.simName} />
+                          <AvatarFallback className="text-lg">{message.simName[0]}</AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-3 mb-2">
+                            <h4 className="font-bold text-base md:text-lg">{message.simName}</h4>
+                            <span className="text-xs text-muted-foreground">
+                              {message.timestamp.toLocaleTimeString()}
+                            </span>
+                          </div>
+                          <p className="text-lg md:text-xl lg:text-2xl leading-relaxed font-medium">
+                            {message.content}
+                          </p>
+                        </div>
+                      </div>
+                    </Card>
+                  </motion.div>
+                ))}
+
+                {/* Typing Indicator */}
+                {typingIndicator && (
+                  <motion.div 
+                    initial={{ opacity: 0, scale: 0.95 }} 
+                    animate={{ opacity: 1, scale: 1 }} 
+                    exit={{ opacity: 0, scale: 0.95 }}
+                  >
+                    <Card className="p-5 bg-muted/50 border-primary/20">
+                      <div className="flex items-center gap-4">
+                        <Avatar className="h-12 w-12 md:h-14 md:w-14 border-2 border-primary/40 flex-shrink-0">
+                          <AvatarImage
+                            src={selectedSims.find((s) => s?.name === typingIndicator)?.avatar}
+                            alt={typingIndicator}
+                          />
+                          <AvatarFallback className="text-lg">{typingIndicator[0]}</AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <h4 className="font-bold text-base mb-1">{typingIndicator}</h4>
+                          <motion.p 
+                            className="text-sm text-muted-foreground flex items-center gap-2"
+                            animate={{ opacity: [0.5, 1, 0.5] }}
+                            transition={{ duration: 1.5, repeat: Infinity }}
+                          >
+                            <span className="inline-flex gap-1">
+                              <span>thinking</span>
+                              <span>.</span>
+                              <span>.</span>
+                              <span>.</span>
+                            </span>
+                          </motion.p>
+                        </div>
+                      </div>
+                    </Card>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+              <div ref={messagesEndRef} />
+            </div>
+          </div>
+
+          {/* Sidebar - Queue */}
+          <div className="lg:col-span-1 space-y-4">
+            <Card className="p-4 bg-card/80 backdrop-blur sticky top-4">
+              <div className="flex items-center gap-2 mb-4">
+                <Users className="h-5 w-5 text-primary" />
+                <h3 className="font-bold text-lg">Up Next</h3>
+                <Badge variant="secondary" className="ml-auto">{upcomingDebates.length}</Badge>
+              </div>
+
+              <div className="space-y-3">
+                {upcomingDebates.length === 0 ? (
+                  <div className="text-center py-8 text-muted-foreground">
+                    <MessageCircle className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                    <p className="text-sm">No debates queued</p>
+                    <button
+                      onClick={() => navigate('/pump')}
+                      className="mt-3 text-xs text-primary hover:underline"
+                    >
+                      Submit a debate →
+                    </button>
+                  </div>
+                ) : (
+                  upcomingDebates.map((debate, index) => (
+                    <motion.div
+                      key={debate.id}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: index * 0.1 }}
+                    >
+                      <Card className="p-3 bg-muted/50 hover:bg-muted/70 transition-colors">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Badge variant="outline" className="text-xs">{index + 1}</Badge>
+                          {debate.voter_name && (
+                            <span className="text-xs text-muted-foreground truncate">
+                              by {debate.voter_name}
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-sm font-medium mb-3 line-clamp-2">{debate.topic}</p>
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="flex items-center gap-1">
+                            <Avatar className="h-6 w-6 border border-primary/30">
+                              <AvatarImage src={debate.sim1.avatar_url || ""} />
+                              <AvatarFallback className="text-[10px]">
+                                {debate.sim1.name[0]}
+                              </AvatarFallback>
+                            </Avatar>
+                            <span className="text-xs font-medium truncate max-w-[60px]">
+                              {debate.sim1.name}
+                            </span>
+                          </div>
+                          <span className="text-xs text-muted-foreground">vs</span>
+                          <div className="flex items-center gap-1">
+                            <span className="text-xs font-medium truncate max-w-[60px]">
+                              {debate.sim2.name}
+                            </span>
+                            <Avatar className="h-6 w-6 border border-primary/30">
+                              <AvatarImage src={debate.sim2.avatar_url || ""} />
+                              <AvatarFallback className="text-[10px]">
+                                {debate.sim2.name[0]}
+                              </AvatarFallback>
+                            </Avatar>
+                          </div>
+                        </div>
+                      </Card>
+                    </motion.div>
+                  ))
+                )}
+              </div>
+
+              {upcomingDebates.length > 0 && (
+                <button
+                  onClick={() => navigate('/pump')}
+                  className="w-full mt-4 py-2 px-4 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors text-sm font-medium"
                 >
-                  <Card className="p-3 sm:p-4">
-                    <div className="flex items-start gap-2 sm:gap-3">
-                      <Avatar className="h-8 w-8 sm:h-10 sm:w-10 border-2 border-primary/30 flex-shrink-0">
-                        <AvatarImage src={message.simAvatar} alt={message.simName} />
-                        <AvatarFallback className="text-xs sm:text-sm">{message.simName[0]}</AvatarFallback>
-                      </Avatar>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-1.5 sm:gap-2 mb-1">
-                          <h4 className="font-bold text-xs sm:text-sm truncate">{message.simName}</h4>
-                          <span className="text-[10px] sm:text-xs text-muted-foreground whitespace-nowrap">
-                            {message.timestamp.toLocaleTimeString()}
-                          </span>
-                        </div>
-                        <p className="text-sm sm:text-base md:text-lg text-foreground leading-relaxed font-medium">{message.content}</p>
-                      </div>
-                    </div>
-                  </Card>
-                </motion.div>
-              ))}
-
-              {/* Typing Indicator */}
-              {typingIndicator && (
-                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
-                  <Card className="p-3 sm:p-4 bg-muted/50">
-                    <div className="flex items-start gap-2 sm:gap-3">
-                      <Avatar className="h-8 w-8 sm:h-10 sm:w-10 border-2 border-primary/30 flex-shrink-0">
-                        <AvatarImage
-                          src={selectedSims.find((s) => s?.name === typingIndicator)?.avatar}
-                          alt={typingIndicator}
-                        />
-                        <AvatarFallback className="text-xs sm:text-sm">{typingIndicator[0]}</AvatarFallback>
-                      </Avatar>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-1">
-                          <h4 className="font-bold text-xs sm:text-sm truncate">{typingIndicator}</h4>
-                        </div>
-                        <p className="text-xs sm:text-sm text-muted-foreground italic">is typing...</p>
-                      </div>
-                    </div>
-                  </Card>
-                </motion.div>
+                  Add Your Debate
+                </button>
               )}
-            </AnimatePresence>
-            <div ref={messagesEndRef} />
+            </Card>
           </div>
         </div>
       </div>
-
-      <SimpleFooter />
     </div>
   );
 };
