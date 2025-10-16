@@ -168,8 +168,7 @@ const LiveChat = () => {
           sim2:advisors!debate_queue_sim2_id_fkey(name, avatar_url)
         `)
         .eq("status", "pending")
-        .order("created_at", { ascending: true })
-        .limit(5);
+        .order("created_at", { ascending: true });
 
       if (!error && data) {
         setUpcomingDebates(data as any);
