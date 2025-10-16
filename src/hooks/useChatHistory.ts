@@ -28,18 +28,20 @@ export const useChatHistory = (agent: AgentType) => {
         // Check if user is authenticated
         const { data: { user } } = await supabase.auth.getUser();
         
+        // Create or get conversation for both authenticated and anonymous users
+        const conversation = await conversationService.getOrCreateConversation(agent.id);
+        if (!conversation) {
+          console.error('Failed to get or create conversation');
+          setIsLoading(false);
+          return;
+        }
+
+        setConversationId(conversation.id);
+        console.log('Conversation initialized:', conversation.id, 'User:', user ? 'authenticated' : 'anonymous');
+
+        // Load existing messages only for authenticated users
+        // Anonymous users always start fresh
         if (user) {
-          // For authenticated users, use the database
-          const conversation = await conversationService.getOrCreateConversation(agent.id);
-          if (!conversation) {
-            console.error('Failed to get or create conversation');
-            setIsLoading(false);
-            return;
-          }
-
-          setConversationId(conversation.id);
-
-          // Load existing messages
           const existingMessages = await conversationService.getMessages(conversation.id);
           
           const chatMessages: ChatMessage[] = existingMessages.map((msg: Message) => ({
@@ -52,10 +54,8 @@ export const useChatHistory = (agent: AgentType) => {
           setMessages(chatMessages);
           console.log(`Loaded ${chatMessages.length} messages for ${agent.name}:`, chatMessages);
         } else {
-          // For unauthenticated users, start with empty messages
-          console.log('User not authenticated, starting with empty chat');
+          console.log('Anonymous user - starting with empty chat');
           setMessages([]);
-          setConversationId(null);
         }
       } catch (error) {
         console.error('Error loading chat history:', error);
@@ -84,7 +84,7 @@ export const useChatHistory = (agent: AgentType) => {
 
     setMessages(prev => [...prev, tempMessage]);
 
-    // Only save to database if user is authenticated and we have a conversation
+    // Save to database whether authenticated or anonymous
     if (conversationId) {
       const savedMessage = await conversationService.addMessage(conversationId, 'user', content);
       if (savedMessage) {
@@ -135,7 +135,7 @@ export const useChatHistory = (agent: AgentType) => {
 
       console.log('Completing AI message:', currentMessage.content);
 
-      // Only save to database if user is authenticated and we have a conversation
+      // Save to database whether authenticated or anonymous
       if (conversationId) {
         // Save to database in the background
         conversationService.addMessage(

@@ -1,6 +1,8 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { AgentType } from '@/types/agent';
+import { conversationService } from '@/services/conversationService';
+import { supabase } from '@/integrations/supabase/client';
 
 interface Message {
   id: string;
@@ -20,6 +22,7 @@ export const useRealtimeChat = ({ agent }: UseRealtimeChatProps) => {
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [connectionStatus, setConnectionStatus] = useState<string>('disconnected');
   const [currentMessage, setCurrentMessage] = useState<string>('');
+  const [conversationId, setConversationId] = useState<string | null>(null);
   
   const wsRef = useRef<WebSocket | null>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
@@ -187,6 +190,12 @@ export const useRealtimeChat = ({ agent }: UseRealtimeChatProps) => {
                 isComplete: true
               };
               setMessages(prev => [...prev, newMessage]);
+              
+              // Save assistant message to database
+              if (conversationId) {
+                conversationService.addMessage(conversationId, 'system', currentMessage);
+              }
+              
               setCurrentMessage('');
             }
             break;
@@ -242,7 +251,7 @@ export const useRealtimeChat = ({ agent }: UseRealtimeChatProps) => {
     }
   }, [agent, currentMessage, playAudioData]);
 
-  const sendTextMessage = useCallback((text: string) => {
+  const sendTextMessage = useCallback(async (text: string) => {
     if (!wsRef.current || !isConnected) return;
 
     const userMessage: Message = {
@@ -254,6 +263,11 @@ export const useRealtimeChat = ({ agent }: UseRealtimeChatProps) => {
     };
 
     setMessages(prev => [...prev, userMessage]);
+    
+    // Save user message to database
+    if (conversationId) {
+      await conversationService.addMessage(conversationId, 'user', text);
+    }
 
     const event = {
       type: 'conversation.item.create',
@@ -269,9 +283,20 @@ export const useRealtimeChat = ({ agent }: UseRealtimeChatProps) => {
 
     wsRef.current.send(JSON.stringify(event));
     wsRef.current.send(JSON.stringify({ type: 'response.create' }));
-  }, [isConnected]);
+  }, [isConnected, conversationId]);
 
   useEffect(() => {
+    const initializeConversation = async () => {
+      if (agent?.id) {
+        const conversation = await conversationService.getOrCreateConversation(agent.id);
+        if (conversation) {
+          setConversationId(conversation.id);
+          console.log('Conversation initialized:', conversation.id);
+        }
+      }
+    };
+    
+    initializeConversation();
     initializeAudioContext();
     connectWebSocket();
 
@@ -283,7 +308,7 @@ export const useRealtimeChat = ({ agent }: UseRealtimeChatProps) => {
         audioContextRef.current.close();
       }
     };
-  }, [connectWebSocket, initializeAudioContext]);
+  }, [connectWebSocket, initializeAudioContext, agent]);
 
   return {
     messages,
