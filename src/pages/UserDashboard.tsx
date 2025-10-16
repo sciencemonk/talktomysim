@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useEffect, useState, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, Upload, X, Eye, Copy, ExternalLink } from "lucide-react";
+import { Loader2, Upload, X, Eye, Copy, ExternalLink, MessageCircle } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import AuthModal from "@/components/AuthModal";
@@ -481,6 +481,15 @@ Stay true to the tone, values, and personality of [Name].`,
                       >
                         <ExternalLink className="h-4 w-4" />
                         <span className="sm:inline">Preview</span>
+                      </Button>
+                      <Button 
+                        size="sm"
+                        variant="secondary"
+                        onClick={() => navigate('/sim-conversations')}
+                        className="gap-2 flex-1 sm:flex-none"
+                      >
+                        <MessageCircle className="h-4 w-4" />
+                        <span className="sm:inline">Conversations</span>
                       </Button>
                     </div>
                   </div>
