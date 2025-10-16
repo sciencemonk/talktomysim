@@ -40,12 +40,12 @@ const TopNavigation = () => {
   };
 
   return (
-    <nav className="bg-card border-b border-border px-4 py-4">
-      <div className="flex items-center justify-between">
+    <nav className="bg-card border-b border-border px-3 py-2 sm:px-4 sm:py-4">
+      <div className="flex items-center justify-between gap-2">
         {/* Logo - clickable to home */}
         <button 
           onClick={() => navigate('/')}
-          className="flex items-center hover:opacity-80 transition-opacity"
+          className="flex items-center hover:opacity-80 transition-opacity flex-shrink-0"
         >
           <img 
             src="/lovable-uploads/d1283b59-7cfa-45f5-b151-4c32b24f3621.png" 
@@ -56,12 +56,13 @@ const TopNavigation = () => {
 
         {/* Navigation items (when signed in) */}
         {user && (
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-0.5 sm:gap-2">
             <Button
               variant="ghost"
               size="icon"
               onClick={() => navigate('/dashboard')}
               title="Home"
+              className="h-8 w-8 sm:h-10 sm:w-10"
             >
               <Home className="h-4 w-4" />
             </Button>
@@ -70,6 +71,7 @@ const TopNavigation = () => {
               size="icon"
               onClick={() => navigate('/sim-directory')}
               title="Directory"
+              className="h-8 w-8 sm:h-10 sm:w-10"
             >
               <Folder className="h-4 w-4" />
             </Button>
@@ -78,6 +80,7 @@ const TopNavigation = () => {
               size="icon"
               onClick={() => navigate('/live')}
               title="Live"
+              className="h-8 w-8 sm:h-10 sm:w-10"
             >
               <Radio className="h-4 w-4" />
             </Button>
@@ -91,6 +94,7 @@ const TopNavigation = () => {
             size="icon"
             onClick={handleSignOut}
             title="Sign out"
+            className="h-8 w-8 sm:h-10 sm:w-10 flex-shrink-0"
           >
             <LogOut className="h-4 w-4" />
           </Button>
@@ -99,7 +103,7 @@ const TopNavigation = () => {
             variant="default"
             size="sm"
             onClick={() => setAuthModalOpen(true)}
-            className="flex items-center gap-2"
+            className="flex items-center gap-2 h-8 sm:h-10 flex-shrink-0"
           >
             <LogIn className="h-4 w-4" />
             <span className="hidden sm:inline">Sign In</span>
