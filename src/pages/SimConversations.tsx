@@ -158,13 +158,6 @@ const SimConversations = () => {
     <div className="min-h-screen bg-background flex flex-col">
       <TopNavigation />
       <div className="container mx-auto py-8 px-4 flex-1">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold mb-2">Sim Conversations</h1>
-          <p className="text-muted-foreground">
-            See what people are talking about with your sim
-          </p>
-        </div>
-
         {conversations.length === 0 ? (
           <Card>
             <CardContent className="flex flex-col items-center justify-center py-16">
