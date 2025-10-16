@@ -53,6 +53,7 @@ export interface AgentType {
   voiceTraits?: VoiceTrait[];
   is_featured?: boolean; // Add the missing is_featured property
   sim_type?: 'historical' | 'living'; // Add sim_type for filtering
+  custom_url?: string; // Add custom_url for living sims
 }
 
 export interface PublicAgentType {

@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/sheet";
 import { AgentType } from "@/types/agent";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useNavigate } from "react-router-dom";
 
 interface AdvisorDirectoryProps {
   onSelectAdvisor: (advisorId: string, advisor?: AgentType) => void;
@@ -38,8 +39,16 @@ const AdvisorDirectory = ({ onSelectAdvisor, onAuthRequired }: AdvisorDirectoryP
   const { agents: allAdvisors, isLoading: isLoadingAll } = useAllAdvisors();
   const { advisorsAsAgents, removeAdvisor } = useUserAdvisors();
   const isMobile = useIsMobile();
+  const navigate = useNavigate();
 
   const handleAdvisorClick = (advisor: AgentType) => {
+    // If it's a living sim with a custom_url, navigate to their landing page
+    if (advisor.sim_type === 'living' && advisor.custom_url) {
+      navigate(`/sim/${advisor.custom_url}`);
+      return;
+    }
+    
+    // Otherwise, show bot check and open chat
     setSelectedAdvisor(advisor);
     setShowBotCheck(true);
   };
