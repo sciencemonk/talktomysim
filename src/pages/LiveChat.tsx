@@ -597,11 +597,51 @@ Keep it SHORT - 1-2 sentences max. This is LIVE TV. Jump straight to your respon
 
       {/* Main Content Area - Fixed Height */}
       <div className="flex-1 overflow-hidden">
-        <div className="container mx-auto px-4 py-2 h-full">
-          <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-4 h-full">
+        <div className="container mx-auto px-4 py-3 h-full">
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-4 h-full">
             
-            {/* Main Content */}
-            <div className="flex flex-col h-full gap-2">
+            {/* Left Column - Debate */}
+            <div className="flex flex-col h-full">
+              {/* Fixed Debate Header - Topic and Sims */}
+              {!isSelecting && question && selectedSims[0] && selectedSims[1] && (
+                <div className="flex-shrink-0 mb-3">
+                  <Card className="p-4 bg-gradient-to-br from-primary/15 via-primary/5 to-background border border-primary/30">
+                    {/* Topic */}
+                    <div className="text-center mb-4">
+                      <h2 className="text-lg md:text-xl font-bold leading-tight">{question}</h2>
+                    </div>
+                    
+                    {/* Two Sims */}
+                    <div className="flex items-center justify-center gap-8">
+                      {/* Sim 1 */}
+                      <div className="flex flex-col items-center gap-2">
+                        <Avatar className="h-16 w-16 border-2 border-primary/40">
+                          <AvatarImage src={selectedSims[0].avatar} alt={selectedSims[0].name} />
+                          <AvatarFallback className="text-lg">{selectedSims[0].name[0]}</AvatarFallback>
+                        </Avatar>
+                        <div className="text-center">
+                          <h3 className="text-sm font-bold">{selectedSims[0].name}</h3>
+                          <p className="text-xs text-muted-foreground">{selectedSims[0].description?.split(',')[0]}</p>
+                        </div>
+                      </div>
+
+                      <div className="text-2xl font-bold text-muted-foreground">VS</div>
+
+                      {/* Sim 2 */}
+                      <div className="flex flex-col items-center gap-2">
+                        <Avatar className="h-16 w-16 border-2 border-primary/40">
+                          <AvatarImage src={selectedSims[1].avatar} alt={selectedSims[1].name} />
+                          <AvatarFallback className="text-lg">{selectedSims[1].name[0]}</AvatarFallback>
+                        </Avatar>
+                        <div className="text-center">
+                          <h3 className="text-sm font-bold">{selectedSims[1].name}</h3>
+                          <p className="text-xs text-muted-foreground">{selectedSims[1].description?.split(',')[0]}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </Card>
+                </div>
+              )}
               
               {/* Selection Animation - Full Page Grid */}
               <AnimatePresence mode="wait">
@@ -719,46 +759,7 @@ Keep it SHORT - 1-2 sentences max. This is LIVE TV. Jump straight to your respon
               )}
             </AnimatePresence>
 
-            {/* Compact Debate Header */}
-            {!isSelecting && question && selectedSims[0] && selectedSims[1] && (
-              <motion.div 
-                initial={{ opacity: 0, scale: 0.95 }} 
-                animate={{ opacity: 1, scale: 1 }}
-              >
-                <Card className="p-2 bg-gradient-to-br from-primary/15 via-primary/5 to-background border border-primary/30 flex-shrink-0">
-                  <div className="flex items-center justify-between gap-3">
-                    {/* Sim 1 */}
-                    <div className="flex items-center gap-2 min-w-0">
-                      <Avatar className="h-10 w-10 border-2 border-primary/40 flex-shrink-0">
-                        <AvatarImage src={selectedSims[0].avatar} alt={selectedSims[0].name} />
-                        <AvatarFallback className="text-xs">{selectedSims[0].name[0]}</AvatarFallback>
-                      </Avatar>
-                      <div className="min-w-0">
-                        <h3 className="text-xs font-bold truncate">{selectedSims[0].name}</h3>
-                      </div>
-                    </div>
-
-                    {/* Topic */}
-                    <div className="flex-1 text-center px-2 min-w-0">
-                      <p className="text-sm md:text-base font-bold leading-tight line-clamp-2">{question}</p>
-                    </div>
-
-                    {/* Sim 2 */}
-                    <div className="flex items-center gap-2 min-w-0">
-                      <div className="text-right min-w-0">
-                        <h3 className="text-xs font-bold truncate">{selectedSims[1].name}</h3>
-                      </div>
-                      <Avatar className="h-10 w-10 border-2 border-primary/40 flex-shrink-0">
-                        <AvatarImage src={selectedSims[1].avatar} alt={selectedSims[1].name} />
-                        <AvatarFallback className="text-xs">{selectedSims[1].name[0]}</AvatarFallback>
-                      </Avatar>
-                    </div>
-                  </div>
-                </Card>
-              </motion.div>
-            )}
-
-            {/* Messages - Scrollable */}
+              {/* Scrollable Messages Area */}
               <div className="flex-1 overflow-y-auto space-y-1.5 min-h-0">
                 <AnimatePresence>
                   {messages.map((message) => (
@@ -825,59 +826,59 @@ Keep it SHORT - 1-2 sentences max. This is LIVE TV. Jump straight to your respon
               </div>
             </div>
 
-            {/* Sidebar - Queue */}
+            {/* Right Column - Queue */}
             <div className="h-full overflow-hidden">
-              <Card className="p-2 bg-card/80 backdrop-blur h-full flex flex-col">
-                <div className="flex items-center gap-2 mb-2 flex-shrink-0">
-                  <Users className="h-3 w-3 text-primary" />
-                  <h3 className="font-bold text-sm">Queue</h3>
-                  <Badge variant="secondary" className="ml-auto text-[10px]">{upcomingDebates.length}</Badge>
+              <Card className="p-3 bg-card/80 backdrop-blur h-full flex flex-col">
+                <div className="flex items-center gap-2 mb-3 flex-shrink-0">
+                  <Users className="h-4 w-4 text-primary" />
+                  <h3 className="font-bold">Queue</h3>
+                  <Badge variant="secondary" className="ml-auto text-xs">{upcomingDebates.length}</Badge>
+                </div>
+                
+                <div className="mb-3 p-2 bg-muted/50 rounded-md flex-shrink-0">
+                  <p className="text-xs text-muted-foreground text-center">
+                    Go to <span className="font-medium text-primary">simproject.org/pump</span> to add a topic
+                  </p>
                 </div>
 
-                <div className="flex-1 overflow-y-auto space-y-1.5 min-h-0">
+                <div className="flex-1 overflow-y-auto space-y-2 min-h-0">
                   {upcomingDebates.length === 0 ? (
-                    <div className="text-center py-4 text-muted-foreground">
-                      <MessageCircle className="h-4 w-4 mx-auto mb-1 opacity-50" />
-                      <p className="text-[10px]">No debates queued</p>
-                      <button
-                        onClick={() => navigate('/pump')}
-                        className="mt-1 text-[10px] text-primary hover:underline"
-                      >
-                        Submit a debate →
-                      </button>
+                    <div className="text-center py-6 text-muted-foreground">
+                      <MessageCircle className="h-6 w-6 mx-auto mb-2 opacity-50" />
+                      <p className="text-xs">No debates queued</p>
                     </div>
                   ) : (
                     upcomingDebates.map((debate, index) => (
-                      <Card key={debate.id} className="p-1.5 bg-muted/50">
-                        <div className="flex items-center gap-1 mb-1">
-                          <Badge variant="outline" className="text-[9px] px-1 py-0">{index + 1}</Badge>
+                      <Card key={debate.id} className="p-2 bg-muted/50">
+                        <div className="flex items-center gap-1.5 mb-1.5">
+                          <Badge variant="outline" className="text-[10px] px-1.5 py-0">{index + 1}</Badge>
                           {debate.voter_name && (
-                            <span className="text-[9px] text-muted-foreground truncate">
+                            <span className="text-[10px] text-muted-foreground truncate">
                               by {debate.voter_name}
                             </span>
                           )}
                         </div>
-                        <p className="text-[10px] font-medium mb-1.5 line-clamp-2">{debate.topic}</p>
-                        <div className="flex items-center justify-between gap-1.5 text-[9px]">
+                        <p className="text-xs font-medium mb-2 line-clamp-2">{debate.topic}</p>
+                        <div className="flex items-center justify-between gap-2 text-[10px]">
                           <div className="flex items-center gap-1 min-w-0">
-                            <Avatar className="h-4 w-4 border border-primary/30">
+                            <Avatar className="h-5 w-5 border border-primary/30">
                               <AvatarImage src={debate.sim1.avatar_url || ""} />
-                              <AvatarFallback className="text-[7px]">
+                              <AvatarFallback className="text-[8px]">
                                 {debate.sim1.name[0]}
                               </AvatarFallback>
                             </Avatar>
-                            <span className="font-medium truncate text-[9px]">
+                            <span className="font-medium truncate">
                               {debate.sim1.name.split(' ')[0]}
                             </span>
                           </div>
-                          <span className="text-muted-foreground text-[9px]">vs</span>
+                          <span className="text-muted-foreground">vs</span>
                           <div className="flex items-center gap-1 min-w-0">
-                            <span className="font-medium truncate text-[9px]">
+                            <span className="font-medium truncate">
                               {debate.sim2.name.split(' ')[0]}
                             </span>
-                            <Avatar className="h-4 w-4 border border-primary/30">
+                            <Avatar className="h-5 w-5 border border-primary/30">
                               <AvatarImage src={debate.sim2.avatar_url || ""} />
-                              <AvatarFallback className="text-[7px]">
+                              <AvatarFallback className="text-[8px]">
                                 {debate.sim2.name[0]}
                               </AvatarFallback>
                             </Avatar>
@@ -886,15 +887,6 @@ Keep it SHORT - 1-2 sentences max. This is LIVE TV. Jump straight to your respon
                       </Card>
                     ))
                   )}
-                </div>
-
-                <div className="mt-2 pt-2 border-t border-border/50 flex-shrink-0">
-                  <button
-                    onClick={() => navigate('/pump')}
-                    className="w-full text-[10px] text-center text-primary hover:underline"
-                  >
-                    + Add to Queue
-                  </button>
                 </div>
               </Card>
             </div>
