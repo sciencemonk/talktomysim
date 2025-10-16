@@ -362,6 +362,57 @@ export type Database = {
         }
         Relationships: []
       }
+      debate_queue: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          id: string
+          sim1_id: string
+          sim2_id: string
+          started_at: string | null
+          status: string
+          topic: string
+          voter_name: string | null
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          sim1_id: string
+          sim2_id: string
+          started_at?: string | null
+          status?: string
+          topic: string
+          voter_name?: string | null
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          sim1_id?: string
+          sim2_id?: string
+          started_at?: string | null
+          status?: string
+          topic?: string
+          voter_name?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_sim1"
+            columns: ["sim1_id"]
+            isOneToOne: false
+            referencedRelation: "advisors"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_sim2"
+            columns: ["sim2_id"]
+            isOneToOne: false
+            referencedRelation: "advisors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       demo_requests: {
         Row: {
           created_at: string
@@ -873,7 +924,6 @@ export type Database = {
             }
         Returns: {
           content_text: string
-          content_type: string
           conversation_date: string
           conversation_id: string
           message_count: number

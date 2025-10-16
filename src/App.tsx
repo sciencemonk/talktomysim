@@ -12,6 +12,7 @@ import Login from "./pages/Login";
 import Home from "./pages/Home";
 import Landing from "./pages/Landing";
 import LiveChat from "./pages/LiveChat";
+import Pump from "./pages/Pump";
 import Admin from "./pages/Admin";
 import PublicTutorDetail from "./pages/PublicTutorDetail";
 import StudentChat from "./pages/StudentChat";
@@ -35,6 +36,7 @@ const App = () => (
             {/* New landing page for token */}
             <Route path="/" element={<Landing />} />
             <Route path="/live" element={<LiveChat />} />
+            <Route path="/pump" element={<Pump />} />
             <Route path="/sim-directory" element={<Home />} />
             
             {/* Admin route */}

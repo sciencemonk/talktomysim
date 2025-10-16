@@ -108,6 +108,7 @@ const LiveChat = () => {
   const conversationIndexRef = useRef(0);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const currentDebateIdRef = useRef<string>(Date.now().toString());
+  const [currentQueueId, setCurrentQueueId] = useState<string | null>(null);
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
@@ -195,13 +196,25 @@ const LiveChat = () => {
   useEffect(() => {
     if (!isDebating) return;
 
-    const interval = setInterval(() => {
+    const interval = setInterval(async () => {
       const elapsed = Date.now() - debateStartTimeRef.current;
       const remaining = Math.max(0, DEBATE_DURATION - elapsed);
       setTimeRemaining(remaining);
 
       if (remaining <= 0) {
         clearInterval(interval);
+        
+        // Mark current debate as completed if it was from queue
+        if (currentQueueId) {
+          await supabase
+            .from("debate_queue")
+            .update({ 
+              status: "completed",
+              completed_at: new Date().toISOString()
+            })
+            .eq("id", currentQueueId);
+        }
+        
         setTimeout(() => {
           window.location.reload();
         }, 100);
@@ -209,9 +222,9 @@ const LiveChat = () => {
     }, 100);
 
     return () => clearInterval(interval);
-  }, [isDebating]);
+  }, [isDebating, currentQueueId]);
 
-  const selectRandomSims = () => {
+  const selectRandomSims = async () => {
     console.log("selectRandomSims called, available sims:", allHistoricalSims.length);
 
     if (allHistoricalSims.length < 2) {
@@ -223,15 +236,95 @@ const LiveChat = () => {
     setIsSelecting(true);
     setMessages([]);
 
-    // Truly random selection for each visitor - use final selector positions
-    const sim1 = allHistoricalSims[selector1Index];
-    const sim2 = allHistoricalSims[selector2Index];
+    // Check for user-generated debates in queue first
+    const { data: queuedDebate, error: queueError } = await supabase
+      .from("debate_queue")
+      .select(`
+        id,
+        topic,
+        voter_name,
+        sim1_id,
+        sim2_id,
+        advisors!debate_queue_sim1_id_fkey (
+          id,
+          name,
+          avatar_url,
+          description,
+          prompt
+        )
+      `)
+      .eq("status", "pending")
+      .order("created_at", { ascending: true })
+      .limit(1)
+      .maybeSingle();
+
+    let sim1: AgentType;
+    let sim2: AgentType;
+    let selectedQuestion: string;
+
+    if (!queueError && queuedDebate) {
+      // Use queued debate
+      console.log("Using queued debate:", queuedDebate.id);
+      setCurrentQueueId(queuedDebate.id);
+      
+      // Mark as in progress
+      await supabase
+        .from("debate_queue")
+        .update({ 
+          status: "in_progress",
+          started_at: new Date().toISOString()
+        })
+        .eq("id", queuedDebate.id);
+
+      // Fetch both sims
+      const { data: sim2Data } = await supabase
+        .from("advisors")
+        .select("*")
+        .eq("id", queuedDebate.sim2_id)
+        .single();
+
+      const advisorData = queuedDebate.advisors as any;
+      
+      sim1 = {
+        id: advisorData.id,
+        name: advisorData.name,
+        description: advisorData.description || "",
+        type: "General Tutor" as any,
+        status: "active" as any,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        avatar: advisorData.avatar_url,
+        prompt: advisorData.prompt,
+      };
+
+      sim2 = {
+        id: sim2Data.id,
+        name: sim2Data.name,
+        description: sim2Data.description || "",
+        type: "General Tutor" as any,
+        status: "active" as any,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        avatar: sim2Data.avatar_url,
+        prompt: sim2Data.prompt,
+      };
+
+      selectedQuestion = queuedDebate.topic;
+      
+      if (queuedDebate.voter_name) {
+        selectedQuestion = `${selectedQuestion} (suggested by ${queuedDebate.voter_name})`;
+      }
+    } else {
+      // Fall back to random selection
+      console.log("No queued debates, using random selection");
+      setCurrentQueueId(null);
+      
+      sim1 = allHistoricalSims[selector1Index];
+      sim2 = allHistoricalSims[selector2Index];
+      selectedQuestion = philosophicalQuestions[Math.floor(Math.random() * philosophicalQuestions.length)];
+    }
 
     console.log("Selected sims:", sim1.name, "vs", sim2.name);
-
-    // Random question selection
-    const selectedQuestion = philosophicalQuestions[Math.floor(Math.random() * philosophicalQuestions.length)];
-
     console.log("Selected question:", selectedQuestion);
 
     // Finish selection after 4 seconds
@@ -384,7 +477,18 @@ Keep it SHORT - 1-2 sentences max. This is LIVE TV. Jump straight to your respon
     }
   };
 
-  const resetDebate = () => {
+  const resetDebate = async () => {
+    // Mark current debate as completed if it was from queue
+    if (currentQueueId) {
+      await supabase
+        .from("debate_queue")
+        .update({ 
+          status: "completed",
+          completed_at: new Date().toISOString()
+        })
+        .eq("id", currentQueueId);
+    }
+    
     // Generate new debate ID to invalidate any pending message operations
     currentDebateIdRef.current = Date.now().toString();
     
@@ -392,6 +496,7 @@ Keep it SHORT - 1-2 sentences max. This is LIVE TV. Jump straight to your respon
     setMessages([]);
     setTypingIndicator(null);
     setTimeRemaining(DEBATE_DURATION);
+    setCurrentQueueId(null);
     selectRandomSims();
   };
 
