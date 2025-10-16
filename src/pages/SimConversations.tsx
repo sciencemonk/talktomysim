@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import TopNavigation from '@/components/TopNavigation';
 import SimpleFooter from '@/components/SimpleFooter';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 interface Conversation {
   id: string;
@@ -33,9 +34,10 @@ const SimConversations = () => {
   const navigate = useNavigate();
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [selectedConversation, setSelectedConversation] = useState<string | null>(null);
+  const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null);
   const [messages, setMessages] = useState<any[]>([]);
   const [loadingMessages, setLoadingMessages] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -126,15 +128,16 @@ const SimConversations = () => {
     }
   };
 
-  const loadMessages = async (conversationId: string) => {
+  const loadMessages = async (conversation: Conversation) => {
     try {
       setLoadingMessages(true);
-      setSelectedConversation(conversationId);
+      setSelectedConversation(conversation);
+      setIsModalOpen(true);
 
       const { data, error } = await supabase
         .from('messages')
         .select('*')
-        .eq('conversation_id', conversationId)
+        .eq('conversation_id', conversation.id)
         .order('created_at', { ascending: true });
 
       if (error) throw error;
@@ -174,115 +177,117 @@ const SimConversations = () => {
             </CardContent>
           </Card>
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="space-y-4">
-              <h2 className="text-2xl font-semibold">
-                All Conversations ({conversations.length})
-              </h2>
-              <ScrollArea className="h-[calc(100vh-280px)]">
-                <div className="space-y-3 pr-4">
-                  {conversations.map((conversation) => (
-                    <Card
-                      key={conversation.id}
-                      className={`cursor-pointer transition-all hover:shadow-md ${
-                        selectedConversation === conversation.id ? 'ring-2 ring-primary' : ''
-                      }`}
-                      onClick={() => loadMessages(conversation.id)}
-                    >
-                      <CardHeader className="pb-3">
-                        <div className="flex items-start justify-between">
-                          <div className="flex items-center gap-3">
-                            <Avatar className="h-10 w-10">
-                              <AvatarImage src={conversation.advisor?.avatar_url} />
-                              <AvatarFallback>
-                                {conversation.advisor?.name?.[0]}
-                              </AvatarFallback>
-                            </Avatar>
-                            <div>
-                              <CardTitle className="text-base">
-                                {conversation.title || 'Untitled Conversation'}
-                              </CardTitle>
-                              <CardDescription className="text-xs flex items-center gap-2 mt-1">
-                                <Calendar className="h-3 w-3" />
-                                {formatDistanceToNow(new Date(conversation.updated_at), {
-                                  addSuffix: true,
-                                })}
-                              </CardDescription>
-                            </div>
-                          </div>
-                          <Badge variant="secondary">
-                            {conversation.messageCount} msgs
-                          </Badge>
+          <div className="space-y-4">
+            <h2 className="text-2xl font-semibold">
+              All Conversations ({conversations.length})
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {conversations.map((conversation) => (
+                <Card
+                  key={conversation.id}
+                  className="cursor-pointer transition-all hover:shadow-md hover:scale-[1.02]"
+                  onClick={() => loadMessages(conversation)}
+                >
+                  <CardHeader className="pb-3">
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-center gap-3 flex-1">
+                        <Avatar className="h-10 w-10">
+                          <AvatarImage src={conversation.advisor?.avatar_url} />
+                          <AvatarFallback>
+                            {conversation.advisor?.name?.[0]}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1 min-w-0">
+                          <CardTitle className="text-base truncate">
+                            {conversation.title || 'Untitled Conversation'}
+                          </CardTitle>
+                          <CardDescription className="text-xs flex items-center gap-2 mt-1">
+                            <Calendar className="h-3 w-3" />
+                            {formatDistanceToNow(new Date(conversation.updated_at), {
+                              addSuffix: true,
+                            })}
+                          </CardDescription>
                         </div>
-                      </CardHeader>
-                      {conversation.lastMessage && (
-                        <CardContent className="pt-0">
-                          <p className="text-sm text-muted-foreground line-clamp-2">
-                            {conversation.lastMessage}
-                          </p>
-                        </CardContent>
-                      )}
-                    </Card>
-                  ))}
-                </div>
-              </ScrollArea>
-            </div>
-
-            <div>
-              {selectedConversation ? (
-                <Card className="h-[calc(100vh-280px)] flex flex-col">
-                  <CardHeader>
-                    <CardTitle>Conversation Messages</CardTitle>
+                      </div>
+                      <Badge variant="secondary">
+                        {conversation.messageCount}
+                      </Badge>
+                    </div>
                   </CardHeader>
-                  <ScrollArea className="flex-1 px-6">
-                    {loadingMessages ? (
-                      <div className="flex items-center justify-center py-8">
-                        <Loader2 className="h-8 w-8 animate-spin" />
-                      </div>
-                    ) : (
-                      <div className="space-y-4 pb-4">
-                        {messages.map((message) => (
-                          <div
-                            key={message.id}
-                            className={`flex ${
-                              message.role === 'user' ? 'justify-end' : 'justify-start'
-                            }`}
-                          >
-                            <div
-                              className={`max-w-[80%] rounded-lg px-4 py-2 ${
-                                message.role === 'user'
-                                  ? 'bg-primary text-primary-foreground'
-                                  : 'bg-muted'
-                              }`}
-                            >
-                              <p className="text-sm whitespace-pre-wrap">
-                                {message.content}
-                              </p>
-                              <p className="text-xs opacity-70 mt-1">
-                                {formatDistanceToNow(new Date(message.created_at), {
-                                  addSuffix: true,
-                                })}
-                              </p>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </ScrollArea>
+                  {conversation.lastMessage && (
+                    <CardContent className="pt-0">
+                      <p className="text-sm text-muted-foreground line-clamp-2">
+                        {conversation.lastMessage}
+                      </p>
+                    </CardContent>
+                  )}
                 </Card>
-              ) : (
-                <Card className="h-[calc(100vh-280px)] flex items-center justify-center">
-                  <CardContent className="text-center">
-                    <MessageCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                    <p className="text-muted-foreground">
-                      Select a conversation to view messages
-                    </p>
-                  </CardContent>
-                </Card>
-              )}
+              ))}
             </div>
           </div>
         )}
+
+        <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+          <DialogContent className="max-w-3xl max-h-[80vh] flex flex-col">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-3">
+                {selectedConversation?.advisor && (
+                  <Avatar className="h-10 w-10">
+                    <AvatarImage src={selectedConversation.advisor.avatar_url} />
+                    <AvatarFallback>
+                      {selectedConversation.advisor.name?.[0]}
+                    </AvatarFallback>
+                  </Avatar>
+                )}
+                <div>
+                  <div>{selectedConversation?.title || 'Untitled Conversation'}</div>
+                  {selectedConversation && (
+                    <p className="text-xs text-muted-foreground font-normal">
+                      {formatDistanceToNow(new Date(selectedConversation.updated_at), {
+                        addSuffix: true,
+                      })}
+                    </p>
+                  )}
+                </div>
+              </DialogTitle>
+            </DialogHeader>
+            <ScrollArea className="flex-1 pr-4">
+              {loadingMessages ? (
+                <div className="flex items-center justify-center py-8">
+                  <Loader2 className="h-8 w-8 animate-spin" />
+                </div>
+              ) : (
+                <div className="space-y-4 pb-4">
+                  {messages.map((message) => (
+                    <div
+                      key={message.id}
+                      className={`flex ${
+                        message.role === 'user' ? 'justify-end' : 'justify-start'
+                      }`}
+                    >
+                      <div
+                        className={`max-w-[80%] rounded-lg px-4 py-2 ${
+                          message.role === 'user'
+                            ? 'bg-primary text-primary-foreground'
+                            : 'bg-muted'
+                        }`}
+                      >
+                        <p className="text-sm whitespace-pre-wrap">
+                          {message.content}
+                        </p>
+                        <p className="text-xs opacity-70 mt-1">
+                          {formatDistanceToNow(new Date(message.created_at), {
+                            addSuffix: true,
+                          })}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </ScrollArea>
+          </DialogContent>
+        </Dialog>
       </div>
       <SimpleFooter />
     </div>
