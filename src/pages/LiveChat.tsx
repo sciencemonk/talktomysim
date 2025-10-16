@@ -403,7 +403,7 @@ const LiveChat = () => {
     if (!firstResponse) return;
     debateMessages.push(firstResponse);
 
-    await new Promise((resolve) => setTimeout(resolve, 9000)); // Give time to read
+    await new Promise((resolve) => setTimeout(resolve, 14000)); // Give time to read
 
     console.log("Generating second response...");
     setTypingIndicator(sim2.name);
@@ -428,7 +428,7 @@ const LiveChat = () => {
 
       const currentSim = exchangeCount % 2 === 0 ? sim1 : sim2;
 
-      await new Promise((resolve) => setTimeout(resolve, 9000)); // Wait for reading time
+      await new Promise((resolve) => setTimeout(resolve, 14000)); // Wait for reading time
 
       // Check again after waiting to avoid generating after time is up or debate changed
       if (Date.now() - debateStartTimeRef.current >= DEBATE_DURATION) break;
