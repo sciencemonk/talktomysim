@@ -430,37 +430,37 @@ Stay true to the tone, values, and personality of [Name].`,
       <TopNavigation />
       
       <main className="flex-1 overflow-auto">
-        <div className="container mx-auto px-6 py-12">
+        <div className="container mx-auto px-4 sm:px-6 py-6 sm:py-12">
           <div className="max-w-4xl mx-auto">
             {/* Page Header */}
-            <div className="mb-8">
-              <h2 className="text-3xl font-bold mb-2">Create Your Sim</h2>
-              <p className="text-muted-foreground">
+            <div className="mb-6 sm:mb-8">
+              <h2 className="text-2xl sm:text-3xl font-bold mb-2">Create Your Sim</h2>
+              <p className="text-sm sm:text-base text-muted-foreground">
                 Build a personalized AI sim that others can chat with via a shareable link
               </p>
             </div>
 
             {/* Sim Preview Card (if exists) */}
             {userSim && (
-              <Card className="mb-8 bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20">
+              <Card className="mb-6 sm:mb-8 bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20">
                 <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+                    <div className="flex items-center gap-3 sm:gap-4 flex-1">
                       {previewUrl ? (
                         <img
                           src={previewUrl}
                           alt={userSim.name}
-                          className="w-12 h-12 rounded-full object-cover border-2 border-primary"
+                          className="w-12 h-12 sm:w-14 sm:h-14 rounded-full object-cover border-2 border-primary flex-shrink-0"
                         />
                       ) : (
-                        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center text-primary-foreground font-semibold">
+                        <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center text-primary-foreground font-semibold flex-shrink-0">
                           {userSim.name.charAt(0)}
                         </div>
                       )}
-                      <div>
-                        <CardTitle className="text-xl">{userSim.name}</CardTitle>
+                      <div className="min-w-0 flex-1">
+                        <CardTitle className="text-lg sm:text-xl truncate">{userSim.name}</CardTitle>
                         {userSim.title && (
-                          <CardDescription>{userSim.title}</CardDescription>
+                          <CardDescription className="truncate">{userSim.title}</CardDescription>
                         )}
                       </div>
                     </div>
@@ -469,18 +469,18 @@ Stay true to the tone, values, and personality of [Name].`,
                         size="sm"
                         variant="outline"
                         onClick={copyShareLink}
-                        className="gap-2"
+                        className="gap-2 flex-1 sm:flex-none"
                       >
                         <Copy className="h-4 w-4" />
-                        Copy Link
+                        <span className="sm:inline">Copy Link</span>
                       </Button>
                       <Button 
                         size="sm"
                         onClick={() => window.open(`/sim/${userSim.custom_url}`, '_blank')}
-                        className="gap-2"
+                        className="gap-2 flex-1 sm:flex-none"
                       >
                         <ExternalLink className="h-4 w-4" />
-                        Preview
+                        <span className="sm:inline">Preview</span>
                       </Button>
                     </div>
                   </div>
@@ -500,10 +500,11 @@ Stay true to the tone, values, and personality of [Name].`,
               </CardHeader>
               <CardContent>
                 <Tabs value={activeTab} onValueChange={setActiveTab}>
-                  <TabsList className="grid w-full grid-cols-2">
-                    <TabsTrigger value="basic">Basic Info</TabsTrigger>
-                    <TabsTrigger value="knowledge" disabled>
-                      Vector Embeddings <Badge variant="secondary" className="ml-2">Coming Soon</Badge>
+                  <TabsList className="grid w-full grid-cols-2 h-auto">
+                    <TabsTrigger value="basic" className="whitespace-nowrap">Basic Info</TabsTrigger>
+                    <TabsTrigger value="knowledge" disabled className="flex-col sm:flex-row gap-1 py-2 px-2 sm:px-3">
+                      <span className="text-xs sm:text-sm">Vector Embeddings</span>
+                      <Badge variant="secondary" className="text-[10px] sm:text-xs px-1 py-0">Coming Soon</Badge>
                     </TabsTrigger>
                   </TabsList>
                   
@@ -534,8 +535,8 @@ Stay true to the tone, values, and personality of [Name].`,
 
                       <div>
                         <Label htmlFor="custom_url">Custom URL *</Label>
-                        <div className="flex items-center gap-2 mt-2">
-                          <span className="text-sm text-muted-foreground whitespace-nowrap">
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-2 mt-2">
+                          <span className="text-xs sm:text-sm text-muted-foreground whitespace-nowrap">
                             {window.location.origin}/sim/
                           </span>
                           <Input
@@ -546,6 +547,7 @@ Stay true to the tone, values, and personality of [Name].`,
                             pattern="[a-z0-9-]+"
                             disabled={!!userSim}
                             required
+                            className="flex-1"
                           />
                         </div>
                         <p className="text-xs text-muted-foreground mt-1">
