@@ -239,15 +239,15 @@ const Landing = () => {
             return (
               <Card 
                 key={index}
-                className={`group cursor-pointer transition-all duration-300 hover:scale-[1.02] hover:shadow-xl border-2 border-border bg-gradient-to-br ${feature.gradient} flex flex-col`}
+                className={`group cursor-pointer transition-all duration-300 hover:scale-[1.02] hover:shadow-xl border-2 border-white/20 bg-white/10 backdrop-blur-md flex flex-col`}
                 style={{ gridArea: feature.gridArea }}
                 onClick={(!feature.showSims && !feature.showWalletButtons) ? feature.action : undefined}
               >
                 <CardHeader className="pb-3 p-3 sm:p-4">
-                  <CardTitle className={`${isMainFeature ? 'text-base sm:text-lg' : 'text-sm sm:text-base'} font-bold text-fg`}>
+                  <CardTitle className={`${isMainFeature ? 'text-base sm:text-lg' : 'text-sm sm:text-base'} font-bold text-white`}>
                     {feature.title}
                   </CardTitle>
-                  <CardDescription className={`text-xs sm:text-sm text-fgMuted ${isMainFeature ? '' : 'line-clamp-2'}`}>
+                  <CardDescription className={`text-xs sm:text-sm text-white/80 ${isMainFeature ? '' : 'line-clamp-2'}`}>
                     {feature.description}
                   </CardDescription>
                   
@@ -260,14 +260,14 @@ const Landing = () => {
                             e.stopPropagation();
                             handleSimClick(sim);
                           }}
-                          className="flex flex-col items-center gap-1.5 p-2 rounded-lg bg-bg/50 hover:bg-bg transition-colors"
+                          className="flex flex-col items-center gap-1.5 p-2 rounded-lg bg-black/30 hover:bg-black/40 transition-colors backdrop-blur-sm"
                         >
                           <img 
                             src={sim.avatar} 
                             alt={sim.name}
                             className="w-12 h-12 sm:w-14 sm:h-14 rounded-full object-cover border-2 border-border shadow-sm"
                           />
-                          <span className="text-[9px] sm:text-[10px] font-medium text-fg text-center line-clamp-2 leading-tight w-full">
+                          <span className="text-[9px] sm:text-[10px] font-medium text-white text-center line-clamp-2 leading-tight w-full">
                             {sim.name}
                           </span>
                         </button>
