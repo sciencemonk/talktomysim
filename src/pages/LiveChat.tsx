@@ -21,23 +21,46 @@ interface Message {
 const DEBATE_DURATION = 5 * 60 * 1000; // 5 minutes
 
 const philosophicalQuestions = [
-  "Is democracy actually the best form of government?",
-  "Do we have too much or too little freedom of speech?",
+  // AI & Technology
+  "Will AI save humanity or destroy it?",
+  "Should we merge with machines or stay purely human?",
+  "Is social media connecting us or isolating us?",
+  "Do we own our data or do tech companies own us?",
+  
+  // Modern Society
+  "Is cancel culture accountability or mob justice?",
+  "Should billionaires exist?",
   "Is meritocracy real or a myth?",
-  "Should borders exist?",
-  "Is consumerism destroying civilization?",
-  "Can men and women truly be equal?",
-  "Is tradition holding us back or keeping us grounded?",
-  "Should we let weak companies fail or bail them out?",
-  "Is ambition a virtue or a vice?",
-  "Does hard work actually lead to success?",
-  "Is the nuclear family essential or outdated?",
-  "Should we prioritize individual freedom or collective good?",
-  "Is inequality natural and necessary?",
-  "Can truth exist without power?",
-  "Is comfort making us weak?",
+  "Does hard work actually lead to success anymore?",
+  "Is traditional masculinity toxic or essential?",
+  
+  // Politics & Power
+  "Is democracy dying or evolving?",
+  "Should we have open borders or strong nations?",
+  "Is free speech absolute or should there be limits?",
+  "Can capitalism survive climate change?",
   "Should elites rule or should power be distributed?",
-  "Is violence ever justified?",
+  
+  // Culture & Values
+  "Is woke culture progress or regression?",
+  "Is tradition holding us back or keeping us grounded?",
+  "Should we prioritize individual freedom or collective good?",
+  "Is religion still relevant in the modern world?",
+  "Is comfort making us weak?",
+  
+  // Philosophy & Truth
+  "Can objective truth exist in the age of information?",
+  "Is morality universal or culturally relative?",
+  "Does life have inherent meaning or do we create it?",
+  "Is violence ever justified for a just cause?",
+  "Can there be justice without power?",
+  
+  // Future & Progress
+  "Should we colonize Mars or fix Earth first?",
+  "Is progress always good or are we moving too fast?",
+  "Will universal basic income liberate or infantilize us?",
+  "Should we extend human lifespan indefinitely?",
+  "Is degrowth the answer or economic suicide?",
 ];
 
 const LiveChat = () => {
