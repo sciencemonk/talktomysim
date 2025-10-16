@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
-import { LogOut, LogIn } from "lucide-react";
+import { LogOut, LogIn, Home, Folder, Radio } from "lucide-react";
 import { Button } from "./ui/button";
 import AuthModal from "./AuthModal";
 
@@ -53,6 +53,36 @@ const TopNavigation = () => {
             className="h-6 w-6 sm:h-8 sm:w-8 object-contain"
           />
         </button>
+
+        {/* Navigation items (when signed in) */}
+        {user && (
+          <div className="flex items-center gap-2">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => navigate('/dashboard')}
+              title="Home"
+            >
+              <Home className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => navigate('/sim-directory')}
+              title="Directory"
+            >
+              <Folder className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => navigate('/live')}
+              title="Live"
+            >
+              <Radio className="h-4 w-4" />
+            </Button>
+          </div>
+        )}
 
         {/* Auth buttons */}
         {user ? (
