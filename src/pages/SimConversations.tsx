@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Loader2, MessageCircle, Calendar } from 'lucide-react';
+import { Loader2, MessageCircle, Calendar, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { formatDistanceToNow } from 'date-fns';
 import { Button } from '@/components/ui/button';
@@ -13,6 +13,16 @@ import { useNavigate } from 'react-router-dom';
 import TopNavigation from '@/components/TopNavigation';
 import SimpleFooter from '@/components/SimpleFooter';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 interface Conversation {
   id: string;
@@ -38,6 +48,7 @@ const SimConversations = () => {
   const [messages, setMessages] = useState<any[]>([]);
   const [loadingMessages, setLoadingMessages] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [deleteConversationId, setDeleteConversationId] = useState<string | null>(null);
 
   useEffect(() => {
     if (user) {
@@ -154,6 +165,40 @@ const SimConversations = () => {
     }
   };
 
+  const handleDeleteConversation = async (conversationId: string) => {
+    try {
+      const { error } = await supabase
+        .from('conversations')
+        .delete()
+        .eq('id', conversationId);
+
+      if (error) throw error;
+
+      // Remove from local state
+      setConversations(prev => prev.filter(c => c.id !== conversationId));
+      
+      // Close modal if this conversation is currently open
+      if (selectedConversation?.id === conversationId) {
+        setIsModalOpen(false);
+        setSelectedConversation(null);
+      }
+
+      toast({
+        title: "Success",
+        description: "Conversation deleted successfully"
+      });
+    } catch (error) {
+      console.error('Error deleting conversation:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete conversation",
+        variant: "destructive"
+      });
+    } finally {
+      setDeleteConversationId(null);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
@@ -185,42 +230,54 @@ const SimConversations = () => {
               {conversations.map((conversation) => (
                 <Card
                   key={conversation.id}
-                  className="cursor-pointer transition-all hover:shadow-md hover:scale-[1.02]"
-                  onClick={() => loadMessages(conversation)}
+                  className="cursor-pointer transition-all hover:shadow-md hover:scale-[1.02] relative group"
                 >
-                  <CardHeader className="pb-3">
-                    <div className="flex items-start justify-between">
-                      <div className="flex items-center gap-3 flex-1">
-                        <Avatar className="h-10 w-10">
-                          <AvatarImage src={conversation.advisor?.avatar_url} />
-                          <AvatarFallback>
-                            {conversation.advisor?.name?.[0]}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div className="flex-1 min-w-0">
-                          <CardTitle className="text-base truncate">
-                            {conversation.advisor?.name || 'Unknown Sim'}
-                          </CardTitle>
-                          <CardDescription className="text-xs flex items-center gap-2 mt-1">
-                            <Calendar className="h-3 w-3" />
-                            {formatDistanceToNow(new Date(conversation.updated_at), {
-                              addSuffix: true,
-                            })}
-                          </CardDescription>
+                  <div onClick={() => loadMessages(conversation)}>
+                    <CardHeader className="pb-3">
+                      <div className="flex items-start justify-between">
+                        <div className="flex items-center gap-3 flex-1">
+                          <Avatar className="h-10 w-10">
+                            <AvatarImage src={conversation.advisor?.avatar_url} />
+                            <AvatarFallback>
+                              {conversation.advisor?.name?.[0]}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div className="flex-1 min-w-0">
+                            <CardTitle className="text-base truncate">
+                              {conversation.advisor?.name || 'Unknown Sim'}
+                            </CardTitle>
+                            <CardDescription className="text-xs flex items-center gap-2 mt-1">
+                              <Calendar className="h-3 w-3" />
+                              {formatDistanceToNow(new Date(conversation.updated_at), {
+                                addSuffix: true,
+                              })}
+                            </CardDescription>
+                          </div>
                         </div>
+                        <Badge variant="secondary">
+                          {conversation.messageCount}
+                        </Badge>
                       </div>
-                      <Badge variant="secondary">
-                        {conversation.messageCount}
-                      </Badge>
-                    </div>
-                  </CardHeader>
-                  {conversation.lastMessage && (
-                    <CardContent className="pt-0">
-                      <p className="text-sm text-muted-foreground line-clamp-2">
-                        {conversation.lastMessage}
-                      </p>
-                    </CardContent>
-                  )}
+                    </CardHeader>
+                    {conversation.lastMessage && (
+                      <CardContent className="pt-0">
+                        <p className="text-sm text-muted-foreground line-clamp-2">
+                          {conversation.lastMessage}
+                        </p>
+                      </CardContent>
+                    )}
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="absolute top-2 right-2 h-8 w-8 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setDeleteConversationId(conversation.id);
+                    }}
+                  >
+                    <Trash2 className="h-4 w-4 text-destructive" />
+                  </Button>
                 </Card>
               ))}
             </div>
@@ -290,6 +347,26 @@ const SimConversations = () => {
             </ScrollArea>
           </DialogContent>
         </Dialog>
+
+        <AlertDialog open={!!deleteConversationId} onOpenChange={() => setDeleteConversationId(null)}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Delete Conversation</AlertDialogTitle>
+              <AlertDialogDescription>
+                Are you sure you want to delete this conversation? This action cannot be undone.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={() => deleteConversationId && handleDeleteConversation(deleteConversationId)}
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              >
+                Delete
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
       <SimpleFooter />
     </div>
