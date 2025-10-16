@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import ChatInterface from "@/components/ChatInterface";
 import AuthModal from "@/components/AuthModal";
+import SimpleFooter from "@/components/SimpleFooter";
 import { AgentType } from "@/types/agent";
 
 const PublicSimDetail = () => {
@@ -193,6 +194,9 @@ const PublicSimDetail = () => {
 
       {/* Bottom gradient fade */}
       <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-background/50 to-transparent pointer-events-none" />
+
+      {/* Footer */}
+      <SimpleFooter />
 
       {/* Auth Modal */}
       <AuthModal 
