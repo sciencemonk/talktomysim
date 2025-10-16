@@ -141,7 +141,17 @@ const Pump = () => {
               <li>• Pick any topic you want them to debate</li>
               <li>• Solve a simple math question to prove you're human</li>
               <li>• Your debate gets added to the queue</li>
-              <li>• Watch it happen live at /live</li>
+              <li>
+                • Watch it happen live on{" "}
+                <a 
+                  href="https://pump.fun/coin/FFqwoZ7phjoupWjLeE5yFeLqGi8jkGEFrTz6jnsUpump"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-primary hover:underline font-medium"
+                >
+                  Pump Fun
+                </a>
+              </li>
             </ul>
             {queueCount > 0 && (
               <div className="flex items-center gap-2 mt-4 px-4 py-2 bg-background border border-primary/20 rounded-lg">
