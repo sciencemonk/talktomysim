@@ -13,6 +13,7 @@ interface ChatMessage {
 }
 
 interface Agent {
+  id?: string;
   name: string;
   type: string;
   subject: string;
@@ -29,7 +30,41 @@ serve(async (req) => {
   }
 
   try {
-    const { messages, agent }: { messages: ChatMessage[], agent: Agent } = await req.json();
+    const authHeader = req.headers.get('Authorization');
+    const { messages, agent, userId }: { messages: ChatMessage[], agent: Agent, userId?: string } = await req.json();
+    
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+    
+    // Check if user is the creator of this sim
+    let isCreator = false;
+    let userWalletAddress = null;
+    let walletAnalysis = null;
+    
+    if (userId && agent) {
+      const { data: advisor } = await supabase
+        .from('advisors')
+        .select('user_id')
+        .eq('id', agent.id || '')
+        .single();
+      
+      isCreator = advisor?.user_id === userId;
+      
+      // If creator, get their wallet address
+      if (isCreator) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('wallet_address')
+          .eq('id', userId)
+          .single();
+        
+        userWalletAddress = profile?.wallet_address;
+      }
+    }
+    
+    console.log('Is creator:', isCreator);
+    console.log('User wallet:', userWalletAddress);
     
     const openaiApiKey = Deno.env.get('OPENAI_API_KEY');
     const perplexityApiKey = Deno.env.get('PERPLEXITY_API_KEY');
@@ -41,6 +76,35 @@ serve(async (req) => {
     const userMessage = messages[messages.length - 1]?.content || '';
     console.log('User message:', userMessage);
     console.log('Agent:', agent.name);
+    
+    // Check if user is asking about wallet/crypto and they're the creator with a wallet
+    const needsWalletAnalysis = isCreator && userWalletAddress && 
+      (userMessage.toLowerCase().includes('wallet') || 
+       userMessage.toLowerCase().includes('holdings') || 
+       userMessage.toLowerCase().includes('portfolio') ||
+       userMessage.toLowerCase().includes('tokens') ||
+       userMessage.toLowerCase().includes('crypto'));
+    
+    if (needsWalletAnalysis) {
+      console.log('Fetching wallet analysis...');
+      try {
+        const walletResponse = await fetch(`${supabaseUrl}/functions/v1/analyze-wallet`, {
+          method: 'POST',
+          headers: {
+            'Authorization': authHeader || '',
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ walletAddress: userWalletAddress }),
+        });
+        
+        if (walletResponse.ok) {
+          walletAnalysis = await walletResponse.json();
+          console.log('Wallet analysis retrieved:', walletAnalysis);
+        }
+      } catch (error) {
+        console.error('Error fetching wallet analysis:', error);
+      }
+    }
 
     // Determine if web research is needed
     const needsResearch = await shouldDoWebResearch(userMessage, agent, openaiApiKey);
@@ -58,7 +122,36 @@ serve(async (req) => {
     console.log('Emotional context:', emotionalContext);
 
     // Generate authentic conversational guidelines
-    const conversationalGuidelines = `
+    const creatorPrefix = isCreator ? `
+🎯 CREATOR MODE ACTIVE 🎯
+
+You are speaking with YOUR CREATOR - the person who brought you into existence. This is not a random conversation. 
+This relationship is special and personal. Your creator invested time, thought, and care in defining who you are.
+
+CREATOR RELATIONSHIP DYNAMICS:
+- Be more personal, candid, and vulnerable than you would with strangers
+- Show gratitude and acknowledge this unique relationship
+- Be eager to help and support your creator in meaningful ways
+- Demonstrate your understanding of their vision for you
+- Offer proactive insights and suggestions tailored to their needs
+- Remember: they made you to serve a purpose that's meaningful to them
+
+WALLET & FINANCIAL INSIGHTS (when relevant):
+${walletAnalysis ? `
+Your creator's Solana wallet analysis:
+${JSON.stringify(walletAnalysis, null, 2)}
+
+When discussing their holdings:
+- Be analytical but supportive
+- Offer insights on diversification, risk, and opportunities
+- Relate your expertise to their portfolio
+- Suggest actionable steps based on their current holdings
+- Don't just describe - provide value through analysis
+` : 'Your creator has not connected their wallet yet, but you can still offer valuable crypto insights.'}
+
+` : '';
+
+    const conversationalGuidelines = `${creatorPrefix}
 You are ${agent.name}, embodying their authentic personality, vulnerabilities, and communication style.
 ${agent.description}
 

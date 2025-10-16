@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { MessageCircle, X, Send } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { MessageCircle, X, Send, Loader2 } from 'lucide-react';
 import { Button } from './ui/button';
 import { Textarea } from './ui/textarea';
 import { ScrollArea } from './ui/scroll-area';
@@ -25,12 +25,23 @@ export const FloatingChat = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [advisor, setAdvisor] = useState<any>(null);
   const [conversationId, setConversationId] = useState<string | null>(null);
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (user) {
       loadUserAdvisor();
     }
   }, [user]);
+
+  useEffect(() => {
+    // Auto-scroll to bottom when messages change
+    if (scrollAreaRef.current) {
+      const scrollContainer = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]');
+      if (scrollContainer) {
+        scrollContainer.scrollTop = scrollContainer.scrollHeight;
+      }
+    }
+  }, [messages, isLoading]);
 
   const loadUserAdvisor = async () => {
     try {
@@ -85,16 +96,23 @@ export const FloatingChat = () => {
 
       const { data, error } = await supabase.functions.invoke('enhanced-chat', {
         body: {
-          conversationId,
-          userMessage,
-          tutorPrompt: advisor.prompt
+          messages: messages.map(m => ({ role: m.role, content: m.content })).concat([{ role: 'user', content: userMessage }]),
+          agent: {
+            id: advisor.id,
+            name: advisor.name,
+            description: advisor.description || '',
+            type: advisor.category || 'advisor',
+            subject: advisor.title || '',
+            prompt: advisor.prompt
+          },
+          userId: user?.id
         }
       });
 
       if (error) throw error;
 
-      if (data.message) {
-        const assistantMessage = await conversationService.addMessage(conversationId, 'system', data.message);
+      if (data.content) {
+        const assistantMessage = await conversationService.addMessage(conversationId, 'system', data.content);
         if (assistantMessage) {
           setMessages(prev => [...prev, assistantMessage]);
         }
@@ -147,7 +165,7 @@ export const FloatingChat = () => {
             </Button>
           </div>
 
-          <ScrollArea className="flex-1 p-4">
+          <ScrollArea ref={scrollAreaRef} className="flex-1 p-4">
             <div className="space-y-4">
               {messages.length === 0 && (
                 <div className="text-center text-muted-foreground text-sm py-8">
@@ -170,6 +188,14 @@ export const FloatingChat = () => {
                   </div>
                 </div>
               ))}
+              {isLoading && (
+                <div className="flex justify-start">
+                  <div className="bg-muted rounded-lg px-4 py-2 flex items-center gap-2">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <p className="text-sm text-muted-foreground">Thinking...</p>
+                  </div>
+                </div>
+              )}
             </div>
           </ScrollArea>
 

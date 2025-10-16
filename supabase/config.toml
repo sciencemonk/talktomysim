@@ -1,1 +1,16 @@
 project_id = "uovhemqkztmkoozlmqxq"
+
+[functions.enhanced-chat]
+verify_jwt = false
+
+[functions.analyze-wallet]
+verify_jwt = false
+
+[functions.livekit-token]
+verify_jwt = false
+
+[functions.process-document]
+verify_jwt = false
+
+[functions.solana-auth]
+verify_jwt = false
