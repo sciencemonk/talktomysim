@@ -47,6 +47,8 @@ export const useTextChat = ({
     const aiMessageId = onAiMessageStart();
     console.log('Started AI message with ID:', aiMessageId);
     
+    let hasContent = false;
+    
     try {
       // Cancel any ongoing request
       if (abortControllerRef.current) {
@@ -58,13 +60,8 @@ export const useTextChat = ({
       // Get current user
       const { data: { user } } = await supabase.auth.getUser();
       
-      // Add timeout wrapper for the edge function call
-      const timeoutPromise = new Promise<never>((_, reject) => {
-        setTimeout(() => reject(new Error('Request timeout after 30 seconds')), 30000);
-      });
-      
-      // Use Supabase client to call the enhanced chat edge function with timeout
-      const edgeFunctionPromise = supabase.functions.invoke('enhanced-chat', {
+      // Use Supabase client to call the enhanced chat edge function
+      const invokePromise = supabase.functions.invoke('enhanced-chat', {
         body: {
           messages: newHistory,
           agent: {
@@ -81,7 +78,13 @@ export const useTextChat = ({
         }
       });
       
-      const { data, error } = await Promise.race([edgeFunctionPromise, timeoutPromise]);
+      // Add timeout
+      const timeoutPromise = new Promise<never>((_, reject) => {
+        setTimeout(() => reject(new Error('Request timeout after 30 seconds')), 30000);
+      });
+
+      const result = await Promise.race([invokePromise, timeoutPromise]);
+      const { data, error } = result as any;
 
       console.log('Edge function response:', { data, error });
       
@@ -92,29 +95,37 @@ export const useTextChat = ({
 
       if (data?.content) {
         console.log('Adding AI response to message ID:', aiMessageId);
-        // Add the AI response as a single message
+        // Add the AI response
         onAiTextDelta(aiMessageId, data.content);
+        hasContent = true;
         
         // Update conversation history with AI response
         setConversationHistory(prev => [...prev, { role: 'assistant', content: data.content }]);
-        
-        // Complete the message
-        await onAiMessageComplete(aiMessageId);
       } else {
         throw new Error('No content in response');
       }
     } catch (error: any) {
-      if (error.name === 'AbortError') {
-        console.log('Request was aborted');
-        // Still complete the message even if aborted
-        onAiTextDelta(aiMessageId, 'Request was cancelled.');
-        await onAiMessageComplete(aiMessageId);
-      } else {
-        console.error('Error sending message:', error);
-        onAiTextDelta(aiMessageId, 'Sorry, I encountered an error. Please try again.');
-        await onAiMessageComplete(aiMessageId);
+      console.error('Error in sendMessage:', error);
+      
+      // Always add error text to ensure there's content to save
+      if (!hasContent) {
+        const errorMessage = error.name === 'AbortError' 
+          ? 'Request was cancelled.' 
+          : 'Sorry, I encountered an error. Please try again.';
+        
+        console.log('Adding error message:', errorMessage);
+        onAiTextDelta(aiMessageId, errorMessage);
+        hasContent = true;
       }
     } finally {
+      // Always complete the message, whether success or error
+      try {
+        console.log('Completing message:', aiMessageId, 'hasContent:', hasContent);
+        await onAiMessageComplete(aiMessageId);
+      } catch (completeError) {
+        console.error('Error completing message:', completeError);
+      }
+      
       setIsProcessing(false);
       abortControllerRef.current = null;
     }
