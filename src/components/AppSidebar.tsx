@@ -87,8 +87,6 @@ export function AppSidebar() {
         .maybeSingle();
       
       if (error) throw error;
-      
-      console.log('User sim loaded:', data?.name, 'Avatar URL:', data?.avatar_url);
       return data;
     },
     enabled: !!currentUser,
@@ -394,7 +392,13 @@ export function AppSidebar() {
               className="flex items-center gap-3 flex-1 p-2 rounded-lg hover:bg-muted transition-colors"
             >
               <Avatar className="h-8 w-8">
-                <AvatarImage src={userSim?.avatar_url} />
+                <AvatarImage 
+                  src={userSim?.avatar_url ? (
+                    userSim.avatar_url.startsWith('http') 
+                      ? userSim.avatar_url 
+                      : `${window.location.origin}${userSim.avatar_url.startsWith('/') ? '' : '/'}${userSim.avatar_url}`
+                  ) : undefined} 
+                />
                 <AvatarFallback className="bg-primary text-primary-foreground text-sm">
                   {userSim?.name?.charAt(0) || 'S'}
                 </AvatarFallback>
