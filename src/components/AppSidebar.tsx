@@ -352,6 +352,34 @@ export function AppSidebar() {
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
                   <NavLink 
+                    to="/edit-sim"
+                    onClick={closeSidebar}
+                    className={({ isActive }) => 
+                      `${isActive ? 'bg-muted' : 'hover:bg-muted/50'}`
+                    }
+                  >
+                    <Settings className="h-4 w-4" />
+                    {open && <span>Personalize Your Sim</span>}
+                  </NavLink>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild>
+                  <NavLink 
+                    to="/edit-sim-page"
+                    onClick={closeSidebar}
+                    className={({ isActive }) => 
+                      `${isActive ? 'bg-muted' : 'hover:bg-muted/50'}`
+                    }
+                  >
+                    <Grid className="h-4 w-4" />
+                    {open && <span>Edit Sim Page</span>}
+                  </NavLink>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild>
+                  <NavLink 
                     to="/conversations"
                     onClick={closeSidebar}
                     className={({ isActive }) => 

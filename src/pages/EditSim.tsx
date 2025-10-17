@@ -286,12 +286,6 @@ const EditSim = () => {
         <div className="max-w-4xl mx-auto px-8 py-8">
           <ScrollArea className="h-[calc(100vh-8rem)]">
             <div className="space-y-12 pb-8">
-              {/* Header */}
-              <div className="space-y-2">
-                <h1 className="text-3xl font-bold">Personalize Your Sim</h1>
-                <p className="text-muted-foreground">Answer a few questions to create a truly personalized AI assistant tailored to your needs.</p>
-              </div>
-
               {/* Avatar & Basic Info Section */}
               <div className="space-y-6 pb-8 border-b">
                 <div className="flex items-center gap-3">
