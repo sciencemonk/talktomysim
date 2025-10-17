@@ -47,7 +47,7 @@ serve(async (req) => {
     // Find Hitler advisor
     const { data: hitlerAdvisor, error: advisorError } = await supabase
       .from('advisors')
-      .select('id, name, prompt')
+      .select('id, name, prompt, avatar_url')
       .ilike('name', '%hitler%')
       .eq('is_official', true)
       .single();
@@ -62,30 +62,31 @@ serve(async (req) => {
     // Analyze transactions and generate reactions
     const reactions = [];
     
-    for (const tx of transactions.slice(0, 5)) {
-      // Determine if it's a buy or sell based on transaction type
-      const isBuy = tx.type === 'SWAP' && tx.tokenTransfers?.some(
-        (transfer: any) => transfer.mint === tokenAddress && transfer.toUserAccount
+    for (const tx of transactions) {
+      if (!tx.tokenTransfers || tx.tokenTransfers.length === 0) continue;
+      
+      // Find token transfers for our specific token
+      const relevantTransfers = tx.tokenTransfers.filter(
+        (transfer: any) => transfer.mint === tokenAddress
       );
       
-      const isSell = tx.type === 'SWAP' && tx.tokenTransfers?.some(
-        (transfer: any) => transfer.mint === tokenAddress && transfer.fromUserAccount
-      );
-
-      if (isBuy || isSell) {
-        // Get amount from token transfers
-        const tokenTransfer = tx.tokenTransfers?.find(
-          (transfer: any) => transfer.mint === tokenAddress
-        );
+      if (relevantTransfers.length === 0) continue;
+      
+      for (const transfer of relevantTransfers) {
+        // A buy is when tokens are transferred TO a user (they receive tokens)
+        // A sell is when tokens are transferred FROM a user (they send tokens away)
+        const isBuy = transfer.toUserAccount && transfer.tokenAmount > 0;
+        const isSell = transfer.fromUserAccount && transfer.tokenAmount > 0;
         
-        const amount = tokenTransfer?.tokenAmount || 0;
-        
-        reactions.push({
-          type: isBuy ? 'buy' : 'sell',
-          amount,
-          timestamp: tx.timestamp,
-          signature: tx.signature,
-        });
+        if (isBuy || isSell) {
+          reactions.push({
+            type: isBuy ? 'buy' : 'sell',
+            amount: transfer.tokenAmount || 0,
+            timestamp: tx.timestamp,
+            signature: tx.signature,
+            user: isBuy ? transfer.toUserAccount : transfer.fromUserAccount,
+          });
+        }
       }
     }
 
