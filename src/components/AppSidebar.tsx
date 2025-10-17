@@ -185,7 +185,7 @@ export function AppSidebar() {
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => setOpen(false)}
+              onClick={() => setOpen(!open)}
               className="h-8 w-8"
             >
               <X className="h-5 w-5" />
