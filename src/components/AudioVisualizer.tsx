@@ -171,7 +171,7 @@ const AudioVisualizer = ({ audioSrc }: AudioVisualizerProps) => {
   }, [audioSrc]);
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-[100] h-32 bg-black/20 backdrop-blur-sm">
+    <div className="fixed bottom-0 left-0 right-0 z-[100] h-32 bg-white">
       <audio
         ref={audioRef}
         src={audioSrc}
