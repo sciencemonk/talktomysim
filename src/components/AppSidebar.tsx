@@ -174,35 +174,14 @@ export function AppSidebar() {
   return (
     <Sidebar className="border-r bg-background">
       <SidebarContent className="p-3">
-        {/* Mobile Header */}
-        {isMobile && (
-          <div className="flex items-center justify-between mb-4 px-2">
-            <img 
-              src="/sim-logo.png" 
-              alt="Sim Logo" 
-              className="h-8 w-8 object-contain"
-            />
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setOpen(!open)}
-              className="h-8 w-8"
-            >
-              <X className="h-5 w-5" />
-            </Button>
-          </div>
-        )}
-
-        {/* Desktop Logo */}
-        {!isMobile && (
-          <div className="flex items-center gap-2 mb-4 px-2">
-            <img 
-              src="/sim-logo.png" 
-              alt="Sim Logo" 
-              className="h-8 w-8 object-contain"
-            />
-          </div>
-        )}
+        {/* Sim Logo */}
+        <div className="flex items-center gap-2 mb-4 px-2">
+          <img 
+            src="/sim-logo.png" 
+            alt="Sim Logo" 
+            className="h-8 w-8 object-contain"
+          />
+        </div>
 
         {/* New Chat Button */}
         <div className="mb-4">
