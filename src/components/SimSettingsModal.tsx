@@ -4,7 +4,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Upload, Link2, Copy, Check, User, Briefcase, MessageCircle, Lightbulb, X } from "lucide-react";
+import { Upload, Link2, Copy, Check, User, Briefcase, MessageCircle, Lightbulb, X, Globe, Wallet } from "lucide-react";
 import { AgentType } from "@/types/agent";
 import { useState, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -39,6 +39,9 @@ export const SimSettingsModal = ({ open, onOpenChange, sim, onSimUpdate }: SimSe
   const [communicationStyle, setCommunicationStyle] = useState('');
   const [expertise, setExpertise] = useState<string[]>([]);
   const [newExpertise, setNewExpertise] = useState('');
+  const [twitterUrl, setTwitterUrl] = useState('');
+  const [websiteUrl, setWebsiteUrl] = useState('');
+  const [cryptoWallet, setCryptoWallet] = useState('');
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -100,6 +103,9 @@ export const SimSettingsModal = ({ open, onOpenChange, sim, onSimUpdate }: SimSe
           prompt,
           avatar_url: avatar,
           custom_url: customUrl,
+          twitter_url: twitterUrl,
+          website_url: websiteUrl,
+          crypto_wallet: cryptoWallet,
           updated_at: new Date().toISOString()
         })
         .eq('id', sim.id)
@@ -172,13 +178,13 @@ export const SimSettingsModal = ({ open, onOpenChange, sim, onSimUpdate }: SimSe
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[90vh] p-0 gap-0 border-2 border-white/20 bg-gradient-to-br from-black/95 to-black/90 backdrop-blur-xl text-white overflow-hidden">
-        <DialogHeader className="p-6 pb-4 border-b border-white/10">
-          <DialogTitle className="text-2xl font-bold text-white">Create Your Digital Twin</DialogTitle>
+      <DialogContent className="max-w-4xl max-h-[90vh] p-0 gap-0 border-2 border-white/20 bg-gradient-to-br from-black/95 to-black/90 backdrop-blur-xl text-white overflow-hidden flex flex-col">
+        <DialogHeader className="p-6 pb-4 border-b border-white/10 flex-shrink-0">
+          <DialogTitle className="text-2xl font-bold text-white">Create Your Twin</DialogTitle>
           <p className="text-sm text-white/60 mt-1">Build a sim that represents your personality, knowledge, and communication style</p>
         </DialogHeader>
 
-        <ScrollArea className="max-h-[calc(90vh-140px)]">
+        <ScrollArea className="flex-1 overflow-y-auto">
           <div className="space-y-8 p-6">
             {/* Avatar */}
             <div className="flex flex-col items-center space-y-4 pb-6 border-b border-white/10">
@@ -436,10 +442,59 @@ export const SimSettingsModal = ({ open, onOpenChange, sim, onSimUpdate }: SimSe
                 </p>
               </div>
             </div>
+
+            {/* Section: Social Links & Donations */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-2 text-white/90">
+                <Globe className="h-5 w-5" />
+                <h3 className="font-semibold text-lg">Social Links & Donations</h3>
+              </div>
+              
+              <div className="space-y-2 pl-7">
+                <Label htmlFor="twitter" className="text-sm font-medium text-white/80">X (Twitter) Profile</Label>
+                <Input
+                  id="twitter"
+                  value={twitterUrl}
+                  onChange={(e) => setTwitterUrl(e.target.value)}
+                  placeholder="https://x.com/yourhandle"
+                  className="bg-white/5 border-white/20 text-white placeholder:text-white/30"
+                />
+              </div>
+
+              <div className="space-y-2 pl-7">
+                <Label htmlFor="website" className="text-sm font-medium text-white/80">Personal Website</Label>
+                <Input
+                  id="website"
+                  value={websiteUrl}
+                  onChange={(e) => setWebsiteUrl(e.target.value)}
+                  placeholder="https://yourwebsite.com"
+                  className="bg-white/5 border-white/20 text-white placeholder:text-white/30"
+                />
+              </div>
+
+              <div className="space-y-2 pl-7">
+                <Label htmlFor="crypto" className="text-sm font-medium text-white/80">
+                  <div className="flex items-center gap-2">
+                    <Wallet className="h-4 w-4" />
+                    Crypto Wallet (for donations)
+                  </div>
+                </Label>
+                <Input
+                  id="crypto"
+                  value={cryptoWallet}
+                  onChange={(e) => setCryptoWallet(e.target.value)}
+                  placeholder="Your wallet address"
+                  className="bg-white/5 border-white/20 text-white placeholder:text-white/30 font-mono text-sm"
+                />
+                <p className="text-xs text-white/40">
+                  Share your wallet address for crypto donations
+                </p>
+              </div>
+            </div>
           </div>
         </ScrollArea>
 
-        <div className="flex justify-end gap-3 p-6 pt-4 border-t border-white/10 bg-black/50">
+        <div className="flex justify-end gap-3 p-6 pt-4 border-t border-white/10 bg-black/50 flex-shrink-0">
           <Button 
             variant="outline" 
             onClick={() => onOpenChange(false)}

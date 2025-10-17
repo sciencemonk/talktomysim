@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2 } from "lucide-react";
+import { Loader2, Globe, Wallet, ExternalLink, Copy } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import ChatInterface from "@/components/ChatInterface";
@@ -56,7 +56,7 @@ const PublicSimDetail = () => {
         return;
       }
 
-      // Transform to AgentType
+      // Transform to AgentType with social links
       const transformedSim: AgentType = {
         id: data.id,
         name: data.name,
@@ -80,7 +80,10 @@ const PublicSimDetail = () => {
         channels: [],
         channelConfigs: {},
         isPersonal: false,
-        voiceTraits: []
+        voiceTraits: [],
+        twitter_url: data.twitter_url,
+        website_url: data.website_url,
+        crypto_wallet: data.crypto_wallet
       };
 
       setSim(transformedSim);
@@ -173,7 +176,7 @@ const PublicSimDetail = () => {
               </p>
             )}
 
-            <div className="pt-6">
+            <div className="pt-8">
               <Button 
                 size="lg" 
                 onClick={() => setShowChat(true)}
@@ -183,7 +186,55 @@ const PublicSimDetail = () => {
               </Button>
             </div>
 
-            <p className="text-sm text-muted-foreground/60 pt-4">
+            {/* Social Links - Linktree Style */}
+            {(sim.twitter_url || sim.website_url || sim.crypto_wallet) && (
+              <div className="pt-8 space-y-3 max-w-md mx-auto">
+                {sim.twitter_url && (
+                  <a
+                    href={sim.twitter_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-center gap-3 w-full px-6 py-4 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 transition-all duration-300 group"
+                  >
+                    <svg className="h-5 w-5 text-muted-foreground group-hover:text-foreground transition-colors" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                    </svg>
+                    <span className="text-sm font-medium text-muted-foreground group-hover:text-foreground transition-colors">Follow on X</span>
+                    <ExternalLink className="h-4 w-4 text-muted-foreground/50 group-hover:text-foreground transition-colors" />
+                  </a>
+                )}
+
+                {sim.website_url && (
+                  <a
+                    href={sim.website_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-center gap-3 w-full px-6 py-4 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 transition-all duration-300 group"
+                  >
+                    <Globe className="h-5 w-5 text-muted-foreground group-hover:text-foreground transition-colors" />
+                    <span className="text-sm font-medium text-muted-foreground group-hover:text-foreground transition-colors">Visit Website</span>
+                    <ExternalLink className="h-4 w-4 text-muted-foreground/50 group-hover:text-foreground transition-colors" />
+                  </a>
+                )}
+
+                {sim.crypto_wallet && (
+                  <div className="flex items-center justify-center gap-3 w-full px-6 py-4 rounded-full bg-white/5 border border-white/10">
+                    <Wallet className="h-5 w-5 text-muted-foreground" />
+                    <span className="text-xs font-mono text-muted-foreground truncate max-w-[200px]">{sim.crypto_wallet}</span>
+                    <button
+                      onClick={() => {
+                        navigator.clipboard.writeText(sim.crypto_wallet || '');
+                      }}
+                      className="ml-auto text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      <Copy className="h-4 w-4" />
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+
+            <p className="text-sm text-muted-foreground/60 pt-6">
               This is a user-created AI sim. Chat responsibly.
             </p>
           </div>

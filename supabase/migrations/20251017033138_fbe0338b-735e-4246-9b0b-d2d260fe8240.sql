@@ -1,0 +1,5 @@
+-- Add social links and donation fields to advisors table
+ALTER TABLE advisors 
+ADD COLUMN IF NOT EXISTS twitter_url text,
+ADD COLUMN IF NOT EXISTS website_url text,
+ADD COLUMN IF NOT EXISTS crypto_wallet text;

@@ -19,6 +19,9 @@ export interface AgentChannelConfig {
 }
 
 export interface AgentType {
+  twitter_url?: string;
+  website_url?: string;
+  crypto_wallet?: string;
   id: string;
   name: string;
   description: string;

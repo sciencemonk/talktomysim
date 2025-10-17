@@ -121,6 +121,7 @@ export type Database = {
           category: string | null
           completion_status: Json | null
           created_at: string
+          crypto_wallet: string | null
           current_profession: string | null
           custom_url: string | null
           date_of_birth: string | null
@@ -142,9 +143,11 @@ export type Database = {
           sim_type: string | null
           skills: Json | null
           title: string | null
+          twitter_url: string | null
           updated_at: string
           url: string | null
           user_id: string | null
+          website_url: string | null
           welcome_message: string | null
           writing_sample: string | null
           years_experience: number | null
@@ -157,6 +160,7 @@ export type Database = {
           category?: string | null
           completion_status?: Json | null
           created_at?: string
+          crypto_wallet?: string | null
           current_profession?: string | null
           custom_url?: string | null
           date_of_birth?: string | null
@@ -178,9 +182,11 @@ export type Database = {
           sim_type?: string | null
           skills?: Json | null
           title?: string | null
+          twitter_url?: string | null
           updated_at?: string
           url?: string | null
           user_id?: string | null
+          website_url?: string | null
           welcome_message?: string | null
           writing_sample?: string | null
           years_experience?: number | null
@@ -193,6 +199,7 @@ export type Database = {
           category?: string | null
           completion_status?: Json | null
           created_at?: string
+          crypto_wallet?: string | null
           current_profession?: string | null
           custom_url?: string | null
           date_of_birth?: string | null
@@ -214,9 +221,11 @@ export type Database = {
           sim_type?: string | null
           skills?: Json | null
           title?: string | null
+          twitter_url?: string | null
           updated_at?: string
           url?: string | null
           user_id?: string | null
+          website_url?: string | null
           welcome_message?: string | null
           writing_sample?: string | null
           years_experience?: number | null
