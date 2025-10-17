@@ -135,9 +135,9 @@ const Landing = () => {
 
   const handleSimClick = (sim: AgentType) => {
     if (sim.custom_url) {
-      navigate(`/${sim.custom_url}`);
+      window.open(`/${sim.custom_url}`, '_blank');
     } else {
-      navigate('/sim-directory', { state: { selectedAdvisor: sim } });
+      window.open('/sim-directory', '_blank');
     }
   };
 
