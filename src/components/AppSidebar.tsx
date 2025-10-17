@@ -466,30 +466,22 @@ export function AppSidebar() {
                 <p className="text-sm font-medium truncate mb-2">
                   {userSim?.name || 'Your Sim'}
                 </p>
-                <button
-                  onClick={() => setShowCreditsModal(true)}
-                  className="w-full text-left hover:opacity-80 transition-opacity"
-                >
-                  <div className="space-y-1.5">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium">Credits</span>
-                      <span className="text-sm font-medium">{remainingCredits} left</span>
-                    </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setShowCreditsModal(true)}
+                    className="flex-1 hover:opacity-80 transition-opacity"
+                  >
                     <Progress value={percentageUsed} className="h-2" />
-                    <p className="text-xs text-muted-foreground flex items-center gap-1.5">
-                      <span className="inline-block w-1.5 h-1.5 rounded-full bg-primary"></span>
-                      Using monthly credits
-                    </p>
-                  </div>
-                </button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={handleSignOut}
-                  className="h-8 w-8 hover:bg-muted mt-2 ml-auto block"
-                >
-                  <LogOut className="h-4 w-4" />
-                </Button>
+                  </button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={handleSignOut}
+                    className="h-8 w-8 hover:bg-muted flex-shrink-0"
+                  >
+                    <LogOut className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
             )}
           </div>
