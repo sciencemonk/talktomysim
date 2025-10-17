@@ -9,11 +9,13 @@ import { Badge } from '@/components/ui/badge';
 import { AgentType } from '@/types/agent';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useAuth } from '@/hooks/useAuth';
 
 const SimDirectory = () => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const isMobile = useIsMobile();
+  const { user } = useAuth();
 
   const { data: allSims } = useQuery({
     queryKey: ['all-sims-directory'],
@@ -64,7 +66,13 @@ const SimDirectory = () => {
 
   const handleSimClick = (sim: AgentType) => {
     if (sim.custom_url) {
-      navigate(`/${sim.custom_url}`);
+      if (user) {
+        // Open in new tab for signed-in users
+        window.open(`/${sim.custom_url}`, '_blank');
+      } else {
+        // Navigate in current tab for non-signed-in users
+        navigate(`/${sim.custom_url}`);
+      }
     }
   };
 
