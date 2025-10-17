@@ -15,9 +15,10 @@ interface ChatInterfaceProps {
   onBack?: () => void;
   hideHeader?: boolean;
   transparentMode?: boolean;
+  isCreatorChat?: boolean;
 }
 
-const ChatInterface = ({ agent, onBack, hideHeader = false, transparentMode = false }: ChatInterfaceProps) => {
+const ChatInterface = ({ agent, onBack, hideHeader = false, transparentMode = false, isCreatorChat = false }: ChatInterfaceProps) => {
   const [currentAgent, setCurrentAgent] = useState(agent);
   const [isAiResponding, setIsAiResponding] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -25,7 +26,7 @@ const ChatInterface = ({ agent, onBack, hideHeader = false, transparentMode = fa
   const isMobile = useIsMobile();
   const { isKeyboardVisible, viewportHeight } = useIOSKeyboard();
   
-  const chatHistory = useChatHistory(currentAgent);
+  const chatHistory = useChatHistory(currentAgent, isCreatorChat);
   const textChat = useTextChat({
     agent: currentAgent,
     onUserMessage: chatHistory.addUserMessage,

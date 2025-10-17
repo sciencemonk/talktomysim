@@ -92,7 +92,7 @@ const Landing = () => {
     enabled: !!currentUser
   });
 
-  // Fetch sim stats if user has a sim
+  // Fetch sim stats if user has a sim (only count public visitor conversations)
   const { data: simStats } = useQuery({
     queryKey: ['sim-stats', userSim?.id],
     queryFn: async () => {
@@ -101,7 +101,8 @@ const Landing = () => {
       const { data: conversations, error } = await supabase
         .from('conversations')
         .select('id')
-        .eq('tutor_id', userSim.id);
+        .eq('tutor_id', userSim.id)
+        .eq('is_creator_conversation', false);
       
       if (error) throw error;
       
@@ -113,7 +114,7 @@ const Landing = () => {
     enabled: !!userSim
   });
 
-  // Fetch recent conversations
+  // Fetch recent conversations (only public visitor conversations)
   const { data: recentConversations } = useQuery({
     queryKey: ['recent-conversations', userSim?.id],
     queryFn: async () => {
@@ -123,6 +124,7 @@ const Landing = () => {
         .from('conversations')
         .select('id, created_at, title')
         .eq('tutor_id', userSim.id)
+        .eq('is_creator_conversation', false)
         .order('created_at', { ascending: false })
         .limit(5);
       
@@ -390,6 +392,7 @@ const Landing = () => {
                       agent={feature.sim}
                       hideHeader={true}
                       transparentMode={true}
+                      isCreatorChat={true}
                     />
                   </div>
                 </div>

@@ -344,6 +344,7 @@ export type Database = {
           created_at: string | null
           id: string
           is_anonymous: boolean | null
+          is_creator_conversation: boolean
           title: string | null
           tutor_id: string
           updated_at: string | null
@@ -354,6 +355,7 @@ export type Database = {
           created_at?: string | null
           id?: string
           is_anonymous?: boolean | null
+          is_creator_conversation?: boolean
           title?: string | null
           tutor_id: string
           updated_at?: string | null
@@ -364,6 +366,7 @@ export type Database = {
           created_at?: string | null
           id?: string
           is_anonymous?: boolean | null
+          is_creator_conversation?: boolean
           title?: string | null
           tutor_id?: string
           updated_at?: string | null
