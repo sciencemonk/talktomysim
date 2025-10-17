@@ -73,7 +73,7 @@ export function AppSidebar() {
     return () => subscription.unsubscribe();
   });
 
-  // Fetch user's sim
+  // Fetch user's sim with staleTime to prevent refetching on every navigation
   const { data: userSim } = useQuery({
     queryKey: ['user-sim', currentUser?.id],
     queryFn: async () => {
@@ -89,7 +89,9 @@ export function AppSidebar() {
       if (error) throw error;
       return data;
     },
-    enabled: !!currentUser
+    enabled: !!currentUser,
+    staleTime: 5 * 60 * 1000, // Keep data fresh for 5 minutes
+    gcTime: 10 * 60 * 1000, // Keep in cache for 10 minutes
   });
 
   const { data: myConversations, refetch } = useQuery({

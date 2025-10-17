@@ -108,9 +108,12 @@ export const useChatHistory = (agent: AgentType, isCreatorChat: boolean = false,
       setIsLoading(false);
     };
 
-    // Reset messages when switching agents
-    setMessages([]);
-    setActiveConversationId(conversationId || null);
+    // Only reset if switching to a different conversation or forcing new
+    if (forceNew || (conversationId && conversationId !== activeConversationId)) {
+      setMessages([]);
+      setActiveConversationId(conversationId || null);
+    }
+    
     loadChatHistory();
   }, [agent?.id, forceNew, conversationId]);
 
