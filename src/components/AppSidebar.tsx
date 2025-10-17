@@ -87,6 +87,8 @@ export function AppSidebar() {
         .maybeSingle();
       
       if (error) throw error;
+      
+      console.log('User sim loaded:', data?.name, 'Avatar URL:', data?.avatar_url);
       return data;
     },
     enabled: !!currentUser,

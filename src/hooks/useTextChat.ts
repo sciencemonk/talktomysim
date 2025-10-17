@@ -76,11 +76,11 @@ export const useTextChat = ({
         }
       });
 
-      console.log('Response data:', data);
+      console.log('Edge function response:', { data, error });
       
       if (error) {
         console.error('Supabase function error:', error);
-        throw error;
+        throw new Error(`Edge function error: ${error.message || JSON.stringify(error)}`);
       }
 
       if (data?.content) {
