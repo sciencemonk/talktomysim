@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { 
   MessageSquare, 
   Plus, 
@@ -8,7 +8,10 @@ import {
   Users, 
   Grid,
   Settings,
-  LogOut
+  LogOut,
+  MoreVertical,
+  Trash2,
+  X
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -27,6 +30,13 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { toast } from "sonner";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface Conversation {
   id: string;
@@ -37,10 +47,13 @@ interface Conversation {
 }
 
 export function AppSidebar() {
-  const { open } = useSidebar();
+  const { open, setOpen } = useSidebar();
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [currentUser, setCurrentUser] = useState<any>(null);
+  const [hoveredChat, setHoveredChat] = useState<string | null>(null);
+  const queryClient = useQueryClient();
+  const isMobile = useIsMobile();
 
   // Get current user
   useState(() => {
@@ -125,6 +138,30 @@ export function AppSidebar() {
     navigate('/');
   };
 
+  const deleteConversation = useMutation({
+    mutationFn: async (conversationId: string) => {
+      const { error } = await supabase
+        .from('conversations')
+        .delete()
+        .eq('id', conversationId);
+      
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['my-conversations'] });
+      toast.success('Chat deleted');
+      // If we're on the deleted chat, navigate to home
+      const currentChatId = new URLSearchParams(window.location.search).get('chat');
+      if (currentChatId && hoveredChat === currentChatId) {
+        navigate('/');
+      }
+    },
+    onError: (error) => {
+      console.error('Error deleting conversation:', error);
+      toast.error('Failed to delete chat');
+    }
+  });
+
   const filteredConversations = myConversations?.filter((conv: Conversation) => {
     if (!searchQuery) return true;
     const searchLower = searchQuery.toLowerCase();
@@ -137,14 +174,35 @@ export function AppSidebar() {
   return (
     <Sidebar className="border-r bg-background">
       <SidebarContent className="p-3">
-        {/* Sim Logo */}
-        <div className="flex items-center gap-2 mb-4 px-2">
-          <img 
-            src="/sim-logo.png" 
-            alt="Sim Logo" 
-            className="h-8 w-8 object-contain"
-          />
-        </div>
+        {/* Mobile Header */}
+        {isMobile && (
+          <div className="flex items-center justify-between mb-4 px-2">
+            <img 
+              src="/sim-logo.png" 
+              alt="Sim Logo" 
+              className="h-8 w-8 object-contain"
+            />
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setOpen(false)}
+              className="h-8 w-8"
+            >
+              <X className="h-5 w-5" />
+            </Button>
+          </div>
+        )}
+
+        {/* Desktop Logo */}
+        {!isMobile && (
+          <div className="flex items-center gap-2 mb-4 px-2">
+            <img 
+              src="/sim-logo.png" 
+              alt="Sim Logo" 
+              className="h-8 w-8 object-contain"
+            />
+          </div>
+        )}
 
         {/* New Chat Button */}
         <div className="mb-4">
@@ -180,22 +238,57 @@ export function AppSidebar() {
             <ScrollArea className="h-[300px]">
               <SidebarMenu>
                 {filteredConversations?.map((conv: Conversation) => (
-                  <SidebarMenuItem key={conv.id}>
-                    <SidebarMenuButton asChild>
-                      <NavLink 
-                        to={`/?chat=${conv.id}`}
-                        className={({ isActive }) => 
-                          `truncate ${isActive ? 'bg-muted' : 'hover:bg-muted/50'}`
-                        }
-                      >
-                        <MessageSquare className="h-4 w-4 flex-shrink-0" />
-                        {open && (
-                          <span className="truncate">
-                            {conv.firstMessage || conv.title || `Chat ${new Date(conv.created_at).toLocaleDateString()}`}
-                          </span>
-                        )}
-                      </NavLink>
-                    </SidebarMenuButton>
+                  <SidebarMenuItem 
+                    key={conv.id}
+                    onMouseEnter={() => setHoveredChat(conv.id)}
+                    onMouseLeave={() => setHoveredChat(null)}
+                    className="relative group"
+                  >
+                    <div className="flex items-center gap-1 w-full">
+                      <SidebarMenuButton asChild className="flex-1">
+                        <NavLink 
+                          to={`/?chat=${conv.id}`}
+                          onClick={() => isMobile && setOpen(false)}
+                          className={({ isActive }) => 
+                            `truncate ${isActive ? 'bg-muted' : 'hover:bg-muted/50'}`
+                          }
+                        >
+                          <MessageSquare className="h-4 w-4 flex-shrink-0" />
+                          {open && (
+                            <span className="truncate">
+                              {conv.firstMessage || conv.title || `Chat ${new Date(conv.created_at).toLocaleDateString()}`}
+                            </span>
+                          )}
+                        </NavLink>
+                      </SidebarMenuButton>
+                      
+                      {open && hoveredChat === conv.id && (
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              <MoreVertical className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem
+                              className="text-destructive focus:text-destructive"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                deleteConversation.mutate(conv.id);
+                              }}
+                            >
+                              <Trash2 className="h-4 w-4 mr-2" />
+                              Delete chat
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      )}
+                    </div>
                   </SidebarMenuItem>
                 ))}
                 {(!filteredConversations || filteredConversations.length === 0) && open && (
@@ -217,6 +310,7 @@ export function AppSidebar() {
                 <SidebarMenuButton asChild>
                   <NavLink 
                     to="/conversations"
+                    onClick={() => isMobile && setOpen(false)}
                     className={({ isActive }) => 
                       `${isActive ? 'bg-muted' : 'hover:bg-muted/50'}`
                     }
@@ -230,6 +324,7 @@ export function AppSidebar() {
                 <SidebarMenuButton asChild>
                   <NavLink 
                     to="/directory"
+                    onClick={() => isMobile && setOpen(false)}
                     className={({ isActive }) => 
                       `${isActive ? 'bg-muted' : 'hover:bg-muted/50'}`
                     }
@@ -247,7 +342,10 @@ export function AppSidebar() {
         <div className="mt-auto pt-4 border-t">
           <div className="flex items-center gap-3">
             <button
-              onClick={() => navigate('/edit-sim')}
+              onClick={() => {
+                navigate('/edit-sim');
+                isMobile && setOpen(false);
+              }}
               className="flex items-center gap-3 flex-1 p-2 rounded-lg hover:bg-muted transition-colors"
             >
               <Avatar className="h-8 w-8">
