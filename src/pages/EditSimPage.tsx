@@ -288,6 +288,15 @@ const EditSimPage = () => {
                     )}
                   </div>
 
+                  {/* Talk to Sim Button */}
+                  <Button
+                    size="lg"
+                    className="w-full h-12 text-sm font-semibold bg-white text-black hover:bg-white/90 shadow-xl mb-6"
+                    disabled
+                  >
+                    Talk to my Sim
+                  </Button>
+
                   {/* Social Links Preview */}
                   {(twitterUrl || websiteUrl || cryptoWallet) && (
                     <div className="space-y-2 pt-4 border-t border-white/20">
