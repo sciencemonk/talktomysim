@@ -116,7 +116,10 @@ serve(async (req) => {
        userMessage.toLowerCase().includes('holdings') || 
        userMessage.toLowerCase().includes('portfolio') ||
        userMessage.toLowerCase().includes('tokens') ||
-       userMessage.toLowerCase().includes('crypto'));
+       userMessage.toLowerCase().includes('crypto') ||
+       userMessage.toLowerCase().includes('sol') ||
+       userMessage.toLowerCase().includes('balance') ||
+       userMessage.toLowerCase().includes('coin'));
     
     if (needsWalletAnalysis) {
       console.log('Fetching wallet analysis...');
