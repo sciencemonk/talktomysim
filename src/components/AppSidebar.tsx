@@ -463,31 +463,33 @@ export function AppSidebar() {
             </Avatar>
             {open && (
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium truncate">
+                <p className="text-sm font-medium truncate mb-2">
                   {userSim?.name || 'Your Sim'}
                 </p>
                 <button
                   onClick={() => setShowCreditsModal(true)}
                   className="w-full text-left hover:opacity-80 transition-opacity"
                 >
-                  <div className="flex items-center gap-2 mt-1">
-                    <Progress value={percentageUsed} className="h-1 flex-1" />
-                    <span className="text-xs text-muted-foreground whitespace-nowrap">
-                      {remainingCredits}
-                    </span>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleSignOut();
-                      }}
-                      className="h-6 w-6 hover:bg-muted -mr-1"
-                    >
-                      <LogOut className="h-3.5 w-3.5" />
-                    </Button>
+                  <div className="space-y-1.5">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium">Credits</span>
+                      <span className="text-sm font-medium">{remainingCredits} left</span>
+                    </div>
+                    <Progress value={percentageUsed} className="h-2" />
+                    <p className="text-xs text-muted-foreground flex items-center gap-1.5">
+                      <span className="inline-block w-1.5 h-1.5 rounded-full bg-primary"></span>
+                      Using monthly credits
+                    </p>
                   </div>
                 </button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={handleSignOut}
+                  className="h-8 w-8 hover:bg-muted mt-2 ml-auto block"
+                >
+                  <LogOut className="h-4 w-4" />
+                </Button>
               </div>
             )}
           </div>
