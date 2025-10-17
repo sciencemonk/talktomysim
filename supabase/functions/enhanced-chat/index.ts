@@ -62,12 +62,12 @@ serve(async (req) => {
         
         userWalletAddress = profile?.wallet_address;
         
-        // Fetch recent conversations with the sim
+        // Fetch recent PUBLIC visitor conversations with the sim (exclude creator's own chats)
         const { data: recentConvos } = await supabase
           .from('conversations')
           .select('id, created_at, is_anonymous')
           .eq('tutor_id', agent.id || '')
-          .neq('user_id', userId) // Exclude creator's own conversations
+          .eq('is_creator_conversation', false) // Only public visitor conversations
           .order('created_at', { ascending: false })
           .limit(20);
         

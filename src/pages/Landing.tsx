@@ -15,7 +15,7 @@ import bs58 from "bs58";
 import AuthModal from "@/components/AuthModal";
 import landingBackground from "@/assets/landing-background.jpg";
 import { SimSettingsModal } from "@/components/SimSettingsModal";
-import { MessageCircle, Eye, Settings, LogOut, Link2, Copy, Check, Trash2 } from "lucide-react";
+import { Settings, LogOut, Link2, Copy, Check, Trash2 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import ChatInterface from "@/components/ChatInterface";
 import { ConversationModal } from "@/components/ConversationModal";
@@ -90,28 +90,6 @@ const Landing = () => {
       } as AgentType;
     },
     enabled: !!currentUser
-  });
-
-  // Fetch sim stats if user has a sim (only count public visitor conversations)
-  const { data: simStats } = useQuery({
-    queryKey: ['sim-stats', userSim?.id],
-    queryFn: async () => {
-      if (!userSim) return null;
-      
-      const { data: conversations, error } = await supabase
-        .from('conversations')
-        .select('id')
-        .eq('tutor_id', userSim.id)
-        .eq('is_creator_conversation', false);
-      
-      if (error) throw error;
-      
-      return {
-        conversations: conversations?.length || 0,
-        views: 0 // We'll implement view tracking later
-      };
-    },
-    enabled: !!userSim
   });
 
   // Fetch recent conversations (only public visitor conversations)
@@ -337,7 +315,6 @@ const Landing = () => {
       gridArea: "create",
       showSimOverview: true,
       sim: userSim,
-      stats: simStats,
       recentConversations,
     },
     {
@@ -504,26 +481,6 @@ const Landing = () => {
                                 <Copy className="h-4 w-4 text-white/60" />
                               )}
                             </Button>
-                          </div>
-                        </div>
-                      )}
-                      
-                      {/* Stats */}
-                      {feature.stats && (
-                        <div className="grid grid-cols-2 gap-3">
-                          <div className="p-3 rounded-lg bg-black/30 border border-white/20">
-                            <div className="flex items-center gap-2 mb-1">
-                              <MessageCircle className="h-4 w-4 text-white/60" />
-                              <p className="text-xs text-white/60">Conversations</p>
-                            </div>
-                            <p className="text-2xl font-bold text-white">{feature.stats.conversations}</p>
-                          </div>
-                          <div className="p-3 rounded-lg bg-black/30 border border-white/20">
-                            <div className="flex items-center gap-2 mb-1">
-                              <Eye className="h-4 w-4 text-white/60" />
-                              <p className="text-xs text-white/60">Views</p>
-                            </div>
-                            <p className="text-2xl font-bold text-white">{feature.stats.views}</p>
                           </div>
                         </div>
                       )}
