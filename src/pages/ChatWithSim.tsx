@@ -6,12 +6,16 @@ import { Card } from '@/components/ui/card';
 import { toast } from 'sonner';
 import { AgentType } from '@/types/agent';
 import ChatInterface from '@/components/ChatInterface';
+import { SidebarTrigger } from '@/components/ui/sidebar';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { Menu } from 'lucide-react';
 
 const ChatWithSim = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const chatId = searchParams.get('chat');
   const [currentUser, setCurrentUser] = useState<any>(null);
+  const isMobile = useIsMobile();
   
   // Force new chat when no chatId is present
   const forceNewChat = !chatId;
@@ -95,8 +99,27 @@ const ChatWithSim = () => {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
+      {/* Mobile Header with Menu */}
+      {isMobile && (
+        <div className="fixed top-0 left-0 right-0 z-50 bg-background border-b">
+          <div className="flex items-center justify-between p-3">
+            <SidebarTrigger className="h-10 w-10">
+              <Menu className="h-5 w-5" />
+            </SidebarTrigger>
+            <div className="flex items-center gap-2">
+              <img 
+                src="/sim-logo.png" 
+                alt="Sim Logo" 
+                className="h-8 w-8 object-contain"
+              />
+            </div>
+            <div className="w-10" /> {/* Spacer for centering */}
+          </div>
+        </div>
+      )}
+      
       {/* Chat Interface - Full Screen Seamless */}
-      <div className="flex-1 flex flex-col w-full">
+      <div className={`flex-1 flex flex-col w-full ${isMobile ? 'pt-[57px]' : ''}`}>
         <ChatInterface
           agent={userSim}
           hideHeader={true}
