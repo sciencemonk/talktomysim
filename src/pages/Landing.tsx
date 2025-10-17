@@ -295,7 +295,7 @@ const Landing = () => {
     },
     {
       title: "Chat with Your Sim",
-      description: "Test your sim and see how it responds",
+      description: "Your personal assistant and agent",
       action: () => {},
       gradient: "from-muted/20 to-muted/5",
       gridArea: "chat",
