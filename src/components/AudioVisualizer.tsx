@@ -35,8 +35,12 @@ const AudioVisualizer = ({ audioSrc }: AudioVisualizerProps) => {
     window.addEventListener('resize', resizeCanvas);
 
     const setupAudio = () => {
-      if (audioContextRef.current) return;
+      if (audioContextRef.current) {
+        console.log('AudioContext already exists, skipping setup');
+        return;
+      }
 
+      console.log('Setting up AudioContext and analyser');
       const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
       const source = audioContext.createMediaElementSource(audio);
       const analyser = audioContext.createAnalyser();
@@ -52,6 +56,7 @@ const AudioVisualizer = ({ audioSrc }: AudioVisualizerProps) => {
       analyserRef.current = analyser;
       dataArrayRef.current = dataArray;
 
+      console.log('AudioContext setup complete, starting draw loop');
       draw();
     };
 
@@ -107,13 +112,19 @@ const AudioVisualizer = ({ audioSrc }: AudioVisualizerProps) => {
     // Auto-play with user interaction
     const startAudio = () => {
       console.log('Attempting to play audio from:', audioSrc);
+      
+      // Only setup audio context once
+      if (!audioContextRef.current) {
+        setupAudio();
+      }
+      
       audio.play().then(() => {
         console.log('Audio playing successfully');
-        setupAudio();
+        if (audioContextRef.current?.state === 'suspended') {
+          audioContextRef.current.resume();
+        }
       }).catch(err => {
         console.error('Audio play failed:', err);
-        // Still setup audio context so visualizer shows something
-        setupAudio();
       });
     };
 
@@ -160,7 +171,7 @@ const AudioVisualizer = ({ audioSrc }: AudioVisualizerProps) => {
   }, [audioSrc]);
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-[100] h-32 pointer-events-none">
+    <div className="fixed bottom-0 left-0 right-0 z-[100] h-32 bg-black/20 backdrop-blur-sm">
       <audio
         ref={audioRef}
         src={audioSrc}
