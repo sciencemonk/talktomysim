@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import ChatInterface from "@/components/ChatInterface";
 import AuthModal from "@/components/AuthModal";
+import SimPublicFooter from "@/components/SimPublicFooter";
 import { AgentType } from "@/types/agent";
 import { useToast } from "@/hooks/use-toast";
 import landingBackground from "@/assets/landing-background.jpg";
@@ -294,6 +295,7 @@ const PublicSimDetail = () => {
         </div>
       )}
 
+      <SimPublicFooter />
       <AuthModal open={showAuthModal} onOpenChange={setShowAuthModal} />
     </div>
   );
