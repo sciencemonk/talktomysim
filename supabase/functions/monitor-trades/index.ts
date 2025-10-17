@@ -12,21 +12,16 @@ serve(async (req) => {
   }
 
   try {
-    const heliusApiKey = Deno.env.get('HELIUS_API_KEY');
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    
-    if (!heliusApiKey) {
-      throw new Error('HELIUS_API_KEY not configured');
-    }
 
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
     
-    const tokenAddress = 'FFqwoZ7phjoupWjLeE5yFeLqGi8jkGEFrTz6jnsUpump';
+    const tokenAddress = 'ArfuojkvAUXauU9wPTpRzGwyYjq6YeUtRNwUXT6PjnQ6';
     
-    // Get recent transactions for the token
+    // Get recent trades from PumpPortal
     const response = await fetch(
-      `https://api.helius.xyz/v0/addresses/${tokenAddress}/transactions?api-key=${heliusApiKey}&limit=10`,
+      `https://pumpportal.fun/api/data?mint=${tokenAddress}&limit=10`,
       {
         method: 'GET',
         headers: {
@@ -37,12 +32,12 @@ serve(async (req) => {
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('Helius API error:', errorText);
-      throw new Error(`Helius API error: ${response.status}`);
+      console.error('PumpPortal API error:', errorText);
+      throw new Error(`PumpPortal API error: ${response.status}`);
     }
 
-    const transactions = await response.json();
-    console.log('Fetched transactions:', transactions.length);
+    const trades = await response.json();
+    console.log('Fetched trades:', trades.length);
 
     // Find Pablo Escobar advisor
     const { data: escobarAdvisor, error: advisorError } = await supabase
@@ -59,40 +54,21 @@ serve(async (req) => {
 
     console.log('Found advisor:', escobarAdvisor.name);
 
-    // Analyze transactions and generate reactions
+    // Process trades and generate reactions
     const reactions = [];
     
-    console.log('Processing', transactions.length, 'transactions');
+    console.log('Processing', trades.length, 'trades');
     
-    for (const tx of transactions) {
-      if (!tx.tokenTransfers || tx.tokenTransfers.length === 0) continue;
+    for (const trade of trades) {
+      console.log('Trade detected:', trade.txType?.toUpperCase() || (trade.is_buy ? 'BUY' : 'SELL'), 'amount:', trade.token_amount || trade.tokenAmount);
       
-      // Find token transfers for our specific token
-      const relevantTransfers = tx.tokenTransfers.filter(
-        (transfer: any) => transfer.mint === tokenAddress
-      );
-      
-      if (relevantTransfers.length === 0) continue;
-      
-      console.log('Found relevant transfers for tx:', tx.signature.substring(0, 8));
-      
-      for (const transfer of relevantTransfers) {
-        // A buy is when tokens are transferred TO a user (they receive tokens)
-        // A sell is when tokens are transferred FROM a user (they send tokens away)
-        const isBuy = transfer.toUserAccount && transfer.tokenAmount > 0;
-        const isSell = transfer.fromUserAccount && transfer.tokenAmount > 0;
-        
-        if (isBuy || isSell) {
-          console.log('Trade detected:', isBuy ? 'BUY' : 'SELL', 'amount:', transfer.tokenAmount);
-          reactions.push({
-            type: isBuy ? 'buy' : 'sell',
-            amount: transfer.tokenAmount || 0,
-            timestamp: tx.timestamp,
-            signature: tx.signature,
-            user: isBuy ? transfer.toUserAccount : transfer.fromUserAccount,
-          });
-        }
-      }
+      reactions.push({
+        type: trade.is_buy || trade.isBuy ? 'buy' : 'sell',
+        amount: trade.token_amount || trade.tokenAmount || 0,
+        timestamp: trade.timestamp,
+        signature: trade.signature,
+        user: trade.user,
+      });
     }
 
     console.log('Generated reactions:', reactions.length);
@@ -101,7 +77,7 @@ serve(async (req) => {
       JSON.stringify({
         advisor: escobarAdvisor,
         reactions,
-        totalTransactions: transactions.length,
+        totalTrades: trades.length,
       }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
