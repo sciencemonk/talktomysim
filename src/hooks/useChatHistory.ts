@@ -179,64 +179,76 @@ export const useChatHistory = (agent: AgentType, isCreatorChat: boolean = false,
 
   // Complete AI message
   const completeAiMessage = useCallback(async (messageId: string) => {
-    // Use a function to get the current message content
+    // First, get the current message content from state
+    let messageContent = '';
     setMessages(prev => {
       const currentMessage = prev.find(msg => msg.id === messageId);
-      if (!currentMessage || !currentMessage.content.trim()) {
-        console.error('No message content found for ID:', messageId);
-        return prev;
+      if (currentMessage?.content.trim()) {
+        messageContent = currentMessage.content;
       }
+      return prev;
+    });
 
-      console.log('Completing AI message:', currentMessage.content);
+    // If no content found, exit early
+    if (!messageContent) {
+      console.error('No message content found for ID:', messageId);
+      return;
+    }
 
-      // Save to database whether authenticated or anonymous
-      if (activeConversationId) {
-        // Save to database in the background
-        conversationService.addMessage(
-          activeConversationId, 
-          'system', 
-          currentMessage.content
-        ).then(savedMessage => {
-          if (savedMessage) {
-            console.log('AI message saved to database:', savedMessage);
-            setMessages(prevMessages => 
-              prevMessages.map(msg => 
-                msg.id === messageId 
-                  ? { ...msg, id: savedMessage.id, isComplete: true }
-                  : msg
-              )
-            );
-          } else {
-            console.error('Failed to save AI message to database');
-            // Still mark as complete even if save failed
-            setMessages(prevMessages => 
-              prevMessages.map(msg => 
-                msg.id === messageId 
-                  ? { ...msg, isComplete: true }
-                  : msg
-              )
-            );
-          }
-        }).catch(error => {
-          console.error('Error saving AI message:', error);
+    console.log('Completing AI message:', messageContent.substring(0, 100) + '...');
+
+    // Save to database whether authenticated or anonymous
+    if (activeConversationId) {
+      try {
+        const savedMessage = await conversationService.addMessage(
+          activeConversationId,
+          'system',
+          messageContent
+        );
+
+        if (savedMessage) {
+          console.log('AI message saved to database:', savedMessage.id);
+          // Update message with database ID and mark as complete
+          setMessages(prev =>
+            prev.map(msg =>
+              msg.id === messageId
+                ? { ...msg, id: savedMessage.id, isComplete: true }
+                : msg
+            )
+          );
+        } else {
+          console.error('Failed to save AI message to database');
           // Still mark as complete even if save failed
-          setMessages(prevMessages => 
-            prevMessages.map(msg => 
-              msg.id === messageId 
+          setMessages(prev =>
+            prev.map(msg =>
+              msg.id === messageId
                 ? { ...msg, isComplete: true }
                 : msg
             )
           );
-        });
+        }
+      } catch (error) {
+        console.error('Error saving AI message:', error);
+        // Still mark as complete even if save failed
+        setMessages(prev =>
+          prev.map(msg =>
+            msg.id === messageId
+              ? { ...msg, isComplete: true }
+              : msg
+          )
+        );
       }
-
-      // Mark as complete immediately in the UI
-      return prev.map(msg => 
-        msg.id === messageId 
-          ? { ...msg, isComplete: true }
-          : msg
+    } else {
+      // No conversation ID, just mark as complete
+      console.warn('No activeConversationId when completing AI message');
+      setMessages(prev =>
+        prev.map(msg =>
+          msg.id === messageId
+            ? { ...msg, isComplete: true }
+            : msg
+        )
       );
-    });
+    }
   }, [activeConversationId]);
 
   return {
