@@ -52,14 +52,9 @@ const ChatInterface = ({ agent, onBack, hideHeader = false, transparentMode = fa
 
   return (
     <div 
-      className={`flex flex-col w-full overflow-hidden ${
+      className={`flex flex-col w-full h-screen overflow-hidden ${
         transparentMode ? 'bg-transparent' : 'bg-background'
       }`}
-      style={{
-        height: hideHeader ? '100%' : (isMobile && isKeyboardVisible 
-          ? `${viewportHeight}px` 
-          : '100vh')
-      }}
     >
       {/* Header with advisor info and back button - Flex header */}
       {!hideHeader && (
@@ -94,15 +89,15 @@ const ChatInterface = ({ agent, onBack, hideHeader = false, transparentMode = fa
       )}
 
       {/* Messages - Flex-1 scrollable area */}
-      <div ref={messagesContainerRef} className="flex-1 overflow-y-auto min-h-0 bg-background flex items-center justify-center">
+      <div ref={messagesContainerRef} className="flex-1 overflow-y-auto min-h-0 bg-background">
         {chatHistory.messages.length === 0 && !textChat.isProcessing ? (
-          <div className="flex flex-col items-center justify-center text-center px-4 w-full">
-            <h1 className="text-3xl md:text-4xl font-semibold mb-8 text-foreground">
+          <div className="h-full flex flex-col items-center justify-center px-4">
+            <h1 className="text-3xl md:text-4xl font-semibold text-foreground">
               How may I help you?
             </h1>
           </div>
         ) : (
-          <div className="w-full py-8">
+          <div className="py-8">
             <div className="max-w-3xl mx-auto px-4">
               {chatHistory.messages.map((message) => {
                 // Don't render AI messages that are incomplete and have no content
@@ -141,8 +136,8 @@ const ChatInterface = ({ agent, onBack, hideHeader = false, transparentMode = fa
         )}
       </div>
 
-      {/* Input - Flex footer - Always show, positioned at bottom center */}
-      <div className="flex-shrink-0 p-4 bg-background">
+      {/* Input - Fixed at bottom */}
+      <div className="flex-shrink-0 p-4 bg-background border-t">
         <div className="max-w-3xl mx-auto">
           <TextInput 
             onSendMessage={textChat.sendMessage}
