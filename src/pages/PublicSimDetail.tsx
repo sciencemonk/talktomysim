@@ -86,7 +86,8 @@ const PublicSimDetail = () => {
         voiceTraits: [],
         twitter_url: data.twitter_url,
         website_url: data.website_url,
-        crypto_wallet: data.crypto_wallet
+        crypto_wallet: data.crypto_wallet,
+        background_image_url: data.background_image_url
       };
 
       setSim(transformedSim);
@@ -145,7 +146,7 @@ const PublicSimDetail = () => {
     <div 
       className="min-h-screen flex flex-col relative overflow-hidden"
       style={{
-        backgroundImage: `url(${landingBackground})`,
+        backgroundImage: `url(${sim.background_image_url || landingBackground})`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundAttachment: 'fixed'

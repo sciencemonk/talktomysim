@@ -30,7 +30,10 @@ export const SimSettingsModal = ({ open, onOpenChange, sim, onSimUpdate }: SimSe
   const [isUploading, setIsUploading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [urlCopied, setUrlCopied] = useState(false);
+  const [backgroundImage, setBackgroundImage] = useState(sim.background_image_url || '');
+  const [isUploadingBackground, setIsUploadingBackground] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const backgroundFileInputRef = useRef<HTMLInputElement>(null);
   
   // New fields for comprehensive sim creation
   const [interests, setInterests] = useState<string[]>([]);
@@ -91,6 +94,54 @@ export const SimSettingsModal = ({ open, onOpenChange, sim, onSimUpdate }: SimSe
     }
   };
 
+  const handleBackgroundUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      toast({
+        title: "Invalid file type",
+        description: "Please select an image file",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast({
+        title: "File too large",
+        description: "Please select an image smaller than 5MB",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsUploadingBackground(true);
+    
+    try {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const dataUrl = e.target?.result as string;
+        setBackgroundImage(dataUrl);
+      };
+      reader.readAsDataURL(file);
+
+      toast({
+        title: "Background uploaded",
+        description: "Your background image has been updated."
+      });
+    } catch (error) {
+      console.error("Error uploading background:", error);
+      toast({
+        title: "Upload failed",
+        description: "There was an error uploading your background.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsUploadingBackground(false);
+    }
+  };
+
   const handleSave = async () => {
     setIsSaving(true);
     try {
@@ -106,6 +157,7 @@ export const SimSettingsModal = ({ open, onOpenChange, sim, onSimUpdate }: SimSe
           twitter_url: twitterUrl,
           website_url: websiteUrl,
           crypto_wallet: cryptoWallet,
+          background_image_url: backgroundImage,
           updated_at: new Date().toISOString()
         })
         .eq('id', sim.id)
@@ -337,6 +389,57 @@ export const SimSettingsModal = ({ open, onOpenChange, sim, onSimUpdate }: SimSe
                 <p className="text-xs text-white/40">
                   Share your wallet address for crypto donations
                 </p>
+              </div>
+
+              <div className="space-y-2 pl-7">
+                <Label className="text-sm font-medium text-white/80">
+                  <div className="flex items-center gap-2">
+                    <Upload className="h-4 w-4" />
+                    Background Image
+                  </div>
+                </Label>
+                <input
+                  ref={backgroundFileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleBackgroundUpload}
+                  className="hidden"
+                />
+                <div className="flex gap-2 items-center">
+                  <Button 
+                    variant="outline" 
+                    onClick={() => backgroundFileInputRef.current?.click()}
+                    disabled={isUploadingBackground}
+                    size="sm"
+                    className="border-white/20 bg-white/5 hover:bg-white/10 text-white"
+                  >
+                    <Upload className="h-4 w-4 mr-2" />
+                    {isUploadingBackground ? 'Uploading...' : backgroundImage ? 'Change Background' : 'Upload Background'}
+                  </Button>
+                  {backgroundImage && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setBackgroundImage('')}
+                      className="text-white/60 hover:text-white hover:bg-white/10"
+                    >
+                      <X className="h-4 w-4 mr-1" />
+                      Remove
+                    </Button>
+                  )}
+                </div>
+                <p className="text-xs text-white/40">
+                  Customize your sim landing page background (max 5MB)
+                </p>
+                {backgroundImage && (
+                  <div className="relative h-24 rounded-lg overflow-hidden border border-white/20">
+                    <img 
+                      src={backgroundImage} 
+                      alt="Background preview" 
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                )}
               </div>
             </div>
 

@@ -86,7 +86,11 @@ const Landing = () => {
         channels: [],
         channelConfigs: {},
         isPersonal: false,
-        voiceTraits: []
+        voiceTraits: [],
+        twitter_url: data.twitter_url,
+        website_url: data.website_url,
+        crypto_wallet: data.crypto_wallet,
+        background_image_url: data.background_image_url
       } as AgentType;
     },
     enabled: !!currentUser

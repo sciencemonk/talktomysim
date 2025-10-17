@@ -22,6 +22,7 @@ export interface AgentType {
   twitter_url?: string;
   website_url?: string;
   crypto_wallet?: string;
+  background_image_url?: string;
   id: string;
   name: string;
   description: string;

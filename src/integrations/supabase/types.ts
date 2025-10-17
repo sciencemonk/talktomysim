@@ -118,6 +118,7 @@ export type Database = {
           areas_of_expertise: string | null
           avatar_url: string | null
           background_content: string | null
+          background_image_url: string | null
           category: string | null
           completion_status: Json | null
           created_at: string
@@ -157,6 +158,7 @@ export type Database = {
           areas_of_expertise?: string | null
           avatar_url?: string | null
           background_content?: string | null
+          background_image_url?: string | null
           category?: string | null
           completion_status?: Json | null
           created_at?: string
@@ -196,6 +198,7 @@ export type Database = {
           areas_of_expertise?: string | null
           avatar_url?: string | null
           background_content?: string | null
+          background_image_url?: string | null
           category?: string | null
           completion_status?: Json | null
           created_at?: string
