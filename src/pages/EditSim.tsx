@@ -241,11 +241,6 @@ const EditSim = () => {
       {/* Main Content */}
       <div className="h-full p-8">
         <div className="max-w-4xl mx-auto">
-          <div className="mb-6">
-            <h1 className="text-4xl font-bold mb-2">Sim Settings</h1>
-            <p className="text-muted-foreground">Customize your sim's appearance and behavior</p>
-          </div>
-
           <ScrollArea className="h-[calc(100vh-12rem)]">
             <Card className="p-8">
               <div className="space-y-8">

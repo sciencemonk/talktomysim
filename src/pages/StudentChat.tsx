@@ -189,38 +189,39 @@ const StudentChat = () => {
             </div>
           ) : (
             <div className="max-w-4xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
-              <div className="space-y-6 sm:space-y-8">
+              <div className="space-y-4">
                 {allMessages.map((message) => (
-                  <div key={message.id} className="flex gap-3 sm:gap-4">
-                    {message.role === 'system' && (
-                      <Avatar className="h-8 w-8 sm:h-10 sm:w-10 flex-shrink-0">
-                        <AvatarImage src={agent.avatar} alt={agent.name} />
-                        <AvatarFallback className="bg-primary text-primary-foreground text-sm">
-                          <Bot className="h-4 w-4 sm:h-5 sm:w-5" />
-                        </AvatarFallback>
-                      </Avatar>
-                    )}
-                    
-                    {message.role === 'user' && (
-                      <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
-                        <span className="text-xs sm:text-sm font-medium">You</span>
-                      </div>
-                    )}
-                    
-                    <div className="flex-1 min-w-0">
-                      <div className="prose prose-sm max-w-none">
-                        <p className="text-sm sm:text-base leading-relaxed whitespace-pre-wrap break-words mb-0 font-medium">
+                  <div 
+                    key={message.id} 
+                    className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                  >
+                    <div className={`flex gap-2 max-w-[85%] ${message.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
+                      {message.role === 'system' && (
+                        <Avatar className="h-8 w-8 flex-shrink-0">
+                          <AvatarImage src={agent.avatar} alt={agent.name} />
+                          <AvatarFallback className="bg-primary text-primary-foreground text-sm">
+                            <Bot className="h-4 w-4" />
+                          </AvatarFallback>
+                        </Avatar>
+                      )}
+                      
+                      <div className={`rounded-2xl px-4 py-3 ${
+                        message.role === 'user'
+                          ? 'bg-primary text-primary-foreground'
+                          : 'bg-muted text-foreground'
+                      }`}>
+                        <p className="text-sm leading-relaxed whitespace-pre-wrap break-words">
                           {message.content}
                         </p>
+                        
+                        {!message.isComplete && message.role === 'system' && (
+                          <div className="flex items-center gap-1 mt-2">
+                            <div className="w-1.5 h-1.5 bg-muted-foreground rounded-full animate-pulse" />
+                            <div className="w-1.5 h-1.5 bg-muted-foreground rounded-full animate-pulse" style={{ animationDelay: '0.2s' }} />
+                            <div className="w-1.5 h-1.5 bg-muted-foreground rounded-full animate-pulse" style={{ animationDelay: '0.4s' }} />
+                          </div>
+                        )}
                       </div>
-                      
-                      {!message.isComplete && message.role === 'system' && (
-                        <div className="flex items-center gap-1 mt-3">
-                          <div className="w-2 h-2 bg-muted-foreground rounded-full animate-pulse" />
-                          <div className="w-2 h-2 bg-muted-foreground rounded-full animate-pulse" style={{ animationDelay: '0.2s' }} />
-                          <div className="w-2 h-2 bg-muted-foreground rounded-full animate-pulse" style={{ animationDelay: '0.4s' }} />
-                        </div>
-                      )}
                     </div>
                   </div>
                 ))}

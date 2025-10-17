@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { 
@@ -74,8 +74,7 @@ export function AppSidebar() {
     enabled: !!currentUser
   });
 
-  // Fetch user's own conversations with their sim
-  const { data: myConversations } = useQuery({
+  const { data: myConversations, refetch } = useQuery({
     queryKey: ['my-conversations', userSim?.id],
     queryFn: async () => {
       if (!userSim) return [];
@@ -111,7 +110,8 @@ export function AppSidebar() {
       
       return conversationsWithMessages;
     },
-    enabled: !!userSim
+    enabled: !!userSim,
+    refetchInterval: 5000 // Refetch every 5 seconds to catch new conversations
   });
 
   const handleNewChat = () => {
