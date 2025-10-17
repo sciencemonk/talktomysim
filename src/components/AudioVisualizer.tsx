@@ -131,7 +131,7 @@ const AudioVisualizer = ({ audioSrc }: AudioVisualizerProps) => {
   }, []);
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50 pointer-events-none">
+    <div className="fixed bottom-0 left-0 right-0 z-50">
       <audio
         ref={audioRef}
         src={audioSrc}
@@ -140,7 +140,7 @@ const AudioVisualizer = ({ audioSrc }: AudioVisualizerProps) => {
       />
       <canvas
         ref={canvasRef}
-        className="w-full h-24 bg-white"
+        className="w-full h-24 bg-white border-t border-border"
       />
     </div>
   );

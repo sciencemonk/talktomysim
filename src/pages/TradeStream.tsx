@@ -7,6 +7,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { getAvatarUrl } from "@/lib/avatarUtils";
 import TopNavigation from "@/components/TopNavigation";
 import AudioVisualizer from "@/components/AudioVisualizer";
+import { usePumpFunStream } from "@/hooks/usePumpFunStream";
 
 interface Reaction {
   type: 'buy' | 'sell';
@@ -24,6 +25,9 @@ interface AdvisorData {
 }
 
 const TradeStream = () => {
+  const tokenAddress = 'ArfuojkvAUXauU9wPTpRzGwyYjq6YeUtRNwUXT6PjnQ6';
+  const { latestTrade, isConnected } = usePumpFunStream(tokenAddress);
+  
   const [currentReaction, setCurrentReaction] = useState<Reaction | null>(null);
   const [advisor, setAdvisor] = useState<AdvisorData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -47,45 +51,55 @@ const TradeStream = () => {
     "Let the weak ones leave - only the brave survive! 💎",
   ];
 
-  const fetchTrades = async () => {
+  const fetchAdvisor = async () => {
     try {
-      const { data, error } = await supabase.functions.invoke('monitor-trades');
-      
+      const { data, error } = await supabase
+        .from('advisors')
+        .select('id, name, prompt, avatar_url')
+        .ilike('name', '%pablo%escobar%')
+        .eq('is_official', true)
+        .single();
+
       if (error) {
-        console.error('Error fetching trades:', error);
+        console.error('Error fetching advisor:', error);
         return;
       }
 
-      console.log('Fetched data:', data);
-
-      if (data.advisor && !advisor) {
-        setAdvisor(data.advisor);
-      }
-
-      if (data.reactions && data.reactions.length > 0) {
-        // Get all new reactions we haven't seen
-        const newReactions = data.reactions.filter(
-          (r: Reaction) => !seenSignatures.has(r.signature)
-        );
-        
-        if (newReactions.length > 0) {
-          // Add messages to new reactions and add to queue
-          const reactionsWithMessages = newReactions.map(reaction => {
-            const messages = reaction.type === 'buy' ? buyMessages : sellMessages;
-            const message = messages[Math.floor(Math.random() * messages.length)];
-            return { ...reaction, message };
-          });
-          
-          setReactionQueue(prev => [...prev, ...reactionsWithMessages]);
-          setSeenSignatures(prev => new Set([...prev, ...newReactions.map(r => r.signature)]));
-        }
+      if (data) {
+        setAdvisor(data);
       }
     } catch (error) {
-      console.error('Error in fetchTrades:', error);
+      console.error('Error in fetchAdvisor:', error);
     } finally {
       setIsLoading(false);
     }
   };
+
+  // Fetch advisor on mount
+  useEffect(() => {
+    fetchAdvisor();
+  }, []);
+
+  // Handle new trades from WebSocket
+  useEffect(() => {
+    if (!latestTrade || seenSignatures.has(latestTrade.signature)) return;
+
+    console.log('New trade from WebSocket:', latestTrade);
+
+    const messages = latestTrade.is_buy ? buyMessages : sellMessages;
+    const message = messages[Math.floor(Math.random() * messages.length)];
+
+    const reactionWithMessage = {
+      type: latestTrade.is_buy ? 'buy' as const : 'sell' as const,
+      amount: latestTrade.token_amount,
+      timestamp: latestTrade.timestamp,
+      signature: latestTrade.signature,
+      message,
+    };
+
+    setReactionQueue(prev => [...prev, reactionWithMessage]);
+    setSeenSignatures(prev => new Set([...prev, latestTrade.signature]));
+  }, [latestTrade]);
 
   // Process the queue - show each trade for at least 5 seconds
   useEffect(() => {
@@ -100,12 +114,6 @@ const TradeStream = () => {
       setReactionQueue(prev => prev.slice(1));
     }
   }, [reactionQueue, currentReaction, lastDisplayTime]);
-
-  useEffect(() => {
-    fetchTrades();
-    const interval = setInterval(fetchTrades, 10000);
-    return () => clearInterval(interval);
-  }, [seenSignatures]);
 
   if (isLoading) {
     return (
