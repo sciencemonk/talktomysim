@@ -15,11 +15,16 @@ export const useChatHistory = (agent: AgentType, isCreatorChat: boolean = false,
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [activeConversationId, setActiveConversationId] = useState<string | null>(conversationId || null);
   const [isLoading, setIsLoading] = useState(true);
+  const [pendingConversationId, setPendingConversationId] = useState<string | null>(null);
 
   // Load conversation and messages when agent changes or forceNew changes
   useEffect(() => {
     const loadChatHistory = async () => {
       if (!agent?.id) return;
+      
+      // Track which conversation we're loading
+      const loadingConversationId = conversationId || null;
+      setPendingConversationId(loadingConversationId);
       
       setIsLoading(true);
       console.log('Loading chat history for agent:', agent.name, 'forceNew:', forceNew, 'conversationId:', conversationId);
@@ -29,11 +34,12 @@ export const useChatHistory = (agent: AgentType, isCreatorChat: boolean = false,
         const { data: { user } } = await supabase.auth.getUser();
         
         if (forceNew) {
-          // Start completely fresh - don't load any conversation
+          // Start completely fresh - clear and show empty
           setActiveConversationId(null);
           setMessages([]);
           console.log('Starting fresh conversation');
           setIsLoading(false);
+          setPendingConversationId(null);
           return;
         }
         
@@ -47,8 +53,6 @@ export const useChatHistory = (agent: AgentType, isCreatorChat: boolean = false,
             .single();
           
           if (conversation) {
-            setActiveConversationId(conversation.id);
-            
             // Load messages for this conversation
             const existingMessages = await conversationService.getMessages(conversation.id);
             const chatMessages: ChatMessage[] = existingMessages.map((msg: Message) => ({
@@ -58,14 +62,21 @@ export const useChatHistory = (agent: AgentType, isCreatorChat: boolean = false,
               isComplete: true
             }));
 
-            setMessages(chatMessages);
-            console.log(`Loaded ${chatMessages.length} messages for conversation ${conversationId}`);
+            // Only update if this is still the conversation we want to load
+            if (pendingConversationId === conversationId) {
+              setActiveConversationId(conversation.id);
+              setMessages(chatMessages);
+              console.log(`Loaded ${chatMessages.length} messages for conversation ${conversationId}`);
+            }
           } else {
             console.error('Conversation not found:', conversationId);
-            setMessages([]);
-            setActiveConversationId(null);
+            if (pendingConversationId === conversationId) {
+              setMessages([]);
+              setActiveConversationId(null);
+            }
           }
           setIsLoading(false);
+          setPendingConversationId(null);
           return;
         }
         
@@ -74,14 +85,13 @@ export const useChatHistory = (agent: AgentType, isCreatorChat: boolean = false,
         if (!conversation) {
           console.error('Failed to get or create conversation');
           setIsLoading(false);
+          setPendingConversationId(null);
           return;
         }
 
-        setActiveConversationId(conversation.id);
         console.log('Conversation initialized:', conversation.id, 'User:', user ? 'authenticated' : 'anonymous');
 
         // Load existing messages only for authenticated users
-        // Anonymous users always start fresh
         if (user) {
           const existingMessages = await conversationService.getMessages(conversation.id);
           
@@ -92,28 +102,32 @@ export const useChatHistory = (agent: AgentType, isCreatorChat: boolean = false,
             isComplete: true
           }));
 
-          setMessages(chatMessages);
-          console.log(`Loaded ${chatMessages.length} messages for ${agent.name}:`, chatMessages);
+          // Only update if this is still what we want to load
+          if (pendingConversationId === loadingConversationId) {
+            setActiveConversationId(conversation.id);
+            setMessages(chatMessages);
+            console.log(`Loaded ${chatMessages.length} messages for ${agent.name}:`, chatMessages);
+          }
         } else {
           console.log('Anonymous user - starting with empty chat');
-          setMessages([]);
+          if (pendingConversationId === loadingConversationId) {
+            setActiveConversationId(conversation.id);
+            setMessages([]);
+          }
         }
       } catch (error) {
         console.error('Error loading chat history:', error);
-        // Fallback to empty messages if anything fails
-        setMessages([]);
-        setActiveConversationId(null);
+        // Only clear if this is still what we're trying to load
+        if (pendingConversationId === loadingConversationId) {
+          setMessages([]);
+          setActiveConversationId(null);
+        }
       }
       
       setIsLoading(false);
+      setPendingConversationId(null);
     };
 
-    // Only reset if switching to a different conversation or forcing new
-    if (forceNew || (conversationId && conversationId !== activeConversationId)) {
-      setMessages([]);
-      setActiveConversationId(conversationId || null);
-    }
-    
     loadChatHistory();
   }, [agent?.id, forceNew, conversationId]);
 
