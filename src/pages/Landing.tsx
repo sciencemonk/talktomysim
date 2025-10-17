@@ -159,18 +159,19 @@ const Landing = () => {
   const features = [
     {
       title: "Create Your Own AI",
-      description: "Build and share your own ai based on your personality or your wildest ideas.",
+      description: "Get a free ai powered Sim page. Linktree meets ai.",
       action: () => navigate("/dashboard"),
       gradient: "from-primary/20 to-primary/5",
       gridArea: "create",
       showWalletButtons: true,
     },
     {
-      title: "Read the Whitepaper",
-      description: "Dive deep into our vision, technology, and roadmap for Sim.",
-      action: () => navigate("/whitepaper"),
+      title: "$SIMAI - Join the Community",
+      description: "Be part of the Sim revolution. Hold $SIMAI to join our community and profit from the future of AI.",
+      action: copyCAToClipboard,
       gradient: "from-muted/20 to-muted/5",
-      gridArea: "whitepaper",
+      gridArea: "simai",
+      showCA: true,
     },
   ];
 
@@ -256,6 +257,13 @@ const Landing = () => {
                     </Button>
                   </div>
                 )}
+                
+                {feature.showCA && (
+                  <div className="mt-4 p-3 rounded-lg bg-black/30 border border-white/20">
+                    <p className="text-xs text-white/60 mb-1">Contract Address:</p>
+                    <p className="text-xs text-white font-mono break-all">FFqwoZ7phjoupWjLeE5yFeLqGi8jkGEFrTz6jnsUpump</p>
+                  </div>
+                )}
               </CardHeader>
             </Card>
           ))}
@@ -265,9 +273,6 @@ const Landing = () => {
       {/* Sim Directory Section */}
       <section className="container mx-auto px-3 sm:px-4 pb-12 relative z-10">
         <div className="max-w-6xl mx-auto">
-          <h2 className="text-2xl sm:text-3xl font-bold text-white text-center mb-6">
-            Talk to a Sim
-          </h2>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4">
             {allSims?.map((sim) => (
               <button
