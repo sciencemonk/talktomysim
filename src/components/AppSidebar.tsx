@@ -96,18 +96,28 @@ export function AppSidebar() {
   const { data: myConversations, refetch } = useQuery({
     queryKey: ['my-conversations', userSim?.id],
     queryFn: async () => {
-      if (!userSim) return [];
+      if (!userSim || !currentUser) return [];
+      
+      console.log('Fetching conversations for:', {
+        userSim_id: userSim.id,
+        currentUser_id: currentUser.id
+      });
       
       const { data: conversations, error } = await supabase
         .from('conversations')
-        .select('id, created_at, title, updated_at')
+        .select('id, created_at, title, updated_at, is_creator_conversation, user_id')
         .eq('tutor_id', userSim.id)
         .eq('is_creator_conversation', true)
         .eq('user_id', currentUser.id)
         .order('updated_at', { ascending: false })
         .limit(10);
       
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching conversations:', error);
+        throw error;
+      }
+      
+      console.log('Found conversations:', conversations);
       
       // Get first message for each conversation
       const conversationsWithMessages = await Promise.all(
@@ -127,9 +137,10 @@ export function AppSidebar() {
         })
       );
       
+      console.log('Conversations with messages:', conversationsWithMessages);
       return conversationsWithMessages;
     },
-    enabled: !!userSim
+    enabled: !!userSim && !!currentUser
   });
 
   // Real-time subscription for new conversations

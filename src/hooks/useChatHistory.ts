@@ -96,10 +96,17 @@ export const useChatHistory = (agent: AgentType, isCreatorChat: boolean = false,
     // Create conversation on first message if not exists
     let activeConversationId = conversationId;
     if (!activeConversationId && agent?.id) {
+      console.log('Creating new conversation with isCreatorChat:', isCreatorChat);
       const conversation = await conversationService.getOrCreateConversation(agent.id, isCreatorChat);
       if (conversation) {
         activeConversationId = conversation.id;
         setConversationId(conversation.id);
+        console.log('Conversation created:', {
+          id: conversation.id,
+          user_id: conversation.user_id,
+          tutor_id: conversation.tutor_id,
+          is_creator_conversation: (conversation as any).is_creator_conversation
+        });
       }
     }
 
