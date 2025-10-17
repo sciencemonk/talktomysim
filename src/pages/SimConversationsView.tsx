@@ -8,6 +8,7 @@ import { Trash2, MessageSquare } from 'lucide-react';
 import { ConversationModal } from '@/components/ConversationModal';
 import { toast } from 'sonner';
 import { AgentType } from '@/types/agent';
+import landingBackground from '@/assets/landing-background.jpg';
 
 const SimConversationsView = () => {
   const navigate = useNavigate();
@@ -144,7 +145,7 @@ const SimConversationsView = () => {
 
   if (!userSim) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-black">
         <Card className="p-6 bg-white/10 backdrop-blur-md border-white/20">
           <p className="text-white">Loading your sim...</p>
         </Card>
@@ -153,61 +154,75 @@ const SimConversationsView = () => {
   }
 
   return (
-    <div className="min-h-screen bg-black p-6">
-      <div className="max-w-4xl mx-auto">
-        <Card className="p-6 mb-6 bg-white/5 backdrop-blur-md border border-white/10">
-          <div className="flex items-center gap-3 mb-2">
-            <MessageSquare className="h-6 w-6 text-white" />
-            <h2 className="text-2xl font-bold text-white">
-              Public Conversations with {userSim.name}
-            </h2>
-          </div>
-          <p className="text-white/60">
-            {conversations?.length || 0} total conversation{conversations?.length !== 1 ? 's' : ''}
-          </p>
-        </Card>
-
-        {conversations && conversations.length > 0 ? (
-          <div className="space-y-3">
-            {conversations.map((conv: any) => (
-              <Card 
-                key={conv.id}
-                className="p-4 bg-white/5 backdrop-blur-md border border-white/10 hover:bg-white/10 transition-all group"
-              >
-                <div className="flex items-center gap-4">
-                  <button
-                    onClick={() => setSelectedConversationId(conv.id)}
-                    className="flex-1 text-left min-w-0"
-                  >
-                    <p className="text-white font-medium truncate mb-1">
-                      {conv.firstMessage || conv.title || `Conversation from ${new Date(conv.created_at).toLocaleDateString()}`}
-                    </p>
-                    <div className="flex items-center gap-4 text-sm text-white/60">
-                      <span>{new Date(conv.created_at).toLocaleDateString()} at {new Date(conv.created_at).toLocaleTimeString()}</span>
-                      <span>{conv.messageCount} message{conv.messageCount !== 1 ? 's' : ''}</span>
-                    </div>
-                  </button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleDeleteConversation(conv.id)}
-                    className="opacity-0 group-hover:opacity-100 transition-opacity text-red-400 hover:text-red-300 hover:bg-red-400/10"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
-              </Card>
-            ))}
-          </div>
-        ) : (
-          <Card className="p-12 bg-white/5 backdrop-blur-md border border-white/10 text-center">
-            <MessageSquare className="h-16 w-16 text-white/40 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold text-white mb-2">No conversations yet</h3>
+    <div 
+      className="min-h-screen relative"
+      style={{
+        backgroundImage: `url(${landingBackground})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundAttachment: 'fixed'
+      }}
+    >
+      <div className="absolute inset-0 bg-gradient-to-br from-purple-900/40 via-blue-900/40 to-pink-900/40 backdrop-blur-sm z-0" />
+      
+      {/* Main Content */}
+      <div className="relative z-10 h-full p-8">
+        <div className="max-w-5xl mx-auto">
+          {/* Page Header */}
+          <Card className="p-6 mb-6 bg-white/10 backdrop-blur-md border-2 border-white/20">
+            <div className="flex items-center gap-3 mb-2">
+              <MessageSquare className="h-6 w-6 text-white" />
+              <h2 className="text-2xl font-bold text-white">
+                Public Conversations with {userSim.name}
+              </h2>
+            </div>
             <p className="text-white/60">
-              When people chat with your sim on its public page, conversations will appear here.
+              {conversations?.length || 0} total conversation{conversations?.length !== 1 ? 's' : ''}
             </p>
           </Card>
-        )}
+
+          {conversations && conversations.length > 0 ? (
+            <div className="space-y-3">
+              {conversations.map((conv: any) => (
+                <Card 
+                  key={conv.id}
+                  className="p-4 bg-white/10 backdrop-blur-md border-2 border-white/20 hover:bg-white/15 transition-all group"
+                >
+                  <div className="flex items-center gap-4">
+                    <button
+                      onClick={() => setSelectedConversationId(conv.id)}
+                      className="flex-1 text-left min-w-0"
+                    >
+                      <p className="text-white font-medium truncate mb-1">
+                        {conv.firstMessage || conv.title || `Conversation from ${new Date(conv.created_at).toLocaleDateString()}`}
+                      </p>
+                      <div className="flex items-center gap-4 text-sm text-white/60">
+                        <span>{new Date(conv.created_at).toLocaleDateString()} at {new Date(conv.created_at).toLocaleTimeString()}</span>
+                        <span>{conv.messageCount} message{conv.messageCount !== 1 ? 's' : ''}</span>
+                      </div>
+                    </button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleDeleteConversation(conv.id)}
+                      className="opacity-0 group-hover:opacity-100 transition-opacity text-red-400 hover:text-red-300 hover:bg-red-400/10"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </Card>
+              ))}
+            </div>
+          ) : (
+            <Card className="p-12 bg-white/10 backdrop-blur-md border-2 border-white/20 text-center">
+              <MessageSquare className="h-16 w-16 text-white/40 mx-auto mb-4" />
+              <h3 className="text-xl font-semibold text-white mb-2">No conversations yet</h3>
+              <p className="text-white/60">
+                When people chat with your sim on its public page, conversations will appear here.
+              </p>
+            </Card>
+          )}
+        </div>
       </div>
 
       {selectedConversationId && userSim && (

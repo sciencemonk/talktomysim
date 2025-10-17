@@ -48,17 +48,10 @@ export const AuthenticatedLayout = () => {
       <div className="min-h-screen w-full flex bg-black">
         <AppSidebar />
         
-        <div className="flex-1 flex flex-col">
-          {/* Global Header with Trigger */}
-          <header className="h-14 flex items-center border-b border-white/10 bg-black/50 backdrop-blur-xl sticky top-0 z-40 px-4">
-            <SidebarTrigger className="text-white" />
-          </header>
-
-          {/* Main Content Area */}
-          <main className="flex-1 overflow-auto">
-            <Outlet />
-          </main>
-        </div>
+        {/* Main Content Area - No extra header */}
+        <main className="flex-1 overflow-auto">
+          <Outlet />
+        </main>
       </div>
     </SidebarProvider>
   );

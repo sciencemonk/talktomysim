@@ -7,11 +7,12 @@ import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { Upload, Link2, Copy, Check, User, Globe, Wallet, X, MessageCircle, ArrowLeft } from 'lucide-react';
+import { Upload, Link2, Copy, Check, User, Globe, Wallet, X, MessageCircle } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { toast } from 'sonner';
 import { AgentType } from '@/types/agent';
+import landingBackground from '@/assets/landing-background.jpg';
 
 const EditSim = () => {
   const navigate = useNavigate();
@@ -237,256 +238,262 @@ const EditSim = () => {
   }
 
   return (
-    <div className="min-h-screen bg-black p-6">
-      <div className="max-w-4xl mx-auto">
-        <div className="mb-6">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => navigate('/')}
-            className="text-white hover:bg-white/10"
-          >
-            <ArrowLeft className="h-5 w-5 mr-2" />
-            Back to Chat
-          </Button>
-        </div>
+    <div 
+      className="min-h-screen relative"
+      style={{
+        backgroundImage: `url(${landingBackground})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundAttachment: 'fixed'
+      }}
+    >
+      <div className="absolute inset-0 bg-gradient-to-br from-purple-900/40 via-blue-900/40 to-pink-900/40 backdrop-blur-sm z-0" />
+      
+      {/* Main Content */}
+      <div className="relative z-10 h-full p-8">
+        <div className="max-w-4xl mx-auto">
+          <div className="mb-6">
+            <h1 className="text-4xl font-bold text-white mb-2">Sim Settings</h1>
+            <p className="text-white/60">Customize your sim's appearance and behavior</p>
+          </div>
 
-        <ScrollArea className="h-[calc(100vh-8rem)]">
-          <Card className="p-8 bg-white/5 backdrop-blur-md border border-white/10">
-            <div className="space-y-8">
-              {/* Avatar Section */}
-              <div className="flex flex-col items-center space-y-4 pb-6 border-b border-white/10">
-                <Avatar className="h-32 w-32 border-4 border-white/20 ring-4 ring-white/5 shadow-2xl">
-                  <AvatarImage src={avatar} alt={name} />
-                  <AvatarFallback className="text-4xl bg-gradient-to-br from-primary to-accent text-white">
-                    {name.charAt(0) || 'S'}
-                  </AvatarFallback>
-                </Avatar>
-                
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
-                  onChange={handleFileUpload}
-                  className="hidden"
-                />
-                
-                <Button 
-                  variant="outline" 
-                  onClick={() => fileInputRef.current?.click()}
-                  disabled={isUploading}
-                  size="sm"
-                  className="gap-2 border-white/20 bg-white/5 hover:bg-white/10 text-white"
-                >
-                  <Upload className="h-4 w-4" />
-                  {isUploading ? 'Uploading...' : 'Upload Avatar'}
-                </Button>
-              </div>
-
-              {/* Basic Information */}
-              <div className="space-y-4">
-                <div className="flex items-center gap-2 text-white/90">
-                  <User className="h-5 w-5" />
-                  <h3 className="font-semibold text-lg">Basic Information</h3>
-                </div>
-                
-                <div className="space-y-2 pl-7">
-                  <Label htmlFor="custom-url" className="text-sm font-medium text-white/80">Your Sim URL</Label>
-                  <div className="flex gap-2">
-                    <div className="flex-1 flex items-center gap-2 px-3 py-2 border rounded-lg bg-white/5 border-white/20">
-                      <Link2 className="h-4 w-4 text-white/40 flex-shrink-0" />
-                      <span className="text-sm font-mono truncate text-white/70">
-                        {window.location.origin}/{customUrl || 'your-url'}
-                      </span>
-                    </div>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={copyUrl}
-                      disabled={!customUrl}
-                      className="flex-shrink-0 border-white/20 bg-white/5 hover:bg-white/10 text-white"
-                    >
-                      {urlCopied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-                    </Button>
-                  </div>
-                  <Input
-                    id="custom-url"
-                    value={customUrl}
-                    onChange={(e) => setCustomUrl(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-'))}
-                    placeholder="your-sim-name"
-                    className="font-mono bg-white/5 border-white/20 text-white placeholder:text-white/30"
-                  />
-                </div>
-
-                <div className="space-y-2 pl-7">
-                  <Label htmlFor="name" className="text-sm font-medium text-white/80">Name</Label>
-                  <Input
-                    id="name"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    placeholder="Your sim's name"
-                    className="bg-white/5 border-white/20 text-white placeholder:text-white/30"
-                  />
-                </div>
-
-                <div className="space-y-2 pl-7">
-                  <Label htmlFor="title" className="text-sm font-medium text-white/80">Title / Tagline</Label>
-                  <Input
-                    id="title"
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                    placeholder="e.g., AI Expert, Crypto Enthusiast"
-                    className="bg-white/5 border-white/20 text-white placeholder:text-white/30"
-                  />
-                </div>
-
-                <div className="space-y-2 pl-7">
-                  <Label htmlFor="description" className="text-sm font-medium text-white/80">Description</Label>
-                  <Textarea
-                    id="description"
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                    placeholder="Brief description of your sim"
-                    className="min-h-[80px] bg-white/5 border-white/20 text-white placeholder:text-white/30 resize-none"
-                  />
-                </div>
-              </div>
-
-              {/* Social Links & Donations */}
-              <div className="space-y-4">
-                <div className="flex items-center gap-2 text-white/90">
-                  <Globe className="h-5 w-5" />
-                  <h3 className="font-semibold text-lg">Social Links & Donations</h3>
-                </div>
-                
-                <div className="space-y-2 pl-7">
-                  <Label htmlFor="twitter" className="text-sm font-medium text-white/80">X (Twitter) Profile</Label>
-                  <Input
-                    id="twitter"
-                    value={twitterUrl}
-                    onChange={(e) => setTwitterUrl(e.target.value)}
-                    placeholder="https://x.com/yourhandle"
-                    className="bg-white/5 border-white/20 text-white placeholder:text-white/30"
-                  />
-                </div>
-
-                <div className="space-y-2 pl-7">
-                  <Label htmlFor="website" className="text-sm font-medium text-white/80">Personal Website</Label>
-                  <Input
-                    id="website"
-                    value={websiteUrl}
-                    onChange={(e) => setWebsiteUrl(e.target.value)}
-                    placeholder="https://yourwebsite.com"
-                    className="bg-white/5 border-white/20 text-white placeholder:text-white/30"
-                  />
-                </div>
-
-                <div className="space-y-2 pl-7">
-                  <Label htmlFor="crypto" className="text-sm font-medium text-white/80">
-                    <div className="flex items-center gap-2">
-                      <Wallet className="h-4 w-4" />
-                      Crypto Wallet (for donations)
-                    </div>
-                  </Label>
-                  <Input
-                    id="crypto"
-                    value={cryptoWallet}
-                    onChange={(e) => setCryptoWallet(e.target.value)}
-                    placeholder="Your wallet address"
-                    className="bg-white/5 border-white/20 text-white placeholder:text-white/30 font-mono text-sm"
-                  />
-                  <p className="text-xs text-white/40">
-                    Share your wallet address for crypto donations
-                  </p>
-                </div>
-
-                <div className="space-y-2 pl-7">
-                  <Label className="text-sm font-medium text-white/80">
-                    <div className="flex items-center gap-2">
-                      <Upload className="h-4 w-4" />
-                      Background Image
-                    </div>
-                  </Label>
+          <ScrollArea className="h-[calc(100vh-12rem)]">
+            <Card className="p-8 bg-white/10 backdrop-blur-md border-2 border-white/20">
+              <div className="space-y-8">
+                {/* Avatar Section */}
+                <div className="flex flex-col items-center space-y-4 pb-6 border-b border-white/10">
+                  <Avatar className="h-32 w-32 border-4 border-white/20 ring-4 ring-white/5 shadow-2xl">
+                    <AvatarImage src={avatar} alt={name} />
+                    <AvatarFallback className="text-4xl bg-gradient-to-br from-primary to-accent text-white">
+                      {name.charAt(0) || 'S'}
+                    </AvatarFallback>
+                  </Avatar>
+                  
                   <input
-                    ref={backgroundFileInputRef}
+                    ref={fileInputRef}
                     type="file"
                     accept="image/*"
-                    onChange={handleBackgroundUpload}
+                    onChange={handleFileUpload}
                     className="hidden"
                   />
-                  <div className="flex gap-2 items-center">
-                    <Button 
-                      variant="outline" 
-                      onClick={() => backgroundFileInputRef.current?.click()}
-                      disabled={isUploadingBackground}
-                      size="sm"
-                      className="border-white/20 bg-white/5 hover:bg-white/10 text-white"
-                    >
-                      <Upload className="h-4 w-4 mr-2" />
-                      {isUploadingBackground ? 'Uploading...' : backgroundImage ? 'Change Background' : 'Upload Background'}
-                    </Button>
-                    {backgroundImage && (
+                  
+                  <Button 
+                    variant="outline" 
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={isUploading}
+                    size="sm"
+                    className="gap-2 border-white/20 bg-white/5 hover:bg-white/10 text-white"
+                  >
+                    <Upload className="h-4 w-4" />
+                    {isUploading ? 'Uploading...' : 'Upload Avatar'}
+                  </Button>
+                </div>
+
+                {/* Basic Information */}
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2 text-white/90">
+                    <User className="h-5 w-5" />
+                    <h3 className="font-semibold text-lg">Basic Information</h3>
+                  </div>
+                  
+                  <div className="space-y-2 pl-7">
+                    <Label htmlFor="custom-url" className="text-sm font-medium text-white/80">Your Sim URL</Label>
+                    <div className="flex gap-2">
+                      <div className="flex-1 flex items-center gap-2 px-3 py-2 border rounded-lg bg-white/5 border-white/20">
+                        <Link2 className="h-4 w-4 text-white/40 flex-shrink-0" />
+                        <span className="text-sm font-mono truncate text-white/70">
+                          {window.location.origin}/{customUrl || 'your-url'}
+                        </span>
+                      </div>
                       <Button
-                        variant="ghost"
+                        variant="outline"
                         size="sm"
-                        onClick={() => setBackgroundImage('')}
-                        className="text-white/60 hover:text-white hover:bg-white/10"
+                        onClick={copyUrl}
+                        disabled={!customUrl}
+                        className="flex-shrink-0 border-white/20 bg-white/5 hover:bg-white/10 text-white"
                       >
-                        <X className="h-4 w-4 mr-1" />
-                        Remove
+                        {urlCopied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
                       </Button>
+                    </div>
+                    <Input
+                      id="custom-url"
+                      value={customUrl}
+                      onChange={(e) => setCustomUrl(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-'))}
+                      placeholder="your-sim-name"
+                      className="font-mono bg-white/5 border-white/20 text-white placeholder:text-white/30"
+                    />
+                  </div>
+
+                  <div className="space-y-2 pl-7">
+                    <Label htmlFor="name" className="text-sm font-medium text-white/80">Name</Label>
+                    <Input
+                      id="name"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      placeholder="Your sim's name"
+                      className="bg-white/5 border-white/20 text-white placeholder:text-white/30"
+                    />
+                  </div>
+
+                  <div className="space-y-2 pl-7">
+                    <Label htmlFor="title" className="text-sm font-medium text-white/80">Title / Tagline</Label>
+                    <Input
+                      id="title"
+                      value={title}
+                      onChange={(e) => setTitle(e.target.value)}
+                      placeholder="e.g., AI Expert, Crypto Enthusiast"
+                      className="bg-white/5 border-white/20 text-white placeholder:text-white/30"
+                    />
+                  </div>
+
+                  <div className="space-y-2 pl-7">
+                    <Label htmlFor="description" className="text-sm font-medium text-white/80">Description</Label>
+                    <Textarea
+                      id="description"
+                      value={description}
+                      onChange={(e) => setDescription(e.target.value)}
+                      placeholder="Brief description of your sim"
+                      className="min-h-[80px] bg-white/5 border-white/20 text-white placeholder:text-white/30 resize-none"
+                    />
+                  </div>
+                </div>
+
+                {/* Social Links & Donations */}
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2 text-white/90">
+                    <Globe className="h-5 w-5" />
+                    <h3 className="font-semibold text-lg">Social Links & Donations</h3>
+                  </div>
+                  
+                  <div className="space-y-2 pl-7">
+                    <Label htmlFor="twitter" className="text-sm font-medium text-white/80">X (Twitter) Profile</Label>
+                    <Input
+                      id="twitter"
+                      value={twitterUrl}
+                      onChange={(e) => setTwitterUrl(e.target.value)}
+                      placeholder="https://x.com/yourhandle"
+                      className="bg-white/5 border-white/20 text-white placeholder:text-white/30"
+                    />
+                  </div>
+
+                  <div className="space-y-2 pl-7">
+                    <Label htmlFor="website" className="text-sm font-medium text-white/80">Personal Website</Label>
+                    <Input
+                      id="website"
+                      value={websiteUrl}
+                      onChange={(e) => setWebsiteUrl(e.target.value)}
+                      placeholder="https://yourwebsite.com"
+                      className="bg-white/5 border-white/20 text-white placeholder:text-white/30"
+                    />
+                  </div>
+
+                  <div className="space-y-2 pl-7">
+                    <Label htmlFor="crypto" className="text-sm font-medium text-white/80">
+                      <div className="flex items-center gap-2">
+                        <Wallet className="h-4 w-4" />
+                        Crypto Wallet (for donations)
+                      </div>
+                    </Label>
+                    <Input
+                      id="crypto"
+                      value={cryptoWallet}
+                      onChange={(e) => setCryptoWallet(e.target.value)}
+                      placeholder="Your wallet address"
+                      className="bg-white/5 border-white/20 text-white placeholder:text-white/30 font-mono text-sm"
+                    />
+                    <p className="text-xs text-white/40">
+                      Share your wallet address for crypto donations
+                    </p>
+                  </div>
+
+                  <div className="space-y-2 pl-7">
+                    <Label className="text-sm font-medium text-white/80">
+                      <div className="flex items-center gap-2">
+                        <Upload className="h-4 w-4" />
+                        Background Image
+                      </div>
+                    </Label>
+                    <input
+                      ref={backgroundFileInputRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={handleBackgroundUpload}
+                      className="hidden"
+                    />
+                    <div className="flex gap-2 items-center">
+                      <Button 
+                        variant="outline" 
+                        onClick={() => backgroundFileInputRef.current?.click()}
+                        disabled={isUploadingBackground}
+                        size="sm"
+                        className="border-white/20 bg-white/5 hover:bg-white/10 text-white"
+                      >
+                        <Upload className="h-4 w-4 mr-2" />
+                        {isUploadingBackground ? 'Uploading...' : backgroundImage ? 'Change Background' : 'Upload Background'}
+                      </Button>
+                      {backgroundImage && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setBackgroundImage('')}
+                          className="text-white/60 hover:text-white hover:bg-white/10"
+                        >
+                          <X className="h-4 w-4 mr-1" />
+                          Remove
+                        </Button>
+                      )}
+                    </div>
+                    <p className="text-xs text-white/40">
+                      Customize your sim landing page background (max 5MB)
+                    </p>
+                    {backgroundImage && (
+                      <div className="relative h-24 rounded-lg overflow-hidden border border-white/20">
+                        <img 
+                          src={backgroundImage} 
+                          alt="Background preview" 
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
                     )}
                   </div>
-                  <p className="text-xs text-white/40">
-                    Customize your sim landing page background (max 5MB)
-                  </p>
-                  {backgroundImage && (
-                    <div className="relative h-24 rounded-lg overflow-hidden border border-white/20">
-                      <img 
-                        src={backgroundImage} 
-                        alt="Background preview" 
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                  )}
                 </div>
-              </div>
 
-              {/* AI Personality & Instructions */}
-              <div className="space-y-4">
-                <div className="flex items-center gap-2 text-white/90">
-                  <MessageCircle className="h-5 w-5" />
-                  <h3 className="font-semibold text-lg">AI Personality & Instructions</h3>
+                {/* AI Personality & Instructions */}
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2 text-white/90">
+                    <MessageCircle className="h-5 w-5" />
+                    <h3 className="font-semibold text-lg">AI Personality & Instructions</h3>
+                  </div>
+                  
+                  <div className="space-y-2 pl-7">
+                    <Label htmlFor="prompt" className="text-sm font-medium text-white/80">System Prompt</Label>
+                    <Textarea
+                      id="prompt"
+                      value={prompt}
+                      onChange={(e) => setPrompt(e.target.value)}
+                      placeholder="Define how your sim should behave, its personality, communication style, and knowledge areas..."
+                      className="min-h-[200px] bg-white/5 border-white/20 text-white placeholder:text-white/30 resize-none font-mono text-sm"
+                    />
+                    <p className="text-xs text-white/40">
+                      This instructs the AI on how to respond as your sim
+                    </p>
+                  </div>
                 </div>
-                
-                <div className="space-y-2 pl-7">
-                  <Label htmlFor="prompt" className="text-sm font-medium text-white/80">System Prompt</Label>
-                  <Textarea
-                    id="prompt"
-                    value={prompt}
-                    onChange={(e) => setPrompt(e.target.value)}
-                    placeholder="Define how your sim should behave, its personality, communication style, and knowledge areas..."
-                    className="min-h-[200px] bg-white/5 border-white/20 text-white placeholder:text-white/30 resize-none font-mono text-sm"
-                  />
-                  <p className="text-xs text-white/40">
-                    This instructs the AI on how to respond as your sim
-                  </p>
-                </div>
-              </div>
 
-              {/* Save Button */}
-              <div className="pt-4 border-t border-white/10">
-                <Button
-                  onClick={handleSave}
-                  disabled={isSaving}
-                  className="w-full bg-white text-black hover:bg-white/90 font-medium py-6 text-lg"
-                >
-                  {isSaving ? 'Saving...' : 'Save Changes'}
-                </Button>
+                {/* Save Button */}
+                <div className="pt-4 border-t border-white/10">
+                  <Button
+                    onClick={handleSave}
+                    disabled={isSaving}
+                    className="w-full bg-white text-black hover:bg-white/90 font-medium py-6 text-lg"
+                  >
+                    {isSaving ? 'Saving...' : 'Save Changes'}
+                  </Button>
+                </div>
               </div>
-            </div>
-          </Card>
-        </ScrollArea>
+            </Card>
+          </ScrollArea>
+        </div>
       </div>
     </div>
   );

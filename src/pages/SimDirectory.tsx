@@ -1,32 +1,17 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery } from '@tanstack/react-query';
-import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { LogOut, ArrowLeft, Search, Award } from 'lucide-react';
+import { Search, Award } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import landingBackground from '@/assets/landing-background.jpg';
-import { toast } from 'sonner';
 import { AgentType } from '@/types/agent';
 
 const SimDirectory = () => {
   const navigate = useNavigate();
-  const [currentUser, setCurrentUser] = useState<any>(null);
   const [searchQuery, setSearchQuery] = useState('');
-
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setCurrentUser(session?.user ?? null);
-    });
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setCurrentUser(session?.user ?? null);
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
 
   const { data: allSims } = useQuery({
     queryKey: ['all-sims-directory'],
@@ -75,12 +60,6 @@ const SimDirectory = () => {
     sim.description.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const handleSignOut = async () => {
-    await supabase.auth.signOut();
-    toast.success('Signed out successfully');
-    navigate('/');
-  };
-
   const handleSimClick = (sim: AgentType) => {
     if (sim.custom_url) {
       navigate(`/${sim.custom_url}`);
@@ -89,7 +68,7 @@ const SimDirectory = () => {
 
   return (
     <div 
-      className="min-h-screen flex flex-col relative"
+      className="min-h-screen relative"
       style={{
         backgroundImage: `url(${landingBackground})`,
         backgroundSize: 'cover',
@@ -97,79 +76,57 @@ const SimDirectory = () => {
         backgroundAttachment: 'fixed'
       }}
     >
-      <div className="absolute inset-0 bg-black/40 z-0" />
+      <div className="absolute inset-0 bg-gradient-to-br from-purple-900/40 via-blue-900/40 to-pink-900/40 backdrop-blur-sm z-0" />
       
-      {/* Header */}
-      <header className="border-b border-white/20 backdrop-blur-md bg-black/20 sticky top-0 z-50 relative">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => navigate('/')}
-              className="text-white hover:bg-white/10"
-            >
-              <ArrowLeft className="h-5 w-5 mr-2" />
-              Back
-            </Button>
-            <img 
-              src="/lovable-uploads/d1283b59-7cfa-45f5-b151-4c32b24f3621.png" 
-              alt="Sim" 
-              className="h-8 w-8 object-contain"
-            />
-            <h1 className="text-white font-semibold text-lg">Sim Directory</h1>
-          </div>
-          {currentUser && (
-            <Button
-              onClick={handleSignOut}
-              className="bg-white text-black hover:bg-white/90 font-medium h-10 w-10 p-0"
-              size="sm"
-            >
-              <LogOut className="h-5 w-5" />
-            </Button>
-          )}
-        </div>
-      </header>
-
       {/* Main Content */}
-      <section className="flex-1 container mx-auto px-4 py-8 relative z-10">
-        <div className="max-w-6xl mx-auto">
+      <div className="relative z-10 h-full p-8">
+        <div className="max-w-7xl mx-auto">
+          {/* Page Title */}
+          <div className="mb-8">
+            <h1 className="text-4xl font-bold text-white mb-2">Sim Directory</h1>
+            <p className="text-white/60">Discover and chat with AI sims</p>
+          </div>
+
           {/* Search Bar */}
-          <Card className="p-4 mb-6 bg-white/10 backdrop-blur-md border-2 border-white/20">
+          <div className="mb-8">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-white/60" />
+              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-white/60" />
               <Input
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search sims by name, title, or description..."
-                className="pl-10 bg-white/5 border-white/20 text-white placeholder:text-white/40"
+                className="pl-12 h-14 bg-white/10 backdrop-blur-md border-2 border-white/20 text-white placeholder:text-white/40 text-lg focus:bg-white/15 focus:border-white/30"
               />
             </div>
-          </Card>
+          </div>
 
           {/* Sims Grid */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
             {filteredSims?.map((sim) => (
               <button
                 key={sim.id}
                 onClick={() => handleSimClick(sim)}
-                className="group flex flex-col items-center gap-3 p-4 rounded-xl bg-white/10 hover:bg-white/20 border-2 border-white/20 hover:border-white/40 transition-all duration-300 backdrop-blur-md hover:scale-105"
+                className="group flex flex-col items-center gap-3 p-5 rounded-2xl bg-white/10 hover:bg-white/20 border-2 border-white/20 hover:border-white/40 transition-all duration-300 backdrop-blur-md hover:scale-105 hover:shadow-xl"
               >
-                <img 
-                  src={sim.avatar} 
-                  alt={sim.name}
-                  className="w-20 h-20 rounded-full object-cover border-2 border-white/30 shadow-lg group-hover:shadow-xl transition-shadow"
-                />
-                <span className="text-sm font-medium text-white text-center line-clamp-2 leading-tight">
-                  {sim.name}
-                </span>
-                {sim.title && (
-                  <span className="text-xs text-white/60 text-center line-clamp-1">
-                    {sim.title}
+                <div className="relative">
+                  <img 
+                    src={sim.avatar} 
+                    alt={sim.name}
+                    className="w-24 h-24 rounded-full object-cover border-3 border-white/30 shadow-lg group-hover:shadow-2xl transition-shadow"
+                  />
+                </div>
+                <div className="w-full text-center space-y-1">
+                  <span className="text-sm font-semibold text-white line-clamp-2 leading-tight">
+                    {sim.name}
                   </span>
-                )}
+                  {sim.title && (
+                    <span className="text-xs text-white/70 line-clamp-1 block">
+                      {sim.title}
+                    </span>
+                  )}
+                </div>
                 {sim.sim_type === 'historical' && sim.is_official && (
-                  <Badge variant="outline" className="bg-transparent border-white text-white text-[10px] px-1.5 py-0">
+                  <Badge variant="outline" className="bg-white/10 border-white/40 text-white text-[10px] px-2 py-0.5 backdrop-blur-sm">
                     <Award className="h-3 w-3 mr-1" />
                     Official
                   </Badge>
@@ -180,11 +137,11 @@ const SimDirectory = () => {
 
           {filteredSims?.length === 0 && (
             <Card className="p-12 bg-white/10 backdrop-blur-md border-2 border-white/20 text-center">
-              <p className="text-white/60">No sims found matching your search.</p>
+              <p className="text-white/60 text-lg">No sims found matching your search.</p>
             </Card>
           )}
         </div>
-      </section>
+      </div>
     </div>
   );
 };
