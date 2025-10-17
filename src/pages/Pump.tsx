@@ -159,6 +159,19 @@ const Pump = () => {
                 <span className="text-sm font-medium">{queueCount} debates in queue</span>
               </div>
             )}
+            
+            <div className="mt-4 pt-4 border-t border-border">
+              <Button 
+                asChild 
+                variant="outline" 
+                className="w-full"
+              >
+                <a href="/livestream">
+                  <Sparkles className="mr-2 h-4 w-4" />
+                  Watch AI Livestream Commentary
+                </a>
+              </Button>
+            </div>
           </Card>
 
           {/* Form */}

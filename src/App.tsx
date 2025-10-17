@@ -13,6 +13,7 @@ import Login from "./pages/Login";
 import Home from "./pages/Home";
 import Landing from "./pages/Landing";
 import LiveChat from "./pages/LiveChat";
+import LiveStream from "./pages/LiveStream";
 import Pump from "./pages/Pump";
 import Admin from "./pages/Admin";
 import PublicTutorDetail from "./pages/PublicTutorDetail";
@@ -39,6 +40,7 @@ const App = () => (
             <Route path="/" element={<Landing />} />
             <Route path="/home" element={<Landing />} />
             <Route path="/live" element={<LiveChat />} />
+            <Route path="/livestream" element={<LiveStream />} />
             <Route path="/pump" element={<Pump />} />
             <Route path="/sim-directory" element={<Home />} />
             
