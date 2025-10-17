@@ -33,6 +33,7 @@ import SimDirectory from "./pages/SimDirectory";
 import ChatWithSim from "./pages/ChatWithSim";
 import SimConversationsView from "./pages/SimConversationsView";
 import EditSimPage from "./pages/EditSimPage";
+import TradeStream from "./pages/TradeStream";
 
 const queryClient = new QueryClient();
 
@@ -63,6 +64,7 @@ const App = () => (
             <Route path="/knowledge-enhancement" element={<KnowledgeEnhancement />} />
             <Route path="/dashboard" element={<UserDashboard />} />
             <Route path="/sim-conversations" element={<SimConversations />} />
+            <Route path="/trade-stream" element={<TradeStream />} />
             
             {/* Authenticated routes with sidebar */}
             <Route element={<AuthenticatedLayout />}>
