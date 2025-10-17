@@ -12,6 +12,9 @@ const ChatWithSim = () => {
   const [searchParams] = useSearchParams();
   const chatId = searchParams.get('chat');
   const [currentUser, setCurrentUser] = useState<any>(null);
+  
+  // Force new chat when no chatId is present
+  const forceNewChat = !chatId;
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -99,6 +102,7 @@ const ChatWithSim = () => {
           hideHeader={true}
           transparentMode={false}
           isCreatorChat={true}
+          forceNewChat={forceNewChat}
         />
       </div>
     </div>

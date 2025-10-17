@@ -11,22 +11,31 @@ interface ChatMessage {
   isComplete: boolean;
 }
 
-export const useChatHistory = (agent: AgentType, isCreatorChat: boolean = false) => {
+export const useChatHistory = (agent: AgentType, isCreatorChat: boolean = false, forceNew: boolean = false) => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Load conversation and messages when agent changes
+  // Load conversation and messages when agent changes or forceNew changes
   useEffect(() => {
     const loadChatHistory = async () => {
       if (!agent?.id) return;
       
       setIsLoading(true);
-      console.log('Loading chat history for agent:', agent.name);
+      console.log('Loading chat history for agent:', agent.name, 'forceNew:', forceNew);
 
       try {
         // Check if user is authenticated
         const { data: { user } } = await supabase.auth.getUser();
+        
+        if (forceNew) {
+          // Start completely fresh - don't load any conversation
+          setConversationId(null);
+          setMessages([]);
+          console.log('Starting fresh conversation');
+          setIsLoading(false);
+          return;
+        }
         
         // Create or get conversation for both authenticated and anonymous users
         const conversation = await conversationService.getOrCreateConversation(agent.id, isCreatorChat);
@@ -71,7 +80,7 @@ export const useChatHistory = (agent: AgentType, isCreatorChat: boolean = false)
     setMessages([]);
     setConversationId(null);
     loadChatHistory();
-  }, [agent?.id]);
+  }, [agent?.id, forceNew]);
 
   // Add user message
   const addUserMessage = useCallback(async (content: string) => {
@@ -84,9 +93,19 @@ export const useChatHistory = (agent: AgentType, isCreatorChat: boolean = false)
 
     setMessages(prev => [...prev, tempMessage]);
 
+    // Create conversation on first message if not exists
+    let activeConversationId = conversationId;
+    if (!activeConversationId && agent?.id) {
+      const conversation = await conversationService.getOrCreateConversation(agent.id, isCreatorChat);
+      if (conversation) {
+        activeConversationId = conversation.id;
+        setConversationId(conversation.id);
+      }
+    }
+
     // Save to database whether authenticated or anonymous
-    if (conversationId) {
-      const savedMessage = await conversationService.addMessage(conversationId, 'user', content);
+    if (activeConversationId) {
+      const savedMessage = await conversationService.addMessage(activeConversationId, 'user', content);
       if (savedMessage) {
         setMessages(prev => 
           prev.map(msg => 
@@ -97,7 +116,7 @@ export const useChatHistory = (agent: AgentType, isCreatorChat: boolean = false)
         );
       }
     }
-  }, [conversationId]);
+  }, [conversationId, agent?.id, isCreatorChat]);
 
   // Start AI message
   const startAiMessage = useCallback(() => {

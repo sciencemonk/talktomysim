@@ -115,6 +115,7 @@ export function AppSidebar() {
   });
 
   const handleNewChat = () => {
+    // Navigate to home without chat parameter to start fresh
     navigate('/');
   };
 
@@ -136,6 +137,18 @@ export function AppSidebar() {
   return (
     <Sidebar className="border-r bg-background">
       <SidebarContent className="p-3">
+        {/* Sim Logo */}
+        <div className="flex items-center gap-2 mb-4 px-2">
+          <img 
+            src="/sim-logo.png" 
+            alt="Sim Logo" 
+            className="h-8 w-8 object-contain"
+          />
+          {open && (
+            <span className="font-semibold text-lg">Sim AI</span>
+          )}
+        </div>
+
         {/* New Chat Button */}
         <div className="mb-4">
           <Button
