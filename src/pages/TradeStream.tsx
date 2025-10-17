@@ -214,7 +214,7 @@ const TradeStream = () => {
       </div>
 
       {/* Audio Visualizer */}
-      <AudioVisualizer audioSrc="/simmusic.mov" />
+      <AudioVisualizer audioSrc="https://kxsvyeirqimcydtkowga.supabase.co/storage/v1/object/public/music/simmusic.m4a" />
     </div>
   );
 };
