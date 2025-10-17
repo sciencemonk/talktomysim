@@ -44,23 +44,25 @@ serve(async (req) => {
     const transactions = await response.json();
     console.log('Fetched transactions:', transactions.length);
 
-    // Find Hitler advisor
-    const { data: hitlerAdvisor, error: advisorError } = await supabase
+    // Find Pablo Escobar advisor
+    const { data: escobarAdvisor, error: advisorError } = await supabase
       .from('advisors')
       .select('id, name, prompt, avatar_url')
-      .ilike('name', '%hitler%')
+      .ilike('name', '%pablo%escobar%')
       .eq('is_official', true)
       .single();
 
-    if (advisorError || !hitlerAdvisor) {
-      console.error('Error finding Hitler advisor:', advisorError);
-      throw new Error('Could not find Hitler advisor');
+    if (advisorError || !escobarAdvisor) {
+      console.error('Error finding Pablo Escobar advisor:', advisorError);
+      throw new Error('Could not find Pablo Escobar advisor');
     }
 
-    console.log('Found advisor:', hitlerAdvisor.name);
+    console.log('Found advisor:', escobarAdvisor.name);
 
     // Analyze transactions and generate reactions
     const reactions = [];
+    
+    console.log('Processing', transactions.length, 'transactions');
     
     for (const tx of transactions) {
       if (!tx.tokenTransfers || tx.tokenTransfers.length === 0) continue;
@@ -72,6 +74,8 @@ serve(async (req) => {
       
       if (relevantTransfers.length === 0) continue;
       
+      console.log('Found relevant transfers for tx:', tx.signature.substring(0, 8));
+      
       for (const transfer of relevantTransfers) {
         // A buy is when tokens are transferred TO a user (they receive tokens)
         // A sell is when tokens are transferred FROM a user (they send tokens away)
@@ -79,6 +83,7 @@ serve(async (req) => {
         const isSell = transfer.fromUserAccount && transfer.tokenAmount > 0;
         
         if (isBuy || isSell) {
+          console.log('Trade detected:', isBuy ? 'BUY' : 'SELL', 'amount:', transfer.tokenAmount);
           reactions.push({
             type: isBuy ? 'buy' : 'sell',
             amount: transfer.tokenAmount || 0,
@@ -94,7 +99,7 @@ serve(async (req) => {
 
     return new Response(
       JSON.stringify({
-        advisor: hitlerAdvisor,
+        advisor: escobarAdvisor,
         reactions,
         totalTransactions: transactions.length,
       }),

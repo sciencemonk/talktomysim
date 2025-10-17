@@ -5,6 +5,7 @@ import { TrendingUp, TrendingDown, Activity } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { getAvatarUrl } from "@/lib/avatarUtils";
+import TopNavigation from "@/components/TopNavigation";
 
 interface Reaction {
   type: 'buy' | 'sell';
@@ -27,19 +28,19 @@ const TradeStream = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   const buyMessages = [
-    "Excellent! Another patriot joins our economic revolution!",
-    "Wunderbar! The strength of our token grows with each purchase!",
-    "This is the power of unified economic action!",
-    "Another believer in our cause! Victory is inevitable!",
-    "The people recognize true value when they see it!",
+    "¡Excelente! Another believer joins our empire! 💰",
+    "Sí señor! Smart money recognizes opportunity when they see it!",
+    "This is how we build an empire - one buy at a time! 🚀",
+    "They understand the value! Welcome to the family, amigo!",
+    "Plata o plomo? They chose plata! Good choice! 💵",
   ];
 
   const sellMessages = [
-    "Cowards! Selling at the first sign of uncertainty!",
-    "Those who abandon ship will regret their weakness!",
-    "Paper hands will not inherit the future!",
-    "This is temporary - the weak are being cleansed!",
-    "Let them sell! We do not need such faint hearts!",
+    "Cowards! You don't have what it takes to build an empire!",
+    "Selling? You'll regret this when we reach the top! 📉",
+    "Paper hands have no place in this business!",
+    "They're running scared - but we stay strong, hermano!",
+    "Let the weak ones leave - only the brave survive! 💎",
   ];
 
   const fetchTrades = async () => {
@@ -104,6 +105,8 @@ const TradeStream = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <TopNavigation />
+      
       {/* Header */}
       <div className="border-b border-border bg-card/50 backdrop-blur-md sticky top-0 z-10">
         <div className="container mx-auto px-4 py-4">
