@@ -144,12 +144,16 @@ export function AppSidebar() {
           event: 'INSERT',
           schema: 'public',
           table: 'conversations',
-          filter: `tutor_id=eq.${userSim.id},user_id=eq.${currentUser.id},is_creator_conversation=eq.true`
+          filter: `tutor_id=eq.${userSim.id}`
         },
         (payload) => {
           console.log('New conversation detected:', payload);
-          // Invalidate and refetch conversations when a new one is created
-          queryClient.invalidateQueries({ queryKey: ['my-conversations', userSim.id] });
+          // Check if it's for the current user and is a creator conversation
+          const newRecord = payload.new as any;
+          if (newRecord.user_id === currentUser.id && newRecord.is_creator_conversation === true) {
+            // Invalidate and refetch conversations when a new one is created
+            queryClient.invalidateQueries({ queryKey: ['my-conversations', userSim.id] });
+          }
         }
       )
       .on(
@@ -158,11 +162,15 @@ export function AppSidebar() {
           event: 'UPDATE',
           schema: 'public',
           table: 'conversations',
-          filter: `tutor_id=eq.${userSim.id},user_id=eq.${currentUser.id},is_creator_conversation=eq.true`
+          filter: `tutor_id=eq.${userSim.id}`
         },
-        () => {
-          // Refetch when conversation is updated (e.g., title changes)
-          queryClient.invalidateQueries({ queryKey: ['my-conversations', userSim.id] });
+        (payload) => {
+          // Check if it's for the current user and is a creator conversation
+          const updatedRecord = payload.new as any;
+          if (updatedRecord.user_id === currentUser.id && updatedRecord.is_creator_conversation === true) {
+            // Refetch when conversation is updated (e.g., title changes)
+            queryClient.invalidateQueries({ queryKey: ['my-conversations', userSim.id] });
+          }
         }
       )
       .subscribe();
