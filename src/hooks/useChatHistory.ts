@@ -22,10 +22,6 @@ export const useChatHistory = (agent: AgentType, isCreatorChat: boolean = false,
     const loadChatHistory = async () => {
       if (!agent?.id) return;
       
-      // Track which conversation we're loading
-      const loadingConversationId = conversationId || null;
-      setPendingConversationId(loadingConversationId);
-      
       setIsLoading(true);
       console.log('Loading chat history for agent:', agent.name, 'forceNew:', forceNew, 'conversationId:', conversationId);
 
@@ -39,7 +35,6 @@ export const useChatHistory = (agent: AgentType, isCreatorChat: boolean = false,
           setMessages([]);
           console.log('Starting fresh conversation');
           setIsLoading(false);
-          setPendingConversationId(null);
           return;
         }
         
@@ -62,21 +57,15 @@ export const useChatHistory = (agent: AgentType, isCreatorChat: boolean = false,
               isComplete: true
             }));
 
-            // Only update if this is still the conversation we want to load
-            if (pendingConversationId === conversationId) {
-              setActiveConversationId(conversation.id);
-              setMessages(chatMessages);
-              console.log(`Loaded ${chatMessages.length} messages for conversation ${conversationId}`);
-            }
+            setActiveConversationId(conversation.id);
+            setMessages(chatMessages);
+            console.log(`Loaded ${chatMessages.length} messages for conversation ${conversationId}`);
           } else {
             console.error('Conversation not found:', conversationId);
-            if (pendingConversationId === conversationId) {
-              setMessages([]);
-              setActiveConversationId(null);
-            }
+            setMessages([]);
+            setActiveConversationId(null);
           }
           setIsLoading(false);
-          setPendingConversationId(null);
           return;
         }
         
@@ -85,7 +74,6 @@ export const useChatHistory = (agent: AgentType, isCreatorChat: boolean = false,
         if (!conversation) {
           console.error('Failed to get or create conversation');
           setIsLoading(false);
-          setPendingConversationId(null);
           return;
         }
 
@@ -102,30 +90,21 @@ export const useChatHistory = (agent: AgentType, isCreatorChat: boolean = false,
             isComplete: true
           }));
 
-          // Only update if this is still what we want to load
-          if (pendingConversationId === loadingConversationId) {
-            setActiveConversationId(conversation.id);
-            setMessages(chatMessages);
-            console.log(`Loaded ${chatMessages.length} messages for ${agent.name}:`, chatMessages);
-          }
+          setActiveConversationId(conversation.id);
+          setMessages(chatMessages);
+          console.log(`Loaded ${chatMessages.length} messages for ${agent.name}:`, chatMessages);
         } else {
           console.log('Anonymous user - starting with empty chat');
-          if (pendingConversationId === loadingConversationId) {
-            setActiveConversationId(conversation.id);
-            setMessages([]);
-          }
+          setActiveConversationId(conversation.id);
+          setMessages([]);
         }
       } catch (error) {
         console.error('Error loading chat history:', error);
-        // Only clear if this is still what we're trying to load
-        if (pendingConversationId === loadingConversationId) {
-          setMessages([]);
-          setActiveConversationId(null);
-        }
+        setMessages([]);
+        setActiveConversationId(null);
       }
       
       setIsLoading(false);
-      setPendingConversationId(null);
     };
 
     loadChatHistory();
