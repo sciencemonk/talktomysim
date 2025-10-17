@@ -1,22 +1,25 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, Globe, Wallet, ExternalLink, Copy } from "lucide-react";
+import { Loader2, Globe, Wallet, ExternalLink, Copy, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import ChatInterface from "@/components/ChatInterface";
 import AuthModal from "@/components/AuthModal";
 import SimpleFooter from "@/components/SimpleFooter";
 import { AgentType } from "@/types/agent";
+import { useToast } from "@/hooks/use-toast";
 
 const PublicSimDetail = () => {
   const { customUrl } = useParams<{ customUrl: string }>();
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [sim, setSim] = useState<AgentType | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [showChat, setShowChat] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [currentUser, setCurrentUser] = useState<any>(null);
+  const [walletCopied, setWalletCopied] = useState(false);
 
   useEffect(() => {
     checkUser();
@@ -218,18 +221,30 @@ const PublicSimDetail = () => {
                 )}
 
                 {sim.crypto_wallet && (
-                  <div className="flex items-center justify-center gap-3 w-full px-6 py-4 rounded-full bg-white/5 border border-white/10">
-                    <Wallet className="h-5 w-5 text-muted-foreground" />
-                    <span className="text-xs font-mono text-muted-foreground truncate max-w-[200px]">{sim.crypto_wallet}</span>
-                    <button
-                      onClick={() => {
-                        navigator.clipboard.writeText(sim.crypto_wallet || '');
-                      }}
-                      className="ml-auto text-muted-foreground hover:text-foreground transition-colors"
-                    >
-                      <Copy className="h-4 w-4" />
-                    </button>
-                  </div>
+                  <button
+                    onClick={() => {
+                      navigator.clipboard.writeText(sim.crypto_wallet || '');
+                      setWalletCopied(true);
+                      setTimeout(() => setWalletCopied(false), 2000);
+                      toast({
+                        title: "Copied!",
+                        description: "Wallet address copied to clipboard"
+                      });
+                    }}
+                    className="flex items-center justify-between gap-3 w-full px-6 py-4 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 transition-all duration-300 group"
+                  >
+                    <div className="flex items-center gap-3 min-w-0">
+                      <Wallet className="h-5 w-5 text-muted-foreground group-hover:text-foreground transition-colors flex-shrink-0" />
+                      <span className="text-xs font-mono text-muted-foreground group-hover:text-foreground transition-colors truncate">
+                        {sim.crypto_wallet}
+                      </span>
+                    </div>
+                    {walletCopied ? (
+                      <Check className="h-4 w-4 text-green-500 flex-shrink-0" />
+                    ) : (
+                      <Copy className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors flex-shrink-0" />
+                    )}
+                  </button>
                 )}
               </div>
             )}
