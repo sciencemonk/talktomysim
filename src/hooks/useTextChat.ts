@@ -58,8 +58,13 @@ export const useTextChat = ({
       // Get current user
       const { data: { user } } = await supabase.auth.getUser();
       
-      // Use Supabase client to call the enhanced chat edge function
-      const { data, error } = await supabase.functions.invoke('enhanced-chat', {
+      // Add timeout wrapper for the edge function call
+      const timeoutPromise = new Promise<never>((_, reject) => {
+        setTimeout(() => reject(new Error('Request timeout after 30 seconds')), 30000);
+      });
+      
+      // Use Supabase client to call the enhanced chat edge function with timeout
+      const edgeFunctionPromise = supabase.functions.invoke('enhanced-chat', {
         body: {
           messages: newHistory,
           agent: {
@@ -75,6 +80,8 @@ export const useTextChat = ({
           userId: user?.id
         }
       });
+      
+      const { data, error } = await Promise.race([edgeFunctionPromise, timeoutPromise]);
 
       console.log('Edge function response:', { data, error });
       
@@ -90,20 +97,23 @@ export const useTextChat = ({
         
         // Update conversation history with AI response
         setConversationHistory(prev => [...prev, { role: 'assistant', content: data.content }]);
+        
+        // Complete the message
+        await onAiMessageComplete(aiMessageId);
       } else {
         throw new Error('No content in response');
       }
-
-      onAiMessageComplete(aiMessageId);
     } catch (error: any) {
       if (error.name === 'AbortError') {
         console.log('Request was aborted');
-        return;
+        // Still complete the message even if aborted
+        onAiTextDelta(aiMessageId, 'Request was cancelled.');
+        await onAiMessageComplete(aiMessageId);
+      } else {
+        console.error('Error sending message:', error);
+        onAiTextDelta(aiMessageId, 'Sorry, I encountered an error. Please try again.');
+        await onAiMessageComplete(aiMessageId);
       }
-      
-      console.error('Error sending message:', error);
-      onAiTextDelta(aiMessageId, 'Sorry, I encountered an error. Please try again.');
-      onAiMessageComplete(aiMessageId);
     } finally {
       setIsProcessing(false);
       abortControllerRef.current = null;
