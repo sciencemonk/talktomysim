@@ -4,15 +4,18 @@ import { supabase } from '@/integrations/supabase/client';
 import { useQuery } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Trash2, MessageSquare } from 'lucide-react';
+import { Trash2, MessageSquare, Menu } from 'lucide-react';
 import { ConversationModal } from '@/components/ConversationModal';
 import { toast } from 'sonner';
 import { AgentType } from '@/types/agent';
+import { SidebarTrigger } from '@/components/ui/sidebar';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const SimConversationsView = () => {
   const navigate = useNavigate();
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [selectedConversationId, setSelectedConversationId] = useState<string | null>(null);
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -154,8 +157,21 @@ const SimConversationsView = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      {/* Mobile Header with Menu */}
+      {isMobile && (
+        <div className="fixed top-0 left-0 right-0 z-50 bg-background border-b">
+          <div className="flex items-center justify-between p-3">
+            <SidebarTrigger className="h-10 w-10">
+              <Menu className="h-5 w-5" />
+            </SidebarTrigger>
+            <h1 className="text-lg font-semibold">Public Conversations</h1>
+            <div className="w-10" /> {/* Spacer for centering */}
+          </div>
+        </div>
+      )}
+      
       {/* Main Content */}
-      <div className="h-full p-8">
+      <div className={`h-full p-8 ${isMobile ? 'pt-[73px]' : ''}`}>
         <div className="max-w-5xl mx-auto">
           {conversations && conversations.length > 0 ? (
             <div className="space-y-3">

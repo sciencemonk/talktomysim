@@ -7,15 +7,18 @@ import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { Upload, Link2, Copy, Check, User, Globe, Wallet, X, MessageCircle } from 'lucide-react';
+import { Upload, Link2, Copy, Check, User, Globe, Wallet, X, MessageCircle, Menu } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { toast } from 'sonner';
 import { AgentType } from '@/types/agent';
+import { SidebarTrigger } from '@/components/ui/sidebar';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const EditSim = () => {
   const navigate = useNavigate();
   const [currentUser, setCurrentUser] = useState<any>(null);
+  const isMobile = useIsMobile();
   
   // Form state
   const [name, setName] = useState('');
@@ -238,8 +241,21 @@ const EditSim = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      {/* Mobile Header with Menu */}
+      {isMobile && (
+        <div className="fixed top-0 left-0 right-0 z-50 bg-background border-b">
+          <div className="flex items-center justify-between p-3">
+            <SidebarTrigger className="h-10 w-10">
+              <Menu className="h-5 w-5" />
+            </SidebarTrigger>
+            <h1 className="text-lg font-semibold">Sim Settings</h1>
+            <div className="w-10" /> {/* Spacer for centering */}
+          </div>
+        </div>
+      )}
+      
       {/* Main Content */}
-      <div className="h-full p-8">
+      <div className={`h-full p-8 ${isMobile ? 'pt-[73px]' : ''}`}>
         <div className="max-w-4xl mx-auto">
           <ScrollArea className="h-[calc(100vh-12rem)]">
             <Card className="p-8">

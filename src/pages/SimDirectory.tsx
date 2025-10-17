@@ -4,13 +4,16 @@ import { supabase } from '@/integrations/supabase/client';
 import { useQuery } from '@tanstack/react-query';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Search, Award } from 'lucide-react';
+import { Search, Award, Menu } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { AgentType } from '@/types/agent';
+import { SidebarTrigger } from '@/components/ui/sidebar';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const SimDirectory = () => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
+  const isMobile = useIsMobile();
 
   const { data: allSims } = useQuery({
     queryKey: ['all-sims-directory'],
@@ -67,8 +70,21 @@ const SimDirectory = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      {/* Mobile Header with Menu */}
+      {isMobile && (
+        <div className="fixed top-0 left-0 right-0 z-50 bg-background border-b">
+          <div className="flex items-center justify-between p-3">
+            <SidebarTrigger className="h-10 w-10">
+              <Menu className="h-5 w-5" />
+            </SidebarTrigger>
+            <h1 className="text-lg font-semibold">Sim Directory</h1>
+            <div className="w-10" /> {/* Spacer for centering */}
+          </div>
+        </div>
+      )}
+      
       {/* Main Content */}
-      <div className="h-full p-8">
+      <div className={`h-full p-8 ${isMobile ? 'pt-[73px]' : ''}`}>
         <div className="max-w-7xl mx-auto">
           {/* Search Bar */}
           <div className="mb-8">
