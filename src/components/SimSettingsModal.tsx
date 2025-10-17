@@ -291,6 +291,55 @@ export const SimSettingsModal = ({ open, onOpenChange, sim, onSimUpdate }: SimSe
               </div>
             </div>
 
+            {/* Section: Social Links & Donations */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-2 text-white/90">
+                <Globe className="h-5 w-5" />
+                <h3 className="font-semibold text-lg">Social Links & Donations</h3>
+              </div>
+              
+              <div className="space-y-2 pl-7">
+                <Label htmlFor="twitter" className="text-sm font-medium text-white/80">X (Twitter) Profile</Label>
+                <Input
+                  id="twitter"
+                  value={twitterUrl}
+                  onChange={(e) => setTwitterUrl(e.target.value)}
+                  placeholder="https://x.com/yourhandle"
+                  className="bg-white/5 border-white/20 text-white placeholder:text-white/30"
+                />
+              </div>
+
+              <div className="space-y-2 pl-7">
+                <Label htmlFor="website" className="text-sm font-medium text-white/80">Personal Website</Label>
+                <Input
+                  id="website"
+                  value={websiteUrl}
+                  onChange={(e) => setWebsiteUrl(e.target.value)}
+                  placeholder="https://yourwebsite.com"
+                  className="bg-white/5 border-white/20 text-white placeholder:text-white/30"
+                />
+              </div>
+
+              <div className="space-y-2 pl-7">
+                <Label htmlFor="crypto" className="text-sm font-medium text-white/80">
+                  <div className="flex items-center gap-2">
+                    <Wallet className="h-4 w-4" />
+                    Crypto Wallet (for donations)
+                  </div>
+                </Label>
+                <Input
+                  id="crypto"
+                  value={cryptoWallet}
+                  onChange={(e) => setCryptoWallet(e.target.value)}
+                  placeholder="Your wallet address"
+                  className="bg-white/5 border-white/20 text-white placeholder:text-white/30 font-mono text-sm"
+                />
+                <p className="text-xs text-white/40">
+                  Share your wallet address for crypto donations
+                </p>
+              </div>
+            </div>
+
             {/* Section: Professional Background */}
             <div className="space-y-4">
               <div className="flex items-center gap-2 text-white/90">
@@ -439,55 +488,6 @@ export const SimSettingsModal = ({ open, onOpenChange, sim, onSimUpdate }: SimSe
                 />
                 <p className="text-xs text-white/40">
                   Fine-tune your sim's personality with custom instructions
-                </p>
-              </div>
-            </div>
-
-            {/* Section: Social Links & Donations */}
-            <div className="space-y-4">
-              <div className="flex items-center gap-2 text-white/90">
-                <Globe className="h-5 w-5" />
-                <h3 className="font-semibold text-lg">Social Links & Donations</h3>
-              </div>
-              
-              <div className="space-y-2 pl-7">
-                <Label htmlFor="twitter" className="text-sm font-medium text-white/80">X (Twitter) Profile</Label>
-                <Input
-                  id="twitter"
-                  value={twitterUrl}
-                  onChange={(e) => setTwitterUrl(e.target.value)}
-                  placeholder="https://x.com/yourhandle"
-                  className="bg-white/5 border-white/20 text-white placeholder:text-white/30"
-                />
-              </div>
-
-              <div className="space-y-2 pl-7">
-                <Label htmlFor="website" className="text-sm font-medium text-white/80">Personal Website</Label>
-                <Input
-                  id="website"
-                  value={websiteUrl}
-                  onChange={(e) => setWebsiteUrl(e.target.value)}
-                  placeholder="https://yourwebsite.com"
-                  className="bg-white/5 border-white/20 text-white placeholder:text-white/30"
-                />
-              </div>
-
-              <div className="space-y-2 pl-7">
-                <Label htmlFor="crypto" className="text-sm font-medium text-white/80">
-                  <div className="flex items-center gap-2">
-                    <Wallet className="h-4 w-4" />
-                    Crypto Wallet (for donations)
-                  </div>
-                </Label>
-                <Input
-                  id="crypto"
-                  value={cryptoWallet}
-                  onChange={(e) => setCryptoWallet(e.target.value)}
-                  placeholder="Your wallet address"
-                  className="bg-white/5 border-white/20 text-white placeholder:text-white/30 font-mono text-sm"
-                />
-                <p className="text-xs text-white/40">
-                  Share your wallet address for crypto donations
                 </p>
               </div>
             </div>
