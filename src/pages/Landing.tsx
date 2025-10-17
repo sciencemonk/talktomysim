@@ -159,18 +159,18 @@ const Landing = () => {
   const features = [
     {
       title: "Create Your Own AI",
-      description: "Get a free ai powered Sim page. Linktree meets ai.",
+      description: "Build and share your own ai based on your personality or your wildest ideas.",
       action: () => navigate("/dashboard"),
       gradient: "from-primary/20 to-primary/5",
       gridArea: "create",
       showWalletButtons: true,
     },
     {
-      title: "$SIMAI - Join the Community",
-      description: "Be part of the Sim revolution. Hold $SIMAI to join our community and profit from the future of AI.",
-      action: copyCAToClipboard,
-      gradient: "from-primary/20 to-primary/5",
-      gridArea: "coin",
+      title: "Read the Whitepaper",
+      description: "Dive deep into our vision, technology, and roadmap for Sim.",
+      action: () => navigate("/whitepaper"),
+      gradient: "from-muted/20 to-muted/5",
+      gridArea: "whitepaper",
     },
   ];
 
@@ -262,7 +262,39 @@ const Landing = () => {
         </div>
       </section>
 
-      <AuthModal
+      {/* Sim Directory Section */}
+      <section className="container mx-auto px-3 sm:px-4 pb-12 relative z-10">
+        <div className="max-w-6xl mx-auto">
+          <h2 className="text-2xl sm:text-3xl font-bold text-white text-center mb-6">
+            Talk to a Sim
+          </h2>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4">
+            {allSims?.map((sim) => (
+              <button
+                key={sim.id}
+                onClick={() => handleSimClick(sim)}
+                className="group flex flex-col items-center gap-2 p-3 sm:p-4 rounded-xl bg-white/10 hover:bg-white/20 border-2 border-white/20 hover:border-white/40 transition-all duration-300 backdrop-blur-md hover:scale-105"
+              >
+                <img 
+                  src={sim.avatar} 
+                  alt={sim.name}
+                  className="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover border-2 border-white/30 shadow-lg group-hover:shadow-xl transition-shadow"
+                />
+                <span className="text-xs sm:text-sm font-medium text-white text-center line-clamp-2 leading-tight">
+                  {sim.name}
+                </span>
+                {sim.title && (
+                  <span className="text-[10px] sm:text-xs text-white/60 text-center line-clamp-1">
+                    {sim.title}
+                  </span>
+                )}
+              </button>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <AuthModal 
         open={authModalOpen} 
         onOpenChange={setAuthModalOpen}
       />
