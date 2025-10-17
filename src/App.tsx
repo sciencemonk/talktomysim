@@ -7,6 +7,9 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import { FloatingChat } from "@/components/FloatingChat";
 
+// Layouts
+import { AuthenticatedLayout } from "./layouts/AuthenticatedLayout";
+
 // Pages
 import Index from "./pages/Index";
 import Login from "./pages/Login";
@@ -40,38 +43,34 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <Routes>
-            {/* Landing page serves as home for both signed in and signed out users */}
-            <Route path="/" element={<Landing />} />
-            <Route path="/home" element={<Landing />} />
+            {/* Public routes */}
+            <Route path="/landing" element={<Landing />} />
             <Route path="/live" element={<LiveChat />} />
             <Route path="/livestream" element={<LiveStream />} />
             <Route path="/pump" element={<Pump />} />
             <Route path="/sim-directory" element={<Home />} />
-            
-            {/* Signed-in user pages */}
-            <Route path="/edit-sim" element={<EditSim />} />
-            <Route path="/directory" element={<SimDirectory />} />
-            <Route path="/chat-with-sim" element={<ChatWithSim />} />
-            <Route path="/sim-conversations-view" element={<SimConversationsView />} />
-            
-            {/* Admin route */}
-            <Route path="/admin" element={<Admin />} />
-            <Route path="/knowledge-enhancement" element={<KnowledgeEnhancement />} />
-            
-            {/* User dashboard for sim creation */}
-            <Route path="/dashboard" element={<UserDashboard />} />
-            <Route path="/sim-conversations" element={<SimConversations />} />
-            
-            {/* Legacy routes */}
             <Route path="/index" element={<Index />} />
             <Route path="/login" element={<Login />} />
             <Route path="/whitepaper" element={<WhitePaper />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/app" element={<Home />} />
-            
-            {/* Public tutor share links - accessible by non-signed in users */}
             <Route path="/tutors/:agentId" element={<PublicTutorDetail />} />
             <Route path="/tutors/:agentId/chat" element={<StudentChat />} />
+            
+            {/* Admin route */}
+            <Route path="/admin" element={<Admin />} />
+            <Route path="/knowledge-enhancement" element={<KnowledgeEnhancement />} />
+            <Route path="/dashboard" element={<UserDashboard />} />
+            <Route path="/sim-conversations" element={<SimConversations />} />
+            
+            {/* Authenticated routes with sidebar */}
+            <Route element={<AuthenticatedLayout />}>
+              <Route path="/" element={<ChatWithSim />} />
+              <Route path="/home" element={<ChatWithSim />} />
+              <Route path="/conversations" element={<SimConversationsView />} />
+              <Route path="/directory" element={<SimDirectory />} />
+              <Route path="/edit-sim" element={<EditSim />} />
+            </Route>
             
             {/* Public sim share links - must be last to avoid catching other routes */}
             <Route path="/:customUrl" element={<PublicSimDetail />} />

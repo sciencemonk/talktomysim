@@ -1,17 +1,16 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery } from '@tanstack/react-query';
-import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { LogOut, ArrowLeft } from 'lucide-react';
-import landingBackground from '@/assets/landing-background.jpg';
 import { toast } from 'sonner';
 import { AgentType } from '@/types/agent';
 import ChatInterface from '@/components/ChatInterface';
 
 const ChatWithSim = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const chatId = searchParams.get('chat');
   const [currentUser, setCurrentUser] = useState<any>(null);
 
   useEffect(() => {
@@ -81,12 +80,6 @@ const ChatWithSim = () => {
     enabled: !!currentUser
   });
 
-  const handleSignOut = async () => {
-    await supabase.auth.signOut();
-    toast.success('Signed out successfully');
-    navigate('/');
-  };
-
   if (!userSim) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -98,60 +91,25 @@ const ChatWithSim = () => {
   }
 
   return (
-    <div 
-      className="min-h-screen flex flex-col relative"
-      style={{
-        backgroundImage: `url(${landingBackground})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundAttachment: 'fixed'
-      }}
-    >
-      <div className="absolute inset-0 bg-black/40 z-0" />
-      
-      {/* Header */}
-      <header className="border-b border-white/20 backdrop-blur-md bg-black/20 sticky top-0 z-50 relative">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => navigate('/')}
-              className="text-white hover:bg-white/10"
-            >
-              <ArrowLeft className="h-5 w-5 mr-2" />
-              Back
-            </Button>
-            <img 
-              src="/lovable-uploads/d1283b59-7cfa-45f5-b151-4c32b24f3621.png" 
-              alt="Sim" 
-              className="h-8 w-8 object-contain"
-            />
-            <h1 className="text-white font-semibold text-lg">Chat with {userSim.name}</h1>
+    <div className="min-h-screen bg-black flex items-center justify-center p-4">
+      <div className="w-full max-w-4xl h-[calc(100vh-8rem)] flex flex-col">
+        {!chatId && (
+          <div className="text-center mb-8">
+            <h1 className="text-4xl font-bold text-white mb-2">
+              What are you working on?
+            </h1>
           </div>
-          <Button
-            onClick={handleSignOut}
-            className="bg-white text-black hover:bg-white/90 font-medium h-10 w-10 p-0"
-            size="sm"
-          >
-            <LogOut className="h-5 w-5" />
-          </Button>
-        </div>
-      </header>
-
-      {/* Main Content - Chat Interface */}
-      <section className="flex-1 container mx-auto px-4 py-4 relative z-10 flex flex-col">
-        <div className="max-w-4xl mx-auto w-full flex-1 flex flex-col">
-          <Card className="flex-1 flex flex-col bg-white/10 backdrop-blur-md border-2 border-white/20 overflow-hidden">
-            <ChatInterface
-              agent={userSim}
-              hideHeader={false}
-              transparentMode={false}
-              isCreatorChat={true}
-            />
-          </Card>
-        </div>
-      </section>
+        )}
+        
+        <Card className="flex-1 flex flex-col bg-white/5 backdrop-blur-md border border-white/10 overflow-hidden">
+          <ChatInterface
+            agent={userSim}
+            hideHeader={false}
+            transparentMode={false}
+            isCreatorChat={true}
+          />
+        </Card>
+      </div>
     </div>
   );
 };
