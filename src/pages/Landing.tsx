@@ -347,11 +347,10 @@ const Landing = () => {
           {currentUser ? (
             <Button
               onClick={handleSignOut}
-              className="bg-white text-black hover:bg-white/90 font-medium px-6 gap-2"
+              className="bg-white text-black hover:bg-white/90 font-medium h-10 w-10 p-0"
               size="sm"
             >
-              <LogOut className="h-4 w-4" />
-              Sign Out
+              <LogOut className="h-5 w-5" />
             </Button>
           ) : (
             <Button
@@ -412,24 +411,24 @@ const Landing = () => {
                             {feature.sim.name.charAt(0)}
                           </AvatarFallback>
                         </Avatar>
-                        <div className="flex-1">
-                          <h3 className="font-semibold text-white">{feature.sim.name}</h3>
-                          {feature.sim.title && (
-                            <p className="text-sm text-white/70">{feature.sim.title}</p>
-                          )}
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="mt-2 gap-2"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setSettingsModalOpen(true);
-                            }}
-                          >
-                            <Settings className="h-4 w-4" />
-                            Settings
-                          </Button>
-                        </div>
+                      <div className="flex-1">
+                        <h3 className="font-semibold text-white">{feature.sim.name}</h3>
+                        {feature.sim.title && (
+                          <p className="text-sm text-white/70">{feature.sim.title}</p>
+                        )}
+                      </div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="gap-2 h-8 px-3 flex-shrink-0"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSettingsModalOpen(true);
+                        }}
+                      >
+                        <Settings className="h-3.5 w-3.5" />
+                        <span className="text-xs">Settings</span>
+                      </Button>
                       </div>
                       
                       {/* Shareable Link */}
