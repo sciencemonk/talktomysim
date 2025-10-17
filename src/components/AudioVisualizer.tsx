@@ -74,7 +74,9 @@ const AudioVisualizer = ({ audioSrc }: AudioVisualizerProps) => {
       let x = 0;
 
       for (let i = 0; i < dataArrayRef.current.length; i++) {
-        const barHeight = (dataArrayRef.current[i] / 255) * canvas.height;
+        // Use a minimum bar height to always show something
+        const dataValue = dataArrayRef.current[i] || 5;
+        const barHeight = Math.max(5, (dataValue / 255) * canvas.height);
 
         ctx.fillStyle = gradient;
         ctx.fillRect(
@@ -104,12 +106,14 @@ const AudioVisualizer = ({ audioSrc }: AudioVisualizerProps) => {
 
     // Auto-play with user interaction
     const startAudio = () => {
-      console.log('Attempting to play audio...');
+      console.log('Attempting to play audio from:', audioSrc);
       audio.play().then(() => {
         console.log('Audio playing successfully');
         setupAudio();
       }).catch(err => {
-        console.log('Auto-play prevented, waiting for user interaction:', err);
+        console.error('Audio play failed:', err);
+        // Still setup audio context so visualizer shows something
+        setupAudio();
       });
     };
 
@@ -129,10 +133,21 @@ const AudioVisualizer = ({ audioSrc }: AudioVisualizerProps) => {
     document.addEventListener('click', handleInteraction);
     document.addEventListener('touchstart', handleInteraction);
 
+    // Also listen for audio errors
+    const handleError = (e: Event) => {
+      console.error('Audio error:', e);
+      console.error('Failed to load audio from:', audioSrc);
+      // Still show visualizer
+      setupAudio();
+    };
+    
+    audio.addEventListener('error', handleError);
+
     return () => {
       window.removeEventListener('resize', resizeCanvas);
       audio.removeEventListener('play', handlePlay);
       audio.removeEventListener('pause', handlePause);
+      audio.removeEventListener('error', handleError);
       document.removeEventListener('click', handleInteraction);
       document.removeEventListener('touchstart', handleInteraction);
       if (animationRef.current) {
@@ -142,7 +157,7 @@ const AudioVisualizer = ({ audioSrc }: AudioVisualizerProps) => {
         audioContextRef.current.close();
       }
     };
-  }, []);
+  }, [audioSrc]);
 
   return (
     <div className="fixed bottom-0 left-0 right-0 z-[100] h-32 pointer-events-none">
@@ -150,7 +165,7 @@ const AudioVisualizer = ({ audioSrc }: AudioVisualizerProps) => {
         ref={audioRef}
         src={audioSrc}
         loop
-        autoPlay
+        crossOrigin="anonymous"
         className="hidden"
       />
       <canvas
