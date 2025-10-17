@@ -160,9 +160,9 @@ const EditSimPage = () => {
   }
 
   return (
-    <div className="flex-1 overflow-auto bg-background">
-      <div className="max-w-7xl mx-auto p-8">
-        <div className="grid lg:grid-cols-2 gap-8">
+    <div className="flex-1 min-h-screen overflow-auto bg-background">
+      <div className="h-full max-w-7xl mx-auto p-8">
+        <div className="grid lg:grid-cols-2 gap-8 h-full min-h-[calc(100vh-4rem)]">
           {/* Editor Panel */}
           <div className="space-y-4">
             {/* Background Image */}
@@ -253,11 +253,11 @@ const EditSimPage = () => {
           </div>
 
           {/* Preview Panel */}
-          <div className="space-y-4">
-            <h2 className="text-xl font-semibold">Live Preview</h2>
+          <div className="flex flex-col h-full">
+            <h2 className="text-xl font-semibold mb-4">Live Preview</h2>
             
             <div 
-              className="relative rounded-3xl overflow-hidden border-2 aspect-[9/16] max-h-[600px]"
+              className="relative rounded-3xl overflow-hidden border-2 flex-1 min-h-[600px]"
               style={{
                 backgroundImage: `url(${backgroundImage || landingBackground})`,
                 backgroundSize: 'cover',
