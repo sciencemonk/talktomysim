@@ -21,6 +21,7 @@ const ChatInterface = ({ agent, onBack, hideHeader = false, transparentMode = fa
   const [currentAgent, setCurrentAgent] = useState(agent);
   const [isAiResponding, setIsAiResponding] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
   const { isKeyboardVisible, viewportHeight } = useIOSKeyboard();
   
@@ -38,7 +39,9 @@ const ChatInterface = ({ agent, onBack, hideHeader = false, transparentMode = fa
   }, [agent]);
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    if (messagesContainerRef.current) {
+      messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
+    }
   };
 
   useEffect(() => {
@@ -89,7 +92,7 @@ const ChatInterface = ({ agent, onBack, hideHeader = false, transparentMode = fa
       )}
 
       {/* Messages - Flex-1 scrollable area */}
-      <div className={`flex-1 overflow-auto py-4 min-h-0 ${transparentMode ? 'px-4' : 'px-4'}`}>
+      <div ref={messagesContainerRef} className={`flex-1 overflow-y-auto py-4 min-h-0 ${transparentMode ? 'px-4' : 'px-4'}`}>
         {chatHistory.messages.length === 0 && !textChat.isProcessing ? (
           <div className="flex flex-col items-center justify-center text-center h-full min-h-[50vh]">
             <p className={`text-sm mb-4 max-w-sm ${transparentMode ? 'text-white/70' : 'text-muted-foreground'}`}>
