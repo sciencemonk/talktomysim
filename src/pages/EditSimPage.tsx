@@ -164,96 +164,92 @@ const EditSimPage = () => {
       <div className="max-w-7xl mx-auto p-8">
         <div className="grid lg:grid-cols-2 gap-8">
           {/* Editor Panel */}
-          <div className="space-y-6">
-            <div className="space-y-4">
-              <h2 className="text-xl font-semibold">Page Customization</h2>
-
-              {/* Background Image */}
-              <div className="space-y-2">
-                <Label>Background Image</Label>
-                <div className="flex gap-2">
-                  <Input
-                    value={backgroundImage}
-                    onChange={(e) => setBackgroundImage(e.target.value)}
-                    placeholder="Enter image URL or upload"
-                  />
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    onClick={() => document.getElementById('background-upload')?.click()}
-                  >
-                    <Upload className="h-4 w-4" />
-                  </Button>
-                  <input
-                    id="background-upload"
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
-                    onChange={handleBackgroundUpload}
-                  />
-                </div>
-                {backgroundFile && (
-                  <p className="text-xs text-muted-foreground">New file ready to upload: {backgroundFile.name}</p>
-                )}
+          <div className="space-y-4">
+            {/* Background Image */}
+            <div className="space-y-2">
+              <Label>Background Image</Label>
+              <div className="flex gap-2">
+                <Input
+                  value={backgroundImage}
+                  onChange={(e) => setBackgroundImage(e.target.value)}
+                  placeholder="Enter image URL or upload"
+                />
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => document.getElementById('background-upload')?.click()}
+                >
+                  <Upload className="h-4 w-4" />
+                </Button>
+                <input
+                  id="background-upload"
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleBackgroundUpload}
+                />
               </div>
-
-              {/* Twitter/X URL */}
-              <div className="space-y-2">
-                <Label>Twitter/X Profile URL</Label>
-                <div className="flex gap-2">
-                  <svg className="h-5 w-5 mt-2.5 text-muted-foreground" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
-                  </svg>
-                  <Input
-                    value={twitterUrl}
-                    onChange={(e) => setTwitterUrl(e.target.value)}
-                    placeholder="https://twitter.com/yourprofile"
-                  />
-                </div>
-              </div>
-
-              {/* Website URL */}
-              <div className="space-y-2">
-                <Label>Website URL</Label>
-                <div className="flex gap-2">
-                  <Globe className="h-5 w-5 mt-2.5 text-muted-foreground" />
-                  <Input
-                    value={websiteUrl}
-                    onChange={(e) => setWebsiteUrl(e.target.value)}
-                    placeholder="https://yourwebsite.com"
-                  />
-                </div>
-              </div>
-
-              {/* Crypto Wallet */}
-              <div className="space-y-2">
-                <Label>Crypto Wallet Address</Label>
-                <div className="flex gap-2">
-                  <Wallet className="h-5 w-5 mt-2.5 text-muted-foreground" />
-                  <Input
-                    value={cryptoWallet}
-                    onChange={(e) => setCryptoWallet(e.target.value)}
-                    placeholder="Your wallet address"
-                  />
-                </div>
-              </div>
-
-              {/* Save Button */}
-              <Button
-                onClick={handleSave}
-                disabled={isSaving}
-                className="w-full"
-              >
-                {isSaving ? (
-                  <>
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    Saving...
-                  </>
-                ) : (
-                  'Save Changes'
-                )}
-              </Button>
+              {backgroundFile && (
+                <p className="text-xs text-muted-foreground">New file ready to upload: {backgroundFile.name}</p>
+              )}
             </div>
+
+            {/* Twitter/X URL */}
+            <div className="space-y-2">
+              <Label>Twitter/X Profile URL</Label>
+              <div className="flex gap-2">
+                <svg className="h-5 w-5 mt-2.5 text-muted-foreground" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                </svg>
+                <Input
+                  value={twitterUrl}
+                  onChange={(e) => setTwitterUrl(e.target.value)}
+                  placeholder="https://twitter.com/yourprofile"
+                />
+              </div>
+            </div>
+
+            {/* Website URL */}
+            <div className="space-y-2">
+              <Label>Website URL</Label>
+              <div className="flex gap-2">
+                <Globe className="h-5 w-5 mt-2.5 text-muted-foreground" />
+                <Input
+                  value={websiteUrl}
+                  onChange={(e) => setWebsiteUrl(e.target.value)}
+                  placeholder="https://yourwebsite.com"
+                />
+              </div>
+            </div>
+
+            {/* Crypto Wallet */}
+            <div className="space-y-2">
+              <Label>Crypto Wallet Address</Label>
+              <div className="flex gap-2">
+                <Wallet className="h-5 w-5 mt-2.5 text-muted-foreground" />
+                <Input
+                  value={cryptoWallet}
+                  onChange={(e) => setCryptoWallet(e.target.value)}
+                  placeholder="Your wallet address"
+                />
+              </div>
+            </div>
+
+            {/* Save Button */}
+            <Button
+              onClick={handleSave}
+              disabled={isSaving}
+              className="w-full"
+            >
+              {isSaving ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                'Save Changes'
+              )}
+            </Button>
           </div>
 
           {/* Preview Panel */}
