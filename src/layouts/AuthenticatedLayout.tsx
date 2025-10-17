@@ -14,7 +14,7 @@ export const AuthenticatedLayout = () => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setCurrentUser(session?.user ?? null);
       if (!session) {
-        navigate('/');
+        navigate('/landing');
       }
       setIsLoading(false);
     });
@@ -22,7 +22,7 @@ export const AuthenticatedLayout = () => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setCurrentUser(session?.user ?? null);
       if (!session) {
-        navigate('/');
+        navigate('/landing');
       }
     });
 
