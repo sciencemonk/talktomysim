@@ -101,7 +101,7 @@ const Landing = () => {
       const { data: conversations, error } = await supabase
         .from('conversations')
         .select('id')
-        .eq('advisor_id', userSim.id);
+        .eq('tutor_id', userSim.id);
       
       if (error) throw error;
       
@@ -122,7 +122,7 @@ const Landing = () => {
       const { data, error } = await supabase
         .from('conversations')
         .select('id, created_at, title')
-        .eq('advisor_id', userSim.id)
+        .eq('tutor_id', userSim.id)
         .order('created_at', { ascending: false })
         .limit(5);
       
