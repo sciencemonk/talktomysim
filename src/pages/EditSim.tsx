@@ -282,10 +282,9 @@ const EditSim = () => {
       )}
       
       {/* Main Content */}
-      <div className={`h-full ${isMobile ? 'pt-[73px]' : ''}`}>
-        <div className="max-w-4xl mx-auto px-8 py-8">
-          <ScrollArea className="h-[calc(100vh-8rem)]">
-            <div className="space-y-12 pb-8">
+      <div className={`flex flex-col ${isMobile ? 'pt-[73px] h-screen' : 'h-screen'}`}>
+        <div className="max-w-4xl mx-auto px-8 py-8 flex-1 overflow-auto w-full">
+          <div className="space-y-12 pb-8">
               {/* Avatar & Basic Info Section */}
               <div className="space-y-6 pb-8 border-b">
                 <div className="flex items-center gap-3">
@@ -531,11 +530,10 @@ const EditSim = () => {
                 </Button>
               </div>
             </div>
-          </ScrollArea>
+          </div>
         </div>
       </div>
-    </div>
-  );
-};
+    );
+  };
 
 export default EditSim;
