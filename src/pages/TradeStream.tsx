@@ -103,7 +103,7 @@ const TradeStream = () => {
   const avatarUrl = getAvatarUrl(advisor?.avatar_url);
 
   return (
-    <div className="min-h-screen bg-background flex flex-col pb-[150px]">
+    <div className="min-h-screen bg-background flex flex-col">
       <TopNavigation showLiveIndicator />
       
       {/* Main Message Display */}
