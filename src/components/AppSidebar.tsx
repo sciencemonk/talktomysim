@@ -7,7 +7,6 @@ import {
   Search, 
   Users, 
   Grid,
-  Settings,
   LogOut,
   MoreVertical,
   Trash2,
@@ -455,50 +454,40 @@ export function AppSidebar() {
 
         {/* User Profile at Bottom - Always Visible */}
         <div className="pt-4 border-t">
-          <div className="space-y-3">
-            <button
-              onClick={() => setShowCreditsModal(true)}
-              className="flex items-center gap-3 flex-1 p-2 rounded-lg hover:bg-muted transition-colors w-full"
-            >
-              <Avatar className="h-8 w-8">
-                <AvatarImage src={getAvatarUrl(userSim?.avatar_url)} />
-                <AvatarFallback className="bg-primary text-primary-foreground text-sm">
-                  {userSim?.name?.charAt(0) || 'S'}
-                </AvatarFallback>
-              </Avatar>
-              {open && (
-                <div className="flex-1 text-left min-w-0">
-                  <p className="text-sm font-medium truncate">
-                    {userSim?.name || 'Your Sim'}
-                  </p>
+          <div className="flex items-center gap-3 p-2">
+            <Avatar className="h-8 w-8 flex-shrink-0">
+              <AvatarImage src={getAvatarUrl(userSim?.avatar_url)} />
+              <AvatarFallback className="bg-primary text-primary-foreground text-sm">
+                {userSim?.name?.charAt(0) || 'S'}
+              </AvatarFallback>
+            </Avatar>
+            {open && (
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium truncate">
+                  {userSim?.name || 'Your Sim'}
+                </p>
+                <button
+                  onClick={() => setShowCreditsModal(true)}
+                  className="w-full text-left hover:opacity-80 transition-opacity"
+                >
                   <div className="flex items-center gap-2 mt-1">
                     <Progress value={percentageUsed} className="h-1 flex-1" />
                     <span className="text-xs text-muted-foreground whitespace-nowrap">
                       {remainingCredits}
                     </span>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleSignOut();
+                      }}
+                      className="h-6 w-6 hover:bg-muted -mr-1"
+                    >
+                      <LogOut className="h-3.5 w-3.5" />
+                    </Button>
                   </div>
-                </div>
-              )}
-            </button>
-            {open && (
-              <div className="flex gap-2 px-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => navigate('/edit-sim')}
-                  className="flex-1"
-                >
-                  <Settings className="h-4 w-4 mr-1" />
-                  Settings
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleSignOut}
-                  className="hover:bg-muted"
-                >
-                  <LogOut className="h-4 w-4" />
-                </Button>
+                </button>
               </div>
             )}
           </div>
