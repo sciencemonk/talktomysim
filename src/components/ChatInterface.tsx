@@ -52,7 +52,7 @@ const ChatInterface = ({ agent, onBack, hideHeader = false, transparentMode = fa
 
   return (
     <div 
-      className={`flex flex-col w-full h-screen overflow-hidden ${
+      className={`flex flex-col w-full h-full ${
         transparentMode ? 'bg-transparent' : 'bg-background'
       }`}
     >

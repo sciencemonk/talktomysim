@@ -98,7 +98,7 @@ const ChatWithSim = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="h-screen bg-background flex flex-col">
       {/* Mobile Header with Menu */}
       {isMobile && (
         <div className="fixed top-0 left-0 right-0 z-50 bg-background border-b">
@@ -119,7 +119,7 @@ const ChatWithSim = () => {
       )}
       
       {/* Chat Interface - Full Screen Seamless */}
-      <div className={`flex-1 flex flex-col w-full ${isMobile ? 'pt-[57px]' : ''}`}>
+      <div className={`flex-1 flex flex-col w-full min-h-0 ${isMobile ? 'pt-[57px]' : ''}`}>
         <ChatInterface
           agent={userSim}
           hideHeader={true}
