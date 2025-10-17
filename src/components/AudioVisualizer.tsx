@@ -21,10 +21,15 @@ const AudioVisualizer = ({ audioSrc }: AudioVisualizerProps) => {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    // Set canvas size
+    // Set canvas size with proper dimensions
     const resizeCanvas = () => {
-      canvas.width = canvas.offsetWidth;
-      canvas.height = canvas.offsetHeight;
+      const width = canvas.offsetWidth;
+      const height = canvas.offsetHeight;
+      console.log('Canvas dimensions:', width, height);
+      if (width > 0 && height > 0) {
+        canvas.width = width;
+        canvas.height = height;
+      }
     };
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
@@ -51,35 +56,35 @@ const AudioVisualizer = ({ audioSrc }: AudioVisualizerProps) => {
     };
 
     const draw = () => {
-      if (!analyserRef.current || !dataArrayRef.current || !ctx) return;
+      if (!analyserRef.current || !dataArrayRef.current || !ctx || !canvas) return;
 
       animationRef.current = requestAnimationFrame(draw);
 
       analyserRef.current.getByteFrequencyData(dataArrayRef.current);
 
       const gradient = ctx.createLinearGradient(0, 0, canvas.width, 0);
-      gradient.addColorStop(0, 'rgba(16, 185, 129, 1)');
-      gradient.addColorStop(0.5, 'rgba(59, 130, 246, 1)');
-      gradient.addColorStop(1, 'rgba(168, 85, 247, 1)');
+      gradient.addColorStop(0, '#10b981');
+      gradient.addColorStop(0.5, '#3b82f6');
+      gradient.addColorStop(1, '#a855f7');
 
       // Clear canvas completely
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      const barWidth = (canvas.width / dataArrayRef.current.length) * 2.5;
+      const barWidth = (canvas.width / dataArrayRef.current.length) * 3;
       let x = 0;
 
       for (let i = 0; i < dataArrayRef.current.length; i++) {
-        const barHeight = (dataArrayRef.current[i] / 255) * canvas.height * 0.8;
+        const barHeight = (dataArrayRef.current[i] / 255) * canvas.height;
 
         ctx.fillStyle = gradient;
         ctx.fillRect(
           x,
           canvas.height - barHeight,
-          barWidth,
+          barWidth - 2,
           barHeight
         );
 
-        x += barWidth + 1;
+        x += barWidth;
       }
     };
 
@@ -140,7 +145,7 @@ const AudioVisualizer = ({ audioSrc }: AudioVisualizerProps) => {
   }, []);
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50 h-24">
+    <div className="fixed bottom-0 left-0 right-0 z-[100] h-32 pointer-events-none">
       <audio
         ref={audioRef}
         src={audioSrc}
@@ -150,8 +155,7 @@ const AudioVisualizer = ({ audioSrc }: AudioVisualizerProps) => {
       />
       <canvas
         ref={canvasRef}
-        className="w-full h-full"
-        style={{ background: 'transparent' }}
+        className="w-full h-full block"
       />
     </div>
   );
