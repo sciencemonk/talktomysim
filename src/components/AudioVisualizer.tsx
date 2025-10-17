@@ -58,12 +58,12 @@ const AudioVisualizer = ({ audioSrc }: AudioVisualizerProps) => {
       analyserRef.current.getByteFrequencyData(dataArrayRef.current);
 
       const gradient = ctx.createLinearGradient(0, 0, canvas.width, 0);
-      gradient.addColorStop(0, 'rgba(16, 185, 129, 0.8)');
-      gradient.addColorStop(0.5, 'rgba(59, 130, 246, 0.8)');
-      gradient.addColorStop(1, 'rgba(168, 85, 247, 0.8)');
+      gradient.addColorStop(0, 'rgba(16, 185, 129, 1)');
+      gradient.addColorStop(0.5, 'rgba(59, 130, 246, 1)');
+      gradient.addColorStop(1, 'rgba(168, 85, 247, 1)');
 
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      // Clear canvas completely
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
 
       const barWidth = (canvas.width / dataArrayRef.current.length) * 2.5;
       let x = 0;
@@ -99,28 +99,37 @@ const AudioVisualizer = ({ audioSrc }: AudioVisualizerProps) => {
 
     // Auto-play with user interaction
     const startAudio = () => {
+      console.log('Attempting to play audio...');
       audio.play().then(() => {
+        console.log('Audio playing successfully');
         setupAudio();
       }).catch(err => {
-        console.log('Auto-play prevented:', err);
+        console.log('Auto-play prevented, waiting for user interaction:', err);
       });
     };
 
-    // Try to start on click anywhere
+    // Try to start immediately
+    startAudio();
+
+    // Also try on any user interaction
     const handleInteraction = () => {
+      console.log('User interaction detected, starting audio');
       if (!isPlaying && audio.paused) {
         startAudio();
       }
       document.removeEventListener('click', handleInteraction);
+      document.removeEventListener('touchstart', handleInteraction);
     };
 
     document.addEventListener('click', handleInteraction);
+    document.addEventListener('touchstart', handleInteraction);
 
     return () => {
       window.removeEventListener('resize', resizeCanvas);
       audio.removeEventListener('play', handlePlay);
       audio.removeEventListener('pause', handlePause);
       document.removeEventListener('click', handleInteraction);
+      document.removeEventListener('touchstart', handleInteraction);
       if (animationRef.current) {
         cancelAnimationFrame(animationRef.current);
       }
@@ -131,16 +140,18 @@ const AudioVisualizer = ({ audioSrc }: AudioVisualizerProps) => {
   }, []);
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50">
+    <div className="fixed bottom-0 left-0 right-0 z-50 h-24">
       <audio
         ref={audioRef}
         src={audioSrc}
         loop
+        autoPlay
         className="hidden"
       />
       <canvas
         ref={canvasRef}
-        className="w-full h-24 bg-white border-t border-border"
+        className="w-full h-full"
+        style={{ background: 'transparent' }}
       />
     </div>
   );
