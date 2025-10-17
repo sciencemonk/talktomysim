@@ -48,19 +48,41 @@ const TopNavigation = ({ showLiveIndicator = false }: TopNavigationProps) => {
     <nav className="bg-card border-b border-border px-3 py-2 sm:px-4 sm:py-4">
       <div className="flex items-center justify-between gap-2">
         {/* Logo - clickable to home */}
-        <Link 
-          to="/"
-          className="flex items-center hover:opacity-80 transition-opacity flex-shrink-0"
-        >
-          <img 
-            src="/lovable-uploads/d1283b59-7cfa-45f5-b151-4c32b24f3621.png" 
-            alt="Sim" 
-            className="h-6 w-6 sm:h-8 sm:w-8 object-contain"
-          />
-        </Link>
+        <div className="flex items-center gap-2 sm:gap-3">
+          <Link 
+            to="/"
+            className="flex items-center hover:opacity-80 transition-opacity flex-shrink-0"
+          >
+            <img 
+              src="/lovable-uploads/d1283b59-7cfa-45f5-b151-4c32b24f3621.png" 
+              alt="Sim" 
+              className="h-6 w-6 sm:h-8 sm:w-8 object-contain"
+            />
+          </Link>
+          
+          {showLiveIndicator && (
+            <>
+              <span className="text-sm sm:text-base text-muted-foreground font-medium">
+                Live on
+              </span>
+              <img 
+                src="/lovable-uploads/pill-logo.png" 
+                alt="Platform" 
+                className="h-6 w-6 sm:h-8 sm:w-8 object-contain"
+              />
+            </>
+          )}
+        </div>
 
-        {/* Navigation items (when signed in) */}
-        {user && (
+        {/* Navigation items (when signed in) or Live indicator */}
+        {showLiveIndicator ? (
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <div className="flex items-center gap-2 bg-green-500 px-4 py-2 rounded-full">
+              <div className="h-3 w-3 rounded-full bg-white animate-pulse" />
+              <span className="text-sm font-bold text-black">LIVE</span>
+            </div>
+          </div>
+        ) : user ? (
           <div className="flex items-center gap-0.5 sm:gap-2">
             <Link to="/dashboard">
               <Button
@@ -103,29 +125,10 @@ const TopNavigation = ({ showLiveIndicator = false }: TopNavigationProps) => {
               </Button>
             </Link>
           </div>
-        )}
+        ) : null}
 
-        {/* Right side - Auth buttons or Live indicator */}
-        {showLiveIndicator ? (
-          <div className="flex items-center gap-2 flex-shrink-0">
-            <Badge variant="default" className="text-sm px-3 py-1">
-              <div className="h-2 w-2 rounded-full mr-2 bg-green-500 animate-pulse" />
-              LIVE
-            </Badge>
-            <a 
-              href="https://pump.fun/coin/FFqwoZ7phjoupWjLeE5yFeLqGi8jkGEFrTz6jnsUpump"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center hover:opacity-80 transition-opacity"
-            >
-              <img 
-                src="/lovable-uploads/bedcfe0a-1a02-47a0-b867-775e5713580a.png" 
-                alt="Pump.fun" 
-                className="h-6 w-6 sm:h-8 sm:w-8 object-contain"
-              />
-            </a>
-          </div>
-        ) : user ? (
+        {/* Auth buttons (only show when not in live mode) */}
+        {!showLiveIndicator && (user ? (
           <Button
             variant="ghost"
             size="icon"
@@ -145,7 +148,7 @@ const TopNavigation = ({ showLiveIndicator = false }: TopNavigationProps) => {
             <LogIn className="h-4 w-4" />
             <span className="hidden sm:inline">Sign In</span>
           </Button>
-        )}
+        ))}
       </div>
       
       <AuthModal 
