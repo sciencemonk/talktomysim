@@ -28,6 +28,8 @@ const TradeStream = () => {
   const [advisor, setAdvisor] = useState<AdvisorData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [seenSignatures, setSeenSignatures] = useState<Set<string>>(new Set());
+  const [reactionQueue, setReactionQueue] = useState<Reaction[]>([]);
+  const [lastDisplayTime, setLastDisplayTime] = useState<number>(0);
 
   const buyMessages = [
     "¡Excelente! Another believer joins our empire! 💰",
@@ -61,17 +63,21 @@ const TradeStream = () => {
       }
 
       if (data.reactions && data.reactions.length > 0) {
-        // Get the most recent reaction we haven't seen
-        const newReaction = data.reactions.find(
+        // Get all new reactions we haven't seen
+        const newReactions = data.reactions.filter(
           (r: Reaction) => !seenSignatures.has(r.signature)
         );
         
-        if (newReaction) {
-          const messages = newReaction.type === 'buy' ? buyMessages : sellMessages;
-          const message = messages[Math.floor(Math.random() * messages.length)];
+        if (newReactions.length > 0) {
+          // Add messages to new reactions and add to queue
+          const reactionsWithMessages = newReactions.map(reaction => {
+            const messages = reaction.type === 'buy' ? buyMessages : sellMessages;
+            const message = messages[Math.floor(Math.random() * messages.length)];
+            return { ...reaction, message };
+          });
           
-          setCurrentReaction({ ...newReaction, message });
-          setSeenSignatures(prev => new Set([...prev, newReaction.signature]));
+          setReactionQueue(prev => [...prev, ...reactionsWithMessages]);
+          setSeenSignatures(prev => new Set([...prev, ...newReactions.map(r => r.signature)]));
         }
       }
     } catch (error) {
@@ -80,6 +86,20 @@ const TradeStream = () => {
       setIsLoading(false);
     }
   };
+
+  // Process the queue - show each trade for at least 5 minutes
+  useEffect(() => {
+    const now = Date.now();
+    const fiveMinutes = 5 * 60 * 1000; // 5 minutes in milliseconds
+    
+    // Check if we should display the next reaction from the queue
+    if (reactionQueue.length > 0 && (!currentReaction || now - lastDisplayTime >= fiveMinutes)) {
+      const nextReaction = reactionQueue[0];
+      setCurrentReaction(nextReaction);
+      setLastDisplayTime(now);
+      setReactionQueue(prev => prev.slice(1));
+    }
+  }, [reactionQueue, currentReaction, lastDisplayTime]);
 
   useEffect(() => {
     fetchTrades();
@@ -159,14 +179,14 @@ const TradeStream = () => {
                           {currentReaction.type.toUpperCase()}
                         </p>
                         <p className="text-muted-foreground">
-                          {(currentReaction.amount / 1e9).toFixed(2)}M tokens
+                          {(currentReaction.amount / 1e6).toFixed(2)}M tokens
                         </p>
                       </div>
                     </div>
                     <div className="text-right">
                       <p className="text-sm text-muted-foreground mb-1">Trade Value</p>
                       <p className="text-2xl font-bold">
-                        ${((currentReaction.amount / 1e9) * 0.000001).toFixed(4)}
+                        ${(currentReaction.amount / 1e6 * 0.00015).toFixed(2)}
                       </p>
                     </div>
                   </div>
