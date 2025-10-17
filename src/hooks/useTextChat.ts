@@ -6,10 +6,10 @@ import { supabase } from '@/integrations/supabase/client';
 
 interface UseTextChatProps {
   agent: AgentType;
-  onUserMessage: (message: string) => void;
+  onUserMessage: (message: string) => Promise<string | null | undefined>;
   onAiMessageStart: () => string;
   onAiTextDelta: (messageId: string, delta: string) => void;
-  onAiMessageComplete: (messageId: string) => void;
+  onAiMessageComplete: (messageId: string, conversationId?: string | null) => void;
 }
 
 export const useTextChat = ({
@@ -36,8 +36,8 @@ export const useTextChat = ({
     
     setIsProcessing(true);
     
-    // Add user message immediately
-    onUserMessage(message);
+    // Add user message immediately and get the conversation ID
+    const conversationId = await onUserMessage(message);
     
     // Update conversation history
     const newHistory = [...conversationHistory, { role: 'user', content: message }];
@@ -118,10 +118,10 @@ export const useTextChat = ({
         hasContent = true;
       }
     } finally {
-      // Always complete the message, whether success or error
+      // Always complete the message, whether success or error, passing the conversation ID
       try {
-        console.log('Completing message:', aiMessageId, 'hasContent:', hasContent);
-        await onAiMessageComplete(aiMessageId);
+        console.log('Completing message:', aiMessageId, 'hasContent:', hasContent, 'conversationId:', conversationId);
+        await onAiMessageComplete(aiMessageId, conversationId);
       } catch (completeError) {
         console.error('Error completing message:', completeError);
       }

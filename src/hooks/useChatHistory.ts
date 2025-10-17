@@ -154,6 +154,9 @@ export const useChatHistory = (agent: AgentType, isCreatorChat: boolean = false,
         );
       }
     }
+    
+    // Return the conversation ID for use in the calling function
+    return currentConversationId;
   }, [activeConversationId, agent?.id, isCreatorChat]);
 
   // Start AI message
@@ -190,7 +193,10 @@ export const useChatHistory = (agent: AgentType, isCreatorChat: boolean = false,
   }, []);
 
   // Complete AI message
-  const completeAiMessage = useCallback(async (messageId: string) => {
+  const completeAiMessage = useCallback(async (messageId: string, conversationIdOverride?: string | null) => {
+    // Use the override conversation ID if provided, otherwise use activeConversationId
+    const conversationId = conversationIdOverride || activeConversationId;
+    
     // Get the accumulated content from the ref
     const messageContent = aiMessageContentRef.current.get(messageId) || '';
 
@@ -205,10 +211,10 @@ export const useChatHistory = (agent: AgentType, isCreatorChat: boolean = false,
     console.log('Completing AI message:', messageContent.substring(0, 100) + '...');
 
     // Save to database whether authenticated or anonymous
-    if (activeConversationId) {
+    if (conversationId) {
       try {
         const savedMessage = await conversationService.addMessage(
-          activeConversationId,
+          conversationId,
           'system',
           messageContent
         );
@@ -247,7 +253,7 @@ export const useChatHistory = (agent: AgentType, isCreatorChat: boolean = false,
       }
     } else {
       // No conversation ID, just mark as complete
-      console.warn('No activeConversationId when completing AI message');
+      console.warn('No conversationId when completing AI message');
       setMessages(prev =>
         prev.map(msg =>
           msg.id === messageId
