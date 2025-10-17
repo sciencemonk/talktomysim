@@ -162,11 +162,6 @@ const EditSimPage = () => {
   return (
     <div className="flex-1 overflow-auto bg-background">
       <div className="max-w-7xl mx-auto p-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold tracking-tight mb-2">Edit Sim Page</h1>
-          <p className="text-muted-foreground">Customize how your public sim page looks</p>
-        </div>
-
         <div className="grid lg:grid-cols-2 gap-8">
           {/* Editor Panel */}
           <div className="space-y-6">

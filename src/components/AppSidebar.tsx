@@ -238,19 +238,20 @@ export function AppSidebar() {
   });
 
   return (
-    <Sidebar className="border-r bg-background">
-      <SidebarContent className="p-3">
-        {/* Sim Logo */}
-        <div className="flex items-center gap-2 mb-4 px-2">
-          <img 
-            src="/sim-logo.png" 
-            alt="Sim Logo" 
-            className="h-8 w-8 object-contain"
-          />
-        </div>
+    <Sidebar className="border-r bg-background flex flex-col">
+      <SidebarContent className="flex flex-col h-full">
+        {/* Header - Always Visible */}
+        <div className="flex-shrink-0 p-3 space-y-4">
+          {/* Sim Logo */}
+          <div className="flex items-center gap-2 px-2">
+            <img 
+              src="/sim-logo.png" 
+              alt="Sim Logo" 
+              className="h-8 w-8 object-contain"
+            />
+          </div>
 
-        {/* New Chat Button */}
-        <div className="mb-4">
+          {/* New Chat Button */}
           <Button
             onClick={handleNewChat}
             className="w-full justify-start gap-2"
@@ -259,11 +260,9 @@ export function AppSidebar() {
             <Plus className="h-4 w-4" />
             {open && <span>New chat</span>}
           </Button>
-        </div>
 
-        {/* Search */}
-        {open && (
-          <div className="mb-4">
+          {/* Search */}
+          {open && (
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
@@ -273,77 +272,81 @@ export function AppSidebar() {
                 className="pl-9"
               />
             </div>
-          </div>
-        )}
+          )}
+        </div>
 
-        {/* Recent Chats */}
-        <SidebarGroup>
-          {open && <SidebarGroupLabel className="text-xs">Recent Chats</SidebarGroupLabel>}
-          <SidebarGroupContent>
-            <ScrollArea className="h-[300px]">
-              <SidebarMenu>
-                {filteredConversations?.map((conv: Conversation) => (
-                  <SidebarMenuItem 
-                    key={conv.id}
-                    className="relative group"
-                  >
-                    <div className="flex items-center gap-1 w-full">
-                      <SidebarMenuButton asChild className="flex-1">
-                        <NavLink 
-                          to={`/?chat=${conv.id}`}
-                          onClick={closeSidebar}
-                          className={({ isActive }) => 
-                            `truncate ${isActive ? 'bg-muted' : 'hover:bg-muted/50'}`
-                          }
-                        >
-                          <MessageSquare className="h-4 w-4 flex-shrink-0" />
-                          {open && (
-                            <span className="truncate">
-                              {conv.firstMessage || conv.title || `Chat ${new Date(conv.created_at).toLocaleDateString()}`}
-                            </span>
-                          )}
-                        </NavLink>
-                      </SidebarMenuButton>
-                      
-                      {open && (
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
-                              onClick={(e) => e.stopPropagation()}
-                            >
-                              <MoreVertical className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end" className="z-50 bg-popover">
-                            <DropdownMenuItem
-                              className="text-destructive focus:text-destructive cursor-pointer"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                deleteConversation.mutate(conv.id);
-                              }}
-                            >
-                              <Trash2 className="h-4 w-4 mr-2" />
-                              Delete chat
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      )}
+        {/* Recent Chats - Scrollable */}
+        <div className="flex-1 overflow-hidden px-3">
+          <SidebarGroup>
+            {open && <SidebarGroupLabel className="text-xs">Recent Chats</SidebarGroupLabel>}
+            <SidebarGroupContent>
+              <ScrollArea className="h-full">
+                <SidebarMenu>
+                  {filteredConversations?.map((conv: Conversation) => (
+                    <SidebarMenuItem 
+                      key={conv.id}
+                      className="relative group"
+                    >
+                      <div className="flex items-center gap-1 w-full">
+                        <SidebarMenuButton asChild className="flex-1">
+                          <NavLink 
+                            to={`/?chat=${conv.id}`}
+                            onClick={closeSidebar}
+                            className={({ isActive }) => 
+                              `truncate ${isActive ? 'bg-muted' : 'hover:bg-muted/50'}`
+                            }
+                          >
+                            <MessageSquare className="h-4 w-4 flex-shrink-0" />
+                            {open && (
+                              <span className="truncate">
+                                {conv.firstMessage || conv.title || `Chat ${new Date(conv.created_at).toLocaleDateString()}`}
+                              </span>
+                            )}
+                          </NavLink>
+                        </SidebarMenuButton>
+                        
+                        {open && (
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                <MoreVertical className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="z-50 bg-popover">
+                              <DropdownMenuItem
+                                className="text-destructive focus:text-destructive cursor-pointer"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  deleteConversation.mutate(conv.id);
+                                }}
+                              >
+                                <Trash2 className="h-4 w-4 mr-2" />
+                                Delete chat
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        )}
+                      </div>
+                    </SidebarMenuItem>
+                  ))}
+                  {(!filteredConversations || filteredConversations.length === 0) && open && (
+                    <div className="px-3 py-2 text-sm text-muted-foreground">
+                      No chats yet
                     </div>
-                  </SidebarMenuItem>
-                ))}
-                {(!filteredConversations || filteredConversations.length === 0) && open && (
-                  <div className="px-3 py-2 text-sm text-muted-foreground">
-                    No chats yet
-                  </div>
-                )}
-              </SidebarMenu>
-            </ScrollArea>
-          </SidebarGroupContent>
-        </SidebarGroup>
+                  )}
+                </SidebarMenu>
+              </ScrollArea>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        </div>
 
+        {/* Navigation Links - Always Visible */}
+        <div className="flex-shrink-0 px-3 pb-3">
         {/* Navigation Links */}
         <SidebarGroup className="mt-auto">
           {open && <SidebarGroupLabel className="text-xs">Navigation</SidebarGroupLabel>}
@@ -405,8 +408,8 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        {/* User Profile at Bottom */}
-        <div className="mt-auto pt-4 border-t">
+        {/* User Profile at Bottom - Always Visible */}
+        <div className="pt-4 border-t">
           <div className="flex items-center gap-3">
             <button
               onClick={() => {
@@ -447,6 +450,7 @@ export function AppSidebar() {
               </Button>
             )}
           </div>
+        </div>
         </div>
       </SidebarContent>
     </Sidebar>
