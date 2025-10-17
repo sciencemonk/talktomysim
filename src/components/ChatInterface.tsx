@@ -138,7 +138,7 @@ const ChatInterface = ({ agent, onBack, hideHeader = false, transparentMode = fa
                           </p>
                         ) : (
                           <div className="prose prose-sm max-w-none dark:prose-invert
-                            prose-p:leading-7 prose-p:my-4 prose-p:text-[15px]
+                            prose-p:leading-7 prose-p:mb-4 prose-p:mt-0 prose-p:text-[15px] first:prose-p:mt-0 last:prose-p:mb-0
                             prose-headings:font-semibold prose-headings:my-4
                             prose-h1:text-2xl prose-h2:text-xl prose-h3:text-lg
                             prose-ul:my-4 prose-ul:list-disc prose-ul:pl-6
