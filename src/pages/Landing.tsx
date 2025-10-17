@@ -248,16 +248,16 @@ const Landing = () => {
     },
   ] : [
     {
-      title: "The Future of AI is Personal",
-      description: "ChatGPT is generic. Sim is yours. Create your own AI—a personal assistant, financial advisor, or friend. Connect your crypto wallet, customize everything, and build an AI that truly understands you.",
+      title: "Create Your Own AI",
+      description: "Get a free ai powered Sim page. Linktree meets ai.",
       action: () => navigate("/dashboard"),
       gradient: "from-primary/20 to-primary/5",
       gridArea: "create",
       showWalletButtons: true,
     },
     {
-      title: "$SIMAI - Join the Community",
-      description: "Be part of the Sim revolution. Hold $SIMAI to join our community and profit from the future of AI.",
+      title: "The Future of AI is Personal",
+      description: "ChatGPT is generic. Sim is yours. Create your own AI—a personal assistant, financial advisor, or friend. Connect your crypto wallet, customize everything, and build an AI that truly understands you. Be part of the Sim revolution.",
       action: copyCAToClipboard,
       gradient: "from-muted/20 to-muted/5",
       gridArea: "simai",
