@@ -395,13 +395,6 @@ const Landing = () => {
                 </div>
               ) : (
                 <CardHeader className="pb-3 p-4 sm:p-6">
-                  <CardTitle className="text-lg sm:text-xl font-bold text-white">
-                    {feature.title}
-                  </CardTitle>
-                  <CardDescription className="text-sm sm:text-base text-white/80">
-                    {feature.description}
-                  </CardDescription>
-                  
                   {feature.showSimOverview && feature.sim && (
                     <div className="mt-4 space-y-4">
                       <div className="flex items-center gap-4">
