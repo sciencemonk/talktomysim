@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "sonner";
 import landingBackground from "@/assets/landing-background.jpg";
+import { getAvatarUrl } from "@/lib/avatarUtils";
 
 const EditSimPage = () => {
   const navigate = useNavigate();
@@ -273,7 +274,7 @@ const EditSimPage = () => {
                   {/* Avatar */}
                   <div className="flex justify-center mb-4">
                     <Avatar className="h-24 w-24 border-4 border-white/30">
-                      <AvatarImage src={userSim.avatar_url} alt={userSim.name} />
+                      <AvatarImage src={getAvatarUrl(userSim.avatar_url)} alt={userSim.name} />
                       <AvatarFallback className="text-3xl bg-white/20 text-white">
                         {userSim.name?.charAt(0)}
                       </AvatarFallback>

@@ -10,6 +10,7 @@ import SimPublicFooter from "@/components/SimPublicFooter";
 import { AgentType } from "@/types/agent";
 import { useToast } from "@/hooks/use-toast";
 import landingBackground from "@/assets/landing-background.jpg";
+import { getAvatarUrl } from "@/lib/avatarUtils";
 
 const PublicSimDetail = () => {
   const { customUrl } = useParams<{ customUrl: string }>();
@@ -161,7 +162,7 @@ const PublicSimDetail = () => {
           <div className="border-b border-white/20 px-4 py-3 flex items-center justify-between backdrop-blur-md bg-black/30">
             <div className="flex items-center gap-3">
               <Avatar className="h-10 w-10 border-2 border-white/30">
-                <AvatarImage src={sim.avatar} alt={sim.name} />
+                <AvatarImage src={getAvatarUrl(sim.avatar)} alt={sim.name} />
                 <AvatarFallback className="bg-white/10 text-white">{sim.name.charAt(0)}</AvatarFallback>
               </Avatar>
               <div>
@@ -196,7 +197,7 @@ const PublicSimDetail = () => {
                 <div className="relative">
                   <div className="absolute inset-0 bg-primary/30 rounded-full blur-2xl animate-pulse" />
                   <Avatar className="relative h-28 w-28 sm:h-36 sm:w-36 border-4 border-white/30 shadow-2xl">
-                    <AvatarImage src={sim.avatar} alt={sim.name} className="object-cover" />
+                    <AvatarImage src={getAvatarUrl(sim.avatar)} alt={sim.name} className="object-cover" />
                     <AvatarFallback className="text-4xl sm:text-5xl bg-white/20 text-white">{sim.name.charAt(0)}</AvatarFallback>
                   </Avatar>
                 </div>

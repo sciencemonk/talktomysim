@@ -8,6 +8,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { conversationService } from '@/services/conversationService';
 import { useToast } from '@/hooks/use-toast';
+import { getAvatarUrl } from '@/lib/avatarUtils';
 
 interface Message {
   id: string;
@@ -155,8 +156,8 @@ export const FloatingChat = () => {
         <div className="fixed bottom-6 right-6 w-96 h-[600px] bg-background border rounded-lg shadow-2xl z-50 flex flex-col">
           <div className="flex items-center justify-between p-4 border-b">
             <div className="flex items-center gap-3">
-              <Avatar className="h-10 w-10">
-                <AvatarImage src={advisor.avatar_url} />
+               <Avatar className="h-10 w-10">
+                <AvatarImage src={getAvatarUrl(advisor.avatar_url)} />
                 <AvatarFallback>{advisor.name?.[0]}</AvatarFallback>
               </Avatar>
               <div>

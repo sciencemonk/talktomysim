@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import { Sparkles, Send } from "lucide-react";
 import { motion } from "framer-motion";
 import debateIcon from "@/assets/debate-icon.png";
+import { getAvatarUrl } from "@/lib/avatarUtils";
 
 interface Sim {
   id: string;
@@ -197,7 +198,7 @@ const Pump = () => {
                 {selectedSim1 && (
                   <div className="flex items-center gap-3 p-3 bg-muted rounded-md">
                     <Avatar className="h-12 w-12">
-                      <AvatarImage src={sims.find(s => s.id === selectedSim1)?.avatar_url || ""} />
+                      <AvatarImage src={getAvatarUrl(sims.find(s => s.id === selectedSim1)?.avatar_url) || ""} />
                       <AvatarFallback>{sims.find(s => s.id === selectedSim1)?.name[0]}</AvatarFallback>
                     </Avatar>
                     <div>
@@ -230,7 +231,7 @@ const Pump = () => {
                 {selectedSim2 && (
                   <div className="flex items-center gap-3 p-3 bg-muted rounded-md">
                     <Avatar className="h-12 w-12">
-                      <AvatarImage src={sims.find(s => s.id === selectedSim2)?.avatar_url || ""} />
+                      <AvatarImage src={getAvatarUrl(sims.find(s => s.id === selectedSim2)?.avatar_url) || ""} />
                       <AvatarFallback>{sims.find(s => s.id === selectedSim2)?.name[0]}</AvatarFallback>
                     </Avatar>
                     <div>

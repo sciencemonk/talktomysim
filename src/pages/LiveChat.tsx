@@ -12,6 +12,7 @@ import debateIcon from "@/assets/debate-icon.png";
 import pumpLogo from "@/assets/pump-logo.png";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { getAvatarUrl } from "@/lib/avatarUtils";
 
 interface QueuedDebate {
   id: string;
@@ -897,7 +898,7 @@ Keep it SHORT - 1-2 sentences max. This is LIVE TV. Jump straight to your respon
                         <div className="flex items-center justify-between gap-2 text-[10px]">
                           <div className="flex items-center gap-1 min-w-0">
                             <Avatar className="h-5 w-5 border border-primary/30">
-                              <AvatarImage src={debate.sim1.avatar_url || ""} />
+                              <AvatarImage src={getAvatarUrl(debate.sim1.avatar_url) || ""} />
                               <AvatarFallback className="text-[8px]">
                                 {debate.sim1.name[0]}
                               </AvatarFallback>
@@ -912,7 +913,7 @@ Keep it SHORT - 1-2 sentences max. This is LIVE TV. Jump straight to your respon
                               {debate.sim2.name.split(' ')[0]}
                             </span>
                             <Avatar className="h-5 w-5 border border-primary/30">
-                              <AvatarImage src={debate.sim2.avatar_url || ""} />
+                              <AvatarImage src={getAvatarUrl(debate.sim2.avatar_url) || ""} />
                               <AvatarFallback className="text-[8px]">
                                 {debate.sim2.name[0]}
                               </AvatarFallback>

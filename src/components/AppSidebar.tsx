@@ -37,6 +37,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { getAvatarUrl } from "@/lib/avatarUtils";
 
 interface Conversation {
   id: string;
@@ -419,13 +420,7 @@ export function AppSidebar() {
               className="flex items-center gap-3 flex-1 p-2 rounded-lg hover:bg-muted transition-colors"
             >
               <Avatar className="h-8 w-8">
-                <AvatarImage 
-                  src={userSim?.avatar_url ? (
-                    userSim.avatar_url.startsWith('http') 
-                      ? userSim.avatar_url 
-                      : `${window.location.origin}${userSim.avatar_url.startsWith('/') ? '' : '/'}${userSim.avatar_url}`
-                  ) : undefined} 
-                />
+                <AvatarImage src={getAvatarUrl(userSim?.avatar_url)} />
                 <AvatarFallback className="bg-primary text-primary-foreground text-sm">
                   {userSim?.name?.charAt(0) || 'S'}
                 </AvatarFallback>

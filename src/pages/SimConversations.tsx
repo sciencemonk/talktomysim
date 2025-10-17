@@ -13,6 +13,7 @@ import { useNavigate } from 'react-router-dom';
 import TopNavigation from '@/components/TopNavigation';
 import SimpleFooter from '@/components/SimpleFooter';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { getAvatarUrl } from '@/lib/avatarUtils';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -237,7 +238,7 @@ const SimConversations = () => {
                       <div className="flex items-start justify-between">
                         <div className="flex items-center gap-3 flex-1">
                           <Avatar className="h-10 w-10">
-                            <AvatarImage src={conversation.advisor?.avatar_url} />
+                            <AvatarImage src={getAvatarUrl(conversation.advisor?.avatar_url)} />
                             <AvatarFallback>
                               {conversation.advisor?.name?.[0]}
                             </AvatarFallback>
@@ -290,7 +291,7 @@ const SimConversations = () => {
               <DialogTitle className="flex items-center gap-3">
                 {selectedConversation?.advisor && (
                   <Avatar className="h-10 w-10">
-                    <AvatarImage src={selectedConversation.advisor.avatar_url} />
+                    <AvatarImage src={getAvatarUrl(selectedConversation.advisor.avatar_url)} />
                     <AvatarFallback>
                       {selectedConversation.advisor.name?.[0]}
                     </AvatarFallback>
