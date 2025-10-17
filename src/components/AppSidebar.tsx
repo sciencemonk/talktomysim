@@ -329,7 +329,7 @@ export function AppSidebar() {
                   {filteredConversations?.map((conv: Conversation) => (
                     <SidebarMenuItem 
                       key={conv.id}
-                      className="relative group"
+                      className="relative group/item"
                     >
                       <div className="flex items-center gap-1 w-full">
                         <SidebarMenuButton asChild className="flex-1">
@@ -355,7 +355,7 @@ export function AppSidebar() {
                               <Button
                                 variant="ghost"
                                 size="icon"
-                                className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
+                                className="h-8 w-8 opacity-0 group-hover/item:opacity-100 transition-opacity flex-shrink-0"
                                 onClick={(e) => e.stopPropagation()}
                               >
                                 <MoreVertical className="h-4 w-4" />
