@@ -46,8 +46,6 @@ const PublicSimDetail = () => {
         .from('advisors')
         .select('*')
         .eq('custom_url', customUrl)
-        .eq('sim_type', 'living')
-        .eq('is_public', true)
         .eq('is_active', true)
         .maybeSingle();
 

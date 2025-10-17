@@ -23,16 +23,15 @@ const Landing = () => {
   const [isLoading, setIsLoading] = useState<string | null>(null);
   const [authModalOpen, setAuthModalOpen] = useState(false);
 
-  // Fetch historical sims with full data
-  const { data: historicalSims } = useQuery({
-    queryKey: ['historical-sims-landing'],
+  // Fetch all sims (both historical and living)
+  const { data: allSims } = useQuery({
+    queryKey: ['all-sims-landing'],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('advisors')
         .select('*')
-        .eq('sim_type', 'historical')
         .eq('is_active', true)
-        .limit(8);
+        .order('name', { ascending: true });
       
       if (error) throw error;
       
@@ -48,7 +47,8 @@ const Landing = () => {
         avatar: sim.avatar_url,
         prompt: sim.prompt,
         title: sim.title,
-        sim_type: 'historical' as const,
+        sim_type: sim.sim_type as 'historical' | 'living',
+        custom_url: sim.custom_url,
         is_featured: false,
         model: 'GPT-4',
         interactions: 0,
@@ -66,21 +66,13 @@ const Landing = () => {
   });
 
   const handleSimClick = (sim: AgentType) => {
-    setSelectedSim(sim);
-    setShowBotCheck(true);
-  };
-
-  const handleBotCheckComplete = () => {
-    setShowBotCheck(false);
-    if (selectedSim) {
-      // Navigate to sim-directory with state to pre-select this sim
-      navigate('/sim-directory', { state: { selectedAdvisor: selectedSim } });
+    // If sim has custom_url, navigate to their landing page
+    if (sim.custom_url) {
+      navigate(`/sim/${sim.custom_url}`);
+    } else {
+      // Otherwise go to sim directory with state
+      navigate('/sim-directory', { state: { selectedAdvisor: sim } });
     }
-  };
-
-  const handleBotCheckCancel = () => {
-    setShowBotCheck(false);
-    setSelectedSim(null);
   };
 
   const copyCAToClipboard = async () => {
@@ -174,21 +166,6 @@ const Landing = () => {
       showWalletButtons: true,
     },
     {
-      title: "Talk to a Sim",
-      description: "Engage in conversations with AI personalities across various domains and expertise.",
-      action: () => navigate("/live"),
-      gradient: "from-accent/20 to-accent/5",
-      gridArea: "talk",
-      showSims: true,
-    },
-    {
-      title: "Watch Sims Debate",
-      description: "Experience dynamic debates between AI simulations on trending topics and ideas.",
-      action: () => navigate("/live"),
-      gradient: "from-secondary/20 to-secondary/5",
-      gridArea: "debate",
-    },
-    {
       title: "Read the Whitepaper",
       description: "Dive deep into our vision, technology, and roadmap for Sim.",
       action: () => navigate("/whitepaper"),
@@ -230,111 +207,92 @@ const Landing = () => {
         </div>
       </header>
 
-      {/* Main Section - All Features */}
-      <section className="flex-1 flex items-center justify-center container mx-auto px-3 sm:px-4 py-4 sm:py-6 relative z-10">
-        <div className="grid gap-3 max-w-6xl w-full [grid-template-areas:'create'_'talk'_'debate'_'whitepaper'] md:[grid-template-areas:'create_create_talk_talk'_'debate_debate_talk_talk'_'whitepaper_whitepaper_talk_talk'] grid-cols-1 md:grid-cols-4">
-          {features.map((feature, index) => {
-            const isMainFeature = ['create', 'talk', 'debate'].includes(feature.gridArea);
-            const showButton = !feature.showSims && !feature.showWalletButtons;
-            return (
-              <Card 
-                key={index}
-                className={`group cursor-pointer transition-all duration-300 hover:scale-[1.02] hover:shadow-xl border-2 border-white/20 bg-white/10 backdrop-blur-md flex flex-col`}
-                style={{ gridArea: feature.gridArea }}
-                onClick={(!feature.showSims && !feature.showWalletButtons) ? feature.action : undefined}
-              >
-                <CardHeader className="pb-3 p-3 sm:p-4">
-                  <CardTitle className={`${isMainFeature ? 'text-base sm:text-lg' : 'text-sm sm:text-base'} font-bold text-white`}>
-                    {feature.title}
-                  </CardTitle>
-                  <CardDescription className={`text-xs sm:text-sm text-white/80 ${isMainFeature ? '' : 'line-clamp-2'}`}>
-                    {feature.description}
-                  </CardDescription>
-                  
-                  {feature.showSims && historicalSims && historicalSims.length > 0 && (
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-3 sm:mt-4">
-                      {historicalSims.map((sim) => (
-                        <button
-                          key={sim.id}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleSimClick(sim);
-                          }}
-                          className="flex flex-col items-center gap-1.5 p-2 rounded-lg bg-black/30 hover:bg-black/40 transition-colors backdrop-blur-sm"
-                        >
-                          <img 
-                            src={sim.avatar} 
-                            alt={sim.name}
-                            className="w-12 h-12 sm:w-14 sm:h-14 rounded-full object-cover border-2 border-border shadow-sm"
-                          />
-                          <span className="text-[9px] sm:text-[10px] font-medium text-white text-center line-clamp-2 leading-tight w-full">
-                            {sim.name}
-                          </span>
-                        </button>
-                      ))}
-                    </div>
-                  )}
-
-                  {feature.showWalletButtons && (
-                    <div className="flex flex-col gap-2 mt-4">
-                      <Button
-                        variant="outline"
-                        className="w-full justify-start gap-3 h-auto py-3"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleWalletSignIn('phantom');
-                        }}
-                        disabled={!!isLoading}
-                      >
-                        <img src={phantomIcon} alt="Phantom" className="w-5 h-5" />
-                        <span className="text-sm font-medium">
-                          {isLoading === 'phantom' ? 'Connecting...' : 'Connect Phantom'}
-                        </span>
-                      </Button>
-                      <Button
-                        variant="outline"
-                        className="w-full justify-start gap-3 h-auto py-3"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleWalletSignIn('solflare');
-                        }}
-                        disabled={!!isLoading}
-                      >
-                        <img src={solflareIcon} alt="Solflare" className="w-5 h-5" />
-                        <span className="text-sm font-medium">
-                          {isLoading === 'solflare' ? 'Connecting...' : 'Connect Solflare'}
-                        </span>
-                      </Button>
-                    </div>
-                  )}
-                </CardHeader>
-                {feature.showSims && (
-                  <CardContent className="pt-0 mt-auto p-3 sm:p-4">
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      className="w-full group-hover:translate-x-1 transition-transform text-xs sm:text-sm"
+      {/* Main Section - Features */}
+      <section className="flex items-center justify-center container mx-auto px-3 sm:px-4 py-4 sm:py-6 relative z-10">
+        <div className="grid gap-3 max-w-6xl w-full grid-cols-1 md:grid-cols-2">
+          {features.map((feature, index) => (
+            <Card 
+              key={index}
+              className="group cursor-pointer transition-all duration-300 hover:scale-[1.02] hover:shadow-xl border-2 border-white/20 bg-white/10 backdrop-blur-md flex flex-col"
+              onClick={!feature.showWalletButtons ? feature.action : undefined}
+            >
+              <CardHeader className="pb-3 p-4 sm:p-6">
+                <CardTitle className="text-lg sm:text-xl font-bold text-white">
+                  {feature.title}
+                </CardTitle>
+                <CardDescription className="text-sm sm:text-base text-white/80">
+                  {feature.description}
+                </CardDescription>
+                
+                {feature.showWalletButtons && (
+                  <div className="flex flex-col gap-2 mt-4">
+                    <Button
+                      variant="outline"
+                      className="w-full justify-start gap-3 h-auto py-3"
                       onClick={(e) => {
                         e.stopPropagation();
-                        navigate("/sim-directory");
+                        handleWalletSignIn('phantom');
                       }}
+                      disabled={!!isLoading}
                     >
-                      View All
+                      <img src={phantomIcon} alt="Phantom" className="w-5 h-5" />
+                      <span className="text-sm font-medium">
+                        {isLoading === 'phantom' ? 'Connecting...' : 'Connect Phantom'}
+                      </span>
                     </Button>
-                  </CardContent>
+                    <Button
+                      variant="outline"
+                      className="w-full justify-start gap-3 h-auto py-3"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleWalletSignIn('solflare');
+                      }}
+                      disabled={!!isLoading}
+                    >
+                      <img src={solflareIcon} alt="Solflare" className="w-5 h-5" />
+                      <span className="text-sm font-medium">
+                        {isLoading === 'solflare' ? 'Connecting...' : 'Connect Solflare'}
+                      </span>
+                    </Button>
+                  </div>
                 )}
-              </Card>
-            );
-          })}
+              </CardHeader>
+            </Card>
+          ))}
         </div>
       </section>
 
-      {showBotCheck && (
-        <BotCheck
-          onVerificationComplete={handleBotCheckComplete}
-          onCancel={handleBotCheckCancel}
-        />
-      )}
+      {/* Sim Directory Section */}
+      <section className="container mx-auto px-3 sm:px-4 pb-12 relative z-10">
+        <div className="max-w-6xl mx-auto">
+          <h2 className="text-2xl sm:text-3xl font-bold text-white text-center mb-6">
+            Talk to a Sim
+          </h2>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4">
+            {allSims?.map((sim) => (
+              <button
+                key={sim.id}
+                onClick={() => handleSimClick(sim)}
+                className="group flex flex-col items-center gap-2 p-3 sm:p-4 rounded-xl bg-white/10 hover:bg-white/20 border-2 border-white/20 hover:border-white/40 transition-all duration-300 backdrop-blur-md hover:scale-105"
+              >
+                <img 
+                  src={sim.avatar} 
+                  alt={sim.name}
+                  className="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover border-2 border-white/30 shadow-lg group-hover:shadow-xl transition-shadow"
+                />
+                <span className="text-xs sm:text-sm font-medium text-white text-center line-clamp-2 leading-tight">
+                  {sim.name}
+                </span>
+                {sim.title && (
+                  <span className="text-[10px] sm:text-xs text-white/60 text-center line-clamp-1">
+                    {sim.title}
+                  </span>
+                )}
+              </button>
+            ))}
+          </div>
+        </div>
+      </section>
 
       <AuthModal 
         open={authModalOpen} 
