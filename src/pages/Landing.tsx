@@ -15,11 +15,8 @@ import bs58 from "bs58";
 import AuthModal from "@/components/AuthModal";
 import landingBackground from "@/assets/landing-background.jpg";
 import { SimSettingsModal } from "@/components/SimSettingsModal";
-import { Settings, LogOut, Link2, Copy, Check, Trash2, Award } from "lucide-react";
+import { Settings, LogOut, Link2, Copy, Check, Trash2, Award, Grid, MessageSquare, History } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import ChatInterface from "@/components/ChatInterface";
-import { ConversationModal } from "@/components/ConversationModal";
 
 const Landing = () => {
   const navigate = useNavigate();
@@ -29,10 +26,6 @@ const Landing = () => {
   const [isLoading, setIsLoading] = useState<string | null>(null);
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [currentUser, setCurrentUser] = useState<any>(null);
-  const [settingsModalOpen, setSettingsModalOpen] = useState(false);
-  const [showChat, setShowChat] = useState(false);
-  const [urlCopied, setUrlCopied] = useState(false);
-  const [selectedConversationId, setSelectedConversationId] = useState<string | null>(null);
 
   // Check auth state
   useEffect(() => {
@@ -48,7 +41,7 @@ const Landing = () => {
   }, []);
 
   // Fetch user's sim if signed in
-  const { data: userSim, refetch: refetchUserSim } = useQuery({
+  const { data: userSim } = useQuery({
     queryKey: ['user-sim', currentUser?.id],
     queryFn: async () => {
       if (!currentUser) return null;
@@ -77,6 +70,7 @@ const Landing = () => {
         sim_type: data.sim_type as 'historical' | 'living',
         custom_url: data.custom_url,
         is_featured: false,
+        is_official: data.is_official,
         model: 'GPT-4',
         interactions: 0,
         studentsSaved: 0,
@@ -97,56 +91,6 @@ const Landing = () => {
     enabled: !!currentUser
   });
 
-  // Fetch recent conversations (only public visitor conversations)
-  const { data: recentConversations, refetch: refetchConversations } = useQuery({
-    queryKey: ['recent-conversations', userSim?.id],
-    queryFn: async () => {
-      if (!userSim) return [];
-      
-      const { data: conversations, error } = await supabase
-        .from('conversations')
-        .select('id, created_at, title')
-        .eq('tutor_id', userSim.id)
-        .eq('is_creator_conversation', false)
-        .order('created_at', { ascending: false })
-        .limit(5);
-      
-      if (error) throw error;
-      
-      // Fetch first message for each conversation
-      const conversationsWithMessages = await Promise.all(
-        (conversations || []).map(async (conv) => {
-          const { data: messages } = await supabase
-            .from('messages')
-            .select('content, role')
-            .eq('conversation_id', conv.id)
-            .eq('role', 'user')
-            .order('created_at', { ascending: true })
-            .limit(1);
-          
-          return {
-            ...conv,
-            firstMessage: messages?.[0]?.content || null
-          };
-        })
-      );
-      
-      return conversationsWithMessages;
-    },
-    enabled: !!userSim
-  });
-
-  const copyUrl = () => {
-    const url = userSim?.custom_url ? `${window.location.origin}/${userSim.custom_url}` : '';
-    navigator.clipboard.writeText(url);
-    setUrlCopied(true);
-    setTimeout(() => setUrlCopied(false), 2000);
-    toast({
-      title: "Copied!",
-      description: "Sim URL copied to clipboard"
-    });
-  };
-
   // Fetch all sims (both historical and living)
   const { data: allSims } = useQuery({
     queryKey: ['all-sims-landing'],
@@ -159,7 +103,6 @@ const Landing = () => {
       
       if (error) throw error;
       
-      // Transform to AgentType
       return (data || []).map(sim => ({
         id: sim.id,
         name: sim.name,
@@ -191,11 +134,9 @@ const Landing = () => {
   });
 
   const handleSimClick = (sim: AgentType) => {
-    // If sim has custom_url, navigate to their landing page
     if (sim.custom_url) {
       navigate(`/${sim.custom_url}`);
     } else {
-      // Otherwise go to sim directory with state
       navigate('/sim-directory', { state: { selectedAdvisor: sim } });
     }
   };
@@ -239,27 +180,15 @@ const Landing = () => {
         }
       }
 
-      // Connect to wallet
       await wallet.connect();
-      
-      // Get public key
       const publicKey = wallet.publicKey.toString();
-
-      // Create message to sign
       const message = `Sign in to Sim\n\nWallet: ${publicKey}\nTimestamp: ${new Date().toISOString()}`;
       const encodedMessage = new TextEncoder().encode(message);
-      
-      // Request signature
       const signedMessage = await wallet.signMessage(encodedMessage, 'utf8');
       const signature = bs58.encode(signedMessage.signature);
 
-      // Authenticate with backend
       const { data, error } = await supabase.functions.invoke('solana-auth', {
-        body: { 
-          publicKey,
-          signature,
-          message 
-        }
+        body: { publicKey, signature, message }
       });
 
       if (error) throw error;
@@ -269,9 +198,7 @@ const Landing = () => {
           access_token: data.access_token,
           refresh_token: data.refresh_token,
         });
-        
         sonnerToast.success('Connected successfully!');
-        // Stay on current page (Landing) after sign in
       }
     } catch (error: any) {
       console.error('Error signing in with Solana:', error);
@@ -286,51 +213,38 @@ const Landing = () => {
     sonnerToast.success('Signed out successfully');
   };
 
-  const handleDeleteConversation = async (conversationId: string) => {
-    try {
-      // Delete messages first
-      const { error: messagesError } = await supabase
-        .from('messages')
-        .delete()
-        .eq('conversation_id', conversationId);
-      
-      if (messagesError) throw messagesError;
-      
-      // Then delete conversation
-      const { error: convError } = await supabase
-        .from('conversations')
-        .delete()
-        .eq('id', conversationId);
-      
-      if (convError) throw convError;
-      
-      sonnerToast.success('Conversation deleted');
-      refetchConversations();
-    } catch (error) {
-      console.error('Error deleting conversation:', error);
-      sonnerToast.error('Failed to delete conversation');
-    }
-  };
-
   const features = currentUser && userSim ? [
     {
-      title: "Your Sim",
-      description: userSim.description || "Your AI-powered page",
-      action: () => {},
+      title: "Edit Your Sim",
+      description: "Customize your sim's appearance, prompt, and settings",
+      action: () => navigate("/edit-sim"),
       gradient: "from-primary/20 to-primary/5",
-      gridArea: "create",
-      showSimOverview: true,
-      sim: userSim,
-      recentConversations,
+      gridArea: "edit",
+      icon: "settings"
+    },
+    {
+      title: "View Directory",
+      description: "Browse and discover all available sims",
+      action: () => navigate("/directory"),
+      gradient: "from-muted/20 to-muted/5",
+      gridArea: "directory",
+      icon: "grid"
     },
     {
       title: "Chat with Your Sim",
-      description: "Your personal assistant and agent",
-      action: () => {},
-      gradient: "from-muted/20 to-muted/5",
+      description: "Test and chat with your own sim privately",
+      action: () => navigate("/chat-with-sim"),
+      gradient: "from-primary/20 to-primary/5",
       gridArea: "chat",
-      showEmbeddedChat: true,
-      sim: userSim,
+      icon: "message"
+    },
+    {
+      title: "View Conversations",
+      description: "See all conversations your sim has had with visitors",
+      action: () => navigate("/sim-conversations-view"),
+      gradient: "from-muted/20 to-muted/5",
+      gridArea: "conversations",
+      icon: "history"
     },
   ] : [
     {
@@ -400,181 +314,66 @@ const Landing = () => {
           {features.map((feature, index) => (
             <Card 
               key={index}
-              className={`group transition-all duration-300 hover:scale-[1.02] hover:shadow-xl border-2 border-white/20 bg-white/10 backdrop-blur-md flex flex-col overflow-hidden ${
-                feature.showEmbeddedChat ? 'p-0' : 'cursor-pointer'
-              }`}
-              onClick={!feature.showWalletButtons && !feature.showEmbeddedChat ? feature.action : undefined}
+              className="group transition-all duration-300 hover:scale-[1.02] hover:shadow-xl border-2 border-white/20 bg-white/10 backdrop-blur-md cursor-pointer"
+              onClick={feature.action}
             >
-              {feature.showEmbeddedChat && feature.sim ? (
-                <div className="h-[500px] flex flex-col">
-                  <div className="p-4 sm:p-6 pb-3">
-                    <CardTitle className="text-lg sm:text-xl font-bold text-white">
-                      {feature.title}
-                    </CardTitle>
-                    <CardDescription className="text-sm sm:text-base text-white/80">
-                      {feature.description}
-                    </CardDescription>
+              <CardHeader className="pb-3 p-4 sm:p-6">
+                <CardTitle className="text-lg sm:text-xl font-bold text-white">
+                  {feature.title}
+                </CardTitle>
+                <CardDescription className="text-sm sm:text-base text-white/80">
+                  {feature.description}
+                </CardDescription>
+                
+                {feature.icon && (
+                  <div className="mt-6 flex justify-center">
+                    {feature.icon === 'settings' && <Settings className="h-16 w-16 text-white/40" />}
+                    {feature.icon === 'grid' && <Grid className="h-16 w-16 text-white/40" />}
+                    {feature.icon === 'message' && <MessageSquare className="h-16 w-16 text-white/40" />}
+                    {feature.icon === 'history' && <History className="h-16 w-16 text-white/40" />}
                   </div>
-                  <div className="flex-1 min-h-0">
-                    <ChatInterface
-                      agent={feature.sim}
-                      hideHeader={true}
-                      transparentMode={true}
-                      isCreatorChat={true}
-                    />
+                )}
+                  
+                {feature.showWalletButtons && (
+                  <div className="flex flex-col gap-2 mt-4">
+                    <Button
+                      variant="outline"
+                      className="w-full justify-start gap-3 h-auto py-3"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleWalletSignIn('phantom');
+                      }}
+                      disabled={!!isLoading}
+                    >
+                      <img src={phantomIcon} alt="Phantom" className="w-5 h-5" />
+                      <span className="text-sm font-medium">
+                        {isLoading === 'phantom' ? 'Connecting...' : 'Connect Phantom'}
+                      </span>
+                    </Button>
+                    <Button
+                      variant="outline"
+                      className="w-full justify-start gap-3 h-auto py-3"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleWalletSignIn('solflare');
+                      }}
+                      disabled={!!isLoading}
+                    >
+                      <img src={solflareIcon} alt="Solflare" className="w-5 h-5" />
+                      <span className="text-sm font-medium">
+                        {isLoading === 'solflare' ? 'Connecting...' : 'Connect Solflare'}
+                      </span>
+                    </Button>
                   </div>
-                </div>
-              ) : (
-                <CardHeader className="pb-3 p-4 sm:p-6">
-                  <CardTitle className="text-lg sm:text-xl font-bold text-white">
-                    {feature.title}
-                  </CardTitle>
-                  <CardDescription className="text-sm sm:text-base text-white/80">
-                    {feature.description}
-                  </CardDescription>
-                  
-                  {feature.showSimOverview && feature.sim && (
-                    <div className="mt-4 space-y-4">
-                      <div className="flex items-center gap-4">
-                        <Avatar className="h-16 w-16 border-2 border-white/30">
-                          <AvatarImage src={feature.sim.avatar} alt={feature.sim.name} />
-                          <AvatarFallback className="text-2xl">
-                            {feature.sim.name.charAt(0)}
-                          </AvatarFallback>
-                        </Avatar>
-                      <div className="flex-1">
-                        <h3 className="font-semibold text-white">{feature.sim.name}</h3>
-                        {feature.sim.title && (
-                          <p className="text-sm text-white/70">{feature.sim.title}</p>
-                        )}
-                      </div>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="gap-2 h-8 px-3 flex-shrink-0"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setSettingsModalOpen(true);
-                        }}
-                      >
-                        <Settings className="h-3.5 w-3.5" />
-                        <span className="text-xs">Settings</span>
-                      </Button>
-                      </div>
-                      
-                      {/* Shareable Link */}
-                      {feature.sim.custom_url && (
-                        <div className="p-3 rounded-lg bg-black/30 border border-white/20">
-                          <div className="flex items-center justify-between gap-2">
-                            <div className="flex items-center gap-2 min-w-0 flex-1">
-                              <Link2 className="h-4 w-4 text-white/60 flex-shrink-0" />
-                              <span className="text-xs text-white/80 font-mono truncate">
-                                {window.location.origin}/{feature.sim.custom_url}
-                              </span>
-                            </div>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                copyUrl();
-                              }}
-                              className="flex-shrink-0 h-8 w-8 p-0"
-                            >
-                              {urlCopied ? (
-                                <Check className="h-4 w-4 text-green-400" />
-                              ) : (
-                                <Copy className="h-4 w-4 text-white/60" />
-                              )}
-                            </Button>
-                          </div>
-                        </div>
-                      )}
-                      
-                      {/* Recent Conversations */}
-                      {feature.recentConversations && feature.recentConversations.length > 0 && (
-                        <div className="space-y-2">
-                          <p className="text-xs text-white/60 font-medium">Recent Conversations</p>
-                          <div className="space-y-1">
-                            {feature.recentConversations.map((conv: any) => (
-                              <div
-                                key={conv.id}
-                                className="flex items-center gap-2 p-2 rounded-lg bg-black/20 border border-white/10 hover:bg-black/30 hover:border-white/20 transition-all group"
-                              >
-                                <button
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    setSelectedConversationId(conv.id);
-                                  }}
-                                  className="flex-1 text-left min-w-0"
-                                >
-                                  <p className="text-xs text-white/80 truncate">
-                                    {conv.firstMessage || `Conversation from ${new Date(conv.created_at).toLocaleDateString()}`}
-                                  </p>
-                                  <p className="text-[10px] text-white/50 mt-0.5">
-                                    {new Date(conv.created_at).toLocaleDateString()}
-                                  </p>
-                                </button>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleDeleteConversation(conv.id);
-                                  }}
-                                  className="h-7 w-7 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
-                                >
-                                  <Trash2 className="h-3.5 w-3.5 text-red-400" />
-                                </Button>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  )}
-                  
-                  {feature.showWalletButtons && (
-                    <div className="flex flex-col gap-2 mt-4">
-                      <Button
-                        variant="outline"
-                        className="w-full justify-start gap-3 h-auto py-3"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleWalletSignIn('phantom');
-                        }}
-                        disabled={!!isLoading}
-                      >
-                        <img src={phantomIcon} alt="Phantom" className="w-5 h-5" />
-                        <span className="text-sm font-medium">
-                          {isLoading === 'phantom' ? 'Connecting...' : 'Connect Phantom'}
-                        </span>
-                      </Button>
-                      <Button
-                        variant="outline"
-                        className="w-full justify-start gap-3 h-auto py-3"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleWalletSignIn('solflare');
-                        }}
-                        disabled={!!isLoading}
-                      >
-                        <img src={solflareIcon} alt="Solflare" className="w-5 h-5" />
-                        <span className="text-sm font-medium">
-                          {isLoading === 'solflare' ? 'Connecting...' : 'Connect Solflare'}
-                        </span>
-                      </Button>
-                    </div>
-                  )}
-                  
-                  {feature.showCA && (
-                    <div className="mt-4 p-3 rounded-lg bg-black/30 border border-white/20">
-                      <p className="text-xs text-white/60 mb-1">Contract Address:</p>
-                      <p className="text-xs text-white font-mono break-all">FFqwoZ7phjoupWjLeE5yFeLqGi8jkGEFrTz6jnsUpump</p>
-                    </div>
-                  )}
-                </CardHeader>
-              )}
+                )}
+                
+                {feature.showCA && (
+                  <div className="mt-4 p-3 rounded-lg bg-black/30 border border-white/20">
+                    <p className="text-xs text-white/60 mb-1">Contract Address:</p>
+                    <p className="text-xs text-white font-mono break-all">FFqwoZ7phjoupWjLeE5yFeLqGi8jkGEFrTz6jnsUpump</p>
+                  </div>
+                )}
+              </CardHeader>
             </Card>
           ))}
         </div>
@@ -619,29 +418,6 @@ const Landing = () => {
         open={authModalOpen} 
         onOpenChange={setAuthModalOpen}
       />
-
-      {userSim && (
-        <>
-          <SimSettingsModal
-            open={settingsModalOpen}
-            onOpenChange={setSettingsModalOpen}
-            sim={userSim}
-            onSimUpdate={(updatedSim) => {
-              refetchUserSim();
-            }}
-          />
-          
-          {selectedConversationId && (
-            <ConversationModal
-              open={!!selectedConversationId}
-              onOpenChange={(open) => !open && setSelectedConversationId(null)}
-              conversationId={selectedConversationId}
-              simAvatar={userSim.avatar}
-              simName={userSim.name}
-            />
-          )}
-        </>
-      )}
 
       <div className="relative z-10">
         <SimpleFooter />

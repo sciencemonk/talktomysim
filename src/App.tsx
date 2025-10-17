@@ -25,6 +25,10 @@ import KnowledgeEnhancement from "./pages/KnowledgeEnhancement";
 import UserDashboard from "./pages/UserDashboard";
 import PublicSimDetail from "./pages/PublicSimDetail";
 import SimConversations from "./pages/SimConversations";
+import EditSim from "./pages/EditSim";
+import SimDirectory from "./pages/SimDirectory";
+import ChatWithSim from "./pages/ChatWithSim";
+import SimConversationsView from "./pages/SimConversationsView";
 
 const queryClient = new QueryClient();
 
@@ -43,6 +47,12 @@ const App = () => (
             <Route path="/livestream" element={<LiveStream />} />
             <Route path="/pump" element={<Pump />} />
             <Route path="/sim-directory" element={<Home />} />
+            
+            {/* Signed-in user pages */}
+            <Route path="/edit-sim" element={<EditSim />} />
+            <Route path="/directory" element={<SimDirectory />} />
+            <Route path="/chat-with-sim" element={<ChatWithSim />} />
+            <Route path="/sim-conversations-view" element={<SimConversationsView />} />
             
             {/* Admin route */}
             <Route path="/admin" element={<Admin />} />
