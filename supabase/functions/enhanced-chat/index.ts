@@ -23,6 +23,14 @@ interface Agent {
   learningObjective?: string;
 }
 
+// Timeout wrapper for async operations
+async function withTimeout<T>(promise: Promise<T>, timeoutMs: number, fallback: T): Promise<T> {
+  return Promise.race([
+    promise,
+    new Promise<T>((resolve) => setTimeout(() => resolve(fallback), timeoutMs))
+  ]);
+}
+
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
@@ -44,54 +52,79 @@ serve(async (req) => {
     let conversationHistory: any[] = [];
     
     if (userId && agent) {
-      const { data: advisor } = await supabase
-        .from('advisors')
-        .select('user_id')
-        .eq('id', agent.id || '')
-        .single();
-      
-      isCreator = advisor?.user_id === userId;
-      
-      // If creator, get their wallet address and conversation history
-      if (isCreator) {
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('wallet_address')
-          .eq('id', userId)
+      try {
+        // Add timeout to avoid hanging on slow queries
+        const advisorPromise = supabase
+          .from('advisors')
+          .select('user_id')
+          .eq('id', agent.id || '')
           .single();
         
-        userWalletAddress = profile?.wallet_address;
+        const { data: advisor } = await withTimeout(advisorPromise, 3000, { data: null, error: null }) as any;
         
-        // Fetch recent PUBLIC visitor conversations with the sim (exclude creator's own chats)
-        const { data: recentConvos } = await supabase
-          .from('conversations')
-          .select('id, created_at, is_anonymous')
-          .eq('tutor_id', agent.id || '')
-          .eq('is_creator_conversation', false) // Only public visitor conversations
-          .order('created_at', { ascending: false })
-          .limit(20);
+        isCreator = advisor?.user_id === userId;
         
-        if (recentConvos && recentConvos.length > 0) {
-          // Get message samples from each conversation
-          for (const convo of recentConvos) {
-            const { data: messages } = await supabase
-              .from('messages')
-              .select('role, content, created_at')
-              .eq('conversation_id', convo.id)
-              .order('created_at', { ascending: true })
-              .limit(10);
+        // If creator, get their wallet address and conversation history
+        if (isCreator) {
+          try {
+            const profilePromise = supabase
+              .from('profiles')
+              .select('wallet_address')
+              .eq('id', userId)
+              .single();
             
-            if (messages && messages.length > 0) {
-              const userMessages = messages.filter(m => m.role === 'user');
-              conversationHistory.push({
-                date: convo.created_at,
-                isAnonymous: convo.is_anonymous,
-                messageCount: messages.length,
-                sampleQuestions: userMessages.slice(0, 3).map(m => m.content)
-              });
+            const { data: profile } = await withTimeout(profilePromise, 2000, { data: null, error: null }) as any;
+            userWalletAddress = profile?.wallet_address;
+            
+            // Fetch recent PUBLIC visitor conversations with the sim (with timeout)
+            const convosPromise = supabase
+              .from('conversations')
+              .select('id, created_at, is_anonymous')
+              .eq('tutor_id', agent.id || '')
+              .eq('is_creator_conversation', false)
+              .order('created_at', { ascending: false })
+              .limit(20);
+            
+            const { data: recentConvos } = await withTimeout(convosPromise, 3000, { data: [], error: null }) as any;
+            
+            if (recentConvos && recentConvos.length > 0) {
+              // Get message samples with timeout
+              const convoLimit = Math.min(recentConvos.length, 5); // Limit to 5 conversations to avoid timeouts
+              for (let i = 0; i < convoLimit; i++) {
+                const convo = recentConvos[i];
+                try {
+                  const messagesPromise = supabase
+                    .from('messages')
+                    .select('role, content, created_at')
+                    .eq('conversation_id', convo.id)
+                    .order('created_at', { ascending: true })
+                    .limit(10);
+                  
+                  const { data: messages } = await withTimeout(messagesPromise, 2000, { data: [], error: null }) as any;
+                  
+                  if (messages && messages.length > 0) {
+                    const userMessages = messages.filter(m => m.role === 'user');
+                    conversationHistory.push({
+                      date: convo.created_at,
+                      isAnonymous: convo.is_anonymous,
+                      messageCount: messages.length,
+                      sampleQuestions: userMessages.slice(0, 3).map(m => m.content)
+                    });
+                  }
+                } catch (msgError) {
+                  console.error('Error fetching messages for convo:', msgError);
+                  // Continue to next conversation
+                }
+              }
             }
+          } catch (profileError) {
+            console.error('Error fetching creator profile data:', profileError);
+            // Continue without profile data
           }
         }
+      } catch (advisorError) {
+        console.error('Error checking if user is creator:', advisorError);
+        // Continue as non-creator
       }
     }
     
