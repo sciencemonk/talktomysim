@@ -3,7 +3,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Navigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { Bot, Sparkles, Shield, Users } from "lucide-react";
+import { Bot, Wallet, Users } from "lucide-react";
 
 const Index = () => {
   const { user, loading } = useAuth();
@@ -42,12 +42,13 @@ const Index = () => {
       <main className="container mx-auto px-4 py-20 text-center">
         <div className="max-w-4xl mx-auto">
           <h1 className="text-5xl font-bold tracking-tight mb-6">
-            AI-Powered Learning
-            <span className="block text-primary">Made Personal</span>
+            The Future of AI is Personal
+            <span className="block text-primary">Not Generic</span>
           </h1>
           <p className="text-xl text-gray-600 mb-8 leading-relaxed">
-            Create personalized AI tutors that adapt to your child's learning style. 
-            From math to science, language arts to history - every subject becomes an engaging conversation.
+            ChatGPT is one-size-fits-all. Sim is uniquely yours. Create your own AI—a personal assistant, 
+            financial advisor, or trusted friend. Connect your crypto wallet, customize personality and knowledge, 
+            and build an AI that truly understands you.
           </p>
           
           <div className="flex gap-4 justify-center mb-16">
@@ -67,29 +68,29 @@ const Index = () => {
               <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4 mx-auto">
                 <Bot className="h-6 w-6 text-primary" />
               </div>
-              <h3 className="font-semibold text-lg mb-2">Personalized AI Tutors</h3>
+              <h3 className="font-semibold text-lg mb-2">Your AI, Your Way</h3>
               <p className="text-gray-600">
-                Create custom AI tutors tailored to your child's grade level, learning style, and interests.
+                Customize your Sim's personality, knowledge base, and capabilities to match your needs and style.
               </p>
             </div>
 
             <div className="p-6 rounded-xl bg-white shadow-sm border">
               <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4 mx-auto">
-                <Sparkles className="h-6 w-6 text-primary" />
+                <Wallet className="h-6 w-6 text-primary" />
               </div>
-              <h3 className="font-semibold text-lg mb-2">Adaptive Learning</h3>
+              <h3 className="font-semibold text-lg mb-2">Crypto-Connected</h3>
               <p className="text-gray-600">
-                Our AI adapts to your child's pace, providing just the right level of challenge and support.
+                Connect your crypto wallet for a truly personalized financial advisor that understands your portfolio.
               </p>
             </div>
 
             <div className="p-6 rounded-xl bg-white shadow-sm border">
               <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4 mx-auto">
-                <Shield className="h-6 w-6 text-primary" />
+                <Users className="h-6 w-6 text-primary" />
               </div>
-              <h3 className="font-semibold text-lg mb-2">Safe & Secure</h3>
+              <h3 className="font-semibold text-lg mb-2">Truly Personal</h3>
               <p className="text-gray-600">
-                Built with privacy in mind. Your child's data is protected with enterprise-grade security.
+                Unlike generic AI, your Sim learns your preferences, context, and goals to provide genuinely personalized assistance.
               </p>
             </div>
           </div>
