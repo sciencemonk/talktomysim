@@ -68,7 +68,7 @@ const Landing = () => {
   const handleSimClick = (sim: AgentType) => {
     // If sim has custom_url, navigate to their landing page
     if (sim.custom_url) {
-      navigate(`/sim/${sim.custom_url}`);
+      navigate(`/${sim.custom_url}`);
     } else {
       // Otherwise go to sim directory with state
       navigate('/sim-directory', { state: { selectedAdvisor: sim } });

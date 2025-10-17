@@ -60,8 +60,8 @@ const App = () => (
             <Route path="/tutors/:agentId" element={<PublicTutorDetail />} />
             <Route path="/tutors/:agentId/chat" element={<StudentChat />} />
             
-            {/* Public sim share links */}
-            <Route path="/sim/:customUrl" element={<PublicSimDetail />} />
+            {/* Public sim share links - must be last to avoid catching other routes */}
+            <Route path="/:customUrl" element={<PublicSimDetail />} />
             
             {/* Catch all - redirect to home */}
             <Route path="*" element={<NotFound />} />
