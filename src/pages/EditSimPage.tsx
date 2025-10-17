@@ -160,7 +160,7 @@ const EditSimPage = () => {
   }
 
   return (
-    <div className="flex-1 overflow-auto">
+    <div className="flex-1 overflow-auto bg-background">
       <div className="max-w-7xl mx-auto p-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold tracking-tight mb-2">Edit Sim Page</h1>

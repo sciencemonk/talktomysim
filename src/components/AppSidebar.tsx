@@ -358,7 +358,6 @@ export function AppSidebar() {
                       `${isActive ? 'bg-muted' : 'hover:bg-muted/50'}`
                     }
                   >
-                    <Settings className="h-4 w-4" />
                     {open && <span>Personalize Your Sim</span>}
                   </NavLink>
                 </SidebarMenuButton>
@@ -372,7 +371,6 @@ export function AppSidebar() {
                       `${isActive ? 'bg-muted' : 'hover:bg-muted/50'}`
                     }
                   >
-                    <Grid className="h-4 w-4" />
                     {open && <span>Edit Sim Page</span>}
                   </NavLink>
                 </SidebarMenuButton>
@@ -386,7 +384,6 @@ export function AppSidebar() {
                       `${isActive ? 'bg-muted' : 'hover:bg-muted/50'}`
                     }
                   >
-                    <Users className="h-4 w-4" />
                     {open && <span>Public Conversations</span>}
                   </NavLink>
                 </SidebarMenuButton>
@@ -400,7 +397,6 @@ export function AppSidebar() {
                       `${isActive ? 'bg-muted' : 'hover:bg-muted/50'}`
                     }
                   >
-                    <Grid className="h-4 w-4" />
                     {open && <span>Sim Directory</span>}
                   </NavLink>
                 </SidebarMenuButton>
