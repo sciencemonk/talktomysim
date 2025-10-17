@@ -47,13 +47,19 @@ interface Conversation {
 }
 
 export function AppSidebar() {
-  const { open, setOpen } = useSidebar();
+  const { open, setOpen, setOpenMobile, isMobile: sidebarIsMobile } = useSidebar();
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [hoveredChat, setHoveredChat] = useState<string | null>(null);
   const queryClient = useQueryClient();
   const isMobile = useIsMobile();
+
+  const closeSidebar = () => {
+    if (isMobile || sidebarIsMobile) {
+      setOpenMobile(false);
+    }
+  };
 
   // Get current user
   useState(() => {
@@ -227,7 +233,7 @@ export function AppSidebar() {
                       <SidebarMenuButton asChild className="flex-1">
                         <NavLink 
                           to={`/?chat=${conv.id}`}
-                          onClick={() => isMobile && setOpen(false)}
+                          onClick={closeSidebar}
                           className={({ isActive }) => 
                             `truncate ${isActive ? 'bg-muted' : 'hover:bg-muted/50'}`
                           }
@@ -289,7 +295,7 @@ export function AppSidebar() {
                 <SidebarMenuButton asChild>
                   <NavLink 
                     to="/conversations"
-                    onClick={() => isMobile && setOpen(false)}
+                    onClick={closeSidebar}
                     className={({ isActive }) => 
                       `${isActive ? 'bg-muted' : 'hover:bg-muted/50'}`
                     }
@@ -303,7 +309,7 @@ export function AppSidebar() {
                 <SidebarMenuButton asChild>
                   <NavLink 
                     to="/directory"
-                    onClick={() => isMobile && setOpen(false)}
+                    onClick={closeSidebar}
                     className={({ isActive }) => 
                       `${isActive ? 'bg-muted' : 'hover:bg-muted/50'}`
                     }
@@ -323,7 +329,7 @@ export function AppSidebar() {
             <button
               onClick={() => {
                 navigate('/edit-sim');
-                isMobile && setOpen(false);
+                closeSidebar();
               }}
               className="flex items-center gap-3 flex-1 p-2 rounded-lg hover:bg-muted transition-colors"
             >
