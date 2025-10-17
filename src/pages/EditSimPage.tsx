@@ -69,6 +69,21 @@ const EditSimPage = () => {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    // Check file size (5MB limit)
+    const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB in bytes
+    if (file.size > MAX_FILE_SIZE) {
+      toast.error('Image size must be less than 5MB');
+      e.target.value = ''; // Reset the input
+      return;
+    }
+
+    // Check file type
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please upload an image file');
+      e.target.value = '';
+      return;
+    }
+
     setBackgroundFile(file);
     
     // Create preview URL
@@ -82,11 +97,14 @@ const EditSimPage = () => {
     try {
       const fileExt = backgroundFile.name.split('.').pop();
       const fileName = `${currentUser.id}-background-${Date.now()}.${fileExt}`;
-      const filePath = `backgrounds/${fileName}`;
+      const filePath = `${currentUser.id}/backgrounds/${fileName}`;
 
       const { error: uploadError } = await supabase.storage
         .from('advisor_assets')
-        .upload(filePath, backgroundFile);
+        .upload(filePath, backgroundFile, {
+          upsert: false,
+          contentType: backgroundFile.type
+        });
 
       if (uploadError) throw uploadError;
 
@@ -207,8 +225,11 @@ const EditSimPage = () => {
                 />
               </div>
               {backgroundFile && (
-                <p className="text-xs text-muted-foreground">New file ready to upload: {backgroundFile.name}</p>
+                <p className="text-xs text-muted-foreground">
+                  New file ready to upload: {backgroundFile.name} ({(backgroundFile.size / (1024 * 1024)).toFixed(2)}MB)
+                </p>
               )}
+              <p className="text-xs text-muted-foreground">Maximum file size: 5MB</p>
             </div>
 
             {/* Twitter/X URL */}
