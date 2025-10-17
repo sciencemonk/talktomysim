@@ -35,8 +35,9 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <Routes>
-            {/* New landing page for token */}
+            {/* Landing page serves as home for both signed in and signed out users */}
             <Route path="/" element={<Landing />} />
+            <Route path="/home" element={<Landing />} />
             <Route path="/live" element={<LiveChat />} />
             <Route path="/pump" element={<Pump />} />
             <Route path="/sim-directory" element={<Home />} />
@@ -66,7 +67,6 @@ const App = () => (
             {/* Catch all - redirect to home */}
             <Route path="*" element={<NotFound />} />
           </Routes>
-          <FloatingChat />
         </BrowserRouter>
       </AuthProvider>
     </TooltipProvider>

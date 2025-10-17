@@ -15,8 +15,9 @@ import bs58 from "bs58";
 import AuthModal from "@/components/AuthModal";
 import landingBackground from "@/assets/landing-background.jpg";
 import { SimSettingsModal } from "@/components/SimSettingsModal";
-import { MessageCircle, Eye, Settings } from "lucide-react";
+import { MessageCircle, Eye, Settings, LogOut } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import ChatInterface from "@/components/ChatInterface";
 
 const Landing = () => {
   const navigate = useNavigate();
@@ -27,6 +28,7 @@ const Landing = () => {
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [settingsModalOpen, setSettingsModalOpen] = useState(false);
+  const [showChat, setShowChat] = useState(false);
 
   // Check auth state
   useEffect(() => {
@@ -241,6 +243,11 @@ const Landing = () => {
     }
   };
 
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    sonnerToast.success('Signed out successfully');
+  };
+
   const features = currentUser && userSim ? [
     {
       title: "Your Sim",
@@ -250,15 +257,16 @@ const Landing = () => {
       gridArea: "create",
       showSimOverview: true,
       sim: userSim,
+      stats: simStats,
     },
     {
-      title: "Your Sim Stats",
-      description: "Track your sim's performance and engagement",
+      title: "Chat with Your Sim",
+      description: "Test your sim and see how it responds",
       action: () => {},
       gradient: "from-muted/20 to-muted/5",
-      gridArea: "stats",
-      showStats: true,
-      stats: simStats,
+      gridArea: "chat",
+      showEmbeddedChat: true,
+      sim: userSim,
     },
   ] : [
     {
@@ -302,13 +310,24 @@ const Landing = () => {
               className="h-6 w-6 sm:h-8 sm:w-8 object-contain"
             />
           </div>
-          <Button
-            onClick={() => setAuthModalOpen(true)}
-            className="bg-white text-black hover:bg-white/90 font-medium px-6"
-            size="sm"
-          >
-            Sign In
-          </Button>
+          {currentUser ? (
+            <Button
+              onClick={handleSignOut}
+              className="bg-white text-black hover:bg-white/90 font-medium px-6 gap-2"
+              size="sm"
+            >
+              <LogOut className="h-4 w-4" />
+              Sign Out
+            </Button>
+          ) : (
+            <Button
+              onClick={() => setAuthModalOpen(true)}
+              className="bg-white text-black hover:bg-white/90 font-medium px-6"
+              size="sm"
+            >
+              Sign In
+            </Button>
+          )}
         </div>
       </header>
 
@@ -330,50 +349,61 @@ const Landing = () => {
                 </CardDescription>
                 
                 {feature.showSimOverview && feature.sim && (
-                  <div className="mt-4 flex items-center gap-4">
-                    <Avatar className="h-16 w-16 border-2 border-white/30">
-                      <AvatarImage src={feature.sim.avatar} alt={feature.sim.name} />
-                      <AvatarFallback className="text-2xl">
-                        {feature.sim.name.charAt(0)}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="flex-1">
-                      <h3 className="font-semibold text-white">{feature.sim.name}</h3>
-                      {feature.sim.title && (
-                        <p className="text-sm text-white/70">{feature.sim.title}</p>
-                      )}
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="mt-2 gap-2"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setSettingsModalOpen(true);
-                        }}
-                      >
-                        <Settings className="h-4 w-4" />
-                        Settings
-                      </Button>
+                  <div className="mt-4 space-y-3">
+                    <div className="flex items-center gap-4">
+                      <Avatar className="h-16 w-16 border-2 border-white/30">
+                        <AvatarImage src={feature.sim.avatar} alt={feature.sim.name} />
+                        <AvatarFallback className="text-2xl">
+                          {feature.sim.name.charAt(0)}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="flex-1">
+                        <h3 className="font-semibold text-white">{feature.sim.name}</h3>
+                        {feature.sim.title && (
+                          <p className="text-sm text-white/70">{feature.sim.title}</p>
+                        )}
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="mt-2 gap-2"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSettingsModalOpen(true);
+                          }}
+                        >
+                          <Settings className="h-4 w-4" />
+                          Settings
+                        </Button>
+                      </div>
                     </div>
+                    
+                    {feature.stats && (
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="p-3 rounded-lg bg-black/30 border border-white/20">
+                          <div className="flex items-center gap-2 mb-1">
+                            <MessageCircle className="h-4 w-4 text-white/60" />
+                            <p className="text-xs text-white/60">Conversations</p>
+                          </div>
+                          <p className="text-2xl font-bold text-white">{feature.stats.conversations}</p>
+                        </div>
+                        <div className="p-3 rounded-lg bg-black/30 border border-white/20">
+                          <div className="flex items-center gap-2 mb-1">
+                            <Eye className="h-4 w-4 text-white/60" />
+                            <p className="text-xs text-white/60">Views</p>
+                          </div>
+                          <p className="text-2xl font-bold text-white">{feature.stats.views}</p>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
 
-                {feature.showStats && feature.stats && (
-                  <div className="mt-4 grid grid-cols-2 gap-3">
-                    <div className="p-3 rounded-lg bg-black/30 border border-white/20">
-                      <div className="flex items-center gap-2 mb-1">
-                        <MessageCircle className="h-4 w-4 text-white/60" />
-                        <p className="text-xs text-white/60">Conversations</p>
-                      </div>
-                      <p className="text-2xl font-bold text-white">{feature.stats.conversations}</p>
-                    </div>
-                    <div className="p-3 rounded-lg bg-black/30 border border-white/20">
-                      <div className="flex items-center gap-2 mb-1">
-                        <Eye className="h-4 w-4 text-white/60" />
-                        <p className="text-xs text-white/60">Views</p>
-                      </div>
-                      <p className="text-2xl font-bold text-white">{feature.stats.views}</p>
-                    </div>
+                {feature.showEmbeddedChat && feature.sim && (
+                  <div className="mt-4 h-96 border-2 border-white/20 rounded-lg overflow-hidden bg-white/5">
+                    <ChatInterface
+                      agent={feature.sim}
+                      hideHeader={true}
+                    />
                   </div>
                 )}
                 

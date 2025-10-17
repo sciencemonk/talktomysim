@@ -12,10 +12,11 @@ import { AgentType } from "@/types/agent";
 
 interface ChatInterfaceProps {
   agent: AgentType;
-  onBack: () => void;
+  onBack?: () => void;
+  hideHeader?: boolean;
 }
 
-const ChatInterface = ({ agent, onBack }: ChatInterfaceProps) => {
+const ChatInterface = ({ agent, onBack, hideHeader = false }: ChatInterfaceProps) => {
   const [currentAgent, setCurrentAgent] = useState(agent);
   const [isAiResponding, setIsAiResponding] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -47,36 +48,40 @@ const ChatInterface = ({ agent, onBack }: ChatInterfaceProps) => {
     <div 
       className="flex flex-col w-full bg-background overflow-hidden"
       style={{
-        height: isMobile && isKeyboardVisible 
+        height: hideHeader ? '100%' : (isMobile && isKeyboardVisible 
           ? `${viewportHeight}px` 
-          : '100vh'
+          : '100vh')
       }}
     >
       {/* Header with advisor info and back button - Flex header */}
-      <div className="flex-shrink-0 border-b bg-background px-4 py-3 z-50">
-        <div className="flex items-center gap-3">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onBack}
-            className="p-2 h-auto"
-          >
-            <ChevronLeft className="h-5 w-5" />
-          </Button>
-          <Avatar className="h-10 w-10">
-            <AvatarImage src={currentAgent.avatar} alt={currentAgent.name} />
-            <AvatarFallback className="bg-primary text-primary-foreground text-lg">
-              <Bot className="h-5 w-5" />
-            </AvatarFallback>
-          </Avatar>
-          <div className="min-w-0 flex-1">
-            <h1 className="text-lg font-semibold truncate">{currentAgent.name}</h1>
-            <p className="text-sm text-muted-foreground truncate">
-              {currentAgent.title || currentAgent.subject || currentAgent.type}
-            </p>
+      {!hideHeader && (
+        <div className="flex-shrink-0 border-b bg-background px-4 py-3 z-50">
+          <div className="flex items-center gap-3">
+            {onBack && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={onBack}
+                className="p-2 h-auto"
+              >
+                <ChevronLeft className="h-5 w-5" />
+              </Button>
+            )}
+            <Avatar className="h-10 w-10">
+              <AvatarImage src={currentAgent.avatar} alt={currentAgent.name} />
+              <AvatarFallback className="bg-primary text-primary-foreground text-lg">
+                <Bot className="h-5 w-5" />
+              </AvatarFallback>
+            </Avatar>
+            <div className="min-w-0 flex-1">
+              <h1 className="text-lg font-semibold truncate">{currentAgent.name}</h1>
+              <p className="text-sm text-muted-foreground truncate">
+                {currentAgent.title || currentAgent.subject || currentAgent.type}
+              </p>
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* Messages - Flex-1 scrollable area */}
       <div className="flex-1 overflow-auto px-4 py-4 min-h-0">
