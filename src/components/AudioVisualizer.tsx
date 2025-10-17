@@ -62,7 +62,7 @@ const AudioVisualizer = ({ audioSrc }: AudioVisualizerProps) => {
       gradient.addColorStop(0.5, 'rgba(59, 130, 246, 0.8)');
       gradient.addColorStop(1, 'rgba(168, 85, 247, 0.8)');
 
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
       const barWidth = (canvas.width / dataArrayRef.current.length) * 2.5;
@@ -140,7 +140,7 @@ const AudioVisualizer = ({ audioSrc }: AudioVisualizerProps) => {
       />
       <canvas
         ref={canvasRef}
-        className="w-full h-24 bg-gradient-to-t from-black/50 to-transparent"
+        className="w-full h-24 bg-white"
       />
     </div>
   );
