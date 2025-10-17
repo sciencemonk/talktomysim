@@ -116,8 +116,8 @@ const ChatInterface = ({ agent, onBack, hideHeader = false, transparentMode = fa
                     {message.role === 'system' && (
                       <Avatar className="h-8 w-8 flex-shrink-0">
                         <AvatarImage src={currentAgent.avatar} alt={currentAgent.name} />
-                        <AvatarFallback className="bg-primary text-primary-foreground">
-                          <Bot className="h-4 w-4" />
+                        <AvatarFallback className="bg-primary text-primary-foreground text-xs">
+                          {currentAgent.name.charAt(0).toUpperCase()}
                         </AvatarFallback>
                       </Avatar>
                     )}
@@ -167,8 +167,8 @@ const ChatInterface = ({ agent, onBack, hideHeader = false, transparentMode = fa
                 <div className="flex gap-4">
                   <Avatar className="h-8 w-8 flex-shrink-0">
                     <AvatarImage src={currentAgent.avatar} alt={currentAgent.name} />
-                    <AvatarFallback className="bg-primary text-primary-foreground">
-                      <Bot className="h-4 w-4" />
+                    <AvatarFallback className="bg-primary text-primary-foreground text-xs">
+                      {currentAgent.name.charAt(0).toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
                   <div className="flex-1">
