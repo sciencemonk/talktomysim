@@ -11,7 +11,7 @@ interface ChatMessage {
   isComplete: boolean;
 }
 
-export const useChatHistory = (agent: AgentType) => {
+export const useChatHistory = (agent: AgentType, isCreatorChat: boolean = false) => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -29,7 +29,7 @@ export const useChatHistory = (agent: AgentType) => {
         const { data: { user } } = await supabase.auth.getUser();
         
         // Create or get conversation for both authenticated and anonymous users
-        const conversation = await conversationService.getOrCreateConversation(agent.id);
+        const conversation = await conversationService.getOrCreateConversation(agent.id, isCreatorChat);
         if (!conversation) {
           console.error('Failed to get or create conversation');
           setIsLoading(false);

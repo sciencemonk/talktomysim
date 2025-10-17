@@ -21,7 +21,7 @@ export interface Message {
 
 export const conversationService = {
   // Get or create a conversation for a user and advisor (supports anonymous users)
-  async getOrCreateConversation(advisorId: string): Promise<Conversation | null> {
+  async getOrCreateConversation(advisorId: string, isCreatorChat: boolean = false): Promise<Conversation | null> {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       
@@ -33,6 +33,7 @@ export const conversationService = {
           .select('*')
           .eq('user_id', user.id)
           .eq('tutor_id', advisorId)
+          .eq('is_creator_conversation', isCreatorChat)
           .maybeSingle();
 
         if (existingConversation) {
@@ -46,7 +47,8 @@ export const conversationService = {
             user_id: user.id,
             tutor_id: advisorId,
             title: null,
-            is_anonymous: false
+            is_anonymous: false,
+            is_creator_conversation: isCreatorChat
           })
           .select()
           .single();
@@ -62,7 +64,8 @@ export const conversationService = {
           user_id: null,
           tutor_id: advisorId,
           title: null,
-          is_anonymous: true
+          is_anonymous: true,
+          is_creator_conversation: false
         })
         .select()
         .single();
