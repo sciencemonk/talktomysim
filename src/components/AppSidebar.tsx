@@ -240,9 +240,9 @@ export function AppSidebar() {
     staleTime: 30 * 1000, // Refresh every 30 seconds
   });
 
-  const percentageUsed = credits
-    ? (credits.used_credits / credits.total_credits) * 100
-    : 0;
+  const percentageRemaining = credits
+    ? ((credits.total_credits - credits.used_credits) / credits.total_credits) * 100
+    : 100;
 
   const remainingCredits = credits
     ? credits.total_credits - credits.used_credits
@@ -454,7 +454,10 @@ export function AppSidebar() {
 
         {/* User Profile at Bottom - Always Visible */}
         <div className="pt-4 border-t">
-          <div className="flex items-center gap-3 p-2">
+          <button
+            onClick={() => setShowCreditsModal(true)}
+            className="flex items-center gap-3 p-2 w-full hover:bg-muted/50 transition-colors rounded-lg"
+          >
             <Avatar className="h-8 w-8 flex-shrink-0">
               <AvatarImage src={getAvatarUrl(userSim?.avatar_url)} />
               <AvatarFallback className="bg-primary text-primary-foreground text-sm">
@@ -463,20 +466,20 @@ export function AppSidebar() {
             </Avatar>
             {open && (
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium truncate mb-2">
+                <p className="text-sm font-medium truncate mb-2 text-left">
                   {userSim?.name || 'Your Sim'}
                 </p>
                 <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => setShowCreditsModal(true)}
-                    className="flex-1 hover:opacity-80 transition-opacity"
-                  >
-                    <Progress value={percentageUsed} className="h-2" />
-                  </button>
+                  <div className="flex-1">
+                    <Progress value={percentageRemaining} className="h-2" />
+                  </div>
                   <Button
                     variant="ghost"
                     size="icon"
-                    onClick={handleSignOut}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleSignOut();
+                    }}
                     className="h-8 w-8 hover:bg-muted flex-shrink-0"
                   >
                     <LogOut className="h-4 w-4" />
@@ -484,7 +487,7 @@ export function AppSidebar() {
                 </div>
               </div>
             )}
-          </div>
+          </button>
         </div>
         </div>
       </SidebarContent>
