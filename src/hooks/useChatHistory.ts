@@ -1,5 +1,5 @@
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { AgentType } from '@/types/agent';
 import { conversationService, Message } from '@/services/conversationService';
 import { supabase } from '@/integrations/supabase/client';
@@ -16,6 +16,9 @@ export const useChatHistory = (agent: AgentType, isCreatorChat: boolean = false,
   const [activeConversationId, setActiveConversationId] = useState<string | null>(conversationId || null);
   const [isLoading, setIsLoading] = useState(true);
   const [pendingConversationId, setPendingConversationId] = useState<string | null>(null);
+  
+  // Track accumulated content for AI messages to avoid state timing issues
+  const aiMessageContentRef = useRef<Map<string, string>>(new Map());
 
   // Load conversation and messages when agent changes or forceNew changes
   useEffect(() => {
@@ -162,16 +165,25 @@ export const useChatHistory = (agent: AgentType, isCreatorChat: boolean = false,
       isComplete: false
     };
 
+    // Initialize content tracking for this message
+    aiMessageContentRef.current.set(aiMessage.id, '');
+    
     setMessages(prev => [...prev, aiMessage]);
     return aiMessage.id;
   }, []);
 
   // Add text delta to AI message
   const addAiTextDelta = useCallback((messageId: string, delta: string) => {
+    // Update the ref with accumulated content
+    const currentContent = aiMessageContentRef.current.get(messageId) || '';
+    const newContent = currentContent + delta;
+    aiMessageContentRef.current.set(messageId, newContent);
+    
+    // Update state for display
     setMessages(prev => 
       prev.map(msg => 
         msg.id === messageId 
-          ? { ...msg, content: msg.content + delta }
+          ? { ...msg, content: newContent }
           : msg
       )
     );
@@ -179,19 +191,14 @@ export const useChatHistory = (agent: AgentType, isCreatorChat: boolean = false,
 
   // Complete AI message
   const completeAiMessage = useCallback(async (messageId: string) => {
-    // First, get the current message content from state
-    let messageContent = '';
-    setMessages(prev => {
-      const currentMessage = prev.find(msg => msg.id === messageId);
-      if (currentMessage?.content.trim()) {
-        messageContent = currentMessage.content;
-      }
-      return prev;
-    });
+    // Get the accumulated content from the ref
+    const messageContent = aiMessageContentRef.current.get(messageId) || '';
 
     // If no content found, exit early
-    if (!messageContent) {
+    if (!messageContent.trim()) {
       console.error('No message content found for ID:', messageId);
+      // Clean up the ref
+      aiMessageContentRef.current.delete(messageId);
       return;
     }
 
@@ -249,6 +256,9 @@ export const useChatHistory = (agent: AgentType, isCreatorChat: boolean = false,
         )
       );
     }
+    
+    // Clean up the ref after saving
+    aiMessageContentRef.current.delete(messageId);
   }, [activeConversationId]);
 
   return {
