@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, Upload, Globe, Wallet, X } from "lucide-react";
+import { Loader2, Upload, Globe, Wallet, X, Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -9,9 +9,12 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "sonner";
 import landingBackground from "@/assets/landing-background.jpg";
 import { getAvatarUrl } from "@/lib/avatarUtils";
+import { SidebarTrigger } from "@/components/ui/sidebar";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const EditSimPage = () => {
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [currentUser, setCurrentUser] = useState<any>(null);
@@ -162,7 +165,20 @@ const EditSimPage = () => {
 
   return (
     <div className="flex-1 min-h-screen overflow-auto bg-background">
-      <div className="h-full max-w-7xl mx-auto p-8">
+      {/* Mobile Header with Menu */}
+      {isMobile && (
+        <div className="fixed top-0 left-0 right-0 z-50 bg-background border-b">
+          <div className="flex items-center justify-between p-3">
+            <SidebarTrigger className="h-10 w-10">
+              <Menu className="h-5 w-5" />
+            </SidebarTrigger>
+            <h1 className="text-lg font-semibold">Edit Sim Page</h1>
+            <div className="w-10" /> {/* Spacer for centering */}
+          </div>
+        </div>
+      )}
+      
+      <div className={`h-full max-w-7xl mx-auto p-8 ${isMobile ? 'pt-[73px]' : ''}`}>
         <div className="grid lg:grid-cols-2 gap-8 h-full min-h-[calc(100vh-4rem)]">
           {/* Editor Panel */}
           <div className="space-y-4">
