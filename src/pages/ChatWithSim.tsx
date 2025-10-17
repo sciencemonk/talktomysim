@@ -91,13 +91,13 @@ const ChatWithSim = () => {
   }
 
   return (
-    <div className="min-h-screen bg-black flex flex-col">
+    <div className="min-h-screen bg-gradient-to-br from-purple-600 via-pink-500 to-orange-500 flex flex-col">
       {/* Chat Interface - Full Screen Seamless */}
-      <div className="flex-1 flex flex-col max-w-4xl mx-auto w-full">
+      <div className="flex-1 flex flex-col w-full">
         <ChatInterface
           agent={userSim}
           hideHeader={true}
-          transparentMode={true}
+          transparentMode={false}
           isCreatorChat={true}
         />
       </div>

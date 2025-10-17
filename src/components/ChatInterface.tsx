@@ -93,15 +93,15 @@ const ChatInterface = ({ agent, onBack, hideHeader = false, transparentMode = fa
       )}
 
       {/* Messages - Flex-1 scrollable area */}
-      <div ref={messagesContainerRef} className={`flex-1 overflow-y-auto py-4 min-h-0 ${transparentMode ? 'px-4' : 'px-4'}`}>
+      <div ref={messagesContainerRef} className="flex-1 overflow-y-auto py-8 min-h-0">
         {chatHistory.messages.length === 0 && !textChat.isProcessing ? (
           <div className="flex flex-col items-center justify-center text-center h-full min-h-[50vh] px-4">
-            <h1 className={`text-3xl md:text-4xl font-semibold mb-8 ${transparentMode ? 'text-white' : 'text-foreground'}`}>
+            <h1 className="text-3xl md:text-4xl font-semibold mb-8 text-foreground">
               How may I help you?
             </h1>
           </div>
         ) : (
-          <>
+          <div className="max-w-3xl mx-auto px-4">
             {chatHistory.messages.map((message) => {
               // Don't render AI messages that are incomplete and have no content
               if (message.role === 'system' && !message.isComplete && !message.content.trim()) {
@@ -111,20 +111,12 @@ const ChatInterface = ({ agent, onBack, hideHeader = false, transparentMode = fa
               return (
                 <div
                   key={message.id}
-                  className={`mb-4 flex flex-col ${message.role === 'user' ? 'items-end' : 'items-start'}`}
+                  className={`mb-8 flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
                 >
-                  <div
-                    className={`rounded-2xl px-4 py-3 text-sm max-w-[85%] ${
-                      transparentMode 
-                        ? (message.role === 'user'
-                          ? 'bg-white text-black ml-auto'
-                          : 'bg-white/95 text-black')
-                        : (message.role === 'user' 
-                          ? 'bg-primary text-primary-foreground' 
-                          : 'bg-muted text-foreground')
-                    }`}
-                  >
-                    {message.content}
+                  <div className={`max-w-[80%] ${message.role === 'user' ? 'text-right' : 'text-left'}`}>
+                    <p className="text-base leading-relaxed text-foreground whitespace-pre-wrap">
+                      {message.content}
+                    </p>
                   </div>
                 </div>
               );
@@ -132,36 +124,30 @@ const ChatInterface = ({ agent, onBack, hideHeader = false, transparentMode = fa
             
             {/* Typing indicator */}
             {textChat.isProcessing && (
-              <div className="mb-4 flex items-start">
-                <div className="flex space-x-1 p-3">
-                  <div className={`w-2 h-2 rounded-full animate-bounce [animation-delay:-0.3s] ${
-                    transparentMode ? 'bg-white/60' : 'bg-muted-foreground'
-                  }`}></div>
-                  <div className={`w-2 h-2 rounded-full animate-bounce [animation-delay:-0.15s] ${
-                    transparentMode ? 'bg-white/60' : 'bg-muted-foreground'
-                  }`}></div>
-                  <div className={`w-2 h-2 rounded-full animate-bounce ${
-                    transparentMode ? 'bg-white/60' : 'bg-muted-foreground'
-                  }`}></div>
+              <div className="mb-8 flex justify-start">
+                <div className="flex space-x-1">
+                  <div className="w-2 h-2 rounded-full bg-muted-foreground animate-bounce [animation-delay:-0.3s]"></div>
+                  <div className="w-2 h-2 rounded-full bg-muted-foreground animate-bounce [animation-delay:-0.15s]"></div>
+                  <div className="w-2 h-2 rounded-full bg-muted-foreground animate-bounce"></div>
                 </div>
               </div>
             )}
             
             <div ref={messagesEndRef} />
-          </>
+          </div>
         )}
       </div>
 
       {/* Input - Flex footer - Always show */}
-      <div className={`flex-shrink-0 p-4 ${
-        transparentMode ? 'border-t-0' : 'border-t bg-background'
-      }`}>
-        <TextInput 
-          onSendMessage={textChat.sendMessage}
-          disabled={textChat.isProcessing || isAiResponding}
-          placeholder={isAiResponding ? `${currentAgent.name} is typing...` : `Message ${currentAgent.name}...`}
-          transparentMode={transparentMode}
-        />
+      <div className="flex-shrink-0 p-4 border-t bg-background">
+        <div className="max-w-3xl mx-auto">
+          <TextInput 
+            onSendMessage={textChat.sendMessage}
+            disabled={textChat.isProcessing || isAiResponding}
+            placeholder={isAiResponding ? `${currentAgent.name} is typing...` : `Message ${currentAgent.name}...`}
+            transparentMode={false}
+          />
+        </div>
       </div>
     </div>
   );

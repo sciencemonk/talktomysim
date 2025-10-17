@@ -134,13 +134,13 @@ export function AppSidebar() {
   });
 
   return (
-    <Sidebar className="border-r border-white/10 bg-black/90 backdrop-blur-xl">
+    <Sidebar className="border-r bg-background">
       <SidebarContent className="p-3">
         {/* New Chat Button */}
         <div className="mb-4">
           <Button
             onClick={handleNewChat}
-            className="w-full justify-start gap-2 bg-white/5 hover:bg-white/10 text-white border border-white/10"
+            className="w-full justify-start gap-2"
             variant="outline"
           >
             <Plus className="h-4 w-4" />
@@ -152,12 +152,12 @@ export function AppSidebar() {
         {open && (
           <div className="mb-4">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/40" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search chats"
-                className="pl-9 bg-white/5 border-white/10 text-white placeholder:text-white/40"
+                className="pl-9"
               />
             </div>
           </div>
@@ -165,7 +165,7 @@ export function AppSidebar() {
 
         {/* Recent Chats */}
         <SidebarGroup>
-          {open && <SidebarGroupLabel className="text-white/60 text-xs">Recent Chats</SidebarGroupLabel>}
+          {open && <SidebarGroupLabel className="text-xs">Recent Chats</SidebarGroupLabel>}
           <SidebarGroupContent>
             <ScrollArea className="h-[300px]">
               <SidebarMenu>
@@ -174,7 +174,9 @@ export function AppSidebar() {
                     <SidebarMenuButton asChild>
                       <NavLink 
                         to={`/?chat=${conv.id}`}
-                        className="text-white/80 hover:text-white hover:bg-white/5 truncate"
+                        className={({ isActive }) => 
+                          `truncate ${isActive ? 'bg-muted' : 'hover:bg-muted/50'}`
+                        }
                       >
                         <MessageSquare className="h-4 w-4 flex-shrink-0" />
                         {open && (
@@ -187,7 +189,7 @@ export function AppSidebar() {
                   </SidebarMenuItem>
                 ))}
                 {(!filteredConversations || filteredConversations.length === 0) && open && (
-                  <div className="px-3 py-2 text-sm text-white/40">
+                  <div className="px-3 py-2 text-sm text-muted-foreground">
                     No chats yet
                   </div>
                 )}
@@ -198,14 +200,16 @@ export function AppSidebar() {
 
         {/* Navigation Links */}
         <SidebarGroup className="mt-auto">
-          {open && <SidebarGroupLabel className="text-white/60 text-xs">Navigation</SidebarGroupLabel>}
+          {open && <SidebarGroupLabel className="text-xs">Navigation</SidebarGroupLabel>}
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
                   <NavLink 
                     to="/conversations"
-                    className="text-white/80 hover:text-white hover:bg-white/5"
+                    className={({ isActive }) => 
+                      `${isActive ? 'bg-muted' : 'hover:bg-muted/50'}`
+                    }
                   >
                     <Users className="h-4 w-4" />
                     {open && <span>Public Conversations</span>}
@@ -216,7 +220,9 @@ export function AppSidebar() {
                 <SidebarMenuButton asChild>
                   <NavLink 
                     to="/directory"
-                    className="text-white/80 hover:text-white hover:bg-white/5"
+                    className={({ isActive }) => 
+                      `${isActive ? 'bg-muted' : 'hover:bg-muted/50'}`
+                    }
                   >
                     <Grid className="h-4 w-4" />
                     {open && <span>Sim Directory</span>}
@@ -228,24 +234,24 @@ export function AppSidebar() {
         </SidebarGroup>
 
         {/* User Profile at Bottom */}
-        <div className="mt-auto pt-4 border-t border-white/10">
+        <div className="mt-auto pt-4 border-t">
           <div className="flex items-center gap-3">
             <button
               onClick={() => navigate('/edit-sim')}
-              className="flex items-center gap-3 flex-1 p-2 rounded-lg hover:bg-white/5 transition-colors"
+              className="flex items-center gap-3 flex-1 p-2 rounded-lg hover:bg-muted transition-colors"
             >
-              <Avatar className="h-8 w-8 border border-white/20">
+              <Avatar className="h-8 w-8">
                 <AvatarImage src={userSim?.avatar_url} />
-                <AvatarFallback className="bg-primary text-white text-sm">
+                <AvatarFallback className="bg-primary text-primary-foreground text-sm">
                   {userSim?.name?.charAt(0) || 'S'}
                 </AvatarFallback>
               </Avatar>
               {open && (
                 <div className="flex-1 text-left min-w-0">
-                  <p className="text-sm font-medium text-white truncate">
+                  <p className="text-sm font-medium truncate">
                     {userSim?.name || 'Your Sim'}
                   </p>
-                  <p className="text-xs text-white/60 truncate">Settings</p>
+                  <p className="text-xs text-muted-foreground truncate">Settings</p>
                 </div>
               )}
             </button>
@@ -254,7 +260,7 @@ export function AppSidebar() {
                 variant="ghost"
                 size="sm"
                 onClick={handleSignOut}
-                className="text-white/60 hover:text-white hover:bg-white/5"
+                className="hover:bg-muted"
               >
                 <LogOut className="h-4 w-4" />
               </Button>
