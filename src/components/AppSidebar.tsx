@@ -129,9 +129,34 @@ export function AppSidebar() {
       
       return conversationsWithMessages;
     },
-    enabled: !!userSim,
-    refetchInterval: 5000 // Refetch every 5 seconds to catch new conversations
+    enabled: !!userSim
   });
+
+  // Real-time subscription for new conversations
+  useEffect(() => {
+    if (!userSim || !currentUser) return;
+
+    const channel = supabase
+      .channel('conversations-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'conversations',
+          filter: `tutor_id=eq.${userSim.id}`
+        },
+        () => {
+          // Invalidate and refetch conversations when a new one is created
+          queryClient.invalidateQueries({ queryKey: ['my-conversations', userSim.id] });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [userSim?.id, currentUser?.id, queryClient]);
 
   const handleNewChat = () => {
     // Navigate to home without chat parameter to start fresh
