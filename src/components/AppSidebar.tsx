@@ -136,6 +136,7 @@ export function AppSidebar() {
   const handleNewChat = () => {
     // Navigate to home without chat parameter to start fresh
     navigate('/');
+    closeSidebar();
   };
 
   const handleSignOut = async () => {
