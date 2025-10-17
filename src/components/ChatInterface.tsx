@@ -95,10 +95,10 @@ const ChatInterface = ({ agent, onBack, hideHeader = false, transparentMode = fa
       {/* Messages - Flex-1 scrollable area */}
       <div ref={messagesContainerRef} className={`flex-1 overflow-y-auto py-4 min-h-0 ${transparentMode ? 'px-4' : 'px-4'}`}>
         {chatHistory.messages.length === 0 && !textChat.isProcessing ? (
-          <div className="flex flex-col items-center justify-center text-center h-full min-h-[50vh]">
-            <p className={`text-sm mb-4 max-w-sm ${transparentMode ? 'text-white/70' : 'text-muted-foreground'}`}>
-              {currentAgent.description || `Start a conversation with ${currentAgent.name}`}
-            </p>
+          <div className="flex flex-col items-center justify-center text-center h-full min-h-[50vh] px-4">
+            <h1 className={`text-3xl md:text-4xl font-semibold mb-8 ${transparentMode ? 'text-white' : 'text-foreground'}`}>
+              How may I help you?
+            </h1>
           </div>
         ) : (
           <>
@@ -152,19 +152,17 @@ const ChatInterface = ({ agent, onBack, hideHeader = false, transparentMode = fa
         )}
       </div>
 
-      {/* Input - Flex footer */}
-      {(chatHistory.messages.length > 0 || !textChat.isProcessing) && (
-        <div className={`flex-shrink-0 p-4 ${
-          transparentMode ? 'border-t-0' : 'border-t bg-background'
-        }`}>
-          <TextInput 
-            onSendMessage={textChat.sendMessage}
-            disabled={textChat.isProcessing || isAiResponding}
-            placeholder={isAiResponding ? `${currentAgent.name} is typing...` : `Message ${currentAgent.name}...`}
-            transparentMode={transparentMode}
-          />
-        </div>
-      )}
+      {/* Input - Flex footer - Always show */}
+      <div className={`flex-shrink-0 p-4 ${
+        transparentMode ? 'border-t-0' : 'border-t bg-background'
+      }`}>
+        <TextInput 
+          onSendMessage={textChat.sendMessage}
+          disabled={textChat.isProcessing || isAiResponding}
+          placeholder={isAiResponding ? `${currentAgent.name} is typing...` : `Message ${currentAgent.name}...`}
+          transparentMode={transparentMode}
+        />
+      </div>
     </div>
   );
 };

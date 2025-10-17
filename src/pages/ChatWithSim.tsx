@@ -82,7 +82,7 @@ const ChatWithSim = () => {
 
   if (!userSim) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-black">
         <Card className="p-6 bg-white/10 backdrop-blur-md border-white/20">
           <p className="text-white">Loading your sim...</p>
         </Card>
@@ -91,24 +91,15 @@ const ChatWithSim = () => {
   }
 
   return (
-    <div className="min-h-screen bg-black flex items-center justify-center p-4">
-      <div className="w-full max-w-4xl h-[calc(100vh-8rem)] flex flex-col">
-        {!chatId && (
-          <div className="text-center mb-8">
-            <h1 className="text-4xl font-bold text-white mb-2">
-              What are you working on?
-            </h1>
-          </div>
-        )}
-        
-        <Card className="flex-1 flex flex-col bg-white/5 backdrop-blur-md border border-white/10 overflow-hidden">
-          <ChatInterface
-            agent={userSim}
-            hideHeader={false}
-            transparentMode={false}
-            isCreatorChat={true}
-          />
-        </Card>
+    <div className="min-h-screen bg-black flex flex-col">
+      {/* Chat Interface - Full Screen Seamless */}
+      <div className="flex-1 flex flex-col max-w-4xl mx-auto w-full">
+        <ChatInterface
+          agent={userSim}
+          hideHeader={true}
+          transparentMode={true}
+          isCreatorChat={true}
+        />
       </div>
     </div>
   );
