@@ -4,9 +4,14 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { LogOut, LogIn, Home, Folder, Radio, MessageCircle } from "lucide-react";
 import { Button } from "./ui/button";
+import { Badge } from "./ui/badge";
 import AuthModal from "./AuthModal";
 
-const TopNavigation = () => {
+interface TopNavigationProps {
+  showLiveIndicator?: boolean;
+}
+
+const TopNavigation = ({ showLiveIndicator = false }: TopNavigationProps) => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { user, signOut } = useAuth();
@@ -100,8 +105,27 @@ const TopNavigation = () => {
           </div>
         )}
 
-        {/* Auth buttons */}
-        {user ? (
+        {/* Right side - Auth buttons or Live indicator */}
+        {showLiveIndicator ? (
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <Badge variant="default" className="text-sm px-3 py-1">
+              <div className="h-2 w-2 rounded-full mr-2 bg-green-500 animate-pulse" />
+              LIVE
+            </Badge>
+            <a 
+              href="https://pump.fun/coin/FFqwoZ7phjoupWjLeE5yFeLqGi8jkGEFrTz6jnsUpump"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center hover:opacity-80 transition-opacity"
+            >
+              <img 
+                src="/lovable-uploads/bedcfe0a-1a02-47a0-b867-775e5713580a.png" 
+                alt="Pump.fun" 
+                className="h-6 w-6 sm:h-8 sm:w-8 object-contain"
+              />
+            </a>
+          </div>
+        ) : user ? (
           <Button
             variant="ghost"
             size="icon"
