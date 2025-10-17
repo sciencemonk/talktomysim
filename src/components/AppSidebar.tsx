@@ -144,9 +144,6 @@ export function AppSidebar() {
             alt="Sim Logo" 
             className="h-8 w-8 object-contain"
           />
-          {open && (
-            <span className="font-semibold text-lg">Sim AI</span>
-          )}
         </div>
 
         {/* New Chat Button */}

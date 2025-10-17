@@ -8,7 +8,6 @@ import { Trash2, MessageSquare } from 'lucide-react';
 import { ConversationModal } from '@/components/ConversationModal';
 import { toast } from 'sonner';
 import { AgentType } from '@/types/agent';
-import landingBackground from '@/assets/landing-background.jpg';
 
 const SimConversationsView = () => {
   const navigate = useNavigate();
@@ -145,38 +144,28 @@ const SimConversationsView = () => {
 
   if (!userSim) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-black">
-        <Card className="p-6 bg-white/10 backdrop-blur-md border-white/20">
-          <p className="text-white">Loading your sim...</p>
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <Card className="p-6">
+          <p>Loading your sim...</p>
         </Card>
       </div>
     );
   }
 
   return (
-    <div 
-      className="min-h-screen relative"
-      style={{
-        backgroundImage: `url(${landingBackground})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundAttachment: 'fixed'
-      }}
-    >
-      <div className="absolute inset-0 bg-gradient-to-br from-purple-900/40 via-blue-900/40 to-pink-900/40 backdrop-blur-sm z-0" />
-      
+    <div className="min-h-screen bg-background">
       {/* Main Content */}
-      <div className="relative z-10 h-full p-8">
+      <div className="h-full p-8">
         <div className="max-w-5xl mx-auto">
           {/* Page Header */}
-          <Card className="p-6 mb-6 bg-white/10 backdrop-blur-md border-2 border-white/20">
+          <Card className="p-6 mb-6">
             <div className="flex items-center gap-3 mb-2">
-              <MessageSquare className="h-6 w-6 text-white" />
-              <h2 className="text-2xl font-bold text-white">
+              <MessageSquare className="h-6 w-6" />
+              <h2 className="text-2xl font-bold">
                 Public Conversations with {userSim.name}
               </h2>
             </div>
-            <p className="text-white/60">
+            <p className="text-muted-foreground">
               {conversations?.length || 0} total conversation{conversations?.length !== 1 ? 's' : ''}
             </p>
           </Card>
@@ -186,17 +175,17 @@ const SimConversationsView = () => {
               {conversations.map((conv: any) => (
                 <Card 
                   key={conv.id}
-                  className="p-4 bg-white/10 backdrop-blur-md border-2 border-white/20 hover:bg-white/15 transition-all group"
+                  className="p-4 hover:bg-muted/50 transition-all group"
                 >
                   <div className="flex items-center gap-4">
                     <button
                       onClick={() => setSelectedConversationId(conv.id)}
                       className="flex-1 text-left min-w-0"
                     >
-                      <p className="text-white font-medium truncate mb-1">
+                      <p className="font-medium truncate mb-1">
                         {conv.firstMessage || conv.title || `Conversation from ${new Date(conv.created_at).toLocaleDateString()}`}
                       </p>
-                      <div className="flex items-center gap-4 text-sm text-white/60">
+                      <div className="flex items-center gap-4 text-sm text-muted-foreground">
                         <span>{new Date(conv.created_at).toLocaleDateString()} at {new Date(conv.created_at).toLocaleTimeString()}</span>
                         <span>{conv.messageCount} message{conv.messageCount !== 1 ? 's' : ''}</span>
                       </div>
@@ -205,7 +194,7 @@ const SimConversationsView = () => {
                       variant="ghost"
                       size="sm"
                       onClick={() => handleDeleteConversation(conv.id)}
-                      className="opacity-0 group-hover:opacity-100 transition-opacity text-red-400 hover:text-red-300 hover:bg-red-400/10"
+                      className="opacity-0 group-hover:opacity-100 transition-opacity text-destructive hover:bg-destructive/10"
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
@@ -214,10 +203,10 @@ const SimConversationsView = () => {
               ))}
             </div>
           ) : (
-            <Card className="p-12 bg-white/10 backdrop-blur-md border-2 border-white/20 text-center">
-              <MessageSquare className="h-16 w-16 text-white/40 mx-auto mb-4" />
-              <h3 className="text-xl font-semibold text-white mb-2">No conversations yet</h3>
-              <p className="text-white/60">
+            <Card className="p-12 text-center">
+              <MessageSquare className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+              <h3 className="text-xl font-semibold mb-2">No conversations yet</h3>
+              <p className="text-muted-foreground">
                 When people chat with your sim on its public page, conversations will appear here.
               </p>
             </Card>
