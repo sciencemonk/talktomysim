@@ -488,7 +488,6 @@ const EditSim = () => {
                   </Button>
                 </div>
               </div>
-            </div>
           </ScrollArea>
         </div>
       </div>
