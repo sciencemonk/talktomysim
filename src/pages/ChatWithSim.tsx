@@ -126,6 +126,7 @@ const ChatWithSim = () => {
           transparentMode={false}
           isCreatorChat={true}
           forceNewChat={forceNewChat}
+          conversationId={chatId}
         />
       </div>
     </div>

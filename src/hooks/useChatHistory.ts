@@ -11,9 +11,9 @@ interface ChatMessage {
   isComplete: boolean;
 }
 
-export const useChatHistory = (agent: AgentType, isCreatorChat: boolean = false, forceNew: boolean = false) => {
+export const useChatHistory = (agent: AgentType, isCreatorChat: boolean = false, forceNew: boolean = false, conversationId?: string | null) => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const [conversationId, setConversationId] = useState<string | null>(null);
+  const [activeConversationId, setActiveConversationId] = useState<string | null>(conversationId || null);
   const [isLoading, setIsLoading] = useState(true);
 
   // Load conversation and messages when agent changes or forceNew changes
@@ -22,7 +22,7 @@ export const useChatHistory = (agent: AgentType, isCreatorChat: boolean = false,
       if (!agent?.id) return;
       
       setIsLoading(true);
-      console.log('Loading chat history for agent:', agent.name, 'forceNew:', forceNew);
+      console.log('Loading chat history for agent:', agent.name, 'forceNew:', forceNew, 'conversationId:', conversationId);
 
       try {
         // Check if user is authenticated
@@ -30,9 +30,41 @@ export const useChatHistory = (agent: AgentType, isCreatorChat: boolean = false,
         
         if (forceNew) {
           // Start completely fresh - don't load any conversation
-          setConversationId(null);
+          setActiveConversationId(null);
           setMessages([]);
           console.log('Starting fresh conversation');
+          setIsLoading(false);
+          return;
+        }
+        
+        // If we have a specific conversation ID to load, fetch it directly
+        if (conversationId) {
+          console.log('Loading specific conversation:', conversationId);
+          const { data: conversation } = await supabase
+            .from('conversations')
+            .select('*')
+            .eq('id', conversationId)
+            .single();
+          
+          if (conversation) {
+            setActiveConversationId(conversation.id);
+            
+            // Load messages for this conversation
+            const existingMessages = await conversationService.getMessages(conversation.id);
+            const chatMessages: ChatMessage[] = existingMessages.map((msg: Message) => ({
+              id: msg.id,
+              role: msg.role,
+              content: msg.content,
+              isComplete: true
+            }));
+
+            setMessages(chatMessages);
+            console.log(`Loaded ${chatMessages.length} messages for conversation ${conversationId}`);
+          } else {
+            console.error('Conversation not found:', conversationId);
+            setMessages([]);
+            setActiveConversationId(null);
+          }
           setIsLoading(false);
           return;
         }
@@ -45,7 +77,7 @@ export const useChatHistory = (agent: AgentType, isCreatorChat: boolean = false,
           return;
         }
 
-        setConversationId(conversation.id);
+        setActiveConversationId(conversation.id);
         console.log('Conversation initialized:', conversation.id, 'User:', user ? 'authenticated' : 'anonymous');
 
         // Load existing messages only for authenticated users
@@ -70,7 +102,7 @@ export const useChatHistory = (agent: AgentType, isCreatorChat: boolean = false,
         console.error('Error loading chat history:', error);
         // Fallback to empty messages if anything fails
         setMessages([]);
-        setConversationId(null);
+        setActiveConversationId(null);
       }
       
       setIsLoading(false);
@@ -78,9 +110,9 @@ export const useChatHistory = (agent: AgentType, isCreatorChat: boolean = false,
 
     // Reset messages when switching agents
     setMessages([]);
-    setConversationId(null);
+    setActiveConversationId(conversationId || null);
     loadChatHistory();
-  }, [agent?.id, forceNew]);
+  }, [agent?.id, forceNew, conversationId]);
 
   // Add user message
   const addUserMessage = useCallback(async (content: string) => {
@@ -94,13 +126,13 @@ export const useChatHistory = (agent: AgentType, isCreatorChat: boolean = false,
     setMessages(prev => [...prev, tempMessage]);
 
     // Create conversation on first message if not exists
-    let activeConversationId = conversationId;
-    if (!activeConversationId && agent?.id) {
+    let currentConversationId = activeConversationId;
+    if (!currentConversationId && agent?.id) {
       console.log('Creating new conversation with isCreatorChat:', isCreatorChat);
       const conversation = await conversationService.getOrCreateConversation(agent.id, isCreatorChat);
       if (conversation) {
-        activeConversationId = conversation.id;
-        setConversationId(conversation.id);
+        currentConversationId = conversation.id;
+        setActiveConversationId(conversation.id);
         console.log('Conversation created:', {
           id: conversation.id,
           user_id: conversation.user_id,
@@ -111,8 +143,8 @@ export const useChatHistory = (agent: AgentType, isCreatorChat: boolean = false,
     }
 
     // Save to database whether authenticated or anonymous
-    if (activeConversationId) {
-      const savedMessage = await conversationService.addMessage(activeConversationId, 'user', content);
+    if (currentConversationId) {
+      const savedMessage = await conversationService.addMessage(currentConversationId, 'user', content);
       if (savedMessage) {
         setMessages(prev => 
           prev.map(msg => 
@@ -123,7 +155,7 @@ export const useChatHistory = (agent: AgentType, isCreatorChat: boolean = false,
         );
       }
     }
-  }, [conversationId, agent?.id, isCreatorChat]);
+  }, [activeConversationId, agent?.id, isCreatorChat]);
 
   // Start AI message
   const startAiMessage = useCallback(() => {
@@ -162,10 +194,10 @@ export const useChatHistory = (agent: AgentType, isCreatorChat: boolean = false,
       console.log('Completing AI message:', currentMessage.content);
 
       // Save to database whether authenticated or anonymous
-      if (conversationId) {
+      if (activeConversationId) {
         // Save to database in the background
         conversationService.addMessage(
-          conversationId, 
+          activeConversationId, 
           'system', 
           currentMessage.content
         ).then(savedMessage => {
@@ -209,7 +241,7 @@ export const useChatHistory = (agent: AgentType, isCreatorChat: boolean = false,
           : msg
       );
     });
-  }, [conversationId]);
+  }, [activeConversationId]);
 
   return {
     messages,
