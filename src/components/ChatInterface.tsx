@@ -138,7 +138,7 @@ const ChatInterface = ({ agent, onBack, hideHeader = false, transparentMode = fa
                           </p>
                         ) : (
                           <div className="prose prose-sm max-w-none dark:prose-invert
-                            prose-p:leading-7 prose-p:mb-4 prose-p:mt-0 prose-p:text-[15px] first:prose-p:mt-0 last:prose-p:mb-0
+                            prose-p:leading-7 prose-p:mb-5 prose-p:mt-0 prose-p:text-[15px] first:prose-p:mt-0 last:prose-p:mb-0
                             prose-headings:font-semibold prose-headings:my-4
                             prose-h1:text-2xl prose-h2:text-xl prose-h3:text-lg
                             prose-ul:my-4 prose-ul:list-disc prose-ul:pl-6
@@ -150,8 +150,13 @@ const ChatInterface = ({ agent, onBack, hideHeader = false, transparentMode = fa
                             prose-blockquote:border-l-4 prose-blockquote:border-border prose-blockquote:pl-4 prose-blockquote:italic
                             prose-a:text-primary prose-a:underline hover:prose-a:text-primary/80
                           ">
-                            <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                              {message.content}
+                            <ReactMarkdown 
+                              remarkPlugins={[remarkGfm]}
+                              components={{
+                                p: ({ children }) => <p className="mb-5 last:mb-0">{children}</p>
+                              }}
+                            >
+                              {message.content.replace(/\n(?!\n)/g, '\n\n')}
                             </ReactMarkdown>
                           </div>
                         )}
