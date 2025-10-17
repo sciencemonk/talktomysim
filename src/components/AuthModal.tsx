@@ -74,7 +74,7 @@ const AuthModal = ({ open, onOpenChange, defaultMode = 'signup' }: AuthModalProp
         
         toast.success('Connected successfully!');
         onOpenChange(false);
-        window.location.href = '/dashboard';
+        window.location.href = '/';
       }
     } catch (error: any) {
       console.error('Error signing in with Solana:', error);
