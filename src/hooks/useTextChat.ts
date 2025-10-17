@@ -55,11 +55,15 @@ export const useTextChat = ({
       
       abortControllerRef.current = new AbortController();
       
+      // Get current user
+      const { data: { user } } = await supabase.auth.getUser();
+      
       // Use Supabase client to call the enhanced chat edge function
       const { data, error } = await supabase.functions.invoke('enhanced-chat', {
         body: {
           messages: newHistory,
           agent: {
+            id: agent.id,
             name: agent.name,
             type: agent.type,
             subject: agent.subject,
@@ -67,7 +71,8 @@ export const useTextChat = ({
             prompt: agent.prompt,
             gradeLevel: agent.gradeLevel,
             learningObjective: agent.learningObjective
-          }
+          },
+          userId: user?.id
         }
       });
 

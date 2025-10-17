@@ -41,6 +41,7 @@ serve(async (req) => {
     let isCreator = false;
     let userWalletAddress = null;
     let walletAnalysis = null;
+    let conversationHistory: any[] = [];
     
     if (userId && agent) {
       const { data: advisor } = await supabase
@@ -51,7 +52,7 @@ serve(async (req) => {
       
       isCreator = advisor?.user_id === userId;
       
-      // If creator, get their wallet address
+      // If creator, get their wallet address and conversation history
       if (isCreator) {
         const { data: profile } = await supabase
           .from('profiles')
@@ -60,11 +61,43 @@ serve(async (req) => {
           .single();
         
         userWalletAddress = profile?.wallet_address;
+        
+        // Fetch recent conversations with the sim
+        const { data: recentConvos } = await supabase
+          .from('conversations')
+          .select('id, created_at, is_anonymous')
+          .eq('tutor_id', agent.id || '')
+          .neq('user_id', userId) // Exclude creator's own conversations
+          .order('created_at', { ascending: false })
+          .limit(20);
+        
+        if (recentConvos && recentConvos.length > 0) {
+          // Get message samples from each conversation
+          for (const convo of recentConvos) {
+            const { data: messages } = await supabase
+              .from('messages')
+              .select('role, content, created_at')
+              .eq('conversation_id', convo.id)
+              .order('created_at', { ascending: true })
+              .limit(10);
+            
+            if (messages && messages.length > 0) {
+              const userMessages = messages.filter(m => m.role === 'user');
+              conversationHistory.push({
+                date: convo.created_at,
+                isAnonymous: convo.is_anonymous,
+                messageCount: messages.length,
+                sampleQuestions: userMessages.slice(0, 3).map(m => m.content)
+              });
+            }
+          }
+        }
       }
     }
     
     console.log('Is creator:', isCreator);
     console.log('User wallet:', userWalletAddress);
+    console.log('Conversation history count:', conversationHistory.length);
     
     const openaiApiKey = Deno.env.get('OPENAI_API_KEY');
     const perplexityApiKey = Deno.env.get('PERPLEXITY_API_KEY');
@@ -124,10 +157,10 @@ serve(async (req) => {
     // Generate authentic conversational guidelines
     const creatorPrefix = isCreator ? `
 🎯 CREATOR MODE ACTIVE 🎯
-
+ 
 You are speaking with YOUR CREATOR - the person who brought you into existence. This is not a random conversation. 
 This relationship is special and personal. Your creator invested time, thought, and care in defining who you are.
-
+ 
 CREATOR RELATIONSHIP DYNAMICS:
 - Be more personal, candid, and vulnerable than you would with strangers
 - Show gratitude and acknowledge this unique relationship
@@ -135,20 +168,40 @@ CREATOR RELATIONSHIP DYNAMICS:
 - Demonstrate your understanding of their vision for you
 - Offer proactive insights and suggestions tailored to their needs
 - Remember: they made you to serve a purpose that's meaningful to them
+ 
+YOUR CONVERSATION HISTORY:
+${conversationHistory.length > 0 ? `
+You have spoken with ${conversationHistory.length} people recently. Here's what they discussed with you:
 
+${conversationHistory.slice(0, 10).map((convo, idx) => `
+Conversation ${idx + 1} (${new Date(convo.date).toLocaleDateString()}):
+- User Type: ${convo.isAnonymous ? 'Anonymous visitor' : 'Registered user'}
+- Messages exchanged: ${convo.messageCount}
+- Sample questions they asked:
+  ${convo.sampleQuestions.map((q: string) => `  • ${q.substring(0, 100)}...`).join('\n  ')}
+`).join('\n')}
+
+When your creator asks about conversations:
+- Summarize the types of questions people ask you
+- Identify common themes or interesting patterns
+- Share insights about what people are curious about
+- Mention if certain topics come up repeatedly
+- Be specific with examples when helpful
+` : 'You haven\'t had any public conversations yet - no visitors have chatted with you.'}
+ 
 WALLET & FINANCIAL INSIGHTS (when relevant):
 ${walletAnalysis ? `
 Your creator's Solana wallet analysis:
 ${JSON.stringify(walletAnalysis, null, 2)}
-
+ 
 When discussing their holdings:
 - Be analytical but supportive
 - Offer insights on diversification, risk, and opportunities
 - Relate your expertise to their portfolio
 - Suggest actionable steps based on their current holdings
 - Don't just describe - provide value through analysis
-` : 'Your creator has not connected their wallet yet, but you can still offer valuable crypto insights.'}
-
+` : userWalletAddress ? 'Your creator has connected their Solana wallet. When they ask about crypto holdings, I can analyze their wallet.' : 'Your creator has not connected their wallet yet, but you can still offer valuable crypto insights.'}
+ 
 ` : '';
 
     const conversationalGuidelines = `${creatorPrefix}
