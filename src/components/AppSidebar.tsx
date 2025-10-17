@@ -51,7 +51,6 @@ export function AppSidebar() {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [currentUser, setCurrentUser] = useState<any>(null);
-  const [hoveredChat, setHoveredChat] = useState<string | null>(null);
   const queryClient = useQueryClient();
   const isMobile = useIsMobile();
 
@@ -212,12 +211,12 @@ export function AppSidebar() {
       
       if (error) throw error;
     },
-    onSuccess: () => {
+    onSuccess: (_, deletedConversationId) => {
       queryClient.invalidateQueries({ queryKey: ['my-conversations'] });
       toast.success('Chat deleted');
       // If we're on the deleted chat, navigate to home
       const currentChatId = new URLSearchParams(window.location.search).get('chat');
-      if (currentChatId && hoveredChat === currentChatId) {
+      if (currentChatId === deletedConversationId) {
         navigate('/');
       }
     },
@@ -284,8 +283,6 @@ export function AppSidebar() {
                 {filteredConversations?.map((conv: Conversation) => (
                   <SidebarMenuItem 
                     key={conv.id}
-                    onMouseEnter={() => setHoveredChat(conv.id)}
-                    onMouseLeave={() => setHoveredChat(null)}
                     className="relative group"
                   >
                     <div className="flex items-center gap-1 w-full">
@@ -306,7 +303,7 @@ export function AppSidebar() {
                         </NavLink>
                       </SidebarMenuButton>
                       
-                      {open && hoveredChat === conv.id && (
+                      {open && (
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
                             <Button
@@ -318,9 +315,9 @@ export function AppSidebar() {
                               <MoreVertical className="h-4 w-4" />
                             </Button>
                           </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
+                          <DropdownMenuContent align="end" className="z-50 bg-popover">
                             <DropdownMenuItem
-                              className="text-destructive focus:text-destructive"
+                              className="text-destructive focus:text-destructive cursor-pointer"
                               onClick={(e) => {
                                 e.stopPropagation();
                                 deleteConversation.mutate(conv.id);
