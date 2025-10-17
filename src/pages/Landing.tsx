@@ -248,7 +248,7 @@ const Landing = () => {
     },
   ] : [
     {
-      title: "Create Your Own AI",
+      title: "Create Your Own Web3 Native AI",
       description: "Be part of the Sim AI revolution",
       action: () => navigate("/dashboard"),
       gradient: "from-primary/20 to-primary/5",
