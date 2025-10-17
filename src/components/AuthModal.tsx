@@ -74,7 +74,20 @@ const AuthModal = ({ open, onOpenChange, defaultMode = 'signup' }: AuthModalProp
         
         toast.success('Connected successfully!');
         onOpenChange(false);
-        window.location.href = '/';
+        
+        // Check if user has a sim - redirect to dashboard if not
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          const { data: userSim } = await supabase
+            .from('advisors')
+            .select('id')
+            .eq('user_id', user.id)
+            .eq('sim_type', 'living')
+            .maybeSingle();
+          
+          // First time users go to dashboard to create sim
+          window.location.href = userSim ? '/' : '/dashboard';
+        }
       }
     } catch (error: any) {
       console.error('Error signing in with Solana:', error);
