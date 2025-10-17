@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { getAvatarUrl } from "@/lib/avatarUtils";
 import TopNavigation from "@/components/TopNavigation";
+import AudioVisualizer from "@/components/AudioVisualizer";
 
 interface Reaction {
   type: 'buy' | 'sell';
@@ -191,6 +192,9 @@ const TradeStream = () => {
           </AnimatePresence>
         </div>
       </div>
+
+      {/* Audio Visualizer */}
+      <AudioVisualizer audioSrc="/simmusic.mov" />
     </div>
   );
 };
