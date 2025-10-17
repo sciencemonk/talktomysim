@@ -189,12 +189,18 @@ const AdvisorDirectory = ({ onSelectAdvisor, onAuthRequired }: AdvisorDirectoryP
                         <AvatarFallback>{advisor.name.charAt(0)}</AvatarFallback>
                       </Avatar>
                       <div className="flex-1">
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 flex-wrap">
                           <CardTitle className="text-lg">{advisor.name}</CardTitle>
                           {advisor.is_featured && (
                             <Badge variant="secondary" className="text-xs">
                               <Star className="h-3 w-3 mr-1" />
                               Featured
+                            </Badge>
+                          )}
+                          {advisor.is_official && advisor.sim_type === 'historical' && (
+                            <Badge variant="gradient" className="text-xs">
+                              <Award className="h-3 w-3 mr-1" />
+                              Official Historical Sim
                             </Badge>
                           )}
                         </div>

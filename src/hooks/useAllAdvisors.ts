@@ -46,6 +46,7 @@ export const useAllAdvisors = () => {
           is_featured: false, // Default to false since advisors table doesn't have this field yet
           sim_type: (advisor.sim_type || 'historical') as 'historical' | 'living', // Include sim_type for filtering
           custom_url: advisor.custom_url, // Include custom_url for living sims
+          is_official: advisor.is_official || false, // Include is_official for official historical sims
           // Set default values for tutor-specific fields
           model: 'GPT-4',
           interactions: 0,

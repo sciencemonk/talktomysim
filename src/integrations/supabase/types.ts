@@ -132,6 +132,7 @@ export type Database = {
           id: string
           interests: Json | null
           is_active: boolean
+          is_official: boolean | null
           is_public: boolean | null
           is_verified: boolean
           knowledge_summary: string | null
@@ -172,6 +173,7 @@ export type Database = {
           id?: string
           interests?: Json | null
           is_active?: boolean
+          is_official?: boolean | null
           is_public?: boolean | null
           is_verified?: boolean
           knowledge_summary?: string | null
@@ -212,6 +214,7 @@ export type Database = {
           id?: string
           interests?: Json | null
           is_active?: boolean
+          is_official?: boolean | null
           is_public?: boolean | null
           is_verified?: boolean
           knowledge_summary?: string | null
