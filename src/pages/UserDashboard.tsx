@@ -90,16 +90,15 @@ Stay true to the tone, values, and personality of [Name].`,
   const [previewUrl, setPreviewUrl] = useState<string>('');
 
   useEffect(() => {
-    if (!authLoading && !user) {
-      setShowAuthModal(true);
+    if (!authLoading) {
+      if (!user) {
+        setIsLoading(false);
+        setShowAuthModal(true);
+      } else {
+        fetchUserSim();
+      }
     }
   }, [user, authLoading]);
-
-  useEffect(() => {
-    if (user) {
-      fetchUserSim();
-    }
-  }, [user]);
 
   const fetchUserSim = async () => {
     try {
