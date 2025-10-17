@@ -15,7 +15,7 @@ import bs58 from "bs58";
 import AuthModal from "@/components/AuthModal";
 import landingBackground from "@/assets/landing-background.jpg";
 import { SimSettingsModal } from "@/components/SimSettingsModal";
-import { MessageCircle, Eye, Settings, LogOut, Link2, Copy, Check } from "lucide-react";
+import { MessageCircle, Eye, Settings, LogOut, Link2, Copy, Check, Trash2 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import ChatInterface from "@/components/ChatInterface";
 import { ConversationModal } from "@/components/ConversationModal";
@@ -115,12 +115,12 @@ const Landing = () => {
   });
 
   // Fetch recent conversations (only public visitor conversations)
-  const { data: recentConversations } = useQuery({
+  const { data: recentConversations, refetch: refetchConversations } = useQuery({
     queryKey: ['recent-conversations', userSim?.id],
     queryFn: async () => {
       if (!userSim) return [];
       
-      const { data, error } = await supabase
+      const { data: conversations, error } = await supabase
         .from('conversations')
         .select('id, created_at, title')
         .eq('tutor_id', userSim.id)
@@ -129,7 +129,26 @@ const Landing = () => {
         .limit(5);
       
       if (error) throw error;
-      return data || [];
+      
+      // Fetch first message for each conversation
+      const conversationsWithMessages = await Promise.all(
+        (conversations || []).map(async (conv) => {
+          const { data: messages } = await supabase
+            .from('messages')
+            .select('content, role')
+            .eq('conversation_id', conv.id)
+            .eq('role', 'user')
+            .order('created_at', { ascending: true })
+            .limit(1);
+          
+          return {
+            ...conv,
+            firstMessage: messages?.[0]?.content || null
+          };
+        })
+      );
+      
+      return conversationsWithMessages;
     },
     enabled: !!userSim
   });
@@ -268,7 +287,7 @@ const Landing = () => {
         });
         
         sonnerToast.success('Connected successfully!');
-        navigate('/dashboard');
+        // Stay on current page (Landing) after sign in
       }
     } catch (error: any) {
       console.error('Error signing in with Solana:', error);
@@ -281,6 +300,32 @@ const Landing = () => {
   const handleSignOut = async () => {
     await supabase.auth.signOut();
     sonnerToast.success('Signed out successfully');
+  };
+
+  const handleDeleteConversation = async (conversationId: string) => {
+    try {
+      // Delete messages first
+      const { error: messagesError } = await supabase
+        .from('messages')
+        .delete()
+        .eq('conversation_id', conversationId);
+      
+      if (messagesError) throw messagesError;
+      
+      // Then delete conversation
+      const { error: convError } = await supabase
+        .from('conversations')
+        .delete()
+        .eq('id', conversationId);
+      
+      if (convError) throw convError;
+      
+      sonnerToast.success('Conversation deleted');
+      refetchConversations();
+    } catch (error) {
+      console.error('Error deleting conversation:', error);
+      sonnerToast.error('Failed to delete conversation');
+    }
   };
 
   const features = currentUser && userSim ? [
@@ -489,16 +534,36 @@ const Landing = () => {
                           <p className="text-xs text-white/60 font-medium">Recent Conversations</p>
                           <div className="space-y-1">
                             {feature.recentConversations.map((conv: any) => (
-                              <button
+                              <div
                                 key={conv.id}
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setSelectedConversationId(conv.id);
-                                }}
-                                className="w-full text-left p-2 rounded-lg bg-black/20 border border-white/10 hover:bg-black/30 hover:border-white/20 transition-all text-xs text-white/80 truncate"
+                                className="flex items-center gap-2 p-2 rounded-lg bg-black/20 border border-white/10 hover:bg-black/30 hover:border-white/20 transition-all group"
                               >
-                                {conv.title || `Conversation from ${new Date(conv.created_at).toLocaleDateString()}`}
-                              </button>
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setSelectedConversationId(conv.id);
+                                  }}
+                                  className="flex-1 text-left min-w-0"
+                                >
+                                  <p className="text-xs text-white/80 truncate">
+                                    {conv.firstMessage || `Conversation from ${new Date(conv.created_at).toLocaleDateString()}`}
+                                  </p>
+                                  <p className="text-[10px] text-white/50 mt-0.5">
+                                    {new Date(conv.created_at).toLocaleDateString()}
+                                  </p>
+                                </button>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleDeleteConversation(conv.id);
+                                  }}
+                                  className="h-7 w-7 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                                >
+                                  <Trash2 className="h-3.5 w-3.5 text-red-400" />
+                                </Button>
+                              </div>
                             ))}
                           </div>
                         </div>
