@@ -157,19 +157,6 @@ const SimConversationsView = () => {
       {/* Main Content */}
       <div className="h-full p-8">
         <div className="max-w-5xl mx-auto">
-          {/* Page Header */}
-          <Card className="p-6 mb-6">
-            <div className="flex items-center gap-3 mb-2">
-              <MessageSquare className="h-6 w-6" />
-              <h2 className="text-2xl font-bold">
-                Public Conversations with {userSim.name}
-              </h2>
-            </div>
-            <p className="text-muted-foreground">
-              {conversations?.length || 0} total conversation{conversations?.length !== 1 ? 's' : ''}
-            </p>
-          </Card>
-
           {conversations && conversations.length > 0 ? (
             <div className="space-y-3">
               {conversations.map((conv: any) => (

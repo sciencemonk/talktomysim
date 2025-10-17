@@ -94,47 +94,49 @@ const ChatInterface = ({ agent, onBack, hideHeader = false, transparentMode = fa
       )}
 
       {/* Messages - Flex-1 scrollable area */}
-      <div ref={messagesContainerRef} className="flex-1 overflow-y-auto py-8 min-h-0 bg-background">
+      <div ref={messagesContainerRef} className="flex-1 overflow-y-auto min-h-0 bg-background flex items-center justify-center">
         {chatHistory.messages.length === 0 && !textChat.isProcessing ? (
-          <div className="flex flex-col items-center justify-center text-center h-full px-4">
-            <h1 className="text-3xl md:text-4xl font-semibold mb-4 text-foreground">
+          <div className="flex flex-col items-center justify-center text-center px-4 w-full">
+            <h1 className="text-3xl md:text-4xl font-semibold mb-8 text-foreground">
               How may I help you?
             </h1>
           </div>
         ) : (
-          <div className="max-w-3xl mx-auto px-4">
-            {chatHistory.messages.map((message) => {
-              // Don't render AI messages that are incomplete and have no content
-              if (message.role === 'system' && !message.isComplete && !message.content.trim()) {
-                return null;
-              }
+          <div className="w-full py-8">
+            <div className="max-w-3xl mx-auto px-4">
+              {chatHistory.messages.map((message) => {
+                // Don't render AI messages that are incomplete and have no content
+                if (message.role === 'system' && !message.isComplete && !message.content.trim()) {
+                  return null;
+                }
+                
+                return (
+                  <div
+                    key={message.id}
+                    className={`mb-8 flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                  >
+                    <div className={`max-w-[80%] ${message.role === 'user' ? 'text-right' : 'text-left'}`}>
+                      <p className="text-base leading-relaxed text-foreground whitespace-pre-wrap">
+                        {message.content}
+                      </p>
+                    </div>
+                  </div>
+                );
+              })}
               
-              return (
-                <div
-                  key={message.id}
-                  className={`mb-8 flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
-                >
-                  <div className={`max-w-[80%] ${message.role === 'user' ? 'text-right' : 'text-left'}`}>
-                    <p className="text-base leading-relaxed text-foreground whitespace-pre-wrap">
-                      {message.content}
-                    </p>
+              {/* Typing indicator */}
+              {textChat.isProcessing && (
+                <div className="mb-8 flex justify-start">
+                  <div className="flex space-x-1">
+                    <div className="w-2 h-2 rounded-full bg-muted-foreground animate-bounce [animation-delay:-0.3s]"></div>
+                    <div className="w-2 h-2 rounded-full bg-muted-foreground animate-bounce [animation-delay:-0.15s]"></div>
+                    <div className="w-2 h-2 rounded-full bg-muted-foreground animate-bounce"></div>
                   </div>
                 </div>
-              );
-            })}
-            
-            {/* Typing indicator */}
-            {textChat.isProcessing && (
-              <div className="mb-8 flex justify-start">
-                <div className="flex space-x-1">
-                  <div className="w-2 h-2 rounded-full bg-muted-foreground animate-bounce [animation-delay:-0.3s]"></div>
-                  <div className="w-2 h-2 rounded-full bg-muted-foreground animate-bounce [animation-delay:-0.15s]"></div>
-                  <div className="w-2 h-2 rounded-full bg-muted-foreground animate-bounce"></div>
-                </div>
-              </div>
-            )}
-            
-            <div ref={messagesEndRef} />
+              )}
+              
+              <div ref={messagesEndRef} />
+            </div>
           </div>
         )}
       </div>
