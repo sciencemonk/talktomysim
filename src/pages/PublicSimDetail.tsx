@@ -219,13 +219,7 @@ const PublicSimDetail = () => {
               <Button
                 size="lg"
                 className="w-full h-14 text-base font-semibold bg-white text-black hover:bg-white/90 shadow-xl hover:shadow-2xl transition-all duration-300 mb-6 group"
-                onClick={() => {
-                  if (currentUser) {
-                    setShowChat(true);
-                  } else {
-                    setShowAuthModal(true);
-                  }
-                }}
+                onClick={() => setShowChat(true)}
               >
                 <MessageCircle className="h-5 w-5 mr-2 group-hover:scale-110 transition-transform" />
                 Start Chatting
