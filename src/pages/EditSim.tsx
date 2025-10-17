@@ -255,11 +255,10 @@ const EditSim = () => {
       )}
       
       {/* Main Content */}
-      <div className={`h-full p-8 ${isMobile ? 'pt-[73px]' : ''}`}>
-        <div className="max-w-4xl mx-auto">
-          <ScrollArea className="h-[calc(100vh-12rem)]">
-            <Card className="p-8">
-              <div className="space-y-8">
+      <div className={`h-full ${isMobile ? 'pt-[73px]' : ''}`}>
+        <div className="max-w-4xl mx-auto px-8 py-8">
+          <ScrollArea className="h-[calc(100vh-8rem)]">
+            <div className="space-y-8 pb-8">
                 {/* Avatar Section */}
                 <div className="flex flex-col items-center space-y-4 pb-6 border-b">
                   <Avatar className="h-32 w-32 border-4 shadow-2xl">
@@ -489,7 +488,7 @@ const EditSim = () => {
                   </Button>
                 </div>
               </div>
-            </Card>
+            </div>
           </ScrollArea>
         </div>
       </div>
