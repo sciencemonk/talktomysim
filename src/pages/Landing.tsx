@@ -377,7 +377,7 @@ const Landing = () => {
             >
               {feature.showEmbeddedChat && feature.sim ? (
                 <div className="h-[500px] flex flex-col">
-                  <div className="p-4 border-b border-white/10">
+                  <div className="p-4 sm:p-6 pb-3">
                     <CardTitle className="text-lg sm:text-xl font-bold text-white">
                       {feature.title}
                     </CardTitle>
@@ -385,7 +385,7 @@ const Landing = () => {
                       {feature.description}
                     </CardDescription>
                   </div>
-                  <div className="flex-1">
+                  <div className="flex-1 min-h-0">
                     <ChatInterface
                       agent={feature.sim}
                       hideHeader={true}
