@@ -15,7 +15,8 @@ import bs58 from "bs58";
 import AuthModal from "@/components/AuthModal";
 import landingBackground from "@/assets/landing-background.jpg";
 import { SimSettingsModal } from "@/components/SimSettingsModal";
-import { Settings, LogOut, Link2, Copy, Check, Trash2 } from "lucide-react";
+import { Settings, LogOut, Link2, Copy, Check, Trash2, Award } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import ChatInterface from "@/components/ChatInterface";
 import { ConversationModal } from "@/components/ConversationModal";
@@ -173,6 +174,7 @@ const Landing = () => {
         sim_type: sim.sim_type as 'historical' | 'living',
         custom_url: sim.custom_url,
         is_featured: false,
+        is_official: sim.is_official,
         model: 'GPT-4',
         interactions: 0,
         studentsSaved: 0,
@@ -600,6 +602,12 @@ const Landing = () => {
                   <span className="text-[10px] sm:text-xs text-white/60 text-center line-clamp-1">
                     {sim.title}
                   </span>
+                )}
+                {sim.sim_type === 'historical' && sim.is_official && (
+                  <Badge variant="outline" className="bg-transparent border-white text-white text-[10px] px-1.5 py-0">
+                    <Award className="h-3 w-3 mr-1" />
+                    Official
+                  </Badge>
                 )}
               </button>
             ))}
