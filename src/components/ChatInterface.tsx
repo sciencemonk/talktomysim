@@ -94,10 +94,10 @@ const ChatInterface = ({ agent, onBack, hideHeader = false, transparentMode = fa
       )}
 
       {/* Messages - Flex-1 scrollable area */}
-      <div ref={messagesContainerRef} className="flex-1 overflow-y-auto py-8 min-h-0">
+      <div ref={messagesContainerRef} className="flex-1 overflow-y-auto py-8 min-h-0 bg-background">
         {chatHistory.messages.length === 0 && !textChat.isProcessing ? (
-          <div className="flex flex-col items-center justify-center text-center h-full min-h-[50vh] px-4">
-            <h1 className="text-3xl md:text-4xl font-semibold mb-8 text-foreground">
+          <div className="flex flex-col items-center justify-center text-center h-full px-4">
+            <h1 className="text-3xl md:text-4xl font-semibold mb-4 text-foreground">
               How may I help you?
             </h1>
           </div>
@@ -139,8 +139,8 @@ const ChatInterface = ({ agent, onBack, hideHeader = false, transparentMode = fa
         )}
       </div>
 
-      {/* Input - Flex footer - Always show */}
-      <div className="flex-shrink-0 p-4 border-t bg-background">
+      {/* Input - Flex footer - Always show, positioned at bottom center */}
+      <div className="flex-shrink-0 p-4 bg-background">
         <div className="max-w-3xl mx-auto">
           <TextInput 
             onSendMessage={textChat.sendMessage}

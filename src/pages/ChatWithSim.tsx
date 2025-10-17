@@ -85,16 +85,16 @@ const ChatWithSim = () => {
 
   if (!userSim) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-black">
-        <Card className="p-6 bg-white/10 backdrop-blur-md border-white/20">
-          <p className="text-white">Loading your sim...</p>
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <Card className="p-6">
+          <p>Loading your sim...</p>
         </Card>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-600 via-pink-500 to-orange-500 flex flex-col">
+    <div className="min-h-screen bg-background flex flex-col">
       {/* Chat Interface - Full Screen Seamless */}
       <div className="flex-1 flex flex-col w-full">
         <ChatInterface
