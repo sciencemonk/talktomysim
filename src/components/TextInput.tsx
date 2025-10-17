@@ -8,12 +8,14 @@ interface TextInputProps {
   onSendMessage: (message: string) => void;
   disabled?: boolean;
   placeholder?: string;
+  transparentMode?: boolean;
 }
 
 export const TextInput: React.FC<TextInputProps> = ({ 
   onSendMessage, 
   disabled,
-  placeholder = "Ask anything..."
+  placeholder = "Ask anything...",
+  transparentMode = false
 }) => {
   const [message, setMessage] = useState('');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -66,7 +68,11 @@ export const TextInput: React.FC<TextInputProps> = ({
     <div className="w-full p-3">
       <div className="max-w-4xl mx-auto">
         <form onSubmit={handleSubmit} className="relative">
-          <div className="flex items-end gap-3 bg-background border border-input rounded-xl p-3 shadow-sm focus-within:border-ring transition-colors">
+          <div className={`flex items-end gap-3 border rounded-xl p-3 shadow-sm focus-within:border-ring transition-colors ${
+            transparentMode 
+              ? 'bg-white/95 border-white/20' 
+              : 'bg-background border-input'
+          }`}>
             <Textarea
               ref={textareaRef}
               value={message}
@@ -75,7 +81,11 @@ export const TextInput: React.FC<TextInputProps> = ({
               onInput={handleInput}
               placeholder={placeholder}
               disabled={disabled}
-              className="flex-1 min-h-[24px] max-h-[150px] resize-none border-0 p-0 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0 focus:ring-0 focus:outline-none bg-transparent text-sm placeholder:text-muted-foreground"
+              className={`flex-1 min-h-[24px] max-h-[150px] resize-none border-0 p-0 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0 focus:ring-0 focus:outline-none bg-transparent text-sm ${
+                transparentMode 
+                  ? 'text-black placeholder:text-black/50' 
+                  : 'placeholder:text-muted-foreground'
+              }`}
               rows={1}
             />
             <Button 

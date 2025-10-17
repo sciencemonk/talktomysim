@@ -15,9 +15,10 @@ import bs58 from "bs58";
 import AuthModal from "@/components/AuthModal";
 import landingBackground from "@/assets/landing-background.jpg";
 import { SimSettingsModal } from "@/components/SimSettingsModal";
-import { MessageCircle, Eye, Settings, LogOut } from "lucide-react";
+import { MessageCircle, Eye, Settings, LogOut, Link2, Copy, Check } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import ChatInterface from "@/components/ChatInterface";
+import { ConversationModal } from "@/components/ConversationModal";
 
 const Landing = () => {
   const navigate = useNavigate();
@@ -29,6 +30,8 @@ const Landing = () => {
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [settingsModalOpen, setSettingsModalOpen] = useState(false);
   const [showChat, setShowChat] = useState(false);
+  const [urlCopied, setUrlCopied] = useState(false);
+  const [selectedConversationId, setSelectedConversationId] = useState<string | null>(null);
 
   // Check auth state
   useEffect(() => {
@@ -109,6 +112,36 @@ const Landing = () => {
     },
     enabled: !!userSim
   });
+
+  // Fetch recent conversations
+  const { data: recentConversations } = useQuery({
+    queryKey: ['recent-conversations', userSim?.id],
+    queryFn: async () => {
+      if (!userSim) return [];
+      
+      const { data, error } = await supabase
+        .from('conversations')
+        .select('id, created_at, title')
+        .eq('advisor_id', userSim.id)
+        .order('created_at', { ascending: false })
+        .limit(5);
+      
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: !!userSim
+  });
+
+  const copyUrl = () => {
+    const url = userSim?.custom_url ? `${window.location.origin}/${userSim.custom_url}` : '';
+    navigator.clipboard.writeText(url);
+    setUrlCopied(true);
+    setTimeout(() => setUrlCopied(false), 2000);
+    toast({
+      title: "Copied!",
+      description: "Sim URL copied to clipboard"
+    });
+  };
 
   // Fetch all sims (both historical and living)
   const { data: allSims } = useQuery({
@@ -252,12 +285,13 @@ const Landing = () => {
     {
       title: "Your Sim",
       description: userSim.description || "Your AI-powered page",
-      action: () => setSettingsModalOpen(true),
+      action: () => {},
       gradient: "from-primary/20 to-primary/5",
       gridArea: "create",
       showSimOverview: true,
       sim: userSim,
       stats: simStats,
+      recentConversations,
     },
     {
       title: "Chat with Your Sim",
@@ -337,116 +371,180 @@ const Landing = () => {
           {features.map((feature, index) => (
             <Card 
               key={index}
-              className="group cursor-pointer transition-all duration-300 hover:scale-[1.02] hover:shadow-xl border-2 border-white/20 bg-white/10 backdrop-blur-md flex flex-col"
-              onClick={!feature.showWalletButtons ? feature.action : undefined}
+              className={`group transition-all duration-300 hover:scale-[1.02] hover:shadow-xl border-2 border-white/20 bg-white/10 backdrop-blur-md flex flex-col overflow-hidden ${
+                feature.showEmbeddedChat ? 'p-0' : 'cursor-pointer'
+              }`}
+              onClick={!feature.showWalletButtons && !feature.showEmbeddedChat ? feature.action : undefined}
             >
-              <CardHeader className="pb-3 p-4 sm:p-6">
-                <CardTitle className="text-lg sm:text-xl font-bold text-white">
-                  {feature.title}
-                </CardTitle>
-                <CardDescription className="text-sm sm:text-base text-white/80">
-                  {feature.description}
-                </CardDescription>
-                
-                {feature.showSimOverview && feature.sim && (
-                  <div className="mt-4 space-y-3">
-                    <div className="flex items-center gap-4">
-                      <Avatar className="h-16 w-16 border-2 border-white/30">
-                        <AvatarImage src={feature.sim.avatar} alt={feature.sim.name} />
-                        <AvatarFallback className="text-2xl">
-                          {feature.sim.name.charAt(0)}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="flex-1">
-                        <h3 className="font-semibold text-white">{feature.sim.name}</h3>
-                        {feature.sim.title && (
-                          <p className="text-sm text-white/70">{feature.sim.title}</p>
-                        )}
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="mt-2 gap-2"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setSettingsModalOpen(true);
-                          }}
-                        >
-                          <Settings className="h-4 w-4" />
-                          Settings
-                        </Button>
-                      </div>
-                    </div>
-                    
-                    {feature.stats && (
-                      <div className="grid grid-cols-2 gap-3">
-                        <div className="p-3 rounded-lg bg-black/30 border border-white/20">
-                          <div className="flex items-center gap-2 mb-1">
-                            <MessageCircle className="h-4 w-4 text-white/60" />
-                            <p className="text-xs text-white/60">Conversations</p>
-                          </div>
-                          <p className="text-2xl font-bold text-white">{feature.stats.conversations}</p>
-                        </div>
-                        <div className="p-3 rounded-lg bg-black/30 border border-white/20">
-                          <div className="flex items-center gap-2 mb-1">
-                            <Eye className="h-4 w-4 text-white/60" />
-                            <p className="text-xs text-white/60">Views</p>
-                          </div>
-                          <p className="text-2xl font-bold text-white">{feature.stats.views}</p>
-                        </div>
-                      </div>
-                    )}
+              {feature.showEmbeddedChat && feature.sim ? (
+                <div className="h-[500px] flex flex-col">
+                  <div className="p-4 border-b border-white/10">
+                    <CardTitle className="text-lg sm:text-xl font-bold text-white">
+                      {feature.title}
+                    </CardTitle>
+                    <CardDescription className="text-sm sm:text-base text-white/80">
+                      {feature.description}
+                    </CardDescription>
                   </div>
-                )}
-
-                {feature.showEmbeddedChat && feature.sim && (
-                  <div className="mt-4 h-96 border-2 border-white/20 rounded-lg overflow-hidden bg-white/5">
+                  <div className="flex-1">
                     <ChatInterface
                       agent={feature.sim}
                       hideHeader={true}
+                      transparentMode={true}
                     />
                   </div>
-                )}
-                
-                {feature.showWalletButtons && (
-                  <div className="flex flex-col gap-2 mt-4">
-                    <Button
-                      variant="outline"
-                      className="w-full justify-start gap-3 h-auto py-3"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleWalletSignIn('phantom');
-                      }}
-                      disabled={!!isLoading}
-                    >
-                      <img src={phantomIcon} alt="Phantom" className="w-5 h-5" />
-                      <span className="text-sm font-medium">
-                        {isLoading === 'phantom' ? 'Connecting...' : 'Connect Phantom'}
-                      </span>
-                    </Button>
-                    <Button
-                      variant="outline"
-                      className="w-full justify-start gap-3 h-auto py-3"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleWalletSignIn('solflare');
-                      }}
-                      disabled={!!isLoading}
-                    >
-                      <img src={solflareIcon} alt="Solflare" className="w-5 h-5" />
-                      <span className="text-sm font-medium">
-                        {isLoading === 'solflare' ? 'Connecting...' : 'Connect Solflare'}
-                      </span>
-                    </Button>
-                  </div>
-                )}
-                
-                {feature.showCA && (
-                  <div className="mt-4 p-3 rounded-lg bg-black/30 border border-white/20">
-                    <p className="text-xs text-white/60 mb-1">Contract Address:</p>
-                    <p className="text-xs text-white font-mono break-all">FFqwoZ7phjoupWjLeE5yFeLqGi8jkGEFrTz6jnsUpump</p>
-                  </div>
-                )}
-              </CardHeader>
+                </div>
+              ) : (
+                <CardHeader className="pb-3 p-4 sm:p-6">
+                  <CardTitle className="text-lg sm:text-xl font-bold text-white">
+                    {feature.title}
+                  </CardTitle>
+                  <CardDescription className="text-sm sm:text-base text-white/80">
+                    {feature.description}
+                  </CardDescription>
+                  
+                  {feature.showSimOverview && feature.sim && (
+                    <div className="mt-4 space-y-4">
+                      <div className="flex items-center gap-4">
+                        <Avatar className="h-16 w-16 border-2 border-white/30">
+                          <AvatarImage src={feature.sim.avatar} alt={feature.sim.name} />
+                          <AvatarFallback className="text-2xl">
+                            {feature.sim.name.charAt(0)}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1">
+                          <h3 className="font-semibold text-white">{feature.sim.name}</h3>
+                          {feature.sim.title && (
+                            <p className="text-sm text-white/70">{feature.sim.title}</p>
+                          )}
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="mt-2 gap-2"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSettingsModalOpen(true);
+                            }}
+                          >
+                            <Settings className="h-4 w-4" />
+                            Settings
+                          </Button>
+                        </div>
+                      </div>
+                      
+                      {/* Shareable Link */}
+                      {feature.sim.custom_url && (
+                        <div className="p-3 rounded-lg bg-black/30 border border-white/20">
+                          <div className="flex items-center justify-between gap-2">
+                            <div className="flex items-center gap-2 min-w-0 flex-1">
+                              <Link2 className="h-4 w-4 text-white/60 flex-shrink-0" />
+                              <span className="text-xs text-white/80 font-mono truncate">
+                                {window.location.origin}/{feature.sim.custom_url}
+                              </span>
+                            </div>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                copyUrl();
+                              }}
+                              className="flex-shrink-0 h-8 w-8 p-0"
+                            >
+                              {urlCopied ? (
+                                <Check className="h-4 w-4 text-green-400" />
+                              ) : (
+                                <Copy className="h-4 w-4 text-white/60" />
+                              )}
+                            </Button>
+                          </div>
+                        </div>
+                      )}
+                      
+                      {/* Stats */}
+                      {feature.stats && (
+                        <div className="grid grid-cols-2 gap-3">
+                          <div className="p-3 rounded-lg bg-black/30 border border-white/20">
+                            <div className="flex items-center gap-2 mb-1">
+                              <MessageCircle className="h-4 w-4 text-white/60" />
+                              <p className="text-xs text-white/60">Conversations</p>
+                            </div>
+                            <p className="text-2xl font-bold text-white">{feature.stats.conversations}</p>
+                          </div>
+                          <div className="p-3 rounded-lg bg-black/30 border border-white/20">
+                            <div className="flex items-center gap-2 mb-1">
+                              <Eye className="h-4 w-4 text-white/60" />
+                              <p className="text-xs text-white/60">Views</p>
+                            </div>
+                            <p className="text-2xl font-bold text-white">{feature.stats.views}</p>
+                          </div>
+                        </div>
+                      )}
+                      
+                      {/* Recent Conversations */}
+                      {feature.recentConversations && feature.recentConversations.length > 0 && (
+                        <div className="space-y-2">
+                          <p className="text-xs text-white/60 font-medium">Recent Conversations</p>
+                          <div className="space-y-1">
+                            {feature.recentConversations.map((conv: any) => (
+                              <button
+                                key={conv.id}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setSelectedConversationId(conv.id);
+                                }}
+                                className="w-full text-left p-2 rounded-lg bg-black/20 border border-white/10 hover:bg-black/30 hover:border-white/20 transition-all text-xs text-white/80 truncate"
+                              >
+                                {conv.title || `Conversation from ${new Date(conv.created_at).toLocaleDateString()}`}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                  
+                  {feature.showWalletButtons && (
+                    <div className="flex flex-col gap-2 mt-4">
+                      <Button
+                        variant="outline"
+                        className="w-full justify-start gap-3 h-auto py-3"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleWalletSignIn('phantom');
+                        }}
+                        disabled={!!isLoading}
+                      >
+                        <img src={phantomIcon} alt="Phantom" className="w-5 h-5" />
+                        <span className="text-sm font-medium">
+                          {isLoading === 'phantom' ? 'Connecting...' : 'Connect Phantom'}
+                        </span>
+                      </Button>
+                      <Button
+                        variant="outline"
+                        className="w-full justify-start gap-3 h-auto py-3"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleWalletSignIn('solflare');
+                        }}
+                        disabled={!!isLoading}
+                      >
+                        <img src={solflareIcon} alt="Solflare" className="w-5 h-5" />
+                        <span className="text-sm font-medium">
+                          {isLoading === 'solflare' ? 'Connecting...' : 'Connect Solflare'}
+                        </span>
+                      </Button>
+                    </div>
+                  )}
+                  
+                  {feature.showCA && (
+                    <div className="mt-4 p-3 rounded-lg bg-black/30 border border-white/20">
+                      <p className="text-xs text-white/60 mb-1">Contract Address:</p>
+                      <p className="text-xs text-white font-mono break-all">FFqwoZ7phjoupWjLeE5yFeLqGi8jkGEFrTz6jnsUpump</p>
+                    </div>
+                  )}
+                </CardHeader>
+              )}
             </Card>
           ))}
         </div>
@@ -487,14 +585,26 @@ const Landing = () => {
       />
 
       {userSim && (
-        <SimSettingsModal
-          open={settingsModalOpen}
-          onOpenChange={setSettingsModalOpen}
-          sim={userSim}
-          onSimUpdate={(updatedSim) => {
-            refetchUserSim();
-          }}
-        />
+        <>
+          <SimSettingsModal
+            open={settingsModalOpen}
+            onOpenChange={setSettingsModalOpen}
+            sim={userSim}
+            onSimUpdate={(updatedSim) => {
+              refetchUserSim();
+            }}
+          />
+          
+          {selectedConversationId && (
+            <ConversationModal
+              open={!!selectedConversationId}
+              onOpenChange={(open) => !open && setSelectedConversationId(null)}
+              conversationId={selectedConversationId}
+              simAvatar={userSim.avatar}
+              simName={userSim.name}
+            />
+          )}
+        </>
       )}
 
       <div className="relative z-10">

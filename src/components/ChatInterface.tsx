@@ -14,9 +14,10 @@ interface ChatInterfaceProps {
   agent: AgentType;
   onBack?: () => void;
   hideHeader?: boolean;
+  transparentMode?: boolean;
 }
 
-const ChatInterface = ({ agent, onBack, hideHeader = false }: ChatInterfaceProps) => {
+const ChatInterface = ({ agent, onBack, hideHeader = false, transparentMode = false }: ChatInterfaceProps) => {
   const [currentAgent, setCurrentAgent] = useState(agent);
   const [isAiResponding, setIsAiResponding] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -46,7 +47,9 @@ const ChatInterface = ({ agent, onBack, hideHeader = false }: ChatInterfaceProps
 
   return (
     <div 
-      className="flex flex-col w-full bg-background overflow-hidden"
+      className={`flex flex-col w-full overflow-hidden ${
+        transparentMode ? 'bg-transparent' : 'bg-background'
+      }`}
       style={{
         height: hideHeader ? '100%' : (isMobile && isKeyboardVisible 
           ? `${viewportHeight}px` 
@@ -55,7 +58,9 @@ const ChatInterface = ({ agent, onBack, hideHeader = false }: ChatInterfaceProps
     >
       {/* Header with advisor info and back button - Flex header */}
       {!hideHeader && (
-        <div className="flex-shrink-0 border-b bg-background px-4 py-3 z-50">
+        <div className={`flex-shrink-0 px-4 py-3 z-50 ${
+          transparentMode ? 'border-b-0' : 'border-b bg-background'
+        }`}>
           <div className="flex items-center gap-3">
             {onBack && (
               <Button
@@ -84,20 +89,12 @@ const ChatInterface = ({ agent, onBack, hideHeader = false }: ChatInterfaceProps
       )}
 
       {/* Messages - Flex-1 scrollable area */}
-      <div className="flex-1 overflow-auto px-4 py-4 min-h-0">
+      <div className={`flex-1 overflow-auto py-4 min-h-0 ${transparentMode ? 'px-0' : 'px-4'}`}>
         {chatHistory.messages.length === 0 && !textChat.isProcessing ? (
           <div className="flex flex-col items-center justify-center text-center h-full min-h-[50vh]">
-            <Avatar className="h-16 w-16 mb-4">
-              <AvatarImage src={currentAgent.avatar} alt={currentAgent.name} />
-              <AvatarFallback className="bg-primary text-primary-foreground text-2xl">
-                <Bot className="h-8 w-8" />
-              </AvatarFallback>
-            </Avatar>
-            <h2 className="text-lg font-medium mb-2">{currentAgent.name}</h2>
-            <p className="text-muted-foreground text-sm mb-4 max-w-sm">
+            <p className={`text-sm mb-4 max-w-sm ${transparentMode ? 'text-white/70' : 'text-muted-foreground'}`}>
               {currentAgent.description || `Start a conversation with ${currentAgent.name}`}
             </p>
-            <p className="text-xs text-muted-foreground">What will you ask?</p>
           </div>
         ) : (
           <>
@@ -113,10 +110,14 @@ const ChatInterface = ({ agent, onBack, hideHeader = false }: ChatInterfaceProps
                   className={`mb-4 flex flex-col ${message.role === 'user' ? 'items-end' : 'items-start'}`}
                 >
                   <div
-                    className={`rounded-2xl px-4 py-2 text-sm max-w-[85%] ${
-                      message.role === 'user' 
-                        ? 'bg-primary text-primary-foreground' 
-                        : 'bg-muted text-foreground'
+                    className={`rounded-2xl px-4 py-3 text-sm max-w-[85%] ${
+                      transparentMode 
+                        ? (message.role === 'user'
+                          ? 'bg-white text-black ml-auto'
+                          : 'bg-white/95 text-black')
+                        : (message.role === 'user' 
+                          ? 'bg-primary text-primary-foreground' 
+                          : 'bg-muted text-foreground')
                     }`}
                   >
                     {message.content}
@@ -129,9 +130,15 @@ const ChatInterface = ({ agent, onBack, hideHeader = false }: ChatInterfaceProps
             {textChat.isProcessing && (
               <div className="mb-4 flex items-start">
                 <div className="flex space-x-1 p-3">
-                  <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce [animation-delay:-0.3s]"></div>
-                  <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce [animation-delay:-0.15s]"></div>
-                  <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce"></div>
+                  <div className={`w-2 h-2 rounded-full animate-bounce [animation-delay:-0.3s] ${
+                    transparentMode ? 'bg-white/60' : 'bg-muted-foreground'
+                  }`}></div>
+                  <div className={`w-2 h-2 rounded-full animate-bounce [animation-delay:-0.15s] ${
+                    transparentMode ? 'bg-white/60' : 'bg-muted-foreground'
+                  }`}></div>
+                  <div className={`w-2 h-2 rounded-full animate-bounce ${
+                    transparentMode ? 'bg-white/60' : 'bg-muted-foreground'
+                  }`}></div>
                 </div>
               </div>
             )}
@@ -143,11 +150,14 @@ const ChatInterface = ({ agent, onBack, hideHeader = false }: ChatInterfaceProps
 
       {/* Input - Flex footer */}
       {(chatHistory.messages.length > 0 || !textChat.isProcessing) && (
-        <div className="flex-shrink-0 border-t bg-background p-4">
+        <div className={`flex-shrink-0 p-4 ${
+          transparentMode ? 'border-t-0' : 'border-t bg-background'
+        }`}>
           <TextInput 
             onSendMessage={textChat.sendMessage}
             disabled={textChat.isProcessing || isAiResponding}
             placeholder={isAiResponding ? `${currentAgent.name} is typing...` : `Message ${currentAgent.name}...`}
+            transparentMode={transparentMode}
           />
         </div>
       )}
