@@ -380,6 +380,51 @@ export type Database = {
         }
         Relationships: []
       }
+      credit_usage_log: {
+        Row: {
+          conversation_id: string | null
+          created_at: string
+          credits_used: number
+          id: string
+          message_id: string | null
+          usage_type: string
+          user_id: string
+        }
+        Insert: {
+          conversation_id?: string | null
+          created_at?: string
+          credits_used?: number
+          id?: string
+          message_id?: string | null
+          usage_type?: string
+          user_id: string
+        }
+        Update: {
+          conversation_id?: string | null
+          created_at?: string
+          credits_used?: number
+          id?: string
+          message_id?: string | null
+          usage_type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "credit_usage_log_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "credit_usage_log_message_id_fkey"
+            columns: ["message_id"]
+            isOneToOne: false
+            referencedRelation: "messages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       debate_queue: {
         Row: {
           completed_at: string | null
@@ -908,11 +953,50 @@ export type Database = {
         }
         Relationships: []
       }
+      user_credits: {
+        Row: {
+          created_at: string
+          id: string
+          reset_date: string
+          total_credits: number
+          updated_at: string
+          used_credits: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          reset_date?: string
+          total_credits?: number
+          updated_at?: string
+          used_credits?: number
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          reset_date?: string
+          total_credits?: number
+          updated_at?: string
+          used_credits?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
+      deduct_credit: {
+        Args: {
+          p_conversation_id?: string
+          p_message_id?: string
+          p_usage_type?: string
+          p_user_id: string
+        }
+        Returns: boolean
+      }
       get_conversation_insights: {
         Args: { days_back?: number; target_advisor_id: string }
         Returns: {
@@ -922,6 +1006,10 @@ export type Database = {
           total_conversations: number
           total_messages: number
         }[]
+      }
+      reset_monthly_credits: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
       }
       search_advisor_embeddings: {
         Args: {

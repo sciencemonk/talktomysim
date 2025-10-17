@@ -392,6 +392,48 @@ Your response MUST acknowledge this relationship. Show that you know who they ar
       throw new Error('No choices returned from OpenAI');
     }
 
+    // Track credit usage for the sim owner
+    if (agent.id) {
+      try {
+        // Get the sim owner's user_id
+        const { data: advisor } = await supabase
+          .from('advisors')
+          .select('user_id')
+          .eq('id', agent.id)
+          .single();
+
+        if (advisor?.user_id) {
+          // Determine usage type based on who's chatting
+          const usageType = isCreator ? 'owner_chat' : 'public_chat';
+          
+          // Deduct credit using the database function
+          const { data: creditResult, error: creditError } = await supabase
+            .rpc('deduct_credit', {
+              p_user_id: advisor.user_id,
+              p_usage_type: usageType
+            });
+
+          if (creditError) {
+            console.error('Error deducting credit:', creditError);
+          } else if (creditResult === false) {
+            // User is out of credits
+            return new Response(
+              JSON.stringify({ 
+                error: 'Credit limit reached. Please upgrade your plan or wait until next month.' 
+              }),
+              {
+                status: 429, // Too Many Requests
+                headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+              }
+            );
+          }
+        }
+      } catch (creditErr) {
+        console.error('Error in credit tracking:', creditErr);
+        // Continue anyway - don't block chat on credit tracking errors
+      }
+    }
+
     return new Response(
       JSON.stringify({
         content: data.choices[0].message.content,

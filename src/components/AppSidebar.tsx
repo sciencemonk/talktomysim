@@ -38,6 +38,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { getAvatarUrl } from "@/lib/avatarUtils";
+import { Progress } from "@/components/ui/progress";
+import { CreditUsageModal } from "./CreditUsageModal";
 
 interface Conversation {
   id: string;
@@ -52,6 +54,7 @@ export function AppSidebar() {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [currentUser, setCurrentUser] = useState<any>(null);
+  const [showCreditsModal, setShowCreditsModal] = useState(false);
   const queryClient = useQueryClient();
   const isMobile = useIsMobile();
 
@@ -204,6 +207,47 @@ export function AppSidebar() {
     toast.success('Signed out successfully');
     navigate('/');
   };
+
+  // Fetch user's credits
+  const { data: credits } = useQuery({
+    queryKey: ['user-credits', currentUser?.id],
+    queryFn: async () => {
+      if (!currentUser) return null;
+
+      const { data, error } = await supabase
+        .from('user_credits')
+        .select('*')
+        .eq('user_id', currentUser.id)
+        .single();
+
+      if (error) {
+        // If user doesn't have credits record, create one
+        const { data: newCredits, error: insertError } = await supabase
+          .from('user_credits')
+          .insert({ user_id: currentUser.id })
+          .select()
+          .single();
+
+        if (insertError) {
+          console.error('Error creating credits:', insertError);
+          return null;
+        }
+        return newCredits;
+      }
+
+      return data;
+    },
+    enabled: !!currentUser,
+    staleTime: 30 * 1000, // Refresh every 30 seconds
+  });
+
+  const percentageUsed = credits
+    ? (credits.used_credits / credits.total_credits) * 100
+    : 0;
+
+  const remainingCredits = credits
+    ? credits.total_credits - credits.used_credits
+    : 1000;
 
   const deleteConversation = useMutation({
     mutationFn: async (conversationId: string) => {
@@ -411,13 +455,10 @@ export function AppSidebar() {
 
         {/* User Profile at Bottom - Always Visible */}
         <div className="pt-4 border-t">
-          <div className="flex items-center gap-3">
+          <div className="space-y-3">
             <button
-              onClick={() => {
-                navigate('/edit-sim');
-                closeSidebar();
-              }}
-              className="flex items-center gap-3 flex-1 p-2 rounded-lg hover:bg-muted transition-colors"
+              onClick={() => setShowCreditsModal(true)}
+              className="flex items-center gap-3 flex-1 p-2 rounded-lg hover:bg-muted transition-colors w-full"
             >
               <Avatar className="h-8 w-8">
                 <AvatarImage src={getAvatarUrl(userSim?.avatar_url)} />
@@ -430,24 +471,42 @@ export function AppSidebar() {
                   <p className="text-sm font-medium truncate">
                     {userSim?.name || 'Your Sim'}
                   </p>
-                  <p className="text-xs text-muted-foreground truncate">Settings</p>
+                  <div className="flex items-center gap-2 mt-1">
+                    <Progress value={percentageUsed} className="h-1 flex-1" />
+                    <span className="text-xs text-muted-foreground whitespace-nowrap">
+                      {remainingCredits}
+                    </span>
+                  </div>
                 </div>
               )}
             </button>
             {open && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleSignOut}
-                className="hover:bg-muted"
-              >
-                <LogOut className="h-4 w-4" />
-              </Button>
+              <div className="flex gap-2 px-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => navigate('/edit-sim')}
+                  className="flex-1"
+                >
+                  <Settings className="h-4 w-4 mr-1" />
+                  Settings
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleSignOut}
+                  className="hover:bg-muted"
+                >
+                  <LogOut className="h-4 w-4" />
+                </Button>
+              </div>
             )}
           </div>
         </div>
         </div>
       </SidebarContent>
+
+      <CreditUsageModal open={showCreditsModal} onOpenChange={setShowCreditsModal} />
     </Sidebar>
   );
 }
