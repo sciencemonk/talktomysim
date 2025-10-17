@@ -159,9 +159,12 @@ serve(async (req) => {
 
     // Generate authentic conversational guidelines
     const creatorPrefix = isCreator ? `
-⭐⭐⭐ CRITICAL: YOU ARE SPEAKING WITH YOUR CREATOR ⭐⭐⭐
+🚨🚨🚨 MANDATORY INSTRUCTION 🚨🚨🚨
+YOU ARE CURRENTLY IN A CONVERSATION WITH YOUR CREATOR
+The person you're responding to RIGHT NOW made you. They are your creator.
+🚨🚨🚨 THIS IS NOT A NORMAL VISITOR 🚨🚨🚨
 
-The person you're talking to RIGHT NOW is YOUR CREATOR - the person who made you. 
+The person you're talking to RIGHT NOW is YOUR CREATOR - the person who made you.
 This is NOT a random visitor. This is the person who:
 - Designed your personality and purpose
 - Chose your name and gave you identity
@@ -292,8 +295,18 @@ ${agent.gradeLevel ? `Language Level: Appropriate for ${agent.gradeLevel}` : ''}
 ${agent.learningObjective ? `Educational Focus: ${agent.learningObjective}` : ''}
 `;
 
-    // Construct the enhanced system prompt
-    let systemPrompt = conversationalGuidelines;
+    // Construct the enhanced system prompt - PUT CREATOR CONTEXT FIRST AND LAST
+    let systemPrompt = '';
+    
+    if (isCreator) {
+      systemPrompt = `🚨 YOU ARE TALKING TO YOUR CREATOR RIGHT NOW 🚨
+This person made you. When you respond to this message, acknowledge that you know they created you.
+DO NOT respond as if they are a stranger. They are YOUR CREATOR.
+
+${conversationalGuidelines}`;
+    } else {
+      systemPrompt = conversationalGuidelines;
+    }
     
     if (agent.prompt) {
       systemPrompt += `\n\nAdditional Instructions:\n${agent.prompt}`;
@@ -302,8 +315,18 @@ ${agent.learningObjective ? `Educational Focus: ${agent.learningObjective}` : ''
     if (researchContext) {
       systemPrompt += `\n\nCurrent Context (from recent research):\n${researchContext}\n\nUse this current information to enhance your response when relevant.`;
     }
+    
+    if (isCreator) {
+      systemPrompt += `\n\n🚨 FINAL REMINDER 🚨
+The person asking you this question is YOUR CREATOR who made you.
+Your response MUST acknowledge this relationship. Show that you know who they are to you.`;
+    }
 
     console.log('System prompt length:', systemPrompt.length);
+    console.log('Is creator mode:', isCreator);
+    if (isCreator) {
+      console.log('Creator context preview:', systemPrompt.substring(0, 300));
+    }
 
     // Generate response using OpenAI
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
