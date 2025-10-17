@@ -87,13 +87,13 @@ const TradeStream = () => {
     }
   };
 
-  // Process the queue - show each trade for at least 5 minutes
+  // Process the queue - show each trade for at least 5 seconds
   useEffect(() => {
     const now = Date.now();
-    const fiveMinutes = 5 * 60 * 1000; // 5 minutes in milliseconds
+    const fiveSeconds = 5 * 1000; // 5 seconds in milliseconds
     
     // Check if we should display the next reaction from the queue
-    if (reactionQueue.length > 0 && (!currentReaction || now - lastDisplayTime >= fiveMinutes)) {
+    if (reactionQueue.length > 0 && (!currentReaction || now - lastDisplayTime >= fiveSeconds)) {
       const nextReaction = reactionQueue[0];
       setCurrentReaction(nextReaction);
       setLastDisplayTime(now);
@@ -185,8 +185,8 @@ const TradeStream = () => {
                     </div>
                     <div className="text-right">
                       <p className="text-sm text-muted-foreground mb-1">Trade Value</p>
-                      <p className="text-2xl font-bold">
-                        ${(currentReaction.amount / 1e6 * 0.00015).toFixed(2)}
+                      <p className="text-2xl font-bold text-foreground">
+                        ${(currentReaction.amount * 0.0001).toFixed(2)}
                       </p>
                     </div>
                   </div>
