@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, Upload, Globe, Wallet, X, Menu } from "lucide-react";
+import { Loader2, Upload, Globe, Wallet, X, Menu, Copy, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -26,6 +26,7 @@ const EditSimPage = () => {
   const [websiteUrl, setWebsiteUrl] = useState("");
   const [cryptoWallet, setCryptoWallet] = useState("");
   const [backgroundFile, setBackgroundFile] = useState<File | null>(null);
+  const [urlCopied, setUrlCopied] = useState(false);
 
   useEffect(() => {
     checkUserAndLoadSim();
@@ -161,6 +162,19 @@ const EditSimPage = () => {
     }
   };
 
+  const handleCopyUrl = () => {
+    if (!userSim?.custom_url) return;
+    
+    const shareUrl = `${window.location.origin}/${userSim.custom_url}`;
+    navigator.clipboard.writeText(shareUrl);
+    setUrlCopied(true);
+    toast.success('URL copied to clipboard!');
+    
+    setTimeout(() => {
+      setUrlCopied(false);
+    }, 2000);
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -200,6 +214,35 @@ const EditSimPage = () => {
         <div className="grid lg:grid-cols-2 gap-8 h-full min-h-[calc(100vh-4rem)]">
           {/* Editor Panel */}
           <div className="space-y-4">
+            {/* Public URL Section */}
+            {userSim?.custom_url && (
+              <div className="p-4 rounded-lg border bg-card space-y-2">
+                <Label className="text-sm font-medium">Your Sim Landing Page</Label>
+                <div className="flex gap-2">
+                  <Input
+                    value={`${window.location.origin}/${userSim.custom_url}`}
+                    readOnly
+                    className="font-mono text-sm"
+                  />
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={handleCopyUrl}
+                    className="flex-shrink-0"
+                  >
+                    {urlCopied ? (
+                      <Check className="h-4 w-4 text-green-500" />
+                    ) : (
+                      <Copy className="h-4 w-4" />
+                    )}
+                  </Button>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Share this link to let others chat with your Sim
+                </p>
+              </div>
+            )}
+
             {/* Background Image */}
             <div className="space-y-2">
               <Label>Background Image</Label>
