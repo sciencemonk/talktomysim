@@ -6,7 +6,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import BotCheck from "@/components/BotCheck";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { AgentType } from "@/types/agent";
 import phantomIcon from "@/assets/phantom-icon.png";
 import solflareIcon from "@/assets/solflare-icon.png";
@@ -14,6 +14,9 @@ import { toast as sonnerToast } from "sonner";
 import bs58 from "bs58";
 import AuthModal from "@/components/AuthModal";
 import landingBackground from "@/assets/landing-background.jpg";
+import { SimSettingsModal } from "@/components/SimSettingsModal";
+import { MessageCircle, Eye, Settings } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const Landing = () => {
   const navigate = useNavigate();
@@ -22,6 +25,88 @@ const Landing = () => {
   const [selectedSim, setSelectedSim] = useState<AgentType | null>(null);
   const [isLoading, setIsLoading] = useState<string | null>(null);
   const [authModalOpen, setAuthModalOpen] = useState(false);
+  const [currentUser, setCurrentUser] = useState<any>(null);
+  const [settingsModalOpen, setSettingsModalOpen] = useState(false);
+
+  // Check auth state
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setCurrentUser(session?.user ?? null);
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setCurrentUser(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  // Fetch user's sim if signed in
+  const { data: userSim, refetch: refetchUserSim } = useQuery({
+    queryKey: ['user-sim', currentUser?.id],
+    queryFn: async () => {
+      if (!currentUser) return null;
+      
+      const { data, error } = await supabase
+        .from('advisors')
+        .select('*')
+        .eq('user_id', currentUser.id)
+        .eq('is_active', true)
+        .maybeSingle();
+      
+      if (error) throw error;
+      if (!data) return null;
+      
+      return {
+        id: data.id,
+        name: data.name,
+        description: data.description || '',
+        type: 'General Tutor' as const,
+        status: 'active' as const,
+        createdAt: data.created_at,
+        updatedAt: data.updated_at,
+        avatar: data.avatar_url,
+        prompt: data.prompt,
+        title: data.title,
+        sim_type: data.sim_type as 'historical' | 'living',
+        custom_url: data.custom_url,
+        is_featured: false,
+        model: 'GPT-4',
+        interactions: 0,
+        studentsSaved: 0,
+        helpfulnessScore: 0,
+        avmScore: 0,
+        csat: 0,
+        performance: 0,
+        channels: [],
+        channelConfigs: {},
+        isPersonal: false,
+        voiceTraits: []
+      } as AgentType;
+    },
+    enabled: !!currentUser
+  });
+
+  // Fetch sim stats if user has a sim
+  const { data: simStats } = useQuery({
+    queryKey: ['sim-stats', userSim?.id],
+    queryFn: async () => {
+      if (!userSim) return null;
+      
+      const { data: conversations, error } = await supabase
+        .from('conversations')
+        .select('id')
+        .eq('advisor_id', userSim.id);
+      
+      if (error) throw error;
+      
+      return {
+        conversations: conversations?.length || 0,
+        views: 0 // We'll implement view tracking later
+      };
+    },
+    enabled: !!userSim
+  });
 
   // Fetch all sims (both historical and living)
   const { data: allSims } = useQuery({
@@ -156,7 +241,26 @@ const Landing = () => {
     }
   };
 
-  const features = [
+  const features = currentUser && userSim ? [
+    {
+      title: "Your Sim",
+      description: userSim.description || "Your AI-powered page",
+      action: () => setSettingsModalOpen(true),
+      gradient: "from-primary/20 to-primary/5",
+      gridArea: "create",
+      showSimOverview: true,
+      sim: userSim,
+    },
+    {
+      title: "Your Sim Stats",
+      description: "Track your sim's performance and engagement",
+      action: () => {},
+      gradient: "from-muted/20 to-muted/5",
+      gridArea: "stats",
+      showStats: true,
+      stats: simStats,
+    },
+  ] : [
     {
       title: "Create Your Own AI",
       description: "Get a free ai powered Sim page. Linktree meets ai.",
@@ -224,6 +328,54 @@ const Landing = () => {
                 <CardDescription className="text-sm sm:text-base text-white/80">
                   {feature.description}
                 </CardDescription>
+                
+                {feature.showSimOverview && feature.sim && (
+                  <div className="mt-4 flex items-center gap-4">
+                    <Avatar className="h-16 w-16 border-2 border-white/30">
+                      <AvatarImage src={feature.sim.avatar} alt={feature.sim.name} />
+                      <AvatarFallback className="text-2xl">
+                        {feature.sim.name.charAt(0)}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-white">{feature.sim.name}</h3>
+                      {feature.sim.title && (
+                        <p className="text-sm text-white/70">{feature.sim.title}</p>
+                      )}
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="mt-2 gap-2"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSettingsModalOpen(true);
+                        }}
+                      >
+                        <Settings className="h-4 w-4" />
+                        Settings
+                      </Button>
+                    </div>
+                  </div>
+                )}
+
+                {feature.showStats && feature.stats && (
+                  <div className="mt-4 grid grid-cols-2 gap-3">
+                    <div className="p-3 rounded-lg bg-black/30 border border-white/20">
+                      <div className="flex items-center gap-2 mb-1">
+                        <MessageCircle className="h-4 w-4 text-white/60" />
+                        <p className="text-xs text-white/60">Conversations</p>
+                      </div>
+                      <p className="text-2xl font-bold text-white">{feature.stats.conversations}</p>
+                    </div>
+                    <div className="p-3 rounded-lg bg-black/30 border border-white/20">
+                      <div className="flex items-center gap-2 mb-1">
+                        <Eye className="h-4 w-4 text-white/60" />
+                        <p className="text-xs text-white/60">Views</p>
+                      </div>
+                      <p className="text-2xl font-bold text-white">{feature.stats.views}</p>
+                    </div>
+                  </div>
+                )}
                 
                 {feature.showWalletButtons && (
                   <div className="flex flex-col gap-2 mt-4">
@@ -303,6 +455,17 @@ const Landing = () => {
         open={authModalOpen} 
         onOpenChange={setAuthModalOpen}
       />
+
+      {userSim && (
+        <SimSettingsModal
+          open={settingsModalOpen}
+          onOpenChange={setSettingsModalOpen}
+          sim={userSim}
+          onSimUpdate={(updatedSim) => {
+            refetchUserSim();
+          }}
+        />
+      )}
 
       <div className="relative z-10">
         <SimpleFooter />
