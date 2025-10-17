@@ -25,22 +25,28 @@ export const conversationService = {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       
-      // For authenticated users
-      if (user) {
-        // First try to get existing conversation for this advisor
+      // For creator chats, ALWAYS create a new conversation
+      // For regular chats, reuse existing conversation
+      if (user && !isCreatorChat) {
+        // Try to get existing conversation for non-creator chats
         const { data: existingConversation } = await supabase
           .from('conversations')
           .select('*')
           .eq('user_id', user.id)
           .eq('tutor_id', advisorId)
-          .eq('is_creator_conversation', isCreatorChat)
+          .eq('is_creator_conversation', false)
           .maybeSingle();
 
         if (existingConversation) {
           return existingConversation;
         }
+      }
 
-        // Create new conversation if it doesn't exist
+      // Create new conversation for:
+      // 1. Creator chats (always new)
+      // 2. First time regular chats
+      // 3. Anonymous users
+      if (user) {
         const { data: newConversation, error } = await supabase
           .from('conversations')
           .insert({
@@ -54,6 +60,7 @@ export const conversationService = {
           .single();
 
         if (error) throw error;
+        console.log('Created new conversation:', newConversation.id, 'isCreatorChat:', isCreatorChat);
         return newConversation;
       }
       
