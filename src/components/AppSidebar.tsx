@@ -144,10 +144,24 @@ export function AppSidebar() {
           event: 'INSERT',
           schema: 'public',
           table: 'conversations',
-          filter: `tutor_id=eq.${userSim.id}`
+          filter: `tutor_id=eq.${userSim.id},user_id=eq.${currentUser.id},is_creator_conversation=eq.true`
+        },
+        (payload) => {
+          console.log('New conversation detected:', payload);
+          // Invalidate and refetch conversations when a new one is created
+          queryClient.invalidateQueries({ queryKey: ['my-conversations', userSim.id] });
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'conversations',
+          filter: `tutor_id=eq.${userSim.id},user_id=eq.${currentUser.id},is_creator_conversation=eq.true`
         },
         () => {
-          // Invalidate and refetch conversations when a new one is created
+          // Refetch when conversation is updated (e.g., title changes)
           queryClient.invalidateQueries({ queryKey: ['my-conversations', userSim.id] });
         }
       )
