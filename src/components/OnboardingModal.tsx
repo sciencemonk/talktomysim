@@ -164,6 +164,11 @@ export const OnboardingModal = ({ open, userId, onComplete }: OnboardingModalPro
           twitter_url: twitterUrl || null,
           website_url: websiteUrl || null,
           crypto_wallet: cryptoWallet || null,
+          target_audience: targetAudience || null,
+          expertise_areas: expertiseAreas || null,
+          personality_type: personality,
+          conversation_style: conversationStyle,
+          response_length: responseLength,
           is_active: true,
           sim_type: 'living'
         })

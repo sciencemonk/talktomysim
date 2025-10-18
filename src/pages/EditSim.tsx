@@ -27,6 +27,9 @@ const EditSim = () => {
   const [title, setTitle] = useState('');
   const [avatar, setAvatar] = useState('');
   const [customUrl, setCustomUrl] = useState('');
+  const [twitterUrl, setTwitterUrl] = useState('');
+  const [websiteUrl, setWebsiteUrl] = useState('');
+  const [cryptoWallet, setCryptoWallet] = useState('');
   
   // Personalization state
   const [purpose, setPurpose] = useState('');
@@ -103,8 +106,14 @@ const EditSim = () => {
         twitter_url: data.twitter_url,
         website_url: data.website_url,
         crypto_wallet: data.crypto_wallet,
-        background_image_url: data.background_image_url
-      } as AgentType;
+        background_image_url: data.background_image_url,
+        // Include the new personalization fields
+        target_audience: data.target_audience,
+        expertise_areas: data.expertise_areas,
+        personality_type: data.personality_type,
+        conversation_style: data.conversation_style,
+        response_length: data.response_length
+      } as any;
     },
     enabled: !!currentUser
   });
@@ -116,10 +125,20 @@ const EditSim = () => {
       setTitle(userSim.title || '');
       setAvatar(userSim.avatar || '');
       setCustomUrl(userSim.custom_url || '');
+      setTwitterUrl(userSim.twitter_url || '');
+      setWebsiteUrl(userSim.website_url || '');
+      setCryptoWallet(userSim.crypto_wallet || '');
       
-      // Parse existing prompt to extract personalization settings if possible
-      const promptText = userSim.prompt || '';
+      // Load personalization settings from database
       setPurpose(userSim.description || '');
+      
+      // Load from the new fields
+      const simData = userSim as any;
+      setTargetAudience(simData.target_audience || '');
+      setExpertiseAreas(simData.expertise_areas || '');
+      setPersonality(simData.personality_type || 'friendly');
+      setConversationStyle(simData.conversation_style || 'balanced');
+      setResponseLength(simData.response_length || 'medium');
     }
   }, [userSim]);
 
@@ -257,6 +276,14 @@ const EditSim = () => {
           prompt: generatedPrompt,
           avatar_url: avatar,
           custom_url: customUrl,
+          twitter_url: twitterUrl || null,
+          website_url: websiteUrl || null,
+          crypto_wallet: cryptoWallet || null,
+          target_audience: targetAudience || null,
+          expertise_areas: expertiseAreas || null,
+          personality_type: personality,
+          conversation_style: conversationStyle,
+          response_length: responseLength,
           updated_at: new Date().toISOString()
         })
         .eq('id', userSim.id);

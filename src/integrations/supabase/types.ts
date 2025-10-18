@@ -121,6 +121,7 @@ export type Database = {
           background_image_url: string | null
           category: string | null
           completion_status: Json | null
+          conversation_style: string | null
           created_at: string
           crypto_wallet: string | null
           current_profession: string | null
@@ -128,6 +129,7 @@ export type Database = {
           date_of_birth: string | null
           description: string | null
           education: string | null
+          expertise_areas: string | null
           full_name: string | null
           id: string
           interests: Json | null
@@ -139,11 +141,14 @@ export type Database = {
           location: string | null
           name: string
           owner_welcome_message: string | null
+          personality_type: string | null
           professional_title: string | null
           prompt: string
+          response_length: string | null
           sample_scenarios: Json | null
           sim_type: string | null
           skills: Json | null
+          target_audience: string | null
           title: string | null
           twitter_url: string | null
           updated_at: string
@@ -162,6 +167,7 @@ export type Database = {
           background_image_url?: string | null
           category?: string | null
           completion_status?: Json | null
+          conversation_style?: string | null
           created_at?: string
           crypto_wallet?: string | null
           current_profession?: string | null
@@ -169,6 +175,7 @@ export type Database = {
           date_of_birth?: string | null
           description?: string | null
           education?: string | null
+          expertise_areas?: string | null
           full_name?: string | null
           id?: string
           interests?: Json | null
@@ -180,11 +187,14 @@ export type Database = {
           location?: string | null
           name: string
           owner_welcome_message?: string | null
+          personality_type?: string | null
           professional_title?: string | null
           prompt: string
+          response_length?: string | null
           sample_scenarios?: Json | null
           sim_type?: string | null
           skills?: Json | null
+          target_audience?: string | null
           title?: string | null
           twitter_url?: string | null
           updated_at?: string
@@ -203,6 +213,7 @@ export type Database = {
           background_image_url?: string | null
           category?: string | null
           completion_status?: Json | null
+          conversation_style?: string | null
           created_at?: string
           crypto_wallet?: string | null
           current_profession?: string | null
@@ -210,6 +221,7 @@ export type Database = {
           date_of_birth?: string | null
           description?: string | null
           education?: string | null
+          expertise_areas?: string | null
           full_name?: string | null
           id?: string
           interests?: Json | null
@@ -221,11 +233,14 @@ export type Database = {
           location?: string | null
           name?: string
           owner_welcome_message?: string | null
+          personality_type?: string | null
           professional_title?: string | null
           prompt?: string
+          response_length?: string | null
           sample_scenarios?: Json | null
           sim_type?: string | null
           skills?: Json | null
+          target_audience?: string | null
           title?: string | null
           twitter_url?: string | null
           updated_at?: string
