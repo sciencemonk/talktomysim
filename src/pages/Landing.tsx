@@ -29,18 +29,24 @@ const Landing = () => {
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [currentUser, setCurrentUser] = useState<any>(null);
 
-  // Check auth state
+  // Check auth state and redirect logged-in users
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setCurrentUser(session?.user ?? null);
+      if (session?.user) {
+        navigate('/home');
+      }
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setCurrentUser(session?.user ?? null);
+      if (session?.user) {
+        navigate('/home');
+      }
     });
 
     return () => subscription.unsubscribe();
-  }, []);
+  }, [navigate]);
 
   // Fetch user's sim if signed in
   const { data: userSim } = useQuery({
