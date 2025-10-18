@@ -53,8 +53,10 @@ const Integrations = () => {
   const handleOAuthCallback = async (code: string, userToken: string) => {
     setConnecting(true);
     try {
+      const redirectUri = `${window.location.origin}/integrations`;
+      
       const { data, error } = await supabase.functions.invoke('google-oauth-callback', {
-        body: { code, userToken }
+        body: { code, userToken, redirectUri }
       });
 
       if (error) throw error;
@@ -91,8 +93,10 @@ const Integrations = () => {
         return;
       }
 
+      const redirectUri = `${window.location.origin}/integrations`;
+
       const { data, error } = await supabase.functions.invoke('google-oauth', {
-        body: { userToken: session.access_token }
+        body: { userToken: session.access_token, redirectUri }
       });
 
       if (error) throw error;

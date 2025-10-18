@@ -12,7 +12,7 @@ serve(async (req) => {
   }
 
   try {
-    const { code, userToken } = await req.json();
+    const { code, userToken, redirectUri } = await req.json();
     
     const clientId = Deno.env.get('GOOGLE_CLIENT_ID');
     const clientSecret = Deno.env.get('GOOGLE_CLIENT_SECRET');
@@ -23,7 +23,9 @@ serve(async (req) => {
       throw new Error('Google OAuth credentials not configured');
     }
 
-    const redirectUri = `${req.headers.get('origin')}/integrations`;
+    if (!redirectUri) {
+      throw new Error('redirectUri is required');
+    }
 
     // Exchange code for tokens
     const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {

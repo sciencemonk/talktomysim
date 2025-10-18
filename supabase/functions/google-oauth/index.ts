@@ -11,14 +11,16 @@ serve(async (req) => {
   }
 
   try {
-    const { userToken } = await req.json();
+    const { userToken, redirectUri } = await req.json();
     
     const clientId = Deno.env.get('GOOGLE_CLIENT_ID');
     if (!clientId) {
       throw new Error('GOOGLE_CLIENT_ID not configured');
     }
 
-    const redirectUri = `${req.headers.get('origin')}/integrations`;
+    if (!redirectUri) {
+      throw new Error('redirectUri is required');
+    }
     
     const authUrl = new URL('https://accounts.google.com/o/oauth2/v2/auth');
     authUrl.searchParams.set('client_id', clientId);
