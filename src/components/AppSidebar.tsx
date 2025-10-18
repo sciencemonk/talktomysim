@@ -210,7 +210,7 @@ export function AppSidebar() {
 
   const handleNewChat = () => {
     // Navigate to home without chat parameter to start fresh
-    navigate('/');
+    navigate('/home');
     closeSidebar();
   };
 
@@ -347,7 +347,7 @@ export function AppSidebar() {
                       <div className="flex items-center gap-1 w-full">
                         <SidebarMenuButton asChild className="flex-1">
                           <NavLink 
-                            to={`/?chat=${conv.id}`}
+                            to={`/home?chat=${conv.id}`}
                             onClick={closeSidebar}
                             className={({ isActive }) => 
                               `truncate ${isActive ? 'bg-muted' : 'hover:bg-muted/50'}`
