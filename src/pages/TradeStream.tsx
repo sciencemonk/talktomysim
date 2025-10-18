@@ -241,9 +241,8 @@ const TradeStream = () => {
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.95 }}
                 transition={{ duration: 0.5 }}
-                className="text-center"
               >
-                <Card className="p-12 border-4 border-primary bg-primary/5">
+                <Card className="p-12 border-4 border-primary bg-primary/10 dark:bg-primary/5">
                   {/* Rick Avatar and Name */}
                   <div className="flex items-center gap-4 mb-8">
                     <Avatar className="h-16 w-16 border-4 border-primary">
@@ -252,16 +251,26 @@ const TradeStream = () => {
                         RS
                       </AvatarFallback>
                     </Avatar>
-                    <div className="text-left">
+                    <div>
                       <h2 className="text-2xl font-bold text-foreground">{advisor?.name || 'Rick Sanchez'}</h2>
-                      <p className="text-sm text-muted-foreground">Monitoring trades...</p>
+                      <p className="text-sm text-muted-foreground">
+                        {new Date().toLocaleString()}
+                      </p>
                     </div>
                   </div>
 
                   {/* Rick's Statement */}
-                  <p className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground leading-tight">
+                  <p className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground leading-tight mb-8">
                     "{rickStatements[currentStatementIndex]}"
                   </p>
+
+                  {/* Status Info */}
+                  <div className="flex items-center gap-3 pt-8 border-t-4 border-border">
+                    <Activity className="h-12 w-12 text-primary animate-pulse" />
+                    <p className="text-xl text-muted-foreground">
+                      Monitoring $SIMAI token activity
+                    </p>
+                  </div>
                 </Card>
               </motion.div>
             )}
