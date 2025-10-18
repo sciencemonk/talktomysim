@@ -227,6 +227,17 @@ const EditSim = () => {
   const handleSave = async () => {
     if (!userSim) return;
     
+    // Validate required fields
+    if (!name.trim()) {
+      toast.error('Please enter a name for your sim');
+      return;
+    }
+    
+    if (!purpose.trim()) {
+      toast.error('Please describe the purpose of your sim');
+      return;
+    }
+    
     setIsSaving(true);
     try {
       const generatedPrompt = generatePrompt();
@@ -247,7 +258,9 @@ const EditSim = () => {
       if (error) throw error;
 
       await refetchUserSim();
-      toast.success('Sim personalization saved successfully!');
+      toast.success('Sim personalization saved successfully!', {
+        description: 'You can now access all features'
+      });
     } catch (error) {
       console.error('Error saving sim:', error);
       toast.error('Failed to update sim');

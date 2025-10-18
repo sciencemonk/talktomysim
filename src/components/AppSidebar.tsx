@@ -97,6 +97,9 @@ export function AppSidebar() {
     gcTime: 10 * 60 * 1000, // Keep in cache for 10 minutes
   });
 
+  // Check if sim is properly configured
+  const isSimConfigured = userSim && userSim.name && userSim.description;
+
   const { data: myConversations, refetch } = useQuery({
     queryKey: ['my-conversations', userSim?.id],
     queryFn: async () => {
@@ -209,9 +212,28 @@ export function AppSidebar() {
   }, [userSim?.id, currentUser?.id, queryClient]);
 
   const handleNewChat = () => {
+    if (!isSimConfigured) {
+      toast.error('Please complete your sim setup first', {
+        description: 'You must personalize and save your sim before starting a chat'
+      });
+      return;
+    }
     // Navigate to home without chat parameter to start fresh
     navigate('/home');
     closeSidebar();
+  };
+
+  const handleBlockedNavigation = (e: React.MouseEvent, path: string) => {
+    if (!isSimConfigured) {
+      e.preventDefault();
+      e.stopPropagation();
+      toast.error('Complete your sim setup first', {
+        description: 'Please personalize and save your sim to continue'
+      });
+    } else {
+      navigate(path);
+      closeSidebar();
+    }
   };
 
   const handleSignOut = async () => {
@@ -313,6 +335,7 @@ export function AppSidebar() {
             onClick={handleNewChat}
             className="w-full justify-start gap-2"
             variant="outline"
+            disabled={!isSimConfigured}
           >
             <Plus className="h-4 w-4" />
             {open && <span>New chat</span>}
@@ -423,56 +446,96 @@ export function AppSidebar() {
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                  <NavLink 
-                    to="/edit-sim-page"
-                    onClick={closeSidebar}
-                    className={({ isActive }) => 
-                      `${isActive ? 'bg-muted' : 'hover:bg-muted/50'}`
-                    }
+                {isSimConfigured ? (
+                  <SidebarMenuButton asChild>
+                    <NavLink 
+                      to="/edit-sim-page"
+                      onClick={closeSidebar}
+                      className={({ isActive }) => 
+                        `${isActive ? 'bg-muted' : 'hover:bg-muted/50'}`
+                      }
+                    >
+                      {open && <span>Edit Sim Page</span>}
+                    </NavLink>
+                  </SidebarMenuButton>
+                ) : (
+                  <SidebarMenuButton 
+                    disabled
+                    className="opacity-50 cursor-not-allowed hover:bg-transparent"
+                    onClick={(e) => handleBlockedNavigation(e, '/edit-sim-page')}
                   >
                     {open && <span>Edit Sim Page</span>}
-                  </NavLink>
-                </SidebarMenuButton>
+                  </SidebarMenuButton>
+                )}
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                  <NavLink 
-                    to="/conversations"
-                    onClick={closeSidebar}
-                    className={({ isActive }) => 
-                      `${isActive ? 'bg-muted' : 'hover:bg-muted/50'}`
-                    }
+                {isSimConfigured ? (
+                  <SidebarMenuButton asChild>
+                    <NavLink 
+                      to="/conversations"
+                      onClick={closeSidebar}
+                      className={({ isActive }) => 
+                        `${isActive ? 'bg-muted' : 'hover:bg-muted/50'}`
+                      }
+                    >
+                      {open && <span>Public Conversations</span>}
+                    </NavLink>
+                  </SidebarMenuButton>
+                ) : (
+                  <SidebarMenuButton 
+                    disabled
+                    className="opacity-50 cursor-not-allowed hover:bg-transparent"
+                    onClick={(e) => handleBlockedNavigation(e, '/conversations')}
                   >
                     {open && <span>Public Conversations</span>}
-                  </NavLink>
-                </SidebarMenuButton>
+                  </SidebarMenuButton>
+                )}
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                  <NavLink 
-                    to="/directory"
-                    onClick={closeSidebar}
-                    className={({ isActive }) => 
-                      `${isActive ? 'bg-muted' : 'hover:bg-muted/50'}`
-                    }
+                {isSimConfigured ? (
+                  <SidebarMenuButton asChild>
+                    <NavLink 
+                      to="/directory"
+                      onClick={closeSidebar}
+                      className={({ isActive }) => 
+                        `${isActive ? 'bg-muted' : 'hover:bg-muted/50'}`
+                      }
+                    >
+                      {open && <span>Sim Directory</span>}
+                    </NavLink>
+                  </SidebarMenuButton>
+                ) : (
+                  <SidebarMenuButton 
+                    disabled
+                    className="opacity-50 cursor-not-allowed hover:bg-transparent"
+                    onClick={(e) => handleBlockedNavigation(e, '/directory')}
                   >
                     {open && <span>Sim Directory</span>}
-                  </NavLink>
-                </SidebarMenuButton>
+                  </SidebarMenuButton>
+                )}
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                  <NavLink 
-                    to="/integrations"
-                    onClick={closeSidebar}
-                    className={({ isActive }) => 
-                      `${isActive ? 'bg-muted' : 'hover:bg-muted/50'}`
-                    }
+                {isSimConfigured ? (
+                  <SidebarMenuButton asChild>
+                    <NavLink 
+                      to="/integrations"
+                      onClick={closeSidebar}
+                      className={({ isActive }) => 
+                        `${isActive ? 'bg-muted' : 'hover:bg-muted/50'}`
+                      }
+                    >
+                      {open && <span>Integrations</span>}
+                    </NavLink>
+                  </SidebarMenuButton>
+                ) : (
+                  <SidebarMenuButton 
+                    disabled
+                    className="opacity-50 cursor-not-allowed hover:bg-transparent"
+                    onClick={(e) => handleBlockedNavigation(e, '/integrations')}
                   >
                     {open && <span>Integrations</span>}
-                  </NavLink>
-                </SidebarMenuButton>
+                  </SidebarMenuButton>
+                )}
               </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>
