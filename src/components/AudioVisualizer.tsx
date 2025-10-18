@@ -12,6 +12,7 @@ const AudioVisualizer = ({ audioSrc }: AudioVisualizerProps) => {
   const dataArrayRef = useRef<Uint8Array | null>(null);
   const animationRef = useRef<number | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
+  const playAttemptedRef = useRef(false);
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -111,6 +112,12 @@ const AudioVisualizer = ({ audioSrc }: AudioVisualizerProps) => {
 
     // Auto-play with user interaction
     const startAudio = () => {
+      if (playAttemptedRef.current || !audio.paused) {
+        console.log('Audio already playing or play attempted');
+        return;
+      }
+
+      playAttemptedRef.current = true;
       console.log('Attempting to play audio from:', audioSrc);
       
       // Only setup audio context once
@@ -125,18 +132,20 @@ const AudioVisualizer = ({ audioSrc }: AudioVisualizerProps) => {
         }
       }).catch(err => {
         console.error('Audio play failed:', err);
+        playAttemptedRef.current = false; // Allow retry on error
       });
     };
 
     // Try to start immediately
     startAudio();
 
-    // Also try on any user interaction
+    // Also try on any user interaction (only if not already playing)
     const handleInteraction = () => {
-      console.log('User interaction detected, starting audio');
-      if (!isPlaying && audio.paused) {
+      console.log('User interaction detected');
+      if (audio.paused && !playAttemptedRef.current) {
         startAudio();
       }
+      // Remove listeners after first interaction
       document.removeEventListener('click', handleInteraction);
       document.removeEventListener('touchstart', handleInteraction);
     };
@@ -164,9 +173,10 @@ const AudioVisualizer = ({ audioSrc }: AudioVisualizerProps) => {
       if (animationRef.current) {
         cancelAnimationFrame(animationRef.current);
       }
-      if (audioContextRef.current) {
+      if (audioContextRef.current && audioContextRef.current.state !== 'closed') {
         audioContextRef.current.close();
       }
+      playAttemptedRef.current = false;
     };
   }, [audioSrc]);
 
