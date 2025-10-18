@@ -128,17 +128,17 @@ function generateIntelligenceReport(userData: any, tweets: any[], reportType: st
   });
 
   const report = {
-    username: user.username || user.screen_name,
+    username: user.userName || user.username || user.screen_name,
     displayName: user.name,
     bio: user.description || user.bio,
     location: user.location,
-    verified: user.verified || false,
-    created: user.created_at,
+    verified: user.verified || user.isVerified || false,
+    created: user.createdAt || user.created_at,
     
     metrics: {
-      followers: user.followers_count || user.public_metrics?.followers_count || 0,
-      following: user.friends_count || user.public_metrics?.following_count || 0,
-      totalTweets: user.statuses_count || user.public_metrics?.tweet_count || 0,
+      followers: user.followers || user.followers_count || user.public_metrics?.followers_count || 0,
+      following: user.following || user.friends_count || user.public_metrics?.following_count || 0,
+      totalTweets: user.statusesCount || user.statuses_count || user.public_metrics?.tweet_count || 0,
       listed: user.listed_count || user.public_metrics?.listed_count || 0,
     },
     
@@ -175,8 +175,8 @@ function generateIntelligenceReport(userData: any, tweets: any[], reportType: st
 function generateInsights(user: any, tweets: any[], metrics: any) {
   const insights = [];
   
-  const followerCount = user.followers_count || user.public_metrics?.followers_count || 0;
-  const followingCount = user.friends_count || user.public_metrics?.following_count || 0;
+  const followerCount = user.followers || user.followers_count || user.public_metrics?.followers_count || 0;
+  const followingCount = user.following || user.friends_count || user.public_metrics?.following_count || 0;
   
   // Follower insights
   if (followerCount > 100000) {
