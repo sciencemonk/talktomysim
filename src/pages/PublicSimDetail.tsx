@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Loader2, Globe, Wallet, ExternalLink, Copy, Check, MessageCircle, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import ChatInterface from "@/components/ChatInterface";
+import PublicChatInterface from "@/components/PublicChatInterface";
 import AuthModal from "@/components/AuthModal";
 import SimPublicFooter from "@/components/SimPublicFooter";
 import { AgentType } from "@/types/agent";
@@ -180,11 +180,7 @@ const PublicSimDetail = () => {
             </Button>
           </div>
           <div className="flex-1">
-            <ChatInterface
-              agent={sim}
-              hideHeader={true}
-              transparentMode={true}
-            />
+            <PublicChatInterface agent={sim} />
           </div>
         </div>
       ) : (
