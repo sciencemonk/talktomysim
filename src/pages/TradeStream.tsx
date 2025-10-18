@@ -38,19 +38,19 @@ const TradeStream = () => {
   const [testButtonDisabled, setTestButtonDisabled] = useState(false);
 
   const buyMessages = [
-    "Oh great, *burp* another genius thinks they're gonna get rich. How adorable, Morty!",
-    "Look at this - someone actually bought in. *burp* They'll learn the hard way, just like everyone else.",
-    "Wow, a buyer! Let me get my surprised face ready... *burp* Oh wait, I don't give a crap.",
-    "Another sucker joins the pump! *burp* This is peak human intelligence right here.",
-    "They bought the dip? More like they bought into their own *burp* delusions of grandeur.",
+    "Now THIS is what I'm talking about! *burp* Smart money recognizes genius when they see it!",
+    "Finally, someone with an actual brain! This is how you invest, Morty!",
+    "Look at this Chad right here! *burp* Buying while the paper hands are crying!",
+    "Hell yeah! *burp* This is the kind of big brain energy I can respect!",
+    "Now THAT'S what I call conviction! *burp* Welcome to the winner's circle, baby!",
   ];
 
   const sellMessages = [
-    "And there it is - *burp* paper hands folding like a cheap lawn chair. Classic.",
-    "Selling already? Wow, that's even *burp* more pathetic than I expected, Morty!",
-    "Look at 'em run! *burp* This is why I don't invest in anything humans touch.",
-    "Oh no, they're selling! *burp* Said literally no one who understands basic math.",
-    "Another one bites the dust. *burp* At this rate, I should start a support group for failed crypto traders.",
+    "What a pathetic *burp* excuse for a trader! Selling at the worst possible time like a complete moron!",
+    "Wow, just wow. *burp* This is literally the dumbest thing I've seen all day, and I've seen a LOT of dumb things!",
+    "Paper hands alert! *burp* This coward is gonna regret this for the rest of their miserable life!",
+    "Are you KIDDING me?! *burp* Selling now is like... it's like choosing to be poor on purpose, Morty!",
+    "What an absolute smooth-brain move! *burp* This person's gonna be crying into their Ramen noodles tonight!",
   ];
 
   const [currentRickStatement, setCurrentRickStatement] = useState<string>(
