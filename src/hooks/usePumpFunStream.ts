@@ -46,7 +46,7 @@ export const usePumpFunStream = (tokenAddress: string) => {
       setIsConnected(true);
       reconnectAttemptsRef.current = 0;
       
-      // Subscribe to trades for this specific token ONLY
+      // Subscribe to trades for this specific token
       const subscribeMessage = {
         method: 'subscribeTokenTrade',
         keys: [tokenAddress]
@@ -54,6 +54,13 @@ export const usePumpFunStream = (tokenAddress: string) => {
       
       console.log('[WebSocket] 📡 Sending subscription for token:', tokenAddress);
       ws.send(JSON.stringify(subscribeMessage));
+      
+      // TEMPORARILY also subscribe to all new tokens to test if WebSocket is working
+      const testSubscribe = {
+        method: 'subscribeNewToken'
+      };
+      console.log('[WebSocket] 📡 Also subscribing to new tokens to test connection');
+      ws.send(JSON.stringify(testSubscribe));
     };
 
     ws.onmessage = (event) => {
