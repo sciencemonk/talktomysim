@@ -67,9 +67,11 @@ const App = () => (
             <Route path="/sim-conversations" element={<SimConversations />} />
             <Route path="/trade-stream" element={<TradeStream />} />
             
+            {/* Root route - public landing page */}
+            <Route path="/" element={<Landing />} />
+            
             {/* Authenticated routes with sidebar */}
             <Route element={<AuthenticatedLayout />}>
-              <Route path="/" element={<ChatWithSim />} />
               <Route path="/home" element={<ChatWithSim />} />
               <Route path="/conversations" element={<SimConversationsView />} />
               <Route path="/directory" element={<SimDirectory />} />
