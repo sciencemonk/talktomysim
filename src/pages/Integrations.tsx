@@ -158,37 +158,48 @@ const Integrations = () => {
       )}
       
       <div className={`h-full max-w-7xl mx-auto p-8 ${isMobile ? 'pt-[73px]' : ''}`}>
-        <div className="space-y-6">
-          <div>
-            <h1 className="text-3xl font-bold">Integrations</h1>
-            <p className="text-muted-foreground mt-2">
-              Connect your Sim with external services and tools
+        <div className="space-y-8">
+          {/* Header with gradient */}
+          <div className="space-y-4">
+            <div className="inline-flex items-center px-3 py-1 rounded-full bg-primary/10 text-primary text-sm font-medium mb-2">
+              <Plug className="h-4 w-4 mr-2" />
+              Connected Services
+            </div>
+            <h1 className="text-4xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
+              Integrations
+            </h1>
+            <p className="text-lg text-muted-foreground max-w-2xl">
+              Connect your Sim with external services and tools to unlock powerful capabilities
             </p>
           </div>
 
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {/* Google Calendar Integration */}
-            <Card>
+            <Card className="group hover:shadow-lg transition-all duration-300 border-2 hover:border-primary/50">
               <CardHeader>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center">
-                      <Calendar className="h-6 w-6 text-primary" />
-                    </div>
-                    <div>
-                      <CardTitle>Google Calendar</CardTitle>
-                      <CardDescription className="text-xs">
-                        Sync events and schedules
-                      </CardDescription>
-                    </div>
+                <div className="flex items-center justify-between mb-4">
+                  <div className="h-14 w-14 rounded-xl bg-gradient-to-br from-blue-500/20 to-blue-600/20 flex items-center justify-center ring-2 ring-blue-500/20 group-hover:ring-blue-500/40 transition-all">
+                    <Calendar className="h-7 w-7 text-blue-600" />
                   </div>
                   {loading ? (
-                    <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+                    <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
                   ) : isConnected ? (
-                    <CheckCircle2 className="h-5 w-5 text-green-500" />
+                    <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-green-500/10 border border-green-500/20">
+                      <CheckCircle2 className="h-4 w-4 text-green-600" />
+                      <span className="text-xs font-medium text-green-600">Connected</span>
+                    </div>
                   ) : (
-                    <XCircle className="h-5 w-5 text-muted-foreground" />
+                    <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-muted border">
+                      <XCircle className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-xs font-medium text-muted-foreground">Disconnected</span>
+                    </div>
                   )}
+                </div>
+                <div>
+                  <CardTitle className="text-xl mb-2">Google Calendar</CardTitle>
+                  <CardDescription>
+                    Sync events and schedules
+                  </CardDescription>
                 </div>
               </CardHeader>
               <CardContent>
@@ -224,65 +235,48 @@ const Integrations = () => {
             </Card>
 
             {/* Helius Solana Explorer Integration */}
-            <Card>
+            <Card className="group hover:shadow-lg transition-all duration-300 border-2 border-purple-500/20 bg-gradient-to-br from-purple-500/5 to-transparent">
               <CardHeader>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="h-12 w-12 rounded-lg bg-purple-500/10 flex items-center justify-center">
-                      <Hexagon className="h-6 w-6 text-purple-500" />
-                    </div>
-                    <div>
-                      <CardTitle>Solana Explorer (Helius)</CardTitle>
-                      <CardDescription className="text-xs">
-                        Blockchain data access
-                      </CardDescription>
-                    </div>
+                <div className="flex items-center justify-between mb-4">
+                  <div className="h-14 w-14 rounded-xl bg-gradient-to-br from-purple-500/20 to-purple-600/20 flex items-center justify-center ring-2 ring-purple-500/20 group-hover:ring-purple-500/40 transition-all">
+                    <Hexagon className="h-7 w-7 text-purple-600" />
                   </div>
-                  <div className="flex items-center gap-2">
-                    <CheckCircle2 className="h-5 w-5 text-green-500" />
+                  <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-green-500/10 border border-green-500/20">
+                    <CheckCircle2 className="h-4 w-4 text-green-600" />
+                    <span className="text-xs font-medium text-green-600">Connected</span>
                   </div>
                 </div>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  <p className="text-sm text-muted-foreground">
-                    Access to Solana blockchain data including wallet portfolios and transaction history
-                  </p>
-                  <div className="flex items-center gap-2">
-                    <Badge variant="secondary" className="text-xs">
-                      <span className="text-green-500 mr-1">✓</span> Connected
-                    </Badge>
-                    <Badge variant="outline" className="text-xs bg-purple-500/10 text-purple-600 border-purple-300">
-                      No Setup Required
-                    </Badge>
-                  </div>
-                  <div className="pt-2 border-t">
-                    <p className="text-xs text-muted-foreground">
-                      <span className="font-semibold">Scopes:</span> read_blockchain_data
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Placeholder for future integrations */}
-            <Card className="opacity-50">
-              <CardHeader>
-                <div className="flex items-center gap-3">
-                  <div className="h-12 w-12 rounded-lg bg-muted flex items-center justify-center">
-                    <Plug className="h-6 w-6 text-muted-foreground" />
-                  </div>
-                  <div>
-                    <CardTitle>More Coming Soon</CardTitle>
-                    <CardDescription className="text-xs">
-                      Additional integrations
-                    </CardDescription>
-                  </div>
+                <div>
+                  <CardTitle className="text-xl mb-2">Solana Explorer</CardTitle>
+                  <CardDescription>
+                    Blockchain data access
+                  </CardDescription>
                 </div>
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-muted-foreground">
-                  We're working on bringing you more powerful integrations.
+                  Access to Solana blockchain data including wallet portfolios and transaction history for all users
+                </p>
+              </CardContent>
+            </Card>
+
+            {/* Placeholder for future integrations */}
+            <Card className="group relative overflow-hidden border-2 border-dashed hover:border-primary/50 transition-all duration-300">
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+              <CardHeader className="relative">
+                <div className="h-14 w-14 rounded-xl bg-muted/50 flex items-center justify-center mb-4">
+                  <Plug className="h-7 w-7 text-muted-foreground" />
+                </div>
+                <div>
+                  <CardTitle className="text-xl mb-2">More Coming Soon</CardTitle>
+                  <CardDescription>
+                    Additional integrations
+                  </CardDescription>
+                </div>
+              </CardHeader>
+              <CardContent className="relative">
+                <p className="text-sm text-muted-foreground">
+                  We're working on bringing you more powerful integrations to enhance your Sim's capabilities.
                 </p>
               </CardContent>
             </Card>
