@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useEffect, useState, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, Upload, X, Eye, Copy, ExternalLink, MessageCircle } from "lucide-react";
+import { Loader2, Upload, X, Eye, Copy, ExternalLink, MessageCircle, Menu } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import AuthModal from "@/components/AuthModal";
@@ -11,9 +11,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import TopNavigation from "@/components/TopNavigation";
-import SimpleFooter from "@/components/SimpleFooter";
 import { Badge } from "@/components/ui/badge";
+import { SidebarTrigger } from "@/components/ui/sidebar";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface UserSim {
   id: string;
@@ -424,11 +424,24 @@ Stay true to the tone, values, and personality of [Name].`,
     );
   }
 
+  const isMobile = useIsMobile();
+
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      <TopNavigation />
+      {/* Mobile Header with Menu */}
+      {isMobile && (
+        <div className="fixed top-0 left-0 right-0 z-50 bg-background border-b">
+          <div className="flex items-center justify-between p-3">
+            <SidebarTrigger className="h-10 w-10">
+              <Menu className="h-5 w-5" />
+            </SidebarTrigger>
+            <h1 className="text-lg font-semibold">Create Your Sim</h1>
+            <div className="w-10" /> {/* Spacer for centering */}
+          </div>
+        </div>
+      )}
       
-      <main className="flex-1 overflow-auto">
+      <main className={`flex-1 overflow-auto ${isMobile ? 'pt-[57px]' : ''}`}>
         <div className="container mx-auto px-4 sm:px-6 py-6 sm:py-12">
           <div className="max-w-4xl mx-auto">
             {/* Page Header */}
@@ -647,8 +660,6 @@ Stay true to the tone, values, and personality of [Name].`,
           </div>
         </div>
       </main>
-
-      <SimpleFooter />
     </div>
   );
 };

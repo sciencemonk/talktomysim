@@ -62,7 +62,7 @@ const Login = () => {
         
         toast.success('Connected successfully!');
         
-        // Check if user has a sim - redirect to dashboard if not
+        // Check if user has a sim - redirect to edit-sim if not
         const { data: { user } } = await supabase.auth.getUser();
         if (user) {
           const { data: userSim } = await supabase
@@ -72,8 +72,8 @@ const Login = () => {
             .eq('sim_type', 'living')
             .maybeSingle();
           
-          // First time users go to dashboard to create sim
-          navigate(userSim ? '/home' : '/dashboard');
+          // First time users go to edit-sim to create sim with sidebar
+          navigate(userSim ? '/home' : '/edit-sim');
         }
       }
     } catch (error: any) {
