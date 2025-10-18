@@ -177,80 +177,65 @@ const Integrations = () => {
             {/* Google Calendar Integration */}
             <Card className="group hover:shadow-lg transition-all duration-300 border-2 hover:border-primary/50">
               <CardHeader>
-                <div className="flex items-center justify-between mb-4">
-                  <div className="h-14 w-14 rounded-xl bg-gradient-to-br from-blue-500/20 to-blue-600/20 flex items-center justify-center ring-2 ring-blue-500/20 group-hover:ring-blue-500/40 transition-all">
-                    <Calendar className="h-7 w-7 text-blue-600" />
-                  </div>
+                <div className="space-y-4">
                   {loading ? (
-                    <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                    <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-muted border w-fit">
+                      <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                      <span className="text-xs font-medium text-muted-foreground">Checking...</span>
+                    </div>
                   ) : isConnected ? (
-                    <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-green-500/10 border border-green-500/20">
+                    <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-green-500/10 border border-green-500/20 w-fit">
                       <CheckCircle2 className="h-4 w-4 text-green-600" />
                       <span className="text-xs font-medium text-green-600">Connected</span>
                     </div>
                   ) : (
-                    <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-muted border">
+                    <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-muted border w-fit">
                       <XCircle className="h-4 w-4 text-muted-foreground" />
                       <span className="text-xs font-medium text-muted-foreground">Disconnected</span>
                     </div>
                   )}
-                </div>
-                <div>
-                  <CardTitle className="text-xl mb-2">Google Calendar</CardTitle>
-                  <CardDescription>
-                    Sync events and schedules
-                  </CardDescription>
+                  <div>
+                    <CardTitle className="text-xl mb-2 flex items-center gap-2">
+                      <Calendar className="h-5 w-5" />
+                      Google Calendar
+                    </CardTitle>
+                    <CardDescription>
+                      Sync events and schedules
+                    </CardDescription>
+                  </div>
                 </div>
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-muted-foreground mb-4">
                   Connect your Google Calendar to schedule and manage events directly through your Sim.
                 </p>
-                {isConnected ? (
-                  <Button
-                    onClick={disconnectGoogleCalendar}
-                    variant="destructive"
-                    className="w-full"
-                    disabled={loading}
-                  >
-                    Disconnect
-                  </Button>
-                ) : (
-                  <Button
-                    onClick={connectGoogleCalendar}
-                    className="w-full"
-                    disabled={connecting || loading}
-                  >
-                    {connecting ? (
-                      <>
-                        <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                        Connecting...
-                      </>
-                    ) : (
-                      'Connect'
-                    )}
-                  </Button>
-                )}
+                <Button
+                  className="w-full"
+                  disabled
+                  variant="secondary"
+                >
+                  Coming Soon
+                </Button>
               </CardContent>
             </Card>
 
             {/* Helius Solana Explorer Integration */}
             <Card className="group hover:shadow-lg transition-all duration-300 border-2 border-purple-500/20 bg-gradient-to-br from-purple-500/5 to-transparent">
               <CardHeader>
-                <div className="flex items-center justify-between mb-4">
-                  <div className="h-14 w-14 rounded-xl bg-gradient-to-br from-purple-500/20 to-purple-600/20 flex items-center justify-center ring-2 ring-purple-500/20 group-hover:ring-purple-500/40 transition-all">
-                    <Hexagon className="h-7 w-7 text-purple-600" />
-                  </div>
-                  <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-green-500/10 border border-green-500/20">
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-green-500/10 border border-green-500/20 w-fit">
                     <CheckCircle2 className="h-4 w-4 text-green-600" />
                     <span className="text-xs font-medium text-green-600">Connected</span>
                   </div>
-                </div>
-                <div>
-                  <CardTitle className="text-xl mb-2">Solana Explorer</CardTitle>
-                  <CardDescription>
-                    Blockchain data access
-                  </CardDescription>
+                  <div>
+                    <CardTitle className="text-xl mb-2 flex items-center gap-2">
+                      <Hexagon className="h-5 w-5 text-purple-600" />
+                      Solana Explorer
+                    </CardTitle>
+                    <CardDescription>
+                      Blockchain data access
+                    </CardDescription>
+                  </div>
                 </div>
               </CardHeader>
               <CardContent>
@@ -264,14 +249,17 @@ const Integrations = () => {
             <Card className="group relative overflow-hidden border-2 border-dashed hover:border-primary/50 transition-all duration-300">
               <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
               <CardHeader className="relative">
-                <div className="h-14 w-14 rounded-xl bg-muted/50 flex items-center justify-center mb-4">
-                  <Plug className="h-7 w-7 text-muted-foreground" />
-                </div>
-                <div>
-                  <CardTitle className="text-xl mb-2">More Coming Soon</CardTitle>
-                  <CardDescription>
-                    Additional integrations
-                  </CardDescription>
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-muted/50 border border-dashed w-fit">
+                    <Plug className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-xs font-medium text-muted-foreground">Available Soon</span>
+                  </div>
+                  <div>
+                    <CardTitle className="text-xl mb-2">More Coming Soon</CardTitle>
+                    <CardDescription>
+                      Additional integrations
+                    </CardDescription>
+                  </div>
                 </div>
               </CardHeader>
               <CardContent className="relative">
