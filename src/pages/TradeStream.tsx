@@ -69,7 +69,6 @@ const TradeStream = () => {
         .from('advisors')
         .select('id, name, prompt, avatar_url')
         .ilike('name', '%rick%sanchez%')
-        .eq('is_official', true)
         .single();
 
       if (error) {
@@ -78,6 +77,7 @@ const TradeStream = () => {
       }
 
       if (data) {
+        console.log('Fetched Rick Sanchez advisor:', data);
         setAdvisor(data);
       }
     } catch (error) {
