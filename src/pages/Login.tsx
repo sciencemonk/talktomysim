@@ -73,7 +73,7 @@ const Login = () => {
             .maybeSingle();
           
           // First time users go to dashboard to create sim
-          navigate(userSim ? '/' : '/dashboard');
+          navigate(userSim ? '/home' : '/dashboard');
         }
       }
     } catch (error: any) {
@@ -118,7 +118,7 @@ const Login = () => {
         
         console.log('Signed in with existing test account:', signInData);
         if (signInData.user) {
-          navigate('/');
+          navigate('/home');
         }
         return;
       }
@@ -126,7 +126,7 @@ const Login = () => {
       console.log('Test account created successfully:', signUpData);
       
       if (signUpData.user) {
-        navigate('/');
+        navigate('/home');
       }
     } catch (error) {
       console.error('Error with test sign in:', error);

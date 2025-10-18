@@ -214,7 +214,7 @@ const Landing = () => {
             .maybeSingle();
           
           // First time users go to dashboard to create sim
-          window.location.href = userSim ? '/' : '/dashboard';
+          window.location.href = userSim ? '/home' : '/dashboard';
         }
       }
     } catch (error: any) {
