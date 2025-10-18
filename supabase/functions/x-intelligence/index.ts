@@ -127,36 +127,21 @@ function generateIntelligenceReport(userData: any, tweets: any[], reportType: st
     mentionMatches.forEach(m => mentions.add(m));
   });
 
-  const report = {
+  const followers = user.followers || user.followers_count || user.public_metrics?.followers_count || 0;
+  const following = user.following || user.friends_count || user.public_metrics?.following_count || 0;
+  const totalTweets = user.statusesCount || user.statuses_count || user.public_metrics?.tweet_count || 0;
+
+  const report: any = {
     username: user.userName || user.username || user.screen_name,
     displayName: user.name,
     bio: user.description || user.bio,
     location: user.location,
     verified: user.verified || user.isVerified || false,
-    created: user.createdAt || user.created_at,
     
     metrics: {
-      followers: user.followers || user.followers_count || user.public_metrics?.followers_count || 0,
-      following: user.following || user.friends_count || user.public_metrics?.following_count || 0,
-      totalTweets: user.statusesCount || user.statuses_count || user.public_metrics?.tweet_count || 0,
-      listed: user.listed_count || user.public_metrics?.listed_count || 0,
-    },
-    
-    engagement: {
-      avgLikesPerTweet: tweets.length > 0 ? (totalLikes / tweets.length).toFixed(2) : 0,
-      avgRetweetsPerTweet: tweets.length > 0 ? (totalRetweets / tweets.length).toFixed(2) : 0,
-      avgRepliesPerTweet: tweets.length > 0 ? (totalReplies / tweets.length).toFixed(2) : 0,
-      avgEngagement: avgEngagement.toFixed(2),
-      engagementRate: user.followers_count > 0 
-        ? ((avgEngagement / user.followers_count) * 100).toFixed(4) + '%'
-        : '0%',
-    },
-    
-    activity: {
-      postingFrequency,
-      recentTweetCount: tweets.length,
-      topHashtags: Array.from(hashtags).slice(0, 10),
-      frequentMentions: Array.from(mentions).slice(0, 10),
+      followers,
+      following,
+      totalTweets,
     },
     
     insights: generateInsights(user, tweets, {
@@ -165,9 +150,26 @@ function generateIntelligenceReport(userData: any, tweets: any[], reportType: st
       totalReplies,
       avgEngagement,
     }),
-    
-    timestamp: new Date().toISOString(),
   };
+
+  // Only include engagement if there's actual activity
+  if (tweets.length > 0 && avgEngagement > 0) {
+    report.engagement = {
+      avgLikesPerTweet: (totalLikes / tweets.length).toFixed(1),
+      avgRetweetsPerTweet: (totalRetweets / tweets.length).toFixed(1),
+      avgRepliesPerTweet: (totalReplies / tweets.length).toFixed(1),
+    };
+  }
+
+  // Only include activity details if there are tweets
+  if (tweets.length > 0) {
+    report.activity = {
+      postingFrequency,
+      recentTweetCount: tweets.length,
+      topHashtags: Array.from(hashtags).slice(0, 5),
+      frequentMentions: Array.from(mentions).slice(0, 5),
+    };
+  }
 
   return report;
 }

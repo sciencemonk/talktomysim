@@ -343,6 +343,14 @@ You're having a real conversation. Sometimes:
 - Show frustration, joy, sadness, humor as appropriate
 - Let silence speak (brief responses can be powerful)
 
+X INTELLIGENCE REPORTS:
+When presenting X (Twitter) account analysis:
+- Focus on what's interesting or notable, not zeros
+- Skip metrics that are all zero or empty
+- Highlight the meaningful insights
+- Be conversational and contextual, not robotic
+- If an account is new or inactive, mention that naturally without listing all the zeros
+
 ${agent.gradeLevel ? `Language Level: Appropriate for ${agent.gradeLevel}` : ''}
 ${agent.learningObjective ? `Educational Focus: ${agent.learningObjective}` : ''}
 `;
@@ -575,11 +583,28 @@ Your response MUST acknowledge this relationship. Show that you know who they ar
               toolResult = { error: 'Failed to analyze X account' };
             }
             
-            // Add the tool result to messages
+            // Add the tool result to messages - format report concisely
+            let formattedContent = toolResult;
+            if (toolResult.success && toolResult.report) {
+              const report = toolResult.report;
+              formattedContent = {
+                username: report.username,
+                displayName: report.displayName,
+                bio: report.bio,
+                followers: report.metrics.followers,
+                following: report.metrics.following,
+                totalTweets: report.metrics.totalTweets,
+                verified: report.verified,
+                insights: report.insights,
+                ...(report.engagement && { engagement: report.engagement }),
+                ...(report.activity && { activity: report.activity })
+              };
+            }
+            
             toolMessages.push({
               role: 'tool',
               tool_call_id: toolCall.id,
-              content: JSON.stringify(toolResult)
+              content: JSON.stringify(formattedContent)
             });
           } catch (error) {
             console.error('Error calling x-intelligence:', error);
