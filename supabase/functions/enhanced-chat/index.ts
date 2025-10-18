@@ -398,6 +398,23 @@ Your response MUST acknowledge this relationship. Show that you know who they ar
             required: ["wallet_address"]
           }
         }
+      },
+      {
+        type: "function",
+        function: {
+          name: "analyze_pumpfun_token",
+          description: "Analyze a PumpFun token by its contract address (CA/mint address) to get trading activity, volume, momentum, and risk assessment. Use this when someone mentions a token contract address, asks about a PumpFun token, or wants token analysis.",
+          parameters: {
+            type: "object",
+            properties: {
+              token_address: {
+                type: "string",
+                description: "The Solana token contract address (CA) / mint address to analyze"
+              }
+            },
+            required: ["token_address"]
+          }
+        }
       }
     ];
 
@@ -477,6 +494,43 @@ Your response MUST acknowledge this relationship. Show that you know who they ar
               role: 'tool',
               tool_call_id: toolCall.id,
               content: JSON.stringify({ error: 'Failed to analyze wallet' })
+            });
+          }
+        } else if (toolCall.function.name === 'analyze_pumpfun_token') {
+          const args = JSON.parse(toolCall.function.arguments);
+          console.log('Analyzing PumpFun token:', args.token_address);
+          
+          try {
+            // Call the analyze-pumpfun-token function
+            const tokenResponse = await fetch(`${supabaseUrl}/functions/v1/analyze-pumpfun-token`, {
+              method: 'POST',
+              headers: {
+                'Authorization': authHeader || '',
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ tokenAddress: args.token_address }),
+            });
+            
+            let toolResult;
+            if (tokenResponse.ok) {
+              toolResult = await tokenResponse.json();
+              console.log('PumpFun token analysis result:', toolResult);
+            } else {
+              toolResult = { error: 'Failed to analyze token' };
+            }
+            
+            // Add the tool result to messages
+            toolMessages.push({
+              role: 'tool',
+              tool_call_id: toolCall.id,
+              content: JSON.stringify(toolResult)
+            });
+          } catch (error) {
+            console.error('Error calling analyze-pumpfun-token:', error);
+            toolMessages.push({
+              role: 'tool',
+              tool_call_id: toolCall.id,
+              content: JSON.stringify({ error: 'Failed to analyze token' })
             });
           }
         }

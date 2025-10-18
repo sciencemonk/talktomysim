@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Loader2, Menu, Plug, Calendar, CheckCircle2, XCircle, Hexagon } from "lucide-react";
+import { Loader2, Menu, Plug, Calendar, CheckCircle2, XCircle, Hexagon, TrendingUp } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -241,6 +241,32 @@ const Integrations = () => {
               <CardContent>
                 <p className="text-sm text-muted-foreground">
                   Access to Solana blockchain data including wallet portfolios and transaction history for all users
+                </p>
+              </CardContent>
+            </Card>
+
+            {/* PumpFun CA Reader Integration */}
+            <Card className="group hover:shadow-lg transition-all duration-300 border-2 border-orange-500/20 bg-gradient-to-br from-orange-500/5 to-transparent">
+              <CardHeader>
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-green-500/10 border border-green-500/20 w-fit">
+                    <CheckCircle2 className="h-4 w-4 text-green-600" />
+                    <span className="text-xs font-medium text-green-600">Connected</span>
+                  </div>
+                  <div>
+                    <CardTitle className="text-xl mb-2 flex items-center gap-2">
+                      <TrendingUp className="h-5 w-5 text-orange-600" />
+                      PumpFun CA Reader
+                    </CardTitle>
+                    <CardDescription>
+                      Token analysis and trading insights
+                    </CardDescription>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground">
+                  Real-time PumpFun token analysis including trading volume, holder metrics, and risk assessment powered by PumpPortal
                 </p>
               </CardContent>
             </Card>

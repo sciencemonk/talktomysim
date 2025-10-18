@@ -15,6 +15,9 @@ verify_jwt = false
 [functions.analyze-wallet]
 verify_jwt = false
 
+[functions.analyze-pumpfun-token]
+verify_jwt = false
+
 [functions.livekit-token]
 verify_jwt = false
 
