@@ -60,10 +60,8 @@ export const usePumpFunStream = (tokenAddress: string) => {
       try {
         const data = JSON.parse(event.data);
         
-        // Debug: Log the FULL structure of first few messages
-        if (reconnectAttemptsRef.current === 0) {
-          console.log('[WebSocket] 📨 Full message structure:', JSON.stringify(data, null, 2));
-        }
+        // Debug: Log ALL messages to see actual trade structure
+        console.log('[WebSocket] 📨 Incoming message:', JSON.stringify(data, null, 2));
         
         // Handle different message types from PumpPortal
         // Check if this is a trade message (they use 'txType' field)
