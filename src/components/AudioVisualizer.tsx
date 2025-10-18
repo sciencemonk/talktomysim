@@ -164,18 +164,30 @@ const AudioVisualizer = ({ audioSrc }: AudioVisualizerProps) => {
     audio.addEventListener('error', handleError);
 
     return () => {
+      console.log('Cleaning up AudioVisualizer');
       window.removeEventListener('resize', resizeCanvas);
       audio.removeEventListener('play', handlePlay);
       audio.removeEventListener('pause', handlePause);
       audio.removeEventListener('error', handleError);
       document.removeEventListener('click', handleInteraction);
       document.removeEventListener('touchstart', handleInteraction);
+      
+      // Stop audio playback
+      if (!audio.paused) {
+        audio.pause();
+      }
+      audio.currentTime = 0;
+      
+      // Cancel animation frame
       if (animationRef.current) {
         cancelAnimationFrame(animationRef.current);
       }
+      
+      // Close audio context
       if (audioContextRef.current && audioContextRef.current.state !== 'closed') {
         audioContextRef.current.close();
       }
+      
       playAttemptedRef.current = false;
     };
   }, [audioSrc]);
@@ -183,6 +195,7 @@ const AudioVisualizer = ({ audioSrc }: AudioVisualizerProps) => {
   return (
     <div className="fixed bottom-0 left-0 right-0 z-[100] h-32 bg-white">
       <audio
+        key={audioSrc}
         ref={audioRef}
         src={audioSrc}
         loop
