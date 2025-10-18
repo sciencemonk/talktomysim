@@ -19,60 +19,30 @@ serve(async (req) => {
 
     console.log('Analyzing PumpFun token:', tokenAddress);
 
-    // Connect to PumpPortal WebSocket to get recent trades
-    const ws = new WebSocket('wss://pumpportal.fun/api/data');
+    const HELIUS_API_KEY = Deno.env.get('HELIUS_API_KEY');
+    if (!HELIUS_API_KEY) {
+      throw new Error('HELIUS_API_KEY not configured');
+    }
+
+    // Fetch transaction history using Helius API
+    const heliusUrl = `https://api.helius.xyz/v0/addresses/${tokenAddress}/transactions?api-key=${HELIUS_API_KEY}&limit=100`;
     
-    const tradesPromise = new Promise((resolve, reject) => {
-      const trades: any[] = [];
-      let timeout: number;
+    console.log('Fetching transaction history from Helius...');
+    const heliusResponse = await fetch(heliusUrl);
+    
+    if (!heliusResponse.ok) {
+      throw new Error(`Helius API error: ${heliusResponse.status}`);
+    }
 
-      ws.onopen = () => {
-        console.log('WebSocket connected');
-        // Subscribe to this token's trades
-        ws.send(JSON.stringify({
-          method: 'subscribeTokenTrade',
-          keys: [tokenAddress]
-        }));
+    const transactions = await heliusResponse.json();
+    console.log(`Received ${transactions.length} transactions for token ${tokenAddress}`);
 
-        // Collect trades for 3 seconds
-        timeout = setTimeout(() => {
-          ws.close();
-          resolve(trades);
-        }, 3000);
-      };
-
-      ws.onmessage = (event) => {
-        try {
-          const data = JSON.parse(event.data);
-          if (data && !data.error) {
-            trades.push(data);
-          }
-        } catch (e) {
-          console.error('Error parsing message:', e);
-        }
-      };
-
-      ws.onerror = (error) => {
-        clearTimeout(timeout);
-        console.error('WebSocket error:', error);
-        reject(new Error('Failed to connect to PumpPortal'));
-      };
-
-      ws.onclose = () => {
-        clearTimeout(timeout);
-        console.log('WebSocket closed');
-      };
-    });
-
-    const trades = await tradesPromise as any[];
-    console.log(`Received ${trades.length} trades for token ${tokenAddress}`);
-
-    if (!trades || trades.length === 0) {
+    if (!transactions || transactions.length === 0) {
       return new Response(
         JSON.stringify({
           tokenAddress,
-          error: 'No recent trading data',
-          summary: 'This token has no recent trading activity on PumpFun. It might be inactive, new, or not a valid PumpFun token.',
+          error: 'No trading data found',
+          summary: 'This token has no transaction history. It might be brand new, inactive, or not a valid token address.',
           suggestion: 'Make sure you have the correct contract address (CA) from pump.fun'
         }),
         {
@@ -81,76 +51,84 @@ serve(async (req) => {
       );
     }
 
-    // Analyze trades
-    let totalBuys = 0;
-    let totalSells = 0;
-    let buyVolumeSol = 0;
-    let sellVolumeSol = 0;
-    let largestBuySol = 0;
-    let largestSellSol = 0;
-    const uniqueBuyers = new Set();
-    const uniqueSellers = new Set();
+    // Analyze transactions
+    let totalTransfers = 0;
+    let totalSwaps = 0;
+    let totalVolumeSol = 0;
+    const uniqueSigners = new Set();
+    const recentTransactions: any[] = [];
 
-    for (const trade of trades) {
-      const isBuy = trade.txType === 'buy';
-      const solAmount = trade.solAmount || 0;
-      const trader = trade.traderPublicKey || trade.user;
+    for (const tx of transactions) {
+      if (!tx || tx.type === 'UNKNOWN') continue;
+      
+      // Count different transaction types
+      if (tx.type === 'TRANSFER' || tx.type === 'TOKEN_MINT') {
+        totalTransfers++;
+      } else if (tx.type === 'SWAP' || tx.type === 'TRADE') {
+        totalSwaps++;
+      }
 
-      if (isBuy) {
-        totalBuys++;
-        buyVolumeSol += solAmount;
-        if (solAmount > largestBuySol) largestBuySol = solAmount;
-        if (trader) uniqueBuyers.add(trader);
-      } else {
-        totalSells++;
-        sellVolumeSol += solAmount;
-        if (solAmount > largestSellSol) largestSellSol = solAmount;
-        if (trader) uniqueSellers.add(trader);
+      // Track unique signers
+      if (tx.feePayer) {
+        uniqueSigners.add(tx.feePayer);
+      }
+
+      // Calculate SOL volume from native transfers
+      if (tx.nativeTransfers && tx.nativeTransfers.length > 0) {
+        for (const transfer of tx.nativeTransfers) {
+          const solAmount = (transfer.amount || 0) / 1e9; // Convert lamports to SOL
+          totalVolumeSol += solAmount;
+        }
+      }
+
+      // Store recent transaction details
+      if (recentTransactions.length < 10) {
+        recentTransactions.push({
+          signature: tx.signature,
+          type: tx.type,
+          timestamp: tx.timestamp,
+          feePayer: tx.feePayer
+        });
       }
     }
 
-    const totalVolumeSol = buyVolumeSol + sellVolumeSol;
-    const buyToSellRatio = totalSells > 0 ? totalBuys / totalSells : totalBuys;
+    const totalTrades = totalTransfers + totalSwaps;
 
-    // Determine momentum
+    // Determine momentum based on transaction frequency
     let momentum = 'neutral';
-    if (buyVolumeSol > sellVolumeSol * 1.3) {
+    const recentCount = transactions.slice(0, 20).length;
+    const olderCount = transactions.slice(20, 50).length;
+    
+    if (recentCount > olderCount * 1.5) {
       momentum = 'bullish';
-    } else if (sellVolumeSol > buyVolumeSol * 1.3) {
+    } else if (olderCount > recentCount * 1.5) {
       momentum = 'bearish';
     }
 
     // Calculate risk score
     let riskScore = 'low';
-    const totalTrades = totalBuys + totalSells;
-    const totalUniqueTraders = uniqueBuyers.size + uniqueSellers.size;
-
-    if (totalTrades < 5 || totalVolumeSol < 2) {
+    
+    if (totalTrades < 10 || totalVolumeSol < 1 || uniqueSigners.size < 5) {
       riskScore = 'high';
-    } else if (totalTrades < 15 || totalVolumeSol < 10 || totalUniqueTraders < 5) {
+    } else if (totalTrades < 50 || totalVolumeSol < 10 || uniqueSigners.size < 20) {
       riskScore = 'medium';
     }
 
     const analysis = {
       tokenAddress,
       tradingActivity: {
-        totalTrades,
-        buys: totalBuys,
-        sells: totalSells,
+        totalTransactions: transactions.length,
+        totalTransfers,
+        totalSwaps,
         volumeSol: parseFloat(totalVolumeSol.toFixed(4)),
-        buyVolumeSol: parseFloat(buyVolumeSol.toFixed(4)),
-        sellVolumeSol: parseFloat(sellVolumeSol.toFixed(4)),
-        uniqueBuyers: uniqueBuyers.size,
-        uniqueSellers: uniqueSellers.size,
-        largestBuySol: parseFloat(largestBuySol.toFixed(4)),
-        largestSellSol: parseFloat(largestSellSol.toFixed(4)),
-        buyToSellRatio: parseFloat(buyToSellRatio.toFixed(2))
+        uniqueTraders: uniqueSigners.size,
+        recentActivity: recentTransactions
       },
       analysis: {
         momentum,
         riskScore,
-        dataWindow: 'last 3 seconds of real-time activity',
-        summary: `This PumpFun token just had ${totalTrades} trades (${totalBuys} buys, ${totalSells} sells) with ${totalVolumeSol.toFixed(2)} SOL total volume in the last few seconds. ${uniqueBuyers.size + uniqueSellers.size} unique traders. Momentum: ${momentum}. Risk: ${riskScore}.`
+        dataWindow: 'last 100 transactions',
+        summary: `This token has ${transactions.length} transactions with ${totalSwaps} swaps and ${totalTransfers} transfers. Total volume: ${totalVolumeSol.toFixed(2)} SOL across ${uniqueSigners.size} unique traders. Momentum: ${momentum}. Risk: ${riskScore}.`
       }
     };
 
