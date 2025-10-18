@@ -48,7 +48,7 @@ const Billing = () => {
           <Link to="/agents" className="mt-4 inline-block">
             <Button variant="ghost" size="sm" className="gap-2">
               <ArrowLeft className="h-4 w-4" />
-              Back to Dashboard
+              Back to Home
             </Button>
           </Link>
         </div>

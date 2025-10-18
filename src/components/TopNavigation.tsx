@@ -84,7 +84,7 @@ const TopNavigation = ({ showLiveIndicator = false }: TopNavigationProps) => {
           </div>
         ) : user ? (
           <div className="flex items-center gap-0.5 sm:gap-2">
-            <Link to="/dashboard">
+            <Link to="/home">
               <Button
                 variant="ghost"
                 size="icon"

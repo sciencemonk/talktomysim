@@ -144,8 +144,8 @@ Always be patient, supportive, and adapt to each child's learning pace and style
       if (onAgentCreated) {
         onAgentCreated(createdAgent);
       } else {
-        // Navigate to the dashboard if no callback provided
-        navigate("/dashboard");
+        // Navigate to home if no callback provided
+        navigate("/home");
       }
     } catch (error) {
       console.error("Error creating thinking partner:", error);
@@ -164,11 +164,11 @@ Always be patient, supportive, and adapt to each child's learning pace and style
       <div className="max-w-4xl mx-auto px-4 py-8">
         <div className="mb-8">
           <Link 
-            to="/dashboard" 
+            to="/home" 
             className="inline-flex items-center text-fgMuted hover:text-fg transition-colors mb-6"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Dashboard
+            Back to Home
           </Link>
         </div>
         

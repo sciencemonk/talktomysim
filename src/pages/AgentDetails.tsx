@@ -41,7 +41,7 @@ const AgentDetails = () => {
   } = useAgentDetails(agentId);
 
   const handleBack = () => {
-    navigate('/dashboard');
+    navigate('/home');
   };
 
   const handleDelete = async () => {
@@ -54,7 +54,7 @@ const AgentDetails = () => {
         title: "Thinking partner deleted",
         description: `${agent.name} has been successfully removed.`
       });
-      navigate('/dashboard');
+      navigate('/home');
     } catch (error: any) {
       console.error("Error deleting thinking partner:", error);
       toast({
@@ -92,7 +92,7 @@ const AgentDetails = () => {
         <div className="container mx-auto px-6 py-8">
           <Button variant="ghost" onClick={handleBack} className="gap-2 text-muted-foreground hover:text-foreground mb-6">
             <ChevronLeft className="h-4 w-4" />
-            Back to Dashboard
+            Back to Home
           </Button>
           <Card className="max-w-md mx-auto">
             <CardContent className="pt-6">
@@ -120,7 +120,7 @@ const AgentDetails = () => {
         {/* Back Button */}
         <Button variant="ghost" onClick={handleBack} className="gap-2 text-muted-foreground hover:text-foreground mb-6">
           <ChevronLeft className="h-4 w-4" />
-          Back to Dashboard
+          Back to Home
         </Button>
 
         {/* Main Content Grid */}

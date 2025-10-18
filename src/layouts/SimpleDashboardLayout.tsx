@@ -13,7 +13,7 @@ const SimpleDashboardLayout = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const navItems = [
-    { path: "/dashboard", label: "Tutors", icon: MessageSquare },
+    { path: "/home", label: "Tutors", icon: MessageSquare },
     { path: "/create-tutor", label: "Create", icon: Plus },
     { path: "/settings", label: "Settings", icon: Settings },
     { path: "/billing", label: "Billing", icon: CreditCard },

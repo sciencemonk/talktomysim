@@ -75,7 +75,7 @@ const AuthModal = ({ open, onOpenChange, defaultMode = 'signup' }: AuthModalProp
         toast.success('Connected successfully!');
         onOpenChange(false);
         
-        // Check if user has a sim - redirect to dashboard if not
+        // Check if user has a sim - redirect to home if not
         const { data: { user } } = await supabase.auth.getUser();
         if (user) {
           const { data: userSim } = await supabase
