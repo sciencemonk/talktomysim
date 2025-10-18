@@ -35,21 +35,22 @@ const TradeStream = () => {
   const [seenSignatures, setSeenSignatures] = useState<Set<string>>(new Set());
   const [reactionQueue, setReactionQueue] = useState<Reaction[]>([]);
   const [lastDisplayTime, setLastDisplayTime] = useState<number>(0);
+  const [testButtonDisabled, setTestButtonDisabled] = useState(false);
 
   const buyMessages = [
-    "¡Excelente! Another believer joins our empire! 💰",
-    "Sí señor! Smart money recognizes opportunity when they see it!",
-    "This is how we build an empire - one buy at a time! 🚀",
-    "They understand the value! Welcome to the family, amigo!",
-    "Plata o plomo? They chose plata! Good choice! 💵",
+    "Oh great, *burp* another genius thinks they're gonna get rich. How adorable, Morty!",
+    "Look at this - someone actually bought in. *burp* They'll learn the hard way, just like everyone else.",
+    "Wow, a buyer! Let me get my surprised face ready... *burp* Oh wait, I don't give a crap.",
+    "Another sucker joins the pump! *burp* This is peak human intelligence right here.",
+    "They bought the dip? More like they bought into their own *burp* delusions of grandeur.",
   ];
 
   const sellMessages = [
-    "Cowards! You don't have what it takes to build an empire!",
-    "Selling? You'll regret this when we reach the top! 📉",
-    "Paper hands have no place in this business!",
-    "They're running scared - but we stay strong, hermano!",
-    "Let the weak ones leave - only the brave survive! 💎",
+    "And there it is - *burp* paper hands folding like a cheap lawn chair. Classic.",
+    "Selling already? Wow, that's even *burp* more pathetic than I expected, Morty!",
+    "Look at 'em run! *burp* This is why I don't invest in anything humans touch.",
+    "Oh no, they're selling! *burp* Said literally no one who understands basic math.",
+    "Another one bites the dust. *burp* At this rate, I should start a support group for failed crypto traders.",
   ];
 
   const [currentRickStatement, setCurrentRickStatement] = useState<string>(
@@ -129,6 +130,12 @@ const TradeStream = () => {
     console.log('Test trade simulated:', testTrade);
     setReactionQueue(prev => [...prev, testTrade]);
     setSeenSignatures(prev => new Set([...prev, testTrade.signature]));
+    
+    // Disable button for 5 seconds
+    setTestButtonDisabled(true);
+    setTimeout(() => {
+      setTestButtonDisabled(false);
+    }, 5000);
   };
 
   // Generate new Rick statement every 60 seconds when no trades are showing
@@ -215,6 +222,7 @@ const TradeStream = () => {
       <div className="absolute top-20 right-4 z-50">
         <Button 
           onClick={simulateTestTrade}
+          disabled={testButtonDisabled}
           variant="outline"
           size="sm"
           className="bg-background"
