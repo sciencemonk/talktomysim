@@ -102,35 +102,8 @@ export const usePumpFunStream = (tokenAddress: string) => {
           
           setLatestTrade(trade);
           setTrades(prev => [trade, ...prev].slice(0, 50));
-        } 
-        // Check if message has signature (might be at different level)
-        else if (data.signature || data.sig) {
-          console.log('[WebSocket] 🔍 Message with signature detected, fields:', Object.keys(data));
-          const isBuy = data.isBuy === true || data.is_buy === true || data.txType === 'buy' || data.txType === 'create';
-          const tokenAmount = data.tokenAmount || data.token_amount || data.initialBuy || 0;
-          
-          const trade: TradeEvent = {
-            signature: data.signature || data.sig,
-            mint: data.mint || tokenAddress,
-            sol_amount: Number((data.solAmount || data.sol_amount || 0).toFixed(3)),
-            token_amount: Math.round(tokenAmount),
-            is_buy: isBuy,
-            user: data.user || data.traderPublicKey || 'unknown',
-            timestamp: data.timestamp || Date.now() / 1000,
-            market_cap_sol: data.marketCapSol || data.market_cap_sol || 0
-          };
-          
-          console.log('[WebSocket] ✅ Trade processed from sig:', {
-            type: trade.is_buy ? 'BUY' : 'SELL',
-            tokens: `${(trade.token_amount / 1e6).toFixed(2)}M`,
-            sol: `${trade.sol_amount} SOL`
-          });
-          
-          setLatestTrade(trade);
-          setTrades(prev => [trade, ...prev].slice(0, 50));
-        }
-        else {
-          console.log('[WebSocket] ℹ️ Unknown message format. Fields:', Object.keys(data));
+        } else {
+          console.log('[WebSocket] ℹ️ Non-trade message. Fields:', Object.keys(data));
         }
       } catch (error) {
         console.error('[WebSocket] ❌ Parse error:', error);
