@@ -146,7 +146,7 @@ const PublicSimDetail = () => {
 
   return (
     <div 
-      className="min-h-screen flex flex-col relative overflow-hidden"
+      className="h-screen flex flex-col relative overflow-hidden"
       style={{
         backgroundImage: `url(${sim.background_image_url || landingBackground})`,
         backgroundSize: 'cover',
