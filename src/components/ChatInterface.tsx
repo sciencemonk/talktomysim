@@ -95,10 +95,10 @@ const ChatInterface = ({ agent, onBack, hideHeader = false, transparentMode = fa
       )}
 
       {/* Messages - Flex-1 scrollable area */}
-      <div ref={messagesContainerRef} className="flex-1 overflow-y-auto min-h-0 bg-background">
+      <div ref={messagesContainerRef} className={`flex-1 overflow-y-auto min-h-0 ${transparentMode ? 'bg-transparent' : 'bg-background'}`}>
         {chatHistory.messages.length === 0 && !textChat.isProcessing ? (
           <div className="h-full flex flex-col items-center justify-center px-4">
-            <h1 className="text-3xl md:text-4xl font-semibold text-foreground">
+            <h1 className={`text-3xl md:text-4xl font-semibold ${transparentMode ? 'text-white' : 'text-foreground'}`}>
               How may I help you?
             </h1>
           </div>
@@ -128,8 +128,8 @@ const ChatInterface = ({ agent, onBack, hideHeader = false, transparentMode = fa
                     <div className={`flex-1 ${message.role === 'user' ? 'flex justify-end' : ''}`}>
                       <div className={`
                         ${message.role === 'user' 
-                          ? 'bg-primary text-primary-foreground rounded-3xl px-4 py-3 inline-block max-w-[80%]' 
-                          : 'w-full'
+                          ? `${transparentMode ? 'bg-primary/90 text-white' : 'bg-primary text-primary-foreground'} rounded-3xl px-4 py-3 inline-block max-w-[80%]` 
+                          : `w-full ${transparentMode ? 'bg-white/10 backdrop-blur-sm rounded-2xl px-4 py-3' : ''}`
                         }
                       `}>
                         {message.role === 'user' ? (
@@ -137,20 +137,20 @@ const ChatInterface = ({ agent, onBack, hideHeader = false, transparentMode = fa
                             {message.content}
                           </p>
                         ) : (
-                          <div className="prose prose-sm max-w-none dark:prose-invert
+                          <div className={`prose prose-sm max-w-none ${transparentMode ? 'prose-invert' : 'dark:prose-invert'}
                             prose-p:leading-7 prose-p:mb-5 prose-p:mt-0 prose-p:text-[15px] first:prose-p:mt-0 last:prose-p:mb-0
                             prose-headings:font-semibold prose-headings:my-4
                             prose-h1:text-2xl prose-h2:text-xl prose-h3:text-lg
                             prose-ul:my-4 prose-ul:list-disc prose-ul:pl-6
                             prose-ol:my-4 prose-ol:list-decimal prose-ol:pl-6
                             prose-li:my-1 prose-li:leading-7 prose-li:text-[15px]
-                            prose-strong:font-semibold prose-strong:text-foreground
+                            ${transparentMode ? 'prose-strong:font-semibold prose-strong:text-white' : 'prose-strong:font-semibold prose-strong:text-foreground'}
                             prose-code:bg-muted prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:text-sm
                             prose-pre:bg-muted prose-pre:p-4 prose-pre:rounded-lg
                             prose-blockquote:border-l-4 prose-blockquote:border-border prose-blockquote:pl-4 prose-blockquote:italic
                             prose-a:text-primary prose-a:underline hover:prose-a:text-primary/80
-                          ">
-                            <ReactMarkdown 
+                          `}>
+                            <ReactMarkdown
                               remarkPlugins={[remarkGfm]}
                               components={{
                                 p: ({ children }) => <p className="mb-5 last:mb-0">{children}</p>
@@ -196,13 +196,13 @@ const ChatInterface = ({ agent, onBack, hideHeader = false, transparentMode = fa
       </div>
 
       {/* Input - Fixed at bottom */}
-      <div className="flex-shrink-0 p-4 bg-background border-t">
+      <div className={`flex-shrink-0 p-4 ${transparentMode ? 'bg-transparent border-t-0' : 'bg-background border-t'}`}>
         <div className="max-w-3xl mx-auto">
           <TextInput 
             onSendMessage={textChat.sendMessage}
             disabled={textChat.isProcessing || isAiResponding}
             placeholder={isAiResponding ? `${currentAgent.name} is typing...` : `Message ${currentAgent.name}...`}
-            transparentMode={false}
+            transparentMode={transparentMode}
           />
         </div>
       </div>
