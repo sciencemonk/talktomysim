@@ -380,8 +380,29 @@ Your response MUST acknowledge this relationship. Show that you know who they ar
       console.log('Creator context preview:', systemPrompt.substring(0, 300));
     }
 
-    // Generate response using OpenAI
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    // Define tools available to the AI
+    const tools = [
+      {
+        type: "function",
+        function: {
+          name: "analyze_solana_wallet",
+          description: "Analyze a Solana wallet address to get balance, tokens, and transaction history. Use this whenever someone asks about a specific Solana wallet address or provides one.",
+          parameters: {
+            type: "object",
+            properties: {
+              wallet_address: {
+                type: "string",
+                description: "The Solana wallet address to analyze (base58 encoded public key)"
+              }
+            },
+            required: ["wallet_address"]
+          }
+        }
+      }
+    ];
+
+    // Generate response using OpenAI with tools
+    let response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${openaiApiKey}`,
@@ -393,6 +414,8 @@ Your response MUST acknowledge this relationship. Show that you know who they ar
           { role: 'system', content: systemPrompt },
           ...messages
         ],
+        tools: tools,
+        tool_choice: "auto",
         max_tokens: 1000,
         temperature: 0.7,
       }),
@@ -404,8 +427,85 @@ Your response MUST acknowledge this relationship. Show that you know who they ar
       throw new Error(`OpenAI API error: ${response.status}`);
     }
 
-    const data = await response.json();
-    console.log('OpenAI response:', data);
+    let data = await response.json();
+    console.log('OpenAI response:', JSON.stringify(data, null, 2));
+
+    // Check if the AI wants to call a tool
+    if (data.choices[0].message.tool_calls && data.choices[0].message.tool_calls.length > 0) {
+      console.log('AI requested tool calls:', data.choices[0].message.tool_calls);
+      
+      // Process each tool call
+      const toolMessages = [
+        { role: 'system', content: systemPrompt },
+        ...messages,
+        data.choices[0].message // Include the assistant's message with tool calls
+      ];
+      
+      for (const toolCall of data.choices[0].message.tool_calls) {
+        if (toolCall.function.name === 'analyze_solana_wallet') {
+          const args = JSON.parse(toolCall.function.arguments);
+          console.log('Analyzing wallet:', args.wallet_address);
+          
+          try {
+            // Call the analyze-wallet function
+            const walletResponse = await fetch(`${supabaseUrl}/functions/v1/analyze-wallet`, {
+              method: 'POST',
+              headers: {
+                'Authorization': authHeader || '',
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ walletAddress: args.wallet_address }),
+            });
+            
+            let toolResult;
+            if (walletResponse.ok) {
+              toolResult = await walletResponse.json();
+              console.log('Wallet analysis result:', toolResult);
+            } else {
+              toolResult = { error: 'Failed to analyze wallet' };
+            }
+            
+            // Add the tool result to messages
+            toolMessages.push({
+              role: 'tool',
+              tool_call_id: toolCall.id,
+              content: JSON.stringify(toolResult)
+            });
+          } catch (error) {
+            console.error('Error calling analyze-wallet:', error);
+            toolMessages.push({
+              role: 'tool',
+              tool_call_id: toolCall.id,
+              content: JSON.stringify({ error: 'Failed to analyze wallet' })
+            });
+          }
+        }
+      }
+      
+      // Continue the conversation with tool results
+      response = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${openaiApiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'gpt-4o-mini',
+          messages: toolMessages,
+          max_tokens: 1000,
+          temperature: 0.7,
+        }),
+      });
+      
+      if (!response.ok) {
+        const error = await response.text();
+        console.error('OpenAI API error (tool response):', error);
+        throw new Error(`OpenAI API error: ${response.status}`);
+      }
+      
+      data = await response.json();
+      console.log('OpenAI final response:', data);
+    }
 
     if (!data.choices || data.choices.length === 0) {
       throw new Error('No choices returned from OpenAI');
