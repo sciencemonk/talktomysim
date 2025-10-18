@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -18,6 +18,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 
 const EditSim = () => {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [currentUser, setCurrentUser] = useState<any>(null);
   const isMobile = useIsMobile();
   
@@ -257,7 +258,13 @@ const EditSim = () => {
 
       if (error) throw error;
 
-      await refetchUserSim();
+      // Invalidate all sim-related queries to update the entire app
+      await Promise.all([
+        refetchUserSim(),
+        queryClient.invalidateQueries({ queryKey: ['user-sim'] }),
+        queryClient.invalidateQueries({ queryKey: ['user-sim-check'] })
+      ]);
+      
       toast.success('Sim personalization saved successfully!', {
         description: 'You can now access all features'
       });
