@@ -17,3 +17,6 @@ verify_jwt = false
 
 [functions.monitor-trades]
 verify_jwt = false
+
+[functions.generate-rick-commentary]
+verify_jwt = false

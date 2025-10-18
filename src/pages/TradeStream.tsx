@@ -61,22 +61,19 @@ const TradeStream = () => {
     
     setIsGenerating(true);
     try {
-      const response = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/generate-rick-commentary`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        }
-      );
+      const { data, error } = await supabase.functions.invoke('generate-rick-commentary', {
+        body: {}
+      });
 
-      if (!response.ok) {
-        throw new Error('Failed to generate commentary');
+      if (error) {
+        console.error('Error generating Rick statement:', error);
+        throw error;
       }
 
-      const data = await response.json();
-      setCurrentRickStatement(data.commentary);
+      if (data?.commentary) {
+        setCurrentRickStatement(data.commentary);
+        console.log('Generated new Rick statement:', data.commentary);
+      }
     } catch (error) {
       console.error('Error generating Rick statement:', error);
       // Keep current statement on error
