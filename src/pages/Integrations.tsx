@@ -271,6 +271,34 @@ const Integrations = () => {
               </CardContent>
             </Card>
 
+            {/* X Intelligence Reports Integration */}
+            <Card className="group hover:shadow-lg transition-all duration-300 border-2 border-blue-500/20 bg-gradient-to-br from-blue-500/5 to-transparent">
+              <CardHeader>
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-green-500/10 border border-green-500/20 w-fit">
+                    <CheckCircle2 className="h-4 w-4 text-green-600" />
+                    <span className="text-xs font-medium text-green-600">Connected</span>
+                  </div>
+                  <div>
+                    <CardTitle className="text-xl mb-2 flex items-center gap-2">
+                      <svg className="h-5 w-5 text-blue-600" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                      </svg>
+                      X Intelligence Reports
+                    </CardTitle>
+                    <CardDescription>
+                      Twitter account analytics
+                    </CardDescription>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground">
+                  Generate comprehensive intelligence reports on X (Twitter) accounts including engagement metrics, posting frequency, and audience insights
+                </p>
+              </CardContent>
+            </Card>
+
             {/* Placeholder for future integrations */}
             <Card className="group relative overflow-hidden border-2 border-dashed hover:border-primary/50 transition-all duration-300">
               <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />

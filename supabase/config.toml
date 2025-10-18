@@ -32,3 +32,6 @@ verify_jwt = false
 
 [functions.generate-rick-commentary]
 verify_jwt = false
+
+[functions.x-intelligence]
+verify_jwt = false
