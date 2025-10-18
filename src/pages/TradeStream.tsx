@@ -7,6 +7,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { getAvatarUrl } from "@/lib/avatarUtils";
 import TopNavigation from "@/components/TopNavigation";
 import { usePumpFunStream } from "@/hooks/usePumpFunStream";
+import { Button } from "@/components/ui/button";
 
 interface Reaction {
   type: 'buy' | 'sell';
@@ -111,6 +112,25 @@ const TradeStream = () => {
     fetchAdvisor();
   }, []);
 
+  // Test function to simulate a buy trade
+  const simulateTestTrade = () => {
+    const messages = buyMessages;
+    const message = messages[Math.floor(Math.random() * messages.length)];
+
+    const testTrade: Reaction = {
+      type: 'buy',
+      amount: 1500000, // 1.5M tokens
+      solAmount: 2.5,
+      timestamp: Date.now() / 1000,
+      signature: `test_${Date.now()}`,
+      message,
+    };
+
+    console.log('Test trade simulated:', testTrade);
+    setReactionQueue(prev => [...prev, testTrade]);
+    setSeenSignatures(prev => new Set([...prev, testTrade.signature]));
+  };
+
   // Generate new Rick statement every 60 seconds when no trades are showing
   useEffect(() => {
     if (!currentReaction) {
@@ -190,6 +210,18 @@ const TradeStream = () => {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <TopNavigation showLiveIndicator />
+      
+      {/* Test Button */}
+      <div className="absolute top-20 right-4 z-50">
+        <Button 
+          onClick={simulateTestTrade}
+          variant="outline"
+          size="sm"
+          className="bg-background"
+        >
+          Test Buy Trade
+        </Button>
+      </div>
       
       {/* Main Message Display */}
       <div className="flex-1 flex items-center justify-center p-8">
