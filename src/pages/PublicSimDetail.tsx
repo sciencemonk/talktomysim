@@ -162,7 +162,7 @@ const PublicSimDetail = () => {
           <div className="border-b border-white/20 px-4 py-3 flex items-center justify-between backdrop-blur-md bg-black/30">
             <div className="flex items-center gap-3">
               <Avatar className="h-10 w-10 border-2 border-white/30">
-                <AvatarImage src={getAvatarUrl(sim.avatar)} alt={sim.name} />
+                <AvatarImage src={getAvatarUrl(sim.avatar)} alt={sim.name} className="object-cover" />
                 <AvatarFallback className="bg-white/10 text-white">{sim.name.charAt(0)}</AvatarFallback>
               </Avatar>
               <div>

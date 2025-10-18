@@ -81,7 +81,7 @@ const PublicTutorDetail = () => {
         <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-6">
           <div className="flex flex-col sm:flex-row sm:items-start gap-6">
             <Avatar className="h-20 w-20 border-2 border-blue-100 shadow-md">
-              <AvatarImage src={getAvatarUrl(agent.avatar)} alt={agent.name} />
+              <AvatarImage src={getAvatarUrl(agent.avatar)} alt={agent.name} className="object-cover" />
               <AvatarFallback className="bg-blue-500 text-white">
                 <Bot className="h-10 w-10" />
               </AvatarFallback>

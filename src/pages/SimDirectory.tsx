@@ -119,7 +119,7 @@ const SimDirectory = () => {
               >
                 <div className="relative">
                   <Avatar className="w-24 h-24 border-3 border-border shadow-lg group-hover:shadow-2xl transition-shadow">
-                    <AvatarImage 
+                    <AvatarImage
                       src={getAvatarUrl(sim.avatar)} 
                       alt={sim.name}
                       className="object-cover"

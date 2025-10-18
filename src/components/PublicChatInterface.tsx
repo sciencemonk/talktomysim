@@ -102,7 +102,7 @@ const PublicChatInterface = ({ agent }: PublicChatInterfaceProps) => {
               >
                 {message.role === 'system' && (
                   <Avatar className="h-8 w-8 flex-shrink-0 border-2 border-white/30">
-                    <AvatarImage src={getAvatarUrl(agent.avatar)} alt={agent.name} />
+                    <AvatarImage src={getAvatarUrl(agent.avatar)} alt={agent.name} className="object-cover" />
                     <AvatarFallback className="bg-white/20 text-white text-xs">
                       {agent.name.charAt(0).toUpperCase()}
                     </AvatarFallback>
@@ -158,7 +158,7 @@ const PublicChatInterface = ({ agent }: PublicChatInterfaceProps) => {
           {textChat.isProcessing && (
             <div className="flex gap-4">
               <Avatar className="h-8 w-8 flex-shrink-0 border-2 border-white/30">
-                <AvatarImage src={getAvatarUrl(agent.avatar)} alt={agent.name} />
+                <AvatarImage src={getAvatarUrl(agent.avatar)} alt={agent.name} className="object-cover" />
                 <AvatarFallback className="bg-white/20 text-white text-xs">
                   {agent.name.charAt(0).toUpperCase()}
                 </AvatarFallback>
