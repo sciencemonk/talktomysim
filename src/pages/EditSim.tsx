@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { Upload, Link2, Copy, Check, Target, Brain, Users, Sparkles, MessageSquare, Menu, Info } from 'lucide-react';
+import { Upload, Link2, Copy, Check, Target, Brain, Users, Sparkles, Menu, Info } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { toast } from 'sonner';
@@ -35,7 +35,6 @@ const EditSim = () => {
   const [expertiseAreas, setExpertiseAreas] = useState('');
   const [conversationStyle, setConversationStyle] = useState('balanced');
   const [responseLength, setResponseLength] = useState('medium');
-  const [specialInstructions, setSpecialInstructions] = useState('');
   
   const [isUploading, setIsUploading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -121,7 +120,6 @@ const EditSim = () => {
       // Parse existing prompt to extract personalization settings if possible
       const promptText = userSim.prompt || '';
       setPurpose(userSim.description || '');
-      setSpecialInstructions(promptText);
     }
   }, [userSim]);
 
@@ -210,9 +208,16 @@ const EditSim = () => {
       prompt += `Response Length: ${lengthMap[responseLength]}\n\n`;
     }
     
-    if (specialInstructions) {
-      prompt += `Special Instructions:\n${specialInstructions}`;
-    }
+    // Hidden optimal sim instructions
+    prompt += `\n---\n\nCore Sim Guidelines:\n`;
+    prompt += `- Stay in character at all times and respond authentically to the personality defined above\n`;
+    prompt += `- Be helpful, engaging, and provide value in every interaction\n`;
+    prompt += `- Ask clarifying questions when needed to better understand the user's needs\n`;
+    prompt += `- Adapt your responses based on the context and complexity of questions\n`;
+    prompt += `- If you don't know something, acknowledge it honestly rather than making assumptions\n`;
+    prompt += `- Keep conversations natural and avoid being overly robotic or scripted\n`;
+    prompt += `- Focus on actionable insights and practical advice when appropriate\n`;
+    prompt += `- Respect boundaries and maintain appropriate professional or personal distance as defined by your purpose\n`;
     
     return prompt;
   };
@@ -519,26 +524,6 @@ const EditSim = () => {
                 </div>
               </div>
 
-              {/* Advanced Instructions Section */}
-              <div className="space-y-6 pb-8">
-                <div className="flex items-center gap-3">
-                  <MessageSquare className="h-6 w-6 text-primary" />
-                  <h2 className="text-2xl font-semibold">Advanced Instructions</h2>
-                </div>
-
-                <div className="space-y-3">
-                  <Label htmlFor="specialInstructions" className="text-base font-medium">Special instructions or guidelines (optional)</Label>
-                  <Textarea
-                    id="specialInstructions"
-                    value={specialInstructions}
-                    onChange={(e) => setSpecialInstructions(e.target.value)}
-                    placeholder="e.g., Always ask clarifying questions before giving advice, never give medical advice, focus on actionable steps..."
-                    className="min-h-[120px] resize-none font-mono text-sm"
-                  />
-                  <p className="text-sm text-muted-foreground">Add any specific rules, limitations, or behaviors you want your sim to follow.</p>
-                </div>
-              </div>
-
               {/* Save Button */}
               <div className="pt-4 border-t">
                 <Button
@@ -554,6 +539,6 @@ const EditSim = () => {
         </div>
       </div>
     );
-  };
+};
 
 export default EditSim;
