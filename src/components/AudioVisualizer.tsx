@@ -4,6 +4,9 @@ interface AudioVisualizerProps {
   audioSrc: string;
 }
 
+// Global audio manager to ensure only one instance plays
+let globalAudioInstance: HTMLAudioElement | null = null;
+
 const AudioVisualizer = ({ audioSrc }: AudioVisualizerProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
@@ -18,6 +21,14 @@ const AudioVisualizer = ({ audioSrc }: AudioVisualizerProps) => {
     const audio = audioRef.current;
     const canvas = canvasRef.current;
     if (!audio || !canvas) return;
+
+    // Stop any existing global audio instance
+    if (globalAudioInstance && globalAudioInstance !== audio) {
+      console.log('Stopping previous audio instance');
+      globalAudioInstance.pause();
+      globalAudioInstance.currentTime = 0;
+    }
+    globalAudioInstance = audio;
 
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
@@ -177,6 +188,11 @@ const AudioVisualizer = ({ audioSrc }: AudioVisualizerProps) => {
         audio.pause();
       }
       audio.currentTime = 0;
+      
+      // Clear global reference if this is the current instance
+      if (globalAudioInstance === audio) {
+        globalAudioInstance = null;
+      }
       
       // Cancel animation frame
       if (animationRef.current) {

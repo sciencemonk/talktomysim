@@ -103,16 +103,27 @@ const TradeStream = () => {
 
   // Process the queue - show each trade for at least 5 seconds
   useEffect(() => {
-    const now = Date.now();
-    const fiveSeconds = 5 * 1000; // 5 seconds in milliseconds
-    
-    // Check if we should display the next reaction from the queue
-    if (reactionQueue.length > 0 && (!currentReaction || now - lastDisplayTime >= fiveSeconds)) {
-      const nextReaction = reactionQueue[0];
-      setCurrentReaction(nextReaction);
-      setLastDisplayTime(now);
-      setReactionQueue(prev => prev.slice(1));
-    }
+    const checkQueue = () => {
+      const now = Date.now();
+      const fiveSeconds = 5 * 1000; // 5 seconds in milliseconds
+      
+      // Check if we should display the next reaction from the queue
+      if (reactionQueue.length > 0 && (!currentReaction || now - lastDisplayTime >= fiveSeconds)) {
+        const nextReaction = reactionQueue[0];
+        console.log('Displaying trade:', nextReaction);
+        setCurrentReaction(nextReaction);
+        setLastDisplayTime(now);
+        setReactionQueue(prev => prev.slice(1));
+      }
+    };
+
+    // Check immediately
+    checkQueue();
+
+    // Set up interval to check every 500ms
+    const intervalId = setInterval(checkQueue, 500);
+
+    return () => clearInterval(intervalId);
   }, [reactionQueue, currentReaction, lastDisplayTime]);
 
   if (isLoading) {
