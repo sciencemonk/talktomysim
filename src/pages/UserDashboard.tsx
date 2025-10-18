@@ -29,6 +29,7 @@ interface UserSim {
 const UserDashboard = () => {
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
+  const isMobile = useIsMobile(); // MUST be at the top, before any returns
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [userSim, setUserSim] = useState<UserSim | null>(null);
@@ -423,8 +424,6 @@ Stay true to the tone, values, and personality of [Name].`,
       </>
     );
   }
-
-  const isMobile = useIsMobile();
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
