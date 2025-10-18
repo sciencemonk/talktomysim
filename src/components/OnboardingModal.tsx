@@ -135,6 +135,22 @@ export const OnboardingModal = ({ open, userId, onComplete }: OnboardingModalPro
     try {
       const generatedPrompt = generatePrompt();
       
+      // Generate a more unique custom URL by adding random characters if needed
+      let finalCustomUrl = customUrl || name.toLowerCase().replace(/[^a-z0-9-]/g, '-');
+      
+      // Check if URL already exists
+      const { data: existingUrl } = await supabase
+        .from('advisors')
+        .select('custom_url')
+        .eq('custom_url', finalCustomUrl)
+        .maybeSingle();
+      
+      // If URL exists, add a random suffix
+      if (existingUrl) {
+        const randomSuffix = Math.random().toString(36).substring(2, 8);
+        finalCustomUrl = `${finalCustomUrl}-${randomSuffix}`;
+      }
+      
       const { data, error } = await supabase
         .from('advisors')
         .insert({
@@ -144,7 +160,7 @@ export const OnboardingModal = ({ open, userId, onComplete }: OnboardingModalPro
           description: purpose,
           prompt: generatedPrompt,
           avatar_url: avatar,
-          custom_url: customUrl || name.toLowerCase().replace(/[^a-z0-9-]/g, '-'),
+          custom_url: finalCustomUrl,
           twitter_url: twitterUrl || null,
           website_url: websiteUrl || null,
           crypto_wallet: cryptoWallet || null,
@@ -154,13 +170,25 @@ export const OnboardingModal = ({ open, userId, onComplete }: OnboardingModalPro
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase error:', error);
+        
+        // Handle specific error cases
+        if (error.code === '23505') { // Unique constraint violation
+          toast.error('This URL is already taken. Please try a different name.');
+        } else if (error.message.includes('violates row-level security')) {
+          toast.error('Permission error. Please sign out and sign in again.');
+        } else {
+          toast.error(`Failed to create sim: ${error.message}`);
+        }
+        return;
+      }
 
       toast.success('Welcome! Your sim is ready!');
       onComplete();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error creating sim:', error);
-      toast.error('Failed to create sim. Please try again.');
+      toast.error(error?.message || 'Failed to create sim. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
