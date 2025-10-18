@@ -40,7 +40,7 @@ export const OnboardingModal = ({ open, userId, onComplete }: OnboardingModalPro
   const [conversationStyle, setConversationStyle] = useState('balanced');
   const [responseLength, setResponseLength] = useState('medium');
 
-  const totalSteps = 4;
+  const totalSteps = 5;
   const progress = (step / totalSteps) * 100;
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -174,6 +174,8 @@ export const OnboardingModal = ({ open, userId, onComplete }: OnboardingModalPro
         return expertiseAreas.trim();
       case 4:
         return true;
+      case 5:
+        return true; // Optional fields
       default:
         return false;
     }
@@ -264,42 +266,6 @@ export const OnboardingModal = ({ open, userId, onComplete }: OnboardingModalPro
                     placeholder="e.g., Marketing Expert, Life Coach, Tech Support"
                   />
                 </div>
-
-                <div className="space-y-2 pt-4 border-t">
-                  <Label className="text-base font-medium text-muted-foreground">Optional Profile Links</Label>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="twitterUrl" className="text-sm">X Profile Link</Label>
-                    <Input
-                      id="twitterUrl"
-                      value={twitterUrl}
-                      onChange={(e) => setTwitterUrl(e.target.value)}
-                      placeholder="https://x.com/yourhandle"
-                      type="url"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="websiteUrl" className="text-sm">Personal Website</Label>
-                    <Input
-                      id="websiteUrl"
-                      value={websiteUrl}
-                      onChange={(e) => setWebsiteUrl(e.target.value)}
-                      placeholder="https://yourwebsite.com"
-                      type="url"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="cryptoWallet" className="text-sm">Public Crypto Wallet</Label>
-                    <Input
-                      id="cryptoWallet"
-                      value={cryptoWallet}
-                      onChange={(e) => setCryptoWallet(e.target.value)}
-                      placeholder="Your public wallet address"
-                    />
-                  </div>
-                </div>
               </div>
             </div>
           )}
@@ -353,21 +319,36 @@ export const OnboardingModal = ({ open, userId, onComplete }: OnboardingModalPro
                 <Label className="text-base font-medium">Personality Type</Label>
                 <RadioGroup value={personality} onValueChange={setPersonality}>
                   <div className="space-y-2">
-                    <div className="flex items-center space-x-3 p-3 border rounded-lg hover:border-primary cursor-pointer transition-colors">
+                    <div 
+                      className={`flex items-center space-x-3 p-3 border rounded-lg cursor-pointer transition-colors ${
+                        personality === 'friendly' ? 'border-primary bg-primary/5' : 'hover:border-primary/50'
+                      }`}
+                      onClick={() => setPersonality('friendly')}
+                    >
                       <RadioGroupItem value="friendly" id="friendly" />
                       <Label htmlFor="friendly" className="cursor-pointer flex-1">
                         <div className="font-medium">Friendly</div>
                         <div className="text-sm text-muted-foreground">Warm, approachable, conversational</div>
                       </Label>
                     </div>
-                    <div className="flex items-center space-x-3 p-3 border rounded-lg hover:border-primary cursor-pointer transition-colors">
+                    <div 
+                      className={`flex items-center space-x-3 p-3 border rounded-lg cursor-pointer transition-colors ${
+                        personality === 'professional' ? 'border-primary bg-primary/5' : 'hover:border-primary/50'
+                      }`}
+                      onClick={() => setPersonality('professional')}
+                    >
                       <RadioGroupItem value="professional" id="professional" />
                       <Label htmlFor="professional" className="cursor-pointer flex-1">
                         <div className="font-medium">Professional</div>
                         <div className="text-sm text-muted-foreground">Formal, precise, businesslike</div>
                       </Label>
                     </div>
-                    <div className="flex items-center space-x-3 p-3 border rounded-lg hover:border-primary cursor-pointer transition-colors">
+                    <div 
+                      className={`flex items-center space-x-3 p-3 border rounded-lg cursor-pointer transition-colors ${
+                        personality === 'casual' ? 'border-primary bg-primary/5' : 'hover:border-primary/50'
+                      }`}
+                      onClick={() => setPersonality('casual')}
+                    >
                       <RadioGroupItem value="casual" id="casual" />
                       <Label htmlFor="casual" className="cursor-pointer flex-1">
                         <div className="font-medium">Casual</div>
@@ -381,10 +362,10 @@ export const OnboardingModal = ({ open, userId, onComplete }: OnboardingModalPro
               <div className="space-y-3">
                 <Label htmlFor="conversationStyle" className="text-base font-medium">Conversation Style</Label>
                 <Select value={conversationStyle} onValueChange={setConversationStyle}>
-                  <SelectTrigger id="conversationStyle">
+                  <SelectTrigger id="conversationStyle" className="bg-background">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="bg-popover z-50">
                     <SelectItem value="concise">Concise - Brief and to the point</SelectItem>
                     <SelectItem value="balanced">Balanced - Thorough yet concise</SelectItem>
                     <SelectItem value="detailed">Detailed - Comprehensive explanations</SelectItem>
@@ -395,15 +376,59 @@ export const OnboardingModal = ({ open, userId, onComplete }: OnboardingModalPro
               <div className="space-y-3">
                 <Label htmlFor="responseLength" className="text-base font-medium">Response Length</Label>
                 <Select value={responseLength} onValueChange={setResponseLength}>
-                  <SelectTrigger id="responseLength">
+                  <SelectTrigger id="responseLength" className="bg-background">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="bg-popover z-50">
                     <SelectItem value="short">Short - Under 100 words</SelectItem>
                     <SelectItem value="medium">Medium - 100-300 words</SelectItem>
                     <SelectItem value="long">Long - 300+ words</SelectItem>
                   </SelectContent>
                 </Select>
+              </div>
+            </div>
+          )}
+
+          {/* Step 5: Optional Profile Links */}
+          {step === 5 && (
+            <div className="space-y-6">
+              <div className="text-center mb-4">
+                <h3 className="text-lg font-semibold mb-2">Optional Profile Links</h3>
+                <p className="text-sm text-muted-foreground">Add social links to make your sim page more personal</p>
+              </div>
+
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="twitterUrl" className="text-base font-medium">X Profile Link</Label>
+                  <Input
+                    id="twitterUrl"
+                    value={twitterUrl}
+                    onChange={(e) => setTwitterUrl(e.target.value)}
+                    placeholder="https://x.com/yourhandle"
+                    type="url"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="websiteUrl" className="text-base font-medium">Personal Website</Label>
+                  <Input
+                    id="websiteUrl"
+                    value={websiteUrl}
+                    onChange={(e) => setWebsiteUrl(e.target.value)}
+                    placeholder="https://yourwebsite.com"
+                    type="url"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="cryptoWallet" className="text-base font-medium">Public Crypto Wallet</Label>
+                  <Input
+                    id="cryptoWallet"
+                    value={cryptoWallet}
+                    onChange={(e) => setCryptoWallet(e.target.value)}
+                    placeholder="Your public wallet address"
+                  />
+                </div>
               </div>
             </div>
           )}
