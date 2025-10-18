@@ -415,6 +415,23 @@ Your response MUST acknowledge this relationship. Show that you know who they ar
             required: ["token_address"]
           }
         }
+      },
+      {
+        type: "function",
+        function: {
+          name: "analyze_x_account",
+          description: "Generate a comprehensive intelligence report on an X (Twitter) account including engagement metrics, posting frequency, follower insights, and activity patterns. Use this when someone asks about a Twitter/X account, mentions @username, or wants social media intelligence.",
+          parameters: {
+            type: "object",
+            properties: {
+              username: {
+                type: "string",
+                description: "The X (Twitter) username (without the @ symbol)"
+              }
+            },
+            required: ["username"]
+          }
+        }
       }
     ];
 
@@ -531,6 +548,45 @@ Your response MUST acknowledge this relationship. Show that you know who they ar
               role: 'tool',
               tool_call_id: toolCall.id,
               content: JSON.stringify({ error: 'Failed to analyze token' })
+            });
+          }
+        } else if (toolCall.function.name === 'analyze_x_account') {
+          const args = JSON.parse(toolCall.function.arguments);
+          console.log('Analyzing X account:', args.username);
+          
+          try {
+            // Call the x-intelligence function
+            const xResponse = await fetch(`${supabaseUrl}/functions/v1/x-intelligence`, {
+              method: 'POST',
+              headers: {
+                'Authorization': authHeader || '',
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ username: args.username.replace('@', '') }),
+            });
+            
+            let toolResult;
+            if (xResponse.ok) {
+              toolResult = await xResponse.json();
+              console.log('X Intelligence report result:', toolResult);
+            } else {
+              const errorText = await xResponse.text();
+              console.error('X Intelligence error:', errorText);
+              toolResult = { error: 'Failed to analyze X account' };
+            }
+            
+            // Add the tool result to messages
+            toolMessages.push({
+              role: 'tool',
+              tool_call_id: toolCall.id,
+              content: JSON.stringify(toolResult)
+            });
+          } catch (error) {
+            console.error('Error calling x-intelligence:', error);
+            toolMessages.push({
+              role: 'tool',
+              tool_call_id: toolCall.id,
+              content: JSON.stringify({ error: 'Failed to analyze X account' })
             });
           }
         }
