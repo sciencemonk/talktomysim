@@ -25,7 +25,7 @@ interface AdvisorData {
 }
 
 const TradeStream = () => {
-  const tokenAddress = 'ArfuojkvAUXauU9wPTpRzGwyYjq6YeUtRNwUXT6PjnQ6';
+  const tokenAddress = 'FFqwoZ7phjoupWjLeE5yFeLqGi8jkGEFrTz6jnsUpump';
   const { latestTrade, isConnected } = usePumpFunStream(tokenAddress);
   
   const [currentReaction, setCurrentReaction] = useState<Reaction | null>(null);
