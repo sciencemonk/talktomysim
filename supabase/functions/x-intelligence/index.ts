@@ -24,10 +24,11 @@ serve(async (req) => {
 
     console.log(`Generating ${reportType} report for @${username}`);
 
-    // Fetch user profile
+    // Fetch user profile using the correct endpoint format
     const userResponse = await fetch(
-      `https://api.twitterapi.io/twitter/user/lookup?username=${username}`,
+      `https://api.twitterapi.io/twitter/user/info?userName=${encodeURIComponent(username)}`,
       {
+        method: 'GET',
         headers: {
           'x-api-key': TWITTER_API_KEY,
         },
@@ -41,12 +42,18 @@ serve(async (req) => {
     }
 
     const userData = await userResponse.json();
-    console.log('User data fetched:', userData);
+    console.log('User data fetched:', JSON.stringify(userData));
+
+    // Check if the API returned an error
+    if (userData.status === 'error' || !userData.data) {
+      throw new Error(userData.msg || 'User not found');
+    }
 
     // Fetch recent tweets
     const tweetsResponse = await fetch(
-      `https://api.twitterapi.io/twitter/user/tweets?username=${username}&count=50`,
+      `https://api.twitterapi.io/twitter/user/last_tweets?userName=${encodeURIComponent(username)}&count=50`,
       {
+        method: 'GET',
         headers: {
           'x-api-key': TWITTER_API_KEY,
         },
