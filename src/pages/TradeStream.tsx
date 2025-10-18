@@ -11,6 +11,7 @@ import { usePumpFunStream } from "@/hooks/usePumpFunStream";
 interface Reaction {
   type: 'buy' | 'sell';
   amount: number;
+  solAmount: number;
   timestamp: number;
   signature: string;
   message?: string;
@@ -114,7 +115,8 @@ const TradeStream = () => {
 
     const reactionWithMessage = {
       type: latestTrade.is_buy ? 'buy' as const : 'sell' as const,
-      amount: latestTrade.sol_amount,
+      amount: latestTrade.token_amount,
+      solAmount: latestTrade.sol_amount,
       timestamp: latestTrade.timestamp,
       signature: latestTrade.signature,
       message,
@@ -228,7 +230,7 @@ const TradeStream = () => {
                     <div className="text-right">
                       <p className="text-sm text-muted-foreground mb-1">Trade Value</p>
                       <p className="text-2xl font-bold text-foreground">
-                        {currentReaction.amount.toFixed(3)} SOL
+                        {currentReaction.solAmount.toFixed(3)} SOL
                       </p>
                     </div>
                   </div>
