@@ -62,21 +62,10 @@ const Login = () => {
         
         toast.success('Connected successfully!');
         
-        // Check if user has a sim - redirect to edit-sim if not configured
+        // Check if user has a sim - redirect to home (onboarding will show if needed)
         const { data: { user } } = await supabase.auth.getUser();
         if (user) {
-          const { data: userSim } = await supabase
-            .from('advisors')
-            .select('id, name, description')
-            .eq('user_id', user.id)
-            .eq('sim_type', 'living')
-            .maybeSingle();
-          
-          // Check if sim is properly configured
-          const isConfigured = userSim?.name && userSim?.description;
-          
-          // Redirect to edit-sim if sim doesn't exist or isn't configured
-          navigate(isConfigured ? '/home' : '/edit-sim');
+          navigate('/home');
         }
       }
     } catch (error: any) {
@@ -121,16 +110,7 @@ const Login = () => {
         
       console.log('Signed in with existing test account:', signInData);
         if (signInData.user) {
-          // Check if sim is configured
-          const { data: userSim } = await supabase
-            .from('advisors')
-            .select('id, name, description')
-            .eq('user_id', signInData.user.id)
-            .eq('sim_type', 'living')
-            .maybeSingle();
-          
-          const isConfigured = userSim?.name && userSim?.description;
-          navigate(isConfigured ? '/home' : '/edit-sim');
+          navigate('/home');
         }
         return;
       }
@@ -138,8 +118,8 @@ const Login = () => {
       console.log('Test account created successfully:', signUpData);
       
       if (signUpData.user) {
-        // New users always go to edit-sim to configure their sim
-        navigate('/edit-sim');
+        // New users go to home, onboarding will show automatically
+        navigate('/home');
       }
     } catch (error) {
       console.error('Error with test sign in:', error);

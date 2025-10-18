@@ -4,14 +4,16 @@ import { supabase } from '@/integrations/supabase/client';
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/AppSidebar';
 import { Card } from '@/components/ui/card';
-import { useQuery } from '@tanstack/react-query';
-import { toast } from 'sonner';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { OnboardingModal } from '@/components/OnboardingModal';
 
 export const AuthenticatedLayout = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const queryClient = useQueryClient();
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [showOnboarding, setShowOnboarding] = useState(false);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -51,20 +53,23 @@ export const AuthenticatedLayout = () => {
     enabled: !!currentUser
   });
 
-  // Redirect to edit-sim if sim is not configured and trying to access other pages
+  // Show onboarding modal if sim doesn't exist
   useEffect(() => {
-    if (!currentUser || !userSim || isLoading) return;
+    if (!currentUser || isLoading) return;
     
-    const isSimConfigured = userSim.name && userSim.description;
-    const allowedPaths = ['/edit-sim'];
-    
-    if (!isSimConfigured && !allowedPaths.includes(location.pathname)) {
-      toast.error('Complete your sim setup first', {
-        description: 'Please personalize and save your sim to continue'
-      });
-      navigate('/edit-sim');
+    // If no sim exists, show onboarding
+    if (userSim === null) {
+      setShowOnboarding(true);
     }
-  }, [currentUser, userSim, location.pathname, navigate, isLoading]);
+  }, [currentUser, userSim, isLoading]);
+
+  const handleOnboardingComplete = async () => {
+    setShowOnboarding(false);
+    // Refetch sim data
+    await queryClient.invalidateQueries({ queryKey: ['user-sim-check'] });
+    // Navigate to home
+    navigate('/home');
+  };
 
   if (isLoading) {
     return (
@@ -81,15 +86,25 @@ export const AuthenticatedLayout = () => {
   }
 
   return (
-    <SidebarProvider defaultOpen={true}>
-      <div className="min-h-screen w-full flex bg-black">
-        <AppSidebar />
-        
-        {/* Main Content Area - No extra header */}
-        <main className="flex-1 overflow-auto">
-          <Outlet />
-        </main>
-      </div>
-    </SidebarProvider>
+    <>
+      {showOnboarding && currentUser && (
+        <OnboardingModal 
+          open={showOnboarding} 
+          userId={currentUser.id}
+          onComplete={handleOnboardingComplete}
+        />
+      )}
+      
+      <SidebarProvider defaultOpen={true}>
+        <div className="min-h-screen w-full flex bg-black">
+          <AppSidebar />
+          
+          {/* Main Content Area - No extra header */}
+          <main className="flex-1 overflow-auto">
+            <Outlet />
+          </main>
+        </div>
+      </SidebarProvider>
+    </>
   );
 };
