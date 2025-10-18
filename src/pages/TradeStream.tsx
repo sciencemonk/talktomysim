@@ -51,12 +51,25 @@ const TradeStream = () => {
     "Let the weak ones leave - only the brave survive! 💎",
   ];
 
+  const rickStatements = [
+    "Listen *burp* Morty, these crypto degenerates think they're gonna get rich. It's adorable.",
+    "You know what's funny? People trading jpegs for fake internet money. Classic human behavior.",
+    "Blockchain? More like block-lame. But hey, I'm here making interdimensional credits off these morons.",
+    "These pump and dumps? I've seen better scams in dimension C-137, and that's saying something.",
+    "Crypto bros think they're geniuses. Meanwhile, I'm literally the smartest being in the universe *burp*.",
+    "Decentralized finance? Please. I decentralized the entire galactic federation. This is child's play.",
+    "Watching people YOLO their life savings into dog coins is peak entertainment, Morty.",
+    "Smart contracts? I wrote a contract that enslaved an entire planet. Now THAT'S smart.",
+  ];
+
+  const [currentStatementIndex, setCurrentStatementIndex] = useState(0);
+
   const fetchAdvisor = async () => {
     try {
       const { data, error } = await supabase
         .from('advisors')
         .select('id, name, prompt, avatar_url')
-        .ilike('name', '%pablo%escobar%')
+        .ilike('name', '%rick%sanchez%')
         .eq('is_official', true)
         .single();
 
@@ -79,6 +92,17 @@ const TradeStream = () => {
   useEffect(() => {
     fetchAdvisor();
   }, []);
+
+  // Rotate Rick's statements every 60 seconds when no trades are showing
+  useEffect(() => {
+    if (!currentReaction) {
+      const interval = setInterval(() => {
+        setCurrentStatementIndex((prev) => (prev + 1) % rickStatements.length);
+      }, 60000); // 60 seconds
+
+      return () => clearInterval(interval);
+    }
+  }, [currentReaction, rickStatements.length]);
 
   // Handle new trades from WebSocket
   useEffect(() => {
@@ -213,18 +237,40 @@ const TradeStream = () => {
               </motion.div>
             ) : (
               <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
+                key={currentStatementIndex}
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                transition={{ duration: 0.5 }}
                 className="text-center"
               >
-                <Card className="p-16 border-border">
-                  <Activity className="h-24 w-24 mx-auto mb-6 text-muted-foreground animate-pulse" />
-                  <h2 className="text-3xl font-bold text-foreground mb-4">
-                    Waiting for trades...
-                  </h2>
-                  <p className="text-xl text-muted-foreground">
-                    Monitoring $SIMAI token activity on Solana
+                <Card className="p-12 border-4 border-primary bg-primary/5">
+                  {/* Rick Avatar and Name */}
+                  <div className="flex items-center gap-4 mb-8">
+                    <Avatar className="h-16 w-16 border-4 border-primary">
+                      <AvatarImage src={avatarUrl} alt={advisor?.name} />
+                      <AvatarFallback className="bg-primary text-primary-foreground text-2xl">
+                        {advisor?.name?.charAt(0)}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="text-left">
+                      <h2 className="text-2xl font-bold text-foreground">{advisor?.name}</h2>
+                      <p className="text-sm text-muted-foreground">Monitoring trades...</p>
+                    </div>
+                  </div>
+
+                  {/* Rick's Statement */}
+                  <p className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground leading-tight mb-8">
+                    "{rickStatements[currentStatementIndex]}"
                   </p>
+
+                  {/* Status Info */}
+                  <div className="flex items-center justify-center gap-3 pt-6 border-t-2 border-border">
+                    <Activity className="h-8 w-8 text-primary animate-pulse" />
+                    <p className="text-lg text-muted-foreground">
+                      Watching $SIMAI on Solana
+                    </p>
+                  </div>
                 </Card>
               </motion.div>
             )}
