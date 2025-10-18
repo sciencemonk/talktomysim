@@ -13,8 +13,41 @@ serve(async (req) => {
   try {
     const { tokenAddress } = await req.json();
     
-    if (!tokenAddress || tokenAddress.length < 32) {
-      throw new Error('Invalid token address');
+    // Validate token address format
+    if (!tokenAddress) {
+      throw new Error('Token address is required');
+    }
+
+    // Solana addresses are base58 encoded and typically 32-44 characters
+    // Most token addresses are 43-44 characters
+    if (tokenAddress.length < 32 || tokenAddress.length > 44) {
+      return new Response(
+        JSON.stringify({
+          error: 'Invalid Solana token address',
+          details: `Token address should be 32-44 characters (base58 encoded). Received: ${tokenAddress.length} characters.`,
+          example: 'Example: HWvHfS6sYkSkFpo3vftsfKwoBTUbBbTEzeGvvSqTuHyr'
+        }),
+        { 
+          status: 400, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      );
+    }
+
+    // Validate base58 characters (alphanumeric excluding 0, O, I, l)
+    const base58Regex = /^[1-9A-HJ-NP-Za-km-z]+$/;
+    if (!base58Regex.test(tokenAddress)) {
+      return new Response(
+        JSON.stringify({
+          error: 'Invalid Solana token address',
+          details: 'Token address contains invalid characters. Solana addresses use base58 encoding (excludes 0, O, I, l).',
+          example: 'Example: HWvHfS6sYkSkFpo3vftsfKwoBTUbBbTEzeGvvSqTuHyr'
+        }),
+        { 
+          status: 400, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      );
     }
 
     console.log('Analyzing PumpFun token:', tokenAddress);
@@ -30,6 +63,22 @@ serve(async (req) => {
 
     if (!response.ok) {
       console.error(`PumpPortal API error: ${response.status}`);
+      
+      if (response.status === 404) {
+        return new Response(
+          JSON.stringify({
+            error: 'Token not found',
+            tokenAddress,
+            details: 'This token does not exist on PumpFun or has no trading history. Make sure you have the correct contract address.',
+            suggestion: 'You can find PumpFun token addresses on pump.fun or by copying them from Solana explorers like Solscan.'
+          }),
+          { 
+            status: 404, 
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+          }
+        );
+      }
+      
       throw new Error(`PumpPortal API error: ${response.status}`);
     }
 
