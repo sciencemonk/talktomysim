@@ -219,8 +219,8 @@ const Landing = () => {
             .eq('sim_type', 'living')
             .maybeSingle();
           
-          // First time users go to dashboard to create sim
-          window.location.href = userSim ? '/home' : '/dashboard';
+          // Redirect to home - onboarding modal will appear if no sim exists
+          window.location.href = '/home';
         }
       }
     } catch (error: any) {
@@ -273,7 +273,7 @@ const Landing = () => {
     {
       title: "Create Your Own Web3 Native AI",
       description: "Be part of the Sim AI revolution",
-      action: () => navigate("/dashboard"),
+      action: () => navigate("/home"),
       gradient: "from-primary/20 to-primary/5",
       gridArea: "create",
       showWalletButtons: true,

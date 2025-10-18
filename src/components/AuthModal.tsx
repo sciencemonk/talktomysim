@@ -85,8 +85,8 @@ const AuthModal = ({ open, onOpenChange, defaultMode = 'signup' }: AuthModalProp
             .eq('sim_type', 'living')
             .maybeSingle();
           
-          // First time users go to dashboard to create sim
-          window.location.href = userSim ? '/' : '/dashboard';
+          // Redirect to home - onboarding modal will appear if no sim exists
+          window.location.href = '/home';
         }
       }
     } catch (error: any) {
