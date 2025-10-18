@@ -54,7 +54,7 @@ const PublicChatInterface = ({ agent }: PublicChatInterfaceProps) => {
   // Show initial state if no messages
   if (!hasStartedChat && chatHistory.messages.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-full px-4">
+      <div className="flex flex-col items-center justify-center h-full w-full px-4">
         <div className="w-full max-w-2xl space-y-8">
           <h1 className="text-4xl md:text-5xl font-bold text-white text-center">
             How may I help you?
