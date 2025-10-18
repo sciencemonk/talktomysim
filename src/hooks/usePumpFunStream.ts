@@ -60,19 +60,23 @@ export const usePumpFunStream = (tokenAddress: string) => {
       try {
         const data = JSON.parse(event.data);
         
-        // Log incoming messages for debugging
-        console.log('[WebSocket] 📨 Message:', data.txType || data.message || 'unknown type');
+        // DETAILED LOGGING - Log the entire message to debug
+        console.log('[WebSocket] 📨 RAW MESSAGE:', JSON.stringify(data, null, 2));
         
         // Handle different message types from PumpPortal
         // Check if this is a trade message (they use 'txType' field)
         if (data.txType && (data.txType === 'buy' || data.txType === 'sell' || data.txType === 'create')) {
+          console.log('[WebSocket] 🎯 Trade detected! Type:', data.txType.toUpperCase());
+          console.log('[WebSocket] 📍 Trade mint:', data.mint);
+          console.log('[WebSocket] 📍 Expected token:', tokenAddress);
+          
           // CRITICAL: Filter out trades that aren't for our token
           if (data.mint && data.mint !== tokenAddress) {
             console.log('[WebSocket] ⚠️ Ignoring trade for different token:', data.mint);
             return;
           }
           
-          console.log('[WebSocket] 🎯 $SIMAI Trade detected:', data.txType.toUpperCase());
+          console.log('[WebSocket] ✅ $SIMAI Trade accepted! Processing...');
           
           // 'create' txType means new token with initial buy
           const isBuy = data.txType === 'buy' || data.txType === 'create';
@@ -89,20 +93,24 @@ export const usePumpFunStream = (tokenAddress: string) => {
             market_cap_sol: data.marketCapSol || 0
           };
           
-          console.log('[WebSocket] ✅ Trade processed:', {
+          console.log('[WebSocket] 💾 Adding trade to state:', {
             signature: trade.signature.slice(0, 8),
             type: trade.is_buy ? 'BUY' : 'SELL',
             tokens: `${(trade.token_amount / 1e6).toFixed(2)}M`,
             sol: `${trade.sol_amount} SOL`,
-            time: new Date(trade.timestamp * 1000).toLocaleTimeString()
+            mint: trade.mint
           });
           
           setLatestTrade(trade);
-          setTrades(prev => [trade, ...prev].slice(0, 50));
+          setTrades(prev => {
+            const updated = [trade, ...prev].slice(0, 50);
+            console.log('[WebSocket] 📊 Total trades in state:', updated.length);
+            return updated;
+          });
         } else if (data.message) {
           console.log('[WebSocket] ℹ️ Server message:', data.message);
         } else {
-          console.log('[WebSocket] ℹ️ Unknown message type');
+          console.log('[WebSocket] ℹ️ Unknown message type. Full data:', data);
         }
       } catch (error) {
         console.error('[WebSocket] ❌ Parse error:', error);
