@@ -44,7 +44,7 @@ export const usePumpFunStream = (tokenAddress: string) => {
     ws.onopen = () => {
       console.log('[WebSocket] ✅ Connected to PumpPortal');
       setIsConnected(true);
-      reconnectAttemptsRef.current = 0; // Reset reconnection counter on success
+      reconnectAttemptsRef.current = 0;
       
       // Subscribe to trades for this specific token
       const subscribeMessage = {
@@ -52,8 +52,18 @@ export const usePumpFunStream = (tokenAddress: string) => {
         keys: [tokenAddress]
       };
       
+      console.log('[WebSocket] 📡 Sending subscription:', subscribeMessage);
       ws.send(JSON.stringify(subscribeMessage));
       console.log(`[WebSocket] 📡 Subscribed to token: ${tokenAddress}`);
+      
+      // Also subscribe to new token events to verify connection is working
+      setTimeout(() => {
+        const newTokenSub = {
+          method: 'subscribeNewToken'
+        };
+        console.log('[WebSocket] 📡 Also subscribing to new tokens to test connection');
+        ws.send(JSON.stringify(newTokenSub));
+      }, 1000);
     };
 
     ws.onmessage = (event) => {
