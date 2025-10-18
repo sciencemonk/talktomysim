@@ -390,9 +390,9 @@ const Landing = () => {
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
-                        navigate('/white-paper');
+                        navigate('/whitepaper');
                       }}
-                      className="text-sm text-white/80 hover:text-white underline transition-colors text-center mt-2"
+                      className="text-sm text-white/80 hover:text-white transition-colors text-left mt-2"
                     >
                       Read the White Paper
                     </button>
