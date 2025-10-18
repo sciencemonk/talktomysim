@@ -6,10 +6,12 @@ import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Search, Award, Menu } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { AgentType } from '@/types/agent';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useAuth } from '@/hooks/useAuth';
+import { getAvatarUrl } from '@/lib/avatarUtils';
 
 const SimDirectory = () => {
   const navigate = useNavigate();
@@ -116,11 +118,16 @@ const SimDirectory = () => {
                 className="group flex flex-col items-center gap-3 p-5 rounded-2xl bg-card hover:bg-muted border-2 hover:border-primary transition-all duration-300 hover:scale-105 hover:shadow-xl"
               >
                 <div className="relative">
-                  <img 
-                    src={sim.avatar} 
-                    alt={sim.name}
-                    className="w-24 h-24 rounded-full object-cover border-3 border-border shadow-lg group-hover:shadow-2xl transition-shadow"
-                  />
+                  <Avatar className="w-24 h-24 border-3 border-border shadow-lg group-hover:shadow-2xl transition-shadow">
+                    <AvatarImage 
+                      src={getAvatarUrl(sim.avatar)} 
+                      alt={sim.name}
+                      className="object-cover"
+                    />
+                    <AvatarFallback className="bg-primary text-primary-foreground text-3xl font-bold">
+                      {sim.name?.charAt(0)?.toUpperCase() || 'S'}
+                    </AvatarFallback>
+                  </Avatar>
                 </div>
                 <div className="w-full text-center space-y-1">
                   <span className="text-sm font-semibold line-clamp-2 leading-tight">
