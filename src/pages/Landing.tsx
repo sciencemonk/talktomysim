@@ -337,8 +337,8 @@ const Landing = () => {
           {features.map((feature, index) => (
             <Card 
               key={index}
-              className="group transition-all duration-300 hover:scale-[1.02] hover:shadow-xl border-2 border-white/20 bg-white/10 backdrop-blur-md cursor-pointer"
-              onClick={feature.action}
+              className={`group transition-all duration-300 hover:scale-[1.02] hover:shadow-xl border-2 border-white/20 bg-white/10 backdrop-blur-md ${!feature.showWalletButtons ? 'cursor-pointer' : ''}`}
+              onClick={!feature.showWalletButtons ? feature.action : undefined}
             >
               <CardHeader className="pb-3 p-4 sm:p-6">
                 <CardTitle className="text-lg sm:text-xl font-bold text-white">
@@ -387,6 +387,15 @@ const Landing = () => {
                         {isLoading === 'solflare' ? 'Connecting...' : 'Connect Solflare'}
                       </span>
                     </Button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        navigate('/white-paper');
+                      }}
+                      className="text-sm text-white/80 hover:text-white underline transition-colors text-center mt-2"
+                    >
+                      Read the White Paper
+                    </button>
                   </div>
                 )}
                 
