@@ -158,7 +158,7 @@ const PublicSimDetail = () => {
       <div className="absolute inset-0 bg-black/50 z-0" />
 
       {showChat ? (
-        <div className="flex-1 flex flex-col relative z-10">
+        <div className="flex-1 flex flex-col relative z-10 h-full">
           <div className="border-b border-white/20 px-4 py-3 flex items-center justify-between backdrop-blur-md bg-black/30">
             <div className="flex items-center gap-3">
               <Avatar className="h-10 w-10 border-2 border-white/30">
@@ -179,7 +179,7 @@ const PublicSimDetail = () => {
               <X className="h-5 w-5" />
             </Button>
           </div>
-          <div className="flex-1">
+          <div className="flex-1 h-full overflow-hidden">
             <PublicChatInterface agent={sim} />
           </div>
         </div>
