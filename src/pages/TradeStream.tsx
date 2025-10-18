@@ -250,27 +250,19 @@ const TradeStream = () => {
                     <Avatar className="h-16 w-16 border-4 border-primary">
                       <AvatarImage src={avatarUrl} alt={advisor?.name} />
                       <AvatarFallback className="bg-primary text-primary-foreground text-2xl">
-                        {advisor?.name?.charAt(0)}
+                        RS
                       </AvatarFallback>
                     </Avatar>
                     <div className="text-left">
-                      <h2 className="text-2xl font-bold text-foreground">{advisor?.name}</h2>
+                      <h2 className="text-2xl font-bold text-foreground">{advisor?.name || 'Rick Sanchez'}</h2>
                       <p className="text-sm text-muted-foreground">Monitoring trades...</p>
                     </div>
                   </div>
 
                   {/* Rick's Statement */}
-                  <p className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground leading-tight mb-8">
+                  <p className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground leading-tight">
                     "{rickStatements[currentStatementIndex]}"
                   </p>
-
-                  {/* Status Info */}
-                  <div className="flex items-center justify-center gap-3 pt-6 border-t-2 border-border">
-                    <Activity className="h-8 w-8 text-primary animate-pulse" />
-                    <p className="text-lg text-muted-foreground">
-                      Watching $SIMAI on Solana
-                    </p>
-                  </div>
                 </Card>
               </motion.div>
             )}
