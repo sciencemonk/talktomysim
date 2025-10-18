@@ -114,7 +114,7 @@ const TradeStream = () => {
 
     const reactionWithMessage = {
       type: latestTrade.is_buy ? 'buy' as const : 'sell' as const,
-      amount: latestTrade.token_amount,
+      amount: latestTrade.sol_amount,
       timestamp: latestTrade.timestamp,
       signature: latestTrade.signature,
       message,
@@ -228,7 +228,7 @@ const TradeStream = () => {
                     <div className="text-right">
                       <p className="text-sm text-muted-foreground mb-1">Trade Value</p>
                       <p className="text-2xl font-bold text-foreground">
-                        ${(currentReaction.amount * 0.0001).toFixed(2)}
+                        {currentReaction.amount.toFixed(3)} SOL
                       </p>
                     </div>
                   </div>
