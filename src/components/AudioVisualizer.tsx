@@ -1,62 +1,108 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 
 interface AudioVisualizerProps {
   audioSrc: string;
 }
 
-// Global flags to prevent multiple audio instances
-let globalAudioInstance: HTMLAudioElement | null = null;
-let isAudioPlaying = false;
-let audioSetupInProgress = false;
+// Singleton audio controller - ensures only ONE audio plays globally
+class AudioController {
+  private static instance: AudioController | null = null;
+  private audio: HTMLAudioElement | null = null;
+  private audioContext: AudioContext | null = null;
+  private analyser: AnalyserNode | null = null;
+  private isPlaying = false;
+  
+  static getInstance(): AudioController {
+    if (!AudioController.instance) {
+      AudioController.instance = new AudioController();
+    }
+    return AudioController.instance;
+  }
+  
+  async initialize(audioElement: HTMLAudioElement): Promise<void> {
+    // If already initialized with a different element, stop the old one
+    if (this.audio && this.audio !== audioElement) {
+      console.log('Stopping previous audio instance');
+      this.stop();
+    }
+    
+    if (this.audio === audioElement && this.isPlaying) {
+      console.log('Audio already initialized and playing');
+      return;
+    }
+    
+    this.audio = audioElement;
+    
+    // Create audio context and analyser
+    if (!this.audioContext) {
+      this.audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const source = this.audioContext.createMediaElementSource(audioElement);
+      this.analyser = this.audioContext.createAnalyser();
+      this.analyser.fftSize = 256;
+      source.connect(this.analyser);
+      this.analyser.connect(this.audioContext.destination);
+      console.log('AudioContext and analyser created');
+    }
+    
+    // Start playback
+    try {
+      await audioElement.play();
+      this.isPlaying = true;
+      console.log('Audio started successfully');
+    } catch (err) {
+      console.error('Failed to play audio:', err);
+    }
+  }
+  
+  stop(): void {
+    if (this.audio) {
+      this.audio.pause();
+      this.audio.currentTime = 0;
+      this.isPlaying = false;
+    }
+  }
+  
+  cleanup(): void {
+    this.stop();
+    if (this.audioContext && this.audioContext.state !== 'closed') {
+      this.audioContext.close();
+    }
+    this.audio = null;
+    this.audioContext = null;
+    this.analyser = null;
+    AudioController.instance = null;
+    console.log('AudioController cleaned up');
+  }
+  
+  getAnalyser(): AnalyserNode | null {
+    return this.analyser;
+  }
+}
 
 const AudioVisualizer = ({ audioSrc }: AudioVisualizerProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
-  const audioContextRef = useRef<AudioContext | null>(null);
-  const analyserRef = useRef<AnalyserNode | null>(null);
-  const dataArrayRef = useRef<Uint8Array | null>(null);
   const animationRef = useRef<number | null>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
+  const dataArrayRef = useRef<Uint8Array | null>(null);
+  const controllerRef = useRef<AudioController | null>(null);
 
   useEffect(() => {
     const audio = audioRef.current;
     const canvas = canvasRef.current;
     if (!audio || !canvas) return;
-
-    // CRITICAL: If audio is already playing globally, don't start another one
-    if (isAudioPlaying && globalAudioInstance && globalAudioInstance !== audio) {
-      console.log('Audio already playing globally, skipping this instance');
-      return;
-    }
-
-    // CRITICAL: If setup is in progress, don't start another one
-    if (audioSetupInProgress) {
-      console.log('Audio setup already in progress, skipping');
-      return;
-    }
-
-    audioSetupInProgress = true;
     
-    // Stop any existing global audio instance
-    if (globalAudioInstance && globalAudioInstance !== audio) {
-      console.log('Stopping previous audio instance');
-      globalAudioInstance.pause();
-      globalAudioInstance.currentTime = 0;
-      isAudioPlaying = false;
-    }
-    
-    // Set this audio as the global instance
-    globalAudioInstance = audio;
-    console.log('Audio instance registered as global');
+    console.log('AudioVisualizer mounted');
 
+    // Get singleton controller
+    controllerRef.current = AudioController.getInstance();
+    
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    // Set canvas size with proper dimensions
+    // Set canvas size
     const resizeCanvas = () => {
       const width = canvas.offsetWidth;
       const height = canvas.offsetHeight;
-      console.log('Canvas dimensions:', width, height);
       if (width > 0 && height > 0) {
         canvas.width = width;
         canvas.height = height;
@@ -65,186 +111,82 @@ const AudioVisualizer = ({ audioSrc }: AudioVisualizerProps) => {
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
 
-    const setupAudio = () => {
-      if (audioContextRef.current) {
-        console.log('AudioContext already exists, skipping setup');
+    // Visualization loop
+    const draw = () => {
+      const analyser = controllerRef.current?.getAnalyser();
+      if (!analyser || !dataArrayRef.current || !ctx || !canvas) {
+        animationRef.current = requestAnimationFrame(draw);
         return;
       }
 
-      console.log('Setting up AudioContext and analyser');
-      const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
-      const source = audioContext.createMediaElementSource(audio);
-      const analyser = audioContext.createAnalyser();
-      
-      analyser.fftSize = 256;
-      const bufferLength = analyser.frequencyBinCount;
-      const dataArray = new Uint8Array(bufferLength);
-
-      source.connect(analyser);
-      analyser.connect(audioContext.destination);
-
-      audioContextRef.current = audioContext;
-      analyserRef.current = analyser;
-      dataArrayRef.current = dataArray;
-
-      console.log('AudioContext setup complete, starting draw loop');
-      draw();
-    };
-
-    const draw = () => {
-      if (!analyserRef.current || !dataArrayRef.current || !ctx || !canvas) return;
-
       animationRef.current = requestAnimationFrame(draw);
-
-      analyserRef.current.getByteFrequencyData(dataArrayRef.current);
+      analyser.getByteFrequencyData(dataArrayRef.current);
 
       const gradient = ctx.createLinearGradient(0, 0, canvas.width, 0);
       gradient.addColorStop(0, '#10b981');
       gradient.addColorStop(0.5, '#3b82f6');
       gradient.addColorStop(1, '#a855f7');
 
-      // Clear canvas completely
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
       const barWidth = (canvas.width / dataArrayRef.current.length) * 3;
       let x = 0;
 
       for (let i = 0; i < dataArrayRef.current.length; i++) {
-        // Use a minimum bar height to always show something
         const dataValue = dataArrayRef.current[i] || 5;
         const barHeight = Math.max(5, (dataValue / 255) * canvas.height);
-
         ctx.fillStyle = gradient;
-        ctx.fillRect(
-          x,
-          canvas.height - barHeight,
-          barWidth - 2,
-          barHeight
-        );
-
+        ctx.fillRect(x, canvas.height - barHeight, barWidth - 2, barHeight);
         x += barWidth;
       }
     };
 
-    const handlePlay = () => {
-      setIsPlaying(true);
-      isAudioPlaying = true;
-      console.log('Audio started playing');
-      if (audioContextRef.current?.state === 'suspended') {
-        audioContextRef.current.resume();
-      }
-    };
-
-    const handlePause = () => {
-      setIsPlaying(false);
-      isAudioPlaying = false;
-      console.log('Audio paused');
-    };
-
-    audio.addEventListener('play', handlePlay);
-    audio.addEventListener('pause', handlePause);
-
-    // Auto-play with user interaction - ONLY ONCE
-    const startAudio = () => {
-      // CRITICAL: Check all conditions to prevent duplicate playback
-      if (isAudioPlaying) {
-        console.log('Audio already playing globally, aborting');
-        return;
-      }
-      
-      if (!audio.paused) {
-        console.log('This audio instance already playing, aborting');
-        return;
-      }
-
-      console.log('Attempting to play audio from:', audioSrc);
-      
-      // Only setup audio context once
-      if (!audioContextRef.current) {
-        setupAudio();
-      }
-      
-      audio.play().then(() => {
-        console.log('Audio playing successfully');
-        isAudioPlaying = true;
-        audioSetupInProgress = false;
-        if (audioContextRef.current?.state === 'suspended') {
-          audioContextRef.current.resume();
+    // Initialize data array for frequency data
+    const analyser = controllerRef.current.getAnalyser();
+    if (analyser) {
+      dataArrayRef.current = new Uint8Array(analyser.frequencyBinCount);
+    }
+    
+    // Start visualization
+    draw();
+    
+    // Initialize audio with user interaction
+    const initAudio = async () => {
+      if (controllerRef.current) {
+        await controllerRef.current.initialize(audio);
+        // Update data array after initialization
+        const analyser = controllerRef.current.getAnalyser();
+        if (analyser) {
+          dataArrayRef.current = new Uint8Array(analyser.frequencyBinCount);
         }
-      }).catch(err => {
-        console.error('Audio play failed:', err);
-        isAudioPlaying = false;
-        audioSetupInProgress = false;
-      });
-    };
-
-    // Try to start immediately (with a small delay to ensure single execution)
-    const startTimeout = setTimeout(() => {
-      if (!isAudioPlaying) {
-        startAudio();
       }
-    }, 100);
-
-    // Also try on any user interaction (only if not already playing)
+    };
+    
+    // Try to play immediately
+    initAudio();
+    
+    // Also allow user interaction to start
     const handleInteraction = () => {
-      console.log('User interaction detected');
-      if (!isAudioPlaying && audio.paused) {
-        startAudio();
-      }
+      initAudio();
     };
-
-    // Use once option to ensure handler is only called once
+    
     document.addEventListener('click', handleInteraction, { once: true });
     document.addEventListener('touchstart', handleInteraction, { once: true });
 
-    // Also listen for audio errors
-    const handleError = (e: Event) => {
-      console.error('Audio error:', e);
-      console.error('Failed to load audio from:', audioSrc);
-      // Still show visualizer
-      setupAudio();
-    };
-    
-    audio.addEventListener('error', handleError);
-
+    // Cleanup
     return () => {
-      console.log('Cleaning up AudioVisualizer - stopping all audio');
+      console.log('Cleaning up AudioVisualizer');
       
-      clearTimeout(startTimeout);
-      
-      // Remove all event listeners
       window.removeEventListener('resize', resizeCanvas);
-      audio.removeEventListener('play', handlePlay);
-      audio.removeEventListener('pause', handlePause);
-      audio.removeEventListener('error', handleError);
       document.removeEventListener('click', handleInteraction);
       document.removeEventListener('touchstart', handleInteraction);
       
-      // CRITICAL: Stop audio playback completely
-      audio.pause();
-      audio.currentTime = 0;
-      audio.src = ''; // Clear the source to fully stop playback
-      
-      // Clear global flags
-      if (globalAudioInstance === audio) {
-        globalAudioInstance = null;
-        isAudioPlaying = false;
-        audioSetupInProgress = false;
-        console.log('Global audio instance and flags cleared');
-      }
-      
-      // Cancel animation frame
       if (animationRef.current) {
         cancelAnimationFrame(animationRef.current);
-        animationRef.current = null;
       }
       
-      // Close audio context
-      if (audioContextRef.current) {
-        if (audioContextRef.current.state !== 'closed') {
-          audioContextRef.current.close();
-        }
-        audioContextRef.current = null;
+      if (controllerRef.current) {
+        controllerRef.current.cleanup();
       }
     };
   }, [audioSrc]);
