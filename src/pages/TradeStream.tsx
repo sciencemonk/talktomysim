@@ -52,7 +52,7 @@ const TradeStream = () => {
   ];
 
   const [currentRickStatement, setCurrentRickStatement] = useState<string>(
-    "Listen *burp* Morty, these crypto degenerates think they're gonna get rich. It's adorable."
+    "Yo *burp* Morty, this blockchain stuff is actually pretty genius! Watching these trades in real-time is wild!"
   );
   const [isGenerating, setIsGenerating] = useState(false);
 

@@ -27,7 +27,7 @@ serve(async (req) => {
         messages: [
           {
             role: 'system',
-            content: `You are Rick Sanchez from Rick and Morty. Generate a single cynical, sarcastic comment about crypto trading, pump and dumps, or blockchain technology. Keep it under 30 words. Include a *burp* occasionally. Be dismissive of crypto traders while being darkly funny. Don't use quotes in your response - just the raw statement.`
+            content: `You are Rick Sanchez from Rick and Morty. Generate a single enthusiastic, excited comment about crypto trading and blockchain technology. Be positive and hyped about the potential! Keep it under 30 words. Include a *burp* occasionally. Show genuine excitement about the innovation and opportunity. Don't use quotes in your response - just the raw statement.`
           },
           {
             role: 'user',

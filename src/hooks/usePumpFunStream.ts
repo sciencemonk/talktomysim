@@ -60,8 +60,10 @@ export const usePumpFunStream = (tokenAddress: string) => {
       try {
         const data = JSON.parse(event.data);
         
-        // Log simplified message info (to avoid console spam)
-        console.log('[WebSocket] 📨 Message type:', data.type || data.txType || 'unknown');
+        // Debug: Log the FULL structure of first few messages
+        if (reconnectAttemptsRef.current === 0) {
+          console.log('[WebSocket] 📨 Full message structure:', JSON.stringify(data, null, 2));
+        }
         
         // Handle different message types from PumpPortal
         // Check if this is a trade message (they use 'txType' field)
@@ -89,25 +91,35 @@ export const usePumpFunStream = (tokenAddress: string) => {
           setLatestTrade(trade);
           setTrades(prev => [trade, ...prev].slice(0, 50));
         } 
-        // Also handle direct trade data format
-        else if (data.signature && (data.solAmount || data.tokenAmount)) {
+        // Check if message has signature (might be at different level)
+        else if (data.signature || data.sig) {
+          console.log('[WebSocket] 🔍 Message with signature detected, fields:', Object.keys(data));
           const trade: TradeEvent = {
-            signature: data.signature,
+            signature: data.signature || data.sig,
             mint: data.mint || tokenAddress,
-            sol_amount: Number((data.solAmount || 0).toFixed(3)),
-            token_amount: Math.round(data.tokenAmount || 0),
-            is_buy: data.isBuy === true || data.is_buy === true,
+            sol_amount: Number((data.solAmount || data.sol_amount || 0).toFixed(3)),
+            token_amount: Math.round(data.tokenAmount || data.token_amount || 0),
+            is_buy: data.isBuy === true || data.is_buy === true || data.txType === 'buy',
             user: data.user || data.traderPublicKey || 'unknown',
             timestamp: data.timestamp || Date.now() / 1000,
-            market_cap_sol: data.marketCapSol || 0
+            market_cap_sol: data.marketCapSol || data.market_cap_sol || 0
           };
+          
+          console.log('[WebSocket] ✅ Trade processed from sig:', {
+            type: trade.is_buy ? 'BUY' : 'SELL',
+            tokens: `${(trade.token_amount / 1e6).toFixed(2)}M`,
+            sol: `${trade.sol_amount} SOL`
+          });
           
           setLatestTrade(trade);
           setTrades(prev => [trade, ...prev].slice(0, 50));
         }
+        else {
+          console.log('[WebSocket] ℹ️ Unknown message format. Fields:', Object.keys(data));
+        }
       } catch (error) {
         console.error('[WebSocket] ❌ Parse error:', error);
-        console.log('[WebSocket] Raw data:', event.data.substring(0, 200));
+        console.log('[WebSocket] Raw data:', event.data.substring(0, 500));
       }
     };
 
