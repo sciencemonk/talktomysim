@@ -19,72 +19,38 @@ serve(async (req) => {
 
     console.log('Analyzing PumpFun token:', tokenAddress);
 
-    const HELIUS_API_KEY = Deno.env.get('HELIUS_API_KEY');
-    if (!HELIUS_API_KEY) {
-      throw new Error('HELIUS_API_KEY not configured');
+    // Fetch token data from PumpFun API
+    console.log('Fetching token data from PumpFun API...');
+    
+    const pumpFunApiUrl = `https://frontend-api.pump.fun/coins/${tokenAddress}`;
+    const tokenResponse = await fetch(pumpFunApiUrl);
+    
+    if (!tokenResponse.ok) {
+      throw new Error(`Failed to fetch token data: ${tokenResponse.statusText}`);
     }
 
-    // Use DAS API to get token holders and activity
-    console.log('Fetching token data from Helius DAS API...');
-    const dasUrl = `https://mainnet.helius-rpc.com/?api-key=${HELIUS_API_KEY}`;
-    
-    // Get token supply to understand the token
-    const supplyResponse = await fetch(dasUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        jsonrpc: '2.0',
-        id: 'supply-check',
-        method: 'getTokenSupply',
-        params: [tokenAddress]
-      })
-    });
+    const tokenData = await tokenResponse.json();
+    console.log('Token data received:', tokenData);
 
-    const supplyData = await supplyResponse.json();
+    // Fetch recent trades from PumpPortal
+    const tradesUrl = `https://pumpportal.fun/api/trades/${tokenAddress}?limit=100`;
+    const tradesResponse = await fetch(tradesUrl);
     
-    if (supplyData.error) {
-      console.log('Token supply error:', supplyData.error);
+    if (!tradesResponse.ok) {
+      throw new Error(`Failed to fetch trades: ${tradesResponse.statusText}`);
     }
 
-    // Get token largest accounts (holders)
-    const holdersResponse = await fetch(dasUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        jsonrpc: '2.0',
-        id: 'holders-check',
-        method: 'getTokenLargestAccounts',
-        params: [tokenAddress]
-      })
-    });
+    const trades = await tradesResponse.json();
+    console.log(`Received ${trades.length} trades for token ${tokenAddress}`);
 
-    const holdersData = await holdersResponse.json();
-    console.log(`Token holders response:`, holdersData);
-
-    // Get recent signatures for the token (using getProgramAccounts alternative)
-    const signaturesResponse = await fetch(dasUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        jsonrpc: '2.0',
-        id: 'sigs-check',
-        method: 'getSignaturesForAddress',
-        params: [tokenAddress, { limit: 100 }]
-      })
-    });
-
-    const signaturesData = await signaturesResponse.json();
-    const signatures = signaturesData.result || [];
-    
-    console.log(`Received ${signatures.length} signatures for token ${tokenAddress}`);
-
-    if (!signatures || signatures.length === 0) {
+    if (!trades || trades.length === 0) {
       return new Response(
         JSON.stringify({
           tokenAddress,
           error: 'No trading data found',
           summary: 'This token has no transaction history. It might be brand new, inactive, or not a valid token address.',
-          suggestion: 'Make sure you have the correct contract address (CA) from pump.fun'
+          suggestion: 'Make sure you have the correct contract address (CA) from pump.fun',
+          tokenInfo: tokenData
         }),
         {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -92,59 +58,72 @@ serve(async (req) => {
       );
     }
 
-    // Parse transaction signatures and get basic stats
-    const uniqueSigners = new Set();
-    const recentTransactions: any[] = [];
+    // Analyze trades
+    const uniqueTraders = new Set();
+    const recentTrades: any[] = [];
+    let totalVolumeSol = 0;
+    let buyCount = 0;
+    let sellCount = 0;
     
-    for (const sig of signatures.slice(0, 10)) {
-      if (sig.signature) {
-        recentTransactions.push({
-          signature: sig.signature,
-          slot: sig.slot,
-          blockTime: sig.blockTime,
-          err: sig.err
+    for (const trade of trades) {
+      uniqueTraders.add(trade.traderPublicKey || trade.trader);
+      
+      if (recentTrades.length < 10) {
+        recentTrades.push({
+          type: trade.isBuy ? 'buy' : 'sell',
+          solAmount: trade.sol_amount || trade.solAmount,
+          tokenAmount: trade.token_amount || trade.tokenAmount,
+          trader: trade.traderPublicKey || trade.trader,
+          timestamp: trade.timestamp
         });
       }
+      
+      totalVolumeSol += parseFloat(trade.sol_amount || trade.solAmount || 0);
+      if (trade.isBuy) buyCount++;
+      else sellCount++;
     }
 
-    // Get holder count
-    const holderCount = holdersData.result?.value?.length || 0;
-    
-    // Analyze based on available data
-    const totalTransactions = signatures.length;
-    const successfulTxs = signatures.filter((s: any) => !s.err).length;
-    
-    // Determine momentum based on signature frequency
+    // Determine momentum based on buy/sell ratio and volume
     let momentum = 'neutral';
-    if (totalTransactions > 50) {
+    const buyRatio = buyCount / (buyCount + sellCount);
+    if (buyRatio > 0.6 && totalVolumeSol > 10) {
       momentum = 'bullish';
-    } else if (totalTransactions < 10) {
+    } else if (buyRatio < 0.4 || totalVolumeSol < 5) {
       momentum = 'bearish';
     }
 
-    // Calculate risk score
+    // Calculate risk score based on volume and trader count
     let riskScore = 'low';
-    
-    if (totalTransactions < 10 || holderCount < 5) {
+    if (totalVolumeSol < 5 || uniqueTraders.size < 10) {
       riskScore = 'high';
-    } else if (totalTransactions < 50 || holderCount < 20) {
+    } else if (totalVolumeSol < 20 || uniqueTraders.size < 30) {
       riskScore = 'medium';
     }
 
     const analysis = {
       tokenAddress,
+      tokenInfo: {
+        name: tokenData.name,
+        symbol: tokenData.symbol,
+        description: tokenData.description,
+        image: tokenData.image_uri,
+        marketCap: tokenData.usd_market_cap,
+        createdTimestamp: tokenData.created_timestamp
+      },
       tradingActivity: {
-        totalTransactions,
-        successfulTransactions: successfulTxs,
-        failedTransactions: totalTransactions - successfulTxs,
-        holders: holderCount,
-        recentActivity: recentTransactions
+        totalTrades: trades.length,
+        buyTrades: buyCount,
+        sellTrades: sellCount,
+        buyRatio: (buyRatio * 100).toFixed(1) + '%',
+        totalVolumeSol: totalVolumeSol.toFixed(2),
+        uniqueTraders: uniqueTraders.size,
+        recentTrades
       },
       analysis: {
         momentum,
         riskScore,
-        dataWindow: 'recent transaction signatures',
-        summary: `This token has ${totalTransactions} total transactions (${successfulTxs} successful) with ${holderCount} token holders. Momentum: ${momentum}. Risk: ${riskScore}.`
+        dataWindow: 'last 100 trades',
+        summary: `${tokenData.name} (${tokenData.symbol}) has ${trades.length} recent trades with ${totalVolumeSol.toFixed(2)} SOL volume from ${uniqueTraders.size} unique traders. Buy/Sell ratio: ${(buyRatio * 100).toFixed(1)}%. Market Cap: $${tokenData.usd_market_cap?.toLocaleString() || 'N/A'}. Momentum: ${momentum}. Risk: ${riskScore}.`
       }
     };
 
