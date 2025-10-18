@@ -37,7 +37,7 @@ const WhitePaper = () => {
         {/* Hero Section */}
         <div className="text-center mb-16">
           <Badge variant="secondary" className="mb-4">
-            White Paper v1.0
+            White Paper v2.0
           </Badge>
           <div className="flex justify-center mb-6">
             <img 
@@ -47,7 +47,7 @@ const WhitePaper = () => {
             />
           </div>
           <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-            Create your own ai.
+            Create your own Web3-native AI with personalized landing pages, integrations, and full customization.
           </p>
           <div className="text-center mb-8">
             <p className="text-sm text-muted-foreground mb-2">Contract Address:</p>
@@ -66,13 +66,13 @@ const WhitePaper = () => {
           <h2 className="text-3xl font-bold mb-6">The Vision</h2>
           <div className="prose prose-lg max-w-none text-muted-foreground">
             <p className="text-lg mb-6">
-              <strong className="text-foreground">Sim Protocol</strong> empowers anyone to create and share their own AI. Our platform provides the infrastructure to build interactive, conversational AI simulations—from personalized tutors and domain experts to creative companions and fictional characters. The possibilities are limitless.
+              <strong className="text-foreground">Sim Protocol</strong> empowers anyone to create and share their own Web3-native AI. Our platform provides the infrastructure to build interactive, conversational AI simulations with full customization—from personalized tutors and domain experts to creative companions and fictional characters. Connect your crypto wallet, customize everything, and build an AI that truly understands you.
             </p>
             <p className="text-lg mb-6">
-              Whether you want to create a virtual mentor based on your favorite author, build a custom AI assistant with a unique personality, design an expert consultant in your field, or even recreate conversations with historical figures—Sim Protocol makes it possible for creators everywhere to bring their AI visions to life and share them with the world.
+              Whether you want to create a virtual mentor based on your favorite author, build a custom AI assistant with a unique personality, design an expert consultant in your field, or even recreate conversations with historical figures—Sim Protocol makes it possible. Each sim gets its own custom landing page with unique branding, social media integration, and personalized experiences.
             </p>
             <p className="text-lg mb-6">
-              This is more than just AI chatbots—it&apos;s a creator platform where <strong className="text-foreground">your ideas</strong> become interactive experiences. Build once, share globally, and let others engage with the AI you create.
+              This is more than just AI chatbots—it&apos;s a Web3-native creator platform where <strong className="text-foreground">your ideas</strong> become interactive experiences. Build once, share globally with custom URLs, and let others engage with the AI you create. Every sim is fully owned by its creator, with powerful integrations connecting to Google Calendar, crypto wallets, and more.
             </p>
           </div>
 
@@ -106,18 +106,18 @@ const WhitePaper = () => {
           </Card>
         </section>
 
-        {/* The Three Stages */}
+        {/* Platform Features */}
         <section className="mb-16">
-          <h2 className="text-3xl font-bold mb-8 text-center">The Three-Stage Roadmap</h2>
+          <h2 className="text-3xl font-bold mb-8 text-center">Platform Features</h2>
           
           <div className="grid gap-6 mb-12">
-            {/* Stage 1 */}
+            {/* Personalized Sims */}
             <Card className="border border-border/50 hover:border-primary/30 transition-all duration-300">
               <CardHeader className="pb-4">
                 <div className="flex items-start justify-between">
                   <div className="space-y-2">
-                    <div className="text-sm font-medium text-primary tracking-wide">STAGE 01</div>
-                    <CardTitle className="text-xl">Complex System Prompts</CardTitle>
+                    <div className="text-sm font-medium text-primary tracking-wide">CORE FEATURE</div>
+                    <CardTitle className="text-xl">Personalized Sim Creation</CardTitle>
                     <div className="inline-flex items-center px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium">
                       Currently Live
                     </div>
@@ -126,65 +126,157 @@ const WhitePaper = () => {
               </CardHeader>
               <CardContent className="pt-0">
                 <p className="text-muted-foreground mb-6 leading-relaxed">
-                  Our foundation begins with meticulously crafted system prompts that capture the essence of any persona—whether you're creating original characters, domain experts, fictional personalities, or recreating historical figures.
+                  Create your own AI sim with complete customization. Connect your crypto wallet, design your AI&apos;s personality, and share it with the world through a personalized landing page.
                 </p>
                 <div className="grid md:grid-cols-2 gap-4">
                   <div className="space-y-3">
                     <div className="flex items-center gap-3">
                       <div className="w-1.5 h-1.5 rounded-full bg-primary"></div>
-                      <span className="text-sm text-muted-foreground">Personality traits and communication styles</span>
+                      <span className="text-sm text-muted-foreground">Custom system prompts & personalities</span>
                     </div>
                     <div className="flex items-center gap-3">
                       <div className="w-1.5 h-1.5 rounded-full bg-primary"></div>
-                      <span className="text-sm text-muted-foreground">Core philosophical frameworks</span>
+                      <span className="text-sm text-muted-foreground">Avatar and branding customization</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="w-1.5 h-1.5 rounded-full bg-primary"></div>
+                      <span className="text-sm text-muted-foreground">Unique custom URLs for each sim</span>
                     </div>
                   </div>
                   <div className="space-y-3">
                     <div className="flex items-center gap-3">
                       <div className="w-1.5 h-1.5 rounded-full bg-primary"></div>
-                      <span className="text-sm text-muted-foreground">Contextual awareness and background</span>
+                      <span className="text-sm text-muted-foreground">Personalized landing pages</span>
                     </div>
                     <div className="flex items-center gap-3">
                       <div className="w-1.5 h-1.5 rounded-full bg-primary"></div>
-                      <span className="text-sm text-muted-foreground">Signature thought patterns</span>
+                      <span className="text-sm text-muted-foreground">Background images & visual themes</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="w-1.5 h-1.5 rounded-full bg-primary"></div>
+                      <span className="text-sm text-muted-foreground">Social media & website links</span>
                     </div>
                   </div>
                 </div>
               </CardContent>
             </Card>
 
-            {/* Stage 2 */}
+            {/* Web3 Integration */}
             <Card className="border border-border/50 hover:border-primary/30 transition-all duration-300">
               <CardHeader className="pb-4">
                 <div className="flex items-start justify-between">
                   <div className="space-y-2">
-                    <div className="text-sm font-medium text-primary tracking-wide">STAGE 02</div>
-                    <CardTitle className="text-xl">Vector Embeddings Integration</CardTitle>
+                    <div className="text-sm font-medium text-primary tracking-wide">WEB3 NATIVE</div>
+                    <CardTitle className="text-xl">Crypto Wallet Authentication</CardTitle>
+                    <div className="inline-flex items-center px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium">
+                      Currently Live
+                    </div>
                   </div>
                 </div>
               </CardHeader>
               <CardContent className="pt-0">
                 <p className="text-muted-foreground mb-6 leading-relaxed">
-                  Deep knowledge integration through vector embeddings—creators can upload documents, articles, books, or any content to enhance their sim&apos;s knowledge base.
+                  Sign in with Phantom or Solflare wallets. Your sim is tied to your Web3 identity, ensuring true ownership and portability.
                 </p>
                 <div className="grid md:grid-cols-2 gap-4">
                   <div className="space-y-3">
                     <div className="flex items-center gap-3">
                       <div className="w-1.5 h-1.5 rounded-full bg-primary"></div>
-                      <span className="text-sm text-muted-foreground">Full text analysis of uploaded content</span>
+                      <span className="text-sm text-muted-foreground">Phantom wallet integration</span>
                     </div>
                     <div className="flex items-center gap-3">
                       <div className="w-1.5 h-1.5 rounded-full bg-primary"></div>
-                      <span className="text-sm text-muted-foreground">Real-time retrieval of specific information</span>
+                      <span className="text-sm text-muted-foreground">Solflare wallet support</span>
                     </div>
                   </div>
                   <div className="space-y-3">
                     <div className="flex items-center gap-3">
                       <div className="w-1.5 h-1.5 rounded-full bg-primary"></div>
-                      <span className="text-sm text-muted-foreground">Contextual understanding and memory</span>
+                      <span className="text-sm text-muted-foreground">Secure message signing</span>
                     </div>
                     <div className="flex items-center gap-3">
                       <div className="w-1.5 h-1.5 rounded-full bg-primary"></div>
+                      <span className="text-sm text-muted-foreground">Display crypto wallet addresses</span>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Integrations */}
+            <Card className="border border-border/50 hover:border-primary/30 transition-all duration-300">
+              <CardHeader className="pb-4">
+                <div className="flex items-start justify-between">
+                  <div className="space-y-2">
+                    <div className="text-sm font-medium text-primary tracking-wide">INTEGRATIONS</div>
+                    <CardTitle className="text-xl">External Service Connections</CardTitle>
+                    <div className="inline-flex items-center px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium">
+                      Currently Live
+                    </div>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent className="pt-0">
+                <p className="text-muted-foreground mb-6 leading-relaxed">
+                  Connect your sim to external services for enhanced functionality. Currently supports Google Calendar with more integrations coming soon.
+                </p>
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-3">
+                      <div className="w-1.5 h-1.5 rounded-full bg-primary"></div>
+                      <span className="text-sm text-muted-foreground">Google Calendar OAuth integration</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="w-1.5 h-1.5 rounded-full bg-primary"></div>
+                      <span className="text-sm text-muted-foreground">Real-time wallet analytics (coming soon)</span>
+                    </div>
+                  </div>
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-3">
+                      <div className="w-1.5 h-1.5 rounded-full bg-primary"></div>
+                      <span className="text-sm text-muted-foreground">Event scheduling and management</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="w-1.5 h-1.5 rounded-full bg-primary"></div>
+                      <span className="text-sm text-muted-foreground">Expandable integration framework</span>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Vector Embeddings */}
+            <Card className="border border-border/50 hover:border-primary/30 transition-all duration-300">
+              <CardHeader className="pb-4">
+                <div className="flex items-start justify-between">
+                  <div className="space-y-2">
+                    <div className="text-sm font-medium text-muted-foreground tracking-wide">COMING SOON</div>
+                    <CardTitle className="text-xl">Vector Embeddings & Knowledge Base</CardTitle>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent className="pt-0">
+                <p className="text-muted-foreground mb-6 leading-relaxed">
+                  Deep knowledge integration through vector embeddings—creators will be able to upload documents, articles, books, or any content to enhance their sim&apos;s knowledge base.
+                </p>
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-3">
+                      <div className="w-1.5 h-1.5 rounded-full bg-muted"></div>
+                      <span className="text-sm text-muted-foreground">Full text analysis of uploaded content</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="w-1.5 h-1.5 rounded-full bg-muted"></div>
+                      <span className="text-sm text-muted-foreground">Real-time retrieval of specific information</span>
+                    </div>
+                  </div>
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-3">
+                      <div className="w-1.5 h-1.5 rounded-full bg-muted"></div>
+                      <span className="text-sm text-muted-foreground">Contextual understanding and memory</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="w-1.5 h-1.5 rounded-full bg-muted"></div>
                       <span className="text-sm text-muted-foreground">Custom knowledge base capabilities</span>
                     </div>
                   </div>
@@ -192,12 +284,12 @@ const WhitePaper = () => {
               </CardContent>
             </Card>
 
-            {/* Stage 3 */}
+            {/* Voice Synthesis */}
             <Card className="border border-border/50 hover:border-primary/30 transition-all duration-300">
               <CardHeader className="pb-4">
                 <div className="flex items-start justify-between">
                   <div className="space-y-2">
-                    <div className="text-sm font-medium text-primary tracking-wide">STAGE 03</div>
+                    <div className="text-sm font-medium text-muted-foreground tracking-wide">COMING SOON</div>
                     <CardTitle className="text-xl">Real-Time Voice Synthesis</CardTitle>
                   </div>
                 </div>
@@ -209,21 +301,21 @@ const WhitePaper = () => {
                 <div className="grid md:grid-cols-2 gap-4">
                   <div className="space-y-3">
                     <div className="flex items-center gap-3">
-                      <div className="w-1.5 h-1.5 rounded-full bg-primary"></div>
+                      <div className="w-1.5 h-1.5 rounded-full bg-muted"></div>
                       <span className="text-sm text-muted-foreground">AI-generated voice synthesis</span>
                     </div>
                     <div className="flex items-center gap-3">
-                      <div className="w-1.5 h-1.5 rounded-full bg-primary"></div>
+                      <div className="w-1.5 h-1.5 rounded-full bg-muted"></div>
                       <span className="text-sm text-muted-foreground">Real-time conversational flow</span>
                     </div>
                   </div>
                   <div className="space-y-3">
                     <div className="flex items-center gap-3">
-                      <div className="w-1.5 h-1.5 rounded-full bg-primary"></div>
+                      <div className="w-1.5 h-1.5 rounded-full bg-muted"></div>
                       <span className="text-sm text-muted-foreground">Emotional intelligence responses</span>
                     </div>
                     <div className="flex items-center gap-3">
-                      <div className="w-1.5 h-1.5 rounded-full bg-primary"></div>
+                      <div className="w-1.5 h-1.5 rounded-full bg-muted"></div>
                       <span className="text-sm text-muted-foreground">Multi-language support</span>
                     </div>
                   </div>
@@ -259,15 +351,25 @@ const WhitePaper = () => {
             </Card>
           </div>
 
-          <Card className="bg-gradient-to-r from-purple-50 via-pink-50 to-blue-50 border-2 border-primary/20">
+          <Card className="bg-gradient-to-r from-purple-50 via-pink-50 to-blue-50 dark:from-purple-950/20 dark:via-pink-950/20 dark:to-blue-950/20 border-2 border-primary/20">
             <CardHeader>
-              <CardTitle className="text-xl">User-Created Sims: Available Now</CardTitle>
+              <CardTitle className="text-xl">Personalized Sim Landing Pages: Available Now</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-muted-foreground mb-4">
-                <strong>Currently Live:</strong> Anyone can create and share their own custom sims with shareable links. Future monetization features coming soon:
+                <strong>Currently Live:</strong> Every sim gets its own custom landing page with unique branding, social media links, and personalized experiences. Share your sim&apos;s custom URL with the world.
               </p>
               <div className="grid md:grid-cols-2 gap-6">
+                <div>
+                  <h4 className="font-semibold mb-2">Landing Page Features</h4>
+                  <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
+                    <li>Custom URLs for each sim</li>
+                    <li>Personalized background images</li>
+                    <li>Social media integration (Twitter, website)</li>
+                    <li>Crypto wallet address display</li>
+                    <li>Fully branded experience</li>
+                  </ul>
+                </div>
                 <div>
                   <h4 className="font-semibold mb-2">Creator Economy</h4>
                   <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
@@ -275,15 +377,7 @@ const WhitePaper = () => {
                     <li>Create fictional character interactions</li>
                     <li>Develop specialized expert consultants</li>
                     <li>Design educational tutoring personas</li>
-                  </ul>
-                </div>
-                <div>
-                  <h4 className="font-semibold mb-2">Future Monetization Models</h4>
-                  <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
-                    <li>Per-conversation pricing</li>
-                    <li>Subscription-based access</li>
-                    <li>Premium feature unlocks</li>
-                    <li>Revenue sharing with platform</li>
+                    <li>Future: Per-conversation & subscription monetization</li>
                   </ul>
                 </div>
               </div>
