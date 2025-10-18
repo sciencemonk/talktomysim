@@ -22,13 +22,17 @@ const AudioVisualizer = ({ audioSrc }: AudioVisualizerProps) => {
     const canvas = canvasRef.current;
     if (!audio || !canvas) return;
 
-    // Stop any existing global audio instance
-    if (globalAudioInstance && globalAudioInstance !== audio) {
+    // Stop any existing global audio instance before creating a new one
+    if (globalAudioInstance) {
       console.log('Stopping previous audio instance');
       globalAudioInstance.pause();
       globalAudioInstance.currentTime = 0;
+      globalAudioInstance = null;
     }
+    
+    // Set this audio as the global instance
     globalAudioInstance = audio;
+    console.log('Audio instance registered as global');
 
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
@@ -175,7 +179,9 @@ const AudioVisualizer = ({ audioSrc }: AudioVisualizerProps) => {
     audio.addEventListener('error', handleError);
 
     return () => {
-      console.log('Cleaning up AudioVisualizer');
+      console.log('Cleaning up AudioVisualizer - stopping all audio');
+      
+      // Remove all event listeners
       window.removeEventListener('resize', resizeCanvas);
       audio.removeEventListener('play', handlePlay);
       audio.removeEventListener('pause', handlePause);
@@ -183,25 +189,27 @@ const AudioVisualizer = ({ audioSrc }: AudioVisualizerProps) => {
       document.removeEventListener('click', handleInteraction);
       document.removeEventListener('touchstart', handleInteraction);
       
-      // Stop audio playback
-      if (!audio.paused) {
-        audio.pause();
-      }
+      // CRITICAL: Stop audio playback completely
+      audio.pause();
       audio.currentTime = 0;
+      audio.src = ''; // Clear the source to fully stop playback
       
-      // Clear global reference if this is the current instance
-      if (globalAudioInstance === audio) {
-        globalAudioInstance = null;
-      }
+      // Clear global reference unconditionally
+      globalAudioInstance = null;
+      console.log('Global audio instance cleared');
       
       // Cancel animation frame
       if (animationRef.current) {
         cancelAnimationFrame(animationRef.current);
+        animationRef.current = null;
       }
       
       // Close audio context
-      if (audioContextRef.current && audioContextRef.current.state !== 'closed') {
-        audioContextRef.current.close();
+      if (audioContextRef.current) {
+        if (audioContextRef.current.state !== 'closed') {
+          audioContextRef.current.close();
+        }
+        audioContextRef.current = null;
       }
       
       playAttemptedRef.current = false;
