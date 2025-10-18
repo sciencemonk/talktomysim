@@ -13,84 +13,67 @@ serve(async (req) => {
   try {
     const { tokenAddress } = await req.json();
     
-    // Validate token address format
     if (!tokenAddress) {
       throw new Error('Token address is required');
     }
 
-    // Solana addresses are base58 encoded and typically 32-44 characters
-    // Most token addresses are 43-44 characters
-    if (tokenAddress.length < 32 || tokenAddress.length > 44) {
-      return new Response(
-        JSON.stringify({
-          error: 'Invalid Solana token address',
-          details: `Token address should be 32-44 characters (base58 encoded). Received: ${tokenAddress.length} characters.`,
-          example: 'Example: HWvHfS6sYkSkFpo3vftsfKwoBTUbBbTEzeGvvSqTuHyr'
-        }),
-        { 
-          status: 400, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-        }
-      );
-    }
-
-    // Validate base58 characters (alphanumeric excluding 0, O, I, l)
-    const base58Regex = /^[1-9A-HJ-NP-Za-km-z]+$/;
-    if (!base58Regex.test(tokenAddress)) {
-      return new Response(
-        JSON.stringify({
-          error: 'Invalid Solana token address',
-          details: 'Token address contains invalid characters. Solana addresses use base58 encoding (excludes 0, O, I, l).',
-          example: 'Example: HWvHfS6sYkSkFpo3vftsfKwoBTUbBbTEzeGvvSqTuHyr'
-        }),
-        { 
-          status: 400, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-        }
-      );
-    }
-
     console.log('Analyzing PumpFun token:', tokenAddress);
 
-    // Fetch recent trades from PumpPortal
-    const response = await fetch(
-      `https://pumpportal.fun/api/data?mint=${tokenAddress}&limit=50`,
-      {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json' },
-      }
-    );
+    // Connect to PumpPortal WebSocket to get recent trades
+    const ws = new WebSocket('wss://pumpportal.fun/api/data');
+    
+    const tradesPromise = new Promise((resolve, reject) => {
+      const trades: any[] = [];
+      let timeout: number;
 
-    if (!response.ok) {
-      console.error(`PumpPortal API error: ${response.status}`);
-      
-      if (response.status === 404) {
-        return new Response(
-          JSON.stringify({
-            error: 'Token not found',
-            tokenAddress,
-            details: 'This token does not exist on PumpFun or has no trading history. Make sure you have the correct contract address.',
-            suggestion: 'You can find PumpFun token addresses on pump.fun or by copying them from Solana explorers like Solscan.'
-          }),
-          { 
-            status: 404, 
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+      ws.onopen = () => {
+        console.log('WebSocket connected');
+        // Subscribe to this token's trades
+        ws.send(JSON.stringify({
+          method: 'subscribeTokenTrade',
+          keys: [tokenAddress]
+        }));
+
+        // Collect trades for 3 seconds
+        timeout = setTimeout(() => {
+          ws.close();
+          resolve(trades);
+        }, 3000);
+      };
+
+      ws.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          if (data && !data.error) {
+            trades.push(data);
           }
-        );
-      }
-      
-      throw new Error(`PumpPortal API error: ${response.status}`);
-    }
+        } catch (e) {
+          console.error('Error parsing message:', e);
+        }
+      };
 
-    const trades = await response.json();
-    console.log(`Fetched ${trades.length} trades for token ${tokenAddress}`);
+      ws.onerror = (error) => {
+        clearTimeout(timeout);
+        console.error('WebSocket error:', error);
+        reject(new Error('Failed to connect to PumpPortal'));
+      };
+
+      ws.onclose = () => {
+        clearTimeout(timeout);
+        console.log('WebSocket closed');
+      };
+    });
+
+    const trades = await tradesPromise as any[];
+    console.log(`Received ${trades.length} trades for token ${tokenAddress}`);
 
     if (!trades || trades.length === 0) {
       return new Response(
         JSON.stringify({
           tokenAddress,
-          error: 'No trading data found',
-          summary: 'This token has no recent trading activity on PumpFun. It might be inactive, not a PumpFun token, or very new.'
+          error: 'No recent trading data',
+          summary: 'This token has no recent trading activity on PumpFun. It might be inactive, new, or not a valid PumpFun token.',
+          suggestion: 'Make sure you have the correct contract address (CA) from pump.fun'
         }),
         {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -108,16 +91,11 @@ serve(async (req) => {
     const uniqueBuyers = new Set();
     const uniqueSellers = new Set();
 
-    // Get timestamp 24h ago
-    const twentyFourHoursAgo = Date.now() - (24 * 60 * 60 * 1000);
-
     for (const trade of trades) {
       const isBuy = trade.txType === 'buy';
       const solAmount = trade.solAmount || 0;
-      const tradeTime = trade.timestamp || 0;
       const trader = trade.traderPublicKey || trade.user;
 
-      // Count all trades for momentum
       if (isBuy) {
         totalBuys++;
         buyVolumeSol += solAmount;
@@ -147,25 +125,10 @@ serve(async (req) => {
     const totalTrades = totalBuys + totalSells;
     const totalUniqueTraders = uniqueBuyers.size + uniqueSellers.size;
 
-    if (totalTrades < 10 || totalVolumeSol < 5) {
+    if (totalTrades < 5 || totalVolumeSol < 2) {
       riskScore = 'high';
-    } else if (totalTrades < 30 || totalVolumeSol < 20 || totalUniqueTraders < 10) {
+    } else if (totalTrades < 15 || totalVolumeSol < 10 || totalUniqueTraders < 5) {
       riskScore = 'medium';
-    }
-
-    // Volume trend analysis
-    const recentTrades = trades.slice(0, Math.min(10, trades.length));
-    const recentVolume = recentTrades.reduce((sum: number, t: any) => 
-      sum + (t.solAmount || 0), 0
-    );
-    const avgRecentVolume = recentVolume / recentTrades.length;
-    const avgTotalVolume = totalVolumeSol / trades.length;
-
-    let volumeTrend = 'stable';
-    if (avgRecentVolume > avgTotalVolume * 1.2) {
-      volumeTrend = 'increasing';
-    } else if (avgRecentVolume < avgTotalVolume * 0.8) {
-      volumeTrend = 'decreasing';
     }
 
     const analysis = {
@@ -186,8 +149,8 @@ serve(async (req) => {
       analysis: {
         momentum,
         riskScore,
-        volumeTrend,
-        summary: `This PumpFun token has seen ${totalTrades} trades (${totalBuys} buys, ${totalSells} sells) with ${totalVolumeSol.toFixed(2)} SOL total volume. ${uniqueBuyers.size + uniqueSellers.size} unique traders. Momentum: ${momentum}. Risk: ${riskScore}. Volume trend: ${volumeTrend}.`
+        dataWindow: 'last 3 seconds of real-time activity',
+        summary: `This PumpFun token just had ${totalTrades} trades (${totalBuys} buys, ${totalSells} sells) with ${totalVolumeSol.toFixed(2)} SOL total volume in the last few seconds. ${uniqueBuyers.size + uniqueSellers.size} unique traders. Momentum: ${momentum}. Risk: ${riskScore}.`
       }
     };
 
@@ -205,7 +168,7 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({ 
         error: error.message,
-        details: 'Failed to analyze PumpFun token. The token address might be invalid or the PumpPortal API is unavailable.'
+        details: 'Failed to analyze PumpFun token. The token address might be invalid or the PumpPortal service is unavailable.'
       }),
       { 
         status: 500, 
