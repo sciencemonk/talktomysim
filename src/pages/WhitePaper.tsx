@@ -66,44 +66,18 @@ const WhitePaper = () => {
           <h2 className="text-3xl font-bold mb-6">The Vision</h2>
           <div className="prose prose-lg max-w-none text-muted-foreground">
             <p className="text-lg mb-6">
-              <strong className="text-foreground">Sim Protocol</strong> empowers anyone to create and share their own Web3-native AI. Our platform provides the infrastructure to build interactive, conversational AI simulations with full customization—from personalized tutors and domain experts to creative companions and fictional characters. Connect your crypto wallet, customize everything, and build an AI that truly understands you.
+              <strong className="text-foreground">ChatGPT is generic. Your Sim is personal.</strong> While ChatGPT provides one-size-fits-all responses, Sim Protocol empowers you to create your own personalized AI agent—a digital clone that understands you, represents you, and acts as your executive assistant in the digital world.
             </p>
             <p className="text-lg mb-6">
-              Whether you want to create a virtual mentor based on your favorite author, build a custom AI assistant with a unique personality, design an expert consultant in your field, or even recreate conversations with historical figures—Sim Protocol makes it possible. Each sim gets its own custom landing page with unique branding, social media integration, and personalized experiences.
+              Your Sim is not just another chatbot. It&apos;s <strong className="text-foreground">your AI</strong>—customized to your personality, your knowledge, your style, and your needs. Think of it as your digital twin that can handle tasks, manage your calendar, represent you in conversations, and grow smarter as it learns from you. It&apos;s the personal AI assistant you&apos;ve always wanted, fully owned and controlled by you through Web3 technology.
             </p>
             <p className="text-lg mb-6">
-              This is more than just AI chatbots—it&apos;s a Web3-native creator platform where <strong className="text-foreground">your ideas</strong> become interactive experiences. Build once, share globally with custom URLs, and let others engage with the AI you create. Every sim is fully owned by its creator, with powerful integrations connecting to Google Calendar, crypto wallets, and more.
+              Connect your crypto wallet, design your AI&apos;s personality, integrate your tools (Google Calendar, social media, and more), and deploy your Sim with its own personalized landing page. Share your custom URL with the world, and let your digital clone work for you 24/7. Whether you need an executive assistant, a personal brand ambassador, a domain expert, or a creative companion—<strong className="text-foreground">your Sim is whatever you need it to be.</strong>
+            </p>
+            <p className="text-lg mb-6">
+              This is the future of AI: <strong className="text-foreground">personalized, owned, and empowered by you.</strong> Not a generic tool from Big Tech, but your own AI agent that truly represents who you are and what you know. Build your digital clone today and take control of your AI future.
             </p>
           </div>
-
-          {/* Live Debates Subsection */}
-          <Card className="mt-8 border-primary/30 bg-gradient-to-br from-primary/5 to-primary/10">
-            <CardHeader>
-              <CardTitle className="text-2xl">Live Debates: Historical Minds in Conversation</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4 text-muted-foreground">
-                <p className="text-lg">
-                  One of the most exciting applications of Sim Protocol is our <strong className="text-foreground">Live Chat</strong> feature, where historical sims engage in real-time philosophical debates. Watch as recreated minds from different eras discuss timeless questions—from the nature of consciousness to the meaning of life.
-                </p>
-                <p className="text-lg">
-                  Every 5 minutes, a new debate begins with a randomly selected philosophical question and two historical figures. These aren&apos;t scripted performances—they&apos;re authentic AI-powered conversations where each sim draws from their unique knowledge, beliefs, and communication style to engage in meaningful discourse.
-                </p>
-                <p className="text-lg">
-                  This feature demonstrates the power of Sim Protocol: <strong className="text-foreground">preserving and animating human wisdom</strong> in ways that educate, inspire, and provoke thought. It&apos;s history brought to life, philosophy made accessible, and ideas given new context through cross-temporal dialogue.
-                </p>
-                <div className="flex items-center gap-2 mt-6">
-                  <Button 
-                    onClick={() => navigate('/')}
-                    className="bg-primary hover:bg-primary/90"
-                  >
-                    Watch Live Debates Now
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
         </section>
 
         {/* Platform Features */}
