@@ -283,9 +283,8 @@ export const OnboardingModal = ({ open, userId, onComplete }: OnboardingModalPro
                     value={name}
                     onChange={(e) => {
                       setName(e.target.value);
-                      if (!customUrl) {
-                        setCustomUrl(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-'));
-                      }
+                      // Always update customUrl to match the name
+                      setCustomUrl(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-'));
                     }}
                     placeholder="e.g., Alex, Dr. Smith, TechBot"
                     className="text-lg"
