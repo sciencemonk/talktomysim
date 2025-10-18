@@ -65,10 +65,10 @@ export const AuthenticatedLayout = () => {
 
   const handleOnboardingComplete = async () => {
     setShowOnboarding(false);
-    // Refetch sim data
+    // Refetch both sim queries to ensure the new sim is loaded
     await queryClient.invalidateQueries({ queryKey: ['user-sim-check'] });
-    // Navigate to home
-    navigate('/home');
+    await queryClient.invalidateQueries({ queryKey: ['user-sim'] });
+    // Don't navigate - we're already on /home, just let the data refresh
   };
 
   if (isLoading) {

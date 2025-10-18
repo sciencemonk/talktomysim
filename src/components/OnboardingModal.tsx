@@ -135,7 +135,7 @@ export const OnboardingModal = ({ open, userId, onComplete }: OnboardingModalPro
     try {
       const generatedPrompt = generatePrompt();
       
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('advisors')
         .insert({
           user_id: userId,
@@ -150,7 +150,9 @@ export const OnboardingModal = ({ open, userId, onComplete }: OnboardingModalPro
           crypto_wallet: cryptoWallet || null,
           is_active: true,
           sim_type: 'living'
-        });
+        })
+        .select()
+        .single();
 
       if (error) throw error;
 
