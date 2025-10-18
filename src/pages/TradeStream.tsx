@@ -6,7 +6,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { getAvatarUrl } from "@/lib/avatarUtils";
 import TopNavigation from "@/components/TopNavigation";
-import AudioVisualizer from "@/components/AudioVisualizer";
 import { usePumpFunStream } from "@/hooks/usePumpFunStream";
 
 interface Reaction {
@@ -269,9 +268,6 @@ const TradeStream = () => {
           </AnimatePresence>
         </div>
       </div>
-
-      {/* Audio Visualizer */}
-      <AudioVisualizer audioSrc="https://kxsvyeirqimcydtkowga.supabase.co/storage/v1/object/public/music/simmusic.m4a" />
     </div>
   );
 };
