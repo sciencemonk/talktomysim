@@ -54,7 +54,7 @@ const PublicChatInterface = ({ agent }: PublicChatInterfaceProps) => {
   // Show initial state if no messages
   if (!hasStartedChat && chatHistory.messages.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center h-full px-4">
+      <div className="flex flex-col items-center justify-center min-h-full px-4">
         <div className="w-full max-w-2xl space-y-8">
           <h1 className="text-4xl md:text-5xl font-bold text-white text-center">
             How may I help you?
@@ -113,7 +113,7 @@ const PublicChatInterface = ({ agent }: PublicChatInterfaceProps) => {
                   <div className={`
                     ${message.role === 'user' 
                       ? 'bg-primary/90 text-white rounded-3xl px-4 py-3 inline-block max-w-[80%]' 
-                      : 'bg-white/10 backdrop-blur-sm rounded-2xl px-4 py-3 w-full'
+                      : 'bg-white/30 backdrop-blur-sm rounded-2xl px-4 py-3 w-full'
                     }
                   `}>
                     {message.role === 'user' ? (
@@ -164,7 +164,7 @@ const PublicChatInterface = ({ agent }: PublicChatInterfaceProps) => {
                 </AvatarFallback>
               </Avatar>
               <div className="flex-1">
-                <div className="bg-white/10 backdrop-blur-sm rounded-2xl px-4 py-3 inline-block">
+                <div className="bg-white/30 backdrop-blur-sm rounded-2xl px-4 py-3 inline-block">
                   <div className="flex space-x-1.5">
                     <div className="w-2 h-2 rounded-full bg-white/60 animate-bounce [animation-delay:-0.3s]"></div>
                     <div className="w-2 h-2 rounded-full bg-white/60 animate-bounce [animation-delay:-0.15s]"></div>
