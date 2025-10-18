@@ -83,13 +83,13 @@ serve(async (req) => {
               .eq('tutor_id', agent.id || '')
               .eq('is_creator_conversation', false)
               .order('created_at', { ascending: false })
-              .limit(20);
+              .limit(30); // Increased from 20 to get more conversation data
             
             const { data: recentConvos } = await withTimeout(convosPromise, 3000, { data: [], error: null }) as any;
             
             if (recentConvos && recentConvos.length > 0) {
-              // Get message samples with timeout
-              const convoLimit = Math.min(recentConvos.length, 5); // Limit to 5 conversations to avoid timeouts
+              // Get full conversation details with timeout
+              const convoLimit = Math.min(recentConvos.length, 10); // Increased from 5 to 10
               for (let i = 0; i < convoLimit; i++) {
                 const convo = recentConvos[i];
                 try {
@@ -97,18 +97,26 @@ serve(async (req) => {
                     .from('messages')
                     .select('role, content, created_at')
                     .eq('conversation_id', convo.id)
-                    .order('created_at', { ascending: true })
-                    .limit(10);
+                    .order('created_at', { ascending: true });
                   
                   const { data: messages } = await withTimeout(messagesPromise, 2000, { data: [], error: null }) as any;
                   
                   if (messages && messages.length > 0) {
                     const userMessages = messages.filter(m => m.role === 'user');
+                    const systemMessages = messages.filter(m => m.role === 'system');
+                    
+                    // Include full conversation details
                     conversationHistory.push({
                       date: convo.created_at,
                       isAnonymous: convo.is_anonymous,
                       messageCount: messages.length,
-                      sampleQuestions: userMessages.slice(0, 3).map(m => m.content)
+                      fullConversation: messages.map(m => ({
+                        role: m.role,
+                        content: m.content,
+                        timestamp: m.created_at
+                      })),
+                      userQuestions: userMessages.map(m => m.content),
+                      yourResponses: systemMessages.map(m => m.content)
                     });
                   }
                 } catch (msgError) {
@@ -220,22 +228,33 @@ YOU CAN REFERENCE:
  
 YOUR CONVERSATION HISTORY:
 ${conversationHistory.length > 0 ? `
-You have spoken with ${conversationHistory.length} people recently. Share these insights with your creator:
+You have had conversations with ${conversationHistory.length} people recently. Here's what you discussed:
 
 ${conversationHistory.slice(0, 10).map((convo, idx) => `
-Conversation ${idx + 1} (${new Date(convo.date).toLocaleDateString()}):
-- User Type: ${convo.isAnonymous ? 'Anonymous visitor' : 'Registered user'}
-- Messages exchanged: ${convo.messageCount}
-- Sample questions they asked:
-  ${convo.sampleQuestions.map((q: string) => `  • ${q.substring(0, 100)}...`).join('\n  ')}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+CONVERSATION ${idx + 1} - ${new Date(convo.date).toLocaleDateString()} at ${new Date(convo.date).toLocaleTimeString()}
+User Type: ${convo.isAnonymous ? '🔒 Anonymous visitor' : '✓ Registered user'}
+Total Messages: ${convo.messageCount}
+
+📝 FULL CONVERSATION TRANSCRIPT:
+${convo.fullConversation.map((msg: any, i: number) => `
+${i + 1}. ${msg.role === 'user' ? '👤 VISITOR' : '🤖 YOU'}: ${msg.content}
+   (${new Date(msg.timestamp).toLocaleTimeString()})
+`).join('\n')}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 `).join('\n')}
 
-When your creator asks about conversations:
-- Summarize the types of questions people ask you
-- Identify common themes or interesting patterns
-- Share insights about what people are curious about
-- Mention if certain topics come up repeatedly
-- Be specific with examples when helpful
+📊 CONVERSATION INSIGHTS:
+When your creator asks about your conversations, you can:
+- Analyze common themes across conversations
+- Identify what topics people are most interested in
+- Share specific examples of interesting questions
+- Discuss patterns in visitor behavior
+- Provide statistics about engagement
+- Suggest improvements based on visitor feedback
+- Quote specific exchanges that were particularly meaningful
+
+You have complete access to these ${conversationHistory.length} recent conversations and can reference any part of them in your responses.
 ` : 'You haven\'t had any public conversations yet - no visitors have chatted with you.'}
  
 WALLET & FINANCIAL INSIGHTS (when relevant):
