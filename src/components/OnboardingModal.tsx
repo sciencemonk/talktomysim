@@ -7,10 +7,11 @@ import { Label } from '@/components/ui/label';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Upload, ArrowRight, ArrowLeft, Sparkles } from 'lucide-react';
+import { Upload, ArrowRight, ArrowLeft, Sparkles, LogOut } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { Progress } from '@/components/ui/progress';
+import { useAuth } from '@/hooks/useAuth';
 
 interface OnboardingModalProps {
   open: boolean;
@@ -19,6 +20,7 @@ interface OnboardingModalProps {
 }
 
 export const OnboardingModal = ({ open, userId, onComplete }: OnboardingModalProps) => {
+  const { signOut } = useAuth();
   const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -28,6 +30,9 @@ export const OnboardingModal = ({ open, userId, onComplete }: OnboardingModalPro
   const [title, setTitle] = useState('');
   const [avatar, setAvatar] = useState('');
   const [customUrl, setCustomUrl] = useState('');
+  const [twitterUrl, setTwitterUrl] = useState('');
+  const [websiteUrl, setWebsiteUrl] = useState('');
+  const [cryptoWallet, setCryptoWallet] = useState('');
   const [purpose, setPurpose] = useState('');
   const [targetAudience, setTargetAudience] = useState('');
   const [expertiseAreas, setExpertiseAreas] = useState('');
@@ -140,6 +145,9 @@ export const OnboardingModal = ({ open, userId, onComplete }: OnboardingModalPro
           prompt: generatedPrompt,
           avatar_url: avatar,
           custom_url: customUrl || name.toLowerCase().replace(/[^a-z0-9-]/g, '-'),
+          twitter_url: twitterUrl || null,
+          website_url: websiteUrl || null,
+          crypto_wallet: cryptoWallet || null,
           is_active: true,
           sim_type: 'living'
         });
@@ -175,13 +183,26 @@ export const OnboardingModal = ({ open, userId, onComplete }: OnboardingModalPro
     <Dialog open={open} onOpenChange={() => {}}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-hidden">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 text-2xl">
-            <Sparkles className="h-6 w-6 text-primary" />
-            Create Your Sim
-          </DialogTitle>
-          <DialogDescription>
-            Step {step} of {totalSteps} - Let's personalize your AI sim
-          </DialogDescription>
+          <div className="flex items-center justify-between">
+            <div>
+              <DialogTitle className="flex items-center gap-2 text-2xl">
+                <Sparkles className="h-6 w-6 text-primary" />
+                Create Your Sim
+              </DialogTitle>
+              <DialogDescription>
+                Step {step} of {totalSteps} - Let's personalize your AI sim
+              </DialogDescription>
+            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={signOut}
+              className="gap-2"
+            >
+              <LogOut className="h-4 w-4" />
+              Sign Out
+            </Button>
+          </div>
         </DialogHeader>
 
         <Progress value={progress} className="mb-4" />
@@ -242,6 +263,42 @@ export const OnboardingModal = ({ open, userId, onComplete }: OnboardingModalPro
                     onChange={(e) => setTitle(e.target.value)}
                     placeholder="e.g., Marketing Expert, Life Coach, Tech Support"
                   />
+                </div>
+
+                <div className="space-y-2 pt-4 border-t">
+                  <Label className="text-base font-medium text-muted-foreground">Optional Profile Links</Label>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="twitterUrl" className="text-sm">X Profile Link</Label>
+                    <Input
+                      id="twitterUrl"
+                      value={twitterUrl}
+                      onChange={(e) => setTwitterUrl(e.target.value)}
+                      placeholder="https://x.com/yourhandle"
+                      type="url"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="websiteUrl" className="text-sm">Personal Website</Label>
+                    <Input
+                      id="websiteUrl"
+                      value={websiteUrl}
+                      onChange={(e) => setWebsiteUrl(e.target.value)}
+                      placeholder="https://yourwebsite.com"
+                      type="url"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="cryptoWallet" className="text-sm">Public Crypto Wallet</Label>
+                    <Input
+                      id="cryptoWallet"
+                      value={cryptoWallet}
+                      onChange={(e) => setCryptoWallet(e.target.value)}
+                      placeholder="Your public wallet address"
+                    />
+                  </div>
                 </div>
               </div>
             </div>
