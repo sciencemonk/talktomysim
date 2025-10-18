@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
-import { Loader2, Menu, Plug, Calendar, CheckCircle2, XCircle } from "lucide-react";
+import { Loader2, Menu, Plug, Calendar, CheckCircle2, XCircle, Hexagon } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { supabase } from "@/integrations/supabase/client";
@@ -219,6 +220,48 @@ const Integrations = () => {
                     )}
                   </Button>
                 )}
+              </CardContent>
+            </Card>
+
+            {/* Helius Solana Explorer Integration */}
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="h-12 w-12 rounded-lg bg-purple-500/10 flex items-center justify-center">
+                      <Hexagon className="h-6 w-6 text-purple-500" />
+                    </div>
+                    <div>
+                      <CardTitle>Solana Explorer (Helius)</CardTitle>
+                      <CardDescription className="text-xs">
+                        Blockchain data access
+                      </CardDescription>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <CheckCircle2 className="h-5 w-5 text-green-500" />
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  <p className="text-sm text-muted-foreground">
+                    Access to Solana blockchain data including wallet portfolios and transaction history
+                  </p>
+                  <div className="flex items-center gap-2">
+                    <Badge variant="secondary" className="text-xs">
+                      <span className="text-green-500 mr-1">✓</span> Connected
+                    </Badge>
+                    <Badge variant="outline" className="text-xs bg-purple-500/10 text-purple-600 border-purple-300">
+                      No Setup Required
+                    </Badge>
+                  </div>
+                  <div className="pt-2 border-t">
+                    <p className="text-xs text-muted-foreground">
+                      <span className="font-semibold">Scopes:</span> read_blockchain_data
+                    </p>
+                  </div>
+                </div>
               </CardContent>
             </Card>
 

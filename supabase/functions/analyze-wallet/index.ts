@@ -28,8 +28,16 @@ serve(async (req) => {
 
     console.log('Analyzing wallet:', walletAddress);
 
-    // Connect to Solana mainnet
-    const connection = new Connection('https://api.mainnet-beta.solana.com', 'confirmed');
+    // Get Helius API key from environment
+    const heliusApiKey = Deno.env.get('HELIUS_API_KEY');
+    
+    // Connect to Solana mainnet using Helius RPC for better performance
+    const rpcEndpoint = heliusApiKey 
+      ? `https://mainnet.helius-rpc.com/?api-key=${heliusApiKey}`
+      : 'https://api.mainnet-beta.solana.com';
+    
+    console.log('Using RPC endpoint:', heliusApiKey ? 'Helius' : 'Public Solana');
+    const connection = new Connection(rpcEndpoint, 'confirmed');
     
     const publicKey = new PublicKey(walletAddress);
     
