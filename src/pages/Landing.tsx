@@ -17,6 +17,8 @@ import landingBackground from "@/assets/landing-background.jpg";
 import { SimSettingsModal } from "@/components/SimSettingsModal";
 import { Settings, LogOut, Link2, Copy, Check, Trash2, Award, Grid, MessageSquare, History } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { getAvatarUrl } from "@/lib/avatarUtils";
 
 const Landing = () => {
   const navigate = useNavigate();
@@ -404,11 +406,16 @@ const Landing = () => {
                 onClick={() => handleSimClick(sim)}
                 className="group flex flex-col items-center gap-2 p-3 sm:p-4 rounded-xl bg-white/10 hover:bg-white/20 border-2 border-white/20 hover:border-white/40 transition-all duration-300 backdrop-blur-md hover:scale-105"
               >
-                <img 
-                  src={sim.avatar} 
-                  alt={sim.name}
-                  className="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover border-2 border-white/30 shadow-lg group-hover:shadow-xl transition-shadow"
-                />
+                <Avatar className="w-16 h-16 sm:w-20 sm:h-20 border-2 border-white/30 shadow-lg group-hover:shadow-xl transition-shadow">
+                  <AvatarImage 
+                    src={getAvatarUrl(sim.avatar)} 
+                    alt={sim.name}
+                    className="object-cover"
+                  />
+                  <AvatarFallback className="bg-primary text-primary-foreground text-2xl font-bold">
+                    {sim.name?.charAt(0)?.toUpperCase() || 'S'}
+                  </AvatarFallback>
+                </Avatar>
                 <span className="text-xs sm:text-sm font-medium text-white text-center line-clamp-2 leading-tight">
                   {sim.name}
                 </span>
