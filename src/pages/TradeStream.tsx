@@ -51,18 +51,39 @@ const TradeStream = () => {
     "Let the weak ones leave - only the brave survive! 💎",
   ];
 
-  const rickStatements = [
-    "Listen *burp* Morty, these crypto degenerates think they're gonna get rich. It's adorable.",
-    "You know what's funny? People trading jpegs for fake internet money. Classic human behavior.",
-    "Blockchain? More like block-lame. But hey, I'm here making interdimensional credits off these morons.",
-    "These pump and dumps? I've seen better scams in dimension C-137, and that's saying something.",
-    "Crypto bros think they're geniuses. Meanwhile, I'm literally the smartest being in the universe *burp*.",
-    "Decentralized finance? Please. I decentralized the entire galactic federation. This is child's play.",
-    "Watching people YOLO their life savings into dog coins is peak entertainment, Morty.",
-    "Smart contracts? I wrote a contract that enslaved an entire planet. Now THAT'S smart.",
-  ];
+  const [currentRickStatement, setCurrentRickStatement] = useState<string>(
+    "Listen *burp* Morty, these crypto degenerates think they're gonna get rich. It's adorable."
+  );
+  const [isGenerating, setIsGenerating] = useState(false);
 
-  const [currentStatementIndex, setCurrentStatementIndex] = useState(0);
+  const generateNewRickStatement = async () => {
+    if (isGenerating) return;
+    
+    setIsGenerating(true);
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/generate-rick-commentary`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error('Failed to generate commentary');
+      }
+
+      const data = await response.json();
+      setCurrentRickStatement(data.commentary);
+    } catch (error) {
+      console.error('Error generating Rick statement:', error);
+      // Keep current statement on error
+    } finally {
+      setIsGenerating(false);
+    }
+  };
 
   const fetchAdvisor = async () => {
     try {
@@ -93,16 +114,19 @@ const TradeStream = () => {
     fetchAdvisor();
   }, []);
 
-  // Rotate Rick's statements every 60 seconds when no trades are showing
+  // Generate new Rick statement every 60 seconds when no trades are showing
   useEffect(() => {
     if (!currentReaction) {
+      // Generate immediately on first load
+      generateNewRickStatement();
+      
       const interval = setInterval(() => {
-        setCurrentStatementIndex((prev) => (prev + 1) % rickStatements.length);
+        generateNewRickStatement();
       }, 60000); // 60 seconds
 
       return () => clearInterval(interval);
     }
-  }, [currentReaction, rickStatements.length]);
+  }, [currentReaction]);
 
   // Handle new trades from WebSocket
   useEffect(() => {
@@ -238,7 +262,7 @@ const TradeStream = () => {
               </motion.div>
             ) : (
               <motion.div
-                key={currentStatementIndex}
+                key={currentRickStatement}
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.95 }}
@@ -263,7 +287,7 @@ const TradeStream = () => {
 
                   {/* Rick's Statement */}
                   <p className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground leading-tight mb-8">
-                    "{rickStatements[currentStatementIndex]}"
+                    "{currentRickStatement}"
                   </p>
 
                   {/* Status Info */}
