@@ -165,7 +165,7 @@ const EditSimPage = () => {
   const handleCopyUrl = () => {
     if (!userSim?.custom_url) return;
     
-    const shareUrl = `${window.location.origin}/s/${userSim.custom_url}`;
+    const shareUrl = `${window.location.origin}/${userSim.custom_url}`;
     navigator.clipboard.writeText(shareUrl);
     setUrlCopied(true);
     toast.success('URL copied to clipboard!');
@@ -220,7 +220,7 @@ const EditSimPage = () => {
                 <Label className="text-sm font-medium">Your Sim Landing Page</Label>
                 <div className="flex gap-2">
                   <Input
-                    value={`${window.location.origin}/s/${userSim.custom_url}`}
+                    value={`${window.location.origin}/${userSim.custom_url}`}
                     readOnly
                     className="font-mono text-sm"
                   />

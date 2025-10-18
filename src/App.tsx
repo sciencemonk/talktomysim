@@ -83,11 +83,10 @@ const App = () => (
               <Route path="/integrations" element={<Integrations />} />
             </Route>
             
-            {/* Public sim share links with dedicated path */}
-            <Route path="/s/:customUrl" element={<PublicSimDetail />} />
+            {/* Public sim share links - MUST be last to avoid catching other routes */}
+            <Route path="/:customUrl" element={<PublicSimDetail />} />
             
             {/* Catch all 404 */}
-            <Route path="/404" element={<NotFound />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

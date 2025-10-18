@@ -223,7 +223,7 @@ const EditSim = () => {
   };
 
   const copyUrl = () => {
-    const url = customUrl ? `${window.location.origin}/s/${customUrl}` : '';
+    const url = customUrl ? `${window.location.origin}/${customUrl}` : '';
     navigator.clipboard.writeText(url);
     setUrlCopied(true);
     setTimeout(() => setUrlCopied(false), 2000);

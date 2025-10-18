@@ -70,10 +70,10 @@ const SimDirectory = () => {
     if (sim.custom_url) {
       if (user) {
         // Open in new tab for signed-in users
-        window.open(`/s/${sim.custom_url}`, '_blank');
+        window.open(`/${sim.custom_url}`, '_blank');
       } else {
         // Navigate in current tab for non-signed-in users
-        navigate(`/s/${sim.custom_url}`);
+        navigate(`/${sim.custom_url}`);
       }
     }
   };
