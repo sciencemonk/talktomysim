@@ -73,7 +73,7 @@ const App = () => (
             {/* Root route - public landing page */}
             <Route path="/" element={<Landing />} />
             
-            {/* Authenticated routes with sidebar */}
+            {/* Authenticated routes with sidebar - MUST come before catch-all */}
             <Route element={<AuthenticatedLayout />}>
               <Route path="/home" element={<ChatWithSim />} />
               <Route path="/conversations" element={<SimConversationsView />} />
@@ -83,10 +83,11 @@ const App = () => (
               <Route path="/integrations" element={<Integrations />} />
             </Route>
             
-            {/* Public sim share links - must be last to avoid catching other routes */}
-            <Route path="/:customUrl" element={<PublicSimDetail />} />
+            {/* Public sim share links with dedicated path */}
+            <Route path="/s/:customUrl" element={<PublicSimDetail />} />
             
-            {/* Catch all - redirect to home */}
+            {/* Catch all 404 */}
+            <Route path="/404" element={<NotFound />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

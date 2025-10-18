@@ -196,7 +196,7 @@ export const SimSettingsModal = ({ open, onOpenChange, sim, onSimUpdate }: SimSe
   };
 
   const copyUrl = () => {
-    const url = customUrl ? `${window.location.origin}/${customUrl}` : '';
+    const url = customUrl ? `${window.location.origin}/s/${customUrl}` : '';
     navigator.clipboard.writeText(url);
     setUrlCopied(true);
     setTimeout(() => setUrlCopied(false), 2000);
@@ -281,7 +281,7 @@ export const SimSettingsModal = ({ open, onOpenChange, sim, onSimUpdate }: SimSe
                   <div className="flex-1 flex items-center gap-2 px-3 py-2 border rounded-lg bg-white/5 border-white/20">
                     <Link2 className="h-4 w-4 text-white/40 flex-shrink-0" />
                     <span className="text-sm font-mono truncate text-white/70">
-                      {window.location.origin}/{customUrl || 'your-url'}
+                      {window.location.origin}/s/{customUrl || 'your-url'}
                     </span>
                   </div>
                   <Button

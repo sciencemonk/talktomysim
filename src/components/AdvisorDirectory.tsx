@@ -44,7 +44,7 @@ const AdvisorDirectory = ({ onSelectAdvisor, onAuthRequired }: AdvisorDirectoryP
   const handleAdvisorClick = (advisor: AgentType) => {
     // If it's a living sim with a custom_url, navigate to their landing page
     if (advisor.sim_type === 'living' && advisor.custom_url) {
-      navigate(`/sim/${advisor.custom_url}`);
+      navigate(`/s/${advisor.custom_url}`);
       return;
     }
     

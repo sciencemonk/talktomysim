@@ -389,7 +389,7 @@ Stay true to the tone, values, and personality of [Name].`,
   const copyShareLink = () => {
     if (!userSim?.custom_url) return;
     
-    const shareUrl = `${window.location.origin}/sim/${userSim.custom_url}`;
+    const shareUrl = `${window.location.origin}/s/${userSim.custom_url}`;
     navigator.clipboard.writeText(shareUrl);
     toast({
       title: "Link copied!",
