@@ -28,34 +28,42 @@ export const usePumpFunStream = (tokenAddress: string) => {
   const [isConnected, setIsConnected] = useState(false);
   const [latestTrade, setLatestTrade] = useState<TradeEvent | null>(null);
   const wsRef = useRef<WebSocket | null>(null);
+  const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const reconnectAttemptsRef = useRef(0);
 
   const connect = useCallback(() => {
-    if (wsRef.current?.readyState === WebSocket.OPEN) {
-      console.log('Already connected');
+    // Prevent duplicate connections
+    if (wsRef.current?.readyState === WebSocket.OPEN || wsRef.current?.readyState === WebSocket.CONNECTING) {
+      console.log('WebSocket already connected or connecting');
       return;
     }
 
-    console.log('Connecting to PumpPortal WebSocket...');
+    console.log(`[WebSocket] Connecting to PumpPortal... (Attempt ${reconnectAttemptsRef.current + 1})`);
     const ws = new WebSocket('wss://pumpportal.fun/api/data');
 
     ws.onopen = () => {
-      console.log('Connected to PumpPortal');
+      console.log('[WebSocket] ✅ Connected to PumpPortal');
       setIsConnected(true);
+      reconnectAttemptsRef.current = 0; // Reset reconnection counter on success
       
       // Subscribe to trades for this specific token
-      ws.send(JSON.stringify({
+      const subscribeMessage = {
         method: 'subscribeTokenTrade',
         keys: [tokenAddress]
-      }));
+      };
       
-      console.log(`Subscribed to trades for token: ${tokenAddress}`);
+      ws.send(JSON.stringify(subscribeMessage));
+      console.log(`[WebSocket] 📡 Subscribed to token: ${tokenAddress}`);
     };
 
     ws.onmessage = (event) => {
       try {
         const data = JSON.parse(event.data) as StreamEvent;
         
-        if (data.txType === 'create' || data.txType === 'buy' || data.txType === 'sell') {
+        console.log('[WebSocket] 📨 Raw message:', data);
+        
+        // More permissive trade detection - capture all trade-like events
+        if (data.signature && data.mint && typeof data.isBuy === 'boolean') {
           const trade: TradeEvent = {
             signature: data.signature,
             mint: data.mint,
@@ -67,38 +75,82 @@ export const usePumpFunStream = (tokenAddress: string) => {
             market_cap_sol: data.marketCapSol / 1e9
           };
           
-          console.log('New trade:', trade);
+          console.log('[WebSocket] 🔔 New trade detected:', {
+            type: trade.is_buy ? 'BUY' : 'SELL',
+            amount: trade.token_amount,
+            signature: trade.signature.substring(0, 10) + '...'
+          });
+          
           setLatestTrade(trade);
           setTrades(prev => [trade, ...prev].slice(0, 50)); // Keep last 50 trades
+        } else {
+          console.log('[WebSocket] ℹ️ Non-trade message:', data.txType || 'unknown type');
         }
       } catch (error) {
-        console.error('Error parsing trade data:', error);
+        console.error('[WebSocket] ❌ Error parsing trade data:', error);
       }
     };
 
     ws.onerror = (error) => {
-      console.error('WebSocket error:', error);
+      console.error('[WebSocket] ❌ WebSocket error:', error);
+      setIsConnected(false);
     };
 
-    ws.onclose = () => {
-      console.log('Disconnected from PumpPortal');
+    ws.onclose = (event) => {
+      console.log(`[WebSocket] 🔌 Disconnected from PumpPortal (Code: ${event.code}, Reason: ${event.reason || 'none'})`);
       setIsConnected(false);
+      wsRef.current = null;
+      
+      // Implement exponential backoff reconnection
+      const maxReconnectAttempts = 10;
+      if (reconnectAttemptsRef.current < maxReconnectAttempts) {
+        const delay = Math.min(1000 * Math.pow(2, reconnectAttemptsRef.current), 30000); // Max 30 seconds
+        console.log(`[WebSocket] 🔄 Reconnecting in ${delay}ms...`);
+        
+        reconnectTimeoutRef.current = setTimeout(() => {
+          reconnectAttemptsRef.current++;
+          connect();
+        }, delay);
+      } else {
+        console.error('[WebSocket] ⛔ Max reconnection attempts reached. Please refresh the page.');
+      }
     };
 
     wsRef.current = ws;
   }, [tokenAddress]);
 
   const disconnect = useCallback(() => {
+    console.log('[WebSocket] 🛑 Manual disconnect');
+    
+    // Clear any pending reconnection attempts
+    if (reconnectTimeoutRef.current) {
+      clearTimeout(reconnectTimeoutRef.current);
+      reconnectTimeoutRef.current = null;
+    }
+    
+    // Close WebSocket connection
     if (wsRef.current) {
       wsRef.current.close();
       wsRef.current = null;
     }
+    
+    setIsConnected(false);
+    reconnectAttemptsRef.current = 0;
   }, []);
 
   useEffect(() => {
     connect();
-    return () => disconnect();
-  }, [connect, disconnect]);
+    
+    return () => {
+      // Clean up on unmount
+      if (reconnectTimeoutRef.current) {
+        clearTimeout(reconnectTimeoutRef.current);
+      }
+      if (wsRef.current) {
+        wsRef.current.close();
+      }
+    };
+  }, [tokenAddress]); // Only reconnect when token address changes
 
   return {
     trades,
