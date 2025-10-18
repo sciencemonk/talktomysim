@@ -75,15 +75,19 @@ export const usePumpFunStream = (tokenAddress: string) => {
         
         // Handle different message types from PumpPortal
         // Check if this is a trade message (they use 'txType' field)
-        if (data.txType && (data.txType === 'buy' || data.txType === 'sell')) {
+        if (data.txType && (data.txType === 'buy' || data.txType === 'sell' || data.txType === 'create')) {
           console.log('[WebSocket] 🎯 Trade detected:', data.txType.toUpperCase());
+          
+          // 'create' txType means new token with initial buy
+          const isBuy = data.txType === 'buy' || data.txType === 'create';
+          const tokenAmount = data.txType === 'create' ? data.initialBuy : data.tokenAmount;
           
           const trade: TradeEvent = {
             signature: data.signature || `trade_${Date.now()}_${Math.random()}`,
             mint: data.mint || tokenAddress,
             sol_amount: Number((data.solAmount || 0).toFixed(3)),
-            token_amount: Math.round(data.tokenAmount || 0),
-            is_buy: data.txType === 'buy',
+            token_amount: Math.round(tokenAmount || 0),
+            is_buy: isBuy,
             user: data.traderPublicKey || data.user || 'unknown',
             timestamp: data.timestamp || Date.now() / 1000,
             market_cap_sol: data.marketCapSol || 0
@@ -102,12 +106,15 @@ export const usePumpFunStream = (tokenAddress: string) => {
         // Check if message has signature (might be at different level)
         else if (data.signature || data.sig) {
           console.log('[WebSocket] 🔍 Message with signature detected, fields:', Object.keys(data));
+          const isBuy = data.isBuy === true || data.is_buy === true || data.txType === 'buy' || data.txType === 'create';
+          const tokenAmount = data.tokenAmount || data.token_amount || data.initialBuy || 0;
+          
           const trade: TradeEvent = {
             signature: data.signature || data.sig,
             mint: data.mint || tokenAddress,
             sol_amount: Number((data.solAmount || data.sol_amount || 0).toFixed(3)),
-            token_amount: Math.round(data.tokenAmount || data.token_amount || 0),
-            is_buy: data.isBuy === true || data.is_buy === true || data.txType === 'buy',
+            token_amount: Math.round(tokenAmount),
+            is_buy: isBuy,
             user: data.user || data.traderPublicKey || 'unknown',
             timestamp: data.timestamp || Date.now() / 1000,
             market_cap_sol: data.marketCapSol || data.market_cap_sol || 0
