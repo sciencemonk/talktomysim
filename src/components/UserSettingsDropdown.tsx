@@ -11,7 +11,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { useAuth } from "@/hooks/useAuth";
 import { Settings, LogOut, User, Home } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 interface UserSettingsDropdownProps {
   onShowBilling?: () => void;
@@ -20,9 +20,11 @@ interface UserSettingsDropdownProps {
 
 const UserSettingsDropdown = ({ onShowBilling, trigger }: UserSettingsDropdownProps) => {
   const { user, signOut } = useAuth();
+  const navigate = useNavigate();
 
   const handleSignOut = async () => {
     await signOut();
+    navigate('/landing');
   };
 
   const defaultTrigger = (

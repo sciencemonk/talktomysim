@@ -37,7 +37,7 @@ const TopNavigation = ({ showLiveIndicator = false }: TopNavigationProps) => {
 
   const handleSignOut = async () => {
     await signOut();
-    navigate('/');
+    navigate('/landing');
     toast({
       title: "Signed out",
       description: "You have been signed out successfully",

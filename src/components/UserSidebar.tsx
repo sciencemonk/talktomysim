@@ -1,4 +1,4 @@
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { 
   Bot, 
   PlusCircle,
@@ -71,6 +71,7 @@ const SidebarContent = ({
   onClose?: () => void;
 }) => {
   const { user, signOut } = useAuth();
+  const navigate = useNavigate();
   const { agents, isLoading } = useAgents();
   const { handleRemoveAdvisor, removingAdvisorId, error } = useAdvisorRemoval(
     selectedPublicAdvisors,
@@ -90,6 +91,7 @@ const SidebarContent = ({
 
   const handleSignOut = async () => {
     await signOut();
+    navigate('/landing');
   };
 
   const handleAgentSelect = (agent: AgentType) => {

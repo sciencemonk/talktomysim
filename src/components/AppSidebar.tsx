@@ -217,7 +217,7 @@ export function AppSidebar() {
   const handleSignOut = async () => {
     await supabase.auth.signOut();
     toast.success('Signed out successfully');
-    navigate('/');
+    navigate('/landing');
   };
 
   // Fetch user's credits
