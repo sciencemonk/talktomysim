@@ -46,37 +46,33 @@ export const usePumpFunStream = (tokenAddress: string) => {
       setIsConnected(true);
       reconnectAttemptsRef.current = 0;
       
-      // Subscribe to trades for this specific token
+      // Subscribe to trades for this specific token ONLY
       const subscribeMessage = {
         method: 'subscribeTokenTrade',
         keys: [tokenAddress]
       };
       
-      console.log('[WebSocket] 📡 Sending subscription:', subscribeMessage);
+      console.log('[WebSocket] 📡 Sending subscription for token:', tokenAddress);
       ws.send(JSON.stringify(subscribeMessage));
-      console.log(`[WebSocket] 📡 Subscribed to token: ${tokenAddress}`);
-      
-      // Also subscribe to new token events to verify connection is working
-      setTimeout(() => {
-        const newTokenSub = {
-          method: 'subscribeNewToken'
-        };
-        console.log('[WebSocket] 📡 Also subscribing to new tokens to test connection');
-        ws.send(JSON.stringify(newTokenSub));
-      }, 1000);
     };
 
     ws.onmessage = (event) => {
       try {
         const data = JSON.parse(event.data);
         
-        // Debug: Log ALL messages to see actual trade structure
-        console.log('[WebSocket] 📨 Incoming message:', JSON.stringify(data, null, 2));
+        // Log incoming messages for debugging
+        console.log('[WebSocket] 📨 Message:', data.txType || data.message || 'unknown type');
         
         // Handle different message types from PumpPortal
         // Check if this is a trade message (they use 'txType' field)
         if (data.txType && (data.txType === 'buy' || data.txType === 'sell' || data.txType === 'create')) {
-          console.log('[WebSocket] 🎯 Trade detected:', data.txType.toUpperCase());
+          // CRITICAL: Filter out trades that aren't for our token
+          if (data.mint && data.mint !== tokenAddress) {
+            console.log('[WebSocket] ⚠️ Ignoring trade for different token:', data.mint);
+            return;
+          }
+          
+          console.log('[WebSocket] 🎯 $SIMAI Trade detected:', data.txType.toUpperCase());
           
           // 'create' txType means new token with initial buy
           const isBuy = data.txType === 'buy' || data.txType === 'create';
@@ -106,11 +102,10 @@ export const usePumpFunStream = (tokenAddress: string) => {
         } else if (data.message) {
           console.log('[WebSocket] ℹ️ Server message:', data.message);
         } else {
-          console.log('[WebSocket] ℹ️ Unknown message. Fields:', Object.keys(data));
+          console.log('[WebSocket] ℹ️ Unknown message type');
         }
       } catch (error) {
         console.error('[WebSocket] ❌ Parse error:', error);
-        console.log('[WebSocket] Raw data:', event.data.substring(0, 500));
       }
     };
 
