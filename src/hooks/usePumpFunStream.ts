@@ -94,6 +94,7 @@ export const usePumpFunStream = (tokenAddress: string) => {
           };
           
           console.log('[WebSocket] ✅ Trade processed:', {
+            signature: trade.signature.slice(0, 8),
             type: trade.is_buy ? 'BUY' : 'SELL',
             tokens: `${(trade.token_amount / 1e6).toFixed(2)}M`,
             sol: `${trade.sol_amount} SOL`,
@@ -102,8 +103,10 @@ export const usePumpFunStream = (tokenAddress: string) => {
           
           setLatestTrade(trade);
           setTrades(prev => [trade, ...prev].slice(0, 50));
+        } else if (data.message) {
+          console.log('[WebSocket] ℹ️ Server message:', data.message);
         } else {
-          console.log('[WebSocket] ℹ️ Non-trade message. Fields:', Object.keys(data));
+          console.log('[WebSocket] ℹ️ Unknown message. Fields:', Object.keys(data));
         }
       } catch (error) {
         console.error('[WebSocket] ❌ Parse error:', error);
