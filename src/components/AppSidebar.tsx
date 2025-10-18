@@ -486,8 +486,8 @@ export function AppSidebar() {
           >
             <Avatar className="h-8 w-8 flex-shrink-0">
               <AvatarImage src={getAvatarUrl(userSim?.avatar_url)} />
-              <AvatarFallback className="bg-primary text-primary-foreground text-sm">
-                {userSim?.name?.charAt(0) || 'S'}
+              <AvatarFallback className="bg-primary text-primary-foreground font-semibold">
+                {userSim?.name?.charAt(0)?.toUpperCase() || 'S'}
               </AvatarFallback>
             </Avatar>
             {open && (
