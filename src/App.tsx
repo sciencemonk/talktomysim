@@ -34,6 +34,7 @@ import ChatWithSim from "./pages/ChatWithSim";
 import SimConversationsView from "./pages/SimConversationsView";
 import EditSimPage from "./pages/EditSimPage";
 import TradeStream from "./pages/TradeStream";
+import Integrations from "./pages/Integrations";
 
 const queryClient = new QueryClient();
 
@@ -74,6 +75,7 @@ const App = () => (
               <Route path="/directory" element={<SimDirectory />} />
               <Route path="/edit-sim" element={<EditSim />} />
               <Route path="/edit-sim-page" element={<EditSimPage />} />
+              <Route path="/integrations" element={<Integrations />} />
             </Route>
             
             {/* Public sim share links - must be last to avoid catching other routes */}

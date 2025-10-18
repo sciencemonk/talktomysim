@@ -322,7 +322,7 @@ export function AppSidebar() {
         {/* Recent Chats - Scrollable */}
         <div className="flex-1 overflow-hidden px-3">
           <SidebarGroup>
-            {open && <SidebarGroupLabel className="text-xs">Recent Chats</SidebarGroupLabel>}
+            {open && <SidebarGroupLabel className="text-xs font-bold">Recent Chats</SidebarGroupLabel>}
             <SidebarGroupContent>
               <ScrollArea className="h-full">
                 <SidebarMenu>
@@ -393,7 +393,7 @@ export function AppSidebar() {
         <div className="flex-shrink-0 px-3 pb-3">
         {/* Navigation Links */}
         <SidebarGroup className="mt-auto">
-          {open && <SidebarGroupLabel className="text-xs">Navigation</SidebarGroupLabel>}
+          {open && <SidebarGroupLabel className="text-xs font-bold">Navigation</SidebarGroupLabel>}
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem>
@@ -445,6 +445,19 @@ export function AppSidebar() {
                     }
                   >
                     {open && <span>Sim Directory</span>}
+                  </NavLink>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild>
+                  <NavLink 
+                    to="/integrations"
+                    onClick={closeSidebar}
+                    className={({ isActive }) => 
+                      `${isActive ? 'bg-muted' : 'hover:bg-muted/50'}`
+                    }
+                  >
+                    {open && <span>Integrations</span>}
                   </NavLink>
                 </SidebarMenuButton>
               </SidebarMenuItem>
