@@ -24,8 +24,6 @@ import StudentChat from "./pages/StudentChat";
 import NotFound from "./pages/NotFound";
 import WhitePaper from "./pages/WhitePaper";
 import Contact from "./pages/Contact";
-import Privacy from "./pages/Privacy";
-import Terms from "./pages/Terms";
 import KnowledgeEnhancement from "./pages/KnowledgeEnhancement";
 import UserDashboard from "./pages/UserDashboard";
 import PublicSimDetail from "./pages/PublicSimDetail";
@@ -58,8 +56,6 @@ const App = () => (
             <Route path="/login" element={<Login />} />
             <Route path="/whitepaper" element={<WhitePaper />} />
             <Route path="/contact" element={<Contact />} />
-            <Route path="/privacy" element={<Privacy />} />
-            <Route path="/terms" element={<Terms />} />
             <Route path="/app" element={<Home />} />
             <Route path="/tutors/:agentId" element={<PublicTutorDetail />} />
             <Route path="/tutors/:agentId/chat" element={<StudentChat />} />
