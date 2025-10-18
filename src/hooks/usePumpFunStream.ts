@@ -58,36 +58,42 @@ export const usePumpFunStream = (tokenAddress: string) => {
 
     ws.onmessage = (event) => {
       try {
-        const data = JSON.parse(event.data) as StreamEvent;
+        const data = JSON.parse(event.data);
         
-        console.log('[WebSocket] 📨 Raw message:', data);
+        // Log EVERYTHING we receive
+        console.log('[WebSocket] 📨 Raw message received:', JSON.stringify(data, null, 2));
         
-        // More permissive trade detection - capture all trade-like events
-        if (data.signature && data.mint && typeof data.isBuy === 'boolean') {
+        // Check if this is a trade message
+        // PumpPortal might send different field names, so let's check for various possibilities
+        if (data.signature || data.sig || data.txHash) {
+          console.log('[WebSocket] 🎯 Potential trade detected! Fields:', Object.keys(data));
+          
           const trade: TradeEvent = {
-            signature: data.signature,
-            mint: data.mint,
-            sol_amount: data.solAmount / 1e9, // Convert lamports to SOL
-            token_amount: data.tokenAmount,
-            is_buy: data.isBuy,
-            user: data.user,
-            timestamp: data.timestamp,
-            market_cap_sol: data.marketCapSol / 1e9
+            signature: data.signature || data.sig || data.txHash || 'unknown',
+            mint: data.mint || data.token || tokenAddress,
+            sol_amount: (data.solAmount || data.sol_amount || data.sol || 0) / 1e9,
+            token_amount: data.tokenAmount || data.token_amount || data.amount || 0,
+            is_buy: data.isBuy ?? data.is_buy ?? (data.txType === 'buy' || data.type === 'buy'),
+            user: data.user || data.trader || data.wallet || 'unknown',
+            timestamp: data.timestamp || Date.now() / 1000,
+            market_cap_sol: (data.marketCapSol || data.market_cap_sol || data.marketCap || 0) / 1e9
           };
           
-          console.log('[WebSocket] 🔔 New trade detected:', {
+          console.log('[WebSocket] 🔔 Processed trade:', {
             type: trade.is_buy ? 'BUY' : 'SELL',
-            amount: trade.token_amount,
-            signature: trade.signature.substring(0, 10) + '...'
+            tokenAmount: trade.token_amount,
+            solAmount: trade.sol_amount,
+            signature: trade.signature.substring(0, 20) + '...'
           });
           
           setLatestTrade(trade);
-          setTrades(prev => [trade, ...prev].slice(0, 50)); // Keep last 50 trades
+          setTrades(prev => [trade, ...prev].slice(0, 50));
         } else {
-          console.log('[WebSocket] ℹ️ Non-trade message:', data.txType || 'unknown type');
+          console.log('[WebSocket] ℹ️ Non-trade message. Fields:', Object.keys(data));
         }
       } catch (error) {
-        console.error('[WebSocket] ❌ Error parsing trade data:', error);
+        console.error('[WebSocket] ❌ Error parsing message:', error);
+        console.log('[WebSocket] Raw event data:', event.data);
       }
     };
 
