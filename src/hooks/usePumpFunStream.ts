@@ -60,44 +60,54 @@ export const usePumpFunStream = (tokenAddress: string) => {
       try {
         const data = JSON.parse(event.data);
         
-        // Log EVERYTHING we receive
-        console.log('[WebSocket] 📨 Raw message received:', JSON.stringify(data, null, 2));
+        // Log simplified message info (to avoid console spam)
+        console.log('[WebSocket] 📨 Message type:', data.type || data.txType || 'unknown');
         
-        // Check for various trade message patterns
-        // PumpPortal might send txType, signature, or other identifying fields
-        const isTradeMessage = data.txType || data.signature || data.sig || data.txHash || 
-                              (data.mint && (data.solAmount || data.tokenAmount));
-        
-        if (isTradeMessage) {
-          console.log('[WebSocket] 🎯 Trade detected! All fields:', Object.keys(data));
+        // Handle different message types from PumpPortal
+        // Check if this is a trade message (they use 'txType' field)
+        if (data.txType && (data.txType === 'buy' || data.txType === 'sell')) {
+          console.log('[WebSocket] 🎯 Trade detected:', data.txType.toUpperCase());
           
           const trade: TradeEvent = {
-            signature: data.signature || data.sig || data.txHash || `trade_${Date.now()}`,
+            signature: data.signature || `trade_${Date.now()}_${Math.random()}`,
             mint: data.mint || tokenAddress,
-            sol_amount: Number((data.solAmount || data.sol_amount || data.sol || 0).toFixed(3)),
-            token_amount: Math.round(data.tokenAmount || data.token_amount || data.amount || 0),
-            is_buy: data.txType === 'buy' || data.isBuy === true || data.is_buy === true || data.type === 'buy',
-            user: data.user || data.traderPublicKey || data.trader || data.wallet || 'unknown',
+            sol_amount: Number((data.solAmount || 0).toFixed(3)),
+            token_amount: Math.round(data.tokenAmount || 0),
+            is_buy: data.txType === 'buy',
+            user: data.traderPublicKey || data.user || 'unknown',
             timestamp: data.timestamp || Date.now() / 1000,
-            market_cap_sol: data.marketCapSol || data.market_cap_sol || data.marketCap || 0
+            market_cap_sol: data.marketCapSol || 0
           };
           
-          console.log('[WebSocket] 🔔 Processed trade:', {
+          console.log('[WebSocket] ✅ Trade processed:', {
             type: trade.is_buy ? 'BUY' : 'SELL',
-            tokenAmount: trade.token_amount,
-            solAmount: trade.sol_amount,
-            signature: trade.signature.substring(0, 20) + '...',
-            allData: data
+            tokens: `${(trade.token_amount / 1e6).toFixed(2)}M`,
+            sol: `${trade.sol_amount} SOL`,
+            time: new Date(trade.timestamp * 1000).toLocaleTimeString()
           });
           
           setLatestTrade(trade);
           setTrades(prev => [trade, ...prev].slice(0, 50));
-        } else {
-          console.log('[WebSocket] ℹ️ Non-trade message. Type:', data.type || 'unknown', 'Fields:', Object.keys(data));
+        } 
+        // Also handle direct trade data format
+        else if (data.signature && (data.solAmount || data.tokenAmount)) {
+          const trade: TradeEvent = {
+            signature: data.signature,
+            mint: data.mint || tokenAddress,
+            sol_amount: Number((data.solAmount || 0).toFixed(3)),
+            token_amount: Math.round(data.tokenAmount || 0),
+            is_buy: data.isBuy === true || data.is_buy === true,
+            user: data.user || data.traderPublicKey || 'unknown',
+            timestamp: data.timestamp || Date.now() / 1000,
+            market_cap_sol: data.marketCapSol || 0
+          };
+          
+          setLatestTrade(trade);
+          setTrades(prev => [trade, ...prev].slice(0, 50));
         }
       } catch (error) {
-        console.error('[WebSocket] ❌ Error parsing message:', error);
-        console.log('[WebSocket] Raw event data:', event.data);
+        console.error('[WebSocket] ❌ Parse error:', error);
+        console.log('[WebSocket] Raw data:', event.data.substring(0, 200));
       }
     };
 
