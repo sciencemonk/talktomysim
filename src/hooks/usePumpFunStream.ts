@@ -71,12 +71,12 @@ export const usePumpFunStream = (tokenAddress: string) => {
           const trade: TradeEvent = {
             signature: data.signature || data.sig || data.txHash || 'unknown',
             mint: data.mint || data.token || tokenAddress,
-            sol_amount: (data.solAmount || data.sol_amount || data.sol || 0) / 1e9,
-            token_amount: data.tokenAmount || data.token_amount || data.amount || 0,
+            sol_amount: Number((data.solAmount || data.sol_amount || data.sol || 0).toFixed(3)),
+            token_amount: Math.round(data.tokenAmount || data.token_amount || data.amount || 0),
             is_buy: data.isBuy ?? data.is_buy ?? (data.txType === 'buy' || data.type === 'buy'),
-            user: data.user || data.trader || data.wallet || 'unknown',
+            user: data.user || data.traderPublicKey || data.trader || data.wallet || 'unknown',
             timestamp: data.timestamp || Date.now() / 1000,
-            market_cap_sol: (data.marketCapSol || data.market_cap_sol || data.marketCap || 0) / 1e9
+            market_cap_sol: data.marketCapSol || data.market_cap_sol || data.marketCap || 0
           };
           
           console.log('[WebSocket] 🔔 Processed trade:', {
