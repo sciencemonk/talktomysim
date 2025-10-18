@@ -1,5 +1,14 @@
 project_id = "uovhemqkztmkoozlmqxq"
 
+[functions.google-oauth]
+verify_jwt = false
+
+[functions.google-oauth-callback]
+verify_jwt = false
+
+[functions.google-calendar]
+verify_jwt = false
+
 [functions.enhanced-chat]
 verify_jwt = false
 
