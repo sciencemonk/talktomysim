@@ -4,8 +4,10 @@ interface AudioVisualizerProps {
   audioSrc: string;
 }
 
-// Global audio manager to ensure only one instance plays
+// Global flags to prevent multiple audio instances
 let globalAudioInstance: HTMLAudioElement | null = null;
+let isAudioPlaying = false;
+let audioSetupInProgress = false;
 
 const AudioVisualizer = ({ audioSrc }: AudioVisualizerProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -15,19 +17,32 @@ const AudioVisualizer = ({ audioSrc }: AudioVisualizerProps) => {
   const dataArrayRef = useRef<Uint8Array | null>(null);
   const animationRef = useRef<number | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
-  const playAttemptedRef = useRef(false);
 
   useEffect(() => {
     const audio = audioRef.current;
     const canvas = canvasRef.current;
     if (!audio || !canvas) return;
 
-    // Stop any existing global audio instance before creating a new one
-    if (globalAudioInstance) {
+    // CRITICAL: If audio is already playing globally, don't start another one
+    if (isAudioPlaying && globalAudioInstance && globalAudioInstance !== audio) {
+      console.log('Audio already playing globally, skipping this instance');
+      return;
+    }
+
+    // CRITICAL: If setup is in progress, don't start another one
+    if (audioSetupInProgress) {
+      console.log('Audio setup already in progress, skipping');
+      return;
+    }
+
+    audioSetupInProgress = true;
+    
+    // Stop any existing global audio instance
+    if (globalAudioInstance && globalAudioInstance !== audio) {
       console.log('Stopping previous audio instance');
       globalAudioInstance.pause();
       globalAudioInstance.currentTime = 0;
-      globalAudioInstance = null;
+      isAudioPlaying = false;
     }
     
     // Set this audio as the global instance
@@ -113,6 +128,8 @@ const AudioVisualizer = ({ audioSrc }: AudioVisualizerProps) => {
 
     const handlePlay = () => {
       setIsPlaying(true);
+      isAudioPlaying = true;
+      console.log('Audio started playing');
       if (audioContextRef.current?.state === 'suspended') {
         audioContextRef.current.resume();
       }
@@ -120,19 +137,26 @@ const AudioVisualizer = ({ audioSrc }: AudioVisualizerProps) => {
 
     const handlePause = () => {
       setIsPlaying(false);
+      isAudioPlaying = false;
+      console.log('Audio paused');
     };
 
     audio.addEventListener('play', handlePlay);
     audio.addEventListener('pause', handlePause);
 
-    // Auto-play with user interaction
+    // Auto-play with user interaction - ONLY ONCE
     const startAudio = () => {
-      if (playAttemptedRef.current || !audio.paused) {
-        console.log('Audio already playing or play attempted');
+      // CRITICAL: Check all conditions to prevent duplicate playback
+      if (isAudioPlaying) {
+        console.log('Audio already playing globally, aborting');
+        return;
+      }
+      
+      if (!audio.paused) {
+        console.log('This audio instance already playing, aborting');
         return;
       }
 
-      playAttemptedRef.current = true;
       console.log('Attempting to play audio from:', audioSrc);
       
       // Only setup audio context once
@@ -142,31 +166,36 @@ const AudioVisualizer = ({ audioSrc }: AudioVisualizerProps) => {
       
       audio.play().then(() => {
         console.log('Audio playing successfully');
+        isAudioPlaying = true;
+        audioSetupInProgress = false;
         if (audioContextRef.current?.state === 'suspended') {
           audioContextRef.current.resume();
         }
       }).catch(err => {
         console.error('Audio play failed:', err);
-        playAttemptedRef.current = false; // Allow retry on error
+        isAudioPlaying = false;
+        audioSetupInProgress = false;
       });
     };
 
-    // Try to start immediately
-    startAudio();
+    // Try to start immediately (with a small delay to ensure single execution)
+    const startTimeout = setTimeout(() => {
+      if (!isAudioPlaying) {
+        startAudio();
+      }
+    }, 100);
 
     // Also try on any user interaction (only if not already playing)
     const handleInteraction = () => {
       console.log('User interaction detected');
-      if (audio.paused && !playAttemptedRef.current) {
+      if (!isAudioPlaying && audio.paused) {
         startAudio();
       }
-      // Remove listeners after first interaction
-      document.removeEventListener('click', handleInteraction);
-      document.removeEventListener('touchstart', handleInteraction);
     };
 
-    document.addEventListener('click', handleInteraction);
-    document.addEventListener('touchstart', handleInteraction);
+    // Use once option to ensure handler is only called once
+    document.addEventListener('click', handleInteraction, { once: true });
+    document.addEventListener('touchstart', handleInteraction, { once: true });
 
     // Also listen for audio errors
     const handleError = (e: Event) => {
@@ -181,6 +210,8 @@ const AudioVisualizer = ({ audioSrc }: AudioVisualizerProps) => {
     return () => {
       console.log('Cleaning up AudioVisualizer - stopping all audio');
       
+      clearTimeout(startTimeout);
+      
       // Remove all event listeners
       window.removeEventListener('resize', resizeCanvas);
       audio.removeEventListener('play', handlePlay);
@@ -194,9 +225,13 @@ const AudioVisualizer = ({ audioSrc }: AudioVisualizerProps) => {
       audio.currentTime = 0;
       audio.src = ''; // Clear the source to fully stop playback
       
-      // Clear global reference unconditionally
-      globalAudioInstance = null;
-      console.log('Global audio instance cleared');
+      // Clear global flags
+      if (globalAudioInstance === audio) {
+        globalAudioInstance = null;
+        isAudioPlaying = false;
+        audioSetupInProgress = false;
+        console.log('Global audio instance and flags cleared');
+      }
       
       // Cancel animation frame
       if (animationRef.current) {
@@ -211,8 +246,6 @@ const AudioVisualizer = ({ audioSrc }: AudioVisualizerProps) => {
         }
         audioContextRef.current = null;
       }
-      
-      playAttemptedRef.current = false;
     };
   }, [audioSrc]);
 
