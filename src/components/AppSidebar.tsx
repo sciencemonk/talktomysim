@@ -188,6 +188,19 @@ export function AppSidebar() {
           }
         }
       )
+      .on(
+        'postgres_changes',
+        {
+          event: 'DELETE',
+          schema: 'public',
+          table: 'conversations',
+          filter: `tutor_id=eq.${userSim.id}`
+        },
+        () => {
+          // Refetch when conversation is deleted
+          queryClient.invalidateQueries({ queryKey: ['my-conversations', userSim.id] });
+        }
+      )
       .subscribe();
 
     return () => {
@@ -258,7 +271,7 @@ export function AppSidebar() {
       if (error) throw error;
     },
     onSuccess: (_, deletedConversationId) => {
-      queryClient.invalidateQueries({ queryKey: ['my-conversations'] });
+      queryClient.invalidateQueries({ queryKey: ['my-conversations', userSim?.id] });
       toast.success('Chat deleted');
       // If we're on the deleted chat, navigate to home
       const currentChatId = new URLSearchParams(window.location.search).get('chat');
