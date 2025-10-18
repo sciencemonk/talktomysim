@@ -24,20 +24,61 @@ serve(async (req) => {
       throw new Error('HELIUS_API_KEY not configured');
     }
 
-    // Fetch transaction history using Helius API
-    const heliusUrl = `https://api.helius.xyz/v0/addresses/${tokenAddress}/transactions?api-key=${HELIUS_API_KEY}&limit=100`;
+    // Use DAS API to get token holders and activity
+    console.log('Fetching token data from Helius DAS API...');
+    const dasUrl = `https://mainnet.helius-rpc.com/?api-key=${HELIUS_API_KEY}`;
     
-    console.log('Fetching transaction history from Helius...');
-    const heliusResponse = await fetch(heliusUrl);
+    // Get token supply to understand the token
+    const supplyResponse = await fetch(dasUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        jsonrpc: '2.0',
+        id: 'supply-check',
+        method: 'getTokenSupply',
+        params: [tokenAddress]
+      })
+    });
+
+    const supplyData = await supplyResponse.json();
     
-    if (!heliusResponse.ok) {
-      throw new Error(`Helius API error: ${heliusResponse.status}`);
+    if (supplyData.error) {
+      console.log('Token supply error:', supplyData.error);
     }
 
-    const transactions = await heliusResponse.json();
-    console.log(`Received ${transactions.length} transactions for token ${tokenAddress}`);
+    // Get token largest accounts (holders)
+    const holdersResponse = await fetch(dasUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        jsonrpc: '2.0',
+        id: 'holders-check',
+        method: 'getTokenLargestAccounts',
+        params: [tokenAddress]
+      })
+    });
 
-    if (!transactions || transactions.length === 0) {
+    const holdersData = await holdersResponse.json();
+    console.log(`Token holders response:`, holdersData);
+
+    // Get recent signatures for the token (using getProgramAccounts alternative)
+    const signaturesResponse = await fetch(dasUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        jsonrpc: '2.0',
+        id: 'sigs-check',
+        method: 'getSignaturesForAddress',
+        params: [tokenAddress, { limit: 100 }]
+      })
+    });
+
+    const signaturesData = await signaturesResponse.json();
+    const signatures = signaturesData.result || [];
+    
+    console.log(`Received ${signatures.length} signatures for token ${tokenAddress}`);
+
+    if (!signatures || signatures.length === 0) {
       return new Response(
         JSON.stringify({
           tokenAddress,
@@ -51,84 +92,59 @@ serve(async (req) => {
       );
     }
 
-    // Analyze transactions
-    let totalTransfers = 0;
-    let totalSwaps = 0;
-    let totalVolumeSol = 0;
+    // Parse transaction signatures and get basic stats
     const uniqueSigners = new Set();
     const recentTransactions: any[] = [];
-
-    for (const tx of transactions) {
-      if (!tx || tx.type === 'UNKNOWN') continue;
-      
-      // Count different transaction types
-      if (tx.type === 'TRANSFER' || tx.type === 'TOKEN_MINT') {
-        totalTransfers++;
-      } else if (tx.type === 'SWAP' || tx.type === 'TRADE') {
-        totalSwaps++;
-      }
-
-      // Track unique signers
-      if (tx.feePayer) {
-        uniqueSigners.add(tx.feePayer);
-      }
-
-      // Calculate SOL volume from native transfers
-      if (tx.nativeTransfers && tx.nativeTransfers.length > 0) {
-        for (const transfer of tx.nativeTransfers) {
-          const solAmount = (transfer.amount || 0) / 1e9; // Convert lamports to SOL
-          totalVolumeSol += solAmount;
-        }
-      }
-
-      // Store recent transaction details
-      if (recentTransactions.length < 10) {
+    
+    for (const sig of signatures.slice(0, 10)) {
+      if (sig.signature) {
         recentTransactions.push({
-          signature: tx.signature,
-          type: tx.type,
-          timestamp: tx.timestamp,
-          feePayer: tx.feePayer
+          signature: sig.signature,
+          slot: sig.slot,
+          blockTime: sig.blockTime,
+          err: sig.err
         });
       }
     }
 
-    const totalTrades = totalTransfers + totalSwaps;
-
-    // Determine momentum based on transaction frequency
-    let momentum = 'neutral';
-    const recentCount = transactions.slice(0, 20).length;
-    const olderCount = transactions.slice(20, 50).length;
+    // Get holder count
+    const holderCount = holdersData.result?.value?.length || 0;
     
-    if (recentCount > olderCount * 1.5) {
+    // Analyze based on available data
+    const totalTransactions = signatures.length;
+    const successfulTxs = signatures.filter((s: any) => !s.err).length;
+    
+    // Determine momentum based on signature frequency
+    let momentum = 'neutral';
+    if (totalTransactions > 50) {
       momentum = 'bullish';
-    } else if (olderCount > recentCount * 1.5) {
+    } else if (totalTransactions < 10) {
       momentum = 'bearish';
     }
 
     // Calculate risk score
     let riskScore = 'low';
     
-    if (totalTrades < 10 || totalVolumeSol < 1 || uniqueSigners.size < 5) {
+    if (totalTransactions < 10 || holderCount < 5) {
       riskScore = 'high';
-    } else if (totalTrades < 50 || totalVolumeSol < 10 || uniqueSigners.size < 20) {
+    } else if (totalTransactions < 50 || holderCount < 20) {
       riskScore = 'medium';
     }
 
     const analysis = {
       tokenAddress,
       tradingActivity: {
-        totalTransactions: transactions.length,
-        totalTransfers,
-        totalSwaps,
-        volumeSol: parseFloat(totalVolumeSol.toFixed(4)),
-        uniqueTraders: uniqueSigners.size,
+        totalTransactions,
+        successfulTransactions: successfulTxs,
+        failedTransactions: totalTransactions - successfulTxs,
+        holders: holderCount,
         recentActivity: recentTransactions
       },
       analysis: {
         momentum,
         riskScore,
-        dataWindow: 'last 100 transactions',
-        summary: `This token has ${transactions.length} transactions with ${totalSwaps} swaps and ${totalTransfers} transfers. Total volume: ${totalVolumeSol.toFixed(2)} SOL across ${uniqueSigners.size} unique traders. Momentum: ${momentum}. Risk: ${riskScore}.`
+        dataWindow: 'recent transaction signatures',
+        summary: `This token has ${totalTransactions} total transactions (${successfulTxs} successful) with ${holderCount} token holders. Momentum: ${momentum}. Risk: ${riskScore}.`
       }
     };
 
