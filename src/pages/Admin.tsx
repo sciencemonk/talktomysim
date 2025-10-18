@@ -109,17 +109,6 @@ const Admin = () => {
     );
   }
 
-  // Check if user is admin
-  if (!['artolaya@gmail.com', 'michael@dexterlearning.com'].includes(user.email || '')) {
-    return (
-      <div className="flex-1 flex items-center justify-center p-6">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-destructive mb-2">Access Denied</h1>
-          <p className="text-muted-foreground">You don't have permission to access this page.</p>
-        </div>
-      </div>
-    );
-  }
 
   const handleCreateAdvisor = () => {
     setEditingAdvisor(null);
