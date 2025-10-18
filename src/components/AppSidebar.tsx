@@ -333,11 +333,11 @@ export function AppSidebar() {
         </div>
 
         {/* Recent Chats - Scrollable */}
-        <div className="flex-1 overflow-hidden px-3">
-          <SidebarGroup>
+        <div className="flex-1 overflow-hidden px-3 min-h-0">
+          <SidebarGroup className="h-full">
             {open && <SidebarGroupLabel className="text-xs font-bold">Recent Chats</SidebarGroupLabel>}
-            <SidebarGroupContent>
-              <ScrollArea className="h-full">
+            <SidebarGroupContent className="h-[calc(100%-2rem)]">
+              <ScrollArea className="h-full max-h-[600px]">
                 <SidebarMenu>
                   {filteredConversations?.map((conv: Conversation) => (
                     <SidebarMenuItem 
