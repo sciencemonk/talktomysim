@@ -22,8 +22,21 @@ const TradeStream = () => {
   const [advisor, setAdvisor] = useState<AdvisorData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   
-  // Get the most recent trade
+  // Get the most recent trade - log it for debugging
   const currentTrade = trades[0] || null;
+  
+  useEffect(() => {
+    if (currentTrade) {
+      console.log('Displaying trade on screen:', {
+        signature: currentTrade.signature.slice(0, 8),
+        mint: currentTrade.mint,
+        type: currentTrade.is_buy ? 'BUY' : 'SELL',
+        tokens: (currentTrade.token_amount / 1e6).toFixed(2) + 'M',
+        sol: currentTrade.sol_amount + ' SOL',
+        isCorrectToken: currentTrade.mint === tokenAddress
+      });
+    }
+  }, [currentTrade, tokenAddress]);
 
   const fetchAdvisor = async () => {
     try {

@@ -168,7 +168,7 @@ export const usePumpFunStream = (tokenAddress: string) => {
         wsRef.current.close();
       }
     };
-  }, [tokenAddress]); // Only reconnect when token address changes
+  }, [connect]); // Changed dependency to connect function
 
   return {
     trades,
