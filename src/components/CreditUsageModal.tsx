@@ -73,9 +73,9 @@ export const CreditUsageModal = ({ open, onOpenChange }: CreditUsageModalProps) 
     enabled: open,
   });
 
-  const percentageUsed = credits
-    ? (credits.used_credits / credits.total_credits) * 100
-    : 0;
+  const percentageRemaining = credits
+    ? ((credits.total_credits - credits.used_credits) / credits.total_credits) * 100
+    : 100;
 
   const remainingCredits = credits
     ? credits.total_credits - credits.used_credits
@@ -109,7 +109,7 @@ export const CreditUsageModal = ({ open, onOpenChange }: CreditUsageModalProps) 
               </div>
             </div>
 
-            <Progress value={percentageUsed} className="h-3" />
+            <Progress value={percentageRemaining} className="h-3" />
 
             <div className="flex items-center justify-between text-sm text-muted-foreground">
               <span>{credits?.used_credits || 0} credits used</span>
