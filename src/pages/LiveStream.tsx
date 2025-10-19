@@ -11,10 +11,8 @@ import TopNavigation from '@/components/TopNavigation';
 import { Send, TrendingUp, TrendingDown, Activity, Users, DollarSign } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const SIMAI_TOKEN = 'FFqwoZ7phjoupWjLeE5yFeLqGi8jkGEFrTz6jnsUpump';
-
 const LiveStream = () => {
-  const { trades, isConnected, latestTrade } = usePumpFunStream(SIMAI_TOKEN);
+  const { trades, isConnected, latestTrade } = usePumpFunStream(false);
   const { messages, isProcessing, sendMessage, addCommentary } = useLivestreamChat('sim-commentator', 'Sim AI');
   const [inputMessage, setInputMessage] = useState('');
   const [viewerCount] = useState(Math.floor(Math.random() * 50) + 20);

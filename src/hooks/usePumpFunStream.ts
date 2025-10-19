@@ -23,10 +23,12 @@ interface StreamEvent {
   marketCapSol: number;
 }
 
-export const usePumpFunStream = (tokenAddress: string) => {
+export const usePumpFunStream = (subscribeToNewTokens = false) => {
   const [trades, setTrades] = useState<TradeEvent[]>([]);
   const [isConnected, setIsConnected] = useState(false);
   const [latestTrade, setLatestTrade] = useState<TradeEvent | null>(null);
+  const [newTokens, setNewTokens] = useState<any[]>([]);
+  const [latestToken, setLatestToken] = useState<any | null>(null);
   const wsRef = useRef<WebSocket | null>(null);
   const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const reconnectAttemptsRef = useRef(0);
@@ -46,78 +48,38 @@ export const usePumpFunStream = (tokenAddress: string) => {
       setIsConnected(true);
       reconnectAttemptsRef.current = 0;
       
-      // Subscribe to trades for this specific token
-      const subscribeMessage = {
-        method: 'subscribeTokenTrade',
-        keys: [tokenAddress]
-      };
-      
-      console.log('[WebSocket] 📡 Sending subscription for token:', tokenAddress);
-      ws.send(JSON.stringify(subscribeMessage));
-      
-      // TEMPORARILY also subscribe to all new tokens to test if WebSocket is working
-      const testSubscribe = {
-        method: 'subscribeNewToken'
-      };
-      console.log('[WebSocket] 📡 Also subscribing to new tokens to test connection');
-      ws.send(JSON.stringify(testSubscribe));
+      if (subscribeToNewTokens) {
+        // Subscribe to all new token creations
+        const subscribeMessage = {
+          method: 'subscribeNewToken'
+        };
+        console.log('[WebSocket] 📡 Subscribing to new tokens');
+        ws.send(JSON.stringify(subscribeMessage));
+      }
     };
 
     ws.onmessage = (event) => {
       try {
         const data = JSON.parse(event.data);
         
-        // DETAILED LOGGING - Log the entire message to debug
         console.log('[WebSocket] 📨 RAW MESSAGE:', JSON.stringify(data, null, 2));
         
-        // Handle different message types from PumpPortal
-        // Check if this is a trade message (they use 'txType' field)
-        if (data.txType && (data.txType === 'buy' || data.txType === 'sell' || data.txType === 'create')) {
-          console.log('[WebSocket] 🎯 Trade detected! Type:', data.txType.toUpperCase());
-          console.log('[WebSocket] 📍 Trade mint:', data.mint);
-          console.log('[WebSocket] 📍 Expected token:', tokenAddress);
+        if (subscribeToNewTokens && data.txType === 'create') {
+          // New token creation event
+          console.log('[WebSocket] 🎯 New token created!', data.name, data.symbol);
           
-          // CRITICAL: Filter out trades that aren't for our token
-          if (data.mint && data.mint !== tokenAddress) {
-            console.log('[WebSocket] ⚠️ Ignoring trade for different token:', data.mint);
-            return;
-          }
-          
-          console.log('[WebSocket] ✅ $SIMAI Trade accepted! Processing...');
-          
-          // 'create' txType means new token with initial buy
-          const isBuy = data.txType === 'buy' || data.txType === 'create';
-          const tokenAmount = data.txType === 'create' ? data.initialBuy : data.tokenAmount;
-          
-          const trade: TradeEvent = {
-            signature: data.signature || `trade_${Date.now()}_${Math.random()}`,
-            mint: data.mint || tokenAddress,
-            sol_amount: Number((data.solAmount || 0).toFixed(3)),
-            token_amount: Math.round(tokenAmount || 0),
-            is_buy: isBuy,
-            user: data.traderPublicKey || data.user || 'unknown',
+          const token = {
+            mint: data.mint,
+            name: data.name,
+            symbol: data.symbol,
+            description: data.description,
+            image: data.image,
             timestamp: data.timestamp || Date.now() / 1000,
-            market_cap_sol: data.marketCapSol || 0
+            creator: data.traderPublicKey
           };
           
-          console.log('[WebSocket] 💾 Adding trade to state:', {
-            signature: trade.signature.slice(0, 8),
-            type: trade.is_buy ? 'BUY' : 'SELL',
-            tokens: `${(trade.token_amount / 1e6).toFixed(2)}M`,
-            sol: `${trade.sol_amount} SOL`,
-            mint: trade.mint
-          });
-          
-          setLatestTrade(trade);
-          setTrades(prev => {
-            const updated = [trade, ...prev].slice(0, 50);
-            console.log('[WebSocket] 📊 Total trades in state:', updated.length);
-            return updated;
-          });
-        } else if (data.message) {
-          console.log('[WebSocket] ℹ️ Server message:', data.message);
-        } else {
-          console.log('[WebSocket] ℹ️ Unknown message type. Full data:', data);
+          setLatestToken(token);
+          setNewTokens(prev => [token, ...prev].slice(0, 20));
         }
       } catch (error) {
         console.error('[WebSocket] ❌ Parse error:', error);
@@ -150,7 +112,7 @@ export const usePumpFunStream = (tokenAddress: string) => {
     };
 
     wsRef.current = ws;
-  }, [tokenAddress]);
+  }, [subscribeToNewTokens]);
 
   const disconnect = useCallback(() => {
     console.log('[WebSocket] 🛑 Manual disconnect');
@@ -183,12 +145,14 @@ export const usePumpFunStream = (tokenAddress: string) => {
         wsRef.current.close();
       }
     };
-  }, [tokenAddress]); // Only reconnect when token changes
+  }, [subscribeToNewTokens]);
 
   return {
     trades,
     isConnected,
     latestTrade,
+    newTokens,
+    latestToken,
     reconnect: connect
   };
 };

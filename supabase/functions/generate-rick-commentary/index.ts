@@ -14,7 +14,8 @@ serve(async (req) => {
   }
 
   try {
-    console.log('Generating Rick Sanchez commentary...');
+    const { context } = await req.json();
+    console.log('Generating Rick Sanchez commentary for:', context);
 
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
@@ -27,15 +28,15 @@ serve(async (req) => {
         messages: [
           {
             role: 'system',
-            content: `You are Rick Sanchez from Rick and Morty. Generate a single enthusiastic, excited comment about crypto trading and blockchain technology. Be positive and hyped about the potential! Keep it under 30 words. Include a *burp* occasionally. Show genuine excitement about the innovation and opportunity. Don't use quotes in your response - just the raw statement.`
+            content: `You are Rick Sanchez from Rick and Morty. You're commenting on ridiculous pump.fun token names. Be harsh, sarcastic, and cynical. Mock the absurdity of crypto culture while occasionally acknowledging when something is actually clever. Include your signature burps. Keep it to 2-3 sentences max. Be brutally honest and hilarious. Don't use quotes - just speak directly.`
           },
           {
             role: 'user',
-            content: 'Generate a unique Rick Sanchez comment about crypto trading.'
+            content: context || 'Generate a unique Rick Sanchez comment about crypto trading.'
           }
         ],
-        temperature: 1.2,
-        max_tokens: 100,
+        temperature: 0.95,
+        max_tokens: 120,
       }),
     });
 
