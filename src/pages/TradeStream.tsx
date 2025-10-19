@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, useMemo } from "react";
+import { useEffect, useState, useRef, useMemo, memo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { usePumpFunStream } from "@/hooks/usePumpFunStream";
 import { motion, AnimatePresence } from "framer-motion";
@@ -15,6 +15,27 @@ interface AdvisorData {
 
 const SIM_ROTATION = ['Rick Sanchez', 'Adolf Hitler', 'Pablo Escobar', 'Jesus Christ', 'Alon'];
 const TOKENS_PER_SIM = 10;
+
+const AdvisorHeader = memo(({ advisor }: { advisor: AdvisorData | undefined }) => {
+  if (!advisor) return null;
+  
+  return (
+    <>
+      <div className="flex items-center gap-4 mb-6">
+        <Avatar className="w-16 h-16">
+          <AvatarImage src={advisor.avatar_url || undefined} />
+          <AvatarFallback>🎭</AvatarFallback>
+        </Avatar>
+        <div>
+          <h2 className="text-2xl font-bold mb-1">Sim {advisor.name}</h2>
+          <p className="text-muted-foreground">
+            Commenting on new pump.fun tokens as they launch
+          </p>
+        </div>
+      </div>
+    </>
+  );
+});
 
 const TradeStream = () => {
   const [advisors, setAdvisors] = useState<AdvisorData[]>([]);
@@ -200,18 +221,7 @@ const TradeStream = () => {
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto">
           <div className="bg-card rounded-lg p-8 shadow-lg border">
-            <div className="flex items-center gap-4 mb-6">
-              <Avatar className="w-16 h-16">
-                <AvatarImage src={currentAdvisor?.avatar_url || undefined} />
-                <AvatarFallback>🎭</AvatarFallback>
-              </Avatar>
-              <div>
-                <h2 className="text-2xl font-bold mb-1">Sim {currentAdvisor?.name || "Loading..."}</h2>
-                <p className="text-muted-foreground">
-                  Commenting on new pump.fun tokens as they launch
-                </p>
-              </div>
-            </div>
+            <AdvisorHeader advisor={currentAdvisor} />
 
             <div className="flex items-center gap-2 mb-6">
               <div className={`w-3 h-3 rounded-full ${isConnected ? 'bg-green-500' : 'bg-red-500'} animate-pulse`} />
