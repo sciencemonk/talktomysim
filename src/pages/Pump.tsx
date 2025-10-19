@@ -127,9 +127,11 @@ const Pump = () => {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <audio 
+        controls
         autoPlay
         loop
         src="https://kxsvyeirqimcydtkowga.supabase.co/storage/v1/object/public/music/simmusic.m4a"
+        className="mb-4"
       />
       <TopNavigation />
 
