@@ -335,8 +335,8 @@ const Landing = () => {
         </section>
       )}
 
-      {/* Sim Directory Section */}
-      <section className="container mx-auto px-3 sm:px-4 pb-12 flex-1">
+          {/* Sim Directory Section */}
+          <section className="container mx-auto px-3 sm:px-4 pb-12 pt-8 flex-1">
         <div className="max-w-7xl mx-auto">
           {/* Search and Filters */}
           <div className="mb-6 space-y-4">
@@ -422,6 +422,7 @@ const Landing = () => {
             {filteredSims?.map((sim) => {
               const simCategory = (sim as any).category?.toLowerCase() || 'uncategorized';
               const categoryLabel = categories.find(c => c.id === simCategory)?.label || simCategory;
+              const price = sim.price || 0;
               
               return (
                 <button
@@ -429,24 +430,6 @@ const Landing = () => {
                   onClick={() => handleSimClick(sim)}
                   className="group relative flex flex-col items-center gap-3 p-5 rounded-2xl bg-card hover:bg-muted border-2 hover:border-primary transition-all duration-300 hover:scale-105 hover:shadow-xl"
                 >
-                  {/* Price Badge */}
-                  {sim.price && sim.price > 0 ? (
-                    <Badge 
-                      variant="secondary" 
-                      className="absolute top-2 right-2 text-[10px] px-2 py-0.5 bg-primary text-primary-foreground"
-                    >
-                      <DollarSign className="h-3 w-3 mr-0.5" />
-                      {sim.price}
-                    </Badge>
-                  ) : (
-                    <Badge 
-                      variant="secondary" 
-                      className="absolute top-2 right-2 text-[10px] px-2 py-0.5 bg-green-500 text-white"
-                    >
-                      Free
-                    </Badge>
-                  )}
-
                   <Avatar className="w-24 h-24 border-3 border-border shadow-lg group-hover:shadow-2xl transition-shadow">
                     <AvatarImage
                       src={getAvatarUrl(sim.avatar)} 
@@ -467,12 +450,18 @@ const Landing = () => {
                         {sim.title}
                       </span>
                     )}
-                    {/* Category Badge */}
-                    {simCategory !== 'uncategorized' && (
-                      <Badge variant="outline" className="text-[10px] px-2 py-0.5 mt-1">
-                        {categoryLabel}
+                    
+                    {/* Category and Price badges at bottom */}
+                    <div className="flex flex-wrap gap-1.5 justify-center mt-2 pt-2 border-t border-border/50">
+                      {simCategory !== 'uncategorized' && (
+                        <Badge variant="outline" className="text-[10px] px-1.5 py-0 bg-muted/50 border-muted-foreground/20 text-muted-foreground">
+                          {categoryLabel}
+                        </Badge>
+                      )}
+                      <Badge variant="outline" className="text-[10px] px-1.5 py-0 bg-muted/50 border-muted-foreground/20 text-muted-foreground">
+                        {price > 0 ? `${price} $SIMAI` : 'Free'}
                       </Badge>
-                    )}
+                    </div>
                   </div>
                 </button>
               );
