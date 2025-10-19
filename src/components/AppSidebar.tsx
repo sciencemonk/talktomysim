@@ -43,7 +43,6 @@ import { getAvatarUrl } from "@/lib/avatarUtils";
 import { Progress } from "@/components/ui/progress";
 import { CreditUsageModal } from "./CreditUsageModal";
 import EditSimModal from "./EditSimModal";
-import { OnboardingModal } from "./OnboardingModal";
 import AuthModal from "./AuthModal";
 import phantomIcon from "@/assets/phantom-icon.png";
 import solflareIcon from "@/assets/solflare-icon.png";
@@ -68,7 +67,7 @@ export function AppSidebar() {
   const [showCreditsModal, setShowCreditsModal] = useState(false);
   const [editSimModalOpen, setEditSimModalOpen] = useState(false);
   const [selectedSimForEdit, setSelectedSimForEdit] = useState<string | null>(null);
-  const [showCreateSimModal, setShowCreateSimModal] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
   const [isSigningIn, setIsSigningIn] = useState<string | null>(null);
   const queryClient = useQueryClient();
   const isMobile = useIsMobile();
@@ -426,14 +425,16 @@ export function AppSidebar() {
             {open && <span>Sim Marketplace</span>}
           </Button>
 
-          {/* Create Your Sim Button - always visible with rainbow shimmer */}
+          {/* Create Your Sim Button - always visible */}
           <Button
             onClick={() => {
               if (!currentUser) {
                 // For non-signed-in users, open auth modal
-                setShowCreateSimModal(true);
+                setShowAuthModal(true);
               } else {
-                setShowCreateSimModal(true);
+                // Navigate to home for signed-in users
+                navigate('/home');
+                closeSidebar();
               }
             }}
             className="w-full justify-start gap-2 bg-black text-white hover:bg-black/90 dark:bg-white dark:text-black dark:hover:bg-white/90"
@@ -622,25 +623,11 @@ export function AppSidebar() {
         />
       )}
 
-      {showCreateSimModal && !currentUser && (
+      {showAuthModal && !currentUser && (
         <AuthModal
-          open={showCreateSimModal}
-          onOpenChange={setShowCreateSimModal}
+          open={showAuthModal}
+          onOpenChange={setShowAuthModal}
           defaultMode="signup"
-        />
-      )}
-      
-      {showCreateSimModal && currentUser && (
-        <OnboardingModal
-          open={showCreateSimModal}
-          userId={currentUser.id}
-          onComplete={async () => {
-            setShowCreateSimModal(false);
-            await queryClient.invalidateQueries({ queryKey: ['user-sim'] });
-            await queryClient.invalidateQueries({ queryKey: ['user-sim-check'] });
-            navigate('/home');
-          }}
-          onSkip={() => setShowCreateSimModal(false)}
         />
       )}
     </Sidebar>
