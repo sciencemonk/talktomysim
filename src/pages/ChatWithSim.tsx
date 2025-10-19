@@ -14,11 +14,16 @@ const ChatWithSim = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const chatId = searchParams.get('chat');
+  const simId = searchParams.get('sim');
   const [currentUser, setCurrentUser] = useState<any>(null);
+  const [selectedSim, setSelectedSim] = useState<any>(null);
   const isMobile = useIsMobile();
   
-  // Force new chat when no chatId is present
-  const forceNewChat = !chatId;
+  // Force new chat when no chatId is present and no specific sim is selected
+  const forceNewChat = !chatId && !simId;
+  
+  // Determine if this is a creator chat (chatting with own sim)
+  const isCreatorChat = !simId;
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -37,6 +42,37 @@ const ChatWithSim = () => {
 
     return () => subscription.unsubscribe();
   }, [navigate]);
+  
+  // Load sim from URL parameter if provided
+  useEffect(() => {
+    if (simId) {
+      console.log('Loading sim from URL:', simId);
+      supabase
+        .from('advisors')
+        .select('*')
+        .eq('id', simId)
+        .single()
+        .then(({ data, error }) => {
+          if (data && !error) {
+            console.log('Sim loaded:', data.name);
+            const agent: AgentType = {
+              ...data,
+              type: 'General Tutor' as const,
+              status: 'active' as const,
+              createdAt: data.created_at,
+              updatedAt: data.updated_at,
+              avatar: data.avatar_url,
+              sim_type: (data.sim_type === 'living' ? 'living' : 'historical') as 'historical' | 'living'
+            };
+            setSelectedSim(agent);
+          } else {
+            console.error('Error loading sim:', error);
+          }
+        });
+    } else {
+      setSelectedSim(null);
+    }
+  }, [simId]);
 
   const { data: userSim } = useQuery({
     queryKey: ['user-sim', currentUser?.id],
@@ -87,7 +123,10 @@ const ChatWithSim = () => {
     enabled: !!currentUser
   });
 
-  if (!userSim) {
+  // Use selected sim if available, otherwise use user's sim
+  const chatAgent = selectedSim || userSim;
+
+  if (!chatAgent) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <Card className="p-6">
@@ -120,14 +159,20 @@ const ChatWithSim = () => {
       
       {/* Chat Interface - Full Screen Seamless */}
       <div className={`flex-1 flex flex-col w-full min-h-0 ${isMobile ? 'pt-[57px]' : ''}`}>
-        <ChatInterface
-          agent={userSim}
-          hideHeader={true}
-          transparentMode={false}
-          isCreatorChat={true}
-          forceNewChat={forceNewChat}
-          conversationId={chatId}
-        />
+        {chatAgent ? (
+          <ChatInterface
+            agent={chatAgent}
+            hideHeader={true}
+            transparentMode={false}
+            isCreatorChat={isCreatorChat}
+            forceNewChat={forceNewChat}
+            conversationId={chatId}
+          />
+        ) : (
+          <div className="flex items-center justify-center h-full">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+          </div>
+        )}
       </div>
     </div>
   );
