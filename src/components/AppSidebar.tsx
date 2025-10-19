@@ -338,21 +338,14 @@ export function AppSidebar() {
                               `truncate ${isActive ? 'bg-muted' : 'hover:bg-muted/50'}`
                             }
                           >
-                            <Avatar className="h-6 w-6 flex-shrink-0">
+                            <Avatar className="h-8 w-8 flex-shrink-0">
                               <AvatarImage src={conv.sim_avatar || undefined} />
                               <AvatarFallback className="text-xs">
                                 {conv.sim_name.charAt(0).toUpperCase()}
                               </AvatarFallback>
                             </Avatar>
                             {open && (
-                              <div className="flex-1 min-w-0">
-                                <div className="font-medium truncate">{conv.sim_name}</div>
-                                {conv.last_message && (
-                                  <div className="text-xs text-muted-foreground truncate">
-                                    {conv.last_message}
-                                  </div>
-                                )}
-                              </div>
+                              <span className="font-medium truncate">{conv.sim_name}</span>
                             )}
                           </NavLink>
                         </SidebarMenuButton>
