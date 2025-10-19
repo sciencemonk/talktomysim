@@ -385,7 +385,7 @@ export function AppSidebar() {
                                 }}
                               >
                                 <Trash2 className="h-4 w-4 mr-2" />
-                                Delete chat
+                                Remove Sim
                               </DropdownMenuItem>
                             </DropdownMenuContent>
                           </DropdownMenu>

@@ -62,6 +62,7 @@ const ChatWithSim = () => {
               createdAt: data.created_at,
               updatedAt: data.updated_at,
               avatar: data.avatar_url,
+              welcome_message: data.welcome_message,
               sim_type: (data.sim_type === 'living' ? 'living' : 'historical') as 'historical' | 'living'
             };
             setSelectedSim(agent);
@@ -100,6 +101,7 @@ const ChatWithSim = () => {
         avatar: data.avatar_url,
         prompt: data.prompt,
         title: data.title,
+        welcome_message: data.welcome_message,
         sim_type: data.sim_type as 'historical' | 'living',
         custom_url: data.custom_url,
         is_featured: false,

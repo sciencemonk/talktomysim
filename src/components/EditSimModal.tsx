@@ -33,6 +33,7 @@ const EditSimModal = ({ open, onOpenChange, simId }: EditSimModalProps) => {
   const [websiteUrl, setWebsiteUrl] = useState('');
   const [cryptoWallet, setCryptoWallet] = useState('');
   const [backgroundImage, setBackgroundImage] = useState('');
+  const [welcomeMessage, setWelcomeMessage] = useState('');
   
   // Personalization state
   const [purpose, setPurpose] = useState('');
@@ -73,6 +74,7 @@ const EditSimModal = ({ open, onOpenChange, simId }: EditSimModalProps) => {
         setWebsiteUrl(sim.website_url || '');
         setCryptoWallet(sim.crypto_wallet || '');
         setBackgroundImage(sim.background_image_url || '');
+        setWelcomeMessage(sim.welcome_message || '');
         setPurpose(sim.description || '');
         setTargetAudience(sim.target_audience || '');
         setExpertiseAreas(sim.expertise_areas || '');
@@ -278,6 +280,7 @@ const EditSimModal = ({ open, onOpenChange, simId }: EditSimModalProps) => {
           website_url: websiteUrl || null,
           crypto_wallet: cryptoWallet || null,
           background_image_url: finalBackgroundUrl,
+          welcome_message: welcomeMessage || null,
           target_audience: targetAudience || null,
           expertise_areas: expertiseAreas || null,
           personality_type: personality,
@@ -399,13 +402,27 @@ const EditSimModal = ({ open, onOpenChange, simId }: EditSimModalProps) => {
             </div>
 
             {/* Purpose & Goals Section */}
-            <div className="space-y-4 pb-6 border-b">
+              <div className="space-y-4 pb-6 border-b">
               <div className="flex items-center gap-3">
                 <Target className="h-5 w-5 text-primary" />
                 <h3 className="text-lg font-semibold">Purpose & Goals</h3>
               </div>
 
               <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="welcomeMessage">Welcome Message</Label>
+                  <Textarea
+                    id="welcomeMessage"
+                    value={welcomeMessage}
+                    onChange={(e) => setWelcomeMessage(e.target.value)}
+                    placeholder="e.g., Hi! I'm here to help you with..."
+                    className="min-h-[60px] resize-none"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    This message will greet users when they start a new conversation
+                  </p>
+                </div>
+
                 <div className="space-y-2">
                   <Label htmlFor="purpose">Main Purpose</Label>
                   <Textarea

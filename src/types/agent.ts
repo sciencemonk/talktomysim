@@ -23,6 +23,7 @@ export interface AgentType {
   website_url?: string;
   crypto_wallet?: string;
   background_image_url?: string;
+  welcome_message?: string;
   id: string;
   name: string;
   description: string;
