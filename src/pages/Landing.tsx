@@ -149,7 +149,10 @@ const Landing = () => {
     { id: 'tokens', label: 'Token Agents', count: 0 },
     { id: 'business', label: 'Business & Finance', count: 0 },
     { id: 'coaching', label: 'Coaching & Mentoring', count: 0 },
+    { id: 'life_coach', label: 'Life Coach', count: 0 },
+    { id: 'spiritual', label: 'Spiritual', count: 0 },
     { id: 'entertainment', label: 'Entertainment', count: 0 },
+    { id: 'games', label: 'Games', count: 0 },
     { id: 'education', label: 'Education', count: 0 },
     { id: 'lifestyle', label: 'Lifestyle', count: 0 },
     { id: 'erotic', label: 'Adult', count: 0 },
@@ -298,7 +301,7 @@ const Landing = () => {
   ];
 
   return (
-    <div className="min-h-screen flex flex-col relative bg-background">
+    <div className="min-h-screen flex flex-col bg-background">
 
       
       {/* Header */}
@@ -379,7 +382,7 @@ const Landing = () => {
       )}
 
       {/* Sim Directory Section */}
-      <section className="container mx-auto px-3 sm:px-4 pb-12 relative z-10">
+      <section className="container mx-auto px-3 sm:px-4 pb-12 flex-1">
         <div className="max-w-7xl mx-auto">
           {/* Search and Filters */}
           <div className="mb-6 space-y-4">
@@ -542,9 +545,7 @@ const Landing = () => {
         onOpenChange={setIsSimModalOpen}
       />
 
-      <div className="relative z-10">
-        <SimpleFooter />
-      </div>
+      <SimpleFooter />
     </div>
   );
 };
