@@ -62,10 +62,10 @@ const Login = () => {
         
         toast.success('Connected successfully!');
         
-        // Check if user has a sim - redirect to home (onboarding will show if needed)
+        // Redirect to directory after successful auth
         const { data: { user } } = await supabase.auth.getUser();
         if (user) {
-          navigate('/home');
+          navigate('/directory');
         }
       }
     } catch (error: any) {
@@ -110,7 +110,7 @@ const Login = () => {
         
       console.log('Signed in with existing test account:', signInData);
         if (signInData.user) {
-          navigate('/home');
+          navigate('/directory');
         }
         return;
       }
@@ -118,8 +118,8 @@ const Login = () => {
       console.log('Test account created successfully:', signUpData);
       
       if (signUpData.user) {
-        // New users go to home, onboarding will show automatically
-        navigate('/home');
+        // New users go to directory
+        navigate('/directory');
       }
     } catch (error) {
       console.error('Error with test sign in:', error);

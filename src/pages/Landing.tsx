@@ -29,19 +29,19 @@ const Landing = () => {
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [currentUser, setCurrentUser] = useState<any>(null);
 
-  // Check auth state and redirect logged-in users
+  // Check auth state and redirect logged-in users to directory
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setCurrentUser(session?.user ?? null);
       if (session?.user) {
-        navigate('/home');
+        navigate('/directory');
       }
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setCurrentUser(session?.user ?? null);
       if (session?.user) {
-        navigate('/home');
+        navigate('/directory');
       }
     });
 
@@ -273,7 +273,7 @@ const Landing = () => {
     {
       title: "Create Your Own Web3 Native AI",
       description: "Be part of the Sim AI revolution",
-      action: () => navigate("/home"),
+      action: () => navigate("/directory"),
       gradient: "from-primary/20 to-primary/5",
       gridArea: "create",
       showWalletButtons: true,

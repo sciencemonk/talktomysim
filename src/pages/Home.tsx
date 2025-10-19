@@ -194,7 +194,7 @@ const Home = () => {
               setSelectedAgent(null);
               setSelectedAdvisor(null);
               setSelectedPublicAdvisorId(null);
-              navigate('/home');
+              navigate('/directory');
             }}
           />
         ) : (

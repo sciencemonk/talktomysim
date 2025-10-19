@@ -53,12 +53,13 @@ export const AuthenticatedLayout = () => {
     enabled: !!currentUser
   });
 
-  // Show onboarding modal if sim doesn't exist
+  // Show onboarding modal for new users
   useEffect(() => {
-    if (!currentUser || isLoading) return;
+    if (!currentUser || isLoading || userSim === undefined) return;
     
-    // If no sim exists, show onboarding
-    if (userSim === null) {
+    // Show onboarding only if user has no sim and hasn't seen onboarding before
+    const hasSeenOnboarding = localStorage.getItem(`onboarding_seen_${currentUser.id}`);
+    if (userSim === null && !hasSeenOnboarding) {
       setShowOnboarding(true);
     }
   }, [currentUser, userSim, isLoading]);
@@ -68,7 +69,17 @@ export const AuthenticatedLayout = () => {
     // Refetch both sim queries to ensure the new sim is loaded
     await queryClient.invalidateQueries({ queryKey: ['user-sim-check'] });
     await queryClient.invalidateQueries({ queryKey: ['user-sim'] });
-    // Don't navigate - we're already on /home, just let the data refresh
+    // Navigate to home after creating sim
+    navigate('/home');
+  };
+
+  const handleOnboardingSkip = () => {
+    setShowOnboarding(false);
+    // Mark as seen so we don't show it again
+    if (currentUser) {
+      localStorage.setItem(`onboarding_seen_${currentUser.id}`, 'true');
+    }
+    navigate('/directory');
   };
 
   if (isLoading) {
@@ -92,6 +103,7 @@ export const AuthenticatedLayout = () => {
           open={showOnboarding} 
           userId={currentUser.id}
           onComplete={handleOnboardingComplete}
+          onSkip={handleOnboardingSkip}
         />
       )}
       

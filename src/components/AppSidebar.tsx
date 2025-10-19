@@ -41,6 +41,7 @@ import { getAvatarUrl } from "@/lib/avatarUtils";
 import { Progress } from "@/components/ui/progress";
 import { CreditUsageModal } from "./CreditUsageModal";
 import EditSimModal from "./EditSimModal";
+import { OnboardingModal } from "./OnboardingModal";
 
 interface SimConversation {
   sim_id: string;
@@ -61,6 +62,7 @@ export function AppSidebar() {
   const [showCreditsModal, setShowCreditsModal] = useState(false);
   const [editSimModalOpen, setEditSimModalOpen] = useState(false);
   const [selectedSimForEdit, setSelectedSimForEdit] = useState<string | null>(null);
+  const [showCreateSimModal, setShowCreateSimModal] = useState(false);
   const queryClient = useQueryClient();
   const isMobile = useIsMobile();
 
@@ -296,10 +298,10 @@ export function AppSidebar() {
     onSuccess: (_, deletedSimId) => {
       queryClient.invalidateQueries({ queryKey: ['my-sim-conversations', currentUser?.id] });
       toast.success('Chat deleted');
-      // If we're on the deleted sim's chat, navigate to home
+      // If we're on the deleted sim's chat, navigate to directory
       const currentSimId = new URLSearchParams(window.location.search).get('sim');
       if (currentSimId === deletedSimId) {
-        navigate('/home');
+        navigate('/directory');
       }
     },
     onError: (error) => {
@@ -340,6 +342,18 @@ export function AppSidebar() {
             <Users className="h-4 w-4" />
             {open && <span>Sim Marketplace</span>}
           </Button>
+
+          {/* Create Your Sim Button - show only if user has no sim */}
+          {!userSim && (
+            <Button
+              onClick={() => setShowCreateSimModal(true)}
+              className="w-full justify-start gap-2"
+              variant="default"
+            >
+              <Plus className="h-4 w-4" />
+              {open && <span>Create Your Sim</span>}
+            </Button>
+          )}
 
           {/* Search */}
           {open && (
@@ -491,6 +505,20 @@ export function AppSidebar() {
           open={editSimModalOpen}
           onOpenChange={setEditSimModalOpen}
           simId={selectedSimForEdit}
+        />
+      )}
+
+      {showCreateSimModal && currentUser && (
+        <OnboardingModal
+          open={showCreateSimModal}
+          userId={currentUser.id}
+          onComplete={async () => {
+            setShowCreateSimModal(false);
+            await queryClient.invalidateQueries({ queryKey: ['user-sim'] });
+            await queryClient.invalidateQueries({ queryKey: ['user-sim-check'] });
+            navigate('/home');
+          }}
+          onSkip={() => setShowCreateSimModal(false)}
         />
       )}
     </Sidebar>

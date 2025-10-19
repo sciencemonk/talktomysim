@@ -38,7 +38,7 @@ const PublicSimDetail = () => {
   const handleCreateSimClick = async () => {
     const { data: { user } } = await supabase.auth.getUser();
     if (user) {
-      navigate('/home');
+      navigate('/directory');
     } else {
       setShowAuthModal(true);
     }

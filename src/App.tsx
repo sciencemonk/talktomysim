@@ -75,9 +75,9 @@ const App = () => (
             
             {/* Authenticated routes with sidebar - MUST come before catch-all */}
             <Route element={<AuthenticatedLayout />}>
+              <Route path="/directory" element={<SimDirectory />} />
               <Route path="/home" element={<ChatWithSim />} />
               <Route path="/conversations" element={<SimConversationsView />} />
-              <Route path="/directory" element={<SimDirectory />} />
               <Route path="/edit-sim" element={<EditSim />} />
               <Route path="/edit-sim-page" element={<EditSimPage />} />
               <Route path="/integrations" element={<Integrations />} />

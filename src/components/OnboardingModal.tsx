@@ -17,9 +17,10 @@ interface OnboardingModalProps {
   open: boolean;
   userId: string;
   onComplete: () => void;
+  onSkip?: () => void;
 }
 
-export const OnboardingModal = ({ open, userId, onComplete }: OnboardingModalProps) => {
+export const OnboardingModal = ({ open, userId, onComplete, onSkip }: OnboardingModalProps) => {
   const { signOut } = useAuth();
   const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -470,14 +471,25 @@ export const OnboardingModal = ({ open, userId, onComplete }: OnboardingModalPro
 
         {/* Navigation Buttons */}
         <div className="flex justify-between pt-4 border-t">
-          <Button
-            variant="outline"
-            onClick={() => setStep(Math.max(1, step - 1))}
-            disabled={step === 1}
-          >
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              onClick={() => setStep(Math.max(1, step - 1))}
+              disabled={step === 1}
+            >
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back
+            </Button>
+            
+            {onSkip && (
+              <Button
+                variant="ghost"
+                onClick={onSkip}
+              >
+                Skip for now
+              </Button>
+            )}
+          </div>
 
           {step < totalSteps ? (
             <Button
