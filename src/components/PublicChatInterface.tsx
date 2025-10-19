@@ -113,7 +113,7 @@ const PublicChatInterface = ({ agent }: PublicChatInterfaceProps) => {
                   <div className={`
                     ${message.role === 'user' 
                       ? 'bg-primary/90 text-white rounded-3xl px-4 py-3 inline-block max-w-[80%]' 
-                      : 'bg-white/30 backdrop-blur-sm rounded-2xl px-4 py-3 w-full'
+                      : 'bg-white rounded-2xl px-4 py-3 w-full text-foreground'
                     }
                   `}>
                     {message.role === 'user' ? (
@@ -121,14 +121,14 @@ const PublicChatInterface = ({ agent }: PublicChatInterfaceProps) => {
                         {message.content}
                       </p>
                     ) : (
-                      <div className="prose prose-sm max-w-none prose-invert
+                      <div className="prose prose-sm max-w-none
                         prose-p:leading-7 prose-p:mb-5 prose-p:mt-0 prose-p:text-[15px] first:prose-p:mt-0 last:prose-p:mb-0
                         prose-headings:font-semibold prose-headings:my-4
                         prose-h1:text-2xl prose-h2:text-xl prose-h3:text-lg
                         prose-ul:my-4 prose-ul:list-disc prose-ul:pl-6
                         prose-ol:my-4 prose-ol:list-decimal prose-ol:pl-6
                         prose-li:my-1 prose-li:leading-7 prose-li:text-[15px]
-                        prose-strong:font-semibold prose-strong:text-white
+                        prose-strong:font-semibold
                         prose-code:bg-muted prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:text-sm
                         prose-pre:bg-muted prose-pre:p-4 prose-pre:rounded-lg
                         prose-blockquote:border-l-4 prose-blockquote:border-border prose-blockquote:pl-4 prose-blockquote:italic
@@ -164,11 +164,11 @@ const PublicChatInterface = ({ agent }: PublicChatInterfaceProps) => {
                 </AvatarFallback>
               </Avatar>
               <div className="flex-1">
-                <div className="bg-white/30 backdrop-blur-sm rounded-2xl px-4 py-3 inline-block">
+                <div className="bg-white rounded-2xl px-4 py-3 inline-block">
                   <div className="flex space-x-1.5">
-                    <div className="w-2 h-2 rounded-full bg-white/60 animate-bounce [animation-delay:-0.3s]"></div>
-                    <div className="w-2 h-2 rounded-full bg-white/60 animate-bounce [animation-delay:-0.15s]"></div>
-                    <div className="w-2 h-2 rounded-full bg-white/60 animate-bounce"></div>
+                    <div className="w-2 h-2 rounded-full bg-primary animate-bounce [animation-delay:-0.3s]"></div>
+                    <div className="w-2 h-2 rounded-full bg-primary animate-bounce [animation-delay:-0.15s]"></div>
+                    <div className="w-2 h-2 rounded-full bg-primary animate-bounce"></div>
                   </div>
                 </div>
               </div>
