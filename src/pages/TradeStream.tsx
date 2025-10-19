@@ -246,7 +246,7 @@ const TradeStream = () => {
                       <div className="flex-1">
                         <div className="prose prose-sm max-w-none">
                           <p className="text-2xl leading-relaxed italic font-medium">
-                            "{commentary}"
+                            {commentary}
                           </p>
                         </div>
 
