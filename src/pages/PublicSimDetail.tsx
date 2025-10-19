@@ -31,12 +31,11 @@ const PublicSimDetail = () => {
     if (sim?.description) {
       return sim.description;
     }
-    // Default description for historical sims
-    if (sim?.sim_type === 'historical') {
-      const subject = sim?.title || 'various';
-      return `A historical Sim to talk to for advice and guidance on ${subject} matters.`;
+    // Default description for sims without custom descriptions
+    if (sim?.title) {
+      return `Chat with this Sim who brings expertise as a ${sim.title}.`;
     }
-    return 'An AI Sim ready to assist you.';
+    return 'An AI Sim ready to assist you with insights and guidance.';
   };
 
   const getSimPrice = () => {
