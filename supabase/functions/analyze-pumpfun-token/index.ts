@@ -25,10 +25,21 @@ serve(async (req) => {
       console.log('Fetching token data from PumpFun API...');
       
       const pumpFunApiUrl = `https://frontend-api.pump.fun/coins/${tokenAddress}`;
-      const tokenResponse = await fetch(pumpFunApiUrl);
+      console.log('API URL:', pumpFunApiUrl);
+      
+      const tokenResponse = await fetch(pumpFunApiUrl, {
+        headers: {
+          'Accept': 'application/json',
+          'User-Agent': 'Mozilla/5.0'
+        }
+      });
+      
+      console.log('Response status:', tokenResponse.status);
       
       if (!tokenResponse.ok) {
-        throw new Error(`Failed to fetch token data: ${tokenResponse.statusText}`);
+        const errorText = await tokenResponse.text();
+        console.log('Error response:', errorText);
+        throw new Error(`Failed to fetch token data (${tokenResponse.status}): ${errorText}`);
       }
 
       const tokenData = await tokenResponse.json();
