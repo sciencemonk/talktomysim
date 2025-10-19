@@ -224,8 +224,8 @@ const TradeStream = () => {
                 >
                   <div className="p-6 rounded-lg bg-primary/10 border-2 border-primary/20">
                     <div className="mb-4">
-                      <h3 className="text-xl font-bold text-primary mb-2">
-                        New Token: {currentTokenName}
+                      <h3 className="text-3xl font-bold text-primary mb-2">
+                        {currentTokenName}
                       </h3>
                     </div>
                     
@@ -245,7 +245,7 @@ const TradeStream = () => {
                       
                       <div className="flex-1">
                         <div className="prose prose-sm max-w-none">
-                          <p className="text-2xl leading-relaxed italic font-medium">
+                          <p className="text-3xl leading-relaxed italic font-medium">
                             {commentary}
                           </p>
                         </div>
