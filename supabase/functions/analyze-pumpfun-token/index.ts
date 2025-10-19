@@ -35,8 +35,8 @@ serve(async (req) => {
         console.log('Trades fetch error:', error.message);
       }
 
-    // Then try to get token metadata
-    const pumpFunApiUrl = `https://frontend-api.pump.fun/coins/${tokenAddress}`;
+    // Use the v3 API (v1 and v2 are deprecated and down)
+    const pumpFunApiUrl = `https://frontend-api-v3.pump.fun/coins/${tokenAddress}`;
     console.log('Fetching token metadata from:', pumpFunApiUrl);
       console.log('API URL:', pumpFunApiUrl);
       
