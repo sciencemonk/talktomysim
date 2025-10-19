@@ -20,32 +20,28 @@ export interface Message {
 }
 
 export const conversationService = {
-  // Get or create a conversation for a user and advisor (supports anonymous users)
-  async getOrCreateConversation(advisorId: string, isCreatorChat: boolean = false): Promise<Conversation | null> {
+  // Get or create a conversation for a user and advisor
+  async getOrCreateConversation(advisorId: string): Promise<Conversation | null> {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       
-      // For creator chats, ALWAYS create a new conversation
-      // For regular chats, reuse existing conversation
-      if (user && !isCreatorChat) {
-        // Try to get existing conversation for non-creator chats
+      // For authenticated users, reuse existing conversation
+      if (user) {
+        // Try to get existing conversation
         const { data: existingConversation } = await supabase
           .from('conversations')
           .select('*')
           .eq('user_id', user.id)
           .eq('tutor_id', advisorId)
-          .eq('is_creator_conversation', false)
           .maybeSingle();
 
         if (existingConversation) {
+          console.log('Found existing conversation:', existingConversation.id);
           return existingConversation;
         }
       }
 
-      // Create new conversation for:
-      // 1. Creator chats (always new)
-      // 2. First time regular chats
-      // 3. Anonymous users
+      // Create new conversation for first time chats
       if (user) {
         const { data: newConversation, error } = await supabase
           .from('conversations')
@@ -54,13 +50,13 @@ export const conversationService = {
             tutor_id: advisorId,
             title: null,
             is_anonymous: false,
-            is_creator_conversation: isCreatorChat
+            is_creator_conversation: false
           })
           .select()
           .single();
 
         if (error) throw error;
-        console.log('Created new conversation:', newConversation.id, 'isCreatorChat:', isCreatorChat);
+        console.log('Created new conversation:', newConversation.id);
         return newConversation;
       }
       

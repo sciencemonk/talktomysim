@@ -33,7 +33,7 @@ const ChatInterface = ({ agent, onBack, hideHeader = false, transparentMode = fa
   // Get avatar URL - handle both transformed (avatar) and raw (avatar_url) properties
   const avatarUrl = (currentAgent as any).avatar || (currentAgent as any).avatar_url;
   
-  const chatHistory = useChatHistory(currentAgent, isCreatorChat, forceNewChat, conversationId);
+  const chatHistory = useChatHistory(currentAgent, forceNewChat, conversationId);
   const textChat = useTextChat({
     agent: currentAgent,
     onUserMessage: chatHistory.addUserMessage,

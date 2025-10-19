@@ -20,7 +20,7 @@ const PublicChatInterface = ({ agent }: PublicChatInterfaceProps) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   
-  const chatHistory = useChatHistory(agent, false, false, null);
+  const chatHistory = useChatHistory(agent, false, null);
   const textChat = useTextChat({
     agent: agent,
     onUserMessage: chatHistory.addUserMessage,

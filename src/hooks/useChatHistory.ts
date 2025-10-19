@@ -12,7 +12,7 @@ interface ChatMessage {
   image?: string; // For generated images
 }
 
-export const useChatHistory = (agent: AgentType, isCreatorChat: boolean = false, forceNew: boolean = false, conversationId?: string | null) => {
+export const useChatHistory = (agent: AgentType, forceNew: boolean = false, conversationId?: string | null) => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [activeConversationId, setActiveConversationId] = useState<string | null>(conversationId || null);
   const [isLoading, setIsLoading] = useState(true);
@@ -74,7 +74,7 @@ export const useChatHistory = (agent: AgentType, isCreatorChat: boolean = false,
         }
         
         // Create or get conversation for both authenticated and anonymous users
-        const conversation = await conversationService.getOrCreateConversation(agent.id, isCreatorChat);
+        const conversation = await conversationService.getOrCreateConversation(agent.id);
         if (!conversation) {
           console.error('Failed to get or create conversation');
           setIsLoading(false);
@@ -128,8 +128,8 @@ export const useChatHistory = (agent: AgentType, isCreatorChat: boolean = false,
     // Create conversation on first message if not exists
     let currentConversationId = activeConversationId;
     if (!currentConversationId && agent?.id) {
-      console.log('Creating new conversation with isCreatorChat:', isCreatorChat);
-      const conversation = await conversationService.getOrCreateConversation(agent.id, isCreatorChat);
+      console.log('Creating new conversation');
+      const conversation = await conversationService.getOrCreateConversation(agent.id);
       if (conversation) {
         currentConversationId = conversation.id;
         setActiveConversationId(conversation.id);
@@ -158,7 +158,7 @@ export const useChatHistory = (agent: AgentType, isCreatorChat: boolean = false,
     
     // Return the conversation ID for use in the calling function
     return currentConversationId;
-  }, [activeConversationId, agent?.id, isCreatorChat]);
+  }, [activeConversationId, agent?.id]);
 
   // Start AI message
   const startAiMessage = useCallback(() => {

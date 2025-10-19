@@ -103,19 +103,10 @@ export function AppSidebar() {
     queryFn: async () => {
       if (!currentUser) return [];
       
-      // Get all conversations for the user, grouped by sim (tutor_id)
+      // Get all conversations for the user
       const { data: conversations, error } = await supabase
         .from('conversations')
-        .select(`
-          id,
-          tutor_id,
-          updated_at,
-          advisors:tutor_id (
-            id,
-            name,
-            avatar_url
-          )
-        `)
+        .select('id, tutor_id, updated_at')
         .eq('user_id', currentUser.id)
         .order('updated_at', { ascending: false });
       
@@ -129,9 +120,15 @@ export function AppSidebar() {
       
       for (const conv of conversations || []) {
         const simId = conv.tutor_id;
-        const advisor = (conv as any).advisors;
         
         if (!simConversationsMap.has(simId)) {
+          // Get advisor/sim details
+          const { data: advisor } = await supabase
+            .from('advisors')
+            .select('id, name, avatar_url')
+            .eq('id', simId)
+            .single();
+          
           // Get last message for this conversation
           const { data: messages } = await supabase
             .from('messages')
