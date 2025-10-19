@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import TopNavigation from "@/components/TopNavigation";
 import SimpleFooter from "@/components/SimpleFooter";
@@ -29,35 +29,11 @@ const Pump = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [queueCount, setQueueCount] = useState(0);
   const [mathQuestion, setMathQuestion] = useState({ num1: 0, num2: 0, answer: 0 });
-  const audioRef = useRef<HTMLAudioElement>(null);
 
   useEffect(() => {
     fetchSims();
     fetchQueueCount();
     generateMathQuestion();
-
-    // Try to play audio after user interaction
-    const playAudio = () => {
-      if (audioRef.current) {
-        audioRef.current.play().catch(err => {
-          console.log("Autoplay prevented:", err);
-        });
-      }
-    };
-
-    // Try to play immediately
-    playAudio();
-
-    // Also try on first click anywhere
-    const handleFirstClick = () => {
-      playAudio();
-      document.removeEventListener('click', handleFirstClick);
-    };
-    document.addEventListener('click', handleFirstClick);
-
-    return () => {
-      document.removeEventListener('click', handleFirstClick);
-    };
   }, []);
 
   const generateMathQuestion = () => {
@@ -151,10 +127,9 @@ const Pump = () => {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <audio 
-        ref={audioRef}
-        src="/simmusic.m4a"
+        autoPlay
         loop
-        className="hidden"
+        src="https://kxsvyeirqimcydtkowga.supabase.co/storage/v1/object/public/music/simmusic.m4a"
       />
       <TopNavigation />
 
