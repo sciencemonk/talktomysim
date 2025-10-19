@@ -143,18 +143,28 @@ export function AppSidebar() {
         const simId = conv.tutor_id;
         
         if (!simConversationsMap.has(simId)) {
-          // Get advisor/sim details with creator's wallet
-          const { data: advisor } = await supabase
+          // Get advisor/sim details
+          const { data: advisor, error: advisorError } = await supabase
             .from('advisors')
-            .select(`
-              id, 
-              name, 
-              avatar_url, 
-              user_id,
-              profiles:user_id (wallet_address)
-            `)
+            .select('id, name, avatar_url, user_id')
             .eq('id', simId)
             .single();
+          
+          if (advisorError) {
+            console.error('Error fetching advisor:', advisorError);
+            continue;
+          }
+          
+          // Get creator's wallet if user_id exists
+          let creatorWallet = null;
+          if (advisor?.user_id) {
+            const { data: profile } = await supabase
+              .from('profiles')
+              .select('wallet_address')
+              .eq('id', advisor.user_id)
+              .single();
+            creatorWallet = profile?.wallet_address || null;
+          }
           
           // Get last message for this conversation
           const { data: messages } = await supabase
@@ -169,7 +179,7 @@ export function AppSidebar() {
             sim_name: advisor?.name || 'Unknown Sim',
             sim_avatar: advisor?.avatar_url || null,
             sim_user_id: advisor?.user_id || null,
-            sim_creator_wallet: (advisor?.profiles as any)?.wallet_address || null,
+            sim_creator_wallet: creatorWallet,
             conversation_id: conv.id,
             last_message: messages?.[0]?.content || null,
             updated_at: conv.updated_at
