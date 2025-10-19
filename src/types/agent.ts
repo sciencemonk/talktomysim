@@ -61,6 +61,7 @@ export interface AgentType {
   custom_url?: string; // Add custom_url for living sims
   is_official?: boolean; // Add is_official for official historical sims
   price?: number; // Price in $SimAI tokens
+  category?: string; // Category for marketplace filtering
 }
 
 export interface PublicAgentType {

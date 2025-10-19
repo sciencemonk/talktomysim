@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useQuery } from '@tanstack/react-query';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Search, Award, Menu } from 'lucide-react';
+import { Search, Award, Menu, TrendingUp, DollarSign, Gift } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { AgentType } from '@/types/agent';
@@ -12,11 +12,29 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { useAuth } from '@/hooks/useAuth';
 import { getAvatarUrl } from '@/lib/avatarUtils';
 import SimDetailModal from '@/components/SimDetailModal';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Button } from '@/components/ui/button';
+
+type FilterType = 'all' | 'free' | 'paid';
+type SortType = 'popular' | 'newest' | 'name';
+
+const categories = [
+  { id: 'all', label: 'All Categories', count: 0 },
+  { id: 'historical', label: 'Historical', count: 0 },
+  { id: 'crypto', label: 'Crypto', count: 0 },
+  { id: 'business', label: 'Business', count: 0 },
+  { id: 'philosophy', label: 'Philosophy', count: 0 },
+  { id: 'entertainment', label: 'Entertainment', count: 0 },
+  { id: 'erotic', label: 'Adult', count: 0 },
+];
 
 const SimDirectory = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedSim, setSelectedSim] = useState<AgentType | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [priceFilter, setPriceFilter] = useState<FilterType>('all');
+  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [sortBy, setSortBy] = useState<SortType>('popular');
   const isMobile = useIsMobile();
   const { user } = useAuth();
 
@@ -57,16 +75,57 @@ const SimDirectory = () => {
         channelConfigs: {},
         isPersonal: false,
         voiceTraits: [],
-        price: sim.price || 0, // Include price
+        price: sim.price || 0,
+        category: sim.category || 'uncategorized',
       } as AgentType));
     },
   });
 
-  const filteredSims = allSims?.filter(sim => 
-    sim.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    sim.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    sim.description.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  // Apply filters and sorting
+  const filteredSims = allSims
+    ?.filter(sim => {
+      // Search filter
+      const matchesSearch = 
+        sim.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        sim.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        sim.description.toLowerCase().includes(searchQuery.toLowerCase());
+      
+      if (!matchesSearch) return false;
+
+      // Price filter
+      if (priceFilter === 'free' && sim.price && sim.price > 0) return false;
+      if (priceFilter === 'paid' && (!sim.price || sim.price === 0)) return false;
+
+      // Category filter
+      const simCategory = (sim as any).category?.toLowerCase() || 'uncategorized';
+      if (selectedCategory !== 'all' && simCategory !== selectedCategory) return false;
+
+      return true;
+    })
+    .sort((a, b) => {
+      if (sortBy === 'popular') {
+        // Sort by interactions (most popular first)
+        return (b.interactions || 0) - (a.interactions || 0);
+      } else if (sortBy === 'newest') {
+        // Sort by creation date (newest first)
+        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+      } else {
+        // Sort alphabetically by name
+        return a.name.localeCompare(b.name);
+      }
+    });
+
+  // Calculate category counts
+  const categoryCounts = categories.map(cat => {
+    if (cat.id === 'all') {
+      return { ...cat, count: allSims?.length || 0 };
+    }
+    const count = allSims?.filter(sim => {
+      const simCategory = (sim as any).category?.toLowerCase() || 'uncategorized';
+      return simCategory === cat.id;
+    }).length || 0;
+    return { ...cat, count };
+  });
 
   const handleSimClick = (sim: AgentType) => {
     setSelectedSim(sim);
@@ -91,17 +150,85 @@ const SimDirectory = () => {
       {/* Main Content */}
       <div className={`h-full p-8 ${isMobile ? 'pt-[73px]' : ''}`}>
         <div className="max-w-7xl mx-auto">
-          {/* Search Bar */}
+          {/* Header */}
           <div className="mb-8">
+            <h1 className="text-4xl font-bold mb-2">Sim Marketplace</h1>
+            <p className="text-muted-foreground">Discover and chat with AI Sims</p>
+          </div>
+
+          {/* Search Bar */}
+          <div className="mb-6">
             <div className="relative">
               <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
               <Input
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search sims by name, title, or description..."
-                className="pl-12 h-14 text-lg"
+                className="pl-12 h-12 text-base"
               />
             </div>
+          </div>
+
+          {/* Filters */}
+          <div className="mb-6 space-y-4">
+            {/* Price & Sort Filters */}
+            <div className="flex flex-wrap gap-3 items-center">
+              <Tabs value={priceFilter} onValueChange={(v) => setPriceFilter(v as FilterType)}>
+                <TabsList>
+                  <TabsTrigger value="all" className="gap-2">
+                    All
+                  </TabsTrigger>
+                  <TabsTrigger value="free" className="gap-2">
+                    <Gift className="h-4 w-4" />
+                    Free
+                  </TabsTrigger>
+                  <TabsTrigger value="paid" className="gap-2">
+                    <DollarSign className="h-4 w-4" />
+                    Paid
+                  </TabsTrigger>
+                </TabsList>
+              </Tabs>
+
+              <div className="h-8 w-px bg-border" />
+
+              <Tabs value={sortBy} onValueChange={(v) => setSortBy(v as SortType)}>
+                <TabsList>
+                  <TabsTrigger value="popular" className="gap-2">
+                    <TrendingUp className="h-4 w-4" />
+                    Popular
+                  </TabsTrigger>
+                  <TabsTrigger value="newest">
+                    Newest
+                  </TabsTrigger>
+                  <TabsTrigger value="name">
+                    A-Z
+                  </TabsTrigger>
+                </TabsList>
+              </Tabs>
+            </div>
+
+            {/* Category Filters */}
+            <div className="flex flex-wrap gap-2">
+              {categoryCounts.map((cat) => (
+                <Button
+                  key={cat.id}
+                  variant={selectedCategory === cat.id ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setSelectedCategory(cat.id)}
+                  className="gap-2"
+                >
+                  {cat.label}
+                  <Badge variant="secondary" className="ml-1 px-1.5">
+                    {cat.count}
+                  </Badge>
+                </Button>
+              ))}
+            </div>
+          </div>
+
+          {/* Results Count */}
+          <div className="mb-4 text-sm text-muted-foreground">
+            {filteredSims?.length || 0} Sims found
           </div>
 
           {/* Sims Grid */}
@@ -110,8 +237,26 @@ const SimDirectory = () => {
               <button
                 key={sim.id}
                 onClick={() => handleSimClick(sim)}
-                className="group flex flex-col items-center gap-3 p-5 rounded-2xl bg-card hover:bg-muted border-2 hover:border-primary transition-all duration-300 hover:scale-105 hover:shadow-xl"
+                className="group relative flex flex-col items-center gap-3 p-5 rounded-2xl bg-card hover:bg-muted border-2 hover:border-primary transition-all duration-300 hover:scale-105 hover:shadow-xl"
               >
+                {/* Price Badge */}
+                {sim.price && sim.price > 0 ? (
+                  <Badge 
+                    variant="secondary" 
+                    className="absolute top-2 right-2 text-[10px] px-2 py-0.5 bg-primary text-primary-foreground"
+                  >
+                    <DollarSign className="h-3 w-3 mr-0.5" />
+                    {sim.price}
+                  </Badge>
+                ) : (
+                  <Badge 
+                    variant="secondary" 
+                    className="absolute top-2 right-2 text-[10px] px-2 py-0.5 bg-green-500 text-white"
+                  >
+                    Free
+                  </Badge>
+                )}
+
                 <div className="relative">
                   <Avatar className="w-24 h-24 border-3 border-border shadow-lg group-hover:shadow-2xl transition-shadow">
                     <AvatarImage
@@ -146,7 +291,8 @@ const SimDirectory = () => {
 
           {filteredSims?.length === 0 && (
             <Card className="p-12 text-center">
-              <p className="text-muted-foreground text-lg">No sims found matching your search.</p>
+              <p className="text-muted-foreground text-lg mb-2">No sims found</p>
+              <p className="text-sm text-muted-foreground">Try adjusting your filters or search query</p>
             </Card>
           )}
         </div>
