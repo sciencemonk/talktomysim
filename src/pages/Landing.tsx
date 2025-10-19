@@ -454,11 +454,11 @@ const Landing = () => {
                     {/* Category and Price badges at bottom */}
                     <div className="flex flex-wrap gap-1.5 justify-center mt-2 pt-2 border-t border-border/50">
                       {simCategory !== 'uncategorized' && (
-                        <Badge variant="outline" className="text-[10px] px-1.5 py-0 bg-muted/50 border-muted-foreground/20 text-muted-foreground">
+                        <Badge variant="outline" className="text-[9px] px-1.5 py-0 bg-muted/50 border-muted-foreground/20 text-muted-foreground whitespace-nowrap">
                           {categoryLabel}
                         </Badge>
                       )}
-                      <Badge variant="outline" className="text-[10px] px-1.5 py-0 bg-muted/50 border-muted-foreground/20 text-muted-foreground">
+                      <Badge variant="outline" className="text-[9px] px-1.5 py-0 bg-muted/50 border-muted-foreground/20 text-muted-foreground whitespace-nowrap">
                         {price > 0 ? `${price} $SIMAI` : 'Free'}
                       </Badge>
                     </div>
