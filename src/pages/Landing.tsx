@@ -318,19 +318,6 @@ const Landing = () => {
                 </TabsList>
               </Tabs>
 
-              {currentUser && userSim && (
-                <>
-                  <div className="h-8 w-px bg-border" />
-                  <Button
-                    onClick={handleAddSim}
-                    className="gap-2"
-                    size="sm"
-                  >
-                    <Plus className="h-4 w-4" />
-                    Add Sim
-                  </Button>
-                </>
-              )}
             </div>
 
             {/* Category Filters */}
