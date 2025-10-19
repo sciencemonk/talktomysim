@@ -403,7 +403,7 @@ export function AppSidebar() {
   });
 
   return (
-    <Sidebar className="border-r bg-background flex flex-col" collapsible="offcanvas">
+    <Sidebar className="border-r bg-background flex flex-col">
       <SidebarContent className="flex flex-col h-full">
         {/* Header - Always Visible */}
         <div className="flex-shrink-0 p-3 space-y-4">
@@ -422,8 +422,8 @@ export function AppSidebar() {
             className="w-full justify-start gap-2"
             variant="outline"
           >
-            <Users className="h-4 w-4 flex-shrink-0" />
-            <span className="truncate">Sim Marketplace</span>
+            <Users className="h-4 w-4" />
+            {open && <span>Sim Marketplace</span>}
           </Button>
 
           {/* Create Your Sim Button - always visible with rainbow shimmer */}
@@ -438,12 +438,12 @@ export function AppSidebar() {
             }}
             className="w-full justify-start gap-2 rainbow-shimmer hover:opacity-90"
           >
-            <Plus className="h-4 w-4 flex-shrink-0" />
-            <span className="truncate">Create a Sim</span>
+            <Plus className="h-4 w-4" />
+            {open && <span>Create a Sim</span>}
           </Button>
 
-          {/* Search - only show for signed in users */}
-          {currentUser && (
+          {/* Search */}
+          {open && (
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
@@ -456,14 +456,13 @@ export function AppSidebar() {
           )}
         </div>
 
-        {/* Your Sims - Scrollable - Only show for signed in users */}
-        {currentUser && (
-          <div className="flex-1 overflow-hidden px-3 min-h-0">
-            <SidebarGroup className="h-full">
-              <SidebarGroupLabel className="text-xs font-bold">Your Sims</SidebarGroupLabel>
-              <SidebarGroupContent className="h-[calc(100%-2rem)]">
-                <ScrollArea className="h-full max-h-[600px]">
-                  <SidebarMenu>
+        {/* Your Sims - Scrollable */}
+        <div className="flex-1 overflow-hidden px-3 min-h-0">
+          <SidebarGroup className="h-full">
+            {open && <SidebarGroupLabel className="text-xs font-bold">Your Sims</SidebarGroupLabel>}
+            <SidebarGroupContent className="h-[calc(100%-2rem)]">
+              <ScrollArea className="h-full max-h-[600px]">
+                <SidebarMenu>
                   {filteredConversations?.map((conv: SimConversation) => (
                     <SidebarMenuItem 
                       key={conv.sim_id}
@@ -484,21 +483,24 @@ export function AppSidebar() {
                                 {conv.sim_name.charAt(0).toUpperCase()}
                               </AvatarFallback>
                             </Avatar>
-                            <span className="font-medium truncate">{conv.sim_name}</span>
+                            {open && (
+                              <span className="font-medium truncate">{conv.sim_name}</span>
+                            )}
                           </NavLink>
                         </SidebarMenuButton>
                         
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-8 w-8 opacity-0 group-hover/item:opacity-100 transition-opacity flex-shrink-0"
-                              onClick={(e) => e.stopPropagation()}
-                            >
-                              <MoreVertical className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
+                        {open && (
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8 opacity-0 group-hover/item:opacity-100 transition-opacity flex-shrink-0"
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                <MoreVertical className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
                             <DropdownMenuContent align="end" className="z-50 bg-popover">
                               {(conv.sim_user_id === currentUser?.id || 
                                 (currentUserProfile?.wallet_address && 
@@ -528,27 +530,27 @@ export function AppSidebar() {
                                 >
                                   <Trash2 className="h-4 w-4 mr-2" />
                                   Remove Sim
-                            </DropdownMenuItem>
-                          )}
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </div>
-                    </SidebarMenuItem>
-                    ))}
-                    {(!filteredConversations || filteredConversations.length === 0) && (
-                      <div className="px-3 py-2 text-sm text-muted-foreground">
-                        No chats yet
+                                </DropdownMenuItem>
+                              )}
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        )}
                       </div>
-                    )}
+                    </SidebarMenuItem>
+                  ))}
+                  {(!filteredConversations || filteredConversations.length === 0) && open && (
+                    <div className="px-3 py-2 text-sm text-muted-foreground">
+                      No chats yet
+                    </div>
+                  )}
                 </SidebarMenu>
               </ScrollArea>
             </SidebarGroupContent>
           </SidebarGroup>
         </div>
-        )}
 
         {/* Action Buttons at Bottom */}
-        <div className="flex-shrink-0 px-3 pb-3 mt-auto">
+        <div className="flex-shrink-0 px-3 pb-3">
           <div className="pt-4 border-t space-y-2">
             <Button
               onClick={() => {
@@ -558,8 +560,8 @@ export function AppSidebar() {
               className="w-full justify-start gap-2 bg-[#83f0aa] hover:bg-[#6ed99a] text-black"
               variant="default"
             >
-              <Coins className="h-4 w-4 flex-shrink-0" />
-              <span className="truncate">Buy $SimAI</span>
+              <Coins className="h-4 w-4" />
+              {open && <span>Buy $SimAI</span>}
             </Button>
             
             {currentUser ? (
@@ -568,29 +570,41 @@ export function AppSidebar() {
                 className="w-full justify-start gap-2"
                 variant="outline"
               >
-                <LogOut className="h-4 w-4 flex-shrink-0" />
-                <span className="truncate">Log Out</span>
+                <LogOut className="h-4 w-4" />
+                {open && <span>Log Out</span>}
               </Button>
             ) : (
               <>
                 <Button
                   onClick={() => handleWalletSignIn('phantom')}
                   disabled={!!isSigningIn}
-                  className="w-full justify-start gap-2 bg-white text-black hover:bg-white/90 border border-border dark:bg-slate-800 dark:text-white dark:hover:bg-slate-700"
+                  className="w-full justify-start gap-2 bg-white text-black hover:bg-white/90"
                   variant="default"
                 >
-                  <img src={phantomIcon} alt="Phantom" className="w-5 h-5 flex-shrink-0" />
-                  <span className="truncate">{isSigningIn === 'phantom' ? 'Connecting...' : 'Sign in with Phantom'}</span>
+                  {open ? (
+                    <>
+                      <img src={phantomIcon} alt="Phantom" className="w-5 h-5" />
+                      <span>{isSigningIn === 'phantom' ? 'Connecting...' : 'Sign in with Phantom'}</span>
+                    </>
+                  ) : (
+                    <img src={phantomIcon} alt="Phantom" className="w-5 h-5" />
+                  )}
                 </Button>
                 
                 <Button
                   onClick={() => handleWalletSignIn('solflare')}
                   disabled={!!isSigningIn}
-                  className="w-full justify-start gap-2 bg-white text-black hover:bg-white/90 border border-border dark:bg-slate-800 dark:text-white dark:hover:bg-slate-700"
+                  className="w-full justify-start gap-2 bg-white text-black hover:bg-white/90"
                   variant="default"
                 >
-                  <img src={solflareIcon} alt="Solflare" className="w-5 h-5 flex-shrink-0" />
-                  <span className="truncate">{isSigningIn === 'solflare' ? 'Connecting...' : 'Sign in with Solflare'}</span>
+                  {open ? (
+                    <>
+                      <img src={solflareIcon} alt="Solflare" className="w-5 h-5" />
+                      <span>{isSigningIn === 'solflare' ? 'Connecting...' : 'Sign in with Solflare'}</span>
+                    </>
+                  ) : (
+                    <img src={solflareIcon} alt="Solflare" className="w-5 h-5" />
+                  )}
                 </Button>
               </>
             )}
