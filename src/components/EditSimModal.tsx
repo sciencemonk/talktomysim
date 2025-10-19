@@ -304,7 +304,7 @@ const EditSimModal = ({ open, onOpenChange, simId }: EditSimModalProps) => {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
+      <DialogContent className="max-w-4xl max-h-[90vh] flex flex-col">
         <DialogHeader>
           <DialogTitle>Edit Sim</DialogTitle>
           <DialogDescription>
@@ -312,7 +312,7 @@ const EditSimModal = ({ open, onOpenChange, simId }: EditSimModalProps) => {
           </DialogDescription>
         </DialogHeader>
 
-        <ScrollArea className="flex-1 pr-4">
+        <ScrollArea className="flex-1 overflow-y-auto pr-4" style={{ maxHeight: 'calc(90vh - 180px)' }}>
           <div className="space-y-8 pb-6">
             {/* Avatar & Basic Info Section */}
             <div className="space-y-6 pb-6 border-b">

@@ -195,9 +195,8 @@ export function AppSidebar() {
     };
   }, [currentUser?.id, queryClient]);
 
-  const handleNewChat = () => {
-    // Navigate to home without chat parameter to start fresh
-    navigate('/home');
+  const handleSimMarketplace = () => {
+    navigate('/directory');
     closeSidebar();
   };
 
@@ -297,14 +296,14 @@ export function AppSidebar() {
             />
           </div>
 
-          {/* New Chat Button */}
+          {/* Sim Marketplace Button */}
           <Button
-            onClick={handleNewChat}
+            onClick={handleSimMarketplace}
             className="w-full justify-start gap-2"
             variant="outline"
           >
-            <Plus className="h-4 w-4" />
-            {open && <span>New chat</span>}
+            <Users className="h-4 w-4" />
+            {open && <span>Sim Marketplace</span>}
           </Button>
 
           {/* Search */}
@@ -321,10 +320,10 @@ export function AppSidebar() {
           )}
         </div>
 
-        {/* Recent Chats - Scrollable */}
+        {/* Your Sims - Scrollable */}
         <div className="flex-1 overflow-hidden px-3 min-h-0">
           <SidebarGroup className="h-full">
-            {open && <SidebarGroupLabel className="text-xs font-bold">Recent Chats</SidebarGroupLabel>}
+            {open && <SidebarGroupLabel className="text-xs font-bold">Your Sims</SidebarGroupLabel>}
             <SidebarGroupContent className="h-[calc(100%-2rem)]">
               <ScrollArea className="h-full max-h-[600px]">
                 <SidebarMenu>
@@ -405,83 +404,8 @@ export function AppSidebar() {
           </SidebarGroup>
         </div>
 
-        {/* Navigation Links - Always Visible */}
-        <div className="flex-shrink-0 px-3 pb-3">
-        {/* Navigation Links */}
-        <SidebarGroup className="mt-auto">
-          {open && <SidebarGroupLabel className="text-xs font-bold">Navigation</SidebarGroupLabel>}
-          <SidebarGroupContent>
-            <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                  <NavLink 
-                    to="/edit-sim"
-                    onClick={closeSidebar}
-                    className={({ isActive }) => 
-                      `${isActive ? 'bg-muted' : 'hover:bg-muted/50'}`
-                    }
-                  >
-                    {open && <span>Personalize Your Sim</span>}
-                  </NavLink>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                  <NavLink 
-                    to="/edit-sim-page"
-                    onClick={closeSidebar}
-                    className={({ isActive }) => 
-                      `${isActive ? 'bg-muted' : 'hover:bg-muted/50'}`
-                    }
-                  >
-                    {open && <span>Edit Sim Page</span>}
-                  </NavLink>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                  <NavLink 
-                    to="/conversations"
-                    onClick={closeSidebar}
-                    className={({ isActive }) => 
-                      `${isActive ? 'bg-muted' : 'hover:bg-muted/50'}`
-                    }
-                  >
-                    {open && <span>Public Conversations</span>}
-                  </NavLink>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                  <NavLink 
-                    to="/directory"
-                    onClick={closeSidebar}
-                    className={({ isActive }) => 
-                      `${isActive ? 'bg-muted' : 'hover:bg-muted/50'}`
-                    }
-                  >
-                    {open && <span>Sim Directory</span>}
-                  </NavLink>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                  <NavLink 
-                    to="/integrations"
-                    onClick={closeSidebar}
-                    className={({ isActive }) => 
-                      `${isActive ? 'bg-muted' : 'hover:bg-muted/50'}`
-                    }
-                  >
-                    {open && <span>Integrations</span>}
-                  </NavLink>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
         {/* User Profile at Bottom - Always Visible */}
+        <div className="flex-shrink-0 px-3 pb-3">
         <div className="pt-4 border-t">
           <button
             onClick={() => setShowCreditsModal(true)}
