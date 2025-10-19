@@ -44,6 +44,7 @@ import { Progress } from "@/components/ui/progress";
 import { CreditUsageModal } from "./CreditUsageModal";
 import EditSimModal from "./EditSimModal";
 import { OnboardingModal } from "./OnboardingModal";
+import AuthModal from "./AuthModal";
 import phantomIcon from "@/assets/phantom-icon.png";
 import solflareIcon from "@/assets/solflare-icon.png";
 import bs58 from "bs58";
@@ -425,24 +426,21 @@ export function AppSidebar() {
             {open && <span>Sim Marketplace</span>}
           </Button>
 
-          {/* Create Your Sim Button - show only if user has no sim */}
-          {!userSim && (
-            <Button
-              onClick={() => {
-                if (!currentUser) {
-                  // For non-signed-in users, navigate to landing page
-                  window.location.href = '/landing';
-                } else {
-                  setShowCreateSimModal(true);
-                }
-              }}
-              className="w-full justify-start gap-2"
-              variant="default"
-            >
-              <Plus className="h-4 w-4" />
-              {open && <span>Create a Sim</span>}
-            </Button>
-          )}
+          {/* Create Your Sim Button - always visible with rainbow shimmer */}
+          <Button
+            onClick={() => {
+              if (!currentUser) {
+                // For non-signed-in users, open auth modal
+                setShowCreateSimModal(true);
+              } else {
+                setShowCreateSimModal(true);
+              }
+            }}
+            className="w-full justify-start gap-2 rainbow-shimmer hover:opacity-90"
+          >
+            <Plus className="h-4 w-4" />
+            {open && <span>Create a Sim</span>}
+          </Button>
 
           {/* Search */}
           {open && (
@@ -624,6 +622,14 @@ export function AppSidebar() {
         />
       )}
 
+      {showCreateSimModal && !currentUser && (
+        <AuthModal
+          open={showCreateSimModal}
+          onOpenChange={setShowCreateSimModal}
+          defaultMode="signup"
+        />
+      )}
+      
       {showCreateSimModal && currentUser && (
         <OnboardingModal
           open={showCreateSimModal}

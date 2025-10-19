@@ -142,7 +142,7 @@ const AuthModal = ({ open, onOpenChange, defaultMode = 'signup' }: AuthModalProp
               size="lg"
             >
               <img src={phantomIcon} alt="Phantom" className="w-6 h-6" />
-              {isLoading === 'phantom' ? 'Connecting...' : 'Connect Phantom'}
+              {isLoading === 'phantom' ? 'Connecting...' : 'Sign in with Phantom'}
             </Button>
             
             <Button
@@ -152,7 +152,7 @@ const AuthModal = ({ open, onOpenChange, defaultMode = 'signup' }: AuthModalProp
               size="lg"
             >
               <img src={solflareIcon} alt="Solflare" className="w-6 h-6" />
-              {isLoading === 'solflare' ? 'Connecting...' : 'Connect Solflare'}
+              {isLoading === 'solflare' ? 'Connecting...' : 'Sign in with Solflare'}
             </Button>
           </div>
 
