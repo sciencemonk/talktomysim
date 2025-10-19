@@ -318,7 +318,7 @@ const Landing = () => {
                 </TabsList>
               </Tabs>
 
-              {currentUser && (
+              {currentUser && userSim && (
                 <>
                   <div className="h-8 w-px bg-border" />
                   <Button

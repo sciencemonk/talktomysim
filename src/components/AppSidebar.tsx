@@ -380,7 +380,7 @@ export function AppSidebar() {
     },
     onSuccess: (_, deletedSimId) => {
       queryClient.invalidateQueries({ queryKey: ['my-sim-conversations', currentUser?.id] });
-      toast.success('Chat deleted');
+      toast.success('Sim removed');
       // If we're on the deleted sim's chat, navigate to directory
       const currentSimId = new URLSearchParams(window.location.search).get('sim');
       if (currentSimId === deletedSimId) {
@@ -389,7 +389,7 @@ export function AppSidebar() {
     },
     onError: (error) => {
       console.error('Error deleting conversation:', error);
-      toast.error('Failed to delete chat');
+      toast.error('Failed to remove Sim');
     }
   });
 
@@ -449,7 +449,7 @@ export function AppSidebar() {
               <Input
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search chats"
+                placeholder="Search Sims"
                 className="pl-9"
               />
             </div>
@@ -540,7 +540,7 @@ export function AppSidebar() {
                   ))}
                   {(!filteredConversations || filteredConversations.length === 0) && open && (
                     <div className="px-3 py-2 text-sm text-muted-foreground">
-                      No chats yet
+                      No Sims yet
                     </div>
                   )}
                 </SidebarMenu>
