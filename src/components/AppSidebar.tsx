@@ -46,6 +46,7 @@ interface SimConversation {
   sim_id: string;
   sim_name: string;
   sim_avatar: string | null;
+  sim_user_id: string | null;
   conversation_id: string;
   last_message: string | null;
   updated_at: string;
@@ -129,7 +130,7 @@ export function AppSidebar() {
           // Get advisor/sim details
           const { data: advisor } = await supabase
             .from('advisors')
-            .select('id, name, avatar_url')
+            .select('id, name, avatar_url, user_id')
             .eq('id', simId)
             .single();
           
@@ -145,6 +146,7 @@ export function AppSidebar() {
             sim_id: simId,
             sim_name: advisor?.name || 'Unknown Sim',
             sim_avatar: advisor?.avatar_url || null,
+            sim_user_id: advisor?.user_id || null,
             conversation_id: conv.id,
             last_message: messages?.[0]?.content || null,
             updated_at: conv.updated_at
@@ -366,17 +368,19 @@ export function AppSidebar() {
                               </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end" className="z-50 bg-popover">
-                              <DropdownMenuItem
-                                className="cursor-pointer"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setSelectedSimForEdit(conv.sim_id);
-                                  setEditSimModalOpen(true);
-                                }}
-                              >
-                                <Pencil className="h-4 w-4 mr-2" />
-                                Edit
-                              </DropdownMenuItem>
+                              {conv.sim_user_id === currentUser?.id && (
+                                <DropdownMenuItem
+                                  className="cursor-pointer"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setSelectedSimForEdit(conv.sim_id);
+                                    setEditSimModalOpen(true);
+                                  }}
+                                >
+                                  <Pencil className="h-4 w-4 mr-2" />
+                                  Edit
+                                </DropdownMenuItem>
+                              )}
                               <DropdownMenuItem
                                 className="text-destructive focus:text-destructive cursor-pointer"
                                 onClick={(e) => {
