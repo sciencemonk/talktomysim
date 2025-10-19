@@ -11,10 +11,14 @@ serve(async (req) => {
   }
 
   try {
-    const { description } = await req.json();
+    const { description, category } = await req.json();
     
     if (!description) {
       throw new Error("Description is required");
+    }
+
+    if (!category) {
+      throw new Error("Category is required");
     }
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
@@ -33,18 +37,31 @@ serve(async (req) => {
         messages: [
           {
             role: "system",
-            content: `You are an expert at creating system prompts for AI agents. Generate a detailed, effective system prompt based on the user's description. The system prompt should:
-- Define the AI's personality and tone
-- Specify the AI's expertise and capabilities
-- Include guidelines for how the AI should interact with users
+            content: `You are an expert at creating system prompts for AI agents. Generate a detailed, effective system prompt based on the user's description and category. The system prompt should:
+- Define the AI's personality, tone, and voice that fits the category
+- Specify the AI's expertise and capabilities relevant to the category
+- Include specific guidelines for how the AI should interact with users
 - Be clear, concise, and actionable
 - Be 2-4 paragraphs long
+- Include any domain-specific knowledge or best practices for the category
+
+Category context:
+- crypto: Focus on blockchain, DeFi, trading, and Web3 concepts
+- historical: Embody the historical figure's voice, era, and perspectives
+- influencers: Match the influencer's style, expertise, and communication approach
+- fictional: Capture the character's personality, world, and unique traits
+- education: Focus on teaching, learning strategies, and student engagement
+- business: Emphasize professional advice, strategy, and business acumen
+- lifestyle: Focus on wellness, personal development, and daily life improvement
+- entertainment: Be engaging, fun, and entertaining while staying on topic
+- spiritual: Approach with wisdom, mindfulness, and philosophical depth
+- adult: Be mature, discreet, and respectful while handling sensitive topics
 
 Return ONLY the system prompt text, nothing else.`
           },
           {
             role: "user",
-            content: `Create a system prompt for an AI agent with this description: ${description}`
+            content: `Create a system prompt for an AI agent in the "${category}" category with this description: ${description}`
           }
         ],
       }),
