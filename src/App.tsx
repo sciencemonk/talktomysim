@@ -30,6 +30,7 @@ import PublicSimDetail from "./pages/PublicSimDetail";
 import SimConversations from "./pages/SimConversations";
 import EditSim from "./pages/EditSim";
 import SimDirectory from "./pages/SimDirectory";
+import SimDetailPage from "./pages/SimDetailPage";
 import ChatWithSim from "./pages/ChatWithSim";
 import SimConversationsView from "./pages/SimConversationsView";
 import EditSimPage from "./pages/EditSimPage";
@@ -76,6 +77,7 @@ const App = () => (
             {/* Authenticated routes with sidebar - MUST come before catch-all */}
             <Route element={<AuthenticatedLayout />}>
               <Route path="/directory" element={<SimDirectory />} />
+              <Route path="/sim/:simId" element={<SimDetailPage />} />
               <Route path="/home" element={<ChatWithSim />} />
               <Route path="/conversations" element={<SimConversationsView />} />
               <Route path="/edit-sim" element={<EditSim />} />

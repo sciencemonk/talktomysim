@@ -497,7 +497,7 @@ export function AppSidebar() {
                 navigator.clipboard.writeText('FFqwoZ7phjoupWjLeE5yFeLqGi8jkGEFrTz6jnsUpump');
                 toast.success('Contract address copied to clipboard!');
               }}
-              className="w-full justify-start gap-2"
+              className="w-full justify-start gap-2 bg-[#83f0aa] hover:bg-[#6ed99a] text-black"
               variant="default"
             >
               <Coins className="h-4 w-4" />

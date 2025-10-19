@@ -67,13 +67,8 @@ const SimDirectory = () => {
   );
 
   const handleSimClick = (sim: AgentType) => {
-    if (user) {
-      // For signed-in users, open in-app chat
-      navigate(`/home?sim=${sim.id}`);
-    } else if (sim.custom_url) {
-      // For non-signed-in users, navigate to their public page
-      navigate(`/${sim.custom_url}`);
-    }
+    // Navigate to sim detail page within authenticated layout
+    navigate(`/sim/${sim.id}`);
   };
 
   return (

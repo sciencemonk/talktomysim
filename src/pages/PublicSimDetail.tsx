@@ -219,7 +219,7 @@ const PublicSimDetail = () => {
                 onClick={() => setShowChat(true)}
               >
                 <MessageCircle className="h-5 w-5 mr-2 group-hover:scale-110 transition-transform" />
-                Start Chatting
+                Add Sim
               </Button>
 
               {/* Social Links & Wallet */}
