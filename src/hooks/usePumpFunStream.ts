@@ -79,7 +79,11 @@ export const usePumpFunStream = (subscribeToNewTokens = false) => {
           };
           
           setLatestToken(token);
-          setNewTokens(prev => [token, ...prev].slice(0, 20));
+          setNewTokens(prev => {
+            const updated = [token, ...prev].slice(0, 50);
+            console.log('[WebSocket] Updated newTokens array length:', updated.length);
+            return updated;
+          });
         }
       } catch (error) {
         console.error('[WebSocket] ❌ Parse error:', error);

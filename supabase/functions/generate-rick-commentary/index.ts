@@ -37,7 +37,6 @@ serve(async (req) => {
             content: context || 'Generate a unique comment about this crypto token.'
           }
         ],
-        temperature: 0.95,
         max_tokens: 50,
       }),
     });
