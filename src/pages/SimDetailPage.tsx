@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, Globe, Wallet, ExternalLink, Copy, Check, MessageCircle, Menu } from "lucide-react";
+import { Loader2, Globe, Wallet, ExternalLink, Copy, Check, MessageCircle, Menu, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { AgentType } from "@/types/agent";
@@ -198,6 +198,16 @@ const SimDetailPage = () => {
 
       <div className="flex-1 flex items-center justify-center p-4 relative z-10">
         <div className="max-w-xl w-full">
+          {/* Back Button */}
+          <Button
+            variant="ghost"
+            onClick={() => navigate('/directory')}
+            className="mb-4 text-white hover:bg-white/10 gap-2"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Back to Directory
+          </Button>
+
           {/* Main Card */}
           <div className="backdrop-blur-xl bg-white/10 border-2 border-white/20 rounded-3xl p-8 sm:p-12 shadow-2xl">
             {/* Avatar */}
