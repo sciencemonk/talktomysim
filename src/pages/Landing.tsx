@@ -11,7 +11,7 @@ import solflareIcon from "@/assets/solflare-icon.png";
 import { toast as sonnerToast } from "sonner";
 import bs58 from "bs58";
 import AuthModal from "@/components/AuthModal";
-import { Settings, LogOut, Grid, MessageSquare, History, Search, DollarSign, Gift, TrendingUp, Plus } from "lucide-react";
+import { LogOut, Search, DollarSign, Gift, TrendingUp, Plus } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { getAvatarUrl } from "@/lib/avatarUtils";
@@ -266,32 +266,6 @@ const Landing = () => {
     window.location.reload();
   };
 
-  const features = [
-    {
-      title: "Edit Your Sim",
-      description: "Customize your sim's appearance, prompt, and settings",
-      action: () => navigate("/edit-sim"),
-      icon: "settings"
-    },
-    {
-      title: "View Directory",
-      description: "Browse and discover all available sims",
-      action: () => navigate("/directory"),
-      icon: "grid"
-    },
-    {
-      title: "Chat with Your Sim",
-      description: "Test and chat with your own sim privately",
-      action: () => navigate("/chat-with-sim"),
-      icon: "message"
-    },
-    {
-      title: "View Conversations",
-      description: "See all conversations your sim has had with visitors",
-      action: () => navigate("/sim-conversations-view"),
-      icon: "history"
-    },
-  ];
 
   return (
     <SidebarProvider defaultOpen={true}>
@@ -299,38 +273,6 @@ const Landing = () => {
         <AppSidebar />
         
         <div className="flex-1 flex flex-col">
-          {/* Your Sims Section - Only for signed-in users */}
-      {currentUser && userSim && (
-        <section className="flex items-center justify-center container mx-auto px-3 sm:px-4 py-4 sm:py-6">
-          <div className="grid gap-3 max-w-6xl w-full grid-cols-1 md:grid-cols-2">
-            {features.map((feature, index) => (
-              <Card 
-                key={index}
-                className="group transition-all duration-300 hover:scale-[1.02] hover:shadow-xl cursor-pointer"
-                onClick={feature.action}
-              >
-                <CardHeader className="pb-3 p-4 sm:p-6">
-                  <CardTitle className="text-lg sm:text-xl font-bold">
-                    {feature.title}
-                  </CardTitle>
-                  <CardDescription className="text-sm sm:text-base">
-                    {feature.description}
-                  </CardDescription>
-                  
-                  {feature.icon && (
-                    <div className="mt-6 flex justify-center">
-                      {feature.icon === 'settings' && <Settings className="h-16 w-16 text-muted-foreground" />}
-                      {feature.icon === 'grid' && <Grid className="h-16 w-16 text-muted-foreground" />}
-                      {feature.icon === 'message' && <MessageSquare className="h-16 w-16 text-muted-foreground" />}
-                      {feature.icon === 'history' && <History className="h-16 w-16 text-muted-foreground" />}
-                    </div>
-                  )}
-                </CardHeader>
-              </Card>
-            ))}
-          </div>
-        </section>
-      )}
 
           {/* Sim Directory Section */}
           <section className="container mx-auto px-3 sm:px-4 pb-12 pt-8 flex-1">
