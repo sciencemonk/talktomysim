@@ -411,13 +411,13 @@ Your response MUST acknowledge this relationship. Show that you know who they ar
         type: "function",
         function: {
           name: "analyze_pumpfun_token",
-          description: "Analyze a PumpFun token by its contract address (CA/mint address) to get trading activity, volume, momentum, and risk assessment. Use this when someone mentions a token contract address, asks about a PumpFun token, or wants token analysis.",
+          description: "Analyze a PumpFun token by its contract address (CA/mint address) to get trading activity, volume, momentum, and risk assessment. Use this when someone mentions a token contract address, asks about a PumpFun token, or wants token analysis. IMPORTANT: Pass the FULL address exactly as provided by the user, including any 'pump' suffix if present.",
           parameters: {
             type: "object",
             properties: {
               token_address: {
                 type: "string",
-                description: "The Solana token contract address (CA) / mint address to analyze"
+                description: "The COMPLETE Solana token contract address exactly as provided by the user, including any 'pump' suffix. DO NOT strip or modify the address in any way."
               }
             },
             required: ["token_address"]
