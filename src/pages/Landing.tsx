@@ -11,7 +11,6 @@ import solflareIcon from "@/assets/solflare-icon.png";
 import { toast as sonnerToast } from "sonner";
 import bs58 from "bs58";
 import AuthModal from "@/components/AuthModal";
-import landingBackground from "@/assets/landing-background.jpg";
 import { Settings, LogOut, Grid, MessageSquare, History, Search, DollarSign, Gift, TrendingUp, Plus } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
@@ -19,6 +18,8 @@ import { getAvatarUrl } from "@/lib/avatarUtils";
 import SimDetailModal from "@/components/SimDetailModal";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { AppSidebar } from "@/components/AppSidebar";
 
 const Landing = () => {
   const navigate = useNavigate();
@@ -301,56 +302,61 @@ const Landing = () => {
   ];
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
-
-      
-      {/* Header */}
-      <header className="border-b border-border bg-transparent sticky top-0 z-50 relative">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <img 
-              src="/lovable-uploads/d1283b59-7cfa-45f5-b151-4c32b24f3621.png" 
-              alt="Sim" 
-              className="h-6 w-6 sm:h-8 sm:w-8 object-contain"
-            />
-          </div>
-          {currentUser ? (
-          <Button
-              onClick={handleSignOut}
-              className="font-medium h-10 px-4"
-              size="sm"
-            >
-              <LogOut className="h-5 w-5 mr-2" />
-              Log Out
-            </Button>
-          ) : (
-            <div className="flex gap-2">
-              <Button
-                onClick={() => handleWalletSignIn('phantom')}
-                disabled={!!isLoading}
-                className="font-medium h-10 px-3 sm:px-4 gap-2"
-                size="sm"
-              >
-                <img src={phantomIcon} alt="Phantom" className="w-5 h-5" />
-                <span className="hidden sm:inline">{isLoading === 'phantom' ? 'Connecting...' : 'Phantom'}</span>
-              </Button>
-              <Button
-                onClick={() => handleWalletSignIn('solflare')}
-                disabled={!!isLoading}
-                className="font-medium h-10 px-3 sm:px-4 gap-2"
-                size="sm"
-              >
-                <img src={solflareIcon} alt="Solflare" className="w-5 h-5" />
-                <span className="hidden sm:inline">{isLoading === 'solflare' ? 'Connecting...' : 'Solflare'}</span>
-              </Button>
+    <SidebarProvider defaultOpen={true}>
+      <div className="min-h-screen w-full flex bg-background">
+        <AppSidebar />
+        
+        <div className="flex-1 flex flex-col">
+          {/* Header */}
+          <header className="border-b border-border bg-transparent sticky top-0 z-50">
+            <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <SidebarTrigger />
+                <img 
+                  src="/lovable-uploads/d1283b59-7cfa-45f5-b151-4c32b24f3621.png" 
+                  alt="Sim" 
+                  className="h-6 w-6 sm:h-8 sm:w-8 object-contain"
+                />
+              </div>
+              {currentUser ? (
+                <Button
+                  onClick={handleSignOut}
+                  className="font-medium h-10 px-4"
+                  size="sm"
+                >
+                  <LogOut className="h-5 w-5 mr-2" />
+                  Log Out
+                </Button>
+              ) : (
+                <div className="flex gap-2">
+                  <Button
+                    onClick={() => handleWalletSignIn('phantom')}
+                    disabled={!!isLoading}
+                    className="bg-white text-black hover:bg-white/90 font-medium h-10 px-3 sm:px-4 gap-2"
+                    size="sm"
+                  >
+                    <span className="hidden sm:inline">Sign in with</span>
+                    <img src={phantomIcon} alt="Phantom" className="w-5 h-5" />
+                    <span className="sm:hidden">{isLoading === 'phantom' ? 'Connecting...' : 'Phantom'}</span>
+                  </Button>
+                  <Button
+                    onClick={() => handleWalletSignIn('solflare')}
+                    disabled={!!isLoading}
+                    className="bg-white text-black hover:bg-white/90 font-medium h-10 px-3 sm:px-4 gap-2"
+                    size="sm"
+                  >
+                    <span className="hidden sm:inline">Sign in with</span>
+                    <img src={solflareIcon} alt="Solflare" className="w-5 h-5" />
+                    <span className="sm:hidden">{isLoading === 'solflare' ? 'Connecting...' : 'Solflare'}</span>
+                  </Button>
+                </div>
+              )}
             </div>
-          )}
-        </div>
-      </header>
+          </header>
 
       {/* Your Sims Section - Only for signed-in users */}
       {currentUser && userSim && (
-        <section className="flex items-center justify-center container mx-auto px-3 sm:px-4 py-4 sm:py-6 relative z-10">
+        <section className="flex items-center justify-center container mx-auto px-3 sm:px-4 py-4 sm:py-6">
           <div className="grid gap-3 max-w-6xl w-full grid-cols-1 md:grid-cols-2">
             {features.map((feature, index) => (
               <Card 
@@ -546,7 +552,9 @@ const Landing = () => {
       />
 
       <SimpleFooter />
-    </div>
+        </div>
+      </div>
+    </SidebarProvider>
   );
 };
 
