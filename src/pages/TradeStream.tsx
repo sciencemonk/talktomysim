@@ -1,9 +1,9 @@
 import { useEffect, useState, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { usePumpFunStream } from "@/hooks/usePumpFunStream";
-import TopNavigation from "@/components/TopNavigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import pumpLogo from "@/assets/pump-logo.png";
 
 interface AdvisorData {
   id: string;
@@ -48,7 +48,7 @@ const TradeStream = () => {
     try {
       const { data, error } = await supabase.functions.invoke('generate-rick-commentary', {
         body: { 
-          context: `A new token just launched on pump.fun called "${tokenName}" with the symbol ${tokenSymbol}. Comment on how ridiculous, genius, or utterly moronic this token name is.`
+          context: `A new token just launched on pump.fun called "${tokenName}" with the symbol ${tokenSymbol}. Give a SHORT one-sentence sarcastic comment (max 15 words).`
         }
       });
 
@@ -61,11 +61,11 @@ const TradeStream = () => {
         clearTimeout(commentaryTimerRef.current);
       }
       
-      // Set new timer for 10 seconds
+      // Set new timer for 20 seconds
       commentaryTimerRef.current = setTimeout(() => {
         setCommentary("");
         setCurrentTokenName("");
-      }, 10000);
+      }, 20000);
       
     } catch (error) {
       console.error('Error generating commentary:', error);
@@ -98,7 +98,23 @@ const TradeStream = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <TopNavigation />
+      {/* Compact Header */}
+      <div className="border-b border-border/50 bg-background/80 backdrop-blur">
+        <div className="container mx-auto px-4 py-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2">
+                <img src="/sim-logo.png" alt="Sim" className="h-8 w-8" />
+                <span className="text-lg font-bold">+</span>
+                <img src={pumpLogo} alt="Pump.fun" className="h-8 w-8" />
+              </div>
+              <div>
+                <h1 className="text-lg font-bold">Sim Rick's Token Commentary</h1>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
       
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto">
@@ -109,9 +125,6 @@ const TradeStream = () => {
                 <AvatarFallback>🧪</AvatarFallback>
               </Avatar>
               <div>
-                <h1 className="text-3xl font-bold">
-                  {advisor?.name || "Rick Sanchez"}'s Token Commentary
-                </h1>
                 <p className="text-muted-foreground">
                   Commenting on new pump.fun tokens as they launch
                 </p>
@@ -145,7 +158,7 @@ const TradeStream = () => {
                     </div>
                     
                     <div className="prose prose-sm max-w-none">
-                      <p className="text-lg leading-relaxed italic">
+                      <p className="text-2xl leading-relaxed italic font-medium">
                         "{commentary}"
                       </p>
                     </div>
