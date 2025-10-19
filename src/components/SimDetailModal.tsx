@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Globe, Wallet, ExternalLink, Copy, Check, MessageCircle, X } from "lucide-react";
+import { Globe, Wallet, ExternalLink, Copy, Check, MessageCircle, X, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
@@ -21,6 +21,46 @@ const SimDetailModal = ({ sim, open, onOpenChange }: SimDetailModalProps) => {
   const { toast } = useToast();
   const [walletCopied, setWalletCopied] = useState(false);
   const [isAddingSim, setIsAddingSim] = useState(false);
+  const [shareLinkCopied, setShareLinkCopied] = useState(false);
+
+  // Calculate SOL equivalent (example rate: 1 $SimAI = 0.0001 SOL)
+  const SIMAI_TO_SOL_RATE = 0.0001;
+  
+  const getSimDescription = () => {
+    if (sim?.description) {
+      return sim.description;
+    }
+    // Default description for historical sims
+    if (sim?.sim_type === 'historical') {
+      const subject = sim?.title || 'various';
+      return `A historical Sim to talk to for advice and guidance on ${subject} matters.`;
+    }
+    return 'An AI Sim ready to assist you.';
+  };
+
+  const getSimPrice = () => {
+    const price = (sim as any)?.price || 0;
+    if (!price || price === 0) {
+      return { display: 'Free', isFree: true };
+    }
+    const solEquivalent = (price * SIMAI_TO_SOL_RATE).toFixed(4);
+    return { 
+      display: `${price.toLocaleString()} $SimAI (~${solEquivalent} SOL)`,
+      isFree: false 
+    };
+  };
+
+  const handleShareLink = () => {
+    if (!sim) return;
+    const shareUrl = `${window.location.origin}/${(sim as any).custom_url || sim.id}`;
+    navigator.clipboard.writeText(shareUrl);
+    setShareLinkCopied(true);
+    setTimeout(() => setShareLinkCopied(false), 2000);
+    toast({
+      title: "Link copied!",
+      description: "Share this link with others to let them discover this Sim"
+    });
+  };
 
   const handleAddSim = async () => {
     if (!sim) return;
@@ -67,6 +107,9 @@ const SimDetailModal = ({ sim, open, onOpenChange }: SimDetailModalProps) => {
 
   if (!sim) return null;
 
+  const simDescription = getSimDescription();
+  const priceInfo = getSimPrice();
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-xl p-0 overflow-hidden bg-gradient-to-br from-primary/20 via-background to-secondary/20 border-2">
@@ -93,27 +136,57 @@ const SimDetailModal = ({ sim, open, onOpenChange }: SimDetailModalProps) => {
           </div>
 
           {/* Name and Title */}
-          <div className="text-center space-y-2 mb-8">
+          <div className="text-center space-y-2 mb-6">
             <h1 className="text-3xl sm:text-4xl font-bold tracking-tight">{sim.name}</h1>
             {sim.title && (
               <p className="text-lg sm:text-xl text-muted-foreground">{sim.title}</p>
             )}
-            {sim.description && (
-              <p className="text-sm sm:text-base text-muted-foreground mt-4 leading-relaxed">
-                {sim.description}
-              </p>
-            )}
+          </div>
+
+          {/* Description */}
+          <div className="mb-6 p-4 bg-accent/10 rounded-2xl border border-border">
+            <p className="text-sm text-center leading-relaxed">
+              {simDescription}
+            </p>
+          </div>
+
+          {/* Price */}
+          <div className="mb-6 flex items-center justify-center gap-2">
+            <span className="text-sm text-muted-foreground">Price:</span>
+            <span className={`text-lg font-semibold ${priceInfo.isFree ? 'text-green-500' : 'text-primary'}`}>
+              {priceInfo.display}
+            </span>
           </div>
 
           {/* Add Sim Button */}
           <Button
             size="lg"
-            className="w-full h-14 text-base font-semibold shadow-xl hover:shadow-2xl transition-all duration-300 mb-6 group"
+            className="w-full h-14 text-base font-semibold shadow-xl hover:shadow-2xl transition-all duration-300 mb-4 group"
             onClick={handleAddSim}
             disabled={isAddingSim}
           >
             <MessageCircle className="h-5 w-5 mr-2 group-hover:scale-110 transition-transform" />
             {isAddingSim ? 'Adding...' : 'Add Sim'}
+          </Button>
+
+          {/* Share Button */}
+          <Button
+            size="lg"
+            variant="outline"
+            className="w-full h-12 text-base font-semibold mb-6 group"
+            onClick={handleShareLink}
+          >
+            {shareLinkCopied ? (
+              <>
+                <Check className="h-4 w-4 mr-2 text-green-500" />
+                Link Copied!
+              </>
+            ) : (
+              <>
+                <Share2 className="h-4 w-4 mr-2 group-hover:scale-110 transition-transform" />
+                Share Sim
+              </>
+            )}
           </Button>
 
           {/* Social Links & Wallet */}

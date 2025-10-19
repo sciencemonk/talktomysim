@@ -56,7 +56,8 @@ const SimDirectory = () => {
         channels: [],
         channelConfigs: {},
         isPersonal: false,
-        voiceTraits: []
+        voiceTraits: [],
+        price: sim.price || 0, // Include price
       } as AgentType));
     },
   });

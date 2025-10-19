@@ -142,6 +142,7 @@ export type Database = {
           name: string
           owner_welcome_message: string | null
           personality_type: string | null
+          price: number | null
           professional_title: string | null
           prompt: string
           response_length: string | null
@@ -188,6 +189,7 @@ export type Database = {
           name: string
           owner_welcome_message?: string | null
           personality_type?: string | null
+          price?: number | null
           professional_title?: string | null
           prompt: string
           response_length?: string | null
@@ -234,6 +236,7 @@ export type Database = {
           name?: string
           owner_welcome_message?: string | null
           personality_type?: string | null
+          price?: number | null
           professional_title?: string | null
           prompt?: string
           response_length?: string | null
