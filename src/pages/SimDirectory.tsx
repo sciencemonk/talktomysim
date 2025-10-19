@@ -67,14 +67,12 @@ const SimDirectory = () => {
   );
 
   const handleSimClick = (sim: AgentType) => {
-    if (sim.custom_url) {
-      if (user) {
-        // Open in new tab for signed-in users
-        window.open(`/${sim.custom_url}`, '_blank');
-      } else {
-        // Navigate in current tab for non-signed-in users
-        navigate(`/${sim.custom_url}`);
-      }
+    if (user) {
+      // For signed-in users, open in-app chat
+      navigate(`/home?sim=${sim.id}`);
+    } else if (sim.custom_url) {
+      // For non-signed-in users, navigate to their public page
+      navigate(`/${sim.custom_url}`);
     }
   };
 
