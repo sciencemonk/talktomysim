@@ -13,8 +13,14 @@ interface AdvisorData {
   avatar_url: string | null;
 }
 
+const SIM_ROTATION = ['Rick Sanchez', 'Adolf Hitler', 'Pablo Escobar', 'Jesus Christ', 'Alon'];
+const TOKENS_PER_SIM = 10;
+
 const TradeStream = () => {
-  const [advisor, setAdvisor] = useState<AdvisorData | null>(null);
+  const [advisors, setAdvisors] = useState<AdvisorData[]>([]);
+  const [currentSimIndex, setCurrentSimIndex] = useState(0);
+  const [nextSimIndex, setNextSimIndex] = useState(1);
+  const [tokensProcessedBySim, setTokensProcessedBySim] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [commentary, setCommentary] = useState<string>("");
   const [isGenerating, setIsGenerating] = useState(false);
@@ -24,25 +30,35 @@ const TradeStream = () => {
   
   const { latestToken, isConnected, newTokens } = usePumpFunStream(true);
 
+  const currentAdvisor = advisors[currentSimIndex];
+  const nextAdvisor = advisors[nextSimIndex];
+
   useEffect(() => {
-    const fetchAdvisor = async () => {
-      const { data } = await supabase
-        .from("advisors")
-        .select("*")
-        .ilike("name", "%rick%sanchez%")
-        .single();
+    const fetchAdvisors = async () => {
+      const advisorPromises = SIM_ROTATION.map(async (simName) => {
+        const { data } = await supabase
+          .from("advisors")
+          .select("*")
+          .ilike("name", `%${simName}%`)
+          .single();
+        return data;
+      });
       
-      if (data) {
-        setAdvisor(data);
+      const fetchedAdvisors = await Promise.all(advisorPromises);
+      const validAdvisors = fetchedAdvisors.filter(Boolean) as AdvisorData[];
+      
+      if (validAdvisors.length > 0) {
+        setAdvisors(validAdvisors);
+        setNextSimIndex(validAdvisors.length > 1 ? 1 : 0);
       }
       setIsLoading(false);
     };
 
-    fetchAdvisor();
+    fetchAdvisors();
   }, []);
 
   const generateCommentary = async (tokenName: string, tokenSymbol: string) => {
-    if (isGenerating) return;
+    if (isGenerating || !currentAdvisor) return;
     
     setIsGenerating(true);
     setCurrentTokenName(`${tokenName} (${tokenSymbol})`);
@@ -50,7 +66,9 @@ const TradeStream = () => {
     try {
       const { data, error } = await supabase.functions.invoke('generate-rick-commentary', {
         body: { 
-          context: `A new token just launched on pump.fun called "${tokenName}" with the symbol ${tokenSymbol}. Give a SHORT one-sentence sarcastic comment (max 15 words).`
+          advisorName: currentAdvisor.name,
+          advisorPrompt: currentAdvisor.prompt,
+          context: `A new token just launched on pump.fun called "${tokenName}" with the symbol ${tokenSymbol}. Give a SHORT one-sentence sarcastic comment (max 15 words) in the style of ${currentAdvisor.name}.`
         }
       });
 
@@ -63,11 +81,23 @@ const TradeStream = () => {
         clearTimeout(commentaryTimerRef.current);
       }
       
-      // Set new timer for 20 seconds
+      // Set new timer for 10 seconds
       commentaryTimerRef.current = setTimeout(() => {
         setCommentary("");
         setCurrentTokenName("");
-      }, 20000);
+        
+        // Check if we need to switch Sims
+        const newCount = tokensProcessedBySim + 1;
+        setTokensProcessedBySim(newCount);
+        
+        if (newCount >= TOKENS_PER_SIM && advisors.length > 1) {
+          const newSimIndex = (currentSimIndex + 1) % advisors.length;
+          const newNextIndex = (newSimIndex + 1) % advisors.length;
+          setCurrentSimIndex(newSimIndex);
+          setNextSimIndex(newNextIndex);
+          setTokensProcessedBySim(0);
+        }
+      }, 10000);
       
     } catch (error) {
       console.error('Error generating commentary:', error);
@@ -130,11 +160,11 @@ const TradeStream = () => {
           <div className="bg-card rounded-lg p-8 shadow-lg border">
             <div className="flex items-center gap-4 mb-6">
               <Avatar className="w-16 h-16">
-                <AvatarImage src={advisor?.avatar_url || undefined} />
-                <AvatarFallback>🧪</AvatarFallback>
+                <AvatarImage src={currentAdvisor?.avatar_url || undefined} />
+                <AvatarFallback>🎭</AvatarFallback>
               </Avatar>
               <div>
-                <h2 className="text-2xl font-bold mb-1">Sim Rick's Token Commentary</h2>
+                <h2 className="text-2xl font-bold mb-1">{currentAdvisor?.name || "Loading..."}</h2>
                 <p className="text-muted-foreground">
                   Commenting on new pump.fun tokens as they launch
                 </p>
@@ -190,8 +220,11 @@ const TradeStream = () => {
 
                         <div className="mt-4 text-right">
                           <span className="text-sm text-muted-foreground">
-                            - {advisor?.name || "Rick Sanchez"}
+                            - {currentAdvisor?.name}
                           </span>
+                          <div className="text-xs text-muted-foreground mt-1">
+                            {tokensProcessedBySim + 1} of {TOKENS_PER_SIM} tokens
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -219,6 +252,25 @@ const TradeStream = () => {
                 </motion.div>
               )}
             </AnimatePresence>
+            
+            {/* Next Sim Preview */}
+            {advisors.length > 1 && nextAdvisor && (
+              <div className="mt-8 pt-6 border-t">
+                <div className="flex items-center gap-3">
+                  <span className="text-sm text-muted-foreground">Coming up next:</span>
+                  <div className="flex items-center gap-2">
+                    <Avatar className="w-8 h-8">
+                      <AvatarImage src={nextAdvisor.avatar_url || undefined} />
+                      <AvatarFallback>🎭</AvatarFallback>
+                    </Avatar>
+                    <span className="font-semibold">{nextAdvisor.name}</span>
+                  </div>
+                  <span className="text-sm text-muted-foreground ml-auto">
+                    in {TOKENS_PER_SIM - tokensProcessedBySim} tokens
+                  </span>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
