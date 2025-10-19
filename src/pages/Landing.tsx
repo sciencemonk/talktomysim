@@ -295,7 +295,7 @@ const Landing = () => {
   ];
 
   return (
-    <SidebarProvider defaultOpen={true}>
+    <SidebarProvider defaultOpen={false}>
       <div className="min-h-screen w-full flex bg-background">
         <AppSidebar />
         
@@ -310,7 +310,6 @@ const Landing = () => {
               alt="Sim Logo" 
               className="h-7 w-7 object-contain"
             />
-            <span className="font-semibold text-lg">Sim</span>
           </header>
 
           {/* Your Sims Section - Only for signed-in users */}

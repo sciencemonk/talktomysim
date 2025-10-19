@@ -403,7 +403,7 @@ export function AppSidebar() {
   });
 
   return (
-    <Sidebar className="border-r bg-background flex flex-col">
+    <Sidebar className="border-r bg-background flex flex-col" collapsible="icon">
       <SidebarContent className="flex flex-col h-full">
         {/* Header - Always Visible */}
         <div className="flex-shrink-0 p-3 space-y-4">
@@ -442,8 +442,8 @@ export function AppSidebar() {
             {open && <span>Create a Sim</span>}
           </Button>
 
-          {/* Search */}
-          {open && (
+          {/* Search - only show for signed in users */}
+          {open && currentUser && (
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
@@ -456,13 +456,14 @@ export function AppSidebar() {
           )}
         </div>
 
-        {/* Your Sims - Scrollable */}
-        <div className="flex-1 overflow-hidden px-3 min-h-0">
-          <SidebarGroup className="h-full">
-            {open && <SidebarGroupLabel className="text-xs font-bold">Your Sims</SidebarGroupLabel>}
-            <SidebarGroupContent className="h-[calc(100%-2rem)]">
-              <ScrollArea className="h-full max-h-[600px]">
-                <SidebarMenu>
+        {/* Your Sims - Scrollable - Only show for signed in users */}
+        {currentUser && (
+          <div className="flex-1 overflow-hidden px-3 min-h-0">
+            <SidebarGroup className="h-full">
+              {open && <SidebarGroupLabel className="text-xs font-bold">Your Sims</SidebarGroupLabel>}
+              <SidebarGroupContent className="h-[calc(100%-2rem)]">
+                <ScrollArea className="h-full max-h-[600px]">
+                  <SidebarMenu>
                   {filteredConversations?.map((conv: SimConversation) => (
                     <SidebarMenuItem 
                       key={conv.sim_id}
@@ -548,9 +549,10 @@ export function AppSidebar() {
             </SidebarGroupContent>
           </SidebarGroup>
         </div>
+        )}
 
         {/* Action Buttons at Bottom */}
-        <div className="flex-shrink-0 px-3 pb-3">
+        <div className="flex-shrink-0 px-3 pb-3 mt-auto">
           <div className="pt-4 border-t space-y-2">
             <Button
               onClick={() => {
