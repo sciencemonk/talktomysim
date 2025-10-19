@@ -11,7 +11,9 @@ import {
   MoreVertical,
   Trash2,
   X,
-  Pencil
+  Pencil,
+  Copy,
+  Coins
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -487,44 +489,30 @@ export function AppSidebar() {
           </SidebarGroup>
         </div>
 
-        {/* User Profile at Bottom - Always Visible */}
+        {/* Action Buttons at Bottom */}
         <div className="flex-shrink-0 px-3 pb-3">
-        <div className="pt-4 border-t">
-          <button
-            onClick={() => setShowCreditsModal(true)}
-            className="flex items-center gap-3 p-2 w-full hover:bg-muted/50 transition-colors rounded-lg"
-          >
-            <Avatar className="h-8 w-8 flex-shrink-0">
-              <AvatarImage src={getAvatarUrl(userSim?.avatar_url)} />
-              <AvatarFallback className="bg-primary text-primary-foreground font-semibold">
-                {userSim?.name?.charAt(0)?.toUpperCase() || 'S'}
-              </AvatarFallback>
-            </Avatar>
-            {open && (
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium truncate mb-2 text-left">
-                  {userSim?.name || 'Your Sim'}
-                </p>
-                <div className="flex items-center gap-2">
-                  <div className="flex-1">
-                    <Progress value={percentageRemaining} className="h-2" />
-                  </div>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleSignOut();
-                    }}
-                    className="h-8 w-8 hover:bg-muted flex-shrink-0"
-                  >
-                    <LogOut className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-            )}
-          </button>
-        </div>
+          <div className="pt-4 border-t space-y-2">
+            <Button
+              onClick={() => {
+                navigator.clipboard.writeText('FFqwoZ7phjoupWjLeE5yFeLqGi8jkGEFrTz6jnsUpump');
+                toast.success('Contract address copied to clipboard!');
+              }}
+              className="w-full justify-start gap-2"
+              variant="default"
+            >
+              <Coins className="h-4 w-4" />
+              {open && <span>Buy $SimAI</span>}
+            </Button>
+            
+            <Button
+              onClick={handleSignOut}
+              className="w-full justify-start gap-2"
+              variant="outline"
+            >
+              <LogOut className="h-4 w-4" />
+              {open && <span>Log Out</span>}
+            </Button>
+          </div>
         </div>
       </SidebarContent>
 
