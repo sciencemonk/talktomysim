@@ -28,31 +28,43 @@ const Home = () => {
   // Check for sim ID in URL and load that sim's chat
   useEffect(() => {
     const simId = searchParams.get('sim');
-    if (simId && !selectedAdvisor) {
-      // Fetch the sim data
-      supabase
-        .from('advisors')
-        .select('*')
-        .eq('id', simId)
-        .single()
-        .then(({ data, error }) => {
-          if (data && !error) {
-            // Transform database advisor to AgentType
-            const agent: AgentType = {
-              ...data,
-              type: 'General Tutor' as const,
-              status: 'active' as const,
-              createdAt: data.created_at,
-              updatedAt: data.updated_at,
-              avatar: data.avatar_url,
-              sim_type: (data.sim_type === 'living' ? 'living' : 'historical') as 'historical' | 'living'
-            };
-            setSelectedAdvisor(agent);
-            setSelectedPublicAdvisorId(data.id);
-          }
-        });
+    
+    if (simId) {
+      // Only fetch if the sim ID is different from current selection
+      if (selectedAdvisor?.id !== simId) {
+        console.log('Loading sim from URL:', simId);
+        // Fetch the sim data
+        supabase
+          .from('advisors')
+          .select('*')
+          .eq('id', simId)
+          .single()
+          .then(({ data, error }) => {
+            if (data && !error) {
+              console.log('Sim data loaded:', data.name);
+              // Transform database advisor to AgentType
+              const agent: AgentType = {
+                ...data,
+                type: 'General Tutor' as const,
+                status: 'active' as const,
+                createdAt: data.created_at,
+                updatedAt: data.updated_at,
+                avatar: data.avatar_url,
+                sim_type: (data.sim_type === 'living' ? 'living' : 'historical') as 'historical' | 'living'
+              };
+              setSelectedAdvisor(agent);
+              setSelectedPublicAdvisorId(data.id);
+            } else {
+              console.error('Error loading sim:', error);
+            }
+          });
+      }
+    } else {
+      // No sim in URL, clear selection
+      setSelectedAdvisor(null);
+      setSelectedPublicAdvisorId(null);
     }
-  }, [searchParams]);
+  }, [searchParams, selectedAdvisor?.id]);
 
   // Check if we were passed a selected advisor from navigation state
   useEffect(() => {
