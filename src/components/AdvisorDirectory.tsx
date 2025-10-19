@@ -42,13 +42,19 @@ const AdvisorDirectory = ({ onSelectAdvisor, onAuthRequired }: AdvisorDirectoryP
   const navigate = useNavigate();
 
   const handleAdvisorClick = (advisor: AgentType) => {
-    // If it's a living sim with a custom_url, navigate to their landing page
+    // If user is signed in, open chat directly in-app
+    if (user) {
+      navigate(`/home?sim=${advisor.id}`);
+      return;
+    }
+    
+    // If not signed in and it's a living sim with custom_url, go to their landing page
     if (advisor.sim_type === 'living' && advisor.custom_url) {
       navigate(`/${advisor.custom_url}`);
       return;
     }
     
-    // Otherwise, show bot check and open chat
+    // Otherwise, show bot check for anonymous users
     setSelectedAdvisor(advisor);
     setShowBotCheck(true);
   };
