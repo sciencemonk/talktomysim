@@ -40,12 +40,13 @@ import { getAvatarUrl } from "@/lib/avatarUtils";
 import { Progress } from "@/components/ui/progress";
 import { CreditUsageModal } from "./CreditUsageModal";
 
-interface Conversation {
-  id: string;
-  title: string | null;
-  created_at: string;
+interface SimConversation {
+  sim_id: string;
+  sim_name: string;
+  sim_avatar: string | null;
+  conversation_id: string;
+  last_message: string | null;
   updated_at: string;
-  firstMessage?: string;
 }
 
 export function AppSidebar() {
@@ -98,107 +99,92 @@ export function AppSidebar() {
   });
 
   const { data: myConversations, refetch } = useQuery({
-    queryKey: ['my-conversations', userSim?.id],
+    queryKey: ['my-sim-conversations', currentUser?.id],
     queryFn: async () => {
-      if (!userSim || !currentUser) return [];
+      if (!currentUser) return [];
       
-      console.log('Fetching conversations for:', {
-        userSim_id: userSim.id,
-        currentUser_id: currentUser.id
-      });
-      
+      // Get all conversations for the user, grouped by sim (tutor_id)
       const { data: conversations, error } = await supabase
         .from('conversations')
-        .select('id, created_at, title, updated_at, is_creator_conversation, user_id')
-        .eq('tutor_id', userSim.id)
-        .eq('is_creator_conversation', true)
+        .select(`
+          id,
+          tutor_id,
+          updated_at,
+          advisors:tutor_id (
+            id,
+            name,
+            avatar_url
+          )
+        `)
         .eq('user_id', currentUser.id)
-        .order('updated_at', { ascending: false })
-        .limit(10);
+        .order('updated_at', { ascending: false });
       
       if (error) {
         console.error('Error fetching conversations:', error);
         throw error;
       }
       
-      console.log('Found conversations:', conversations);
+      // Group by sim, keeping only the most recent conversation per sim
+      const simConversationsMap = new Map<string, any>();
       
-      // Get first message for each conversation
-      const conversationsWithMessages = await Promise.all(
-        (conversations || []).map(async (conv) => {
+      for (const conv of conversations || []) {
+        const simId = conv.tutor_id;
+        const advisor = (conv as any).advisors;
+        
+        if (!simConversationsMap.has(simId)) {
+          // Get last message for this conversation
           const { data: messages } = await supabase
             .from('messages')
             .select('content, role')
             .eq('conversation_id', conv.id)
-            .eq('role', 'user')
-            .order('created_at', { ascending: true })
+            .order('created_at', { ascending: false })
             .limit(1);
           
-          return {
-            ...conv,
-            firstMessage: messages?.[0]?.content || null
-          };
-        })
-      );
+          simConversationsMap.set(simId, {
+            sim_id: simId,
+            sim_name: advisor?.name || 'Unknown Sim',
+            sim_avatar: advisor?.avatar_url || null,
+            conversation_id: conv.id,
+            last_message: messages?.[0]?.content || null,
+            updated_at: conv.updated_at
+          });
+        }
+      }
       
-      console.log('Conversations with messages:', conversationsWithMessages);
-      return conversationsWithMessages;
+      return Array.from(simConversationsMap.values());
     },
-    enabled: !!userSim && !!currentUser
+    enabled: !!currentUser
   });
 
-  // Real-time subscription for new conversations
+  // Real-time subscription for conversation changes
   useEffect(() => {
-    if (!userSim || !currentUser) return;
+    if (!currentUser) return;
 
     const channel = supabase
-      .channel('conversations-changes')
+      .channel('user-conversations-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'conversations',
+          filter: `user_id=eq.${currentUser.id}`
+        },
+        () => {
+          // Refetch when any conversation changes for this user
+          queryClient.invalidateQueries({ queryKey: ['my-sim-conversations', currentUser.id] });
+        }
+      )
       .on(
         'postgres_changes',
         {
           event: 'INSERT',
           schema: 'public',
-          table: 'conversations',
-          filter: `tutor_id=eq.${userSim.id}`
+          table: 'messages'
         },
         (payload) => {
-          console.log('New conversation detected:', payload);
-          // Check if it's for the current user and is a creator conversation
-          const newRecord = payload.new as any;
-          if (newRecord.user_id === currentUser.id && newRecord.is_creator_conversation === true) {
-            // Invalidate and refetch conversations when a new one is created
-            queryClient.invalidateQueries({ queryKey: ['my-conversations', userSim.id] });
-          }
-        }
-      )
-      .on(
-        'postgres_changes',
-        {
-          event: 'UPDATE',
-          schema: 'public',
-          table: 'conversations',
-          filter: `tutor_id=eq.${userSim.id}`
-        },
-        (payload) => {
-          // Check if it's for the current user and is a creator conversation
-          const updatedRecord = payload.new as any;
-          if (updatedRecord.user_id === currentUser.id && updatedRecord.is_creator_conversation === true) {
-            // Refetch when conversation is updated (e.g., title changes)
-            queryClient.invalidateQueries({ queryKey: ['my-conversations', userSim.id] });
-          }
-        }
-      )
-      .on(
-        'postgres_changes',
-        {
-          event: 'DELETE',
-          schema: 'public',
-          table: 'conversations',
-          filter: `tutor_id=eq.${userSim.id}`
-        },
-        () => {
-          // Refetch when conversation is deleted
-          queryClient.invalidateQueries({ queryKey: ['my-conversations', userSim.id] });
+          // Refetch when new messages arrive
+          queryClient.invalidateQueries({ queryKey: ['my-sim-conversations', currentUser.id] });
         }
       )
       .subscribe();
@@ -206,7 +192,7 @@ export function AppSidebar() {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [userSim?.id, currentUser?.id, queryClient]);
+  }, [currentUser?.id, queryClient]);
 
   const handleNewChat = () => {
     // Navigate to home without chat parameter to start fresh
@@ -261,22 +247,24 @@ export function AppSidebar() {
     ? credits.total_credits - credits.used_credits
     : 1000;
 
-  const deleteConversation = useMutation({
-    mutationFn: async (conversationId: string) => {
+  const deleteSimConversation = useMutation({
+    mutationFn: async (simId: string) => {
+      // Delete all conversations with this sim
       const { error } = await supabase
         .from('conversations')
         .delete()
-        .eq('id', conversationId);
+        .eq('user_id', currentUser?.id)
+        .eq('tutor_id', simId);
       
       if (error) throw error;
     },
-    onSuccess: (_, deletedConversationId) => {
-      queryClient.invalidateQueries({ queryKey: ['my-conversations', userSim?.id] });
+    onSuccess: (_, deletedSimId) => {
+      queryClient.invalidateQueries({ queryKey: ['my-sim-conversations', currentUser?.id] });
       toast.success('Chat deleted');
-      // If we're on the deleted chat, navigate to home
-      const currentChatId = new URLSearchParams(window.location.search).get('chat');
-      if (currentChatId === deletedConversationId) {
-        navigate('/');
+      // If we're on the deleted sim's chat, navigate to home
+      const currentSimId = new URLSearchParams(window.location.search).get('sim');
+      if (currentSimId === deletedSimId) {
+        navigate('/home');
       }
     },
     onError: (error) => {
@@ -285,12 +273,12 @@ export function AppSidebar() {
     }
   });
 
-  const filteredConversations = myConversations?.filter((conv: Conversation) => {
+  const filteredConversations = myConversations?.filter((conv: SimConversation) => {
     if (!searchQuery) return true;
     const searchLower = searchQuery.toLowerCase();
     return (
-      conv.firstMessage?.toLowerCase().includes(searchLower) ||
-      conv.title?.toLowerCase().includes(searchLower)
+      conv.sim_name?.toLowerCase().includes(searchLower) ||
+      conv.last_message?.toLowerCase().includes(searchLower)
     );
   });
 
@@ -339,25 +327,35 @@ export function AppSidebar() {
             <SidebarGroupContent className="h-[calc(100%-2rem)]">
               <ScrollArea className="h-full max-h-[600px]">
                 <SidebarMenu>
-                  {filteredConversations?.map((conv: Conversation) => (
+                  {filteredConversations?.map((conv: SimConversation) => (
                     <SidebarMenuItem 
-                      key={conv.id}
+                      key={conv.sim_id}
                       className="relative group/item"
                     >
                       <div className="flex items-center gap-1 w-full">
                         <SidebarMenuButton asChild className="flex-1">
                           <NavLink 
-                            to={`/home?chat=${conv.id}`}
+                            to={`/home?sim=${conv.sim_id}`}
                             onClick={closeSidebar}
                             className={({ isActive }) => 
                               `truncate ${isActive ? 'bg-muted' : 'hover:bg-muted/50'}`
                             }
                           >
-                            <MessageSquare className="h-4 w-4 flex-shrink-0" />
+                            <Avatar className="h-6 w-6 flex-shrink-0">
+                              <AvatarImage src={conv.sim_avatar || undefined} />
+                              <AvatarFallback className="text-xs">
+                                {conv.sim_name.charAt(0).toUpperCase()}
+                              </AvatarFallback>
+                            </Avatar>
                             {open && (
-                              <span className="truncate">
-                                {conv.firstMessage || conv.title || `Chat ${new Date(conv.created_at).toLocaleDateString()}`}
-                              </span>
+                              <div className="flex-1 min-w-0">
+                                <div className="font-medium truncate">{conv.sim_name}</div>
+                                {conv.last_message && (
+                                  <div className="text-xs text-muted-foreground truncate">
+                                    {conv.last_message}
+                                  </div>
+                                )}
+                              </div>
                             )}
                           </NavLink>
                         </SidebarMenuButton>
@@ -379,7 +377,7 @@ export function AppSidebar() {
                                 className="text-destructive focus:text-destructive cursor-pointer"
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  deleteConversation.mutate(conv.id);
+                                  deleteSimConversation.mutate(conv.sim_id);
                                 }}
                               >
                                 <Trash2 className="h-4 w-4 mr-2" />

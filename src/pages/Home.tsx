@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
-import { useLocation } from "react-router-dom";
+import { useLocation, useSearchParams, useNavigate } from "react-router-dom";
 import AdvisorDirectory from "@/components/AdvisorDirectory";
 import ChatInterface from "@/components/ChatInterface";
 import AuthModal from "@/components/AuthModal";
@@ -10,9 +10,12 @@ import SimpleFooter from "@/components/SimpleFooter";
 import { AgentType } from "@/types/agent";
 import { useUserAdvisors } from "@/hooks/useUserAdvisors";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 const Home = () => {
   const location = useLocation();
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { user, loading } = useAuth();
   const { advisorsAsAgents, addAdvisor, removeAdvisor } = useUserAdvisors();
   const { toast } = useToast();
@@ -21,6 +24,35 @@ const Home = () => {
   const [pendingAdvisor, setPendingAdvisor] = useState<AgentType | null>(null);
   const [selectedAgent, setSelectedAgent] = useState<AgentType | null>(null);
   const [selectedPublicAdvisorId, setSelectedPublicAdvisorId] = useState<string | null>(null);
+
+  // Check for sim ID in URL and load that sim's chat
+  useEffect(() => {
+    const simId = searchParams.get('sim');
+    if (simId && !selectedAdvisor) {
+      // Fetch the sim data
+      supabase
+        .from('advisors')
+        .select('*')
+        .eq('id', simId)
+        .single()
+        .then(({ data, error }) => {
+          if (data && !error) {
+            // Transform database advisor to AgentType
+            const agent: AgentType = {
+              ...data,
+              type: 'General Tutor' as const,
+              status: 'active' as const,
+              createdAt: data.created_at,
+              updatedAt: data.updated_at,
+              avatar: data.avatar_url,
+              sim_type: (data.sim_type === 'living' ? 'living' : 'historical') as 'historical' | 'living'
+            };
+            setSelectedAdvisor(agent);
+            setSelectedPublicAdvisorId(data.id);
+          }
+        });
+    }
+  }, [searchParams]);
 
   // Check if we were passed a selected advisor from navigation state
   useEffect(() => {
@@ -145,6 +177,7 @@ const Home = () => {
               setSelectedAgent(null);
               setSelectedAdvisor(null);
               setSelectedPublicAdvisorId(null);
+              navigate('/home');
             }}
           />
         ) : (
