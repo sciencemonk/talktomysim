@@ -21,19 +21,40 @@ const AuthModal = ({ open, onOpenChange, defaultMode = 'signup' }: AuthModalProp
   const handleWalletSignIn = async (walletType: 'phantom' | 'solflare') => {
     setIsLoading(walletType);
     try {
+      // Check if on mobile
+      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+      
       let wallet;
       
       if (walletType === 'phantom') {
         wallet = (window as any).solana;
+        
+        // If on mobile and wallet not detected, open Phantom app via deep link
+        if (isMobile && !wallet?.isPhantom) {
+          const dappUrl = encodeURIComponent(window.location.href);
+          window.location.href = `https://phantom.app/ul/browse/${dappUrl}?ref=${window.location.origin}`;
+          setIsLoading(null);
+          return;
+        }
+        
         if (!wallet?.isPhantom) {
-          toast.error('Please install Phantom wallet');
+          toast.error('Please install Phantom wallet extension');
           setIsLoading(null);
           return;
         }
       } else {
         wallet = (window as any).solflare;
+        
+        // If on mobile and wallet not detected, open Solflare app via deep link
+        if (isMobile && !wallet) {
+          const dappUrl = encodeURIComponent(window.location.href);
+          window.location.href = `https://solflare.com/ul/v1/browse/${dappUrl}`;
+          setIsLoading(null);
+          return;
+        }
+        
         if (!wallet) {
-          toast.error('Please install Solflare wallet');
+          toast.error('Please install Solflare wallet extension');
           setIsLoading(null);
           return;
         }
