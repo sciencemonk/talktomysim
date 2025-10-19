@@ -295,7 +295,7 @@ const Landing = () => {
   ];
 
   return (
-    <SidebarProvider defaultOpen={false}>
+    <SidebarProvider defaultOpen={true}>
       <div className="min-h-screen w-full flex bg-background">
         <AppSidebar />
         
