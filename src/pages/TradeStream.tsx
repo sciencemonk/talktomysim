@@ -95,27 +95,35 @@ const TradeStream = () => {
       
       // Set new timer for 10 seconds to handle Sim rotation
       commentaryTimerRef.current = setTimeout(() => {
+        console.log('[TradeStream] Timer expired, checking for Sim rotation and next token');
+        
         // Check if we need to switch Sims
         const newCount = tokensProcessedBySim + 1;
         setTokensProcessedBySim(newCount);
         
         if (newCount >= TOKENS_PER_SIM && advisors.length > 1) {
+          console.log('[TradeStream] Switching to next Sim');
           const newSimIndex = (currentSimIndex + 1) % advisors.length;
           const newNextIndex = (newSimIndex + 1) % advisors.length;
           setCurrentSimIndex(newSimIndex);
           setNextSimIndex(newNextIndex);
           setTokensProcessedBySim(0);
         }
+        
+        // Mark as ready for next token by clearing isGenerating state
+        // This will trigger the useEffect to process the next token
+        setIsGenerating(false);
       }, 10000);
       
     } catch (error) {
       console.error('[TradeStream] Error generating commentary:', error);
-      // On error, still increment to avoid getting stuck
+      // On error, still increment to avoid getting stuck and set timer to retry
       setProcessedTokenIndex(prev => prev + 1);
-    } finally {
-      setIsGenerating(false);
-      console.log('[TradeStream] Finished generation, isGenerating set to false');
+      commentaryTimerRef.current = setTimeout(() => {
+        setIsGenerating(false);
+      }, 2000); // Retry after 2 seconds on error
     }
+    // Don't set isGenerating to false here - let the timer handle it
   };
 
   useEffect(() => {
