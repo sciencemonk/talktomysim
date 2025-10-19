@@ -183,28 +183,38 @@ serve(async (req) => {
       }
     }
 
-    // Check if user is asking for image generation
-    const imageGenerationKeywords = ['generate', 'create', 'make', 'draw', 'paint', 'design'];
-    const imageRelatedWords = ['image', 'picture', 'photo', 'artwork', 'illustration', 'visual'];
+    // Check if user is asking for image generation with more flexible detection
+    const imageGenerationKeywords = ['generate', 'create', 'make', 'draw', 'paint', 'design', 'need'];
+    const imageRelatedWords = ['image', 'picture', 'photo', 'artwork', 'illustration', 'visual', 'thumbnail', 'graphic', 'art'];
     const userMessageLower = userMessage.toLowerCase();
     
-    const isImageRequest = imageGenerationKeywords.some(keyword => userMessageLower.includes(keyword)) &&
-                          imageRelatedWords.some(word => userMessageLower.includes(word));
+    // Check if message contains generation keyword + image word, OR just describes creating something visual
+    const hasGenerationKeyword = imageGenerationKeywords.some(keyword => userMessageLower.includes(keyword));
+    const hasImageWord = imageRelatedWords.some(word => userMessageLower.includes(word));
+    
+    // Also detect if they're describing something to be created (for + a/an + noun pattern)
+    const isDescribingCreation = /\b(for|of|showing|with)\s+(a|an)\s+\w+/.test(userMessageLower) && 
+                                 (hasGenerationKeyword || userMessageLower.includes('thumbnail'));
+    
+    const isImageRequest = (hasGenerationKeyword && hasImageWord) || isDescribingCreation;
     
     if (isImageRequest) {
-      console.log('Detected image generation request');
+      console.log('Detected image generation request:', userMessage);
       try {
         const { data: imageData, error: imageError } = await supabase.functions.invoke('generate-image', {
           body: { prompt: userMessage }
         });
         
-        if (imageError) throw imageError;
+        if (imageError) {
+          console.error('Image generation error:', imageError);
+          throw imageError;
+        }
         
         console.log('Image generated successfully');
         
         return new Response(
           JSON.stringify({ 
-            content: `I've generated an image for you! Here it is:`,
+            content: `I've generated the image for you based on your description!`,
             image: imageData.image,
             usage: {
               prompt_tokens: 0,
