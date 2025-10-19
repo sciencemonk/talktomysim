@@ -221,7 +221,7 @@ serve(async (req) => {
               creator: tokenData.creator
             },
             analysis: {
-              summary: `${tokenData.name} (${tokenData.symbol}) - Market cap: $${tokenData.usd_market_cap ? tokenData.usd_market_cap.toFixed(2) : 'N/A'}. No recent trading activity found.`
+              summary: `${tokenData.name} (${tokenData.symbol}) - Market cap: $${tokenData.usd_market_cap ? tokenData.usd_market_cap.toFixed(2) : 'N/A'}. Trading data temporarily unavailable - check pump.fun or dexscreener for live trading activity.`
             }
           }),
           {
