@@ -68,7 +68,7 @@ const App = () => (
             <Route path="/admin" element={<Admin />} />
             <Route path="/knowledge-enhancement" element={<KnowledgeEnhancement />} />
             <Route path="/sim-conversations" element={<SimConversations />} />
-            <Route path="/trade-stream" element={<TradeStream />} />
+            <Route path="/pumpfun" element={<TradeStream />} />
             
             {/* Root route - public landing page */}
             <Route path="/" element={<Landing />} />
