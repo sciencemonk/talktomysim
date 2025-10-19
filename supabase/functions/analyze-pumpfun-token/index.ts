@@ -27,22 +27,56 @@ serve(async (req) => {
       const pumpFunApiUrl = `https://frontend-api.pump.fun/coins/${tokenAddress}`;
       console.log('API URL:', pumpFunApiUrl);
       
-      const tokenResponse = await fetch(pumpFunApiUrl, {
-        headers: {
-          'Accept': 'application/json',
-          'User-Agent': 'Mozilla/5.0'
+      let tokenData;
+      try {
+        const tokenResponse = await fetch(pumpFunApiUrl, {
+          headers: {
+            'Accept': 'application/json',
+            'User-Agent': 'Mozilla/5.0'
+          }
+        });
+        
+        console.log('Response status:', tokenResponse.status);
+        
+        if (!tokenResponse.ok) {
+          const errorText = await tokenResponse.text();
+          console.log('Error response:', errorText);
+          
+          // If token not found, return a helpful message
+          if (tokenResponse.status === 404) {
+            return new Response(
+              JSON.stringify({
+                tokenAddress,
+                error: 'Token not found',
+                summary: 'This token address was not found on pump.fun. It may be invalid, not a pump.fun token, or not yet created. Please verify the contract address.',
+                suggestion: 'Make sure you copied the full contract address from pump.fun'
+              }),
+              {
+                headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+              }
+            );
+          }
+          
+          throw new Error(`Failed to fetch token data (${tokenResponse.status}): ${errorText}`);
         }
-      });
-      
-      console.log('Response status:', tokenResponse.status);
-      
-      if (!tokenResponse.ok) {
-        const errorText = await tokenResponse.text();
-        console.log('Error response:', errorText);
-        throw new Error(`Failed to fetch token data (${tokenResponse.status}): ${errorText}`);
+
+        tokenData = await tokenResponse.json();
+      } catch (error) {
+        console.error('Failed to fetch token data:', error);
+        return new Response(
+          JSON.stringify({
+            tokenAddress,
+            error: 'Unable to fetch token data',
+            summary: 'Could not connect to pump.fun API. The service might be temporarily unavailable or the token address is invalid.',
+            suggestion: 'Please try again in a moment or verify the token address is correct',
+            details: error.message
+          }),
+          {
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          }
+        );
       }
 
-      const tokenData = await tokenResponse.json();
       console.log('Token data received:', tokenData);
 
       // Fetch recent trades from PumpPortal
@@ -50,7 +84,27 @@ serve(async (req) => {
       const tradesResponse = await fetch(tradesUrl);
       
       if (!tradesResponse.ok) {
-        throw new Error(`Failed to fetch trades: ${tradesResponse.statusText}`);
+        console.log('Trades fetch failed:', tradesResponse.status);
+        // Return token info without trades if trades fetch fails
+        return new Response(
+          JSON.stringify({
+            tokenAddress,
+            tokenInfo: {
+              name: tokenData.name,
+              symbol: tokenData.symbol,
+              description: tokenData.description,
+              image: tokenData.image_uri,
+              marketCap: tokenData.usd_market_cap,
+              createdTimestamp: tokenData.created_timestamp
+            },
+            analysis: {
+              summary: `${tokenData.name} (${tokenData.symbol}). Market Cap: $${tokenData.usd_market_cap?.toLocaleString() || 'N/A'}. Trading data temporarily unavailable.`
+            }
+          }),
+          {
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          }
+        );
       }
 
       const trades = await tradesResponse.json();
@@ -60,10 +114,17 @@ serve(async (req) => {
         return new Response(
           JSON.stringify({
             tokenAddress,
-            error: 'No trading data found',
-            summary: 'This token has no transaction history. It might be brand new, inactive, or not a valid token address.',
-            suggestion: 'Make sure you have the correct contract address (CA) from pump.fun',
-            tokenInfo: tokenData
+            tokenInfo: {
+              name: tokenData.name,
+              symbol: tokenData.symbol,
+              description: tokenData.description,
+              image: tokenData.image_uri,
+              marketCap: tokenData.usd_market_cap,
+              createdTimestamp: tokenData.created_timestamp
+            },
+            analysis: {
+              summary: `${tokenData.name} (${tokenData.symbol}). Market Cap: $${tokenData.usd_market_cap?.toLocaleString() || 'N/A'}. This token has no recent trading activity.`
+            }
           }),
           {
             headers: { ...corsHeaders, 'Content-Type': 'application/json' },
