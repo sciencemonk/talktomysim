@@ -19,6 +19,7 @@ const TradeStream = () => {
   const [commentary, setCommentary] = useState<string>("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [currentTokenName, setCurrentTokenName] = useState<string>("");
+  const [processedTokenIndex, setProcessedTokenIndex] = useState(0);
   const commentaryTimerRef = useRef<NodeJS.Timeout | null>(null);
   
   const { latestToken, isConnected, newTokens } = usePumpFunStream(true);
@@ -76,10 +77,12 @@ const TradeStream = () => {
   };
 
   useEffect(() => {
-    if (latestToken && !isGenerating && !commentary) {
-      generateCommentary(latestToken.name, latestToken.symbol);
+    if (newTokens.length > processedTokenIndex && !isGenerating && !commentary) {
+      const nextToken = newTokens[processedTokenIndex];
+      generateCommentary(nextToken.name, nextToken.symbol);
+      setProcessedTokenIndex(prev => prev + 1);
     }
-  }, [latestToken]);
+  }, [newTokens, processedTokenIndex, isGenerating, commentary]);
 
   useEffect(() => {
     return () => {
@@ -108,9 +111,6 @@ const TradeStream = () => {
                 <img src="/sim-logo.png" alt="Sim" className="h-8 w-8" />
                 <span className="text-lg font-bold">+</span>
                 <img src={pumpLogo} alt="Pump.fun" className="h-8 w-8" />
-              </div>
-              <div>
-                <h1 className="text-lg font-bold">Sim Rick's Token Commentary</h1>
               </div>
             </div>
             <Badge variant="destructive" className="text-xs font-bold flex items-center gap-2">
