@@ -17,64 +17,57 @@ serve(async (req) => {
       throw new Error('Address is required');
     }
 
-    // Remove 'pump' suffix if present to get the actual token address
-    const cleanAddress = tokenAddress.toLowerCase().endsWith('pump') 
-      ? tokenAddress.slice(0, -4) 
-      : tokenAddress;
-    
-    console.log(`Analyzing token address:`, cleanAddress);
+    console.log(`Analyzing PumpFun token:`, tokenAddress);
 
-    // Always try PumpFun analysis first
-    // PumpFun token analysis
-    console.log('Fetching token data from PumpFun API...');
-      
-      // Try pumpportal API first for trades
-      const tradesUrl = `https://pumpportal.fun/api/trades/${cleanAddress}?limit=100`;
+    // Try pumpportal API first for trades
+    const tradesUrl = `https://pumpportal.fun/api/trades/${tokenAddress}?limit=100`;
+    console.log('Fetching trades from:', tradesUrl);
       console.log('Fetching trades from:', tradesUrl);
       
       let trades = [];
       try {
-          const tradesResponse = await fetch(tradesUrl);
-          if (tradesResponse.ok) {
-            trades = await tradesResponse.json();
-            console.log(`Received ${trades.length} trades for token ${cleanAddress}`);
+        const tradesResponse = await fetch(tradesUrl);
+        if (tradesResponse.ok) {
+          trades = await tradesResponse.json();
+          console.log(`Received ${trades.length} trades for token ${tokenAddress}`);
         }
       } catch (error) {
         console.log('Trades fetch error:', error.message);
       }
 
-      // Then try to get token metadata
-      const pumpFunApiUrl = `https://frontend-api.pump.fun/coins/${cleanAddress}`;
+    // Then try to get token metadata
+    const pumpFunApiUrl = `https://frontend-api.pump.fun/coins/${tokenAddress}`;
+    console.log('Fetching token metadata from:', pumpFunApiUrl);
       console.log('API URL:', pumpFunApiUrl);
       
-      let tokenData;
-      try {
-        const tokenResponse = await fetch(pumpFunApiUrl, {
-          headers: {
-            'Accept': 'application/json',
-            'User-Agent': 'Mozilla/5.0'
-          }
-        });
-        
-        console.log('Response status:', tokenResponse.status);
-        
-        if (tokenResponse.ok) {
-          tokenData = await tokenResponse.json();
-          console.log('Token data received:', tokenData);
-        } else {
-          const errorText = await tokenResponse.text();
-          console.log('Token API error:', errorText);
+    
+    let tokenData;
+    try {
+      const tokenResponse = await fetch(pumpFunApiUrl, {
+        headers: {
+          'Accept': 'application/json',
+          'User-Agent': 'Mozilla/5.0'
         }
-      } catch (error) {
-        console.error('Failed to fetch token metadata:', error);
+      });
+      
+      console.log('Token API response status:', tokenResponse.status);
+      
+      if (tokenResponse.ok) {
+        tokenData = await tokenResponse.json();
+        console.log('Token data received:', tokenData);
+      } else {
+        const errorText = await tokenResponse.text();
+        console.log('Token API error response:', errorText);
       }
+    } catch (error) {
+      console.error('Failed to fetch token metadata:', error);
+    }
 
-      // If we have no data at all, this might not be a PumpFun token
-      // Return null so caller can try other analysis methods
-      if (!trades.length && !tokenData) {
-        return new Response(
-          JSON.stringify({
-            tokenAddress: cleanAddress,
+    // If we have no data at all, return error
+    if (!trades.length && !tokenData) {
+      return new Response(
+        JSON.stringify({
+          tokenAddress,
             error: 'Token not found',
             summary: 'This token was not found on pump.fun. It may not exist, may have been deleted, or the address might be incorrect. Please verify the contract address from pump.fun',
             suggestion: 'Copy the full contract address directly from the pump.fun website'
@@ -85,45 +78,45 @@ serve(async (req) => {
         );
       }
 
-      // If we only have trades but no metadata
-      if (trades.length > 0 && !tokenData) {
-        // Analyze trades only
-        const uniqueTraders = new Set();
-        const recentTrades: any[] = [];
-        let totalVolumeSol = 0;
-        let buyCount = 0;
-        let sellCount = 0;
+    // If we only have trades but no metadata
+    if (trades.length > 0 && !tokenData) {
+      // Analyze trades only
+      const uniqueTraders = new Set();
+      const recentTrades: any[] = [];
+      let totalVolumeSol = 0;
+      let buyCount = 0;
+      let sellCount = 0;
+      
+      for (const trade of trades) {
+        uniqueTraders.add(trade.traderPublicKey || trade.trader);
         
-        for (const trade of trades) {
-          uniqueTraders.add(trade.traderPublicKey || trade.trader);
-          
-          if (recentTrades.length < 10) {
-            recentTrades.push({
-              type: trade.isBuy ? 'buy' : 'sell',
-              solAmount: trade.sol_amount || trade.solAmount,
-              tokenAmount: trade.token_amount || trade.tokenAmount,
-              trader: trade.traderPublicKey || trade.trader,
-              timestamp: trade.timestamp
-            });
-          }
-          
-          totalVolumeSol += parseFloat(trade.sol_amount || trade.solAmount || 0);
-          if (trade.isBuy) buyCount++;
-          else sellCount++;
+        if (recentTrades.length < 10) {
+          recentTrades.push({
+            type: trade.isBuy ? 'buy' : 'sell',
+            solAmount: trade.sol_amount || trade.solAmount,
+            tokenAmount: trade.token_amount || trade.tokenAmount,
+            trader: trade.traderPublicKey || trade.trader,
+            timestamp: trade.timestamp
+          });
         }
+        
+        totalVolumeSol += parseFloat(trade.sol_amount || trade.solAmount || 0);
+        if (trade.isBuy) buyCount++;
+        else sellCount++;
+      }
 
-        const buyRatio = buyCount / (buyCount + sellCount);
-        let momentum = 'neutral';
-        if (buyRatio > 0.6 && totalVolumeSol > 10) momentum = 'bullish';
-        else if (buyRatio < 0.4 || totalVolumeSol < 5) momentum = 'bearish';
+      const buyRatio = buyCount / (buyCount + sellCount);
+      let momentum = 'neutral';
+      if (buyRatio > 0.6 && totalVolumeSol > 10) momentum = 'bullish';
+      else if (buyRatio < 0.4 || totalVolumeSol < 5) momentum = 'bearish';
 
-        let riskScore = 'low';
-        if (totalVolumeSol < 5 || uniqueTraders.size < 10) riskScore = 'high';
-        else if (totalVolumeSol < 20 || uniqueTraders.size < 30) riskScore = 'medium';
+      let riskScore = 'low';
+      if (totalVolumeSol < 5 || uniqueTraders.size < 10) riskScore = 'high';
+      else if (totalVolumeSol < 20 || uniqueTraders.size < 30) riskScore = 'medium';
 
-        return new Response(
-          JSON.stringify({
-            tokenAddress: cleanAddress,
+      return new Response(
+        JSON.stringify({
+          tokenAddress,
             tradingActivity: {
               totalTrades: trades.length,
               buyTrades: buyCount,
@@ -146,44 +139,44 @@ serve(async (req) => {
         );
       }
 
-      // We have both tokenData and trades - perform full analysis
-      if (tokenData && trades.length > 0) {
-        const uniqueTraders = new Set();
-        const recentTrades: any[] = [];
-        let totalVolumeSol = 0;
-        let buyCount = 0;
-        let sellCount = 0;
+    // We have both tokenData and trades - perform full analysis
+    if (tokenData && trades.length > 0) {
+      const uniqueTraders = new Set();
+      const recentTrades: any[] = [];
+      let totalVolumeSol = 0;
+      let buyCount = 0;
+      let sellCount = 0;
+      
+      for (const trade of trades) {
+        uniqueTraders.add(trade.traderPublicKey || trade.trader);
         
-        for (const trade of trades) {
-          uniqueTraders.add(trade.traderPublicKey || trade.trader);
-          
-          if (recentTrades.length < 10) {
-            recentTrades.push({
-              type: trade.isBuy ? 'buy' : 'sell',
-              solAmount: trade.sol_amount || trade.solAmount,
-              tokenAmount: trade.token_amount || trade.tokenAmount,
-              trader: trade.traderPublicKey || trade.trader,
-              timestamp: trade.timestamp
-            });
-          }
-          
-          totalVolumeSol += parseFloat(trade.sol_amount || trade.solAmount || 0);
-          if (trade.isBuy) buyCount++;
-          else sellCount++;
+        if (recentTrades.length < 10) {
+          recentTrades.push({
+            type: trade.isBuy ? 'buy' : 'sell',
+            solAmount: trade.sol_amount || trade.solAmount,
+            tokenAmount: trade.token_amount || trade.tokenAmount,
+            trader: trade.traderPublicKey || trade.trader,
+            timestamp: trade.timestamp
+          });
         }
+        
+        totalVolumeSol += parseFloat(trade.sol_amount || trade.solAmount || 0);
+        if (trade.isBuy) buyCount++;
+        else sellCount++;
+      }
 
-        const buyRatio = buyCount / (buyCount + sellCount);
-        let momentum = 'neutral';
-        if (buyRatio > 0.6 && totalVolumeSol > 10) momentum = 'bullish';
-        else if (buyRatio < 0.4 || totalVolumeSol < 5) momentum = 'bearish';
+      const buyRatio = buyCount / (buyCount + sellCount);
+      let momentum = 'neutral';
+      if (buyRatio > 0.6 && totalVolumeSol > 10) momentum = 'bullish';
+      else if (buyRatio < 0.4 || totalVolumeSol < 5) momentum = 'bearish';
 
-        let riskScore = 'low';
-        if (totalVolumeSol < 5 || uniqueTraders.size < 10) riskScore = 'high';
-        else if (totalVolumeSol < 20 || uniqueTraders.size < 30) riskScore = 'medium';
+      let riskScore = 'low';
+      if (totalVolumeSol < 5 || uniqueTraders.size < 10) riskScore = 'high';
+      else if (totalVolumeSol < 20 || uniqueTraders.size < 30) riskScore = 'medium';
 
-        return new Response(
-          JSON.stringify({
-            tokenAddress: cleanAddress,
+      return new Response(
+        JSON.stringify({
+          tokenAddress,
             tokenData: {
               name: tokenData.name,
               symbol: tokenData.symbol,
@@ -214,11 +207,11 @@ serve(async (req) => {
         );
       }
 
-      // If we only have token data but no trades
-      if (tokenData) {
-        return new Response(
-          JSON.stringify({
-            tokenAddress: cleanAddress,
+    // If we only have token data but no trades
+    if (tokenData) {
+      return new Response(
+        JSON.stringify({
+          tokenAddress,
             tokenData: {
               name: tokenData.name,
               symbol: tokenData.symbol,
