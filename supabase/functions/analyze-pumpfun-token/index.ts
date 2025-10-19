@@ -24,6 +24,22 @@ serve(async (req) => {
       // PumpFun token analysis
       console.log('Fetching token data from PumpFun API...');
       
+      // Try pumpportal API first for trades
+      const tradesUrl = `https://pumpportal.fun/api/trades/${tokenAddress}?limit=100`;
+      console.log('Fetching trades from:', tradesUrl);
+      
+      let trades = [];
+      try {
+        const tradesResponse = await fetch(tradesUrl);
+        if (tradesResponse.ok) {
+          trades = await tradesResponse.json();
+          console.log(`Received ${trades.length} trades for token ${tokenAddress}`);
+        }
+      } catch (error) {
+        console.log('Trades fetch error:', error.message);
+      }
+
+      // Then try to get token metadata
       const pumpFunApiUrl = `https://frontend-api.pump.fun/coins/${tokenAddress}`;
       console.log('API URL:', pumpFunApiUrl);
       
@@ -38,67 +54,85 @@ serve(async (req) => {
         
         console.log('Response status:', tokenResponse.status);
         
-        if (!tokenResponse.ok) {
+        if (tokenResponse.ok) {
+          tokenData = await tokenResponse.json();
+          console.log('Token data received:', tokenData);
+        } else {
           const errorText = await tokenResponse.text();
-          console.log('Error response:', errorText);
+          console.log('Token API error:', errorText);
+        }
+      } catch (error) {
+        console.error('Failed to fetch token metadata:', error);
+      }
+
+      // If we have no data at all, return error
+      if (!trades.length && !tokenData) {
+        return new Response(
+          JSON.stringify({
+            tokenAddress,
+            error: 'Token not found',
+            summary: 'This token was not found on pump.fun. It may not exist, may have been deleted, or the address might be incorrect. Please verify the contract address from pump.fun',
+            suggestion: 'Copy the full contract address directly from the pump.fun website'
+          }),
+          {
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          }
+        );
+      }
+
+      // If we only have trades but no metadata
+      if (trades.length > 0 && !tokenData) {
+        // Analyze trades only
+        const uniqueTraders = new Set();
+        const recentTrades: any[] = [];
+        let totalVolumeSol = 0;
+        let buyCount = 0;
+        let sellCount = 0;
+        
+        for (const trade of trades) {
+          uniqueTraders.add(trade.traderPublicKey || trade.trader);
           
-          // If token not found, return a helpful message
-          if (tokenResponse.status === 404) {
-            return new Response(
-              JSON.stringify({
-                tokenAddress,
-                error: 'Token not found',
-                summary: 'This token address was not found on pump.fun. It may be invalid, not a pump.fun token, or not yet created. Please verify the contract address.',
-                suggestion: 'Make sure you copied the full contract address from pump.fun'
-              }),
-              {
-                headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-              }
-            );
+          if (recentTrades.length < 10) {
+            recentTrades.push({
+              type: trade.isBuy ? 'buy' : 'sell',
+              solAmount: trade.sol_amount || trade.solAmount,
+              tokenAmount: trade.token_amount || trade.tokenAmount,
+              trader: trade.traderPublicKey || trade.trader,
+              timestamp: trade.timestamp
+            });
           }
           
-          throw new Error(`Failed to fetch token data (${tokenResponse.status}): ${errorText}`);
+          totalVolumeSol += parseFloat(trade.sol_amount || trade.solAmount || 0);
+          if (trade.isBuy) buyCount++;
+          else sellCount++;
         }
 
-        tokenData = await tokenResponse.json();
-      } catch (error) {
-        console.error('Failed to fetch token data:', error);
+        const buyRatio = buyCount / (buyCount + sellCount);
+        let momentum = 'neutral';
+        if (buyRatio > 0.6 && totalVolumeSol > 10) momentum = 'bullish';
+        else if (buyRatio < 0.4 || totalVolumeSol < 5) momentum = 'bearish';
+
+        let riskScore = 'low';
+        if (totalVolumeSol < 5 || uniqueTraders.size < 10) riskScore = 'high';
+        else if (totalVolumeSol < 20 || uniqueTraders.size < 30) riskScore = 'medium';
+
         return new Response(
           JSON.stringify({
             tokenAddress,
-            error: 'Unable to fetch token data',
-            summary: 'Could not connect to pump.fun API. The service might be temporarily unavailable or the token address is invalid.',
-            suggestion: 'Please try again in a moment or verify the token address is correct',
-            details: error.message
-          }),
-          {
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          }
-        );
-      }
-
-      console.log('Token data received:', tokenData);
-
-      // Fetch recent trades from PumpPortal
-      const tradesUrl = `https://pumpportal.fun/api/trades/${tokenAddress}?limit=100`;
-      const tradesResponse = await fetch(tradesUrl);
-      
-      if (!tradesResponse.ok) {
-        console.log('Trades fetch failed:', tradesResponse.status);
-        // Return token info without trades if trades fetch fails
-        return new Response(
-          JSON.stringify({
-            tokenAddress,
-            tokenInfo: {
-              name: tokenData.name,
-              symbol: tokenData.symbol,
-              description: tokenData.description,
-              image: tokenData.image_uri,
-              marketCap: tokenData.usd_market_cap,
-              createdTimestamp: tokenData.created_timestamp
+            tradingActivity: {
+              totalTrades: trades.length,
+              buyTrades: buyCount,
+              sellTrades: sellCount,
+              buyRatio: (buyRatio * 100).toFixed(1) + '%',
+              totalVolumeSol: totalVolumeSol.toFixed(2),
+              uniqueTraders: uniqueTraders.size,
+              recentTrades
             },
             analysis: {
-              summary: `${tokenData.name} (${tokenData.symbol}). Market Cap: $${tokenData.usd_market_cap?.toLocaleString() || 'N/A'}. Trading data temporarily unavailable.`
+              momentum,
+              riskScore,
+              dataWindow: 'last 100 trades',
+              summary: `Token has ${trades.length} recent trades with ${totalVolumeSol.toFixed(2)} SOL volume from ${uniqueTraders.size} unique traders. Buy/Sell ratio: ${(buyRatio * 100).toFixed(1)}%. Momentum: ${momentum}. Risk: ${riskScore}.`
             }
           }),
           {
@@ -107,32 +141,7 @@ serve(async (req) => {
         );
       }
 
-      const trades = await tradesResponse.json();
-      console.log(`Received ${trades.length} trades for token ${tokenAddress}`);
-
-      if (!trades || trades.length === 0) {
-        return new Response(
-          JSON.stringify({
-            tokenAddress,
-            tokenInfo: {
-              name: tokenData.name,
-              symbol: tokenData.symbol,
-              description: tokenData.description,
-              image: tokenData.image_uri,
-              marketCap: tokenData.usd_market_cap,
-              createdTimestamp: tokenData.created_timestamp
-            },
-            analysis: {
-              summary: `${tokenData.name} (${tokenData.symbol}). Market Cap: $${tokenData.usd_market_cap?.toLocaleString() || 'N/A'}. This token has no recent trading activity.`
-            }
-          }),
-          {
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          }
-        );
-      }
-
-      // Analyze trades
+      // We have both tokenData and trades
       const uniqueTraders = new Set();
       const recentTrades: any[] = [];
       let totalVolumeSol = 0;
@@ -156,59 +165,6 @@ serve(async (req) => {
         if (trade.isBuy) buyCount++;
         else sellCount++;
       }
-
-      // Determine momentum based on buy/sell ratio and volume
-      let momentum = 'neutral';
-      const buyRatio = buyCount / (buyCount + sellCount);
-      if (buyRatio > 0.6 && totalVolumeSol > 10) {
-        momentum = 'bullish';
-      } else if (buyRatio < 0.4 || totalVolumeSol < 5) {
-        momentum = 'bearish';
-      }
-
-      // Calculate risk score based on volume and trader count
-      let riskScore = 'low';
-      if (totalVolumeSol < 5 || uniqueTraders.size < 10) {
-        riskScore = 'high';
-      } else if (totalVolumeSol < 20 || uniqueTraders.size < 30) {
-        riskScore = 'medium';
-      }
-
-      const analysis = {
-        tokenAddress,
-        tokenInfo: {
-          name: tokenData.name,
-          symbol: tokenData.symbol,
-          description: tokenData.description,
-          image: tokenData.image_uri,
-          marketCap: tokenData.usd_market_cap,
-          createdTimestamp: tokenData.created_timestamp
-        },
-        tradingActivity: {
-          totalTrades: trades.length,
-          buyTrades: buyCount,
-          sellTrades: sellCount,
-          buyRatio: (buyRatio * 100).toFixed(1) + '%',
-          totalVolumeSol: totalVolumeSol.toFixed(2),
-          uniqueTraders: uniqueTraders.size,
-          recentTrades
-        },
-        analysis: {
-          momentum,
-          riskScore,
-          dataWindow: 'last 100 trades',
-          summary: `${tokenData.name} (${tokenData.symbol}) has ${trades.length} recent trades with ${totalVolumeSol.toFixed(2)} SOL volume from ${uniqueTraders.size} unique traders. Buy/Sell ratio: ${(buyRatio * 100).toFixed(1)}%. Market Cap: $${tokenData.usd_market_cap?.toLocaleString() || 'N/A'}. Momentum: ${momentum}. Risk: ${riskScore}.`
-        }
-      };
-
-      console.log('Token analysis complete:', analysis);
-
-      return new Response(
-        JSON.stringify(analysis),
-        {
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        }
-      );
     } else {
       // Wallet analysis using Helius
       const HELIUS_API_KEY = Deno.env.get('HELIUS_API_KEY');
