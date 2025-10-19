@@ -10,7 +10,8 @@ import {
   LogOut,
   MoreVertical,
   Trash2,
-  X
+  X,
+  Pencil
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -39,6 +40,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { getAvatarUrl } from "@/lib/avatarUtils";
 import { Progress } from "@/components/ui/progress";
 import { CreditUsageModal } from "./CreditUsageModal";
+import EditSimModal from "./EditSimModal";
 
 interface SimConversation {
   sim_id: string;
@@ -55,6 +57,8 @@ export function AppSidebar() {
   const [searchQuery, setSearchQuery] = useState("");
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [showCreditsModal, setShowCreditsModal] = useState(false);
+  const [editSimModalOpen, setEditSimModalOpen] = useState(false);
+  const [selectedSimForEdit, setSelectedSimForEdit] = useState<string | null>(null);
   const queryClient = useQueryClient();
   const isMobile = useIsMobile();
 
@@ -364,6 +368,17 @@ export function AppSidebar() {
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end" className="z-50 bg-popover">
                               <DropdownMenuItem
+                                className="cursor-pointer"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setSelectedSimForEdit(conv.sim_id);
+                                  setEditSimModalOpen(true);
+                                }}
+                              >
+                                <Pencil className="h-4 w-4 mr-2" />
+                                Edit
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
                                 className="text-destructive focus:text-destructive cursor-pointer"
                                 onClick={(e) => {
                                   e.stopPropagation();
@@ -507,6 +522,14 @@ export function AppSidebar() {
       </SidebarContent>
 
       <CreditUsageModal open={showCreditsModal} onOpenChange={setShowCreditsModal} />
+      
+      {selectedSimForEdit && (
+        <EditSimModal
+          open={editSimModalOpen}
+          onOpenChange={setEditSimModalOpen}
+          simId={selectedSimForEdit}
+        />
+      )}
     </Sidebar>
   );
 }
