@@ -25,7 +25,7 @@ const TradeStream = () => {
   const [commentary, setCommentary] = useState<string>("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [currentTokenName, setCurrentTokenName] = useState<string>("");
-  const [processedTokenIndex, setProcessedTokenIndex] = useState(0);
+  const [lastProcessedMint, setLastProcessedMint] = useState<string>("");
   const commentaryTimerRef = useRef<NodeJS.Timeout | null>(null);
   
   const { latestToken, isConnected, newTokens } = usePumpFunStream(true);
@@ -117,31 +117,34 @@ const TradeStream = () => {
       
     } catch (error) {
       console.error('[TradeStream] Error generating commentary:', error);
-      // On error, still increment to avoid getting stuck and set timer to retry
-      setProcessedTokenIndex(prev => prev + 1);
+      // On error, set timer to retry
       commentaryTimerRef.current = setTimeout(() => {
+        console.log('[TradeStream] Error recovery, allowing next token');
         setIsGenerating(false);
-      }, 2000); // Retry after 2 seconds on error
+      }, 2000);
     }
-    // Don't set isGenerating to false here - let the timer handle it
   };
 
+  // Process new tokens as they arrive
   useEffect(() => {
+    const nextToken = newTokens[0];
+    
     console.log('[TradeStream] Token processing check:', {
-      newTokensLength: newTokens.length,
-      processedTokenIndex,
+      hasNewToken: !!nextToken,
+      nextTokenMint: nextToken?.mint,
+      lastProcessedMint,
       isGenerating,
-      hasNextToken: newTokens.length > processedTokenIndex,
-      canProcess: newTokens.length > processedTokenIndex && !isGenerating && currentAdvisor
+      isDifferentToken: nextToken?.mint !== lastProcessedMint,
+      canProcess: nextToken && nextToken.mint !== lastProcessedMint && !isGenerating && currentAdvisor
     });
     
-    if (newTokens.length > processedTokenIndex && !isGenerating && currentAdvisor) {
-      const nextToken = newTokens[processedTokenIndex];
-      console.log('[TradeStream] Processing token:', nextToken.name, nextToken.symbol);
+    // Process if we have a new token that's different from the last one we processed
+    if (nextToken && nextToken.mint !== lastProcessedMint && !isGenerating && currentAdvisor) {
+      console.log('[TradeStream] Processing new token:', nextToken.name, nextToken.symbol);
+      setLastProcessedMint(nextToken.mint);
       generateCommentary(nextToken.name, nextToken.symbol);
-      setProcessedTokenIndex(prev => prev + 1);
     }
-  }, [newTokens, processedTokenIndex, isGenerating, currentAdvisor]);
+  }, [newTokens, lastProcessedMint, isGenerating, currentAdvisor]);
 
   useEffect(() => {
     return () => {
