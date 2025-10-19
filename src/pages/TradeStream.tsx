@@ -27,6 +27,7 @@ const TradeStream = () => {
   const [currentTokenName, setCurrentTokenName] = useState<string>("");
   const [lastProcessedMint, setLastProcessedMint] = useState<string>("");
   const commentaryTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
   
   const { latestToken, isConnected, newTokens } = usePumpFunStream(true);
 
@@ -138,10 +139,22 @@ const TradeStream = () => {
   }, [latestToken, lastProcessedMint, isGenerating, currentAdvisor]);
 
   useEffect(() => {
+    const playAudio = () => {
+      if (audioRef.current) {
+        audioRef.current.play().catch(error => {
+          console.log('Audio autoplay prevented:', error);
+        });
+      }
+      document.removeEventListener('click', playAudio);
+    };
+    
+    document.addEventListener('click', playAudio);
+    
     return () => {
       if (commentaryTimerRef.current) {
         clearTimeout(commentaryTimerRef.current);
       }
+      document.removeEventListener('click', playAudio);
     };
   }, []);
 
@@ -156,7 +169,7 @@ const TradeStream = () => {
   return (
     <div className="min-h-screen bg-background">
       <audio 
-        autoPlay
+        ref={audioRef}
         loop
         src="https://kxsvyeirqimcydtkowga.supabase.co/storage/v1/object/public/music/simmusic.m4a"
         className="hidden"
