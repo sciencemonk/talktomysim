@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { usePumpFunStream } from "@/hooks/usePumpFunStream";
 import { motion, AnimatePresence } from "framer-motion";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 import pumpLogo from "@/assets/pump-logo.png";
 
 interface AdvisorData {
@@ -112,6 +113,14 @@ const TradeStream = () => {
                 <h1 className="text-lg font-bold">Sim Rick's Token Commentary</h1>
               </div>
             </div>
+            <Badge variant="destructive" className="text-xs font-bold flex items-center gap-2">
+              <motion.div
+                animate={{ scale: [1, 1.2, 1] }}
+                transition={{ duration: 2, repeat: Infinity }}
+                className="w-2 h-2 bg-white rounded-full"
+              />
+              LIVE
+            </Badge>
           </div>
         </div>
       </div>
@@ -125,6 +134,7 @@ const TradeStream = () => {
                 <AvatarFallback>🧪</AvatarFallback>
               </Avatar>
               <div>
+                <h2 className="text-2xl font-bold mb-1">Sim Rick's Token Commentary</h2>
                 <p className="text-muted-foreground">
                   Commenting on new pump.fun tokens as they launch
                 </p>
@@ -157,16 +167,33 @@ const TradeStream = () => {
                       </h3>
                     </div>
                     
-                    <div className="prose prose-sm max-w-none">
-                      <p className="text-2xl leading-relaxed italic font-medium">
-                        "{commentary}"
-                      </p>
-                    </div>
+                    <div className="flex gap-6 items-start">
+                      {latestToken?.image_uri && (
+                        <div className="flex-shrink-0">
+                          <img 
+                            src={latestToken.image_uri} 
+                            alt={latestToken.name}
+                            className="w-32 h-32 rounded-lg object-cover border-2 border-primary/30"
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).style.display = 'none';
+                            }}
+                          />
+                        </div>
+                      )}
+                      
+                      <div className="flex-1">
+                        <div className="prose prose-sm max-w-none">
+                          <p className="text-2xl leading-relaxed italic font-medium">
+                            "{commentary}"
+                          </p>
+                        </div>
 
-                    <div className="mt-4 text-right">
-                      <span className="text-sm text-muted-foreground">
-                        - {advisor?.name || "Rick Sanchez"}
-                      </span>
+                        <div className="mt-4 text-right">
+                          <span className="text-sm text-muted-foreground">
+                            - {advisor?.name || "Rick Sanchez"}
+                          </span>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </motion.div>
