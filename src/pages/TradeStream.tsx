@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { usePumpFunStream } from "@/hooks/usePumpFunStream";
 import { motion, AnimatePresence } from "framer-motion";
@@ -31,8 +31,8 @@ const TradeStream = () => {
   
   const { latestToken, isConnected, newTokens } = usePumpFunStream(true);
 
-  const currentAdvisor = advisors[currentSimIndex];
-  const nextAdvisor = advisors[nextSimIndex];
+  const currentAdvisor = useMemo(() => advisors[currentSimIndex], [advisors, currentSimIndex]);
+  const nextAdvisor = useMemo(() => advisors[nextSimIndex], [advisors, nextSimIndex]);
 
   useEffect(() => {
     const fetchAdvisors = async () => {
