@@ -14,9 +14,10 @@ interface SimDetailModalProps {
   sim: AgentType | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onAuthRequired?: () => void;
 }
 
-const SimDetailModal = ({ sim, open, onOpenChange }: SimDetailModalProps) => {
+const SimDetailModal = ({ sim, open, onOpenChange, onAuthRequired }: SimDetailModalProps) => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [walletCopied, setWalletCopied] = useState(false);
@@ -68,7 +69,12 @@ const SimDetailModal = ({ sim, open, onOpenChange }: SimDetailModalProps) => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
-        sonnerToast.error('Please sign in to add sims');
+        setIsAddingSim(false);
+        if (onAuthRequired) {
+          onAuthRequired();
+        } else {
+          sonnerToast.error('Please sign in to add sims');
+        }
         return;
       }
 

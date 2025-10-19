@@ -428,12 +428,19 @@ export function AppSidebar() {
           {/* Create Your Sim Button - show only if user has no sim */}
           {!userSim && (
             <Button
-              onClick={() => setShowCreateSimModal(true)}
+              onClick={() => {
+                if (!currentUser) {
+                  // For non-signed-in users, navigate to landing page
+                  window.location.href = '/landing';
+                } else {
+                  setShowCreateSimModal(true);
+                }
+              }}
               className="w-full justify-start gap-2"
               variant="default"
             >
               <Plus className="h-4 w-4" />
-              {open && <span>Create Your Sim</span>}
+              {open && <span>Create a Sim</span>}
             </Button>
           )}
 
@@ -547,29 +554,27 @@ export function AppSidebar() {
         {/* Action Buttons at Bottom */}
         <div className="flex-shrink-0 px-3 pb-3">
           <div className="pt-4 border-t space-y-2">
+            <Button
+              onClick={() => {
+                navigator.clipboard.writeText('FFqwoZ7phjoupWjLeE5yFeLqGi8jkGEFrTz6jnsUpump');
+                toast.success('Contract address copied to clipboard!');
+              }}
+              className="w-full justify-start gap-2 bg-[#83f0aa] hover:bg-[#6ed99a] text-black"
+              variant="default"
+            >
+              <Coins className="h-4 w-4" />
+              {open && <span>Buy $SimAI</span>}
+            </Button>
+            
             {currentUser ? (
-              <>
-                <Button
-                  onClick={() => {
-                    navigator.clipboard.writeText('FFqwoZ7phjoupWjLeE5yFeLqGi8jkGEFrTz6jnsUpump');
-                    toast.success('Contract address copied to clipboard!');
-                  }}
-                  className="w-full justify-start gap-2 bg-[#83f0aa] hover:bg-[#6ed99a] text-black"
-                  variant="default"
-                >
-                  <Coins className="h-4 w-4" />
-                  {open && <span>Buy $SimAI</span>}
-                </Button>
-                
-                <Button
-                  onClick={handleSignOut}
-                  className="w-full justify-start gap-2"
-                  variant="outline"
-                >
-                  <LogOut className="h-4 w-4" />
-                  {open && <span>Log Out</span>}
-                </Button>
-              </>
+              <Button
+                onClick={handleSignOut}
+                className="w-full justify-start gap-2"
+                variant="outline"
+              >
+                <LogOut className="h-4 w-4" />
+                {open && <span>Log Out</span>}
+              </Button>
             ) : (
               <>
                 <Button

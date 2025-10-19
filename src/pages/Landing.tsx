@@ -199,12 +199,7 @@ const Landing = () => {
   });
 
   const handleSimClick = (sim: AgentType) => {
-    if (!currentUser) {
-      setSelectedSim(sim);
-      setAuthModalOpen(true);
-      return;
-    }
-    
+    // Always open the detail modal for both signed-in and signed-out users
     setSelectedSim(sim);
     setIsSimModalOpen(true);
   };
@@ -307,21 +302,7 @@ const Landing = () => {
         <AppSidebar />
         
         <div className="flex-1 flex flex-col">
-          {/* Header */}
-          <header className="border-b border-border bg-transparent sticky top-0 z-50">
-            <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <SidebarTrigger />
-                <img 
-                  src="/lovable-uploads/d1283b59-7cfa-45f5-b151-4c32b24f3621.png" 
-                  alt="Sim" 
-                  className="h-6 w-6 sm:h-8 sm:w-8 object-contain"
-                />
-              </div>
-            </div>
-          </header>
-
-      {/* Your Sims Section - Only for signed-in users */}
+          {/* Your Sims Section - Only for signed-in users */}
       {currentUser && userSim && (
         <section className="flex items-center justify-center container mx-auto px-3 sm:px-4 py-4 sm:py-6">
           <div className="grid gap-3 max-w-6xl w-full grid-cols-1 md:grid-cols-2">
@@ -516,6 +497,10 @@ const Landing = () => {
         sim={selectedSim}
         open={isSimModalOpen}
         onOpenChange={setIsSimModalOpen}
+        onAuthRequired={() => {
+          setIsSimModalOpen(false);
+          setAuthModalOpen(true);
+        }}
       />
 
       <SimpleFooter />
