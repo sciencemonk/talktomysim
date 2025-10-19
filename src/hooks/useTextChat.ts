@@ -99,6 +99,13 @@ export const useTextChat = ({
         onAiTextDelta(aiMessageId, data.content);
         hasContent = true;
         
+        // If there's an image, store it with the message
+        if (data.image) {
+          console.log('Image received in response');
+          // Store image with message using metadata or custom property
+          (window as any).__lastGeneratedImage = data.image;
+        }
+        
         // Update conversation history with AI response
         setConversationHistory(prev => [...prev, { role: 'assistant', content: data.content }]);
       } else {

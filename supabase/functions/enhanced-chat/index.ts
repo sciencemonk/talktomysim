@@ -183,6 +183,44 @@ serve(async (req) => {
       }
     }
 
+    // Check if user is asking for image generation
+    const imageGenerationKeywords = ['generate', 'create', 'make', 'draw', 'paint', 'design'];
+    const imageRelatedWords = ['image', 'picture', 'photo', 'artwork', 'illustration', 'visual'];
+    const userMessageLower = userMessage.toLowerCase();
+    
+    const isImageRequest = imageGenerationKeywords.some(keyword => userMessageLower.includes(keyword)) &&
+                          imageRelatedWords.some(word => userMessageLower.includes(word));
+    
+    if (isImageRequest) {
+      console.log('Detected image generation request');
+      try {
+        const { data: imageData, error: imageError } = await supabase.functions.invoke('generate-image', {
+          body: { prompt: userMessage }
+        });
+        
+        if (imageError) throw imageError;
+        
+        console.log('Image generated successfully');
+        
+        return new Response(
+          JSON.stringify({ 
+            content: `I've generated an image for you! Here it is:`,
+            image: imageData.image,
+            usage: {
+              prompt_tokens: 0,
+              completion_tokens: 0,
+              total_tokens: 0
+            },
+            researchUsed: false
+          }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      } catch (error) {
+        console.error('Image generation error:', error);
+        // Continue to regular chat if image generation fails
+      }
+    }
+
     // Determine if web research is needed
     const needsResearch = await shouldDoWebResearch(userMessage, agent, openaiApiKey);
     console.log('Needs research:', needsResearch);

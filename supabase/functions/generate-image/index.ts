@@ -1,3 +1,4 @@
+import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
 const corsHeaders = {
@@ -11,12 +12,12 @@ serve(async (req) => {
   }
 
   try {
-    const GETIMG_API_KEY = Deno.env.get('GETIMG_API_KEY');
-    if (!GETIMG_API_KEY) {
-      throw new Error('GETIMG_API_KEY is not set');
+    const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY');
+    if (!OPENAI_API_KEY) {
+      throw new Error('OPENAI_API_KEY is not set');
     }
 
-    const { prompt, model = "stable-diffusion-v1-5", width = 512, height = 512 } = await req.json();
+    const { prompt, size = "1024x1024", quality = "auto" } = await req.json();
 
     if (!prompt) {
       return new Response(
@@ -30,27 +31,26 @@ serve(async (req) => {
 
     console.log('Generating image with prompt:', prompt);
 
-    const response = await fetch('https://api.getimg.ai/v1/stable-diffusion/text-to-image', {
+    const response = await fetch('https://api.openai.com/v1/images/generations', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${GETIMG_API_KEY}`,
+        'Authorization': `Bearer ${OPENAI_API_KEY}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model,
+        model: 'gpt-image-1',
         prompt,
-        width,
-        height,
-        steps: 25,
-        guidance: 7.5,
-        output_format: "jpeg"
+        size,
+        quality,
+        output_format: 'png',
+        n: 1
       }),
     });
 
     if (!response.ok) {
       const error = await response.text();
-      console.error('GetImg API error:', error);
-      throw new Error(`GetImg API error: ${error}`);
+      console.error('OpenAI API error:', error);
+      throw new Error(`OpenAI API error: ${error}`);
     }
 
     const data = await response.json();
@@ -58,8 +58,8 @@ serve(async (req) => {
 
     return new Response(
       JSON.stringify({ 
-        image: data.image,
-        seed: data.seed 
+        image: data.data[0].b64_json,
+        revised_prompt: data.data[0].revised_prompt
       }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' } 

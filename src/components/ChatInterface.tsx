@@ -111,6 +111,9 @@ const ChatInterface = ({ agent, onBack, hideHeader = false, transparentMode = fa
                   return null;
                 }
                 
+                // Check if message has an image
+                const hasImage = (message as any).image;
+                
                 return (
                   <div
                     key={message.id}
@@ -137,28 +140,39 @@ const ChatInterface = ({ agent, onBack, hideHeader = false, transparentMode = fa
                             {message.content}
                           </p>
                         ) : (
-                          <div className={`prose prose-sm max-w-none break-words overflow-wrap-anywhere ${transparentMode ? 'prose-invert' : 'dark:prose-invert'}
-                            prose-p:leading-7 prose-p:mb-5 prose-p:mt-0 prose-p:text-[15px] prose-p:break-words first:prose-p:mt-0 last:prose-p:mb-0
-                            prose-headings:font-semibold prose-headings:my-4
-                            prose-h1:text-2xl prose-h2:text-xl prose-h3:text-lg
-                            prose-ul:my-4 prose-ul:list-disc prose-ul:pl-6
-                            prose-ol:my-4 prose-ol:list-decimal prose-ol:pl-6
-                            prose-li:my-1 prose-li:leading-7 prose-li:text-[15px] prose-li:break-words
-                            ${transparentMode ? 'prose-strong:font-semibold prose-strong:text-white' : 'prose-strong:font-semibold prose-strong:text-foreground'}
-                            prose-code:bg-muted prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:text-sm prose-code:break-all
-                            prose-pre:bg-muted prose-pre:p-4 prose-pre:rounded-lg
-                            prose-blockquote:border-l-4 prose-blockquote:border-border prose-blockquote:pl-4 prose-blockquote:italic
-                            prose-a:text-primary prose-a:underline prose-a:break-words hover:prose-a:text-primary/80
-                          `}>
-                            <ReactMarkdown
-                              remarkPlugins={[remarkGfm]}
-                              components={{
-                                p: ({ children }) => <p className="mb-5 last:mb-0">{children}</p>
-                              }}
-                            >
-                              {message.content.replace(/\n(?!\n)/g, '\n\n')}
-                            </ReactMarkdown>
-                          </div>
+                          <>
+                            <div className={`prose prose-sm max-w-none break-words overflow-wrap-anywhere ${transparentMode ? 'prose-invert' : 'dark:prose-invert'}
+                              prose-p:leading-7 prose-p:mb-5 prose-p:mt-0 prose-p:text-[15px] prose-p:break-words first:prose-p:mt-0 last:prose-p:mb-0
+                              prose-headings:font-semibold prose-headings:my-4
+                              prose-h1:text-2xl prose-h2:text-xl prose-h3:text-lg
+                              prose-ul:my-4 prose-ul:list-disc prose-ul:pl-6
+                              prose-ol:my-4 prose-ol:list-decimal prose-ol:pl-6
+                              prose-li:my-1 prose-li:leading-7 prose-li:text-[15px] prose-li:break-words
+                              ${transparentMode ? 'prose-strong:font-semibold prose-strong:text-white' : 'prose-strong:font-semibold prose-strong:text-foreground'}
+                              prose-code:bg-muted prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:text-sm prose-code:break-all
+                              prose-pre:bg-muted prose-pre:p-4 prose-pre:rounded-lg
+                              prose-blockquote:border-l-4 prose-blockquote:border-border prose-blockquote:pl-4 prose-blockquote:italic
+                              prose-a:text-primary prose-a:underline prose-a:break-words hover:prose-a:text-primary/80
+                            `}>
+                              <ReactMarkdown
+                                remarkPlugins={[remarkGfm]}
+                                components={{
+                                  p: ({ children }) => <p className="mb-5 last:mb-0">{children}</p>
+                                }}
+                              >
+                                {message.content.replace(/\n(?!\n)/g, '\n\n')}
+                              </ReactMarkdown>
+                            </div>
+                            {hasImage && (
+                              <div className="mt-4">
+                                <img 
+                                  src={`data:image/png;base64,${(message as any).image}`} 
+                                  alt="Generated image"
+                                  className="max-w-full rounded-lg shadow-lg"
+                                />
+                              </div>
+                            )}
+                          </>
                         )}
                       </div>
                     </div>

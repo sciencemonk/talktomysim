@@ -9,6 +9,7 @@ interface ChatMessage {
   role: 'user' | 'system';
   content: string;
   isComplete: boolean;
+  image?: string; // For generated images
 }
 
 export const useChatHistory = (agent: AgentType, isCreatorChat: boolean = false, forceNew: boolean = false, conversationId?: string | null) => {
@@ -182,14 +183,22 @@ export const useChatHistory = (agent: AgentType, isCreatorChat: boolean = false,
     const newContent = currentContent + delta;
     aiMessageContentRef.current.set(messageId, newContent);
     
+    // Check if there's a generated image
+    const generatedImage = (window as any).__lastGeneratedImage;
+    
     // Update state for display
     setMessages(prev => 
       prev.map(msg => 
         msg.id === messageId 
-          ? { ...msg, content: newContent }
+          ? { ...msg, content: newContent, ...(generatedImage ? { image: generatedImage } : {}) }
           : msg
       )
     );
+    
+    // Clear the global image after attaching it
+    if (generatedImage) {
+      delete (window as any).__lastGeneratedImage;
+    }
   }, []);
 
   // Complete AI message
