@@ -44,6 +44,9 @@ import { Progress } from "@/components/ui/progress";
 import { CreditUsageModal } from "./CreditUsageModal";
 import EditSimModal from "./EditSimModal";
 import { OnboardingModal } from "./OnboardingModal";
+import phantomIcon from "@/assets/phantom-icon.png";
+import solflareIcon from "@/assets/solflare-icon.png";
+import bs58 from "bs58";
 
 interface SimConversation {
   sim_id: string;
@@ -65,6 +68,7 @@ export function AppSidebar() {
   const [editSimModalOpen, setEditSimModalOpen] = useState(false);
   const [selectedSimForEdit, setSelectedSimForEdit] = useState<string | null>(null);
   const [showCreateSimModal, setShowCreateSimModal] = useState(false);
+  const [isSigningIn, setIsSigningIn] = useState<string | null>(null);
   const queryClient = useQueryClient();
   const isMobile = useIsMobile();
 
@@ -267,7 +271,58 @@ export function AppSidebar() {
   const handleSignOut = async () => {
     await supabase.auth.signOut();
     toast.success('Signed out successfully');
-    navigate('/landing');
+    window.location.reload();
+  };
+
+  const handleWalletSignIn = async (walletType: 'phantom' | 'solflare') => {
+    setIsSigningIn(walletType);
+    try {
+      let wallet;
+      
+      if (walletType === 'phantom') {
+        wallet = (window as any).solana;
+        if (!wallet?.isPhantom) {
+          toast.error('Please install Phantom wallet');
+          setIsSigningIn(null);
+          return;
+        }
+      } else {
+        wallet = (window as any).solflare;
+        if (!wallet) {
+          toast.error('Please install Solflare wallet');
+          setIsSigningIn(null);
+          return;
+        }
+      }
+
+      await wallet.connect();
+      const publicKey = wallet.publicKey.toString();
+      const message = `Sign in to Sim\n\nWallet: ${publicKey}\nTimestamp: ${new Date().toISOString()}`;
+      const encodedMessage = new TextEncoder().encode(message);
+      const signedMessage = await wallet.signMessage(encodedMessage, 'utf8');
+      const signature = bs58.encode(signedMessage.signature);
+
+      const { data, error } = await supabase.functions.invoke('solana-auth', {
+        body: { publicKey, signature, message }
+      });
+
+      if (error) throw error;
+      
+      if (data?.access_token && data?.refresh_token) {
+        await supabase.auth.setSession({
+          access_token: data.access_token,
+          refresh_token: data.refresh_token,
+        });
+        
+        toast.success('Connected successfully!');
+        window.location.reload();
+      }
+    } catch (error: any) {
+      console.error('Error signing in with Solana:', error);
+      toast.error(error?.message || 'Failed to connect wallet');
+    } finally {
+      setIsSigningIn(null);
+    }
   };
 
   // Fetch user's credits
@@ -492,26 +547,64 @@ export function AppSidebar() {
         {/* Action Buttons at Bottom */}
         <div className="flex-shrink-0 px-3 pb-3">
           <div className="pt-4 border-t space-y-2">
-            <Button
-              onClick={() => {
-                navigator.clipboard.writeText('FFqwoZ7phjoupWjLeE5yFeLqGi8jkGEFrTz6jnsUpump');
-                toast.success('Contract address copied to clipboard!');
-              }}
-              className="w-full justify-start gap-2 bg-[#83f0aa] hover:bg-[#6ed99a] text-black"
-              variant="default"
-            >
-              <Coins className="h-4 w-4" />
-              {open && <span>Buy $SimAI</span>}
-            </Button>
-            
-            <Button
-              onClick={handleSignOut}
-              className="w-full justify-start gap-2"
-              variant="outline"
-            >
-              <LogOut className="h-4 w-4" />
-              {open && <span>Log Out</span>}
-            </Button>
+            {currentUser ? (
+              <>
+                <Button
+                  onClick={() => {
+                    navigator.clipboard.writeText('FFqwoZ7phjoupWjLeE5yFeLqGi8jkGEFrTz6jnsUpump');
+                    toast.success('Contract address copied to clipboard!');
+                  }}
+                  className="w-full justify-start gap-2 bg-[#83f0aa] hover:bg-[#6ed99a] text-black"
+                  variant="default"
+                >
+                  <Coins className="h-4 w-4" />
+                  {open && <span>Buy $SimAI</span>}
+                </Button>
+                
+                <Button
+                  onClick={handleSignOut}
+                  className="w-full justify-start gap-2"
+                  variant="outline"
+                >
+                  <LogOut className="h-4 w-4" />
+                  {open && <span>Log Out</span>}
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button
+                  onClick={() => handleWalletSignIn('phantom')}
+                  disabled={!!isSigningIn}
+                  className="w-full justify-start gap-2 bg-white text-black hover:bg-white/90"
+                  variant="default"
+                >
+                  {open ? (
+                    <>
+                      <img src={phantomIcon} alt="Phantom" className="w-5 h-5" />
+                      <span>{isSigningIn === 'phantom' ? 'Connecting...' : 'Sign in with Phantom'}</span>
+                    </>
+                  ) : (
+                    <img src={phantomIcon} alt="Phantom" className="w-5 h-5" />
+                  )}
+                </Button>
+                
+                <Button
+                  onClick={() => handleWalletSignIn('solflare')}
+                  disabled={!!isSigningIn}
+                  className="w-full justify-start gap-2 bg-white text-black hover:bg-white/90"
+                  variant="default"
+                >
+                  {open ? (
+                    <>
+                      <img src={solflareIcon} alt="Solflare" className="w-5 h-5" />
+                      <span>{isSigningIn === 'solflare' ? 'Connecting...' : 'Sign in with Solflare'}</span>
+                    </>
+                  ) : (
+                    <img src={solflareIcon} alt="Solflare" className="w-5 h-5" />
+                  )}
+                </Button>
+              </>
+            )}
           </div>
         </div>
       </SidebarContent>

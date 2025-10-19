@@ -318,39 +318,6 @@ const Landing = () => {
                   className="h-6 w-6 sm:h-8 sm:w-8 object-contain"
                 />
               </div>
-              {currentUser ? (
-                <Button
-                  onClick={handleSignOut}
-                  className="font-medium h-10 px-4"
-                  size="sm"
-                >
-                  <LogOut className="h-5 w-5 mr-2" />
-                  Log Out
-                </Button>
-              ) : (
-                <div className="flex gap-2">
-                  <Button
-                    onClick={() => handleWalletSignIn('phantom')}
-                    disabled={!!isLoading}
-                    className="bg-white text-black hover:bg-white/90 font-medium h-10 px-3 sm:px-4 gap-2"
-                    size="sm"
-                  >
-                    <span className="hidden sm:inline">Sign in with</span>
-                    <img src={phantomIcon} alt="Phantom" className="w-5 h-5" />
-                    <span className="sm:hidden">{isLoading === 'phantom' ? 'Connecting...' : 'Phantom'}</span>
-                  </Button>
-                  <Button
-                    onClick={() => handleWalletSignIn('solflare')}
-                    disabled={!!isLoading}
-                    className="bg-white text-black hover:bg-white/90 font-medium h-10 px-3 sm:px-4 gap-2"
-                    size="sm"
-                  >
-                    <span className="hidden sm:inline">Sign in with</span>
-                    <img src={solflareIcon} alt="Solflare" className="w-5 h-5" />
-                    <span className="sm:hidden">{isLoading === 'solflare' ? 'Connecting...' : 'Solflare'}</span>
-                  </Button>
-                </div>
-              )}
             </div>
           </header>
 
