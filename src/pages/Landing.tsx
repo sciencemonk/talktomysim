@@ -144,19 +144,16 @@ const Landing = () => {
 
   const categories = [
     { id: 'all', label: 'All Categories', count: 0 },
-    { id: 'historical', label: 'Historical Figures', count: 0 },
-    { id: 'kol', label: 'KOLs & Influencers', count: 0 },
     { id: 'crypto', label: 'Crypto & Web3', count: 0 },
-    { id: 'tokens', label: 'Token Agents', count: 0 },
+    { id: 'historical', label: 'Historical Figures', count: 0 },
+    { id: 'influencers', label: 'Influencers & Celebrities', count: 0 },
+    { id: 'fictional', label: 'Fictional Characters', count: 0 },
+    { id: 'education', label: 'Education & Tutoring', count: 0 },
     { id: 'business', label: 'Business & Finance', count: 0 },
-    { id: 'coaching', label: 'Coaching & Mentoring', count: 0 },
-    { id: 'life_coach', label: 'Life Coach', count: 0 },
-    { id: 'spiritual', label: 'Spiritual', count: 0 },
-    { id: 'entertainment', label: 'Entertainment', count: 0 },
-    { id: 'games', label: 'Games', count: 0 },
-    { id: 'education', label: 'Education', count: 0 },
-    { id: 'lifestyle', label: 'Lifestyle', count: 0 },
-    { id: 'erotic', label: 'Adult', count: 0 },
+    { id: 'lifestyle', label: 'Lifestyle & Wellness', count: 0 },
+    { id: 'entertainment', label: 'Entertainment & Games', count: 0 },
+    { id: 'spiritual', label: 'Spiritual & Philosophy', count: 0 },
+    { id: 'adult', label: 'Adult', count: 0 },
   ];
 
   // Apply filters and sorting
