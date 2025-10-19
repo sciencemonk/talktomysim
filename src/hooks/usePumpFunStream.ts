@@ -73,7 +73,7 @@ export const usePumpFunStream = (subscribeToNewTokens = false) => {
             name: data.name,
             symbol: data.symbol,
             description: data.description,
-            image: data.image,
+            image_uri: data.image_uri || data.image || data.uri,
             timestamp: data.timestamp || Date.now() / 1000,
             creator: data.traderPublicKey
           };

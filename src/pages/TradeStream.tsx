@@ -257,7 +257,7 @@ const TradeStream = () => {
             {advisors.length > 1 && nextAdvisor && (
               <div className="mt-8 pt-6 border-t">
                 <div className="flex items-center gap-3">
-                  <span className="text-sm text-muted-foreground">Coming up next:</span>
+                  <span className="text-sm text-muted-foreground">Next Sim commentator:</span>
                   <div className="flex items-center gap-2">
                     <Avatar className="w-8 h-8">
                       <AvatarImage src={nextAdvisor.avatar_url || undefined} />
