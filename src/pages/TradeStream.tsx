@@ -156,11 +156,10 @@ const TradeStream = () => {
   return (
     <div className="min-h-screen bg-background">
       <audio 
-        controls
         autoPlay
         loop
         src="https://kxsvyeirqimcydtkowga.supabase.co/storage/v1/object/public/music/simmusic.m4a"
-        className="fixed top-4 right-4 z-50"
+        className="hidden"
       />
       {/* Compact Header */}
       <div className="border-b border-border/50 bg-background/80 backdrop-blur">
