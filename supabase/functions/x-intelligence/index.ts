@@ -136,6 +136,7 @@ function generateIntelligenceReport(userData: any, tweets: any[], reportType: st
     displayName: user.name,
     bio: user.description || user.bio,
     location: user.location,
+    verified: user.verified || user.isVerified || user.isBlueVerified || false,
     
     metrics: {
       followers,
@@ -206,6 +207,11 @@ function generateInsights(user: any, tweets: any[], metrics: any) {
   // Activity insights
   if (tweets.length >= 50) {
     insights.push('📊 Very active account (50+ recent tweets analyzed)');
+  }
+  
+  // Verification
+  if (user.verified || user.isVerified || user.isBlueVerified) {
+    insights.push('✓ Verified account');
   }
   
   if (insights.length === 0) {
