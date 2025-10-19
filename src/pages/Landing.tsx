@@ -20,6 +20,7 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
+import { Menu } from "lucide-react";
 
 const Landing = () => {
   const navigate = useNavigate();
@@ -299,6 +300,19 @@ const Landing = () => {
         <AppSidebar />
         
         <div className="flex-1 flex flex-col">
+          {/* Mobile Header with Sidebar Toggle */}
+          <header className="sticky top-0 z-50 flex items-center gap-2 border-b bg-background px-4 py-3 lg:hidden">
+            <SidebarTrigger className="h-8 w-8">
+              <Menu className="h-5 w-5" />
+            </SidebarTrigger>
+            <img 
+              src="/sim-logo.png" 
+              alt="Sim Logo" 
+              className="h-7 w-7 object-contain"
+            />
+            <span className="font-semibold text-lg">Sim</span>
+          </header>
+
           {/* Your Sims Section - Only for signed-in users */}
       {currentUser && userSim && (
         <section className="flex items-center justify-center container mx-auto px-3 sm:px-4 py-4 sm:py-6">
