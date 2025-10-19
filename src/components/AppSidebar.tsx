@@ -44,6 +44,7 @@ import { Progress } from "@/components/ui/progress";
 import { CreditUsageModal } from "./CreditUsageModal";
 import EditSimModal from "./EditSimModal";
 import AuthModal from "./AuthModal";
+import { CreateSimModal } from "./CreateSimModal";
 import phantomIcon from "@/assets/phantom-icon.png";
 import solflareIcon from "@/assets/solflare-icon.png";
 import bs58 from "bs58";
@@ -68,6 +69,7 @@ export function AppSidebar() {
   const [editSimModalOpen, setEditSimModalOpen] = useState(false);
   const [selectedSimForEdit, setSelectedSimForEdit] = useState<string | null>(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const [showCreateSimModal, setShowCreateSimModal] = useState(false);
   const [isSigningIn, setIsSigningIn] = useState<string | null>(null);
   const queryClient = useQueryClient();
   const isMobile = useIsMobile();
@@ -432,9 +434,8 @@ export function AppSidebar() {
                 // For non-signed-in users, open auth modal
                 setShowAuthModal(true);
               } else {
-                // Navigate to home for signed-in users
-                navigate('/home');
-                closeSidebar();
+                // Open create sim modal
+                setShowCreateSimModal(true);
               }
             }}
             className="w-full justify-start gap-2 bg-black text-white hover:bg-black/90 dark:bg-white dark:text-black dark:hover:bg-white/90"
@@ -628,6 +629,18 @@ export function AppSidebar() {
           open={showAuthModal}
           onOpenChange={setShowAuthModal}
           defaultMode="signup"
+        />
+      )}
+
+      {showCreateSimModal && currentUser && (
+        <CreateSimModal
+          open={showCreateSimModal}
+          onOpenChange={setShowCreateSimModal}
+          onSuccess={async () => {
+            await queryClient.invalidateQueries({ queryKey: ['user-sim'] });
+            await queryClient.invalidateQueries({ queryKey: ['my-sim-conversations'] });
+            navigate('/home');
+          }}
         />
       )}
     </Sidebar>
