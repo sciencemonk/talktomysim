@@ -28,6 +28,7 @@ const Home = () => {
   // Check for sim ID in URL and load that sim's chat
   useEffect(() => {
     const simId = searchParams.get('sim');
+    console.log('useEffect triggered - simId:', simId, 'current selectedAdvisor:', selectedAdvisor?.id);
     
     if (simId) {
       // Only fetch if the sim ID is different from current selection
@@ -52,19 +53,23 @@ const Home = () => {
                 avatar: data.avatar_url,
                 sim_type: (data.sim_type === 'living' ? 'living' : 'historical') as 'historical' | 'living'
               };
+              console.log('Setting selected advisor:', agent.name);
               setSelectedAdvisor(agent);
               setSelectedPublicAdvisorId(data.id);
             } else {
               console.error('Error loading sim:', error);
             }
           });
+      } else {
+        console.log('Sim already loaded:', selectedAdvisor?.name);
       }
     } else {
+      console.log('No sim ID in URL, clearing selection');
       // No sim in URL, clear selection
       setSelectedAdvisor(null);
       setSelectedPublicAdvisorId(null);
     }
-  }, [searchParams, selectedAdvisor?.id]);
+  }, [searchParams]);
 
   // Check if we were passed a selected advisor from navigation state
   useEffect(() => {
