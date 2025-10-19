@@ -1,5 +1,4 @@
 import { useToast } from "@/hooks/use-toast";
-import { Link } from "react-router-dom";
 
 const SimPublicFooter = () => {
   const { toast } = useToast();
@@ -26,17 +25,18 @@ const SimPublicFooter = () => {
     <footer className="backdrop-blur-md bg-black/30 border-t border-white/20 px-6 py-4 relative z-10">
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
         <div className="flex items-center gap-2 text-center sm:text-left">
-          <img 
-            src="/lovable-uploads/d1283b59-7cfa-45f5-b151-4c32b24f3621.png" 
-            alt="Sim" 
-            className="h-5 w-5 object-contain"
-          />
-          <Link 
-            to="/"
-            className="text-sm font-semibold text-white hover:text-white/80 transition-colors"
+          <a 
+            href="https://simproject.org"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:opacity-80 transition-opacity"
           >
-            Create your Sim
-          </Link>
+            <img 
+              src="/sim-logo.png" 
+              alt="Sim" 
+              className="h-8 w-8 object-contain"
+            />
+          </a>
         </div>
         
         <div className="text-center sm:text-right w-full sm:w-auto">
