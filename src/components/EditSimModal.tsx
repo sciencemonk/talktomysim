@@ -1,15 +1,26 @@
 import { useEffect, useState, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useQueryClient } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Upload, Link2, Copy, Check, Target, Brain, Users, Sparkles, Globe, Wallet, Info, X } from 'lucide-react';
+import { Upload, Link2, Copy, Check, Target, Brain, Users, Sparkles, Globe, Wallet, Info, X, Trash2 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { toast } from 'sonner';
 
@@ -21,6 +32,7 @@ interface EditSimModalProps {
 
 const EditSimModal = ({ open, onOpenChange, simId }: EditSimModalProps) => {
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const backgroundInputRef = useRef<HTMLInputElement>(null);
   
@@ -45,6 +57,8 @@ const EditSimModal = ({ open, onOpenChange, simId }: EditSimModalProps) => {
   
   const [isUploading, setIsUploading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [urlCopied, setUrlCopied] = useState(false);
   const [backgroundFile, setBackgroundFile] = useState<File | null>(null);
 
@@ -305,8 +319,37 @@ const EditSimModal = ({ open, onOpenChange, simId }: EditSimModalProps) => {
     }
   };
 
+  const handleDelete = async () => {
+    setIsDeleting(true);
+    try {
+      // Delete the sim from the database
+      const { error } = await supabase
+        .from('advisors')
+        .delete()
+        .eq('id', simId);
+
+      if (error) throw error;
+
+      // Invalidate queries
+      await queryClient.invalidateQueries({ queryKey: ['user-sim'] });
+      await queryClient.invalidateQueries({ queryKey: ['user-sim-check'] });
+      await queryClient.invalidateQueries({ queryKey: ['my-sim-conversations'] });
+      
+      toast.success('Sim deleted successfully');
+      setShowDeleteDialog(false);
+      onOpenChange(false);
+      navigate('/directory');
+    } catch (error) {
+      console.error('Error deleting sim:', error);
+      toast.error('Failed to delete sim');
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <>
+      <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl max-h-[90vh] flex flex-col">
         <DialogHeader>
           <DialogTitle>Edit Sim</DialogTitle>
@@ -589,16 +632,49 @@ const EditSimModal = ({ open, onOpenChange, simId }: EditSimModalProps) => {
           </div>
         </ScrollArea>
 
-        <div className="flex justify-end gap-3 pt-4 border-t">
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Cancel
+        <div className="flex justify-between gap-3 pt-4 border-t">
+          <Button 
+            variant="destructive" 
+            onClick={() => setShowDeleteDialog(true)}
+            disabled={isSaving || isDeleting}
+          >
+            <Trash2 className="h-4 w-4 mr-2" />
+            Delete Sim
           </Button>
-          <Button onClick={handleSave} disabled={isSaving}>
-            {isSaving ? 'Saving...' : 'Save Changes'}
-          </Button>
+          <div className="flex gap-3">
+            <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isSaving || isDeleting}>
+              Cancel
+            </Button>
+            <Button onClick={handleSave} disabled={isSaving || isDeleting}>
+              {isSaving ? 'Saving...' : 'Save Changes'}
+            </Button>
+          </div>
         </div>
       </DialogContent>
     </Dialog>
+
+    <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Delete Sim Permanently?</AlertDialogTitle>
+          <AlertDialogDescription>
+            This will permanently delete "{name}" from the directory for everyone. 
+            All conversations with this sim will also be deleted. This action cannot be undone.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+          <AlertDialogAction
+            onClick={handleDelete}
+            disabled={isDeleting}
+            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+          >
+            {isDeleting ? 'Deleting...' : 'Delete Permanently'}
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  </>
   );
 };
 

@@ -189,6 +189,31 @@ export function AppSidebar() {
         }
       }
       
+      // Also include the user's own created sim, even if no conversations exist
+      if (userSim && !simConversationsMap.has(userSim.id)) {
+        // Get creator's wallet
+        let creatorWallet = null;
+        if (userSim.user_id) {
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('wallet_address')
+            .eq('id', userSim.user_id)
+            .single();
+          creatorWallet = profile?.wallet_address || null;
+        }
+
+        simConversationsMap.set(userSim.id, {
+          sim_id: userSim.id,
+          sim_name: userSim.name || 'Your Sim',
+          sim_avatar: userSim.avatar_url || null,
+          sim_user_id: userSim.user_id || null,
+          sim_creator_wallet: creatorWallet,
+          conversation_id: null,
+          last_message: null,
+          updated_at: userSim.updated_at || new Date().toISOString()
+        });
+      }
+      
       return Array.from(simConversationsMap.values());
     },
     enabled: !!currentUser
@@ -430,16 +455,21 @@ export function AppSidebar() {
                                   Edit
                                 </DropdownMenuItem>
                               )}
-                              <DropdownMenuItem
-                                className="text-destructive focus:text-destructive cursor-pointer"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  deleteSimConversation.mutate(conv.sim_id);
-                                }}
-                              >
-                                <Trash2 className="h-4 w-4 mr-2" />
-                                Remove Sim
-                              </DropdownMenuItem>
+                              {/* Only show Remove option if user is NOT the creator */}
+                              {!(conv.sim_user_id === currentUser?.id || 
+                                (currentUserProfile?.wallet_address && 
+                                 conv.sim_creator_wallet === currentUserProfile.wallet_address)) && (
+                                <DropdownMenuItem
+                                  className="text-destructive focus:text-destructive cursor-pointer"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    deleteSimConversation.mutate(conv.sim_id);
+                                  }}
+                                >
+                                  <Trash2 className="h-4 w-4 mr-2" />
+                                  Remove Sim
+                                </DropdownMenuItem>
+                              )}
                             </DropdownMenuContent>
                           </DropdownMenu>
                         )}
