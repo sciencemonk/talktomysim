@@ -125,26 +125,17 @@ const TradeStream = () => {
     }
   };
 
-  // Process new tokens as they arrive
+  // Process new tokens as they arrive - use latestToken instead of newTokens array to prevent re-renders
   useEffect(() => {
-    const nextToken = newTokens[0];
+    if (!latestToken || !currentAdvisor) return;
     
-    console.log('[TradeStream] Token processing check:', {
-      hasNewToken: !!nextToken,
-      nextTokenMint: nextToken?.mint,
-      lastProcessedMint,
-      isGenerating,
-      isDifferentToken: nextToken?.mint !== lastProcessedMint,
-      canProcess: nextToken && nextToken.mint !== lastProcessedMint && !isGenerating && currentAdvisor
-    });
-    
-    // Process if we have a new token that's different from the last one we processed
-    if (nextToken && nextToken.mint !== lastProcessedMint && !isGenerating && currentAdvisor) {
-      console.log('[TradeStream] Processing new token:', nextToken.name, nextToken.symbol);
-      setLastProcessedMint(nextToken.mint);
-      generateCommentary(nextToken.name, nextToken.symbol);
+    // Only process if this is a new token we haven't seen before and we're not already generating
+    if (latestToken.mint !== lastProcessedMint && !isGenerating) {
+      console.log('[TradeStream] Processing new token:', latestToken.name, latestToken.symbol);
+      setLastProcessedMint(latestToken.mint);
+      generateCommentary(latestToken.name, latestToken.symbol);
     }
-  }, [newTokens, lastProcessedMint, isGenerating, currentAdvisor]);
+  }, [latestToken, lastProcessedMint, isGenerating, currentAdvisor]);
 
   useEffect(() => {
     return () => {
