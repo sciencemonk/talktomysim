@@ -60,6 +60,9 @@ const TradeStream = () => {
   const generateCommentary = async (tokenName: string, tokenSymbol: string) => {
     if (isGenerating || !currentAdvisor) return;
     
+    // Clear previous commentary when starting new generation
+    setCommentary("");
+    setCurrentTokenName("");
     setIsGenerating(true);
     setCurrentTokenName(`${tokenName} (${tokenSymbol})`);
     
@@ -81,11 +84,8 @@ const TradeStream = () => {
         clearTimeout(commentaryTimerRef.current);
       }
       
-      // Set new timer for 10 seconds
+      // Set new timer for 10 seconds to handle Sim rotation
       commentaryTimerRef.current = setTimeout(() => {
-        setCommentary("");
-        setCurrentTokenName("");
-        
         // Check if we need to switch Sims
         const newCount = tokensProcessedBySim + 1;
         setTokensProcessedBySim(newCount);
@@ -107,12 +107,12 @@ const TradeStream = () => {
   };
 
   useEffect(() => {
-    if (newTokens.length > processedTokenIndex && !isGenerating && !commentary) {
+    if (newTokens.length > processedTokenIndex && !isGenerating) {
       const nextToken = newTokens[processedTokenIndex];
       generateCommentary(nextToken.name, nextToken.symbol);
       setProcessedTokenIndex(prev => prev + 1);
     }
-  }, [newTokens, processedTokenIndex, isGenerating, commentary]);
+  }, [newTokens, processedTokenIndex, isGenerating]);
 
   useEffect(() => {
     return () => {
