@@ -47,6 +47,7 @@ interface SimConversation {
   sim_name: string;
   sim_avatar: string | null;
   sim_user_id: string | null;
+  sim_creator_wallet: string | null;
   conversation_id: string;
   last_message: string | null;
   updated_at: string;
@@ -103,6 +104,21 @@ export function AppSidebar() {
     gcTime: 10 * 60 * 1000, // Keep in cache for 10 minutes
   });
 
+  // Fetch current user's profile for wallet comparison
+  const { data: currentUserProfile } = useQuery({
+    queryKey: ['current-user-profile', currentUser?.id],
+    queryFn: async () => {
+      if (!currentUser?.id) return null;
+      const { data } = await supabase
+        .from('profiles')
+        .select('wallet_address')
+        .eq('id', currentUser.id)
+        .single();
+      return data;
+    },
+    enabled: !!currentUser?.id
+  });
+
   const { data: myConversations, refetch } = useQuery({
     queryKey: ['my-sim-conversations', currentUser?.id],
     queryFn: async () => {
@@ -127,10 +143,16 @@ export function AppSidebar() {
         const simId = conv.tutor_id;
         
         if (!simConversationsMap.has(simId)) {
-          // Get advisor/sim details
+          // Get advisor/sim details with creator's wallet
           const { data: advisor } = await supabase
             .from('advisors')
-            .select('id, name, avatar_url, user_id')
+            .select(`
+              id, 
+              name, 
+              avatar_url, 
+              user_id,
+              profiles:user_id (wallet_address)
+            `)
             .eq('id', simId)
             .single();
           
@@ -147,6 +169,7 @@ export function AppSidebar() {
             sim_name: advisor?.name || 'Unknown Sim',
             sim_avatar: advisor?.avatar_url || null,
             sim_user_id: advisor?.user_id || null,
+            sim_creator_wallet: (advisor?.profiles as any)?.wallet_address || null,
             conversation_id: conv.id,
             last_message: messages?.[0]?.content || null,
             updated_at: conv.updated_at
@@ -368,7 +391,9 @@ export function AppSidebar() {
                               </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end" className="z-50 bg-popover">
-                              {conv.sim_user_id === currentUser?.id && (
+                              {(conv.sim_user_id === currentUser?.id || 
+                                (currentUserProfile?.wallet_address && 
+                                 conv.sim_creator_wallet === currentUserProfile.wallet_address)) && (
                                 <DropdownMenuItem
                                   className="cursor-pointer"
                                   onClick={(e) => {
