@@ -196,7 +196,7 @@ const TradeStream = () => {
                 <AvatarFallback>🎭</AvatarFallback>
               </Avatar>
               <div>
-                <h2 className="text-2xl font-bold mb-1">{currentAdvisor?.name || "Loading..."}</h2>
+                <h2 className="text-2xl font-bold mb-1">Sim {currentAdvisor?.name || "Loading..."}</h2>
                 <p className="text-muted-foreground">
                   Commenting on new pump.fun tokens as they launch
                 </p>
@@ -295,7 +295,7 @@ const TradeStream = () => {
                       <AvatarImage src={nextAdvisor.avatar_url || undefined} />
                       <AvatarFallback>🎭</AvatarFallback>
                     </Avatar>
-                    <span className="font-semibold">{nextAdvisor.name}</span>
+                    <span className="font-semibold">Sim {nextAdvisor.name}</span>
                   </div>
                   <span className="text-sm text-muted-foreground ml-auto">
                     in {TOKENS_PER_SIM - tokensProcessedBySim} tokens
