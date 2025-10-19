@@ -279,12 +279,6 @@ const SimDirectory = () => {
                     </span>
                   )}
                 </div>
-                {sim.sim_type === 'historical' && sim.is_official && (
-                  <Badge variant="outline" className="text-[10px] px-1.5 py-0 border-primary text-primary">
-                    <Award className="h-3 w-3 mr-1" />
-                    Official
-                  </Badge>
-                )}
               </button>
             ))}
           </div>
