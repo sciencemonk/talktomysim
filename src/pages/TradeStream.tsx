@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, useMemo, memo } from "react";
+import { useEffect, useState, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { usePumpFunStream } from "@/hooks/usePumpFunStream";
 import { motion, AnimatePresence } from "framer-motion";
@@ -16,27 +16,6 @@ interface AdvisorData {
 const SIM_ROTATION = ['Rick Sanchez', 'Adolf Hitler', 'Pablo Escobar', 'Jesus Christ', 'Alon'];
 const TOKENS_PER_SIM = 10;
 
-const AdvisorHeader = memo(({ advisor }: { advisor: AdvisorData | undefined }) => {
-  if (!advisor) return null;
-  
-  return (
-    <>
-      <div className="flex items-center gap-4 mb-6">
-        <Avatar className="w-16 h-16">
-          <AvatarImage src={advisor.avatar_url || undefined} />
-          <AvatarFallback>🎭</AvatarFallback>
-        </Avatar>
-        <div>
-          <h2 className="text-2xl font-bold mb-1">Sim {advisor.name}</h2>
-          <p className="text-muted-foreground">
-            Commenting on new pump.fun tokens as they launch
-          </p>
-        </div>
-      </div>
-    </>
-  );
-});
-
 const TradeStream = () => {
   const [advisors, setAdvisors] = useState<AdvisorData[]>([]);
   const [currentSimIndex, setCurrentSimIndex] = useState(0);
@@ -48,12 +27,11 @@ const TradeStream = () => {
   const [currentTokenName, setCurrentTokenName] = useState<string>("");
   const [lastProcessedMint, setLastProcessedMint] = useState<string>("");
   const commentaryTimerRef = useRef<NodeJS.Timeout | null>(null);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
   
   const { latestToken, isConnected, newTokens } = usePumpFunStream(true);
 
-  const currentAdvisor = useMemo(() => advisors[currentSimIndex], [advisors, currentSimIndex]);
-  const nextAdvisor = useMemo(() => advisors[nextSimIndex], [advisors, nextSimIndex]);
+  const currentAdvisor = advisors[currentSimIndex];
+  const nextAdvisor = advisors[nextSimIndex];
 
   useEffect(() => {
     const fetchAdvisors = async () => {
@@ -160,22 +138,10 @@ const TradeStream = () => {
   }, [latestToken, lastProcessedMint, isGenerating, currentAdvisor]);
 
   useEffect(() => {
-    const playAudio = () => {
-      if (audioRef.current) {
-        audioRef.current.play().catch(error => {
-          console.log('Audio autoplay prevented:', error);
-        });
-      }
-      document.removeEventListener('click', playAudio);
-    };
-    
-    document.addEventListener('click', playAudio);
-    
     return () => {
       if (commentaryTimerRef.current) {
         clearTimeout(commentaryTimerRef.current);
       }
-      document.removeEventListener('click', playAudio);
     };
   }, []);
 
@@ -189,12 +155,6 @@ const TradeStream = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <audio 
-        ref={audioRef}
-        loop
-        src="https://kxsvyeirqimcydtkowga.supabase.co/storage/v1/object/public/music/simmusic.m4a"
-        className="hidden"
-      />
       {/* Compact Header */}
       <div className="border-b border-border/50 bg-background/80 backdrop-blur">
         <div className="container mx-auto px-4 py-3">
@@ -221,7 +181,18 @@ const TradeStream = () => {
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto">
           <div className="bg-card rounded-lg p-8 shadow-lg border">
-            <AdvisorHeader advisor={currentAdvisor} />
+            <div className="flex items-center gap-4 mb-6">
+              <Avatar className="w-16 h-16">
+                <AvatarImage src={currentAdvisor?.avatar_url || undefined} />
+                <AvatarFallback>🎭</AvatarFallback>
+              </Avatar>
+              <div>
+                <h2 className="text-2xl font-bold mb-1">Sim {currentAdvisor?.name || "Loading..."}</h2>
+                <p className="text-muted-foreground">
+                  Commenting on new pump.fun tokens as they launch
+                </p>
+              </div>
+            </div>
 
             <div className="flex items-center gap-2 mb-6">
               <div className={`w-3 h-3 rounded-full ${isConnected ? 'bg-green-500' : 'bg-red-500'} animate-pulse`} />
