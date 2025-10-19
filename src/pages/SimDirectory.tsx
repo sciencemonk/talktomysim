@@ -20,11 +20,15 @@ type SortType = 'popular' | 'newest' | 'name';
 
 const categories = [
   { id: 'all', label: 'All Categories', count: 0 },
-  { id: 'historical', label: 'Historical', count: 0 },
-  { id: 'crypto', label: 'Crypto', count: 0 },
-  { id: 'business', label: 'Business', count: 0 },
-  { id: 'philosophy', label: 'Philosophy', count: 0 },
+  { id: 'historical', label: 'Historical Figures', count: 0 },
+  { id: 'kol', label: 'KOLs & Influencers', count: 0 },
+  { id: 'crypto', label: 'Crypto & Web3', count: 0 },
+  { id: 'tokens', label: 'Token Agents', count: 0 },
+  { id: 'business', label: 'Business & Finance', count: 0 },
+  { id: 'coaching', label: 'Coaching & Mentoring', count: 0 },
   { id: 'entertainment', label: 'Entertainment', count: 0 },
+  { id: 'education', label: 'Education', count: 0 },
+  { id: 'lifestyle', label: 'Lifestyle', count: 0 },
   { id: 'erotic', label: 'Adult', count: 0 },
 ];
 
@@ -76,8 +80,10 @@ const SimDirectory = () => {
         isPersonal: false,
         voiceTraits: [],
         price: sim.price || 0,
-        category: sim.category || 'uncategorized',
-      } as AgentType));
+        // Admin-created sims (no user_id) default to 'historical' if no category set
+        category: sim.category || (!sim.user_id ? 'historical' : 'uncategorized'),
+        user_id: sim.user_id,
+      } as AgentType & { user_id?: string }));
     },
   });
 
@@ -150,12 +156,6 @@ const SimDirectory = () => {
       {/* Main Content */}
       <div className={`h-full p-8 ${isMobile ? 'pt-[73px]' : ''}`}>
         <div className="max-w-7xl mx-auto">
-          {/* Header */}
-          <div className="mb-8">
-            <h1 className="text-4xl font-bold mb-2">Sim Marketplace</h1>
-            <p className="text-muted-foreground">Discover and chat with AI Sims</p>
-          </div>
-
           {/* Search Bar */}
           <div className="mb-6">
             <div className="relative">
@@ -233,54 +233,65 @@ const SimDirectory = () => {
 
           {/* Sims Grid */}
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-            {filteredSims?.map((sim) => (
-              <button
-                key={sim.id}
-                onClick={() => handleSimClick(sim)}
-                className="group relative flex flex-col items-center gap-3 p-5 rounded-2xl bg-card hover:bg-muted border-2 hover:border-primary transition-all duration-300 hover:scale-105 hover:shadow-xl"
-              >
-                {/* Price Badge */}
-                {sim.price && sim.price > 0 ? (
-                  <Badge 
-                    variant="secondary" 
-                    className="absolute top-2 right-2 text-[10px] px-2 py-0.5 bg-primary text-primary-foreground"
-                  >
-                    <DollarSign className="h-3 w-3 mr-0.5" />
-                    {sim.price}
-                  </Badge>
-                ) : (
-                  <Badge 
-                    variant="secondary" 
-                    className="absolute top-2 right-2 text-[10px] px-2 py-0.5 bg-green-500 text-white"
-                  >
-                    Free
-                  </Badge>
-                )}
-
-                <div className="relative">
-                  <Avatar className="w-24 h-24 border-3 border-border shadow-lg group-hover:shadow-2xl transition-shadow">
-                    <AvatarImage
-                      src={getAvatarUrl(sim.avatar)} 
-                      alt={sim.name}
-                      className="object-cover"
-                    />
-                    <AvatarFallback className="bg-primary text-primary-foreground text-3xl font-bold">
-                      {sim.name?.charAt(0)?.toUpperCase() || 'S'}
-                    </AvatarFallback>
-                  </Avatar>
-                </div>
-                <div className="w-full text-center space-y-1">
-                  <span className="text-sm font-semibold line-clamp-2 leading-tight">
-                    {sim.name}
-                  </span>
-                  {sim.title && (
-                    <span className="text-xs text-muted-foreground line-clamp-1 block">
-                      {sim.title}
-                    </span>
+            {filteredSims?.map((sim) => {
+              const simCategory = (sim as any).category?.toLowerCase() || 'uncategorized';
+              const categoryLabel = categories.find(c => c.id === simCategory)?.label || simCategory;
+              
+              return (
+                <button
+                  key={sim.id}
+                  onClick={() => handleSimClick(sim)}
+                  className="group relative flex flex-col items-center gap-3 p-5 rounded-2xl bg-card hover:bg-muted border-2 hover:border-primary transition-all duration-300 hover:scale-105 hover:shadow-xl"
+                >
+                  {/* Price Badge */}
+                  {sim.price && sim.price > 0 ? (
+                    <Badge 
+                      variant="secondary" 
+                      className="absolute top-2 right-2 text-[10px] px-2 py-0.5 bg-primary text-primary-foreground"
+                    >
+                      <DollarSign className="h-3 w-3 mr-0.5" />
+                      {sim.price}
+                    </Badge>
+                  ) : (
+                    <Badge 
+                      variant="secondary" 
+                      className="absolute top-2 right-2 text-[10px] px-2 py-0.5 bg-green-500 text-white"
+                    >
+                      Free
+                    </Badge>
                   )}
-                </div>
-              </button>
-            ))}
+
+                  <div className="relative">
+                    <Avatar className="w-24 h-24 border-3 border-border shadow-lg group-hover:shadow-2xl transition-shadow">
+                      <AvatarImage
+                        src={getAvatarUrl(sim.avatar)} 
+                        alt={sim.name}
+                        className="object-cover"
+                      />
+                      <AvatarFallback className="bg-primary text-primary-foreground text-3xl font-bold">
+                        {sim.name?.charAt(0)?.toUpperCase() || 'S'}
+                      </AvatarFallback>
+                    </Avatar>
+                  </div>
+                  <div className="w-full text-center space-y-1">
+                    <span className="text-sm font-semibold line-clamp-2 leading-tight">
+                      {sim.name}
+                    </span>
+                    {sim.title && (
+                      <span className="text-xs text-muted-foreground line-clamp-1 block">
+                        {sim.title}
+                      </span>
+                    )}
+                    {/* Category Badge */}
+                    {simCategory !== 'uncategorized' && (
+                      <Badge variant="outline" className="text-[10px] px-2 py-0.5 mt-1">
+                        {categoryLabel}
+                      </Badge>
+                    )}
+                  </div>
+                </button>
+              );
+            })}
           </div>
 
           {filteredSims?.length === 0 && (
