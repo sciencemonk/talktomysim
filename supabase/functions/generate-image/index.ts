@@ -17,7 +17,7 @@ serve(async (req) => {
       throw new Error('OPENAI_API_KEY is not set');
     }
 
-    const { prompt, size = "1024x1024", quality = "auto" } = await req.json();
+    const { prompt, size = "1024x1024", quality = "standard" } = await req.json();
 
     if (!prompt) {
       return new Response(
@@ -38,11 +38,10 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-image-1',
+        model: 'dall-e-3',
         prompt,
         size,
         quality,
-        output_format: 'png',
         n: 1
       }),
     });
@@ -58,7 +57,7 @@ serve(async (req) => {
 
     return new Response(
       JSON.stringify({ 
-        image: data.data[0].b64_json,
+        image: data.data[0].url,
         revised_prompt: data.data[0].revised_prompt
       }),
       { 

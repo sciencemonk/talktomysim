@@ -166,7 +166,7 @@ const ChatInterface = ({ agent, onBack, hideHeader = false, transparentMode = fa
                             {hasImage && (
                               <div className="mt-4">
                                 <img 
-                                  src={`data:image/png;base64,${(message as any).image}`} 
+                                  src={(message as any).image}
                                   alt="Generated image"
                                   className="max-w-full rounded-lg shadow-lg"
                                 />
