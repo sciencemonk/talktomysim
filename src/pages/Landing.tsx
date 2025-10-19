@@ -298,20 +298,11 @@ const Landing = () => {
   ];
 
   return (
-    <div 
-      className="min-h-screen flex flex-col relative"
-      style={{
-        backgroundImage: `url(${landingBackground})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundAttachment: 'fixed'
-      }}
-    >
-      {/* Overlay for better readability */}
-      <div className="absolute inset-0 bg-black/40 z-0" />
+    <div className="min-h-screen flex flex-col relative bg-background">
+
       
       {/* Header */}
-      <header className="border-b border-white/20 backdrop-blur-md bg-black/20 sticky top-0 z-50 relative">
+      <header className="border-b border-border bg-transparent sticky top-0 z-50 relative">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <img 
@@ -321,9 +312,9 @@ const Landing = () => {
             />
           </div>
           {currentUser ? (
-            <Button
+          <Button
               onClick={handleSignOut}
-              className="bg-white text-black hover:bg-white/90 font-medium h-10 px-4"
+              className="font-medium h-10 px-4"
               size="sm"
             >
               <LogOut className="h-5 w-5 mr-2" />
@@ -334,7 +325,7 @@ const Landing = () => {
               <Button
                 onClick={() => handleWalletSignIn('phantom')}
                 disabled={!!isLoading}
-                className="bg-white text-black hover:bg-white/90 font-medium h-10 px-3 sm:px-4 gap-2"
+                className="font-medium h-10 px-3 sm:px-4 gap-2"
                 size="sm"
               >
                 <img src={phantomIcon} alt="Phantom" className="w-5 h-5" />
@@ -343,7 +334,7 @@ const Landing = () => {
               <Button
                 onClick={() => handleWalletSignIn('solflare')}
                 disabled={!!isLoading}
-                className="bg-white text-black hover:bg-white/90 font-medium h-10 px-3 sm:px-4 gap-2"
+                className="font-medium h-10 px-3 sm:px-4 gap-2"
                 size="sm"
               >
                 <img src={solflareIcon} alt="Solflare" className="w-5 h-5" />
@@ -361,23 +352,23 @@ const Landing = () => {
             {features.map((feature, index) => (
               <Card 
                 key={index}
-                className="group transition-all duration-300 hover:scale-[1.02] hover:shadow-xl border-2 border-white/20 bg-white/10 backdrop-blur-md cursor-pointer"
+                className="group transition-all duration-300 hover:scale-[1.02] hover:shadow-xl cursor-pointer"
                 onClick={feature.action}
               >
                 <CardHeader className="pb-3 p-4 sm:p-6">
-                  <CardTitle className="text-lg sm:text-xl font-bold text-white">
+                  <CardTitle className="text-lg sm:text-xl font-bold">
                     {feature.title}
                   </CardTitle>
-                  <CardDescription className="text-sm sm:text-base text-white/80">
+                  <CardDescription className="text-sm sm:text-base">
                     {feature.description}
                   </CardDescription>
                   
                   {feature.icon && (
                     <div className="mt-6 flex justify-center">
-                      {feature.icon === 'settings' && <Settings className="h-16 w-16 text-white/40" />}
-                      {feature.icon === 'grid' && <Grid className="h-16 w-16 text-white/40" />}
-                      {feature.icon === 'message' && <MessageSquare className="h-16 w-16 text-white/40" />}
-                      {feature.icon === 'history' && <History className="h-16 w-16 text-white/40" />}
+                      {feature.icon === 'settings' && <Settings className="h-16 w-16 text-muted-foreground" />}
+                      {feature.icon === 'grid' && <Grid className="h-16 w-16 text-muted-foreground" />}
+                      {feature.icon === 'message' && <MessageSquare className="h-16 w-16 text-muted-foreground" />}
+                      {feature.icon === 'history' && <History className="h-16 w-16 text-muted-foreground" />}
                     </div>
                   )}
                 </CardHeader>
@@ -393,50 +384,50 @@ const Landing = () => {
           {/* Search and Filters */}
           <div className="mb-6 space-y-4">
             <div className="relative">
-              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-white/60" />
+              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
               <Input
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search sims by name, title, or description..."
-                className="pl-12 h-12 text-base bg-white/10 border-white/20 text-white placeholder:text-white/50"
+                className="pl-12 h-12 text-base"
               />
             </div>
 
             {/* Filters */}
             <div className="flex flex-wrap gap-3 items-center">
               <Tabs value={priceFilter} onValueChange={(v) => setPriceFilter(v as any)}>
-                <TabsList className="bg-white/10 border-white/20">
-                  <TabsTrigger value="all" className="data-[state=active]:bg-white/20">All</TabsTrigger>
-                  <TabsTrigger value="free" className="gap-2 data-[state=active]:bg-white/20">
+                <TabsList>
+                  <TabsTrigger value="all">All</TabsTrigger>
+                  <TabsTrigger value="free" className="gap-2">
                     <Gift className="h-4 w-4" />
                     Free
                   </TabsTrigger>
-                  <TabsTrigger value="paid" className="gap-2 data-[state=active]:bg-white/20">
+                  <TabsTrigger value="paid" className="gap-2">
                     <DollarSign className="h-4 w-4" />
                     Paid
                   </TabsTrigger>
                 </TabsList>
               </Tabs>
 
-              <div className="h-8 w-px bg-white/20" />
+              <div className="h-8 w-px bg-border" />
 
               <Tabs value={sortBy} onValueChange={(v) => setSortBy(v as any)}>
-                <TabsList className="bg-white/10 border-white/20">
-                  <TabsTrigger value="popular" className="gap-2 data-[state=active]:bg-white/20">
+                <TabsList>
+                  <TabsTrigger value="popular" className="gap-2">
                     <TrendingUp className="h-4 w-4" />
                     Popular
                   </TabsTrigger>
-                  <TabsTrigger value="newest" className="data-[state=active]:bg-white/20">Newest</TabsTrigger>
-                  <TabsTrigger value="name" className="data-[state=active]:bg-white/20">A-Z</TabsTrigger>
+                  <TabsTrigger value="newest">Newest</TabsTrigger>
+                  <TabsTrigger value="name">A-Z</TabsTrigger>
                 </TabsList>
               </Tabs>
 
               {currentUser && (
                 <>
-                  <div className="h-8 w-px bg-white/20" />
+                  <div className="h-8 w-px bg-border" />
                   <Button
                     onClick={handleAddSim}
-                    className="bg-white text-black hover:bg-white/90 gap-2"
+                    className="gap-2"
                     size="sm"
                   >
                     <Plus className="h-4 w-4" />
@@ -454,7 +445,6 @@ const Landing = () => {
                   variant={selectedCategory === cat.id ? "default" : "outline"}
                   size="sm"
                   onClick={() => setSelectedCategory(cat.id)}
-                  className={selectedCategory === cat.id ? "bg-white text-black hover:bg-white/90" : "bg-white/10 border-white/20 text-white hover:bg-white/20"}
                 >
                   {cat.label}
                   <Badge variant="secondary" className="ml-2 px-1.5">
@@ -466,7 +456,7 @@ const Landing = () => {
           </div>
 
           {/* Results Count */}
-          <div className="mb-4 text-sm text-white/60">
+          <div className="mb-4 text-sm text-muted-foreground">
             {filteredSims?.length || 0} Sims found
           </div>
 
@@ -480,13 +470,13 @@ const Landing = () => {
                 <button
                   key={sim.id}
                   onClick={() => handleSimClick(sim)}
-                  className="group relative flex flex-col items-center gap-3 p-5 rounded-2xl bg-white/10 hover:bg-white/20 border-2 border-white/20 hover:border-white/40 transition-all duration-300 backdrop-blur-md hover:scale-105 hover:shadow-xl"
+                  className="group relative flex flex-col items-center gap-3 p-5 rounded-2xl bg-card hover:bg-muted border-2 hover:border-primary transition-all duration-300 hover:scale-105 hover:shadow-xl"
                 >
                   {/* Price Badge */}
                   {sim.price && sim.price > 0 ? (
                     <Badge 
                       variant="secondary" 
-                      className="absolute top-2 right-2 text-[10px] px-2 py-0.5 bg-white text-black"
+                      className="absolute top-2 right-2 text-[10px] px-2 py-0.5 bg-primary text-primary-foreground"
                     >
                       <DollarSign className="h-3 w-3 mr-0.5" />
                       {sim.price}
@@ -500,7 +490,7 @@ const Landing = () => {
                     </Badge>
                   )}
 
-                  <Avatar className="w-24 h-24 border-2 border-white/30 shadow-lg group-hover:shadow-2xl transition-shadow">
+                  <Avatar className="w-24 h-24 border-3 border-border shadow-lg group-hover:shadow-2xl transition-shadow">
                     <AvatarImage
                       src={getAvatarUrl(sim.avatar)} 
                       alt={sim.name}
@@ -512,17 +502,17 @@ const Landing = () => {
                   </Avatar>
                   
                   <div className="w-full text-center space-y-1">
-                    <span className="text-sm font-semibold text-white line-clamp-2 leading-tight">
+                    <span className="text-sm font-semibold line-clamp-2 leading-tight">
                       {sim.name}
                     </span>
                     {sim.title && (
-                      <span className="text-xs text-white/60 line-clamp-1 block">
+                      <span className="text-xs text-muted-foreground line-clamp-1 block">
                         {sim.title}
                       </span>
                     )}
                     {/* Category Badge */}
                     {simCategory !== 'uncategorized' && (
-                      <Badge variant="outline" className="text-[10px] px-2 py-0.5 mt-1 bg-white/10 border-white/30 text-white">
+                      <Badge variant="outline" className="text-[10px] px-2 py-0.5 mt-1">
                         {categoryLabel}
                       </Badge>
                     )}
@@ -533,9 +523,9 @@ const Landing = () => {
           </div>
 
           {filteredSims?.length === 0 && (
-            <Card className="p-12 text-center bg-white/10 border-white/20">
-              <p className="text-white text-lg mb-2">No sims found</p>
-              <p className="text-sm text-white/60">Try adjusting your filters or search query</p>
+            <Card className="p-12 text-center">
+              <p className="text-lg mb-2">No sims found</p>
+              <p className="text-sm text-muted-foreground">Try adjusting your filters or search query</p>
             </Card>
           )}
         </div>
