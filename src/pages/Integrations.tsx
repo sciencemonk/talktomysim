@@ -299,6 +299,32 @@ const Integrations = () => {
               </CardContent>
             </Card>
 
+            {/* GetImg.ai Image Generation Integration */}
+            <Card className="group hover:shadow-lg transition-all duration-300 border-2 border-pink-500/20 bg-gradient-to-br from-pink-500/5 to-transparent">
+              <CardHeader>
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-green-500/10 border border-green-500/20 w-fit">
+                    <CheckCircle2 className="h-4 w-4 text-green-600" />
+                    <span className="text-xs font-medium text-green-600">Connected</span>
+                  </div>
+                  <div>
+                    <CardTitle className="text-xl mb-2 flex items-center gap-2">
+                      <span className="text-2xl">🎨</span>
+                      GetImg.ai
+                    </CardTitle>
+                    <CardDescription>
+                      AI Image Generation
+                    </CardDescription>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground">
+                  Create stunning AI-generated images from text prompts using advanced Stable Diffusion models powered by GetImg.ai
+                </p>
+              </CardContent>
+            </Card>
+
             {/* Placeholder for future integrations */}
             <Card className="group relative overflow-hidden border-2 border-dashed hover:border-primary/50 transition-all duration-300">
               <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
