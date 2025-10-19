@@ -487,7 +487,7 @@ Stay true to the tone, values, and personality of [Name].`,
                       </Button>
                       <Button 
                         size="sm"
-                        onClick={() => window.open(`/sim/${userSim.custom_url}`, '_blank')}
+                        onClick={() => window.open(`/${userSim.custom_url}`, '_blank')}
                         className="gap-2 flex-1 sm:flex-none"
                       >
                         <ExternalLink className="h-4 w-4" />

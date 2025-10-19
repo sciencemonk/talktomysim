@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery } from '@tanstack/react-query';
 import { Card } from '@/components/ui/card';
@@ -12,10 +11,12 @@ import { SidebarTrigger } from '@/components/ui/sidebar';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useAuth } from '@/hooks/useAuth';
 import { getAvatarUrl } from '@/lib/avatarUtils';
+import SimDetailModal from '@/components/SimDetailModal';
 
 const SimDirectory = () => {
-  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedSim, setSelectedSim] = useState<AgentType | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const isMobile = useIsMobile();
   const { user } = useAuth();
 
@@ -67,8 +68,8 @@ const SimDirectory = () => {
   );
 
   const handleSimClick = (sim: AgentType) => {
-    // Navigate to sim detail page within authenticated layout
-    navigate(`/sim/${sim.id}`);
+    setSelectedSim(sim);
+    setIsModalOpen(true);
   };
 
   return (
@@ -149,6 +150,13 @@ const SimDirectory = () => {
           )}
         </div>
       </div>
+
+      {/* Sim Detail Modal */}
+      <SimDetailModal
+        sim={selectedSim}
+        open={isModalOpen}
+        onOpenChange={setIsModalOpen}
+      />
     </div>
   );
 };
