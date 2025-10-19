@@ -58,7 +58,12 @@ const TradeStream = () => {
   }, []);
 
   const generateCommentary = async (tokenName: string, tokenSymbol: string) => {
-    if (isGenerating || !currentAdvisor) return;
+    if (isGenerating || !currentAdvisor) {
+      console.log('[TradeStream] Skipping generation:', { isGenerating, hasAdvisor: !!currentAdvisor });
+      return;
+    }
+    
+    console.log('[TradeStream] Starting commentary generation for:', tokenName, tokenSymbol, 'with advisor:', currentAdvisor.name);
     
     // Clear previous commentary when starting new generation
     setCommentary("");
@@ -75,8 +80,12 @@ const TradeStream = () => {
         }
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('[TradeStream] Error from edge function:', error);
+        throw error;
+      }
       
+      console.log('[TradeStream] Commentary received:', data.commentary);
       setCommentary(data.commentary);
       
       // Clear any existing timer
@@ -100,19 +109,31 @@ const TradeStream = () => {
       }, 10000);
       
     } catch (error) {
-      console.error('Error generating commentary:', error);
+      console.error('[TradeStream] Error generating commentary:', error);
+      // On error, still increment to avoid getting stuck
+      setProcessedTokenIndex(prev => prev + 1);
     } finally {
       setIsGenerating(false);
+      console.log('[TradeStream] Finished generation, isGenerating set to false');
     }
   };
 
   useEffect(() => {
-    if (newTokens.length > processedTokenIndex && !isGenerating) {
+    console.log('[TradeStream] Token processing check:', {
+      newTokensLength: newTokens.length,
+      processedTokenIndex,
+      isGenerating,
+      hasNextToken: newTokens.length > processedTokenIndex,
+      canProcess: newTokens.length > processedTokenIndex && !isGenerating && currentAdvisor
+    });
+    
+    if (newTokens.length > processedTokenIndex && !isGenerating && currentAdvisor) {
       const nextToken = newTokens[processedTokenIndex];
+      console.log('[TradeStream] Processing token:', nextToken.name, nextToken.symbol);
       generateCommentary(nextToken.name, nextToken.symbol);
       setProcessedTokenIndex(prev => prev + 1);
     }
-  }, [newTokens, processedTokenIndex, isGenerating]);
+  }, [newTokens, processedTokenIndex, isGenerating, currentAdvisor]);
 
   useEffect(() => {
     return () => {
