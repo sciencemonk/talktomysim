@@ -111,18 +111,8 @@ const SimDetailModal = ({ sim, open, onOpenChange }: SimDetailModalProps) => {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-xl p-0 overflow-hidden bg-gradient-to-br from-primary/20 via-background to-secondary/20 border-2">
-        <div className="backdrop-blur-xl bg-card/50 rounded-lg p-8 sm:p-12">
-          {/* Close Button */}
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => onOpenChange(false)}
-            className="absolute right-4 top-4 z-10"
-          >
-            <X className="h-4 w-4" />
-          </Button>
-
+      <DialogContent className="max-w-xl p-0 overflow-hidden bg-gradient-to-br from-primary/20 via-background to-secondary/20 border-2 [&>button]:hidden">
+        <div className="backdrop-blur-xl bg-card/50 rounded-lg p-8 sm:p-12 relative">
           {/* Avatar */}
           <div className="flex justify-center mb-6">
             <div className="relative">
@@ -186,6 +176,15 @@ const SimDetailModal = ({ sim, open, onOpenChange }: SimDetailModalProps) => {
                 Share Sim
               </>
             )}
+          </Button>
+
+          {/* Close Button */}
+          <Button
+            variant="outline"
+            className="w-full h-10 text-sm font-medium"
+            onClick={() => onOpenChange(false)}
+          >
+            Close
           </Button>
 
           {/* Social Links & Wallet */}
