@@ -436,7 +436,7 @@ export function AppSidebar() {
                 setShowCreateSimModal(true);
               }
             }}
-            className="w-full justify-start gap-2 rainbow-shimmer hover:opacity-90"
+            className="w-full justify-start gap-2 bg-black text-white hover:bg-black/90 dark:bg-white dark:text-black dark:hover:bg-white/90"
           >
             <Plus className="h-4 w-4" />
             {open && <span>Create a Sim</span>}
