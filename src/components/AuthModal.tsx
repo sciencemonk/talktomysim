@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { supabase } from '@/integrations/supabase/client';
@@ -18,6 +18,67 @@ interface AuthModalProps {
 const AuthModal = ({ open, onOpenChange, defaultMode = 'signup' }: AuthModalProps) => {
   const [isLoading, setIsLoading] = useState<string | null>(null);
 
+  // Check if returning from mobile wallet app
+  useEffect(() => {
+    const attemptingWallet = sessionStorage.getItem('attempting_wallet_connection');
+    if (attemptingWallet && open) {
+      const walletType = attemptingWallet as 'phantom' | 'solflare';
+      sessionStorage.removeItem('attempting_wallet_connection');
+      
+      // Give the wallet app time to inject its provider
+      setTimeout(() => {
+        attemptWalletConnection(walletType);
+      }, 500);
+    }
+  }, [open]);
+
+  const attemptWalletConnection = async (walletType: 'phantom' | 'solflare') => {
+    setIsLoading(walletType);
+    try {
+      const wallet = walletType === 'phantom' 
+        ? (window as any).solana 
+        : (window as any).solflare;
+
+      if (!wallet) {
+        toast.error(`${walletType === 'phantom' ? 'Phantom' : 'Solflare'} wallet not detected. Please make sure the app is installed.`);
+        setIsLoading(null);
+        return;
+      }
+
+      // Connect to wallet
+      await wallet.connect();
+      
+      const publicKey = wallet.publicKey.toString();
+      const message = `Sign in to Sim\n\nWallet: ${publicKey}\nTimestamp: ${new Date().toISOString()}`;
+      const encodedMessage = new TextEncoder().encode(message);
+      
+      const signedMessage = await wallet.signMessage(encodedMessage, 'utf8');
+      const signature = bs58.encode(signedMessage.signature);
+
+      const { data, error } = await supabase.functions.invoke('solana-auth', {
+        body: { publicKey, signature, message }
+      });
+
+      if (error) throw error;
+      
+      if (data?.access_token && data?.refresh_token) {
+        await supabase.auth.setSession({
+          access_token: data.access_token,
+          refresh_token: data.refresh_token,
+        });
+        
+        toast.success('Connected successfully!');
+        onOpenChange(false);
+        window.location.href = '/directory';
+      }
+    } catch (error: any) {
+      console.error('Error connecting wallet:', error);
+      toast.error(error?.message || 'Failed to connect wallet');
+    } finally {
+      setIsLoading(null);
+    }
+  };
+
   const handleWalletSignIn = async (walletType: 'phantom' | 'solflare') => {
     setIsLoading(walletType);
     try {
@@ -30,18 +91,21 @@ const AuthModal = ({ open, onOpenChange, defaultMode = 'signup' }: AuthModalProp
       if (walletType === 'phantom') {
         wallet = (window as any).solana;
         
-        // If on mobile, always try deep link first
-        if (isMobile) {
-          const currentUrl = window.location.href;
+        // If on mobile, use deep link to open wallet app
+        if (isMobile && !wallet?.isPhantom) {
+          sessionStorage.setItem('attempting_wallet_connection', walletType);
+          const currentUrl = window.location.href.split('?')[0]; // Remove any existing query params
           const deepLink = `https://phantom.app/ul/browse/${encodeURIComponent(currentUrl)}?ref=${encodeURIComponent(window.location.origin)}`;
-          toast.info('Opening Phantom app...');
+          toast.info('Opening Phantom app...', {
+            description: 'Approve the connection and return to this page'
+          });
           window.location.href = deepLink;
           setIsLoading(null);
           return;
         }
         
         if (!wallet?.isPhantom) {
-          toast.error('Please install Phantom wallet extension', {
+          toast.error('Please install Phantom wallet', {
             description: 'Visit phantom.app to install'
           });
           setIsLoading(null);
@@ -50,18 +114,21 @@ const AuthModal = ({ open, onOpenChange, defaultMode = 'signup' }: AuthModalProp
       } else {
         wallet = (window as any).solflare;
         
-        // If on mobile, always try deep link first
-        if (isMobile) {
-          const currentUrl = window.location.href;
+        // If on mobile, use deep link to open wallet app
+        if (isMobile && !wallet) {
+          sessionStorage.setItem('attempting_wallet_connection', walletType);
+          const currentUrl = window.location.href.split('?')[0]; // Remove any existing query params
           const deepLink = `https://solflare.com/ul/v1/browse/${encodeURIComponent(currentUrl)}`;
-          toast.info('Opening Solflare app...');
+          toast.info('Opening Solflare app...', {
+            description: 'Approve the connection and return to this page'
+          });
           window.location.href = deepLink;
           setIsLoading(null);
           return;
         }
         
         if (!wallet) {
-          toast.error('Please install Solflare wallet extension', {
+          toast.error('Please install Solflare wallet', {
             description: 'Visit solflare.com to install'
           });
           setIsLoading(null);
