@@ -198,34 +198,30 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess }: CreateSimModal
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="text-2xl font-semibold">Create New Sim</DialogTitle>
-          <DialogDescription className="text-sm text-muted-foreground">
-            Build an AI sim with custom knowledge, personality, and integrations
-          </DialogDescription>
-        </DialogHeader>
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto p-0">
+        <form onSubmit={handleSubmit} className="space-y-8 p-8">
+          <div className="space-y-2">
+            <h2 className="text-2xl font-semibold tracking-tight">Create New Sim</h2>
+            <p className="text-sm text-muted-foreground">
+              Build an AI sim with custom knowledge, personality, and integrations
+            </p>
+          </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6 mt-4">
           {/* Sim Identity */}
-          <div className="space-y-4">
-            <div className="flex items-center gap-2">
-              <div className="w-1 h-5 bg-primary rounded-full" />
-              <h3 className="text-base font-semibold">Sim Identity</h3>
-            </div>
+          <div className="space-y-6">
+            <h3 className="text-sm font-medium text-foreground/80">Identity</h3>
             
-            <div className="flex gap-6 items-start">
-              <div className="flex-shrink-0">
-                <Label className="text-sm font-medium mb-2 block">Avatar</Label>
+            <div className="flex gap-8 items-start">
+              <div className="flex flex-col items-center gap-3">
                 <Avatar 
-                  className="w-28 h-28 cursor-pointer border-2 border-border hover:border-primary transition-colors" 
+                  className="w-24 h-24 cursor-pointer border border-border/50 hover:border-border transition-colors" 
                   onClick={() => fileInputRef.current?.click()}
                 >
                   {avatarPreview ? (
                     <AvatarImage src={avatarPreview} alt="Avatar preview" className="object-cover" />
                   ) : (
-                    <AvatarFallback className="bg-muted">
-                      <Upload className="w-8 h-8 text-muted-foreground" />
+                    <AvatarFallback className="bg-muted/50">
+                      <Upload className="w-6 h-6 text-muted-foreground/50" />
                     </AvatarFallback>
                   )}
                 </Avatar>
@@ -238,49 +234,41 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess }: CreateSimModal
                 />
                 <Button
                   type="button"
-                  variant="outline"
+                  variant="ghost"
                   size="sm"
                   onClick={() => fileInputRef.current?.click()}
-                  className="mt-2 w-28 text-sm"
+                  className="text-xs h-8 px-4"
                 >
                   Upload
                 </Button>
               </div>
 
-              <div className="flex-1 space-y-2">
-                <div>
+              <div className="flex-1 space-y-4">
+                <div className="space-y-2">
                   <Label htmlFor="name" className="text-sm font-medium">
-                    Sim Name <span className="text-destructive">*</span>
+                    Name <span className="text-destructive">*</span>
                   </Label>
-                  <p className="text-xs text-muted-foreground mb-2">(What users will call your sim)</p>
                   <Input
                     id="name"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    placeholder="e.g., Marcus the Sales Advisor, Dr. Code, Legal Eagle"
+                    placeholder="e.g., Marcus, Dr. Code, Legal Eagle"
                     required
-                    className="h-10"
+                    className="h-11"
                   />
                 </div>
               </div>
             </div>
           </div>
 
-
-          {/* Category & Positioning */}
+          {/* Category */}
           <div className="space-y-4">
-            <div className="flex items-center gap-2">
-              <div className="w-1 h-5 bg-primary rounded-full" />
-              <h3 className="text-base font-semibold">Category & Positioning</h3>
-            </div>
+            <h3 className="text-sm font-medium text-foreground/80">Category</h3>
             
             <div className="space-y-2">
-              <Label htmlFor="category" className="text-sm font-medium">
-                Primary Category <span className="text-destructive">*</span>
-              </Label>
               <Select value={category} onValueChange={setCategory} required>
-                <SelectTrigger className="h-10">
-                  <SelectValue placeholder="Select your agent's primary domain" />
+                <SelectTrigger className="h-11">
+                  <SelectValue placeholder="Select category" />
                 </SelectTrigger>
                 <SelectContent className="bg-background z-50">
                   {categories.map((cat) => (
@@ -290,37 +278,22 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess }: CreateSimModal
                   ))}
                 </SelectContent>
               </Select>
-              <p className="text-xs text-muted-foreground">
-                Helps users discover your agent and optimizes AI behavior
-              </p>
             </div>
           </div>
 
           {/* Intelligence & Behavior */}
           <div className="space-y-4">
-            <div className="flex items-center gap-2">
-              <div className="w-1 h-5 bg-primary rounded-full" />
-              <h3 className="text-base font-semibold">Intelligence & Behavior</h3>
-            </div>
-
-            <div className="space-y-3 p-4 rounded-lg bg-muted/50 border">
-              <p className="text-sm font-medium">💡 Build an effective sim by defining:</p>
-              <ul className="text-xs text-muted-foreground space-y-1 ml-4">
-                <li>• Clear expertise and what problems it solves</li>
-                <li>• Unique personality and communication style</li>
-                <li>• Specific actions it can take for users</li>
-              </ul>
-            </div>
+            <h3 className="text-sm font-medium text-foreground/80">Behavior</h3>
             
             <div className="space-y-2">
               <Label htmlFor="description" className="text-sm font-medium">
-                Sim Description
+                Description
               </Label>
               <Textarea
                 id="description"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                placeholder="Example: An expert marketing strategist who analyzes campaigns, suggests improvements, and creates data-driven strategies. Specializes in social media growth and conversion optimization."
+                placeholder="Describe your sim's expertise, personality, and how it helps users..."
                 rows={3}
                 className="resize-none"
               />
@@ -328,11 +301,11 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess }: CreateSimModal
 
             <Button
               type="button"
-              variant="secondary"
+              variant="outline"
               size="default"
               onClick={handleGeneratePrompt}
               disabled={isGenerating || !description.trim() || !category}
-              className="gap-2 w-full"
+              className="gap-2 w-full h-11"
             >
               {isGenerating ? (
                 <>
@@ -342,7 +315,7 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess }: CreateSimModal
               ) : (
                 <>
                   <Sparkles className="w-4 h-4" />
-                  Auto-Generate System Prompt
+                  Generate System Prompt
                 </>
               )}
             </Button>
@@ -351,38 +324,32 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess }: CreateSimModal
               <Label htmlFor="systemPrompt" className="text-sm font-medium">
                 System Prompt <span className="text-destructive">*</span>
               </Label>
-              <p className="text-xs text-muted-foreground">
-                The core instructions that define your sim's behavior and personality
-              </p>
               <Textarea
                 id="systemPrompt"
                 value={systemPrompt}
                 onChange={(e) => setSystemPrompt(e.target.value)}
-                placeholder="You are a highly skilled marketing strategist with 15 years of experience...&#10;&#10;Your expertise includes:&#10;- Campaign optimization&#10;- Data analysis&#10;- Social media growth&#10;&#10;Your communication style is professional yet friendly..."
-                rows={10}
+                placeholder="You are an expert in..."
+                rows={8}
                 required
-                className="resize-none font-mono text-sm"
+                className="resize-none text-sm font-mono"
               />
             </div>
           </div>
 
           {/* Integrations */}
           <div className="space-y-4">
-            <div className="flex items-center gap-2">
-              <div className="w-1 h-5 bg-primary rounded-full" />
-              <div>
-                <h3 className="text-base font-semibold">Integrations (Optional)</h3>
-                <p className="text-xs text-muted-foreground">
-                  Add capabilities beyond basic chat
-                </p>
-              </div>
+            <div>
+              <h3 className="text-sm font-medium text-foreground/80">Integrations</h3>
+              <p className="text-xs text-muted-foreground mt-1">
+                Optional capabilities beyond basic chat
+              </p>
             </div>
 
             <div className="space-y-2">
               {availableIntegrations.map((integration) => (
                 <div
                   key={integration.id}
-                  className="flex items-start gap-3 p-3 rounded-lg border hover:border-primary/50 transition-colors"
+                  className="flex items-start gap-3 p-4 rounded-lg border border-border/50 hover:border-border transition-colors"
                 >
                   <Checkbox
                     id={integration.id}
@@ -406,29 +373,21 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess }: CreateSimModal
             </div>
           </div>
 
-          {/* Monetization Notice */}
-          <div className="p-3 rounded-lg border bg-muted/50">
-            <p className="text-sm">
-              💎 <span className="font-medium">Monetize your sim with $SIMAI</span>
-              <span className="text-muted-foreground ml-1">— Coming Soon</span>
-            </p>
-          </div>
-
           {/* Submit Buttons */}
-          <div className="flex gap-3 pt-4 border-t">
+          <div className="flex gap-3 pt-6">
             <Button
               type="button"
               variant="outline"
               onClick={() => onOpenChange(false)}
               disabled={isSubmitting}
-              className="flex-1"
+              className="flex-1 h-11"
             >
               Cancel
             </Button>
             <Button
               type="submit"
               disabled={isSubmitting || !name.trim() || !category || !systemPrompt.trim()}
-              className="flex-1 gap-2"
+              className="flex-1 h-11 gap-2"
             >
                {isSubmitting ? (
                 <>
