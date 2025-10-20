@@ -548,50 +548,10 @@ export function AppSidebar() {
                               </DropdownMenuItem>
                               <DropdownMenuItem
                                 className="cursor-pointer"
-                                onClick={async (e) => {
+                                onClick={(e) => {
                                   e.stopPropagation();
-                                  try {
-                                    // First, get all conversation IDs for this sim and user
-                                    const { data: conversations } = await supabase
-                                      .from('conversations')
-                                      .select('id')
-                                      .eq('tutor_id', conv.sim_id)
-                                      .eq('user_id', currentUser?.id);
-                                    
-                                    if (conversations && conversations.length > 0) {
-                                      const conversationIds = conversations.map(c => c.id);
-                                      
-                                      // Delete all messages for these conversations
-                                      const { error: messagesError } = await supabase
-                                        .from('messages')
-                                        .delete()
-                                        .in('conversation_id', conversationIds);
-                                      
-                                      if (messagesError) {
-                                        console.error('Error deleting messages:', messagesError);
-                                      }
-                                      
-                                      // Then delete the conversations
-                                      const { error: conversationsError } = await supabase
-                                        .from('conversations')
-                                        .delete()
-                                        .in('id', conversationIds);
-                                      
-                                      if (conversationsError) throw conversationsError;
-                                    }
-                                    
-                                    // Invalidate queries to refresh the UI
-                                    await queryClient.invalidateQueries({ queryKey: ['my-sim-conversations'] });
-                                    
-                                    // Navigate with forceNew flag to trigger fresh conversation
-                                    navigate(`/home?sim=${conv.sim_id}&new=true`);
-                                    closeSidebar();
-                                    
-                                    toast.success('Conversation restarted!');
-                                  } catch (error) {
-                                    console.error('Error restarting conversation:', error);
-                                    toast.error('Failed to restart conversation');
-                                  }
+                                  navigate(`/home?sim=${conv.sim_id}&new=true`);
+                                  closeSidebar();
                                 }}
                               >
                                 <RotateCcw className="h-4 w-4 mr-2" />
