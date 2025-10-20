@@ -130,6 +130,7 @@ export type Database = {
           description: string | null
           education: string | null
           expertise_areas: string | null
+          full_description: string | null
           full_name: string | null
           id: string
           integrations: Json | null
@@ -178,6 +179,7 @@ export type Database = {
           description?: string | null
           education?: string | null
           expertise_areas?: string | null
+          full_description?: string | null
           full_name?: string | null
           id?: string
           integrations?: Json | null
@@ -226,6 +228,7 @@ export type Database = {
           description?: string | null
           education?: string | null
           expertise_areas?: string | null
+          full_description?: string | null
           full_name?: string | null
           id?: string
           integrations?: Json | null
