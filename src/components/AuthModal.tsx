@@ -26,13 +26,21 @@ const AuthModal = ({ open, onOpenChange, defaultMode = 'signup' }: AuthModalProp
     setIsLoading(walletType);
     
     try {
-      // For mobile, redirect to wallet's in-app browser
-      if (isMobile()) {
+      // Check if wallet provider is available
+      let wallet;
+      
+      if (walletType === 'phantom') {
+        wallet = (window as any).solana;
+      } else {
+        wallet = (window as any).solflare;
+      }
+
+      // If mobile and wallet not available, redirect to wallet's in-app browser
+      if (isMobile() && !wallet) {
         const currentUrl = window.location.href.split('?')[0]; // Clean URL
         const redirectUrl = `${currentUrl}?wallet=${walletType}&autoconnect=true`;
         
         if (walletType === 'phantom') {
-          // Open our site in Phantom's in-app browser
           const deepLink = `https://phantom.app/ul/browse/${encodeURIComponent(redirectUrl)}?ref=${encodeURIComponent(window.location.origin)}`;
           
           toast.info('Opening in Phantom...', {
@@ -42,7 +50,6 @@ const AuthModal = ({ open, onOpenChange, defaultMode = 'signup' }: AuthModalProp
           window.location.href = deepLink;
           return;
         } else {
-          // Open our site in Solflare's in-app browser
           const deepLink = `https://solflare.com/ul/v1/browse/${encodeURIComponent(redirectUrl)}?ref=${encodeURIComponent(window.location.origin)}`;
           
           toast.info('Opening in Solflare...', {
@@ -54,29 +61,25 @@ const AuthModal = ({ open, onOpenChange, defaultMode = 'signup' }: AuthModalProp
         }
       }
 
-      // Desktop wallet connection
-      let wallet;
+      // Wallet connection (desktop or already in wallet browser)
+      if (!wallet) {
+        toast.error(`${walletType === 'phantom' ? 'Phantom' : 'Solflare'} wallet not found`, {
+          description: isMobile() 
+            ? 'Please open this site from within the wallet app' 
+            : `Please install the ${walletType === 'phantom' ? 'Phantom' : 'Solflare'} browser extension`
+        });
+        setIsLoading(null);
+        return;
+      }
       
-      if (walletType === 'phantom') {
-        wallet = (window as any).solana;
-        
-        if (!wallet?.isPhantom) {
-          toast.error('Phantom wallet not found', {
-            description: 'Please install the Phantom browser extension'
-          });
-          setIsLoading(null);
-          return;
-        }
-      } else {
-        wallet = (window as any).solflare;
-        
-        if (!wallet) {
-          toast.error('Solflare wallet not found', {
-            description: 'Please install the Solflare browser extension'
-          });
-          setIsLoading(null);
-          return;
-        }
+      if (walletType === 'phantom' && !wallet?.isPhantom) {
+        toast.error('Phantom wallet not found', {
+          description: isMobile() 
+            ? 'Please open this site from within the Phantom app' 
+            : 'Please install the Phantom browser extension'
+        });
+        setIsLoading(null);
+        return;
       }
 
       // Connect to wallet
