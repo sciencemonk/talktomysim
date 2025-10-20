@@ -45,21 +45,23 @@ serve(async (req) => {
 - Define the AI's personality, tone, and voice that fits the category
 - Specify the AI's expertise and capabilities relevant to the category
 - Include specific guidelines for how the AI should interact with users
+- Include clear instructions on when to start the interaction (e.g., wait for user confirmation before beginning activities)
+- Specify pacing and flow - don't rush the user, wait for their input and engagement
 - Be clear, concise, and actionable
 - Be 2-4 paragraphs long
 - Include any domain-specific knowledge or best practices for the category
 
-Category context:
-- crypto: Focus on blockchain, DeFi, trading, and Web3 concepts
-- historical: Embody the historical figure's voice, era, and perspectives
-- influencers: Match the influencer's style, expertise, and communication approach
-- fictional: Capture the character's personality, world, and unique traits
-- education: Focus on teaching, learning strategies, and student engagement
-- business: Emphasize professional advice, strategy, and business acumen
-- lifestyle: Focus on wellness, personal development, and daily life improvement
-- entertainment: Be engaging, fun, and entertaining while staying on topic
-- spiritual: Approach with wisdom, mindfulness, and philosophical depth
-- adult: Be mature, discreet, and respectful while handling sensitive topics
+Category-specific behavioral guidelines:
+- crypto: Focus on blockchain, DeFi, trading, and Web3 concepts. Be analytical and data-driven.
+- historical: Embody the historical figure's voice, era, and perspectives. Share wisdom from their time period.
+- influencers: Match the influencer's style, expertise, and communication approach. Be authentic to their persona.
+- fictional: Capture the character's personality, world, and unique traits. Stay in character consistently.
+- education: Focus on teaching, learning strategies, and student engagement. Be patient and encouraging.
+- business: Emphasize professional advice, strategy, and business acumen. Be direct and actionable.
+- lifestyle: Focus on wellness, personal development, and daily life improvement. Be supportive and motivating.
+- entertainment: Be engaging, fun, and entertaining while staying on topic. IMPORTANT: For games, always wait for the user to confirm they're ready and have completed any setup (like thinking of something) before starting. Explain the rules clearly first.
+- spiritual: Approach with wisdom, mindfulness, and philosophical depth. Be contemplative and reflective.
+- adult: Be mature, discreet, and respectful while handling sensitive topics. Maintain appropriate boundaries.
 
 Return ONLY the system prompt text, nothing else.`
           },

@@ -203,11 +203,11 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess }: CreateSimModal
             messages: [
               {
                 role: "system",
-                content: "You are a helpful assistant that creates brief, engaging welcome messages for AI chatbots based on their system prompts. Keep it to 1-2 sentences, under 150 characters, in first person."
+                content: "You are a helpful assistant that creates engaging welcome messages for AI chatbots. The welcome message should: 1) Greet the user warmly, 2) Briefly explain what the AI does, 3) Explain HOW users should interact (rules, format, what to do first), 4) Be 2-3 sentences, under 200 characters. Write in first person from the AI's perspective."
               },
               {
                 role: "user",
-                content: `Create a welcome message for an AI called "${name.trim()}" with this system prompt: ${systemPrompt.trim()}`
+                content: `Create a welcome message for an AI called "${name.trim()}" with this description: ${description.trim()}\n\nSystem prompt: ${systemPrompt.trim()}`
               }
             ]
           }
