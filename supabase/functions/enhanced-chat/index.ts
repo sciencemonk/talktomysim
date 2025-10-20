@@ -311,10 +311,6 @@ ${agent.learningObjective ? `Educational Focus: ${agent.learningObjective}` : ''
     }
 
     console.log('System prompt length:', systemPrompt.length);
-    console.log('Is creator mode:', isCreator);
-    if (isCreator) {
-      console.log('Creator context preview:', systemPrompt.substring(0, 300));
-    }
 
     // Define tools available to the AI
     const tools = [
@@ -585,8 +581,8 @@ ${agent.learningObjective ? `Educational Focus: ${agent.learningObjective}` : ''
           .single();
 
         if (advisor?.user_id) {
-          // Determine usage type based on who's chatting
-          const usageType = isCreator ? 'owner_chat' : 'public_chat';
+          // Deduct credit for public chat
+          const usageType = 'public_chat';
           
           // Deduct credit using the database function
           const { data: creditResult, error: creditError } = await supabase
