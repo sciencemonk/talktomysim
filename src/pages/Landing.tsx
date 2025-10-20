@@ -363,9 +363,10 @@ const Landing = () => {
                   onClick={() => setSelectedCategory(cat.id)}
                   className={`gap-1.5 h-8 text-xs sm:h-10 sm:text-sm sm:gap-2 ${
                     selectedCategory === cat.id 
-                      ? 'bg-black text-white border-black hover:bg-black/90' 
+                      ? 'border-[#83f1aa] hover:bg-[#83f1aa]/90' 
                       : ''
                   }`}
+                  style={selectedCategory === cat.id ? { backgroundColor: '#83f1aa', color: '#000' } : {}}
                 >
                   <span className="whitespace-nowrap">{cat.label}</span>
                   <Badge 
