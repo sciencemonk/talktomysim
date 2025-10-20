@@ -198,35 +198,34 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess }: CreateSimModal
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-gradient-to-br from-background via-background to-muted/20">
-        <DialogHeader className="space-y-3 pb-6 border-b border-border/50">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center">
-              <Sparkles className="w-5 h-5 text-primary-foreground" />
-            </div>
-          </div>
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="text-2xl font-semibold">Create New Sim</DialogTitle>
+          <DialogDescription className="text-sm text-muted-foreground">
+            Build an AI sim with custom knowledge, personality, and integrations
+          </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-8 mt-6">
-          {/* Basic Identity */}
-          <div className="space-y-4 p-6 rounded-xl border border-border/50 bg-card/30 backdrop-blur-sm">
-            <div className="flex items-center gap-2 mb-2">
-              <div className="w-1 h-6 bg-primary rounded-full" />
-              <h3 className="text-lg font-semibold">Sim Identity</h3>
+        <form onSubmit={handleSubmit} className="space-y-6 mt-4">
+          {/* Sim Identity */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-2">
+              <div className="w-1 h-5 bg-primary rounded-full" />
+              <h3 className="text-base font-semibold">Sim Identity</h3>
             </div>
             
-            <div className="flex gap-4 items-start">
+            <div className="flex gap-6 items-start">
               <div className="flex-shrink-0">
-                <Label className="text-sm font-semibold mb-2 block">Avatar</Label>
+                <Label className="text-sm font-medium mb-2 block">Avatar</Label>
                 <Avatar 
-                  className="w-24 h-24 cursor-pointer ring-2 ring-border hover:ring-primary transition-all shadow-lg" 
+                  className="w-28 h-28 cursor-pointer border-2 border-border hover:border-primary transition-colors" 
                   onClick={() => fileInputRef.current?.click()}
                 >
                   {avatarPreview ? (
                     <AvatarImage src={avatarPreview} alt="Avatar preview" className="object-cover" />
                   ) : (
-                    <AvatarFallback className="bg-gradient-to-br from-primary/20 to-primary/10 text-primary">
-                      <Upload className="w-8 h-8" />
+                    <AvatarFallback className="bg-muted">
+                      <Upload className="w-8 h-8 text-muted-foreground" />
                     </AvatarFallback>
                   )}
                 </Avatar>
@@ -239,28 +238,28 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess }: CreateSimModal
                 />
                 <Button
                   type="button"
-                  variant="ghost"
+                  variant="outline"
                   size="sm"
                   onClick={() => fileInputRef.current?.click()}
-                  className="mt-2 text-xs h-8 w-24"
+                  className="mt-2 w-28 text-sm"
                 >
-                  {avatarPreview ? "Change" : "Upload"}
+                  Upload
                 </Button>
               </div>
 
-              <div className="flex-1 space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="name" className="text-sm font-semibold flex items-center gap-2">
+              <div className="flex-1 space-y-2">
+                <div>
+                  <Label htmlFor="name" className="text-sm font-medium">
                     Sim Name <span className="text-destructive">*</span>
-                    <span className="text-xs font-normal text-muted-foreground">(What users will call your sim)</span>
                   </Label>
+                  <p className="text-xs text-muted-foreground mb-2">(What users will call your sim)</p>
                   <Input
                     id="name"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     placeholder="e.g., Marcus the Sales Advisor, Dr. Code, Legal Eagle"
                     required
-                    className="h-12 text-base"
+                    className="h-10"
                   />
                 </div>
               </div>
@@ -269,18 +268,18 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess }: CreateSimModal
 
 
           {/* Category & Positioning */}
-          <div className="space-y-4 p-6 rounded-xl border border-border/50 bg-card/30 backdrop-blur-sm">
-            <div className="flex items-center gap-2 mb-2">
-              <div className="w-1 h-6 bg-primary rounded-full" />
-              <h3 className="text-lg font-semibold">Category & Positioning</h3>
+          <div className="space-y-4">
+            <div className="flex items-center gap-2">
+              <div className="w-1 h-5 bg-primary rounded-full" />
+              <h3 className="text-base font-semibold">Category & Positioning</h3>
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="category" className="text-sm font-semibold">
+              <Label htmlFor="category" className="text-sm font-medium">
                 Primary Category <span className="text-destructive">*</span>
               </Label>
               <Select value={category} onValueChange={setCategory} required>
-                <SelectTrigger className="h-12 text-base">
+                <SelectTrigger className="h-10">
                   <SelectValue placeholder="Select your agent's primary domain" />
                 </SelectTrigger>
                 <SelectContent className="bg-background z-50">
@@ -291,71 +290,70 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess }: CreateSimModal
                   ))}
                 </SelectContent>
               </Select>
-              <p className="text-xs text-muted-foreground flex items-center gap-1">
-                <Sparkles className="w-3 h-3" />
+              <p className="text-xs text-muted-foreground">
                 Helps users discover your agent and optimizes AI behavior
               </p>
             </div>
           </div>
 
-          {/* Agent Intelligence & Behavior */}
-          <div className="space-y-4 p-6 rounded-xl border border-border/50 bg-card/30 backdrop-blur-sm">
-            <div className="flex items-center gap-2 mb-2">
-              <div className="w-1 h-6 bg-primary rounded-full" />
-              <h3 className="text-lg font-semibold">Intelligence & Behavior</h3>
+          {/* Intelligence & Behavior */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-2">
+              <div className="w-1 h-5 bg-primary rounded-full" />
+              <h3 className="text-base font-semibold">Intelligence & Behavior</h3>
             </div>
 
-            <div className="space-y-4 p-4 rounded-lg bg-primary/5 border border-primary/20">
-              <p className="text-sm font-medium text-foreground">💡 Create an effective agent by defining:</p>
-              <ul className="text-xs text-muted-foreground space-y-1.5 ml-4">
-                <li>• <strong>Clear expertise</strong>: What specific problems does it solve?</li>
-                <li>• <strong>Unique personality</strong>: How should it communicate and engage?</li>
-                <li>• <strong>Action-oriented</strong>: What can it actually DO for users?</li>
+            <div className="space-y-3 p-4 rounded-lg bg-muted/50 border">
+              <p className="text-sm font-medium">💡 Build an effective sim by defining:</p>
+              <ul className="text-xs text-muted-foreground space-y-1 ml-4">
+                <li>• Clear expertise and what problems it solves</li>
+                <li>• Unique personality and communication style</li>
+                <li>• Specific actions it can take for users</li>
               </ul>
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="description" className="text-sm font-semibold">
-                Agent Description
+              <Label htmlFor="description" className="text-sm font-medium">
+                Sim Description
               </Label>
               <Textarea
                 id="description"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                placeholder="Example: 'An expert marketing strategist who analyzes campaigns, suggests improvements, and creates data-driven strategies. Specializes in social media growth and conversion optimization.'"
+                placeholder="Example: An expert marketing strategist who analyzes campaigns, suggests improvements, and creates data-driven strategies. Specializes in social media growth and conversion optimization."
                 rows={3}
-                className="resize-none text-base"
+                className="resize-none"
               />
             </div>
 
-            <div className="flex items-center gap-2">
-              <Button
-                type="button"
-                variant="secondary"
-                size="default"
-                onClick={handleGeneratePrompt}
-                disabled={isGenerating || !description.trim() || !category}
-                className="gap-2 flex-1"
-              >
-                {isGenerating ? (
-                  <>
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    Generating AI Instructions...
-                  </>
-                ) : (
-                  <>
-                    <Sparkles className="w-4 h-4" />
-                    Auto-Generate System Prompt
-                  </>
-                )}
-              </Button>
-            </div>
+            <Button
+              type="button"
+              variant="secondary"
+              size="default"
+              onClick={handleGeneratePrompt}
+              disabled={isGenerating || !description.trim() || !category}
+              className="gap-2 w-full"
+            >
+              {isGenerating ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Generating...
+                </>
+              ) : (
+                <>
+                  <Sparkles className="w-4 h-4" />
+                  Auto-Generate System Prompt
+                </>
+              )}
+            </Button>
 
             <div className="space-y-2">
-              <Label htmlFor="systemPrompt" className="text-sm font-semibold flex items-center gap-2">
+              <Label htmlFor="systemPrompt" className="text-sm font-medium">
                 System Prompt <span className="text-destructive">*</span>
-                <span className="text-xs font-normal text-muted-foreground">(The AI's core instructions)</span>
               </Label>
+              <p className="text-xs text-muted-foreground">
+                The core instructions that define your sim's behavior and personality
+              </p>
               <Textarea
                 id="systemPrompt"
                 value={systemPrompt}
@@ -363,103 +361,82 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess }: CreateSimModal
                 placeholder="You are a highly skilled marketing strategist with 15 years of experience...&#10;&#10;Your expertise includes:&#10;- Campaign optimization&#10;- Data analysis&#10;- Social media growth&#10;&#10;Your communication style is professional yet friendly..."
                 rows={10}
                 required
-                className="resize-none font-mono text-sm leading-relaxed"
+                className="resize-none font-mono text-sm"
               />
-              <p className="text-xs text-muted-foreground">
-                ⚡ Pro tip: Be specific about expertise, tone, and how the agent should handle different scenarios
-              </p>
             </div>
           </div>
 
-          {/* Integrations - What Makes This More Than a Chatbot */}
-          <div className="space-y-4 p-6 rounded-xl border border-primary/30 bg-gradient-to-br from-primary/5 to-primary/10 backdrop-blur-sm">
-            <div className="flex items-center gap-2 mb-2">
-              <div className="w-1 h-6 bg-primary rounded-full" />
-              <div className="flex-1">
-                <h3 className="text-lg font-semibold">Superpowers & Integrations</h3>
-                <p className="text-xs text-muted-foreground mt-0.5">
-                  Transform your agent from a chatbot into an intelligent assistant with real capabilities
+          {/* Integrations */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-2">
+              <div className="w-1 h-5 bg-primary rounded-full" />
+              <div>
+                <h3 className="text-base font-semibold">Integrations (Optional)</h3>
+                <p className="text-xs text-muted-foreground">
+                  Add capabilities beyond basic chat
                 </p>
               </div>
             </div>
 
-            <div className="grid gap-3">
+            <div className="space-y-2">
               {availableIntegrations.map((integration) => (
                 <div
                   key={integration.id}
-                  className={`flex items-start gap-3 p-4 rounded-lg border-2 transition-all ${
-                    selectedIntegrations.includes(integration.id)
-                      ? 'border-primary bg-primary/10 shadow-md'
-                      : 'border-border bg-background hover:border-primary/50'
-                  }`}
+                  className="flex items-start gap-3 p-3 rounded-lg border hover:border-primary/50 transition-colors"
                 >
                   <Checkbox
                     id={integration.id}
                     checked={selectedIntegrations.includes(integration.id)}
                     onCheckedChange={() => toggleIntegration(integration.id)}
-                    className="mt-1"
+                    className="mt-0.5"
                   />
                   <div className="flex-1 min-w-0">
                     <Label
                       htmlFor={integration.id}
-                      className="text-base font-semibold cursor-pointer leading-tight block"
+                      className="text-sm font-medium cursor-pointer block"
                     >
                       {integration.label}
                     </Label>
-                    <p className="text-sm text-muted-foreground mt-1 leading-tight">
+                    <p className="text-xs text-muted-foreground mt-0.5">
                       {integration.description}
                     </p>
-                    <div className="mt-2 p-2 rounded bg-muted/50">
-                      <p className="text-xs text-muted-foreground italic leading-tight">
-                        {integration.example}
-                      </p>
-                    </div>
                   </div>
                 </div>
               ))}
             </div>
-            
-            {selectedIntegrations.length === 0 && (
-              <div className="text-center py-3 text-sm text-muted-foreground">
-                💡 Select integrations to give your agent real-world capabilities
-              </div>
-            )}
           </div>
 
-          {/* Monetization Coming Soon */}
-          <div className="p-4 rounded-lg border border-primary/20 bg-gradient-to-r from-primary/5 to-primary/10">
-            <p className="text-sm text-foreground">
-              💎 <span className="font-semibold">Monetize your agent with $SIMAI</span>
-              <span className="text-muted-foreground ml-2">— Coming Soon</span>
+          {/* Monetization Notice */}
+          <div className="p-3 rounded-lg border bg-muted/50">
+            <p className="text-sm">
+              💎 <span className="font-medium">Monetize your sim with $SIMAI</span>
+              <span className="text-muted-foreground ml-1">— Coming Soon</span>
             </p>
           </div>
 
           {/* Submit Buttons */}
-          <div className="flex gap-4 pt-6 border-t border-border/50">
+          <div className="flex gap-3 pt-4 border-t">
             <Button
               type="button"
               variant="outline"
               onClick={() => onOpenChange(false)}
               disabled={isSubmitting}
-              className="flex-1 h-12 text-base"
+              className="flex-1"
             >
               Cancel
             </Button>
             <Button
               type="submit"
               disabled={isSubmitting || !name.trim() || !category || !systemPrompt.trim()}
-              className="flex-1 h-12 gap-2 text-base bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70"
+              className="flex-1 gap-2"
             >
                {isSubmitting ? (
                 <>
-                  <Loader2 className="w-5 h-5 animate-spin" />
-                  Creating Your Agent...
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Creating...
                 </>
               ) : (
-                <>
-                  <Sparkles className="w-5 h-5" />
-                  Create AI Agent
-                </>
+                "Create Sim"
               )}
             </Button>
           </div>
