@@ -86,16 +86,21 @@ DO NOT use generic phrases like "How can I help you today?" - make it unique to 
         if (welcomeMessage) {
           console.log(`Generated for ${advisor.name}: ${welcomeMessage}`);
           
-          const { error: updateError } = await supabase
+          // Update the advisor's welcome message in the database
+          const { data: updateData, error: updateError } = await supabase
             .from('advisors')
             .update({ welcome_message: welcomeMessage })
-            .eq('id', advisor.id);
+            .eq('id', advisor.id)
+            .select();
 
           if (updateError) {
-            console.error(`Error updating ${advisor.name}:`, updateError);
+            console.error(`❌ Error updating ${advisor.name}:`, updateError);
           } else {
+            console.log(`✅ Successfully updated ${advisor.name} in database`);
             updates.push({ name: advisor.name, message: welcomeMessage });
           }
+        } else {
+          console.error(`No welcome message generated for ${advisor.name}`);
         }
       } catch (error) {
         console.error(`Error processing ${advisor.name}:`, error);
