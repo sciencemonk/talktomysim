@@ -11,7 +11,7 @@ import solflareIcon from "@/assets/solflare-icon.png";
 import { toast as sonnerToast } from "sonner";
 import bs58 from "bs58";
 import AuthModal from "@/components/AuthModal";
-import { LogOut, Search, DollarSign, Gift, TrendingUp, Plus, Menu } from "lucide-react";
+import { LogOut, Search, DollarSign, Gift, TrendingUp, Plus, Menu, ChevronDown } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
@@ -21,6 +21,12 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const Landing = () => {
   const navigate = useNavigate();
@@ -338,22 +344,32 @@ const Landing = () => {
 
             </div>
 
-            {/* Category Filters */}
-            <div className="flex flex-wrap gap-2">
-              {categoryCounts.map((cat) => (
-                <Button
-                  key={cat.id}
-                  variant={selectedCategory === cat.id ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setSelectedCategory(cat.id)}
-                >
-                  {cat.label}
-                  <Badge variant="secondary" className="ml-2 px-1.5">
-                    {cat.count}
+            {/* Category Filters - Dropdown */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" className="gap-2">
+                  {categoryCounts.find(c => c.id === selectedCategory)?.label || 'All Categories'}
+                  <Badge variant="secondary" className="ml-1 px-1.5">
+                    {categoryCounts.find(c => c.id === selectedCategory)?.count || 0}
                   </Badge>
+                  <ChevronDown className="h-4 w-4 ml-1" />
                 </Button>
-              ))}
-            </div>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="bg-white dark:bg-gray-950 border shadow-lg z-50 max-h-[400px] overflow-y-auto">
+                {categoryCounts.map((cat) => (
+                  <DropdownMenuItem
+                    key={cat.id}
+                    onClick={() => setSelectedCategory(cat.id)}
+                    className={`cursor-pointer ${selectedCategory === cat.id ? 'bg-primary text-primary-foreground' : ''}`}
+                  >
+                    <span className="flex-1">{cat.label}</span>
+                    <Badge variant="secondary" className="ml-2 px-1.5">
+                      {cat.count}
+                    </Badge>
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
 
           {/* Results Count */}
