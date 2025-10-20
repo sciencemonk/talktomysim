@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Globe, Wallet, ExternalLink, Copy, Check, MessageCircle, Share2 } from "lucide-react";
+import { Globe, Wallet, ExternalLink, Copy, Check, MessageCircle, Share2, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
@@ -9,6 +9,7 @@ import { AgentType } from "@/types/agent";
 import { useToast } from "@/hooks/use-toast";
 import { getAvatarUrl } from "@/lib/avatarUtils";
 import { toast as sonnerToast } from "sonner";
+import PublicChatInterface from "@/components/PublicChatInterface";
 
 interface SimDetailModalProps {
   sim: AgentType | null;
@@ -23,6 +24,16 @@ const SimDetailModal = ({ sim, open, onOpenChange, onAuthRequired }: SimDetailMo
   const [walletCopied, setWalletCopied] = useState(false);
   const [isAddingSim, setIsAddingSim] = useState(false);
   const [shareLinkCopied, setShareLinkCopied] = useState(false);
+  const [showChat, setShowChat] = useState(false);
+  const [isSignedIn, setIsSignedIn] = useState(false);
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setIsSignedIn(!!user);
+    };
+    checkAuth();
+  }, [open]);
 
   // Calculate SOL equivalent (1 $SimAI = 0.001 SOL)
   const SIMAI_TO_SOL_RATE = 0.001;
@@ -62,9 +73,16 @@ const SimDetailModal = ({ sim, open, onOpenChange, onAuthRequired }: SimDetailMo
     });
   };
 
-  const handleAddSim = async () => {
+  const handleLaunchSim = async () => {
     if (!sim) return;
     
+    // If user is not signed in, show chat in modal
+    if (!isSignedIn) {
+      setShowChat(true);
+      return;
+    }
+
+    // If user is signed in, add the sim
     setIsAddingSim(true);
     try {
       const { data: { user } } = await supabase.auth.getUser();
@@ -131,9 +149,38 @@ const SimDetailModal = ({ sim, open, onOpenChange, onAuthRequired }: SimDetailMo
   const priceInfo = getSimPrice();
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-xl p-0 overflow-hidden [&>button]:hidden border-2">
-        <div className="backdrop-blur-xl bg-card/50 rounded-lg p-8 sm:p-12">
+    <Dialog open={open} onOpenChange={(open) => {
+      onOpenChange(open);
+      if (!open) setShowChat(false); // Reset chat when modal closes
+    }}>
+      <DialogContent className="max-w-xl p-0 overflow-hidden [&>button]:hidden border-2 max-h-[90vh]">
+        {showChat ? (
+          <div className="flex flex-col h-[80vh]">
+            <div className="flex items-center justify-between p-4 border-b">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowChat(false)}
+                className="gap-2"
+              >
+                <ArrowLeft className="h-4 w-4" />
+                Back
+              </Button>
+              <h2 className="font-semibold">{sim.name}</h2>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => onOpenChange(false)}
+              >
+                Close
+              </Button>
+            </div>
+            <div className="flex-1 overflow-hidden">
+              <PublicChatInterface agent={sim} />
+            </div>
+          </div>
+        ) : (
+          <div className="backdrop-blur-xl bg-card/50 rounded-lg p-8 sm:p-12 max-h-[80vh] overflow-y-auto">
           {/* Avatar */}
           <div className="flex justify-center mb-6">
             <div className="relative">
@@ -161,15 +208,15 @@ const SimDetailModal = ({ sim, open, onOpenChange, onAuthRequired }: SimDetailMo
             </span>
           </div>
 
-          {/* Add Sim Button */}
+          {/* Launch/Add Sim Button */}
           <Button
             size="lg"
             className="w-full h-14 text-base font-semibold shadow-xl hover:shadow-2xl transition-all duration-300 mb-4 group"
-            onClick={handleAddSim}
+            onClick={handleLaunchSim}
             disabled={isAddingSim}
           >
             <MessageCircle className="h-5 w-5 mr-2 group-hover:scale-110 transition-transform" />
-            {isAddingSim ? 'Adding...' : 'Add Sim'}
+            {isAddingSim ? 'Adding...' : (isSignedIn ? 'Add Sim' : 'Launch Sim')}
           </Button>
 
           {/* Share Button */}
@@ -260,7 +307,8 @@ const SimDetailModal = ({ sim, open, onOpenChange, onAuthRequired }: SimDetailMo
               )}
             </div>
           )}
-        </div>
+          </div>
+        )}
       </DialogContent>
     </Dialog>
   );
