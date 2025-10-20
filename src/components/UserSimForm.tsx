@@ -246,9 +246,10 @@ const UserSimForm = ({ open, onOpenChange, existingSim, onSuccess }: UserSimForm
 
     setIsSubmitting(true);
     try {
-      // Auto-generate description if empty
+      // For new sims, always auto-generate description from prompt
+      // For existing sims, only generate if description is empty
       let finalDescription = formData.description;
-      if (!finalDescription.trim() && formData.prompt.trim()) {
+      if ((!existingSim || !finalDescription.trim()) && formData.prompt.trim()) {
         const { data } = await supabase.functions.invoke('generate-sim-description', {
           body: { prompt: formData.prompt }
         });
@@ -387,7 +388,9 @@ const UserSimForm = ({ open, onOpenChange, existingSim, onSuccess }: UserSimForm
               maxLength={200}
             />
             <p className="text-xs text-muted-foreground mt-1">
-              For display purposes - {formData.description.length}/200 characters. Leave empty to auto-generate on save.
+              {existingSim 
+                ? 'For display purposes - will auto-generate if left empty.'
+                : 'For display purposes - will be auto-generated from your prompt.'} {formData.description.length}/200 characters.
             </p>
           </div>
 
