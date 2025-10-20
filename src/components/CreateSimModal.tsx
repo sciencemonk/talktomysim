@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -190,9 +190,9 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess }: CreateSimModal
       <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-3xl font-bold">Create Your Sim</DialogTitle>
-          <p className="text-sm text-muted-foreground mt-2">
+          <DialogDescription className="text-sm text-muted-foreground mt-2">
             Build an AI agent that users can interact with. Fill in the details below to bring your Sim to life.
-          </p>
+          </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-6 mt-6">
@@ -391,8 +391,7 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess }: CreateSimModal
               {availableIntegrations.map((integration) => (
                 <div
                   key={integration.id}
-                  className="flex items-start gap-3 p-3 rounded-md border bg-background hover:border-primary/50 transition-colors cursor-pointer"
-                  onClick={() => toggleIntegration(integration.id)}
+                  className="flex items-start gap-3 p-3 rounded-md border bg-background hover:border-primary/50 transition-colors"
                 >
                   <Checkbox
                     id={integration.id}
