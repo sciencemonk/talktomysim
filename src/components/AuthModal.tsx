@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
@@ -18,95 +17,64 @@ interface AuthModalProps {
 const AuthModal = ({ open, onOpenChange, defaultMode = 'signup' }: AuthModalProps) => {
   const [isLoading, setIsLoading] = useState<string | null>(null);
 
-  // Check if returning from mobile wallet app
-  useEffect(() => {
-    const attemptingWallet = sessionStorage.getItem('attempting_wallet_connection');
-    if (attemptingWallet && open) {
-      const walletType = attemptingWallet as 'phantom' | 'solflare';
-      sessionStorage.removeItem('attempting_wallet_connection');
-      
-      // Give the wallet app time to inject its provider
-      setTimeout(() => {
-        attemptWalletConnection(walletType);
-      }, 500);
-    }
-  }, [open]);
-
-  const attemptWalletConnection = async (walletType: 'phantom' | 'solflare') => {
-    setIsLoading(walletType);
-    try {
-      const wallet = walletType === 'phantom' 
-        ? (window as any).solana 
-        : (window as any).solflare;
-
-      if (!wallet) {
-        toast.error(`${walletType === 'phantom' ? 'Phantom' : 'Solflare'} wallet not detected. Please make sure the app is installed.`);
-        setIsLoading(null);
-        return;
-      }
-
-      // Connect to wallet
-      await wallet.connect();
-      
-      const publicKey = wallet.publicKey.toString();
-      const message = `Sign in to Sim\n\nWallet: ${publicKey}\nTimestamp: ${new Date().toISOString()}`;
-      const encodedMessage = new TextEncoder().encode(message);
-      
-      const signedMessage = await wallet.signMessage(encodedMessage, 'utf8');
-      const signature = bs58.encode(signedMessage.signature);
-
-      const { data, error } = await supabase.functions.invoke('solana-auth', {
-        body: { publicKey, signature, message }
-      });
-
-      if (error) throw error;
-      
-      if (data?.access_token && data?.refresh_token) {
-        await supabase.auth.setSession({
-          access_token: data.access_token,
-          refresh_token: data.refresh_token,
-        });
-        
-        toast.success('Connected successfully!');
-        onOpenChange(false);
-        window.location.href = '/directory';
-      }
-    } catch (error: any) {
-      console.error('Error connecting wallet:', error);
-      toast.error(error?.message || 'Failed to connect wallet');
-    } finally {
-      setIsLoading(null);
-    }
+  const isMobile = () => {
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+           (window.innerWidth <= 768);
   };
 
   const handleWalletSignIn = async (walletType: 'phantom' | 'solflare') => {
     setIsLoading(walletType);
+    
     try {
-      // Check if on mobile with more comprehensive detection
-      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
-                       (window.innerWidth <= 768);
-      
+      // For mobile, use proper deep link format with connection parameters
+      if (isMobile()) {
+        const appUrl = window.location.origin;
+        const appName = 'TalkToMySim';
+        
+        if (walletType === 'phantom') {
+          // Phantom mobile deep link for dApp browser
+          const params = new URLSearchParams({
+            app_url: appUrl,
+            dapp_encryption_public_key: '', // Will be handled by wallet
+            cluster: 'mainnet-beta',
+            redirect_link: `${appUrl}?wallet=phantom`
+          });
+          
+          const deepLink = `phantom://browse/${encodeURIComponent(appUrl)}?ref=${encodeURIComponent(appUrl)}`;
+          
+          toast.info('Opening Phantom...', {
+            description: 'Tap "Connect" in the Phantom app to continue'
+          });
+          
+          // Store that we're attempting connection
+          sessionStorage.setItem('wallet_connection_pending', walletType);
+          
+          window.location.href = deepLink;
+          return;
+        } else {
+          // Solflare mobile deep link
+          const deepLink = `solflare://browse?url=${encodeURIComponent(appUrl)}`;
+          
+          toast.info('Opening Solflare...', {
+            description: 'Tap "Connect" in the Solflare app to continue'
+          });
+          
+          sessionStorage.setItem('wallet_connection_pending', walletType);
+          
+          window.location.href = deepLink;
+          return;
+        }
+      }
+
+      // Desktop wallet connection
       let wallet;
       
       if (walletType === 'phantom') {
         wallet = (window as any).solana;
         
-        // If on mobile, use deep link to open wallet app
-        if (isMobile && !wallet?.isPhantom) {
-          sessionStorage.setItem('attempting_wallet_connection', walletType);
-          const currentUrl = window.location.href.split('?')[0]; // Remove any existing query params
-          const deepLink = `https://phantom.app/ul/browse/${encodeURIComponent(currentUrl)}?ref=${encodeURIComponent(window.location.origin)}`;
-          toast.info('Opening Phantom app...', {
-            description: 'Approve the connection and return to this page'
-          });
-          window.location.href = deepLink;
-          setIsLoading(null);
-          return;
-        }
-        
         if (!wallet?.isPhantom) {
-          toast.error('Please install Phantom wallet', {
-            description: 'Visit phantom.app to install'
+          toast.error('Phantom wallet not found', {
+            description: 'Please install the Phantom browser extension'
           });
           setIsLoading(null);
           return;
@@ -114,22 +82,9 @@ const AuthModal = ({ open, onOpenChange, defaultMode = 'signup' }: AuthModalProp
       } else {
         wallet = (window as any).solflare;
         
-        // If on mobile, use deep link to open wallet app
-        if (isMobile && !wallet) {
-          sessionStorage.setItem('attempting_wallet_connection', walletType);
-          const currentUrl = window.location.href.split('?')[0]; // Remove any existing query params
-          const deepLink = `https://solflare.com/ul/v1/browse/${encodeURIComponent(currentUrl)}`;
-          toast.info('Opening Solflare app...', {
-            description: 'Approve the connection and return to this page'
-          });
-          window.location.href = deepLink;
-          setIsLoading(null);
-          return;
-        }
-        
         if (!wallet) {
-          toast.error('Please install Solflare wallet', {
-            description: 'Visit solflare.com to install'
+          toast.error('Solflare wallet not found', {
+            description: 'Please install the Solflare browser extension'
           });
           setIsLoading(null);
           return;
@@ -139,13 +94,8 @@ const AuthModal = ({ open, onOpenChange, defaultMode = 'signup' }: AuthModalProp
       // Connect to wallet
       await wallet.connect();
       
-      // Get public key - different wallets have different structures
-      const publicKey = walletType === 'phantom' 
-        ? wallet.publicKey.toString()
-        : wallet.publicKey.toString();
-
-      // Create message to sign
-      const message = `Sign in to Sim\n\nWallet: ${publicKey}\nTimestamp: ${new Date().toISOString()}`;
+      const publicKey = wallet.publicKey.toString();
+      const message = `Sign in to TalkToMySim\n\nWallet: ${publicKey}\nTimestamp: ${new Date().toISOString()}`;
       const encodedMessage = new TextEncoder().encode(message);
       
       // Request signature
@@ -172,17 +122,70 @@ const AuthModal = ({ open, onOpenChange, defaultMode = 'signup' }: AuthModalProp
         toast.success('Connected successfully!');
         onOpenChange(false);
         
-        // Redirect existing users to directory
+        // Redirect to directory
         window.location.href = '/directory';
       }
     } catch (error: any) {
-      console.error('Error signing in with Solana:', error);
+      console.error('Error connecting wallet:', error);
       toast.error(error?.message || 'Failed to connect wallet');
     } finally {
       setIsLoading(null);
     }
   };
 
+  // Check for pending wallet connections on mount
+  useEffect(() => {
+    const checkPendingConnection = async () => {
+      const pending = sessionStorage.getItem('wallet_connection_pending');
+      if (pending && open) {
+        sessionStorage.removeItem('wallet_connection_pending');
+        
+        // Give wallet time to inject provider
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        const walletType = pending as 'phantom' | 'solflare';
+        const wallet = walletType === 'phantom' 
+          ? (window as any).solana 
+          : (window as any).solflare;
+        
+        if (wallet) {
+          toast.info('Connecting wallet...');
+          // Attempt to connect
+          try {
+            await wallet.connect();
+            const publicKey = wallet.publicKey.toString();
+            const message = `Sign in to TalkToMySim\n\nWallet: ${publicKey}\nTimestamp: ${new Date().toISOString()}`;
+            const encodedMessage = new TextEncoder().encode(message);
+            
+            const signedMessage = await wallet.signMessage(encodedMessage, 'utf8');
+            const signature = bs58.encode(signedMessage.signature);
+
+            const { data, error } = await supabase.functions.invoke('solana-auth', {
+              body: { publicKey, signature, message }
+            });
+
+            if (error) throw error;
+            
+            if (data?.access_token && data?.refresh_token) {
+              await supabase.auth.setSession({
+                access_token: data.access_token,
+                refresh_token: data.refresh_token,
+              });
+              
+              toast.success('Connected successfully!');
+              onOpenChange(false);
+              window.location.href = '/directory';
+            }
+          } catch (error: any) {
+            console.error('Error connecting wallet:', error);
+            toast.error('Please try connecting again');
+          }
+        }
+      }
+    };
+    
+    checkPendingConnection();
+  }, [open, onOpenChange]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
