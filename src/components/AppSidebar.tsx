@@ -463,8 +463,8 @@ export function AppSidebar() {
 
   return (
     <>
-    <Sidebar className="border-r bg-white flex flex-col">
-      <SidebarContent className="flex flex-col h-full bg-white">
+    <Sidebar className="border-r bg-white flex flex-col h-screen max-h-screen">
+      <SidebarContent className="flex flex-col h-full bg-white overflow-hidden">
         {/* Header - Always Visible */}
         <div className="flex-shrink-0 p-3 space-y-4">
           {/* Sim Logo */}
@@ -527,7 +527,7 @@ export function AppSidebar() {
               </div>
             )}
             <SidebarGroupContent className="h-[calc(100%-2rem)]">
-              <ScrollArea className="h-full max-h-[600px]">
+              <ScrollArea className="h-full">
                 <SidebarMenu>
                   {filteredConversations?.map((conv: SimConversation) => (
                     <SidebarMenuItem 

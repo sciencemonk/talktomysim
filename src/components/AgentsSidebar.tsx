@@ -52,7 +52,7 @@ const AgentsSidebar: React.FC = () => {
   };
 
   return (
-    <Sidebar className="border-r border-border">
+    <Sidebar className="border-r border-border h-screen max-h-screen flex flex-col overflow-hidden">
       <SidebarHeader className="p-4">
         <div className="flex items-center space-x-2">
           <Bot className="h-6 w-6 text-brandPurple" />
@@ -61,7 +61,7 @@ const AgentsSidebar: React.FC = () => {
         <SidebarTrigger className="absolute right-2 top-4" />
       </SidebarHeader>
       
-      <SidebarContent>
+      <SidebarContent className="flex-1 overflow-y-auto overflow-x-hidden">
         <SidebarGroup>
           <SidebarGroupLabel>Main Menu</SidebarGroupLabel>
           <SidebarGroupContent>

@@ -136,7 +136,7 @@ const SidebarContent = ({
   };
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full overflow-hidden">
       {/* Header with Logo and Toggle (Desktop only) */}
       {onToggleCollapse && (
         <>
@@ -209,7 +209,7 @@ const SidebarContent = ({
 
       {/* Navigation Items - Only show if user is authenticated */}
       {user && (
-        <div className="flex-1 p-3 space-y-1 overflow-auto">
+        <div className="flex-1 p-3 space-y-1 overflow-y-auto overflow-x-hidden">
           {/* Personal Agents List - Only show if there are agents */}
           {agents.length > 0 && (
             <div className="space-y-1">
@@ -455,7 +455,7 @@ const UserSidebar = (props: UserSidebarProps) => {
   // On desktop, render with the full sidebar wrapper
   return (
     <div className={cn(
-      "bg-card border-r border-border flex flex-col h-screen transition-all duration-300",
+      "bg-card border-r border-border flex flex-col h-screen max-h-screen overflow-hidden transition-all duration-300",
       isCollapsed ? "w-16" : "w-64"
     )}>
       <SidebarContent 
