@@ -475,8 +475,8 @@ const Landing = () => {
         open={isSimModalOpen}
         onOpenChange={setIsSimModalOpen}
         onAuthRequired={() => {
-          setIsSimModalOpen(false);
           setAuthModalOpen(true);
+          setTimeout(() => setIsSimModalOpen(false), 100);
         }}
       />
 
