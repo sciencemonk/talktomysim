@@ -433,9 +433,19 @@ export function AppSidebar() {
               if (!currentUser) {
                 // For non-signed-in users, open auth modal
                 setShowAuthModal(true);
+                // Close mobile sidebar when opening auth modal
+                if (isMobile || sidebarIsMobile) {
+                  setOpenMobile(false);
+                }
               } else {
-                // Open create sim modal - don't close sidebar on mobile to prevent overlay interference
-                setShowCreateSimModal(true);
+                // Close mobile sidebar first to prevent Sheet/Dialog conflict
+                if (isMobile || sidebarIsMobile) {
+                  setOpenMobile(false);
+                }
+                // Small delay to let Sheet close animation complete before opening modal
+                setTimeout(() => {
+                  setShowCreateSimModal(true);
+                }, 150);
               }
             }}
             className="w-full justify-start gap-2 bg-black text-white hover:bg-black/90 dark:bg-white dark:text-black dark:hover:bg-white/90"
