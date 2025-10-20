@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import PublicChatInterface from "@/components/PublicChatInterface";
 import AuthModal from "@/components/AuthModal";
-import SimPublicFooter from "@/components/SimPublicFooter";
 import { AgentType } from "@/types/agent";
 import { useToast } from "@/hooks/use-toast";
 import landingBackground from "@/assets/landing-background.jpg";
@@ -53,9 +52,17 @@ const PublicSimDetail = () => {
     };
   };
 
+  const generateSlug = (name: string) => {
+    return name
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '');
+  };
+
   const handleShareLink = () => {
     if (!sim) return;
-    const shareUrl = window.location.href;
+    const simSlug = (sim as any).custom_url || generateSlug(sim.name);
+    const shareUrl = `${window.location.origin}/${simSlug}`;
     navigator.clipboard.writeText(shareUrl);
     setShareLinkCopied(true);
     setTimeout(() => setShareLinkCopied(false), 2000);
@@ -67,7 +74,8 @@ const PublicSimDetail = () => {
 
   const getEmbedCode = () => {
     if (!sim) return '';
-    const simUrl = window.location.href;
+    const simSlug = (sim as any).custom_url || generateSlug(sim.name);
+    const simUrl = `${window.location.origin}/${simSlug}`;
     const avatarUrl = getAvatarUrl(sim.avatar);
     
     return `<!-- ${sim.name} Chat Widget -->
@@ -561,7 +569,6 @@ const PublicSimDetail = () => {
         </div>
       )}
 
-      <SimPublicFooter />
       <AuthModal open={showAuthModal} onOpenChange={setShowAuthModal} />
     </div>
   );

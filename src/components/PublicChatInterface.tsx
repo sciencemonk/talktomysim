@@ -180,8 +180,8 @@ const PublicChatInterface = ({ agent }: PublicChatInterfaceProps) => {
       </div>
 
       {/* Input Area - Fixed at bottom */}
-      <div className="flex-shrink-0 p-3 sm:p-4 bg-background/95 backdrop-blur-sm border-t">
-        <div className="max-w-3xl mx-auto">
+      <div className="flex-shrink-0 bg-background/95 backdrop-blur-sm border-t">
+        <div className="max-w-3xl mx-auto p-3 sm:p-4">
           <div className="relative">
             <Input
               value={inputValue}
@@ -200,6 +200,24 @@ const PublicChatInterface = ({ agent }: PublicChatInterfaceProps) => {
               <Send className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
             </Button>
           </div>
+        </div>
+        
+        {/* Powered by Sim branding */}
+        <div className="flex items-center justify-center gap-2 py-2 px-3 sm:px-4 border-t border-border/50">
+          <span className="text-xs text-muted-foreground">Powered by</span>
+          <a 
+            href="https://simproject.org"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-1 hover:opacity-80 transition-opacity"
+          >
+            <img 
+              src="/sim-logo.png" 
+              alt="Sim" 
+              className="h-4 w-4 object-contain"
+            />
+            <span className="text-xs font-semibold text-foreground">Sim</span>
+          </a>
         </div>
       </div>
     </div>

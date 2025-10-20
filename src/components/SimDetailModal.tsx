@@ -64,9 +64,17 @@ const SimDetailModal = ({ sim, open, onOpenChange, onAuthRequired }: SimDetailMo
     };
   };
 
+  const generateSlug = (name: string) => {
+    return name
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '');
+  };
+
   const handleShareLink = () => {
     if (!sim) return;
-    const shareUrl = `${window.location.origin}/${(sim as any).custom_url || sim.id}`;
+    const simSlug = (sim as any).custom_url || generateSlug(sim.name);
+    const shareUrl = `${window.location.origin}/${simSlug}`;
     navigator.clipboard.writeText(shareUrl);
     setShareLinkCopied(true);
     setTimeout(() => setShareLinkCopied(false), 2000);
@@ -78,7 +86,8 @@ const SimDetailModal = ({ sim, open, onOpenChange, onAuthRequired }: SimDetailMo
 
   const getEmbedCode = () => {
     if (!sim) return '';
-    const simUrl = `${window.location.origin}/${(sim as any).custom_url || sim.id}`;
+    const simSlug = (sim as any).custom_url || generateSlug(sim.name);
+    const simUrl = `${window.location.origin}/${simSlug}`;
     const avatarUrl = getAvatarUrl(sim.avatar);
     
     return `<!-- ${sim.name} Chat Widget -->
