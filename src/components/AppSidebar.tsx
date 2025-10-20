@@ -436,7 +436,8 @@ export function AppSidebar() {
               } else {
                 // Open create sim modal
                 setShowCreateSimModal(true);
-                closeSidebar();
+                // Delay closing sidebar to prevent interference with modal opening on mobile
+                setTimeout(() => closeSidebar(), 100);
               }
             }}
             className="w-full justify-start gap-2 bg-black text-white hover:bg-black/90 dark:bg-white dark:text-black dark:hover:bg-white/90"
