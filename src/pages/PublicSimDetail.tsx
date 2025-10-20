@@ -17,7 +17,9 @@ const PublicSimDetail = () => {
   const { toast } = useToast();
   const [sim, setSim] = useState<AgentType | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [showChat, setShowChat] = useState(false);
+  // Check if this is an embedded view and show chat immediately
+  const isEmbedded = new URLSearchParams(window.location.search).get('embed') === 'true';
+  const [showChat, setShowChat] = useState(isEmbedded);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [walletCopied, setWalletCopied] = useState(false);
@@ -75,7 +77,7 @@ const PublicSimDetail = () => {
   const getEmbedCode = () => {
     if (!sim) return '';
     const simSlug = (sim as any).custom_url || generateSlug(sim.name);
-    const simUrl = `${window.location.origin}/${simSlug}`;
+    const simUrl = `${window.location.origin}/${simSlug}?embed=true`;
     const avatarUrl = getAvatarUrl(sim.avatar);
     
     return `<!-- ${sim.name} Chat Widget -->

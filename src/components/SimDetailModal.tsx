@@ -87,7 +87,7 @@ const SimDetailModal = ({ sim, open, onOpenChange, onAuthRequired }: SimDetailMo
   const getEmbedCode = () => {
     if (!sim) return '';
     const simSlug = (sim as any).custom_url || generateSlug(sim.name);
-    const simUrl = `${window.location.origin}/${simSlug}`;
+    const simUrl = `${window.location.origin}/${simSlug}?embed=true`;
     const avatarUrl = getAvatarUrl(sim.avatar);
     
     return `<!-- ${sim.name} Chat Widget -->
