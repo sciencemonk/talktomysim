@@ -249,7 +249,16 @@ const UserSimForm = ({ open, onOpenChange, existingSim, onSuccess }: UserSimForm
       // For new sims, always auto-generate description from prompt
       // For existing sims, only generate if description is empty
       let finalDescription = formData.description;
-      if ((!existingSim || !finalDescription.trim()) && formData.prompt.trim()) {
+      if (!existingSim && formData.prompt.trim()) {
+        // Always auto-generate for new sims
+        const { data } = await supabase.functions.invoke('generate-sim-description', {
+          body: { prompt: formData.prompt }
+        });
+        if (data?.description) {
+          finalDescription = data.description;
+        }
+      } else if (existingSim && !finalDescription.trim() && formData.prompt.trim()) {
+        // Only generate for existing sims if description is empty
         const { data } = await supabase.functions.invoke('generate-sim-description', {
           body: { prompt: formData.prompt }
         });
