@@ -44,3 +44,6 @@ verify_jwt = false
 
 [functions.generate-sim-description]
 verify_jwt = false
+
+[functions.batch-regenerate-descriptions]
+verify_jwt = false
