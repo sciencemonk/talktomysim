@@ -374,25 +374,28 @@ const PublicSimDetail = () => {
 
       {showChat ? (
         <div className="flex-1 flex flex-col relative z-10 h-full">
-          <div className="border-b border-border px-4 py-3 flex items-center justify-between backdrop-blur-md bg-card/50">
-            <div className="flex items-center gap-3">
-              <Avatar className="h-10 w-10 border-2 border-border">
-                <AvatarImage src={getAvatarUrl(sim.avatar)} alt={sim.name} className="object-cover" />
-                <AvatarFallback>{sim.name.charAt(0)}</AvatarFallback>
-              </Avatar>
-              <div>
-                <p className="font-semibold text-sm">{sim.name}</p>
-                {sim.title && <p className="text-xs text-muted-foreground">{sim.title}</p>}
+          {/* Only show header if not embedded */}
+          {!isEmbedded && (
+            <div className="border-b border-border px-4 py-3 flex items-center justify-between backdrop-blur-md bg-card/50">
+              <div className="flex items-center gap-3">
+                <Avatar className="h-10 w-10 border-2 border-border">
+                  <AvatarImage src={getAvatarUrl(sim.avatar)} alt={sim.name} className="object-cover" />
+                  <AvatarFallback>{sim.name.charAt(0)}</AvatarFallback>
+                </Avatar>
+                <div>
+                  <p className="font-semibold text-sm">{sim.name}</p>
+                  {sim.title && <p className="text-xs text-muted-foreground">{sim.title}</p>}
+                </div>
               </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowChat(false)}
+              >
+                <X className="h-5 w-5" />
+              </Button>
             </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setShowChat(false)}
-            >
-              <X className="h-5 w-5" />
-            </Button>
-          </div>
+          )}
           <div className="flex-1 h-full overflow-hidden">
             <PublicChatInterface agent={sim} />
           </div>
