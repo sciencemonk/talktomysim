@@ -116,6 +116,7 @@ export type Database = {
         Row: {
           additional_background: string | null
           areas_of_expertise: string | null
+          auto_description: string | null
           avatar_url: string | null
           background_content: string | null
           background_image_url: string | null
@@ -165,6 +166,7 @@ export type Database = {
         Insert: {
           additional_background?: string | null
           areas_of_expertise?: string | null
+          auto_description?: string | null
           avatar_url?: string | null
           background_content?: string | null
           background_image_url?: string | null
@@ -214,6 +216,7 @@ export type Database = {
         Update: {
           additional_background?: string | null
           areas_of_expertise?: string | null
+          auto_description?: string | null
           avatar_url?: string | null
           background_content?: string | null
           background_image_url?: string | null

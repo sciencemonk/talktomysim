@@ -221,6 +221,22 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess }: CreateSimModal
         // Use fallback if generation fails
       }
 
+      // Generate short auto-description based on system prompt
+      let autoDescription = "";
+      try {
+        const { data: shortDescData } = await supabase.functions.invoke("generate-short-description", {
+          body: { systemPrompt: systemPrompt.trim() }
+        });
+        
+        if (shortDescData?.shortDescription) {
+          autoDescription = shortDescData.shortDescription.trim();
+        }
+      } catch (error) {
+        console.error("Error generating short description:", error);
+        // Use fallback if generation fails
+        autoDescription = description.trim().substring(0, 150);
+      }
+
       // Create the sim
       const { data: newSim, error: insertError } = await supabase
         .from('advisors')
@@ -230,6 +246,7 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess }: CreateSimModal
           title: title.trim() || null,
           category: category || null,
           description: description.trim(),
+          auto_description: autoDescription,
           prompt: systemPrompt.trim(),
           avatar_url: avatarUrl,
           price: 0,

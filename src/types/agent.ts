@@ -62,6 +62,7 @@ export interface AgentType {
   is_official?: boolean; // Add is_official for official historical sims
   price?: number; // Price in $SimAI tokens
   category?: string; // Category for marketplace filtering
+  auto_description?: string; // Auto-generated short description based on system prompt
 }
 
 export interface PublicAgentType {
