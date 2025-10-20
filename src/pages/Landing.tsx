@@ -41,6 +41,16 @@ const Landing = () => {
   const [sortBy, setSortBy] = useState<'popular' | 'newest' | 'name'>('popular');
   const isMobile = useIsMobile();
 
+  // Check for signin query param
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('signin') === 'true') {
+      setAuthModalOpen(true);
+      // Clean up the URL
+      window.history.replaceState({}, '', '/');
+    }
+  }, []);
+
   // Check auth state without redirecting
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {

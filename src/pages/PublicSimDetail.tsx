@@ -246,7 +246,14 @@ const PublicSimDetail = () => {
               <Button
                 size="lg"
                 className="w-full h-14 text-base font-semibold shadow-xl hover:shadow-2xl transition-all duration-300 mb-4 group"
-                onClick={() => setShowChat(true)}
+                onClick={async () => {
+                  const { data: { user } } = await supabase.auth.getUser();
+                  if (!user) {
+                    navigate('/?signin=true');
+                  } else {
+                    setShowChat(true);
+                  }
+                }}
               >
                 <MessageCircle className="h-5 w-5 mr-2 group-hover:scale-110 transition-transform" />
                 Add Sim
