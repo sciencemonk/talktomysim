@@ -344,32 +344,53 @@ const Landing = () => {
 
             </div>
 
-            {/* Category Filters - Dropdown */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="gap-2">
-                  {categoryCounts.find(c => c.id === selectedCategory)?.label || 'All Categories'}
-                  <Badge variant="secondary" className="ml-1 px-1.5">
-                    {categoryCounts.find(c => c.id === selectedCategory)?.count || 0}
-                  </Badge>
-                  <ChevronDown className="h-4 w-4 ml-1" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="bg-white dark:bg-gray-950 border shadow-lg z-50 max-h-[400px] overflow-y-auto">
+            {/* Category Filters */}
+            {isMobile ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" className="gap-2">
+                    {categoryCounts.find(c => c.id === selectedCategory)?.label || 'All Categories'}
+                    <Badge variant="secondary" className="ml-1 px-1.5">
+                      {categoryCounts.find(c => c.id === selectedCategory)?.count || 0}
+                    </Badge>
+                    <ChevronDown className="h-4 w-4 ml-1" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="bg-white dark:bg-gray-950 border shadow-lg z-50 max-h-[400px] overflow-y-auto">
+                  {categoryCounts.map((cat) => (
+                    <DropdownMenuItem
+                      key={cat.id}
+                      onClick={() => setSelectedCategory(cat.id)}
+                      className={`cursor-pointer ${selectedCategory === cat.id ? 'bg-primary text-primary-foreground' : ''}`}
+                    >
+                      <span className="flex-1">{cat.label}</span>
+                      <Badge variant="secondary" className="ml-2 px-1.5">
+                        {cat.count}
+                      </Badge>
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <div className="flex flex-wrap gap-2">
                 {categoryCounts.map((cat) => (
-                  <DropdownMenuItem
+                  <Button
                     key={cat.id}
+                    variant={selectedCategory === cat.id ? "default" : "outline"}
                     onClick={() => setSelectedCategory(cat.id)}
-                    className={`cursor-pointer ${selectedCategory === cat.id ? 'bg-primary text-primary-foreground' : ''}`}
+                    className="gap-2"
                   >
-                    <span className="flex-1">{cat.label}</span>
-                    <Badge variant="secondary" className="ml-2 px-1.5">
+                    {cat.label}
+                    <Badge 
+                      variant={selectedCategory === cat.id ? "secondary" : "outline"} 
+                      className="ml-1 px-1.5"
+                    >
                       {cat.count}
                     </Badge>
-                  </DropdownMenuItem>
+                  </Button>
                 ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
+              </div>
+            )}
           </div>
 
           {/* Results Count */}
