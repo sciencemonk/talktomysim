@@ -77,7 +77,7 @@ export const useChatHistory = (agent: AgentType, forceNew: boolean = false, conv
         // If forceNew, CLEAR messages and add only welcome message
         if (forceNew) {
           console.log('🆕 FORCE NEW - Clearing all messages and starting fresh');
-          const welcomeMessage = (agent as any).welcome_message || `Hi! I'm ${agent.name}. How can I help you today?`;
+          const welcomeMessage = agent.welcome_message || `Hi! I'm ${agent.name}. How can I help you today?`;
           const chatMessages: ChatMessage[] = [{
             id: crypto.randomUUID(),
             role: 'system',
@@ -96,7 +96,7 @@ export const useChatHistory = (agent: AgentType, forceNew: boolean = false, conv
           
           // If this is a new conversation with no messages, add the welcome message
           if (existingMessages.length === 0) {
-            const welcomeMessage = (agent as any).welcome_message || `Hi! I'm ${agent.name}. How can I help you today?`;
+            const welcomeMessage = agent.welcome_message || `Hi! I'm ${agent.name}. How can I help you today?`;
             const savedWelcome = await conversationService.addMessage(conversation.id, 'system', welcomeMessage);
             
             if (savedWelcome) {
