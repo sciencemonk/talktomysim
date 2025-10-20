@@ -4,7 +4,6 @@ import { supabase } from '@/integrations/supabase/client';
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/AppSidebar';
 import { Card } from '@/components/ui/card';
-import { Menu } from 'lucide-react';
 
 export const AuthenticatedLayout = () => {
   const navigate = useNavigate();
@@ -46,30 +45,14 @@ export const AuthenticatedLayout = () => {
   }
 
   return (
-    <SidebarProvider defaultOpen={false}>
-      <div className="min-h-screen w-full flex flex-col bg-black">
-        {/* Mobile/Tablet Header with Menu Trigger */}
-        <header className="lg:hidden flex items-center h-14 px-4 border-b border-border/40 bg-black">
-          <SidebarTrigger className="text-white">
-            <Menu className="h-6 w-6" />
-          </SidebarTrigger>
-          <div className="flex items-center gap-2 ml-4">
-            <img 
-              src="/sim-logo.png" 
-              alt="Sim Logo" 
-              className="h-6 w-6 object-contain"
-            />
-          </div>
-        </header>
+    <SidebarProvider defaultOpen={true}>
+      <div className="min-h-screen w-full flex bg-black">
+        <AppSidebar />
         
-        <div className="flex-1 flex w-full overflow-hidden">
-          <AppSidebar />
-          
-          {/* Main Content Area */}
-          <main className="flex-1 overflow-auto">
-            <Outlet />
-          </main>
-        </div>
+        {/* Main Content Area - No extra header */}
+        <main className="flex-1 overflow-auto">
+          <Outlet />
+        </main>
       </div>
     </SidebarProvider>
   );
