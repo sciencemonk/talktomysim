@@ -11,8 +11,12 @@ serve(async (req) => {
   }
 
   try {
-    const { description, category } = await req.json();
+    const { name, description, category, integrations = [] } = await req.json();
     
+    if (!name) {
+      throw new Error("Name is required");
+    }
+
     if (!description) {
       throw new Error("Description is required");
     }
@@ -62,7 +66,14 @@ Return ONLY the system prompt text, nothing else.`
           },
           {
             role: "user",
-            content: `Create a system prompt for an AI agent in the "${category}" category with this description: ${description}`
+            content: `Create a system prompt for an AI agent named "${name}" in the "${category}" category with this description: ${description}${integrations.length > 0 ? `\n\nThis agent has access to the following integrations: ${integrations.map((id: string) => {
+              const integrationNames: Record<string, string> = {
+                'solana-explorer': 'Solana blockchain data and wallet information',
+                'pumpfun': 'PumpFun token trade analysis and monitoring',
+                'x-analyzer': 'X (Twitter) profile and content analysis'
+              };
+              return integrationNames[id] || id;
+            }).join(', ')}. Include instructions on how to use these tools when relevant to user queries.` : ''}`
           }
         ],
       }),

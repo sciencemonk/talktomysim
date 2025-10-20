@@ -86,6 +86,11 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess }: CreateSimModal
   };
 
   const handleGeneratePrompt = async () => {
+    if (!name.trim()) {
+      toast.error("Please enter a name first");
+      return;
+    }
+
     if (!description.trim()) {
       toast.error("Please enter a description first");
       return;
@@ -99,7 +104,12 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess }: CreateSimModal
     setIsGenerating(true);
     try {
       const { data, error } = await supabase.functions.invoke("generate-system-prompt", {
-        body: { description, category },
+        body: { 
+          name: name.trim(),
+          description: description.trim(), 
+          category,
+          integrations: selectedIntegrations 
+        },
       });
 
       if (error) throw error;
@@ -298,43 +308,6 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess }: CreateSimModal
                 className="resize-none"
               />
             </div>
-
-            <Button
-              type="button"
-              variant="outline"
-              size="default"
-              onClick={handleGeneratePrompt}
-              disabled={isGenerating || !description.trim() || !category}
-              className="gap-2 w-full h-11"
-            >
-              {isGenerating ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  Generating...
-                </>
-              ) : (
-                <>
-                  <Sparkles className="w-4 h-4" />
-                  Generate System Prompt
-                </>
-              )}
-            </Button>
-
-            <div className="space-y-2">
-              <Label htmlFor="systemPrompt" className="text-sm font-medium">
-                System Prompt <span className="text-destructive">*</span>
-              </Label>
-              <Textarea
-                id="systemPrompt"
-                value={systemPrompt}
-                onChange={(e) => setSystemPrompt(e.target.value)}
-                placeholder="The brains behind your Sim..."
-                rows={8}
-                required
-                disabled={!systemPrompt && !isGenerating}
-                className="resize-none text-sm font-mono disabled:opacity-50 disabled:cursor-not-allowed"
-              />
-            </div>
           </div>
 
           {/* Integrations */}
@@ -371,6 +344,46 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess }: CreateSimModal
                   </div>
                 </div>
               ))}
+            </div>
+          </div>
+
+          {/* System Prompt Generation */}
+          <div className="space-y-4">
+            <Button
+              type="button"
+              variant="outline"
+              size="default"
+              onClick={handleGeneratePrompt}
+              disabled={isGenerating || !name.trim() || !description.trim() || !category}
+              className="gap-2 w-full h-11"
+            >
+              {isGenerating ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Generating...
+                </>
+              ) : (
+                <>
+                  <Sparkles className="w-4 h-4" />
+                  Generate System Prompt
+                </>
+              )}
+            </Button>
+
+            <div className="space-y-2">
+              <Label htmlFor="systemPrompt" className="text-sm font-medium">
+                System Prompt <span className="text-destructive">*</span>
+              </Label>
+              <Textarea
+                id="systemPrompt"
+                value={systemPrompt}
+                onChange={(e) => setSystemPrompt(e.target.value)}
+                placeholder="The brains behind your Sim..."
+                rows={8}
+                required
+                disabled={!systemPrompt && !isGenerating}
+                className="resize-none text-sm font-mono disabled:opacity-50 disabled:cursor-not-allowed"
+              />
             </div>
           </div>
 
