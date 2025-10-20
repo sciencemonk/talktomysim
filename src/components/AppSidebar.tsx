@@ -137,12 +137,32 @@ export function AppSidebar() {
     queryFn: async () => {
       if (!currentUser) return [];
       
-      // Get all conversations for the user
-      const { data: conversations, error } = await supabase
+      // OPTIMIZED: Get all data with JOINs in a single query
+      const { data: conversationsData, error } = await supabase
         .from('conversations')
-        .select('id, tutor_id, updated_at')
+        .select(`
+          id,
+          tutor_id,
+          updated_at,
+          advisors:tutor_id (
+            id,
+            name,
+            avatar_url,
+            user_id,
+            profiles:user_id (
+              wallet_address
+            )
+          ),
+          messages (
+            content,
+            role,
+            created_at
+          )
+        `)
         .eq('user_id', currentUser.id)
-        .order('updated_at', { ascending: false });
+        .order('updated_at', { ascending: false })
+        .order('created_at', { foreignTable: 'messages', ascending: false })
+        .limit(1, { foreignTable: 'messages' });
       
       if (error) {
         console.error('Error fetching conversations:', error);
@@ -152,55 +172,28 @@ export function AppSidebar() {
       // Group by sim, keeping only the most recent conversation per sim
       const simConversationsMap = new Map<string, any>();
       
-      for (const conv of conversations || []) {
+      for (const conv of conversationsData || []) {
         const simId = conv.tutor_id;
+        const advisor = Array.isArray(conv.advisors) ? conv.advisors[0] : conv.advisors;
+        
+        // Skip if advisor doesn't exist (deleted sim)
+        if (!advisor) {
+          console.log('Skipping deleted sim:', simId);
+          continue;
+        }
         
         if (!simConversationsMap.has(simId)) {
-          // Get advisor/sim details
-          const { data: advisor, error: advisorError } = await supabase
-            .from('advisors')
-            .select('id, name, avatar_url, user_id')
-            .eq('id', simId)
-            .maybeSingle();
-          
-          if (advisorError) {
-            console.error('Error fetching advisor:', advisorError);
-            continue;
-          }
-          
-          // Skip if advisor doesn't exist (deleted sim)
-          if (!advisor) {
-            console.log('Skipping deleted sim:', simId);
-            continue;
-          }
-          
-          // Get creator's wallet if user_id exists
-          let creatorWallet = null;
-          if (advisor?.user_id) {
-            const { data: profile } = await supabase
-              .from('profiles')
-              .select('wallet_address')
-              .eq('id', advisor.user_id)
-              .maybeSingle();
-            creatorWallet = profile?.wallet_address || null;
-          }
-          
-          // Get last message for this conversation
-          const { data: messages } = await supabase
-            .from('messages')
-            .select('content, role')
-            .eq('conversation_id', conv.id)
-            .order('created_at', { ascending: false })
-            .limit(1);
+          const profile = Array.isArray(advisor.profiles) ? advisor.profiles[0] : advisor.profiles;
+          const lastMessage = Array.isArray(conv.messages) && conv.messages.length > 0 ? conv.messages[0] : null;
           
           simConversationsMap.set(simId, {
             sim_id: simId,
-            sim_name: advisor?.name || 'Unknown Sim',
-            sim_avatar: advisor?.avatar_url || null,
-            sim_user_id: advisor?.user_id || null,
-            sim_creator_wallet: creatorWallet,
+            sim_name: advisor.name || 'Unknown Sim',
+            sim_avatar: advisor.avatar_url || null,
+            sim_user_id: advisor.user_id || null,
+            sim_creator_wallet: profile?.wallet_address || null,
             conversation_id: conv.id,
-            last_message: messages?.[0]?.content || null,
+            last_message: lastMessage?.content || null,
             updated_at: conv.updated_at
           });
         }
@@ -208,25 +201,29 @@ export function AppSidebar() {
       
       // Also include all user's own created sims, even if no conversations exist
       if (userSims && userSims.length > 0) {
+        // Batch fetch all profiles for user's sims
+        const userSimIds = userSims.map(s => s.user_id).filter(Boolean);
+        let profilesMap = new Map();
+        
+        if (userSimIds.length > 0) {
+          const { data: profiles } = await supabase
+            .from('profiles')
+            .select('id, wallet_address')
+            .in('id', userSimIds);
+          
+          profiles?.forEach(p => profilesMap.set(p.id, p));
+        }
+        
         for (const sim of userSims) {
           if (!simConversationsMap.has(sim.id)) {
-            // Get creator's wallet
-            let creatorWallet = null;
-            if (sim.user_id) {
-              const { data: profile } = await supabase
-                .from('profiles')
-                .select('wallet_address')
-                .eq('id', sim.user_id)
-                .maybeSingle();
-              creatorWallet = profile?.wallet_address || null;
-            }
-
+            const profile = sim.user_id ? profilesMap.get(sim.user_id) : null;
+            
             simConversationsMap.set(sim.id, {
               sim_id: sim.id,
               sim_name: sim.name || 'Your Sim',
               sim_avatar: sim.avatar_url || null,
               sim_user_id: sim.user_id || null,
-              sim_creator_wallet: creatorWallet,
+              sim_creator_wallet: profile?.wallet_address || null,
               conversation_id: null,
               last_message: null,
               updated_at: sim.updated_at || new Date().toISOString()
