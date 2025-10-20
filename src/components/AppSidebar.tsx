@@ -259,8 +259,11 @@ export function AppSidebar() {
           filter: `user_id=eq.${currentUser.id}`
         },
         () => {
-          // Refetch immediately when conversations change
-          queryClient.invalidateQueries({ queryKey: ['my-sim-conversations'] });
+          // Refetch immediately when conversations change - use full query key
+          queryClient.invalidateQueries({ 
+            queryKey: ['my-sim-conversations', currentUser.id],
+            refetchType: 'all'
+          });
         }
       )
       .on(
@@ -272,7 +275,10 @@ export function AppSidebar() {
         },
         () => {
           // Refetch on any new message to update last message preview
-          queryClient.invalidateQueries({ queryKey: ['my-sim-conversations'] });
+          queryClient.invalidateQueries({ 
+            queryKey: ['my-sim-conversations', currentUser.id],
+            refetchType: 'all'
+          });
         }
       )
       .on(
@@ -285,8 +291,11 @@ export function AppSidebar() {
         },
         () => {
           // Refetch when user's sims are updated/deleted
-          queryClient.invalidateQueries({ queryKey: ['my-sim-conversations'] });
-          queryClient.invalidateQueries({ queryKey: ['user-sims'] });
+          queryClient.invalidateQueries({ 
+            queryKey: ['my-sim-conversations', currentUser.id],
+            refetchType: 'all'
+          });
+          queryClient.invalidateQueries({ queryKey: ['user-sims', currentUser.id] });
         }
       )
       .subscribe();
