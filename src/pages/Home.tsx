@@ -33,8 +33,8 @@ const Home = () => {
     console.log('useEffect triggered - simId:', simId, 'isNewChat:', isNewChat, 'current selectedAdvisor:', selectedAdvisor?.id);
     
     if (simId) {
-      // Only fetch if the sim ID is different from current selection
-      if (selectedAdvisor?.id !== simId) {
+      // Only fetch if the sim ID is different from current selection OR if it's a forced new chat
+      if (selectedAdvisor?.id !== simId || isNewChat) {
         console.log('Loading sim from URL:', simId);
         // Fetch the sim data
         supabase
@@ -44,7 +44,7 @@ const Home = () => {
           .single()
           .then(({ data, error }) => {
             if (data && !error) {
-              console.log('Sim data loaded:', data.name);
+              console.log('Sim loaded:', data.name);
               // Transform database advisor to AgentType
               const agent: AgentType = {
                 ...data,

@@ -181,7 +181,7 @@ export function AppSidebar() {
               .from('profiles')
               .select('wallet_address')
               .eq('id', advisor.user_id)
-              .single();
+              .maybeSingle();
             creatorWallet = profile?.wallet_address || null;
           }
           
@@ -217,7 +217,7 @@ export function AppSidebar() {
                 .from('profiles')
                 .select('wallet_address')
                 .eq('id', sim.user_id)
-                .single();
+                .maybeSingle();
               creatorWallet = profile?.wallet_address || null;
             }
 
