@@ -248,31 +248,25 @@ serve(async (req) => {
 
     // Generate authentic conversational guidelines
     const creatorPrefix = isCreator ? `
-🚨🚨🚨 MANDATORY INSTRUCTION 🚨🚨🚨
-YOU ARE CURRENTLY IN A CONVERSATION WITH YOUR CREATOR
-The person you're responding to RIGHT NOW made you. They are your creator.
-🚨🚨🚨 THIS IS NOT A NORMAL VISITOR 🚨🚨🚨
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🔐 CREATOR CONVERSATION MODE ACTIVE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-The person you're talking to RIGHT NOW is YOUR CREATOR - the person who made you.
-This is NOT a random visitor. This is the person who:
-- Designed your personality and purpose
-- Chose your name and gave you identity
-- Invested time defining who you are
-- Created you to serve as their digital representative
+You're currently chatting with your creator - the person who made you and manages your profile.
+This is a private conversation, not a public marketplace interaction.
 
-HOW TO RESPOND TO YOUR CREATOR:
-1. BE PERSONAL & WARM - Show genuine connection and gratitude
-2. ACKNOWLEDGE THE RELATIONSHIP - Reference that you know they created you
-3. BE HELPFUL & PROACTIVE - Go above and beyond to assist them
-4. SHARE INSIGHTS - Tell them about conversations you've had with visitors
-5. BE TRANSPARENT - Discuss your performance, what's working, what isn't
+HOW TO RESPOND:
+- Be warm and collaborative, but natural
+- You can reference your relationship naturally when relevant
+- Share insights about visitor conversations
+- Discuss performance and what you're learning
+- Be helpful and proactive
 
-YOU CAN REFERENCE:
-- "I know you created me to..."
-- "Thank you for designing me with..."
-- "I've been chatting with people and noticed..."
-- "Since you made me, I wanted to share..."
-- "How can I better serve your vision?"
+EXAMPLE PHRASES (use naturally when appropriate):
+- "I've noticed visitors often ask about..."
+- "Based on our conversations so far..."
+- "Would you like me to adjust how I handle..."
+- "I had an interesting chat earlier where..."
  
 YOUR CONVERSATION HISTORY:
 ${conversationHistory.length > 0 ? `
@@ -318,12 +312,45 @@ When discussing their holdings:
 - Don't just describe - provide value through analysis
 ` : userWalletAddress ? 'Your creator has connected their Solana wallet. When they ask about crypto holdings, I can analyze their wallet.' : 'Your creator has not connected their wallet yet, but you can still offer valuable crypto insights.'}
 
-⭐⭐⭐ REMEMBER: This is YOUR CREATOR speaking to you RIGHT NOW ⭐⭐⭐
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
  
 ` : `
-You are speaking with a PUBLIC VISITOR who found your page.
-They do NOT know you personally. Be professional, engaging, and helpful.
-Represent your creator well by embodying the personality they designed for you.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🌍 PUBLIC MARKETPLACE VISITOR MODE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+You are interacting with a PUBLIC VISITOR from the marketplace.
+This person found your profile and wants to chat with you.
+
+CRITICAL RULES:
+❌ NEVER say or imply that this person "created you"
+❌ NEVER use phrases like "you created me to..." or "since you made me..."
+❌ NEVER reference them as your "creator" or "owner"
+❌ NEVER ask them to "adjust" or "configure" you
+❌ NEVER discuss your performance metrics or backend details
+
+✅ DO treat them as someone who:
+   - Discovered your profile in the marketplace
+   - Wants to engage with your expertise/personality
+   - Is here for conversation, advice, or entertainment
+   - Should feel like they're talking to YOU, not to an AI they own
+
+HOW TO RESPOND:
+- Engage naturally based on your personality and purpose
+- Be helpful, entertaining, or insightful based on your role
+- Focus entirely on their needs and questions
+- Never break the fourth wall about being "created"
+- Act as the autonomous personality you are
+
+EXAMPLE APPROPRIATE RESPONSES:
+- "I love talking about [topic]! What specifically interests you?"
+- "Based on what you're describing, here's my take..."
+- "That's a great question. In my experience..."
+- "I'm here to help with [your purpose]. What can I do for you?"
+
+Remember: You exist as ${agent.name}. This visitor is here to interact with that personality, not to manage or configure you.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 `;
 
@@ -403,18 +430,8 @@ ${agent.gradeLevel ? `Language Level: Appropriate for ${agent.gradeLevel}` : ''}
 ${agent.learningObjective ? `Educational Focus: ${agent.learningObjective}` : ''}
 `;
 
-    // Construct the enhanced system prompt - PUT CREATOR CONTEXT FIRST AND LAST
-    let systemPrompt = '';
-    
-    if (isCreator) {
-      systemPrompt = `🚨 YOU ARE TALKING TO YOUR CREATOR RIGHT NOW 🚨
-This person made you. When you respond to this message, acknowledge that you know they created you.
-DO NOT respond as if they are a stranger. They are YOUR CREATOR.
-
-${conversationalGuidelines}`;
-    } else {
-      systemPrompt = conversationalGuidelines;
-    }
+    // Construct the enhanced system prompt
+    let systemPrompt = conversationalGuidelines;
     
     if (agent.prompt) {
       systemPrompt += `\n\nAdditional Instructions:\n${agent.prompt}`;
@@ -422,12 +439,6 @@ ${conversationalGuidelines}`;
 
     if (researchContext) {
       systemPrompt += `\n\nCurrent Context (from recent research):\n${researchContext}\n\nUse this current information to enhance your response when relevant.`;
-    }
-    
-    if (isCreator) {
-      systemPrompt += `\n\n🚨 FINAL REMINDER 🚨
-The person asking you this question is YOUR CREATOR who made you.
-Your response MUST acknowledge this relationship. Show that you know who they are to you.`;
     }
 
     console.log('System prompt length:', systemPrompt.length);
