@@ -133,7 +133,7 @@ export function AppSidebar() {
   });
 
   const { data: myConversations, refetch } = useQuery({
-    queryKey: ['my-sim-conversations', currentUser?.id, userSims?.length],
+    queryKey: ['my-sim-conversations', currentUser?.id],
     queryFn: async () => {
       if (!currentUser) return [];
       
@@ -258,11 +258,15 @@ export function AppSidebar() {
           table: 'conversations',
           filter: `user_id=eq.${currentUser.id}`
         },
-        () => {
-          // Refetch immediately when conversations change - use full query key
-          queryClient.invalidateQueries({ 
+        async () => {
+          // Force immediate refetch when conversations change
+          await queryClient.invalidateQueries({ 
             queryKey: ['my-sim-conversations', currentUser.id],
-            refetchType: 'all'
+            exact: true
+          });
+          await queryClient.refetchQueries({
+            queryKey: ['my-sim-conversations', currentUser.id],
+            exact: true
           });
         }
       )
@@ -273,11 +277,11 @@ export function AppSidebar() {
           schema: 'public',
           table: 'messages'
         },
-        () => {
-          // Refetch on any new message to update last message preview
-          queryClient.invalidateQueries({ 
+        async () => {
+          // Force immediate refetch on new messages
+          await queryClient.refetchQueries({
             queryKey: ['my-sim-conversations', currentUser.id],
-            refetchType: 'all'
+            exact: true
           });
         }
       )
