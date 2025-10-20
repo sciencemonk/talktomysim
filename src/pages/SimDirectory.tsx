@@ -215,12 +215,12 @@ const SimDirectory = () => {
 
               <Tabs value={sortBy} onValueChange={(v) => setSortBy(v as SortType)}>
                 <TabsList>
+                  <TabsTrigger value="newest">
+                    Newest
+                  </TabsTrigger>
                   <TabsTrigger value="popular" className="gap-2">
                     <TrendingUp className="h-4 w-4" />
                     Popular
-                  </TabsTrigger>
-                  <TabsTrigger value="newest">
-                    Newest
                   </TabsTrigger>
                   <TabsTrigger value="name">
                     A-Z
