@@ -239,12 +239,30 @@ const PublicSimDetail = () => {
   const fetchSim = async () => {
     try {
       setIsLoading(true);
-      const { data, error } = await supabase
+      
+      // Try to fetch by custom_url first, then by id if not found
+      let query = supabase
         .from('advisors')
         .select('*')
+        .eq('is_active', true);
+      
+      // Try custom_url first
+      let { data, error } = await query
         .eq('custom_url', customUrl)
-        .eq('is_active', true)
         .maybeSingle();
+
+      // If not found by custom_url, try by id
+      if (!data && !error) {
+        const { data: dataById, error: errorById } = await supabase
+          .from('advisors')
+          .select('*')
+          .eq('id', customUrl)
+          .eq('is_active', true)
+          .maybeSingle();
+        
+        data = dataById;
+        error = errorById;
+      }
 
       if (error) throw error;
 
@@ -400,17 +418,10 @@ const PublicSimDetail = () => {
               <Button
                 size="lg"
                 className="w-full h-14 text-base font-semibold shadow-xl hover:shadow-2xl transition-all duration-300 mb-4 group"
-                onClick={async () => {
-                  const { data: { user } } = await supabase.auth.getUser();
-                  if (!user) {
-                    navigate('/?signin=true');
-                  } else {
-                    setShowChat(true);
-                  }
-                }}
+                onClick={() => setShowChat(true)}
               >
                 <MessageCircle className="h-5 w-5 mr-2 group-hover:scale-110 transition-transform" />
-                Add Sim
+                Launch Sim
               </Button>
 
               {/* Share Button */}
