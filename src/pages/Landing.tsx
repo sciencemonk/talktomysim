@@ -370,11 +370,11 @@ const Landing = () => {
                 >
                   <span className="whitespace-nowrap">{cat.label}</span>
                   <Badge 
-                    variant={selectedCategory === cat.id ? "secondary" : "outline"} 
+                    variant="outline"
                     className={`px-1 text-[10px] sm:px-1.5 sm:text-xs ${
                       selectedCategory === cat.id 
-                        ? 'bg-gray-300 text-gray-700 border-gray-300' 
-                        : ''
+                        ? 'bg-white text-black border-white' 
+                        : 'bg-transparent text-gray-500 border-gray-300'
                     }`}
                   >
                     {cat.count}
