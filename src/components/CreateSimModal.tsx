@@ -351,7 +351,7 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess }: CreateSimModal
           {/* Premium Sims Coming Soon */}
           <div className="p-4 rounded-lg border bg-muted/30">
             <p className="text-sm text-muted-foreground">
-              💎 <span className="font-medium">Premium Sims using $SIMAI</span> - Coming Soon
+              💎 <span className="font-medium">Earn income from your Sim using $SIMAI</span> - Coming Soon
             </p>
           </div>
 
