@@ -237,7 +237,7 @@ serve(async (req) => {
       }
     ];
 
-    // Generate response using Lovable AI (Claude) with tools
+    // Generate response using Lovable AI with tools
     let response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -245,7 +245,7 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-5',
+        model: 'google/gemini-2.5-flash',
         messages: [
           { role: 'system', content: systemPrompt },
           ...messages
@@ -418,7 +418,7 @@ serve(async (req) => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          model: 'claude-sonnet-4-5',
+          model: 'google/gemini-2.5-flash',
           messages: toolMessages,
           max_completion_tokens: 1000,
         }),
@@ -664,9 +664,6 @@ async function shouldDoWebResearch(userMessage: string, agent: Agent, lovableApi
 
 async function performWebResearch(userMessage: string, agent: Agent, perplexityApiKey: string): Promise<string> {
   try {
-    // Create a search query optimized for the agent's domain and specific knowledge
-    const searchQuery = `${agent.name} "${userMessage}" ${agent.subject}`;
-    
     const response = await fetch('https://api.perplexity.ai/chat/completions', {
       method: 'POST',
       headers: {
@@ -674,26 +671,22 @@ async function performWebResearch(userMessage: string, agent: Agent, perplexityA
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'llama-3.1-sonar-small-128k-online',
+        model: 'sonar',
         messages: [
           {
             role: 'system',
-            content: `You are researching information specifically about ${agent.name}'s work, ideas, and contributions in ${agent.subject}. 
-            Focus on finding accurate, specific information about ${agent.name}'s concepts, inventions, theories, and ideas.
-            Provide factual, detailed information that would be relevant to their expertise and historical contributions.
-            Be precise and comprehensive about their specific work and ideas.`
+            content: `You are researching information for ${agent.name} about ${agent.subject}. 
+            Provide current, accurate, factual information with specific details like prices, numbers, and data.
+            Focus on real-time information when relevant (prices, market data, current events).
+            Be concise and precise.`
           },
           {
             role: 'user',
-            content: `Research ${agent.name}'s specific work related to: ${userMessage}`
+            content: userMessage
           }
         ],
         temperature: 0.2,
-        top_p: 0.9,
         max_tokens: 800,
-        return_images: false,
-        return_related_questions: false,
-        search_recency_filter: 'year',
       }),
     });
 
