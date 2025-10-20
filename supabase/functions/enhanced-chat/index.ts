@@ -67,10 +67,9 @@ serve(async (req) => {
     console.log('User wallet:', userWalletAddress);
     
     const lovableApiKey = Deno.env.get('LOVABLE_API_KEY');
-    const perplexityApiKey = Deno.env.get('PERPLEXITY_API_KEY');
     
-    if (!lovableApiKey || !perplexityApiKey) {
-      throw new Error('Missing API keys');
+    if (!lovableApiKey) {
+      throw new Error('Missing LOVABLE_API_KEY');
     }
 
     const userMessage = messages[messages.length - 1]?.content || '';
@@ -158,26 +157,20 @@ serve(async (req) => {
     }
 
     // Determine if web research is needed
-    const needsResearch = await shouldDoWebResearch(userMessage, agent, lovableApiKey);
+    const needsResearch = shouldDoWebResearch(userMessage);
     console.log('Needs research:', needsResearch);
-
-    let researchContext = '';
-    if (needsResearch) {
-      console.log('Performing web research...');
-      researchContext = await performWebResearch(userMessage, agent, perplexityApiKey);
-      console.log('Research context length:', researchContext.length);
-    }
 
     // Use ONLY the agent's prompt as the system prompt - nothing more
     let systemPrompt = agent.prompt || `You are ${agent.name}. ${agent.description || ''}`;
 
+    // Add instruction for web search when needed
+    if (needsResearch) {
+      systemPrompt += `\n\nIMPORTANT: The user's question requires current, real-time information. You have access to Google Search - use it to find the latest, most accurate data to answer their question. Always provide specific numbers, prices, or facts from your search results.`;
+    }
+
     // Only add supplementary context if absolutely necessary
     if (walletAnalysis) {
       systemPrompt += `\n\nWallet data available: ${JSON.stringify(walletAnalysis, null, 2)}`;
-    }
-
-    if (researchContext) {
-      systemPrompt += `\n\nRecent research: ${researchContext}`;
     }
 
     console.log('System prompt length:', systemPrompt.length);
@@ -237,6 +230,25 @@ serve(async (req) => {
       }
     ];
 
+    // Build request body
+    const requestBody: any = {
+      model: 'google/gemini-2.5-flash',
+      messages: [
+        { role: 'system', content: systemPrompt },
+        ...messages
+      ],
+      tools: tools,
+      tool_choice: "auto",
+      max_completion_tokens: 1000,
+    };
+
+    // Enable Google Search grounding when web research is needed
+    if (needsResearch) {
+      requestBody.extra_body = {
+        google_search_grounding: true
+      };
+    }
+
     // Generate response using Lovable AI with tools
     let response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
@@ -244,16 +256,7 @@ serve(async (req) => {
         'Authorization': `Bearer ${lovableApiKey}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
-        messages: [
-          { role: 'system', content: systemPrompt },
-          ...messages
-        ],
-        tools: tools,
-        tool_choice: "auto",
-        max_completion_tokens: 1000,
-      }),
+      body: JSON.stringify(requestBody),
     });
 
     if (!response.ok) {
@@ -410,6 +413,19 @@ serve(async (req) => {
         }
       }
       
+      // Build second request with grounding if needed
+      const secondRequestBody: any = {
+        model: 'google/gemini-2.5-flash',
+        messages: toolMessages,
+        max_completion_tokens: 1000,
+      };
+
+      if (needsResearch) {
+        secondRequestBody.extra_body = {
+          google_search_grounding: true
+        };
+      }
+
       // Continue the conversation with tool results
       response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
         method: 'POST',
@@ -417,11 +433,7 @@ serve(async (req) => {
           'Authorization': `Bearer ${lovableApiKey}`,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          model: 'google/gemini-2.5-flash',
-          messages: toolMessages,
-          max_completion_tokens: 1000,
-        }),
+        body: JSON.stringify(secondRequestBody),
       });
       
       if (!response.ok) {
@@ -592,114 +604,22 @@ async function shouldGiveSimpleAnswer(userMessage: string, openaiApiKey: string)
   }
 }
 
-async function shouldDoWebResearch(userMessage: string, agent: Agent, lovableApiKey: string): Promise<boolean> {
-  try {
-    // Check for common real-time data requests
-    const realtimeKeywords = [
-      'price', 'current', 'now', 'today', 'latest', 'recent', 
-      'what is', 'how much', 'market', 'stock', 'crypto', 
-      'weather', 'news', 'score', 'rate', 'value'
-    ];
-    
-    const messageLower = userMessage.toLowerCase();
-    const needsRealtimeData = realtimeKeywords.some(keyword => messageLower.includes(keyword));
-    
-    // If it's clearly a real-time data request, do research immediately
-    if (needsRealtimeData) {
-      console.log('Real-time data request detected, performing research');
-      return true;
-    }
-    
-    const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${lovableApiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
-        messages: [
-          {
-            role: 'system',
-            content: `You are determining if web research is needed to answer a user's question accurately.
-
-            The user is talking to ${agent.name}, a specialized AI agent.
-            
-            Return "YES" for web research if the question:
-            - Asks about real-time data (prices, weather, news, scores, etc.)
-            - Requests current or latest information
-            - Asks about specific concepts, inventions, or ideas associated with ${agent.name}
-            - Requests factual information that should be verified
-            - Mentions specific terms, projects, or concepts that may need accurate details
-            - Could benefit from current or comprehensive information
-            - Is asking "what is" about any specific concept or term
-            - Seeks information about historical figures, their work, or contributions
-            
-            Return "NO" only if the question is:
-            - Purely philosophical or opinion-based
-            - About general concepts that don't need specific facts
-            - Simple greetings or casual conversation
-            
-            When in doubt, choose "YES" - it's better to research and provide accurate information.
-            
-            Respond with only "YES" or "NO".`
-          },
-          {
-            role: 'user',
-            content: `User asking ${agent.name}: ${userMessage}`
-          }
-        ],
-        max_completion_tokens: 10,
-      }),
-    });
-
-    const data = await response.json();
-    const decision = data.choices[0]?.message?.content?.trim().toUpperCase();
-    return decision === 'YES';
-  } catch (error) {
-    console.error('Error determining research need:', error);
-    return true; // Default to research on error - better to over-research than under-research
+function shouldDoWebResearch(userMessage: string): boolean {
+  // Check for common real-time data requests
+  const realtimeKeywords = [
+    'price', 'current', 'now', 'today', 'latest', 'recent', 
+    'what is', 'how much', 'market', 'stock', 'crypto', 
+    'weather', 'news', 'score', 'rate', 'value', 'cost',
+    'worth', 'trading', 'exchange', 'live', 'real-time'
+  ];
+  
+  const messageLower = userMessage.toLowerCase();
+  const needsRealtimeData = realtimeKeywords.some(keyword => messageLower.includes(keyword));
+  
+  if (needsRealtimeData) {
+    console.log('Real-time data request detected, enabling web search');
+    return true;
   }
-}
-
-async function performWebResearch(userMessage: string, agent: Agent, perplexityApiKey: string): Promise<string> {
-  try {
-    const response = await fetch('https://api.perplexity.ai/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${perplexityApiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'sonar',
-        messages: [
-          {
-            role: 'system',
-            content: `You are researching information for ${agent.name} about ${agent.subject}. 
-            Provide current, accurate, factual information with specific details like prices, numbers, and data.
-            Focus on real-time information when relevant (prices, market data, current events).
-            Be concise and precise.`
-          },
-          {
-            role: 'user',
-            content: userMessage
-          }
-        ],
-        temperature: 0.2,
-        max_tokens: 800,
-      }),
-    });
-
-    if (!response.ok) {
-      const error = await response.text();
-      console.error('Perplexity API error:', error);
-      return '';
-    }
-
-    const data = await response.json();
-    return data.choices[0]?.message?.content || '';
-  } catch (error) {
-    console.error('Error performing web research:', error);
-    return '';
-  }
+  
+  return false;
 }
