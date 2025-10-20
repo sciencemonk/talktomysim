@@ -119,21 +119,30 @@ const Landing = () => {
   const { data: allSims } = useQuery({
     queryKey: ['all-sims-landing'],
     queryFn: async () => {
-      // First get all advisors
-      const { data, error } = await supabase
+      // Get all advisors
+      const { data: advisorsData, error: advisorsError } = await supabase
         .from('advisors')
-        .select(`
-          *,
-          user_advisors(user_id)
-        `)
-        .eq('is_active', true)
-        .order('name', { ascending: true });
+        .select('*')
+        .eq('is_active', true);
       
-      if (error) throw error;
+      if (advisorsError) throw advisorsError;
+
+      // Get user counts for each advisor
+      const { data: userCounts, error: countsError } = await supabase
+        .from('user_advisors')
+        .select('advisor_id');
       
-      return (data || []).map(sim => {
-        // Count unique users who have added this sim
-        const userCount = Array.isArray(sim.user_advisors) ? sim.user_advisors.length : 0;
+      if (countsError) throw countsError;
+
+      // Count how many times each advisor appears in user_advisors
+      const countMap = new Map<string, number>();
+      userCounts?.forEach(ua => {
+        const count = countMap.get(ua.advisor_id) || 0;
+        countMap.set(ua.advisor_id, count + 1);
+      });
+      
+      return (advisorsData || []).map(sim => {
+        const userCount = countMap.get(sim.id) || 0;
         
         return {
           id: sim.id,
