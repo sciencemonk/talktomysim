@@ -38,3 +38,6 @@ verify_jwt = false
 
 [functions.generate-image]
 verify_jwt = false
+
+[functions.generate-welcome-messages]
+verify_jwt = false
