@@ -54,9 +54,9 @@ const TopNavigation = ({ showLiveIndicator = false }: TopNavigationProps) => {
             className="flex items-center hover:opacity-80 transition-opacity flex-shrink-0"
           >
             <img 
-              src="/lovable-uploads/d1283b59-7cfa-45f5-b151-4c32b24f3621.png" 
-              alt="Sim" 
-              className="h-6 w-6 sm:h-8 sm:w-8 object-contain"
+              src="/sim-logo.png" 
+              alt="Sim Logo" 
+              className="h-8 w-8 object-contain"
             />
           </Link>
           

@@ -13,7 +13,14 @@ const AgentsLayout = () => {
           <AgentsSidebar />
           <main className="flex-1 flex flex-col">
             <header className="flex items-center justify-between p-4 border-b">
-              <SidebarTrigger />
+              <div className="flex items-center gap-2">
+                <SidebarTrigger />
+                <img 
+                  src="/sim-logo.png" 
+                  alt="Sim Logo" 
+                  className="h-8 w-8 object-contain md:hidden"
+                />
+              </div>
               <ThemeToggle />
             </header>
             <div className="flex-1 p-6">

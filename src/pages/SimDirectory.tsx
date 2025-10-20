@@ -148,6 +148,11 @@ const SimDirectory = () => {
             <SidebarTrigger className="h-10 w-10">
               <Menu className="h-5 w-5" />
             </SidebarTrigger>
+            <img 
+              src="/sim-logo.png" 
+              alt="Sim Logo" 
+              className="h-8 w-8 object-contain"
+            />
             <div className="w-10" /> {/* Spacer for centering */}
           </div>
         </div>
