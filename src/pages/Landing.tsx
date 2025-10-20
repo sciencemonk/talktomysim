@@ -11,7 +11,8 @@ import solflareIcon from "@/assets/solflare-icon.png";
 import { toast as sonnerToast } from "sonner";
 import bs58 from "bs58";
 import AuthModal from "@/components/AuthModal";
-import { LogOut, Search, DollarSign, Gift, TrendingUp, Plus } from "lucide-react";
+import { LogOut, Search, DollarSign, Gift, TrendingUp, Plus, Menu } from "lucide-react";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { getAvatarUrl } from "@/lib/avatarUtils";
@@ -32,6 +33,7 @@ const Landing = () => {
   const [priceFilter, setPriceFilter] = useState<'all' | 'free' | 'paid'>('all');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [sortBy, setSortBy] = useState<'popular' | 'newest' | 'name'>('popular');
+  const isMobile = useIsMobile();
 
   // Check auth state without redirecting
   useEffect(() => {
@@ -273,9 +275,25 @@ const Landing = () => {
         <AppSidebar />
         
         <div className="flex-1 flex flex-col">
+          {/* Mobile Header with Menu */}
+          {isMobile && (
+            <div className="fixed top-0 left-0 right-0 z-50 bg-background border-b">
+              <div className="flex items-center justify-between p-3">
+                <SidebarTrigger className="h-10 w-10">
+                  <Menu className="h-5 w-5" />
+                </SidebarTrigger>
+                <img 
+                  src="/sim-logo.png" 
+                  alt="Sim Logo" 
+                  className="h-8 w-8 object-contain"
+                />
+                <div className="w-10" /> {/* Spacer for centering */}
+              </div>
+            </div>
+          )}
 
           {/* Sim Directory Section */}
-          <section className="container mx-auto px-3 sm:px-4 pb-12 pt-8 flex-1">
+          <section className={`container mx-auto px-3 sm:px-4 pb-12 flex-1 ${isMobile ? 'pt-20' : 'pt-8'}`}>
         <div className="max-w-7xl mx-auto">
           {/* Search and Filters */}
           <div className="mb-6 space-y-4">
