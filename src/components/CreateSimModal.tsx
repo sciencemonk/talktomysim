@@ -10,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface CreateSimModalProps {
   open: boolean;
@@ -42,7 +43,22 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess }: CreateSimModal
   const [price, setPrice] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [selectedIntegrations, setSelectedIntegrations] = useState<string[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const availableIntegrations = [
+    { id: 'solana-explorer', label: 'Solana Explorer', description: 'Access Solana blockchain data and wallet information' },
+    { id: 'pumpfun', label: 'PumpFun', description: 'Analyze and monitor PumpFun token trades' },
+    { id: 'x-analyzer', label: 'X (Twitter) Analyzer', description: 'Analyze X/Twitter profiles and content' },
+  ];
+
+  const toggleIntegration = (integrationId: string) => {
+    setSelectedIntegrations(prev => 
+      prev.includes(integrationId)
+        ? prev.filter(id => id !== integrationId)
+        : [...prev, integrationId]
+    );
+  };
 
   const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -139,6 +155,7 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess }: CreateSimModal
           prompt: systemPrompt.trim(),
           avatar_url: avatarUrl,
           price: isFree ? 0 : parseFloat(price) || 0,
+          integrations: selectedIntegrations,
           is_active: true,
           is_public: true,
         });
@@ -159,6 +176,7 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess }: CreateSimModal
       setAvatarPreview(null);
       setIsFree(true);
       setPrice("");
+      setSelectedIntegrations([]);
     } catch (error) {
       console.error("Error creating sim:", error);
       toast.error("Failed to create Sim");
@@ -359,6 +377,43 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess }: CreateSimModal
                 </p>
               </div>
             )}
+          </div>
+
+          {/* Integrations Section */}
+          <div className="space-y-4 p-4 rounded-lg border bg-muted/30">
+            <div className="space-y-1">
+              <Label className="text-sm font-semibold">Integrations (Optional)</Label>
+              <p className="text-xs text-muted-foreground">
+                Enable integrations to give your Sim access to external data and tools
+              </p>
+            </div>
+            <div className="space-y-3">
+              {availableIntegrations.map((integration) => (
+                <div
+                  key={integration.id}
+                  className="flex items-start gap-3 p-3 rounded-md border bg-background hover:border-primary/50 transition-colors cursor-pointer"
+                  onClick={() => toggleIntegration(integration.id)}
+                >
+                  <Checkbox
+                    id={integration.id}
+                    checked={selectedIntegrations.includes(integration.id)}
+                    onCheckedChange={() => toggleIntegration(integration.id)}
+                    className="mt-0.5"
+                  />
+                  <div className="flex-1 space-y-1">
+                    <Label
+                      htmlFor={integration.id}
+                      className="text-sm font-medium cursor-pointer"
+                    >
+                      {integration.label}
+                    </Label>
+                    <p className="text-xs text-muted-foreground">
+                      {integration.description}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
 
           {/* Submit Buttons */}

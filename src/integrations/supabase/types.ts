@@ -132,6 +132,7 @@ export type Database = {
           expertise_areas: string | null
           full_name: string | null
           id: string
+          integrations: Json | null
           interests: Json | null
           is_active: boolean
           is_official: boolean | null
@@ -179,6 +180,7 @@ export type Database = {
           expertise_areas?: string | null
           full_name?: string | null
           id?: string
+          integrations?: Json | null
           interests?: Json | null
           is_active?: boolean
           is_official?: boolean | null
@@ -226,6 +228,7 @@ export type Database = {
           expertise_areas?: string | null
           full_name?: string | null
           id?: string
+          integrations?: Json | null
           interests?: Json | null
           is_active?: boolean
           is_official?: boolean | null
