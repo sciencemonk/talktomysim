@@ -1,4 +1,5 @@
 import { useState, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -32,6 +33,7 @@ const categories = [
 ];
 
 export const CreateSimModal = ({ open, onOpenChange, onSuccess }: CreateSimModalProps) => {
+  const navigate = useNavigate();
   const [name, setName] = useState("");
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState("");
@@ -209,8 +211,6 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess }: CreateSimModal
       }
 
       toast.success("Sim created successfully!");
-      onOpenChange(false);
-      onSuccess?.();
       
       // Reset form
       setName("");
@@ -221,6 +221,11 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess }: CreateSimModal
       setAvatarFile(null);
       setAvatarPreview(null);
       setSelectedIntegrations([]);
+      
+      // Close modal and navigate to chat
+      onOpenChange(false);
+      onSuccess?.();
+      navigate(`/home?sim=${newSim.id}`);
     } catch (error) {
       console.error("Error creating sim:", error);
       toast.error("Failed to create Sim");
