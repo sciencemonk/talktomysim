@@ -465,16 +465,6 @@ export function AppSidebar() {
             />
           </div>
 
-          {/* Sim Marketplace Button */}
-          <Button
-            onClick={handleSimMarketplace}
-            className="w-full justify-start gap-2"
-            variant="outline"
-          >
-            <Users className="h-4 w-4" />
-            {open && <span>Sim Marketplace</span>}
-          </Button>
-
           {/* Create Your Sim Button - always visible */}
           <Button
             onClick={() => {
@@ -501,7 +491,7 @@ export function AppSidebar() {
               <Input
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search Sims"
+                placeholder="Search Chats"
                 className="pl-9"
               />
             </div>
@@ -511,7 +501,20 @@ export function AppSidebar() {
         {/* Your Sims - Scrollable */}
         <div className="flex-1 overflow-hidden px-3 min-h-0">
           <SidebarGroup className="h-full">
-            {open && <SidebarGroupLabel className="text-xs font-bold">Your Sims</SidebarGroupLabel>}
+            {open && (
+              <div className="flex items-center justify-between mb-2">
+                <SidebarGroupLabel className="text-xs font-bold">Your Sims</SidebarGroupLabel>
+                <Button
+                  onClick={handleSimMarketplace}
+                  variant="ghost"
+                  size="sm"
+                  className="h-7 text-xs gap-1"
+                >
+                  <Search className="h-3 w-3" />
+                  Find a Sim
+                </Button>
+              </div>
+            )}
             <SidebarGroupContent className="h-[calc(100%-2rem)]">
               <ScrollArea className="h-full max-h-[600px]">
                 <SidebarMenu>
