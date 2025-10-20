@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2, Globe, Wallet, ExternalLink, Copy, Check, MessageCircle, X, Share2 } from "lucide-react";
@@ -25,6 +25,7 @@ const PublicSimDetail = () => {
   const [shareLinkCopied, setShareLinkCopied] = useState(false);
   const [showEmbedCode, setShowEmbedCode] = useState(false);
   const [embedCodeCopied, setEmbedCodeCopied] = useState(false);
+  const embedCodeRef = useRef<HTMLDivElement>(null);
 
   // Calculate SOL equivalent (example rate: 1 $SimAI = 0.0001 SOL)
   const SIMAI_TO_SOL_RATE = 0.0001;
@@ -201,6 +202,18 @@ const PublicSimDetail = () => {
       description: "Paste this code before the </body> tag in your HTML"
     });
   };
+
+  // Scroll to embed code when it's shown
+  useEffect(() => {
+    if (showEmbedCode && embedCodeRef.current) {
+      setTimeout(() => {
+        embedCodeRef.current?.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'nearest'
+        });
+      }, 100);
+    }
+  }, [showEmbedCode]);
 
   useEffect(() => {
     checkUser();
@@ -435,7 +448,7 @@ const PublicSimDetail = () => {
 
               {/* Embed Code Section */}
               {showEmbedCode && (
-                <div className="mb-6 p-4 rounded-lg bg-muted/50 border border-border">
+                <div ref={embedCodeRef} className="mb-6 p-4 rounded-lg bg-muted/50 border border-border">
                   <div className="flex items-center justify-between mb-3">
                     <h3 className="font-semibold text-sm">Embed Code</h3>
                     <Button

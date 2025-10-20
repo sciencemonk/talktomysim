@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Globe, Wallet, ExternalLink, Copy, Check, MessageCircle, Share2, ArrowLeft } from "lucide-react";
@@ -28,6 +28,7 @@ const SimDetailModal = ({ sim, open, onOpenChange, onAuthRequired }: SimDetailMo
   const [isSignedIn, setIsSignedIn] = useState(false);
   const [showEmbedCode, setShowEmbedCode] = useState(false);
   const [embedCodeCopied, setEmbedCodeCopied] = useState(false);
+  const embedCodeRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -210,6 +211,18 @@ const SimDetailModal = ({ sim, open, onOpenChange, onAuthRequired }: SimDetailMo
     sonnerToast.success('Embed code copied to clipboard!');
   };
 
+  // Scroll to embed code when it's shown
+  useEffect(() => {
+    if (showEmbedCode && embedCodeRef.current) {
+      setTimeout(() => {
+        embedCodeRef.current?.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'nearest'
+        });
+      }, 100);
+    }
+  }, [showEmbedCode]);
+
   const handleLaunchSim = async () => {
     if (!sim) return;
     
@@ -391,7 +404,7 @@ const SimDetailModal = ({ sim, open, onOpenChange, onAuthRequired }: SimDetailMo
 
           {/* Embed Code Section */}
           {showEmbedCode && (
-            <div className="mb-6 p-4 rounded-lg bg-muted/50 border border-border">
+            <div ref={embedCodeRef} className="mb-6 p-4 rounded-lg bg-muted/50 border border-border">
               <div className="flex items-center justify-between mb-3">
                 <h3 className="font-semibold text-sm">Embed Code</h3>
                 <Button
