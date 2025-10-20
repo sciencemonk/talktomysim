@@ -43,7 +43,7 @@ const AuthModal = ({ open, onOpenChange, defaultMode = 'signup' }: AuthModalProp
           return;
         } else {
           // Open our site in Solflare's in-app browser
-          const deepLink = `https://solflare.com/ul/v1/browse/${encodeURIComponent(redirectUrl)}`;
+          const deepLink = `https://solflare.com/ul/v1/browse/${encodeURIComponent(redirectUrl)}?ref=${encodeURIComponent(window.location.origin)}`;
           
           toast.info('Opening in Solflare...', {
             description: 'You\'ll be able to connect from within the Solflare app'
