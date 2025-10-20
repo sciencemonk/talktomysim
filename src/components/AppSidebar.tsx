@@ -239,7 +239,9 @@ export function AppSidebar() {
       return Array.from(simConversationsMap.values())
         .sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime());
     },
-    enabled: !!currentUser
+    enabled: !!currentUser,
+    staleTime: 0, // Always refetch when invalidated
+    gcTime: 0, // Don't cache results
   });
 
   // Real-time subscription for conversation changes and advisor updates
