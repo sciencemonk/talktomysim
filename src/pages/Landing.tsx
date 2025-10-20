@@ -154,6 +154,7 @@ const Landing = () => {
           updatedAt: sim.updated_at,
           avatar: sim.avatar_url,
           prompt: sim.prompt,
+          welcome_message: sim.welcome_message,
           title: sim.title,
           sim_type: sim.sim_type as 'historical' | 'living',
           custom_url: sim.custom_url,

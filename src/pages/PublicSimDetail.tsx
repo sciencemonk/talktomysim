@@ -111,6 +111,7 @@ const PublicSimDetail = () => {
         updatedAt: data.updated_at,
         avatar: data.avatar_url,
         prompt: data.prompt,
+        welcome_message: data.welcome_message,
         title: data.title,
         sim_type: (data.sim_type || 'living') as 'historical' | 'living',
         is_featured: false,
