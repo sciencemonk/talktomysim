@@ -137,57 +137,64 @@ export function AppSidebar() {
     queryFn: async () => {
       if (!currentUser) return [];
       
-      // OPTIMIZED: Get all data with JOINs in a single query
-      const { data: conversationsData, error } = await supabase
+      // Step 1: Get all conversations in ONE query
+      const { data: conversations, error } = await supabase
         .from('conversations')
-        .select(`
-          id,
-          tutor_id,
-          updated_at,
-          advisors:tutor_id (
-            id,
-            name,
-            avatar_url,
-            user_id,
-            profiles:user_id (
-              wallet_address
-            )
-          ),
-          messages (
-            content,
-            role,
-            created_at
-          )
-        `)
+        .select('id, tutor_id, updated_at')
         .eq('user_id', currentUser.id)
-        .order('updated_at', { ascending: false })
-        .order('created_at', { foreignTable: 'messages', ascending: false })
-        .limit(1, { foreignTable: 'messages' });
+        .order('updated_at', { ascending: false });
       
-      if (error) {
-        console.error('Error fetching conversations:', error);
-        throw error;
-      }
+      if (error) throw error;
+      if (!conversations || conversations.length === 0) return [];
+      
+      // Step 2: Get unique tutor_ids and batch fetch ALL advisors in ONE query
+      const tutorIds = [...new Set(conversations.map(c => c.tutor_id))];
+      const { data: advisors } = await supabase
+        .from('advisors')
+        .select('id, name, avatar_url, user_id')
+        .in('id', tutorIds);
+      
+      const advisorMap = new Map(advisors?.map(a => [a.id, a]) || []);
+      
+      // Step 3: Batch fetch ALL profiles in ONE query
+      const userIds = [...new Set(advisors?.map(a => a.user_id).filter(Boolean) || [])];
+      const { data: profiles } = userIds.length > 0 
+        ? await supabase.from('profiles').select('id, wallet_address').in('id', userIds)
+        : { data: [] };
+      
+      const profileMap = new Map<string, { id: string; wallet_address: string | null }>();
+      profiles?.forEach(p => profileMap.set(p.id, p));
+      
+      // Step 4: Batch fetch last message for each conversation in ONE query
+      const conversationIds = conversations.map(c => c.id);
+      const { data: allMessages } = await supabase
+        .from('messages')
+        .select('conversation_id, content, role, created_at')
+        .in('conversation_id', conversationIds)
+        .order('created_at', { ascending: false });
+      
+      // Group messages by conversation and get the first (latest) one
+      const messageMap = new Map();
+      allMessages?.forEach(msg => {
+        if (!messageMap.has(msg.conversation_id)) {
+          messageMap.set(msg.conversation_id, msg);
+        }
+      });
+      
       
       // Group by sim, keeping only the most recent conversation per sim
       const simConversationsMap = new Map<string, any>();
       
-      for (const conv of conversationsData || []) {
-        const simId = conv.tutor_id;
-        const advisor = Array.isArray(conv.advisors) ? conv.advisors[0] : conv.advisors;
+      for (const conv of conversations) {
+        const advisor = advisorMap.get(conv.tutor_id);
+        if (!advisor) continue; // Skip deleted sims
         
-        // Skip if advisor doesn't exist (deleted sim)
-        if (!advisor) {
-          console.log('Skipping deleted sim:', simId);
-          continue;
-        }
-        
-        if (!simConversationsMap.has(simId)) {
-          const profile = Array.isArray(advisor.profiles) ? advisor.profiles[0] : advisor.profiles;
-          const lastMessage = Array.isArray(conv.messages) && conv.messages.length > 0 ? conv.messages[0] : null;
+        if (!simConversationsMap.has(conv.tutor_id)) {
+          const profile = advisor.user_id ? profileMap.get(advisor.user_id) : null;
+          const lastMessage = messageMap.get(conv.id);
           
-          simConversationsMap.set(simId, {
-            sim_id: simId,
+          simConversationsMap.set(conv.tutor_id, {
+            sim_id: conv.tutor_id,
             sim_name: advisor.name || 'Unknown Sim',
             sim_avatar: advisor.avatar_url || null,
             sim_user_id: advisor.user_id || null,
@@ -201,22 +208,21 @@ export function AppSidebar() {
       
       // Also include all user's own created sims, even if no conversations exist
       if (userSims && userSims.length > 0) {
-        // Batch fetch all profiles for user's sims
         const userSimIds = userSims.map(s => s.user_id).filter(Boolean);
-        let profilesMap = new Map();
+        const userSimProfileMap = new Map<string, { id: string; wallet_address: string | null }>();
         
         if (userSimIds.length > 0) {
-          const { data: profiles } = await supabase
+          const { data: userSimProfiles } = await supabase
             .from('profiles')
             .select('id, wallet_address')
             .in('id', userSimIds);
           
-          profiles?.forEach(p => profilesMap.set(p.id, p));
+          userSimProfiles?.forEach(p => userSimProfileMap.set(p.id, p));
         }
         
         for (const sim of userSims) {
           if (!simConversationsMap.has(sim.id)) {
-            const profile = sim.user_id ? profilesMap.get(sim.user_id) : null;
+            const profile = sim.user_id ? userSimProfileMap.get(sim.user_id) : null;
             
             simConversationsMap.set(sim.id, {
               sim_id: sim.id,
