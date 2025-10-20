@@ -27,7 +27,7 @@ export const useChatHistory = (agent: AgentType, forceNew: boolean = false, conv
       if (!agent?.id) return;
       
       setIsLoading(true);
-      console.log('Loading chat history for agent:', agent.name, 'forceNew:', forceNew, 'conversationId:', conversationId);
+      console.log('🔄 Loading chat history for agent:', agent.name, 'forceNew:', forceNew, 'conversationId:', conversationId);
 
       try {
         // Check if user is authenticated
@@ -35,9 +35,9 @@ export const useChatHistory = (agent: AgentType, forceNew: boolean = false, conv
         
         if (forceNew) {
           // Start completely fresh - clear and show empty
+          console.log('🆕 FORCE NEW CHAT - Clearing all messages and conversation');
           setActiveConversationId(null);
           setMessages([]);
-          console.log('Starting fresh conversation');
           setIsLoading(false);
           return;
         }
