@@ -31,7 +31,6 @@ const UserSimForm = ({ open, onOpenChange, existingSim, onSuccess }: UserSimForm
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [isAutoSaving, setIsAutoSaving] = useState(false);
-  const [isGeneratingDescription, setIsGeneratingDescription] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string>('');
 
@@ -40,7 +39,7 @@ const UserSimForm = ({ open, onOpenChange, existingSim, onSuccess }: UserSimForm
       setFormData({
         name: existingSim.name || '',
         title: existingSim.title || '',
-        description: existingSim.description || '',
+        description: '', // Always auto-generate, ignore stored value
         prompt: existingSim.prompt || '',
         custom_url: existingSim.custom_url || '',
         avatar_url: existingSim.avatar_url || ''
@@ -50,7 +49,7 @@ const UserSimForm = ({ open, onOpenChange, existingSim, onSuccess }: UserSimForm
       setFormData({
         name: '',
         title: '',
-        description: '',
+        description: '', // Always auto-generate
         prompt: 'You are a helpful AI assistant. Be friendly, informative, and engaging in conversations.',
         custom_url: '',
         avatar_url: ''
@@ -174,43 +173,6 @@ const UserSimForm = ({ open, onOpenChange, existingSim, onSuccess }: UserSimForm
       throw error;
     } finally {
       setIsUploading(false);
-    }
-  };
-
-  const generateDescription = async () => {
-    if (!formData.prompt.trim()) {
-      toast({
-        title: "Cannot generate description",
-        description: "Please add a system prompt first",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    setIsGeneratingDescription(true);
-    try {
-      const { data, error } = await supabase.functions.invoke('generate-sim-description', {
-        body: { prompt: formData.prompt }
-      });
-
-      if (error) throw error;
-
-      if (data?.description) {
-        setFormData(prev => ({ ...prev, description: data.description }));
-        toast({
-          title: "Description generated",
-          description: "AI has created a display description for your sim"
-        });
-      }
-    } catch (error) {
-      console.error('Failed to generate description:', error);
-      toast({
-        title: "Generation failed",
-        description: "Could not generate description. Please try again.",
-        variant: "destructive"
-      });
-    } finally {
-      setIsGeneratingDescription(false);
     }
   };
 
@@ -364,40 +326,18 @@ const UserSimForm = ({ open, onOpenChange, existingSim, onSuccess }: UserSimForm
             />
           </div>
 
-          <div>
-            <div className="flex items-center justify-between mb-2">
-              <Label htmlFor="description">Short Description (Display)</Label>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={generateDescription}
-                disabled={isGeneratingDescription || !formData.prompt.trim()}
-              >
-                {isGeneratingDescription ? (
-                  <>
-                    <Loader2 className="h-3 w-3 mr-1 animate-spin" />
-                    Generating...
-                  </>
-                ) : (
-                  'Auto-Generate'
-                )}
-              </Button>
+          {/* Description is auto-generated - no user input needed */}
+          {formData.description && (
+            <div>
+              <Label>Auto-Generated Description (Preview)</Label>
+              <div className="p-3 bg-muted/50 rounded-md text-sm text-muted-foreground">
+                {formData.description}
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                This description is automatically generated from your system prompt when you save.
+              </p>
             </div>
-            <Textarea
-              id="description"
-              value={formData.description}
-              onChange={(e) => handleInputChange('description', e.target.value)}
-              placeholder="Brief 1-2 sentence description for display..."
-              rows={2}
-              maxLength={200}
-            />
-            <p className="text-xs text-muted-foreground mt-1">
-              {existingSim 
-                ? 'For display purposes - will auto-generate if left empty.'
-                : 'For display purposes - will be auto-generated from your prompt.'} {formData.description.length}/200 characters.
-            </p>
-          </div>
+          )}
 
           <div>
             <Label htmlFor="custom_url">Custom URL *</Label>
