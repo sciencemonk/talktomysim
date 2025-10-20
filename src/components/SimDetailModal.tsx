@@ -130,18 +130,11 @@ const SimDetailModal = ({ sim, open, onOpenChange, onAuthRequired }: SimDetailMo
             </div>
           </div>
 
-          {/* Name and Title */}
-          <div className="text-center space-y-2 mb-6">
+          {/* Name and Description */}
+          <div className="text-center space-y-3 mb-6">
             <h1 className="text-3xl sm:text-4xl font-bold tracking-tight">{sim.name}</h1>
-            {sim.title && (
-              <p className="text-lg sm:text-xl text-muted-foreground">{sim.title}</p>
-            )}
-          </div>
-
-          {/* Description */}
-          <div className="mb-6 p-4 bg-accent/10 rounded-2xl border border-border">
-            <p className="text-sm text-center leading-relaxed">
-              {simDescription}
+            <p className="text-sm sm:text-base text-muted-foreground leading-relaxed px-2">
+              {sim.description || simDescription}
             </p>
           </div>
 

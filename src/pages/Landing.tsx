@@ -389,11 +389,6 @@ const Landing = () => {
                     <span className="text-sm font-semibold line-clamp-2 leading-tight">
                       {sim.name}
                     </span>
-                    {sim.title && (
-                      <span className="text-xs text-muted-foreground line-clamp-1 block">
-                        {sim.title}
-                      </span>
-                    )}
                     
                     {/* Category and Price badges at bottom */}
                     <div className="flex flex-wrap gap-1.5 justify-center mt-2 pt-2 border-t border-border/50">

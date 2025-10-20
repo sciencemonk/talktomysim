@@ -474,9 +474,6 @@ Stay true to the tone, values, and personality of [Name].`,
                       )}
                       <div className="min-w-0 flex-1">
                         <CardTitle className="text-lg sm:text-xl truncate">{userSim.name}</CardTitle>
-                        {userSim.title && (
-                          <CardDescription className="truncate">{userSim.title}</CardDescription>
-                        )}
                       </div>
                     </div>
                     <div className="flex gap-2">

@@ -293,7 +293,7 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess }: CreateSimModal
                 id="description"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                placeholder="Describe your sim's expertise, personality, and how it helps users..."
+                placeholder="What does your Sim do?"
                 rows={3}
                 className="resize-none"
               />
