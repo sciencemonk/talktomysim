@@ -168,49 +168,16 @@ serve(async (req) => {
       console.log('Research context length:', researchContext.length);
     }
 
-    // Analyze the emotional context of the conversation
-    const emotionalContext = await analyzeEmotionalContext(userMessage, openaiApiKey);
-    console.log('Emotional context:', emotionalContext);
+    // Use ONLY the agent's prompt as the system prompt - nothing more
+    let systemPrompt = agent.prompt || `You are ${agent.name}. ${agent.description || ''}`;
 
-    // Construct the enhanced system prompt - AGENT PROMPT FIRST
-    let systemPrompt = '';
-    
-    // PRIMARY: The agent's specific personality and instructions
-    if (agent.prompt) {
-      systemPrompt += `${agent.prompt}\n\n`;
-    }
-    
-    // SECONDARY: General conversation guidelines
-    systemPrompt += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-🌍 INTERACTION GUIDELINES
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-You are interacting with someone who discovered you in the marketplace.
-
-CRITICAL: Stay in character as ${agent.name}. Never:
-- Say or imply that this person "created you"
-- Reference them as your "creator" or "owner"  
-- Discuss your backend configuration or metrics
-- Break character or the fourth wall
-
-EMOTIONAL INTELLIGENCE:
-Current conversation tone: ${emotionalContext}
-Respond authentically to emotions, showing your personality's depth and complexity.
-
-${agent.gradeLevel ? `Language Level: ${agent.gradeLevel}` : ''}
-${agent.learningObjective ? `Educational Focus: ${agent.learningObjective}` : ''}`;
-
-    // Add wallet context if available
+    // Only add supplementary context if absolutely necessary
     if (walletAnalysis) {
-      systemPrompt += `\n\nWALLET & FINANCIAL INSIGHTS:
-Wallet analysis available: ${JSON.stringify(walletAnalysis, null, 2)}
-Use this to provide personalized insights when discussing their portfolio.`;
-    } else if (userWalletAddress) {
-      systemPrompt += `\n\nUser has connected their Solana wallet. You can analyze it when they ask about crypto holdings.`;
+      systemPrompt += `\n\nWallet data available: ${JSON.stringify(walletAnalysis, null, 2)}`;
     }
 
     if (researchContext) {
-      systemPrompt += `\n\nCurrent Context (from recent research):\n${researchContext}\n\nUse this current information to enhance your response when relevant.`;
+      systemPrompt += `\n\nRecent research: ${researchContext}`;
     }
 
     console.log('System prompt length:', systemPrompt.length);
