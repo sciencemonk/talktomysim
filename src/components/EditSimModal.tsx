@@ -71,8 +71,10 @@ const EditSimModal = ({ open, onOpenChange, simId }: EditSimModalProps) => {
   const [description, setDescription] = useState('');
   const [selectedIntegrations, setSelectedIntegrations] = useState<string[]>([]);
   const [systemPrompt, setSystemPrompt] = useState('');
+  const [welcomeMessage, setWelcomeMessage] = useState('');
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+  const [hasGenerated, setHasGenerated] = useState(false);
   
   const [isGenerating, setIsGenerating] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -101,8 +103,13 @@ const EditSimModal = ({ open, onOpenChange, simId }: EditSimModalProps) => {
         setCategory(sim.category || '');
         setDescription(sim.description || '');
         setSystemPrompt(sim.prompt || '');
+        setWelcomeMessage(sim.welcome_message || '');
         setAvatarPreview(sim.avatar_url || null);
         setSelectedIntegrations((sim.integrations as string[]) || []);
+        // If system prompt and welcome message exist, mark as generated
+        if (sim.prompt && sim.welcome_message) {
+          setHasGenerated(true);
+        }
       }
     } catch (error) {
       console.error('Error loading sim:', error);
@@ -148,6 +155,7 @@ const EditSimModal = ({ open, onOpenChange, simId }: EditSimModalProps) => {
 
     setIsGenerating(true);
     try {
+      // Generate system prompt
       const { data, error } = await supabase.functions.invoke("generate-system-prompt", {
         body: { 
           name: name.trim(),
@@ -161,11 +169,41 @@ const EditSimModal = ({ open, onOpenChange, simId }: EditSimModalProps) => {
 
       if (data?.systemPrompt) {
         setSystemPrompt(data.systemPrompt);
-        toast.success("System prompt generated!");
+        
+        // Generate welcome message
+        let welcomeMessage = `Hi! I'm ${name.trim()}. ${description.trim()}`;
+        
+        try {
+          const { data: welcomeData } = await supabase.functions.invoke("chat-completion", {
+            body: {
+              messages: [
+                {
+                  role: "system",
+                  content: "You are a helpful assistant that creates engaging welcome messages for AI chatbots. The welcome message should: 1) Greet the user warmly, 2) Briefly explain what the AI does, 3) Explain HOW users should interact (rules, format, what to do first), 4) Be 2-3 sentences, under 200 characters. Write in first person from the AI's perspective."
+                },
+                {
+                  role: "user",
+                  content: `Create a welcome message for an AI called "${name.trim()}" with this description: ${description.trim()}\n\nSystem prompt: ${data.systemPrompt.trim()}`
+                }
+              ]
+            }
+          });
+          
+          if (welcomeData?.content) {
+            welcomeMessage = welcomeData.content.trim();
+          }
+        } catch (error) {
+          console.error("Error generating welcome message:", error);
+          // Use fallback if generation fails
+        }
+        
+        setWelcomeMessage(welcomeMessage);
+        setHasGenerated(true);
+        toast.success("Sim generated!");
       }
     } catch (error) {
       console.error("Error generating prompt:", error);
-      toast.error("Failed to generate system prompt");
+      toast.error("Failed to generate sim");
     } finally {
       setIsGenerating(false);
     }
@@ -184,6 +222,11 @@ const EditSimModal = ({ open, onOpenChange, simId }: EditSimModalProps) => {
 
     if (!systemPrompt.trim()) {
       toast.error('Please enter or generate a system prompt');
+      return;
+    }
+
+    if (!welcomeMessage.trim()) {
+      toast.error('Please enter or generate a welcome message');
       return;
     }
     
@@ -220,6 +263,7 @@ const EditSimModal = ({ open, onOpenChange, simId }: EditSimModalProps) => {
           category: category || null,
           description: description.trim(),
           prompt: systemPrompt.trim(),
+          welcome_message: welcomeMessage.trim(),
           avatar_url: avatarUrl,
           integrations: selectedIntegrations,
           updated_at: new Date().toISOString()
@@ -409,7 +453,7 @@ const EditSimModal = ({ open, onOpenChange, simId }: EditSimModalProps) => {
               </div>
             </div>
 
-            {/* System Prompt Generation */}
+            {/* Sim Generation */}
             <div className="space-y-4">
               <Button
                 type="button"
@@ -427,26 +471,46 @@ const EditSimModal = ({ open, onOpenChange, simId }: EditSimModalProps) => {
                 ) : (
                   <>
                     <Sparkles className="w-4 h-4" />
-                    Generate System Prompt
+                    Generate Sim
                   </>
                 )}
               </Button>
-
-              <div className="space-y-2">
-                <Label htmlFor="systemPrompt" className="text-sm font-medium">
-                  System Prompt <span className="text-destructive">*</span>
-                </Label>
-                <Textarea
-                  id="systemPrompt"
-                  value={systemPrompt}
-                  onChange={(e) => setSystemPrompt(e.target.value)}
-                  placeholder="The brains behind your Sim..."
-                  rows={8}
-                  required
-                  className="resize-none text-sm font-mono"
-                />
-              </div>
             </div>
+
+            {/* Generated Fields - Only show after generation */}
+            {hasGenerated && (
+              <>
+                <div className="space-y-2">
+                  <Label htmlFor="welcomeMessage" className="text-sm font-medium">
+                    Welcome Message <span className="text-destructive">*</span>
+                  </Label>
+                  <Textarea
+                    id="welcomeMessage"
+                    value={welcomeMessage}
+                    onChange={(e) => setWelcomeMessage(e.target.value)}
+                    placeholder="The first message users see..."
+                    rows={3}
+                    required
+                    className="resize-none"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="systemPrompt" className="text-sm font-medium">
+                    System Prompt <span className="text-destructive">*</span>
+                  </Label>
+                  <Textarea
+                    id="systemPrompt"
+                    value={systemPrompt}
+                    onChange={(e) => setSystemPrompt(e.target.value)}
+                    placeholder="The brains behind your Sim..."
+                    rows={8}
+                    required
+                    className="resize-none text-sm font-mono"
+                  />
+                </div>
+              </>
+            )}
 
             {/* Submit Buttons */}
             <div className="flex gap-3 pt-6">
@@ -472,7 +536,7 @@ const EditSimModal = ({ open, onOpenChange, simId }: EditSimModalProps) => {
               </Button>
               <Button
                 type="submit"
-                disabled={isSaving || !name.trim() || !category || !systemPrompt.trim()}
+                disabled={isSaving || !name.trim() || !category || !systemPrompt.trim() || !welcomeMessage.trim()}
                 className="h-11 gap-2"
               >
                 {isSaving ? (
