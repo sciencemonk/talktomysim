@@ -21,40 +21,49 @@ const AuthModal = ({ open, onOpenChange, defaultMode = 'signup' }: AuthModalProp
   const handleWalletSignIn = async (walletType: 'phantom' | 'solflare') => {
     setIsLoading(walletType);
     try {
-      // Check if on mobile
-      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+      // Check if on mobile with more comprehensive detection
+      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+                       (window.innerWidth <= 768);
       
       let wallet;
       
       if (walletType === 'phantom') {
         wallet = (window as any).solana;
         
-        // If on mobile and wallet not detected, open Phantom app via deep link
-        if (isMobile && !wallet?.isPhantom) {
-          const dappUrl = encodeURIComponent(window.location.href);
-          window.location.href = `https://phantom.app/ul/browse/${dappUrl}?ref=${window.location.origin}`;
+        // If on mobile, always try deep link first
+        if (isMobile) {
+          const currentUrl = window.location.href;
+          const deepLink = `https://phantom.app/ul/browse/${encodeURIComponent(currentUrl)}?ref=${encodeURIComponent(window.location.origin)}`;
+          toast.info('Opening Phantom app...');
+          window.location.href = deepLink;
           setIsLoading(null);
           return;
         }
         
         if (!wallet?.isPhantom) {
-          toast.error('Please install Phantom wallet extension');
+          toast.error('Please install Phantom wallet extension', {
+            description: 'Visit phantom.app to install'
+          });
           setIsLoading(null);
           return;
         }
       } else {
         wallet = (window as any).solflare;
         
-        // If on mobile and wallet not detected, open Solflare app via deep link
-        if (isMobile && !wallet) {
-          const dappUrl = encodeURIComponent(window.location.href);
-          window.location.href = `https://solflare.com/ul/v1/browse/${dappUrl}`;
+        // If on mobile, always try deep link first
+        if (isMobile) {
+          const currentUrl = window.location.href;
+          const deepLink = `https://solflare.com/ul/v1/browse/${encodeURIComponent(currentUrl)}`;
+          toast.info('Opening Solflare app...');
+          window.location.href = deepLink;
           setIsLoading(null);
           return;
         }
         
         if (!wallet) {
-          toast.error('Please install Solflare wallet extension');
+          toast.error('Please install Solflare wallet extension', {
+            description: 'Visit solflare.com to install'
+          });
           setIsLoading(null);
           return;
         }
