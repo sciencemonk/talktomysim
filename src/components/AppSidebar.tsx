@@ -406,7 +406,7 @@ export function AppSidebar() {
 
   return (
     <>
-    <Sidebar className="border-r bg-background flex flex-col">
+    <Sidebar className="border-r bg-white flex flex-col">
       <SidebarContent className="flex flex-col h-full">
         {/* Header - Always Visible */}
         <div className="flex-shrink-0 p-3 space-y-4">
