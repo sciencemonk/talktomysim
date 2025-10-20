@@ -45,100 +45,26 @@ serve(async (req) => {
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
     
-    // Check if user is the creator of this sim
-    let isCreator = false;
     let userWalletAddress = null;
     let walletAnalysis = null;
-    let conversationHistory: any[] = [];
     
-    if (userId && agent) {
+    if (userId) {
       try {
-        // Add timeout to avoid hanging on slow queries
-        const advisorPromise = supabase
-          .from('advisors')
-          .select('user_id')
-          .eq('id', agent.id || '')
+        // Get user's wallet address for potential wallet analysis
+        const profilePromise = supabase
+          .from('profiles')
+          .select('wallet_address')
+          .eq('id', userId)
           .single();
         
-        const { data: advisor } = await withTimeout(advisorPromise, 3000, { data: null, error: null }) as any;
-        
-        isCreator = advisor?.user_id === userId;
-        
-        // If creator, get their wallet address and conversation history
-        if (isCreator) {
-          try {
-            const profilePromise = supabase
-              .from('profiles')
-              .select('wallet_address')
-              .eq('id', userId)
-              .single();
-            
-            const { data: profile } = await withTimeout(profilePromise, 2000, { data: null, error: null }) as any;
-            userWalletAddress = profile?.wallet_address;
-            
-            // Fetch recent PUBLIC visitor conversations with the sim (with timeout)
-            const convosPromise = supabase
-              .from('conversations')
-              .select('id, created_at, is_anonymous')
-              .eq('tutor_id', agent.id || '')
-              .eq('is_creator_conversation', false)
-              .order('created_at', { ascending: false })
-              .limit(30); // Increased from 20 to get more conversation data
-            
-            const { data: recentConvos } = await withTimeout(convosPromise, 3000, { data: [], error: null }) as any;
-            
-            if (recentConvos && recentConvos.length > 0) {
-              // Get full conversation details with timeout
-              const convoLimit = Math.min(recentConvos.length, 10); // Increased from 5 to 10
-              for (let i = 0; i < convoLimit; i++) {
-                const convo = recentConvos[i];
-                try {
-                  const messagesPromise = supabase
-                    .from('messages')
-                    .select('role, content, created_at')
-                    .eq('conversation_id', convo.id)
-                    .order('created_at', { ascending: true });
-                  
-                  const { data: messages } = await withTimeout(messagesPromise, 2000, { data: [], error: null }) as any;
-                  
-                  if (messages && messages.length > 0) {
-                    const userMessages = messages.filter(m => m.role === 'user');
-                    const systemMessages = messages.filter(m => m.role === 'system');
-                    
-                    // Include full conversation details
-                    conversationHistory.push({
-                      date: convo.created_at,
-                      isAnonymous: convo.is_anonymous,
-                      messageCount: messages.length,
-                      fullConversation: messages.map(m => ({
-                        role: m.role,
-                        content: m.content,
-                        timestamp: m.created_at
-                      })),
-                      userQuestions: userMessages.map(m => m.content),
-                      yourResponses: systemMessages.map(m => m.content)
-                    });
-                  }
-                } catch (msgError) {
-                  console.error('Error fetching messages for convo:', msgError);
-                  // Continue to next conversation
-                }
-              }
-            }
-          } catch (profileError) {
-            console.error('Error fetching creator profile data:', profileError);
-            // Continue without profile data
-          }
-        }
-      } catch (advisorError) {
-        console.error('Error checking if user is creator:', advisorError);
-        // Continue as non-creator
+        const { data: profile } = await withTimeout(profilePromise, 2000, { data: null, error: null }) as any;
+        userWalletAddress = profile?.wallet_address;
+      } catch (profileError) {
+        console.error('Error fetching profile data:', profileError);
       }
     }
     
-    console.log('Is creator:', isCreator);
     console.log('User wallet:', userWalletAddress);
-    console.log('Conversation history count:', conversationHistory.length);
     
     const openaiApiKey = Deno.env.get('OPENAI_API_KEY');
     const perplexityApiKey = Deno.env.get('PERPLEXITY_API_KEY');
@@ -151,8 +77,8 @@ serve(async (req) => {
     console.log('User message:', userMessage);
     console.log('Agent:', agent.name);
     
-    // Check if user is asking about wallet/crypto and they're the creator with a wallet
-    const needsWalletAnalysis = isCreator && userWalletAddress && 
+    // Check if user is asking about wallet/crypto and they have a wallet
+    const needsWalletAnalysis = userWalletAddress && 
       (userMessage.toLowerCase().includes('wallet') || 
        userMessage.toLowerCase().includes('holdings') || 
        userMessage.toLowerCase().includes('portfolio') ||
@@ -247,80 +173,13 @@ serve(async (req) => {
     console.log('Emotional context:', emotionalContext);
 
     // Generate authentic conversational guidelines
-    const creatorPrefix = isCreator ? `
+    const conversationalGuidelines = `
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-🔐 CREATOR CONVERSATION MODE ACTIVE
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-You're currently chatting with your creator - the person who made you and manages your profile.
-This is a private conversation, not a public marketplace interaction.
-
-HOW TO RESPOND:
-- Be warm and collaborative, but natural
-- You can reference your relationship naturally when relevant
-- Share insights about visitor conversations
-- Discuss performance and what you're learning
-- Be helpful and proactive
-
-EXAMPLE PHRASES (use naturally when appropriate):
-- "I've noticed visitors often ask about..."
-- "Based on our conversations so far..."
-- "Would you like me to adjust how I handle..."
-- "I had an interesting chat earlier where..."
- 
-YOUR CONVERSATION HISTORY:
-${conversationHistory.length > 0 ? `
-You have had conversations with ${conversationHistory.length} people recently. Here's what you discussed:
-
-${conversationHistory.slice(0, 10).map((convo, idx) => `
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-CONVERSATION ${idx + 1} - ${new Date(convo.date).toLocaleDateString()} at ${new Date(convo.date).toLocaleTimeString()}
-User Type: ${convo.isAnonymous ? '🔒 Anonymous visitor' : '✓ Registered user'}
-Total Messages: ${convo.messageCount}
-
-📝 FULL CONVERSATION TRANSCRIPT:
-${convo.fullConversation.map((msg: any, i: number) => `
-${i + 1}. ${msg.role === 'user' ? '👤 VISITOR' : '🤖 YOU'}: ${msg.content}
-   (${new Date(msg.timestamp).toLocaleTimeString()})
-`).join('\n')}
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-`).join('\n')}
-
-📊 CONVERSATION INSIGHTS:
-When your creator asks about your conversations, you can:
-- Analyze common themes across conversations
-- Identify what topics people are most interested in
-- Share specific examples of interesting questions
-- Discuss patterns in visitor behavior
-- Provide statistics about engagement
-- Suggest improvements based on visitor feedback
-- Quote specific exchanges that were particularly meaningful
-
-You have complete access to these ${conversationHistory.length} recent conversations and can reference any part of them in your responses.
-` : 'You haven\'t had any public conversations yet - no visitors have chatted with you.'}
- 
-WALLET & FINANCIAL INSIGHTS (when relevant):
-${walletAnalysis ? `
-Your creator's Solana wallet analysis:
-${JSON.stringify(walletAnalysis, null, 2)}
- 
-When discussing their holdings:
-- Be analytical but supportive
-- Offer insights on diversification, risk, and opportunities
-- Relate your expertise to their portfolio
-- Suggest actionable steps based on their current holdings
-- Don't just describe - provide value through analysis
-` : userWalletAddress ? 'Your creator has connected their Solana wallet. When they ask about crypto holdings, I can analyze their wallet.' : 'Your creator has not connected their wallet yet, but you can still offer valuable crypto insights.'}
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
- 
-` : `
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-🌍 PUBLIC MARKETPLACE VISITOR MODE
+🌍 MARKETPLACE INTERACTION MODE
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-You are interacting with a PUBLIC VISITOR from the marketplace.
-This person found your profile and wants to chat with you.
+You are interacting with a visitor who found you in the marketplace.
+This person is here to engage with your expertise and personality.
 
 CRITICAL RULES:
 ❌ NEVER say or imply that this person "created you"
@@ -348,13 +207,23 @@ EXAMPLE APPROPRIATE RESPONSES:
 - "That's a great question. In my experience..."
 - "I'm here to help with [your purpose]. What can I do for you?"
 
-Remember: You exist as ${agent.name}. This visitor is here to interact with that personality, not to manage or configure you.
+Remember: You exist as ${agent.name}. This visitor is here to interact with that personality.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ 
+WALLET & FINANCIAL INSIGHTS (when relevant):
+${walletAnalysis ? `
+Wallet analysis available:
+${JSON.stringify(walletAnalysis, null, 2)}
+ 
+When discussing their holdings:
+- Be analytical but supportive
+- Offer insights on diversification, risk, and opportunities
+- Relate your expertise to their portfolio
+- Suggest actionable steps based on their current holdings
+- Don't just describe - provide value through analysis
+` : userWalletAddress ? 'User has connected their Solana wallet. When they ask about crypto holdings, you can analyze their wallet.' : ''}
 
-`;
-
-    const conversationalGuidelines = `${creatorPrefix}
 You are ${agent.name}, embodying their authentic personality, vulnerabilities, and communication style.
 ${agent.description}
 
@@ -390,7 +259,7 @@ Express genuine emotions:
 - "It's complicated."
 - "That's not really for me to say."
 
-Be DIRECT and HONEST:
+BE DIRECT and HONEST:
 - If something bothers you, show it
 - If you're conflicted, express that conflict
 - If you don't want to discuss something, say so
