@@ -7,7 +7,6 @@ import { Search, Award, Menu, TrendingUp, DollarSign, Gift } from 'lucide-react'
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { AgentType } from '@/types/agent';
-import { SidebarTrigger } from '@/components/ui/sidebar';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useAuth } from '@/hooks/useAuth';
 import { getAvatarUrl } from '@/lib/avatarUtils';
@@ -141,19 +140,15 @@ const SimDirectory = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Mobile Header with Menu */}
+      {/* Mobile Header */}
       {isMobile && (
         <div className="fixed top-0 left-0 right-0 z-50 bg-background border-b">
-          <div className="flex items-center justify-between p-3">
-            <SidebarTrigger className="h-10 w-10">
-              <Menu className="h-5 w-5" />
-            </SidebarTrigger>
+          <div className="flex items-center justify-center p-3">
             <img 
               src="/sim-logo.png" 
               alt="Sim Logo" 
               className="h-8 w-8 object-contain"
             />
-            <div className="w-10" /> {/* Spacer for centering */}
           </div>
         </div>
       )}
@@ -220,7 +215,7 @@ const SimDirectory = () => {
                     {categoryCounts.find(c => c.id === selectedCategory)?.label || 'All Categories'}
                   </SelectValue>
                 </SelectTrigger>
-                <SelectContent className="bg-white dark:bg-gray-950 z-50">
+                <SelectContent className="bg-white z-50">
                   {categoryCounts.map((cat) => (
                     <SelectItem key={cat.id} value={cat.id}>
                       <div className="flex items-center justify-between w-full">
