@@ -20,44 +20,51 @@ serve(async (req) => {
       );
     }
 
-    const heliusApiKey = Deno.env.get('HELIUS_API_KEY');
-    if (!heliusApiKey) {
-      throw new Error('HELIUS_API_KEY not configured');
-    }
+    // $SimAI token address on Solana
+    const SIMAI_TOKEN_ADDRESS = 'FFqwoZ7phjoupWjLeE5yFeLqGi8jkGEFrTz6jnsUpump';
+    const SOL_TOKEN_ADDRESS = 'So11111111111111111111111111111111111111112';
 
-    // $SimAI token address on Solana (you'll need to update this with the actual token address)
-    const SIMAI_TOKEN_ADDRESS = '35t5DPbwJtB1tpGiSnqedLwQomi94BRKVDPyTRLdbonk';
+    console.log('Fetching price for', parseFloat(amount), '$SIMAI tokens');
 
-    // Fetch token price from Helius
+    // Use Jupiter's price API to get accurate pricing
     const response = await fetch(
-      `https://api.helius.xyz/v0/token-metadata?api-key=${heliusApiKey}`,
+      `https://price.jup.ag/v6/price?ids=${SIMAI_TOKEN_ADDRESS},${SOL_TOKEN_ADDRESS}`,
       {
-        method: 'POST',
+        method: 'GET',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          mintAccounts: [SIMAI_TOKEN_ADDRESS],
-        }),
       }
     );
 
     if (!response.ok) {
-      throw new Error(`Helius API error: ${response.statusText}`);
+      throw new Error(`Jupiter API error: ${response.statusText}`);
     }
 
     const data = await response.json();
+    console.log('Jupiter price data:', JSON.stringify(data));
+    
+    // Get prices in USD
+    const simaiPriceUSD = data.data?.[SIMAI_TOKEN_ADDRESS]?.price || 0;
+    const solPriceUSD = data.data?.[SOL_TOKEN_ADDRESS]?.price || 0;
+    
+    console.log('$SIMAI price in USD:', simaiPriceUSD);
+    console.log('SOL price in USD:', solPriceUSD);
     
     // Calculate SOL equivalent
-    // Note: This is a simplified calculation. You may need to adjust based on actual market data
-    // You might want to use Jupiter or another DEX aggregator for accurate pricing
-    const tokenPrice = data[0]?.price || 0;
-    const solEquivalent = parseFloat(amount) * tokenPrice;
+    let solEquivalent = 0;
+    if (solPriceUSD > 0 && simaiPriceUSD > 0) {
+      const simaiValueUSD = parseFloat(amount) * simaiPriceUSD;
+      solEquivalent = simaiValueUSD / solPriceUSD;
+    }
+    
+    console.log('Calculated SOL equivalent:', solEquivalent);
 
     return new Response(
       JSON.stringify({ 
-        solEquivalent: solEquivalent.toFixed(4),
-        tokenPrice 
+        solEquivalent: solEquivalent.toFixed(6),
+        simaiPriceUSD,
+        solPriceUSD
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
