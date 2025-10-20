@@ -37,6 +37,7 @@ import TradeStream from "./pages/TradeStream";
 import Integrations from "./pages/Integrations";
 import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
+import AdminWelcomeMessages from "./pages/AdminWelcomeMessages";
 
 const queryClient = new QueryClient();
 
@@ -66,6 +67,7 @@ const App = () => (
             
             {/* Admin route */}
             <Route path="/admin" element={<Admin />} />
+            <Route path="/admin/welcome-messages" element={<AdminWelcomeMessages />} />
             <Route path="/knowledge-enhancement" element={<KnowledgeEnhancement />} />
             <Route path="/sim-conversations" element={<SimConversations />} />
             <Route path="/pumpfun" element={<TradeStream />} />
