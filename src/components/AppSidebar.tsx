@@ -251,8 +251,9 @@ export function AppSidebar() {
   useEffect(() => {
     if (!currentUser) return;
 
+    // Use unique channel per user to avoid conflicts
     const channel = supabase
-      .channel('user-conversations-changes')
+      .channel(`user-conversations-${currentUser.id}`)
       .on(
         'postgres_changes',
         {
@@ -261,12 +262,9 @@ export function AppSidebar() {
           table: 'conversations',
           filter: `user_id=eq.${currentUser.id}`
         },
-        async () => {
-          // Force immediate refetch when conversations change
-          await queryClient.invalidateQueries({ 
-            queryKey: ['my-sim-conversations', currentUser.id],
-            exact: true
-          });
+        async (payload) => {
+          console.log('Conversation change detected:', payload);
+          // Immediately refetch without waiting for invalidation
           await queryClient.refetchQueries({
             queryKey: ['my-sim-conversations', currentUser.id],
             exact: true
@@ -280,8 +278,9 @@ export function AppSidebar() {
           schema: 'public',
           table: 'messages'
         },
-        async () => {
-          // Force immediate refetch on new messages
+        async (payload) => {
+          console.log('New message detected:', payload);
+          // Refetch to update last message
           await queryClient.refetchQueries({
             queryKey: ['my-sim-conversations', currentUser.id],
             exact: true
@@ -296,18 +295,30 @@ export function AppSidebar() {
           table: 'advisors',
           filter: `user_id=eq.${currentUser.id}`
         },
-        () => {
-          // Refetch when user's sims are updated/deleted
-          queryClient.invalidateQueries({ 
-            queryKey: ['my-sim-conversations', currentUser.id],
-            refetchType: 'all'
-          });
-          queryClient.invalidateQueries({ queryKey: ['user-sims', currentUser.id] });
+        async () => {
+          console.log('User advisor changed');
+          // Refetch both queries when user's sims are updated
+          await Promise.all([
+            queryClient.refetchQueries({
+              queryKey: ['my-sim-conversations', currentUser.id],
+              exact: true
+            }),
+            queryClient.refetchQueries({
+              queryKey: ['user-sims', currentUser.id],
+              exact: true
+            })
+          ]);
         }
       )
-      .subscribe();
+      .subscribe((status) => {
+        console.log('Realtime subscription status:', status);
+        if (status === 'SUBSCRIBED') {
+          console.log('Successfully subscribed to realtime updates');
+        }
+      });
 
     return () => {
+      console.log('Cleaning up realtime subscription');
       supabase.removeChannel(channel);
     };
   }, [currentUser?.id, queryClient]);
