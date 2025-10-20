@@ -70,8 +70,11 @@ const SimDetailModal = ({ sim, open, onOpenChange, onAuthRequired }: SimDetailMo
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
         setIsAddingSim(false);
-        onOpenChange(false);
-        navigate('/?signin=true');
+        if (onAuthRequired) {
+          onAuthRequired();
+        } else {
+          navigate('/?signin=true');
+        }
         return;
       }
 
