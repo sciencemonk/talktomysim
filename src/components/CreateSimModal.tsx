@@ -266,6 +266,9 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess }: CreateSimModal
 
       toast.success("Sim created successfully!");
       
+      // Close modal first
+      onOpenChange(false);
+      
       // Reset form
       setName("");
       setTitle("");
@@ -278,10 +281,15 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess }: CreateSimModal
       setSelectedIntegrations([]);
       setHasGenerated(false);
       
-      // Close modal and navigate to chat
-      onOpenChange(false);
-      onSuccess?.();
-      navigate(`/home?sim=${newSim.id}`);
+      // Call onSuccess to refresh queries and then navigate
+      if (onSuccess) {
+        await onSuccess();
+      }
+      
+      // Navigate to the new sim's chat after a brief delay to allow queries to refresh
+      setTimeout(() => {
+        navigate(`/home?sim=${newSim.id}`);
+      }, 100);
     } catch (error) {
       console.error("Error creating sim:", error);
       toast.error("Failed to create Sim");
