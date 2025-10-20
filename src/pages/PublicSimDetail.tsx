@@ -272,6 +272,18 @@ const PublicSimDetail = () => {
         error = errorById;
       }
 
+      // If still not found, try matching against generated slug from name
+      if (!data && !error) {
+        const { data: allSims, error: allError } = await supabase
+          .from('advisors')
+          .select('*')
+          .eq('is_active', true);
+        
+        if (!allError && allSims) {
+          data = allSims.find(sim => generateSlug(sim.name) === customUrl) || null;
+        }
+      }
+
       if (error) throw error;
 
       if (!data) {
