@@ -44,6 +44,8 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess }: CreateSimModal
   const [isGenerating, setIsGenerating] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedIntegrations, setSelectedIntegrations] = useState<string[]>([]);
+  const [solEquivalent, setSolEquivalent] = useState<string | null>(null);
+  const [isFetchingSolPrice, setIsFetchingSolPrice] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const availableIntegrations = [
@@ -84,6 +86,31 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess }: CreateSimModal
         setAvatarPreview(reader.result as string);
       };
       reader.readAsDataURL(file);
+    }
+  };
+
+  const fetchSolEquivalent = async (simaiAmount: string) => {
+    if (!simaiAmount || parseFloat(simaiAmount) <= 0) {
+      setSolEquivalent(null);
+      return;
+    }
+
+    setIsFetchingSolPrice(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("get-token-price", {
+        body: { amount: simaiAmount },
+      });
+
+      if (error) throw error;
+
+      if (data?.solEquivalent) {
+        setSolEquivalent(data.solEquivalent);
+      }
+    } catch (error) {
+      console.error("Error fetching SOL price:", error);
+      setSolEquivalent(null);
+    } finally {
+      setIsFetchingSolPrice(false);
     }
   };
 
@@ -370,7 +397,7 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess }: CreateSimModal
             {!isFree && (
               <div className="space-y-2 pt-2 border-t">
                 <Label htmlFor="price" className="text-sm font-semibold">
-                  Price per Conversation
+                  Price to Add Sim
                 </Label>
                 <div className="relative">
                   <Input
@@ -379,7 +406,10 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess }: CreateSimModal
                     min="0"
                     step="0.01"
                     value={price}
-                    onChange={(e) => setPrice(e.target.value)}
+                    onChange={(e) => {
+                      setPrice(e.target.value);
+                      fetchSolEquivalent(e.target.value);
+                    }}
                     placeholder="0.00"
                     className="h-11 pr-20"
                   />
@@ -387,8 +417,14 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess }: CreateSimModal
                     $SIMAI
                   </div>
                 </div>
+                {solEquivalent && (
+                  <div className="text-xs text-muted-foreground flex items-center gap-1">
+                    <span className="font-medium">≈ {solEquivalent} SOL</span>
+                    {isFetchingSolPrice && <Loader2 className="w-3 h-3 animate-spin" />}
+                  </div>
+                )}
                 <p className="text-xs text-muted-foreground">
-                  Users pay this amount in $SIMAI tokens to start a conversation
+                  One-time payment for unlimited conversations with this Sim
                 </p>
               </div>
             )}
