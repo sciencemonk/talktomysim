@@ -14,7 +14,8 @@ import {
   X,
   Pencil,
   Copy,
-  Coins
+  Coins,
+  Share2
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -163,6 +164,12 @@ export function AppSidebar() {
           
           if (advisorError) {
             console.error('Error fetching advisor:', advisorError);
+            continue;
+          }
+          
+          // Skip if advisor doesn't exist (deleted sim)
+          if (!advisor) {
+            console.log('Skipping deleted sim:', simId);
             continue;
           }
           
@@ -512,6 +519,18 @@ export function AppSidebar() {
                               </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end" className="z-50 bg-popover">
+                              <DropdownMenuItem
+                                className="cursor-pointer"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  const simUrl = `${window.location.origin}/sim/${conv.sim_id}`;
+                                  navigator.clipboard.writeText(simUrl);
+                                  toast.success('Sim URL copied to clipboard!');
+                                }}
+                              >
+                                <Share2 className="h-4 w-4 mr-2" />
+                                Share
+                              </DropdownMenuItem>
                               {(conv.sim_user_id === currentUser?.id || 
                                 (currentUserProfile?.wallet_address && 
                                  conv.sim_creator_wallet === currentUserProfile.wallet_address)) && (
