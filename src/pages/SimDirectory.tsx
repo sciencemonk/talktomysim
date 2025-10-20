@@ -39,7 +39,7 @@ const SimDirectory = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [priceFilter, setPriceFilter] = useState<FilterType>('all');
   const [selectedCategory, setSelectedCategory] = useState('all');
-  const [sortBy, setSortBy] = useState<SortType>('popular');
+  const [sortBy, setSortBy] = useState<SortType>('newest');
   const isMobile = useIsMobile();
   const { user } = useAuth();
 

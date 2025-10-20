@@ -38,7 +38,7 @@ const Landing = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [priceFilter, setPriceFilter] = useState<'all' | 'free' | 'paid'>('all');
   const [selectedCategory, setSelectedCategory] = useState('all');
-  const [sortBy, setSortBy] = useState<'popular' | 'newest' | 'name'>('popular');
+  const [sortBy, setSortBy] = useState<'popular' | 'newest' | 'name'>('newest');
   const isMobile = useIsMobile();
 
   // Check for signin query param
