@@ -359,7 +359,7 @@ const SimDetailModal = ({ sim, open, onOpenChange, onAuthRequired }: SimDetailMo
           <div className="text-center space-y-3 mb-6">
             <h1 className="text-3xl sm:text-4xl font-bold tracking-tight">{sim.name}</h1>
             <p className="text-sm sm:text-base text-muted-foreground leading-relaxed px-2">
-              {(sim as any).auto_description || sim.description || simDescription}
+              {getSimDescription()}
             </p>
           </div>
 
