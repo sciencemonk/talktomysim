@@ -159,7 +159,7 @@ export function AppSidebar() {
             .from('advisors')
             .select('id, name, avatar_url, user_id')
             .eq('id', simId)
-            .single();
+            .maybeSingle();
           
           if (advisorError) {
             console.error('Error fetching advisor:', advisorError);
