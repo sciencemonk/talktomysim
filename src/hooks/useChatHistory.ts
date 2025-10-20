@@ -87,16 +87,34 @@ export const useChatHistory = (agent: AgentType, forceNew: boolean = false, conv
         if (user) {
           const existingMessages = await conversationService.getMessages(conversation.id);
           
-          const chatMessages: ChatMessage[] = existingMessages.map((msg: Message) => ({
-            id: msg.id,
-            role: msg.role,
-            content: msg.content,
-            isComplete: true
-          }));
+          // If this is a new conversation with no messages, add the welcome message
+          if (existingMessages.length === 0) {
+            const welcomeMessage = (agent as any).welcome_message || `Hi! I'm ${agent.name}. How can I help you today?`;
+            const savedWelcome = await conversationService.addMessage(conversation.id, 'system', welcomeMessage);
+            
+            if (savedWelcome) {
+              const chatMessages: ChatMessage[] = [{
+                id: savedWelcome.id,
+                role: savedWelcome.role,
+                content: savedWelcome.content,
+                isComplete: true
+              }];
+              setActiveConversationId(conversation.id);
+              setMessages(chatMessages);
+              console.log('Welcome message added to new conversation');
+            }
+          } else {
+            const chatMessages: ChatMessage[] = existingMessages.map((msg: Message) => ({
+              id: msg.id,
+              role: msg.role,
+              content: msg.content,
+              isComplete: true
+            }));
 
-          setActiveConversationId(conversation.id);
-          setMessages(chatMessages);
-          console.log(`Loaded ${chatMessages.length} messages for ${agent.name}:`, chatMessages);
+            setActiveConversationId(conversation.id);
+            setMessages(chatMessages);
+            console.log(`Loaded ${chatMessages.length} messages for ${agent.name}:`, chatMessages);
+          }
         } else {
           console.log('Anonymous user - starting with empty chat');
           setActiveConversationId(conversation.id);

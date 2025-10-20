@@ -96,30 +96,9 @@ const ChatInterface = ({ agent, onBack, hideHeader = false, transparentMode = fa
 
       {/* Messages - Flex-1 scrollable area */}
       <div ref={messagesContainerRef} className={`flex-1 overflow-y-auto min-h-0 ${transparentMode ? 'bg-transparent' : 'bg-background'}`}>
-        {chatHistory.messages.length === 0 && !textChat.isProcessing ? (
-          <div className="py-8">
-            <div className="max-w-3xl mx-auto px-4 space-y-6">
-              <div className="flex gap-4 flex-row">
-                <Avatar className="h-8 w-8 flex-shrink-0">
-                  <AvatarImage src={avatarUrl} alt={currentAgent.name} className="object-cover" />
-                  <AvatarFallback className="bg-primary text-primary-foreground text-xs">
-                    {currentAgent.name.charAt(0).toUpperCase()}
-                  </AvatarFallback>
-                </Avatar>
-                <div className={`rounded-2xl px-4 py-3 max-w-[85%] bg-muted text-foreground`}>
-                  <div className="prose prose-sm max-w-none dark:prose-invert">
-                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                      {(currentAgent as any).welcome_message || `Hi! I'm ${currentAgent.name}. How can I help you today?`}
-                    </ReactMarkdown>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        ) : (
-          <div className="py-8">
-            <div className="max-w-3xl mx-auto px-4 space-y-6">
-              {chatHistory.messages.map((message) => {
+        <div className="py-8">
+          <div className="max-w-3xl mx-auto px-4 space-y-6">
+            {chatHistory.messages.map((message) => {
                 // Don't render AI messages that are incomplete and have no content
                 if (message.role === 'system' && !message.isComplete && !message.content.trim()) {
                   return null;
@@ -220,7 +199,6 @@ const ChatInterface = ({ agent, onBack, hideHeader = false, transparentMode = fa
               <div ref={messagesEndRef} />
             </div>
           </div>
-        )}
       </div>
 
       {/* Input - Fixed at bottom */}
