@@ -258,7 +258,7 @@ export function AppSidebar() {
         },
         () => {
           // Refetch when any conversation changes for this user
-          queryClient.invalidateQueries({ queryKey: ['my-sim-conversations', currentUser.id] });
+          queryClient.invalidateQueries({ queryKey: ['my-sim-conversations'] });
         }
       )
       .on(
@@ -268,9 +268,18 @@ export function AppSidebar() {
           schema: 'public',
           table: 'messages'
         },
-        (payload) => {
-          // Refetch when new messages arrive
-          queryClient.invalidateQueries({ queryKey: ['my-sim-conversations', currentUser.id] });
+        async (payload) => {
+          // When a new message is inserted, check if it's for one of this user's conversations
+          // and refetch to update the sidebar
+          const { data: conversation } = await supabase
+            .from('conversations')
+            .select('user_id')
+            .eq('id', (payload.new as any).conversation_id)
+            .single();
+          
+          if (conversation?.user_id === currentUser.id) {
+            queryClient.invalidateQueries({ queryKey: ['my-sim-conversations'] });
+          }
         }
       )
       .on(
@@ -283,8 +292,8 @@ export function AppSidebar() {
         },
         () => {
           // Refetch when user's sims are updated/deleted
-          queryClient.invalidateQueries({ queryKey: ['my-sim-conversations', currentUser.id] });
-          queryClient.invalidateQueries({ queryKey: ['user-sims', currentUser.id] });
+          queryClient.invalidateQueries({ queryKey: ['my-sim-conversations'] });
+          queryClient.invalidateQueries({ queryKey: ['user-sims'] });
         }
       )
       .subscribe();
