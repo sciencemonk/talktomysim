@@ -26,6 +26,8 @@ const SimDetailModal = ({ sim, open, onOpenChange, onAuthRequired }: SimDetailMo
   const [shareLinkCopied, setShareLinkCopied] = useState(false);
   const [showChat, setShowChat] = useState(false);
   const [isSignedIn, setIsSignedIn] = useState(false);
+  const [showEmbedCode, setShowEmbedCode] = useState(false);
+  const [embedCodeCopied, setEmbedCodeCopied] = useState(false);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -71,6 +73,141 @@ const SimDetailModal = ({ sim, open, onOpenChange, onAuthRequired }: SimDetailMo
       title: "Link copied!",
       description: "Share this link with others to let them discover this Sim"
     });
+  };
+
+  const getEmbedCode = () => {
+    if (!sim) return '';
+    const simUrl = `${window.location.origin}/${(sim as any).custom_url || sim.id}`;
+    const avatarUrl = getAvatarUrl(sim.avatar);
+    
+    return `<!-- ${sim.name} Chat Widget -->
+<div id="sim-chat-widget"></div>
+<script>
+  (function() {
+    const simConfig = {
+      name: "${sim.name}",
+      avatar: "${avatarUrl}",
+      simUrl: "${simUrl}",
+      welcomeMessage: "${(sim.welcome_message || `Hi! I'm ${sim.name}. How can I help you today?`).replace(/"/g, '\\"')}"
+    };
+    
+    // Create widget styles
+    const style = document.createElement('style');
+    style.textContent = \`
+      #sim-chat-bubble {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+        transition: transform 0.3s ease;
+      }
+      #sim-chat-bubble:hover { transform: scale(1.1); }
+      #sim-chat-bubble img {
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        object-fit: cover;
+      }
+      #sim-chat-window {
+        position: fixed;
+        bottom: 90px;
+        right: 20px;
+        width: 380px;
+        height: 600px;
+        max-width: calc(100vw - 40px);
+        max-height: calc(100vh - 120px);
+        border-radius: 12px;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+        background: white;
+        z-index: 9998;
+        display: none;
+        flex-direction: column;
+        overflow: hidden;
+      }
+      #sim-chat-window.active { display: flex; }
+      #sim-chat-header {
+        padding: 16px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      #sim-chat-header img {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        object-fit: cover;
+      }
+      #sim-chat-close {
+        margin-left: auto;
+        background: rgba(255,255,255,0.2);
+        border: none;
+        color: white;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        cursor: pointer;
+        font-size: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      #sim-chat-iframe {
+        flex: 1;
+        border: none;
+        width: 100%;
+      }
+    \`;
+    document.head.appendChild(style);
+    
+    // Create bubble
+    const bubble = document.createElement('div');
+    bubble.id = 'sim-chat-bubble';
+    bubble.innerHTML = '<img src="' + simConfig.avatar + '" alt="' + simConfig.name + '">';
+    document.body.appendChild(bubble);
+    
+    // Create chat window
+    const chatWindow = document.createElement('div');
+    chatWindow.id = 'sim-chat-window';
+    chatWindow.innerHTML = \`
+      <div id="sim-chat-header">
+        <img src="\${simConfig.avatar}" alt="\${simConfig.name}">
+        <strong>\${simConfig.name}</strong>
+        <button id="sim-chat-close">×</button>
+      </div>
+      <iframe id="sim-chat-iframe" src="\${simConfig.simUrl}"></iframe>
+    \`;
+    document.body.appendChild(chatWindow);
+    
+    // Toggle chat
+    bubble.addEventListener('click', () => {
+      chatWindow.classList.toggle('active');
+    });
+    
+    document.getElementById('sim-chat-close').addEventListener('click', (e) => {
+      e.stopPropagation();
+      chatWindow.classList.remove('active');
+    });
+  })();
+</script>`;
+  };
+
+  const handleCopyEmbedCode = () => {
+    const code = getEmbedCode();
+    navigator.clipboard.writeText(code);
+    setEmbedCodeCopied(true);
+    setTimeout(() => setEmbedCodeCopied(false), 2000);
+    sonnerToast.success('Embed code copied to clipboard!');
   };
 
   const handleLaunchSim = async () => {
@@ -223,7 +360,7 @@ const SimDetailModal = ({ sim, open, onOpenChange, onAuthRequired }: SimDetailMo
           <Button
             size="lg"
             variant="outline"
-            className="w-full h-12 text-base font-semibold mb-6 group"
+            className="w-full h-12 text-base font-semibold mb-3 group"
             onClick={handleShareLink}
           >
             {shareLinkCopied ? (
@@ -238,6 +375,59 @@ const SimDetailModal = ({ sim, open, onOpenChange, onAuthRequired }: SimDetailMo
               </>
             )}
           </Button>
+
+          {/* Embed Button */}
+          <Button
+            size="lg"
+            variant="outline"
+            className="w-full h-12 text-base font-semibold mb-6 group"
+            onClick={() => setShowEmbedCode(!showEmbedCode)}
+          >
+            <svg className="h-4 w-4 mr-2 group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+            </svg>
+            {showEmbedCode ? 'Hide Embed Code' : 'Embed on Your Site'}
+          </Button>
+
+          {/* Embed Code Section */}
+          {showEmbedCode && (
+            <div className="mb-6 p-4 rounded-lg bg-muted/50 border border-border">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="font-semibold text-sm">Embed Code</h3>
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  onClick={handleCopyEmbedCode}
+                  className="h-8"
+                >
+                  {embedCodeCopied ? (
+                    <>
+                      <Check className="h-3 w-3 mr-1 text-green-500" />
+                      Copied!
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="h-3 w-3 mr-1" />
+                      Copy Code
+                    </>
+                  )}
+                </Button>
+              </div>
+              <div className="bg-background rounded border border-border p-3 mb-3 max-h-40 overflow-y-auto">
+                <code className="text-xs font-mono text-muted-foreground whitespace-pre-wrap break-all">
+                  {getEmbedCode()}
+                </code>
+              </div>
+              <div className="text-xs text-muted-foreground space-y-1">
+                <p className="font-medium">Instructions:</p>
+                <ol className="list-decimal list-inside space-y-1 ml-2">
+                  <li>Copy the code above</li>
+                  <li>Paste it before the closing &lt;/body&gt; tag in your HTML</li>
+                  <li>The chat widget will appear on the bottom right of your site</li>
+                </ol>
+              </div>
+            </div>
+          )}
 
           {/* Close Button */}
           <Button
