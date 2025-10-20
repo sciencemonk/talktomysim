@@ -39,13 +39,9 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess }: CreateSimModal
   const [systemPrompt, setSystemPrompt] = useState("");
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
-  const [isFree, setIsFree] = useState(true);
-  const [price, setPrice] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedIntegrations, setSelectedIntegrations] = useState<string[]>([]);
-  const [solEquivalent, setSolEquivalent] = useState<string | null>(null);
-  const [isFetchingSolPrice, setIsFetchingSolPrice] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const availableIntegrations = [
@@ -86,31 +82,6 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess }: CreateSimModal
         setAvatarPreview(reader.result as string);
       };
       reader.readAsDataURL(file);
-    }
-  };
-
-  const fetchSolEquivalent = async (simaiAmount: string) => {
-    if (!simaiAmount || parseFloat(simaiAmount) <= 0) {
-      setSolEquivalent(null);
-      return;
-    }
-
-    setIsFetchingSolPrice(true);
-    try {
-      const { data, error } = await supabase.functions.invoke("get-token-price", {
-        body: { amount: simaiAmount },
-      });
-
-      if (error) throw error;
-
-      if (data?.solEquivalent) {
-        setSolEquivalent(data.solEquivalent);
-      }
-    } catch (error) {
-      console.error("Error fetching SOL price:", error);
-      setSolEquivalent(null);
-    } finally {
-      setIsFetchingSolPrice(false);
     }
   };
 
@@ -196,7 +167,7 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess }: CreateSimModal
           description: description.trim(),
           prompt: systemPrompt.trim(),
           avatar_url: avatarUrl,
-          price: isFree ? 0 : parseFloat(price) || 0,
+          price: 0,
           integrations: selectedIntegrations,
           is_active: true,
           is_public: true,
@@ -216,8 +187,6 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess }: CreateSimModal
       setSystemPrompt("");
       setAvatarFile(null);
       setAvatarPreview(null);
-      setIsFree(true);
-      setPrice("");
       setSelectedIntegrations([]);
     } catch (error) {
       console.error("Error creating sim:", error);
@@ -379,55 +348,11 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess }: CreateSimModal
             </p>
           </div>
 
-          {/* Pricing Section */}
-          <div className="space-y-4 p-4 rounded-lg border bg-muted/30">
-            <div className="flex items-center justify-between">
-              <div className="space-y-1">
-                <Label className="text-sm font-semibold">Free to Use</Label>
-                <p className="text-xs text-muted-foreground">
-                  Make your Sim accessible to everyone at no cost
-                </p>
-              </div>
-              <Switch
-                checked={isFree}
-                onCheckedChange={setIsFree}
-              />
-            </div>
-
-            {!isFree && (
-              <div className="space-y-2 pt-2 border-t">
-                <Label htmlFor="price" className="text-sm font-semibold">
-                  Price to Add Sim
-                </Label>
-                <div className="relative">
-                  <Input
-                    id="price"
-                    type="number"
-                    min="0"
-                    step="0.01"
-                    value={price}
-                    onChange={(e) => {
-                      setPrice(e.target.value);
-                      fetchSolEquivalent(e.target.value);
-                    }}
-                    placeholder="0.00"
-                    className="h-11 pr-20"
-                  />
-                  <div className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground font-medium">
-                    $SIMAI
-                  </div>
-                </div>
-                {solEquivalent && (
-                  <div className="text-xs text-muted-foreground flex items-center gap-1">
-                    <span className="font-medium">≈ {solEquivalent} SOL</span>
-                    {isFetchingSolPrice && <Loader2 className="w-3 h-3 animate-spin" />}
-                  </div>
-                )}
-                <p className="text-xs text-muted-foreground">
-                  One-time payment for unlimited conversations with this Sim
-                </p>
-              </div>
-            )}
+          {/* Premium Sims Coming Soon */}
+          <div className="p-4 rounded-lg border bg-muted/30">
+            <p className="text-sm text-muted-foreground">
+              💎 <span className="font-medium">Premium Sims using $SIMAI</span> - Coming Soon
+            </p>
           </div>
 
           {/* Integrations Section */}
