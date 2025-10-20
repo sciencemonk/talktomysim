@@ -240,7 +240,7 @@ export function AppSidebar() {
     enabled: !!currentUser
   });
 
-  // Real-time subscription for conversation changes
+  // Real-time subscription for conversation changes and advisor updates
   useEffect(() => {
     if (!currentUser) return;
 
@@ -269,6 +269,20 @@ export function AppSidebar() {
         (payload) => {
           // Refetch when new messages arrive
           queryClient.invalidateQueries({ queryKey: ['my-sim-conversations', currentUser.id] });
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'advisors',
+          filter: `user_id=eq.${currentUser.id}`
+        },
+        () => {
+          // Refetch when user's sims are updated/deleted
+          queryClient.invalidateQueries({ queryKey: ['my-sim-conversations', currentUser.id] });
+          queryClient.invalidateQueries({ queryKey: ['user-sims', currentUser.id] });
         }
       )
       .subscribe();
