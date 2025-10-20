@@ -36,11 +36,11 @@ serve(async (req) => {
         messages: [
           {
             role: "system",
-            content: "You are a helpful assistant that creates concise, engaging descriptions. Generate a 1-2 sentence description that captures the essence of what this AI sim does. Keep it under 200 characters, clear, and appealing to users."
+            content: "You are a helpful assistant that creates concise, engaging descriptions. Generate a SHORT 1-2 sentence description that captures the essence of what this AI sim does. MAXIMUM 180 characters. Be clear, engaging, and user-friendly. Focus ONLY on what the sim does, not technical implementation details."
           },
           {
             role: "user",
-            content: `Based on this system prompt, generate a short 1-2 sentence description for display purposes:\n\n${prompt}`
+            content: `Based on this system prompt, create a SHORT display description (max 180 characters). Focus on what the sim does and who it helps, not how it works:\n\n${prompt}`
           }
         ],
       }),
