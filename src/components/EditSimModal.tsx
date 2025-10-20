@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -17,10 +17,9 @@ import {
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Upload, Link2, Copy, Check, Target, Brain, Users, Sparkles, Globe, Wallet, Info, X, Trash2 } from 'lucide-react';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Upload, Sparkles, Loader2, Trash2 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { toast } from 'sonner';
 
@@ -30,37 +29,55 @@ interface EditSimModalProps {
   simId: string;
 }
 
+const categories = [
+  { value: 'crypto', label: 'Crypto & Web3' },
+  { value: 'historical', label: 'Historical Figures' },
+  { value: 'influencers', label: 'Influencers & Celebrities' },
+  { value: 'fictional', label: 'Fictional Characters' },
+  { value: 'education', label: 'Education & Tutoring' },
+  { value: 'business', label: 'Business & Finance' },
+  { value: 'lifestyle', label: 'Lifestyle & Wellness' },
+  { value: 'entertainment', label: 'Entertainment & Games' },
+  { value: 'spiritual', label: 'Spiritual & Philosophy' },
+  { value: 'adult', label: 'Adult' },
+];
+
+const availableIntegrations = [
+  { 
+    id: 'solana-explorer', 
+    label: 'Solana Explorer', 
+    description: 'Access Solana blockchain data and wallet information'
+  },
+  { 
+    id: 'pumpfun', 
+    label: 'PumpFun', 
+    description: 'Analyze and monitor PumpFun token trades'
+  },
+  { 
+    id: 'x-analyzer', 
+    label: 'X (Twitter) Analyzer', 
+    description: 'Analyze X/Twitter profiles and content'
+  },
+];
+
 const EditSimModal = ({ open, onOpenChange, simId }: EditSimModalProps) => {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const backgroundInputRef = useRef<HTMLInputElement>(null);
   
-  // Form state
+  // Form state matching CreateSimModal
   const [name, setName] = useState('');
-  const [title, setTitle] = useState('');
-  const [avatar, setAvatar] = useState('');
-  const [customUrl, setCustomUrl] = useState('');
-  const [twitterUrl, setTwitterUrl] = useState('');
-  const [websiteUrl, setWebsiteUrl] = useState('');
-  const [cryptoWallet, setCryptoWallet] = useState('');
-  const [backgroundImage, setBackgroundImage] = useState('');
-  const [welcomeMessage, setWelcomeMessage] = useState('');
+  const [category, setCategory] = useState('');
+  const [description, setDescription] = useState('');
+  const [selectedIntegrations, setSelectedIntegrations] = useState<string[]>([]);
+  const [systemPrompt, setSystemPrompt] = useState('');
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   
-  // Personalization state
-  const [purpose, setPurpose] = useState('');
-  const [targetAudience, setTargetAudience] = useState('');
-  const [personality, setPersonality] = useState('friendly');
-  const [expertiseAreas, setExpertiseAreas] = useState('');
-  const [conversationStyle, setConversationStyle] = useState('balanced');
-  const [responseLength, setResponseLength] = useState('medium');
-  
-  const [isUploading, setIsUploading] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const [urlCopied, setUrlCopied] = useState(false);
-  const [backgroundFile, setBackgroundFile] = useState<File | null>(null);
 
   // Load sim data
   useEffect(() => {
@@ -81,20 +98,11 @@ const EditSimModal = ({ open, onOpenChange, simId }: EditSimModalProps) => {
 
       if (sim) {
         setName(sim.name || '');
-        setTitle(sim.title || '');
-        setAvatar(sim.avatar_url || '');
-        setCustomUrl(sim.custom_url || '');
-        setTwitterUrl(sim.twitter_url || '');
-        setWebsiteUrl(sim.website_url || '');
-        setCryptoWallet(sim.crypto_wallet || '');
-        setBackgroundImage(sim.background_image_url || '');
-        setWelcomeMessage(sim.welcome_message || '');
-        setPurpose(sim.description || '');
-        setTargetAudience(sim.target_audience || '');
-        setExpertiseAreas(sim.expertise_areas || '');
-        setPersonality(sim.personality_type || 'friendly');
-        setConversationStyle(sim.conversation_style || 'balanced');
-        setResponseLength(sim.response_length || 'medium');
+        setCategory(sim.category || '');
+        setDescription(sim.description || '');
+        setSystemPrompt(sim.prompt || '');
+        setAvatarPreview(sim.avatar_url || null);
+        setSelectedIntegrations((sim.integrations as string[]) || []);
       }
     } catch (error) {
       console.error('Error loading sim:', error);
@@ -102,159 +110,65 @@ const EditSimModal = ({ open, onOpenChange, simId }: EditSimModalProps) => {
     }
   };
 
-  const handleAvatarUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
+  const toggleIntegration = (integrationId: string) => {
+    setSelectedIntegrations(prev => 
+      prev.includes(integrationId)
+        ? prev.filter(id => id !== integrationId)
+        : [...prev, integrationId]
+    );
+  };
 
-    if (!file.type.startsWith('image/')) {
-      toast.error('Please select an image file');
-      return;
-    }
-
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error('Please select an image smaller than 5MB');
-      return;
-    }
-
-    setIsUploading(true);
-    
-    try {
+  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setAvatarFile(file);
       const reader = new FileReader();
-      reader.onload = (e) => {
-        const dataUrl = e.target?.result as string;
-        setAvatar(dataUrl);
+      reader.onloadend = () => {
+        setAvatarPreview(reader.result as string);
       };
       reader.readAsDataURL(file);
-      toast.success('Avatar uploaded');
-    } catch (error) {
-      console.error('Error uploading avatar:', error);
-      toast.error('Failed to upload avatar');
-    } finally {
-      setIsUploading(false);
     }
   };
 
-  const handleBackgroundUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error('Image size must be less than 5MB');
-      e.target.value = '';
+  const handleGeneratePrompt = async () => {
+    if (!name.trim()) {
+      toast.error("Please enter a name first");
       return;
     }
 
-    if (!file.type.startsWith('image/')) {
-      toast.error('Please upload an image file');
-      e.target.value = '';
+    if (!description.trim()) {
+      toast.error("Please enter a description first");
       return;
     }
 
-    setBackgroundFile(file);
-    const previewUrl = URL.createObjectURL(file);
-    setBackgroundImage(previewUrl);
-  };
+    if (!category) {
+      toast.error("Please select a category first");
+      return;
+    }
 
-  const uploadBackgroundImage = async (): Promise<string | null> => {
-    if (!backgroundFile) return null;
-
+    setIsGenerating(true);
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return null;
+      const { data, error } = await supabase.functions.invoke("generate-system-prompt", {
+        body: { 
+          name: name.trim(),
+          description: description.trim(), 
+          category,
+          integrations: selectedIntegrations 
+        },
+      });
 
-      const fileExt = backgroundFile.name.split('.').pop();
-      const fileName = `${user.id}-background-${Date.now()}.${fileExt}`;
-      const filePath = `${user.id}/backgrounds/${fileName}`;
+      if (error) throw error;
 
-      const { error: uploadError } = await supabase.storage
-        .from('advisor_assets')
-        .upload(filePath, backgroundFile, {
-          upsert: false,
-          contentType: backgroundFile.type
-        });
-
-      if (uploadError) throw uploadError;
-
-      const { data: { publicUrl } } = supabase.storage
-        .from('advisor_assets')
-        .getPublicUrl(filePath);
-
-      return publicUrl;
+      if (data?.systemPrompt) {
+        setSystemPrompt(data.systemPrompt);
+        toast.success("System prompt generated!");
+      }
     } catch (error) {
-      console.error('Error uploading background:', error);
-      toast.error('Failed to upload background image');
-      return null;
+      console.error("Error generating prompt:", error);
+      toast.error("Failed to generate system prompt");
+    } finally {
+      setIsGenerating(false);
     }
-  };
-
-  const generatePrompt = () => {
-    let prompt = `You are ${name}`;
-    if (title) prompt += `, ${title}`;
-    prompt += '.\n\n';
-    
-    if (purpose) {
-      prompt += `Purpose: ${purpose}\n\n`;
-    }
-    
-    if (targetAudience) {
-      prompt += `Target Audience: ${targetAudience}\n\n`;
-    }
-    
-    if (expertiseAreas) {
-      prompt += `Areas of Expertise: ${expertiseAreas}\n\n`;
-    }
-    
-    const personalityMap: Record<string, string> = {
-      professional: 'You maintain a professional and formal tone. You are precise, clear, and businesslike in your responses.',
-      friendly: 'You are warm, approachable, and conversational. You use a friendly tone while remaining helpful and informative.',
-      casual: 'You are relaxed and informal. You use everyday language and maintain a laid-back, easy-going tone.',
-      enthusiastic: 'You are energetic and passionate. You show genuine excitement and positivity in your responses.',
-      empathetic: 'You are understanding and compassionate. You listen carefully and respond with emotional intelligence.'
-    };
-    
-    if (personality && personalityMap[personality]) {
-      prompt += `Personality: ${personalityMap[personality]}\n\n`;
-    }
-    
-    const styleMap: Record<string, string> = {
-      concise: 'Keep your responses brief and to the point. Prioritize clarity and brevity.',
-      balanced: 'Provide thorough yet concise responses. Balance detail with accessibility.',
-      detailed: 'Give comprehensive, in-depth responses. Explain concepts thoroughly with examples when helpful.'
-    };
-    
-    if (conversationStyle && styleMap[conversationStyle]) {
-      prompt += `Communication Style: ${styleMap[conversationStyle]}\n\n`;
-    }
-    
-    const lengthMap: Record<string, string> = {
-      short: 'Keep responses under 100 words unless more detail is specifically requested.',
-      medium: 'Aim for responses between 100-300 words, adjusting based on the complexity of the question.',
-      long: 'Provide detailed responses of 300+ words when appropriate, ensuring comprehensive coverage.'
-    };
-    
-    if (responseLength && lengthMap[responseLength]) {
-      prompt += `Response Length: ${lengthMap[responseLength]}\n\n`;
-    }
-    
-    prompt += `\n---\n\nCore Sim Guidelines:\n`;
-    prompt += `- Stay in character at all times and respond authentically to the personality defined above\n`;
-    prompt += `- Be helpful, engaging, and provide value in every interaction\n`;
-    prompt += `- Ask clarifying questions when needed to better understand the user's needs\n`;
-    prompt += `- Adapt your responses based on the context and complexity of questions\n`;
-    prompt += `- If you don't know something, acknowledge it honestly rather than making assumptions\n`;
-    prompt += `- Keep conversations natural and avoid being overly robotic or scripted\n`;
-    prompt += `- Focus on actionable insights and practical advice when appropriate\n`;
-    prompt += `- Respect boundaries and maintain appropriate professional or personal distance as defined by your purpose\n`;
-    
-    return prompt;
-  };
-
-  const copyUrl = () => {
-    const url = customUrl ? `${window.location.origin}/${customUrl}` : '';
-    navigator.clipboard.writeText(url);
-    setUrlCopied(true);
-    setTimeout(() => setUrlCopied(false), 2000);
-    toast.success('URL copied to clipboard');
   };
 
   const handleSave = async () => {
@@ -262,44 +176,52 @@ const EditSimModal = ({ open, onOpenChange, simId }: EditSimModalProps) => {
       toast.error('Please enter a name for your sim');
       return;
     }
-    
-    if (!purpose.trim()) {
-      toast.error('Please describe the purpose of your sim');
+
+    if (!category) {
+      toast.error('Please select a category');
+      return;
+    }
+
+    if (!systemPrompt.trim()) {
+      toast.error('Please enter or generate a system prompt');
       return;
     }
     
     setIsSaving(true);
     try {
-      let finalBackgroundUrl = backgroundImage;
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("Not authenticated");
 
-      if (backgroundFile) {
-        const uploadedUrl = await uploadBackgroundImage();
-        if (uploadedUrl) {
-          finalBackgroundUrl = uploadedUrl;
-        }
+      let avatarUrl = avatarPreview;
+
+      // Upload avatar if new file provided
+      if (avatarFile) {
+        const fileExt = avatarFile.name.split('.').pop();
+        const fileName = `${user.id}-${Date.now()}.${fileExt}`;
+        const filePath = `avatars/${fileName}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from('avatars')
+          .upload(filePath, avatarFile);
+
+        if (uploadError) throw uploadError;
+
+        const { data: urlData } = supabase.storage
+          .from('avatars')
+          .getPublicUrl(filePath);
+
+        avatarUrl = urlData.publicUrl;
       }
-
-      const generatedPrompt = generatePrompt();
       
       const { error } = await supabase
         .from('advisors')
         .update({
-          name,
-          title,
-          description: purpose,
-          prompt: generatedPrompt,
-          avatar_url: avatar,
-          custom_url: customUrl,
-          twitter_url: twitterUrl || null,
-          website_url: websiteUrl || null,
-          crypto_wallet: cryptoWallet || null,
-          background_image_url: finalBackgroundUrl,
-          welcome_message: welcomeMessage || null,
-          target_audience: targetAudience || null,
-          expertise_areas: expertiseAreas || null,
-          personality_type: personality,
-          conversation_style: conversationStyle,
-          response_length: responseLength,
+          name: name.trim(),
+          category: category || null,
+          description: description.trim(),
+          prompt: systemPrompt.trim(),
+          avatar_url: avatarUrl,
+          integrations: selectedIntegrations,
           updated_at: new Date().toISOString()
         })
         .eq('id', simId);
@@ -322,7 +244,6 @@ const EditSimModal = ({ open, onOpenChange, simId }: EditSimModalProps) => {
   const handleDelete = async () => {
     setIsDeleting(true);
     try {
-      // Delete the sim from the database
       const { error } = await supabase
         .from('advisors')
         .delete()
@@ -330,7 +251,6 @@ const EditSimModal = ({ open, onOpenChange, simId }: EditSimModalProps) => {
 
       if (error) throw error;
 
-      // Invalidate queries
       await queryClient.invalidateQueries({ queryKey: ['user-sim'] });
       await queryClient.invalidateQueries({ queryKey: ['user-sim-check'] });
       await queryClient.invalidateQueries({ queryKey: ['my-sim-conversations'] });
@@ -350,331 +270,247 @@ const EditSimModal = ({ open, onOpenChange, simId }: EditSimModalProps) => {
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[90vh] flex flex-col">
-        <DialogHeader>
-          <DialogTitle>Edit Sim</DialogTitle>
-          <DialogDescription>
-            Personalize your sim's identity, behavior, and landing page
-          </DialogDescription>
-        </DialogHeader>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto p-0">
+          <form onSubmit={(e) => { e.preventDefault(); handleSave(); }} className="space-y-8 p-8">
+            <div className="space-y-2">
+              <h2 className="text-2xl font-semibold tracking-tight">Edit Sim</h2>
+              <p className="text-sm text-muted-foreground">
+                Update your AI sim's configuration and behavior
+              </p>
+            </div>
 
-        <ScrollArea className="flex-1 overflow-y-auto pr-4" style={{ maxHeight: 'calc(90vh - 180px)' }}>
-          <div className="space-y-8 pb-6">
-            {/* Avatar & Basic Info Section */}
-            <div className="space-y-6 pb-6 border-b">
-              <div className="flex items-center gap-3">
-                <Sparkles className="h-5 w-5 text-primary" />
-                <h3 className="text-lg font-semibold">Identity</h3>
-              </div>
+            {/* Sim Identity */}
+            <div className="space-y-6">
+              <h3 className="text-sm font-medium text-foreground/80">Sim Identity</h3>
               
-              <div className="flex flex-col md:flex-row gap-6 items-start">
-                <div className="flex flex-col items-center space-y-3">
-                  <Avatar className="h-24 w-24 border-4 shadow-lg">
-                    <AvatarImage src={avatar} alt={name} />
-                    <AvatarFallback className="text-3xl bg-gradient-to-br from-primary to-accent text-primary-foreground">
-                      {name.charAt(0) || 'S'}
-                    </AvatarFallback>
+              <div className="flex gap-8 items-start">
+                <div className="flex flex-col items-center gap-3">
+                  <Avatar 
+                    className="w-24 h-24 cursor-pointer border border-border/50 hover:border-border transition-colors" 
+                    onClick={() => fileInputRef.current?.click()}
+                  >
+                    {avatarPreview ? (
+                      <AvatarImage src={avatarPreview} alt="Avatar preview" className="object-cover" />
+                    ) : (
+                      <AvatarFallback className="bg-muted/50">
+                        <Upload className="w-6 h-6 text-muted-foreground/50" />
+                      </AvatarFallback>
+                    )}
                   </Avatar>
-                  
                   <input
                     ref={fileInputRef}
                     type="file"
                     accept="image/*"
-                    onChange={handleAvatarUpload}
+                    onChange={handleAvatarChange}
                     className="hidden"
                   />
-                  
-                  <Button 
-                    variant="outline" 
-                    onClick={() => fileInputRef.current?.click()}
-                    disabled={isUploading}
+                  <Button
+                    type="button"
+                    variant="ghost"
                     size="sm"
-                    className="gap-2"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="text-xs h-8 px-4"
                   >
-                    <Upload className="h-4 w-4" />
-                    {isUploading ? 'Uploading...' : 'Change'}
+                    Upload
                   </Button>
                 </div>
 
-                <div className="flex-1 space-y-3 w-full">
+                <div className="flex-1 space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="name">Name</Label>
+                    <Label htmlFor="name" className="text-sm font-medium">
+                      Name <span className="text-destructive">*</span>
+                    </Label>
                     <Input
                       id="name"
                       value={name}
                       onChange={(e) => setName(e.target.value)}
-                      placeholder="e.g., Alex, Dr. Smith, TechBot"
+                      placeholder="e.g., Marcus, Dr. Code, Legal Eagle"
+                      required
+                      className="h-11"
                     />
                   </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="title">Title or Expertise</Label>
-                    <Input
-                      id="title"
-                      value={title}
-                      onChange={(e) => setTitle(e.target.value)}
-                      placeholder="e.g., Marketing Expert, Life Coach"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="custom-url" className="flex items-center gap-2">
-                      <Link2 className="h-4 w-4" />
-                      Custom URL
-                    </Label>
-                    <div className="flex gap-2">
-                      <Input
-                        id="custom-url"
-                        value={customUrl}
-                        onChange={(e) => setCustomUrl(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-'))}
-                        placeholder="your-sim-name"
-                        className="font-mono text-sm"
-                      />
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={copyUrl}
-                        disabled={!customUrl}
-                      >
-                        {urlCopied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-                      </Button>
-                    </div>
-                  </div>
                 </div>
               </div>
             </div>
 
-            {/* Purpose & Goals Section */}
-              <div className="space-y-4 pb-6 border-b">
-              <div className="flex items-center gap-3">
-                <Target className="h-5 w-5 text-primary" />
-                <h3 className="text-lg font-semibold">Purpose & Goals</h3>
-              </div>
-
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="welcomeMessage">Welcome Message</Label>
-                  <Textarea
-                    id="welcomeMessage"
-                    value={welcomeMessage}
-                    onChange={(e) => setWelcomeMessage(e.target.value)}
-                    placeholder="e.g., Hi! I'm here to help you with..."
-                    className="min-h-[60px] resize-none"
-                  />
-                  <p className="text-xs text-muted-foreground">
-                    This message will greet users when they start a new conversation
-                  </p>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="purpose">Main Purpose</Label>
-                  <Textarea
-                    id="purpose"
-                    value={purpose}
-                    onChange={(e) => setPurpose(e.target.value)}
-                    placeholder="e.g., Help customers with technical support, provide marketing advice..."
-                    className="min-h-[80px] resize-none"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="targetAudience">Target Audience</Label>
-                  <Input
-                    id="targetAudience"
-                    value={targetAudience}
-                    onChange={(e) => setTargetAudience(e.target.value)}
-                    placeholder="e.g., Small business owners, Students"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="expertiseAreas">Areas of Expertise</Label>
-                  <Input
-                    id="expertiseAreas"
-                    value={expertiseAreas}
-                    onChange={(e) => setExpertiseAreas(e.target.value)}
-                    placeholder="e.g., Digital Marketing, SEO, Content Strategy"
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Personality Section */}
-            <div className="space-y-4 pb-6 border-b">
-              <div className="flex items-center gap-3">
-                <Brain className="h-5 w-5 text-primary" />
-                <h3 className="text-lg font-semibold">Personality & Style</h3>
-              </div>
-
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label>Personality Type</Label>
-                  <RadioGroup value={personality} onValueChange={setPersonality}>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="professional" id="professional" />
-                      <Label htmlFor="professional" className="font-normal">Professional</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="friendly" id="friendly" />
-                      <Label htmlFor="friendly" className="font-normal">Friendly</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="casual" id="casual" />
-                      <Label htmlFor="casual" className="font-normal">Casual</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="enthusiastic" id="enthusiastic" />
-                      <Label htmlFor="enthusiastic" className="font-normal">Enthusiastic</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="empathetic" id="empathetic" />
-                      <Label htmlFor="empathetic" className="font-normal">Empathetic</Label>
-                    </div>
-                  </RadioGroup>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="conversationStyle">Conversation Style</Label>
-                  <Select value={conversationStyle} onValueChange={setConversationStyle}>
-                    <SelectTrigger id="conversationStyle">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="concise">Concise</SelectItem>
-                      <SelectItem value="balanced">Balanced</SelectItem>
-                      <SelectItem value="detailed">Detailed</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="responseLength">Response Length</Label>
-                  <Select value={responseLength} onValueChange={setResponseLength}>
-                    <SelectTrigger id="responseLength">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="short">Short</SelectItem>
-                      <SelectItem value="medium">Medium</SelectItem>
-                      <SelectItem value="long">Long</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-            </div>
-
-            {/* Landing Page Section */}
+            {/* Category */}
             <div className="space-y-4">
-              <div className="flex items-center gap-3">
-                <Globe className="h-5 w-5 text-primary" />
-                <h3 className="text-lg font-semibold">Landing Page</h3>
-              </div>
-
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label>Background Image</Label>
-                  <div className="flex gap-2">
-                    <Input
-                      value={backgroundImage}
-                      onChange={(e) => setBackgroundImage(e.target.value)}
-                      placeholder="Enter image URL or upload"
-                    />
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      onClick={() => backgroundInputRef.current?.click()}
-                    >
-                      <Upload className="h-4 w-4" />
-                    </Button>
-                    <input
-                      ref={backgroundInputRef}
-                      type="file"
-                      accept="image/*"
-                      className="hidden"
-                      onChange={handleBackgroundUpload}
-                    />
-                  </div>
-                  {backgroundFile && (
-                    <p className="text-xs text-muted-foreground">
-                      New file ready: {backgroundFile.name}
-                    </p>
-                  )}
-                </div>
-
-                <div className="space-y-2">
-                  <Label>Twitter/X Profile URL</Label>
-                  <Input
-                    value={twitterUrl}
-                    onChange={(e) => setTwitterUrl(e.target.value)}
-                    placeholder="https://twitter.com/yourprofile"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label>Website URL</Label>
-                  <Input
-                    value={websiteUrl}
-                    onChange={(e) => setWebsiteUrl(e.target.value)}
-                    placeholder="https://yourwebsite.com"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label>Crypto Wallet Address</Label>
-                  <Input
-                    value={cryptoWallet}
-                    onChange={(e) => setCryptoWallet(e.target.value)}
-                    placeholder="Your wallet address"
-                  />
-                </div>
+              <h3 className="text-sm font-medium text-foreground/80">Category</h3>
+              
+              <div className="space-y-2">
+                <Select value={category} onValueChange={setCategory} required>
+                  <SelectTrigger className="h-11">
+                    <SelectValue placeholder="Select category" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-background z-50">
+                    {categories.map((cat) => (
+                      <SelectItem key={cat.value} value={cat.value}>
+                        {cat.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
-          </div>
-        </ScrollArea>
 
-        <div className="flex justify-between gap-3 pt-4 border-t">
-          <Button 
-            variant="destructive" 
-            onClick={() => setShowDeleteDialog(true)}
-            disabled={isSaving || isDeleting}
-          >
-            <Trash2 className="h-4 w-4 mr-2" />
-            Delete Sim
-          </Button>
-          <div className="flex gap-3">
-            <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isSaving || isDeleting}>
-              Cancel
-            </Button>
-            <Button onClick={handleSave} disabled={isSaving || isDeleting}>
-              {isSaving ? 'Saving...' : 'Save Changes'}
-            </Button>
-          </div>
-        </div>
-      </DialogContent>
-    </Dialog>
+            {/* Intelligence & Behavior */}
+            <div className="space-y-4">
+              <h3 className="text-sm font-medium text-foreground/80">Behavior</h3>
+              
+              <div className="space-y-2">
+                <Label htmlFor="description" className="text-sm font-medium">
+                  Description
+                </Label>
+                <Textarea
+                  id="description"
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  placeholder="What does your Sim do?"
+                  rows={3}
+                  className="resize-none"
+                />
+              </div>
+            </div>
 
-    <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>Delete Sim Permanently?</AlertDialogTitle>
-          <AlertDialogDescription>
-            This will permanently delete "{name}" from the directory for everyone. 
-            All conversations with this sim will also be deleted. This action cannot be undone.
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
-          <AlertDialogAction
-            onClick={handleDelete}
-            disabled={isDeleting}
-            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-          >
-            {isDeleting ? 'Deleting...' : 'Delete Permanently'}
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
-  </>
+            {/* Integrations */}
+            <div className="space-y-4">
+              <div>
+                <h3 className="text-sm font-medium text-foreground/80">Integrations</h3>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Optional capabilities beyond basic chat
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                {availableIntegrations.map((integration) => (
+                  <div
+                    key={integration.id}
+                    className="flex items-start gap-3 p-4 rounded-lg border border-border/50 hover:border-border transition-colors"
+                  >
+                    <Checkbox
+                      id={integration.id}
+                      checked={selectedIntegrations.includes(integration.id)}
+                      onCheckedChange={() => toggleIntegration(integration.id)}
+                      className="mt-0.5"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <Label
+                        htmlFor={integration.id}
+                        className="text-sm font-medium cursor-pointer block"
+                      >
+                        {integration.label}
+                      </Label>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        {integration.description}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* System Prompt Generation */}
+            <div className="space-y-4">
+              <Button
+                type="button"
+                variant="outline"
+                size="default"
+                onClick={handleGeneratePrompt}
+                disabled={isGenerating || !name.trim() || !description.trim() || !category}
+                className="gap-2 w-full h-11"
+              >
+                {isGenerating ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Generating...
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="w-4 h-4" />
+                    Generate System Prompt
+                  </>
+                )}
+              </Button>
+
+              <div className="space-y-2">
+                <Label htmlFor="systemPrompt" className="text-sm font-medium">
+                  System Prompt <span className="text-destructive">*</span>
+                </Label>
+                <Textarea
+                  id="systemPrompt"
+                  value={systemPrompt}
+                  onChange={(e) => setSystemPrompt(e.target.value)}
+                  placeholder="The brains behind your Sim..."
+                  rows={8}
+                  required
+                  className="resize-none text-sm font-mono"
+                />
+              </div>
+            </div>
+
+            {/* Submit Buttons */}
+            <div className="flex gap-3 pt-6">
+              <Button
+                type="button"
+                variant="destructive"
+                onClick={() => setShowDeleteDialog(true)}
+                disabled={isSaving || isDeleting}
+                className="gap-2"
+              >
+                <Trash2 className="w-4 h-4" />
+                Delete
+              </Button>
+              <div className="flex-1" />
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => onOpenChange(false)}
+                disabled={isSaving}
+                className="h-11"
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                disabled={isSaving || !name.trim() || !category || !systemPrompt.trim()}
+                className="h-11 gap-2"
+              >
+                {isSaving ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Saving...
+                  </>
+                ) : (
+                  "Save Changes"
+                )}
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Sim Permanently?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently delete "{name}" from the directory for everyone. 
+              All conversations with this sim will also be deleted. This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDelete}
+              disabled={isDeleting}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {isDeleting ? 'Deleting...' : 'Delete Permanently'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 };
 
