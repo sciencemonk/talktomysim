@@ -15,7 +15,8 @@ import {
   Pencil,
   Copy,
   Coins,
-  Share2
+  Share2,
+  RotateCcw
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -530,6 +531,37 @@ export function AppSidebar() {
                               >
                                 <Share2 className="h-4 w-4 mr-2" />
                                 Share
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                className="cursor-pointer"
+                                onClick={async (e) => {
+                                  e.stopPropagation();
+                                  try {
+                                    // Delete all conversations for this sim and current user
+                                    const { error } = await supabase
+                                      .from('conversations')
+                                      .delete()
+                                      .eq('tutor_id', conv.sim_id)
+                                      .eq('user_id', currentUser?.id);
+                                    
+                                    if (error) throw error;
+                                    
+                                    // Invalidate queries to refresh the UI
+                                    await queryClient.invalidateQueries({ queryKey: ['my-sim-conversations'] });
+                                    
+                                    // Navigate to home with the sim ID to trigger welcome message
+                                    navigate(`/home?sim=${conv.sim_id}`);
+                                    closeSidebar();
+                                    
+                                    toast.success('Conversation restarted!');
+                                  } catch (error) {
+                                    console.error('Error restarting conversation:', error);
+                                    toast.error('Failed to restart conversation');
+                                  }
+                                }}
+                              >
+                                <RotateCcw className="h-4 w-4 mr-2" />
+                                Restart
                               </DropdownMenuItem>
                               {(conv.sim_user_id === currentUser?.id || 
                                 (currentUserProfile?.wallet_address && 
