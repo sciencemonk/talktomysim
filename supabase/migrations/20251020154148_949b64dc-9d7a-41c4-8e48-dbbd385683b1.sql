@@ -1,0 +1,10 @@
+DELETE FROM advisors 
+WHERE id IN (
+  '15a7a755-86d5-4ec0-bccb-18137f513e58',
+  '2ee39328-6296-426b-88d7-ef447c430f29',
+  '8c14363b-3804-48b2-9c86-e493f1b752ae',
+  'fd7af722-046c-4541-a79e-d6eb86531c94',
+  '72831ba3-a84d-4479-b981-f283c11a15c8',
+  '198aeea1-09c0-4b64-8318-3a5ae0bebb25',
+  '0e6df9fe-cd41-4ee7-920d-454ff3428ee8'
+);
