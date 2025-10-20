@@ -46,45 +46,63 @@ const SimDirectory = () => {
   const { data: allSims } = useQuery({
     queryKey: ['all-sims-directory'],
     queryFn: async () => {
-      const { data, error } = await supabase
+      // Get all advisors
+      const { data: advisorsData, error: advisorsError } = await supabase
         .from('advisors')
         .select('*')
-        .eq('is_active', true)
-        .order('name', { ascending: true });
+        .eq('is_active', true);
       
-      if (error) throw error;
+      if (advisorsError) throw advisorsError;
+
+      // Get user counts for each advisor
+      const { data: userCounts, error: countsError } = await supabase
+        .from('user_advisors')
+        .select('advisor_id');
       
-      return (data || []).map(sim => ({
-        id: sim.id,
-        name: sim.name,
-        description: sim.description || '',
-        type: 'General Tutor' as const,
-        status: 'active' as const,
-        createdAt: sim.created_at,
-        updatedAt: sim.updated_at,
-        avatar: sim.avatar_url,
-        prompt: sim.prompt,
-        title: sim.title,
-        sim_type: sim.sim_type as 'historical' | 'living',
-        custom_url: sim.custom_url,
-        is_featured: false,
-        is_official: sim.is_official,
-        model: 'GPT-4',
-        interactions: 0,
-        studentsSaved: 0,
-        helpfulnessScore: 0,
-        avmScore: 0,
-        csat: 0,
-        performance: 0,
-        channels: [],
-        channelConfigs: {},
-        isPersonal: false,
-        voiceTraits: [],
-        price: sim.price || 0,
-        // Admin-created sims (no user_id) default to 'historical' if no category set
-        category: sim.category || (!sim.user_id ? 'historical' : 'uncategorized'),
-        user_id: sim.user_id,
-      } as AgentType & { user_id?: string }));
+      if (countsError) throw countsError;
+
+      // Count how many times each advisor appears in user_advisors
+      const countMap = new Map<string, number>();
+      userCounts?.forEach(ua => {
+        const count = countMap.get(ua.advisor_id) || 0;
+        countMap.set(ua.advisor_id, count + 1);
+      });
+      
+      return (advisorsData || []).map(sim => {
+        const userCount = countMap.get(sim.id) || 0;
+        
+        return {
+          id: sim.id,
+          name: sim.name,
+          description: sim.description || '',
+          type: 'General Tutor' as const,
+          status: 'active' as const,
+          createdAt: sim.created_at,
+          updatedAt: sim.updated_at,
+          avatar: sim.avatar_url,
+          prompt: sim.prompt,
+          title: sim.title,
+          sim_type: sim.sim_type as 'historical' | 'living',
+          custom_url: sim.custom_url,
+          is_featured: false,
+          is_official: sim.is_official,
+          model: 'GPT-4',
+          interactions: 0,
+          studentsSaved: 0,
+          helpfulnessScore: 0,
+          avmScore: 0,
+          csat: 0,
+          performance: 0,
+          channels: [],
+          channelConfigs: {},
+          isPersonal: false,
+          voiceTraits: [],
+          price: sim.price || 0,
+          category: sim.category || (!sim.user_id ? 'historical' : 'uncategorized'),
+          user_id: sim.user_id,
+          user_count: userCount,
+        } as AgentType & { user_id?: string; user_count?: number };
+      });
     },
   });
 
@@ -111,13 +129,12 @@ const SimDirectory = () => {
     })
     .sort((a, b) => {
       if (sortBy === 'popular') {
-        // Sort by interactions (most popular first)
-        return (b.interactions || 0) - (a.interactions || 0);
+        const aCount = (a as any).user_count || 0;
+        const bCount = (b as any).user_count || 0;
+        return bCount - aCount;
       } else if (sortBy === 'newest') {
-        // Sort by creation date (newest first)
         return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
       } else {
-        // Sort alphabetically by name
         return a.name.localeCompare(b.name);
       }
     });
