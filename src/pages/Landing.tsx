@@ -115,48 +115,58 @@ const Landing = () => {
     enabled: !!currentUser
   });
 
-  // Fetch all sims (both historical and living)
+  // Fetch all sims (both historical and living) with user count
   const { data: allSims } = useQuery({
     queryKey: ['all-sims-landing'],
     queryFn: async () => {
+      // First get all advisors
       const { data, error } = await supabase
         .from('advisors')
-        .select('*')
+        .select(`
+          *,
+          user_advisors(user_id)
+        `)
         .eq('is_active', true)
         .order('name', { ascending: true });
       
       if (error) throw error;
       
-      return (data || []).map(sim => ({
-        id: sim.id,
-        name: sim.name,
-        description: sim.description || '',
-        type: 'General Tutor' as const,
-        status: 'active' as const,
-        createdAt: sim.created_at,
-        updatedAt: sim.updated_at,
-        avatar: sim.avatar_url,
-        prompt: sim.prompt,
-        title: sim.title,
-        sim_type: sim.sim_type as 'historical' | 'living',
-        custom_url: sim.custom_url,
-        is_featured: false,
-        is_official: sim.is_official,
-        model: 'GPT-4',
-        interactions: 0,
-        studentsSaved: 0,
-        helpfulnessScore: 0,
-        avmScore: 0,
-        csat: 0,
-        performance: 0,
-        channels: [],
-        channelConfigs: {},
-        isPersonal: false,
-        voiceTraits: [],
-        price: sim.price || 0,
-        category: sim.category || (!sim.user_id ? 'historical' : 'uncategorized'),
-        user_id: sim.user_id,
-      } as AgentType & { user_id?: string; category?: string }));
+      return (data || []).map(sim => {
+        // Count unique users who have added this sim
+        const userCount = Array.isArray(sim.user_advisors) ? sim.user_advisors.length : 0;
+        
+        return {
+          id: sim.id,
+          name: sim.name,
+          description: sim.description || '',
+          type: 'General Tutor' as const,
+          status: 'active' as const,
+          createdAt: sim.created_at,
+          updatedAt: sim.updated_at,
+          avatar: sim.avatar_url,
+          prompt: sim.prompt,
+          title: sim.title,
+          sim_type: sim.sim_type as 'historical' | 'living',
+          custom_url: sim.custom_url,
+          is_featured: false,
+          is_official: sim.is_official,
+          model: 'GPT-4',
+          interactions: 0,
+          studentsSaved: 0,
+          helpfulnessScore: 0,
+          avmScore: 0,
+          csat: 0,
+          performance: 0,
+          channels: [],
+          channelConfigs: {},
+          isPersonal: false,
+          voiceTraits: [],
+          price: sim.price || 0,
+          category: sim.category || (!sim.user_id ? 'historical' : 'uncategorized'),
+          user_id: sim.user_id,
+          user_count: userCount,
+        } as AgentType & { user_id?: string; category?: string; user_count?: number };
+      });
     },
   });
 
@@ -194,7 +204,9 @@ const Landing = () => {
     })
     .sort((a, b) => {
       if (sortBy === 'popular') {
-        return (b.interactions || 0) - (a.interactions || 0);
+        const aCount = (a as any).user_count || 0;
+        const bCount = (b as any).user_count || 0;
+        return bCount - aCount;
       } else if (sortBy === 'newest') {
         return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
       } else {
