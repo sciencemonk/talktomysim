@@ -315,9 +315,13 @@ const UserSimForm = ({ open, onOpenChange, existingSim, onSuccess }: UserSimForm
               id="description"
               value={formData.description}
               onChange={(e) => handleInputChange('description', e.target.value)}
-              placeholder="Brief description of your sim..."
+              placeholder="Brief description of your sim (1-2 sentences)..."
               rows={3}
+              maxLength={200}
             />
+            <p className="text-xs text-muted-foreground mt-1">
+              {formData.description.length}/200 characters
+            </p>
           </div>
 
           <div>
