@@ -563,17 +563,6 @@ export function AppSidebar() {
                                 <Share2 className="h-4 w-4 mr-2" />
                                 Share
                               </DropdownMenuItem>
-                              <DropdownMenuItem
-                                className="cursor-pointer"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  navigate(`/home?sim=${conv.sim_id}&new=true`);
-                                  closeSidebar();
-                                }}
-                              >
-                                <RotateCcw className="h-4 w-4 mr-2" />
-                                Restart
-                              </DropdownMenuItem>
                               {(conv.sim_user_id === currentUser?.id || 
                                 (currentUserProfile?.wallet_address && 
                                  conv.sim_creator_wallet === currentUserProfile.wallet_address)) && (
