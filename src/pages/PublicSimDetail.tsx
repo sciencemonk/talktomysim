@@ -576,6 +576,23 @@ const PublicSimDetail = () => {
                   )}
                 </div>
               )}
+
+              {/* Powered by Sim branding */}
+              <div className="flex items-center justify-center gap-2 pt-6 mt-6 border-t border-border/50">
+                <span className="text-xs text-muted-foreground">Powered by</span>
+                <a 
+                  href="https://simproject.org"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:opacity-80 transition-opacity"
+                >
+                  <img 
+                    src="/sim-logo.png" 
+                    alt="Sim" 
+                    className="h-5 w-5 object-contain"
+                  />
+                </a>
+              </div>
             </div>
           </div>
         </div>
