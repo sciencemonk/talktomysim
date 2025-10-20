@@ -39,10 +39,12 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess }: CreateSimModal
   const [category, setCategory] = useState("");
   const [description, setDescription] = useState("");
   const [systemPrompt, setSystemPrompt] = useState("");
+  const [welcomeMessage, setWelcomeMessage] = useState("");
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [hasGenerated, setHasGenerated] = useState(false);
   const [selectedIntegrations, setSelectedIntegrations] = useState<string[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -105,7 +107,8 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess }: CreateSimModal
 
     setIsGenerating(true);
     try {
-      const { data, error } = await supabase.functions.invoke("generate-system-prompt", {
+      // Generate system prompt
+      const { data: promptData, error: promptError } = await supabase.functions.invoke("generate-system-prompt", {
         body: { 
           name: name.trim(),
           description: description.trim(), 
@@ -114,15 +117,39 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess }: CreateSimModal
         },
       });
 
-      if (error) throw error;
+      if (promptError) throw promptError;
 
-      if (data?.systemPrompt) {
-        setSystemPrompt(data.systemPrompt);
-        toast.success("System prompt generated!");
+      if (promptData?.systemPrompt) {
+        setSystemPrompt(promptData.systemPrompt);
       }
+
+      // Generate welcome message
+      const { data: welcomeData } = await supabase.functions.invoke("chat-completion", {
+        body: {
+          messages: [
+            {
+              role: "system",
+              content: "You are a helpful assistant that creates brief, engaging welcome messages for AI chatbots based on their details. Keep it to 1-2 sentences, under 150 characters, in first person."
+            },
+            {
+              role: "user",
+              content: `Create a welcome message for an AI called "${name.trim()}" with this description: ${description.trim()}`
+            }
+          ]
+        }
+      });
+      
+      if (welcomeData?.content) {
+        setWelcomeMessage(welcomeData.content.trim());
+      } else {
+        setWelcomeMessage(`Hi! I'm ${name.trim()}. How can I help you today?`);
+      }
+
+      setHasGenerated(true);
+      toast.success("Sim generated successfully!");
     } catch (error) {
-      console.error("Error generating prompt:", error);
-      toast.error("Failed to generate system prompt");
+      console.error("Error generating sim:", error);
+      toast.error("Failed to generate sim");
     } finally {
       setIsGenerating(false);
     }
@@ -245,9 +272,11 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess }: CreateSimModal
       setCategory("");
       setDescription("");
       setSystemPrompt("");
+      setWelcomeMessage("");
       setAvatarFile(null);
       setAvatarPreview(null);
       setSelectedIntegrations([]);
+      setHasGenerated(false);
       
       // Close modal and navigate to chat
       onOpenChange(false);
@@ -402,7 +431,7 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess }: CreateSimModal
             </div>
           </div>
 
-          {/* System Prompt Generation */}
+          {/* Generate Sim Button */}
           <div className="space-y-4">
             <Button
               type="button"
@@ -420,27 +449,46 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess }: CreateSimModal
               ) : (
                 <>
                   <Sparkles className="w-4 h-4" />
-                  Generate System Prompt
+                  Generate Sim
                 </>
               )}
             </Button>
-
-            <div className="space-y-2">
-              <Label htmlFor="systemPrompt" className="text-sm font-medium">
-                System Prompt <span className="text-destructive">*</span>
-              </Label>
-              <Textarea
-                id="systemPrompt"
-                value={systemPrompt}
-                onChange={(e) => setSystemPrompt(e.target.value)}
-                placeholder="The brains behind your Sim..."
-                rows={8}
-                required
-                disabled={!systemPrompt && !isGenerating}
-                className="resize-none text-sm font-mono disabled:opacity-50 disabled:cursor-not-allowed"
-              />
-            </div>
           </div>
+
+          {/* Show generated fields only after generation */}
+          {hasGenerated && (
+            <>
+              <div className="space-y-2">
+                <Label htmlFor="welcomeMessage" className="text-sm font-medium">
+                  Welcome Message <span className="text-destructive">*</span>
+                </Label>
+                <Textarea
+                  id="welcomeMessage"
+                  value={welcomeMessage}
+                  onChange={(e) => setWelcomeMessage(e.target.value)}
+                  placeholder="Hi! I'm..."
+                  rows={2}
+                  required
+                  className="resize-none"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="systemPrompt" className="text-sm font-medium">
+                  System Prompt <span className="text-destructive">*</span>
+                </Label>
+                <Textarea
+                  id="systemPrompt"
+                  value={systemPrompt}
+                  onChange={(e) => setSystemPrompt(e.target.value)}
+                  placeholder="The brains behind your Sim..."
+                  rows={8}
+                  required
+                  className="resize-none text-sm font-mono"
+                />
+              </div>
+            </>
+          )}
 
           {/* Submit Buttons */}
           <div className="flex gap-3 pt-6">
@@ -455,7 +503,7 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess }: CreateSimModal
             </Button>
             <Button
               type="submit"
-              disabled={isSubmitting || !name.trim() || !category || !systemPrompt.trim()}
+              disabled={isSubmitting || !name.trim() || !category || !systemPrompt.trim() || !welcomeMessage.trim()}
               className="flex-1 h-11 gap-2"
             >
                {isSubmitting ? (
