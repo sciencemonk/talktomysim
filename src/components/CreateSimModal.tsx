@@ -204,43 +204,42 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess }: CreateSimModal
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-6 mt-6">
-          {/* Avatar Upload Section */}
-          <div className="flex flex-col items-center gap-4 p-6 rounded-lg border-2 border-dashed border-border hover:border-primary transition-colors bg-muted/30">
-            <Avatar className="w-32 h-32 cursor-pointer ring-4 ring-background shadow-xl" onClick={() => fileInputRef.current?.click()}>
-              {avatarPreview ? (
-                <AvatarImage src={avatarPreview} alt="Avatar preview" className="object-cover" />
-              ) : (
-                <AvatarFallback className="bg-primary/10 text-primary">
-                  <Upload className="w-10 h-10" />
-                </AvatarFallback>
-              )}
-            </Avatar>
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*"
-              onChange={handleAvatarChange}
-              className="hidden"
-            />
-            <div className="text-center">
+          {/* Avatar and Name Section */}
+          <div className="flex gap-4 items-start">
+            <div className="flex-shrink-0">
+              <Label className="text-sm font-semibold mb-2 block">Avatar</Label>
+              <Avatar 
+                className="w-20 h-20 cursor-pointer ring-2 ring-border hover:ring-primary transition-all" 
+                onClick={() => fileInputRef.current?.click()}
+              >
+                {avatarPreview ? (
+                  <AvatarImage src={avatarPreview} alt="Avatar preview" className="object-cover" />
+                ) : (
+                  <AvatarFallback className="bg-muted text-muted-foreground">
+                    <Upload className="w-6 h-6" />
+                  </AvatarFallback>
+                )}
+              </Avatar>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleAvatarChange}
+                className="hidden"
+              />
               <Button
                 type="button"
-                variant="outline"
+                variant="ghost"
                 size="sm"
                 onClick={() => fileInputRef.current?.click()}
-                className="gap-2"
+                className="mt-2 text-xs h-7 w-20"
               >
-                <Upload className="w-4 h-4" />
-                {avatarPreview ? "Change Avatar" : "Upload Avatar"}
+                {avatarPreview ? "Change" : "Upload"}
               </Button>
-              <p className="text-xs text-muted-foreground mt-2">Recommended: 512x512px</p>
             </div>
-          </div>
 
-          {/* Basic Info Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Name */}
-            <div className="space-y-2">
+            <div className="flex-1 space-y-2">
               <Label htmlFor="name" className="text-sm font-semibold">
                 Sim Name <span className="text-destructive">*</span>
               </Label>
@@ -255,7 +254,7 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess }: CreateSimModal
             </div>
 
             {/* Title/Role */}
-            <div className="space-y-2">
+            <div className="flex-1 space-y-2">
               <Label htmlFor="title" className="text-sm font-semibold">
                 Title/Role
               </Label>
@@ -268,6 +267,7 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess }: CreateSimModal
               />
             </div>
           </div>
+
 
           {/* Category */}
           <div className="space-y-2">
