@@ -167,7 +167,7 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess }: CreateSimModal
       }
 
       // Create the sim
-      const { error: insertError } = await supabase
+      const { data: newSim, error: insertError } = await supabase
         .from('advisors')
         .insert({
           user_id: user.id,
@@ -181,9 +181,32 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess }: CreateSimModal
           integrations: selectedIntegrations,
           is_active: true,
           is_public: true,
-        });
+        })
+        .select()
+        .single();
 
       if (insertError) throw insertError;
+
+      // Automatically add to user's advisors list
+      if (newSim) {
+        const { error: userAdvisorError } = await supabase
+          .from('user_advisors')
+          .insert({
+            user_id: user.id,
+            advisor_id: newSim.id,
+            name: newSim.name,
+            title: newSim.title,
+            description: newSim.description,
+            prompt: newSim.prompt,
+            avatar_url: newSim.avatar_url,
+            category: newSim.category,
+          });
+
+        if (userAdvisorError) {
+          console.error("Error adding to user advisors:", userAdvisorError);
+          // Don't throw - sim is still created successfully
+        }
+      }
 
       toast.success("Sim created successfully!");
       onOpenChange(false);
