@@ -235,7 +235,9 @@ export function AppSidebar() {
         }
       }
       
-      return Array.from(simConversationsMap.values());
+      // Convert to array and sort by most recent interaction (updated_at)
+      return Array.from(simConversationsMap.values())
+        .sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime());
     },
     enabled: !!currentUser
   });
