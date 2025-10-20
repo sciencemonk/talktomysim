@@ -220,7 +220,7 @@ const SimDirectory = () => {
                     {categoryCounts.find(c => c.id === selectedCategory)?.label || 'All Categories'}
                   </SelectValue>
                 </SelectTrigger>
-                <SelectContent className="bg-white z-50">
+                <SelectContent className="bg-white dark:bg-gray-950 z-50">
                   {categoryCounts.map((cat) => (
                     <SelectItem key={cat.id} value={cat.id}>
                       <div className="flex items-center justify-between w-full">
