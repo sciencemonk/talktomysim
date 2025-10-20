@@ -239,9 +239,11 @@ const SimDetailModal = ({ sim, open, onOpenChange, onAuthRequired }: SimDetailMo
   const handleLaunchSim = async () => {
     if (!sim) return;
     
-    // If user is not signed in, show chat in modal
+    // If user is not signed in, navigate to the public chat page
     if (!isSignedIn) {
-      setShowChat(true);
+      const simSlug = (sim as any).custom_url || generateSlug(sim.name);
+      onOpenChange(false); // Close the modal
+      navigate(`/${simSlug}`);
       return;
     }
 
