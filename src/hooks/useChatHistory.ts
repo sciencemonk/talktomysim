@@ -123,9 +123,17 @@ export const useChatHistory = (agent: AgentType, forceNew: boolean = false, conv
             console.log(`Loaded ${chatMessages.length} messages for ${agent.name}:`, chatMessages);
           }
         } else {
-          console.log('Anonymous user - starting with empty chat');
+          // Anonymous users should also get the welcome message
+          console.log('Anonymous user - showing welcome message');
+          const welcomeMessage = agent.welcome_message || `Hi! I'm ${agent.name}. How can I help you today?`;
+          const chatMessages: ChatMessage[] = [{
+            id: crypto.randomUUID(),
+            role: 'system',
+            content: welcomeMessage,
+            isComplete: true
+          }];
           setActiveConversationId(conversation.id);
-          setMessages([]);
+          setMessages(chatMessages);
         }
       } catch (error) {
         console.error('Error loading chat history:', error);
