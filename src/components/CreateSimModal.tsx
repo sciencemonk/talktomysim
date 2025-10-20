@@ -204,14 +204,6 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess }: CreateSimModal
             <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center">
               <Sparkles className="w-5 h-5 text-primary-foreground" />
             </div>
-            <div>
-              <DialogTitle className="text-3xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
-                Create Your AI Agent
-              </DialogTitle>
-              <DialogDescription className="text-sm text-muted-foreground mt-1">
-                Build an intelligent agent with custom knowledge, integrations, and personality
-              </DialogDescription>
-            </div>
           </div>
         </DialogHeader>
 
@@ -220,7 +212,7 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess }: CreateSimModal
           <div className="space-y-4 p-6 rounded-xl border border-border/50 bg-card/30 backdrop-blur-sm">
             <div className="flex items-center gap-2 mb-2">
               <div className="w-1 h-6 bg-primary rounded-full" />
-              <h3 className="text-lg font-semibold">Agent Identity</h3>
+              <h3 className="text-lg font-semibold">Sim Identity</h3>
             </div>
             
             <div className="flex gap-4 items-start">
@@ -259,8 +251,8 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess }: CreateSimModal
               <div className="flex-1 space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="name" className="text-sm font-semibold flex items-center gap-2">
-                    Agent Name <span className="text-destructive">*</span>
-                    <span className="text-xs font-normal text-muted-foreground">(What users will call your agent)</span>
+                    Sim Name <span className="text-destructive">*</span>
+                    <span className="text-xs font-normal text-muted-foreground">(What users will call your sim)</span>
                   </Label>
                   <Input
                     id="name"
@@ -268,20 +260,6 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess }: CreateSimModal
                     onChange={(e) => setName(e.target.value)}
                     placeholder="e.g., Marcus the Sales Advisor, Dr. Code, Legal Eagle"
                     required
-                    className="h-12 text-base"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="title" className="text-sm font-semibold flex items-center gap-2">
-                    Professional Title
-                    <span className="text-xs font-normal text-muted-foreground">(Expertise or role)</span>
-                  </Label>
-                  <Input
-                    id="title"
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                    placeholder="e.g., Senior Marketing Strategist, Full-Stack Developer"
                     className="h-12 text-base"
                   />
                 </div>
