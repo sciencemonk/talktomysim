@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { 
@@ -404,6 +405,7 @@ export function AppSidebar() {
   });
 
   return (
+    <>
     <Sidebar className="border-r bg-background flex flex-col">
       <SidebarContent className="flex flex-col h-full">
         {/* Header - Always Visible */}
@@ -431,21 +433,13 @@ export function AppSidebar() {
           <Button
             onClick={() => {
               if (!currentUser) {
-                // For non-signed-in users, open auth modal
                 setShowAuthModal(true);
-                // Close mobile sidebar when opening auth modal
-                if (isMobile || sidebarIsMobile) {
-                  setOpenMobile(false);
-                }
               } else {
-                // Close mobile sidebar first to prevent Sheet/Dialog conflict
-                if (isMobile || sidebarIsMobile) {
-                  setOpenMobile(false);
-                }
-                // Small delay to let Sheet close animation complete before opening modal
-                setTimeout(() => {
-                  setShowCreateSimModal(true);
-                }, 150);
+                setShowCreateSimModal(true);
+              }
+              // Always close sidebar on mobile when opening any modal
+              if (isMobile || sidebarIsMobile) {
+                setOpenMobile(false);
               }
             }}
             className="w-full justify-start gap-2 bg-black text-white hover:bg-black/90 dark:bg-white dark:text-black dark:hover:bg-white/90"
@@ -623,36 +617,42 @@ export function AppSidebar() {
           </div>
         </div>
       </SidebarContent>
-
-      <CreditUsageModal open={showCreditsModal} onOpenChange={setShowCreditsModal} />
-      
-      {selectedSimForEdit && (
-        <EditSimModal
-          open={editSimModalOpen}
-          onOpenChange={setEditSimModalOpen}
-          simId={selectedSimForEdit}
-        />
-      )}
-
-      {showAuthModal && !currentUser && (
-        <AuthModal
-          open={showAuthModal}
-          onOpenChange={setShowAuthModal}
-          defaultMode="signup"
-        />
-      )}
-
-      {showCreateSimModal && currentUser && (
-        <CreateSimModal
-          open={showCreateSimModal}
-          onOpenChange={setShowCreateSimModal}
-          onSuccess={async () => {
-            await queryClient.invalidateQueries({ queryKey: ['user-sim'] });
-            await queryClient.invalidateQueries({ queryKey: ['my-sim-conversations'] });
-            navigate('/home');
-          }}
-        />
-      )}
     </Sidebar>
+    {/* Render modals outside Sidebar using Portal to prevent Sheet/Dialog conflicts */}
+    {typeof document !== 'undefined' && createPortal(
+      <>
+        <CreditUsageModal open={showCreditsModal} onOpenChange={setShowCreditsModal} />
+        
+        {selectedSimForEdit && (
+          <EditSimModal
+            open={editSimModalOpen}
+            onOpenChange={setEditSimModalOpen}
+            simId={selectedSimForEdit}
+          />
+        )}
+
+        {showAuthModal && !currentUser && (
+          <AuthModal
+            open={showAuthModal}
+            onOpenChange={setShowAuthModal}
+            defaultMode="signup"
+          />
+        )}
+
+        {showCreateSimModal && currentUser && (
+          <CreateSimModal
+            open={showCreateSimModal}
+            onOpenChange={setShowCreateSimModal}
+            onSuccess={async () => {
+              await queryClient.invalidateQueries({ queryKey: ['user-sim'] });
+              await queryClient.invalidateQueries({ queryKey: ['my-sim-conversations'] });
+              navigate('/home');
+            }}
+          />
+        )}
+      </>,
+      document.body
+    )}
+    </>
   );
 }
