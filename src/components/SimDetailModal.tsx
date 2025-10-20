@@ -42,6 +42,10 @@ const SimDetailModal = ({ sim, open, onOpenChange, onAuthRequired }: SimDetailMo
   const SIMAI_TO_SOL_RATE = 0.001;
   
   const getSimDescription = () => {
+    // Prioritize auto_description, then fall back to description, then defaults
+    if ((sim as any)?.auto_description) {
+      return (sim as any).auto_description;
+    }
     if (sim?.description) {
       return sim.description;
     }
@@ -355,7 +359,7 @@ const SimDetailModal = ({ sim, open, onOpenChange, onAuthRequired }: SimDetailMo
           <div className="text-center space-y-3 mb-6">
             <h1 className="text-3xl sm:text-4xl font-bold tracking-tight">{sim.name}</h1>
             <p className="text-sm sm:text-base text-muted-foreground leading-relaxed px-2">
-              {sim.auto_description || sim.description || simDescription}
+              {(sim as any).auto_description || sim.description || simDescription}
             </p>
           </div>
 

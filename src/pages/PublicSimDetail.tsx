@@ -32,6 +32,10 @@ const PublicSimDetail = () => {
   const SIMAI_TO_SOL_RATE = 0.0001;
 
   const getSimDescription = () => {
+    // Prioritize auto_description, then fall back to description, then defaults
+    if ((sim as any)?.auto_description) {
+      return (sim as any).auto_description;
+    }
     if (sim?.description) {
       return sim.description;
     }
