@@ -19,6 +19,7 @@ const PublicChatInterface = ({ agent }: PublicChatInterfaceProps) => {
   const [hasStartedChat, setHasStartedChat] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
+  const lastAssistantMessageRef = useRef<HTMLDivElement>(null);
   
   const chatHistory = useChatHistory(agent, false, null);
   const textChat = useTextChat({
@@ -46,7 +47,18 @@ const PublicChatInterface = ({ agent }: PublicChatInterfaceProps) => {
   };
 
   useEffect(() => {
-    if (messagesContainerRef.current) {
+    // Get the last message
+    const lastMessage = chatHistory.messages[chatHistory.messages.length - 1];
+    
+    // If last message is from assistant/system, scroll to show it from the top
+    if (lastMessage?.role === 'system' && lastAssistantMessageRef.current) {
+      lastAssistantMessageRef.current.scrollIntoView({ 
+        behavior: 'smooth',
+        block: 'start'
+      });
+    } 
+    // For user messages or initial load, scroll to bottom as before
+    else if (messagesContainerRef.current) {
       messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
     }
   }, [chatHistory.messages]);
@@ -89,15 +101,20 @@ const PublicChatInterface = ({ agent }: PublicChatInterfaceProps) => {
       {/* Messages Area */}
       <div ref={messagesContainerRef} className="flex-1 overflow-y-auto px-3 sm:px-4 py-4 sm:py-8">
         <div className="max-w-3xl mx-auto space-y-4 sm:space-y-6">
-          {chatHistory.messages.map((message) => {
+          {chatHistory.messages.map((message, index) => {
             // Don't render AI messages that are incomplete and have no content
             if (message.role === 'system' && !message.isComplete && !message.content.trim()) {
               return null;
             }
             
+            const isLastAssistantMessage = 
+              message.role === 'system' && 
+              index === chatHistory.messages.length - 1;
+            
             return (
               <div
                 key={message.id}
+                ref={isLastAssistantMessage ? lastAssistantMessageRef : null}
                 className={`flex gap-4 ${message.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}
               >
                 {message.role === 'system' && (
