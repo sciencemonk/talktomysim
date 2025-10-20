@@ -713,9 +713,8 @@ export function AppSidebar() {
             open={showCreateSimModal}
             onOpenChange={setShowCreateSimModal}
             onSuccess={async () => {
-              await queryClient.invalidateQueries({ queryKey: ['user-sim'] });
-              await queryClient.invalidateQueries({ queryKey: ['my-sim-conversations'] });
-              navigate('/home');
+              await queryClient.invalidateQueries({ queryKey: ['user-sims', currentUser.id] });
+              await queryClient.invalidateQueries({ queryKey: ['my-sim-conversations', currentUser.id] });
             }}
           />
         )}
