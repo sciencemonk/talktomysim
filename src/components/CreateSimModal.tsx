@@ -168,6 +168,32 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess }: CreateSimModal
         avatarUrl = urlData.publicUrl;
       }
 
+      // Generate a welcome message based on the system prompt
+      let welcomeMessage = `Hi! I'm ${name.trim()}. How can I help you today?`;
+      try {
+        const { data: welcomeData } = await supabase.functions.invoke("chat-completion", {
+          body: {
+            messages: [
+              {
+                role: "system",
+                content: "You are a helpful assistant that creates brief, engaging welcome messages for AI chatbots based on their system prompts. Keep it to 1-2 sentences, under 150 characters, in first person."
+              },
+              {
+                role: "user",
+                content: `Create a welcome message for an AI called "${name.trim()}" with this system prompt: ${systemPrompt.trim()}`
+              }
+            ]
+          }
+        });
+        
+        if (welcomeData?.content) {
+          welcomeMessage = welcomeData.content.trim();
+        }
+      } catch (error) {
+        console.error("Error generating welcome message:", error);
+        // Use fallback if generation fails
+      }
+
       // Create the sim
       const { data: newSim, error: insertError } = await supabase
         .from('advisors')
@@ -183,6 +209,7 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess }: CreateSimModal
           integrations: selectedIntegrations,
           is_active: true,
           is_public: true,
+          welcome_message: welcomeMessage,
         })
         .select()
         .single();
