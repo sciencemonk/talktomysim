@@ -26,40 +26,28 @@ const AuthModal = ({ open, onOpenChange, defaultMode = 'signup' }: AuthModalProp
     setIsLoading(walletType);
     
     try {
-      // For mobile, use proper deep link format with connection parameters
+      // For mobile, redirect to wallet's in-app browser
       if (isMobile()) {
-        const appUrl = window.location.origin;
-        const appName = 'TalkToMySim';
+        const currentUrl = window.location.href.split('?')[0]; // Clean URL
+        const redirectUrl = `${currentUrl}?wallet=${walletType}&autoconnect=true`;
         
         if (walletType === 'phantom') {
-          // Phantom mobile deep link for dApp browser
-          const params = new URLSearchParams({
-            app_url: appUrl,
-            dapp_encryption_public_key: '', // Will be handled by wallet
-            cluster: 'mainnet-beta',
-            redirect_link: `${appUrl}?wallet=phantom`
+          // Open our site in Phantom's in-app browser
+          const deepLink = `https://phantom.app/ul/browse/${encodeURIComponent(redirectUrl)}?ref=${encodeURIComponent(window.location.origin)}`;
+          
+          toast.info('Opening in Phantom...', {
+            description: 'You\'ll be able to connect from within the Phantom app'
           });
-          
-          const deepLink = `phantom://browse/${encodeURIComponent(appUrl)}?ref=${encodeURIComponent(appUrl)}`;
-          
-          toast.info('Opening Phantom...', {
-            description: 'Tap "Connect" in the Phantom app to continue'
-          });
-          
-          // Store that we're attempting connection
-          sessionStorage.setItem('wallet_connection_pending', walletType);
           
           window.location.href = deepLink;
           return;
         } else {
-          // Solflare mobile deep link
-          const deepLink = `solflare://browse?url=${encodeURIComponent(appUrl)}`;
+          // Open our site in Solflare's in-app browser
+          const deepLink = `https://solflare.com/ul/v1/browse/${encodeURIComponent(redirectUrl)}`;
           
-          toast.info('Opening Solflare...', {
-            description: 'Tap "Connect" in the Solflare app to continue'
+          toast.info('Opening in Solflare...', {
+            description: 'You\'ll be able to connect from within the Solflare app'
           });
-          
-          sessionStorage.setItem('wallet_connection_pending', walletType);
           
           window.location.href = deepLink;
           return;
@@ -133,24 +121,29 @@ const AuthModal = ({ open, onOpenChange, defaultMode = 'signup' }: AuthModalProp
     }
   };
 
-  // Check for pending wallet connections on mount
+  // Check for autoconnect parameter (when returning from wallet browser)
   useEffect(() => {
-    const checkPendingConnection = async () => {
-      const pending = sessionStorage.getItem('wallet_connection_pending');
-      if (pending && open) {
-        sessionStorage.removeItem('wallet_connection_pending');
+    const checkAutoConnect = async () => {
+      const params = new URLSearchParams(window.location.search);
+      const walletParam = params.get('wallet');
+      const autoconnect = params.get('autoconnect');
+      
+      if (autoconnect === 'true' && walletParam && open) {
+        // Clean URL
+        window.history.replaceState({}, '', '/');
         
         // Give wallet time to inject provider
         await new Promise(resolve => setTimeout(resolve, 1000));
         
-        const walletType = pending as 'phantom' | 'solflare';
+        const walletType = walletParam as 'phantom' | 'solflare';
         const wallet = walletType === 'phantom' 
           ? (window as any).solana 
           : (window as any).solflare;
         
         if (wallet) {
+          setIsLoading(walletType);
           toast.info('Connecting wallet...');
-          // Attempt to connect
+          
           try {
             await wallet.connect();
             const publicKey = wallet.publicKey.toString();
@@ -178,13 +171,19 @@ const AuthModal = ({ open, onOpenChange, defaultMode = 'signup' }: AuthModalProp
             }
           } catch (error: any) {
             console.error('Error connecting wallet:', error);
-            toast.error('Please try connecting again');
+            toast.error('Connection failed. Please try again');
+          } finally {
+            setIsLoading(null);
           }
+        } else {
+          toast.error(`${walletType === 'phantom' ? 'Phantom' : 'Solflare'} not detected`, {
+            description: 'Make sure you opened this in the wallet app browser'
+          });
         }
       }
     };
     
-    checkPendingConnection();
+    checkAutoConnect();
   }, [open, onOpenChange]);
 
   return (
