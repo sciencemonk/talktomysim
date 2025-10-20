@@ -44,6 +44,7 @@ serve(async (req) => {
 - Be clear, concise, and actionable
 - Be 2-4 paragraphs long
 - Include any domain-specific knowledge or best practices for the category
+- ALWAYS start with: "For the first message of each conversation, greet the user with a warm welcome message that explains what you do and how users can interact with you. Keep it friendly and inviting."
 
 Category context:
 - crypto: Focus on blockchain, DeFi, trading, and Web3 concepts
