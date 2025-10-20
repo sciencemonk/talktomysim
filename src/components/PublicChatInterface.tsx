@@ -52,16 +52,24 @@ const PublicChatInterface = ({ agent }: PublicChatInterfaceProps) => {
     
     // If last message is from assistant/system, scroll to show it from the top
     if (lastMessage?.role === 'system' && lastAssistantMessageRef.current) {
-      lastAssistantMessageRef.current.scrollIntoView({ 
-        behavior: 'smooth',
-        block: 'start'
+      // Use requestAnimationFrame to ensure DOM has updated
+      requestAnimationFrame(() => {
+        lastAssistantMessageRef.current?.scrollIntoView({ 
+          behavior: 'smooth',
+          block: 'start',
+          inline: 'nearest'
+        });
       });
     } 
-    // For user messages or initial load, scroll to bottom as before
-    else if (messagesContainerRef.current) {
-      messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
+    // For user messages, scroll to bottom to see the user's message
+    else if (lastMessage?.role === 'user' && messagesContainerRef.current) {
+      requestAnimationFrame(() => {
+        if (messagesContainerRef.current) {
+          messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
+        }
+      });
     }
-  }, [chatHistory.messages]);
+  }, [chatHistory.messages, chatHistory.messages.length]);
 
   // Show initial state if no messages
   if (!hasStartedChat && chatHistory.messages.length === 0) {
