@@ -66,10 +66,10 @@ serve(async (req) => {
     
     console.log('User wallet:', userWalletAddress);
     
-    const openaiApiKey = Deno.env.get('OPENAI_API_KEY');
+    const lovableApiKey = Deno.env.get('LOVABLE_API_KEY');
     const perplexityApiKey = Deno.env.get('PERPLEXITY_API_KEY');
     
-    if (!openaiApiKey || !perplexityApiKey) {
+    if (!lovableApiKey || !perplexityApiKey) {
       throw new Error('Missing API keys');
     }
 
@@ -158,7 +158,7 @@ serve(async (req) => {
     }
 
     // Determine if web research is needed
-    const needsResearch = await shouldDoWebResearch(userMessage, agent, openaiApiKey);
+    const needsResearch = await shouldDoWebResearch(userMessage, agent, lovableApiKey);
     console.log('Needs research:', needsResearch);
 
     let researchContext = '';
@@ -237,34 +237,33 @@ serve(async (req) => {
       }
     ];
 
-    // Generate response using OpenAI with tools
-    let response = await fetch('https://api.openai.com/v1/chat/completions', {
+    // Generate response using Lovable AI (Claude) with tools
+    let response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${openaiApiKey}`,
+        'Authorization': `Bearer ${lovableApiKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4o-mini',
+        model: 'claude-sonnet-4-5',
         messages: [
           { role: 'system', content: systemPrompt },
           ...messages
         ],
         tools: tools,
         tool_choice: "auto",
-        max_tokens: 1000,
-        temperature: 0.7,
+        max_completion_tokens: 1000,
       }),
     });
 
     if (!response.ok) {
       const error = await response.text();
-      console.error('OpenAI API error:', error);
-      throw new Error(`OpenAI API error: ${response.status}`);
+      console.error('Lovable AI API error:', error);
+      throw new Error(`Lovable AI API error: ${response.status}`);
     }
 
     let data = await response.json();
-    console.log('OpenAI response:', JSON.stringify(data, null, 2));
+    console.log('Lovable AI response:', JSON.stringify(data, null, 2));
 
     // Check if the AI wants to call a tool
     if (data.choices[0].message.tool_calls && data.choices[0].message.tool_calls.length > 0) {
@@ -412,32 +411,31 @@ serve(async (req) => {
       }
       
       // Continue the conversation with tool results
-      response = await fetch('https://api.openai.com/v1/chat/completions', {
+      response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${openaiApiKey}`,
+          'Authorization': `Bearer ${lovableApiKey}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          model: 'gpt-4o-mini',
+          model: 'claude-sonnet-4-5',
           messages: toolMessages,
-          max_tokens: 1000,
-          temperature: 0.7,
+          max_completion_tokens: 1000,
         }),
       });
       
       if (!response.ok) {
         const error = await response.text();
-        console.error('OpenAI API error (tool response):', error);
-        throw new Error(`OpenAI API error: ${response.status}`);
+        console.error('Lovable AI API error (tool response):', error);
+        throw new Error(`Lovable AI API error: ${response.status}`);
       }
       
       data = await response.json();
-      console.log('OpenAI final response:', data);
+      console.log('Lovable AI final response:', data);
     }
 
     if (!data.choices || data.choices.length === 0) {
-      throw new Error('No choices returned from OpenAI');
+      throw new Error('No choices returned from Lovable AI');
     }
 
     // Track credit usage for the sim owner
@@ -594,16 +592,32 @@ async function shouldGiveSimpleAnswer(userMessage: string, openaiApiKey: string)
   }
 }
 
-async function shouldDoWebResearch(userMessage: string, agent: Agent, openaiApiKey: string): Promise<boolean> {
+async function shouldDoWebResearch(userMessage: string, agent: Agent, lovableApiKey: string): Promise<boolean> {
   try {
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    // Check for common real-time data requests
+    const realtimeKeywords = [
+      'price', 'current', 'now', 'today', 'latest', 'recent', 
+      'what is', 'how much', 'market', 'stock', 'crypto', 
+      'weather', 'news', 'score', 'rate', 'value'
+    ];
+    
+    const messageLower = userMessage.toLowerCase();
+    const needsRealtimeData = realtimeKeywords.some(keyword => messageLower.includes(keyword));
+    
+    // If it's clearly a real-time data request, do research immediately
+    if (needsRealtimeData) {
+      console.log('Real-time data request detected, performing research');
+      return true;
+    }
+    
+    const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${openaiApiKey}`,
+        'Authorization': `Bearer ${lovableApiKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4o-mini',
+        model: 'google/gemini-2.5-flash',
         messages: [
           {
             role: 'system',
@@ -612,6 +626,8 @@ async function shouldDoWebResearch(userMessage: string, agent: Agent, openaiApiK
             The user is talking to ${agent.name}, a specialized AI agent.
             
             Return "YES" for web research if the question:
+            - Asks about real-time data (prices, weather, news, scores, etc.)
+            - Requests current or latest information
             - Asks about specific concepts, inventions, or ideas associated with ${agent.name}
             - Requests factual information that should be verified
             - Mentions specific terms, projects, or concepts that may need accurate details
@@ -633,8 +649,7 @@ async function shouldDoWebResearch(userMessage: string, agent: Agent, openaiApiK
             content: `User asking ${agent.name}: ${userMessage}`
           }
         ],
-        max_tokens: 10,
-        temperature: 0.1,
+        max_completion_tokens: 10,
       }),
     });
 
