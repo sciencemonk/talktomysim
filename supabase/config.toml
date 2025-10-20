@@ -50,3 +50,9 @@ verify_jwt = false
 
 [functions.batch-regenerate-descriptions]
 verify_jwt = false
+
+[functions.generate-short-description]
+verify_jwt = false
+
+[functions.update-sim-auto-description]
+verify_jwt = false
