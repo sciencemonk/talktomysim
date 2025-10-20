@@ -133,7 +133,7 @@ export function AppSidebar() {
   });
 
   const { data: myConversations, refetch } = useQuery({
-    queryKey: ['my-sim-conversations', currentUser?.id],
+    queryKey: ['my-sim-conversations', currentUser?.id, userSims?.length],
     queryFn: async () => {
       if (!currentUser) return [];
       
