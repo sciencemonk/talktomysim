@@ -96,19 +96,8 @@ const AuthModal = ({ open, onOpenChange, defaultMode = 'signup' }: AuthModalProp
         toast.success('Connected successfully!');
         onOpenChange(false);
         
-        // Check if user has a sim - redirect to home if not
-        const { data: { user } } = await supabase.auth.getUser();
-        if (user) {
-          const { data: userSim } = await supabase
-            .from('advisors')
-            .select('id')
-            .eq('user_id', user.id)
-            .eq('sim_type', 'living')
-            .maybeSingle();
-          
-          // Redirect to home - onboarding modal will appear if no sim exists
-          window.location.href = '/home';
-        }
+        // Redirect existing users to directory
+        window.location.href = '/directory';
       }
     } catch (error: any) {
       console.error('Error signing in with Solana:', error);
