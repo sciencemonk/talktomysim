@@ -257,7 +257,7 @@ export function AppSidebar() {
           filter: `user_id=eq.${currentUser.id}`
         },
         () => {
-          // Refetch when any conversation changes for this user
+          // Refetch immediately when conversations change
           queryClient.invalidateQueries({ queryKey: ['my-sim-conversations'] });
         }
       )
@@ -268,18 +268,9 @@ export function AppSidebar() {
           schema: 'public',
           table: 'messages'
         },
-        async (payload) => {
-          // When a new message is inserted, check if it's for one of this user's conversations
-          // and refetch to update the sidebar
-          const { data: conversation } = await supabase
-            .from('conversations')
-            .select('user_id')
-            .eq('id', (payload.new as any).conversation_id)
-            .single();
-          
-          if (conversation?.user_id === currentUser.id) {
-            queryClient.invalidateQueries({ queryKey: ['my-sim-conversations'] });
-          }
+        () => {
+          // Refetch on any new message to update last message preview
+          queryClient.invalidateQueries({ queryKey: ['my-sim-conversations'] });
         }
       )
       .on(
