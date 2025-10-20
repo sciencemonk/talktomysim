@@ -11,6 +11,7 @@ import { useTextChat } from "@/hooks/useTextChat";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useIOSKeyboard } from "@/hooks/useIOSKeyboard";
 import { AgentType } from "@/types/agent";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 interface ChatInterfaceProps {
   agent: AgentType;
@@ -29,6 +30,8 @@ const ChatInterface = ({ agent, onBack, hideHeader = false, transparentMode = fa
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
   const { isKeyboardVisible, viewportHeight } = useIOSKeyboard();
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   
   // Get avatar URL - handle both transformed (avatar) and raw (avatar_url) properties
   const avatarUrl = (currentAgent as any).avatar || (currentAgent as any).avatar_url;
@@ -45,6 +48,18 @@ const ChatInterface = ({ agent, onBack, hideHeader = false, transparentMode = fa
   useEffect(() => {
     setCurrentAgent(agent);
   }, [agent]);
+  
+  // Clean up URL after welcome message is displayed when restarting
+  useEffect(() => {
+    if (forceNewChat && chatHistory.messages.length > 0) {
+      // Once we have messages (welcome message), remove the new=true parameter
+      const simId = searchParams.get('sim');
+      if (simId && searchParams.get('new') === 'true') {
+        console.log('🧹 Cleaning up new=true parameter after displaying welcome message');
+        navigate(`/home?sim=${simId}`, { replace: true });
+      }
+    }
+  }, [forceNewChat, chatHistory.messages.length, searchParams, navigate]);
 
   const scrollToBottom = () => {
     if (messagesContainerRef.current) {

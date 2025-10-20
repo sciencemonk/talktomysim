@@ -32,15 +32,6 @@ const Home = () => {
     
     console.log('useEffect triggered - simId:', simId, 'isNewChat:', isNewChat, 'current selectedAdvisor:', selectedAdvisor?.id);
     
-    // If this is a new chat flag, remove it from URL after processing
-    if (isNewChat) {
-      console.log('Detected new=true, will clean URL after loading');
-      // Remove the new parameter after a brief delay to allow the hook to process it
-      setTimeout(() => {
-        navigate(`/home?sim=${simId}`, { replace: true });
-      }, 100);
-    }
-    
     if (simId) {
       // Only fetch if the sim ID is different from current selection
       if (selectedAdvisor?.id !== simId) {
