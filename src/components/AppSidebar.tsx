@@ -94,21 +94,21 @@ export function AppSidebar() {
     return () => subscription.unsubscribe();
   });
 
-  // Fetch user's sim with staleTime to prevent refetching on every navigation
-  const { data: userSim } = useQuery({
-    queryKey: ['user-sim', currentUser?.id],
+  // Fetch user's sims with staleTime to prevent refetching on every navigation
+  const { data: userSims } = useQuery({
+    queryKey: ['user-sims', currentUser?.id],
     queryFn: async () => {
-      if (!currentUser) return null;
+      if (!currentUser) return [];
       
       const { data, error } = await supabase
         .from('advisors')
         .select('*')
         .eq('user_id', currentUser.id)
         .eq('is_active', true)
-        .maybeSingle();
+        .order('created_at', { ascending: false });
       
       if (error) throw error;
-      return data;
+      return data || [];
     },
     enabled: !!currentUser,
     staleTime: 5 * 60 * 1000, // Keep data fresh for 5 minutes
@@ -198,29 +198,33 @@ export function AppSidebar() {
         }
       }
       
-      // Also include the user's own created sim, even if no conversations exist
-      if (userSim && !simConversationsMap.has(userSim.id)) {
-        // Get creator's wallet
-        let creatorWallet = null;
-        if (userSim.user_id) {
-          const { data: profile } = await supabase
-            .from('profiles')
-            .select('wallet_address')
-            .eq('id', userSim.user_id)
-            .single();
-          creatorWallet = profile?.wallet_address || null;
-        }
+      // Also include all user's own created sims, even if no conversations exist
+      if (userSims && userSims.length > 0) {
+        for (const sim of userSims) {
+          if (!simConversationsMap.has(sim.id)) {
+            // Get creator's wallet
+            let creatorWallet = null;
+            if (sim.user_id) {
+              const { data: profile } = await supabase
+                .from('profiles')
+                .select('wallet_address')
+                .eq('id', sim.user_id)
+                .single();
+              creatorWallet = profile?.wallet_address || null;
+            }
 
-        simConversationsMap.set(userSim.id, {
-          sim_id: userSim.id,
-          sim_name: userSim.name || 'Your Sim',
-          sim_avatar: userSim.avatar_url || null,
-          sim_user_id: userSim.user_id || null,
-          sim_creator_wallet: creatorWallet,
-          conversation_id: null,
-          last_message: null,
-          updated_at: userSim.updated_at || new Date().toISOString()
-        });
+            simConversationsMap.set(sim.id, {
+              sim_id: sim.id,
+              sim_name: sim.name || 'Your Sim',
+              sim_avatar: sim.avatar_url || null,
+              sim_user_id: sim.user_id || null,
+              sim_creator_wallet: creatorWallet,
+              conversation_id: null,
+              last_message: null,
+              updated_at: sim.updated_at || new Date().toISOString()
+            });
+          }
+        }
       }
       
       return Array.from(simConversationsMap.values());
