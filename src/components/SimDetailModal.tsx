@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Globe, Wallet, ExternalLink, Copy, Check, MessageCircle, X, Share2 } from "lucide-react";
+import { Globe, Wallet, ExternalLink, Copy, Check, MessageCircle, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
@@ -24,8 +24,8 @@ const SimDetailModal = ({ sim, open, onOpenChange, onAuthRequired }: SimDetailMo
   const [isAddingSim, setIsAddingSim] = useState(false);
   const [shareLinkCopied, setShareLinkCopied] = useState(false);
 
-  // Calculate SOL equivalent (example rate: 1 $SimAI = 0.0001 SOL)
-  const SIMAI_TO_SOL_RATE = 0.0001;
+  // Calculate SOL equivalent (1 $SimAI = 0.001 SOL)
+  const SIMAI_TO_SOL_RATE = 0.001;
   
   const getSimDescription = () => {
     if (sim?.description) {
@@ -44,7 +44,7 @@ const SimDetailModal = ({ sim, open, onOpenChange, onAuthRequired }: SimDetailMo
       return { display: 'Free', isFree: true };
     }
     const solEquivalent = (price * SIMAI_TO_SOL_RATE).toFixed(4);
-    return { 
+    return {
       display: `${price.toLocaleString()} $SimAI (~${solEquivalent} SOL)`,
       isFree: false 
     };
@@ -78,6 +78,21 @@ const SimDetailModal = ({ sim, open, onOpenChange, onAuthRequired }: SimDetailMo
         return;
       }
 
+      // Add the sim to user_advisors (cast as any to avoid TS errors)
+      const { error: userAdvisorError } = await (supabase
+        .from('user_advisors') as any)
+        .upsert({
+          user_id: user.id,
+          advisor_id: sim.id,
+        }, {
+          onConflict: 'user_id,advisor_id',
+          ignoreDuplicates: true
+        });
+
+      if (userAdvisorError && userAdvisorError.code !== '23505') {
+        console.error('Error adding to user_advisors:', userAdvisorError);
+      }
+
       // Check if conversation already exists
       const { data: existingConv } = await supabase
         .from('conversations')
@@ -93,7 +108,7 @@ const SimDetailModal = ({ sim, open, onOpenChange, onAuthRequired }: SimDetailMo
           .insert({
             user_id: user.id,
             tutor_id: sim.id,
-            is_anonymous: false
+            is_anonymous: false,
           });
 
         if (convError) throw convError;
@@ -117,8 +132,8 @@ const SimDetailModal = ({ sim, open, onOpenChange, onAuthRequired }: SimDetailMo
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-xl p-0 overflow-hidden bg-gradient-to-br from-primary/20 via-background to-secondary/20 border-2 [&>button]:hidden">
-        <div className="backdrop-blur-xl bg-card/50 rounded-lg p-8 sm:p-12 relative">
+      <DialogContent className="max-w-xl p-0 overflow-hidden [&>button]:hidden border-2">
+        <div className="backdrop-blur-xl bg-card/50 rounded-lg p-8 sm:p-12">
           {/* Avatar */}
           <div className="flex justify-center mb-6">
             <div className="relative">
@@ -188,7 +203,7 @@ const SimDetailModal = ({ sim, open, onOpenChange, onAuthRequired }: SimDetailMo
 
           {/* Social Links & Wallet */}
           {(sim.twitter_url || sim.website_url || sim.crypto_wallet) && (
-            <div className="flex flex-col gap-3 pt-4 border-t border-border">
+            <div className="flex flex-col gap-3 pt-4 border-t border-border mt-4">
               {sim.twitter_url && (
                 <a
                   href={sim.twitter_url.startsWith('http') ? sim.twitter_url : `https://${sim.twitter_url}`}
@@ -197,7 +212,7 @@ const SimDetailModal = ({ sim, open, onOpenChange, onAuthRequired }: SimDetailMo
                   className="flex items-center gap-3 w-full px-5 py-3.5 rounded-2xl bg-accent/10 hover:bg-accent/20 border border-border hover:border-primary transition-all duration-300 group"
                 >
                   <svg className="h-5 w-5 text-muted-foreground group-hover:text-foreground transition-colors flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                    <path d="M18.244 2.25h3.308l-7.227 8.26L24 21.75h-6.642l-5.214-6.817-5.956 6.817H3.29l7.73-8.835L3 2.25h6.826l4.712 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
                   </svg>
                   <span className="text-sm font-medium group-hover:text-foreground transition-colors">Follow on X</span>
                   <ExternalLink className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors ml-auto flex-shrink-0" />
