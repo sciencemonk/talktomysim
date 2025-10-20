@@ -47,9 +47,24 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess }: CreateSimModal
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const availableIntegrations = [
-    { id: 'solana-explorer', label: 'Solana Explorer', description: 'Access Solana blockchain data and wallet information' },
-    { id: 'pumpfun', label: 'PumpFun', description: 'Analyze and monitor PumpFun token trades' },
-    { id: 'x-analyzer', label: 'X (Twitter) Analyzer', description: 'Analyze X/Twitter profiles and content' },
+    { 
+      id: 'solana-explorer', 
+      label: 'Solana Explorer', 
+      description: 'Access Solana blockchain data and wallet information',
+      example: 'e.g., "Check my wallet balance" or "What\'s the latest on this token?"'
+    },
+    { 
+      id: 'pumpfun', 
+      label: 'PumpFun', 
+      description: 'Analyze and monitor PumpFun token trades',
+      example: 'e.g., "Show me recent trades for this token" or "What\'s trending on PumpFun?"'
+    },
+    { 
+      id: 'x-analyzer', 
+      label: 'X (Twitter) Analyzer', 
+      description: 'Analyze X/Twitter profiles and content',
+      example: 'e.g., "Analyze this Twitter profile" or "What\'s the sentiment on this account?"'
+    },
   ];
 
   const toggleIntegration = (integrationId: string) => {
@@ -380,34 +395,37 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess }: CreateSimModal
           </div>
 
           {/* Integrations Section */}
-          <div className="space-y-4 p-4 rounded-lg border bg-muted/30">
+          <div className="space-y-3 p-4 rounded-lg border bg-muted/30">
             <div className="space-y-1">
               <Label className="text-sm font-semibold">Integrations (Optional)</Label>
               <p className="text-xs text-muted-foreground">
                 Enable integrations to give your Sim access to external data and tools
               </p>
             </div>
-            <div className="space-y-3">
+            <div className="grid gap-2">
               {availableIntegrations.map((integration) => (
                 <div
                   key={integration.id}
-                  className="flex items-start gap-3 p-3 rounded-md border bg-background hover:border-primary/50 transition-colors"
+                  className="flex items-start gap-2 p-2.5 rounded-md border bg-background hover:border-primary/50 transition-colors"
                 >
                   <Checkbox
                     id={integration.id}
                     checked={selectedIntegrations.includes(integration.id)}
                     onCheckedChange={() => toggleIntegration(integration.id)}
-                    className="mt-0.5"
+                    className="mt-1"
                   />
-                  <div className="flex-1 space-y-1">
+                  <div className="flex-1 min-w-0">
                     <Label
                       htmlFor={integration.id}
-                      className="text-sm font-medium cursor-pointer"
+                      className="text-sm font-medium cursor-pointer leading-tight block"
                     >
                       {integration.label}
                     </Label>
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-xs text-muted-foreground mt-0.5 leading-tight">
                       {integration.description}
+                    </p>
+                    <p className="text-xs text-muted-foreground/70 italic mt-1 leading-tight">
+                      {integration.example}
                     </p>
                   </div>
                 </div>
