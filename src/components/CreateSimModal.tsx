@@ -328,10 +328,11 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess }: CreateSimModal
                 id="systemPrompt"
                 value={systemPrompt}
                 onChange={(e) => setSystemPrompt(e.target.value)}
-                placeholder="You are an expert in..."
+                placeholder="The brains behind your Sim..."
                 rows={8}
                 required
-                className="resize-none text-sm font-mono"
+                disabled={!systemPrompt && !isGenerating}
+                className="resize-none text-sm font-mono disabled:opacity-50 disabled:cursor-not-allowed"
               />
             </div>
           </div>
