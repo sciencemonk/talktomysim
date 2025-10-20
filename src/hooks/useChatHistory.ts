@@ -33,17 +33,8 @@ export const useChatHistory = (agent: AgentType, forceNew: boolean = false, conv
         // Check if user is authenticated
         const { data: { user } } = await supabase.auth.getUser();
         
-        if (forceNew) {
-          // Start completely fresh - clear and show empty
-          console.log('🆕 FORCE NEW CHAT - Clearing all messages and conversation');
-          setActiveConversationId(null);
-          setMessages([]);
-          setIsLoading(false);
-          return;
-        }
-        
-        // If we have a specific conversation ID to load, fetch it directly
-        if (conversationId) {
+        // If we have a specific conversation ID to load (and not forcing new), fetch it directly
+        if (conversationId && !forceNew) {
           console.log('Loading specific conversation:', conversationId);
           const { data: conversation } = await supabase
             .from('conversations')
@@ -82,6 +73,22 @@ export const useChatHistory = (agent: AgentType, forceNew: boolean = false, conv
         }
 
         console.log('Conversation initialized:', conversation.id, 'User:', user ? 'authenticated' : 'anonymous');
+
+        // If forceNew, just add welcome message and don't load old messages
+        if (forceNew) {
+          console.log('🆕 FORCE NEW - Adding only welcome message');
+          const welcomeMessage = (agent as any).welcome_message || `Hi! I'm ${agent.name}. How can I help you today?`;
+          const chatMessages: ChatMessage[] = [{
+            id: crypto.randomUUID(),
+            role: 'system',
+            content: welcomeMessage,
+            isComplete: true
+          }];
+          setActiveConversationId(conversation.id);
+          setMessages(chatMessages);
+          setIsLoading(false);
+          return;
+        }
 
         // Load existing messages only for authenticated users
         if (user) {
