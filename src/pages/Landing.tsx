@@ -359,9 +359,13 @@ const Landing = () => {
               {categoryCounts.map((cat) => (
                 <Button
                   key={cat.id}
-                  variant={selectedCategory === cat.id ? "default" : "outline"}
+                  variant="outline"
                   onClick={() => setSelectedCategory(cat.id)}
-                  className="gap-1.5 h-8 text-xs sm:h-10 sm:text-sm sm:gap-2"
+                  className={`gap-1.5 h-8 text-xs sm:h-10 sm:text-sm sm:gap-2 ${
+                    selectedCategory === cat.id 
+                      ? 'bg-black text-white border-black hover:bg-black/90' 
+                      : ''
+                  }`}
                 >
                   <span className="whitespace-nowrap">{cat.label}</span>
                   <Badge 
