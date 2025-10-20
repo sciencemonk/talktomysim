@@ -41,3 +41,6 @@ verify_jwt = false
 
 [functions.generate-welcome-messages]
 verify_jwt = false
+
+[functions.generate-sim-description]
+verify_jwt = false

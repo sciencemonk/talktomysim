@@ -31,6 +31,7 @@ const UserSimForm = ({ open, onOpenChange, existingSim, onSuccess }: UserSimForm
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [isAutoSaving, setIsAutoSaving] = useState(false);
+  const [isGeneratingDescription, setIsGeneratingDescription] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string>('');
 
@@ -176,6 +177,43 @@ const UserSimForm = ({ open, onOpenChange, existingSim, onSuccess }: UserSimForm
     }
   };
 
+  const generateDescription = async () => {
+    if (!formData.prompt.trim()) {
+      toast({
+        title: "Cannot generate description",
+        description: "Please add a system prompt first",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsGeneratingDescription(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('generate-sim-description', {
+        body: { prompt: formData.prompt }
+      });
+
+      if (error) throw error;
+
+      if (data?.description) {
+        setFormData(prev => ({ ...prev, description: data.description }));
+        toast({
+          title: "Description generated",
+          description: "AI has created a display description for your sim"
+        });
+      }
+    } catch (error) {
+      console.error('Failed to generate description:', error);
+      toast({
+        title: "Generation failed",
+        description: "Could not generate description. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsGeneratingDescription(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -208,12 +246,23 @@ const UserSimForm = ({ open, onOpenChange, existingSim, onSuccess }: UserSimForm
 
     setIsSubmitting(true);
     try {
+      // Auto-generate description if empty
+      let finalDescription = formData.description;
+      if (!finalDescription.trim() && formData.prompt.trim()) {
+        const { data } = await supabase.functions.invoke('generate-sim-description', {
+          body: { prompt: formData.prompt }
+        });
+        if (data?.description) {
+          finalDescription = data.description;
+        }
+      }
+
       const avatarUrl = await uploadImage();
       
       const submitData = {
         name: formData.name,
         title: formData.title,
-        description: formData.description,
+        description: finalDescription,
         prompt: formData.prompt || 'You are a helpful AI assistant. Be friendly, informative, and engaging in conversations.',
         custom_url: formData.custom_url,
         avatar_url: avatarUrl || '',
@@ -310,14 +359,36 @@ const UserSimForm = ({ open, onOpenChange, existingSim, onSuccess }: UserSimForm
           </div>
 
           <div>
-            <Label htmlFor="description">Description</Label>
+            <div className="flex items-center justify-between mb-2">
+              <Label htmlFor="description">Short Description (Display)</Label>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={generateDescription}
+                disabled={isGeneratingDescription || !formData.prompt.trim()}
+              >
+                {isGeneratingDescription ? (
+                  <>
+                    <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+                    Generating...
+                  </>
+                ) : (
+                  'Auto-Generate'
+                )}
+              </Button>
+            </div>
             <Textarea
               id="description"
               value={formData.description}
               onChange={(e) => handleInputChange('description', e.target.value)}
-              placeholder="Brief description of your sim..."
-              rows={3}
+              placeholder="Brief 1-2 sentence description for display..."
+              rows={2}
+              maxLength={200}
             />
+            <p className="text-xs text-muted-foreground mt-1">
+              For display purposes - {formData.description.length}/200 characters. Leave empty to auto-generate on save.
+            </p>
           </div>
 
           <div>
