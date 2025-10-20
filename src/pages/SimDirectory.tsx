@@ -14,6 +14,7 @@ import { getAvatarUrl } from '@/lib/avatarUtils';
 import SimDetailModal from '@/components/SimDetailModal';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 type FilterType = 'all' | 'free' | 'paid';
 type SortType = 'popular' | 'newest' | 'name';
@@ -147,7 +148,6 @@ const SimDirectory = () => {
             <SidebarTrigger className="h-10 w-10">
               <Menu className="h-5 w-5" />
             </SidebarTrigger>
-            <h1 className="text-lg font-semibold">Sim Directory</h1>
             <div className="w-10" /> {/* Spacer for centering */}
           </div>
         </div>
@@ -208,22 +208,44 @@ const SimDirectory = () => {
             </div>
 
             {/* Category Filters */}
-            <div className="flex flex-wrap gap-2">
-              {categoryCounts.map((cat) => (
-                <Button
-                  key={cat.id}
-                  variant={selectedCategory === cat.id ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setSelectedCategory(cat.id)}
-                  className="gap-2"
-                >
-                  {cat.label}
-                  <Badge variant="secondary" className="ml-1 px-1.5">
-                    {cat.count}
-                  </Badge>
-                </Button>
-              ))}
-            </div>
+            {isMobile ? (
+              <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                <SelectTrigger className="w-full">
+                  <SelectValue>
+                    {categoryCounts.find(c => c.id === selectedCategory)?.label || 'All Categories'}
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent className="bg-white dark:bg-gray-950 z-50">
+                  {categoryCounts.map((cat) => (
+                    <SelectItem key={cat.id} value={cat.id}>
+                      <div className="flex items-center justify-between w-full">
+                        <span>{cat.label}</span>
+                        <Badge variant="secondary" className="ml-2 px-1.5">
+                          {cat.count}
+                        </Badge>
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            ) : (
+              <div className="flex flex-wrap gap-2">
+                {categoryCounts.map((cat) => (
+                  <Button
+                    key={cat.id}
+                    variant={selectedCategory === cat.id ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setSelectedCategory(cat.id)}
+                    className="gap-2"
+                  >
+                    {cat.label}
+                    <Badge variant="secondary" className="ml-1 px-1.5">
+                      {cat.count}
+                    </Badge>
+                  </Button>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Results Count */}
