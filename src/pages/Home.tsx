@@ -181,6 +181,9 @@ const Home = () => {
 
   // Determine which agent/advisor to show in chat
   const currentChatAgent = selectedAgent || selectedAdvisor;
+  
+  // Check if this is a new/restarted conversation
+  const forceNewChat = searchParams.get('new') === 'true';
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
@@ -190,6 +193,7 @@ const Home = () => {
         {currentChatAgent ? (
           <ChatInterface
             agent={currentChatAgent}
+            forceNewChat={forceNewChat}
             onBack={() => {
               setSelectedAgent(null);
               setSelectedAdvisor(null);

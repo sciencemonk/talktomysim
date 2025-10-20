@@ -551,20 +551,40 @@ export function AppSidebar() {
                                 onClick={async (e) => {
                                   e.stopPropagation();
                                   try {
-                                    // Delete all conversations for this sim and current user
-                                    const { error } = await supabase
+                                    // First, get all conversation IDs for this sim and user
+                                    const { data: conversations } = await supabase
                                       .from('conversations')
-                                      .delete()
+                                      .select('id')
                                       .eq('tutor_id', conv.sim_id)
                                       .eq('user_id', currentUser?.id);
                                     
-                                    if (error) throw error;
+                                    if (conversations && conversations.length > 0) {
+                                      const conversationIds = conversations.map(c => c.id);
+                                      
+                                      // Delete all messages for these conversations
+                                      const { error: messagesError } = await supabase
+                                        .from('messages')
+                                        .delete()
+                                        .in('conversation_id', conversationIds);
+                                      
+                                      if (messagesError) {
+                                        console.error('Error deleting messages:', messagesError);
+                                      }
+                                      
+                                      // Then delete the conversations
+                                      const { error: conversationsError } = await supabase
+                                        .from('conversations')
+                                        .delete()
+                                        .in('id', conversationIds);
+                                      
+                                      if (conversationsError) throw conversationsError;
+                                    }
                                     
                                     // Invalidate queries to refresh the UI
                                     await queryClient.invalidateQueries({ queryKey: ['my-sim-conversations'] });
                                     
-                                    // Navigate to home with the sim ID to trigger welcome message
-                                    navigate(`/home?sim=${conv.sim_id}`);
+                                    // Navigate with forceNew flag to trigger fresh conversation
+                                    navigate(`/home?sim=${conv.sim_id}&new=true`);
                                     closeSidebar();
                                     
                                     toast.success('Conversation restarted!');
