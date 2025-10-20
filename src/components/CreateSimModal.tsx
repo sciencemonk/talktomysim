@@ -409,12 +409,11 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess }: CreateSimModal
               {availableIntegrations.map((integration) => (
                 <div
                   key={integration.id}
-                  className={`flex items-start gap-3 p-4 rounded-lg border-2 transition-all cursor-pointer ${
+                  className={`flex items-start gap-3 p-4 rounded-lg border-2 transition-all ${
                     selectedIntegrations.includes(integration.id)
                       ? 'border-primary bg-primary/10 shadow-md'
                       : 'border-border bg-background hover:border-primary/50'
                   }`}
-                  onClick={() => toggleIntegration(integration.id)}
                 >
                   <Checkbox
                     id={integration.id}
