@@ -153,10 +153,10 @@ const SimDetailModal = ({ sim, open, onOpenChange, onAuthRequired }: SimDetailMo
       onOpenChange(open);
       if (!open) setShowChat(false); // Reset chat when modal closes
     }}>
-      <DialogContent className="max-w-xl p-0 overflow-hidden [&>button]:hidden border-2 max-h-[90vh]">
+      <DialogContent className="max-w-xl p-0 overflow-hidden [&>button]:hidden border-2 h-[100dvh] max-h-[100dvh] sm:h-[90vh] sm:max-h-[90vh] w-full sm:w-auto">
         {showChat ? (
-          <div className="flex flex-col h-[80vh]">
-            <div className="flex items-center justify-between p-4 border-b">
+          <div className="flex flex-col h-full">
+            <div className="flex items-center justify-between p-3 sm:p-4 border-b flex-shrink-0">
               <Button
                 variant="ghost"
                 size="sm"
@@ -166,7 +166,7 @@ const SimDetailModal = ({ sim, open, onOpenChange, onAuthRequired }: SimDetailMo
                 <ArrowLeft className="h-4 w-4" />
                 Back
               </Button>
-              <h2 className="font-semibold">{sim.name}</h2>
+              <h2 className="font-semibold text-sm sm:text-base truncate max-w-[150px] sm:max-w-none">{sim.name}</h2>
               <Button
                 variant="ghost"
                 size="sm"
@@ -175,7 +175,7 @@ const SimDetailModal = ({ sim, open, onOpenChange, onAuthRequired }: SimDetailMo
                 Close
               </Button>
             </div>
-            <div className="flex-1 overflow-hidden">
+            <div className="flex-1 min-h-0 overflow-hidden">
               <PublicChatInterface agent={sim} />
             </div>
           </div>

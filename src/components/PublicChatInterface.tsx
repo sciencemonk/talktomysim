@@ -87,8 +87,8 @@ const PublicChatInterface = ({ agent }: PublicChatInterfaceProps) => {
   return (
     <div className="flex flex-col h-full">
       {/* Messages Area */}
-      <div ref={messagesContainerRef} className="flex-1 overflow-y-auto px-4 py-8">
-        <div className="max-w-3xl mx-auto space-y-6">
+      <div ref={messagesContainerRef} className="flex-1 overflow-y-auto px-3 sm:px-4 py-4 sm:py-8">
+        <div className="max-w-3xl mx-auto space-y-4 sm:space-y-6">
           {chatHistory.messages.map((message) => {
             // Don't render AI messages that are incomplete and have no content
             if (message.role === 'system' && !message.isComplete && !message.content.trim()) {
@@ -180,7 +180,7 @@ const PublicChatInterface = ({ agent }: PublicChatInterfaceProps) => {
       </div>
 
       {/* Input Area - Fixed at bottom */}
-      <div className="flex-shrink-0 p-4">
+      <div className="flex-shrink-0 p-3 sm:p-4 bg-background/95 backdrop-blur-sm border-t">
         <div className="max-w-3xl mx-auto">
           <div className="relative">
             <Input
@@ -188,16 +188,16 @@ const PublicChatInterface = ({ agent }: PublicChatInterfaceProps) => {
               onChange={(e) => setInputValue(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder={textChat.isProcessing ? `${agent.name} is typing...` : `Message ${agent.name}...`}
-              className="w-full h-14 pr-14 text-base bg-white/95 backdrop-blur-sm border-white/30 text-foreground placeholder:text-muted-foreground rounded-2xl"
+              className="w-full h-12 sm:h-14 pr-12 sm:pr-14 text-sm sm:text-base bg-white/95 backdrop-blur-sm border-white/30 text-foreground placeholder:text-muted-foreground rounded-2xl"
               disabled={textChat.isProcessing}
             />
             <Button
               onClick={handleSend}
               disabled={!inputValue.trim() || textChat.isProcessing}
               size="icon"
-              className="absolute right-2 top-1/2 -translate-y-1/2 h-10 w-10 rounded-xl bg-primary hover:bg-primary/90"
+              className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 sm:h-10 sm:w-10 rounded-xl bg-primary hover:bg-primary/90"
             >
-              <Send className="h-4 w-4" />
+              <Send className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
             </Button>
           </div>
         </div>
