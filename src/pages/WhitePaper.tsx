@@ -354,6 +354,56 @@ const WhitePaper = () => {
                 </div>
               </CardContent>
             </Card>
+
+            {/* Website Embedding */}
+            <Card className="border border-border/50 hover:border-primary/30 transition-all duration-300">
+              <CardHeader className="pb-4">
+                <div className="flex items-start justify-between">
+                  <div className="space-y-2">
+                    <div className="text-sm font-medium text-primary tracking-wide">ENTERPRISE FEATURE</div>
+                    <CardTitle className="text-xl">Website Embedding & Customer Support</CardTitle>
+                    <div className="inline-flex items-center px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium">
+                      Currently Live
+                    </div>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent className="pt-0">
+                <p className="text-muted-foreground mb-6 leading-relaxed">
+                  Deploy your Sim directly on your personal or company website as a super intelligent AI assistant to help your customers 24/7. No more waiting on hold or delayed email responses.
+                </p>
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-3">
+                      <div className="w-1.5 h-1.5 rounded-full bg-primary"></div>
+                      <span className="text-sm text-muted-foreground">One-line embed code integration</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="w-1.5 h-1.5 rounded-full bg-primary"></div>
+                      <span className="text-sm text-muted-foreground">Customized for your brand & products</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="w-1.5 h-1.5 rounded-full bg-primary"></div>
+                      <span className="text-sm text-muted-foreground">Instant customer support 24/7</span>
+                    </div>
+                  </div>
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-3">
+                      <div className="w-1.5 h-1.5 rounded-full bg-primary"></div>
+                      <span className="text-sm text-muted-foreground">Product knowledge integration</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="w-1.5 h-1.5 rounded-full bg-primary"></div>
+                      <span className="text-sm text-muted-foreground">Lead generation & qualification</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="w-1.5 h-1.5 rounded-full bg-primary"></div>
+                      <span className="text-sm text-muted-foreground">Reduce support costs by 80%</span>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </section>
 
@@ -491,7 +541,7 @@ const WhitePaper = () => {
             </CardHeader>
             <CardContent>
               <p className="text-muted-foreground mb-6 max-w-2xl mx-auto text-lg">
-                Join thousands of creators who are building, deploying, and monetizing AI agents on Sim Protocol. The future of the creator economy is here—and it&apos;s powered by AI.
+                Join Sim developers who are building, deploying, and monetizing AI agents on Sim Protocol. The future of the creator economy is here—and it&apos;s powered by AI.
               </p>
               <div className="flex flex-col items-center gap-4 mb-6">
                 <Button 
