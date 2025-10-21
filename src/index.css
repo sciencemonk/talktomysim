@@ -87,6 +87,19 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
+  
+  /* Remove blue border on focus/active states */
+  *:focus,
+  *:active,
+  *:focus-visible {
+    outline: none !important;
+    box-shadow: none !important;
+  }
+  
+  *.active {
+    outline: none !important;
+    box-shadow: none !important;
+  }
 }
 
 @layer utilities {
