@@ -60,6 +60,21 @@ serve(async (req) => {
     }
 
     const data = await response.json();
+    console.log('API Response:', JSON.stringify(data, null, 2));
+    
+    // Check if the API returned an error in the response body
+    if (data.status === false || data.error) {
+      console.error('Free Crypto API returned error:', data.error || 'Unknown error');
+      return new Response(
+        JSON.stringify({ 
+          error: 'Failed to fetch crypto prices',
+          details: data.error || data.message || 'API returned an error',
+          success: false
+        }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+    
     console.log(`Successfully fetched prices for ${symbols.length} crypto(s)`);
 
     return new Response(
