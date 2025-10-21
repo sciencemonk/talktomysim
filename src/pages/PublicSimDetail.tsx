@@ -19,7 +19,9 @@ const PublicSimDetail = () => {
   const [isLoading, setIsLoading] = useState(true);
   // Check if this is an embedded view or chat mode and show chat immediately
   const searchParams = new URLSearchParams(window.location.search);
-  const isEmbedded = searchParams.get('embed') === 'true';
+  const embedMode = searchParams.get('embed');
+  const isEmbedded = embedMode === 'true' || embedMode === 'chat-only';
+  const isChatOnly = embedMode === 'chat-only';
   const shouldShowChat = searchParams.get('chat') === 'true' || isEmbedded;
   const [showChat, setShowChat] = useState(shouldShowChat);
   const [showAuthModal, setShowAuthModal] = useState(false);
@@ -403,8 +405,8 @@ const PublicSimDetail = () => {
 
       {showChat ? (
         <div className="flex-1 flex flex-col relative z-10 h-full">
-          {/* Only show header if not embedded */}
-          {!isEmbedded && (
+          {/* Only show header if not embedded or in chat-only mode */}
+          {!isEmbedded && !isChatOnly && (
             <div className="border-b border-border px-4 py-3 flex items-center justify-between backdrop-blur-md bg-card/50">
               <div className="flex items-center gap-3">
                 <Avatar className="h-10 w-10 border-2 border-border">
