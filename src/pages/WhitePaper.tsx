@@ -5,6 +5,8 @@ import { Badge } from "@/components/ui/badge";
 import TopNavigation from "@/components/TopNavigation";
 import SimpleFooter from "@/components/SimpleFooter";
 import { useNavigate } from "react-router-dom";
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { AppSidebar } from "@/components/AppSidebar";
 
 import { useToast } from "@/hooks/use-toast";
 
@@ -30,9 +32,12 @@ const WhitePaper = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
-      <TopNavigation />
-      <div className="flex-1">
+    <SidebarProvider>
+      <div className="min-h-screen bg-background flex w-full">
+        <AppSidebar />
+        <div className="flex-1 flex flex-col min-h-screen">
+          <TopNavigation />
+          <div className="flex-1">
         <div className="max-w-4xl mx-auto px-6 py-12">
         {/* Hero Section */}
         <div className="text-center mb-16">
@@ -570,7 +575,9 @@ const WhitePaper = () => {
         </div>
       </div>
       <SimpleFooter />
-    </div>
+        </div>
+      </div>
+    </SidebarProvider>
   );
 };
 
