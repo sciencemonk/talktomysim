@@ -94,6 +94,8 @@ const SimDetailModal = ({ sim, open, onOpenChange, onAuthRequired }: SimDetailMo
     const simSlug = (sim as any).custom_url || generateSlug(sim.name);
     const simUrl = `${window.location.origin}/${simSlug}?embed=chat-only`;
     const avatarUrl = getAvatarUrl(sim.avatar);
+    const escapedName = sim.name.replace(/'/g, "\\'");
+    const escapedWelcome = (sim.welcome_message || `Hi! I'm ${sim.name}. How can I help you today?`).replace(/'/g, "\\'").replace(/"/g, '\\"');
     
     return `<!-- ${sim.name} Chat Widget -->
 <div id="sim-chat-widget"></div>
@@ -101,37 +103,23 @@ const SimDetailModal = ({ sim, open, onOpenChange, onAuthRequired }: SimDetailMo
   (function() {
     'use strict';
     
-    // ULTRA AGGRESSIVE DUPLICATE PREVENTION
-    if (window.__SIM_CHAT_LOADED__ === true) {
-      console.log('[SimChat] Already loaded, skipping initialization');
+    // Prevent duplicate loading
+    if (window.__SIM_CHAT_LOADED__) {
+      console.log('[SimChat] Already loaded');
       return;
     }
-    
-    // Cleanup any existing widgets
-    function cleanupExistingWidget() {
-      const existingBubble = document.getElementById('sim-chat-bubble');
-      const existingWindow = document.getElementById('sim-chat-window');
-      const existingStyles = document.getElementById('sim-chat-widget-styles');
-      
-      if (existingBubble) existingBubble.remove();
-      if (existingWindow) existingWindow.remove();
-      if (existingStyles) existingStyles.remove();
-    }
-    
-    cleanupExistingWidget();
     window.__SIM_CHAT_LOADED__ = true;
 
     const simConfig = {
-      name: "${sim.name}",
-      avatar: "${avatarUrl}",
-      simUrl: "${simUrl}",
-      welcomeMessage: "${(sim.welcome_message || `Hi! I'm ${sim.name}. How can I help you today?`).replace(/"/g, '\\"')}"
+      name: '${escapedName}',
+      avatar: '${avatarUrl}',
+      simUrl: '${simUrl}'
     };
     
     // Create styles
     const style = document.createElement('style');
     style.id = 'sim-chat-widget-styles';
-    style.textContent = \\\`
+    style.textContent = \`
       #sim-chat-bubble {
         position: fixed;
         bottom: 20px;
@@ -199,7 +187,7 @@ const SimDetailModal = ({ sim, open, onOpenChange, onAuthRequired }: SimDetailMo
         border: none;
         width: 100%;
       }
-    \\\`;
+    \`;
     document.head.appendChild(style);
     
     // Create bubble
@@ -211,16 +199,10 @@ const SimDetailModal = ({ sim, open, onOpenChange, onAuthRequired }: SimDetailMo
     // Create chat window
     const chatWindow = document.createElement('div');
     chatWindow.id = 'sim-chat-window';
-    chatWindow.innerHTML = \\\`
-      <div id="sim-chat-header">
-        <strong>\\\${simConfig.name}</strong>
-        <button id="sim-chat-close">×</button>
-      </div>
-      <iframe id="sim-chat-iframe" src="\\\${simConfig.simUrl}"></iframe>
-    \\\`;
+    chatWindow.innerHTML = '<div id="sim-chat-header"><strong>' + simConfig.name + '</strong><button id="sim-chat-close">×</button></div><iframe id="sim-chat-iframe" src="' + simConfig.simUrl + '"></iframe>';
     document.body.appendChild(chatWindow);
     
-    // Toggle chat window on bubble click
+    // Toggle chat window
     bubble.addEventListener('click', function(e) {
       e.preventDefault();
       e.stopPropagation();
@@ -237,7 +219,7 @@ const SimDetailModal = ({ sim, open, onOpenChange, onAuthRequired }: SimDetailMo
       });
     }
     
-    console.log('[SimChat] Widget initialized successfully');
+    console.log('[SimChat] Widget loaded');
   })();
 </script>`;
   };
