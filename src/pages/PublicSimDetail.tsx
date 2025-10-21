@@ -82,7 +82,7 @@ const PublicSimDetail = () => {
   const getEmbedCode = () => {
     if (!sim) return '';
     const simSlug = (sim as any).custom_url || generateSlug(sim.name);
-    const simUrl = `${window.location.origin}/${simSlug}?embed=true`;
+    const simUrl = `${window.location.origin}/${simSlug}?embed=chat-only`;
     const avatarUrl = getAvatarUrl(sim.avatar);
     
     return `<!-- ${sim.name} Chat Widget -->
@@ -91,7 +91,7 @@ const PublicSimDetail = () => {
   (function() {
     'use strict';
     
-    // ULTRA AGGRESSIVE DUPLICATE PREVENTION
+    // Prevent duplicate initialization
     if (window.__SIM_CHAT_LOADED__ === true) {
       console.log('[SimChat] Already loaded, skipping initialization');
       return;
@@ -118,76 +118,79 @@ const PublicSimDetail = () => {
       welcomeMessage: "${(sim.welcome_message || `Hi! I'm ${sim.name}. How can I help you today?`).replace(/"/g, '\\"')}"
     };
     
-    // Create styles
+    // Create styles with !important overrides
     const style = document.createElement('style');
     style.id = 'sim-chat-widget-styles';
     style.textContent = \\\`
       #sim-chat-bubble {
-        position: fixed;
-        bottom: 20px;
-        right: 20px;
-        width: 60px;
-        height: 60px;
-        border-radius: 50%;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        z-index: 9999;
-        transition: transform 0.3s ease;
+        position: fixed !important;
+        bottom: 20px !important;
+        right: 20px !important;
+        width: 60px !important;
+        height: 60px !important;
+        border-radius: 50% !important;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
+        cursor: pointer !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        z-index: 10000 !important;
+        transition: transform 0.3s ease !important;
       }
-      #sim-chat-bubble:hover { transform: scale(1.1); }
+      #sim-chat-bubble:hover {
+        transform: scale(1.05) !important;
+      }
       #sim-chat-bubble img {
-        width: 56px;
-        height: 56px;
-        border-radius: 50%;
-        object-fit: cover;
+        width: 56px !important;
+        height: 56px !important;
+        border-radius: 50% !important;
+        object-fit: cover !important;
+        pointer-events: none !important;
       }
       #sim-chat-window {
-        position: fixed;
-        bottom: 90px;
-        right: 20px;
-        width: 380px;
-        height: 600px;
-        max-width: calc(100vw - 40px);
-        max-height: calc(100vh - 120px);
-        border-radius: 12px;
-        box-shadow: 0 8px 32px rgba(0,0,0,0.2);
-        background: white;
-        z-index: 9998;
-        display: none;
-        flex-direction: column;
-        overflow: hidden;
+        position: fixed !important;
+        bottom: 90px !important;
+        right: 20px !important;
+        width: 380px !important;
+        height: 600px !important;
+        max-width: calc(100vw - 40px) !important;
+        max-height: calc(100vh - 120px) !important;
+        border-radius: 12px !important;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.2) !important;
+        background: white !important;
+        z-index: 9999 !important;
+        display: none !important;
+        flex-direction: column !important;
+        overflow: hidden !important;
       }
-      #sim-chat-window.active { display: flex; }
+      #sim-chat-window.active { display: flex !important; }
       #sim-chat-header {
-        padding: 16px;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        display: flex;
-        align-items: center;
-        gap: 12px;
+        padding: 16px !important;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+        color: white !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 12px !important;
       }
       #sim-chat-close {
-        margin-left: auto;
-        background: rgba(255,255,255,0.2);
-        border: none;
-        color: white;
-        width: 32px;
-        height: 32px;
-        border-radius: 50%;
-        cursor: pointer;
-        font-size: 20px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
+        margin-left: auto !important;
+        background: rgba(255,255,255,0.2) !important;
+        border: none !important;
+        color: white !important;
+        width: 32px !important;
+        height: 32px !important;
+        border-radius: 50% !important;
+        cursor: pointer !important;
+        font-size: 20px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
       }
       #sim-chat-iframe {
-        flex: 1;
-        border: none;
-        width: 100%;
+        flex: 1 !important;
+        border: none !important;
+        width: 100% !important;
       }
     \\\`;
     document.head.appendChild(style);
@@ -206,15 +209,51 @@ const PublicSimDetail = () => {
         <strong>\\\${simConfig.name}</strong>
         <button id="sim-chat-close">×</button>
       </div>
-      <iframe id="sim-chat-iframe" src="\\\${simConfig.simUrl}"></iframe>
+      <iframe 
+        id="sim-chat-iframe" 
+        src="\\\${simConfig.simUrl}"
+        allow="clipboard-write"
+        sandbox="allow-scripts allow-same-origin allow-modals allow-forms allow-popups"
+        style="pointer-events: auto;"
+      ></iframe>
     \\\`;
     document.body.appendChild(chatWindow);
+    
+    // Block bubble clicks inside iframe
+    const iframe = document.getElementById('sim-chat-iframe');
+    iframe.onload = function() {
+      try {
+        const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+        
+        // Inject CSS to hide ONLY the floating chat bubble, not the chat content
+        const hideStyle = iframeDoc.createElement('style');
+        hideStyle.textContent = \\\`
+          /* Only hide the specific floating bubble button, not chat content */
+          #sim-chat-bubble {
+            display: none !important;
+          }
+        \\\`;
+        iframeDoc.head.appendChild(hideStyle);
+        
+        console.log('[SimChat] Iframe loaded, bubble hiding CSS injected');
+      } catch (e) {
+        console.warn('[SimChat] Could not access iframe (CORS protected)', e);
+      }
+    };
     
     // Toggle chat window on bubble click
     bubble.addEventListener('click', function(e) {
       e.preventDefault();
       e.stopPropagation();
+      e.stopImmediatePropagation();
       chatWindow.classList.toggle('active');
+      
+      // Auto-focus iframe when opening
+      if (chatWindow.classList.contains('active')) {
+        setTimeout(() => iframe.focus(), 100);
+      }
+      
+      console.log('[SimChat] Bubble clicked, chat window toggled');
     });
     
     // Close button
@@ -223,9 +262,29 @@ const PublicSimDetail = () => {
       closeBtn.addEventListener('click', function(e) {
         e.preventDefault();
         e.stopPropagation();
+        e.stopImmediatePropagation();
         chatWindow.classList.remove('active');
+        console.log('[SimChat] Close button clicked');
       });
     }
+    
+    // Escape key to close
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && chatWindow.classList.contains('active')) {
+        chatWindow.classList.remove('active');
+        console.log('[SimChat] Closed via Escape key');
+      }
+    });
+    
+    // Click outside to close
+    document.addEventListener('click', function(e) {
+      if (chatWindow.classList.contains('active') && 
+          !chatWindow.contains(e.target) && 
+          !bubble.contains(e.target)) {
+        chatWindow.classList.remove('active');
+        console.log('[SimChat] Closed via click outside');
+      }
+    });
     
     console.log('[SimChat] Widget initialized successfully');
   })();
