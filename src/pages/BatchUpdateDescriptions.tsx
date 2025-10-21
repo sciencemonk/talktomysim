@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { supabase } from '@/integrations/supabase/client';
@@ -8,20 +8,43 @@ import { Loader2, CheckCircle2, XCircle } from 'lucide-react';
 const BatchUpdateDescriptions = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [results, setResults] = useState<any[]>([]);
+  const [simsToUpdate, setSimsToUpdate] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const simIds = [
-    'c2c0cca5-f42a-46e6-9535-a156477b2737', // Idea Guy
-    '9e057f9d-b723-4706-bcc0-feac96bb3182', // Bible Verse On-demand
-    'da28fb12-3ddf-4258-be2f-2ae2760d8798', // Roman History Story Time
-    '44643cb2-0d0c-4fea-98e2-66e36bd6bf5a', // Meal Planner
-    '0fd5bcc0-ff8c-4157-a27e-753146c3c27b', // Solana Whale Hunter
-  ];
+  // Fetch all sims missing auto_description on component mount
+  useEffect(() => {
+    const fetchSimsWithoutDescription = async () => {
+      setIsLoading(true);
+      try {
+        const { data, error } = await supabase
+          .from('advisors')
+          .select('id, name, auto_description')
+          .eq('is_active', true)
+          .is('auto_description', null);
+        
+        if (error) throw error;
+        setSimsToUpdate(data || []);
+      } catch (error) {
+        console.error('Error fetching sims:', error);
+        toast({
+          title: 'Error',
+          description: 'Failed to fetch sims without descriptions',
+          variant: 'destructive'
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchSimsWithoutDescription();
+  }, []);
 
   const handleBatchUpdate = async () => {
     setIsProcessing(true);
     setResults([]);
 
     try {
+      const simIds = simsToUpdate.map(sim => sim.id);
       const { data, error } = await supabase.functions.invoke('batch-regenerate-descriptions', {
         body: { simIds }
       });
@@ -32,17 +55,25 @@ const BatchUpdateDescriptions = () => {
       
       const successCount = data.results.filter((r: any) => r.success).length;
       const failCount = data.results.length - successCount;
-
+      
       toast({
-        title: "Batch Update Complete",
-        description: `${successCount} descriptions updated successfully${failCount > 0 ? `, ${failCount} failed` : ''}`
+        title: 'Batch Update Complete',
+        description: `${successCount} sims updated successfully${failCount > 0 ? `, ${failCount} failed` : ''}`,
       });
-    } catch (error) {
-      console.error('Batch update error:', error);
+
+      // Refresh the list
+      const { data: refreshData } = await supabase
+        .from('advisors')
+        .select('id, name, auto_description')
+        .eq('is_active', true)
+        .is('auto_description', null);
+      
+      setSimsToUpdate(refreshData || []);
+    } catch (error: any) {
       toast({
-        title: "Update Failed",
-        description: error instanceof Error ? error.message : "An error occurred",
-        variant: "destructive"
+        title: 'Error',
+        description: error.message || 'Failed to update descriptions',
+        variant: 'destructive',
       });
     } finally {
       setIsProcessing(false);
@@ -50,40 +81,53 @@ const BatchUpdateDescriptions = () => {
   };
 
   return (
-    <div className="container mx-auto py-8 max-w-4xl">
+    <div className="container mx-auto p-6">
       <Card>
         <CardHeader>
-          <CardTitle>Batch Update Sim Descriptions</CardTitle>
+          <CardTitle>Batch Update Sim Display Descriptions</CardTitle>
           <CardDescription>
-            Regenerate display descriptions for selected sims based on their system prompts
+            Generate auto_description field for sims that are missing it. This is the public-facing description shown in the marketplace.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <p className="text-sm text-muted-foreground">Sims to update:</p>
-            <ul className="list-disc list-inside text-sm space-y-1">
-              <li>Idea Guy</li>
-              <li>Bible Verse On-demand</li>
-              <li>Roman History Story Time</li>
-              <li>Meal Planner</li>
-              <li>Solana Whale Hunter</li>
-            </ul>
-          </div>
+          {isLoading ? (
+            <div className="flex items-center justify-center py-8">
+              <Loader2 className="h-6 w-6 animate-spin" />
+              <span className="ml-2">Loading sims...</span>
+            </div>
+          ) : (
+            <>
+              <div className="bg-muted p-4 rounded-lg">
+                <h3 className="font-semibold mb-2">
+                  {simsToUpdate.length} sims need display descriptions:
+                </h3>
+                {simsToUpdate.length === 0 ? (
+                  <p className="text-sm text-muted-foreground">All sims have display descriptions! 🎉</p>
+                ) : (
+                  <ul className="list-disc list-inside text-sm space-y-1 max-h-60 overflow-y-auto">
+                    {simsToUpdate.map(sim => (
+                      <li key={sim.id}>{sim.name}</li>
+                    ))}
+                  </ul>
+                )}
+              </div>
 
-          <Button 
-            onClick={handleBatchUpdate} 
-            disabled={isProcessing}
-            className="w-full"
-          >
-            {isProcessing ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Processing...
-              </>
-            ) : (
-              'Regenerate Descriptions'
-            )}
-          </Button>
+              <Button 
+                onClick={handleBatchUpdate} 
+                disabled={isProcessing || simsToUpdate.length === 0}
+                className="w-full"
+              >
+                {isProcessing ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Processing {simsToUpdate.length} sims...
+                  </>
+                ) : (
+                  `Generate Display Descriptions for ${simsToUpdate.length} Sims`
+                )}
+              </Button>
+            </>
+          )}
 
           {results.length > 0 && (
             <div className="space-y-3 mt-6">

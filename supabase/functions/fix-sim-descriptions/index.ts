@@ -63,11 +63,11 @@ serve(async (req) => {
         messages: [
           {
             role: "system",
-            content: "You are a helpful assistant that creates concise, engaging descriptions. Generate a SHORT 1-2 sentence description that captures the essence of what this AI sim does. MAXIMUM 180 characters. Be clear, engaging, and user-friendly. Focus ONLY on what the sim does, not technical implementation details."
+            content: "You are a helpful assistant that creates concise, engaging descriptions. Generate a SHORT 1-2 sentence description that captures the essence of what this AI sim does. MAXIMUM 200 characters. Be clear, engaging, and user-friendly. Focus ONLY on what the sim does, not technical implementation details."
           },
           {
             role: "user",
-            content: `Based on this system prompt, create a SHORT display description (max 180 characters). Focus on what the sim does and who it helps, not how it works:\n\n${sim.prompt}`
+            content: `Based on this system prompt, create a SHORT display description (max 200 characters). Focus on what the sim does and who it helps, not how it works:\n\n${sim.description || sim.prompt}`
           }
         ],
       }),
@@ -85,10 +85,10 @@ serve(async (req) => {
     console.log(`Generated new description: ${newDescription}`);
     console.log(`New description length: ${newDescription.length} characters`);
 
-    // Update the sim
+    // Update the sim with auto_description (NOT description which is the system prompt)
     const { error: updateError } = await supabase
       .from('advisors')
-      .update({ description: newDescription })
+      .update({ auto_description: newDescription })
       .eq('id', simId);
 
     if (updateError) {

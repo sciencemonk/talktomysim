@@ -35,10 +35,10 @@ serve(async (req) => {
 
     for (const simId of simIds) {
       try {
-        // Fetch the sim's prompt
+        // Fetch the sim's prompt and description
         const { data: sim, error: fetchError } = await supabase
           .from('advisors')
-          .select('id, name, prompt')
+          .select('id, name, prompt, description')
           .eq('id', simId)
           .single();
 
@@ -63,11 +63,11 @@ serve(async (req) => {
             messages: [
               {
                 role: "system",
-                content: "You are a helpful assistant that creates concise, engaging descriptions. Generate a 1-2 sentence description that captures the essence of what this AI sim does. Keep it under 200 characters, clear, and appealing to users."
+                content: "You are a helpful assistant that creates concise, engaging descriptions. Generate a 1-2 sentence description that captures the essence of what this AI sim does. Keep it under 200 characters, clear, and appealing to users. Focus on what the sim does and who it helps."
               },
               {
                 role: "user",
-                content: `Based on this system prompt, generate a short 1-2 sentence description for display purposes:\n\n${sim.prompt}`
+                content: `Based on this system prompt, generate a short 1-2 sentence display description for public viewing (max 200 characters):\n\n${sim.description || sim.prompt}`
               }
             ],
           }),
@@ -98,10 +98,10 @@ serve(async (req) => {
           continue;
         }
 
-        // Update the sim with new description
+        // Update the sim with new auto_description (NOT description which is the system prompt)
         const { error: updateError } = await supabase
           .from('advisors')
-          .update({ description })
+          .update({ auto_description: description })
           .eq('id', simId);
 
         if (updateError) {
