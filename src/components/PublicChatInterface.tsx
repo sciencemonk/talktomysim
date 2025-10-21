@@ -146,18 +146,18 @@ const PublicChatInterface = ({ agent }: PublicChatInterfaceProps) => {
                         {message.content}
                       </p>
                     ) : (
-                      <div className="prose prose-sm max-w-none
-                        prose-p:leading-7 prose-p:mb-5 prose-p:mt-0 prose-p:text-[15px] first:prose-p:mt-0 last:prose-p:mb-0
-                        prose-headings:font-semibold prose-headings:my-4
+                      <div className="prose prose-sm max-w-none break-words overflow-wrap-anywhere
+                        prose-p:leading-7 prose-p:mb-5 prose-p:mt-0 prose-p:text-[15px] prose-p:break-words first:prose-p:mt-0 last:prose-p:mb-0
+                        prose-headings:font-semibold prose-headings:my-4 prose-headings:break-words
                         prose-h1:text-2xl prose-h2:text-xl prose-h3:text-lg
                         prose-ul:my-4 prose-ul:list-disc prose-ul:pl-6
                         prose-ol:my-4 prose-ol:list-decimal prose-ol:pl-6
-                        prose-li:my-1 prose-li:leading-7 prose-li:text-[15px]
-                        prose-strong:font-semibold
-                        prose-code:bg-muted prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:text-sm
-                        prose-pre:bg-muted prose-pre:p-4 prose-pre:rounded-lg
-                        prose-blockquote:border-l-4 prose-blockquote:border-border prose-blockquote:pl-4 prose-blockquote:italic
-                        prose-a:text-primary prose-a:underline hover:prose-a:text-primary/80
+                        prose-li:my-1 prose-li:leading-7 prose-li:text-[15px] prose-li:break-words
+                        prose-strong:font-semibold prose-strong:break-words
+                        prose-code:bg-muted prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:text-sm prose-code:break-all
+                        prose-pre:bg-muted prose-pre:p-4 prose-pre:rounded-lg prose-pre:overflow-x-auto
+                        prose-blockquote:border-l-4 prose-blockquote:border-border prose-blockquote:pl-4 prose-blockquote:italic prose-blockquote:break-words
+                        prose-a:text-primary prose-a:underline prose-a:break-words hover:prose-a:text-primary/80
                       ">
                         <ReactMarkdown 
                           remarkPlugins={[remarkGfm]}
