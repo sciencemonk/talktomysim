@@ -17,9 +17,11 @@ const PublicSimDetail = () => {
   const { toast } = useToast();
   const [sim, setSim] = useState<AgentType | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  // Check if this is an embedded view and show chat immediately
-  const isEmbedded = new URLSearchParams(window.location.search).get('embed') === 'true';
-  const [showChat, setShowChat] = useState(isEmbedded);
+  // Check if this is an embedded view or chat mode and show chat immediately
+  const searchParams = new URLSearchParams(window.location.search);
+  const isEmbedded = searchParams.get('embed') === 'true';
+  const shouldShowChat = searchParams.get('chat') === 'true' || isEmbedded;
+  const [showChat, setShowChat] = useState(shouldShowChat);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [walletCopied, setWalletCopied] = useState(false);

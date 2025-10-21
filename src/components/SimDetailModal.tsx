@@ -250,12 +250,12 @@ const SimDetailModal = ({ sim, open, onOpenChange, onAuthRequired }: SimDetailMo
       simId: sim.id 
     });
     
-    // If user is not signed in, navigate to the public chat page
+    // If user is not signed in, navigate to the public chat page with chat parameter
     if (!isSignedIn) {
       const simSlug = (sim as any).custom_url || generateSlug(sim.name);
-      console.log('Navigating signed-out user to:', `/${simSlug}`);
+      console.log('Navigating signed-out user to:', `/${simSlug}?chat=true`);
       onOpenChange(false); // Close the modal
-      navigate(`/${simSlug}`);
+      navigate(`/${simSlug}?chat=true`);
       return;
     }
 
