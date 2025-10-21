@@ -42,18 +42,12 @@
     <div id="sim-chat-widget"></div>
     <script>
       (function() {
-        // More robust duplicate prevention - remove any existing widgets first
-        const existingBubble = document.getElementById('sim-chat-bubble');
-        const existingWindow = document.getElementById('sim-chat-window');
-        
-        if (existingBubble) {
-          existingBubble.remove();
-          console.log('Removed existing bubble');
+        // CRITICAL: Prevent any duplicate widget creation
+        if (window.simChatInitialized) {
+          console.log('Sim chat widget already initialized');
+          return;
         }
-        if (existingWindow) {
-          existingWindow.remove();
-          console.log('Removed existing chat window');
-        }
+        window.simChatInitialized = true;
 
         const simConfig = {
           name: "SimAI Helper",
@@ -138,13 +132,13 @@
           document.head.appendChild(style);
         }
         
-        // Create bubble
+        // Create bubble ONLY ONCE
         const bubble = document.createElement('div');
         bubble.id = 'sim-chat-bubble';
         bubble.innerHTML = '<img src="' + simConfig.avatar + '" alt="' + simConfig.name + '">';
         document.body.appendChild(bubble);
         
-        // Create chat window
+        // Create chat window ONLY ONCE
         const chatWindow = document.createElement('div');
         chatWindow.id = 'sim-chat-window';
         chatWindow.innerHTML = `
@@ -156,14 +150,16 @@
         `;
         document.body.appendChild(chatWindow);
         
-        // Toggle chat
-        bubble.addEventListener('click', () => {
+        // State management: Toggle chat window on bubble click
+        bubble.addEventListener('click', function(e) {
+          e.stopPropagation();
           chatWindow.classList.toggle('active');
         });
         
+        // Close button
         const closeBtn = document.getElementById('sim-chat-close');
         if (closeBtn) {
-          closeBtn.addEventListener('click', (e) => {
+          closeBtn.addEventListener('click', function(e) {
             e.stopPropagation();
             chatWindow.classList.remove('active');
           });
