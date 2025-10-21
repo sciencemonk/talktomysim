@@ -32,10 +32,14 @@ const SimDetailModal = ({ sim, open, onOpenChange, onAuthRequired }: SimDetailMo
 
   useEffect(() => {
     const checkAuth = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      setIsSignedIn(!!user);
+      const { data: { session } } = await supabase.auth.getSession();
+      const signedIn = !!session?.user;
+      console.log('SimDetailModal auth check:', { signedIn, userId: session?.user?.id });
+      setIsSignedIn(signedIn);
     };
-    checkAuth();
+    if (open) {
+      checkAuth();
+    }
   }, [open]);
 
   // Calculate SOL equivalent (1 $SimAI = 0.001 SOL)
@@ -239,19 +243,29 @@ const SimDetailModal = ({ sim, open, onOpenChange, onAuthRequired }: SimDetailMo
   const handleLaunchSim = async () => {
     if (!sim) return;
     
+    console.log('Launch Sim clicked:', { 
+      simName: sim.name, 
+      isSignedIn, 
+      customUrl: (sim as any).custom_url,
+      simId: sim.id 
+    });
+    
     // If user is not signed in, navigate to the public chat page
     if (!isSignedIn) {
       const simSlug = (sim as any).custom_url || generateSlug(sim.name);
+      console.log('Navigating signed-out user to:', `/${simSlug}`);
       onOpenChange(false); // Close the modal
       navigate(`/${simSlug}`);
       return;
     }
 
     // If user is signed in, add the sim
+    console.log('Adding sim for signed-in user');
     setIsAddingSim(true);
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
+        console.log('No user found, requesting auth');
         setIsAddingSim(false);
         if (onAuthRequired) {
           onAuthRequired();
@@ -297,6 +311,7 @@ const SimDetailModal = ({ sim, open, onOpenChange, onAuthRequired }: SimDetailMo
         if (convError) throw convError;
       }
 
+      console.log('Navigating signed-in user to:', `/home?sim=${sim.id}`);
       sonnerToast.success(`${sim.name} added to your sims!`);
       onOpenChange(false);
       navigate(`/home?sim=${sim.id}`);
