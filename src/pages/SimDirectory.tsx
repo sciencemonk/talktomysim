@@ -43,7 +43,7 @@ const SimDirectory = () => {
   const isMobile = useIsMobile();
   const { user } = useAuth();
 
-  const { data: allSims } = useQuery({
+  const { data: allSims, isLoading } = useQuery({
     queryKey: ['all-sims-directory'],
     queryFn: async () => {
       // Get all advisors
@@ -140,7 +140,7 @@ const SimDirectory = () => {
       }
     });
 
-  // Calculate category counts
+  // Calculate category counts - show immediately even while loading
   const categoryCounts = categories.map(cat => {
     if (cat.id === 'all') {
       return { ...cat, count: allSims?.length || 0 };
@@ -277,8 +277,21 @@ const SimDirectory = () => {
           </div>
 
           {/* Sims Grid */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-            {filteredSims?.map((sim) => {
+          {isLoading ? (
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+              {[...Array(12)].map((_, i) => (
+                <div key={i} className="flex flex-col items-center gap-3 p-5 rounded-2xl bg-card border-2">
+                  <div className="w-24 h-24 rounded-full bg-muted animate-pulse" />
+                  <div className="w-full space-y-2">
+                    <div className="h-4 bg-muted rounded animate-pulse w-3/4 mx-auto" />
+                    <div className="h-3 bg-muted rounded animate-pulse w-1/2 mx-auto" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+              {filteredSims?.map((sim) => {
               const simCategory = (sim as any).category?.toLowerCase() || 'uncategorized';
               const categoryLabel = categories.find(c => c.id === simCategory)?.label || simCategory;
               const price = sim.price || 0;
@@ -320,9 +333,10 @@ const SimDirectory = () => {
                 </button>
               );
             })}
-          </div>
+            </div>
+          )}
 
-          {filteredSims?.length === 0 && (
+          {!isLoading && filteredSims?.length === 0 && (
             <Card className="p-12 text-center">
               <p className="text-muted-foreground text-lg mb-2">No sims found</p>
               <p className="text-sm text-muted-foreground">Try adjusting your filters or search query</p>
