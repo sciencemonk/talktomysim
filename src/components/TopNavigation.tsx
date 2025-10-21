@@ -50,7 +50,7 @@ const TopNavigation = ({ showLiveIndicator = false }: TopNavigationProps) => {
         {/* Logo - clickable to home */}
         <div className="flex items-center gap-2 sm:gap-3">
           <Link 
-            to="/"
+            to="/home"
             className="flex items-center hover:opacity-80 transition-opacity flex-shrink-0"
           >
             <img 
