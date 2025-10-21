@@ -46,18 +46,15 @@ const SimDetailModal = ({ sim, open, onOpenChange, onAuthRequired }: SimDetailMo
   const SIMAI_TO_SOL_RATE = 0.001;
   
   const getSimDescription = () => {
-    // Prioritize auto_description, then fall back to description, then defaults
+    // ONLY use auto_description (never the system prompt in 'description' field)
     if ((sim as any)?.auto_description) {
       return (sim as any).auto_description;
     }
-    if (sim?.description) {
-      return sim.description;
-    }
-    // Default description for sims without custom descriptions
+    // Fallback to a friendly default
     if (sim?.title) {
-      return `Chat with this Sim who brings expertise as a ${sim.title}.`;
+      return `Chat with ${sim.name}, an AI expert in ${sim.title}.`;
     }
-    return 'An AI Sim ready to assist you with insights and guidance.';
+    return `Chat with ${sim.name}, your AI assistant.`;
   };
 
   const getSimPrice = () => {
