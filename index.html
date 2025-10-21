@@ -45,7 +45,8 @@
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.get('embed') === 'chat-only') {
           const hideBubble = () => {
-            const bubble = document.querySelector('[data-sim-bubble], #chat-bubble, .chat-bubble, [id*="bubble"], #sim-chat-bubble');
+            // Only hide the specific floating bubble, not the chat interface
+            const bubble = document.querySelector('#sim-chat-bubble');
             if (bubble) {
               bubble.style.display = 'none';
               console.log('[SimAI App] Own bubble hidden (embed=chat-only)');
@@ -204,10 +205,11 @@
           try {
             const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
             
-            // Inject CSS to hide any floating bubbles inside iframe
+            // Inject CSS to hide ONLY the floating chat bubble, not the chat content
             const hideStyle = iframeDoc.createElement('style');
             hideStyle.textContent = `
-              [data-sim-bubble], #chat-bubble, .chat-bubble, [id*="bubble"], [class*="bubble"], #sim-chat-bubble {
+              /* Only hide the specific floating bubble button, not chat content */
+              #sim-chat-bubble {
                 display: none !important;
               }
             `;
