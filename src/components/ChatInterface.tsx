@@ -42,7 +42,11 @@ const ChatInterface = ({ agent, onBack, hideHeader = false, transparentMode = fa
     onUserMessage: chatHistory.addUserMessage,
     onAiMessageStart: chatHistory.startAiMessage,
     onAiTextDelta: chatHistory.addAiTextDelta,
-    onAiMessageComplete: chatHistory.completeAiMessage
+    onAiMessageComplete: chatHistory.completeAiMessage,
+    existingMessages: chatHistory.messages.map(msg => ({ 
+      role: msg.role, 
+      content: msg.content 
+    }))
   });
 
   useEffect(() => {

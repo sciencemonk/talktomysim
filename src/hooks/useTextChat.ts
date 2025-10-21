@@ -10,6 +10,7 @@ interface UseTextChatProps {
   onAiMessageStart: () => string;
   onAiTextDelta: (messageId: string, delta: string) => void;
   onAiMessageComplete: (messageId: string, conversationId?: string | null) => void;
+  existingMessages?: Array<{role: 'user' | 'system', content: string}>;
 }
 
 export const useTextChat = ({
@@ -17,11 +18,11 @@ export const useTextChat = ({
   onUserMessage,
   onAiMessageStart,
   onAiTextDelta,
-  onAiMessageComplete
+  onAiMessageComplete,
+  existingMessages = []
 }: UseTextChatProps) => {
   const [connectionStatus, setConnectionStatus] = useState<'connecting' | 'connected' | 'error' | 'disconnected'>('disconnected');
   const [isProcessing, setIsProcessing] = useState(false);
-  const [conversationHistory, setConversationHistory] = useState<Array<{role: string, content: string}>>([]);
   const abortControllerRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
@@ -39,9 +40,8 @@ export const useTextChat = ({
     // Add user message immediately and get the conversation ID
     const conversationId = await onUserMessage(message);
     
-    // Update conversation history
-    const newHistory = [...conversationHistory, { role: 'user', content: message }];
-    setConversationHistory(newHistory);
+    // Build conversation history from existing messages plus the new user message
+    const newHistory = [...existingMessages, { role: 'user' as const, content: message }];
     
     // Start AI message and get the message ID
     const aiMessageId = onAiMessageStart();
@@ -106,8 +106,6 @@ export const useTextChat = ({
           (window as any).__lastGeneratedImage = data.image;
         }
         
-        // Update conversation history with AI response
-        setConversationHistory(prev => [...prev, { role: 'assistant', content: data.content }]);
       } else {
         throw new Error('No content in response');
       }
@@ -136,7 +134,7 @@ export const useTextChat = ({
       setIsProcessing(false);
       abortControllerRef.current = null;
     }
-  }, [agent, isProcessing, conversationHistory, onUserMessage, onAiMessageStart, onAiTextDelta, onAiMessageComplete]);
+  }, [agent, isProcessing, existingMessages, onUserMessage, onAiMessageStart, onAiTextDelta, onAiMessageComplete]);
 
   return {
     sendMessage,
