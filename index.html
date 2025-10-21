@@ -38,6 +38,31 @@
     <script src="https://cdn.gpteng.co/gptengineer.js" type="module"></script>
     <script type="module" src="/src/main.tsx"></script>
     
+    <!-- Detect if we're embedded and hide our own bubble -->
+    <script>
+      (function() {
+        'use strict';
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('embed') === 'chat-only') {
+          const hideBubble = () => {
+            const bubble = document.querySelector('[data-sim-bubble], #chat-bubble, .chat-bubble, [id*="bubble"], #sim-chat-bubble');
+            if (bubble) {
+              bubble.style.display = 'none';
+              console.log('[SimAI App] Own bubble hidden (embed=chat-only)');
+            }
+          };
+          
+          if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', hideBubble);
+          } else {
+            hideBubble();
+          }
+          
+          const interval = setInterval(hideBubble, 500);
+          setTimeout(() => clearInterval(interval), 5000);
+        }
+      })();
+    </script>
     
     <!-- SimAI Helper Chat Widget -->
     <div id="sim-chat-widget"></div>
@@ -163,9 +188,36 @@
             <strong>${simConfig.name}</strong>
             <button id="sim-chat-close">×</button>
           </div>
-          <iframe id="sim-chat-iframe" src="${simConfig.simUrl}"></iframe>
+          <iframe 
+            id="sim-chat-iframe" 
+            src="${simConfig.simUrl}"
+            allow="clipboard-write"
+            sandbox="allow-scripts allow-same-origin allow-modals allow-forms allow-popups"
+            style="pointer-events: auto;"
+          ></iframe>
         `;
         document.body.appendChild(chatWindow);
+        
+        // Block bubble clicks inside iframe
+        const iframe = document.getElementById('sim-chat-iframe');
+        iframe.onload = function() {
+          try {
+            const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+            
+            // Inject CSS to hide any floating bubbles inside iframe
+            const hideStyle = iframeDoc.createElement('style');
+            hideStyle.textContent = `
+              [data-sim-bubble], #chat-bubble, .chat-bubble, [id*="bubble"], [class*="bubble"], #sim-chat-bubble {
+                display: none !important;
+              }
+            `;
+            iframeDoc.head.appendChild(hideStyle);
+            
+            console.log('[SimChat] Iframe loaded, bubble hiding CSS injected');
+          } catch (e) {
+            console.warn('[SimChat] Could not access iframe (CORS protected)', e);
+          }
+        };
         
         // Toggle chat window on bubble click
         bubble.addEventListener('click', function(e) {
