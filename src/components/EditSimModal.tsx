@@ -58,6 +58,11 @@ const availableIntegrations = [
     label: 'X (Twitter) Analyzer', 
     description: 'Analyze X/Twitter profiles and content'
   },
+  { 
+    id: 'crypto-prices', 
+    label: 'Crypto Prices', 
+    description: 'Get real-time cryptocurrency prices and market data'
+  },
 ];
 
 const EditSimModal = ({ open, onOpenChange, simId }: EditSimModalProps) => {

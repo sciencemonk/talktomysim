@@ -67,6 +67,12 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess }: CreateSimModal
       description: 'Analyze X/Twitter profiles and content',
       example: 'e.g., "Analyze this Twitter profile" or "What\'s the sentiment on this account?"'
     },
+    { 
+      id: 'crypto-prices', 
+      label: 'Crypto Prices', 
+      description: 'Get real-time cryptocurrency prices and market data',
+      example: 'e.g., "What\'s the price of Bitcoin?" or "How much is SOL worth right now?"'
+    },
   ];
 
   const toggleIntegration = (integrationId: string) => {

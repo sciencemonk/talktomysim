@@ -175,9 +175,34 @@ serve(async (req) => {
 
     console.log('System prompt length:', systemPrompt.length);
 
-    // Define tools available to the AI
-    const tools = [
-      {
+    // Get agent integrations from database if agent has an ID
+    let agentIntegrations: string[] = [];
+    if (agent.id) {
+      try {
+        const { data: advisorData } = await supabase
+          .from('advisors')
+          .select('integrations')
+          .eq('id', agent.id)
+          .single();
+        
+        if (advisorData?.integrations) {
+          agentIntegrations = Array.isArray(advisorData.integrations) 
+            ? advisorData.integrations 
+            : [];
+        }
+      } catch (error) {
+        console.error('Error fetching agent integrations:', error);
+      }
+    }
+
+    console.log('Agent integrations:', agentIntegrations);
+
+    // Define tools available to the AI - only include tools for enabled integrations
+    const tools = [];
+    
+    // Add Solana Explorer tool if enabled
+    if (agentIntegrations.includes('solana-explorer')) {
+      tools.push({
         type: "function",
         function: {
           name: "analyze_solana_wallet",
@@ -193,8 +218,12 @@ serve(async (req) => {
             required: ["wallet_address"]
           }
         }
-      },
-      {
+      });
+    }
+    
+    // Add PumpFun tool if enabled
+    if (agentIntegrations.includes('pumpfun')) {
+      tools.push({
         type: "function",
         function: {
           name: "analyze_pumpfun_token",
@@ -210,8 +239,12 @@ serve(async (req) => {
             required: ["token_address"]
           }
         }
-      },
-      {
+      });
+    }
+    
+    // Add X Analyzer tool if enabled
+    if (agentIntegrations.includes('x-analyzer')) {
+      tools.push({
         type: "function",
         function: {
           name: "analyze_x_account",
@@ -227,8 +260,37 @@ serve(async (req) => {
             required: ["username"]
           }
         }
-      }
-    ];
+      });
+    }
+    
+    // Add Crypto Prices tool if enabled
+    if (agentIntegrations.includes('crypto-prices')) {
+      tools.push({
+        type: "function",
+        function: {
+          name: "get_crypto_prices",
+          description: "Get real-time cryptocurrency prices and market data for one or more crypto symbols. Use this when someone asks about crypto prices, market cap, volume, or general crypto market data. Common symbols: BTC (Bitcoin), ETH (Ethereum), SOL (Solana), USDT (Tether), BNB (Binance Coin), XRP (Ripple), ADA (Cardano), DOGE (Dogecoin), etc.",
+          parameters: {
+            type: "object",
+            properties: {
+              symbols: {
+                type: "array",
+                items: {
+                  type: "string"
+                },
+                description: "Array of cryptocurrency symbols (e.g., ['BTC', 'ETH', 'SOL']). Use uppercase ticker symbols."
+              },
+              currency: {
+                type: "string",
+                description: "Fiat currency for prices (default: USD). Options: USD, EUR, GBP, JPY, etc.",
+                default: "USD"
+              }
+            },
+            required: ["symbols"]
+          }
+        }
+      });
+    }
 
     // Build request body
     const requestBody: any = {
@@ -237,10 +299,14 @@ serve(async (req) => {
         { role: 'system', content: systemPrompt },
         ...messages
       ],
-      tools: tools,
-      tool_choice: "auto",
       max_completion_tokens: 1000,
     };
+
+    // Only add tools if there are any enabled
+    if (tools.length > 0) {
+      requestBody.tools = tools;
+      requestBody.tool_choice = "auto";
+    }
 
     // Enable Google Search grounding when web research is needed
     if (needsResearch) {
@@ -408,6 +474,47 @@ serve(async (req) => {
               role: 'tool',
               tool_call_id: toolCall.id,
               content: JSON.stringify({ error: 'Failed to analyze X account' })
+            });
+          }
+        } else if (toolCall.function.name === 'get_crypto_prices') {
+          const args = JSON.parse(toolCall.function.arguments);
+          console.log('Getting crypto prices for:', args.symbols);
+          
+          try {
+            // Call the get-crypto-price function
+            const priceResponse = await fetch(`${supabaseUrl}/functions/v1/get-crypto-price`, {
+              method: 'POST',
+              headers: {
+                'Authorization': authHeader || '',
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ 
+                symbols: args.symbols,
+                currency: args.currency || 'USD'
+              }),
+            });
+            
+            let toolResult;
+            if (priceResponse.ok) {
+              toolResult = await priceResponse.json();
+              console.log('Crypto prices retrieved:', toolResult);
+            } else {
+              const errorText = await priceResponse.text();
+              console.error('Crypto prices error:', errorText);
+              toolResult = { error: 'Failed to fetch crypto prices' };
+            }
+            
+            toolMessages.push({
+              role: 'tool',
+              tool_call_id: toolCall.id,
+              content: JSON.stringify(toolResult)
+            });
+          } catch (error) {
+            console.error('Error calling get-crypto-price:', error);
+            toolMessages.push({
+              role: 'tool',
+              tool_call_id: toolCall.id,
+              content: JSON.stringify({ error: 'Failed to fetch crypto prices' })
             });
           }
         }
