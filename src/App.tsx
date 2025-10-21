@@ -39,6 +39,7 @@ import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
 import AdminWelcomeMessages from "./pages/AdminWelcomeMessages";
 import BatchUpdateDescriptions from "./pages/BatchUpdateDescriptions";
+import Test from "./pages/Test";
 
 const queryClient = new QueryClient();
 
@@ -62,6 +63,7 @@ const App = () => (
             <Route path="/contact" element={<Contact />} />
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/terms" element={<Terms />} />
+            <Route path="/test" element={<Test />} />
             <Route path="/app" element={<Home />} />
             <Route path="/tutors/:agentId" element={<PublicTutorDetail />} />
             <Route path="/tutors/:agentId/chat" element={<StudentChat />} />
