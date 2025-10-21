@@ -123,7 +123,7 @@ const PublicChatInterface = ({ agent }: PublicChatInterfaceProps) => {
               <div
                 key={message.id}
                 ref={isLastAssistantMessage ? lastAssistantMessageRef : null}
-                className={`flex gap-4 ${message.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}
+                className={`flex gap-4 ${message.role === 'user' ? 'flex-row-reverse' : 'flex-row'} min-w-0`}
               >
                 {message.role === 'system' && (
                   <Avatar className="h-8 w-8 flex-shrink-0 border-2 border-white/30">
@@ -134,11 +134,11 @@ const PublicChatInterface = ({ agent }: PublicChatInterfaceProps) => {
                   </Avatar>
                 )}
                 
-                <div className={`flex-1 ${message.role === 'user' ? 'flex justify-end' : ''}`}>
+                <div className={`flex-1 min-w-0 ${message.role === 'user' ? 'flex justify-end' : ''}`}>
                   <div className={`
                     ${message.role === 'user' 
-                      ? 'bg-primary/90 text-white rounded-3xl px-4 py-3 inline-block max-w-[80%]' 
-                      : 'bg-white rounded-2xl px-4 py-3 w-full text-foreground'
+                      ? 'bg-primary/90 text-white rounded-3xl px-4 py-3 inline-block max-w-[80%] break-words overflow-hidden' 
+                      : 'bg-white rounded-2xl px-4 py-3 w-full text-foreground overflow-hidden'
                     }
                   `}>
                     {message.role === 'user' ? (
