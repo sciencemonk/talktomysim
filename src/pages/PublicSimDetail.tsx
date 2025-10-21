@@ -87,6 +87,12 @@ const PublicSimDetail = () => {
 <div id="sim-chat-widget"></div>
 <script>
   (function() {
+    // Prevent duplicate widget creation
+    if (document.getElementById('sim-chat-bubble')) {
+      console.log('Sim chat widget already exists');
+      return;
+    }
+
     const simConfig = {
       name: "${sim.name}",
       avatar: "${avatarUrl}",
