@@ -56,3 +56,6 @@ verify_jwt = false
 
 [functions.update-sim-auto-description]
 verify_jwt = false
+
+[functions.get-crypto-price]
+verify_jwt = false
