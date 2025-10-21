@@ -89,14 +89,24 @@
               align-items: center;
               justify-content: center;
               z-index: 9999;
-              transition: transform 0.3s ease;
+              transition: box-shadow 0.3s ease;
+              user-select: none;
+              -webkit-tap-highlight-color: transparent;
             }
-            #sim-chat-bubble:hover { transform: scale(1.1); }
+            #sim-chat-bubble:hover { 
+              box-shadow: 0 6px 16px rgba(0,0,0,0.2);
+            }
+            #sim-chat-bubble:active {
+              box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            }
             #sim-chat-bubble img {
               width: 56px;
               height: 56px;
               border-radius: 50%;
               object-fit: cover;
+              pointer-events: none;
+              user-select: none;
+              -webkit-user-drag: none;
             }
             #sim-chat-window {
               position: fixed;
