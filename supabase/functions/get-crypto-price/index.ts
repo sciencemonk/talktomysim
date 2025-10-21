@@ -32,16 +32,20 @@ serve(async (req) => {
 
     console.log(`Fetching crypto prices for symbols: ${symbols.join(', ')}`);
 
-    // Build the query string with multiple symbols
-    // Free Crypto API expects 'symbol' (singular) parameter with comma-separated values
+    // Free Crypto API expects individual calls or specific format
+    // Let's try the getData endpoint with proper parameters
+    // Based on common crypto API patterns, try: symbol, convert (or vs_currency)
     const symbolsQuery = symbols.map(s => s.toUpperCase()).join(',');
-    const url = `https://api.freecryptoapi.com/v1/getData?symbol=${symbolsQuery}&currency=${currency}`;
+    
+    // Try multiple parameter combinations to find what works
+    const url = `https://api.freecryptoapi.com/v1/getData?symbols=${symbolsQuery}`;
     
     console.log(`Requesting URL: ${url}`);
+    console.log(`API Key present: ${!!apiKey}`);
 
     const response = await fetch(url, {
       headers: {
-        'X-API-KEY': apiKey,
+        'x-api-key': apiKey,
         'Accept': 'application/json',
       },
     });
