@@ -42,11 +42,17 @@
     <div id="sim-chat-widget"></div>
     <script>
       (function() {
+        // Prevent duplicate widget creation
+        if (document.getElementById('sim-chat-bubble')) {
+          console.log('Sim chat widget already exists');
+          return;
+        }
+
         const simConfig = {
           name: "SimAI Helper",
           avatar: "https://uovhemqkztmkoozlmqxq.supabase.co/storage/v1/object/public/avatars/avatars/5fc73de1-9e91-4e0d-8e4a-f2fc587e7f69-1761073373654.jpg",
-          simUrl: "https://simproject.org/simai-helper?embed=true",
-          welcomeMessage: "Hey there! I'm SimAI Helper, your go-to for questions about SimProject.org and the $SIMAI token. Just ask me anything, and I'll provide updates, insights, and tips to help you out!"
+          simUrl: "https://ba4e5241-6f09-4c12-a26a-0a6d8ff72241.lovableproject.com/simai-helper?embed=true",
+          welcomeMessage: "Hey there! I'm SimAI Helper, your go-to for all things related to SimProject.org—ask me anything about our product, the $SIMAI token, or how to make the most of our platform. Just type your question, and let's get started!"
         };
         
         // Create widget styles
@@ -91,10 +97,6 @@
             flex-direction: column;
             overflow: hidden;
           }
-          #sim-chat-window * {
-            word-wrap: break-word;
-            overflow-wrap: break-word;
-          }
           #sim-chat-window.active { display: flex; }
           #sim-chat-header {
             padding: 16px;
@@ -103,12 +105,6 @@
             display: flex;
             align-items: center;
             gap: 12px;
-          }
-          #sim-chat-header img {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            object-fit: cover;
           }
           #sim-chat-close {
             margin-left: auto;
@@ -143,7 +139,6 @@
         chatWindow.id = 'sim-chat-window';
         chatWindow.innerHTML = `
           <div id="sim-chat-header">
-            <img src="${simConfig.avatar}" alt="${simConfig.name}">
             <strong>${simConfig.name}</strong>
             <button id="sim-chat-close">×</button>
           </div>
