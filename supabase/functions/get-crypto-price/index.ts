@@ -33,15 +33,14 @@ serve(async (req) => {
     console.log(`Fetching crypto prices for symbols: ${symbols.join(', ')}`);
 
     // Free Crypto API expects 'symbol' parameter with symbols separated by '+'
-    // Example: symbol=BTC+ETH+SOL
+    // Also requires 'token' as query parameter for authentication
     const symbolsQuery = symbols.map(s => s.toUpperCase()).join('+');
-    const url = `https://api.freecryptoapi.com/v1/getData?symbol=${symbolsQuery}`;
+    const url = `https://api.freecryptoapi.com/v1/getData?symbol=${symbolsQuery}&token=${apiKey}`;
     
-    console.log(`Requesting URL: ${url}`);
+    console.log(`Requesting URL (token hidden):`, url.replace(apiKey, '***'));
 
     const response = await fetch(url, {
       headers: {
-        'x-api-key': apiKey,
         'Accept': 'application/json',
       },
     });
