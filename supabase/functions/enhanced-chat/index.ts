@@ -66,10 +66,10 @@ serve(async (req) => {
     
     console.log('User wallet:', userWalletAddress);
     
-    const apiKey = Deno.env.get('API_KEY');
+    const apiKey = Deno.env.get('LOVABLE_API_KEY');
     
     if (!apiKey) {
-      throw new Error('Missing API_KEY');
+      throw new Error('Missing LOVABLE_API_KEY');
     }
 
     const userMessage = messages[messages.length - 1]?.content || '';
@@ -345,7 +345,7 @@ ${JSON.stringify(walletAnalysis, null, 2)}`;
     }
 
     // Generate response using AI with tools
-    let response = await fetch('https://ai.gateway.dev/v1/chat/completions', {
+    let response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${apiKey}`,
@@ -563,7 +563,7 @@ ${JSON.stringify(walletAnalysis, null, 2)}`;
       }
 
       // Continue the conversation with tool results
-      response = await fetch('https://ai.gateway.dev/v1/chat/completions', {
+      response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${apiKey}`,
