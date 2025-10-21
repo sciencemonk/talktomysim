@@ -46,8 +46,11 @@ const WhitePaper = () => {
               className="h-16 w-16 object-contain"
             />
           </div>
+          <h1 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-primary via-purple-500 to-pink-500 bg-clip-text text-transparent">
+            Create. Deploy. Monetize.
+          </h1>
           <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-            Create your own Web3-native AI with personalized landing pages, integrations, and full customization.
+            The platform that lets you create, deploy, and monetize your own AI agents. Build once, earn forever.
           </p>
           <div className="text-center mb-8">
             <p className="text-sm text-muted-foreground mb-2">Contract Address:</p>
@@ -66,23 +69,78 @@ const WhitePaper = () => {
           <h2 className="text-3xl font-bold mb-6">The Vision</h2>
           <div className="prose prose-lg max-w-none text-muted-foreground">
             <p className="text-lg mb-6">
-              <strong className="text-foreground">ChatGPT is generic. Your Sim is personal.</strong> While ChatGPT provides one-size-fits-all responses, Sim Protocol empowers you to create your own personalized AI agent—a digital clone that understands you, represents you, and acts as your executive assistant in the digital world.
+              <strong className="text-foreground">Why let Big Tech own the future of AI when you can own it yourself?</strong> Sim Protocol is the platform that empowers anyone to create, deploy, and monetize their own AI agents. No coding required. No technical expertise needed. Just your creativity and vision.
             </p>
             <p className="text-lg mb-6">
-              Your Sim is not just another chatbot. It&apos;s <strong className="text-foreground">your AI</strong>—customized to your personality, your knowledge, your style, and your needs. Think of it as your digital twin that can handle tasks, manage your calendar, represent you in conversations, and grow smarter as it learns from you. It&apos;s the personal AI assistant you&apos;ve always wanted, fully owned and controlled by you through Web3 technology.
+              <strong className="text-foreground">CREATE:</strong> Build your AI agent with complete customization. Design its personality, upload knowledge bases, integrate with tools like Google Calendar, and craft its unique voice. Whether it&apos;s a digital clone of yourself, a specialized consultant, a historical figure, or a fictional character—you have total creative control.
             </p>
             <p className="text-lg mb-6">
-              Connect your crypto wallet, design your AI&apos;s personality, integrate your tools (Google Calendar, social media, and more), and deploy your Sim with its own personalized landing page. Share your custom URL with the world, and let your digital clone work for you 24/7. Whether you need an executive assistant, a personal brand ambassador, a domain expert, or a creative companion—<strong className="text-foreground">your Sim is whatever you need it to be.</strong>
+              <strong className="text-foreground">DEPLOY:</strong> Launch your AI agent to the world with its own personalized landing page and custom URL. Share it across social media, embed it on websites, or integrate it into apps. Your AI is accessible 24/7, ready to engage with anyone, anywhere.
             </p>
             <p className="text-lg mb-6">
-              This is the future of AI: <strong className="text-foreground">personalized, owned, and empowered by you.</strong> Not a generic tool from Big Tech, but your own AI agent that truly represents who you are and what you know. Build your digital clone today and take control of your AI future.
+              <strong className="text-foreground">MONETIZE:</strong> Turn your AI into a revenue stream. Charge per conversation, offer subscription access, or create premium tiers. The creator economy meets AI—build once, earn forever. Your AI works while you sleep.
+            </p>
+            <p className="text-lg mb-6">
+              This is the future of AI: <strong className="text-foreground">owned by creators, powered by the community, monetized by you.</strong> Not controlled by centralized corporations, but distributed across Web3. Join the AI revolution and start earning from your creativity today.
             </p>
           </div>
         </section>
 
-        {/* Platform Features */}
+        {/* The Three Pillars */}
         <section className="mb-16">
-          <h2 className="text-3xl font-bold mb-8 text-center">Platform Features</h2>
+          <h2 className="text-3xl font-bold mb-8 text-center">The Three Pillars</h2>
+          
+          <div className="grid md:grid-cols-3 gap-6 mb-12">
+            <Card className="border-2 border-primary/30">
+              <CardHeader>
+                <CardTitle className="text-2xl text-center">CREATE</CardTitle>
+              </CardHeader>
+              <CardContent className="text-center">
+                <p className="text-muted-foreground mb-4">
+                  Build your AI agent with complete customization. No coding required—just your vision.
+                </p>
+                <div className="space-y-2 text-sm text-muted-foreground">
+                  <div>Custom personalities & knowledge</div>
+                  <div>Integrations & tools</div>
+                  <div>Visual branding & design</div>
+                </div>
+              </CardContent>
+            </Card>
+            
+            <Card className="border-2 border-purple-500/30">
+              <CardHeader>
+                <CardTitle className="text-2xl text-center">DEPLOY</CardTitle>
+              </CardHeader>
+              <CardContent className="text-center">
+                <p className="text-muted-foreground mb-4">
+                  Launch your AI to the world with custom URLs and personalized landing pages.
+                </p>
+                <div className="space-y-2 text-sm text-muted-foreground">
+                  <div>Personalized landing pages</div>
+                  <div>Custom URLs & sharing</div>
+                  <div>24/7 availability</div>
+                </div>
+              </CardContent>
+            </Card>
+            
+            <Card className="border-2 border-pink-500/30">
+              <CardHeader>
+                <CardTitle className="text-2xl text-center">MONETIZE</CardTitle>
+              </CardHeader>
+              <CardContent className="text-center">
+                <p className="text-muted-foreground mb-4">
+                  Turn your AI into a revenue stream. Build once, earn forever.
+                </p>
+                <div className="space-y-2 text-sm text-muted-foreground">
+                  <div>Per-conversation pricing</div>
+                  <div>Subscription models</div>
+                  <div>Premium tiers</div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          <h3 className="text-2xl font-bold mb-6 text-center">Platform Capabilities</h3>
           
           <div className="grid gap-6 mb-12">
             {/* Personalized Sims */}
@@ -299,27 +357,49 @@ const WhitePaper = () => {
           </div>
         </section>
 
-        {/* Tokenomics */}
+        {/* Monetization & Economics */}
         <section className="mb-16">
-          <h2 className="text-3xl font-bold mb-8">$SIM Tokenomics & Platform Economics</h2>
+          <h2 className="text-3xl font-bold mb-8">Monetization & Platform Economics</h2>
           
-          <div className="grid md:grid-cols-1 gap-8 mb-8">
-            <Card>
+          <div className="grid md:grid-cols-2 gap-8 mb-8">
+            <Card className="border-2 border-primary/20">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <TrendingUp className="h-6 w-6 text-green-500" />
-                  Creator Rewards System
+                  <Coins className="h-6 w-6 text-primary" />
+                  Creator Revenue Streams
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-muted-foreground mb-4">
-                  Platform development and maintenance is funded through $SIM creator rewards distributed to:
+                  Multiple ways to monetize your AI agents:
                 </p>
                 <ul className="list-disc list-inside text-muted-foreground space-y-2">
-                  <li>Sim creators and developers</li>
-                  <li>Content researchers and validators</li>
-                  <li>Community moderators</li>
-                  <li>Platform infrastructure contributors</li>
+                  <li>Per-conversation pricing (pay-per-use model)</li>
+                  <li>Monthly subscription access</li>
+                  <li>Premium tier features and capabilities</li>
+                  <li>Enterprise licensing opportunities</li>
+                  <li>Custom integrations and white-label solutions</li>
+                </ul>
+              </CardContent>
+            </Card>
+
+            <Card className="border-2 border-primary/20">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <TrendingUp className="h-6 w-6 text-green-500" />
+                  $SIM Token Utility
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-muted-foreground mb-4">
+                  The $SIM token powers the entire ecosystem:
+                </p>
+                <ul className="list-disc list-inside text-muted-foreground space-y-2">
+                  <li>Platform transaction fees paid in $SIM</li>
+                  <li>Creator rewards and revenue sharing</li>
+                  <li>Governance and voting rights</li>
+                  <li>Staking for enhanced features and discounts</li>
+                  <li>Access to premium AI models and capabilities</li>
                 </ul>
               </CardContent>
             </Card>
@@ -327,31 +407,33 @@ const WhitePaper = () => {
 
           <Card className="bg-gradient-to-r from-purple-50 via-pink-50 to-blue-50 dark:from-purple-950/20 dark:via-pink-950/20 dark:to-blue-950/20 border-2 border-primary/20">
             <CardHeader>
-              <CardTitle className="text-xl">Personalized Sim Landing Pages: Available Now</CardTitle>
+              <CardTitle className="text-xl">Start Earning From Your AI Today</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-muted-foreground mb-4">
-                <strong>Currently Live:</strong> Every sim gets its own custom landing page with unique branding, social media links, and personalized experiences. Share your sim&apos;s custom URL with the world.
+                <strong>The creator economy meets AI.</strong> Build your AI agent once and create a passive income stream. Every conversation, every subscription, every integration—you earn.
               </p>
               <div className="grid md:grid-cols-2 gap-6">
                 <div>
-                  <h4 className="font-semibold mb-2">Landing Page Features</h4>
+                  <h4 className="font-semibold mb-2">What You Can Build</h4>
                   <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
-                    <li>Custom URLs for each sim</li>
-                    <li>Personalized background images</li>
-                    <li>Social media integration (Twitter, website)</li>
-                    <li>Crypto wallet address display</li>
-                    <li>Fully branded experience</li>
+                    <li>Expert consultants (legal, medical, business)</li>
+                    <li>Personal coaches and mentors</li>
+                    <li>Educational tutors and trainers</li>
+                    <li>Historical figures and thought leaders</li>
+                    <li>Fictional characters and entertainers</li>
+                    <li>Industry specialists and advisors</li>
                   </ul>
                 </div>
                 <div>
-                  <h4 className="font-semibold mb-2">Creator Economy</h4>
+                  <h4 className="font-semibold mb-2">How You Earn</h4>
                   <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
-                    <li>Build sims of modern thought leaders</li>
-                    <li>Create fictional character interactions</li>
-                    <li>Develop specialized expert consultants</li>
-                    <li>Design educational tutoring personas</li>
-                    <li>Future: Per-conversation & subscription monetization</li>
+                    <li>Set per-conversation rates</li>
+                    <li>Create monthly subscription tiers</li>
+                    <li>Offer premium features and content</li>
+                    <li>License to businesses and enterprises</li>
+                    <li>Keep 85% of revenue (platform takes 15%)</li>
+                    <li>Instant payouts in crypto</li>
                   </ul>
                 </div>
               </div>
@@ -403,16 +485,27 @@ const WhitePaper = () => {
 
         {/* Call to Action */}
         <section className="text-center">
-          <Card className="border-2 border-primary/20">
+          <Card className="border-2 border-primary/20 bg-gradient-to-br from-primary/5 via-purple-500/5 to-pink-500/5">
             <CardHeader>
-              <CardTitle className="text-2xl">Join the Revolution</CardTitle>
+              <CardTitle className="text-3xl">Start Building Your AI Business Today</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-muted-foreground mb-6 max-w-2xl mx-auto">
-                Be part of democratizing access to human wisdom. The $SIM protocol represents the convergence of AI advancement, historical preservation, and decentralized economics.
+              <p className="text-muted-foreground mb-6 max-w-2xl mx-auto text-lg">
+                Join thousands of creators who are building, deploying, and monetizing AI agents on Sim Protocol. The future of the creator economy is here—and it&apos;s powered by AI.
               </p>
-              <div className="text-center">
-                <p className="text-sm text-muted-foreground mb-2">Contract Address:</p>
+              <div className="flex flex-col items-center gap-4 mb-6">
+                <Button 
+                  size="lg" 
+                  className="text-lg px-8"
+                  onClick={() => navigate('/')}
+                >
+                  Create Your AI Agent
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </Button>
+                <p className="text-sm text-muted-foreground">No credit card required • Launch in minutes</p>
+              </div>
+              <div className="text-center pt-6 border-t">
+                <p className="text-sm text-muted-foreground mb-2">$SIM Token Contract Address:</p>
                 <button
                   onClick={copyCAToClipboard}
                   className="text-sm font-mono bg-muted px-4 py-2 rounded-lg text-foreground hover:bg-muted/80 transition-colors cursor-pointer border"
