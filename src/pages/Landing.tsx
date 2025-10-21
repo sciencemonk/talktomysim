@@ -238,13 +238,6 @@ const Landing = () => {
   });
 
   const handleSimClick = (sim: AgentType) => {
-    // Debug logging
-    console.log('Landing - handleSimClick:', {
-      name: sim.name,
-      hasAutoDescription: !!(sim as any).auto_description,
-      autoDescription: (sim as any).auto_description
-    });
-    
     // Always open the detail modal for both signed-in and signed-out users
     setSelectedSim(sim);
     setIsSimModalOpen(true);

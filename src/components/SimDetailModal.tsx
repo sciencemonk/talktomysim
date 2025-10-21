@@ -46,14 +46,6 @@ const SimDetailModal = ({ sim, open, onOpenChange, onAuthRequired }: SimDetailMo
   const SIMAI_TO_SOL_RATE = 0.001;
   
   const getSimDescription = () => {
-    // Debug logging
-    console.log('SimDetailModal - sim data:', {
-      name: sim?.name,
-      hasAutoDescription: !!(sim as any)?.auto_description,
-      autoDescription: (sim as any)?.auto_description,
-      title: sim?.title
-    });
-    
     // ONLY use auto_description (never the system prompt in 'description' field)
     if ((sim as any)?.auto_description) {
       return (sim as any).auto_description;
