@@ -193,7 +193,6 @@ const Landing = () => {
     { id: 'lifestyle', label: 'Lifestyle & Wellness', count: 0 },
     { id: 'entertainment', label: 'Entertainment & Games', count: 0 },
     { id: 'spiritual', label: 'Spiritual & Philosophy', count: 0 },
-    { id: 'adult', label: 'Adult', count: 0 },
   ];
 
   // Apply filters and sorting
