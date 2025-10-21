@@ -1060,6 +1060,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      generate_url_slug: {
+        Args: { input_name: string }
+        Returns: string
+      }
       get_conversation_insights: {
         Args: { days_back?: number; target_advisor_id: string }
         Returns: {
