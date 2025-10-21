@@ -27,7 +27,11 @@ const PublicChatInterface = ({ agent }: PublicChatInterfaceProps) => {
     onUserMessage: chatHistory.addUserMessage,
     onAiMessageStart: chatHistory.startAiMessage,
     onAiTextDelta: chatHistory.addAiTextDelta,
-    onAiMessageComplete: chatHistory.completeAiMessage
+    onAiMessageComplete: chatHistory.completeAiMessage,
+    existingMessages: chatHistory.messages.map(msg => ({ 
+      role: msg.role, 
+      content: msg.content 
+    }))
   });
 
   const handleSend = async () => {
