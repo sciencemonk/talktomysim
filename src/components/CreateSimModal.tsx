@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Loader2, Upload, Sparkles } from "lucide-react";
+import { Loader2, Upload, Sparkles, ArrowLeft } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Switch } from "@/components/ui/switch";
@@ -34,6 +34,7 @@ const categories = [
 
 export const CreateSimModal = ({ open, onOpenChange, onSuccess }: CreateSimModalProps) => {
   const navigate = useNavigate();
+  const [step, setStep] = useState(1);
   const [name, setName] = useState("");
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState("");
@@ -44,7 +45,6 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess }: CreateSimModal
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [hasGenerated, setHasGenerated] = useState(false);
   const [selectedIntegrations, setSelectedIntegrations] = useState<string[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -151,8 +151,8 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess }: CreateSimModal
         setWelcomeMessage(`Hi! I'm ${name.trim()}. How can I help you today?`);
       }
 
-      setHasGenerated(true);
       toast.success("Sim generated successfully!");
+      setStep(2);
     } catch (error) {
       console.error("Error generating sim:", error);
       toast.error("Failed to generate sim");
@@ -294,6 +294,7 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess }: CreateSimModal
       onOpenChange(false);
       
       // Reset form
+      setStep(1);
       setName("");
       setTitle("");
       setCategory("");
@@ -303,7 +304,6 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess }: CreateSimModal
       setAvatarFile(null);
       setAvatarPreview(null);
       setSelectedIntegrations([]);
-      setHasGenerated(false);
       
       // Call onSuccess to refresh queries and then navigate
       if (onSuccess) {
@@ -322,233 +322,274 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess }: CreateSimModal
     }
   };
 
+  const handleBack = () => {
+    setStep(1);
+  };
+
+  const handleClose = () => {
+    setStep(1);
+    setName("");
+    setTitle("");
+    setCategory("");
+    setDescription("");
+    setSystemPrompt("");
+    setWelcomeMessage("");
+    setAvatarFile(null);
+    setAvatarPreview(null);
+    setSelectedIntegrations([]);
+    onOpenChange(false);
+  };
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto p-0">
-        <form onSubmit={handleSubmit} className="space-y-8 p-8">
-          <div className="space-y-2">
-            <h2 className="text-2xl font-semibold tracking-tight">Create New Sim</h2>
-            <p className="text-sm text-muted-foreground">
-              Build an AI sim with custom knowledge, personality, and integrations
-            </p>
-          </div>
+        {step === 1 ? (
+          <div className="space-y-8 p-8">
+            <div className="space-y-2">
+              <h2 className="text-2xl font-semibold tracking-tight">Create New Sim</h2>
+              <p className="text-sm text-muted-foreground">
+                Build an AI sim with custom knowledge, personality, and integrations
+              </p>
+            </div>
 
-          {/* Sim Identity */}
-          <div className="space-y-6">
-            <h3 className="text-sm font-medium text-foreground/80">Identity</h3>
-            
-            <div className="flex gap-8 items-start">
-              <div className="flex flex-col items-center gap-3">
-                <Avatar 
-                  className="w-24 h-24 cursor-pointer border border-border/50 hover:border-border transition-colors" 
-                  onClick={() => fileInputRef.current?.click()}
-                >
-                  {avatarPreview ? (
-                    <AvatarImage src={avatarPreview} alt="Avatar preview" className="object-cover" />
-                  ) : (
-                    <AvatarFallback className="bg-muted/50">
-                      <Upload className="w-6 h-6 text-muted-foreground/50" />
-                    </AvatarFallback>
-                  )}
-                </Avatar>
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
-                  onChange={handleAvatarChange}
-                  className="hidden"
-                />
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => fileInputRef.current?.click()}
-                  className="text-xs h-8 px-4"
-                >
-                  Upload
-                </Button>
-              </div>
-
-              <div className="flex-1 space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="name" className="text-sm font-medium">
-                    Name <span className="text-destructive">*</span>
-                  </Label>
-                  <Input
-                    id="name"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    placeholder="e.g., Marcus, Dr. Code, Legal Eagle"
-                    required
-                    className="h-11"
+            {/* Sim Identity */}
+            <div className="space-y-6">
+              <h3 className="text-sm font-medium text-foreground/80">Identity</h3>
+              
+              <div className="flex gap-8 items-start">
+                <div className="flex flex-col items-center gap-3">
+                  <Avatar 
+                    className="w-24 h-24 cursor-pointer border border-border/50 hover:border-border transition-colors" 
+                    onClick={() => fileInputRef.current?.click()}
+                  >
+                    {avatarPreview ? (
+                      <AvatarImage src={avatarPreview} alt="Avatar preview" className="object-cover" />
+                    ) : (
+                      <AvatarFallback className="bg-muted/50">
+                        <Upload className="w-6 h-6 text-muted-foreground/50" />
+                      </AvatarFallback>
+                    )}
+                  </Avatar>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleAvatarChange}
+                    className="hidden"
                   />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="text-xs h-8 px-4"
+                  >
+                    Upload
+                  </Button>
+                </div>
+
+                <div className="flex-1 space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="name" className="text-sm font-medium">
+                      Name <span className="text-destructive">*</span>
+                    </Label>
+                    <Input
+                      id="name"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      placeholder="e.g., Marcus, Dr. Code, Legal Eagle"
+                      required
+                      className="h-11"
+                    />
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
 
-          {/* Category */}
-          <div className="space-y-4">
-            <h3 className="text-sm font-medium text-foreground/80">Category</h3>
-            
-            <div className="space-y-2">
-              <Select value={category} onValueChange={setCategory} required>
-                <SelectTrigger className="h-11">
-                  <SelectValue placeholder="Select category" />
-                </SelectTrigger>
-                <SelectContent className="bg-background z-50">
-                  {categories.map((cat) => (
-                    <SelectItem key={cat.value} value={cat.value}>
-                      {cat.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+            {/* Category */}
+            <div className="space-y-4">
+              <h3 className="text-sm font-medium text-foreground/80">Category</h3>
+              
+              <div className="space-y-2">
+                <Select value={category} onValueChange={setCategory} required>
+                  <SelectTrigger className="h-11">
+                    <SelectValue placeholder="Select category" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-background z-50">
+                    {categories.map((cat) => (
+                      <SelectItem key={cat.value} value={cat.value}>
+                        {cat.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            {/* Intelligence & Behavior */}
+            <div className="space-y-4">
+              <h3 className="text-sm font-medium text-foreground/80">Behavior</h3>
+              
+              <div className="space-y-2">
+                <Label htmlFor="description" className="text-sm font-medium">
+                  Description
+                </Label>
+                <Textarea
+                  id="description"
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  placeholder="What does your Sim do?"
+                  rows={3}
+                  className="resize-none"
+                />
+              </div>
+            </div>
+
+            {/* Integrations */}
+            <div className="space-y-4">
+              <div>
+                <h3 className="text-sm font-medium text-foreground/80">Integrations</h3>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Optional capabilities beyond basic chat
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                {availableIntegrations.map((integration) => (
+                  <div
+                    key={integration.id}
+                    className="flex items-start gap-3 p-4 rounded-lg border border-border/50 hover:border-border transition-colors"
+                  >
+                    <Checkbox
+                      id={integration.id}
+                      checked={selectedIntegrations.includes(integration.id)}
+                      onCheckedChange={() => toggleIntegration(integration.id)}
+                      className="mt-0.5"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <Label
+                        htmlFor={integration.id}
+                        className="text-sm font-medium cursor-pointer block"
+                      >
+                        {integration.label}
+                      </Label>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        {integration.description}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Generate Sim Button */}
+            <div className="space-y-4">
+              <Button
+                type="button"
+                variant="outline"
+                size="default"
+                onClick={handleGeneratePrompt}
+                disabled={isGenerating || !name.trim() || !description.trim() || !category}
+                className="gap-2 w-full h-11"
+              >
+                {isGenerating ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Generating Sim...
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="w-4 h-4" />
+                    Generate Sim
+                  </>
+                )}
+              </Button>
             </div>
           </div>
+        ) : (
+          <form onSubmit={handleSubmit} className="space-y-8 p-8">
+            <div className="space-y-4">
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={handleBack}
+                className="gap-2 -ml-2"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                Back
+              </Button>
+              
+              <div className="space-y-2">
+                <h2 className="text-2xl font-semibold tracking-tight">Review & Create</h2>
+                <p className="text-sm text-muted-foreground">
+                  Review and edit your sim's generated content
+                </p>
+              </div>
+            </div>
 
-          {/* Intelligence & Behavior */}
-          <div className="space-y-4">
-            <h3 className="text-sm font-medium text-foreground/80">Behavior</h3>
-            
+            {/* Welcome Message */}
             <div className="space-y-2">
-              <Label htmlFor="description" className="text-sm font-medium">
-                Description
+              <Label htmlFor="welcome-message" className="text-sm font-medium">
+                Welcome Message
               </Label>
               <Textarea
-                id="description"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                placeholder="What does your Sim do?"
+                id="welcome-message"
+                value={welcomeMessage}
+                onChange={(e) => setWelcomeMessage(e.target.value)}
+                placeholder="The first message users will see"
                 rows={3}
                 className="resize-none"
               />
             </div>
-          </div>
 
-          {/* Integrations */}
-          <div className="space-y-4">
-            <div>
-              <h3 className="text-sm font-medium text-foreground/80">Integrations</h3>
-              <p className="text-xs text-muted-foreground mt-1">
-                Optional capabilities beyond basic chat
-              </p>
-            </div>
-
+            {/* System Prompt */}
             <div className="space-y-2">
-              {availableIntegrations.map((integration) => (
-                <div
-                  key={integration.id}
-                  className="flex items-start gap-3 p-4 rounded-lg border border-border/50 hover:border-border transition-colors"
-                >
-                  <Checkbox
-                    id={integration.id}
-                    checked={selectedIntegrations.includes(integration.id)}
-                    onCheckedChange={() => toggleIntegration(integration.id)}
-                    className="mt-0.5"
-                  />
-                  <div className="flex-1 min-w-0">
-                    <Label
-                      htmlFor={integration.id}
-                      className="text-sm font-medium cursor-pointer block"
-                    >
-                      {integration.label}
-                    </Label>
-                    <p className="text-xs text-muted-foreground mt-0.5">
-                      {integration.description}
-                    </p>
-                  </div>
-                </div>
-              ))}
+              <Label htmlFor="system-prompt" className="text-sm font-medium">
+                System Prompt <span className="text-destructive">*</span>
+              </Label>
+              <Textarea
+                id="system-prompt"
+                value={systemPrompt}
+                onChange={(e) => setSystemPrompt(e.target.value)}
+                placeholder="The core instructions that define your sim's behavior and personality"
+                rows={12}
+                className="resize-none font-mono text-xs"
+                required
+              />
             </div>
-          </div>
 
-          {/* Generate Sim Button */}
-          <div className="space-y-4">
-            <Button
-              type="button"
-              variant="outline"
-              size="default"
-              onClick={handleGeneratePrompt}
-              disabled={isGenerating || !name.trim() || !description.trim() || !category}
-              className="gap-2 w-full h-11"
-            >
-              {isGenerating ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  Generating...
-                </>
-              ) : (
-                <>
-                  <Sparkles className="w-4 h-4" />
-                  Generate Sim
-                </>
-              )}
-            </Button>
-          </div>
-
-          {/* Show generated fields only after generation */}
-          {hasGenerated && (
-            <>
-              <div className="space-y-2">
-                <Label htmlFor="welcomeMessage" className="text-sm font-medium">
-                  Welcome Message <span className="text-destructive">*</span>
-                </Label>
-                <Textarea
-                  id="welcomeMessage"
-                  value={welcomeMessage}
-                  onChange={(e) => setWelcomeMessage(e.target.value)}
-                  placeholder="Hi! I'm..."
-                  rows={2}
-                  required
-                  className="resize-none"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="systemPrompt" className="text-sm font-medium">
-                  System Prompt <span className="text-destructive">*</span>
-                </Label>
-                <Textarea
-                  id="systemPrompt"
-                  value={systemPrompt}
-                  onChange={(e) => setSystemPrompt(e.target.value)}
-                  placeholder="The brains behind your Sim..."
-                  rows={8}
-                  required
-                  className="resize-none text-sm font-mono"
-                />
-              </div>
-            </>
-          )}
-
-          {/* Submit Buttons */}
-          <div className="flex gap-3 pt-6">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-              disabled={isSubmitting}
-              className="flex-1 h-11"
-            >
-              Cancel
-            </Button>
-            <Button
-              type="submit"
-              disabled={isSubmitting || !name.trim() || !category || !systemPrompt.trim() || !welcomeMessage.trim()}
-              className="flex-1 h-11 gap-2"
-            >
-               {isSubmitting ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  Creating...
-                </>
-              ) : (
-                "Create Sim"
-              )}
-            </Button>
-          </div>
-        </form>
+            {/* Action Buttons */}
+            <div className="flex gap-3">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleClose}
+                disabled={isSubmitting}
+                className="flex-1"
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                disabled={isSubmitting || !systemPrompt.trim()}
+                className="flex-1 gap-2"
+              >
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Creating...
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="w-4 h-4" />
+                    Create Sim
+                  </>
+                )}
+              </Button>
+            </div>
+          </form>
+        )}
       </DialogContent>
     </Dialog>
   );
