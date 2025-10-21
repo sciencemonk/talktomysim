@@ -33,9 +33,9 @@ serve(async (req) => {
     console.log(`Fetching crypto prices for symbols: ${symbols.join(', ')}`);
 
     // Build the query string with multiple symbols
-    // Free Crypto API expects symbols in uppercase and comma-separated
+    // Free Crypto API expects 'symbol' (singular) parameter with comma-separated values
     const symbolsQuery = symbols.map(s => s.toUpperCase()).join(',');
-    const url = `https://api.freecryptoapi.com/v1/getData?symbols=${symbolsQuery}&currency=${currency}`;
+    const url = `https://api.freecryptoapi.com/v1/getData?symbol=${symbolsQuery}&currency=${currency}`;
     
     console.log(`Requesting URL: ${url}`);
 
