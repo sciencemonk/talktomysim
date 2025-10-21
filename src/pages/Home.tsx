@@ -53,6 +53,7 @@ const Home = () => {
                 createdAt: data.created_at,
                 updatedAt: data.updated_at,
                 avatar: data.avatar_url,
+                auto_description: data.auto_description,
                 sim_type: (data.sim_type === 'living' ? 'living' : 'historical') as 'historical' | 'living'
               };
               console.log('Setting selected advisor:', agent.name);
