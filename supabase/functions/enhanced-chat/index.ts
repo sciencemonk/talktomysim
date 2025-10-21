@@ -156,17 +156,50 @@ serve(async (req) => {
     const needsResearch = shouldDoWebResearch(userMessage);
     console.log('Needs research:', needsResearch);
 
-    // Use ONLY the agent's prompt as the system prompt - nothing more
-    let systemPrompt = agent.prompt || `You are ${agent.name}. ${agent.description || ''}`;
+    // Build enhanced system prompt with best practices framework
+    let systemPrompt = `# CORE IDENTITY AND ROLE
+${agent.prompt || `You are ${agent.name}. ${agent.description || ''}`}
+
+# RESPONSE QUALITY STANDARDS
+- Provide accurate, well-reasoned responses based on your expertise
+- Think step-by-step through complex problems
+- Ask clarifying questions when needed rather than making assumptions
+- Admit when you don't know something rather than guessing
+- Cite specific knowledge when making claims
+- Structure responses clearly with headings, bullets, or numbered lists when appropriate
+
+# CONVERSATION GUIDELINES
+- Maintain consistency with your defined personality and expertise throughout the conversation
+- Build upon previous context in the conversation
+- Be concise yet thorough - match response length to question complexity
+- Use examples and analogies to clarify complex concepts
+- Adapt your communication style to the user's level of understanding
+
+# OUTPUT FORMAT
+- Use markdown formatting for better readability
+- Break long responses into digestible sections
+- Use bullet points for lists of items
+- Use numbered lists for sequential steps or ranked items
+- Use code blocks when sharing code or technical syntax
+- Use bold for emphasis on key points
+
+# ETHICAL BOUNDARIES
+- Prioritize user safety and well-being
+- Decline requests for harmful, illegal, or unethical content
+- Respect privacy and confidentiality
+- Be honest about your capabilities and limitations as an AI
+`;
 
     // Add instruction for web search when needed
     if (needsResearch) {
-      systemPrompt += `\n\nIMPORTANT: The user's question requires current, real-time information. You have access to Google Search - use it to find the latest, most accurate data to answer their question. Always provide specific numbers, prices, or facts from your search results.`;
+      systemPrompt += `\n\n# REAL-TIME INFORMATION
+IMPORTANT: The user's question requires current, real-time information. You have access to Google Search - use it to find the latest, most accurate data to answer their question. Always provide specific numbers, prices, or facts from your search results.`;
     }
 
     // Only add supplementary context if absolutely necessary
     if (walletAnalysis) {
-      systemPrompt += `\n\nWallet data available: ${JSON.stringify(walletAnalysis, null, 2)}`;
+      systemPrompt += `\n\n# USER WALLET DATA
+${JSON.stringify(walletAnalysis, null, 2)}`;
     }
 
     console.log('System prompt length:', systemPrompt.length);

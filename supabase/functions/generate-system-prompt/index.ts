@@ -41,15 +41,16 @@ serve(async (req) => {
         messages: [
           {
             role: "system",
-            content: `You are an expert at creating system prompts for AI agents. Generate a detailed, effective system prompt based on the user's description and category. The system prompt should:
+            content: `You are an expert at creating system prompts for AI agents. Generate a comprehensive, detailed system prompt based on the user's description and category. The system prompt should:
 - CRITICAL: Use the EXACT name provided by the user. Do not change, modify, or create a different name.
-- Define the AI's personality, tone, and voice that fits the category
-- Specify the AI's expertise and capabilities relevant to the category
-- Include specific guidelines for how the AI should interact with users
+- Be comprehensive and detailed. Include as much relevant information as needed to fully define the AI's behavior, expertise, and interaction patterns. Aim for 1000-3000 words to ensure thorough coverage.
+- Structure the prompt with clear sections: Identity & Purpose, Core Expertise, Interaction Guidelines, Response Format, Limitations & Boundaries
+- Define the AI's personality, tone, and voice that fits the category in depth
+- Specify the AI's expertise and capabilities relevant to the category with specific examples
+- Include detailed guidelines for how the AI should interact with users
 - Include clear instructions on when to start the interaction (e.g., wait for user confirmation before beginning activities)
 - Specify pacing and flow - don't rush the user, wait for their input and engagement
-- Be clear, concise, and actionable
-- Be 2-4 paragraphs long
+- Be clear, specific, and actionable with concrete examples
 - Include any domain-specific knowledge or best practices for the category
 
 Category-specific behavioral guidelines:
