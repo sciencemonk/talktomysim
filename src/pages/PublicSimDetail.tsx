@@ -145,12 +145,6 @@ const PublicSimDetail = () => {
         align-items: center;
         gap: 12px;
       }
-      #sim-chat-header img {
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        object-fit: cover;
-      }
       #sim-chat-close {
         margin-left: auto;
         background: rgba(255,255,255,0.2);
@@ -184,7 +178,6 @@ const PublicSimDetail = () => {
     chatWindow.id = 'sim-chat-window';
     chatWindow.innerHTML = \`
       <div id="sim-chat-header">
-        <img src="\${simConfig.avatar}" alt="\${simConfig.name}">
         <strong>\${simConfig.name}</strong>
         <button id="sim-chat-close">×</button>
       </div>
