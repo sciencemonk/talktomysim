@@ -108,20 +108,16 @@ serve(async (req) => {
       }
     }
 
-    // Check if user is asking for image generation with more flexible detection
-    const imageGenerationKeywords = ['generate', 'create', 'make', 'draw', 'paint', 'design', 'need'];
+    // Check if user is explicitly asking for image generation - be very specific
+    const imageGenerationKeywords = ['generate', 'create', 'make', 'draw', 'paint', 'design'];
     const imageRelatedWords = ['image', 'picture', 'photo', 'artwork', 'illustration', 'visual', 'thumbnail', 'graphic', 'art'];
     const userMessageLower = userMessage.toLowerCase();
     
-    // Check if message contains generation keyword + image word, OR just describes creating something visual
+    // Only detect as image request if BOTH generation keyword AND image word are present
     const hasGenerationKeyword = imageGenerationKeywords.some(keyword => userMessageLower.includes(keyword));
     const hasImageWord = imageRelatedWords.some(word => userMessageLower.includes(word));
     
-    // Also detect if they're describing something to be created (for + a/an + noun pattern)
-    const isDescribingCreation = /\b(for|of|showing|with)\s+(a|an)\s+\w+/.test(userMessageLower) && 
-                                 (hasGenerationKeyword || userMessageLower.includes('thumbnail'));
-    
-    const isImageRequest = (hasGenerationKeyword && hasImageWord) || isDescribingCreation;
+    const isImageRequest = hasGenerationKeyword && hasImageWord;
     
     if (isImageRequest) {
       console.log('Detected image generation request:', userMessage);
