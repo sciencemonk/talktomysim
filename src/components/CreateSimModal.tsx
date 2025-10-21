@@ -279,6 +279,7 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess }: CreateSimModal
             prompt: newSim.prompt,
             avatar_url: newSim.avatar_url,
             category: newSim.category,
+            auto_description: autoDescription,
           });
 
         if (userAdvisorError) {

@@ -61,6 +61,7 @@ export const useUserAdvisors = () => {
       id: advisor.advisor_id,
       name: advisor.name,
       description: advisor.description || '',
+      auto_description: advisor.auto_description,
       type: 'General Tutor' as any,
       status: 'active' as any,
       createdAt: advisor.created_at,

@@ -9,6 +9,7 @@ export interface UserAdvisor {
   name: string;
   title?: string;
   description?: string;
+  auto_description?: string;
   prompt: string;
   avatar_url?: string;
   category?: string;
@@ -35,6 +36,7 @@ export const addUserAdvisor = async (advisor: AgentType): Promise<UserAdvisor> =
       name: advisor.name,
       title: advisor.title || advisor.subject,
       description: advisor.description,
+      auto_description: advisor.auto_description,
       prompt: advisor.prompt || '',
       avatar_url: advisor.avatar,
       category: advisor.subject,

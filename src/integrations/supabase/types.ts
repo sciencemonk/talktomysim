@@ -935,6 +935,7 @@ export type Database = {
       user_advisors: {
         Row: {
           advisor_id: string
+          auto_description: string | null
           avatar_url: string | null
           background_content: string | null
           category: string | null
@@ -950,6 +951,7 @@ export type Database = {
         }
         Insert: {
           advisor_id: string
+          auto_description?: string | null
           avatar_url?: string | null
           background_content?: string | null
           category?: string | null
@@ -965,6 +967,7 @@ export type Database = {
         }
         Update: {
           advisor_id?: string
+          auto_description?: string | null
           avatar_url?: string | null
           background_content?: string | null
           category?: string | null
