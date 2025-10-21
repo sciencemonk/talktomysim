@@ -99,12 +99,15 @@ serve(async (req) => {
         }
 
         // Update the sim with new auto_description (NOT description which is the system prompt)
-        const { error: updateError } = await supabase
+        console.log(`Updating sim ${sim.name} (${simId}) with description:`, description);
+        const { data: updateData, error: updateError } = await supabase
           .from('advisors')
           .update({ auto_description: description })
-          .eq('id', simId);
+          .eq('id', simId)
+          .select();
 
         if (updateError) {
+          console.error(`Failed to update sim ${sim.name}:`, updateError);
           results.push({ 
             simId, 
             simName: sim.name,
@@ -114,6 +117,7 @@ serve(async (req) => {
           continue;
         }
 
+        console.log(`Successfully updated sim ${sim.name}, result:`, updateData);
         results.push({ 
           simId, 
           simName: sim.name,
