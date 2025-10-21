@@ -421,7 +421,13 @@ const PublicSimDetail = () => {
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => setShowChat(false)}
+                onClick={() => {
+                  if (!currentUser) {
+                    navigate('/');
+                  } else {
+                    setShowChat(false);
+                  }
+                }}
               >
                 <X className="h-5 w-5" />
               </Button>
