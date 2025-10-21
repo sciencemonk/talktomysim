@@ -31,7 +31,7 @@ const SimpleFooter = () => {
         <div className="text-center sm:text-left">
           <Button
             variant="link"
-            onClick={() => navigate('/white-paper')}
+            onClick={() => navigate('/whitepaper')}
             className="text-sm text-muted-foreground hover:text-foreground p-0 h-auto font-normal"
           >
             <FileText className="h-4 w-4 mr-2" />
