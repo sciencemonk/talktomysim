@@ -11,16 +11,16 @@ export const getAvatarUrl = (avatarUrl: string | null | undefined): string | und
   }
 
   // Handle paths that include 'public/' prefix
-  // Convert 'public/lovable-uploads/...' to '/lovable-uploads/...'
-  if (avatarUrl.includes('public/lovable-uploads/')) {
-    const path = avatarUrl.substring(avatarUrl.indexOf('lovable-uploads/'));
+  // Convert 'public/uploads/...' to '/uploads/...'
+  if (avatarUrl.includes('public/uploads/')) {
+    const path = avatarUrl.substring(avatarUrl.indexOf('uploads/'));
     return `/${path}`;
   }
 
   // Handle paths that include '/public/' prefix
-  // Convert '/public/lovable-uploads/...' to '/lovable-uploads/...'
-  if (avatarUrl.includes('/public/lovable-uploads/')) {
-    const path = avatarUrl.substring(avatarUrl.indexOf('lovable-uploads/'));
+  // Convert '/public/uploads/...' to '/uploads/...'
+  if (avatarUrl.includes('/public/uploads/')) {
+    const path = avatarUrl.substring(avatarUrl.indexOf('uploads/'));
     return `/${path}`;
   }
 
@@ -29,8 +29,8 @@ export const getAvatarUrl = (avatarUrl: string | null | undefined): string | und
     return avatarUrl;
   }
 
-  // If it starts with 'lovable-uploads/', add leading slash
-  if (avatarUrl.startsWith('lovable-uploads/')) {
+  // If it starts with 'uploads/', add leading slash
+  if (avatarUrl.startsWith('uploads/')) {
     return `/${avatarUrl}`;
   }
 

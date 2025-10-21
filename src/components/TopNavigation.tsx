@@ -66,7 +66,7 @@ const TopNavigation = ({ showLiveIndicator = false }: TopNavigationProps) => {
                 Live on
               </span>
               <img 
-                src="/lovable-uploads/pill-logo.png" 
+                src="/uploads/pill-logo.png" 
                 alt="Platform" 
                 className="h-6 w-6 sm:h-8 sm:w-8 object-contain"
               />

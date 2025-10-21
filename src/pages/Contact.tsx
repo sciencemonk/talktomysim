@@ -86,7 +86,7 @@ const Contact = () => {
             </Badge>
             <div className="flex justify-center mb-6">
               <img 
-                src="/lovable-uploads/d1283b59-7cfa-45f5-b151-4c32b24f3621.png" 
+                src="/uploads/d1283b59-7cfa-45f5-b151-4c32b24f3621.png" 
                 alt="Sim" 
                 className="h-16 w-16 object-contain"
               />

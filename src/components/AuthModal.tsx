@@ -198,7 +198,7 @@ const AuthModal = ({ open, onOpenChange, defaultMode = 'signup' }: AuthModalProp
         <div className="flex flex-col items-center space-y-6 py-4">
           <div className="flex items-center justify-center">
             <img 
-              src="/lovable-uploads/a5a8957b-48cb-40f5-9097-0ab747b74077.png" 
+              src="/uploads/a5a8957b-48cb-40f5-9097-0ab747b74077.png" 
               alt="Think With Me" 
               className="w-8 h-8"
             />

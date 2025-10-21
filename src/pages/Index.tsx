@@ -27,7 +27,7 @@ const Index = () => {
       <header className="container mx-auto px-4 py-6 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <img 
-            src="/lovable-uploads/55ccce33-98a1-45d2-9e9e-7b446a02a417.png" 
+            src="/uploads/55ccce33-98a1-45d2-9e9e-7b446a02a417.png" 
             alt="Think With Me" 
             className="h-8 w-8"
           />

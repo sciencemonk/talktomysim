@@ -1,8 +1,7 @@
-
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
-import { componentTagger } from "lovable-tagger";
+// Component tagger import removed
 
 export default defineConfig(({ mode }) => ({
   server: {
@@ -18,7 +17,7 @@ export default defineConfig(({ mode }) => ({
   },
   plugins: [
     react(),
-    mode === 'development' && componentTagger(),
+    // Removed componentTagger reference
   ].filter(Boolean),
   resolve: {
     alias: {
