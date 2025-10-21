@@ -144,7 +144,7 @@ const SidebarContent = ({
             {!isCollapsed && (
               <div className="flex items-center gap-3">
                 <img 
-                  src="/uploads/d1283b59-7cfa-45f5-b151-4c32b24f3621.png" 
+                  src="/lovable-uploads/d1283b59-7cfa-45f5-b151-4c32b24f3621.png" 
                   alt="Sim" 
                   className="h-8 w-8 object-contain"
                 />
@@ -160,13 +160,13 @@ const SidebarContent = ({
               >
                 {isLogoHovered ? (
                   <img 
-                    src="/uploads/414592e4-0cdf-4286-a371-903bef284fe3.png" 
+                    src="/lovable-uploads/414592e4-0cdf-4286-a371-903bef284fe3.png" 
                     alt="Open Sidebar" 
                     className="h-4 w-4"
                   />
                 ) : (
                   <img 
-                    src="/uploads/d1283b59-7cfa-45f5-b151-4c32b24f3621.png" 
+                    src="/lovable-uploads/d1283b59-7cfa-45f5-b151-4c32b24f3621.png" 
                     alt="Sim" 
                     className="h-8 w-8 object-contain"
                   />
@@ -181,7 +181,7 @@ const SidebarContent = ({
                 className="h-8 w-8 p-0"
               >
                 <img 
-                  src="/uploads/414592e4-0cdf-4286-a371-903bef284fe3.png" 
+                  src="/lovable-uploads/414592e4-0cdf-4286-a371-903bef284fe3.png" 
                   alt="Toggle Sidebar" 
                   className="h-4 w-4"
                 />
@@ -197,7 +197,7 @@ const SidebarContent = ({
         <>
           <div className="p-4 flex items-center gap-3">
             <img 
-              src="/uploads/d1283b59-7cfa-45f5-b151-4c32b24f3621.png" 
+              src="/lovable-uploads/d1283b59-7cfa-45f5-b151-4c32b24f3621.png" 
               alt="Sim" 
               className="h-8 w-8 object-contain"
             />

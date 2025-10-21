@@ -66,9 +66,9 @@ serve(async (req) => {
     
     console.log('User wallet:', userWalletAddress);
     
-    const apiKey = Deno.env.get('LOVABLE_API_KEY');
+    const lovableApiKey = Deno.env.get('LOVABLE_API_KEY');
     
-    if (!apiKey) {
+    if (!lovableApiKey) {
       throw new Error('Missing LOVABLE_API_KEY');
     }
 
@@ -344,11 +344,11 @@ ${JSON.stringify(walletAnalysis, null, 2)}`;
       };
     }
 
-    // Generate response using AI with tools
+    // Generate response using Lovable AI with tools
     let response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${apiKey}`,
+        'Authorization': `Bearer ${lovableApiKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(requestBody),
@@ -356,12 +356,12 @@ ${JSON.stringify(walletAnalysis, null, 2)}`;
 
     if (!response.ok) {
       const error = await response.text();
-      console.error('AI API error:', error);
-      throw new Error(`AI API error: ${response.status}`);
+      console.error('Lovable AI API error:', error);
+      throw new Error(`Lovable AI API error: ${response.status}`);
     }
 
     let data = await response.json();
-    console.log('AI response:', JSON.stringify(data, null, 2));
+    console.log('Lovable AI response:', JSON.stringify(data, null, 2));
 
     // Check if the AI wants to call a tool
     if (data.choices[0].message.tool_calls && data.choices[0].message.tool_calls.length > 0) {
@@ -566,7 +566,7 @@ ${JSON.stringify(walletAnalysis, null, 2)}`;
       response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${apiKey}`,
+          'Authorization': `Bearer ${lovableApiKey}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(secondRequestBody),
@@ -574,16 +574,16 @@ ${JSON.stringify(walletAnalysis, null, 2)}`;
       
       if (!response.ok) {
         const error = await response.text();
-        console.error('AI API error (tool response):', error);
-        throw new Error(`AI API error: ${response.status}`);
+        console.error('Lovable AI API error (tool response):', error);
+        throw new Error(`Lovable AI API error: ${response.status}`);
       }
       
       data = await response.json();
-      console.log('AI final response:', data);
+      console.log('Lovable AI final response:', data);
     }
 
     if (!data.choices || data.choices.length === 0) {
-      throw new Error('No choices returned from AI');
+      throw new Error('No choices returned from Lovable AI');
     }
 
     // Track credit usage for the sim owner
