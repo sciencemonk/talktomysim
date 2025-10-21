@@ -119,77 +119,76 @@ const PublicSimDetail = () => {
     // Create styles
     const style = document.createElement('style');
     style.id = 'sim-chat-widget-styles';
-    style.textContent = \`
-        #sim-chat-bubble {
-          position: fixed;
-          bottom: 20px;
-          right: 20px;
-          width: 60px;
-          height: 60px;
-          border-radius: 50%;
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-          box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-          cursor: pointer;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          z-index: 9999;
-          transition: transform 0.3s ease;
-        }
-        #sim-chat-bubble:hover { transform: scale(1.1); }
-        #sim-chat-bubble img {
-          width: 56px;
-          height: 56px;
-          border-radius: 50%;
-          object-fit: cover;
-        }
-        #sim-chat-window {
-          position: fixed;
-          bottom: 90px;
-          right: 20px;
-          width: 380px;
-          height: 600px;
-          max-width: calc(100vw - 40px);
-          max-height: calc(100vh - 120px);
-          border-radius: 12px;
-          box-shadow: 0 8px 32px rgba(0,0,0,0.2);
-          background: white;
-          z-index: 9998;
-          display: none;
-          flex-direction: column;
-          overflow: hidden;
-        }
-        #sim-chat-window.active { display: flex; }
-        #sim-chat-header {
-          padding: 16px;
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-          color: white;
-          display: flex;
-          align-items: center;
-          gap: 12px;
-        }
-        #sim-chat-close {
-          margin-left: auto;
-          background: rgba(255,255,255,0.2);
-          border: none;
-          color: white;
-          width: 32px;
-          height: 32px;
-          border-radius: 50%;
-          cursor: pointer;
-          font-size: 20px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        }
-        #sim-chat-iframe {
-          flex: 1;
-          border: none;
-          width: 100%;
-        }
-      \`;
-      document.head.appendChild(style);
-    }
+    style.textContent = \\\`
+      #sim-chat-bubble {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+        transition: transform 0.3s ease;
+      }
+      #sim-chat-bubble:hover { transform: scale(1.1); }
+      #sim-chat-bubble img {
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        object-fit: cover;
+      }
+      #sim-chat-window {
+        position: fixed;
+        bottom: 90px;
+        right: 20px;
+        width: 380px;
+        height: 600px;
+        max-width: calc(100vw - 40px);
+        max-height: calc(100vh - 120px);
+        border-radius: 12px;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+        background: white;
+        z-index: 9998;
+        display: none;
+        flex-direction: column;
+        overflow: hidden;
+      }
+      #sim-chat-window.active { display: flex; }
+      #sim-chat-header {
+        padding: 16px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      #sim-chat-close {
+        margin-left: auto;
+        background: rgba(255,255,255,0.2);
+        border: none;
+        color: white;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        cursor: pointer;
+        font-size: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      #sim-chat-iframe {
+        flex: 1;
+        border: none;
+        width: 100%;
+      }
+    \\\`;
+    document.head.appendChild(style);
     
     // Create bubble
     const bubble = document.createElement('div');
@@ -200,13 +199,13 @@ const PublicSimDetail = () => {
     // Create chat window
     const chatWindow = document.createElement('div');
     chatWindow.id = 'sim-chat-window';
-    chatWindow.innerHTML = \`
+    chatWindow.innerHTML = \\\`
       <div id="sim-chat-header">
-        <strong>\${simConfig.name}</strong>
+        <strong>\\\${simConfig.name}</strong>
         <button id="sim-chat-close">×</button>
       </div>
-      <iframe id="sim-chat-iframe" src="\${simConfig.simUrl}"></iframe>
-    \`;
+      <iframe id="sim-chat-iframe" src="\\\${simConfig.simUrl}"></iframe>
+    \\\`;
     document.body.appendChild(chatWindow);
     
     // Toggle chat window on bubble click
@@ -225,6 +224,8 @@ const PublicSimDetail = () => {
         chatWindow.classList.remove('active');
       });
     }
+    
+    console.log('[SimChat] Widget initialized successfully');
   })();
 </script>`;
   };
