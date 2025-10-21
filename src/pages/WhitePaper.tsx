@@ -2,7 +2,6 @@ import { ArrowRight, TrendingUp, Coins } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import TopNavigation from "@/components/TopNavigation";
 import SimpleFooter from "@/components/SimpleFooter";
 import { useNavigate } from "react-router-dom";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
@@ -36,7 +35,6 @@ const WhitePaper = () => {
       <div className="min-h-screen bg-background flex w-full">
         <AppSidebar />
         <div className="flex-1 flex flex-col min-h-screen">
-          <TopNavigation />
           <div className="flex-1">
         <div className="max-w-4xl mx-auto px-6 py-12">
         {/* Hero Section */}
