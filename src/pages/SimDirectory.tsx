@@ -15,6 +15,7 @@ import SimDetailModal from '@/components/SimDetailModal';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useNavigate } from 'react-router-dom';
 
 type FilterType = 'all' | 'free' | 'paid';
 type SortType = 'popular' | 'newest' | 'name';
@@ -42,6 +43,7 @@ const SimDirectory = () => {
   const [sortBy, setSortBy] = useState<SortType>('newest');
   const isMobile = useIsMobile();
   const { user } = useAuth();
+  const navigate = useNavigate();
 
   const { data: allSims, isLoading } = useQuery({
     queryKey: ['all-sims-directory'],
@@ -166,11 +168,16 @@ const SimDirectory = () => {
             <SidebarTrigger className="h-10 w-10">
               <Menu className="h-5 w-5" />
             </SidebarTrigger>
-            <img 
-              src="/sim-logo.png" 
-              alt="Sim Logo" 
-              className="h-8 w-8 object-contain"
-            />
+            <button 
+              onClick={() => navigate('/home')}
+              className="hover:opacity-80 transition-opacity"
+            >
+              <img 
+                src="/sim-logo.png" 
+                alt="Sim Logo" 
+                className="h-8 w-8 object-contain"
+              />
+            </button>
             <div className="w-10" /> {/* Spacer for centering */}
           </div>
         </div>
