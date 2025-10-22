@@ -423,26 +423,33 @@ const Landing = () => {
                 <button
                   key={sim.id}
                   onClick={() => handleSimClick(sim)}
-                  className="group relative flex flex-col items-center gap-3 p-5 rounded-2xl bg-card hover:bg-muted border-2 hover:border-primary transition-all duration-300 hover:scale-105 hover:shadow-xl"
+                  className="group relative flex flex-col overflow-hidden rounded-2xl bg-card hover:bg-muted border-2 hover:border-primary transition-all duration-300 hover:scale-105 hover:shadow-xl"
                 >
-                  <Avatar className="w-24 h-24 border-3 border-border shadow-lg group-hover:shadow-2xl transition-shadow">
-                    <AvatarImage
-                      src={getAvatarUrl(sim.avatar)} 
-                      alt={sim.name}
-                      className="object-cover"
-                    />
-                    <AvatarFallback className="bg-primary text-primary-foreground text-3xl font-bold">
-                      {sim.name?.charAt(0)?.toUpperCase() || 'S'}
-                    </AvatarFallback>
-                  </Avatar>
+                  {/* Image container - fills top portion */}
+                  <div className="relative w-full aspect-[4/3] overflow-hidden bg-muted">
+                    {sim.avatar ? (
+                      <img
+                        src={getAvatarUrl(sim.avatar)} 
+                        alt={sim.name}
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center bg-primary/10">
+                        <span className="text-5xl font-bold text-primary">
+                          {sim.name?.charAt(0)?.toUpperCase() || 'S'}
+                        </span>
+                      </div>
+                    )}
+                  </div>
                   
-                  <div className="w-full text-center space-y-1">
-                    <span className="text-sm font-semibold line-clamp-2 leading-tight">
+                  {/* Content section */}
+                  <div className="w-full p-3 space-y-2">
+                    <span className="text-sm font-semibold line-clamp-2 leading-tight block">
                       {sim.name}
                     </span>
                     
-                    {/* Category and Price badges at bottom */}
-                    <div className="flex flex-wrap gap-1.5 justify-center mt-2 pt-2 border-t border-border/50">
+                    {/* Category and Price badges */}
+                    <div className="flex flex-wrap gap-1.5 justify-center">
                       {simCategory !== 'uncategorized' && (
                         <Badge variant="outline" className="text-[9px] px-1.5 py-0 bg-muted/50 border-muted-foreground/20 text-muted-foreground whitespace-nowrap">
                           {categoryLabel}

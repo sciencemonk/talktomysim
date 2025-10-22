@@ -161,14 +161,12 @@ const AdvisorDirectory = ({ onSelectAdvisor, onAuthRequired }: AdvisorDirectoryP
           {isLoadingAll ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {[...Array(6)].map((_, i) => (
-                <Card key={i} className="animate-pulse">
+                <Card key={i} className="animate-pulse overflow-hidden">
+                  <div className="w-full aspect-[16/9] bg-muted" />
                   <CardHeader className="space-y-4 p-4">
-                    <div className="flex items-center space-x-4">
-                      <div className="rounded-full bg-muted h-12 w-12" />
-                      <div className="space-y-2 flex-1">
-                        <div className="h-4 bg-muted rounded w-3/4" />
-                        <div className="h-3 bg-muted rounded w-1/2" />
-                      </div>
+                    <div className="space-y-2">
+                      <div className="h-4 bg-muted rounded w-3/4" />
+                      <div className="h-3 bg-muted rounded w-1/2" />
                     </div>
                   </CardHeader>
                   <CardContent className="p-4 pt-0">
@@ -185,35 +183,46 @@ const AdvisorDirectory = ({ onSelectAdvisor, onAuthRequired }: AdvisorDirectoryP
               {filteredAdvisors.map((advisor) => (
                 <Card 
                   key={advisor.id} 
-                  className="cursor-pointer hover:shadow-md transition-shadow group"
+                  className="cursor-pointer hover:shadow-md transition-shadow group overflow-hidden"
                   onClick={() => handleAdvisorClick(advisor)}
                 >
-                  <CardHeader className="p-4">
-                    <div className="flex items-center space-x-4">
-                      <Avatar className="h-12 w-12">
-                        <AvatarImage src={advisor.avatar || ''} alt={advisor.name} />
-                        <AvatarFallback>{advisor.name.charAt(0)}</AvatarFallback>
-                      </Avatar>
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <CardTitle className="text-lg">{advisor.name}</CardTitle>
-                          {advisor.is_featured && (
-                            <Badge variant="secondary" className="text-xs">
-                              <Star className="h-3 w-3 mr-1" />
-                              Featured
-                            </Badge>
-                          )}
-                          {advisor.is_official && advisor.sim_type === 'historical' && (
-                            <Badge variant="gradient" className="text-xs">
-                              <Award className="h-3 w-3 mr-1" />
-                              Official Historical Sim
-                            </Badge>
-                          )}
-                        </div>
-                        <CardDescription className="text-sm">
-                          {advisor.title || "Advisor"}
-                        </CardDescription>
+                  {/* Image at the top */}
+                  <div className="relative w-full aspect-[16/9] overflow-hidden bg-muted">
+                    {advisor.avatar ? (
+                      <img
+                        src={advisor.avatar}
+                        alt={advisor.name}
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center bg-primary/10">
+                        <span className="text-6xl font-bold text-primary">
+                          {advisor.name.charAt(0)}
+                        </span>
                       </div>
+                    )}
+                  </div>
+
+                  <CardHeader className="p-4">
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <CardTitle className="text-lg">{advisor.name}</CardTitle>
+                        {advisor.is_featured && (
+                          <Badge variant="secondary" className="text-xs">
+                            <Star className="h-3 w-3 mr-1" />
+                            Featured
+                          </Badge>
+                        )}
+                        {advisor.is_official && advisor.sim_type === 'historical' && (
+                          <Badge variant="gradient" className="text-xs">
+                            <Award className="h-3 w-3 mr-1" />
+                            Official Historical Sim
+                          </Badge>
+                        )}
+                      </div>
+                      <CardDescription className="text-sm">
+                        {advisor.title || "Advisor"}
+                      </CardDescription>
                     </div>
                   </CardHeader>
                   <CardContent className="p-4 pt-0">

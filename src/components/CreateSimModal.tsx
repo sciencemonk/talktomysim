@@ -416,7 +416,7 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
                     onDrop={handleDrop}
                     onClick={() => fileInputRef.current?.click()}
                     className={`
-                      relative w-32 h-32 rounded-full cursor-pointer
+                      relative w-40 aspect-[4/3] rounded-2xl cursor-pointer
                       transition-all duration-300 ease-out
                       ${isDragging 
                         ? 'scale-105 ring-4 ring-primary/50 shadow-lg shadow-primary/25' 
