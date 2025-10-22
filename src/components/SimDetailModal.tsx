@@ -303,21 +303,22 @@ const SimDetailModal = ({ sim, open, onOpenChange, onAuthRequired }: SimDetailMo
             </div>
           </div>
         ) : (
-          <div className="backdrop-blur-xl bg-card/50 rounded-lg p-8 sm:p-12 max-h-[80vh] overflow-y-auto">
+          <div className="backdrop-blur-xl bg-card/50 rounded-lg p-6 sm:p-8 max-h-[80vh] overflow-y-auto">
           {/* Avatar */}
           <div className="flex justify-center mb-6">
-            <div className="relative">
-              <div className="absolute inset-0 bg-primary/30 rounded-full blur-2xl animate-pulse" />
-              <Avatar className="relative h-28 w-28 sm:h-36 sm:w-36 border-4 border-border shadow-2xl">
-                <AvatarImage src={getAvatarUrl(sim.avatar)} alt={sim.name} className="object-cover" />
-                <AvatarFallback className="text-4xl sm:text-5xl">{sim.name.charAt(0)}</AvatarFallback>
-              </Avatar>
+            <div className="relative w-32 h-32 sm:w-40 sm:h-40">
+              <div className="absolute inset-0 bg-primary/20 rounded-2xl blur-xl" />
+              <img 
+                src={getAvatarUrl(sim.avatar)} 
+                alt={sim.name} 
+                className="relative w-full h-full object-cover rounded-2xl border-2 border-border shadow-2xl"
+              />
             </div>
           </div>
 
           {/* Name and Description */}
           <div className="text-center space-y-3 mb-6">
-            <h1 className="text-3xl sm:text-4xl font-bold tracking-tight">{sim.name}</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">{sim.name}</h1>
             <p className="text-sm sm:text-base text-muted-foreground leading-relaxed px-2">
               {getSimDescription()}
             </p>
@@ -326,7 +327,7 @@ const SimDetailModal = ({ sim, open, onOpenChange, onAuthRequired }: SimDetailMo
           {/* Launch/Add Sim Button */}
           <Button
             size="lg"
-            className="w-full h-14 text-base font-semibold shadow-xl hover:shadow-2xl transition-all duration-300 mb-4 group"
+            className="w-full h-12 text-base font-semibold shadow-xl hover:shadow-2xl transition-all duration-300 mb-3 group"
             onClick={handleLaunchSim}
             disabled={isAddingSim}
           >
@@ -334,49 +335,50 @@ const SimDetailModal = ({ sim, open, onOpenChange, onAuthRequired }: SimDetailMo
             {isAddingSim ? 'Adding...' : (isSignedIn ? 'Add Sim' : 'Launch Sim')}
           </Button>
 
-          {/* Share Button */}
-          <Button
-            size="lg"
-            variant="outline"
-            className="w-full h-12 text-base font-semibold mb-3 group"
-            onClick={handleShareLink}
-          >
-            {shareLinkCopied ? (
-              <>
-                <Check className="h-4 w-4 mr-2 text-green-500" />
-                Link Copied!
-              </>
-            ) : (
-              <>
-                <Share2 className="h-4 w-4 mr-2 group-hover:scale-110 transition-transform" />
-                Share Sim
-              </>
-            )}
-          </Button>
+          {/* Action Buttons Row */}
+          <div className="grid grid-cols-2 gap-2 mb-4">
+            <Button
+              size="sm"
+              variant="outline"
+              className="h-10 text-sm font-medium group"
+              onClick={handleShareLink}
+            >
+              {shareLinkCopied ? (
+                <>
+                  <Check className="h-3.5 w-3.5 mr-1.5 text-green-500" />
+                  Copied!
+                </>
+              ) : (
+                <>
+                  <Share2 className="h-3.5 w-3.5 mr-1.5 group-hover:scale-110 transition-transform" />
+                  Share
+                </>
+              )}
+            </Button>
 
-          {/* Embed Button */}
-          <Button
-            size="lg"
-            variant="outline"
-            className="w-full h-12 text-base font-semibold mb-6 group"
-            onClick={() => setShowEmbedCode(!showEmbedCode)}
-          >
-            <svg className="h-4 w-4 mr-2 group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
-            </svg>
-            {showEmbedCode ? 'Hide Embed Code' : 'Embed on Your Site'}
-          </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              className="h-10 text-sm font-medium group"
+              onClick={() => setShowEmbedCode(!showEmbedCode)}
+            >
+              <svg className="h-3.5 w-3.5 mr-1.5 group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+              </svg>
+              Embed
+            </Button>
+          </div>
 
           {/* Embed Code Section */}
           {showEmbedCode && (
-            <div ref={embedCodeRef} className="mb-6 p-4 rounded-lg bg-muted/50 border border-border">
-              <div className="flex items-center justify-between mb-3">
-                <h3 className="font-semibold text-sm">Embed Code</h3>
+            <div ref={embedCodeRef} className="mb-4 p-3 rounded-lg bg-muted/50 border border-border">
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="font-semibold text-xs">Embed Code</h3>
                 <Button
                   size="sm"
                   variant="secondary"
                   onClick={handleCopyEmbedCode}
-                  className="h-8"
+                  className="h-7 text-xs"
                 >
                   {embedCodeCopied ? (
                     <>
@@ -386,51 +388,42 @@ const SimDetailModal = ({ sim, open, onOpenChange, onAuthRequired }: SimDetailMo
                   ) : (
                     <>
                       <Copy className="h-3 w-3 mr-1" />
-                      Copy Code
+                      Copy
                     </>
                   )}
                 </Button>
               </div>
-              <div className="bg-background rounded border border-border p-3 mb-3 max-h-40 overflow-y-auto">
+              <div className="bg-background rounded border border-border p-2 mb-2 max-h-32 overflow-y-auto">
                 <code className="text-xs font-mono text-muted-foreground whitespace-pre-wrap break-all">
                   {getEmbedCode()}
                 </code>
               </div>
-              <div className="text-xs text-muted-foreground space-y-1">
-                <p className="font-medium">Instructions:</p>
-                <ol className="list-decimal list-inside space-y-1 ml-2">
+              <div className="text-xs text-muted-foreground">
+                <p className="font-medium mb-1">Instructions:</p>
+                <ol className="list-decimal list-inside space-y-0.5 ml-2 text-xs">
                   <li>Copy the code above</li>
-                  <li>Paste it before the closing &lt;/body&gt; tag in your HTML</li>
-                  <li>The chat widget will appear on the bottom right of your site</li>
+                  <li>Paste before the closing &lt;/body&gt; tag</li>
+                  <li>Widget appears on bottom right</li>
                 </ol>
               </div>
             </div>
           )}
 
-          {/* Close Button */}
-          <Button
-            variant="outline"
-            className="w-full h-10 text-sm font-medium"
-            onClick={() => onOpenChange(false)}
-          >
-            Close
-          </Button>
-
           {/* Social Links & Wallet */}
           {(sim.twitter_url || sim.website_url || sim.crypto_wallet) && (
-            <div className="flex flex-col gap-3 pt-4 border-t border-border mt-4">
+            <div className="flex flex-col gap-2 pb-4 border-b border-border mb-4">
               {sim.twitter_url && (
                 <a
                   href={sim.twitter_url.startsWith('http') ? sim.twitter_url : `https://${sim.twitter_url}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-3 w-full px-5 py-3.5 rounded-2xl bg-accent/10 hover:bg-accent/20 border border-border hover:border-primary transition-all duration-300 group"
+                  className="flex items-center gap-2 w-full px-3 py-2.5 rounded-xl bg-accent/10 hover:bg-accent/20 border border-border hover:border-primary transition-all duration-300 group"
                 >
-                  <svg className="h-5 w-5 text-muted-foreground group-hover:text-foreground transition-colors flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
+                  <svg className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M18.244 2.25h3.308l-7.227 8.26L24 21.75h-6.642l-5.214-6.817-5.956 6.817H3.29l7.73-8.835L3 2.25h6.826l4.712 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
                   </svg>
                   <span className="text-sm font-medium group-hover:text-foreground transition-colors">Follow on X</span>
-                  <ExternalLink className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors ml-auto flex-shrink-0" />
+                  <ExternalLink className="h-3.5 w-3.5 text-muted-foreground group-hover:text-foreground transition-colors ml-auto flex-shrink-0" />
                 </a>
               )}
 
@@ -439,11 +432,11 @@ const SimDetailModal = ({ sim, open, onOpenChange, onAuthRequired }: SimDetailMo
                   href={sim.website_url.startsWith('http') ? sim.website_url : `https://${sim.website_url}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-3 w-full px-5 py-3.5 rounded-2xl bg-accent/10 hover:bg-accent/20 border border-border hover:border-primary transition-all duration-300 group"
+                  className="flex items-center gap-2 w-full px-3 py-2.5 rounded-xl bg-accent/10 hover:bg-accent/20 border border-border hover:border-primary transition-all duration-300 group"
                 >
-                  <Globe className="h-5 w-5 text-muted-foreground group-hover:text-foreground transition-colors flex-shrink-0" />
+                  <Globe className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors flex-shrink-0" />
                   <span className="text-sm font-medium group-hover:text-foreground transition-colors">Visit Website</span>
-                  <ExternalLink className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors ml-auto flex-shrink-0" />
+                  <ExternalLink className="h-3.5 w-3.5 text-muted-foreground group-hover:text-foreground transition-colors ml-auto flex-shrink-0" />
                 </a>
               )}
 
@@ -458,23 +451,32 @@ const SimDetailModal = ({ sim, open, onOpenChange, onAuthRequired }: SimDetailMo
                       description: "Wallet address copied to clipboard"
                     });
                   }}
-                  className="flex items-center justify-between gap-3 w-full px-5 py-3.5 rounded-2xl bg-accent/10 hover:bg-accent/20 border border-border hover:border-primary transition-all duration-300 group"
+                  className="flex items-center justify-between gap-2 w-full px-3 py-2.5 rounded-xl bg-accent/10 hover:bg-accent/20 border border-border hover:border-primary transition-all duration-300 group"
                 >
-                  <div className="flex items-center gap-3 min-w-0">
-                    <Wallet className="h-5 w-5 text-muted-foreground group-hover:text-foreground transition-colors flex-shrink-0" />
+                  <div className="flex items-center gap-2 min-w-0">
+                    <Wallet className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors flex-shrink-0" />
                     <span className="text-xs font-mono text-muted-foreground group-hover:text-foreground transition-colors truncate">
                       {sim.crypto_wallet}
                     </span>
                   </div>
                   {walletCopied ? (
-                    <Check className="h-4 w-4 text-green-500 flex-shrink-0" />
+                    <Check className="h-3.5 w-3.5 text-green-500 flex-shrink-0" />
                   ) : (
-                    <Copy className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors flex-shrink-0" />
+                    <Copy className="h-3.5 w-3.5 text-muted-foreground group-hover:text-foreground transition-colors flex-shrink-0" />
                   )}
                 </button>
               )}
             </div>
           )}
+
+          {/* Close Button */}
+          <Button
+            variant="outline"
+            className="w-full h-9 text-sm font-medium mt-2"
+            onClick={() => onOpenChange(false)}
+          >
+            Close
+          </Button>
           </div>
         )}
       </DialogContent>
