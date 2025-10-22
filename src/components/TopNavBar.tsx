@@ -60,7 +60,7 @@ export const TopNavBar = () => {
               >
                 <div className="dark:bg-white rounded-lg p-1">
                   <img 
-                    src="/sim-logo-new.png" 
+                    src="/sim-logo-new.png?v=2" 
                     alt="Sim Logo" 
                     className="h-[32px] w-[32px] sm:h-[38px] sm:w-[38px] object-contain"
                   />
