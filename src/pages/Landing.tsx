@@ -172,6 +172,10 @@ const Landing = () => {
           category: sim.category || (!sim.user_id ? 'historical' : 'uncategorized'),
           user_id: sim.user_id,
           user_count: userCount,
+          twitter_url: sim.twitter_url,
+          website_url: sim.website_url,
+          crypto_wallet: sim.crypto_wallet,
+          background_image_url: sim.background_image_url
         } as AgentType & { user_id?: string; category?: string; user_count?: number };
       });
     },
