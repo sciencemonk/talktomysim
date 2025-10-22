@@ -37,7 +37,6 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [name, setName] = useState("");
-  const [title, setTitle] = useState("");
   const [category, setCategory] = useState("");
   const [description, setDescription] = useState("");
   const [systemPrompt, setSystemPrompt] = useState("");
@@ -46,7 +45,6 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [selectedIntegrations, setSelectedIntegrations] = useState<string[]>([]);
   const [isDragging, setIsDragging] = useState(false);
   const [socialLinksOpen, setSocialLinksOpen] = useState(false);
   const [xLink, setXLink] = useState("");
@@ -54,40 +52,8 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
   const [telegramLink, setTelegramLink] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const availableIntegrations = [
-    { 
-      id: 'solana-explorer', 
-      label: 'Solana Explorer', 
-      description: 'Access Solana blockchain data and wallet information',
-      example: 'e.g., "Check my wallet balance" or "What\'s the latest on this token?"'
-    },
-    { 
-      id: 'pumpfun', 
-      label: 'PumpFun', 
-      description: 'Analyze and monitor PumpFun token trades',
-      example: 'e.g., "Show me recent trades for this token" or "What\'s trending on PumpFun?"'
-    },
-    { 
-      id: 'x-analyzer', 
-      label: 'X (Twitter) Analyzer', 
-      description: 'Analyze X/Twitter profiles and content',
-      example: 'e.g., "Analyze this Twitter profile" or "What\'s the sentiment on this account?"'
-    },
-    { 
-      id: 'crypto-prices', 
-      label: 'Crypto Prices', 
-      description: 'Get real-time cryptocurrency prices and market data',
-      example: 'e.g., "What\'s the price of Bitcoin?" or "How much is SOL worth right now?"'
-    },
-  ];
-
-  const toggleIntegration = (integrationId: string) => {
-    setSelectedIntegrations(prev => 
-      prev.includes(integrationId)
-        ? prev.filter(id => id !== integrationId)
-        : [...prev, integrationId]
-    );
-  };
+  // All sims get all integrations by default
+  const allIntegrations = ['solana-explorer', 'pumpfun', 'x-analyzer', 'crypto-prices'];
 
   const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -157,7 +123,7 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
           name: name.trim(),
           description: description.trim(), 
           category,
-          integrations: selectedIntegrations 
+          integrations: allIntegrations 
         },
       });
 
@@ -302,14 +268,13 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
         .insert({
           user_id: user.id,
           name: name.trim(),
-          title: title.trim() || null,
           category: category || null,
           description: description.trim(),
           auto_description: autoDescription,
           prompt: systemPrompt.trim(),
           avatar_url: avatarUrl,
           price: 0,
-          integrations: selectedIntegrations,
+          integrations: allIntegrations,
           is_active: true,
           is_public: true,
           welcome_message: welcomeMessage,
@@ -328,7 +293,6 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
             user_id: user.id,
             advisor_id: newSim.id,
             name: newSim.name,
-            title: newSim.title,
             description: newSim.description,
             prompt: newSim.prompt,
             avatar_url: newSim.avatar_url,
@@ -350,14 +314,12 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
       // Reset form
       setStep(1);
       setName("");
-      setTitle("");
       setCategory("");
       setDescription("");
       setSystemPrompt("");
       setWelcomeMessage("");
       setAvatarFile(null);
       setAvatarPreview(null);
-      setSelectedIntegrations([]);
       setXLink("");
       setWebsiteLink("");
       setTelegramLink("");
@@ -387,14 +349,12 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
   const handleClose = () => {
     setStep(1);
     setName("");
-    setTitle("");
     setCategory("");
     setDescription("");
     setSystemPrompt("");
     setWelcomeMessage("");
     setAvatarFile(null);
     setAvatarPreview(null);
-    setSelectedIntegrations([]);
     setXLink("");
     setWebsiteLink("");
     setTelegramLink("");
@@ -419,22 +379,8 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
 
             {/* Sim Details Section */}
             <div className="space-y-4">
-              {/* Name and Avatar side by side */}
-              <div className="grid grid-cols-[1fr,auto] gap-4 items-start">
-                <div className="space-y-2">
-                  <Label htmlFor="name" className="text-sm font-medium">
-                    Sim name <span className="text-destructive">*</span>
-                  </Label>
-                  <Input
-                    id="name"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    placeholder="Name your sim"
-                    required
-                    className="h-11 bg-background"
-                  />
-                </div>
-
+              {/* Avatar and Name side by side */}
+              <div className="grid grid-cols-[auto,1fr] gap-4 items-start">
                 {/* Avatar Upload */}
                 <div className="space-y-2">
                   <Label className="text-sm font-medium">Avatar</Label>
@@ -486,20 +432,20 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
                     className="hidden"
                   />
                 </div>
-              </div>
 
-              {/* Title */}
-              <div className="space-y-2">
-                <Label htmlFor="title" className="text-sm font-medium">
-                  Title
-                </Label>
-                <Input
-                  id="title"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  placeholder="Add a title (e.g., Expert, CEO, Artist)"
-                  className="h-11 bg-background"
-                />
+                <div className="space-y-2">
+                  <Label htmlFor="name" className="text-sm font-medium">
+                    Sim name <span className="text-destructive">*</span>
+                  </Label>
+                  <Input
+                    id="name"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="Name your sim"
+                    required
+                    className="h-11 bg-background"
+                  />
+                </div>
               </div>
 
               {/* Category */}
@@ -592,43 +538,6 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
                   </div>
                 </CollapsibleContent>
               </Collapsible>
-            </div>
-
-            {/* Integrations */}
-            <div className="space-y-3">
-              <div>
-                <h3 className="text-sm font-medium">Integrations</h3>
-                <p className="text-xs text-muted-foreground">
-                  Optional capabilities beyond basic chat
-                </p>
-              </div>
-
-              <div className="space-y-2">
-                {availableIntegrations.map((integration) => (
-                  <div
-                    key={integration.id}
-                    className="flex items-start gap-3 p-3 rounded-lg border border-border/50 bg-muted/20 hover:bg-muted/30 transition-colors"
-                  >
-                    <Checkbox
-                      id={integration.id}
-                      checked={selectedIntegrations.includes(integration.id)}
-                      onCheckedChange={() => toggleIntegration(integration.id)}
-                      className="mt-0.5"
-                    />
-                    <div className="flex-1 min-w-0">
-                      <Label
-                        htmlFor={integration.id}
-                        className="text-sm font-medium cursor-pointer block"
-                      >
-                        {integration.label}
-                      </Label>
-                      <p className="text-xs text-muted-foreground mt-0.5">
-                        {integration.description}
-                      </p>
-                    </div>
-                  </div>
-                ))}
-              </div>
             </div>
 
             {/* Generate Button */}
