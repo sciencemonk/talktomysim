@@ -90,7 +90,7 @@ const PublicChatInterface = ({ agent }: PublicChatInterfaceProps) => {
               onChange={(e) => setInputValue(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder={`Message ${agent.name}...`}
-              className="w-full h-14 pr-14 text-base bg-white/95 backdrop-blur-sm border-white/30 text-foreground placeholder:text-muted-foreground rounded-2xl"
+              className="w-full h-14 pr-14 text-base bg-card/95 backdrop-blur-sm border-border text-foreground placeholder:text-muted-foreground rounded-2xl"
               disabled={textChat.isProcessing}
             />
             <Button
@@ -141,8 +141,8 @@ const PublicChatInterface = ({ agent }: PublicChatInterfaceProps) => {
                 <div className={`flex-1 min-w-0 ${message.role === 'user' ? 'flex justify-end' : ''}`}>
                   <div className={`
                     ${message.role === 'user' 
-                      ? 'bg-primary/90 text-white rounded-3xl px-4 py-3 inline-block max-w-[80%] break-words overflow-hidden' 
-                      : 'bg-white rounded-2xl px-4 py-3 w-full text-foreground overflow-hidden'
+                      ? 'bg-primary/90 text-primary-foreground rounded-3xl px-4 py-3 inline-block max-w-[80%] break-words overflow-hidden' 
+                      : 'bg-card border border-border rounded-2xl px-4 py-3 w-full text-foreground overflow-hidden'
                     }
                   `}>
                     {message.role === 'user' ? (
@@ -193,7 +193,7 @@ const PublicChatInterface = ({ agent }: PublicChatInterfaceProps) => {
                 </AvatarFallback>
               </Avatar>
               <div className="flex-1">
-                <div className="bg-white rounded-2xl px-4 py-3 inline-block">
+                <div className="bg-card border border-border rounded-2xl px-4 py-3 inline-block">
                   <div className="flex space-x-1.5">
                     <div className="w-2 h-2 rounded-full bg-primary animate-bounce [animation-delay:-0.3s]"></div>
                     <div className="w-2 h-2 rounded-full bg-primary animate-bounce [animation-delay:-0.15s]"></div>
@@ -217,7 +217,7 @@ const PublicChatInterface = ({ agent }: PublicChatInterfaceProps) => {
               onChange={(e) => setInputValue(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder={textChat.isProcessing ? `${agent.name} is typing...` : `Message ${agent.name}...`}
-              className="w-full h-12 sm:h-14 pr-12 sm:pr-14 text-sm sm:text-base bg-white/95 backdrop-blur-sm border-white/30 text-foreground placeholder:text-muted-foreground rounded-2xl"
+              className="w-full h-12 sm:h-14 pr-12 sm:pr-14 text-sm sm:text-base bg-card/95 backdrop-blur-sm border-border text-foreground placeholder:text-muted-foreground rounded-2xl"
               disabled={textChat.isProcessing}
             />
             <Button
