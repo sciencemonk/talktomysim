@@ -6,28 +6,8 @@ import SimpleFooter from "@/components/SimpleFooter";
 import { useNavigate } from "react-router-dom";
 import { TopNavBar } from "@/components/TopNavBar";
 
-import { useToast } from "@/hooks/use-toast";
-
 const WhitePaper = () => {
   const navigate = useNavigate();
-  const { toast } = useToast();
-  const copyCAToClipboard = async () => {
-    const ca = "FFqwoZ7phjoupWjLeE5yFeLqGi8jkGEFrTz6jnsUpump";
-    try {
-      await navigator.clipboard.writeText(ca);
-      toast({
-        title: "Copied!",
-        description: "Contract address copied to clipboard",
-      });
-    } catch (error) {
-      console.error("Failed to copy:", error);
-      toast({
-        title: "Failed to copy",
-        description: "Could not copy to clipboard",
-        variant: "destructive"
-      });
-    }
-  };
 
   return (
     <div className="min-h-screen bg-background flex flex-col w-full">
@@ -47,94 +27,113 @@ const WhitePaper = () => {
             />
           </div>
           <h1 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-primary via-purple-500 to-pink-500 bg-clip-text text-transparent">
-            Create. Deploy. Monetize.
+            The Future of AI is Personal
           </h1>
           <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-            The platform that lets you create, deploy, and monetize your own AI agents. Build once, earn forever.
+            Making it shockingly simple to create and deploy your own AI. No coding. No complexity. Just pure simplicity.
           </p>
-          <div className="text-center mb-8">
-            <p className="text-sm text-muted-foreground mb-2">Contract Address:</p>
-            <button
-              onClick={copyCAToClipboard}
-              className="text-sm font-mono bg-muted px-4 py-2 rounded-lg text-foreground hover:bg-muted/80 transition-colors cursor-pointer border"
-              title="Click to copy contract address"
-            >
-              FFqwoZ7phjoupWjLeE5yFeLqGi8jkGEFrTz6jnsUpump
-            </button>
-          </div>
         </div>
 
         {/* Vision Section */}
         <section className="mb-16">
-          <h2 className="text-3xl font-bold mb-6">The Vision</h2>
+          <h2 className="text-3xl font-bold mb-6">The Problem: AI is Too Complicated</h2>
           <div className="prose prose-lg max-w-none text-muted-foreground">
             <p className="text-lg mb-6">
-              <strong className="text-foreground">Why let Big Tech own the future of AI when you can own it yourself?</strong> Sim Protocol is the platform that empowers anyone to create, deploy, and monetize their own AI agents. No coding required. No technical expertise needed. Just your creativity and vision.
+              <strong className="text-foreground">ChatGPT isn&apos;t the future of AI.</strong> It&apos;s just the beginning. The real future of AI isn&apos;t one-size-fits-all chatbots. It&apos;s <strong className="text-foreground">personalized AI that knows you, understands your needs, and works for you.</strong>
             </p>
             <p className="text-lg mb-6">
-              <strong className="text-foreground">CREATE:</strong> Build your AI agent with complete customization. Design its personality, upload knowledge bases, integrate with tools like Google Calendar, and craft its unique voice. Whether it&apos;s a digital clone of yourself, a specialized consultant, a historical figure, or a fictional character—you have total creative control.
-            </p>
-            <p className="text-lg mb-6">
-              <strong className="text-foreground">DEPLOY:</strong> Launch your AI agent to the world with its own personalized landing page and custom URL. Share it across social media, embed it on websites, or integrate it into apps. Your AI is accessible 24/7, ready to engage with anyone, anywhere.
-            </p>
-            <p className="text-lg mb-6">
-              <strong className="text-foreground">MONETIZE:</strong> Turn your AI into a revenue stream. Charge per conversation, offer subscription access, or create premium tiers. The creator economy meets AI—build once, earn forever. Your AI works while you sleep.
-            </p>
-            <p className="text-lg mb-6">
-              This is the future of AI: <strong className="text-foreground">owned by creators, powered by the community, monetized by you.</strong> Not controlled by centralized corporations, but distributed across Web3. Join the AI revolution and start earning from your creativity today.
+              But here&apos;s the problem: creating your own AI has been impossibly complex. You need to be a developer. You need to understand APIs, prompts, embeddings, hosting, and a dozen other technical concepts. <strong className="text-foreground">That ends today.</strong>
             </p>
           </div>
         </section>
 
-        {/* The Three Pillars */}
+        {/* Solution Section */}
         <section className="mb-16">
-          <h2 className="text-3xl font-bold mb-8 text-center">The Three Pillars</h2>
+          <h2 className="text-3xl font-bold mb-6">The Solution: Radically Simple AI Creation</h2>
+          <div className="prose prose-lg max-w-none text-muted-foreground">
+            <p className="text-lg mb-6">
+              <strong className="text-foreground">Sim makes creating an AI as simple as filling out a form.</strong>
+            </p>
+            <p className="text-lg mb-6">
+              No coding. No prompting expertise. No technical knowledge required. In just a few minutes, you can create and deploy a fully functional AI that:
+            </p>
+            <ul className="list-disc list-inside text-lg mb-6 space-y-2">
+              <li>Has its own personality and knowledge</li>
+              <li>Gets its own custom URL and landing page</li>
+              <li>Can be shared instantly with anyone</li>
+              <li>Runs 24/7 without you lifting a finger</li>
+            </ul>
+            <p className="text-lg mb-6">
+              <strong className="text-foreground">This is what democratizing AI actually looks like.</strong> Not building better developer tools. Not creating more APIs. But making AI creation so simple that <em>anyone</em> can do it.
+            </p>
+          </div>
+        </section>
+
+        {/* Why Now Section */}
+        <section className="mb-16">
+          <h2 className="text-3xl font-bold mb-6">Why Personalized AI Matters</h2>
+          <div className="prose prose-lg max-w-none text-muted-foreground">
+            <p className="text-lg mb-6">
+              The future isn&apos;t everyone using the same AI. <strong className="text-foreground">The future is everyone having their own AI.</strong>
+            </p>
+            <p className="text-lg mb-6">
+              Your personal trainer AI that knows your fitness goals. Your business consultant AI that understands your industry. Your virtual assistant that knows your calendar, preferences, and priorities. Your customer service AI that represents your brand perfectly.
+            </p>
+            <p className="text-lg mb-6">
+              <strong className="text-foreground">These aren&apos;t distant dreams.</strong> With Sim, you can create any of these today. And you can do it in minutes, not months.
+            </p>
+          </div>
+        </section>
+
+        {/* How It Works */}
+        <section className="mb-16">
+          <h2 className="text-3xl font-bold mb-8 text-center">How Sim Works</h2>
           
           <div className="grid md:grid-cols-3 gap-6 mb-12">
             <Card className="border-2 border-primary/30">
               <CardHeader>
-                <CardTitle className="text-2xl text-center">CREATE</CardTitle>
+                <CardTitle className="text-2xl text-center">1. Create</CardTitle>
               </CardHeader>
               <CardContent className="text-center">
                 <p className="text-muted-foreground mb-4">
-                  Build your AI agent with complete customization. No coding required—just your vision.
+                  Give your AI a name, description, and personality. Add an avatar. That&apos;s it.
                 </p>
                 <div className="space-y-2 text-sm text-muted-foreground">
-                  <div>Custom personalities & knowledge</div>
-                  <div>Integrations & tools</div>
-                  <div>Visual branding & design</div>
+                  <div>✓ No coding required</div>
+                  <div>✓ Takes 2 minutes</div>
+                  <div>✓ Full customization</div>
                 </div>
               </CardContent>
             </Card>
             
             <Card className="border-2 border-purple-500/30">
               <CardHeader>
-                <CardTitle className="text-2xl text-center">DEPLOY</CardTitle>
+                <CardTitle className="text-2xl text-center">2. Deploy</CardTitle>
               </CardHeader>
               <CardContent className="text-center">
                 <p className="text-muted-foreground mb-4">
-                  Launch your AI to the world with custom URLs and personalized landing pages.
+                  Your AI gets its own URL instantly. Share it anywhere. It&apos;s live in seconds.
                 </p>
                 <div className="space-y-2 text-sm text-muted-foreground">
-                  <div>Personalized landing pages</div>
-                  <div>Custom URLs & sharing</div>
-                  <div>24/7 availability</div>
+                  <div>✓ Instant deployment</div>
+                  <div>✓ Custom landing page</div>
+                  <div>✓ Works 24/7</div>
                 </div>
               </CardContent>
             </Card>
             
             <Card className="border-2 border-pink-500/30">
               <CardHeader>
-                <CardTitle className="text-2xl text-center">MONETIZE</CardTitle>
+                <CardTitle className="text-2xl text-center">3. Share</CardTitle>
               </CardHeader>
               <CardContent className="text-center">
                 <p className="text-muted-foreground mb-4">
-                  Turn your AI into a revenue stream. Build once, earn forever.
+                  Anyone can talk to your AI. No sign-up required. Just click and chat.
                 </p>
                 <div className="space-y-2 text-sm text-muted-foreground">
-                  <div>Per-conversation pricing</div>
-                  <div>Subscription models</div>
-                  <div>Premium tiers</div>
+                  <div>✓ Zero friction</div>
+                  <div>✓ Instant access</div>
+                  <div>✓ Unlimited usage</div>
                 </div>
               </CardContent>
             </Card>
@@ -543,7 +542,7 @@ const WhitePaper = () => {
               <p className="text-muted-foreground mb-6 max-w-2xl mx-auto text-lg">
                 Join Sim developers who are building, deploying, and monetizing AI agents on Sim Protocol. The future of the creator economy is here—and it&apos;s powered by AI.
               </p>
-              <div className="flex flex-col items-center gap-4 mb-6">
+              <div className="flex flex-col items-center gap-4">
                 <Button 
                   size="lg" 
                   className="text-lg px-8"
@@ -553,16 +552,6 @@ const WhitePaper = () => {
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
                 <p className="text-sm text-muted-foreground">No credit card required • Launch in minutes</p>
-              </div>
-              <div className="text-center pt-6 border-t">
-                <p className="text-sm text-muted-foreground mb-2">$SIM Token Contract Address:</p>
-                <button
-                  onClick={copyCAToClipboard}
-                  className="text-sm font-mono bg-muted px-4 py-2 rounded-lg text-foreground hover:bg-muted/80 transition-colors cursor-pointer border"
-                  title="Click to copy contract address"
-                >
-                  FFqwoZ7phjoupWjLeE5yFeLqGi8jkGEFrTz6jnsUpump
-                </button>
               </div>
             </CardContent>
           </Card>
