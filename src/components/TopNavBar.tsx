@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, NavLink } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { LogOut, User, Menu, X, Plus, MessageSquare, Grid } from "lucide-react";
+import { LogOut, User, Plus, MessageSquare } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -10,9 +10,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { getAvatarUrl } from "@/lib/avatarUtils";
-import { useIsMobile } from "@/hooks/use-mobile";
 import AuthModal from "./AuthModal";
 import { CreateSimModal } from "./CreateSimModal";
 import { useQueryClient } from "@tanstack/react-query";
@@ -20,11 +18,9 @@ import { ThemeToggle } from "./ThemeToggle";
 
 export const TopNavBar = () => {
   const navigate = useNavigate();
-  const isMobile = useIsMobile();
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showCreateSimModal, setShowCreateSimModal] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -49,15 +45,15 @@ export const TopNavBar = () => {
   return (
     <>
       <nav className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container mx-auto px-4">
-          <div className="flex h-16 items-center justify-between">
+        <div className="container mx-auto px-2 sm:px-4">
+          <div className="flex h-14 sm:h-16 items-center justify-between gap-2">
             {/* Left: Theme Toggle */}
-            <div className="flex items-center">
+            <div className="flex items-center shrink-0">
               <ThemeToggle />
             </div>
 
             {/* Center: Logo */}
-            <div className="absolute left-1/2 transform -translate-x-1/2 flex items-center">
+            <div className="flex items-center shrink-0">
               <button
                 onClick={() => navigate('/')}
                 className="flex items-center hover:opacity-80 transition-opacity"
@@ -65,31 +61,31 @@ export const TopNavBar = () => {
                 <img 
                   src="/sim-logo.png" 
                   alt="Sim Logo" 
-                  className="h-[38px] w-[38px] object-contain"
+                  className="h-[32px] w-[32px] sm:h-[38px] sm:w-[38px] object-contain"
                 />
               </button>
             </div>
 
-
             {/* Right: Create Sim Button + User Menu */}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1 sm:gap-2 shrink-0">
               <Button
                 onClick={() => setShowCreateSimModal(true)}
                 style={{ backgroundColor: '#83f1aa' }}
-                className="gap-2 font-semibold text-black hover:opacity-90"
+                className="gap-1 sm:gap-2 font-semibold text-black hover:opacity-90 text-xs sm:text-sm px-2 sm:px-4 h-8 sm:h-10"
               >
-                <Plus className="h-4 w-4" />
-                Create a Sim
+                <Plus className="h-3 w-3 sm:h-4 sm:w-4" />
+                <span className="hidden xs:inline">Create a Sim</span>
+                <span className="xs:hidden">Create</span>
               </Button>
 
               {currentUser && (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon" className="rounded-full">
-                      <Avatar className="h-8 w-8">
+                    <Button variant="ghost" size="icon" className="rounded-full h-8 w-8 sm:h-10 sm:w-10">
+                      <Avatar className="h-6 w-6 sm:h-8 sm:w-8">
                         <AvatarImage src={getAvatarUrl(currentUser?.user_metadata?.avatar_url)} />
                         <AvatarFallback>
-                          <User className="h-4 w-4" />
+                          <User className="h-3 w-3 sm:h-4 sm:w-4" />
                         </AvatarFallback>
                       </Avatar>
                     </Button>
@@ -97,7 +93,6 @@ export const TopNavBar = () => {
                   <DropdownMenuContent align="end" className="w-56">
                     <DropdownMenuItem onClick={() => {
                       navigate('/home');
-                      setMobileMenuOpen(false);
                     }}>
                       <MessageSquare className="mr-2 h-4 w-4" />
                       My Sims
@@ -108,34 +103,6 @@ export const TopNavBar = () => {
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
-              )}
-
-              {/* Mobile Menu */}
-              {isMobile && (
-                <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
-                  <SheetTrigger asChild>
-                    <Button variant="ghost" size="icon">
-                      <Menu className="h-5 w-5" />
-                    </Button>
-                  </SheetTrigger>
-                  <SheetContent side="right" className="w-64">
-                    <div className="flex flex-col gap-4 mt-8">
-                      {currentUser && (
-                        <Button
-                          onClick={() => {
-                            navigate('/home');
-                            setMobileMenuOpen(false);
-                          }}
-                          variant="ghost"
-                          className="justify-start"
-                        >
-                          <MessageSquare className="mr-2 h-4 w-4" />
-                          My Sims
-                        </Button>
-                      )}
-                    </div>
-                  </SheetContent>
-                </Sheet>
               )}
             </div>
           </div>
