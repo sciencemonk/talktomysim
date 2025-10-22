@@ -6,12 +6,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Loader2, Upload, Sparkles, ArrowLeft, ImagePlus } from "lucide-react";
+import { Loader2, Upload, Sparkles, ArrowLeft, ImagePlus, Link2, ChevronDown, ChevronUp } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 interface CreateSimModalProps {
   open: boolean;
@@ -48,6 +49,10 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedIntegrations, setSelectedIntegrations] = useState<string[]>([]);
   const [isDragging, setIsDragging] = useState(false);
+  const [socialLinksOpen, setSocialLinksOpen] = useState(false);
+  const [xLink, setXLink] = useState("");
+  const [websiteLink, setWebsiteLink] = useState("");
+  const [telegramLink, setTelegramLink] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const availableIntegrations = [
@@ -286,6 +291,12 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
         autoDescription = description.trim().substring(0, 150);
       }
 
+      // Prepare social links object
+      const socialLinks: any = {};
+      if (xLink.trim()) socialLinks.x = xLink.trim();
+      if (websiteLink.trim()) socialLinks.website = websiteLink.trim();
+      if (telegramLink.trim()) socialLinks.telegram = telegramLink.trim();
+
       // Create the sim
       const { data: newSim, error: insertError } = await supabase
         .from('advisors')
@@ -303,6 +314,7 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
           is_active: true,
           is_public: true,
           welcome_message: welcomeMessage,
+          social_links: Object.keys(socialLinks).length > 0 ? socialLinks : null,
         })
         .select()
         .single();
@@ -347,6 +359,10 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
       setAvatarFile(null);
       setAvatarPreview(null);
       setSelectedIntegrations([]);
+      setXLink("");
+      setWebsiteLink("");
+      setTelegramLink("");
+      setSocialLinksOpen(false);
       
       // Call onSuccess to refresh queries and then navigate
       if (onSuccess) {
@@ -380,176 +396,239 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
     setAvatarFile(null);
     setAvatarPreview(null);
     setSelectedIntegrations([]);
+    setXLink("");
+    setWebsiteLink("");
+    setTelegramLink("");
+    setSocialLinksOpen(false);
     onOpenChange(false);
   };
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto p-0 border-border/50 bg-gradient-to-br from-background via-background to-muted/20">
+      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto p-0 border-border/50">
         {step === 1 ? (
-          <div className="space-y-8 p-8">
-            {/* Header with gradient accent */}
-            <div className="space-y-3 relative">
-              <div className="absolute -top-4 -left-4 w-32 h-32 bg-primary/10 rounded-full blur-3xl" />
-              <h2 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-foreground via-foreground to-primary bg-clip-text text-transparent">
+          <div className="space-y-6 p-8">
+            {/* Header */}
+            <div className="space-y-1">
+              <h2 className="text-2xl font-bold tracking-tight">
                 Create New Sim
               </h2>
               <p className="text-sm text-muted-foreground">
-                Build an AI sim with custom knowledge, personality, and integrations
+                Choose carefully, these details define your AI personality
               </p>
             </div>
 
-            {/* Sim Identity */}
-            <div className="space-y-6">
-              <div className="flex items-center gap-2">
-                <div className="h-px flex-1 bg-gradient-to-r from-transparent via-border to-transparent" />
-                <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Identity</h3>
-                <div className="h-px flex-1 bg-gradient-to-r from-transparent via-border to-transparent" />
+            {/* Sim Details Section */}
+            <div className="space-y-4">
+              <div>
+                <h3 className="text-base font-semibold mb-1">Sim details</h3>
+                <p className="text-xs text-muted-foreground">
+                  Choose carefully, these can't be changed once the sim is created
+                </p>
               </div>
-              
-              <div className="flex gap-8 items-start">
-                {/* Avatar Upload with Drag & Drop */}
-                <div className="flex flex-col items-center gap-3">
-                  <div
-                    onDragOver={handleDragOver}
-                    onDragLeave={handleDragLeave}
-                    onDrop={handleDrop}
-                    onClick={() => fileInputRef.current?.click()}
-                    className={`
-                      relative w-40 aspect-[4/3] rounded-2xl cursor-pointer
-                      transition-all duration-300 ease-out
-                      ${isDragging 
-                        ? 'scale-105 ring-4 ring-primary/50 shadow-lg shadow-primary/25' 
-                        : 'hover:scale-105 hover:shadow-xl'
-                      }
-                      ${avatarPreview 
-                        ? 'ring-2 ring-primary/30' 
-                        : 'ring-2 ring-dashed ring-border hover:ring-primary/50'
-                      }
-                      bg-gradient-to-br from-muted/50 to-muted/20 backdrop-blur-sm
-                      overflow-hidden group
-                    `}
-                  >
-                    {avatarPreview ? (
-                      <>
-                        <img 
-                          src={avatarPreview} 
-                          alt="Avatar preview" 
-                          className="w-full h-full object-cover"
-                        />
-                        <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center">
-                          <ImagePlus className="w-8 h-8 text-white" />
-                        </div>
-                      </>
-                    ) : (
-                      <div className="absolute inset-0 flex flex-col items-center justify-center gap-2">
-                        <div className={`
-                          transition-all duration-300
-                          ${isDragging ? 'scale-110' : 'group-hover:scale-110'}
-                        `}>
-                          <Upload className={`
-                            w-8 h-8 transition-colors duration-300
-                            ${isDragging ? 'text-primary' : 'text-muted-foreground group-hover:text-primary'}
-                          `} />
-                        </div>
-                        <p className="text-xs text-muted-foreground font-medium text-center px-4">
-                          {isDragging ? 'Drop here' : 'Click or drag'}
-                        </p>
-                      </div>
-                    )}
-                  </div>
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept="image/*"
-                    onChange={handleAvatarChange}
-                    className="hidden"
+
+              {/* Name and Title side by side */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="name" className="text-sm font-medium">
+                    Sim name <span className="text-destructive">*</span>
+                  </Label>
+                  <Input
+                    id="name"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="Name your sim"
+                    required
+                    className="h-11 bg-background"
                   />
                 </div>
 
-                <div className="flex-1 space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="name" className="text-sm font-medium flex items-center gap-2">
-                      Name <span className="text-destructive">*</span>
-                    </Label>
-                    <Input
-                      id="name"
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
-                      placeholder="e.g., Marcus, Dr. Code, Legal Eagle"
-                      required
-                      className="h-12 bg-input-bg border-input-border focus:ring-2 focus:ring-primary/20 transition-all"
-                    />
-                  </div>
+                <div className="space-y-2">
+                  <Label htmlFor="title" className="text-sm font-medium">
+                    Title
+                  </Label>
+                  <Input
+                    id="title"
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    placeholder="Add a title (e.g., Expert)"
+                    className="h-11 bg-background"
+                  />
                 </div>
               </div>
-            </div>
 
-            {/* Category */}
-            <div className="space-y-4">
-              <div className="flex items-center gap-2">
-                <div className="h-px flex-1 bg-gradient-to-r from-transparent via-border to-transparent" />
-                <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Category</h3>
-                <div className="h-px flex-1 bg-gradient-to-r from-transparent via-border to-transparent" />
-              </div>
-              
+              {/* Category */}
               <div className="space-y-2">
+                <Label htmlFor="category" className="text-sm font-medium">
+                  Category <span className="text-destructive">*</span>
+                </Label>
                 <Select value={category} onValueChange={setCategory} required>
-                  <SelectTrigger className="h-12 bg-input-bg border-input-border focus:ring-2 focus:ring-primary/20 transition-all">
+                  <SelectTrigger className="h-11 bg-background">
                     <SelectValue placeholder="Select category" />
                   </SelectTrigger>
-                  <SelectContent className="bg-background z-50 border-border/50">
+                  <SelectContent className="bg-background z-50">
                     {categories.map((cat) => (
-                      <SelectItem key={cat.value} value={cat.value} className="focus:bg-muted/50">
+                      <SelectItem key={cat.value} value={cat.value}>
                         {cat.label}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
-            </div>
 
-            {/* Intelligence & Behavior */}
-            <div className="space-y-4">
-              <div className="flex items-center gap-2">
-                <div className="h-px flex-1 bg-gradient-to-r from-transparent via-border to-transparent" />
-                <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Behavior</h3>
-                <div className="h-px flex-1 bg-gradient-to-r from-transparent via-border to-transparent" />
-              </div>
-              
+              {/* Description */}
               <div className="space-y-2">
                 <Label htmlFor="description" className="text-sm font-medium">
-                  Description
+                  Description <span className="text-muted-foreground">(Optional)</span>
                 </Label>
                 <Textarea
                   id="description"
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  placeholder="What does your Sim do?"
-                  rows={3}
-                  className="resize-none bg-input-bg border-input-border focus:ring-2 focus:ring-primary/20 transition-all"
+                  placeholder="Write a short description"
+                  rows={4}
+                  className="resize-none bg-background"
                 />
               </div>
+
+              {/* Social Links Collapsible */}
+              <Collapsible open={socialLinksOpen} onOpenChange={setSocialLinksOpen}>
+                <CollapsibleTrigger className="flex items-center gap-2 text-sm font-medium hover:text-foreground transition-colors w-full py-2">
+                  <Link2 className="w-4 h-4" />
+                  <span>Add social links <span className="text-muted-foreground">(Optional)</span></span>
+                  {socialLinksOpen ? (
+                    <ChevronUp className="w-4 h-4 ml-auto" />
+                  ) : (
+                    <ChevronDown className="w-4 h-4 ml-auto" />
+                  )}
+                </CollapsibleTrigger>
+                <CollapsibleContent className="space-y-3 pt-3">
+                  <div className="space-y-2">
+                    <Label htmlFor="x-link" className="text-sm">
+                      X (Twitter)
+                    </Label>
+                    <Input
+                      id="x-link"
+                      value={xLink}
+                      onChange={(e) => setXLink(e.target.value)}
+                      placeholder="https://x.com/username"
+                      className="h-10 bg-background"
+                      type="url"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="website-link" className="text-sm">
+                      Website
+                    </Label>
+                    <Input
+                      id="website-link"
+                      value={websiteLink}
+                      onChange={(e) => setWebsiteLink(e.target.value)}
+                      placeholder="https://yourwebsite.com"
+                      className="h-10 bg-background"
+                      type="url"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="telegram-link" className="text-sm">
+                      Telegram
+                    </Label>
+                    <Input
+                      id="telegram-link"
+                      value={telegramLink}
+                      onChange={(e) => setTelegramLink(e.target.value)}
+                      placeholder="https://t.me/username"
+                      className="h-10 bg-background"
+                      type="url"
+                    />
+                  </div>
+                </CollapsibleContent>
+              </Collapsible>
+            </div>
+
+            {/* Avatar Upload Section */}
+            <div className="space-y-2">
+              <div
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                onDrop={handleDrop}
+                onClick={() => fileInputRef.current?.click()}
+                className={`
+                  relative w-full aspect-[2/1] rounded-xl cursor-pointer
+                  transition-all duration-300 ease-out
+                  ${isDragging 
+                    ? 'scale-[1.02] ring-4 ring-primary/50 shadow-lg shadow-primary/25' 
+                    : 'hover:scale-[1.01] hover:shadow-md'
+                  }
+                  ${avatarPreview 
+                    ? 'ring-2 ring-border' 
+                    : 'ring-2 ring-dashed ring-border hover:ring-primary/50'
+                  }
+                  bg-muted/30 backdrop-blur-sm
+                  overflow-hidden group
+                `}
+              >
+                {avatarPreview ? (
+                  <>
+                    <img 
+                      src={avatarPreview} 
+                      alt="Avatar preview" 
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex flex-col items-center justify-center gap-2">
+                      <ImagePlus className="w-10 h-10 text-white" />
+                      <p className="text-sm text-white font-medium">Change image</p>
+                    </div>
+                  </>
+                ) : (
+                  <div className="absolute inset-0 flex flex-col items-center justify-center gap-3">
+                    <div className={`
+                      transition-all duration-300
+                      ${isDragging ? 'scale-110' : 'group-hover:scale-110'}
+                    `}>
+                      <div className="w-16 h-16 rounded-xl bg-muted flex items-center justify-center">
+                        <Upload className={`
+                          w-8 h-8 transition-colors duration-300
+                          ${isDragging ? 'text-primary' : 'text-muted-foreground group-hover:text-primary'}
+                        `} />
+                      </div>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-sm font-medium">
+                        Select video or image to upload
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        or drag and drop it here
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </div>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleAvatarChange}
+                className="hidden"
+              />
             </div>
 
             {/* Integrations */}
-            <div className="space-y-4">
-              <div className="flex items-center gap-2">
-                <div className="h-px flex-1 bg-gradient-to-r from-transparent via-border to-transparent" />
-                <div className="text-center">
-                  <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Integrations</h3>
-                  <p className="text-[10px] text-muted-foreground/70 mt-0.5">
-                    Optional capabilities
-                  </p>
-                </div>
-                <div className="h-px flex-1 bg-gradient-to-r from-transparent via-border to-transparent" />
+            <div className="space-y-3">
+              <div>
+                <h3 className="text-sm font-medium">Integrations</h3>
+                <p className="text-xs text-muted-foreground">
+                  Optional capabilities beyond basic chat
+                </p>
               </div>
 
               <div className="space-y-2">
                 {availableIntegrations.map((integration) => (
                   <div
                     key={integration.id}
-                    className="flex items-start gap-3 p-4 rounded-xl border border-border/50 bg-muted/20 hover:bg-muted/30 hover:border-primary/30 transition-all duration-200"
+                    className="flex items-start gap-3 p-3 rounded-lg border border-border/50 bg-muted/20 hover:bg-muted/30 transition-colors"
                   >
                     <Checkbox
                       id={integration.id}
@@ -573,14 +652,14 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
               </div>
             </div>
 
-            {/* Generate Sim Button */}
-            <div className="pt-4">
+            {/* Generate Button */}
+            <div className="pt-2">
               <Button
                 type="button"
                 size="lg"
                 onClick={handleGeneratePrompt}
                 disabled={isGenerating || !name.trim() || !description.trim() || !category}
-                className="gap-2 w-full h-14 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 transition-all duration-300 text-base font-semibold"
+                className="gap-2 w-full h-12 font-semibold"
               >
                 {isGenerating ? (
                   <>
