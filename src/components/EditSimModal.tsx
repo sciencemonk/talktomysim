@@ -18,8 +18,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Upload, Sparkles, Loader2, Trash2 } from 'lucide-react';
+import { Upload, Sparkles, Loader2, Trash2, Link2 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { toast } from 'sonner';
 
@@ -42,29 +41,6 @@ const categories = [
   { value: 'adult', label: 'Adult' },
 ];
 
-const availableIntegrations = [
-  { 
-    id: 'solana-explorer', 
-    label: 'Solana Explorer', 
-    description: 'Access Solana blockchain data and wallet information'
-  },
-  { 
-    id: 'pumpfun', 
-    label: 'PumpFun', 
-    description: 'Analyze and monitor PumpFun token trades'
-  },
-  { 
-    id: 'x-analyzer', 
-    label: 'X (Twitter) Analyzer', 
-    description: 'Analyze X/Twitter profiles and content'
-  },
-  { 
-    id: 'crypto-prices', 
-    label: 'Crypto Prices', 
-    description: 'Get real-time cryptocurrency prices and market data'
-  },
-];
-
 const EditSimModal = ({ open, onOpenChange, simId }: EditSimModalProps) => {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
@@ -74,7 +50,9 @@ const EditSimModal = ({ open, onOpenChange, simId }: EditSimModalProps) => {
   const [name, setName] = useState('');
   const [category, setCategory] = useState('');
   const [description, setDescription] = useState('');
-  const [selectedIntegrations, setSelectedIntegrations] = useState<string[]>([]);
+  const [xLink, setXLink] = useState('');
+  const [websiteLink, setWebsiteLink] = useState('');
+  const [telegramLink, setTelegramLink] = useState('');
   const [systemPrompt, setSystemPrompt] = useState('');
   const [welcomeMessage, setWelcomeMessage] = useState('');
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
@@ -110,7 +88,15 @@ const EditSimModal = ({ open, onOpenChange, simId }: EditSimModalProps) => {
         setSystemPrompt(sim.prompt || '');
         setWelcomeMessage(sim.welcome_message || '');
         setAvatarPreview(sim.avatar_url || null);
-        setSelectedIntegrations((sim.integrations as string[]) || []);
+        
+        // Load social links
+        const socialLinks = sim.social_links as any;
+        if (socialLinks) {
+          setXLink(socialLinks.x || '');
+          setWebsiteLink(socialLinks.website || '');
+          setTelegramLink(socialLinks.telegram || '');
+        }
+        
         // If system prompt and welcome message exist, mark as generated
         if (sim.prompt && sim.welcome_message) {
           setHasGenerated(true);
@@ -122,13 +108,6 @@ const EditSimModal = ({ open, onOpenChange, simId }: EditSimModalProps) => {
     }
   };
 
-  const toggleIntegration = (integrationId: string) => {
-    setSelectedIntegrations(prev => 
-      prev.includes(integrationId)
-        ? prev.filter(id => id !== integrationId)
-        : [...prev, integrationId]
-    );
-  };
 
   const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -160,13 +139,14 @@ const EditSimModal = ({ open, onOpenChange, simId }: EditSimModalProps) => {
 
     setIsGenerating(true);
     try {
-      // Generate system prompt
+      // Generate system prompt - always include all integrations
+      const allIntegrations = ["solana-explorer", "pumpfun", "x-analyzer", "crypto-prices"];
       const { data, error } = await supabase.functions.invoke("generate-system-prompt", {
         body: { 
           name: name.trim(),
           description: description.trim(), 
           category,
-          integrations: selectedIntegrations 
+          integrations: allIntegrations 
         },
       });
 
@@ -261,6 +241,14 @@ const EditSimModal = ({ open, onOpenChange, simId }: EditSimModalProps) => {
         avatarUrl = urlData.publicUrl;
       }
       
+      // Prepare social links object
+      const socialLinks: any = {};
+      if (xLink.trim()) socialLinks.x = xLink.trim();
+      if (websiteLink.trim()) socialLinks.website = websiteLink.trim();
+      if (telegramLink.trim()) socialLinks.telegram = telegramLink.trim();
+      
+      const allIntegrations = ["solana-explorer", "pumpfun", "x-analyzer", "crypto-prices"];
+      
       const { error } = await supabase
         .from('advisors')
         .update({
@@ -270,7 +258,8 @@ const EditSimModal = ({ open, onOpenChange, simId }: EditSimModalProps) => {
           prompt: systemPrompt.trim(),
           welcome_message: welcomeMessage.trim(),
           avatar_url: avatarUrl,
-          integrations: selectedIntegrations,
+          integrations: allIntegrations,
+          social_links: Object.keys(socialLinks).length > 0 ? socialLinks : null,
           updated_at: new Date().toISOString()
         })
         .eq('id', simId);
@@ -375,7 +364,7 @@ const EditSimModal = ({ open, onOpenChange, simId }: EditSimModalProps) => {
                       onChange={(e) => setName(e.target.value)}
                       placeholder="e.g., Marcus, Dr. Code, Legal Eagle"
                       required
-                      className="h-11"
+                      className="h-11 bg-background"
                     />
                   </div>
                 </div>
@@ -421,40 +410,55 @@ const EditSimModal = ({ open, onOpenChange, simId }: EditSimModalProps) => {
               </div>
             </div>
 
-            {/* Integrations */}
+            {/* Social Links */}
             <div className="space-y-4">
-              <div>
-                <h3 className="text-sm font-medium text-foreground/80">Integrations</h3>
-                <p className="text-xs text-muted-foreground mt-1">
-                  Optional capabilities beyond basic chat
-                </p>
+              <div className="flex items-center gap-2">
+                <Link2 className="w-4 h-4 text-muted-foreground" />
+                <h3 className="text-sm font-medium text-foreground/80">Social Links</h3>
               </div>
 
-              <div className="space-y-2">
-                {availableIntegrations.map((integration) => (
-                  <div
-                    key={integration.id}
-                    className="flex items-start gap-3 p-4 rounded-lg border border-border/50 hover:border-border transition-colors"
-                  >
-                    <Checkbox
-                      id={integration.id}
-                      checked={selectedIntegrations.includes(integration.id)}
-                      onCheckedChange={() => toggleIntegration(integration.id)}
-                      className="mt-0.5"
-                    />
-                    <div className="flex-1 min-w-0">
-                      <Label
-                        htmlFor={integration.id}
-                        className="text-sm font-medium cursor-pointer block"
-                      >
-                        {integration.label}
-                      </Label>
-                      <p className="text-xs text-muted-foreground mt-0.5">
-                        {integration.description}
-                      </p>
-                    </div>
-                  </div>
-                ))}
+              <div className="space-y-3">
+                <div className="space-y-2">
+                  <Label htmlFor="xLink" className="text-sm font-medium">
+                    X (Twitter)
+                  </Label>
+                  <Input
+                    id="xLink"
+                    type="url"
+                    value={xLink}
+                    onChange={(e) => setXLink(e.target.value)}
+                    placeholder="https://x.com/username"
+                    className="h-11 bg-background"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="websiteLink" className="text-sm font-medium">
+                    Website
+                  </Label>
+                  <Input
+                    id="websiteLink"
+                    type="url"
+                    value={websiteLink}
+                    onChange={(e) => setWebsiteLink(e.target.value)}
+                    placeholder="https://yourwebsite.com"
+                    className="h-11 bg-background"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="telegramLink" className="text-sm font-medium">
+                    Telegram
+                  </Label>
+                  <Input
+                    id="telegramLink"
+                    type="url"
+                    value={telegramLink}
+                    onChange={(e) => setTelegramLink(e.target.value)}
+                    placeholder="https://t.me/username"
+                    className="h-11 bg-background"
+                  />
+                </div>
               </div>
             </div>
 
