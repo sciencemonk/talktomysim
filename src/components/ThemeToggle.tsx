@@ -1,6 +1,6 @@
 import { useTheme } from "@/hooks/useTheme";
 import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
+import { Sun, Moon } from "lucide-react";
 
 export function ThemeToggle() {
   const { theme, setTheme } = useTheme();
@@ -8,15 +8,14 @@ export function ThemeToggle() {
 
   return (
     <div className="flex items-center gap-2">
+      <Sun className="h-4 w-4 text-muted-foreground" />
       <Switch
         id="theme-toggle"
         checked={isDark}
         onCheckedChange={(checked) => setTheme(checked ? "dark" : "light")}
         className="data-[state=checked]:bg-primary"
       />
-      <Label htmlFor="theme-toggle" className="text-sm cursor-pointer">
-        {isDark ? "Dark" : "Light"}
-      </Label>
+      <Moon className="h-4 w-4 text-muted-foreground" />
     </div>
   );
 }
