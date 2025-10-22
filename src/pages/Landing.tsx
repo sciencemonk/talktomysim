@@ -251,22 +251,22 @@ const Landing = () => {
         <div className="max-w-7xl mx-auto">
           {/* Search and Filters */}
           <div className="mb-6 space-y-4">
-            <div className="relative">
-              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-              <Input
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search sims by name, title, or description..."
-                className="pl-12 h-12 text-base"
-              />
-            </div>
-
-            {/* Filters */}
-            <div className="flex flex-wrap gap-3 items-center">
+            {/* Search and Sort on same line */}
+            <div className="flex gap-3">
+              <div className="relative flex-1">
+                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                <Input
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search sims by name, title, or description..."
+                  className="pl-12 h-12 text-base"
+                />
+              </div>
+              
               {/* Sort dropdown */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="outline" className="gap-2">
+                  <Button variant="outline" className="gap-2 h-12 px-4">
                     {sortBy === 'newest' && 'Newest'}
                     {sortBy === 'popular' && (
                       <>
@@ -278,7 +278,7 @@ const Landing = () => {
                     <ChevronDown className="h-4 w-4 opacity-50" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="start">
+                <DropdownMenuContent align="end" className="bg-background z-50">
                   <DropdownMenuItem onClick={() => setSortBy('newest')}>
                     Newest
                   </DropdownMenuItem>
@@ -291,7 +291,6 @@ const Landing = () => {
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
-
             </div>
 
             {/* Category Filters */}
