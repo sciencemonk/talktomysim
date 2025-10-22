@@ -16,6 +16,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import AuthModal from "./AuthModal";
 import { CreateSimModal } from "./CreateSimModal";
 import { useQueryClient } from "@tanstack/react-query";
+import { ThemeToggle } from "./ThemeToggle";
 
 export const TopNavBar = () => {
   const navigate = useNavigate();
@@ -50,11 +51,16 @@ export const TopNavBar = () => {
       <nav className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container mx-auto px-4">
           <div className="flex h-16 items-center justify-between">
-            {/* Left: Logo */}
-            <div className="flex items-center gap-2">
+            {/* Left: Theme Toggle */}
+            <div className="flex items-center">
+              <ThemeToggle />
+            </div>
+
+            {/* Center: Logo */}
+            <div className="absolute left-1/2 transform -translate-x-1/2 flex items-center">
               <button
                 onClick={() => navigate('/')}
-                className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+                className="flex items-center hover:opacity-80 transition-opacity"
               >
                 <img 
                   src="/sim-logo.png" 
