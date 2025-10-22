@@ -113,11 +113,12 @@ const Landing = () => {
   const { data: allSims } = useQuery({
     queryKey: ['all-sims-landing'],
     queryFn: async () => {
-      // Get all advisors
+      // Get all advisors (excluding $GRUTA)
       const { data: advisorsData, error: advisorsError } = await supabase
         .from('advisors')
         .select('*')
-        .eq('is_active', true);
+        .eq('is_active', true)
+        .neq('name', '$GRUTA');
       
       if (advisorsError) throw advisorsError;
 
