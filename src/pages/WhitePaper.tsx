@@ -16,16 +16,9 @@ const WhitePaper = () => {
         <div className="max-w-4xl mx-auto px-6 py-12">
         {/* Hero Section */}
         <div className="text-center mb-16 flex flex-col items-center">
-          <Badge variant="secondary" className="mb-4">
+          <Badge variant="secondary" className="mb-6">
             White Paper v2.0
           </Badge>
-          <div className="flex justify-center mb-6">
-            <img 
-              src="/sim-logo-new.png?v=2" 
-              alt="Sim" 
-              className="h-20 w-20 object-contain"
-            />
-          </div>
           <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-primary via-purple-500 to-pink-500 bg-clip-text text-transparent">
             Build Your AI
           </h1>
