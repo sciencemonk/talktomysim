@@ -129,6 +129,7 @@ export type Database = {
           custom_url: string | null
           date_of_birth: string | null
           description: string | null
+          edit_code: string | null
           education: string | null
           expertise_areas: string | null
           full_description: string | null
@@ -180,6 +181,7 @@ export type Database = {
           custom_url?: string | null
           date_of_birth?: string | null
           description?: string | null
+          edit_code?: string | null
           education?: string | null
           expertise_areas?: string | null
           full_description?: string | null
@@ -231,6 +233,7 @@ export type Database = {
           custom_url?: string | null
           date_of_birth?: string | null
           description?: string | null
+          edit_code?: string | null
           education?: string | null
           expertise_areas?: string | null
           full_description?: string | null

@@ -41,6 +41,7 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
   const [description, setDescription] = useState("");
   const [systemPrompt, setSystemPrompt] = useState("");
   const [welcomeMessage, setWelcomeMessage] = useState("");
+  const [editCode, setEditCode] = useState("");
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -54,6 +55,11 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
 
   // All sims get all integrations by default
   const allIntegrations = ['solana-explorer', 'pumpfun', 'x-analyzer', 'crypto-prices'];
+
+  // Generate a 6-digit edit code
+  const generateEditCode = () => {
+    return Math.floor(100000 + Math.random() * 900000).toString();
+  };
 
   const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -154,6 +160,10 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
       } else {
         setWelcomeMessage(`Hi! I'm ${name.trim()}. How can I help you today?`);
       }
+
+      // Generate edit code when moving to review screen
+      const code = generateEditCode();
+      setEditCode(code);
 
       toast.success("Sim generated successfully!");
       setStep(2);
@@ -262,7 +272,7 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
       if (websiteLink.trim()) socialLinks.website = websiteLink.trim();
       if (telegramLink.trim()) socialLinks.telegram = telegramLink.trim();
 
-      // Create the sim
+      // Create the sim with edit code
       const { data: newSim, error: insertError } = await supabase
         .from('advisors')
         .insert({
@@ -279,6 +289,7 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
           is_public: true,
           welcome_message: welcomeMessage,
           social_links: Object.keys(socialLinks).length > 0 ? socialLinks : null,
+          edit_code: editCode,
         })
         .select()
         .single();
@@ -318,6 +329,7 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
       setDescription("");
       setSystemPrompt("");
       setWelcomeMessage("");
+      setEditCode("");
       setAvatarFile(null);
       setAvatarPreview(null);
       setXLink("");
@@ -353,6 +365,7 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
     setDescription("");
     setSystemPrompt("");
     setWelcomeMessage("");
+    setEditCode("");
     setAvatarFile(null);
     setAvatarPreview(null);
     setXLink("");
@@ -583,8 +596,43 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
                   Review & Create
                 </h2>
                 <p className="text-sm text-muted-foreground">
-                  Review and edit your sim's generated content
+                  Review and edit your sim&apos;s generated content
                 </p>
+              </div>
+
+              {/* Edit Code Display */}
+              <div className="p-6 rounded-xl bg-gradient-to-r from-primary/10 via-primary/5 to-primary/10 border-2 border-primary/20">
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+                    <h3 className="font-semibold text-lg">Your Sim Edit Code</h3>
+                  </div>
+                  <div className="flex items-center justify-between gap-4 p-4 bg-background/50 rounded-lg border border-border">
+                    <div className="flex-1">
+                      <p className="text-3xl font-mono font-bold tracking-wider text-primary">
+                        {editCode}
+                      </p>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        navigator.clipboard.writeText(editCode);
+                        toast.success("Code copied to clipboard!");
+                      }}
+                      className="shrink-0"
+                    >
+                      Copy
+                    </Button>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-sm font-medium text-foreground">⚠️ Write this code down!</p>
+                    <p className="text-xs text-muted-foreground">
+                      This is the only way to edit your Sim after it&apos;s created. Keep it safe and don&apos;t share it with anyone.
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
 
