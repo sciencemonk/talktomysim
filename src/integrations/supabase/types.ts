@@ -152,6 +152,7 @@ export type Database = {
           sample_scenarios: Json | null
           sim_type: string | null
           skills: Json | null
+          social_links: Json | null
           target_audience: string | null
           title: string | null
           twitter_url: string | null
@@ -202,6 +203,7 @@ export type Database = {
           sample_scenarios?: Json | null
           sim_type?: string | null
           skills?: Json | null
+          social_links?: Json | null
           target_audience?: string | null
           title?: string | null
           twitter_url?: string | null
@@ -252,6 +254,7 @@ export type Database = {
           sample_scenarios?: Json | null
           sim_type?: string | null
           skills?: Json | null
+          social_links?: Json | null
           target_audience?: string | null
           title?: string | null
           twitter_url?: string | null
