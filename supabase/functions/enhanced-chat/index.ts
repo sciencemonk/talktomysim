@@ -75,6 +75,7 @@ serve(async (req) => {
     const userMessage = messages[messages.length - 1]?.content || '';
     console.log('User message:', userMessage);
     console.log('Agent:', agent.name);
+    console.log('Full conversation history:', JSON.stringify(messages, null, 2));
     
     // Check if user is asking about wallet/crypto and they have a wallet
     const needsWalletAnalysis = userWalletAddress && 

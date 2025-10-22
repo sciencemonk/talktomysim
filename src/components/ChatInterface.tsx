@@ -43,10 +43,13 @@ const ChatInterface = ({ agent, onBack, hideHeader = false, transparentMode = fa
     onAiMessageStart: chatHistory.startAiMessage,
     onAiTextDelta: chatHistory.addAiTextDelta,
     onAiMessageComplete: chatHistory.completeAiMessage,
-    existingMessages: chatHistory.messages.map(msg => ({ 
-      role: msg.role, 
-      content: msg.content 
-    }))
+    // Only include completed messages in the history
+    existingMessages: chatHistory.messages
+      .filter(msg => msg.isComplete)
+      .map(msg => ({ 
+        role: msg.role, 
+        content: msg.content 
+      }))
   });
 
   useEffect(() => {
