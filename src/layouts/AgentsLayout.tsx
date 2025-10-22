@@ -15,16 +15,22 @@ const AgentsLayout = () => {
             <header className="flex items-center justify-between p-4 border-b">
               <div className="flex items-center gap-2">
                 <SidebarTrigger />
-                <div className="dark:bg-white rounded-lg p-1 md:hidden">
-                  <img 
-                    src="/sim-logo.png" 
-                    alt="Sim Logo" 
-                    className="h-8 w-8 object-contain"
-                    onError={(e) => {
-                      e.currentTarget.style.display = 'none';
-                    }}
-                  />
-                </div>
+                <img 
+                  src="/sim-logo.png" 
+                  alt="Sim Logo" 
+                  className="h-8 w-8 object-contain md:hidden dark:hidden"
+                  onError={(e) => {
+                    e.currentTarget.style.display = 'none';
+                  }}
+                />
+                <img 
+                  src="/sim-logo-dark.png" 
+                  alt="Sim Logo" 
+                  className="h-8 w-8 object-contain md:hidden hidden dark:block"
+                  onError={(e) => {
+                    e.currentTarget.src = '/sim-logo.png';
+                  }}
+                />
               </div>
               <ThemeToggle />
             </header>
