@@ -406,7 +406,7 @@ const SimDetailModal = ({ sim, open, onOpenChange, onAuthRequired }: SimDetailMo
           {/* Launch/Add Sim Button */}
           <Button
             size="lg"
-            className="w-full h-11 text-base font-semibold shadow-xl hover:shadow-2xl transition-all duration-300 mb-3 group"
+            className="w-full h-11 text-base font-semibold shadow-xl hover:shadow-2xl transition-all duration-300 mb-3 group bg-[#82f2aa] hover:bg-[#6dd994] text-black"
             onClick={handleLaunchSim}
             disabled={isAddingSim}
           >
