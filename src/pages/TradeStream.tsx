@@ -161,7 +161,9 @@ const TradeStream = () => {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="flex items-center gap-2">
-                <img src="/sim-logo.png" alt="Sim" className="h-8 w-8" />
+                <div className="dark:bg-white rounded-lg p-1">
+                  <img src="/sim-logo.png" alt="Sim" className="h-8 w-8" />
+                </div>
                 <span className="text-lg font-bold">+</span>
                 <img src={pumpLogo} alt="Pump.fun" className="h-8 w-8" />
               </div>

@@ -626,11 +626,16 @@ const PublicSimDetail = () => {
                   rel="noopener noreferrer"
                   className="hover:opacity-80 transition-opacity"
                 >
-                  <img 
-                    src="/sim-logo.png" 
-                    alt="Sim" 
-                    className="h-5 w-5 object-contain"
-                  />
+                  <div className="dark:bg-white rounded p-0.5">
+                    <img 
+                      src="/sim-logo.png" 
+                      alt="Sim" 
+                      className="h-5 w-5 object-contain"
+                      onError={(e) => {
+                        e.currentTarget.style.display = 'none';
+                      }}
+                    />
+                  </div>
                 </a>
               </div>
             </div>

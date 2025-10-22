@@ -164,11 +164,16 @@ const SimConversationsView = () => {
             <SidebarTrigger className="h-10 w-10">
               <Menu className="h-5 w-5" />
             </SidebarTrigger>
-            <img 
-              src="/sim-logo.png" 
-              alt="Sim Logo" 
-              className="h-8 w-8 object-contain"
-            />
+            <div className="dark:bg-white rounded-lg p-1">
+              <img 
+                src="/sim-logo.png" 
+                alt="Sim Logo" 
+                className="h-8 w-8 object-contain"
+                onError={(e) => {
+                  e.currentTarget.style.display = 'none';
+                }}
+              />
+            </div>
             <div className="w-10" /> {/* Spacer for centering */}
           </div>
         </div>

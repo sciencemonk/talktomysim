@@ -472,14 +472,16 @@ export function AppSidebar() {
             onClick={() => navigate('/home')}
             className="flex items-center gap-2 px-2 hover:opacity-80 transition-opacity"
           >
-            <img 
-              src="/sim-logo.png" 
-              alt="Sim Logo" 
-              className="h-8 w-8 object-contain"
-              onError={(e) => {
-                e.currentTarget.style.display = 'none';
-              }}
-            />
+            <div className="dark:bg-white rounded-lg p-1">
+              <img 
+                src="/sim-logo.png" 
+                alt="Sim Logo" 
+                className="h-8 w-8 object-contain"
+                onError={(e) => {
+                  e.currentTarget.style.display = 'none';
+                }}
+              />
+            </div>
           </button>
 
           {/* Create Your Sim Button - always visible */}
