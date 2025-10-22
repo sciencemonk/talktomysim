@@ -22,15 +22,15 @@ interface CreateSimModalProps {
 }
 
 const categories = [
-  { value: 'crypto', label: 'Crypto & Web3' },
-  { value: 'historical', label: 'Historical Figures' },
-  { value: 'influencers', label: 'Influencers & Celebrities' },
-  { value: 'fictional', label: 'Fictional Characters' },
-  { value: 'education', label: 'Education & Tutoring' },
-  { value: 'business', label: 'Business & Finance' },
-  { value: 'lifestyle', label: 'Lifestyle & Wellness' },
-  { value: 'entertainment', label: 'Entertainment & Games' },
-  { value: 'spiritual', label: 'Spiritual & Philosophy' },
+  { value: "crypto", label: "Crypto & Web3" },
+  { value: "historical", label: "Historical Figures" },
+  { value: "influencers", label: "Influencers & Celebrities" },
+  { value: "fictional", label: "Fictional Characters" },
+  { value: "education", label: "Education & Tutoring" },
+  { value: "business", label: "Business & Finance" },
+  { value: "lifestyle", label: "Lifestyle & Wellness" },
+  { value: "entertainment", label: "Entertainment & Games" },
+  { value: "spiritual", label: "Spiritual & Philosophy" },
 ];
 
 export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }: CreateSimModalProps) => {
@@ -54,7 +54,7 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // All sims get all integrations by default
-  const allIntegrations = ['solana-explorer', 'pumpfun', 'x-analyzer', 'crypto-prices'];
+  const allIntegrations = ["solana-explorer", "pumpfun", "x-analyzer", "crypto-prices"];
 
   // Generate a 6-digit edit code
   const generateEditCode = () => {
@@ -69,11 +69,11 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
   };
 
   const processAvatarFile = (file: File) => {
-    if (!file.type.startsWith('image/')) {
+    if (!file.type.startsWith("image/")) {
       toast.error("Please upload an image file");
       return;
     }
-    
+
     setAvatarFile(file);
     const reader = new FileReader();
     reader.onloadend = () => {
@@ -125,11 +125,11 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
     try {
       // Generate system prompt
       const { data: promptData, error: promptError } = await supabase.functions.invoke("generate-system-prompt", {
-        body: { 
+        body: {
           name: name.trim(),
-          description: description.trim(), 
+          description: description.trim(),
           category,
-          integrations: allIntegrations 
+          integrations: allIntegrations,
         },
       });
 
@@ -145,16 +145,17 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
           messages: [
             {
               role: "system",
-              content: "You are a helpful assistant that creates brief, engaging welcome messages for AI chatbots based on their details. Keep it to 1-2 sentences, under 150 characters, in first person."
+              content:
+                "You are a helpful assistant that creates brief, engaging welcome messages for AI chatbots based on their details. Keep it to 1-2 sentences, under 150 characters, in first person.",
             },
             {
               role: "user",
-              content: `Create a welcome message for an AI called "${name.trim()}" with this description: ${description.trim()}`
-            }
-          ]
-        }
+              content: `Create a welcome message for an AI called "${name.trim()}" with this description: ${description.trim()}`,
+            },
+          ],
+        },
       });
-      
+
       if (welcomeData?.content) {
         setWelcomeMessage(welcomeData.content.trim());
       } else {
@@ -191,7 +192,9 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
     setIsSubmitting(true);
 
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       if (!user) {
         setIsSubmitting(false);
         onOpenChange(false);
@@ -207,19 +210,15 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
 
       // Upload avatar if provided
       if (avatarFile) {
-        const fileExt = avatarFile.name.split('.').pop();
+        const fileExt = avatarFile.name.split(".").pop();
         const fileName = `${user.id}-${Date.now()}.${fileExt}`;
         const filePath = `avatars/${fileName}`;
 
-        const { error: uploadError } = await supabase.storage
-          .from('avatars')
-          .upload(filePath, avatarFile);
+        const { error: uploadError } = await supabase.storage.from("avatars").upload(filePath, avatarFile);
 
         if (uploadError) throw uploadError;
 
-        const { data: urlData } = supabase.storage
-          .from('avatars')
-          .getPublicUrl(filePath);
+        const { data: urlData } = supabase.storage.from("avatars").getPublicUrl(filePath);
 
         avatarUrl = urlData.publicUrl;
       }
@@ -232,16 +231,17 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
             messages: [
               {
                 role: "system",
-                content: "You are a helpful assistant that creates engaging welcome messages for AI chatbots. The welcome message should: 1) Greet the user warmly, 2) Briefly explain what the AI does, 3) Explain HOW users should interact (rules, format, what to do first), 4) Be 2-3 sentences, under 200 characters. Write in first person from the AI's perspective."
+                content:
+                  "You are a helpful assistant that creates engaging welcome messages for AI chatbots. The welcome message should: 1) Greet the user warmly, 2) Briefly explain what the AI does, 3) Explain HOW users should interact (rules, format, what to do first), 4) Be 2-3 sentences, under 200 characters. Write in first person from the AI's perspective.",
               },
               {
                 role: "user",
-                content: `Create a welcome message for an AI called "${name.trim()}" with this description: ${description.trim()}\n\nSystem prompt: ${systemPrompt.trim()}`
-              }
-            ]
-          }
+                content: `Create a welcome message for an AI called "${name.trim()}" with this description: ${description.trim()}\n\nSystem prompt: ${systemPrompt.trim()}`,
+              },
+            ],
+          },
         });
-        
+
         if (welcomeData?.content) {
           welcomeMessage = welcomeData.content.trim();
         }
@@ -254,9 +254,9 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
       let autoDescription = "";
       try {
         const { data: shortDescData } = await supabase.functions.invoke("generate-short-description", {
-          body: { systemPrompt: systemPrompt.trim() }
+          body: { systemPrompt: systemPrompt.trim() },
         });
-        
+
         if (shortDescData?.shortDescription) {
           autoDescription = shortDescData.shortDescription.trim();
         }
@@ -274,7 +274,7 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
 
       // Create the sim with edit code
       const { data: newSim, error: insertError } = await supabase
-        .from('advisors')
+        .from("advisors")
         .insert({
           user_id: user.id,
           name: name.trim(),
@@ -298,18 +298,16 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
 
       // Automatically add to user's advisors list
       if (newSim) {
-        const { error: userAdvisorError } = await supabase
-          .from('user_advisors')
-          .insert({
-            user_id: user.id,
-            advisor_id: newSim.id,
-            name: newSim.name,
-            description: newSim.description,
-            prompt: newSim.prompt,
-            avatar_url: newSim.avatar_url,
-            category: newSim.category,
-            auto_description: autoDescription,
-          });
+        const { error: userAdvisorError } = await supabase.from("user_advisors").insert({
+          user_id: user.id,
+          advisor_id: newSim.id,
+          name: newSim.name,
+          description: newSim.description,
+          prompt: newSim.prompt,
+          avatar_url: newSim.avatar_url,
+          category: newSim.category,
+          auto_description: autoDescription,
+        });
 
         if (userAdvisorError) {
           console.error("Error adding to user advisors:", userAdvisorError);
@@ -318,10 +316,10 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
       }
 
       toast.success("Sim created successfully!");
-      
+
       // Close modal first
       onOpenChange(false);
-      
+
       // Reset form
       setStep(1);
       setName("");
@@ -336,12 +334,12 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
       setWebsiteLink("");
       setTelegramLink("");
       setSocialLinksOpen(false);
-      
+
       // Call onSuccess to refresh queries and then navigate
       if (onSuccess) {
         await onSuccess();
       }
-      
+
       // Navigate to the new sim's chat after a brief delay to allow queries to refresh
       setTimeout(() => {
         navigate(`/home?sim=${newSim.id}`);
@@ -382,12 +380,8 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
           <div className="space-y-6 p-8">
             {/* Header */}
             <div className="space-y-1">
-              <h2 className="text-2xl font-bold tracking-tight">
-                Create New Sim
-              </h2>
-              <p className="text-sm text-muted-foreground">
-                Choose carefully, these details define your AI personality
-              </p>
+              <h2 className="text-2xl font-bold tracking-tight">Create New Sim</h2>
+              <p className="text-sm text-muted-foreground">Choose carefully, these details define your AI</p>
             </div>
 
             {/* Sim Details Section */}
@@ -405,35 +399,31 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
                     className={`
                       relative w-24 h-24 rounded-xl cursor-pointer
                       transition-all duration-300 ease-out
-                      ${isDragging 
-                        ? 'scale-[1.05] ring-4 ring-primary/50 shadow-lg shadow-primary/25' 
-                        : 'hover:scale-[1.02] hover:shadow-md'
+                      ${
+                        isDragging
+                          ? "scale-[1.05] ring-4 ring-primary/50 shadow-lg shadow-primary/25"
+                          : "hover:scale-[1.02] hover:shadow-md"
                       }
-                      ${avatarPreview 
-                        ? 'ring-2 ring-border' 
-                        : 'ring-2 ring-dashed ring-border hover:ring-primary/50'
-                      }
+                      ${avatarPreview ? "ring-2 ring-border" : "ring-2 ring-dashed ring-border hover:ring-primary/50"}
                       bg-muted/30 backdrop-blur-sm
                       overflow-hidden group
                     `}
                   >
                     {avatarPreview ? (
                       <>
-                        <img 
-                          src={avatarPreview} 
-                          alt="Avatar preview" 
-                          className="w-full h-full object-cover"
-                        />
+                        <img src={avatarPreview} alt="Avatar preview" className="w-full h-full object-cover" />
                         <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center">
                           <ImagePlus className="w-6 h-6 text-white" />
                         </div>
                       </>
                     ) : (
                       <div className="absolute inset-0 flex items-center justify-center">
-                        <Upload className={`
+                        <Upload
+                          className={`
                           w-8 h-8 transition-colors duration-300
-                          ${isDragging ? 'text-primary' : 'text-muted-foreground group-hover:text-primary'}
-                        `} />
+                          ${isDragging ? "text-primary" : "text-muted-foreground group-hover:text-primary"}
+                        `}
+                        />
                       </div>
                     )}
                   </div>
@@ -500,7 +490,9 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
               <Collapsible open={socialLinksOpen} onOpenChange={setSocialLinksOpen}>
                 <CollapsibleTrigger className="flex items-center gap-2 text-sm font-medium hover:text-foreground transition-colors w-full py-2">
                   <Link2 className="w-4 h-4" />
-                  <span>Add social links <span className="text-muted-foreground">(Optional)</span></span>
+                  <span>
+                    Add social links <span className="text-muted-foreground">(Optional)</span>
+                  </span>
                   {socialLinksOpen ? (
                     <ChevronUp className="w-4 h-4 ml-auto" />
                   ) : (
@@ -589,15 +581,13 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
                 <ArrowLeft className="w-4 h-4" />
                 Back
               </Button>
-              
+
               <div className="space-y-3 relative">
                 <div className="absolute -top-4 -left-4 w-32 h-32 bg-primary/10 rounded-full blur-3xl" />
                 <h2 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-foreground via-foreground to-primary bg-clip-text text-transparent">
                   Review & Create
                 </h2>
-                <p className="text-sm text-muted-foreground">
-                  Review and edit your sim&apos;s generated content
-                </p>
+                <p className="text-sm text-muted-foreground">Review and edit your sim&apos;s generated content</p>
               </div>
 
               {/* Edit Code Display */}
@@ -609,9 +599,7 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
                   </div>
                   <div className="flex items-center justify-between gap-4 p-4 bg-background/50 rounded-lg border border-border">
                     <div className="flex-1">
-                      <p className="text-3xl font-mono font-bold tracking-wider text-primary">
-                        {editCode}
-                      </p>
+                      <p className="text-3xl font-mono font-bold tracking-wider text-primary">{editCode}</p>
                     </div>
                     <Button
                       type="button"
@@ -629,7 +617,8 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
                   <div className="space-y-1">
                     <p className="text-sm font-medium text-foreground">⚠️ Write this code down!</p>
                     <p className="text-xs text-muted-foreground">
-                      This is the only way to edit your Sim after it&apos;s created. Keep it safe and don&apos;t share it with anyone.
+                      This is the only way to edit your Sim after it&apos;s created. Keep it safe and don&apos;t share
+                      it with anyone.
                     </p>
                   </div>
                 </div>
@@ -640,7 +629,10 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
             <div className="space-y-3">
               <div className="flex items-center gap-2">
                 <div className="h-px flex-1 bg-gradient-to-r from-transparent via-border to-transparent" />
-                <Label htmlFor="welcome-message" className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                <Label
+                  htmlFor="welcome-message"
+                  className="text-xs font-medium text-muted-foreground uppercase tracking-wider"
+                >
                   Welcome Message
                 </Label>
                 <div className="h-px flex-1 bg-gradient-to-r from-transparent via-border to-transparent" />
@@ -659,7 +651,10 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
             <div className="space-y-3">
               <div className="flex items-center gap-2">
                 <div className="h-px flex-1 bg-gradient-to-r from-transparent via-border to-transparent" />
-                <Label htmlFor="system-prompt" className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                <Label
+                  htmlFor="system-prompt"
+                  className="text-xs font-medium text-muted-foreground uppercase tracking-wider"
+                >
                   System Prompt <span className="text-destructive">*</span>
                 </Label>
                 <div className="h-px flex-1 bg-gradient-to-r from-transparent via-border to-transparent" />
