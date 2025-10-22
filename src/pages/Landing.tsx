@@ -6,12 +6,9 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useState, useEffect } from "react";
 import { AgentType } from "@/types/agent";
-import phantomIcon from "@/assets/phantom-icon.png";
-import solflareIcon from "@/assets/solflare-icon.png";
 import { toast as sonnerToast } from "sonner";
-import bs58 from "bs58";
 import AuthModal from "@/components/AuthModal";
-import { LogOut, Search, DollarSign, Gift, TrendingUp, Plus, Menu, ChevronDown } from "lucide-react";
+import { Search, DollarSign, Gift, TrendingUp, ChevronDown } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
@@ -19,8 +16,7 @@ import { getAvatarUrl } from "@/lib/avatarUtils";
 import SimDetailModal from "@/components/SimDetailModal";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { AppSidebar } from "@/components/AppSidebar";
+import { TopNavBar } from "@/components/TopNavBar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -31,7 +27,6 @@ import {
 const Landing = () => {
   const navigate = useNavigate();
   const [selectedSim, setSelectedSim] = useState<AgentType | null>(null);
-  const [isLoading, setIsLoading] = useState<string | null>(null);
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [isSimModalOpen, setIsSimModalOpen] = useState(false);
   const [currentUser, setCurrentUser] = useState<any>(null);
@@ -250,89 +245,14 @@ const Landing = () => {
     navigate('/home');
   };
 
-  const handleWalletSignIn = async (walletType: 'phantom' | 'solflare') => {
-    setIsLoading(walletType);
-    try {
-      let wallet;
-      
-      if (walletType === 'phantom') {
-        wallet = (window as any).solana;
-        if (!wallet?.isPhantom) {
-          sonnerToast.error('Please install Phantom wallet');
-          setIsLoading(null);
-          return;
-        }
-      } else {
-        wallet = (window as any).solflare;
-        if (!wallet) {
-          sonnerToast.error('Please install Solflare wallet');
-          setIsLoading(null);
-          return;
-        }
-      }
-
-      await wallet.connect();
-      const publicKey = wallet.publicKey.toString();
-      const message = `Sign in to Sim\n\nWallet: ${publicKey}\nTimestamp: ${new Date().toISOString()}`;
-      const encodedMessage = new TextEncoder().encode(message);
-      const signedMessage = await wallet.signMessage(encodedMessage, 'utf8');
-      const signature = bs58.encode(signedMessage.signature);
-
-      const { data, error } = await supabase.functions.invoke('solana-auth', {
-        body: { publicKey, signature, message }
-      });
-
-      if (error) throw error;
-      
-      if (data?.access_token && data?.refresh_token) {
-        await supabase.auth.setSession({
-          access_token: data.access_token,
-          refresh_token: data.refresh_token,
-        });
-        
-        sonnerToast.success('Connected successfully!');
-        window.location.reload();
-      }
-    } catch (error: any) {
-      console.error('Error signing in with Solana:', error);
-      sonnerToast.error(error?.message || 'Failed to connect wallet');
-    } finally {
-      setIsLoading(null);
-    }
-  };
-
-  const handleSignOut = async () => {
-    await supabase.auth.signOut();
-    sonnerToast.success('Signed out successfully');
-    window.location.reload();
-  };
-
 
   return (
-    <SidebarProvider defaultOpen={true}>
-      <div className="min-h-screen w-full flex bg-background">
-        <AppSidebar />
-        
-        <div className="flex-1 flex flex-col">
-          {/* Mobile Header with Menu */}
-          {isMobile && (
-            <div className="fixed top-0 left-0 right-0 z-50 bg-background border-b">
-              <div className="flex items-center justify-between p-3">
-                <SidebarTrigger className="h-10 w-10">
-                  <Menu className="h-5 w-5" />
-                </SidebarTrigger>
-                <img 
-                  src="/sim-logo.png" 
-                  alt="Sim Logo" 
-                  className="h-8 w-8 object-contain"
-                />
-                <div className="w-10" /> {/* Spacer for centering */}
-              </div>
-            </div>
-          )}
-
-          {/* Sim Directory Section */}
-          <section className={`container mx-auto px-3 sm:px-4 pb-12 flex-1 ${isMobile ? 'pt-20' : 'pt-8'}`}>
+    <div className="min-h-screen w-full flex flex-col bg-background">
+      <TopNavBar />
+      
+      <div className="flex-1">
+        {/* Sim Directory Section */}
+        <section className="container mx-auto px-3 sm:px-4 py-8 flex-1">
         <div className="max-w-7xl mx-auto">
           {/* Search and Filters */}
           <div className="mb-6 space-y-4">
@@ -489,10 +409,9 @@ const Landing = () => {
         }}
       />
 
-      <SimpleFooter />
-        </div>
+        <SimpleFooter />
       </div>
-    </SidebarProvider>
+    </div>
   );
 };
 

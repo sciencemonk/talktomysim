@@ -4,8 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import SimpleFooter from "@/components/SimpleFooter";
 import { useNavigate } from "react-router-dom";
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { AppSidebar } from "@/components/AppSidebar";
+import { TopNavBar } from "@/components/TopNavBar";
 
 import { useToast } from "@/hooks/use-toast";
 
@@ -31,11 +30,9 @@ const WhitePaper = () => {
   };
 
   return (
-    <SidebarProvider>
-      <div className="min-h-screen bg-background flex w-full">
-        <AppSidebar />
-        <div className="flex-1 flex flex-col min-h-screen">
-          <div className="flex-1">
+    <div className="min-h-screen bg-background flex flex-col w-full">
+      <TopNavBar />
+      <div className="flex-1">
         <div className="max-w-4xl mx-auto px-6 py-12">
         {/* Hero Section */}
         <div className="text-center mb-16">
@@ -573,9 +570,7 @@ const WhitePaper = () => {
         </div>
       </div>
       <SimpleFooter />
-        </div>
-      </div>
-    </SidebarProvider>
+    </div>
   );
 };
 

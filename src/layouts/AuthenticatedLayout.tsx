@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
-import { AppSidebar } from '@/components/AppSidebar';
+import { TopNavBar } from '@/components/TopNavBar';
 import { Card } from '@/components/ui/card';
 
 export const AuthenticatedLayout = () => {
@@ -45,15 +44,13 @@ export const AuthenticatedLayout = () => {
   }
 
   return (
-    <SidebarProvider defaultOpen={true}>
-      <div className="min-h-screen w-full flex bg-black">
-        <AppSidebar />
-        
-        {/* Main Content Area - No extra header */}
-        <main className="flex-1 overflow-auto">
-          <Outlet />
-        </main>
-      </div>
-    </SidebarProvider>
+    <div className="min-h-screen w-full flex flex-col bg-black">
+      <TopNavBar />
+      
+      {/* Main Content Area */}
+      <main className="flex-1 overflow-auto">
+        <Outlet />
+      </main>
+    </div>
   );
 };
