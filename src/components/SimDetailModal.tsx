@@ -323,14 +323,6 @@ const SimDetailModal = ({ sim, open, onOpenChange, onAuthRequired }: SimDetailMo
             </p>
           </div>
 
-          {/* Price */}
-          <div className="mb-6 flex items-center justify-center gap-2">
-            <span className="text-sm text-muted-foreground">Price:</span>
-            <span className={`text-lg font-semibold ${priceInfo.isFree ? 'text-green-500' : 'text-primary'}`}>
-              {priceInfo.display}
-            </span>
-          </div>
-
           {/* Launch/Add Sim Button */}
           <Button
             size="lg"
