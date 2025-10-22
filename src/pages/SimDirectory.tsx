@@ -195,16 +195,8 @@ const SimDirectory = () => {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search sims by name, title, or description..."
-                className="pl-12 h-12 text-base dark:border-gray-700 border-input"
-                style={{ 
-                  backgroundColor: 'rgb(255, 255, 255)',
-                }}
+                className="pl-12 h-12 text-base"
               />
-              <style>{`
-                .dark input[type="text"] {
-                  background-color: rgb(31, 41, 55) !important;
-                }
-              `}</style>
             </div>
           </div>
 
