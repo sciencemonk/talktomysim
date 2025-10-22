@@ -102,9 +102,7 @@ const Landing = () => {
         channelConfigs: {},
         isPersonal: false,
         voiceTraits: [],
-        twitter_url: data.twitter_url,
-        website_url: data.website_url,
-        crypto_wallet: data.crypto_wallet,
+        social_links: data.social_links as any,
         background_image_url: data.background_image_url
       } as AgentType;
     },
@@ -172,9 +170,7 @@ const Landing = () => {
           category: sim.category || (!sim.user_id ? 'historical' : 'uncategorized'),
           user_id: sim.user_id,
           user_count: userCount,
-          twitter_url: sim.twitter_url,
-          website_url: sim.website_url,
-          crypto_wallet: sim.crypto_wallet,
+          social_links: sim.social_links as any,
           background_image_url: sim.background_image_url
         } as AgentType & { user_id?: string; category?: string; user_count?: number };
       });

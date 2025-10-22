@@ -63,6 +63,7 @@ const ChatWithSim = () => {
               updatedAt: data.updated_at,
               avatar: data.avatar_url,
               welcome_message: data.welcome_message,
+              social_links: data.social_links as any,
               sim_type: (data.sim_type === 'living' ? 'living' : 'historical') as 'historical' | 'living'
             };
             setSelectedSim(agent);
@@ -116,9 +117,7 @@ const ChatWithSim = () => {
         channelConfigs: {},
         isPersonal: false,
         voiceTraits: [],
-        twitter_url: data.twitter_url,
-        website_url: data.website_url,
-        crypto_wallet: data.crypto_wallet,
+        social_links: data.social_links as any,
         background_image_url: data.background_image_url
       } as AgentType;
     },

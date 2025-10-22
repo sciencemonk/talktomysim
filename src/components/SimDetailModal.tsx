@@ -488,12 +488,12 @@ const SimDetailModal = ({ sim, open, onOpenChange, onAuthRequired }: SimDetailMo
             </div>
           )}
 
-          {/* Social Links & Wallet */}
-          {(sim.twitter_url || sim.website_url || sim.crypto_wallet) && (
+          {/* Social Links */}
+          {sim.social_links && (sim.social_links.x || sim.social_links.website || sim.social_links.telegram) && (
             <div className="flex flex-col gap-2 pt-3 border-t border-border">
-              {sim.twitter_url && (
+              {sim.social_links.x && (
                 <a
-                  href={sim.twitter_url.startsWith('http') ? sim.twitter_url : `https://${sim.twitter_url}`}
+                  href={sim.social_links.x.startsWith('http') ? sim.social_links.x : `https://${sim.social_links.x}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-2 w-full px-3 py-2.5 rounded-xl bg-accent/10 hover:bg-accent/20 border border-border hover:border-primary transition-all duration-300 group"
@@ -506,9 +506,9 @@ const SimDetailModal = ({ sim, open, onOpenChange, onAuthRequired }: SimDetailMo
                 </a>
               )}
 
-              {sim.website_url && (
+              {sim.social_links.website && (
                 <a
-                  href={sim.website_url.startsWith('http') ? sim.website_url : `https://${sim.website_url}`}
+                  href={sim.social_links.website.startsWith('http') ? sim.social_links.website : `https://${sim.social_links.website}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-2 w-full px-3 py-2.5 rounded-xl bg-accent/10 hover:bg-accent/20 border border-border hover:border-primary transition-all duration-300 group"
@@ -519,31 +519,19 @@ const SimDetailModal = ({ sim, open, onOpenChange, onAuthRequired }: SimDetailMo
                 </a>
               )}
 
-              {sim.crypto_wallet && (
-                <button
-                  onClick={() => {
-                    navigator.clipboard.writeText(sim.crypto_wallet || '');
-                    setWalletCopied(true);
-                    setTimeout(() => setWalletCopied(false), 2000);
-                    toast({
-                      title: "Copied!",
-                      description: "Wallet address copied to clipboard"
-                    });
-                  }}
-                  className="flex items-center justify-between gap-2 w-full px-3 py-2.5 rounded-xl bg-accent/10 hover:bg-accent/20 border border-border hover:border-primary transition-all duration-300 group"
+              {sim.social_links.telegram && (
+                <a
+                  href={sim.social_links.telegram.startsWith('http') ? sim.social_links.telegram : `https://${sim.social_links.telegram}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 w-full px-3 py-2.5 rounded-xl bg-accent/10 hover:bg-accent/20 border border-border hover:border-primary transition-all duration-300 group"
                 >
-                  <div className="flex items-center gap-2 min-w-0">
-                    <Wallet className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors flex-shrink-0" />
-                    <span className="text-xs font-mono text-muted-foreground group-hover:text-foreground transition-colors truncate">
-                      {sim.crypto_wallet}
-                    </span>
-                  </div>
-                  {walletCopied ? (
-                    <Check className="h-3.5 w-3.5 text-green-500 flex-shrink-0" />
-                  ) : (
-                    <Copy className="h-3.5 w-3.5 text-muted-foreground group-hover:text-foreground transition-colors flex-shrink-0" />
-                  )}
-                </button>
+                  <svg className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="m12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm5.894 8.221-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.18-.357.295-.6.295-.002 0-.003 0-.005 0l.213-3.054 5.56-5.022c.24-.213-.054-.334-.373-.121l-6.869 4.326-2.96-.924c-.64-.203-.658-.64.135-.954l11.566-4.458c.538-.196 1.006.128.832.941z"/>
+                  </svg>
+                  <span className="text-sm font-medium group-hover:text-foreground transition-colors">Join Telegram</span>
+                  <ExternalLink className="h-3.5 w-3.5 text-muted-foreground group-hover:text-foreground transition-colors ml-auto flex-shrink-0" />
+                </a>
               )}
             </div>
           )}

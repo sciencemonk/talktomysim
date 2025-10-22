@@ -18,12 +18,19 @@ export interface AgentChannelConfig {
   config?: Record<string, any>;
 }
 
+export interface SocialLinks {
+  x?: string;
+  website?: string;
+  telegram?: string;
+}
+
 export interface AgentType {
   twitter_url?: string;
   website_url?: string;
   crypto_wallet?: string;
   background_image_url?: string;
   welcome_message?: string;
+  social_links?: SocialLinks;
   id: string;
   name: string;
   description: string;

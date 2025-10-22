@@ -37,10 +37,8 @@ export const fetchAdvisorById = async (id: string): Promise<AgentType> => {
     title: advisor.title, // Include the title field from advisors table
     welcome_message: advisor.welcome_message,
     is_featured: false, // Default to false since advisors table doesn't have this field yet
-    // Social links and wallet
-    twitter_url: advisor.twitter_url,
-    website_url: advisor.website_url,
-    crypto_wallet: advisor.crypto_wallet,
+    // Social links from JSON field - cast to SocialLinks
+    social_links: advisor.social_links as any,
     background_image_url: advisor.background_image_url,
     custom_url: advisor.custom_url,
     auto_description: advisor.auto_description,
