@@ -591,15 +591,15 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
               </div>
 
               {/* Edit Code Display */}
-              <div className="p-6 rounded-xl bg-gradient-to-r from-primary/10 via-primary/5 to-primary/10 border-2 border-primary/20">
+              <div className="p-6 rounded-xl bg-gradient-to-r from-[#82f2aa]/10 via-[#82f2aa]/5 to-[#82f2aa]/10 border-2 border-[#82f2aa]/20">
                 <div className="space-y-3">
                   <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+                    <div className="w-2 h-2 rounded-full bg-[#82f2aa] animate-pulse" />
                     <h3 className="font-semibold text-lg">Your Sim Edit Code</h3>
                   </div>
                   <div className="flex items-center justify-between gap-4 p-4 bg-background/50 rounded-lg border border-border">
                     <div className="flex-1">
-                      <p className="text-3xl font-mono font-bold tracking-wider text-primary">{editCode}</p>
+                      <p className="text-3xl font-mono font-bold tracking-wider text-[#82f2aa]">{editCode}</p>
                     </div>
                     <Button
                       type="button"
