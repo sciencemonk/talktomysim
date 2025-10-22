@@ -276,7 +276,7 @@ const SimDetailModal = ({ sim, open, onOpenChange, onAuthRequired }: SimDetailMo
       onOpenChange(open);
       if (!open) setShowChat(false); // Reset chat when modal closes
     }}>
-      <DialogContent className="max-w-xl p-0 overflow-hidden border-2 h-[100dvh] max-h-[100dvh] sm:h-[90vh] sm:max-h-[90vh] w-full sm:w-auto">
+      <DialogContent className="max-w-xl p-0 overflow-hidden border-2 h-auto max-h-[95vh] w-full sm:w-auto">
         {showChat ? (
           <div className="flex flex-col h-full">
             <div className="flex items-center justify-between p-3 sm:p-4 border-b flex-shrink-0">
@@ -303,7 +303,7 @@ const SimDetailModal = ({ sim, open, onOpenChange, onAuthRequired }: SimDetailMo
             </div>
           </div>
         ) : (
-          <div className="backdrop-blur-xl bg-card/50 rounded-lg p-6 sm:p-8 max-h-[80vh] overflow-y-auto relative">
+          <div className="backdrop-blur-xl bg-card/50 rounded-lg p-6 overflow-y-auto relative">
           {/* Close Button - Top Right */}
           <Button
             variant="ghost"
@@ -315,8 +315,8 @@ const SimDetailModal = ({ sim, open, onOpenChange, onAuthRequired }: SimDetailMo
           </Button>
 
           {/* Avatar */}
-          <div className="flex justify-center mb-6">
-            <div className="relative w-32 h-32 sm:w-40 sm:h-40">
+          <div className="flex justify-center mb-4">
+            <div className="relative w-28 h-28 sm:w-32 sm:h-32">
               <div className="absolute inset-0 bg-primary/20 rounded-2xl blur-xl" />
               <img 
                 src={getAvatarUrl(sim.avatar)} 
@@ -327,9 +327,9 @@ const SimDetailModal = ({ sim, open, onOpenChange, onAuthRequired }: SimDetailMo
           </div>
 
           {/* Name and Description */}
-          <div className="text-center space-y-3 mb-6">
-            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">{sim.name}</h1>
-            <p className="text-sm sm:text-base text-muted-foreground leading-relaxed px-2">
+          <div className="text-center space-y-2 mb-4">
+            <h1 className="text-xl sm:text-2xl font-bold tracking-tight">{sim.name}</h1>
+            <p className="text-sm text-muted-foreground leading-relaxed px-2">
               {getSimDescription()}
             </p>
           </div>
@@ -337,16 +337,16 @@ const SimDetailModal = ({ sim, open, onOpenChange, onAuthRequired }: SimDetailMo
           {/* Launch/Add Sim Button */}
           <Button
             size="lg"
-            className="w-full h-12 text-base font-semibold shadow-xl hover:shadow-2xl transition-all duration-300 mb-3 group"
+            className="w-full h-11 text-base font-semibold shadow-xl hover:shadow-2xl transition-all duration-300 mb-3 group"
             onClick={handleLaunchSim}
             disabled={isAddingSim}
           >
-            <MessageCircle className="h-5 w-5 mr-2 group-hover:scale-110 transition-transform" />
+            <MessageCircle className="h-4 w-4 mr-2 group-hover:scale-110 transition-transform" />
             {isAddingSim ? 'Adding...' : (isSignedIn ? 'Add Sim' : 'Launch Sim')}
           </Button>
 
           {/* Action Buttons Row */}
-          <div className="grid grid-cols-2 gap-2 mb-4">
+          <div className="grid grid-cols-2 gap-2 mb-3">
             <Button
               size="sm"
               variant="outline"
@@ -381,7 +381,7 @@ const SimDetailModal = ({ sim, open, onOpenChange, onAuthRequired }: SimDetailMo
 
           {/* Embed Code Section */}
           {showEmbedCode && (
-            <div ref={embedCodeRef} className="mb-4 p-3 rounded-lg bg-muted/50 border border-border">
+            <div ref={embedCodeRef} className="mb-3 p-3 rounded-lg bg-muted/50 border border-border">
               <div className="flex items-center justify-between mb-2">
                 <h3 className="font-semibold text-xs">Embed Code</h3>
                 <Button
@@ -421,7 +421,7 @@ const SimDetailModal = ({ sim, open, onOpenChange, onAuthRequired }: SimDetailMo
 
           {/* Social Links & Wallet */}
           {(sim.twitter_url || sim.website_url || sim.crypto_wallet) && (
-            <div className="flex flex-col gap-2 pb-4 border-b border-border mb-4">
+            <div className="flex flex-col gap-2 pt-3 border-t border-border">
               {sim.twitter_url && (
                 <a
                   href={sim.twitter_url.startsWith('http') ? sim.twitter_url : `https://${sim.twitter_url}`}
