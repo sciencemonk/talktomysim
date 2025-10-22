@@ -22,6 +22,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useTheme } from "@/hooks/useTheme";
 
 const Landing = () => {
   const navigate = useNavigate();
@@ -33,6 +34,7 @@ const Landing = () => {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [sortBy, setSortBy] = useState<'popular' | 'newest' | 'name'>('newest');
   const isMobile = useIsMobile();
+  const { theme } = useTheme();
 
   // Check for signin query param
   useEffect(() => {
@@ -288,7 +290,11 @@ const Landing = () => {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search sims by name, title, or description..."
-                  className="pl-12 h-12 text-base"
+                  className="pl-12 h-12 text-base border-input"
+                  style={{
+                    backgroundColor: theme === 'dark' ? 'rgb(31, 41, 55)' : 'rgb(255, 255, 255)',
+                    color: theme === 'dark' ? 'rgb(255, 255, 255)' : 'rgb(0, 0, 0)'
+                  }}
                 />
               </div>
             </div>

@@ -16,6 +16,7 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useNavigate } from 'react-router-dom';
+import { useTheme } from '@/hooks/useTheme';
 
 type FilterType = 'all' | 'free' | 'paid';
 type SortType = 'popular' | 'newest' | 'name';
@@ -44,6 +45,7 @@ const SimDirectory = () => {
   const isMobile = useIsMobile();
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { theme } = useTheme();
 
   const { data: allSims, isLoading } = useQuery({
     queryKey: ['all-sims-directory'],
@@ -195,7 +197,11 @@ const SimDirectory = () => {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search sims by name, title, or description..."
-                className="pl-12 h-12 text-base"
+                className="pl-12 h-12 text-base border-input"
+                style={{
+                  backgroundColor: theme === 'dark' ? 'rgb(31, 41, 55)' : 'rgb(255, 255, 255)',
+                  color: theme === 'dark' ? 'rgb(255, 255, 255)' : 'rgb(0, 0, 0)'
+                }}
               />
             </div>
           </div>
