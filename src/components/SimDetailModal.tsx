@@ -21,6 +21,7 @@ import { useToast } from "@/hooks/use-toast";
 import { getAvatarUrl } from "@/lib/avatarUtils";
 import { toast as sonnerToast } from "sonner";
 import PublicChatInterface from "@/components/PublicChatInterface";
+import EditSimModal from "@/components/EditSimModal";
 
 interface SimDetailModalProps {
   sim: AgentType | null;
@@ -43,6 +44,7 @@ const SimDetailModal = ({ sim, open, onOpenChange, onAuthRequired }: SimDetailMo
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [editCode, setEditCode] = useState("");
   const [isValidatingCode, setIsValidatingCode] = useState(false);
+  const [showEditSimModal, setShowEditSimModal] = useState(false);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -309,9 +311,8 @@ const SimDetailModal = ({ sim, open, onOpenChange, onAuthRequired }: SimDetailMo
       if (simData.edit_code === editCode) {
         sonnerToast.success("Access granted!");
         setShowEditDialog(false);
-        onOpenChange(false);
-        // Navigate to edit page with sim ID
-        navigate(`/edit-sim-page?sim=${sim.id}`);
+        // Open the edit sim modal
+        setShowEditSimModal(true);
       } else {
         sonnerToast.error("Invalid edit code");
       }
@@ -566,7 +567,7 @@ const SimDetailModal = ({ sim, open, onOpenChange, onAuthRequired }: SimDetailMo
               maxLength={6}
               value={editCode}
               onChange={(e) => setEditCode(e.target.value.replace(/\D/g, ''))}
-              className="text-center text-2xl tracking-widest font-mono"
+              className="text-center text-2xl tracking-widest font-mono bg-background text-foreground"
               autoFocus
               onKeyDown={(e) => {
                 if (e.key === 'Enter' && editCode.length === 6) {
@@ -586,6 +587,20 @@ const SimDetailModal = ({ sim, open, onOpenChange, onAuthRequired }: SimDetailMo
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Edit Sim Modal */}
+      {sim && (
+        <EditSimModal
+          open={showEditSimModal}
+          onOpenChange={(open) => {
+            setShowEditSimModal(open);
+            if (!open) {
+              onOpenChange(false);
+            }
+          }}
+          simId={sim.id}
+        />
+      )}
     </Dialog>
   );
 };
