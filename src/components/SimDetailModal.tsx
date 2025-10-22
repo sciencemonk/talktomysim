@@ -1,10 +1,21 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Globe, Wallet, ExternalLink, Copy, Check, MessageCircle, Share2, ArrowLeft, X } from "lucide-react";
+import { Globe, Wallet, ExternalLink, Copy, Check, MessageCircle, Share2, ArrowLeft, X, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { Input } from "@/components/ui/input";
 import { AgentType } from "@/types/agent";
 import { useToast } from "@/hooks/use-toast";
 import { getAvatarUrl } from "@/lib/avatarUtils";
@@ -29,6 +40,9 @@ const SimDetailModal = ({ sim, open, onOpenChange, onAuthRequired }: SimDetailMo
   const [showEmbedCode, setShowEmbedCode] = useState(false);
   const [embedCodeCopied, setEmbedCodeCopied] = useState(false);
   const embedCodeRef = useRef<HTMLDivElement>(null);
+  const [showEditDialog, setShowEditDialog] = useState(false);
+  const [editCode, setEditCode] = useState("");
+  const [isValidatingCode, setIsValidatingCode] = useState(false);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -266,6 +280,49 @@ const SimDetailModal = ({ sim, open, onOpenChange, onAuthRequired }: SimDetailMo
     }
   };
 
+  const handleEditClick = () => {
+    setShowEditDialog(true);
+    setEditCode("");
+  };
+
+  const handleValidateEditCode = async () => {
+    if (!sim || !editCode) return;
+
+    // Validate format (6 digits)
+    if (!/^\d{6}$/.test(editCode)) {
+      sonnerToast.error("Please enter a valid 6-digit code");
+      return;
+    }
+
+    setIsValidatingCode(true);
+    try {
+      // Fetch the sim's edit_code from the database
+      const { data: simData, error } = await supabase
+        .from('advisors')
+        .select('edit_code')
+        .eq('id', sim.id)
+        .single();
+
+      if (error) throw error;
+
+      // Check if the code matches
+      if (simData.edit_code === editCode) {
+        sonnerToast.success("Access granted!");
+        setShowEditDialog(false);
+        onOpenChange(false);
+        // Navigate to edit page with sim ID
+        navigate(`/edit-sim-page?sim=${sim.id}`);
+      } else {
+        sonnerToast.error("Invalid edit code");
+      }
+    } catch (error) {
+      console.error('Error validating edit code:', error);
+      sonnerToast.error("Failed to validate code");
+    } finally {
+      setIsValidatingCode(false);
+    }
+  };
+
   if (!sim) return null;
 
   const simDescription = getSimDescription();
@@ -304,15 +361,26 @@ const SimDetailModal = ({ sim, open, onOpenChange, onAuthRequired }: SimDetailMo
           </div>
         ) : (
           <div className="backdrop-blur-xl bg-card/50 rounded-lg p-6 overflow-y-auto relative">
-          {/* Close Button - Top Right */}
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => onOpenChange(false)}
-            className="absolute top-2 right-2 h-8 w-8 rounded-full hover:bg-accent z-10"
-          >
-            <X className="h-4 w-4" />
-          </Button>
+          {/* Action Buttons - Top Right */}
+          <div className="absolute top-2 right-2 flex gap-1 z-10">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={handleEditClick}
+              className="h-8 w-8 rounded-full hover:bg-accent"
+              title="Edit Sim"
+            >
+              <Pencil className="h-3.5 w-3.5" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => onOpenChange(false)}
+              className="h-8 w-8 rounded-full hover:bg-accent"
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
 
           {/* Avatar */}
           <div className="flex justify-center mb-4">
@@ -481,6 +549,43 @@ const SimDetailModal = ({ sim, open, onOpenChange, onAuthRequired }: SimDetailMo
           </div>
         )}
       </DialogContent>
+
+      {/* Edit Code Dialog */}
+      <AlertDialog open={showEditDialog} onOpenChange={setShowEditDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Enter Edit Code</AlertDialogTitle>
+            <AlertDialogDescription>
+              Please enter the 6-digit edit code to modify this Sim.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="py-4">
+            <Input
+              type="text"
+              placeholder="000000"
+              maxLength={6}
+              value={editCode}
+              onChange={(e) => setEditCode(e.target.value.replace(/\D/g, ''))}
+              className="text-center text-2xl tracking-widest font-mono"
+              autoFocus
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && editCode.length === 6) {
+                  handleValidateEditCode();
+                }
+              }}
+            />
+          </div>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isValidatingCode}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleValidateEditCode}
+              disabled={editCode.length !== 6 || isValidatingCode}
+            >
+              {isValidatingCode ? "Validating..." : "Confirm"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Dialog>
   );
 };

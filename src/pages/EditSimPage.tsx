@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2, Upload, Globe, Wallet, X, Menu, Copy, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -14,6 +14,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 
 const EditSimPage = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const isMobile = useIsMobile();
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -34,29 +35,56 @@ const EditSimPage = () => {
 
   const checkUserAndLoadSim = async () => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        navigate('/login');
-        return;
-      }
+      // Check if there's a sim ID in the URL
+      const simId = searchParams.get('sim');
 
-      setCurrentUser(user);
+      if (simId) {
+        // Load specific sim by ID (for edit code access)
+        const { data: sim, error } = await supabase
+          .from('advisors')
+          .select('*')
+          .eq('id', simId)
+          .eq('is_active', true)
+          .maybeSingle();
 
-      const { data: sim, error } = await supabase
-        .from('advisors')
-        .select('*')
-        .eq('user_id', user.id)
-        .eq('is_active', true)
-        .maybeSingle();
+        if (error) throw error;
 
-      if (error) throw error;
+        if (sim) {
+          setUserSim(sim);
+          setBackgroundImage(sim.background_image_url || "");
+          setTwitterUrl(sim.twitter_url || "");
+          setWebsiteUrl(sim.website_url || "");
+          setCryptoWallet(sim.crypto_wallet || "");
+        } else {
+          toast.error('Sim not found');
+          navigate('/');
+        }
+      } else {
+        // Original behavior: load user's own sim
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
+          navigate('/login');
+          return;
+        }
 
-      if (sim) {
-        setUserSim(sim);
-        setBackgroundImage(sim.background_image_url || "");
-        setTwitterUrl(sim.twitter_url || "");
-        setWebsiteUrl(sim.website_url || "");
-        setCryptoWallet(sim.crypto_wallet || "");
+        setCurrentUser(user);
+
+        const { data: sim, error } = await supabase
+          .from('advisors')
+          .select('*')
+          .eq('user_id', user.id)
+          .eq('is_active', true)
+          .maybeSingle();
+
+        if (error) throw error;
+
+        if (sim) {
+          setUserSim(sim);
+          setBackgroundImage(sim.background_image_url || "");
+          setTwitterUrl(sim.twitter_url || "");
+          setWebsiteUrl(sim.website_url || "");
+          setCryptoWallet(sim.crypto_wallet || "");
+        }
       }
     } catch (error) {
       console.error('Error loading sim:', error);
