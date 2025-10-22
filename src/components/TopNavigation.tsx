@@ -6,7 +6,6 @@ import { LogOut, LogIn, Home, Folder, Radio, MessageCircle } from "lucide-react"
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
 import AuthModal from "./AuthModal";
-import simLogo from "@/assets/sim-logo.png";
 
 interface TopNavigationProps {
   showLiveIndicator?: boolean;
@@ -55,9 +54,12 @@ const TopNavigation = ({ showLiveIndicator = false }: TopNavigationProps) => {
             className="flex items-center hover:opacity-80 transition-opacity flex-shrink-0"
           >
             <img 
-              src={simLogo} 
+              src="/sim-logo.png" 
               alt="Sim Logo" 
               className="h-8 w-8 object-contain"
+              onError={(e) => {
+                e.currentTarget.style.display = 'none';
+              }}
             />
           </Link>
           

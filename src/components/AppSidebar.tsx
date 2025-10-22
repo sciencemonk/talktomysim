@@ -19,7 +19,6 @@ import {
   RotateCcw
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import simLogo from "@/assets/sim-logo.png";
 import {
   Sidebar,
   SidebarContent,
@@ -474,9 +473,12 @@ export function AppSidebar() {
             className="flex items-center gap-2 px-2 hover:opacity-80 transition-opacity"
           >
             <img 
-              src={simLogo} 
+              src="/sim-logo.png" 
               alt="Sim Logo" 
               className="h-8 w-8 object-contain"
+              onError={(e) => {
+                e.currentTarget.style.display = 'none';
+              }}
             />
           </button>
 

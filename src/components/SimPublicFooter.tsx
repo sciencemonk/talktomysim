@@ -1,5 +1,4 @@
 import { useToast } from "@/hooks/use-toast";
-import simLogo from "@/assets/sim-logo.png";
 
 const SimPublicFooter = () => {
   const { toast } = useToast();
@@ -33,9 +32,12 @@ const SimPublicFooter = () => {
             className="hover:opacity-80 transition-opacity"
           >
             <img 
-              src={simLogo} 
+              src="/sim-logo.png" 
               alt="Sim" 
               className="h-8 w-8 object-contain"
+              onError={(e) => {
+                e.currentTarget.style.display = 'none';
+              }}
             />
           </a>
         </div>

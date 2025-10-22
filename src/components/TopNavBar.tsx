@@ -15,7 +15,6 @@ import AuthModal from "./AuthModal";
 import { CreateSimModal } from "./CreateSimModal";
 import { useQueryClient } from "@tanstack/react-query";
 import { ThemeToggle } from "./ThemeToggle";
-import simLogo from "@/assets/sim-logo-new.png";
 
 export const TopNavBar = () => {
   const navigate = useNavigate();
@@ -61,9 +60,12 @@ export const TopNavBar = () => {
               >
                 <div className="dark:bg-white rounded-lg p-1">
                   <img 
-                    src={simLogo} 
+                    src="/sim-logo-new.png" 
                     alt="Sim Logo" 
                     className="h-[32px] w-[32px] sm:h-[38px] sm:w-[38px] object-contain"
+                    onError={(e) => {
+                      e.currentTarget.src = "/sim-logo.png";
+                    }}
                   />
                 </div>
               </button>
