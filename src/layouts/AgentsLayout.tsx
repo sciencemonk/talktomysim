@@ -16,19 +16,11 @@ const AgentsLayout = () => {
               <div className="flex items-center gap-2">
                 <SidebarTrigger />
                 <img 
-                  src="/sim-logo-light.png" 
+                  src="/sim-logo.png" 
                   alt="Sim Logo" 
-                  className="h-8 w-8 object-contain md:hidden dark:hidden"
+                  className="h-8 w-8 object-contain md:hidden"
                   onError={(e) => {
-                    e.currentTarget.src = '/sim-logo.png';
-                  }}
-                />
-                <img 
-                  src="/sim-logo-dark.png" 
-                  alt="Sim Logo" 
-                  className="h-8 w-8 object-contain md:hidden hidden dark:block"
-                  onError={(e) => {
-                    e.currentTarget.src = '/sim-logo.png';
+                    e.currentTarget.style.display = 'none';
                   }}
                 />
               </div>
