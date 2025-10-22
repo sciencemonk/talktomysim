@@ -58,13 +58,11 @@ export const TopNavBar = () => {
                 onClick={() => navigate('/')}
                 className="flex items-center hover:opacity-80 transition-opacity"
               >
-                <div className="dark:bg-white rounded-lg p-1">
-                  <img 
-                    src="/sim-logo.png" 
-                    alt="Sim Logo" 
-                    className="h-[32px] w-[32px] sm:h-[38px] sm:w-[38px] object-contain"
-                  />
-                </div>
+                <img 
+                  src="/sim-logo-new.png" 
+                  alt="Sim Logo" 
+                  className="h-[32px] w-[32px] sm:h-[38px] sm:w-[38px] object-contain"
+                />
               </button>
             </div>
 
