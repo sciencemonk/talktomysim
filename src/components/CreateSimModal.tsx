@@ -192,26 +192,19 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
     setIsSubmitting(true);
 
     try {
+      // Check if user is authenticated (optional - sims can be created without auth)
       const {
         data: { user },
       } = await supabase.auth.getUser();
-      if (!user) {
-        setIsSubmitting(false);
-        onOpenChange(false);
-        if (onAuthRequired) {
-          onAuthRequired();
-        } else {
-          toast.error("Please sign in to create a Sim");
-        }
-        return;
-      }
 
       let avatarUrl = null;
 
       // Upload avatar if provided
       if (avatarFile) {
         const fileExt = avatarFile.name.split(".").pop();
-        const fileName = `${user.id}-${Date.now()}.${fileExt}`;
+        // Use user ID if available, otherwise use timestamp for anonymous uploads
+        const uniqueId = user?.id || `anon-${Date.now()}`;
+        const fileName = `${uniqueId}-${Date.now()}.${fileExt}`;
         const filePath = `avatars/${fileName}`;
 
         const { error: uploadError } = await supabase.storage.from("avatars").upload(filePath, avatarFile);
@@ -276,7 +269,7 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
       const { data: newSim, error: insertError } = await supabase
         .from("advisors")
         .insert({
-          user_id: user.id,
+          user_id: user?.id || null, // Set to null if no user
           name: name.trim(),
           category: category || null,
           description: description.trim(),
@@ -296,8 +289,8 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
 
       if (insertError) throw insertError;
 
-      // Automatically add to user's advisors list
-      if (newSim) {
+      // Automatically add to user's advisors list (only if user is authenticated)
+      if (newSim && user) {
         const { error: userAdvisorError } = await supabase.from("user_advisors").insert({
           user_id: user.id,
           advisor_id: newSim.id,
@@ -335,15 +328,13 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
       setTelegramLink("");
       setSocialLinksOpen(false);
 
-      // Call onSuccess to refresh queries and then navigate
+      // Call onSuccess to refresh queries
       if (onSuccess) {
         await onSuccess();
       }
 
-      // Navigate to the new sim's chat after a brief delay to allow queries to refresh
-      setTimeout(() => {
-        navigate(`/home?sim=${newSim.id}`);
-      }, 100);
+      // Navigate to home page
+      navigate("/");
     } catch (error) {
       console.error("Error creating sim:", error);
       toast.error("Failed to create Sim");
