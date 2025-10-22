@@ -175,7 +175,8 @@ const LiveStream = () => {
           <Card className="p-6">
             <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
               <Avatar className="h-6 w-6">
-                <AvatarImage src="/sim-logo.png" />
+                <AvatarImage src="/sim-logo-light.png" className="dark:hidden" />
+                <AvatarImage src="/sim-logo-dark.png" className="hidden dark:block" />
                 <AvatarFallback>AI</AvatarFallback>
               </Avatar>
               Chat with Sim AI
