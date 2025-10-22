@@ -148,11 +148,11 @@ const ChatWithSim = () => {
             </SidebarTrigger>
             <div className="flex items-center gap-2">
               <img 
-                src="/sim-logo.png" 
+                src="/sim-logo-light.png" 
                 alt="Sim Logo" 
                 className="h-8 w-8 object-contain dark:hidden"
                 onError={(e) => {
-                  e.currentTarget.style.display = 'none';
+                  e.currentTarget.src = '/sim-logo.png';
                 }}
               />
               <img 

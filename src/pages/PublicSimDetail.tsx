@@ -627,11 +627,11 @@ const PublicSimDetail = () => {
                   className="hover:opacity-80 transition-opacity"
                 >
                   <img 
-                    src="/sim-logo.png" 
+                    src="/sim-logo-light.png" 
                     alt="Sim" 
                     className="h-5 w-5 object-contain dark:hidden"
                     onError={(e) => {
-                      e.currentTarget.style.display = 'none';
+                      e.currentTarget.src = '/sim-logo.png';
                     }}
                   />
                   <img 

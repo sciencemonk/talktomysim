@@ -59,7 +59,7 @@ export const TopNavBar = () => {
                 className="flex items-center hover:opacity-80 transition-opacity"
               >
                 <img 
-                  src="/sim-logo-new.png" 
+                  src="/sim-logo-light.png" 
                   alt="Sim Logo" 
                   className="h-[32px] w-[32px] sm:h-[38px] sm:w-[38px] object-contain dark:hidden"
                   onError={(e) => {
