@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, DragEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Loader2, Upload, Sparkles, ArrowLeft } from "lucide-react";
+import { Loader2, Upload, Sparkles, ArrowLeft, ImagePlus } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Switch } from "@/components/ui/switch";
@@ -47,6 +47,7 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
   const [isGenerating, setIsGenerating] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedIntegrations, setSelectedIntegrations] = useState<string[]>([]);
+  const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const availableIntegrations = [
@@ -87,12 +88,44 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
   const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      setAvatarFile(file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setAvatarPreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+      processAvatarFile(file);
+    }
+  };
+
+  const processAvatarFile = (file: File) => {
+    if (!file.type.startsWith('image/')) {
+      toast.error("Please upload an image file");
+      return;
+    }
+    
+    setAvatarFile(file);
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setAvatarPreview(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleDragOver = (e: DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e: DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+
+    const file = e.dataTransfer.files?.[0];
+    if (file) {
+      processAvatarFile(file);
     }
   };
 
@@ -352,11 +385,15 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto p-0">
+      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto p-0 border-border/50 bg-gradient-to-br from-background via-background to-muted/20">
         {step === 1 ? (
           <div className="space-y-8 p-8">
-            <div className="space-y-2">
-              <h2 className="text-2xl font-semibold tracking-tight">Create New Sim</h2>
+            {/* Header with gradient accent */}
+            <div className="space-y-3 relative">
+              <div className="absolute -top-4 -left-4 w-32 h-32 bg-primary/10 rounded-full blur-3xl" />
+              <h2 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-foreground via-foreground to-primary bg-clip-text text-transparent">
+                Create New Sim
+              </h2>
               <p className="text-sm text-muted-foreground">
                 Build an AI sim with custom knowledge, personality, and integrations
               </p>
@@ -364,22 +401,63 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
 
             {/* Sim Identity */}
             <div className="space-y-6">
-              <h3 className="text-sm font-medium text-foreground/80">Identity</h3>
+              <div className="flex items-center gap-2">
+                <div className="h-px flex-1 bg-gradient-to-r from-transparent via-border to-transparent" />
+                <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Identity</h3>
+                <div className="h-px flex-1 bg-gradient-to-r from-transparent via-border to-transparent" />
+              </div>
               
               <div className="flex gap-8 items-start">
+                {/* Avatar Upload with Drag & Drop */}
                 <div className="flex flex-col items-center gap-3">
-                  <Avatar 
-                    className="w-24 h-24 cursor-pointer border border-border/50 hover:border-border transition-colors" 
+                  <div
+                    onDragOver={handleDragOver}
+                    onDragLeave={handleDragLeave}
+                    onDrop={handleDrop}
                     onClick={() => fileInputRef.current?.click()}
+                    className={`
+                      relative w-32 h-32 rounded-full cursor-pointer
+                      transition-all duration-300 ease-out
+                      ${isDragging 
+                        ? 'scale-105 ring-4 ring-primary/50 shadow-lg shadow-primary/25' 
+                        : 'hover:scale-105 hover:shadow-xl'
+                      }
+                      ${avatarPreview 
+                        ? 'ring-2 ring-primary/30' 
+                        : 'ring-2 ring-dashed ring-border hover:ring-primary/50'
+                      }
+                      bg-gradient-to-br from-muted/50 to-muted/20 backdrop-blur-sm
+                      overflow-hidden group
+                    `}
                   >
                     {avatarPreview ? (
-                      <AvatarImage src={avatarPreview} alt="Avatar preview" className="object-cover" />
+                      <>
+                        <img 
+                          src={avatarPreview} 
+                          alt="Avatar preview" 
+                          className="w-full h-full object-cover"
+                        />
+                        <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center">
+                          <ImagePlus className="w-8 h-8 text-white" />
+                        </div>
+                      </>
                     ) : (
-                      <AvatarFallback className="bg-muted/50">
-                        <Upload className="w-6 h-6 text-muted-foreground/50" />
-                      </AvatarFallback>
+                      <div className="absolute inset-0 flex flex-col items-center justify-center gap-2">
+                        <div className={`
+                          transition-all duration-300
+                          ${isDragging ? 'scale-110' : 'group-hover:scale-110'}
+                        `}>
+                          <Upload className={`
+                            w-8 h-8 transition-colors duration-300
+                            ${isDragging ? 'text-primary' : 'text-muted-foreground group-hover:text-primary'}
+                          `} />
+                        </div>
+                        <p className="text-xs text-muted-foreground font-medium text-center px-4">
+                          {isDragging ? 'Drop here' : 'Click or drag'}
+                        </p>
+                      </div>
                     )}
-                  </Avatar>
+                  </div>
                   <input
                     ref={fileInputRef}
                     type="file"
@@ -387,20 +465,11 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
                     onChange={handleAvatarChange}
                     className="hidden"
                   />
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => fileInputRef.current?.click()}
-                    className="text-xs h-8 px-4"
-                  >
-                    Upload
-                  </Button>
                 </div>
 
                 <div className="flex-1 space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="name" className="text-sm font-medium">
+                    <Label htmlFor="name" className="text-sm font-medium flex items-center gap-2">
                       Name <span className="text-destructive">*</span>
                     </Label>
                     <Input
@@ -409,7 +478,7 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
                       onChange={(e) => setName(e.target.value)}
                       placeholder="e.g., Marcus, Dr. Code, Legal Eagle"
                       required
-                      className="h-11"
+                      className="h-12 bg-input-bg border-input-border focus:ring-2 focus:ring-primary/20 transition-all"
                     />
                   </div>
                 </div>
@@ -418,16 +487,20 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
 
             {/* Category */}
             <div className="space-y-4">
-              <h3 className="text-sm font-medium text-foreground/80">Category</h3>
+              <div className="flex items-center gap-2">
+                <div className="h-px flex-1 bg-gradient-to-r from-transparent via-border to-transparent" />
+                <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Category</h3>
+                <div className="h-px flex-1 bg-gradient-to-r from-transparent via-border to-transparent" />
+              </div>
               
               <div className="space-y-2">
                 <Select value={category} onValueChange={setCategory} required>
-                  <SelectTrigger className="h-11">
+                  <SelectTrigger className="h-12 bg-input-bg border-input-border focus:ring-2 focus:ring-primary/20 transition-all">
                     <SelectValue placeholder="Select category" />
                   </SelectTrigger>
-                  <SelectContent className="bg-background z-50">
+                  <SelectContent className="bg-background z-50 border-border/50">
                     {categories.map((cat) => (
-                      <SelectItem key={cat.value} value={cat.value}>
+                      <SelectItem key={cat.value} value={cat.value} className="focus:bg-muted/50">
                         {cat.label}
                       </SelectItem>
                     ))}
@@ -438,7 +511,11 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
 
             {/* Intelligence & Behavior */}
             <div className="space-y-4">
-              <h3 className="text-sm font-medium text-foreground/80">Behavior</h3>
+              <div className="flex items-center gap-2">
+                <div className="h-px flex-1 bg-gradient-to-r from-transparent via-border to-transparent" />
+                <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Behavior</h3>
+                <div className="h-px flex-1 bg-gradient-to-r from-transparent via-border to-transparent" />
+              </div>
               
               <div className="space-y-2">
                 <Label htmlFor="description" className="text-sm font-medium">
@@ -450,25 +527,29 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
                   onChange={(e) => setDescription(e.target.value)}
                   placeholder="What does your Sim do?"
                   rows={3}
-                  className="resize-none"
+                  className="resize-none bg-input-bg border-input-border focus:ring-2 focus:ring-primary/20 transition-all"
                 />
               </div>
             </div>
 
             {/* Integrations */}
             <div className="space-y-4">
-              <div>
-                <h3 className="text-sm font-medium text-foreground/80">Integrations</h3>
-                <p className="text-xs text-muted-foreground mt-1">
-                  Optional capabilities beyond basic chat
-                </p>
+              <div className="flex items-center gap-2">
+                <div className="h-px flex-1 bg-gradient-to-r from-transparent via-border to-transparent" />
+                <div className="text-center">
+                  <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Integrations</h3>
+                  <p className="text-[10px] text-muted-foreground/70 mt-0.5">
+                    Optional capabilities
+                  </p>
+                </div>
+                <div className="h-px flex-1 bg-gradient-to-r from-transparent via-border to-transparent" />
               </div>
 
               <div className="space-y-2">
                 {availableIntegrations.map((integration) => (
                   <div
                     key={integration.id}
-                    className="flex items-start gap-3 p-4 rounded-lg border border-border/50 hover:border-border transition-colors"
+                    className="flex items-start gap-3 p-4 rounded-xl border border-border/50 bg-muted/20 hover:bg-muted/30 hover:border-primary/30 transition-all duration-200"
                   >
                     <Checkbox
                       id={integration.id}
@@ -493,23 +574,22 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
             </div>
 
             {/* Generate Sim Button */}
-            <div className="space-y-4">
+            <div className="pt-4">
               <Button
                 type="button"
-                variant="outline"
-                size="default"
+                size="lg"
                 onClick={handleGeneratePrompt}
                 disabled={isGenerating || !name.trim() || !description.trim() || !category}
-                className="gap-2 w-full h-11"
+                className="gap-2 w-full h-14 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 transition-all duration-300 text-base font-semibold"
               >
                 {isGenerating ? (
                   <>
-                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <Loader2 className="w-5 h-5 animate-spin" />
                     Generating Sim...
                   </>
                 ) : (
                   <>
-                    <Sparkles className="w-4 h-4" />
+                    <Sparkles className="w-5 h-5" />
                     Generate Sim
                   </>
                 )}
@@ -524,14 +604,17 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
                 variant="ghost"
                 size="sm"
                 onClick={handleBack}
-                className="gap-2 -ml-2"
+                className="gap-2 -ml-2 hover:bg-muted/50 transition-colors"
               >
                 <ArrowLeft className="w-4 h-4" />
                 Back
               </Button>
               
-              <div className="space-y-2">
-                <h2 className="text-2xl font-semibold tracking-tight">Review & Create</h2>
+              <div className="space-y-3 relative">
+                <div className="absolute -top-4 -left-4 w-32 h-32 bg-primary/10 rounded-full blur-3xl" />
+                <h2 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-foreground via-foreground to-primary bg-clip-text text-transparent">
+                  Review & Create
+                </h2>
                 <p className="text-sm text-muted-foreground">
                   Review and edit your sim's generated content
                 </p>
@@ -539,60 +622,68 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
             </div>
 
             {/* Welcome Message */}
-            <div className="space-y-2">
-              <Label htmlFor="welcome-message" className="text-sm font-medium">
-                Welcome Message
-              </Label>
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <div className="h-px flex-1 bg-gradient-to-r from-transparent via-border to-transparent" />
+                <Label htmlFor="welcome-message" className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                  Welcome Message
+                </Label>
+                <div className="h-px flex-1 bg-gradient-to-r from-transparent via-border to-transparent" />
+              </div>
               <Textarea
                 id="welcome-message"
                 value={welcomeMessage}
                 onChange={(e) => setWelcomeMessage(e.target.value)}
                 placeholder="The first message users will see"
                 rows={3}
-                className="resize-none"
+                className="resize-none bg-input-bg border-input-border focus:ring-2 focus:ring-primary/20 transition-all"
               />
             </div>
 
             {/* System Prompt */}
-            <div className="space-y-2">
-              <Label htmlFor="system-prompt" className="text-sm font-medium">
-                System Prompt <span className="text-destructive">*</span>
-              </Label>
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <div className="h-px flex-1 bg-gradient-to-r from-transparent via-border to-transparent" />
+                <Label htmlFor="system-prompt" className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                  System Prompt <span className="text-destructive">*</span>
+                </Label>
+                <div className="h-px flex-1 bg-gradient-to-r from-transparent via-border to-transparent" />
+              </div>
               <Textarea
                 id="system-prompt"
                 value={systemPrompt}
                 onChange={(e) => setSystemPrompt(e.target.value)}
                 placeholder="The core instructions that define your sim's behavior and personality"
                 rows={12}
-                className="resize-none font-mono text-xs"
+                className="resize-none font-mono text-xs bg-input-bg border-input-border focus:ring-2 focus:ring-primary/20 transition-all"
                 required
               />
             </div>
 
             {/* Action Buttons */}
-            <div className="flex gap-3">
+            <div className="flex gap-3 pt-4">
               <Button
                 type="button"
                 variant="outline"
                 onClick={handleClose}
                 disabled={isSubmitting}
-                className="flex-1"
+                className="flex-1 h-12 hover:bg-muted/50 transition-all"
               >
                 Cancel
               </Button>
               <Button
                 type="submit"
                 disabled={isSubmitting || !systemPrompt.trim()}
-                className="flex-1 gap-2"
+                className="flex-1 h-12 gap-2 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 transition-all duration-300 font-semibold"
               >
                 {isSubmitting ? (
                   <>
-                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <Loader2 className="w-5 h-5 animate-spin" />
                     Creating...
                   </>
                 ) : (
                   <>
-                    <Sparkles className="w-4 h-4" />
+                    <Sparkles className="w-5 h-5" />
                     Create Sim
                   </>
                 )}
