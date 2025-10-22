@@ -552,7 +552,7 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
                 size="lg"
                 onClick={handleGeneratePrompt}
                 disabled={isGenerating || !name.trim() || !description.trim() || !category}
-                className="gap-2 w-full h-12 font-semibold"
+                className="gap-2 w-full h-12 font-semibold bg-[#82f2aa] hover:bg-[#6dd994] text-black"
               >
                 {isGenerating ? (
                   <>
@@ -684,7 +684,7 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
               <Button
                 type="submit"
                 disabled={isSubmitting || !systemPrompt.trim()}
-                className="flex-1 h-12 gap-2 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 transition-all duration-300 font-semibold"
+                className="flex-1 h-12 gap-2 bg-[#82f2aa] hover:bg-[#6dd994] text-black shadow-lg shadow-[#82f2aa]/25 hover:shadow-xl hover:shadow-[#82f2aa]/30 transition-all duration-300 font-semibold"
               >
                 {isSubmitting ? (
                   <>
