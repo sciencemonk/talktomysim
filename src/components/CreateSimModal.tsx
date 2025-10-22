@@ -643,7 +643,7 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
                 onChange={(e) => setWelcomeMessage(e.target.value)}
                 placeholder="The first message users will see"
                 rows={3}
-                className="resize-none bg-input-bg border-input-border focus:ring-2 focus:ring-primary/20 transition-all"
+                className="resize-none bg-background border-border text-foreground focus:ring-2 focus:ring-primary/20 transition-all"
               />
             </div>
 
@@ -665,7 +665,7 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
                 onChange={(e) => setSystemPrompt(e.target.value)}
                 placeholder="The core instructions that define your sim's behavior and personality"
                 rows={12}
-                className="resize-none font-mono text-xs bg-input-bg border-input-border focus:ring-2 focus:ring-primary/20 transition-all"
+                className="resize-none font-mono text-xs bg-background border-border text-foreground focus:ring-2 focus:ring-primary/20 transition-all"
                 required
               />
             </div>
