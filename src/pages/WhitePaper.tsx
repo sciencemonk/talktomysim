@@ -15,15 +15,15 @@ const WhitePaper = () => {
       <div className="flex-1">
         <div className="max-w-4xl mx-auto px-6 py-12">
         {/* Hero Section */}
-        <div className="text-center mb-16">
+        <div className="text-center mb-16 flex flex-col items-center">
           <Badge variant="secondary" className="mb-4">
             White Paper v2.0
           </Badge>
           <div className="flex justify-center mb-6">
             <img 
-              src="/lovable-uploads/d1283b59-7cfa-45f5-b151-4c32b24f3621.png" 
+              src="/sim-logo-new.png?v=2" 
               alt="Sim" 
-              className="h-16 w-16 object-contain"
+              className="h-20 w-20 object-contain"
             />
           </div>
           <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-primary via-purple-500 to-pink-500 bg-clip-text text-transparent">
@@ -35,16 +35,16 @@ const WhitePaper = () => {
         </div>
 
         {/* Vision Section */}
-        <section className="mb-16 text-center">
+        <section className="mb-16 text-center flex flex-col items-center">
           <h2 className="text-3xl font-bold mb-6">Why Build Your Own AI?</h2>
-          <div className="prose prose-lg max-w-none text-muted-foreground text-center">
-            <p className="text-lg mb-6 max-w-3xl mx-auto">
+          <div className="prose prose-lg max-w-none text-muted-foreground text-center flex flex-col items-center">
+            <p className="text-lg mb-6 max-w-3xl">
               <strong className="text-foreground">The AI revolution isn't about using someone else's AI.</strong> It's about creating your own. Your own personality. Your own knowledge. Your own purpose.
             </p>
-            <p className="text-lg mb-6 max-w-3xl mx-auto">
+            <p className="text-lg mb-6 max-w-3xl">
               Whether you're building a business consultant, a customer service agent, a personal coach, or a creative companion—<strong className="text-foreground">Sim makes it possible for anyone to build their AI.</strong>
             </p>
-            <p className="text-lg mb-6 max-w-3xl mx-auto">
+            <p className="text-lg mb-6 max-w-3xl">
               No coding. No complexity. <strong className="text-foreground">Just build.</strong>
             </p>
           </div>
