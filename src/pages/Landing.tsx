@@ -268,15 +268,15 @@ const Landing = () => {
                     <ChevronDown className="h-4 w-4 opacity-50" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="start" className="bg-background z-50">
-                  <DropdownMenuItem onClick={() => setSortBy('newest')}>
+                <DropdownMenuContent align="start" className="bg-background border-border z-50">
+                  <DropdownMenuItem onClick={() => setSortBy('newest')} className="text-foreground hover:bg-muted">
                     Newest
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setSortBy('popular')}>
+                  <DropdownMenuItem onClick={() => setSortBy('popular')} className="text-foreground hover:bg-muted">
                     <TrendingUp className="mr-2 h-4 w-4" />
                     Popular
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setSortBy('name')}>
+                  <DropdownMenuItem onClick={() => setSortBy('name')} className="text-foreground hover:bg-muted">
                     A-Z
                   </DropdownMenuItem>
                 </DropdownMenuContent>
@@ -288,7 +288,7 @@ const Landing = () => {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search sims by name, title, or description..."
-                  className="pl-12 h-12 text-base"
+                  className="pl-12 h-12 text-base dark:bg-gray-800 dark:border-gray-700"
                 />
               </div>
             </div>

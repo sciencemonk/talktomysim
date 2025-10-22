@@ -195,7 +195,7 @@ const SimDirectory = () => {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search sims by name, title, or description..."
-                className="pl-12 h-12 text-base"
+                className="pl-12 h-12 text-base dark:bg-gray-800 dark:border-gray-700"
               />
             </div>
           </div>
@@ -246,9 +246,9 @@ const SimDirectory = () => {
                     {categoryCounts.find(c => c.id === selectedCategory)?.label || 'All Categories'}
                   </SelectValue>
                 </SelectTrigger>
-                <SelectContent className="bg-white dark:bg-gray-950 z-50">
+                <SelectContent className="bg-background border-border text-foreground z-50">
                   {categoryCounts.map((cat) => (
-                    <SelectItem key={cat.id} value={cat.id}>
+                    <SelectItem key={cat.id} value={cat.id} className="text-foreground hover:bg-muted">
                       <div className="flex items-center justify-between w-full">
                         <span>{cat.label}</span>
                         <Badge variant="secondary" className="ml-2 px-1.5">
