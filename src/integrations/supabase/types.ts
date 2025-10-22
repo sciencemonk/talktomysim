@@ -1069,10 +1069,7 @@ export type Database = {
         }
         Returns: boolean
       }
-      generate_url_slug: {
-        Args: { input_name: string }
-        Returns: string
-      }
+      generate_url_slug: { Args: { input_name: string }; Returns: string }
       get_conversation_insights: {
         Args: { days_back?: number; target_advisor_id: string }
         Returns: {
@@ -1083,10 +1080,7 @@ export type Database = {
           total_messages: number
         }[]
       }
-      reset_monthly_credits: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
+      reset_monthly_credits: { Args: never; Returns: undefined }
       search_advisor_embeddings: {
         Args: {
           match_count?: number
@@ -1101,9 +1095,25 @@ export type Database = {
           similarity: number
         }[]
       }
-      search_conversation_embeddings: {
-        Args:
-          | {
+      search_conversation_embeddings:
+        | {
+            Args: {
+              match_count?: number
+              query_embedding: string
+              similarity_threshold?: number
+              target_advisor_id: string
+            }
+            Returns: {
+              content_text: string
+              conversation_date: string
+              conversation_id: string
+              message_count: number
+              metadata: Json
+              similarity: number
+            }[]
+          }
+        | {
+            Args: {
               content_types?: string[]
               date_from?: string
               date_to?: string
@@ -1112,21 +1122,16 @@ export type Database = {
               similarity_threshold?: number
               target_advisor_id: string
             }
-          | {
-              match_count?: number
-              query_embedding: string
-              similarity_threshold?: number
-              target_advisor_id: string
-            }
-        Returns: {
-          content_text: string
-          conversation_date: string
-          conversation_id: string
-          message_count: number
-          metadata: Json
-          similarity: number
-        }[]
-      }
+            Returns: {
+              content_text: string
+              content_type: string
+              conversation_date: string
+              conversation_id: string
+              message_count: number
+              metadata: Json
+              similarity: number
+            }[]
+          }
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"
