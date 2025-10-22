@@ -285,40 +285,37 @@ const WhitePaper = () => {
               </CardContent>
             </Card>
 
-            {/* Web3 */}
+            {/* Integrations */}
             <Card className="border border-border/50 hover:border-primary/30 transition-all duration-300">
               <CardHeader className="pb-4 text-center">
                 <div className="flex flex-col items-center space-y-2">
-                  <div className="text-sm font-medium text-primary tracking-wide">WEB3 NATIVE</div>
-                  <CardTitle className="text-xl">Crypto Wallet Integration</CardTitle>
-                  <div className="inline-flex items-center px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium">
-                    Currently Live
-                  </div>
+                  <div className="text-sm font-medium text-primary tracking-wide">COMING SOON</div>
+                  <CardTitle className="text-xl">External Integrations</CardTitle>
                 </div>
               </CardHeader>
               <CardContent className="pt-0 text-center">
                 <p className="text-muted-foreground mb-6 leading-relaxed max-w-2xl mx-auto">
-                  Your AI is tied to your Web3 identity. True ownership, instant payments, and seamless integration with the decentralized economy.
+                  Connect your AI to external services and tools to expand its capabilities. Calendar management, email integration, and more coming soon.
                 </p>
                 <div className="grid md:grid-cols-2 gap-4 max-w-3xl mx-auto">
                   <div className="space-y-3">
                     <div className="flex items-center justify-center gap-3">
-                      <div className="w-1.5 h-1.5 rounded-full bg-primary"></div>
-                      <span className="text-sm text-muted-foreground">Phantom wallet support</span>
+                      <div className="w-1.5 h-1.5 rounded-full bg-muted"></div>
+                      <span className="text-sm text-muted-foreground">Calendar integration</span>
                     </div>
                     <div className="flex items-center justify-center gap-3">
-                      <div className="w-1.5 h-1.5 rounded-full bg-primary"></div>
-                      <span className="text-sm text-muted-foreground">Solflare integration</span>
+                      <div className="w-1.5 h-1.5 rounded-full bg-muted"></div>
+                      <span className="text-sm text-muted-foreground">Email connectivity</span>
                     </div>
                   </div>
                   <div className="space-y-3">
                     <div className="flex items-center justify-center gap-3">
-                      <div className="w-1.5 h-1.5 rounded-full bg-primary"></div>
-                      <span className="text-sm text-muted-foreground">Instant payouts</span>
+                      <div className="w-1.5 h-1.5 rounded-full bg-muted"></div>
+                      <span className="text-sm text-muted-foreground">API access</span>
                     </div>
                     <div className="flex items-center justify-center gap-3">
-                      <div className="w-1.5 h-1.5 rounded-full bg-primary"></div>
-                      <span className="text-sm text-muted-foreground">True ownership</span>
+                      <div className="w-1.5 h-1.5 rounded-full bg-muted"></div>
+                      <span className="text-sm text-muted-foreground">Custom integrations</span>
                     </div>
                   </div>
                 </div>
@@ -327,64 +324,32 @@ const WhitePaper = () => {
           </div>
         </section>
 
-        {/* Monetization */}
+        {/* Free & Open */}
         <section className="mb-16">
-          <h2 className="text-3xl font-bold mb-8 text-center">Build Your AI Business</h2>
+          <h2 className="text-3xl font-bold mb-8 text-center">Free to Build. Free to Host.</h2>
           
-          <div className="grid md:grid-cols-2 gap-8 mb-8">
-            <Card className="border-2 border-primary/20 text-center">
-              <CardHeader>
-                <div className="flex justify-center mb-4">
-                  <Coins className="h-8 w-8 text-primary" />
-                </div>
-                <CardTitle>Multiple Revenue Streams</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground mb-4">
-                  Turn your AI into a business with flexible monetization:
-                </p>
-                <ul className="text-sm text-muted-foreground space-y-2">
-                  <li>Pay-per-conversation pricing</li>
-                  <li>Monthly subscriptions</li>
-                  <li>Premium features</li>
-                  <li>Enterprise licensing</li>
-                  <li>White-label solutions</li>
-                  <li>Keep 85% of revenue</li>
-                </ul>
-              </CardContent>
-            </Card>
-
-            <Card className="border-2 border-primary/20 text-center">
-              <CardHeader>
-                <div className="flex justify-center mb-4">
-                  <TrendingUp className="h-8 w-8 text-green-500" />
-                </div>
-                <CardTitle>Powered by $SIM</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground mb-4">
-                  The $SIM token powers the entire ecosystem:
-                </p>
-                <ul className="text-sm text-muted-foreground space-y-2">
-                  <li>Platform transactions</li>
-                  <li>Creator rewards</li>
-                  <li>Governance rights</li>
-                  <li>Staking benefits</li>
-                  <li>Premium features</li>
-                  <li>Instant crypto payouts</li>
-                </ul>
-              </CardContent>
-            </Card>
-          </div>
-
           <Card className="bg-gradient-to-r from-purple-50 via-pink-50 to-blue-50 dark:from-purple-950/20 dark:via-pink-950/20 dark:to-blue-950/20 border-2 border-primary/20 text-center">
             <CardHeader>
-              <CardTitle className="text-xl">The Creator Economy Meets AI</CardTitle>
+              <CardTitle className="text-2xl">Create Unlimited AI Agents at No Cost</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-muted-foreground mb-6 max-w-2xl mx-auto">
-                <strong>Build once. Earn forever.</strong> Your AI works 24/7, handling unlimited conversations while you earn from every interaction. This is the future of the creator economy.
+              <p className="text-muted-foreground mb-8 max-w-2xl mx-auto text-lg">
+                <strong>No hidden fees. No credit card required. No hosting costs.</strong> Build as many AI agents as you want, deploy them instantly, and let them handle unlimited conversations—all completely free.
               </p>
+              <div className="grid md:grid-cols-3 gap-6 max-w-3xl mx-auto">
+                <div>
+                  <div className="text-3xl font-bold text-primary mb-2">$0</div>
+                  <p className="text-sm text-muted-foreground">To create your AI</p>
+                </div>
+                <div>
+                  <div className="text-3xl font-bold text-primary mb-2">$0</div>
+                  <p className="text-sm text-muted-foreground">To host your AI</p>
+                </div>
+                <div>
+                  <div className="text-3xl font-bold text-primary mb-2">∞</div>
+                  <p className="text-sm text-muted-foreground">Unlimited conversations</p>
+                </div>
+              </div>
             </CardContent>
           </Card>
         </section>
@@ -450,7 +415,7 @@ const WhitePaper = () => {
                   Build Your AI Now
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
-                <p className="text-sm text-muted-foreground">Free to start • Launch in minutes • Keep 85% revenue</p>
+                <p className="text-sm text-muted-foreground">100% Free • Launch in minutes • No credit card required</p>
               </div>
             </CardContent>
           </Card>
