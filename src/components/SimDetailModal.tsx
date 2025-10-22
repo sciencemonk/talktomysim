@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Globe, Wallet, ExternalLink, Copy, Check, MessageCircle, Share2, ArrowLeft } from "lucide-react";
+import { Globe, Wallet, ExternalLink, Copy, Check, MessageCircle, Share2, ArrowLeft, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
@@ -276,7 +276,7 @@ const SimDetailModal = ({ sim, open, onOpenChange, onAuthRequired }: SimDetailMo
       onOpenChange(open);
       if (!open) setShowChat(false); // Reset chat when modal closes
     }}>
-      <DialogContent className="max-w-xl p-0 overflow-hidden [&>button]:hidden border-2 h-[100dvh] max-h-[100dvh] sm:h-[90vh] sm:max-h-[90vh] w-full sm:w-auto">
+      <DialogContent className="max-w-xl p-0 overflow-hidden border-2 h-[100dvh] max-h-[100dvh] sm:h-[90vh] sm:max-h-[90vh] w-full sm:w-auto">
         {showChat ? (
           <div className="flex flex-col h-full">
             <div className="flex items-center justify-between p-3 sm:p-4 border-b flex-shrink-0">
@@ -303,7 +303,17 @@ const SimDetailModal = ({ sim, open, onOpenChange, onAuthRequired }: SimDetailMo
             </div>
           </div>
         ) : (
-          <div className="backdrop-blur-xl bg-card/50 rounded-lg p-6 sm:p-8 max-h-[80vh] overflow-y-auto">
+          <div className="backdrop-blur-xl bg-card/50 rounded-lg p-6 sm:p-8 max-h-[80vh] overflow-y-auto relative">
+          {/* Close Button - Top Right */}
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => onOpenChange(false)}
+            className="absolute top-2 right-2 h-8 w-8 rounded-full hover:bg-accent z-10"
+          >
+            <X className="h-4 w-4" />
+          </Button>
+
           {/* Avatar */}
           <div className="flex justify-center mb-6">
             <div className="relative w-32 h-32 sm:w-40 sm:h-40">
@@ -468,15 +478,6 @@ const SimDetailModal = ({ sim, open, onOpenChange, onAuthRequired }: SimDetailMo
               )}
             </div>
           )}
-
-          {/* Close Button */}
-          <Button
-            variant="outline"
-            className="w-full h-9 text-sm font-medium mt-2"
-            onClick={() => onOpenChange(false)}
-          >
-            Close
-          </Button>
           </div>
         )}
       </DialogContent>
