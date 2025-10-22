@@ -41,6 +41,7 @@ import Terms from "./pages/Terms";
 import AdminWelcomeMessages from "./pages/AdminWelcomeMessages";
 import BatchUpdateDescriptions from "./pages/BatchUpdateDescriptions";
 import Test from "./pages/Test";
+import Demo from "./pages/Demo";
 
 const queryClient = new QueryClient();
 
@@ -66,6 +67,7 @@ const App = () => (
               <Route path="/privacy" element={<Privacy />} />
               <Route path="/terms" element={<Terms />} />
               <Route path="/test" element={<Test />} />
+              <Route path="/demo" element={<Demo />} />
               <Route path="/app" element={<Home />} />
               <Route path="/tutors/:agentId" element={<PublicTutorDetail />} />
               <Route path="/tutors/:agentId/chat" element={<StudentChat />} />
