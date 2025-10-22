@@ -8,14 +8,13 @@ import { useState, useEffect } from "react";
 import { AgentType } from "@/types/agent";
 import { toast as sonnerToast } from "sonner";
 import AuthModal from "@/components/AuthModal";
-import { Search, DollarSign, Gift, TrendingUp, ChevronDown } from "lucide-react";
+import { Search, TrendingUp, ChevronDown } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { getAvatarUrl } from "@/lib/avatarUtils";
 import SimDetailModal from "@/components/SimDetailModal";
 import { Input } from "@/components/ui/input";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TopNavBar } from "@/components/TopNavBar";
 import {
   DropdownMenu,
@@ -31,7 +30,6 @@ const Landing = () => {
   const [isSimModalOpen, setIsSimModalOpen] = useState(false);
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [priceFilter, setPriceFilter] = useState<'all' | 'free' | 'paid'>('all');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [sortBy, setSortBy] = useState<'popular' | 'newest' | 'name'>('newest');
   const isMobile = useIsMobile();
@@ -193,15 +191,12 @@ const Landing = () => {
   // Apply filters and sorting
   const filteredSims = allSims
     ?.filter(sim => {
-      const matchesSearch = 
+      const matchesSearch = !searchQuery ||
         sim.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         sim.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
         sim.description.toLowerCase().includes(searchQuery.toLowerCase());
       
       if (!matchesSearch) return false;
-
-      if (priceFilter === 'free' && sim.price && sim.price > 0) return false;
-      if (priceFilter === 'paid' && (!sim.price || sim.price === 0)) return false;
 
       const simCategory = (sim as any).category?.toLowerCase() || 'uncategorized';
       if (selectedCategory !== 'all' && simCategory !== selectedCategory) return false;
@@ -268,32 +263,34 @@ const Landing = () => {
 
             {/* Filters */}
             <div className="flex flex-wrap gap-3 items-center">
-              <Tabs value={priceFilter} onValueChange={(v) => setPriceFilter(v as any)}>
-                <TabsList>
-                  <TabsTrigger value="all">All</TabsTrigger>
-                  <TabsTrigger value="free" className="gap-2">
-                    <Gift className="h-4 w-4" />
-                    Free
-                  </TabsTrigger>
-                  <TabsTrigger value="paid" className="gap-2">
-                    <DollarSign className="h-4 w-4" />
-                    Paid
-                  </TabsTrigger>
-                </TabsList>
-              </Tabs>
-
-              <div className="h-8 w-px bg-border" />
-
-              <Tabs value={sortBy} onValueChange={(v) => setSortBy(v as any)}>
-                <TabsList>
-                  <TabsTrigger value="newest">Newest</TabsTrigger>
-                  <TabsTrigger value="popular" className="gap-2">
-                    <TrendingUp className="h-4 w-4" />
+              {/* Sort dropdown */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" className="gap-2">
+                    {sortBy === 'newest' && 'Newest'}
+                    {sortBy === 'popular' && (
+                      <>
+                        <TrendingUp className="h-4 w-4" />
+                        Popular
+                      </>
+                    )}
+                    {sortBy === 'name' && 'A-Z'}
+                    <ChevronDown className="h-4 w-4 opacity-50" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start">
+                  <DropdownMenuItem onClick={() => setSortBy('newest')}>
+                    Newest
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setSortBy('popular')}>
+                    <TrendingUp className="mr-2 h-4 w-4" />
                     Popular
-                  </TabsTrigger>
-                  <TabsTrigger value="name">A-Z</TabsTrigger>
-                </TabsList>
-              </Tabs>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setSortBy('name')}>
+                    A-Z
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
 
             </div>
 
@@ -368,16 +365,13 @@ const Landing = () => {
                       {sim.name}
                     </span>
                     
-                    {/* Category and Price badges */}
+                    {/* Category badge only */}
                     <div className="flex flex-wrap gap-1.5 justify-center">
                       {simCategory !== 'uncategorized' && (
                         <Badge variant="outline" className="text-[9px] px-1.5 py-0 bg-muted/50 border-muted-foreground/20 text-muted-foreground whitespace-nowrap">
                           {categoryLabel}
                         </Badge>
                       )}
-                      <Badge variant="outline" className="text-[9px] px-1.5 py-0 bg-muted/50 border-muted-foreground/20 text-muted-foreground whitespace-nowrap">
-                        {price > 0 ? `${price} $SIMAI` : 'Free'}
-                      </Badge>
                     </div>
                   </div>
                 </button>

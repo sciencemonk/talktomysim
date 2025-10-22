@@ -45,7 +45,7 @@ export const TopNavBar = () => {
   };
 
   const navLinks = [
-    { to: "/", label: "Home", icon: Grid },
+    { to: "/", label: "Sims", icon: MessageSquare },
     { to: "/home", label: "My Sims", icon: MessageSquare, authRequired: true },
   ];
 
@@ -53,6 +53,7 @@ export const TopNavBar = () => {
     <>
       {navLinks.map((link) => {
         if (link.authRequired && !currentUser) return null;
+        const IconComponent = link.icon;
         return (
           <NavLink
             key={link.to}
@@ -66,7 +67,7 @@ export const TopNavBar = () => {
               }`
             }
           >
-            <link.icon className="h-4 w-4" />
+            <IconComponent className="h-4 w-4" />
             <span>{link.label}</span>
           </NavLink>
         );
@@ -90,7 +91,6 @@ export const TopNavBar = () => {
                   alt="Sim Logo" 
                   className="h-8 w-8 object-contain"
                 />
-                <span className="font-bold text-xl hidden sm:inline">SimAI</span>
               </button>
             </div>
 
@@ -101,75 +101,43 @@ export const TopNavBar = () => {
               </div>
             )}
 
-            {/* Right: Buy Button + User Menu */}
+            {/* Right: Create Sim Button + User Menu */}
             <div className="flex items-center gap-2">
               <Button
-                onClick={() => window.open('https://jup.ag/swap/SOL-SimAI', '_blank')}
-                className="gap-2"
-                variant="default"
+                onClick={() => setShowCreateSimModal(true)}
+                style={{ backgroundColor: '#83f1aa' }}
+                className="gap-2 font-semibold text-black hover:opacity-90"
               >
-                Buy $SimAI
+                <Plus className="h-4 w-4" />
+                Create a Sim
               </Button>
 
-              {currentUser ? (
-                <>
-                  {!isMobile && (
-                    <Button
-                      onClick={() => setShowCreateSimModal(true)}
-                      variant="outline"
-                      className="gap-2"
-                    >
-                      <Plus className="h-4 w-4" />
-                      Create Sim
+              {currentUser && (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon" className="rounded-full">
+                      <Avatar className="h-8 w-8">
+                        <AvatarImage src={getAvatarUrl(currentUser?.user_metadata?.avatar_url)} />
+                        <AvatarFallback>
+                          <User className="h-4 w-4" />
+                        </AvatarFallback>
+                      </Avatar>
                     </Button>
-                  )}
-
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon" className="rounded-full">
-                        <Avatar className="h-8 w-8">
-                          <AvatarImage src={getAvatarUrl(currentUser?.user_metadata?.avatar_url)} />
-                          <AvatarFallback>
-                            <User className="h-4 w-4" />
-                          </AvatarFallback>
-                        </Avatar>
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-56">
-                      <DropdownMenuItem onClick={() => {
-                        navigate('/home');
-                        setMobileMenuOpen(false);
-                      }}>
-                        <MessageSquare className="mr-2 h-4 w-4" />
-                        My Sims
-                      </DropdownMenuItem>
-                      {isMobile && (
-                        <DropdownMenuItem onClick={() => {
-                          setShowCreateSimModal(true);
-                          setMobileMenuOpen(false);
-                        }}>
-                          <Plus className="mr-2 h-4 w-4" />
-                          Create Sim
-                        </DropdownMenuItem>
-                      )}
-                      <DropdownMenuItem onClick={handleSignOut}>
-                        <LogOut className="mr-2 h-4 w-4" />
-                        Sign Out
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </>
-              ) : (
-                <>
-                  {!isMobile && (
-                    <Button
-                      onClick={() => setShowAuthModal(true)}
-                      variant="outline"
-                    >
-                      Sign In
-                    </Button>
-                  )}
-                </>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-56">
+                    <DropdownMenuItem onClick={() => {
+                      navigate('/home');
+                      setMobileMenuOpen(false);
+                    }}>
+                      <MessageSquare className="mr-2 h-4 w-4" />
+                      My Sims
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={handleSignOut}>
+                      <LogOut className="mr-2 h-4 w-4" />
+                      Sign Out
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               )}
 
               {/* Mobile Menu */}
@@ -183,19 +151,6 @@ export const TopNavBar = () => {
                   <SheetContent side="right" className="w-64">
                     <div className="flex flex-col gap-4 mt-8">
                       <NavLinks />
-                      
-                      {!currentUser && (
-                        <Button
-                          onClick={() => {
-                            setShowAuthModal(true);
-                            setMobileMenuOpen(false);
-                          }}
-                          variant="outline"
-                          className="w-full"
-                        >
-                          Sign In
-                        </Button>
-                      )}
                     </div>
                   </SheetContent>
                 </Sheet>
