@@ -200,6 +200,11 @@ const EditSimModal = ({ open, onOpenChange, simId }: EditSimModalProps) => {
       return;
     }
 
+    if (name.trim().length > 50) {
+      toast.error('Sim name must be 50 characters or less');
+      return;
+    }
+
     if (!category) {
       toast.error('Please select a category');
       return;
@@ -364,8 +369,12 @@ const EditSimModal = ({ open, onOpenChange, simId }: EditSimModalProps) => {
                       onChange={(e) => setName(e.target.value)}
                       placeholder="e.g., Marcus, Dr. Code, Legal Eagle"
                       required
+                      maxLength={50}
                       className="h-11 bg-background"
                     />
+                    <p className="text-xs text-muted-foreground">
+                      {name.length}/50 characters
+                    </p>
                   </div>
                 </div>
               </div>

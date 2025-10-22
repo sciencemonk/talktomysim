@@ -184,6 +184,11 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
       return;
     }
 
+    if (name.trim().length > 50) {
+      toast.error("Sim name must be 50 characters or less");
+      return;
+    }
+
     if (!systemPrompt.trim()) {
       toast.error("Please enter or generate a system prompt");
       return;
@@ -437,8 +442,12 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
                     onChange={(e) => setName(e.target.value)}
                     placeholder="Name your sim"
                     required
+                    maxLength={50}
                     className="h-11 bg-background"
                   />
+                  <p className="text-xs text-muted-foreground">
+                    {name.length}/50 characters
+                  </p>
                 </div>
               </div>
 
