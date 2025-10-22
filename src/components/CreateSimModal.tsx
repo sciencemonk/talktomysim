@@ -31,7 +31,6 @@ const categories = [
   { value: 'lifestyle', label: 'Lifestyle & Wellness' },
   { value: 'entertainment', label: 'Entertainment & Games' },
   { value: 'spiritual', label: 'Spiritual & Philosophy' },
-  { value: 'adult', label: 'Adult' },
 ];
 
 export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }: CreateSimModalProps) => {
@@ -420,15 +419,8 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
 
             {/* Sim Details Section */}
             <div className="space-y-4">
-              <div>
-                <h3 className="text-base font-semibold mb-1">Sim details</h3>
-                <p className="text-xs text-muted-foreground">
-                  Choose carefully, these can't be changed once the sim is created
-                </p>
-              </div>
-
-              {/* Name and Title side by side */}
-              <div className="grid grid-cols-2 gap-4">
+              {/* Name and Avatar side by side */}
+              <div className="grid grid-cols-[1fr,auto] gap-4 items-start">
                 <div className="space-y-2">
                   <Label htmlFor="name" className="text-sm font-medium">
                     Sim name <span className="text-destructive">*</span>
@@ -443,18 +435,71 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
                   />
                 </div>
 
+                {/* Avatar Upload */}
                 <div className="space-y-2">
-                  <Label htmlFor="title" className="text-sm font-medium">
-                    Title
-                  </Label>
-                  <Input
-                    id="title"
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                    placeholder="Add a title (e.g., Expert)"
-                    className="h-11 bg-background"
+                  <Label className="text-sm font-medium">Avatar</Label>
+                  <div
+                    onDragOver={handleDragOver}
+                    onDragLeave={handleDragLeave}
+                    onDrop={handleDrop}
+                    onClick={() => fileInputRef.current?.click()}
+                    className={`
+                      relative w-24 h-24 rounded-xl cursor-pointer
+                      transition-all duration-300 ease-out
+                      ${isDragging 
+                        ? 'scale-[1.05] ring-4 ring-primary/50 shadow-lg shadow-primary/25' 
+                        : 'hover:scale-[1.02] hover:shadow-md'
+                      }
+                      ${avatarPreview 
+                        ? 'ring-2 ring-border' 
+                        : 'ring-2 ring-dashed ring-border hover:ring-primary/50'
+                      }
+                      bg-muted/30 backdrop-blur-sm
+                      overflow-hidden group
+                    `}
+                  >
+                    {avatarPreview ? (
+                      <>
+                        <img 
+                          src={avatarPreview} 
+                          alt="Avatar preview" 
+                          className="w-full h-full object-cover"
+                        />
+                        <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center">
+                          <ImagePlus className="w-6 h-6 text-white" />
+                        </div>
+                      </>
+                    ) : (
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <Upload className={`
+                          w-8 h-8 transition-colors duration-300
+                          ${isDragging ? 'text-primary' : 'text-muted-foreground group-hover:text-primary'}
+                        `} />
+                      </div>
+                    )}
+                  </div>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleAvatarChange}
+                    className="hidden"
                   />
                 </div>
+              </div>
+
+              {/* Title */}
+              <div className="space-y-2">
+                <Label htmlFor="title" className="text-sm font-medium">
+                  Title
+                </Label>
+                <Input
+                  id="title"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  placeholder="Add a title (e.g., Expert, CEO, Artist)"
+                  className="h-11 bg-background"
+                />
               </div>
 
               {/* Category */}
@@ -479,7 +524,7 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
               {/* Description */}
               <div className="space-y-2">
                 <Label htmlFor="description" className="text-sm font-medium">
-                  Description <span className="text-muted-foreground">(Optional)</span>
+                  Description <span className="text-destructive">*</span>
                 </Label>
                 <Textarea
                   id="description"
@@ -488,6 +533,7 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
                   placeholder="Write a short description"
                   rows={4}
                   className="resize-none bg-background"
+                  required
                 />
               </div>
 
@@ -546,73 +592,6 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
                   </div>
                 </CollapsibleContent>
               </Collapsible>
-            </div>
-
-            {/* Avatar Upload Section */}
-            <div className="space-y-2">
-              <div
-                onDragOver={handleDragOver}
-                onDragLeave={handleDragLeave}
-                onDrop={handleDrop}
-                onClick={() => fileInputRef.current?.click()}
-                className={`
-                  relative w-full aspect-[2/1] rounded-xl cursor-pointer
-                  transition-all duration-300 ease-out
-                  ${isDragging 
-                    ? 'scale-[1.02] ring-4 ring-primary/50 shadow-lg shadow-primary/25' 
-                    : 'hover:scale-[1.01] hover:shadow-md'
-                  }
-                  ${avatarPreview 
-                    ? 'ring-2 ring-border' 
-                    : 'ring-2 ring-dashed ring-border hover:ring-primary/50'
-                  }
-                  bg-muted/30 backdrop-blur-sm
-                  overflow-hidden group
-                `}
-              >
-                {avatarPreview ? (
-                  <>
-                    <img 
-                      src={avatarPreview} 
-                      alt="Avatar preview" 
-                      className="w-full h-full object-cover"
-                    />
-                    <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex flex-col items-center justify-center gap-2">
-                      <ImagePlus className="w-10 h-10 text-white" />
-                      <p className="text-sm text-white font-medium">Change image</p>
-                    </div>
-                  </>
-                ) : (
-                  <div className="absolute inset-0 flex flex-col items-center justify-center gap-3">
-                    <div className={`
-                      transition-all duration-300
-                      ${isDragging ? 'scale-110' : 'group-hover:scale-110'}
-                    `}>
-                      <div className="w-16 h-16 rounded-xl bg-muted flex items-center justify-center">
-                        <Upload className={`
-                          w-8 h-8 transition-colors duration-300
-                          ${isDragging ? 'text-primary' : 'text-muted-foreground group-hover:text-primary'}
-                        `} />
-                      </div>
-                    </div>
-                    <div className="text-center">
-                      <p className="text-sm font-medium">
-                        Select video or image to upload
-                      </p>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        or drag and drop it here
-                      </p>
-                    </div>
-                  </div>
-                )}
-              </div>
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                onChange={handleAvatarChange}
-                className="hidden"
-              />
             </div>
 
             {/* Integrations */}
