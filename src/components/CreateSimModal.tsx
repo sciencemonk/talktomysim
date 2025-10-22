@@ -333,8 +333,8 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
         await onSuccess();
       }
 
-      // Navigate to home page
-      navigate("/");
+      // Navigate to home page and refresh
+      window.location.href = "/";
     } catch (error) {
       console.error("Error creating sim:", error);
       toast.error("Failed to create Sim");
