@@ -329,11 +329,6 @@ const Landing = () => {
             </div>
           </div>
 
-          {/* Results Count */}
-          <div className="mb-4 text-sm text-muted-foreground">
-            {filteredSims?.length || 0} Sims found
-          </div>
-
           {/* Sims Grid */}
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
             {filteredSims?.map((sim) => {
