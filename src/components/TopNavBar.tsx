@@ -44,36 +44,6 @@ export const TopNavBar = () => {
     navigate('/');
   };
 
-  const navLinks = [
-    { to: "/", label: "Sims", icon: MessageSquare },
-    { to: "/home", label: "My Sims", icon: MessageSquare, authRequired: true },
-  ];
-
-  const NavLinks = () => (
-    <>
-      {navLinks.map((link) => {
-        if (link.authRequired && !currentUser) return null;
-        const IconComponent = link.icon;
-        return (
-          <NavLink
-            key={link.to}
-            to={link.to}
-            onClick={() => setMobileMenuOpen(false)}
-            className={({ isActive }) =>
-              `flex items-center gap-2 px-3 py-2 rounded-lg transition-colors ${
-                isActive
-                  ? "bg-primary text-primary-foreground"
-                  : "text-foreground hover:bg-muted"
-              }`
-            }
-          >
-            <IconComponent className="h-4 w-4" />
-            <span>{link.label}</span>
-          </NavLink>
-        );
-      })}
-    </>
-  );
 
   return (
     <>
@@ -89,17 +59,11 @@ export const TopNavBar = () => {
                 <img 
                   src="/sim-logo.png" 
                   alt="Sim Logo" 
-                  className="h-8 w-8 object-contain"
+                  className="h-[38px] w-[38px] object-contain"
                 />
               </button>
             </div>
 
-            {/* Center: Desktop Nav Links */}
-            {!isMobile && (
-              <div className="flex items-center gap-2">
-                <NavLinks />
-              </div>
-            )}
 
             {/* Right: Create Sim Button + User Menu */}
             <div className="flex items-center gap-2">
@@ -150,7 +114,19 @@ export const TopNavBar = () => {
                   </SheetTrigger>
                   <SheetContent side="right" className="w-64">
                     <div className="flex flex-col gap-4 mt-8">
-                      <NavLinks />
+                      {currentUser && (
+                        <Button
+                          onClick={() => {
+                            navigate('/home');
+                            setMobileMenuOpen(false);
+                          }}
+                          variant="ghost"
+                          className="justify-start"
+                        >
+                          <MessageSquare className="mr-2 h-4 w-4" />
+                          My Sims
+                        </Button>
+                      )}
                     </div>
                   </SheetContent>
                 </Sheet>
