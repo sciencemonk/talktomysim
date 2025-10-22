@@ -482,11 +482,7 @@ export function AppSidebar() {
           {/* Create Your Sim Button - always visible */}
           <Button
             onClick={() => {
-              if (!currentUser) {
-                setShowAuthModal(true);
-              } else {
-                setShowCreateSimModal(true);
-              }
+              setShowCreateSimModal(true);
               // Always close sidebar on mobile when opening any modal
               if (isMobile || sidebarIsMobile) {
                 setOpenMobile(false);
@@ -714,13 +710,19 @@ export function AppSidebar() {
           />
         )}
 
-        {showCreateSimModal && currentUser && (
+        {showCreateSimModal && (
           <CreateSimModal
             open={showCreateSimModal}
             onOpenChange={setShowCreateSimModal}
+            onAuthRequired={() => {
+              setShowCreateSimModal(false);
+              setShowAuthModal(true);
+            }}
             onSuccess={async () => {
-              await queryClient.invalidateQueries({ queryKey: ['user-sims', currentUser.id] });
-              await queryClient.invalidateQueries({ queryKey: ['my-sim-conversations', currentUser.id] });
+              if (currentUser) {
+                await queryClient.invalidateQueries({ queryKey: ['user-sims', currentUser.id] });
+                await queryClient.invalidateQueries({ queryKey: ['my-sim-conversations', currentUser.id] });
+              }
             }}
           />
         )}

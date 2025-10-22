@@ -17,6 +17,7 @@ interface CreateSimModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSuccess?: () => void;
+  onAuthRequired?: () => void;
 }
 
 const categories = [
@@ -32,7 +33,7 @@ const categories = [
   { value: 'adult', label: 'Adult' },
 ];
 
-export const CreateSimModal = ({ open, onOpenChange, onSuccess }: CreateSimModalProps) => {
+export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }: CreateSimModalProps) => {
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [name, setName] = useState("");
@@ -178,7 +179,16 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess }: CreateSimModal
 
     try {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("Not authenticated");
+      if (!user) {
+        setIsSubmitting(false);
+        onOpenChange(false);
+        if (onAuthRequired) {
+          onAuthRequired();
+        } else {
+          toast.error("Please sign in to create a Sim");
+        }
+        return;
+      }
 
       let avatarUrl = null;
 
