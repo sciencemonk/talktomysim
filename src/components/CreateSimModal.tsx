@@ -455,6 +455,23 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
                 </div>
               </div>
 
+              {/* SOL Wallet Address */}
+              <div className="space-y-2">
+                <Label htmlFor="crypto-wallet" className="text-sm font-medium">
+                  SOL Wallet Address <span className="text-muted-foreground">(Optional)</span>
+                </Label>
+                <Input
+                  id="crypto-wallet"
+                  value={cryptoWallet}
+                  onChange={(e) => setCryptoWallet(e.target.value)}
+                  placeholder="7xKXt...aBcD"
+                  className="h-11 bg-background"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Required if you want to claim Creator Rewards
+                </p>
+              </div>
+
               {/* Category */}
               <div className="space-y-2">
                 <Label htmlFor="category" className="text-sm font-medium">
@@ -488,23 +505,6 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
                   className="resize-none bg-background"
                   required
                 />
-              </div>
-
-              {/* SOL Wallet Address */}
-              <div className="space-y-2">
-                <Label htmlFor="crypto-wallet" className="text-sm font-medium">
-                  SOL Wallet Address <span className="text-muted-foreground">(Optional)</span>
-                </Label>
-                <Input
-                  id="crypto-wallet"
-                  value={cryptoWallet}
-                  onChange={(e) => setCryptoWallet(e.target.value)}
-                  placeholder="7xKXt...aBcD"
-                  className="h-11 bg-background"
-                />
-                <p className="text-xs text-muted-foreground">
-                  Required if you want to claim Creator Rewards
-                </p>
               </div>
 
               {/* Social Links Collapsible */}
