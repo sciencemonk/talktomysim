@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import {
@@ -42,6 +43,7 @@ const categories = [
 ];
 
 const EditSimModal = ({ open, onOpenChange, simId }: EditSimModalProps) => {
+  const { user } = useAuth();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -222,8 +224,10 @@ const EditSimModal = ({ open, onOpenChange, simId }: EditSimModalProps) => {
     
     setIsSaving(true);
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("Not authenticated");
+      if (!user) {
+        toast.error("Please sign in to update your sim");
+        return;
+      }
 
       let avatarUrl = avatarPreview;
 
