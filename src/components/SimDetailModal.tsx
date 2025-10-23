@@ -22,6 +22,7 @@ import { getAvatarUrl } from "@/lib/avatarUtils";
 import { toast as sonnerToast } from "sonner";
 import PublicChatInterface from "@/components/PublicChatInterface";
 import EditSimModal from "@/components/EditSimModal";
+import { fetchSolanaBalance, formatSolBalance } from "@/services/solanaBalanceService";
 
 interface SimDetailModalProps {
   sim: AgentType | null;
@@ -45,6 +46,8 @@ const SimDetailModal = ({ sim, open, onOpenChange, onAuthRequired }: SimDetailMo
   const [editCode, setEditCode] = useState("");
   const [isValidatingCode, setIsValidatingCode] = useState(false);
   const [showEditSimModal, setShowEditSimModal] = useState(false);
+  const [solBalance, setSolBalance] = useState<number | null>(null);
+  const [isLoadingBalance, setIsLoadingBalance] = useState(false);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -57,6 +60,25 @@ const SimDetailModal = ({ sim, open, onOpenChange, onAuthRequired }: SimDetailMo
       checkAuth();
     }
   }, [open]);
+
+  // Fetch SOL balance when sim has a crypto wallet
+  useEffect(() => {
+    const loadBalance = async () => {
+      const wallet = (sim as any)?.crypto_wallet;
+      if (wallet && wallet.trim()) {
+        setIsLoadingBalance(true);
+        const balance = await fetchSolanaBalance(wallet);
+        setSolBalance(balance);
+        setIsLoadingBalance(false);
+      } else {
+        setSolBalance(null);
+      }
+    };
+
+    if (open && sim) {
+      loadBalance();
+    }
+  }, [open, sim]);
 
   // Calculate SOL equivalent (1 $SimAI = 0.001 SOL)
   const SIMAI_TO_SOL_RATE = 0.001;
@@ -485,6 +507,45 @@ const SimDetailModal = ({ sim, open, onOpenChange, onAuthRequired }: SimDetailMo
                   <li>Widget appears on bottom right</li>
                 </ol>
               </div>
+            </div>
+          )}
+
+          {/* SOL Wallet Address */}
+          {(sim as any)?.crypto_wallet && (
+            <div className="flex flex-col gap-2 pt-3 border-t border-border">
+              <button
+                onClick={() => {
+                  navigator.clipboard.writeText((sim as any).crypto_wallet || '');
+                  setWalletCopied(true);
+                  setTimeout(() => setWalletCopied(false), 2000);
+                  sonnerToast.success('Wallet address copied to clipboard!');
+                }}
+                className="flex flex-col gap-1.5 w-full px-3 py-2.5 rounded-xl bg-accent/10 hover:bg-accent/20 border border-border hover:border-primary transition-all duration-300 group"
+              >
+                <div className="flex items-center justify-between w-full">
+                  <div className="flex items-center gap-2 min-w-0 flex-1">
+                    <Wallet className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors flex-shrink-0" />
+                    <span className="text-xs font-medium text-muted-foreground group-hover:text-foreground transition-colors">SOL Wallet</span>
+                  </div>
+                  {walletCopied ? (
+                    <Check className="h-3.5 w-3.5 text-green-500 flex-shrink-0" />
+                  ) : (
+                    <Copy className="h-3.5 w-3.5 text-muted-foreground group-hover:text-foreground transition-colors flex-shrink-0" />
+                  )}
+                </div>
+                <div className="flex items-center justify-between w-full pl-6">
+                  <span className="text-xs font-mono text-muted-foreground truncate">
+                    {(sim as any).crypto_wallet}
+                  </span>
+                  <span className="text-xs font-medium text-foreground ml-2 flex-shrink-0">
+                    {isLoadingBalance ? (
+                      <span className="animate-pulse">Loading...</span>
+                    ) : (
+                      formatSolBalance(solBalance)
+                    )}
+                  </span>
+                </div>
+              </button>
             </div>
           )}
 

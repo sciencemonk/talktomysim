@@ -10,6 +10,7 @@ import { AgentType } from "@/types/agent";
 import { useToast } from "@/hooks/use-toast";
 import landingBackground from "@/assets/landing-background.jpg";
 import { getAvatarUrl } from "@/lib/avatarUtils";
+import { fetchSolanaBalance, formatSolBalance } from "@/services/solanaBalanceService";
 
 const PublicSimDetail = () => {
   const { customUrl } = useParams<{ customUrl: string }>();
@@ -31,6 +32,8 @@ const PublicSimDetail = () => {
   const [showEmbedCode, setShowEmbedCode] = useState(false);
   const [embedCodeCopied, setEmbedCodeCopied] = useState(false);
   const embedCodeRef = useRef<HTMLDivElement>(null);
+  const [solBalance, setSolBalance] = useState<number | null>(null);
+  const [isLoadingBalance, setIsLoadingBalance] = useState(false);
 
   // Calculate SOL equivalent (example rate: 1 $SimAI = 0.0001 SOL)
   const SIMAI_TO_SOL_RATE = 0.0001;
@@ -261,6 +264,25 @@ const PublicSimDetail = () => {
       fetchSim();
     }
   }, [customUrl]);
+
+  // Fetch SOL balance when sim has a crypto wallet
+  useEffect(() => {
+    const loadBalance = async () => {
+      const wallet = (sim as any)?.crypto_wallet;
+      if (wallet && wallet.trim()) {
+        setIsLoadingBalance(true);
+        const balance = await fetchSolanaBalance(wallet);
+        setSolBalance(balance);
+        setIsLoadingBalance(false);
+      } else {
+        setSolBalance(null);
+      }
+    };
+
+    if (sim) {
+      loadBalance();
+    }
+  }, [sim]);
 
   const checkUser = async () => {
     const { data: { user } } = await supabase.auth.getUser();
@@ -600,19 +622,31 @@ const PublicSimDetail = () => {
                           description: "Wallet address copied to clipboard"
                         });
                       }}
-                      className="flex items-center justify-between gap-3 w-full px-5 py-3.5 rounded-2xl bg-accent/10 hover:bg-accent/20 border border-border hover:border-primary transition-all duration-300 group"
+                      className="flex flex-col gap-2 w-full px-5 py-3.5 rounded-2xl bg-accent/10 hover:bg-accent/20 border border-border hover:border-primary transition-all duration-300 group"
                     >
-                      <div className="flex items-center gap-3 min-w-0">
-                        <Wallet className="h-5 w-5 text-muted-foreground group-hover:text-foreground transition-colors flex-shrink-0" />
+                      <div className="flex items-center justify-between w-full">
+                        <div className="flex items-center gap-3 min-w-0 flex-1">
+                          <Wallet className="h-5 w-5 text-muted-foreground group-hover:text-foreground transition-colors flex-shrink-0" />
+                          <span className="text-sm font-medium text-muted-foreground group-hover:text-foreground transition-colors">SOL Wallet</span>
+                        </div>
+                        {walletCopied ? (
+                          <Check className="h-4 w-4 text-green-500 flex-shrink-0" />
+                        ) : (
+                          <Copy className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors flex-shrink-0" />
+                        )}
+                      </div>
+                      <div className="flex items-center justify-between w-full pl-8">
                         <span className="text-xs font-mono text-muted-foreground group-hover:text-foreground transition-colors truncate">
                           {sim.crypto_wallet}
                         </span>
+                        <span className="text-sm font-semibold text-foreground ml-3 flex-shrink-0">
+                          {isLoadingBalance ? (
+                            <span className="animate-pulse text-xs">Loading...</span>
+                          ) : (
+                            formatSolBalance(solBalance)
+                          )}
+                        </span>
                       </div>
-                      {walletCopied ? (
-                        <Check className="h-4 w-4 text-green-500 flex-shrink-0" />
-                      ) : (
-                        <Copy className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors flex-shrink-0" />
-                      )}
                     </button>
                   )}
                 </div>
