@@ -1,7 +1,4 @@
-import { Connection, PublicKey, LAMPORTS_PER_SOL } from '@solana/web3.js';
-
-// Use public RPC endpoint - you can replace with your own Helius/QuickNode key for better rate limits
-const SOLANA_RPC_URL = 'https://solana-mainnet.rpc.extrnode.com';
+import { supabase } from '@/integrations/supabase/client';
 
 export const fetchSolanaBalance = async (walletAddress: string): Promise<number | null> => {
   try {
@@ -9,23 +6,26 @@ export const fetchSolanaBalance = async (walletAddress: string): Promise<number 
       return null;
     }
 
-    // Validate wallet address format
-    try {
-      new PublicKey(walletAddress);
-    } catch (error) {
-      console.error('Invalid Solana wallet address:', walletAddress);
+    console.log('[fetchSolanaBalance] Fetching balance for:', walletAddress);
+
+    const { data, error } = await supabase.functions.invoke('get-solana-balance', {
+      body: { walletAddress }
+    });
+
+    if (error) {
+      console.error('[fetchSolanaBalance] Error:', error);
       return null;
     }
 
-    const connection = new Connection(SOLANA_RPC_URL, 'confirmed');
-    const publicKey = new PublicKey(walletAddress);
-    
-    const balance = await connection.getBalance(publicKey);
-    const solBalance = balance / LAMPORTS_PER_SOL;
-    
-    return solBalance;
+    if (!data.success) {
+      console.error('[fetchSolanaBalance] Failed:', data.error);
+      return null;
+    }
+
+    console.log('[fetchSolanaBalance] Balance:', data.balance);
+    return data.balance;
   } catch (error) {
-    console.error('Error fetching Solana balance:', error);
+    console.error('[fetchSolanaBalance] Error:', error);
     return null;
   }
 };
