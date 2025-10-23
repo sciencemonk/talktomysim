@@ -92,7 +92,7 @@ export const TextInput: React.FC<TextInputProps> = ({
               type="submit" 
               disabled={!message.trim() || disabled}
               size="sm"
-              className="h-8 w-8 p-0 flex-shrink-0 rounded-lg"
+              className="h-8 w-8 p-0 flex-shrink-0 rounded-lg bg-[#83f1aa] hover:bg-[#83f1aa]/90 text-black"
             >
               <Send className="h-4 w-4" />
             </Button>

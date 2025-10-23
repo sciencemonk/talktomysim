@@ -102,7 +102,7 @@ const PublicChatInterface = ({ agent }: PublicChatInterfaceProps) => {
               onClick={handleSend}
               disabled={!inputValue.trim() || textChat.isProcessing}
               size="icon"
-              className="absolute right-2 top-1/2 -translate-y-1/2 h-10 w-10 rounded-xl bg-primary hover:bg-primary/90"
+              className="absolute right-2 top-1/2 -translate-y-1/2 h-10 w-10 rounded-xl bg-[#83f1aa] hover:bg-[#83f1aa]/90 text-black"
             >
               <Send className="h-4 w-4" />
             </Button>
@@ -146,7 +146,7 @@ const PublicChatInterface = ({ agent }: PublicChatInterfaceProps) => {
                 <div className={`flex-1 min-w-0 ${message.role === 'user' ? 'flex justify-end' : ''}`}>
                   <div className={`
                     ${message.role === 'user' 
-                      ? 'bg-primary/90 text-primary-foreground rounded-3xl px-4 py-3 inline-block max-w-[80%] break-words overflow-hidden' 
+                      ? 'bg-[#83f1aa] text-black rounded-3xl px-4 py-3 inline-block max-w-[80%] break-words overflow-hidden' 
                       : 'bg-card border border-border rounded-2xl px-4 py-3 w-full text-foreground overflow-hidden'
                     }
                   `}>
@@ -229,7 +229,7 @@ const PublicChatInterface = ({ agent }: PublicChatInterfaceProps) => {
               onClick={handleSend}
               disabled={!inputValue.trim() || textChat.isProcessing}
               size="icon"
-              className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 sm:h-10 sm:w-10 rounded-xl bg-primary hover:bg-primary/90"
+              className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 sm:h-10 sm:w-10 rounded-xl bg-[#83f1aa] hover:bg-[#83f1aa]/90 text-black"
             >
               <Send className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
             </Button>

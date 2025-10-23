@@ -146,7 +146,7 @@ const ChatInterface = ({ agent, onBack, hideHeader = false, transparentMode = fa
                     <div className={`flex-1 ${message.role === 'user' ? 'flex justify-end' : ''}`}>
                       <div className={`
                         ${message.role === 'user' 
-                          ? `${transparentMode ? 'bg-primary/90 text-white' : 'bg-primary text-primary-foreground'} rounded-3xl px-4 py-3 inline-block max-w-[80%]` 
+                          ? `${transparentMode ? 'bg-[#83f1aa] text-black' : 'bg-[#83f1aa] text-black'} rounded-3xl px-4 py-3 inline-block max-w-[80%]` 
                           : `w-full ${transparentMode ? 'bg-white/10 backdrop-blur-sm rounded-2xl px-4 py-3' : ''}`
                         }
                       `}>

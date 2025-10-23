@@ -373,7 +373,7 @@ const Landing = () => {
                 <button
                   key={sim.id}
                   onClick={() => handleSimClick(sim)}
-                  className="group relative flex flex-col overflow-hidden rounded-2xl bg-card hover:bg-muted border-2 hover:border-primary transition-all duration-300 hover:scale-105 hover:shadow-xl"
+                  className="group relative flex flex-col overflow-hidden rounded-2xl bg-card hover:bg-muted border-2 hover:border-[#83f1aa] transition-all duration-300 hover:scale-105 hover:shadow-xl"
                 >
                   {/* Image container - fills top portion */}
                   <div className="relative w-full aspect-[4/3] overflow-hidden bg-muted">
