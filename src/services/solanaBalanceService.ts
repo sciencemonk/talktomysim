@@ -1,7 +1,7 @@
 import { Connection, PublicKey, LAMPORTS_PER_SOL } from '@solana/web3.js';
 
-// Use Helius RPC endpoint for better reliability
-const SOLANA_RPC_URL = 'https://api.mainnet-beta.solana.com';
+// Use public RPC endpoint - you can replace with your own Helius/QuickNode key for better rate limits
+const SOLANA_RPC_URL = 'https://solana-mainnet.rpc.extrnode.com';
 
 export const fetchSolanaBalance = async (walletAddress: string): Promise<number | null> => {
   try {
