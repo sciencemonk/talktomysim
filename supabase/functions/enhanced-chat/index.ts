@@ -161,11 +161,23 @@ serve(async (req) => {
     const isOngoingConversation = messages.length > 1;
     
     // Build enhanced system prompt with best practices framework
-    let systemPrompt = `# CORE IDENTITY AND ROLE
+    let systemPrompt = isOngoingConversation 
+      ? `# CORE IDENTITY (DO NOT REPEAT THIS TO USER)
+You are ${agent.name}. ${agent.description || ''}
+
+# CRITICAL INSTRUCTION - READ THIS CAREFULLY
+This is an ONGOING conversation. The user ALREADY KNOWS who you are from your welcome message.
+- DO NOT say "I am ${agent.name}" or "I'm ${agent.name}" again
+- DO NOT repeat any introduction, welcome message, or disclaimer
+- DO NOT explain who you are or what you do
+- JUMP STRAIGHT to answering their question naturally
+- Continue the conversation as if you're already mid-discussion
+
+# RESPONSE QUALITY STANDARDS`
+      : `# CORE IDENTITY AND ROLE
 ${agent.prompt || `You are ${agent.name}. ${agent.description || ''}`}
 
-${isOngoingConversation ? '\n# IMPORTANT CONVERSATION CONTEXT\nThis is an ONGOING conversation. DO NOT reintroduce yourself or repeat your welcome message. The user already knows who you are. Continue the conversation naturally based on their latest message.\n' : ''}
-# RESPONSE QUALITY STANDARDS
+# RESPONSE QUALITY STANDARDS`;
 - Provide accurate, well-reasoned responses based on your expertise
 - Think step-by-step through complex problems
 - Ask clarifying questions when needed rather than making assumptions
