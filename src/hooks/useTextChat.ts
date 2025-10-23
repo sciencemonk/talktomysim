@@ -10,7 +10,7 @@ interface UseTextChatProps {
   onAiMessageStart: () => string;
   onAiTextDelta: (messageId: string, delta: string) => void;
   onAiMessageComplete: (messageId: string, conversationId?: string | null) => void;
-  existingMessages?: Array<{role: 'user' | 'system', content: string}>;
+  existingMessages?: Array<{role: 'user' | 'system' | 'assistant', content: string}>;
 }
 
 export const useTextChat = ({
@@ -40,12 +40,9 @@ export const useTextChat = ({
     // Add user message immediately and get the conversation ID
     const conversationId = await onUserMessage(message);
     
-    // Build conversation history from existing messages, excluding the initial welcome message
-    // The welcome message is UI-only and shouldn't be part of the AI conversation context
-    const filteredMessages = existingMessages.filter((msg, index) => {
-      // Skip the first system message if it's the welcome message
-      return !(index === 0 && msg.role === 'system');
-    });
+    // Build conversation history from existing messages, excluding ANY system messages
+    // System messages are welcome messages and should not be sent to the AI
+    const filteredMessages = existingMessages.filter(msg => msg.role !== 'system');
     
     const newHistory = [...filteredMessages, { role: 'user' as const, content: message }];
     

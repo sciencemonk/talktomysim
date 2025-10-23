@@ -6,7 +6,7 @@ import { supabase } from '@/integrations/supabase/client';
 
 interface ChatMessage {
   id: string;
-  role: 'user' | 'system';
+  role: 'user' | 'system' | 'assistant';
   content: string;
   isComplete: boolean;
   image?: string; // For generated images
@@ -197,7 +197,7 @@ export const useChatHistory = (agent: AgentType, forceNew: boolean = false, conv
   const startAiMessage = useCallback(() => {
     const aiMessage: ChatMessage = {
       id: `ai-${Date.now()}`,
-      role: 'system',
+      role: 'assistant',
       content: '',
       isComplete: false
     };
@@ -257,7 +257,7 @@ export const useChatHistory = (agent: AgentType, forceNew: boolean = false, conv
       try {
         const savedMessage = await conversationService.addMessage(
           conversationId,
-          'system',
+          'assistant',
           messageContent
         );
 

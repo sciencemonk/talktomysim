@@ -12,7 +12,7 @@ import { getAvatarUrl } from '@/lib/avatarUtils';
 
 interface Message {
   id: string;
-  role: 'user' | 'system';
+  role: 'user' | 'system' | 'assistant';
   content: string;
   created_at: string;
 }
@@ -113,7 +113,7 @@ export const FloatingChat = () => {
       if (error) throw error;
 
       if (data.content) {
-        const assistantMessage = await conversationService.addMessage(conversationId, 'system', data.content);
+        const assistantMessage = await conversationService.addMessage(conversationId, 'assistant', data.content);
         if (assistantMessage) {
           setMessages(prev => [...prev, assistantMessage]);
         }

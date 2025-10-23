@@ -14,7 +14,7 @@ export interface Conversation {
 export interface Message {
   id: string;
   conversation_id: string;
-  role: 'user' | 'system';
+  role: 'user' | 'system' | 'assistant';
   content: string;
   created_at: string;
 }
@@ -95,7 +95,7 @@ export const conversationService = {
       // Type cast the role field to ensure it matches our Message interface
       return (data || []).map(msg => ({
         ...msg,
-        role: msg.role as 'user' | 'system'
+        role: msg.role as 'user' | 'system' | 'assistant'
       }));
     } catch (error) {
       console.error('Error fetching messages:', error);
@@ -104,7 +104,7 @@ export const conversationService = {
   },
 
   // Add a message to a conversation
-  async addMessage(conversationId: string, role: 'user' | 'system', content: string): Promise<Message | null> {
+  async addMessage(conversationId: string, role: 'user' | 'system' | 'assistant', content: string): Promise<Message | null> {
     try {
       const { data, error } = await supabase
         .from('messages')
@@ -121,7 +121,7 @@ export const conversationService = {
       // Type cast the role field to ensure it matches our Message interface
       return {
         ...data,
-        role: data.role as 'user' | 'system'
+        role: data.role as 'user' | 'system' | 'assistant'
       };
     } catch (error) {
       console.error('Error adding message:', error);

@@ -55,7 +55,7 @@ const PublicChatInterface = ({ agent }: PublicChatInterfaceProps) => {
     const lastMessage = chatHistory.messages[chatHistory.messages.length - 1];
     
     // If last message is from assistant/system, scroll to show it from the top
-    if (lastMessage?.role === 'system' && lastAssistantMessageRef.current) {
+    if ((lastMessage?.role === 'assistant' || lastMessage?.role === 'system') && lastAssistantMessageRef.current) {
       // Use requestAnimationFrame to ensure DOM has updated
       requestAnimationFrame(() => {
         lastAssistantMessageRef.current?.scrollIntoView({ 
@@ -115,12 +115,12 @@ const PublicChatInterface = ({ agent }: PublicChatInterfaceProps) => {
         <div className="max-w-3xl mx-auto space-y-4 sm:space-y-6">
           {chatHistory.messages.map((message, index) => {
             // Don't render AI messages that are incomplete and have no content
-            if (message.role === 'system' && !message.isComplete && !message.content.trim()) {
+            if ((message.role === 'assistant' || message.role === 'system') && !message.isComplete && !message.content.trim()) {
               return null;
             }
             
             const isLastAssistantMessage = 
-              message.role === 'system' && 
+              (message.role === 'assistant' || message.role === 'system') && 
               index === chatHistory.messages.length - 1;
             
             return (
@@ -129,7 +129,7 @@ const PublicChatInterface = ({ agent }: PublicChatInterfaceProps) => {
                 ref={isLastAssistantMessage ? lastAssistantMessageRef : null}
                 className={`flex gap-4 ${message.role === 'user' ? 'flex-row-reverse' : 'flex-row'} min-w-0`}
               >
-                {message.role === 'system' && (
+                {(message.role === 'assistant' || message.role === 'system') && (
                   <Avatar className="h-8 w-8 flex-shrink-0 border-2 border-white/30">
                     <AvatarImage src={getAvatarUrl(agent.avatar)} alt={agent.name} className="object-cover" />
                     <AvatarFallback className="bg-white/20 text-white text-xs">

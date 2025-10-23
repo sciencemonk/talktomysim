@@ -6,7 +6,7 @@ import { supabase } from '@/integrations/supabase/client';
 
 interface Message {
   id: string;
-  role: 'user' | 'system';
+  role: 'user' | 'system' | 'assistant';
   content: string;
   timestamp: Date;
   isComplete: boolean;
@@ -184,7 +184,7 @@ export const useRealtimeChat = ({ agent }: UseRealtimeChatProps) => {
             if (currentMessageIdRef.current && currentMessage) {
               const newMessage: Message = {
                 id: currentMessageIdRef.current,
-                role: 'system',
+                role: 'assistant',
                 content: currentMessage,
                 timestamp: new Date(),
                 isComplete: true
@@ -193,7 +193,7 @@ export const useRealtimeChat = ({ agent }: UseRealtimeChatProps) => {
               
               // Save assistant message to database
               if (conversationId) {
-                conversationService.addMessage(conversationId, 'system', currentMessage);
+                conversationService.addMessage(conversationId, 'assistant', currentMessage);
               }
               
               setCurrentMessage('');

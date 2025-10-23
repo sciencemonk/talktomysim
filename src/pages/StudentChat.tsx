@@ -38,7 +38,7 @@ const StudentChat = () => {
   if (realtimeChat.currentMessage && realtimeChat.isSpeaking) {
     allMessages.push({
       id: 'current',
-      role: 'system' as const,
+      role: 'assistant' as const,
       content: realtimeChat.currentMessage,
       timestamp: new Date(),
       isComplete: false
@@ -196,7 +196,7 @@ const StudentChat = () => {
                     className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
                   >
                     <div className={`flex gap-2 max-w-[85%] ${message.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
-                      {message.role === 'system' && (
+                      {(message.role === 'assistant' || message.role === 'system') && (
                         <Avatar className="h-8 w-8 flex-shrink-0">
                           <AvatarImage src={agent.avatar} alt={agent.name} />
                           <AvatarFallback className="bg-primary text-primary-foreground text-sm">
@@ -214,7 +214,7 @@ const StudentChat = () => {
                           {message.content}
                         </p>
                         
-                        {!message.isComplete && message.role === 'system' && (
+                        {!message.isComplete && (message.role === 'assistant' || message.role === 'system') && (
                           <div className="flex items-center gap-1 mt-2">
                             <div className="w-1.5 h-1.5 bg-muted-foreground rounded-full animate-pulse" />
                             <div className="w-1.5 h-1.5 bg-muted-foreground rounded-full animate-pulse" style={{ animationDelay: '0.2s' }} />

@@ -122,7 +122,7 @@ const ChatInterface = ({ agent, onBack, hideHeader = false, transparentMode = fa
           <div className="max-w-3xl mx-auto px-4 space-y-6">
             {chatHistory.messages.map((message) => {
                 // Don't render AI messages that are incomplete and have no content
-                if (message.role === 'system' && !message.isComplete && !message.content.trim()) {
+                if ((message.role === 'assistant' || message.role === 'system') && !message.isComplete && !message.content.trim()) {
                   return null;
                 }
                 
@@ -134,7 +134,7 @@ const ChatInterface = ({ agent, onBack, hideHeader = false, transparentMode = fa
                     key={message.id}
                     className={`flex gap-4 ${message.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}
                   >
-                    {message.role === 'system' && (
+                    {(message.role === 'assistant' || message.role === 'system') && (
                       <Avatar className="h-8 w-8 flex-shrink-0">
                         <AvatarImage src={avatarUrl} alt={currentAgent.name} className="object-cover" />
                         <AvatarFallback className="bg-primary text-primary-foreground text-xs">
