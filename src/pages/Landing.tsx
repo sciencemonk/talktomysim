@@ -104,7 +104,8 @@ const Landing = () => {
         isPersonal: false,
         voiceTraits: [],
         social_links: data.social_links as any,
-        background_image_url: data.background_image_url
+        background_image_url: data.background_image_url,
+        crypto_wallet: data.crypto_wallet
       } as AgentType;
     },
     enabled: !!currentUser
@@ -173,7 +174,8 @@ const Landing = () => {
           user_id: sim.user_id,
           user_count: userCount,
           social_links: sim.social_links as any,
-          background_image_url: sim.background_image_url
+          background_image_url: sim.background_image_url,
+          crypto_wallet: sim.crypto_wallet
         } as AgentType & { user_id?: string; category?: string; user_count?: number };
       });
     },
