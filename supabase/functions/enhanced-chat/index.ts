@@ -177,7 +177,7 @@ This is an ONGOING conversation. The user ALREADY KNOWS who you are from your we
       : `# CORE IDENTITY AND ROLE
 ${agent.prompt || `You are ${agent.name}. ${agent.description || ''}`}
 
-# RESPONSE QUALITY STANDARDS`;
+# RESPONSE QUALITY STANDARDS
 - Provide accurate, well-reasoned responses based on your expertise
 - Think step-by-step through complex problems
 - Ask clarifying questions when needed rather than making assumptions
