@@ -22,6 +22,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useTheme } from "@/hooks/useTheme";
 
 const Landing = () => {
@@ -301,33 +302,64 @@ const Landing = () => {
             </div>
 
             {/* Category Filters */}
-            <div className="flex flex-wrap gap-2">
-              {categoryCounts.map((cat) => (
-                <Button
-                  key={cat.id}
-                  variant="outline"
-                  onClick={() => setSelectedCategory(cat.id)}
-                  className={`gap-1.5 h-8 text-xs sm:h-10 sm:text-sm sm:gap-2 ${
-                    selectedCategory === cat.id 
-                      ? 'border-[#83f1aa] hover:bg-[#83f1aa]/90' 
-                      : ''
-                  }`}
-                  style={selectedCategory === cat.id ? { backgroundColor: '#83f1aa', color: '#000' } : {}}
-                >
-                  <span className="whitespace-nowrap">{cat.label}</span>
-                  <Badge 
+            {isMobile ? (
+              <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                <SelectTrigger className="w-full h-12 bg-background">
+                  <SelectValue placeholder="Select category">
+                    <div className="flex items-center justify-between w-full">
+                      <span>{categoryCounts.find(c => c.id === selectedCategory)?.label || 'All Categories'}</span>
+                      <Badge variant="secondary" className="ml-2 px-1.5">
+                        {categoryCounts.find(c => c.id === selectedCategory)?.count || 0}
+                      </Badge>
+                    </div>
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent className="bg-background border-border z-[100] max-h-[300px]">
+                  {categoryCounts.map((cat) => (
+                    <SelectItem 
+                      key={cat.id} 
+                      value={cat.id}
+                      className="cursor-pointer"
+                    >
+                      <div className="flex items-center justify-between w-full gap-3">
+                        <span>{cat.label}</span>
+                        <Badge variant="secondary" className="px-1.5 shrink-0">
+                          {cat.count}
+                        </Badge>
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            ) : (
+              <div className="flex flex-wrap gap-2">
+                {categoryCounts.map((cat) => (
+                  <Button
+                    key={cat.id}
                     variant="outline"
-                    className={`px-1 text-[10px] sm:px-1.5 sm:text-xs ${
+                    onClick={() => setSelectedCategory(cat.id)}
+                    className={`gap-1.5 h-8 text-xs sm:h-10 sm:text-sm sm:gap-2 ${
                       selectedCategory === cat.id 
-                        ? 'bg-white text-black border-white' 
-                        : 'bg-transparent text-gray-500 border-gray-300'
+                        ? 'border-[#83f1aa] hover:bg-[#83f1aa]/90' 
+                        : ''
                     }`}
+                    style={selectedCategory === cat.id ? { backgroundColor: '#83f1aa', color: '#000' } : {}}
                   >
-                    {cat.count}
-                  </Badge>
-                </Button>
-              ))}
-            </div>
+                    <span className="whitespace-nowrap">{cat.label}</span>
+                    <Badge 
+                      variant="outline"
+                      className={`px-1 text-[10px] sm:px-1.5 sm:text-xs ${
+                        selectedCategory === cat.id 
+                          ? 'bg-white text-black border-white' 
+                          : 'bg-transparent text-gray-500 border-gray-300'
+                      }`}
+                    >
+                      {cat.count}
+                    </Badge>
+                  </Button>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Sims Grid */}
