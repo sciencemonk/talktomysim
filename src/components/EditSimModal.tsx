@@ -201,6 +201,8 @@ const EditSimModal = ({ open, onOpenChange, simId, editCode }: EditSimModalProps
   const handleSave = async () => {
     const codeToUse = editCode || inputEditCode;
     
+    console.log('Starting save with code:', codeToUse, 'simId:', simId);
+    
     if (!codeToUse || codeToUse.length !== 6) {
       toast.error('Please enter a valid 6-digit edit code');
       return;
@@ -263,6 +265,14 @@ const EditSimModal = ({ open, onOpenChange, simId, editCode }: EditSimModalProps
       const allIntegrations = ["solana-explorer", "pumpfun", "x-analyzer", "crypto-prices"];
       
       // Use the database function to update with edit code
+      console.log('Calling update_sim_with_code with params:', {
+        p_sim_id: simId,
+        p_edit_code: codeToUse,
+        p_name: name.trim(),
+        p_category: category || null,
+        p_description: description.trim()
+      });
+      
       const { data, error } = await supabase.rpc('update_sim_with_code', {
         p_sim_id: simId,
         p_edit_code: codeToUse,
@@ -276,7 +286,10 @@ const EditSimModal = ({ open, onOpenChange, simId, editCode }: EditSimModalProps
         p_integrations: allIntegrations
       });
 
+      console.log('RPC result:', { data, error });
+
       if (error) {
+        console.error('RPC error:', error);
         if (error.message.includes('Invalid edit code')) {
           toast.error('Invalid edit code. Please check and try again.');
         } else {
