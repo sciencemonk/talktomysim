@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/sheet";
 import { AgentType } from "@/types/agent";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useNavigate } from "react-router-dom";
 
 interface AdvisorDirectoryProps {
@@ -143,18 +144,54 @@ const AdvisorDirectory = ({ onSelectAdvisor, onAuthRequired }: AdvisorDirectoryP
               />
             </div>
             
-            <Tabs value={simFilter} onValueChange={(value) => setSimFilter(value as 'historical' | 'living')} className="sm:w-auto">
-              <TabsList className="grid grid-cols-2 w-full sm:w-auto">
-                <TabsTrigger value="historical" className="flex items-center gap-2">
-                  <History className="h-4 w-4" />
-                  Historical
-                </TabsTrigger>
-                <TabsTrigger value="living" className="flex items-center gap-2">
-                  <Users className="h-4 w-4" />
-                  Living
-                </TabsTrigger>
-              </TabsList>
-            </Tabs>
+            {/* Mobile: Dropdown */}
+            {isMobile ? (
+              <Select value={simFilter} onValueChange={(value) => setSimFilter(value as 'historical' | 'living')}>
+                <SelectTrigger className="w-full">
+                  <SelectValue>
+                    {simFilter === 'historical' ? (
+                      <div className="flex items-center gap-2">
+                        <History className="h-4 w-4" />
+                        Historical Figures
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-2">
+                        <Users className="h-4 w-4" />
+                        Living
+                      </div>
+                    )}
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent className="bg-background border-border text-foreground z-50">
+                  <SelectItem value="historical" className="text-foreground hover:bg-muted">
+                    <div className="flex items-center gap-2">
+                      <History className="h-4 w-4" />
+                      Historical Figures
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="living" className="text-foreground hover:bg-muted">
+                    <div className="flex items-center gap-2">
+                      <Users className="h-4 w-4" />
+                      Living
+                    </div>
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            ) : (
+              /* Desktop: Tabs */
+              <Tabs value={simFilter} onValueChange={(value) => setSimFilter(value as 'historical' | 'living')} className="w-auto">
+                <TabsList className="grid grid-cols-2">
+                  <TabsTrigger value="historical" className="flex items-center gap-2">
+                    <History className="h-4 w-4" />
+                    Historical
+                  </TabsTrigger>
+                  <TabsTrigger value="living" className="flex items-center gap-2">
+                    <Users className="h-4 w-4" />
+                    Living
+                  </TabsTrigger>
+                </TabsList>
+              </Tabs>
+            )}
           </div>
 
           {/* Advisors Grid */}
