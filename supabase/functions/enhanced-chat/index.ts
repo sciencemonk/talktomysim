@@ -157,10 +157,14 @@ serve(async (req) => {
     const needsResearch = shouldDoWebResearch(userMessage);
     console.log('Needs research:', needsResearch);
 
+    // Check if this is an ongoing conversation
+    const isOngoingConversation = messages.length > 1;
+    
     // Build enhanced system prompt with best practices framework
     let systemPrompt = `# CORE IDENTITY AND ROLE
 ${agent.prompt || `You are ${agent.name}. ${agent.description || ''}`}
 
+${isOngoingConversation ? '\n# IMPORTANT CONVERSATION CONTEXT\nThis is an ONGOING conversation. DO NOT reintroduce yourself or repeat your welcome message. The user already knows who you are. Continue the conversation naturally based on their latest message.\n' : ''}
 # RESPONSE QUALITY STANDARDS
 - Provide accurate, well-reasoned responses based on your expertise
 - Think step-by-step through complex problems
