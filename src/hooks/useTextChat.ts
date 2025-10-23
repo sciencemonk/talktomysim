@@ -40,8 +40,14 @@ export const useTextChat = ({
     // Add user message immediately and get the conversation ID
     const conversationId = await onUserMessage(message);
     
-    // Build conversation history from existing messages plus the new user message
-    const newHistory = [...existingMessages, { role: 'user' as const, content: message }];
+    // Build conversation history from existing messages, excluding the initial welcome message
+    // The welcome message is UI-only and shouldn't be part of the AI conversation context
+    const filteredMessages = existingMessages.filter((msg, index) => {
+      // Skip the first system message if it's the welcome message
+      return !(index === 0 && msg.role === 'system');
+    });
+    
+    const newHistory = [...filteredMessages, { role: 'user' as const, content: message }];
     
     // Start AI message and get the message ID
     const aiMessageId = onAiMessageStart();
