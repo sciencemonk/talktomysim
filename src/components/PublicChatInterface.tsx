@@ -75,6 +75,11 @@ const PublicChatInterface = ({ agent }: PublicChatInterfaceProps) => {
     }
   }, [chatHistory.messages, chatHistory.messages.length]);
 
+  // Show loading state while chat history is loading
+  if (chatHistory.isLoading) {
+    return null;
+  }
+
   // Show initial state if no messages
   if (!hasStartedChat && chatHistory.messages.length === 0) {
     return (
