@@ -1132,6 +1132,21 @@ export type Database = {
               similarity: number
             }[]
           }
+      update_sim_with_code: {
+        Args: {
+          p_avatar_url?: string
+          p_category: string
+          p_description: string
+          p_edit_code: string
+          p_integrations?: Json
+          p_name: string
+          p_prompt: string
+          p_sim_id: string
+          p_social_links?: Json
+          p_welcome_message: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"

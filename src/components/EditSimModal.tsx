@@ -27,6 +27,7 @@ interface EditSimModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   simId: string;
+  editCode?: string;
 }
 
 const categories = [
@@ -42,7 +43,7 @@ const categories = [
   { value: 'adult', label: 'Adult' },
 ];
 
-const EditSimModal = ({ open, onOpenChange, simId }: EditSimModalProps) => {
+const EditSimModal = ({ open, onOpenChange, simId, editCode }: EditSimModalProps) => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
@@ -60,6 +61,7 @@ const EditSimModal = ({ open, onOpenChange, simId }: EditSimModalProps) => {
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const [hasGenerated, setHasGenerated] = useState(false);
+  const [inputEditCode, setInputEditCode] = useState('');
   
   const [isGenerating, setIsGenerating] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -197,6 +199,13 @@ const EditSimModal = ({ open, onOpenChange, simId }: EditSimModalProps) => {
   };
 
   const handleSave = async () => {
+    const codeToUse = editCode || inputEditCode;
+    
+    if (!codeToUse || codeToUse.length !== 6) {
+      toast.error('Please enter a valid 6-digit edit code');
+      return;
+    }
+
     if (!name.trim()) {
       toast.error('Please enter a name for your sim');
       return;
@@ -253,22 +262,28 @@ const EditSimModal = ({ open, onOpenChange, simId }: EditSimModalProps) => {
       
       const allIntegrations = ["solana-explorer", "pumpfun", "x-analyzer", "crypto-prices"];
       
-      const { error } = await supabase
-        .from('advisors')
-        .update({
-          name: name.trim(),
-          category: category || null,
-          description: description.trim(),
-          prompt: systemPrompt.trim(),
-          welcome_message: welcomeMessage.trim(),
-          avatar_url: avatarUrl,
-          integrations: allIntegrations,
-          social_links: Object.keys(socialLinks).length > 0 ? socialLinks : null,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', simId);
+      // Use the database function to update with edit code
+      const { data, error } = await supabase.rpc('update_sim_with_code', {
+        p_sim_id: simId,
+        p_edit_code: codeToUse,
+        p_name: name.trim(),
+        p_category: category || null,
+        p_description: description.trim(),
+        p_prompt: systemPrompt.trim(),
+        p_welcome_message: welcomeMessage.trim(),
+        p_avatar_url: avatarUrl,
+        p_social_links: Object.keys(socialLinks).length > 0 ? socialLinks : null,
+        p_integrations: allIntegrations
+      });
 
-      if (error) throw error;
+      if (error) {
+        if (error.message.includes('Invalid edit code')) {
+          toast.error('Invalid edit code. Please check and try again.');
+        } else {
+          throw error;
+        }
+        return;
+      }
 
       await queryClient.invalidateQueries({ queryKey: ['user-sim'] });
       await queryClient.invalidateQueries({ queryKey: ['sim-conversations'] });
@@ -320,6 +335,27 @@ const EditSimModal = ({ open, onOpenChange, simId }: EditSimModalProps) => {
                 Update your AI sim's configuration and behavior
               </p>
             </div>
+
+            {/* Edit Code - Only show if not provided as prop */}
+            {!editCode && (
+              <div className="space-y-2">
+                <Label htmlFor="editCode" className="text-sm font-medium">
+                  Edit Code <span className="text-destructive">*</span>
+                </Label>
+                <Input
+                  id="editCode"
+                  value={inputEditCode}
+                  onChange={(e) => setInputEditCode(e.target.value)}
+                  placeholder="Enter 6-digit edit code"
+                  maxLength={6}
+                  className="h-11 bg-background font-mono text-center text-lg tracking-widest"
+                  required
+                />
+                <p className="text-xs text-muted-foreground">
+                  Enter the 6-digit code that was provided when this sim was created
+                </p>
+              </div>
+            )}
 
             {/* Sim Identity */}
             <div className="space-y-6">
