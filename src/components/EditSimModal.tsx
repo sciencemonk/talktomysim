@@ -224,17 +224,12 @@ const EditSimModal = ({ open, onOpenChange, simId }: EditSimModalProps) => {
     
     setIsSaving(true);
     try {
-      if (!user) {
-        toast.error("Please sign in to update your sim");
-        return;
-      }
-
       let avatarUrl = avatarPreview;
 
       // Upload avatar if new file provided
       if (avatarFile) {
         const fileExt = avatarFile.name.split('.').pop();
-        const fileName = `${user.id}-${Date.now()}.${fileExt}`;
+        const fileName = `${simId}-${Date.now()}.${fileExt}`;
         const filePath = `avatars/${fileName}`;
 
         const { error: uploadError } = await supabase.storage
