@@ -29,6 +29,8 @@ const buttonVariants = cva(
         brandGradient: "bg-gradient-to-r from-brandBlue to-brandPink text-white hover:opacity-90 focus-visible:ring-focusRing",
         // New selected variant for filter buttons
         selected: "bg-black text-white hover:bg-black/90",
+        // Sim launch button variant with green accent
+        simPrimary: "bg-[#83f1aa] text-slate-900 hover:bg-[#6dd994] font-semibold shadow-lg hover:shadow-xl transition-all",
       },
       size: {
         default: "h-10 px-4 py-2",

@@ -145,8 +145,9 @@ const PublicTutorDetail = () => {
           <CardContent className="text-center">
             <Button 
               onClick={handleStartChat} 
-              size="lg" 
-              className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-medium"
+              size="lg"
+              variant="simPrimary"
+              className="px-8 py-3 rounded-lg"
             >
               <MessageCircle className="h-5 w-5 mr-2" />
               Start Chat with {agent.name}
