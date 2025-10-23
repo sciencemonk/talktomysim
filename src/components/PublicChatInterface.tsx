@@ -200,9 +200,9 @@ const PublicChatInterface = ({ agent }: PublicChatInterfaceProps) => {
               <div className="flex-1">
                 <div className="bg-card border border-border rounded-2xl px-4 py-3 inline-block">
                   <div className="flex space-x-1.5">
-                    <div className="w-2 h-2 rounded-full bg-primary animate-bounce [animation-delay:-0.3s]"></div>
-                    <div className="w-2 h-2 rounded-full bg-primary animate-bounce [animation-delay:-0.15s]"></div>
-                    <div className="w-2 h-2 rounded-full bg-primary animate-bounce"></div>
+                    <div className="w-2 h-2 rounded-full bg-[#82f2aa] animate-bounce [animation-delay:-0.3s]"></div>
+                    <div className="w-2 h-2 rounded-full bg-[#82f2aa] animate-bounce [animation-delay:-0.15s]"></div>
+                    <div className="w-2 h-2 rounded-full bg-[#82f2aa] animate-bounce"></div>
                   </div>
                 </div>
               </div>

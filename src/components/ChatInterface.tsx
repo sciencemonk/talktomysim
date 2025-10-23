@@ -210,9 +210,9 @@ const ChatInterface = ({ agent, onBack, hideHeader = false, transparentMode = fa
                   </Avatar>
                   <div className="flex-1">
                     <div className="flex space-x-1.5 py-3">
-                      <div className="w-2 h-2 rounded-full bg-muted-foreground animate-bounce [animation-delay:-0.3s]"></div>
-                      <div className="w-2 h-2 rounded-full bg-muted-foreground animate-bounce [animation-delay:-0.15s]"></div>
-                      <div className="w-2 h-2 rounded-full bg-muted-foreground animate-bounce"></div>
+                      <div className="w-2 h-2 rounded-full bg-[#82f2aa] animate-bounce [animation-delay:-0.3s]"></div>
+                      <div className="w-2 h-2 rounded-full bg-[#82f2aa] animate-bounce [animation-delay:-0.15s]"></div>
+                      <div className="w-2 h-2 rounded-full bg-[#82f2aa] animate-bounce"></div>
                     </div>
                   </div>
                 </div>
