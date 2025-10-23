@@ -25,7 +25,8 @@ const AdvisorForm = ({ open, onOpenChange, advisor, onSuccess }: AdvisorFormProp
     name: '',
     title: '',
     prompt: '',
-    avatar_url: ''
+    avatar_url: '',
+    crypto_wallet: ''
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
@@ -40,7 +41,8 @@ const AdvisorForm = ({ open, onOpenChange, advisor, onSuccess }: AdvisorFormProp
         name: advisor.name || '',
         title: advisor.title || '',
         prompt: advisor.prompt || '',
-        avatar_url: advisor.avatar_url || ''
+        avatar_url: advisor.avatar_url || '',
+        crypto_wallet: advisor.crypto_wallet || ''
       });
       setPreviewUrl(advisor.avatar_url || '');
       setActiveTab('basic');
@@ -49,7 +51,8 @@ const AdvisorForm = ({ open, onOpenChange, advisor, onSuccess }: AdvisorFormProp
         name: '',
         title: '',
         prompt: '',
-        avatar_url: ''
+        avatar_url: '',
+        crypto_wallet: ''
       });
       setPreviewUrl('');
       setActiveTab('basic');
@@ -215,6 +218,19 @@ const AdvisorForm = ({ open, onOpenChange, advisor, onSuccess }: AdvisorFormProp
                   onChange={(e) => handleInputChange('title', e.target.value)}
                   placeholder="Professional title"
                 />
+              </div>
+
+              <div>
+                <Label htmlFor="crypto_wallet">SOL Wallet Address (Optional)</Label>
+                <Input
+                  id="crypto_wallet"
+                  value={formData.crypto_wallet}
+                  onChange={(e) => handleInputChange('crypto_wallet', e.target.value)}
+                  placeholder="e.g., 7xKXt...aBcD"
+                />
+                <p className="text-xs text-muted-foreground mt-1">
+                  Add your Solana wallet address to receive tips and donations
+                </p>
               </div>
 
               <div>

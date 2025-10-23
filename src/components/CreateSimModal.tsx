@@ -51,6 +51,7 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
   const [xLink, setXLink] = useState("");
   const [websiteLink, setWebsiteLink] = useState("");
   const [telegramLink, setTelegramLink] = useState("");
+  const [cryptoWallet, setCryptoWallet] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // All sims get all integrations by default
@@ -288,6 +289,7 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
           welcome_message: welcomeMessage,
           social_links: Object.keys(socialLinks).length > 0 ? socialLinks : null,
           edit_code: editCode,
+          crypto_wallet: cryptoWallet.trim() || null,
         })
         .select()
         .single();
@@ -331,6 +333,7 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
       setXLink("");
       setWebsiteLink("");
       setTelegramLink("");
+      setCryptoWallet("");
       setSocialLinksOpen(false);
 
       // Call onSuccess to refresh queries
@@ -365,6 +368,7 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
     setXLink("");
     setWebsiteLink("");
     setTelegramLink("");
+    setCryptoWallet("");
     setSocialLinksOpen(false);
     onOpenChange(false);
   };
@@ -540,6 +544,22 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
                       className="h-10 bg-background"
                       type="url"
                     />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="crypto-wallet" className="text-sm">
+                      SOL Wallet Address
+                    </Label>
+                    <Input
+                      id="crypto-wallet"
+                      value={cryptoWallet}
+                      onChange={(e) => setCryptoWallet(e.target.value)}
+                      placeholder="7xKXt...aBcD"
+                      className="h-10 bg-background"
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Add your Solana wallet address to receive tips and donations
+                    </p>
                   </div>
                 </CollapsibleContent>
               </Collapsible>

@@ -24,6 +24,7 @@ export interface Advisor {
   category?: string;
   background_content?: string;
   knowledge_summary?: string;
+  crypto_wallet?: string;
   created_at: string;
   updated_at: string;
 }

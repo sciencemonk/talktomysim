@@ -26,7 +26,8 @@ const UserSimForm = ({ open, onOpenChange, existingSim, onSuccess }: UserSimForm
     description: '',
     prompt: '',
     custom_url: '',
-    avatar_url: ''
+    avatar_url: '',
+    crypto_wallet: ''
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
@@ -42,7 +43,8 @@ const UserSimForm = ({ open, onOpenChange, existingSim, onSuccess }: UserSimForm
         description: '', // Always auto-generate, ignore stored value
         prompt: existingSim.prompt || '',
         custom_url: existingSim.custom_url || '',
-        avatar_url: existingSim.avatar_url || ''
+        avatar_url: existingSim.avatar_url || '',
+        crypto_wallet: existingSim.crypto_wallet || ''
       });
       setPreviewUrl(existingSim.avatar_url || '');
     } else {
@@ -52,7 +54,8 @@ const UserSimForm = ({ open, onOpenChange, existingSim, onSuccess }: UserSimForm
         description: '', // Always auto-generate
         prompt: 'You are a helpful AI assistant. Be friendly, informative, and engaging in conversations.',
         custom_url: '',
-        avatar_url: ''
+        avatar_url: '',
+        crypto_wallet: ''
       });
       setPreviewUrl('');
     }
@@ -80,7 +83,8 @@ const UserSimForm = ({ open, onOpenChange, existingSim, onSuccess }: UserSimForm
           title: data.title,
           description: data.description,
           prompt: data.prompt || 'You are a helpful AI assistant. Be friendly, informative, and engaging in conversations.',
-          avatar_url: data.avatar_url
+          avatar_url: data.avatar_url,
+          crypto_wallet: data.crypto_wallet
         })
         .eq('id', existingSim.id);
 
@@ -234,6 +238,7 @@ const UserSimForm = ({ open, onOpenChange, existingSim, onSuccess }: UserSimForm
         prompt: formData.prompt || 'You are a helpful AI assistant. Be friendly, informative, and engaging in conversations.',
         custom_url: formData.custom_url,
         avatar_url: avatarUrl || '',
+        crypto_wallet: formData.crypto_wallet || null,
         sim_type: 'living',
         is_public: true,
         is_active: true,
@@ -324,6 +329,19 @@ const UserSimForm = ({ open, onOpenChange, existingSim, onSuccess }: UserSimForm
               onChange={(e) => handleInputChange('title', e.target.value)}
               placeholder="e.g., Technology Consultant"
             />
+          </div>
+
+          <div>
+            <Label htmlFor="crypto_wallet">SOL Wallet Address (Optional)</Label>
+            <Input
+              id="crypto_wallet"
+              value={formData.crypto_wallet}
+              onChange={(e) => handleInputChange('crypto_wallet', e.target.value)}
+              placeholder="e.g., 7xKXt...aBcD"
+            />
+            <p className="text-xs text-muted-foreground mt-1">
+              Add your Solana wallet address to receive tips and donations
+            </p>
           </div>
 
           {/* Description is auto-generated - no user input needed */}
