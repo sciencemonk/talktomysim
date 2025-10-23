@@ -252,17 +252,26 @@ const SimDirectory = () => {
             {/* Category Filters */}
             {isMobile ? (
               <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-                <SelectTrigger className="w-full">
-                  <SelectValue>
-                    {categoryCounts.find(c => c.id === selectedCategory)?.label || 'All Categories'}
+                <SelectTrigger className="w-full h-12 bg-background">
+                  <SelectValue placeholder="Select category">
+                    <div className="flex items-center justify-between w-full">
+                      <span>{categoryCounts.find(c => c.id === selectedCategory)?.label || 'All Categories'}</span>
+                      <Badge variant="secondary" className="ml-2 px-1.5">
+                        {categoryCounts.find(c => c.id === selectedCategory)?.count || 0}
+                      </Badge>
+                    </div>
                   </SelectValue>
                 </SelectTrigger>
-                <SelectContent className="bg-background border-border text-foreground z-50">
+                <SelectContent className="bg-background border-border z-[100] max-h-[300px]">
                   {categoryCounts.map((cat) => (
-                    <SelectItem key={cat.id} value={cat.id} className="text-foreground hover:bg-muted">
-                      <div className="flex items-center justify-between w-full">
+                    <SelectItem 
+                      key={cat.id} 
+                      value={cat.id}
+                      className="cursor-pointer"
+                    >
+                      <div className="flex items-center justify-between w-full gap-3">
                         <span>{cat.label}</span>
-                        <Badge variant="secondary" className="ml-2 px-1.5">
+                        <Badge variant="secondary" className="px-1.5 shrink-0">
                           {cat.count}
                         </Badge>
                       </div>
