@@ -490,6 +490,23 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
                 />
               </div>
 
+              {/* SOL Wallet Address */}
+              <div className="space-y-2">
+                <Label htmlFor="crypto-wallet" className="text-sm font-medium">
+                  SOL Wallet Address <span className="text-muted-foreground">(Optional)</span>
+                </Label>
+                <Input
+                  id="crypto-wallet"
+                  value={cryptoWallet}
+                  onChange={(e) => setCryptoWallet(e.target.value)}
+                  placeholder="7xKXt...aBcD"
+                  className="h-11 bg-background"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Required if you want to claim Creator Rewards
+                </p>
+              </div>
+
               {/* Social Links Collapsible */}
               <Collapsible open={socialLinksOpen} onOpenChange={setSocialLinksOpen}>
                 <CollapsibleTrigger className="flex items-center gap-2 text-sm font-medium hover:text-foreground transition-colors w-full py-2">
@@ -544,22 +561,6 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
                       className="h-10 bg-background"
                       type="url"
                     />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="crypto-wallet" className="text-sm">
-                      SOL Wallet Address
-                    </Label>
-                    <Input
-                      id="crypto-wallet"
-                      value={cryptoWallet}
-                      onChange={(e) => setCryptoWallet(e.target.value)}
-                      placeholder="7xKXt...aBcD"
-                      className="h-10 bg-background"
-                    />
-                    <p className="text-xs text-muted-foreground">
-                      Add your Solana wallet address to receive tips and donations
-                    </p>
                   </div>
                 </CollapsibleContent>
               </Collapsible>
