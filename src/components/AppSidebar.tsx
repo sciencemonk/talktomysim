@@ -46,6 +46,7 @@ import { getAvatarUrl } from "@/lib/avatarUtils";
 import { Progress } from "@/components/ui/progress";
 import { CreditUsageModal } from "./CreditUsageModal";
 import EditSimModal from "./EditSimModal";
+import ContactMeEditModal from "./ContactMeEditModal";
 import AuthModal from "./AuthModal";
 import { CreateSimModal } from "./CreateSimModal";
 import phantomIcon from "@/assets/phantom-icon.png";
@@ -58,6 +59,7 @@ interface SimConversation {
   sim_avatar: string | null;
   sim_user_id: string | null;
   sim_creator_wallet: string | null;
+  sim_category: string | null;
   conversation_id: string;
   last_message: string | null;
   updated_at: string;
@@ -71,6 +73,7 @@ export function AppSidebar() {
   const [showCreditsModal, setShowCreditsModal] = useState(false);
   const [editSimModalOpen, setEditSimModalOpen] = useState(false);
   const [selectedSimForEdit, setSelectedSimForEdit] = useState<string | null>(null);
+  const [selectedSimCategory, setSelectedSimCategory] = useState<string | null>(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showCreateSimModal, setShowCreateSimModal] = useState(false);
   const [isSigningIn, setIsSigningIn] = useState<string | null>(null);
@@ -151,7 +154,7 @@ export function AppSidebar() {
       const tutorIds = [...new Set(conversations.map(c => c.tutor_id))];
       const { data: advisors } = await supabase
         .from('advisors')
-        .select('id, name, avatar_url, user_id')
+        .select('id, name, avatar_url, user_id, sim_category')
         .in('id', tutorIds);
       
       const advisorMap = new Map(advisors?.map(a => [a.id, a]) || []);
@@ -198,6 +201,7 @@ export function AppSidebar() {
             sim_name: advisor.name || 'Unknown Sim',
             sim_avatar: advisor.avatar_url || null,
             sim_user_id: advisor.user_id || null,
+            sim_category: (advisor as any).sim_category || null,
             sim_creator_wallet: profile?.wallet_address || null,
             conversation_id: conv.id,
             last_message: lastMessage?.content || null,
@@ -590,6 +594,7 @@ export function AppSidebar() {
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     setSelectedSimForEdit(conv.sim_id);
+                                    setSelectedSimCategory(conv.sim_category);
                                     setEditSimModalOpen(true);
                                   }}
                                 >
@@ -697,7 +702,15 @@ export function AppSidebar() {
       <>
         <CreditUsageModal open={showCreditsModal} onOpenChange={setShowCreditsModal} />
         
-        {selectedSimForEdit && (
+        {selectedSimForEdit && selectedSimCategory === 'Contact Me' && (
+          <ContactMeEditModal
+            open={editSimModalOpen}
+            onOpenChange={setEditSimModalOpen}
+            simId={selectedSimForEdit}
+          />
+        )}
+
+        {selectedSimForEdit && selectedSimCategory !== 'Contact Me' && (
           <EditSimModal
             open={editSimModalOpen}
             onOpenChange={setEditSimModalOpen}

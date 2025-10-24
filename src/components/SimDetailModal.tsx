@@ -22,6 +22,7 @@ import { getAvatarUrl } from "@/lib/avatarUtils";
 import { toast as sonnerToast } from "sonner";
 import PublicChatInterface from "@/components/PublicChatInterface";
 import EditSimModal from "@/components/EditSimModal";
+import ContactMeEditModal from "@/components/ContactMeEditModal";
 import { fetchSolanaBalance, formatSolBalance } from "@/services/solanaBalanceService";
 import { validateX402Session } from "@/utils/x402Session";
 
@@ -698,7 +699,21 @@ const SimDetailModal = ({ sim, open, onOpenChange, onAuthRequired }: SimDetailMo
       </AlertDialog>
 
       {/* Edit Sim Modal */}
-      {sim && (
+      {sim && (sim as any).sim_category === 'Contact Me' && (
+        <ContactMeEditModal
+          open={showEditSimModal}
+          onOpenChange={(open) => {
+            setShowEditSimModal(open);
+            if (!open) {
+              onOpenChange(false);
+            }
+          }}
+          simId={sim.id}
+        />
+      )}
+
+      {/* Edit Sim Modal - Regular Chat Sims */}
+      {sim && (sim as any).sim_category !== 'Contact Me' && (
         <EditSimModal
           open={showEditSimModal}
           onOpenChange={(open) => {
