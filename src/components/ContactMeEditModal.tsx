@@ -17,7 +17,6 @@ import {
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Upload, Loader2, Trash2, InboxIcon } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -31,18 +30,6 @@ interface ContactMeEditModalProps {
   editCode?: string;
 }
 
-const categories = [
-  { value: 'crypto', label: 'Crypto & Web3' },
-  { value: 'historical', label: 'Historical Figures' },
-  { value: 'influencers', label: 'Influencers & Celebrities' },
-  { value: 'fictional', label: 'Fictional Characters' },
-  { value: 'education', label: 'Education & Tutoring' },
-  { value: 'business', label: 'Business & Finance' },
-  { value: 'lifestyle', label: 'Lifestyle & Wellness' },
-  { value: 'entertainment', label: 'Entertainment & Games' },
-  { value: 'spiritual', label: 'Spiritual & Philosophy' },
-];
-
 const ContactMeEditModal = ({ open, onOpenChange, simId, editCode }: ContactMeEditModalProps) => {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
@@ -50,7 +37,6 @@ const ContactMeEditModal = ({ open, onOpenChange, simId, editCode }: ContactMeEd
   
   const [activeTab, setActiveTab] = useState('messages');
   const [name, setName] = useState('');
-  const [marketplaceCategory, setMarketplaceCategory] = useState('');
   const [description, setDescription] = useState('');
   const [welcomeMessage, setWelcomeMessage] = useState('');
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
@@ -80,7 +66,6 @@ const ContactMeEditModal = ({ open, onOpenChange, simId, editCode }: ContactMeEd
 
       if (sim) {
         setName(sim.name || '');
-        setMarketplaceCategory(sim.marketplace_category || '');
         setDescription(sim.description || '');
         setWelcomeMessage(sim.welcome_message || '');
         setAvatarPreview(sim.avatar_url || null);
@@ -118,11 +103,6 @@ const ContactMeEditModal = ({ open, onOpenChange, simId, editCode }: ContactMeEd
 
     if (name.trim().length > 50) {
       toast.error('Sim name must be 50 characters or less');
-      return;
-    }
-
-    if (!marketplaceCategory) {
-      toast.error('Please select a category');
       return;
     }
 
@@ -180,7 +160,6 @@ const ContactMeEditModal = ({ open, onOpenChange, simId, editCode }: ContactMeEd
       // Update sim with all fields
       const updateData = {
         name: name.trim(),
-        marketplace_category: marketplaceCategory || null,
         description: description.trim(),
         welcome_message: welcomeMessage.trim() || `Thanks for reaching out! Fill out the form below and I'll get back to you.`,
         avatar_url: avatarUrl,
@@ -334,22 +313,6 @@ const ContactMeEditModal = ({ open, onOpenChange, simId, editCode }: ContactMeEd
                             required
                           />
                           <p className="text-xs text-muted-foreground">{name.length}/50 characters</p>
-                        </div>
-
-                        <div className="space-y-2">
-                          <Label htmlFor="category">Category <span className="text-destructive">*</span></Label>
-                          <Select value={marketplaceCategory} onValueChange={setMarketplaceCategory} required>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select category" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {categories.map((cat) => (
-                                <SelectItem key={cat.value} value={cat.value}>
-                                  {cat.label}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
                         </div>
                       </div>
                     </div>
