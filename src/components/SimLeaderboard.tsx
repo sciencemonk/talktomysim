@@ -36,13 +36,14 @@ export const SimLeaderboard = () => {
         }
       });
 
-      // Get advisor details for top sims
-      const topSimIds = Array.from(countMap.entries())
-        .sort((a, b) => b[1] - a[1])
-        .slice(0, 10)
-        .map(([id]) => id);
+      // Get top entries sorted by count
+      const sortedEntries = Array.from(countMap.entries())
+        .sort((a, b) => b[1] - a[1]);
 
-      if (topSimIds.length === 0) return [];
+      if (sortedEntries.length === 0) return [];
+
+      // Fetch enough advisors to ensure we get 10 active ones
+      const topSimIds = sortedEntries.slice(0, 30).map(([id]) => id);
 
       const { data: advisors, error: advisorsError } = await supabase
         .from('advisors')
@@ -52,13 +53,14 @@ export const SimLeaderboard = () => {
 
       if (advisorsError) throw advisorsError;
 
-      // Combine data and sort by count
+      // Combine data, sort by count, and limit to top 10
       return (advisors || [])
         .map(advisor => ({
           ...advisor,
           visitor_count: countMap.get(advisor.id) || 0
         }))
-        .sort((a, b) => b.visitor_count - a.visitor_count);
+        .sort((a, b) => b.visitor_count - a.visitor_count)
+        .slice(0, 10);
     },
     enabled: open
   });
@@ -74,7 +76,7 @@ export const SimLeaderboard = () => {
           <Trophy className="h-6 w-6" />
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-md max-h-[80vh] overflow-y-auto">
+      <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-2xl">
             <Trophy className="h-6 w-6 text-yellow-500" />
@@ -82,13 +84,14 @@ export const SimLeaderboard = () => {
           </DialogTitle>
         </DialogHeader>
         
-        {isLoading ? (
-          <div className="flex items-center justify-center py-8">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-          </div>
-        ) : (
-          <div className="space-y-3">
-            {leaderboard?.map((sim, index) => (
+        <div className="max-h-[60vh] overflow-y-auto pr-2">
+          {isLoading ? (
+            <div className="flex items-center justify-center py-8">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {leaderboard?.map((sim, index) => (
               <div
                 key={sim.id}
                 className="flex items-center gap-3 p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors"
@@ -125,13 +128,14 @@ export const SimLeaderboard = () => {
               </div>
             ))}
 
-            {(!leaderboard || leaderboard.length === 0) && (
-              <div className="text-center py-8 text-muted-foreground">
-                No data available yet
-              </div>
-            )}
-          </div>
-        )}
+              {(!leaderboard || leaderboard.length === 0) && (
+                <div className="text-center py-8 text-muted-foreground">
+                  No data available yet
+                </div>
+              )}
+            </div>
+          )}
+        </div>
       </DialogContent>
     </Dialog>
   );
