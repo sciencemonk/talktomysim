@@ -213,6 +213,13 @@ const EditSimModal = ({ open, onOpenChange, simId, editCode }: EditSimModalProps
   const handleSave = async () => {
     const codeToUse = editCode || inputEditCode;
     
+    console.log('Edit code check:', { 
+      editCode, 
+      inputEditCode, 
+      codeToUse, 
+      type: typeof codeToUse 
+    });
+    
     if (!codeToUse || codeToUse.length !== 6) {
       toast.error('Please enter a valid 6-digit edit code');
       return;
@@ -313,18 +320,43 @@ const EditSimModal = ({ open, onOpenChange, simId, editCode }: EditSimModalProps
       
       const allIntegrations = ["solana-explorer", "pumpfun", "x-analyzer", "crypto-prices"];
       
-      // First verify the edit code
+      // First verify the edit code matches
       const { data: verifyData, error: verifyError } = await supabase
         .from('advisors')
-        .select('id')
+        .select('edit_code, name')
         .eq('id', simId)
-        .eq('edit_code', codeToUse)
-        .single();
+        .maybeSingle();
       
-      if (verifyError || !verifyData) {
+      console.log('Verify result:', verifyData);
+      console.log('Verify error:', verifyError);
+      
+      if (verifyError) {
+        console.error('Error verifying edit code:', verifyError);
+        toast.error('Failed to verify sim');
+        return;
+      }
+      
+      if (!verifyData) {
+        toast.error('Sim not found');
+        return;
+      }
+      
+      console.log('Comparing edit codes:', {
+        stored: verifyData.edit_code,
+        storedType: typeof verifyData.edit_code,
+        provided: codeToUse,
+        providedType: typeof codeToUse,
+        match: verifyData.edit_code === codeToUse,
+        trimmedMatch: verifyData.edit_code?.trim() === codeToUse?.trim()
+      });
+      
+      if (verifyData.edit_code !== codeToUse && verifyData.edit_code?.trim() !== codeToUse?.trim()) {
+        console.error('Edit code mismatch!');
         toast.error('Invalid edit code. Please check and try again.');
         return;
       }
+      
+      console.log('Edit code verified successfully');
       
       // Update sim with all fields
       const updateData = {
@@ -350,7 +382,6 @@ const EditSimModal = ({ open, onOpenChange, simId, editCode }: EditSimModalProps
         .from('advisors')
         .update(updateData)
         .eq('id', simId)
-        .eq('edit_code', codeToUse)
         .select();
 
       console.log('Update result:', updateResult);
