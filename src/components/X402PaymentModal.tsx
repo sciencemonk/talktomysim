@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Loader2, Wallet } from "lucide-react";
 import { toast } from "sonner";
+import { ethers } from "ethers";
 
 interface X402PaymentModalProps {
   isOpen: boolean;
@@ -23,6 +24,11 @@ export const X402PaymentModal = ({
 }: X402PaymentModalProps) => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [walletConnected, setWalletConnected] = useState(false);
+  const [userAddress, setUserAddress] = useState<string>('');
+
+  // USDC contract address on Base Sepolia
+  const USDC_ADDRESS = '0x036CbD53842c5426634e7929541eC2318f3dCF7e';
+  const BASE_SEPOLIA_CHAIN_ID = '0x14a34'; // 84532 in hex
 
   const connectWallet = async () => {
     try {
@@ -31,13 +37,49 @@ export const X402PaymentModal = ({
         return;
       }
 
+      // Request account access
       const accounts = await window.ethereum.request({ 
         method: 'eth_requestAccounts' 
       });
       
       if (accounts.length > 0) {
+        setUserAddress(accounts[0]);
+        
+        // Check if user is on Base Sepolia network
+        const chainId = await window.ethereum.request({ method: 'eth_chainId' });
+        
+        if (chainId !== BASE_SEPOLIA_CHAIN_ID) {
+          // Try to switch to Base Sepolia
+          try {
+            await window.ethereum.request({
+              method: 'wallet_switchEthereumChain',
+              params: [{ chainId: BASE_SEPOLIA_CHAIN_ID }],
+            });
+          } catch (switchError: any) {
+            // Chain not added to wallet, add it
+            if (switchError.code === 4902) {
+              await window.ethereum.request({
+                method: 'wallet_addEthereumChain',
+                params: [{
+                  chainId: BASE_SEPOLIA_CHAIN_ID,
+                  chainName: 'Base Sepolia',
+                  nativeCurrency: {
+                    name: 'ETH',
+                    symbol: 'ETH',
+                    decimals: 18
+                  },
+                  rpcUrls: ['https://sepolia.base.org'],
+                  blockExplorerUrls: ['https://sepolia.basescan.org']
+                }]
+              });
+            } else {
+              throw switchError;
+            }
+          }
+        }
+        
         setWalletConnected(true);
-        toast.success('Wallet connected');
+        toast.success('Wallet connected to Base Sepolia');
       }
     } catch (error: any) {
       console.error('Wallet connection error:', error);
@@ -53,18 +95,78 @@ export const X402PaymentModal = ({
 
     setIsProcessing(true);
     try {
-      // For now, simulate payment success
-      // TODO: Implement actual x402 payment flow
-      const sessionId = `session_${Date.now()}_${Math.random().toString(36).substring(7)}`;
+      console.log('Starting USDC payment:', { 
+        price, 
+        recipientWallet: walletAddress, 
+        userAddress,
+        network: 'base-sepolia' 
+      });
+
+      // Create ethers provider
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      const signer = await provider.getSigner();
+
+      // USDC ERC20 ABI (minimal for transfer)
+      const usdcAbi = [
+        "function transfer(address to, uint256 amount) returns (bool)",
+        "function balanceOf(address account) view returns (uint256)",
+        "function decimals() view returns (uint8)"
+      ];
+
+      // Create contract instance
+      const usdcContract = new ethers.Contract(USDC_ADDRESS, usdcAbi, signer);
+
+      // Check user's USDC balance
+      const balance = await usdcContract.balanceOf(userAddress);
+      const decimals = await usdcContract.decimals();
+      const amount = ethers.parseUnits(price.toString(), decimals);
+
+      console.log('USDC balance:', ethers.formatUnits(balance, decimals), 'USDC');
+      console.log('Payment amount:', ethers.formatUnits(amount, decimals), 'USDC');
+
+      if (balance < amount) {
+        throw new Error('Insufficient USDC balance. Get testnet USDC from Circle Faucet.');
+      }
+
+      // Execute transfer
+      toast.info('Please confirm the transaction in your wallet...');
+      const tx = await usdcContract.transfer(walletAddress, amount);
       
-      // Store session ID in localStorage
-      localStorage.setItem(`x402_session_${walletAddress}`, sessionId);
+      toast.info('Transaction submitted. Waiting for confirmation...');
+      console.log('Transaction hash:', tx.hash);
+
+      // Wait for transaction confirmation
+      const receipt = await tx.wait();
+      
+      console.log('Transaction confirmed:', receipt);
+
+      // Generate session ID with transaction hash
+      const sessionId = `x402_${receipt.hash}_${Date.now()}`;
+      
+      // Store session with payment proof
+      localStorage.setItem(`x402_session_${walletAddress}`, JSON.stringify({
+        sessionId,
+        transactionHash: receipt.hash,
+        blockNumber: receipt.blockNumber,
+        amount: price,
+        timestamp: Date.now(),
+        expiresAt: Date.now() + (24 * 60 * 60 * 1000), // 24 hours
+        from: userAddress,
+        to: walletAddress
+      }));
+
       toast.success('Payment successful!');
       onPaymentSuccess(sessionId);
       onClose();
     } catch (error: any) {
       console.error('Payment error:', error);
-      toast.error(error.message || 'Payment failed. Please try again.');
+      if (error.code === 4001 || error.code === 'ACTION_REJECTED') {
+        toast.error('Payment cancelled by user');
+      } else if (error.message?.includes('insufficient funds') || error.message?.includes('Insufficient')) {
+        toast.error('Insufficient USDC balance. Get testnet USDC from Circle Faucet.');
+      } else {
+        toast.error(error.message || 'Payment failed. Please try again.');
+      }
     } finally {
       setIsProcessing(false);
     }
