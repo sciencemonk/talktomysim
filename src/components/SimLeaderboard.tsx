@@ -69,7 +69,7 @@ export const SimLeaderboard = () => {
         <Button
           size="icon"
           className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-lg hover:shadow-xl transition-all z-50"
-          style={{ backgroundColor: 'hsl(var(--primary))', color: 'hsl(var(--primary-foreground))' }}
+          style={{ backgroundColor: '#82f2aa', color: '#000' }}
         >
           <Trophy className="h-6 w-6" />
         </Button>
@@ -111,13 +111,9 @@ export const SimLeaderboard = () => {
                   </AvatarFallback>
                 </Avatar>
 
-                {/* Name and Stats */}
+                {/* Name */}
                 <div className="flex-1 min-w-0">
                   <div className="font-semibold truncate">{sim.name}</div>
-                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                    <TrendingUp className="h-3 w-3" />
-                    <span>{sim.visitor_count} unique visitors</span>
-                  </div>
                 </div>
 
                 {/* Category Badge */}
