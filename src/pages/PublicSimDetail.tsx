@@ -488,13 +488,26 @@ const PublicSimDetail = () => {
                 </p>
               </div>
 
-              {/* Price */}
-              <div className="mb-6 flex items-center justify-center gap-2">
-                <span className="text-sm text-muted-foreground">Price:</span>
-                <span className={`text-lg font-semibold ${getSimPrice().isFree ? 'text-green-500' : 'text-primary'}`}>
-                  {getSimPrice().display}
-                </span>
-              </div>
+              {/* SOL Wallet Info */}
+              {sim.crypto_wallet && (
+                <div className="mb-6 p-4 bg-accent/10 rounded-2xl border border-border">
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-2 min-w-0 flex-1">
+                      <Wallet className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                      <span className="text-xs font-mono text-muted-foreground truncate">
+                        {sim.crypto_wallet}
+                      </span>
+                    </div>
+                    <span className="text-sm font-semibold text-foreground flex-shrink-0">
+                      {isLoadingBalance ? (
+                        <span className="animate-pulse text-xs">Loading...</span>
+                      ) : (
+                        formatSolBalance(solBalance)
+                      )}
+                    </span>
+                  </div>
+                </div>
+              )}
 
               {/* Start Chatting Button */}
               <Button
