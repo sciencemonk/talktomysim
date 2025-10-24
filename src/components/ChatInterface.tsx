@@ -12,6 +12,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { useIOSKeyboard } from "@/hooks/useIOSKeyboard";
 import { AgentType } from "@/types/agent";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import { X402PaymentModal } from "@/components/X402PaymentModal";
 
 interface ChatInterfaceProps {
   agent: AgentType;
@@ -26,6 +27,8 @@ interface ChatInterfaceProps {
 const ChatInterface = ({ agent, onBack, hideHeader = false, transparentMode = false, isCreatorChat = false, forceNewChat = false, conversationId = null }: ChatInterfaceProps) => {
   const [currentAgent, setCurrentAgent] = useState(agent);
   const [isAiResponding, setIsAiResponding] = useState(false);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [sessionId, setSessionId] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
@@ -54,7 +57,18 @@ const ChatInterface = ({ agent, onBack, hideHeader = false, transparentMode = fa
 
   useEffect(() => {
     setCurrentAgent(agent);
-  }, [agent]);
+    
+    // Check if payment is required and if user has valid session
+    if (agent.x402_enabled && agent.x402_price && agent.x402_wallet) {
+      const storedSessionId = localStorage.getItem(`x402_session_${agent.x402_wallet}`);
+      if (storedSessionId) {
+        setSessionId(storedSessionId);
+      } else if (!isCreatorChat) {
+        // Show payment modal if not creator
+        setShowPaymentModal(true);
+      }
+    }
+  }, [agent, isCreatorChat]);
   
   // Clean up URL after welcome message is displayed when restarting
   useEffect(() => {
@@ -77,6 +91,30 @@ const ChatInterface = ({ agent, onBack, hideHeader = false, transparentMode = fa
   useEffect(() => {
     scrollToBottom();
   }, [chatHistory.messages]);
+
+  const handlePaymentSuccess = (newSessionId: string) => {
+    setSessionId(newSessionId);
+    setShowPaymentModal(false);
+  };
+
+  // Show payment modal if payment required and no valid session
+  if (currentAgent.x402_enabled && !sessionId && !isCreatorChat) {
+    return (
+      <>
+        <X402PaymentModal
+          isOpen={showPaymentModal}
+          onClose={() => setShowPaymentModal(false)}
+          onPaymentSuccess={handlePaymentSuccess}
+          simName={currentAgent.name}
+          price={currentAgent.x402_price || 0.01}
+          walletAddress={currentAgent.x402_wallet || ''}
+        />
+        <div className="flex items-center justify-center h-full">
+          <p className="text-muted-foreground">Payment required to access this chat</p>
+        </div>
+      </>
+    );
+  }
 
   return (
     <div 

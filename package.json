@@ -11,6 +11,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@coinbase/x402": "^0.6.6",
     "@hookform/resolvers": "^3.9.0",
     "@livekit/components-react": "^2.9.14",
     "@radix-ui/react-accordion": "^1.2.0",
@@ -77,6 +78,7 @@
     "tailwindcss-animate": "^1.0.7",
     "three": "^0.179.1",
     "vaul": "^0.9.3",
+    "x402": "^0.6.6",
     "zod": "^3.23.8"
   },
   "devDependencies": {

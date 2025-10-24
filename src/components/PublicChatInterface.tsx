@@ -9,6 +9,7 @@ import { useChatHistory } from "@/hooks/useChatHistory";
 import { useTextChat } from "@/hooks/useTextChat";
 import { AgentType } from "@/types/agent";
 import { getAvatarUrl } from "@/lib/avatarUtils";
+import { X402PaymentModal } from "@/components/X402PaymentModal";
 
 interface PublicChatInterfaceProps {
   agent: AgentType;
@@ -17,6 +18,8 @@ interface PublicChatInterfaceProps {
 const PublicChatInterface = ({ agent }: PublicChatInterfaceProps) => {
   const [inputValue, setInputValue] = useState("");
   const [hasStartedChat, setHasStartedChat] = useState(false);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [sessionId, setSessionId] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const lastAssistantMessageRef = useRef<HTMLDivElement>(null);
@@ -34,13 +37,36 @@ const PublicChatInterface = ({ agent }: PublicChatInterfaceProps) => {
     }))
   });
 
+  // Check for x402 payment requirement
+  useEffect(() => {
+    if (agent.x402_enabled && agent.x402_price && agent.x402_wallet) {
+      const storedSessionId = localStorage.getItem(`x402_session_${agent.x402_wallet}`);
+      if (storedSessionId) {
+        setSessionId(storedSessionId);
+      } else {
+        setShowPaymentModal(true);
+      }
+    }
+  }, [agent]);
+
   const handleSend = async () => {
     if (!inputValue.trim() || textChat.isProcessing) return;
+    
+    // Check if payment is required
+    if (agent.x402_enabled && !sessionId) {
+      setShowPaymentModal(true);
+      return;
+    }
     
     setHasStartedChat(true);
     const message = inputValue;
     setInputValue("");
     await textChat.sendMessage(message);
+  };
+
+  const handlePaymentSuccess = (newSessionId: string) => {
+    setSessionId(newSessionId);
+    setShowPaymentModal(false);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -78,6 +104,25 @@ const PublicChatInterface = ({ agent }: PublicChatInterfaceProps) => {
   // Show loading state while chat history is loading
   if (chatHistory.isLoading) {
     return null;
+  }
+
+  // Show payment modal if required and no valid session
+  if (agent.x402_enabled && !sessionId) {
+    return (
+      <>
+        <X402PaymentModal
+          isOpen={showPaymentModal}
+          onClose={() => setShowPaymentModal(false)}
+          onPaymentSuccess={handlePaymentSuccess}
+          simName={agent.name}
+          price={agent.x402_price || 0.01}
+          walletAddress={agent.x402_wallet || ''}
+        />
+        <div className="flex items-center justify-center h-full">
+          <p className="text-muted-foreground">Payment required to access this chat</p>
+        </div>
+      </>
+    );
   }
 
   // Show initial state if no messages
