@@ -319,7 +319,9 @@ const SimDirectory = () => {
           ) : (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
               {filteredSims?.map((sim) => {
-              const simCategory = (sim as any).marketplace_category?.toLowerCase() || 'uncategorized';
+              // Check sim_category first - if it's "Contact Me", use that as the category
+              const isContactMe = (sim as any).sim_category === 'Contact Me';
+              const simCategory = isContactMe ? 'contact' : ((sim as any).marketplace_category?.toLowerCase() || 'uncategorized');
               const categoryLabel = categories.find(c => c.id === simCategory)?.label || simCategory;
               const price = sim.price || 0;
               const x402Enabled = (sim as any).x402_enabled;

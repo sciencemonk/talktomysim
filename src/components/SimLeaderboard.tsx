@@ -47,7 +47,7 @@ export const SimLeaderboard = () => {
 
       const { data: advisors, error: advisorsError } = await supabase
         .from('advisors')
-        .select('id, name, avatar_url, marketplace_category, custom_url')
+        .select('id, name, avatar_url, marketplace_category, sim_category, custom_url')
         .in('id', topSimIds)
         .eq('is_active', true);
 
@@ -120,11 +120,16 @@ export const SimLeaderboard = () => {
                 </div>
 
                 {/* Category Badge */}
-                {sim.marketplace_category && sim.marketplace_category !== 'uncategorized' && (
-                  <Badge variant="outline" className="text-[10px] shrink-0">
-                    {sim.marketplace_category}
-                  </Badge>
-                )}
+                {(() => {
+                  const isContactMe = (sim as any).sim_category === 'Contact Me';
+                  const displayCategory = isContactMe ? 'Contact Me' : sim.marketplace_category;
+                  
+                  return displayCategory && displayCategory !== 'uncategorized' && (
+                    <Badge variant="outline" className="text-[10px] shrink-0">
+                      {displayCategory}
+                    </Badge>
+                  );
+                })()}
               </div>
             ))}
 
