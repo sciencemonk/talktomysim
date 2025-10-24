@@ -19,8 +19,9 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Upload, Sparkles, Loader2, Trash2, Link2 } from 'lucide-react';
+import { Upload, Sparkles, Loader2, Trash2, Link2, Wallet, DollarSign } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Switch } from '@/components/ui/switch';
 import { toast } from 'sonner';
 
 interface EditSimModalProps {
@@ -62,6 +63,10 @@ const EditSimModal = ({ open, onOpenChange, simId, editCode }: EditSimModalProps
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const [hasGenerated, setHasGenerated] = useState(false);
   const [inputEditCode, setInputEditCode] = useState('');
+  const [cryptoWallet, setCryptoWallet] = useState('');
+  const [x402Enabled, setX402Enabled] = useState(false);
+  const [x402Price, setX402Price] = useState('0.01');
+  const [x402Wallet, setX402Wallet] = useState('');
   
   const [isGenerating, setIsGenerating] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -100,6 +105,12 @@ const EditSimModal = ({ open, onOpenChange, simId, editCode }: EditSimModalProps
           setWebsiteLink(socialLinks.website || '');
           setTelegramLink(socialLinks.telegram || '');
         }
+        
+        // Load wallet and x402 settings
+        setCryptoWallet(sim.crypto_wallet || '');
+        setX402Enabled(sim.x402_enabled || false);
+        setX402Price(sim.x402_price?.toString() || '0.01');
+        setX402Wallet(sim.x402_wallet || '');
         
         // If system prompt and welcome message exist, mark as generated
         if (sim.prompt && sim.welcome_message) {
@@ -262,27 +273,41 @@ const EditSimModal = ({ open, onOpenChange, simId, editCode }: EditSimModalProps
       
       const allIntegrations = ["solana-explorer", "pumpfun", "x-analyzer", "crypto-prices"];
       
-      // Use the database function to update with edit code
-      const { data, error } = await supabase.rpc('update_sim_with_code', {
-        p_sim_id: simId,
-        p_edit_code: codeToUse,
-        p_name: name.trim(),
-        p_category: category || null,
-        p_description: description.trim(),
-        p_prompt: systemPrompt.trim(),
-        p_welcome_message: welcomeMessage.trim(),
-        p_avatar_url: avatarUrl,
-        p_social_links: Object.keys(socialLinks).length > 0 ? socialLinks : null,
-        p_integrations: allIntegrations
-      });
+      // First verify the edit code
+      const { data: verifyData, error: verifyError } = await supabase
+        .from('advisors')
+        .select('id')
+        .eq('id', simId)
+        .eq('edit_code', codeToUse)
+        .single();
+      
+      if (verifyError || !verifyData) {
+        toast.error('Invalid edit code. Please check and try again.');
+        return;
+      }
+      
+      // Update sim with all fields
+      const { error } = await supabase
+        .from('advisors')
+        .update({
+          name: name.trim(),
+          category: category || null,
+          description: description.trim(),
+          prompt: systemPrompt.trim(),
+          welcome_message: welcomeMessage.trim(),
+          avatar_url: avatarUrl,
+          social_links: Object.keys(socialLinks).length > 0 ? socialLinks : null,
+          integrations: allIntegrations,
+          crypto_wallet: cryptoWallet.trim() || null,
+          x402_enabled: x402Enabled,
+          x402_price: x402Enabled ? parseFloat(x402Price) : null,
+          x402_wallet: x402Enabled && x402Wallet.trim() ? x402Wallet.trim() : null,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', simId);
 
       if (error) {
-        if (error.message.includes('Invalid edit code')) {
-          toast.error('Invalid edit code. Please check and try again.');
-        } else {
-          throw error;
-        }
-        return;
+        throw error;
       }
 
       await queryClient.invalidateQueries({ queryKey: ['user-sim'] });
@@ -502,6 +527,94 @@ const EditSimModal = ({ open, onOpenChange, simId, editCode }: EditSimModalProps
                     placeholder="https://t.me/username"
                     className="h-11 bg-background"
                   />
+                </div>
+              </div>
+            </div>
+
+            {/* Wallet & Payments */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                <Wallet className="w-4 h-4 text-muted-foreground" />
+                <h3 className="text-sm font-medium text-foreground/80">Wallet & Payments</h3>
+              </div>
+
+              <div className="space-y-3">
+                <div className="space-y-2">
+                  <Label htmlFor="cryptoWallet" className="text-sm font-medium">
+                    SOL Wallet Address (for donations)
+                  </Label>
+                  <Input
+                    id="cryptoWallet"
+                    value={cryptoWallet}
+                    onChange={(e) => setCryptoWallet(e.target.value)}
+                    placeholder="Your Solana wallet address"
+                    className="h-11 bg-background font-mono text-sm"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Display your Solana wallet for donations on your sim page
+                  </p>
+                </div>
+
+                <div className="space-y-4 pt-2">
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <DollarSign className="w-4 h-4 text-muted-foreground" />
+                        <Label htmlFor="x402Enabled" className="text-sm font-medium cursor-pointer">
+                          x402 Payment Required
+                        </Label>
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        Require users to pay USDC before chatting
+                      </p>
+                    </div>
+                    <Switch
+                      id="x402Enabled"
+                      checked={x402Enabled}
+                      onCheckedChange={setX402Enabled}
+                    />
+                  </div>
+
+                  {x402Enabled && (
+                    <div className="space-y-3 pl-6 border-l-2 border-border">
+                      <div className="space-y-2">
+                        <Label htmlFor="x402Price" className="text-sm font-medium">
+                          Price (USDC) <span className="text-destructive">*</span>
+                        </Label>
+                        <Input
+                          id="x402Price"
+                          type="number"
+                          step="0.01"
+                          min="0.01"
+                          value={x402Price}
+                          onChange={(e) => setX402Price(e.target.value)}
+                          placeholder="0.01"
+                          className="h-11 bg-background"
+                          required={x402Enabled}
+                        />
+                        <p className="text-xs text-muted-foreground">
+                          Amount in USDC users must pay for 24-hour access
+                        </p>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="x402Wallet" className="text-sm font-medium">
+                          Payment Wallet (EVM) <span className="text-destructive">*</span>
+                        </Label>
+                        <Input
+                          id="x402Wallet"
+                          value={x402Wallet}
+                          onChange={(e) => setX402Wallet(e.target.value)}
+                          placeholder="0x..."
+                          className="h-11 bg-background font-mono text-sm"
+                          required={x402Enabled}
+                        />
+                        <p className="text-xs text-muted-foreground">
+                          EVM-compatible wallet address to receive USDC payments
+                        </p>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
