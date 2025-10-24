@@ -9,6 +9,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { Upload, X, Loader2 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { Switch } from '@/components/ui/switch';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import ContactMessagesList from '@/components/ContactMessagesList';
 
 interface UserSimFormProps {
   open: boolean;
@@ -31,7 +33,8 @@ const UserSimForm = ({ open, onOpenChange, existingSim, onSuccess }: UserSimForm
     crypto_wallet: '',
     x402_enabled: false,
     x402_price: '',
-    x402_wallet: ''
+    x402_wallet: '',
+    category: 'Chat'
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
@@ -51,7 +54,8 @@ const UserSimForm = ({ open, onOpenChange, existingSim, onSuccess }: UserSimForm
         crypto_wallet: existingSim.crypto_wallet || '',
         x402_enabled: existingSim.x402_enabled || false,
         x402_price: existingSim.x402_price?.toString() || '',
-        x402_wallet: existingSim.x402_wallet || ''
+        x402_wallet: existingSim.x402_wallet || '',
+        category: existingSim.category || 'Chat'
       });
       setPreviewUrl(existingSim.avatar_url || '');
     } else {
@@ -65,7 +69,8 @@ const UserSimForm = ({ open, onOpenChange, existingSim, onSuccess }: UserSimForm
         crypto_wallet: '',
         x402_enabled: false,
         x402_price: '',
-        x402_wallet: ''
+        x402_wallet: '',
+        category: 'Chat'
       });
       setPreviewUrl('');
     }
@@ -97,7 +102,8 @@ const UserSimForm = ({ open, onOpenChange, existingSim, onSuccess }: UserSimForm
           crypto_wallet: data.crypto_wallet,
           x402_enabled: data.x402_enabled,
           x402_price: data.x402_price ? parseFloat(data.x402_price) : null,
-          x402_wallet: data.x402_wallet
+          x402_wallet: data.x402_wallet,
+          category: data.category
         })
         .eq('id', existingSim.id);
 
@@ -227,11 +233,14 @@ const UserSimForm = ({ open, onOpenChange, existingSim, onSuccess }: UserSimForm
     try {
       // Always auto-generate description for new sims
       // For existing sims, regenerate if description is empty OR too long (likely the full prompt)
+      // Skip generation for "Contact Me" category
       let finalDescription = formData.description;
       const shouldGenerateDescription = 
-        !existingSim || // Always for new sims
-        !finalDescription.trim() || // Empty description
-        finalDescription.length > 250; // Too long, probably the full prompt
+        formData.category === 'Chat' && (
+          !existingSim || // Always for new sims
+          !finalDescription.trim() || // Empty description
+          finalDescription.length > 250 // Too long, probably the full prompt
+        );
       
       if (shouldGenerateDescription && formData.prompt.trim()) {
         const { data } = await supabase.functions.invoke('generate-sim-description', {
@@ -258,7 +267,8 @@ const UserSimForm = ({ open, onOpenChange, existingSim, onSuccess }: UserSimForm
         user_id: user?.id,
         x402_enabled: formData.x402_enabled,
         x402_price: formData.x402_price ? parseFloat(formData.x402_price) : null,
-        x402_wallet: formData.x402_wallet || null
+        x402_wallet: formData.x402_wallet || null,
+        category: formData.category
       };
 
       if (existingSim) {
@@ -326,6 +336,37 @@ const UserSimForm = ({ open, onOpenChange, existingSim, onSuccess }: UserSimForm
         </DialogHeader>
         
         <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Show contact messages list if editing a Contact Me sim */}
+          {existingSim && formData.category === 'Contact Me' && (
+            <div className="space-y-3 pt-2 pb-4 border-b border-border">
+              <Label>Received Messages</Label>
+              <div className="max-h-[300px] overflow-y-auto border rounded-lg p-4 bg-muted/20">
+                <ContactMessagesList advisorId={existingSim.id} />
+              </div>
+            </div>
+          )}
+          <div>
+            <Label htmlFor="category">Type *</Label>
+            <Select
+              value={formData.category}
+              onValueChange={(value) => handleInputChange('category', value)}
+              disabled={!!existingSim}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select sim type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Chat">Chat - AI conversation</SelectItem>
+                <SelectItem value="Contact Me">Contact Me - Message form</SelectItem>
+              </SelectContent>
+            </Select>
+            {existingSim && (
+              <p className="text-xs text-muted-foreground mt-1">
+                Cannot be changed after creation
+              </p>
+            )}
+          </div>
+
           <div>
             <Label htmlFor="name">Sim Name *</Label>
             <Input
@@ -361,7 +402,7 @@ const UserSimForm = ({ open, onOpenChange, existingSim, onSuccess }: UserSimForm
           </div>
 
           {/* Description is auto-generated - no user input needed */}
-          {formData.description && (
+          {formData.category === 'Chat' && formData.description && (
             <div>
               <Label>Auto-Generated Description (Preview)</Label>
               <div className="p-3 bg-muted/50 rounded-md text-sm text-muted-foreground">
@@ -369,6 +410,23 @@ const UserSimForm = ({ open, onOpenChange, existingSim, onSuccess }: UserSimForm
               </div>
               <p className="text-xs text-muted-foreground mt-1">
                 This description is automatically generated from your system prompt when you save.
+              </p>
+            </div>
+          )}
+
+          {formData.category === 'Contact Me' && (
+            <div>
+              <Label htmlFor="description">Description *</Label>
+              <Textarea
+                id="description"
+                value={formData.description}
+                onChange={(e) => handleInputChange('description', e.target.value)}
+                placeholder="Tell visitors what you'd like them to contact you about..."
+                rows={3}
+                required
+              />
+              <p className="text-xs text-muted-foreground mt-1">
+                This will be shown above the contact form.
               </p>
             </div>
           )}
@@ -392,16 +450,18 @@ const UserSimForm = ({ open, onOpenChange, existingSim, onSuccess }: UserSimForm
             </p>
           </div>
 
-          <div>
-            <Label htmlFor="prompt">Personality & Instructions (Optional)</Label>
-            <Textarea
-              id="prompt"
-              value={formData.prompt}
-              onChange={(e) => handleInputChange('prompt', e.target.value)}
-              placeholder="Describe how your sim should behave and respond..."
-              rows={4}
-            />
-          </div>
+          {formData.category === 'Chat' && (
+            <div>
+              <Label htmlFor="prompt">Personality & Instructions (Optional)</Label>
+              <Textarea
+                id="prompt"
+                value={formData.prompt}
+                onChange={(e) => handleInputChange('prompt', e.target.value)}
+                placeholder="Describe how your sim should behave and respond..."
+                rows={4}
+              />
+            </div>
+          )}
 
           <div>
             <Label>Avatar Image</Label>

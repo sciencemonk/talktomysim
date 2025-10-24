@@ -68,11 +68,11 @@ export interface AgentType {
   custom_url?: string; // Add custom_url for living sims
   is_official?: boolean; // Add is_official for official historical sims
   price?: number; // Price in $SimAI tokens
-  category?: string; // Category for marketplace filtering
   auto_description?: string; // Auto-generated short description based on system prompt
   x402_price?: number; // x402 payment price in USDC (e.g., 0.01 for $0.01)
   x402_wallet?: string; // EVM-compatible wallet address for x402 payments
   x402_enabled?: boolean; // Whether x402 payment is required
+  category?: string; // Category: "Chat" or "Contact Me"
 }
 
 export interface PublicAgentType {

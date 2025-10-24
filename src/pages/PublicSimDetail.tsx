@@ -5,6 +5,7 @@ import { Loader2, Globe, Wallet, ExternalLink, Copy, Check, MessageCircle, X, Sh
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import PublicChatInterface from "@/components/PublicChatInterface";
+import ContactFormPage from "@/components/ContactFormPage";
 import AuthModal from "@/components/AuthModal";
 import { AgentType } from "@/types/agent";
 import { useToast } from "@/hooks/use-toast";
@@ -403,7 +404,8 @@ const PublicSimDetail = () => {
         auto_description: data.auto_description,
         x402_enabled: data.x402_enabled || false,
         x402_price: data.x402_price || 0,
-        x402_wallet: data.x402_wallet
+        x402_wallet: data.x402_wallet,
+        category: data.category || 'Chat'
       };
 
       console.log('Fetched sim with x402 settings:', {
@@ -451,6 +453,11 @@ const PublicSimDetail = () => {
         </div>
       </div>
     );
+  }
+
+  // If category is "Contact Me", show the contact form instead of chat
+  if (sim.category === 'Contact Me') {
+    return <ContactFormPage agent={sim} />;
   }
 
   return (

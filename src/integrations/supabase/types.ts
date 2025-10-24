@@ -280,6 +280,44 @@ export type Database = {
         }
         Relationships: []
       }
+      contact_messages: {
+        Row: {
+          advisor_id: string
+          created_at: string
+          id: string
+          message: string
+          read: boolean
+          sender_email: string | null
+          sender_phone: string | null
+        }
+        Insert: {
+          advisor_id: string
+          created_at?: string
+          id?: string
+          message: string
+          read?: boolean
+          sender_email?: string | null
+          sender_phone?: string | null
+        }
+        Update: {
+          advisor_id?: string
+          created_at?: string
+          id?: string
+          message?: string
+          read?: boolean
+          sender_email?: string | null
+          sender_phone?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contact_messages_advisor_id_fkey"
+            columns: ["advisor_id"]
+            isOneToOne: false
+            referencedRelation: "advisors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       conversation_captures: {
         Row: {
           advisor_id: string
