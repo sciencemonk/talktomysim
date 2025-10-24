@@ -1119,7 +1119,27 @@ export type Database = {
         }
         Returns: boolean
       }
+      delete_contact_message_with_code: {
+        Args: {
+          p_advisor_id: string
+          p_edit_code: string
+          p_message_id: string
+        }
+        Returns: boolean
+      }
       generate_url_slug: { Args: { input_name: string }; Returns: string }
+      get_contact_messages_with_code: {
+        Args: { p_advisor_id: string; p_edit_code: string }
+        Returns: {
+          advisor_id: string
+          created_at: string
+          id: string
+          message: string
+          read: boolean
+          sender_email: string
+          sender_phone: string
+        }[]
+      }
       get_conversation_insights: {
         Args: { days_back?: number; target_advisor_id: string }
         Returns: {
@@ -1129,6 +1149,14 @@ export type Database = {
           total_conversations: number
           total_messages: number
         }[]
+      }
+      mark_contact_message_read_with_code: {
+        Args: {
+          p_advisor_id: string
+          p_edit_code: string
+          p_message_id: string
+        }
+        Returns: boolean
       }
       reset_monthly_credits: { Args: never; Returns: undefined }
       search_advisor_embeddings: {

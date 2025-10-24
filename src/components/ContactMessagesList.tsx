@@ -27,28 +27,42 @@ interface ContactMessage {
 
 interface ContactMessagesListProps {
   advisorId: string;
+  editCode?: string;
 }
 
-const ContactMessagesList = ({ advisorId }: ContactMessagesListProps) => {
+const ContactMessagesList = ({ advisorId, editCode }: ContactMessagesListProps) => {
   const [messages, setMessages] = useState<ContactMessage[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     fetchMessages();
-  }, [advisorId]);
+  }, [advisorId, editCode]);
 
   const fetchMessages = async () => {
     try {
       setIsLoading(true);
-      const { data, error } = await supabase
-        .from('contact_messages')
-        .select('*')
-        .eq('advisor_id', advisorId)
-        .order('created_at', { ascending: false });
+      
+      // If edit code is provided, use RPC function for secure access
+      // Otherwise use regular query (for authenticated owners)
+      if (editCode) {
+        const { data, error } = await supabase
+          .rpc('get_contact_messages_with_code', {
+            p_advisor_id: advisorId,
+            p_edit_code: editCode
+          });
 
-      if (error) throw error;
+        if (error) throw error;
+        setMessages(data || []);
+      } else {
+        const { data, error } = await supabase
+          .from('contact_messages')
+          .select('*')
+          .eq('advisor_id', advisorId)
+          .order('created_at', { ascending: false });
 
-      setMessages(data || []);
+        if (error) throw error;
+        setMessages(data || []);
+      }
     } catch (error) {
       console.error('Error fetching messages:', error);
       toast({
@@ -63,12 +77,24 @@ const ContactMessagesList = ({ advisorId }: ContactMessagesListProps) => {
 
   const handleDelete = async (messageId: string) => {
     try {
-      const { error } = await supabase
-        .from('contact_messages')
-        .delete()
-        .eq('id', messageId);
+      // Use RPC if edit code provided, otherwise regular query
+      if (editCode) {
+        const { error } = await supabase
+          .rpc('delete_contact_message_with_code', {
+            p_message_id: messageId,
+            p_advisor_id: advisorId,
+            p_edit_code: editCode
+          });
 
-      if (error) throw error;
+        if (error) throw error;
+      } else {
+        const { error } = await supabase
+          .from('contact_messages')
+          .delete()
+          .eq('id', messageId);
+
+        if (error) throw error;
+      }
 
       setMessages(messages.filter(m => m.id !== messageId));
       toast({
@@ -87,12 +113,24 @@ const ContactMessagesList = ({ advisorId }: ContactMessagesListProps) => {
 
   const handleMarkAsRead = async (messageId: string) => {
     try {
-      const { error } = await supabase
-        .from('contact_messages')
-        .update({ read: true })
-        .eq('id', messageId);
+      // Use RPC if edit code provided, otherwise regular query
+      if (editCode) {
+        const { error } = await supabase
+          .rpc('mark_contact_message_read_with_code', {
+            p_message_id: messageId,
+            p_advisor_id: advisorId,
+            p_edit_code: editCode
+          });
 
-      if (error) throw error;
+        if (error) throw error;
+      } else {
+        const { error } = await supabase
+          .from('contact_messages')
+          .update({ read: true })
+          .eq('id', messageId);
+
+        if (error) throw error;
+      }
 
       setMessages(messages.map(m => 
         m.id === messageId ? { ...m, read: true } : m

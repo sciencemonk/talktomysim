@@ -232,7 +232,10 @@ const ContactMeEditModal = ({
               </TabsList>
 
               <TabsContent value="messages" className="mt-6 space-y-4">
-                <ContactMessagesList advisorId={simId} />
+                <ContactMessagesList 
+                  advisorId={simId} 
+                  editCode={editCode || inputEditCode}
+                />
               </TabsContent>
 
               <TabsContent value="settings" className="mt-6 space-y-6">
