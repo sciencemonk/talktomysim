@@ -12,6 +12,7 @@ import landingBackground from "@/assets/landing-background.jpg";
 import { getAvatarUrl } from "@/lib/avatarUtils";
 import { fetchSolanaBalance, formatSolBalance } from "@/services/solanaBalanceService";
 import { X402PaymentModal } from "@/components/X402PaymentModal";
+import { validateX402Session } from "@/utils/x402Session";
 
 const PublicSimDetail = () => {
   const { customUrl } = useParams<{ customUrl: string }>();
@@ -271,13 +272,14 @@ const PublicSimDetail = () => {
   // Check for x402 payment when chat is shown
   useEffect(() => {
     if (showChat && sim && sim.x402_enabled && sim.x402_price && sim.x402_wallet) {
-      const storedSessionId = localStorage.getItem(`x402_session_${sim.x402_wallet}`);
-      if (!storedSessionId) {
+      const validSession = validateX402Session(sim.x402_wallet);
+      if (!validSession) {
         console.log('x402 payment required, showing payment modal');
         setShowPaymentModal(true);
+        setShowChat(false); // Hide chat until payment
       } else {
-        console.log('x402 session found:', storedSessionId);
-        setPaymentSessionId(storedSessionId);
+        console.log('Valid x402 session found:', validSession);
+        setPaymentSessionId(validSession);
       }
     }
   }, [showChat, sim]);
@@ -555,15 +557,15 @@ const PublicSimDetail = () => {
                   
                   // Check if x402 payment is required
                   if (sim?.x402_enabled && sim?.x402_price && sim?.x402_wallet) {
-                    const storedSessionId = localStorage.getItem(`x402_session_${sim.x402_wallet}`);
-                    console.log('Checking for existing session:', storedSessionId);
-                    if (!storedSessionId) {
-                      console.log('No session found - showing payment modal');
+                    const validSession = validateX402Session(sim.x402_wallet);
+                    console.log('Checking for valid session:', validSession);
+                    if (!validSession) {
+                      console.log('No valid session - showing payment modal');
                       setShowPaymentModal(true);
                       return;
                     } else {
-                      console.log('x402 session found:', storedSessionId);
-                      setPaymentSessionId(storedSessionId);
+                      console.log('Valid x402 session found:', validSession);
+                      setPaymentSessionId(validSession);
                     }
                   } else {
                     console.log('x402 not required or not properly configured');

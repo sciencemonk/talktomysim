@@ -24,6 +24,7 @@ import PublicChatInterface from "@/components/PublicChatInterface";
 import EditSimModal from "@/components/EditSimModal";
 import { fetchSolanaBalance, formatSolBalance } from "@/services/solanaBalanceService";
 import { X402PaymentModal } from "@/components/X402PaymentModal";
+import { validateX402Session } from "@/utils/x402Session";
 
 interface SimDetailModalProps {
   sim: AgentType | null;
@@ -238,14 +239,14 @@ const SimDetailModal = ({ sim, open, onOpenChange, onAuthRequired }: SimDetailMo
     
     // Check if x402 payment is required
     if (sim.x402_enabled && sim.x402_price && sim.x402_wallet) {
-      const storedSessionId = localStorage.getItem(`x402_session_${sim.x402_wallet}`);
-      if (!storedSessionId) {
+      const validSession = validateX402Session(sim.x402_wallet);
+      if (!validSession) {
         console.log('x402 payment required, showing payment modal');
         setShowPaymentModal(true);
         return;
       } else {
-        console.log('x402 session found:', storedSessionId);
-        setPaymentSessionId(storedSessionId);
+        console.log('Valid x402 session found:', validSession);
+        setPaymentSessionId(validSession);
       }
     }
     
