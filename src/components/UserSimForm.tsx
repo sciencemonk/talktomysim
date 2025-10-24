@@ -355,10 +355,10 @@ const UserSimForm = ({ open, onOpenChange, existingSim, onSuccess }: UserSimForm
               <SelectTrigger>
                 <SelectValue placeholder="Select sim type" />
               </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Chat">Chat - AI conversation</SelectItem>
-                <SelectItem value="Contact Me">Contact Me - Message form</SelectItem>
-              </SelectContent>
+            <SelectContent>
+              <SelectItem value="Contact Me">Contact Me - Message form</SelectItem>
+              <SelectItem value="Chat">Chat - AI conversation</SelectItem>
+            </SelectContent>
             </Select>
             {existingSim && (
               <p className="text-xs text-muted-foreground mt-1">
