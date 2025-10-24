@@ -425,6 +425,27 @@ const SimDetailModal = ({ sim, open, onOpenChange, onAuthRequired }: SimDetailMo
             </p>
           </div>
 
+          {/* SOL Wallet Info */}
+          {(sim as any)?.crypto_wallet && (
+            <div className="mb-3 p-3 bg-accent/10 rounded-xl border border-border">
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2 min-w-0 flex-1">
+                  <Wallet className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
+                  <span className="text-xs font-mono text-muted-foreground truncate">
+                    {(sim as any).crypto_wallet}
+                  </span>
+                </div>
+                <span className="text-xs font-semibold text-foreground flex-shrink-0">
+                  {isLoadingBalance ? (
+                    <span className="animate-pulse">Loading...</span>
+                  ) : (
+                    formatSolBalance(solBalance)
+                  )}
+                </span>
+              </div>
+            </div>
+          )}
+
           {/* Launch/Add Sim Button */}
           <Button
             size="lg"

@@ -372,6 +372,9 @@ const PublicSimDetail = () => {
         isPersonal: false,
         voiceTraits: [],
         social_links: data.social_links as any,
+        twitter_url: data.twitter_url,
+        website_url: data.website_url,
+        crypto_wallet: data.crypto_wallet,
         background_image_url: data.background_image_url,
         price: data.price || 0,
         auto_description: data.auto_description
