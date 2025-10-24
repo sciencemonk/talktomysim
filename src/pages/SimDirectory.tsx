@@ -89,6 +89,7 @@ const SimDirectory = () => {
         welcome_message: sim.welcome_message,
         title: sim.title,
         sim_type: sim.sim_type as 'historical' | 'living',
+        sim_category: sim.sim_category,
         custom_url: sim.custom_url,
         is_featured: false,
         is_official: sim.is_official,
