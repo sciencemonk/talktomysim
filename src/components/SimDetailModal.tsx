@@ -46,9 +46,6 @@ const SimDetailModal = ({ sim, open, onOpenChange, onAuthRequired }: SimDetailMo
   const [shareLinkCopied, setShareLinkCopied] = useState(false);
   const [showChat, setShowChat] = useState(false);
   const [isSignedIn, setIsSignedIn] = useState(false);
-  const [showEmbedCode, setShowEmbedCode] = useState(false);
-  const [embedCodeCopied, setEmbedCodeCopied] = useState(false);
-  const embedCodeRef = useRef<HTMLDivElement>(null);
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [editCode, setEditCode] = useState("");
   const [isValidatingCode, setIsValidatingCode] = useState(false);
@@ -140,99 +137,6 @@ const SimDetailModal = ({ sim, open, onOpenChange, onAuthRequired }: SimDetailMo
     });
   };
 
-  const getEmbedCode = () => {
-    if (!sim) return '';
-    const simSlug = (sim as any).custom_url || generateSlug(sim.name);
-    const simUrl = `${window.location.origin}/${simSlug}?embed=chat-only`;
-    const avatarUrl = getAvatarUrl(sim.avatar);
-    const escapedName = sim.name.replace(/'/g, "\\'");
-    const escapedWelcome = (sim.welcome_message || `Hi! I'm ${sim.name}. How can I help you today?`).replace(/'/g, "\\'").replace(/"/g, '\\"');
-    
-    return `<!-- ${sim.name} Chat Widget -->
-<div id="sim-chat-widget"></div>
-<script>
-  (function() {
-    'use strict';
-    
-    // Prevent duplicate loading
-    if (window.__SIM_CHAT_LOADED__) {
-      console.log('[SimChat] Already loaded');
-      return;
-    }
-    window.__SIM_CHAT_LOADED__ = true;
-
-    const simConfig = {
-      name: '${escapedName}',
-      avatar: '${avatarUrl}',
-      simUrl: '${simUrl}'
-    };
-    
-    // Create styles
-    const style = document.createElement('style');
-    style.id = 'sim-chat-widget-styles';
-    style.textContent = '#sim-chat-bubble { position: fixed; bottom: 20px; right: 20px; width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); box-shadow: 0 4px 12px rgba(0,0,0,0.15); cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 9999; transition: transform 0.3s ease; }' +
-      '#sim-chat-bubble:hover { transform: scale(1.1); }' +
-      '#sim-chat-bubble img { width: 56px; height: 56px; border-radius: 50%; object-fit: cover; }' +
-      '#sim-chat-window { position: fixed; bottom: 90px; right: 20px; width: 380px; height: 600px; max-width: calc(100vw - 40px); max-height: calc(100vh - 120px); border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.2); background: white; z-index: 9998; display: none; flex-direction: column; overflow: hidden; }' +
-      '#sim-chat-window.active { display: flex; }' +
-      '#sim-chat-header { padding: 16px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; display: flex; align-items: center; gap: 12px; }' +
-      '#sim-chat-close { margin-left: auto; background: rgba(255,255,255,0.2); border: none; color: white; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; font-size: 20px; display: flex; align-items: center; justify-content: center; }' +
-      '#sim-chat-iframe { flex: 1; border: none; width: 100%; }';
-    document.head.appendChild(style);
-    
-    // Create bubble
-    const bubble = document.createElement('div');
-    bubble.id = 'sim-chat-bubble';
-    bubble.innerHTML = '<img src="' + simConfig.avatar + '" alt="' + simConfig.name + '" draggable="false">';
-    document.body.appendChild(bubble);
-    
-    // Create chat window
-    const chatWindow = document.createElement('div');
-    chatWindow.id = 'sim-chat-window';
-    chatWindow.innerHTML = '<div id="sim-chat-header"><strong>' + simConfig.name + '</strong><button id="sim-chat-close">×</button></div><iframe id="sim-chat-iframe" src="' + simConfig.simUrl + '"></iframe>';
-    document.body.appendChild(chatWindow);
-    
-    // Toggle chat window
-    bubble.addEventListener('click', function(e) {
-      e.preventDefault();
-      e.stopPropagation();
-      chatWindow.classList.toggle('active');
-    });
-    
-    // Close button
-    const closeBtn = document.getElementById('sim-chat-close');
-    if (closeBtn) {
-      closeBtn.addEventListener('click', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        chatWindow.classList.remove('active');
-      });
-    }
-    
-    console.log('[SimChat] Widget loaded');
-  })();
-</script>`;
-  };
-
-  const handleCopyEmbedCode = () => {
-    const code = getEmbedCode();
-    navigator.clipboard.writeText(code);
-    setEmbedCodeCopied(true);
-    setTimeout(() => setEmbedCodeCopied(false), 2000);
-    sonnerToast.success('Embed code copied to clipboard!');
-  };
-
-  // Scroll to embed code when it's shown
-  useEffect(() => {
-    if (showEmbedCode && embedCodeRef.current) {
-      setTimeout(() => {
-        embedCodeRef.current?.scrollIntoView({ 
-          behavior: 'smooth', 
-          block: 'nearest'
-        });
-      }, 100);
-    }
-  }, [showEmbedCode]);
 
   const handleLaunchSim = async () => {
     if (!sim) return;
@@ -501,12 +405,12 @@ const SimDetailModal = ({ sim, open, onOpenChange, onAuthRequired }: SimDetailMo
             {isAddingSim ? 'Adding...' : (isSignedIn ? 'Add Sim' : 'Launch Sim')}
           </Button>
 
-          {/* Action Buttons Row */}
-          <div className="grid grid-cols-2 gap-2 mb-3">
+          {/* Share Button */}
+          <div className="mb-3">
             <Button
               size="sm"
               variant="outline"
-              className="h-10 text-sm font-medium group"
+              className="h-10 text-sm font-medium group w-full"
               onClick={handleShareLink}
             >
               {shareLinkCopied ? (
@@ -521,59 +425,7 @@ const SimDetailModal = ({ sim, open, onOpenChange, onAuthRequired }: SimDetailMo
                 </>
               )}
             </Button>
-
-            <Button
-              size="sm"
-              variant="outline"
-              className="h-10 text-sm font-medium group"
-              onClick={() => setShowEmbedCode(!showEmbedCode)}
-            >
-              <svg className="h-3.5 w-3.5 mr-1.5 group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
-              </svg>
-              Embed
-            </Button>
           </div>
-
-          {/* Embed Code Section */}
-          {showEmbedCode && (
-            <div ref={embedCodeRef} className="mb-3 p-3 rounded-lg bg-muted/50 border border-border">
-              <div className="flex items-center justify-between mb-2">
-                <h3 className="font-semibold text-xs">Embed Code</h3>
-                <Button
-                  size="sm"
-                  variant="secondary"
-                  onClick={handleCopyEmbedCode}
-                  className="h-7 text-xs"
-                >
-                  {embedCodeCopied ? (
-                    <>
-                      <Check className="h-3 w-3 mr-1 text-green-500" />
-                      Copied!
-                    </>
-                  ) : (
-                    <>
-                      <Copy className="h-3 w-3 mr-1" />
-                      Copy
-                    </>
-                  )}
-                </Button>
-              </div>
-              <div className="bg-background rounded border border-border p-2 mb-2 max-h-32 overflow-y-auto">
-                <code className="text-xs font-mono text-muted-foreground whitespace-pre-wrap break-all">
-                  {getEmbedCode()}
-                </code>
-              </div>
-              <div className="text-xs text-muted-foreground">
-                <p className="font-medium mb-1">Instructions:</p>
-                <ol className="list-decimal list-inside space-y-0.5 ml-2 text-xs">
-                  <li>Copy the code above</li>
-                  <li>Paste before the closing &lt;/body&gt; tag</li>
-                  <li>Widget appears on bottom right</li>
-                </ol>
-              </div>
-            </div>
-          )}
 
           {/* SOL Wallet Address */}
           {(sim as any)?.crypto_wallet && (
