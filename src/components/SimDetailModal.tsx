@@ -93,7 +93,11 @@ const SimDetailModal = ({ sim, open, onOpenChange, onAuthRequired }: SimDetailMo
   const SIMAI_TO_SOL_RATE = 0.001;
   
   const getSimDescription = () => {
-    // ONLY use auto_description (never the system prompt in 'description' field)
+    // For Contact Me sims, use the user-written description
+    if ((sim as any)?.sim_category === 'Contact Me' && sim?.description) {
+      return sim.description;
+    }
+    // For other sims, ONLY use auto_description (never the system prompt in 'description' field)
     if ((sim as any)?.auto_description) {
       return (sim as any).auto_description;
     }
