@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, lazy, Suspense } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2, Globe, Wallet, ExternalLink, Copy, Check, MessageCircle, X, Share2 } from "lucide-react";
@@ -11,8 +11,12 @@ import { useToast } from "@/hooks/use-toast";
 import landingBackground from "@/assets/landing-background.jpg";
 import { getAvatarUrl } from "@/lib/avatarUtils";
 import { fetchSolanaBalance, formatSolBalance } from "@/services/solanaBalanceService";
-import { X402PaymentModal } from "@/components/X402PaymentModal";
 import { validateX402Session } from "@/utils/x402Session";
+
+// Lazy load X402PaymentModal to avoid blocking app initialization with ethers.js
+const X402PaymentModal = lazy(() => 
+  import("@/components/X402PaymentModal").then(module => ({ default: module.X402PaymentModal }))
+);
 
 const PublicSimDetail = () => {
   const { customUrl } = useParams<{ customUrl: string }>();
@@ -750,19 +754,21 @@ const PublicSimDetail = () => {
 
       {/* x402 Payment Modal */}
       {sim && sim.x402_enabled && (
-        <X402PaymentModal
-          isOpen={showPaymentModal}
-          onClose={() => setShowPaymentModal(false)}
-          onPaymentSuccess={(sessionId) => {
-            console.log('Payment successful, session ID:', sessionId);
-            setPaymentSessionId(sessionId);
-            setShowPaymentModal(false);
-            setShowChat(true);
-          }}
-          simName={sim.name}
-          price={sim.x402_price || 0.01}
-          walletAddress={sim.x402_wallet || ''}
-        />
+        <Suspense fallback={null}>
+          <X402PaymentModal
+            isOpen={showPaymentModal}
+            onClose={() => setShowPaymentModal(false)}
+            onPaymentSuccess={(sessionId) => {
+              console.log('Payment successful, session ID:', sessionId);
+              setPaymentSessionId(sessionId);
+              setShowPaymentModal(false);
+              setShowChat(true);
+            }}
+            simName={sim.name}
+            price={sim.x402_price || 0.01}
+            walletAddress={sim.x402_wallet || ''}
+          />
+        </Suspense>
       )}
     </div>
   );

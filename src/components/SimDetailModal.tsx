@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, lazy, Suspense } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Globe, Wallet, ExternalLink, Copy, Check, MessageCircle, Share2, ArrowLeft, X, Pencil } from "lucide-react";
@@ -23,8 +23,12 @@ import { toast as sonnerToast } from "sonner";
 import PublicChatInterface from "@/components/PublicChatInterface";
 import EditSimModal from "@/components/EditSimModal";
 import { fetchSolanaBalance, formatSolBalance } from "@/services/solanaBalanceService";
-import { X402PaymentModal } from "@/components/X402PaymentModal";
 import { validateX402Session } from "@/utils/x402Session";
+
+// Lazy load X402PaymentModal to avoid blocking app initialization with ethers.js
+const X402PaymentModal = lazy(() => 
+  import("@/components/X402PaymentModal").then(module => ({ default: module.X402PaymentModal }))
+);
 
 interface SimDetailModalProps {
   sim: AgentType | null;
@@ -709,14 +713,16 @@ const SimDetailModal = ({ sim, open, onOpenChange, onAuthRequired }: SimDetailMo
 
       {/* x402 Payment Modal */}
       {sim && sim.x402_enabled && (
-        <X402PaymentModal
-          isOpen={showPaymentModal}
-          onClose={() => setShowPaymentModal(false)}
-          onPaymentSuccess={handlePaymentSuccess}
-          simName={sim.name}
-          price={sim.x402_price || 0.01}
-          walletAddress={sim.x402_wallet || ''}
-        />
+        <Suspense fallback={null}>
+          <X402PaymentModal
+            isOpen={showPaymentModal}
+            onClose={() => setShowPaymentModal(false)}
+            onPaymentSuccess={handlePaymentSuccess}
+            simName={sim.name}
+            price={sim.x402_price || 0.01}
+            walletAddress={sim.x402_wallet || ''}
+          />
+        </Suspense>
       )}
     </Dialog>
   );
