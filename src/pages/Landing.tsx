@@ -24,6 +24,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useTheme } from "@/hooks/useTheme";
+import { SimLeaderboard } from "@/components/SimLeaderboard";
 
 const Landing = () => {
   const navigate = useNavigate();
@@ -443,6 +444,8 @@ const Landing = () => {
           setTimeout(() => setIsSimModalOpen(false), 100);
         }}
       />
+
+      <SimLeaderboard />
 
         <SimpleFooter />
       </div>
