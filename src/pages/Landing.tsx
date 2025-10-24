@@ -190,6 +190,7 @@ const Landing = () => {
 
   const categories = [
     { id: 'all', label: 'All Categories', count: 0 },
+    { id: 'contact', label: 'Contact Me', count: 0 },
     { id: 'crypto', label: 'Crypto & Web3', count: 0 },
     { id: 'historical', label: 'Historical Figures', count: 0 },
     { id: 'influencers', label: 'Influencers & Celebrities', count: 0 },
@@ -211,6 +212,11 @@ const Landing = () => {
       
       if (!matchesSearch) return false;
 
+      // Handle "Contact Me" filter separately - check sim_category
+      if (selectedCategory === 'contact') {
+        return (sim as any).sim_category === 'Contact Me';
+      }
+
       const simCategory = (sim as any).marketplace_category?.toLowerCase() || 'uncategorized';
       if (selectedCategory !== 'all' && simCategory !== selectedCategory) return false;
 
@@ -231,6 +237,10 @@ const Landing = () => {
   const categoryCounts = categories.map(cat => {
     if (cat.id === 'all') {
       return { ...cat, count: allSims?.length || 0 };
+    }
+    if (cat.id === 'contact') {
+      const count = allSims?.filter(sim => (sim as any).sim_category === 'Contact Me').length || 0;
+      return { ...cat, count };
     }
     const count = allSims?.filter(sim => {
       const simCategory = (sim as any).marketplace_category?.toLowerCase() || 'uncategorized';

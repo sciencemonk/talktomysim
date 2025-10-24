@@ -22,8 +22,8 @@ interface CreateSimModalProps {
 }
 
 const simTypes = [
-  { value: "Contact Me", label: "Contact Me - Message form" },
-  { value: "Chat", label: "Chat - AI conversation" },
+  { value: "Contact Me", label: "Contact Me" },
+  { value: "Chat", label: "AI Agent" },
 ];
 
 const categories = [
@@ -513,24 +513,26 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
                 </Select>
               </div>
 
-              {/* Category */}
-              <div className="space-y-2">
-                <Label htmlFor="category" className="text-sm font-medium">
-                  Category <span className="text-destructive">*</span>
-                </Label>
-                <Select value={category} onValueChange={setCategory} required>
-                  <SelectTrigger className="h-11 bg-background">
-                    <SelectValue placeholder="Select category" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-background z-50">
-                    {categories.map((cat) => (
-                      <SelectItem key={cat.value} value={cat.value}>
-                        {cat.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+              {/* Category - only show for Chat type */}
+              {simType === "Chat" && (
+                <div className="space-y-2">
+                  <Label htmlFor="category" className="text-sm font-medium">
+                    Category <span className="text-destructive">*</span>
+                  </Label>
+                  <Select value={category} onValueChange={setCategory} required>
+                    <SelectTrigger className="h-11 bg-background">
+                      <SelectValue placeholder="Select category" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-background z-50">
+                      {categories.map((cat) => (
+                        <SelectItem key={cat.value} value={cat.value}>
+                          {cat.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
 
               {/* Description */}
               <div className="space-y-2">
