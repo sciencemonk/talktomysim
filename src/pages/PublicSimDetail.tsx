@@ -400,6 +400,14 @@ const PublicSimDetail = () => {
         x402_wallet: data.x402_wallet
       };
 
+      console.log('Fetched sim with x402 settings:', {
+        id: transformedSim.id,
+        name: transformedSim.name,
+        x402_enabled: transformedSim.x402_enabled,
+        x402_price: transformedSim.x402_price,
+        x402_wallet: transformedSim.x402_wallet
+      });
+
       setSim(transformedSim);
     } catch (error) {
       console.error('Error fetching sim:', error);
@@ -538,17 +546,27 @@ const PublicSimDetail = () => {
                 variant="simPrimary"
                 className="w-full h-14 text-base shadow-xl hover:shadow-2xl transition-all duration-300 mb-4 group"
                 onClick={() => {
+                  console.log('Launch Sim clicked. Current sim x402 settings:', {
+                    x402_enabled: sim?.x402_enabled,
+                    x402_price: sim?.x402_price,
+                    x402_wallet: sim?.x402_wallet,
+                    hasAllSettings: !!(sim?.x402_enabled && sim?.x402_price && sim?.x402_wallet)
+                  });
+                  
                   // Check if x402 payment is required
-                  if ((sim as any)?.x402_enabled && (sim as any)?.x402_price && (sim as any)?.x402_wallet) {
-                    const storedSessionId = localStorage.getItem(`x402_session_${(sim as any).x402_wallet}`);
+                  if (sim?.x402_enabled && sim?.x402_price && sim?.x402_wallet) {
+                    const storedSessionId = localStorage.getItem(`x402_session_${sim.x402_wallet}`);
+                    console.log('Checking for existing session:', storedSessionId);
                     if (!storedSessionId) {
-                      console.log('x402 payment required, showing payment modal');
+                      console.log('No session found - showing payment modal');
                       setShowPaymentModal(true);
                       return;
                     } else {
                       console.log('x402 session found:', storedSessionId);
                       setPaymentSessionId(storedSessionId);
                     }
+                  } else {
+                    console.log('x402 not required or not properly configured');
                   }
                   setShowChat(true);
                 }}
