@@ -233,6 +233,7 @@ export function AppSidebar() {
               sim_name: sim.name || 'Your Sim',
               sim_avatar: sim.avatar_url || null,
               sim_user_id: sim.user_id || null,
+              sim_category: (sim as any).sim_category || null,
               sim_creator_wallet: profile?.wallet_address || null,
               conversation_id: null,
               last_message: null,
