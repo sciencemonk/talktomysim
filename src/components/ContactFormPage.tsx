@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -7,15 +8,26 @@ import { AgentType } from "@/types/agent";
 import { getAvatarUrl } from "@/lib/avatarUtils";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
-import { Send, Loader2 } from "lucide-react";
+import { Send, Loader2, CheckCircle } from "lucide-react";
 
 interface ContactFormPageProps {
   agent: AgentType;
 }
 
 const ContactFormPage = ({ agent }: ContactFormPageProps) => {
+  const navigate = useNavigate();
   const [message, setMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [hasSubmitted, setHasSubmitted] = useState(false);
+
+  // Check if user has already submitted a message for this agent
+  useEffect(() => {
+    const submittedKey = `contact_submitted_${agent.id}`;
+    const alreadySubmitted = localStorage.getItem(submittedKey);
+    if (alreadySubmitted) {
+      setHasSubmitted(true);
+    }
+  }, [agent.id]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -52,13 +64,19 @@ const ContactFormPage = ({ agent }: ContactFormPageProps) => {
 
       if (error) throw error;
 
+      // Store in localStorage to prevent multiple submissions
+      const submittedKey = `contact_submitted_${agent.id}`;
+      localStorage.setItem(submittedKey, 'true');
+      
       toast({
         title: "Message sent!",
-        description: "Your message has been sent successfully."
+        description: "Redirecting to home page..."
       });
 
-      // Reset form
-      setMessage("");
+      // Redirect to home page after a brief delay
+      setTimeout(() => {
+        navigate('/');
+      }, 1500);
     } catch (error) {
       console.error('Error sending message:', error);
       toast({
@@ -92,8 +110,24 @@ const ContactFormPage = ({ agent }: ContactFormPageProps) => {
             )}
           </div>
 
-          {/* Contact Form */}
-          <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Show message if already submitted */}
+          {hasSubmitted ? (
+            <div className="text-center space-y-4 py-8">
+              <CheckCircle className="h-16 w-16 text-green-500 mx-auto" />
+              <h2 className="text-2xl font-semibold">Message Already Sent</h2>
+              <p className="text-muted-foreground">
+                You've already sent a message to {agent.name}. They'll get back to you soon!
+              </p>
+              <Button 
+                onClick={() => navigate('/')}
+                className="mt-4"
+              >
+                Go to Home
+              </Button>
+            </div>
+          ) : (
+            /* Contact Form */
+            <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label htmlFor="message">Message *</Label>
@@ -132,6 +166,7 @@ const ContactFormPage = ({ agent }: ContactFormPageProps) => {
               )}
             </Button>
           </form>
+          )}
         </div>
       </div>
     </div>
