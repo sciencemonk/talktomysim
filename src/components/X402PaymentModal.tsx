@@ -3,7 +3,6 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Button } from "@/components/ui/button";
 import { Loader2, Wallet } from "lucide-react";
 import { toast } from "sonner";
-import { ethers } from "ethers";
 
 interface X402PaymentModalProps {
   isOpen: boolean;
@@ -101,6 +100,9 @@ export const X402PaymentModal = ({
         userAddress,
         network: 'base-mainnet' 
       });
+
+      // Dynamically import ethers only when needed
+      const { ethers } = await import('ethers');
 
       // Create ethers provider
       const provider = new ethers.BrowserProvider(window.ethereum);
