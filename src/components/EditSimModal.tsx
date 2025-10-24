@@ -23,6 +23,7 @@ import { Upload, Sparkles, Loader2, Trash2, Link2, Wallet, DollarSign } from 'lu
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Switch } from '@/components/ui/switch';
 import { toast } from 'sonner';
+import { z } from 'zod';
 
 interface EditSimModalProps {
   open: boolean;
@@ -241,6 +242,45 @@ const EditSimModal = ({ open, onOpenChange, simId, editCode }: EditSimModalProps
       toast.error('Please enter or generate a welcome message');
       return;
     }
+
+    // Validate x402 fields if enabled
+    if (x402Enabled) {
+      // Validate wallet address
+      const walletSchema = z.string()
+        .trim()
+        .min(42, 'Wallet address must be at least 42 characters')
+        .max(42, 'Wallet address must be exactly 42 characters')
+        .regex(/^0x[a-fA-F0-9]{40}$/, 'Invalid EVM wallet address format');
+      
+      try {
+        walletSchema.parse(x402Wallet);
+      } catch (err) {
+        if (err instanceof z.ZodError) {
+          toast.error(err.errors[0].message);
+          return;
+        }
+      }
+      
+      // Validate price
+      const priceSchema = z.number()
+        .min(0.01, 'x402 price must be at least $0.01')
+        .max(1000, 'x402 price cannot exceed $1000');
+      
+      const price = parseFloat(x402Price);
+      if (isNaN(price)) {
+        toast.error('Please enter a valid price');
+        return;
+      }
+      
+      try {
+        priceSchema.parse(price);
+      } catch (err) {
+        if (err instanceof z.ZodError) {
+          toast.error(err.errors[0].message);
+          return;
+        }
+      }
+    }
     
     setIsSaving(true);
     try {
@@ -287,6 +327,12 @@ const EditSimModal = ({ open, onOpenChange, simId, editCode }: EditSimModalProps
       }
       
       // Update sim with all fields
+      console.log('Updating sim with x402 data:', {
+        x402Enabled,
+        x402Price: x402Enabled ? parseFloat(x402Price) : null,
+        x402Wallet: x402Enabled && x402Wallet.trim() ? x402Wallet.trim() : null
+      });
+      
       const { error } = await supabase
         .from('advisors')
         .update({
@@ -304,7 +350,8 @@ const EditSimModal = ({ open, onOpenChange, simId, editCode }: EditSimModalProps
           x402_wallet: x402Enabled && x402Wallet.trim() ? x402Wallet.trim() : null,
           updated_at: new Date().toISOString()
         })
-        .eq('id', simId);
+        .eq('id', simId)
+        .eq('edit_code', codeToUse);
 
       if (error) {
         throw error;

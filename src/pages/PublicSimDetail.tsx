@@ -11,6 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import landingBackground from "@/assets/landing-background.jpg";
 import { getAvatarUrl } from "@/lib/avatarUtils";
 import { fetchSolanaBalance, formatSolBalance } from "@/services/solanaBalanceService";
+import { X402PaymentModal } from "@/components/X402PaymentModal";
 
 const PublicSimDetail = () => {
   const { customUrl } = useParams<{ customUrl: string }>();
@@ -34,6 +35,8 @@ const PublicSimDetail = () => {
   const embedCodeRef = useRef<HTMLDivElement>(null);
   const [solBalance, setSolBalance] = useState<number | null>(null);
   const [isLoadingBalance, setIsLoadingBalance] = useState(false);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [paymentSessionId, setPaymentSessionId] = useState<string | null>(null);
 
   // Calculate SOL equivalent (example rate: 1 $SimAI = 0.0001 SOL)
   const SIMAI_TO_SOL_RATE = 0.0001;
@@ -517,7 +520,21 @@ const PublicSimDetail = () => {
                 size="lg"
                 variant="simPrimary"
                 className="w-full h-14 text-base shadow-xl hover:shadow-2xl transition-all duration-300 mb-4 group"
-                onClick={() => setShowChat(true)}
+                onClick={() => {
+                  // Check if x402 payment is required
+                  if ((sim as any)?.x402_enabled && (sim as any)?.x402_price && (sim as any)?.x402_wallet) {
+                    const storedSessionId = localStorage.getItem(`x402_session_${(sim as any).x402_wallet}`);
+                    if (!storedSessionId) {
+                      console.log('x402 payment required, showing payment modal');
+                      setShowPaymentModal(true);
+                      return;
+                    } else {
+                      console.log('x402 session found:', storedSessionId);
+                      setPaymentSessionId(storedSessionId);
+                    }
+                  }
+                  setShowChat(true);
+                }}
               >
                 <MessageCircle className="h-5 w-5 mr-2 group-hover:scale-110 transition-transform" />
                 Launch Sim
@@ -693,6 +710,23 @@ const PublicSimDetail = () => {
       )}
 
       <AuthModal open={showAuthModal} onOpenChange={setShowAuthModal} />
+
+      {/* x402 Payment Modal */}
+      {sim && (sim as any).x402_enabled && (
+        <X402PaymentModal
+          isOpen={showPaymentModal}
+          onClose={() => setShowPaymentModal(false)}
+          onPaymentSuccess={(sessionId) => {
+            console.log('Payment successful, session ID:', sessionId);
+            setPaymentSessionId(sessionId);
+            setShowPaymentModal(false);
+            setShowChat(true);
+          }}
+          simName={sim.name}
+          price={(sim as any).x402_price || 0.01}
+          walletAddress={(sim as any).x402_wallet || ''}
+        />
+      )}
     </div>
   );
 };

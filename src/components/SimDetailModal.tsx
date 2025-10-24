@@ -23,6 +23,7 @@ import { toast as sonnerToast } from "sonner";
 import PublicChatInterface from "@/components/PublicChatInterface";
 import EditSimModal from "@/components/EditSimModal";
 import { fetchSolanaBalance, formatSolBalance } from "@/services/solanaBalanceService";
+import { X402PaymentModal } from "@/components/X402PaymentModal";
 
 interface SimDetailModalProps {
   sim: AgentType | null;
@@ -48,6 +49,8 @@ const SimDetailModal = ({ sim, open, onOpenChange, onAuthRequired }: SimDetailMo
   const [showEditSimModal, setShowEditSimModal] = useState(false);
   const [solBalance, setSolBalance] = useState<number | null>(null);
   const [isLoadingBalance, setIsLoadingBalance] = useState(false);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [paymentSessionId, setPaymentSessionId] = useState<string | null>(null);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -228,8 +231,23 @@ const SimDetailModal = ({ sim, open, onOpenChange, onAuthRequired }: SimDetailMo
       simName: sim.name, 
       isSignedIn, 
       customUrl: (sim as any).custom_url,
-      simId: sim.id 
+      simId: sim.id,
+      x402Enabled: (sim as any).x402_enabled,
+      x402Price: (sim as any).x402_price
     });
+    
+    // Check if x402 payment is required
+    if ((sim as any).x402_enabled && (sim as any).x402_price && (sim as any).x402_wallet) {
+      const storedSessionId = localStorage.getItem(`x402_session_${(sim as any).x402_wallet}`);
+      if (!storedSessionId) {
+        console.log('x402 payment required, showing payment modal');
+        setShowPaymentModal(true);
+        return;
+      } else {
+        console.log('x402 session found:', storedSessionId);
+        setPaymentSessionId(storedSessionId);
+      }
+    }
     
     // If user is not signed in, navigate to the public chat page with chat parameter
     if (!isSignedIn) {
@@ -343,6 +361,22 @@ const SimDetailModal = ({ sim, open, onOpenChange, onAuthRequired }: SimDetailMo
       sonnerToast.error("Failed to validate code");
     } finally {
       setIsValidatingCode(false);
+    }
+  };
+
+  const handlePaymentSuccess = (sessionId: string) => {
+    console.log('Payment successful, session ID:', sessionId);
+    setPaymentSessionId(sessionId);
+    setShowPaymentModal(false);
+    
+    // Now launch the sim
+    if (!isSignedIn) {
+      const simSlug = (sim as any).custom_url || generateSlug(sim?.name || '');
+      onOpenChange(false);
+      navigate(`/${simSlug}?chat=true`);
+    } else {
+      // For signed-in users, show chat interface
+      setShowChat(true);
     }
   };
 
@@ -669,6 +703,18 @@ const SimDetailModal = ({ sim, open, onOpenChange, onAuthRequired }: SimDetailMo
             }
           }}
           simId={sim.id}
+        />
+      )}
+
+      {/* x402 Payment Modal */}
+      {sim && (sim as any).x402_enabled && (
+        <X402PaymentModal
+          isOpen={showPaymentModal}
+          onClose={() => setShowPaymentModal(false)}
+          onPaymentSuccess={handlePaymentSuccess}
+          simName={sim.name}
+          price={(sim as any).x402_price || 0.01}
+          walletAddress={(sim as any).x402_wallet || ''}
         />
       )}
     </Dialog>

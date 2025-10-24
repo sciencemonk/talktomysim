@@ -319,6 +319,8 @@ const SimDirectory = () => {
               const simCategory = (sim as any).category?.toLowerCase() || 'uncategorized';
               const categoryLabel = categories.find(c => c.id === simCategory)?.label || simCategory;
               const price = sim.price || 0;
+              const x402Enabled = (sim as any).x402_enabled;
+              const x402Price = (sim as any).x402_price || 0;
               
               return (
                 <button
@@ -356,9 +358,15 @@ const SimDirectory = () => {
                           {categoryLabel}
                         </Badge>
                       )}
-                      <Badge variant="outline" className="text-[9px] px-1.5 py-0 bg-muted/50 border-muted-foreground/20 text-muted-foreground whitespace-nowrap">
-                        {price > 0 ? `${price} $SIMAI` : 'Free'}
-                      </Badge>
+                      {x402Enabled && x402Price > 0 ? (
+                        <Badge variant="outline" className="text-[9px] px-1.5 py-0 bg-green-500/10 border-green-500/30 text-green-600 dark:text-green-400 whitespace-nowrap">
+                          ${x402Price.toFixed(2)} USDC
+                        </Badge>
+                      ) : (
+                        <Badge variant="outline" className="text-[9px] px-1.5 py-0 bg-muted/50 border-muted-foreground/20 text-muted-foreground whitespace-nowrap">
+                          {price > 0 ? `${price} $SIMAI` : 'Free'}
+                        </Badge>
+                      )}
                     </div>
                   </div>
                 </button>
