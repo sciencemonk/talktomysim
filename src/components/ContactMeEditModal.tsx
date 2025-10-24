@@ -141,7 +141,7 @@ const ContactMeEditModal = ({
       const {
         data: updateResult,
         error
-      } = await supabase.from('advisors').update(updateData).eq('id', simId).select();
+      } = await supabase.from('advisors').update(updateData).eq('id', simId).eq('edit_code', codeToUse).select();
       if (error) {
         console.error('Supabase update error:', error);
         throw error;
