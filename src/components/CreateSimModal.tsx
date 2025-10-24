@@ -126,6 +126,16 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
       return;
     }
 
+    // For Contact Me sims, skip AI generation and go directly to confirmation
+    if (simType === "Contact Me") {
+      const code = generateEditCode();
+      setEditCode(code);
+      setWelcomeMessage(`Thanks for reaching out! Fill out the form below and I'll get back to you.`);
+      setSystemPrompt("N/A"); // Not used for Contact Me
+      setStep(2);
+      return;
+    }
+
     if (!category) {
       toast.error("Please select a category first");
       return;
@@ -199,7 +209,8 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
       return;
     }
 
-    if (!systemPrompt.trim()) {
+    // System prompt only required for Chat sims
+    if (simType === "Chat" && !systemPrompt.trim()) {
       toast.error("Please enter or generate a system prompt");
       return;
     }
@@ -290,7 +301,7 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
           sim_category: simType,
           description: description.trim(),
           auto_description: autoDescription,
-          prompt: systemPrompt.trim(),
+          prompt: simType === "Chat" ? systemPrompt.trim() : "N/A",
           avatar_url: avatarUrl,
           price: 0,
           integrations: allIntegrations,
@@ -675,7 +686,12 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
                 type="button"
                 size="lg"
                 onClick={handleGeneratePrompt}
-                disabled={isGenerating || !name.trim() || !description.trim() || !category}
+                disabled={
+                  isGenerating || 
+                  !name.trim() || 
+                  !description.trim() || 
+                  (simType === "Chat" && !category)
+                }
                 className="gap-2 w-full h-12 font-semibold bg-[#82f2aa] hover:bg-[#6dd994] text-black"
               >
                 {isGenerating ? (
@@ -686,7 +702,7 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
                 ) : (
                   <>
                     <Sparkles className="w-5 h-5" />
-                    Generate Sim
+                    {simType === "Contact Me" ? "Continue" : "Generate Sim"}
                   </>
                 )}
               </Button>
@@ -771,28 +787,30 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
               />
             </div>
 
-            {/* System Prompt */}
-            <div className="space-y-3">
-              <div className="flex items-center gap-2">
-                <div className="h-px flex-1 bg-gradient-to-r from-transparent via-border to-transparent" />
-                <Label
-                  htmlFor="system-prompt"
-                  className="text-xs font-medium text-muted-foreground uppercase tracking-wider"
-                >
-                  System Prompt <span className="text-destructive">*</span>
-                </Label>
-                <div className="h-px flex-1 bg-gradient-to-r from-transparent via-border to-transparent" />
+            {/* System Prompt - only show for Chat sims */}
+            {simType === "Chat" && (
+              <div className="space-y-3">
+                <div className="flex items-center gap-2">
+                  <div className="h-px flex-1 bg-gradient-to-r from-transparent via-border to-transparent" />
+                  <Label
+                    htmlFor="system-prompt"
+                    className="text-xs font-medium text-muted-foreground uppercase tracking-wider"
+                  >
+                    System Prompt <span className="text-destructive">*</span>
+                  </Label>
+                  <div className="h-px flex-1 bg-gradient-to-r from-transparent via-border to-transparent" />
+                </div>
+                <Textarea
+                  id="system-prompt"
+                  value={systemPrompt}
+                  onChange={(e) => setSystemPrompt(e.target.value)}
+                  placeholder="The core instructions that define your sim's behavior and personality"
+                  rows={12}
+                  className="resize-none font-mono text-xs bg-background border-border text-foreground focus:ring-2 focus:ring-primary/20 transition-all"
+                  required
+                />
               </div>
-              <Textarea
-                id="system-prompt"
-                value={systemPrompt}
-                onChange={(e) => setSystemPrompt(e.target.value)}
-                placeholder="The core instructions that define your sim's behavior and personality"
-                rows={12}
-                className="resize-none font-mono text-xs bg-background border-border text-foreground focus:ring-2 focus:ring-primary/20 transition-all"
-                required
-              />
-            </div>
+            )}
 
             {/* Action Buttons */}
             <div className="flex gap-3 pt-4">
@@ -807,7 +825,7 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
               </Button>
               <Button
                 type="submit"
-                disabled={isSubmitting || !systemPrompt.trim()}
+                disabled={isSubmitting || (simType === "Chat" && !systemPrompt.trim())}
                 className="flex-1 h-12 gap-2 bg-[#82f2aa] hover:bg-[#6dd994] text-black shadow-lg shadow-[#82f2aa]/25 hover:shadow-xl hover:shadow-[#82f2aa]/30 transition-all duration-300 font-semibold"
               >
                 {isSubmitting ? (
