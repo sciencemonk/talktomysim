@@ -21,6 +21,11 @@ interface CreateSimModalProps {
   onAuthRequired?: () => void;
 }
 
+const simTypes = [
+  { value: "Contact Me", label: "Contact Me - Message form" },
+  { value: "Chat", label: "Chat - AI conversation" },
+];
+
 const categories = [
   { value: "crypto", label: "Crypto & Web3" },
   { value: "historical", label: "Historical Figures" },
@@ -37,6 +42,7 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [name, setName] = useState("");
+  const [simType, setSimType] = useState("Contact Me");
   const [category, setCategory] = useState("");
   const [description, setDescription] = useState("");
   const [systemPrompt, setSystemPrompt] = useState("");
@@ -482,6 +488,25 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
                 <p className="text-xs text-muted-foreground">
                   Required if you want to claim Creator Rewards
                 </p>
+              </div>
+
+              {/* Sim Type */}
+              <div className="space-y-2">
+                <Label htmlFor="sim-type" className="text-sm font-medium">
+                  Type <span className="text-destructive">*</span>
+                </Label>
+                <Select value={simType} onValueChange={setSimType} required>
+                  <SelectTrigger className="h-11 bg-background">
+                    <SelectValue placeholder="Select type" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-background z-50">
+                    {simTypes.map((type) => (
+                      <SelectItem key={type.value} value={type.value}>
+                        {type.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
 
               {/* Category */}
