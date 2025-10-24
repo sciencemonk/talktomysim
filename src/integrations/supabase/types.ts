@@ -163,6 +163,9 @@ export type Database = {
           website_url: string | null
           welcome_message: string | null
           writing_sample: string | null
+          x402_enabled: boolean | null
+          x402_price: number | null
+          x402_wallet: string | null
           years_experience: number | null
         }
         Insert: {
@@ -215,6 +218,9 @@ export type Database = {
           website_url?: string | null
           welcome_message?: string | null
           writing_sample?: string | null
+          x402_enabled?: boolean | null
+          x402_price?: number | null
+          x402_wallet?: string | null
           years_experience?: number | null
         }
         Update: {
@@ -267,6 +273,9 @@ export type Database = {
           website_url?: string | null
           welcome_message?: string | null
           writing_sample?: string | null
+          x402_enabled?: boolean | null
+          x402_price?: number | null
+          x402_wallet?: string | null
           years_experience?: number | null
         }
         Relationships: []

@@ -52,6 +52,9 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
   const [websiteLink, setWebsiteLink] = useState("");
   const [telegramLink, setTelegramLink] = useState("");
   const [cryptoWallet, setCryptoWallet] = useState("");
+  const [x402Enabled, setX402Enabled] = useState(false);
+  const [x402Price, setX402Price] = useState("");
+  const [x402Wallet, setX402Wallet] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // All sims get all integrations by default
@@ -290,6 +293,9 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
           social_links: Object.keys(socialLinks).length > 0 ? socialLinks : null,
           edit_code: editCode,
           crypto_wallet: cryptoWallet.trim() || null,
+          x402_enabled: x402Enabled,
+          x402_price: x402Enabled && x402Price ? parseFloat(x402Price) : null,
+          x402_wallet: x402Enabled && x402Wallet.trim() ? x402Wallet.trim() : null,
         })
         .select()
         .single();
@@ -334,6 +340,9 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
       setWebsiteLink("");
       setTelegramLink("");
       setCryptoWallet("");
+      setX402Enabled(false);
+      setX402Price("");
+      setX402Wallet("");
       setSocialLinksOpen(false);
 
       // Call onSuccess to refresh queries
@@ -369,6 +378,9 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
     setWebsiteLink("");
     setTelegramLink("");
     setCryptoWallet("");
+    setX402Enabled(false);
+    setX402Price("");
+    setX402Wallet("");
     setSocialLinksOpen(false);
     onOpenChange(false);
   };
@@ -564,6 +576,66 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
                   </div>
                 </CollapsibleContent>
               </Collapsible>
+
+              {/* x402 Payment Settings */}
+              <div className="space-y-4 pt-4 border-t border-border">
+                <div className="flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <Label htmlFor="x402-enabled" className="text-sm font-medium">
+                      Require Payment (x402)
+                    </Label>
+                    <p className="text-xs text-muted-foreground">
+                      Require users to pay in USDC before chatting with your Sim
+                    </p>
+                  </div>
+                  <Switch
+                    id="x402-enabled"
+                    checked={x402Enabled}
+                    onCheckedChange={setX402Enabled}
+                  />
+                </div>
+
+                {x402Enabled && (
+                  <div className="space-y-3 pl-4 border-l-2 border-primary/30">
+                    <div className="space-y-2">
+                      <Label htmlFor="x402-price" className="text-sm font-medium">
+                        Price in USDC <span className="text-destructive">*</span>
+                      </Label>
+                      <Input
+                        id="x402-price"
+                        type="number"
+                        step="0.01"
+                        min="0.01"
+                        value={x402Price}
+                        onChange={(e) => setX402Price(e.target.value)}
+                        placeholder="0.01"
+                        className="h-10 bg-background"
+                        required={x402Enabled}
+                      />
+                      <p className="text-xs text-muted-foreground">
+                        Example: 0.01 for $0.01 USDC per conversation
+                      </p>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="x402-wallet" className="text-sm font-medium">
+                        EVM Wallet Address <span className="text-destructive">*</span>
+                      </Label>
+                      <Input
+                        id="x402-wallet"
+                        value={x402Wallet}
+                        onChange={(e) => setX402Wallet(e.target.value)}
+                        placeholder="0x..."
+                        className="h-10 bg-background font-mono text-sm"
+                        required={x402Enabled}
+                      />
+                      <p className="text-xs text-muted-foreground">
+                        Base network wallet address to receive payments
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* Generate Button */}

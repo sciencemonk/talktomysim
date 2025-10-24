@@ -8,6 +8,7 @@ import { toast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { Upload, X, Loader2 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
+import { Switch } from '@/components/ui/switch';
 
 interface UserSimFormProps {
   open: boolean;
@@ -27,7 +28,10 @@ const UserSimForm = ({ open, onOpenChange, existingSim, onSuccess }: UserSimForm
     prompt: '',
     custom_url: '',
     avatar_url: '',
-    crypto_wallet: ''
+    crypto_wallet: '',
+    x402_enabled: false,
+    x402_price: '',
+    x402_wallet: ''
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
@@ -44,7 +48,10 @@ const UserSimForm = ({ open, onOpenChange, existingSim, onSuccess }: UserSimForm
         prompt: existingSim.prompt || '',
         custom_url: existingSim.custom_url || '',
         avatar_url: existingSim.avatar_url || '',
-        crypto_wallet: existingSim.crypto_wallet || ''
+        crypto_wallet: existingSim.crypto_wallet || '',
+        x402_enabled: existingSim.x402_enabled || false,
+        x402_price: existingSim.x402_price?.toString() || '',
+        x402_wallet: existingSim.x402_wallet || ''
       });
       setPreviewUrl(existingSim.avatar_url || '');
     } else {
@@ -55,7 +62,10 @@ const UserSimForm = ({ open, onOpenChange, existingSim, onSuccess }: UserSimForm
         prompt: 'You are a helpful AI assistant. Be friendly, informative, and engaging in conversations.',
         custom_url: '',
         avatar_url: '',
-        crypto_wallet: ''
+        crypto_wallet: '',
+        x402_enabled: false,
+        x402_price: '',
+        x402_wallet: ''
       });
       setPreviewUrl('');
     }
@@ -84,7 +94,10 @@ const UserSimForm = ({ open, onOpenChange, existingSim, onSuccess }: UserSimForm
           description: data.description,
           prompt: data.prompt || 'You are a helpful AI assistant. Be friendly, informative, and engaging in conversations.',
           avatar_url: data.avatar_url,
-          crypto_wallet: data.crypto_wallet
+          crypto_wallet: data.crypto_wallet,
+          x402_enabled: data.x402_enabled,
+          x402_price: data.x402_price ? parseFloat(data.x402_price) : null,
+          x402_wallet: data.x402_wallet
         })
         .eq('id', existingSim.id);
 
@@ -97,7 +110,7 @@ const UserSimForm = ({ open, onOpenChange, existingSim, onSuccess }: UserSimForm
   }, [existingSim]);
 
   const handleInputChange = (field: string, value: string) => {
-    const updatedData = { ...formData, [field]: value };
+    const updatedData = { ...formData, [field]: field === 'x402_enabled' ? value === 'true' : value };
     
     // Auto-generate custom_url from name if creating new sim
     if (field === 'name' && !existingSim) {
@@ -242,7 +255,10 @@ const UserSimForm = ({ open, onOpenChange, existingSim, onSuccess }: UserSimForm
         sim_type: 'living',
         is_public: true,
         is_active: true,
-        user_id: user?.id
+        user_id: user?.id,
+        x402_enabled: formData.x402_enabled,
+        x402_price: formData.x402_price ? parseFloat(formData.x402_price) : null,
+        x402_wallet: formData.x402_wallet || null
       };
 
       if (existingSim) {
@@ -428,6 +444,63 @@ const UserSimForm = ({ open, onOpenChange, existingSim, onSuccess }: UserSimForm
                 </p>
               </div>
             </div>
+          </div>
+
+          {/* x402 Payment Settings */}
+          <div className="space-y-4 pt-4 border-t border-border">
+            <div className="flex items-center justify-between">
+              <div className="space-y-0.5">
+                <Label htmlFor="x402_enabled">Require Payment (x402)</Label>
+                <p className="text-xs text-muted-foreground">
+                  Require users to pay in USDC before chatting with your Sim
+                </p>
+              </div>
+              <Switch
+                id="x402_enabled"
+                checked={formData.x402_enabled}
+                onCheckedChange={(checked) => handleInputChange('x402_enabled', checked.toString())}
+              />
+            </div>
+
+            {formData.x402_enabled && (
+              <div className="space-y-3 pl-4 border-l-2 border-primary/30">
+                <div className="space-y-2">
+                  <Label htmlFor="x402_price">
+                    Price in USDC <span className="text-destructive">*</span>
+                  </Label>
+                  <Input
+                    id="x402_price"
+                    type="number"
+                    step="0.01"
+                    min="0.01"
+                    value={formData.x402_price}
+                    onChange={(e) => handleInputChange('x402_price', e.target.value)}
+                    placeholder="0.01"
+                    required={formData.x402_enabled}
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Example: 0.01 for $0.01 USDC per conversation
+                  </p>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="x402_wallet">
+                    EVM Wallet Address <span className="text-destructive">*</span>
+                  </Label>
+                  <Input
+                    id="x402_wallet"
+                    value={formData.x402_wallet}
+                    onChange={(e) => handleInputChange('x402_wallet', e.target.value)}
+                    placeholder="0x..."
+                    className="font-mono text-sm"
+                    required={formData.x402_enabled}
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Base network wallet address to receive payments
+                  </p>
+                </div>
+              </div>
+            )}
           </div>
 
           <DialogFooter>
