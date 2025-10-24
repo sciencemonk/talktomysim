@@ -327,40 +327,53 @@ const EditSimModal = ({ open, onOpenChange, simId, editCode }: EditSimModalProps
       }
       
       // Update sim with all fields
-      console.log('Updating sim with x402 data:', {
-        x402Enabled,
-        x402Price: x402Enabled ? parseFloat(x402Price) : null,
-        x402Wallet: x402Enabled && x402Wallet.trim() ? x402Wallet.trim() : null
-      });
+      const updateData = {
+        name: name.trim(),
+        category: category || null,
+        description: description.trim(),
+        prompt: systemPrompt.trim(),
+        welcome_message: welcomeMessage.trim(),
+        avatar_url: avatarUrl,
+        social_links: Object.keys(socialLinks).length > 0 ? socialLinks : null,
+        integrations: allIntegrations,
+        crypto_wallet: cryptoWallet.trim() || null,
+        x402_enabled: x402Enabled,
+        x402_price: x402Enabled ? parseFloat(x402Price) : null,
+        x402_wallet: x402Enabled && x402Wallet.trim() ? x402Wallet.trim() : null,
+        updated_at: new Date().toISOString()
+      };
       
-      const { error } = await supabase
+      console.log('Updating sim with data:', updateData);
+      console.log('Using sim ID:', simId, 'and edit code:', codeToUse);
+      
+      const { data: updateResult, error } = await supabase
         .from('advisors')
-        .update({
-          name: name.trim(),
-          category: category || null,
-          description: description.trim(),
-          prompt: systemPrompt.trim(),
-          welcome_message: welcomeMessage.trim(),
-          avatar_url: avatarUrl,
-          social_links: Object.keys(socialLinks).length > 0 ? socialLinks : null,
-          integrations: allIntegrations,
-          crypto_wallet: cryptoWallet.trim() || null,
-          x402_enabled: x402Enabled,
-          x402_price: x402Enabled ? parseFloat(x402Price) : null,
-          x402_wallet: x402Enabled && x402Wallet.trim() ? x402Wallet.trim() : null,
-          updated_at: new Date().toISOString()
-        })
+        .update(updateData)
         .eq('id', simId)
-        .eq('edit_code', codeToUse);
+        .eq('edit_code', codeToUse)
+        .select();
+
+      console.log('Update result:', updateResult);
+      console.log('Update error:', error);
 
       if (error) {
+        console.error('Supabase update error:', error);
         throw error;
+      }
+      
+      if (!updateResult || updateResult.length === 0) {
+        console.error('Update returned no rows - edit code may be incorrect');
+        toast.error('Update failed - please check your edit code');
+        return;
       }
 
       await queryClient.invalidateQueries({ queryKey: ['user-sim'] });
       await queryClient.invalidateQueries({ queryKey: ['sim-conversations'] });
+      await queryClient.invalidateQueries({ queryKey: ['advisors'] });
+      await queryClient.invalidateQueries({ queryKey: ['public-agents'] });
       
       toast.success('Sim updated successfully!');
+      console.log('Sim update completed successfully');
       onOpenChange(false);
     } catch (error) {
       console.error('Error saving sim:', error);
