@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -15,8 +14,6 @@ interface ContactFormPageProps {
 }
 
 const ContactFormPage = ({ agent }: ContactFormPageProps) => {
-  const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
   const [message, setMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -27,15 +24,6 @@ const ContactFormPage = ({ agent }: ContactFormPageProps) => {
       toast({
         title: "Message required",
         description: "Please enter a message before submitting",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    if (!email.trim() && !phone.trim()) {
-      toast({
-        title: "Contact info required",
-        description: "Please provide at least an email or phone number",
         variant: "destructive"
       });
       return;
@@ -57,8 +45,8 @@ const ContactFormPage = ({ agent }: ContactFormPageProps) => {
         .from('contact_messages')
         .insert([{
           advisor_id: agent.id,
-          sender_email: email.trim() || null,
-          sender_phone: phone.trim() || null,
+          sender_email: null,
+          sender_phone: null,
           message: message.trim()
         }]);
 
@@ -70,8 +58,6 @@ const ContactFormPage = ({ agent }: ContactFormPageProps) => {
       });
 
       // Reset form
-      setEmail("");
-      setPhone("");
       setMessage("");
     } catch (error) {
       console.error('Error sending message:', error);
@@ -108,38 +94,6 @@ const ContactFormPage = ({ agent }: ContactFormPageProps) => {
 
           {/* Contact Form */}
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="bg-muted/50 border border-border rounded-lg p-4">
-              <p className="text-sm text-muted-foreground">
-                Please share an email or phone number if you'd like {agent.name} to get back to you.
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="email">Email (Optional)</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="your@email.com"
-                  disabled={isSubmitting}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="phone">Phone (Optional)</Label>
-                <Input
-                  id="phone"
-                  type="tel"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  placeholder="+1 (555) 000-0000"
-                  disabled={isSubmitting}
-                />
-              </div>
-            </div>
-
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label htmlFor="message">Message *</Label>
@@ -163,7 +117,7 @@ const ContactFormPage = ({ agent }: ContactFormPageProps) => {
             <Button
               type="submit"
               className="w-full h-12 text-base"
-              disabled={isSubmitting || !message.trim() || (!email.trim() && !phone.trim())}
+              disabled={isSubmitting || !message.trim()}
             >
               {isSubmitting ? (
                 <>
