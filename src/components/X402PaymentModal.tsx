@@ -26,9 +26,9 @@ export const X402PaymentModal = ({
   const [walletConnected, setWalletConnected] = useState(false);
   const [userAddress, setUserAddress] = useState<string>('');
 
-  // USDC contract address on Base Sepolia
-  const USDC_ADDRESS = '0x036CbD53842c5426634e7929541eC2318f3dCF7e';
-  const BASE_SEPOLIA_CHAIN_ID = '0x14a34'; // 84532 in hex
+  // USDC contract address on Base mainnet
+  const USDC_ADDRESS = '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913';
+  const BASE_MAINNET_CHAIN_ID = '0x2105'; // 8453 in hex
 
   const connectWallet = async () => {
     try {
@@ -45,15 +45,15 @@ export const X402PaymentModal = ({
       if (accounts.length > 0) {
         setUserAddress(accounts[0]);
         
-        // Check if user is on Base Sepolia network
+        // Check if user is on Base mainnet network
         const chainId = await window.ethereum.request({ method: 'eth_chainId' });
         
-        if (chainId !== BASE_SEPOLIA_CHAIN_ID) {
-          // Try to switch to Base Sepolia
+        if (chainId !== BASE_MAINNET_CHAIN_ID) {
+          // Try to switch to Base mainnet
           try {
             await window.ethereum.request({
               method: 'wallet_switchEthereumChain',
-              params: [{ chainId: BASE_SEPOLIA_CHAIN_ID }],
+              params: [{ chainId: BASE_MAINNET_CHAIN_ID }],
             });
           } catch (switchError: any) {
             // Chain not added to wallet, add it
@@ -61,15 +61,15 @@ export const X402PaymentModal = ({
               await window.ethereum.request({
                 method: 'wallet_addEthereumChain',
                 params: [{
-                  chainId: BASE_SEPOLIA_CHAIN_ID,
-                  chainName: 'Base Sepolia',
+                  chainId: BASE_MAINNET_CHAIN_ID,
+                  chainName: 'Base',
                   nativeCurrency: {
                     name: 'ETH',
                     symbol: 'ETH',
                     decimals: 18
                   },
-                  rpcUrls: ['https://sepolia.base.org'],
-                  blockExplorerUrls: ['https://sepolia.basescan.org']
+                  rpcUrls: ['https://mainnet.base.org'],
+                  blockExplorerUrls: ['https://basescan.org']
                 }]
               });
             } else {
@@ -79,7 +79,7 @@ export const X402PaymentModal = ({
         }
         
         setWalletConnected(true);
-        toast.success('Wallet connected to Base Sepolia');
+        toast.success('Wallet connected to Base');
       }
     } catch (error: any) {
       console.error('Wallet connection error:', error);
@@ -99,7 +99,7 @@ export const X402PaymentModal = ({
         price, 
         recipientWallet: walletAddress, 
         userAddress,
-        network: 'base-sepolia' 
+        network: 'base-mainnet' 
       });
 
       // Create ethers provider
@@ -125,7 +125,7 @@ export const X402PaymentModal = ({
       console.log('Payment amount:', ethers.formatUnits(amount, decimals), 'USDC');
 
       if (balance < amount) {
-        throw new Error('Insufficient USDC balance. Get testnet USDC from Circle Faucet.');
+        throw new Error('Insufficient USDC balance');
       }
 
       // Execute transfer
@@ -163,7 +163,7 @@ export const X402PaymentModal = ({
       if (error.code === 4001 || error.code === 'ACTION_REJECTED') {
         toast.error('Payment cancelled by user');
       } else if (error.message?.includes('insufficient funds') || error.message?.includes('Insufficient')) {
-        toast.error('Insufficient USDC balance. Get testnet USDC from Circle Faucet.');
+        toast.error('Insufficient USDC balance');
       } else {
         toast.error(error.message || 'Payment failed. Please try again.');
       }
@@ -190,7 +190,7 @@ export const X402PaymentModal = ({
             </div>
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">Network:</span>
-              <span className="font-medium">Base Sepolia</span>
+              <span className="font-medium">Base</span>
             </div>
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">Access:</span>
@@ -225,15 +225,7 @@ export const X402PaymentModal = ({
           )}
 
           <p className="text-xs text-muted-foreground text-center">
-            Need testnet USDC? Get it from{" "}
-            <a 
-              href="https://faucet.circle.com/" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="text-primary underline"
-            >
-              Circle Faucet
-            </a>
+            Payment is processed on Base mainnet using USDC
           </p>
         </div>
       </DialogContent>
