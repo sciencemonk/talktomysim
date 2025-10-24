@@ -230,15 +230,15 @@ const SimDetailModal = ({ sim, open, onOpenChange, onAuthRequired }: SimDetailMo
     console.log('Launch Sim clicked:', { 
       simName: sim.name, 
       isSignedIn, 
-      customUrl: (sim as any).custom_url,
+      customUrl: sim.custom_url,
       simId: sim.id,
-      x402Enabled: (sim as any).x402_enabled,
-      x402Price: (sim as any).x402_price
+      x402Enabled: sim.x402_enabled,
+      x402Price: sim.x402_price
     });
     
     // Check if x402 payment is required
-    if ((sim as any).x402_enabled && (sim as any).x402_price && (sim as any).x402_wallet) {
-      const storedSessionId = localStorage.getItem(`x402_session_${(sim as any).x402_wallet}`);
+    if (sim.x402_enabled && sim.x402_price && sim.x402_wallet) {
+      const storedSessionId = localStorage.getItem(`x402_session_${sim.x402_wallet}`);
       if (!storedSessionId) {
         console.log('x402 payment required, showing payment modal');
         setShowPaymentModal(true);
@@ -371,7 +371,7 @@ const SimDetailModal = ({ sim, open, onOpenChange, onAuthRequired }: SimDetailMo
     
     // Now launch the sim
     if (!isSignedIn) {
-      const simSlug = (sim as any).custom_url || generateSlug(sim?.name || '');
+      const simSlug = sim?.custom_url || generateSlug(sim?.name || '');
       onOpenChange(false);
       navigate(`/${simSlug}?chat=true`);
     } else {
@@ -707,14 +707,14 @@ const SimDetailModal = ({ sim, open, onOpenChange, onAuthRequired }: SimDetailMo
       )}
 
       {/* x402 Payment Modal */}
-      {sim && (sim as any).x402_enabled && (
+      {sim && sim.x402_enabled && (
         <X402PaymentModal
           isOpen={showPaymentModal}
           onClose={() => setShowPaymentModal(false)}
           onPaymentSuccess={handlePaymentSuccess}
           simName={sim.name}
-          price={(sim as any).x402_price || 0.01}
-          walletAddress={(sim as any).x402_wallet || ''}
+          price={sim.x402_price || 0.01}
+          walletAddress={sim.x402_wallet || ''}
         />
       )}
     </Dialog>

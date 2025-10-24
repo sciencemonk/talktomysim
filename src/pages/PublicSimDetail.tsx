@@ -268,6 +268,20 @@ const PublicSimDetail = () => {
     }
   }, [customUrl]);
 
+  // Check for x402 payment when chat is shown
+  useEffect(() => {
+    if (showChat && sim && sim.x402_enabled && sim.x402_price && sim.x402_wallet) {
+      const storedSessionId = localStorage.getItem(`x402_session_${sim.x402_wallet}`);
+      if (!storedSessionId) {
+        console.log('x402 payment required, showing payment modal');
+        setShowPaymentModal(true);
+      } else {
+        console.log('x402 session found:', storedSessionId);
+        setPaymentSessionId(storedSessionId);
+      }
+    }
+  }, [showChat, sim]);
+
   // Fetch SOL balance when sim has a crypto wallet
   useEffect(() => {
     const loadBalance = async () => {
@@ -380,7 +394,10 @@ const PublicSimDetail = () => {
         crypto_wallet: data.crypto_wallet,
         background_image_url: data.background_image_url,
         price: data.price || 0,
-        auto_description: data.auto_description
+        auto_description: data.auto_description,
+        x402_enabled: data.x402_enabled || false,
+        x402_price: data.x402_price || 0,
+        x402_wallet: data.x402_wallet
       };
 
       setSim(transformedSim);
@@ -712,7 +729,7 @@ const PublicSimDetail = () => {
       <AuthModal open={showAuthModal} onOpenChange={setShowAuthModal} />
 
       {/* x402 Payment Modal */}
-      {sim && (sim as any).x402_enabled && (
+      {sim && sim.x402_enabled && (
         <X402PaymentModal
           isOpen={showPaymentModal}
           onClose={() => setShowPaymentModal(false)}
@@ -723,8 +740,8 @@ const PublicSimDetail = () => {
             setShowChat(true);
           }}
           simName={sim.name}
-          price={(sim as any).x402_price || 0.01}
-          walletAddress={(sim as any).x402_wallet || ''}
+          price={sim.x402_price || 0.01}
+          walletAddress={sim.x402_wallet || ''}
         />
       )}
     </div>
