@@ -105,7 +105,10 @@ const Landing = () => {
         voiceTraits: [],
         social_links: data.social_links as any,
         background_image_url: data.background_image_url,
-        crypto_wallet: data.crypto_wallet
+        crypto_wallet: data.crypto_wallet,
+        x402_enabled: data.x402_enabled || false,
+        x402_price: data.x402_price || 0,
+        x402_wallet: data.x402_wallet
       } as AgentType;
     },
     enabled: !!currentUser
@@ -175,7 +178,10 @@ const Landing = () => {
           user_count: userCount,
           social_links: sim.social_links as any,
           background_image_url: sim.background_image_url,
-          crypto_wallet: sim.crypto_wallet
+          crypto_wallet: sim.crypto_wallet,
+          x402_enabled: sim.x402_enabled || false,
+          x402_price: sim.x402_price || 0,
+          x402_wallet: sim.x402_wallet
         } as AgentType & { user_id?: string; category?: string; user_count?: number };
       });
     },

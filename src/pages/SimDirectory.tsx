@@ -109,7 +109,10 @@ const SimDirectory = () => {
         user_count: userCount,
         social_links: sim.social_links as any,
         background_image_url: sim.background_image_url,
-        crypto_wallet: sim.crypto_wallet
+        crypto_wallet: sim.crypto_wallet,
+        x402_enabled: sim.x402_enabled || false,
+        x402_price: sim.x402_price || 0,
+        x402_wallet: sim.x402_wallet
       } as AgentType & { user_id?: string; user_count?: number };
       });
     },
