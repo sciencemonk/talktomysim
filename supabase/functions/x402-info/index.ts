@@ -108,6 +108,7 @@ serve(async (req) => {
     return new Response(
       JSON.stringify(x402Response),
       {
+        status: 402,
         headers: {
           ...corsHeaders,
           'Content-Type': 'application/json',
