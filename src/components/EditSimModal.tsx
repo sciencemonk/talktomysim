@@ -53,7 +53,7 @@ const EditSimModal = ({ open, onOpenChange, simId, editCode }: EditSimModalProps
   
   // Form state matching CreateSimModal
   const [name, setName] = useState('');
-  const [category, setCategory] = useState('');
+  const [marketplaceCategory, setMarketplaceCategory] = useState('');
   const [description, setDescription] = useState('');
   const [xLink, setXLink] = useState('');
   const [websiteLink, setWebsiteLink] = useState('');
@@ -93,7 +93,7 @@ const EditSimModal = ({ open, onOpenChange, simId, editCode }: EditSimModalProps
 
       if (sim) {
         setName(sim.name || '');
-        setCategory(sim.category || '');
+        setMarketplaceCategory(sim.marketplace_category || '');
         setDescription(sim.description || '');
         setSystemPrompt(sim.prompt || '');
         setWelcomeMessage(sim.welcome_message || '');
@@ -148,7 +148,7 @@ const EditSimModal = ({ open, onOpenChange, simId, editCode }: EditSimModalProps
       return;
     }
 
-    if (!category) {
+    if (!marketplaceCategory) {
       toast.error("Please select a category first");
       return;
     }
@@ -161,7 +161,7 @@ const EditSimModal = ({ open, onOpenChange, simId, editCode }: EditSimModalProps
         body: { 
           name: name.trim(),
           description: description.trim(), 
-          category,
+          category: marketplaceCategory,
           integrations: allIntegrations 
         },
       });
@@ -235,7 +235,7 @@ const EditSimModal = ({ open, onOpenChange, simId, editCode }: EditSimModalProps
       return;
     }
 
-    if (!category) {
+    if (!marketplaceCategory) {
       toast.error('Please select a category');
       return;
     }
@@ -361,7 +361,7 @@ const EditSimModal = ({ open, onOpenChange, simId, editCode }: EditSimModalProps
       // Update sim with all fields
       const updateData = {
         name: name.trim(),
-        category: category || null,
+        marketplace_category: marketplaceCategory || null,
         description: description.trim(),
         prompt: systemPrompt.trim(),
         welcome_message: welcomeMessage.trim(),
@@ -536,7 +536,7 @@ const EditSimModal = ({ open, onOpenChange, simId, editCode }: EditSimModalProps
               <h3 className="text-sm font-medium text-foreground/80">Category</h3>
               
               <div className="space-y-2">
-                <Select value={category} onValueChange={setCategory} required>
+                <Select value={marketplaceCategory} onValueChange={setMarketplaceCategory} required>
                   <SelectTrigger className="h-11">
                     <SelectValue placeholder="Select category" />
                   </SelectTrigger>
@@ -717,7 +717,7 @@ const EditSimModal = ({ open, onOpenChange, simId, editCode }: EditSimModalProps
                 variant="outline"
                 size="default"
                 onClick={handleGeneratePrompt}
-                disabled={isGenerating || !name.trim() || !description.trim() || !category}
+                disabled={isGenerating || !name.trim() || !description.trim() || !marketplaceCategory}
                 className="gap-2 w-full h-11"
               >
                 {isGenerating ? (
@@ -793,7 +793,7 @@ const EditSimModal = ({ open, onOpenChange, simId, editCode }: EditSimModalProps
               </Button>
               <Button
                 type="submit"
-                disabled={isSaving || !name.trim() || !category || !systemPrompt.trim() || !welcomeMessage.trim()}
+                disabled={isSaving || !name.trim() || !marketplaceCategory || !systemPrompt.trim() || !welcomeMessage.trim()}
                 className="h-11 gap-2"
               >
                 {isSaving ? (

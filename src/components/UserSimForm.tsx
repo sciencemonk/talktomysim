@@ -34,7 +34,7 @@ const UserSimForm = ({ open, onOpenChange, existingSim, onSuccess }: UserSimForm
     x402_enabled: false,
     x402_price: '',
     x402_wallet: '',
-    category: 'Chat'
+    sim_category: 'Chat'
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
@@ -55,7 +55,7 @@ const UserSimForm = ({ open, onOpenChange, existingSim, onSuccess }: UserSimForm
         x402_enabled: existingSim.x402_enabled || false,
         x402_price: existingSim.x402_price?.toString() || '',
         x402_wallet: existingSim.x402_wallet || '',
-        category: existingSim.category || 'Chat'
+        sim_category: existingSim.sim_category || 'Chat'
       });
       setPreviewUrl(existingSim.avatar_url || '');
     } else {
@@ -70,7 +70,7 @@ const UserSimForm = ({ open, onOpenChange, existingSim, onSuccess }: UserSimForm
         x402_enabled: false,
         x402_price: '',
         x402_wallet: '',
-        category: 'Chat'
+        sim_category: 'Chat'
       });
       setPreviewUrl('');
     }
@@ -103,7 +103,7 @@ const UserSimForm = ({ open, onOpenChange, existingSim, onSuccess }: UserSimForm
           x402_enabled: data.x402_enabled,
           x402_price: data.x402_price ? parseFloat(data.x402_price) : null,
           x402_wallet: data.x402_wallet,
-          category: data.category
+          sim_category: data.sim_category
         })
         .eq('id', existingSim.id);
 
@@ -236,7 +236,7 @@ const UserSimForm = ({ open, onOpenChange, existingSim, onSuccess }: UserSimForm
       // Skip generation for "Contact Me" category
       let finalDescription = formData.description;
       const shouldGenerateDescription = 
-        formData.category === 'Chat' && (
+        formData.sim_category === 'Chat' && (
           !existingSim || // Always for new sims
           !finalDescription.trim() || // Empty description
           finalDescription.length > 250 // Too long, probably the full prompt
@@ -268,7 +268,7 @@ const UserSimForm = ({ open, onOpenChange, existingSim, onSuccess }: UserSimForm
         x402_enabled: formData.x402_enabled,
         x402_price: formData.x402_price ? parseFloat(formData.x402_price) : null,
         x402_wallet: formData.x402_wallet || null,
-        category: formData.category
+        sim_category: formData.sim_category
       };
 
       if (existingSim) {
@@ -337,7 +337,7 @@ const UserSimForm = ({ open, onOpenChange, existingSim, onSuccess }: UserSimForm
         
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Show contact messages list if editing a Contact Me sim */}
-          {existingSim && formData.category === 'Contact Me' && (
+          {existingSim && formData.sim_category === 'Contact Me' && (
             <div className="space-y-3 pt-2 pb-4 border-b border-border">
               <Label>Received Messages</Label>
               <div className="max-h-[300px] overflow-y-auto border rounded-lg p-4 bg-muted/20">
@@ -348,17 +348,17 @@ const UserSimForm = ({ open, onOpenChange, existingSim, onSuccess }: UserSimForm
           <div>
             <Label htmlFor="category">Type *</Label>
             <Select
-              value={formData.category}
-              onValueChange={(value) => handleInputChange('category', value)}
+              value={formData.sim_category}
+              onValueChange={(value) => handleInputChange('sim_category', value)}
               disabled={!!existingSim}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Select sim type" />
               </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="Contact Me">Contact Me - Message form</SelectItem>
-              <SelectItem value="Chat">Chat - AI conversation</SelectItem>
-            </SelectContent>
+              <SelectContent>
+                <SelectItem value="Contact Me">Contact Me - Message form</SelectItem>
+                <SelectItem value="Chat">Chat - AI conversation</SelectItem>
+              </SelectContent>
             </Select>
             {existingSim && (
               <p className="text-xs text-muted-foreground mt-1">
@@ -402,7 +402,7 @@ const UserSimForm = ({ open, onOpenChange, existingSim, onSuccess }: UserSimForm
           </div>
 
           {/* Description is auto-generated - no user input needed */}
-          {formData.category === 'Chat' && formData.description && (
+          {formData.sim_category === 'Chat' && formData.description && (
             <div>
               <Label>Auto-Generated Description (Preview)</Label>
               <div className="p-3 bg-muted/50 rounded-md text-sm text-muted-foreground">
@@ -414,7 +414,7 @@ const UserSimForm = ({ open, onOpenChange, existingSim, onSuccess }: UserSimForm
             </div>
           )}
 
-          {formData.category === 'Contact Me' && (
+          {formData.sim_category === 'Contact Me' && (
             <div>
               <Label htmlFor="description">Description *</Label>
               <Textarea
@@ -450,7 +450,7 @@ const UserSimForm = ({ open, onOpenChange, existingSim, onSuccess }: UserSimForm
             </p>
           </div>
 
-          {formData.category === 'Chat' && (
+          {formData.sim_category === 'Chat' && (
             <div>
               <Label htmlFor="prompt">Personality & Instructions (Optional)</Label>
               <Textarea

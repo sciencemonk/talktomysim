@@ -102,11 +102,11 @@ const SimDirectory = () => {
         channels: [],
         channelConfigs: {},
         isPersonal: false,
-        voiceTraits: [],
-        price: sim.price || 0,
-        category: sim.category || (!sim.user_id ? 'historical' : 'uncategorized'),
-        user_id: sim.user_id,
-        user_count: userCount,
+          voiceTraits: [],
+          price: sim.price || 0,
+          marketplace_category: sim.marketplace_category || (!sim.user_id ? 'historical' : 'uncategorized'),
+          user_id: sim.user_id,
+          user_count: userCount,
         social_links: sim.social_links as any,
         background_image_url: sim.background_image_url,
         crypto_wallet: sim.crypto_wallet,
@@ -134,7 +134,7 @@ const SimDirectory = () => {
       if (priceFilter === 'paid' && (!sim.price || sim.price === 0)) return false;
 
       // Category filter
-      const simCategory = (sim as any).category?.toLowerCase() || 'uncategorized';
+      const simCategory = (sim as any).marketplace_category?.toLowerCase() || 'uncategorized';
       if (selectedCategory !== 'all' && simCategory !== selectedCategory) return false;
 
       return true;
@@ -157,7 +157,7 @@ const SimDirectory = () => {
       return { ...cat, count: allSims?.length || 0 };
     }
     const count = allSims?.filter(sim => {
-      const simCategory = (sim as any).category?.toLowerCase() || 'uncategorized';
+      const simCategory = (sim as any).marketplace_category?.toLowerCase() || 'uncategorized';
       return simCategory === cat.id;
     }).length || 0;
     return { ...cat, count };
@@ -319,7 +319,7 @@ const SimDirectory = () => {
           ) : (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
               {filteredSims?.map((sim) => {
-              const simCategory = (sim as any).category?.toLowerCase() || 'uncategorized';
+              const simCategory = (sim as any).marketplace_category?.toLowerCase() || 'uncategorized';
               const categoryLabel = categories.find(c => c.id === simCategory)?.label || simCategory;
               const price = sim.price || 0;
               const x402Enabled = (sim as any).x402_enabled;

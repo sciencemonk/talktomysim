@@ -33,7 +33,7 @@ export const fetchAdvisorById = async (id: string): Promise<AgentType> => {
     updatedAt: advisor.updated_at,
     avatar: advisor.avatar_url,
     prompt: advisor.prompt,
-    subject: advisor.category || 'General',
+    subject: advisor.marketplace_category || 'General',
     title: advisor.title, // Include the title field from advisors table
     welcome_message: advisor.welcome_message,
     is_featured: false, // Default to false since advisors table doesn't have this field yet

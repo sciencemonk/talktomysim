@@ -41,7 +41,7 @@ export const useAllAdvisors = () => {
           updatedAt: advisor.updated_at,
           avatar: advisor.avatar_url,
           prompt: advisor.prompt,
-          subject: advisor.category || 'General',
+          subject: advisor.marketplace_category || 'General',
           title: advisor.title, // Include the title field from advisors table
           is_featured: false, // Default to false since advisors table doesn't have this field yet
           sim_type: (advisor.sim_type || 'historical') as 'historical' | 'living', // Include sim_type for filtering

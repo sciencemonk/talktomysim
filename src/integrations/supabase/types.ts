@@ -120,7 +120,6 @@ export type Database = {
           avatar_url: string | null
           background_content: string | null
           background_image_url: string | null
-          category: string | null
           completion_status: Json | null
           conversation_style: string | null
           created_at: string
@@ -143,6 +142,7 @@ export type Database = {
           is_verified: boolean
           knowledge_summary: string | null
           location: string | null
+          marketplace_category: string | null
           name: string
           owner_welcome_message: string | null
           personality_type: string | null
@@ -151,6 +151,7 @@ export type Database = {
           prompt: string
           response_length: string | null
           sample_scenarios: Json | null
+          sim_category: string | null
           sim_type: string | null
           skills: Json | null
           social_links: Json | null
@@ -175,7 +176,6 @@ export type Database = {
           avatar_url?: string | null
           background_content?: string | null
           background_image_url?: string | null
-          category?: string | null
           completion_status?: Json | null
           conversation_style?: string | null
           created_at?: string
@@ -198,6 +198,7 @@ export type Database = {
           is_verified?: boolean
           knowledge_summary?: string | null
           location?: string | null
+          marketplace_category?: string | null
           name: string
           owner_welcome_message?: string | null
           personality_type?: string | null
@@ -206,6 +207,7 @@ export type Database = {
           prompt: string
           response_length?: string | null
           sample_scenarios?: Json | null
+          sim_category?: string | null
           sim_type?: string | null
           skills?: Json | null
           social_links?: Json | null
@@ -230,7 +232,6 @@ export type Database = {
           avatar_url?: string | null
           background_content?: string | null
           background_image_url?: string | null
-          category?: string | null
           completion_status?: Json | null
           conversation_style?: string | null
           created_at?: string
@@ -253,6 +254,7 @@ export type Database = {
           is_verified?: boolean
           knowledge_summary?: string | null
           location?: string | null
+          marketplace_category?: string | null
           name?: string
           owner_welcome_message?: string | null
           personality_type?: string | null
@@ -261,6 +263,7 @@ export type Database = {
           prompt?: string
           response_length?: string | null
           sample_scenarios?: Json | null
+          sim_category?: string | null
           sim_type?: string | null
           skills?: Json | null
           social_links?: Json | null

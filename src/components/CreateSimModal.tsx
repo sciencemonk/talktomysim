@@ -286,7 +286,8 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
         .insert({
           user_id: user?.id || null, // Set to null if no user
           name: name.trim(),
-          category: category || null,
+          marketplace_category: category || null,
+          sim_category: simType,
           description: description.trim(),
           auto_description: autoDescription,
           prompt: systemPrompt.trim(),
@@ -317,7 +318,8 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
           description: newSim.description,
           prompt: newSim.prompt,
           avatar_url: newSim.avatar_url,
-          category: newSim.category,
+          marketplace_category: newSim.marketplace_category,
+          sim_category: newSim.sim_category,
           auto_description: autoDescription,
         });
 
@@ -335,6 +337,7 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
       // Reset form
       setStep(1);
       setName("");
+      setSimType("Contact Me");
       setCategory("");
       setDescription("");
       setSystemPrompt("");
@@ -373,6 +376,7 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
   const handleClose = () => {
     setStep(1);
     setName("");
+    setSimType("Contact Me");
     setCategory("");
     setDescription("");
     setSystemPrompt("");

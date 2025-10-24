@@ -174,7 +174,7 @@ const Landing = () => {
           isPersonal: false,
           voiceTraits: [],
           price: sim.price || 0,
-          category: sim.category || (!sim.user_id ? 'historical' : 'uncategorized'),
+          marketplace_category: sim.marketplace_category || (!sim.user_id ? 'historical' : 'uncategorized'),
           user_id: sim.user_id,
           user_count: userCount,
           social_links: sim.social_links as any,
@@ -183,7 +183,7 @@ const Landing = () => {
           x402_enabled: sim.x402_enabled || false,
           x402_price: sim.x402_price || 0,
           x402_wallet: sim.x402_wallet
-        } as AgentType & { user_id?: string; category?: string; user_count?: number };
+        } as AgentType & { user_id?: string; marketplace_category?: string; user_count?: number };
       });
     },
   });
@@ -211,7 +211,7 @@ const Landing = () => {
       
       if (!matchesSearch) return false;
 
-      const simCategory = (sim as any).category?.toLowerCase() || 'uncategorized';
+      const simCategory = (sim as any).marketplace_category?.toLowerCase() || 'uncategorized';
       if (selectedCategory !== 'all' && simCategory !== selectedCategory) return false;
 
       return true;
@@ -233,7 +233,7 @@ const Landing = () => {
       return { ...cat, count: allSims?.length || 0 };
     }
     const count = allSims?.filter(sim => {
-      const simCategory = (sim as any).category?.toLowerCase() || 'uncategorized';
+      const simCategory = (sim as any).marketplace_category?.toLowerCase() || 'uncategorized';
       return simCategory === cat.id;
     }).length || 0;
     return { ...cat, count };
@@ -374,7 +374,7 @@ const Landing = () => {
           {/* Sims Grid */}
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
             {filteredSims?.map((sim) => {
-              const simCategory = (sim as any).category?.toLowerCase() || 'uncategorized';
+              const simCategory = (sim as any).marketplace_category?.toLowerCase() || 'uncategorized';
               const categoryLabel = categories.find(c => c.id === simCategory)?.label || simCategory;
               const price = sim.price || 0;
               

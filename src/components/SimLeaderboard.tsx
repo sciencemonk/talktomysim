@@ -47,7 +47,7 @@ export const SimLeaderboard = () => {
 
       const { data: advisors, error: advisorsError } = await supabase
         .from('advisors')
-        .select('id, name, avatar_url, category, custom_url')
+        .select('id, name, avatar_url, marketplace_category, custom_url')
         .in('id', topSimIds)
         .eq('is_active', true);
 
@@ -120,9 +120,9 @@ export const SimLeaderboard = () => {
                 </div>
 
                 {/* Category Badge */}
-                {sim.category && sim.category !== 'uncategorized' && (
+                {sim.marketplace_category && sim.marketplace_category !== 'uncategorized' && (
                   <Badge variant="outline" className="text-[10px] shrink-0">
-                    {sim.category}
+                    {sim.marketplace_category}
                   </Badge>
                 )}
               </div>
