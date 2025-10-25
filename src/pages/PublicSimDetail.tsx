@@ -479,7 +479,7 @@ const PublicSimDetail = () => {
         <div className="h-screen flex flex-col">
           <Suspense fallback={null}>
             <X402PaymentModal
-              isOpen={showPaymentModal}
+              isOpen={true}
               onClose={() => navigate('/')}
               onPaymentSuccess={(sessionId) => {
                 console.log('Payment successful, session ID:', sessionId);
