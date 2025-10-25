@@ -17,6 +17,8 @@ import { useState, useEffect } from "react";
 import { ShareButton } from "@/components/ShareButton";
 import { InfoModal } from "@/components/InfoModal";
 import { useAuth } from "@/hooks/useAuth";
+import { X402PaymentModal } from "@/components/X402PaymentModal";
+import { validateX402Session } from "@/utils/x402Session";
 
 const StudentChat = () => {
   const { agentId } = useParams<{ agentId: string }>();
@@ -26,12 +28,20 @@ const StudentChat = () => {
   const realtimeChat = useRealtimeChat({ agent: agent! });
   const isMobile = useIsMobile();
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [sessionId, setSessionId] = useState<string | null>(null);
 
-  // Redirect non-authenticated users to bot check first
+  // Check for x402 payment requirement
   useEffect(() => {
-    // Allow both authenticated and anonymous users to access this page
-    // No redirect needed - anonymous users can chat with public sims
-  }, [user, authLoading, navigate, agentId]);
+    if (agent?.x402_enabled && agent?.x402_price && agent?.x402_wallet) {
+      const validSession = validateX402Session(agent.x402_wallet);
+      if (validSession) {
+        setSessionId(validSession);
+      } else {
+        setShowPaymentModal(true);
+      }
+    }
+  }, [agent]);
 
   // Combine messages with current partial message if speaking
   const allMessages = [...realtimeChat.messages];
@@ -99,6 +109,38 @@ const StudentChat = () => {
           <p className="text-base text-muted-foreground">
             {error || "This learning buddy is not available for chat."}
           </p>
+        </div>
+      </div>
+    );
+  }
+
+  const handlePaymentSuccess = (newSessionId: string) => {
+    setSessionId(newSessionId);
+    setShowPaymentModal(false);
+  };
+
+  // Show payment modal if required and no valid session
+  if (agent?.x402_enabled && !sessionId) {
+    return (
+      <div className="h-screen flex flex-col">
+        <X402PaymentModal
+          isOpen={showPaymentModal}
+          onClose={() => setShowPaymentModal(false)}
+          onPaymentSuccess={handlePaymentSuccess}
+          simName={agent.name}
+          price={agent.x402_price || 0.01}
+          walletAddress={agent.x402_wallet || ''}
+        />
+        <div className="flex-1 flex items-center justify-center">
+          <div className="text-center">
+            <div className="w-16 h-16 bg-muted rounded-xl flex items-center justify-center mb-6">
+              <Lock className="h-8 w-8 text-muted-foreground" />
+            </div>
+            <h3 className="font-semibold text-xl mb-3">Payment Required</h3>
+            <p className="text-base text-muted-foreground max-w-md mx-auto">
+              This sim requires a payment of {agent.x402_price} USDC to access.
+            </p>
+          </div>
         </div>
       </div>
     );
