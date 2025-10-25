@@ -155,7 +155,7 @@ const ContactFormPage = ({ agent }: ContactFormPageProps) => {
 
             <Button
               type="submit"
-              className="w-full h-12 text-base"
+              className="w-full h-12 text-base bg-[#82f2aa] hover:bg-[#82f2aa]/90 text-black"
               disabled={isSubmitting || !message.trim()}
             >
               {isSubmitting ? (
