@@ -278,6 +278,18 @@ const PublicSimDetail = () => {
     }
   }, [customUrl]);
 
+  // Check for x402 payment when showing Contact Me form
+  useEffect(() => {
+    if (sim?.sim_category === 'Contact Me' && sim?.x402_enabled && sim?.x402_price && sim?.x402_wallet) {
+      const validSession = validateX402Session(sim.x402_wallet);
+      if (validSession) {
+        setPaymentSessionId(validSession);
+      } else if (!showPaymentModal) {
+        setShowPaymentModal(true);
+      }
+    }
+  }, [sim]);
+
   // Check for x402 payment when chat is shown
   useEffect(() => {
     if (showChat && sim && sim.x402_enabled && sim.x402_price && sim.x402_wallet) {
@@ -461,46 +473,39 @@ const PublicSimDetail = () => {
 
   // If sim_category is "Contact Me", validate x402 payment before showing contact form
   if (sim.sim_category === 'Contact Me') {
-    // Check if x402 payment is required
-    if (sim.x402_enabled && sim.x402_price && sim.x402_wallet) {
-      const validSession = validateX402Session(sim.x402_wallet);
-      if (!validSession && !showPaymentModal) {
-        // Show payment modal if no valid session
-        return (
-          <div className="h-screen flex flex-col">
-            <Suspense fallback={null}>
-              <X402PaymentModal
-                isOpen={true}
-                onClose={() => navigate('/')}
-                onPaymentSuccess={(sessionId) => {
-                  console.log('Payment successful, session ID:', sessionId);
-                  setPaymentSessionId(sessionId);
-                  setShowPaymentModal(false);
-                  // Force re-render to show contact form
-                  window.location.reload();
-                }}
-                simName={sim.name}
-                price={sim.x402_price || 0.01}
-                walletAddress={sim.x402_wallet || ''}
-              />
-            </Suspense>
-            <div className="flex-1 flex items-center justify-center">
-              <div className="text-center">
-                <div className="w-16 h-16 bg-muted rounded-xl flex items-center justify-center mb-6">
-                  <MessageCircle className="h-8 w-8 text-muted-foreground" />
-                </div>
-                <h3 className="font-semibold text-xl mb-3">Payment Required</h3>
-                <p className="text-base text-muted-foreground max-w-md mx-auto">
-                  This contact form requires a payment of {sim.x402_price} USDC to submit a message.
-                </p>
+    // Check if x402 payment is required and no valid session
+    if (sim.x402_enabled && sim.x402_price && sim.x402_wallet && !paymentSessionId) {
+      return (
+        <div className="h-screen flex flex-col">
+          <Suspense fallback={null}>
+            <X402PaymentModal
+              isOpen={showPaymentModal}
+              onClose={() => navigate('/')}
+              onPaymentSuccess={(sessionId) => {
+                console.log('Payment successful, session ID:', sessionId);
+                setPaymentSessionId(sessionId);
+                setShowPaymentModal(false);
+              }}
+              simName={sim.name}
+              price={sim.x402_price || 0.01}
+              walletAddress={sim.x402_wallet || ''}
+            />
+          </Suspense>
+          <div className="flex-1 flex items-center justify-center">
+            <div className="text-center">
+              <div className="w-16 h-16 bg-muted rounded-xl flex items-center justify-center mb-6">
+                <MessageCircle className="h-8 w-8 text-muted-foreground" />
               </div>
+              <h3 className="font-semibold text-xl mb-3">Payment Required</h3>
+              <p className="text-base text-muted-foreground max-w-md mx-auto">
+                This contact form requires a payment of {sim.x402_price} USDC to submit a message.
+              </p>
             </div>
           </div>
-        );
-      }
-      // Valid session exists, show contact form
-      setPaymentSessionId(validSession);
+        </div>
+      );
     }
+    // Valid session exists, show contact form
     return <ContactFormPage agent={sim} />;
   }
 
