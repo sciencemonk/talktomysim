@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useQuery } from '@tanstack/react-query';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Search, Award, Menu, TrendingUp, DollarSign, Gift } from 'lucide-react';
+import { Search, Award, Menu, TrendingUp, DollarSign, Gift, Mail, Bot, Zap } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { AgentType } from '@/types/agent';
@@ -40,6 +40,7 @@ const SimDirectory = () => {
   const [selectedSim, setSelectedSim] = useState<AgentType | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [priceFilter, setPriceFilter] = useState<FilterType>('all');
+  const [simTypeFilter, setSimTypeFilter] = useState<'all' | 'Contact Me' | 'Chat' | 'Autonomous Agent'>('all');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [sortBy, setSortBy] = useState<SortType>('newest');
   const isMobile = useIsMobile();
@@ -134,9 +135,19 @@ const SimDirectory = () => {
       if (priceFilter === 'free' && sim.price && sim.price > 0) return false;
       if (priceFilter === 'paid' && (!sim.price || sim.price === 0)) return false;
 
-      // Category filter
-      const simCategory = (sim as any).marketplace_category?.toLowerCase() || 'uncategorized';
-      if (selectedCategory !== 'all' && simCategory !== selectedCategory) return false;
+      // Type filter
+      const simCategory = (sim as any).sim_category;
+      if (simTypeFilter !== 'all') {
+        if (simTypeFilter === 'Contact Me' && simCategory !== 'Contact Me') return false;
+        if (simTypeFilter === 'Chat' && simCategory !== 'Chat' && simCategory) return false;
+        if (simTypeFilter === 'Autonomous Agent') return false; // Coming soon
+      }
+
+      // Category filter (only applies to Chat type)
+      if (simTypeFilter === 'Chat' && selectedCategory !== 'all') {
+        const marketplaceCategory = (sim as any).marketplace_category?.toLowerCase() || 'uncategorized';
+        if (marketplaceCategory !== selectedCategory) return false;
+      }
 
       return true;
     })
@@ -218,6 +229,33 @@ const SimDirectory = () => {
 
           {/* Filters */}
           <div className="mb-6 space-y-4">
+            {/* Type Filters */}
+            <div className="flex flex-wrap gap-3 items-center">
+              <Tabs value={simTypeFilter} onValueChange={(v) => {
+                setSimTypeFilter(v as any);
+                if (v !== 'Chat') setSelectedCategory('all');
+              }}>
+                <TabsList>
+                  <TabsTrigger value="all">All Types</TabsTrigger>
+                  <TabsTrigger value="Contact Me" className="gap-2">
+                    <Mail className="h-4 w-4" />
+                    Contact Me
+                  </TabsTrigger>
+                  <TabsTrigger value="Chat" className="gap-2">
+                    <Bot className="h-4 w-4" />
+                    Chatbots
+                  </TabsTrigger>
+                  <TabsTrigger value="Autonomous Agent" disabled className="gap-2 opacity-50 cursor-not-allowed">
+                    <Zap className="h-4 w-4" />
+                    Autonomous Agent
+                    <Badge variant="secondary" className="text-[9px] px-1.5 py-0 ml-1">
+                      Coming Soon
+                    </Badge>
+                  </TabsTrigger>
+                </TabsList>
+              </Tabs>
+            </div>
+
             {/* Price & Sort Filters */}
             <div className="flex flex-wrap gap-3 items-center">
               <Tabs value={priceFilter} onValueChange={(v) => setPriceFilter(v as FilterType)}>
@@ -254,8 +292,8 @@ const SimDirectory = () => {
               </Tabs>
             </div>
 
-            {/* Category Filters */}
-            {isMobile ? (
+            {/* Category Filters - only show when Chatbots is selected */}
+            {simTypeFilter === 'Chat' && (isMobile ? (
               <Select value={selectedCategory} onValueChange={setSelectedCategory}>
                 <SelectTrigger className="w-full h-12 bg-background">
                   <SelectValue placeholder="Select category">
@@ -301,7 +339,7 @@ const SimDirectory = () => {
                   </Button>
                 ))}
               </div>
-            )}
+            ))}
           </div>
 
           {/* Sims Grid */}
