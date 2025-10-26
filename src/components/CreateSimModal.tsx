@@ -600,21 +600,23 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
                 </div>
               )}
 
-              {/* Description */}
-              <div className="space-y-2">
-                <Label htmlFor="description" className="text-sm font-medium">
-                  {simType === "Autonomous Agent" ? "What do you want a daily brief on?" : "Description"} <span className="text-destructive">*</span>
-                </Label>
-                <Textarea
-                  id="description"
-                  value={simType === "Autonomous Agent" ? briefTopic : description}
-                  onChange={(e) => simType === "Autonomous Agent" ? setBriefTopic(e.target.value) : setDescription(e.target.value)}
-                  placeholder={simType === "Autonomous Agent" ? "E.g., AI developments, cryptocurrency markets, climate change news..." : "Write a short description"}
-                  rows={4}
-                  className="resize-none bg-background"
-                  required
-                />
-              </div>
+              {/* Description - only show for non-Autonomous Agent */}
+              {simType !== "Autonomous Agent" && (
+                <div className="space-y-2">
+                  <Label htmlFor="description" className="text-sm font-medium">
+                    Description <span className="text-destructive">*</span>
+                  </Label>
+                  <Textarea
+                    id="description"
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    placeholder="Write a short description"
+                    rows={4}
+                    className="resize-none bg-background"
+                    required
+                  />
+                </div>
+              )}
 
               {/* Agent Category - only show for Autonomous Agent */}
               {simType === "Autonomous Agent" && (
@@ -633,11 +635,29 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
                 </div>
               )}
 
-              {/* Brief Time - only show for Autonomous Agent */}
+              {/* Brief Topic - only show after selecting Daily Brief */}
+              {simType === "Autonomous Agent" && agentCategory === "Daily Brief" && (
+                <div className="space-y-2">
+                  <Label htmlFor="brief-topic" className="text-sm font-medium">
+                    What do you want a daily brief on? <span className="text-destructive">*</span>
+                  </Label>
+                  <Textarea
+                    id="brief-topic"
+                    value={briefTopic}
+                    onChange={(e) => setBriefTopic(e.target.value)}
+                    placeholder="E.g., AI developments, cryptocurrency markets, climate change news..."
+                    rows={4}
+                    className="resize-none bg-background"
+                    required
+                  />
+                </div>
+              )}
+
+              {/* Brief Time - only show after selecting Daily Brief */}
               {simType === "Autonomous Agent" && agentCategory === "Daily Brief" && (
                 <div className="space-y-2">
                   <Label htmlFor="brief-time" className="text-sm font-medium">
-                    When do you want to receive your daily brief? <span className="text-destructive">*</span>
+                    When do you want to receive your daily brief? (UTC) <span className="text-destructive">*</span>
                   </Label>
                   <Input
                     id="brief-time"
