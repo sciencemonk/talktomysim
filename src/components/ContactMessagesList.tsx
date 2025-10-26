@@ -42,50 +42,38 @@ const ContactMessagesList = ({ advisorId, editCode }: ContactMessagesListProps) 
     try {
       setIsLoading(true);
       
-      // If edit code is provided, use RPC function for secure access
-      // Otherwise use regular query (for authenticated owners)
-      if (editCode) {
-        // Validate edit code before attempting to fetch
-        if (!editCode || editCode.length !== 6) {
-          console.log('Invalid edit code, skipping fetch');
-          setMessages([]);
-          setIsLoading(false);
-          return;
-        }
-
-        const { data, error } = await supabase
-          .rpc('get_contact_messages_with_code', {
-            p_advisor_id: advisorId,
-            p_edit_code: editCode
-          });
-
-        if (error) {
-          console.error('RPC error:', error);
-          // If error is about invalid code, show specific message
-          if (error.message?.includes('Invalid edit code')) {
-            toast({
-              title: "Invalid Code",
-              description: "Please enter a valid 6-digit edit code",
-              variant: "destructive"
-            });
-          } else {
-            throw error;
-          }
-          setMessages([]);
-          setIsLoading(false);
-          return;
-        }
-        setMessages(data || []);
-      } else {
-        const { data, error } = await supabase
-          .from('contact_messages')
-          .select('*')
-          .eq('advisor_id', advisorId)
-          .order('created_at', { ascending: false });
-
-        if (error) throw error;
-        setMessages(data || []);
+      // Validate edit code - must be exactly 6 digits to proceed
+      if (!editCode || editCode.trim().length !== 6) {
+        console.log('No valid edit code provided, skipping fetch');
+        setMessages([]);
+        setIsLoading(false);
+        return;
       }
+
+      // Use RPC function for secure access with edit code
+      const { data, error } = await supabase
+        .rpc('get_contact_messages_with_code', {
+          p_advisor_id: advisorId,
+          p_edit_code: editCode.trim()
+        });
+
+      if (error) {
+        console.error('RPC error:', error);
+        // If error is about invalid code, show specific message
+        if (error.message?.includes('Invalid edit code')) {
+          toast({
+            title: "Invalid Code",
+            description: "The edit code you entered is incorrect",
+            variant: "destructive"
+          });
+        } else {
+          throw error;
+        }
+        setMessages([]);
+        setIsLoading(false);
+        return;
+      }
+      setMessages(data || []);
     } catch (error) {
       console.error('Error fetching messages:', error);
       toast({
