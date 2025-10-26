@@ -126,7 +126,8 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
       return;
     }
 
-    if (!description.trim()) {
+    // Skip description check for Autonomous Agent (uses briefTopic instead)
+    if (simType !== "Autonomous Agent" && !description.trim()) {
       toast.error("Please enter a description first");
       return;
     }
