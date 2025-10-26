@@ -7,7 +7,7 @@ import { useUserAdvisors } from "@/hooks/useUserAdvisors";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, Users, Star, Sparkles, Menu, Award, History } from "lucide-react";
+import { Search, Users, Star, Sparkles, Menu, Award, History, Mail, Bot, Zap } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -33,7 +33,8 @@ const AdvisorDirectory = ({ onSelectAdvisor, onAuthRequired }: AdvisorDirectoryP
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [showBotCheck, setShowBotCheck] = useState(false);
   const [selectedAdvisor, setSelectedAdvisor] = useState<AgentType | null>(null);
-  const [simFilter, setSimFilter] = useState<'historical' | 'living'>('historical');
+  const [simTypeFilter, setSimTypeFilter] = useState<'all' | 'Contact Me' | 'Chat' | 'Autonomous Agent'>('all');
+  const [categoryFilter, setCategoryFilter] = useState<string>('all');
   
   const { user } = useAuth();
   const { advisors, isLoading } = useAdvisors();
@@ -41,6 +42,19 @@ const AdvisorDirectory = ({ onSelectAdvisor, onAuthRequired }: AdvisorDirectoryP
   const { advisorsAsAgents, removeAdvisor } = useUserAdvisors();
   const isMobile = useIsMobile();
   const navigate = useNavigate();
+
+  const categories = [
+    { value: "all", label: "All Categories" },
+    { value: "crypto", label: "Crypto & Web3" },
+    { value: "historical", label: "Historical Figures" },
+    { value: "influencers", label: "Influencers & Celebrities" },
+    { value: "fictional", label: "Fictional Characters" },
+    { value: "education", label: "Education & Tutoring" },
+    { value: "business", label: "Business & Finance" },
+    { value: "lifestyle", label: "Lifestyle & Wellness" },
+    { value: "entertainment", label: "Entertainment & Games" },
+    { value: "spiritual", label: "Spiritual & Philosophy" },
+  ];
 
   const handleAdvisorClick = (advisor: AgentType) => {
     // If user is signed in, open chat directly in-app
@@ -86,55 +100,56 @@ const AdvisorDirectory = ({ onSelectAdvisor, onAuthRequired }: AdvisorDirectoryP
     }
   };
 
-  // Featured sims to show first (most popular/recognizable)
-  const featuredSimNames = [
-    'Socrates', 'Plato', 'Aristotle', 'Albert Einstein', 'Marie Curie',
-    'Mahatma Gandhi', 'Martin Luther King Jr.', 'Nelson Mandela',
-    'Leonardo da Vinci', 'Nikola Tesla', 'Ada Lovelace', 'Rosa Parks',
-    'Abraham Lincoln', 'Winston Churchill', 'Napoleon', 'Cleopatra',
-    'Alexander the Great', 'Joan of Arc', 'Sun Tzu', 'Confucius'
-  ];
+  // When Chatbots is selected and user clicks it again, show categories
+  const handleTypeChange = (value: string) => {
+    if (value === simTypeFilter && value === 'Chat') {
+      // If clicking Chatbots again, reset to show all categories
+      setCategoryFilter('all');
+    } else {
+      setSimTypeFilter(value as any);
+      // Reset category when changing type
+      if (value !== 'Chat') {
+        setCategoryFilter('all');
+      }
+    }
+  };
 
-  // Filter advisors based on search term and sim type
+  // Filter advisors based on search term, sim type, and category
   const filteredAdvisors = allAdvisors
     .filter(advisor => {
       const matchesSearch = advisor.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                            advisor.description?.toLowerCase().includes(searchTerm.toLowerCase());
       
-      // Filter by sim type from database
-      const matchesType = simFilter === 'historical' 
-        ? (!advisor.sim_type || advisor.sim_type === 'historical')
-        : advisor.sim_type === 'living';
-      
-      return matchesSearch && matchesType;
-    })
-    .sort((a, b) => {
-      // If no search term, prioritize featured sims
-      if (!searchTerm) {
-        const aIsFeatured = featuredSimNames.includes(a.name);
-        const bIsFeatured = featuredSimNames.includes(b.name);
+      if (!matchesSearch) return false;
+
+      // Type filter
+      const simCategory = (advisor as any).sim_category;
+      if (simTypeFilter === 'all') return true;
+      if (simTypeFilter === 'Contact Me') return simCategory === 'Contact Me';
+      if (simTypeFilter === 'Chat') {
+        const isChat = simCategory === 'Chat' || !simCategory || simCategory === '';
+        if (!isChat) return false;
         
-        if (aIsFeatured && !bIsFeatured) return -1;
-        if (!aIsFeatured && bIsFeatured) return 1;
-        
-        // Both featured: sort by order in featuredSimNames
-        if (aIsFeatured && bIsFeatured) {
-          return featuredSimNames.indexOf(a.name) - featuredSimNames.indexOf(b.name);
+        // Apply category filter for Chat type
+        if (categoryFilter !== 'all') {
+          const advisorCategory = (advisor as any).marketplace_category?.toLowerCase() || 'uncategorized';
+          return advisorCategory === categoryFilter;
         }
+        return true;
       }
       
-      // Default: alphabetical
-      return a.name.localeCompare(b.name);
-    });
+      return false;
+    })
+    .sort((a, b) => a.name.localeCompare(b.name));
 
   return (
     <div className="flex flex-col h-full bg-background">
       {/* Main Content */}
       <div className="flex-1 overflow-auto">
         <div className="max-w-6xl mx-auto p-6">
-          {/* Search and Filter */}
-          <div className="mb-6 flex flex-col sm:flex-row gap-3">
-            <div className="relative flex-1">
+          {/* Search */}
+          <div className="mb-6">
+            <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
               <Input
                 placeholder="Search sims..."
@@ -143,54 +158,94 @@ const AdvisorDirectory = ({ onSelectAdvisor, onAuthRequired }: AdvisorDirectoryP
                 className="pl-10"
               />
             </div>
-            
-            {/* Mobile: Dropdown */}
+          </div>
+
+          {/* Type Filters */}
+          <div className="mb-6 space-y-4">
             {isMobile ? (
-              <Select value={simFilter} onValueChange={(value) => setSimFilter(value as 'historical' | 'living')}>
+              <Select value={simTypeFilter} onValueChange={handleTypeChange}>
                 <SelectTrigger className="w-full">
-                  <SelectValue>
-                    {simFilter === 'historical' ? (
-                      <div className="flex items-center gap-2">
-                        <History className="h-4 w-4" />
-                        Historical Figures
-                      </div>
-                    ) : (
-                      <div className="flex items-center gap-2">
-                        <Users className="h-4 w-4" />
-                        Living
-                      </div>
-                    )}
-                  </SelectValue>
+                  <SelectValue />
                 </SelectTrigger>
                 <SelectContent className="bg-background border-border text-foreground z-50">
-                  <SelectItem value="historical" className="text-foreground hover:bg-muted">
+                  <SelectItem value="all">All Types</SelectItem>
+                  <SelectItem value="Contact Me">
                     <div className="flex items-center gap-2">
-                      <History className="h-4 w-4" />
-                      Historical Figures
+                      <Mail className="h-4 w-4" />
+                      Contact Me
                     </div>
                   </SelectItem>
-                  <SelectItem value="living" className="text-foreground hover:bg-muted">
+                  <SelectItem value="Chat">
                     <div className="flex items-center gap-2">
-                      <Users className="h-4 w-4" />
-                      Living
+                      <Bot className="h-4 w-4" />
+                      Chatbots
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="Autonomous Agent" disabled>
+                    <div className="flex items-center gap-2">
+                      <Zap className="h-4 w-4" />
+                      Autonomous Agent
+                      <Badge variant="secondary" className="text-[9px] px-1.5 py-0 ml-2">
+                        Coming Soon
+                      </Badge>
                     </div>
                   </SelectItem>
                 </SelectContent>
               </Select>
             ) : (
-              /* Desktop: Tabs */
-              <Tabs value={simFilter} onValueChange={(value) => setSimFilter(value as 'historical' | 'living')} className="w-auto">
-                <TabsList className="grid grid-cols-2">
-                  <TabsTrigger value="historical" className="flex items-center gap-2">
-                    <History className="h-4 w-4" />
-                    Historical
+              <Tabs value={simTypeFilter} onValueChange={handleTypeChange}>
+                <TabsList className="grid grid-cols-4 w-full">
+                  <TabsTrigger value="all">All Types</TabsTrigger>
+                  <TabsTrigger value="Contact Me" className="flex items-center gap-2">
+                    <Mail className="h-4 w-4" />
+                    Contact Me
                   </TabsTrigger>
-                  <TabsTrigger value="living" className="flex items-center gap-2">
-                    <Users className="h-4 w-4" />
-                    Living
+                  <TabsTrigger value="Chat" className="flex items-center gap-2">
+                    <Bot className="h-4 w-4" />
+                    Chatbots
+                  </TabsTrigger>
+                  <TabsTrigger value="Autonomous Agent" disabled className="flex items-center gap-2 opacity-50">
+                    <Zap className="h-4 w-4" />
+                    Autonomous Agent
+                    <Badge variant="secondary" className="text-[9px] px-1.5 py-0 ml-1">
+                      Coming Soon
+                    </Badge>
                   </TabsTrigger>
                 </TabsList>
               </Tabs>
+            )}
+
+            {/* Category filters - only show when Chatbots is selected */}
+            {simTypeFilter === 'Chat' && (
+              isMobile ? (
+                <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue>
+                      {categories.find(c => c.value === categoryFilter)?.label || 'All Categories'}
+                    </SelectValue>
+                  </SelectTrigger>
+                  <SelectContent className="bg-background border-border z-[100] max-h-[300px]">
+                    {categories.map((cat) => (
+                      <SelectItem key={cat.value} value={cat.value}>
+                        {cat.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              ) : (
+                <div className="flex flex-wrap gap-2">
+                  {categories.map((cat) => (
+                    <Button
+                      key={cat.value}
+                      variant={categoryFilter === cat.value ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setCategoryFilter(cat.value)}
+                    >
+                      {cat.label}
+                    </Button>
+                  ))}
+                </div>
+              )
             )}
           </div>
 

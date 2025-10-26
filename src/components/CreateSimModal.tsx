@@ -13,6 +13,7 @@ import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Badge } from "@/components/ui/badge";
 
 interface CreateSimModalProps {
   open: boolean;
@@ -23,7 +24,8 @@ interface CreateSimModalProps {
 
 const simTypes = [
   { value: "Contact Me", label: "Contact Me" },
-  { value: "Chat", label: "AI Agent" },
+  { value: "Chat", label: "Chatbot" },
+  { value: "Autonomous Agent", label: "Autonomous Agent", disabled: true, comingSoon: true },
 ];
 
 const categories = [
@@ -515,9 +517,20 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
                     <SelectValue placeholder="Select type" />
                   </SelectTrigger>
                   <SelectContent className="bg-background z-50">
-                    {simTypes.map((type) => (
-                      <SelectItem key={type.value} value={type.value}>
-                        {type.label}
+                    {simTypes.map((type: any) => (
+                      <SelectItem 
+                        key={type.value} 
+                        value={type.value}
+                        disabled={type.disabled}
+                      >
+                        <div className="flex items-center gap-2">
+                          <span>{type.label}</span>
+                          {type.comingSoon && (
+                            <Badge variant="secondary" className="text-[9px] px-1.5 py-0">
+                              Coming Soon
+                            </Badge>
+                          )}
+                        </div>
                       </SelectItem>
                     ))}
                   </SelectContent>
