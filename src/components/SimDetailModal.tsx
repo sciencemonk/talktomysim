@@ -367,7 +367,21 @@ const SimDetailModal = ({ sim, open, onOpenChange, onAuthRequired }: SimDetailMo
 
           {/* Name and Description */}
           <div className="text-center space-y-2 mb-4">
-            <h1 className="text-xl sm:text-2xl font-bold tracking-tight">{sim.name}</h1>
+            <div className="flex items-center justify-center gap-2">
+              <h1 className="text-xl sm:text-2xl font-bold tracking-tight">{sim.name}</h1>
+              {(sim as any).is_verified && (
+                <div className="group/verified relative">
+                  <img 
+                    src="/lovable-uploads/verified-badge.png" 
+                    alt="Verified" 
+                    className="w-5 h-5 sm:w-6 sm:h-6"
+                  />
+                  <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 bg-popover text-popover-foreground text-xs rounded-lg shadow-lg opacity-0 group-hover/verified:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50 border border-border">
+                    This Sim has been verified through their X account.
+                  </div>
+                </div>
+              )}
+            </div>
             <p className="text-sm text-muted-foreground leading-relaxed px-2">
               {getSimDescription()}
             </p>
