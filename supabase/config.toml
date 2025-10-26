@@ -62,3 +62,6 @@ verify_jwt = false
 
 [functions.x402-info]
 verify_jwt = false
+
+[functions.generate-daily-brief]
+verify_jwt = false

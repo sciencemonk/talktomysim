@@ -508,6 +508,47 @@ export type Database = {
           },
         ]
       }
+      daily_briefs: {
+        Row: {
+          advisor_id: string
+          brief_content: string
+          created_at: string
+          id: string
+          read: boolean
+          scheduled_time: string
+          sources: Json | null
+          topic: string
+        }
+        Insert: {
+          advisor_id: string
+          brief_content: string
+          created_at?: string
+          id?: string
+          read?: boolean
+          scheduled_time: string
+          sources?: Json | null
+          topic: string
+        }
+        Update: {
+          advisor_id?: string
+          brief_content?: string
+          created_at?: string
+          id?: string
+          read?: boolean
+          scheduled_time?: string
+          sources?: Json | null
+          topic?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "daily_briefs_advisor_id_fkey"
+            columns: ["advisor_id"]
+            isOneToOne: false
+            referencedRelation: "advisors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       debate_queue: {
         Row: {
           completed_at: string | null

@@ -24,6 +24,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Switch } from '@/components/ui/switch';
 import { toast } from 'sonner';
 import { z } from 'zod';
+import DailyBriefsList from '@/components/DailyBriefsList';
 
 interface EditSimModalProps {
   open: boolean;

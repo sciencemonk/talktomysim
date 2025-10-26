@@ -11,6 +11,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import ContactMessagesList from '@/components/ContactMessagesList';
+import DailyBriefsList from '@/components/DailyBriefsList';
 
 interface UserSimFormProps {
   open: boolean;
@@ -34,7 +35,10 @@ const UserSimForm = ({ open, onOpenChange, existingSim, onSuccess }: UserSimForm
     x402_enabled: false,
     x402_price: '',
     x402_wallet: '',
-    sim_category: 'Chat'
+    sim_category: 'Chat',
+    brief_topic: '',
+    brief_time: '09:00',
+    agent_category: ''
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
@@ -47,7 +51,7 @@ const UserSimForm = ({ open, onOpenChange, existingSim, onSuccess }: UserSimForm
       setFormData({
         name: existingSim.name || '',
         title: existingSim.title || '',
-        description: '', // Always auto-generate, ignore stored value
+        description: existingSim.sim_category === 'Autonomous Agent' ? existingSim.description || '' : '', // Always auto-generate for Chat, use stored for Autonomous Agent
         prompt: existingSim.prompt || '',
         custom_url: existingSim.custom_url || '',
         avatar_url: existingSim.avatar_url || '',
@@ -55,7 +59,10 @@ const UserSimForm = ({ open, onOpenChange, existingSim, onSuccess }: UserSimForm
         x402_enabled: existingSim.x402_enabled || false,
         x402_price: existingSim.x402_price?.toString() || '',
         x402_wallet: existingSim.x402_wallet || '',
-        sim_category: existingSim.sim_category || 'Chat'
+        sim_category: existingSim.sim_category || 'Chat',
+        brief_topic: existingSim.sim_category === 'Autonomous Agent' ? existingSim.description || '' : '',
+        brief_time: existingSim.sim_category === 'Autonomous Agent' ? existingSim.welcome_message || '09:00' : '09:00',
+        agent_category: existingSim.sim_category === 'Autonomous Agent' ? existingSim.marketplace_category || '' : ''
       });
       setPreviewUrl(existingSim.avatar_url || '');
     } else {
@@ -70,7 +77,10 @@ const UserSimForm = ({ open, onOpenChange, existingSim, onSuccess }: UserSimForm
         x402_enabled: false,
         x402_price: '',
         x402_wallet: '',
-        sim_category: 'Chat'
+        sim_category: 'Chat',
+        brief_topic: '',
+        brief_time: '09:00',
+        agent_category: ''
       });
       setPreviewUrl('');
     }
@@ -91,20 +101,29 @@ const UserSimForm = ({ open, onOpenChange, existingSim, onSuccess }: UserSimForm
 
     setIsAutoSaving(true);
     try {
+      const updateData: any = {
+        name: data.name,
+        title: data.title,
+        prompt: data.prompt || 'You are a helpful AI assistant. Be friendly, informative, and engaging in conversations.',
+        avatar_url: data.avatar_url,
+        crypto_wallet: data.crypto_wallet,
+        x402_enabled: data.x402_enabled,
+        x402_price: data.x402_price ? parseFloat(data.x402_price) : null,
+        x402_wallet: data.x402_wallet,
+        sim_category: data.sim_category
+      };
+
+      if (data.sim_category === 'Autonomous Agent') {
+        updateData.description = data.brief_topic;
+        updateData.welcome_message = data.brief_time;
+        updateData.marketplace_category = data.agent_category;
+      } else {
+        updateData.description = data.description;
+      }
+
       const { error } = await supabase
         .from('advisors')
-        .update({
-          name: data.name,
-          title: data.title,
-          description: data.description,
-          prompt: data.prompt || 'You are a helpful AI assistant. Be friendly, informative, and engaging in conversations.',
-          avatar_url: data.avatar_url,
-          crypto_wallet: data.crypto_wallet,
-          x402_enabled: data.x402_enabled,
-          x402_price: data.x402_price ? parseFloat(data.x402_price) : null,
-          x402_wallet: data.x402_wallet,
-          sim_category: data.sim_category
-        })
+        .update(updateData)
         .eq('id', existingSim.id);
 
       if (error) throw error;
@@ -211,6 +230,34 @@ const UserSimForm = ({ open, onOpenChange, existingSim, onSuccess }: UserSimForm
       return;
     }
 
+    // Validate Autonomous Agent fields
+    if (formData.sim_category === 'Autonomous Agent') {
+      if (!formData.agent_category) {
+        toast({
+          title: "Validation Error",
+          description: "Please select a category for your autonomous agent",
+          variant: "destructive"
+        });
+        return;
+      }
+      if (!formData.brief_topic.trim()) {
+        toast({
+          title: "Validation Error",
+          description: "Please enter a topic for your daily brief",
+          variant: "destructive"
+        });
+        return;
+      }
+      if (!formData.brief_time) {
+        toast({
+          title: "Validation Error",
+          description: "Please select a time for your daily brief",
+          variant: "destructive"
+        });
+        return;
+      }
+    }
+
     // Check if custom_url is available (only for new sims)
     if (!existingSim) {
       const { data: existing } = await supabase
@@ -253,10 +300,9 @@ const UserSimForm = ({ open, onOpenChange, existingSim, onSuccess }: UserSimForm
 
       const avatarUrl = await uploadImage();
       
-      const submitData = {
+      const submitData: any = {
         name: formData.name,
         title: formData.title,
-        description: finalDescription,
         prompt: formData.prompt || 'You are a helpful AI assistant. Be friendly, informative, and engaging in conversations.',
         custom_url: formData.custom_url,
         avatar_url: avatarUrl || '',
@@ -270,6 +316,15 @@ const UserSimForm = ({ open, onOpenChange, existingSim, onSuccess }: UserSimForm
         x402_wallet: formData.x402_wallet || null,
         sim_category: formData.sim_category
       };
+
+      // Handle description and welcome_message based on sim_category
+      if (formData.sim_category === 'Autonomous Agent') {
+        submitData.description = formData.brief_topic;
+        submitData.welcome_message = formData.brief_time;
+        submitData.marketplace_category = formData.agent_category;
+      } else {
+        submitData.description = finalDescription;
+      }
 
       if (existingSim) {
         const { error } = await supabase
@@ -345,6 +400,16 @@ const UserSimForm = ({ open, onOpenChange, existingSim, onSuccess }: UserSimForm
               </div>
             </div>
           )}
+          
+          {/* Show daily briefs list if editing an Autonomous Agent sim */}
+          {existingSim && formData.sim_category === 'Autonomous Agent' && (
+            <div className="space-y-3 pt-2 pb-4 border-b border-border">
+              <Label>Daily Briefs</Label>
+              <div className="max-h-[400px] overflow-y-auto border rounded-lg p-4 bg-muted/20">
+                <DailyBriefsList advisorId={existingSim.id} />
+              </div>
+            </div>
+          )}
           <div>
             <Label htmlFor="category">Type *</Label>
             <Select
@@ -358,6 +423,7 @@ const UserSimForm = ({ open, onOpenChange, existingSim, onSuccess }: UserSimForm
               <SelectContent>
                 <SelectItem value="Crypto Mail">Crypto Mail - Message form</SelectItem>
                 <SelectItem value="Chat">Chat - AI conversation</SelectItem>
+                <SelectItem value="Autonomous Agent">Autonomous Agent - Automated tasks</SelectItem>
               </SelectContent>
             </Select>
             {existingSim && (
@@ -366,6 +432,55 @@ const UserSimForm = ({ open, onOpenChange, existingSim, onSuccess }: UserSimForm
               </p>
             )}
           </div>
+
+          {/* Autonomous Agent Category */}
+          {formData.sim_category === 'Autonomous Agent' && (
+            <div>
+              <Label htmlFor="agent_category">Category *</Label>
+              <Select
+                value={formData.agent_category}
+                onValueChange={(value) => handleInputChange('agent_category', value)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select category" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Daily Brief">Daily Brief</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+
+          {/* Brief Topic for Autonomous Agent */}
+          {formData.sim_category === 'Autonomous Agent' && formData.agent_category === 'Daily Brief' && (
+            <>
+              <div>
+                <Label htmlFor="brief_topic">What do you want a daily brief on? *</Label>
+                <Textarea
+                  id="brief_topic"
+                  value={formData.brief_topic}
+                  onChange={(e) => handleInputChange('brief_topic', e.target.value)}
+                  placeholder="E.g., AI developments, cryptocurrency markets, climate change news..."
+                  rows={3}
+                  required
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="brief_time">When do you want to receive your daily brief? *</Label>
+                <Input
+                  id="brief_time"
+                  type="time"
+                  value={formData.brief_time}
+                  onChange={(e) => handleInputChange('brief_time', e.target.value)}
+                  required
+                />
+                <p className="text-xs text-muted-foreground mt-1">
+                  Your brief will be generated daily at this time
+                </p>
+              </div>
+            </>
+          )}
 
           <div>
             <Label htmlFor="name">Sim Name *</Label>
