@@ -25,7 +25,7 @@ interface CreateSimModalProps {
 const simTypes = [
   { value: "Crypto Mail", label: "Crypto Mail" },
   { value: "Chat", label: "Chatbot" },
-  { value: "Autonomous Agent", label: "Autonomous Agent", disabled: true, comingSoon: true },
+  { value: "Autonomous Agent", label: "Autonomous Agent" },
 ];
 
 const categories = [
@@ -63,6 +63,9 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
   const [x402Enabled, setX402Enabled] = useState(false);
   const [x402Price, setX402Price] = useState("");
   const [x402Wallet, setX402Wallet] = useState("");
+  const [agentCategory, setAgentCategory] = useState("");
+  const [briefTopic, setBriefTopic] = useState("");
+  const [briefTime, setBriefTime] = useState("09:00");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // All sims get all integrations by default
@@ -134,6 +137,28 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
       setEditCode(code);
       setWelcomeMessage(`Thanks for reaching out! Fill out the form below and I'll get back to you.`);
       setSystemPrompt("N/A"); // Not used for Crypto Mail
+      setStep(2);
+      return;
+    }
+
+    // For Autonomous Agent, skip AI generation and go directly to confirmation
+    if (simType === "Autonomous Agent") {
+      if (!agentCategory) {
+        toast.error("Please select an agent category first");
+        return;
+      }
+      if (!briefTopic.trim()) {
+        toast.error("Please enter what you want a daily brief on");
+        return;
+      }
+      if (!briefTime) {
+        toast.error("Please select a time for your daily brief");
+        return;
+      }
+      const code = generateEditCode();
+      setEditCode(code);
+      setWelcomeMessage(briefTime);
+      setSystemPrompt("N/A"); // Not used for Autonomous Agent
       setStep(2);
       return;
     }
@@ -294,29 +319,40 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
       if (telegramLink.trim()) socialLinks.telegram = telegramLink.trim();
 
       // Create the sim with edit code
+      const simData: any = {
+        user_id: user?.id || null, // Set to null if no user
+        name: name.trim(),
+        sim_category: simType,
+        prompt: simType === "Chat" ? systemPrompt.trim() : "N/A",
+        avatar_url: avatarUrl,
+        price: 0,
+        integrations: allIntegrations,
+        is_active: true,
+        is_public: true,
+        social_links: Object.keys(socialLinks).length > 0 ? socialLinks : null,
+        edit_code: editCode,
+        crypto_wallet: cryptoWallet.trim() || null,
+        x402_enabled: x402Enabled,
+        x402_price: x402Enabled && x402Price ? parseFloat(x402Price) : null,
+        x402_wallet: x402Enabled && x402Wallet.trim() ? x402Wallet.trim() : null,
+      };
+
+      // Set fields based on sim type
+      if (simType === "Autonomous Agent") {
+        simData.description = briefTopic.trim();
+        simData.welcome_message = briefTime;
+        simData.marketplace_category = agentCategory;
+        simData.auto_description = briefTopic.trim().substring(0, 150);
+      } else {
+        simData.description = description.trim();
+        simData.marketplace_category = category || null;
+        simData.welcome_message = welcomeMessage;
+        simData.auto_description = autoDescription;
+      }
+
       const { data: newSim, error: insertError } = await supabase
         .from("advisors")
-        .insert({
-          user_id: user?.id || null, // Set to null if no user
-          name: name.trim(),
-          marketplace_category: category || null,
-          sim_category: simType,
-          description: description.trim(),
-          auto_description: autoDescription,
-          prompt: simType === "Chat" ? systemPrompt.trim() : "N/A",
-          avatar_url: avatarUrl,
-          price: 0,
-          integrations: allIntegrations,
-          is_active: true,
-          is_public: true,
-          welcome_message: welcomeMessage,
-          social_links: Object.keys(socialLinks).length > 0 ? socialLinks : null,
-          edit_code: editCode,
-          crypto_wallet: cryptoWallet.trim() || null,
-          x402_enabled: x402Enabled,
-          x402_price: x402Enabled && x402Price ? parseFloat(x402Price) : null,
-          x402_wallet: x402Enabled && x402Wallet.trim() ? x402Wallet.trim() : null,
-        })
+        .insert(simData)
         .select()
         .single();
 
@@ -365,6 +401,9 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
       setX402Enabled(false);
       setX402Price("");
       setX402Wallet("");
+      setAgentCategory("");
+      setBriefTopic("");
+      setBriefTime("09:00");
       setSocialLinksOpen(false);
 
       // Call onSuccess to refresh queries
@@ -404,6 +443,9 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
     setX402Enabled(false);
     setX402Price("");
     setX402Wallet("");
+    setAgentCategory("");
+    setBriefTopic("");
+    setBriefTime("09:00");
     setSocialLinksOpen(false);
     onOpenChange(false);
   };
@@ -561,18 +603,55 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
               {/* Description */}
               <div className="space-y-2">
                 <Label htmlFor="description" className="text-sm font-medium">
-                  Description <span className="text-destructive">*</span>
+                  {simType === "Autonomous Agent" ? "What do you want a daily brief on?" : "Description"} <span className="text-destructive">*</span>
                 </Label>
                 <Textarea
                   id="description"
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Write a short description"
+                  value={simType === "Autonomous Agent" ? briefTopic : description}
+                  onChange={(e) => simType === "Autonomous Agent" ? setBriefTopic(e.target.value) : setDescription(e.target.value)}
+                  placeholder={simType === "Autonomous Agent" ? "E.g., AI developments, cryptocurrency markets, climate change news..." : "Write a short description"}
                   rows={4}
                   className="resize-none bg-background"
                   required
                 />
               </div>
+
+              {/* Agent Category - only show for Autonomous Agent */}
+              {simType === "Autonomous Agent" && (
+                <div className="space-y-2">
+                  <Label htmlFor="agent-category" className="text-sm font-medium">
+                    Category <span className="text-destructive">*</span>
+                  </Label>
+                  <Select value={agentCategory} onValueChange={setAgentCategory} required>
+                    <SelectTrigger className="h-11 bg-background">
+                      <SelectValue placeholder="Select category" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-background z-50">
+                      <SelectItem value="Daily Brief">Daily Brief</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+
+              {/* Brief Time - only show for Autonomous Agent */}
+              {simType === "Autonomous Agent" && agentCategory === "Daily Brief" && (
+                <div className="space-y-2">
+                  <Label htmlFor="brief-time" className="text-sm font-medium">
+                    When do you want to receive your daily brief? <span className="text-destructive">*</span>
+                  </Label>
+                  <Input
+                    id="brief-time"
+                    type="time"
+                    value={briefTime}
+                    onChange={(e) => setBriefTime(e.target.value)}
+                    className="h-11 bg-background"
+                    required
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Your brief will be generated daily at this time
+                  </p>
+                </div>
+              )}
 
               {/* Social Links Collapsible */}
               <Collapsible open={socialLinksOpen} onOpenChange={setSocialLinksOpen}>
@@ -702,8 +781,9 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
                 disabled={
                   isGenerating || 
                   !name.trim() || 
-                  !description.trim() || 
-                  (simType === "Chat" && !category)
+                  (simType === "Chat" && (!description.trim() || !category)) ||
+                  (simType === "Crypto Mail" && !description.trim()) ||
+                  (simType === "Autonomous Agent" && (!briefTopic.trim() || !agentCategory || !briefTime))
                 }
                 className="gap-2 w-full h-12 font-semibold bg-[#82f2aa] hover:bg-[#6dd994] text-black"
               >
@@ -715,7 +795,7 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
                 ) : (
                   <>
                     <Sparkles className="w-5 h-5" />
-                    {simType === "Crypto Mail" ? "Continue" : "Generate Sim"}
+                    {simType === "Crypto Mail" || simType === "Autonomous Agent" ? "Continue" : "Generate Sim"}
                   </>
                 )}
               </Button>
