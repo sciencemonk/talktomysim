@@ -1125,7 +1125,7 @@ export type Database = {
           p_edit_code: string
           p_message_id: string
         }
-        Returns: boolean
+        Returns: undefined
       }
       generate_url_slug: { Args: { input_name: string }; Returns: string }
       get_contact_messages_with_code: {
@@ -1156,7 +1156,7 @@ export type Database = {
           p_edit_code: string
           p_message_id: string
         }
-        Returns: boolean
+        Returns: undefined
       }
       reset_monthly_credits: { Args: never; Returns: undefined }
       search_advisor_embeddings: {
