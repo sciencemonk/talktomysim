@@ -521,9 +521,9 @@ const SimDetailModal = ({ sim, open, onOpenChange, onAuthRequired }: SimDetailMo
       <AlertDialog open={showEditDialog} onOpenChange={setShowEditDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Enter Edit Code</AlertDialogTitle>
+            <AlertDialogTitle>Enter Creator Code</AlertDialogTitle>
             <AlertDialogDescription>
-              Please enter the 6-digit edit code to modify this Sim.
+              Please enter the 6-digit creator code to modify this Sim.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <div className="py-4">
