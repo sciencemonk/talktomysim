@@ -502,9 +502,23 @@ const Landing = () => {
                   
                   {/* Content section */}
                   <div className="w-full p-3 space-y-2">
-                    <span className="text-sm font-semibold line-clamp-2 leading-tight block">
-                      {sim.name}
-                    </span>
+                    <div className="flex items-center justify-center gap-1.5">
+                      <span className="text-sm font-semibold line-clamp-2 leading-tight block">
+                        {sim.name}
+                      </span>
+                      {(sim as any).is_verified && (
+                        <div className="group/verified relative flex-shrink-0">
+                          <img 
+                            src="/lovable-uploads/verified-badge.png" 
+                            alt="Verified" 
+                            className="w-4 h-4"
+                          />
+                          <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 bg-popover text-popover-foreground text-xs rounded-lg shadow-lg opacity-0 group-hover/verified:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50 border border-border">
+                            This Sim has been verified through their X account.
+                          </div>
+                        </div>
+                      )}
+                    </div>
                     
                     {/* Category badge only */}
                     <div className="flex flex-wrap gap-1.5 justify-center">
