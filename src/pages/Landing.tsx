@@ -473,7 +473,7 @@ const Landing = () => {
             {filteredSims?.map((sim) => {
               // Check sim_category first - if it's "Crypto Mail", use that as the category
               const isContactMe = (sim as any).sim_category === 'Crypto Mail';
-              const simCategory = isContactMe ? 'contact' : ((sim as any).marketplace_category?.toLowerCase() || 'uncategorized');
+              const simCategory = isContactMe ? 'Crypto Mail' : ((sim as any).marketplace_category?.toLowerCase() || 'uncategorized');
               const categoryLabel = categories.find(c => c.id === simCategory)?.label || simCategory;
               const price = sim.price || 0;
               
