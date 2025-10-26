@@ -23,7 +23,7 @@ interface CreateSimModalProps {
 }
 
 const simTypes = [
-  { value: "Contact Me", label: "Contact Me" },
+  { value: "Crypto Mail", label: "Crypto Mail" },
   { value: "Chat", label: "Chatbot" },
   { value: "Autonomous Agent", label: "Autonomous Agent", disabled: true, comingSoon: true },
 ];
@@ -44,7 +44,7 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [name, setName] = useState("");
-  const [simType, setSimType] = useState("Contact Me");
+  const [simType, setSimType] = useState("Crypto Mail");
   const [category, setCategory] = useState("");
   const [description, setDescription] = useState("");
   const [systemPrompt, setSystemPrompt] = useState("");
@@ -128,12 +128,12 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
       return;
     }
 
-    // For Contact Me sims, skip AI generation and go directly to confirmation
-    if (simType === "Contact Me") {
+    // For Crypto Mail sims, skip AI generation and go directly to confirmation
+    if (simType === "Crypto Mail") {
       const code = generateEditCode();
       setEditCode(code);
       setWelcomeMessage(`Thanks for reaching out! Fill out the form below and I'll get back to you.`);
-      setSystemPrompt("N/A"); // Not used for Contact Me
+      setSystemPrompt("N/A"); // Not used for Crypto Mail
       setStep(2);
       return;
     }
@@ -350,7 +350,7 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
       // Reset form
       setStep(1);
       setName("");
-      setSimType("Contact Me");
+      setSimType("Crypto Mail");
       setCategory("");
       setDescription("");
       setSystemPrompt("");
@@ -389,7 +389,7 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
   const handleClose = () => {
     setStep(1);
     setName("");
-    setSimType("Contact Me");
+    setSimType("Crypto Mail");
     setCategory("");
     setDescription("");
     setSystemPrompt("");
@@ -715,7 +715,7 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
                 ) : (
                   <>
                     <Sparkles className="w-5 h-5" />
-                    {simType === "Contact Me" ? "Continue" : "Generate Sim"}
+                    {simType === "Crypto Mail" ? "Continue" : "Generate Sim"}
                   </>
                 )}
               </Button>

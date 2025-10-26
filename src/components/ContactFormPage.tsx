@@ -105,8 +105,8 @@ const ContactFormPage = ({ agent }: ContactFormPageProps) => {
             {agent.title && (
               <p className="text-lg text-muted-foreground mb-4">{agent.title}</p>
             )}
-            {/* For Contact Me sims, show user description; for others show auto_description */}
-            {(agent.sim_category === 'Contact Me' && agent.description) ? (
+            {/* For Crypto Mail sims, show user description; for others show auto_description */}
+            {(agent.sim_category === 'Crypto Mail' && agent.description) ? (
               <p className="text-muted-foreground max-w-lg">{agent.description}</p>
             ) : (agent as any).auto_description ? (
               <p className="text-muted-foreground max-w-lg">{(agent as any).auto_description}</p>

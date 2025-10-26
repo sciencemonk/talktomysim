@@ -48,8 +48,8 @@ const PublicSimDetail = () => {
   const SIMAI_TO_SOL_RATE = 0.0001;
 
   const getSimDescription = () => {
-    // For Contact Me sims, use the user-written description
-    if (sim?.sim_category === 'Contact Me' && sim?.description) {
+    // For Crypto Mail sims, use the user-written description
+    if (sim?.sim_category === 'Crypto Mail' && sim?.description) {
       return sim.description;
     }
     // For other sims, use auto_description (never the system prompt in 'description' field)
@@ -278,9 +278,9 @@ const PublicSimDetail = () => {
     }
   }, [customUrl]);
 
-  // Check for x402 payment when showing Contact Me form
+  // Check for x402 payment when showing Crypto Mail form
   useEffect(() => {
-    if (sim?.sim_category === 'Contact Me' && sim?.x402_enabled && sim?.x402_price && sim?.x402_wallet) {
+    if (sim?.sim_category === 'Crypto Mail' && sim?.x402_enabled && sim?.x402_price && sim?.x402_wallet) {
       const validSession = validateX402Session(sim.x402_wallet);
       if (validSession) {
         setPaymentSessionId(validSession);
@@ -471,8 +471,8 @@ const PublicSimDetail = () => {
     );
   }
 
-  // If sim_category is "Contact Me", validate x402 payment before showing contact form
-  if (sim.sim_category === 'Contact Me') {
+  // If sim_category is "Crypto Mail", validate x402 payment before showing contact form
+  if (sim.sim_category === 'Crypto Mail') {
     // Check if x402 payment is required and no valid session
     if (sim.x402_enabled && sim.x402_price && sim.x402_wallet && !paymentSessionId) {
       return (
@@ -634,7 +634,7 @@ const PublicSimDetail = () => {
                 }}
               >
                 <MessageCircle className="h-5 w-5 mr-2 group-hover:scale-110 transition-transform" />
-                Launch Sim
+                {sim?.sim_category === 'Crypto Mail' ? 'Send Crypto Mail' : 'Launch Sim'}
               </Button>
 
               {/* Share Button */}

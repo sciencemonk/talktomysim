@@ -703,7 +703,7 @@ export function AppSidebar() {
       <>
         <CreditUsageModal open={showCreditsModal} onOpenChange={setShowCreditsModal} />
         
-        {selectedSimForEdit && selectedSimCategory === 'Contact Me' && (
+        {selectedSimForEdit && selectedSimCategory === 'Crypto Mail' && (
           <ContactMeEditModal
             open={editSimModalOpen}
             onOpenChange={setEditSimModalOpen}
@@ -711,7 +711,7 @@ export function AppSidebar() {
           />
         )}
 
-        {selectedSimForEdit && selectedSimCategory !== 'Contact Me' && (
+        {selectedSimForEdit && selectedSimCategory !== 'Crypto Mail' && (
           <EditSimModal
             open={editSimModalOpen}
             onOpenChange={setEditSimModalOpen}

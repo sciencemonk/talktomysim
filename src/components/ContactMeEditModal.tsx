@@ -203,7 +203,7 @@ const ContactMeEditModal = ({
         <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto p-0">
           <div className="p-8 space-y-6">
             <div className="space-y-2">
-              <h2 className="text-2xl font-semibold tracking-tight">Edit Contact Me Sim</h2>
+              <h2 className="text-2xl font-semibold tracking-tight">Edit Crypto Mail Sim</h2>
               <p className="text-sm text-muted-foreground">
                 Manage your contact form and view messages
               </p>

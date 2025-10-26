@@ -33,7 +33,7 @@ const AdvisorDirectory = ({ onSelectAdvisor, onAuthRequired }: AdvisorDirectoryP
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [showBotCheck, setShowBotCheck] = useState(false);
   const [selectedAdvisor, setSelectedAdvisor] = useState<AgentType | null>(null);
-  const [simTypeFilter, setSimTypeFilter] = useState<'all' | 'Contact Me' | 'Chat' | 'Autonomous Agent'>('all');
+  const [simTypeFilter, setSimTypeFilter] = useState<'all' | 'Crypto Mail' | 'Chat' | 'Autonomous Agent'>('all');
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
   
   const { user } = useAuth();
@@ -125,7 +125,7 @@ const AdvisorDirectory = ({ onSelectAdvisor, onAuthRequired }: AdvisorDirectoryP
       // Type filter
       const simCategory = (advisor as any).sim_category;
       if (simTypeFilter === 'all') return true;
-      if (simTypeFilter === 'Contact Me') return simCategory === 'Contact Me';
+      if (simTypeFilter === 'Crypto Mail') return simCategory === 'Crypto Mail';
       if (simTypeFilter === 'Chat') {
         const isChat = simCategory === 'Chat' || !simCategory || simCategory === '';
         if (!isChat) return false;
@@ -169,10 +169,10 @@ const AdvisorDirectory = ({ onSelectAdvisor, onAuthRequired }: AdvisorDirectoryP
                 </SelectTrigger>
                 <SelectContent className="bg-background border-border text-foreground z-50">
                   <SelectItem value="all">All Types</SelectItem>
-                  <SelectItem value="Contact Me">
+                  <SelectItem value="Crypto Mail">
                     <div className="flex items-center gap-2">
                       <Mail className="h-4 w-4" />
-                      Contact Me
+                      Crypto Mail
                     </div>
                   </SelectItem>
                   <SelectItem value="Chat">
@@ -196,9 +196,9 @@ const AdvisorDirectory = ({ onSelectAdvisor, onAuthRequired }: AdvisorDirectoryP
               <Tabs value={simTypeFilter} onValueChange={handleTypeChange}>
                 <TabsList className="grid grid-cols-4 w-full">
                   <TabsTrigger value="all">All Types</TabsTrigger>
-                  <TabsTrigger value="Contact Me" className="flex items-center gap-2">
+                  <TabsTrigger value="Crypto Mail" className="flex items-center gap-2">
                     <Mail className="h-4 w-4" />
-                    Contact Me
+                    Crypto Mail
                   </TabsTrigger>
                   <TabsTrigger value="Chat" className="flex items-center gap-2">
                     <Bot className="h-4 w-4" />

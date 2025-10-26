@@ -233,7 +233,7 @@ const UserSimForm = ({ open, onOpenChange, existingSim, onSuccess }: UserSimForm
     try {
       // Always auto-generate description for new sims
       // For existing sims, regenerate if description is empty OR too long (likely the full prompt)
-      // Skip generation for "Contact Me" category
+      // Skip generation for "Crypto Mail" category
       let finalDescription = formData.description;
       const shouldGenerateDescription = 
         formData.sim_category === 'Chat' && (
@@ -336,8 +336,8 @@ const UserSimForm = ({ open, onOpenChange, existingSim, onSuccess }: UserSimForm
         </DialogHeader>
         
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Show contact messages list if editing a Contact Me sim */}
-          {existingSim && formData.sim_category === 'Contact Me' && (
+          {/* Show contact messages list if editing a Crypto Mail sim */}
+          {existingSim && formData.sim_category === 'Crypto Mail' && (
             <div className="space-y-3 pt-2 pb-4 border-b border-border">
               <Label>Received Messages</Label>
               <div className="max-h-[300px] overflow-y-auto border rounded-lg p-4 bg-muted/20">
@@ -356,7 +356,7 @@ const UserSimForm = ({ open, onOpenChange, existingSim, onSuccess }: UserSimForm
                 <SelectValue placeholder="Select sim type" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="Contact Me">Contact Me - Message form</SelectItem>
+                <SelectItem value="Crypto Mail">Crypto Mail - Message form</SelectItem>
                 <SelectItem value="Chat">Chat - AI conversation</SelectItem>
               </SelectContent>
             </Select>
@@ -414,7 +414,7 @@ const UserSimForm = ({ open, onOpenChange, existingSim, onSuccess }: UserSimForm
             </div>
           )}
 
-          {formData.sim_category === 'Contact Me' && (
+          {formData.sim_category === 'Crypto Mail' && (
             <div>
               <Label htmlFor="description">Description *</Label>
               <Textarea

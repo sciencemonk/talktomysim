@@ -90,8 +90,8 @@ const SimDetailModal = ({ sim, open, onOpenChange, onAuthRequired }: SimDetailMo
   const SIMAI_TO_SOL_RATE = 0.001;
   
   const getSimDescription = () => {
-    // For Contact Me sims, use the user-written description
-    if ((sim as any)?.sim_category === 'Contact Me' && sim?.description) {
+    // For Crypto Mail sims, use the user-written description
+    if ((sim as any)?.sim_category === 'Crypto Mail' && sim?.description) {
       return sim.description;
     }
     // For other sims, ONLY use auto_description (never the system prompt in 'description' field)
@@ -402,7 +402,7 @@ const SimDetailModal = ({ sim, open, onOpenChange, onAuthRequired }: SimDetailMo
             disabled={isAddingSim}
           >
             <MessageCircle className="h-4 w-4 mr-2 group-hover:scale-110 transition-transform" />
-            {isAddingSim ? 'Adding...' : (isSignedIn ? 'Add Sim' : 'Launch Sim')}
+            {isAddingSim ? 'Adding...' : (isSignedIn ? 'Add Sim' : ((sim as any)?.sim_category === 'Crypto Mail' ? 'Send Crypto Mail' : 'Launch Sim'))}
           </Button>
 
           {/* Share Button */}
@@ -555,7 +555,7 @@ const SimDetailModal = ({ sim, open, onOpenChange, onAuthRequired }: SimDetailMo
       </AlertDialog>
 
       {/* Edit Sim Modal */}
-      {sim && (sim as any).sim_category === 'Contact Me' && (
+      {sim && (sim as any).sim_category === 'Crypto Mail' && (
         <ContactMeEditModal
           open={showEditSimModal}
           onOpenChange={(open) => {
@@ -570,7 +570,7 @@ const SimDetailModal = ({ sim, open, onOpenChange, onAuthRequired }: SimDetailMo
       )}
 
       {/* Edit Sim Modal - Regular Chat Sims */}
-      {sim && (sim as any).sim_category !== 'Contact Me' && (
+      {sim && (sim as any).sim_category !== 'Crypto Mail' && (
         <EditSimModal
           open={showEditSimModal}
           onOpenChange={(open) => {

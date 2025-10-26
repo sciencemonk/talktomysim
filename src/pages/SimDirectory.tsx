@@ -40,7 +40,7 @@ const SimDirectory = () => {
   const [selectedSim, setSelectedSim] = useState<AgentType | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [priceFilter, setPriceFilter] = useState<FilterType>('all');
-  const [simTypeFilter, setSimTypeFilter] = useState<'all' | 'Contact Me' | 'Chat' | 'Autonomous Agent'>('all');
+  const [simTypeFilter, setSimTypeFilter] = useState<'all' | 'Crypto Mail' | 'Chat' | 'Autonomous Agent'>('all');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [sortBy, setSortBy] = useState<SortType>('newest');
   const isMobile = useIsMobile();
@@ -138,7 +138,7 @@ const SimDirectory = () => {
       // Type filter
       const simCategory = (sim as any).sim_category;
       if (simTypeFilter !== 'all') {
-        if (simTypeFilter === 'Contact Me' && simCategory !== 'Contact Me') return false;
+        if (simTypeFilter === 'Crypto Mail' && simCategory !== 'Crypto Mail') return false;
         if (simTypeFilter === 'Chat' && simCategory !== 'Chat' && simCategory) return false;
         if (simTypeFilter === 'Autonomous Agent') return false; // Coming soon
       }
@@ -237,9 +237,9 @@ const SimDirectory = () => {
               }}>
                 <TabsList>
                   <TabsTrigger value="all">All Types</TabsTrigger>
-                  <TabsTrigger value="Contact Me" className="gap-2">
+                  <TabsTrigger value="Crypto Mail" className="gap-2">
                     <Mail className="h-4 w-4" />
-                    Contact Me
+                    Crypto Mail
                   </TabsTrigger>
                   <TabsTrigger value="Chat" className="gap-2">
                     <Bot className="h-4 w-4" />
@@ -358,8 +358,8 @@ const SimDirectory = () => {
           ) : (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
               {filteredSims?.map((sim) => {
-              // Check sim_category first - if it's "Contact Me", use that as the category
-              const isContactMe = (sim as any).sim_category === 'Contact Me';
+              // Check sim_category first - if it's "Crypto Mail", use that as the category
+              const isContactMe = (sim as any).sim_category === 'Crypto Mail';
               const simCategory = isContactMe ? 'contact' : ((sim as any).marketplace_category?.toLowerCase() || 'uncategorized');
               const categoryLabel = categories.find(c => c.id === simCategory)?.label || simCategory;
               const price = sim.price || 0;
