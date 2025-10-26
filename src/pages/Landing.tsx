@@ -8,20 +8,20 @@ import { useState, useEffect } from "react";
 import { AgentType } from "@/types/agent";
 import { toast as sonnerToast } from "sonner";
 import AuthModal from "@/components/AuthModal";
-import { Search, TrendingUp, ChevronDown, Mail, Bot, Zap, Code } from "lucide-react";
+import { Search, TrendingUp, ChevronDown, Mail, Bot, Zap, Code, User, MessageCircle, LogOut } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { getAvatarUrl } from "@/lib/avatarUtils";
-import SimDetailModal from "@/components/SimDetailModal";
-import { Input } from "@/components/ui/input";
-import { TopNavBar } from "@/components/TopNavBar";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { getAvatarUrl } from "@/lib/avatarUtils";
+import SimDetailModal from "@/components/SimDetailModal";
+import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useTheme } from "@/hooks/useTheme";
 import { SimLeaderboard } from "@/components/SimLeaderboard";
@@ -276,22 +276,33 @@ const Landing = () => {
 
   return (
     <div className="min-h-screen w-full flex flex-col bg-background">
-      <TopNavBar />
-      
-      <div className="flex-1">
-        {/* Sim Directory Section */}
-        <section className="container mx-auto px-3 sm:px-4 py-8 flex-1">
-        <div className="max-w-7xl mx-auto">
-          {/* Search and Filters */}
-          <div className="mb-6 space-y-4">
-            {/* Type Filters */}
-            <div className="flex flex-wrap gap-3 items-center">
+      {/* Integrated Header with Navigation */}
+      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="container mx-auto px-3 sm:px-4">
+          <div className="flex h-16 items-center justify-between gap-4">
+            {/* Left: Logo */}
+            <button
+              onClick={() => navigate('/')}
+              className="flex items-center hover:opacity-80 transition-opacity shrink-0"
+            >
+              <img 
+                src={theme === "dark" ? "/sim-logo-dark.png" : "/sim-logo-light-final.png"}
+                alt="Sim Logo" 
+                className="h-8 w-8 sm:h-10 sm:w-10 object-contain"
+                onError={(e) => {
+                  e.currentTarget.src = "/sim-logo.png";
+                }}
+              />
+            </button>
+
+            {/* Center: Type Filters */}
+            <div className="flex-1 flex justify-center max-w-3xl mx-4">
               {isMobile ? (
                 <Select value={simTypeFilter} onValueChange={(v) => {
                   setSimTypeFilter(v as any);
                   if (v !== 'Chat') setSelectedCategory('all');
                 }}>
-                  <SelectTrigger className="w-full h-12">
+                  <SelectTrigger className="w-full h-10">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent className="bg-background border-border z-[100]">
@@ -361,6 +372,58 @@ const Landing = () => {
                 </Tabs>
               )}
             </div>
+
+            {/* Right: Theme Toggle + Create Button + User Menu */}
+            <div className="flex items-center gap-2 shrink-0">
+              <ThemeToggle />
+              <Button
+                onClick={handleAddSim}
+                style={{ backgroundColor: '#83f1aa' }}
+                className="gap-1 sm:gap-2 font-semibold text-black hover:opacity-90 text-xs sm:text-sm px-2 sm:px-4 h-8 sm:h-10"
+              >
+                <span className="hidden xs:inline">Create a Sim</span>
+                <span className="xs:hidden">Create</span>
+              </Button>
+
+              {currentUser && (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon" className="rounded-full h-8 w-8 sm:h-10 sm:w-10">
+                      <Avatar className="h-6 w-6 sm:h-8 sm:w-8">
+                        <AvatarImage src={getAvatarUrl(currentUser?.user_metadata?.avatar_url)} />
+                        <AvatarFallback>
+                          <User className="h-3 w-3 sm:h-4 sm:w-4" />
+                        </AvatarFallback>
+                      </Avatar>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-56">
+                    <DropdownMenuItem onClick={() => navigate('/home')}>
+                      <MessageCircle className="mr-2 h-4 w-4" />
+                      My Sims
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={async () => {
+                      await supabase.auth.signOut();
+                      setCurrentUser(null);
+                      navigate('/');
+                    }}>
+                      <LogOut className="mr-2 h-4 w-4" />
+                      Sign Out
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              )}
+            </div>
+          </div>
+        </div>
+      </header>
+      
+      <div className="flex-1">
+        {/* Sim Directory Section */}
+        <section className="container mx-auto px-3 sm:px-4 py-8 flex-1">
+        <div className="max-w-7xl mx-auto">
+          {/* Search and Filters */}
+          <div className="mb-6 space-y-4">
 
             {/* Sort and Search on same line */}
             <div className="flex gap-3">
