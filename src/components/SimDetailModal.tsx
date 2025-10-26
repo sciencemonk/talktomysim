@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, lazy, Suspense } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Globe, Wallet, ExternalLink, Copy, Check, MessageCircle, Share2, ArrowLeft, X, Pencil } from "lucide-react";
+import { Globe, Wallet, ExternalLink, Copy, Check, MessageCircle, Share2, ArrowLeft, X, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
@@ -341,7 +341,7 @@ const SimDetailModal = ({ sim, open, onOpenChange, onAuthRequired }: SimDetailMo
               className="h-8 w-8 rounded-full hover:bg-accent"
               title="Edit Sim"
             >
-              <Pencil className="h-3.5 w-3.5" />
+              <Lock className="h-3.5 w-3.5" />
             </Button>
             <Button
               variant="ghost"
