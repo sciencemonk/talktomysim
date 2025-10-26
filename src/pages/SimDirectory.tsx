@@ -114,8 +114,9 @@ const SimDirectory = () => {
         crypto_wallet: sim.crypto_wallet,
         x402_enabled: sim.x402_enabled || false,
         x402_price: sim.x402_price || 0,
-        x402_wallet: sim.x402_wallet
-      } as AgentType & { user_id?: string; user_count?: number };
+        x402_wallet: sim.x402_wallet,
+        is_verified: sim.is_verified || false
+      } as AgentType & { user_id?: string; user_count?: number; is_verified?: boolean };
       });
     },
   });

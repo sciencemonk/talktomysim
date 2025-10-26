@@ -74,6 +74,7 @@ export interface AgentType {
   x402_price?: number; // x402 payment price in USDC (e.g., 0.01 for $0.01)
   x402_wallet?: string; // EVM-compatible wallet address for x402 payments
   x402_enabled?: boolean; // Whether x402 payment is required
+  is_verified?: boolean; // Whether the sim has been verified through their X account
 }
 
 export interface PublicAgentType {
