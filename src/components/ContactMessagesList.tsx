@@ -45,13 +45,36 @@ const ContactMessagesList = ({ advisorId, editCode }: ContactMessagesListProps) 
       // If edit code is provided, use RPC function for secure access
       // Otherwise use regular query (for authenticated owners)
       if (editCode) {
+        // Validate edit code before attempting to fetch
+        if (!editCode || editCode.length !== 6) {
+          console.log('Invalid edit code, skipping fetch');
+          setMessages([]);
+          setIsLoading(false);
+          return;
+        }
+
         const { data, error } = await supabase
           .rpc('get_contact_messages_with_code', {
             p_advisor_id: advisorId,
             p_edit_code: editCode
           });
 
-        if (error) throw error;
+        if (error) {
+          console.error('RPC error:', error);
+          // If error is about invalid code, show specific message
+          if (error.message?.includes('Invalid edit code')) {
+            toast({
+              title: "Invalid Code",
+              description: "Please enter a valid 6-digit edit code",
+              variant: "destructive"
+            });
+          } else {
+            throw error;
+          }
+          setMessages([]);
+          setIsLoading(false);
+          return;
+        }
         setMessages(data || []);
       } else {
         const { data, error } = await supabase
@@ -70,6 +93,7 @@ const ContactMessagesList = ({ advisorId, editCode }: ContactMessagesListProps) 
         description: "Failed to load messages",
         variant: "destructive"
       });
+      setMessages([]);
     } finally {
       setIsLoading(false);
     }
@@ -149,9 +173,14 @@ const ContactMessagesList = ({ advisorId, editCode }: ContactMessagesListProps) 
   }
 
   if (messages.length === 0) {
+    // Show different message based on whether edit code is provided
+    const message = editCode && editCode.length !== 6 
+      ? "Please enter a valid 6-digit edit code above to view messages"
+      : "No messages yet";
+      
     return (
       <div className="text-center py-12">
-        <p className="text-muted-foreground">No messages yet</p>
+        <p className="text-muted-foreground">{message}</p>
       </div>
     );
   }
