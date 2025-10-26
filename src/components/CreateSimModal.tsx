@@ -673,123 +673,127 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
                 </div>
               )}
 
-              {/* Social Links Collapsible */}
-              <Collapsible open={socialLinksOpen} onOpenChange={setSocialLinksOpen}>
-                <CollapsibleTrigger className="flex items-center gap-2 text-sm font-medium hover:text-foreground transition-colors w-full py-2">
-                  <Link2 className="w-4 h-4" />
-                  <span>
-                    Add social links <span className="text-muted-foreground">(Optional)</span>
-                  </span>
-                  {socialLinksOpen ? (
-                    <ChevronUp className="w-4 h-4 ml-auto" />
-                  ) : (
-                    <ChevronDown className="w-4 h-4 ml-auto" />
-                  )}
-                </CollapsibleTrigger>
-                <CollapsibleContent className="space-y-3 pt-3">
-                  <div className="space-y-2">
-                    <Label htmlFor="x-link" className="text-sm">
-                      X (Twitter)
-                    </Label>
-                    <Input
-                      id="x-link"
-                      value={xLink}
-                      onChange={(e) => setXLink(e.target.value)}
-                      placeholder="https://x.com/username"
-                      className="h-10 bg-background"
-                      type="url"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="website-link" className="text-sm">
-                      Website
-                    </Label>
-                    <Input
-                      id="website-link"
-                      value={websiteLink}
-                      onChange={(e) => setWebsiteLink(e.target.value)}
-                      placeholder="https://yourwebsite.com"
-                      className="h-10 bg-background"
-                      type="url"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="telegram-link" className="text-sm">
-                      Telegram
-                    </Label>
-                    <Input
-                      id="telegram-link"
-                      value={telegramLink}
-                      onChange={(e) => setTelegramLink(e.target.value)}
-                      placeholder="https://t.me/username"
-                      className="h-10 bg-background"
-                      type="url"
-                    />
-                  </div>
-                </CollapsibleContent>
-              </Collapsible>
-
-              {/* x402 Payment Settings */}
-              <div className="space-y-4 pt-4 border-t border-border">
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <Label htmlFor="x402-enabled" className="text-sm font-medium">
-                      Require Payment (x402)
-                    </Label>
-                    <p className="text-xs text-muted-foreground">
-                      Require users to pay in USDC before chatting with your Sim
-                    </p>
-                  </div>
-                  <Switch
-                    id="x402-enabled"
-                    checked={x402Enabled}
-                    onCheckedChange={setX402Enabled}
-                  />
-                </div>
-
-                {x402Enabled && (
-                  <div className="space-y-3 pl-4 border-l-2 border-primary/30">
+              {/* Social Links Collapsible - hide for Autonomous Agent */}
+              {simType !== "Autonomous Agent" && (
+                <Collapsible open={socialLinksOpen} onOpenChange={setSocialLinksOpen}>
+                  <CollapsibleTrigger className="flex items-center gap-2 text-sm font-medium hover:text-foreground transition-colors w-full py-2">
+                    <Link2 className="w-4 h-4" />
+                    <span>
+                      Add social links <span className="text-muted-foreground">(Optional)</span>
+                    </span>
+                    {socialLinksOpen ? (
+                      <ChevronUp className="w-4 h-4 ml-auto" />
+                    ) : (
+                      <ChevronDown className="w-4 h-4 ml-auto" />
+                    )}
+                  </CollapsibleTrigger>
+                  <CollapsibleContent className="space-y-3 pt-3">
                     <div className="space-y-2">
-                      <Label htmlFor="x402-price" className="text-sm font-medium">
-                        Price in USDC <span className="text-destructive">*</span>
+                      <Label htmlFor="x-link" className="text-sm">
+                        X (Twitter)
                       </Label>
                       <Input
-                        id="x402-price"
-                        type="number"
-                        step="0.01"
-                        min="0.01"
-                        value={x402Price}
-                        onChange={(e) => setX402Price(e.target.value)}
-                        placeholder="0.01"
+                        id="x-link"
+                        value={xLink}
+                        onChange={(e) => setXLink(e.target.value)}
+                        placeholder="https://x.com/username"
                         className="h-10 bg-background"
-                        required={x402Enabled}
+                        type="url"
                       />
-                      <p className="text-xs text-muted-foreground">
-                        Example: 0.01 for $0.01 USDC per conversation
-                      </p>
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="x402-wallet" className="text-sm font-medium">
-                        EVM Wallet Address <span className="text-destructive">*</span>
+                      <Label htmlFor="website-link" className="text-sm">
+                        Website
                       </Label>
                       <Input
-                        id="x402-wallet"
-                        value={x402Wallet}
-                        onChange={(e) => setX402Wallet(e.target.value)}
-                        placeholder="0x..."
-                        className="h-10 bg-background font-mono text-sm"
-                        required={x402Enabled}
+                        id="website-link"
+                        value={websiteLink}
+                        onChange={(e) => setWebsiteLink(e.target.value)}
+                        placeholder="https://yourwebsite.com"
+                        className="h-10 bg-background"
+                        type="url"
                       />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="telegram-link" className="text-sm">
+                        Telegram
+                      </Label>
+                      <Input
+                        id="telegram-link"
+                        value={telegramLink}
+                        onChange={(e) => setTelegramLink(e.target.value)}
+                        placeholder="https://t.me/username"
+                        className="h-10 bg-background"
+                        type="url"
+                      />
+                    </div>
+                  </CollapsibleContent>
+                </Collapsible>
+              )}
+
+              {/* x402 Payment Settings - hide for Autonomous Agent */}
+              {simType !== "Autonomous Agent" && (
+                <div className="space-y-4 pt-4 border-t border-border">
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <Label htmlFor="x402-enabled" className="text-sm font-medium">
+                        Require Payment (x402)
+                      </Label>
                       <p className="text-xs text-muted-foreground">
-                        Base network wallet address to receive payments
+                        Require users to pay in USDC before chatting with your Sim
                       </p>
                     </div>
+                    <Switch
+                      id="x402-enabled"
+                      checked={x402Enabled}
+                      onCheckedChange={setX402Enabled}
+                    />
                   </div>
-                )}
-              </div>
+
+                  {x402Enabled && (
+                    <div className="space-y-3 pl-4 border-l-2 border-primary/30">
+                      <div className="space-y-2">
+                        <Label htmlFor="x402-price" className="text-sm font-medium">
+                          Price in USDC <span className="text-destructive">*</span>
+                        </Label>
+                        <Input
+                          id="x402-price"
+                          type="number"
+                          step="0.01"
+                          min="0.01"
+                          value={x402Price}
+                          onChange={(e) => setX402Price(e.target.value)}
+                          placeholder="0.01"
+                          className="h-10 bg-background"
+                          required={x402Enabled}
+                        />
+                        <p className="text-xs text-muted-foreground">
+                          Example: 0.01 for $0.01 USDC per conversation
+                        </p>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="x402-wallet" className="text-sm font-medium">
+                          EVM Wallet Address <span className="text-destructive">*</span>
+                        </Label>
+                        <Input
+                          id="x402-wallet"
+                          value={x402Wallet}
+                          onChange={(e) => setX402Wallet(e.target.value)}
+                          placeholder="0x..."
+                          className="h-10 bg-background font-mono text-sm"
+                          required={x402Enabled}
+                        />
+                        <p className="text-xs text-muted-foreground">
+                          Base network wallet address to receive payments
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
 
             {/* Generate Button */}

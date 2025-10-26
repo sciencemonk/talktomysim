@@ -78,20 +78,23 @@ serve(async (req) => {
                 role: 'system',
                 content: `You are an expert analyst who creates comprehensive daily briefs on specific topics. Your briefs should be:
 - Well-structured with clear sections
-- Include the most important developments from the last 24 hours
+- Include the most important developments from the last 24 hours only
 - Be informative but concise (300-500 words)
 - Include relevant context and implications
 - Written in a professional but accessible tone
-- Similar to briefings given to executives and decision-makers`
+- Similar to briefings given to executives and decision-makers
+- CRITICAL: Only use information from the past 24 hours. Ignore any older news or developments.`
               },
               {
                 role: 'user',
                 content: `Create a daily brief on the following topic: "${agent.description}"
 
-Please research the latest developments and create a comprehensive brief that covers:
+IMPORTANT: Research ONLY developments from the past 24 hours. Do not include older information.
+
+Please create a comprehensive brief that covers:
 1. Key developments in the last 24 hours
-2. Important trends or patterns
-3. Implications and what to watch for
+2. Important trends or patterns from today
+3. Implications and what to watch for next
 
 Format the brief in markdown with clear sections.`
               }
@@ -101,13 +104,19 @@ Format the brief in markdown with clear sections.`
                 type: 'function',
                 function: {
                   name: 'web_search',
-                  description: 'Search the web for recent information on a topic',
+                  description: 'Search the web for information from the past 24 hours only',
                   parameters: {
                     type: 'object',
                     properties: {
                       query: {
                         type: 'string',
-                        description: 'The search query'
+                        description: 'The search query focused on recent developments'
+                      },
+                      time_filter: {
+                        type: 'string',
+                        description: 'Time range filter for search results',
+                        enum: ['day'],
+                        default: 'day'
                       }
                     },
                     required: ['query']
