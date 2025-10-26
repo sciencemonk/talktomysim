@@ -413,48 +413,52 @@ const Landing = () => {
           {/* Search and Filters */}
           <div className="mb-6 space-y-4">
 
-            {/* Sort and Search on same line with Create button */}
-            <div className="flex gap-3">
-              {/* Create Sim Button */}
-              <Button
-                onClick={() => setShowCreateSimModal(true)}
-                style={{ backgroundColor: '#83f1aa' }}
-                className="gap-2 font-semibold text-black hover:opacity-90 h-12 px-4 shrink-0"
-              >
-                <Plus className="h-4 w-4" />
-                <span className="hidden sm:inline">Create a Sim</span>
-                <span className="sm:hidden">Create</span>
-              </Button>
+            {/* Sort and Search with Create button - responsive layout */}
+            <div className="flex flex-col sm:flex-row gap-3">
+              {/* Create + Sort on same line */}
+              <div className="flex gap-3">
+                {/* Create Sim Button */}
+                <Button
+                  onClick={() => setShowCreateSimModal(true)}
+                  style={{ backgroundColor: '#83f1aa' }}
+                  className="gap-2 font-semibold text-black hover:opacity-90 h-12 px-4 shrink-0"
+                >
+                  <Plus className="h-4 w-4" />
+                  <span className="hidden sm:inline">Create a Sim</span>
+                  <span className="sm:hidden">Create</span>
+                </Button>
 
-              {/* Sort dropdown */}
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" className="gap-2 h-12 px-4">
-                    {sortBy === 'newest' && 'Newest'}
-                    {sortBy === 'popular' && (
-                      <>
-                        <TrendingUp className="h-4 w-4" />
-                        Popular
-                      </>
-                    )}
-                    {sortBy === 'name' && 'A-Z'}
-                    <ChevronDown className="h-4 w-4 opacity-50" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="start" className="bg-background border-border z-50">
-                  <DropdownMenuItem onClick={() => setSortBy('newest')} className="text-foreground hover:bg-muted">
-                    Newest
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setSortBy('popular')} className="text-foreground hover:bg-muted">
-                    <TrendingUp className="mr-2 h-4 w-4" />
-                    Popular
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setSortBy('name')} className="text-foreground hover:bg-muted">
-                    A-Z
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+                {/* Sort dropdown */}
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" className="gap-2 h-12 px-4">
+                      {sortBy === 'newest' && 'Newest'}
+                      {sortBy === 'popular' && (
+                        <>
+                          <TrendingUp className="h-4 w-4" />
+                          Popular
+                        </>
+                      )}
+                      {sortBy === 'name' && 'A-Z'}
+                      <ChevronDown className="h-4 w-4 opacity-50" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="start" className="bg-background border-border z-50">
+                    <DropdownMenuItem onClick={() => setSortBy('newest')} className="text-foreground hover:bg-muted">
+                      Newest
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setSortBy('popular')} className="text-foreground hover:bg-muted">
+                      <TrendingUp className="mr-2 h-4 w-4" />
+                      Popular
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setSortBy('name')} className="text-foreground hover:bg-muted">
+                      A-Z
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
               
+              {/* Search on separate line on mobile, same line on desktop */}
               <div className="relative flex-1">
                 <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                 <Input
