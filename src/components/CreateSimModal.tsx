@@ -845,7 +845,9 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
                 <h2 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-foreground via-foreground to-primary bg-clip-text text-transparent">
                   Review & Create
                 </h2>
-                <p className="text-sm text-muted-foreground">Review and edit your sim&apos;s generated content</p>
+                <p className="text-sm text-muted-foreground">
+                  {simType === "Autonomous Agent" ? "Review your Autonomous Agent" : "Review and edit your sim's generated content"}
+                </p>
               </div>
 
               {/* Edit Code Display */}
