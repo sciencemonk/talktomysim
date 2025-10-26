@@ -853,7 +853,7 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
                 <div className="space-y-3">
                   <div className="flex items-center gap-2">
                     <div className="w-2 h-2 rounded-full bg-[#82f2aa] animate-pulse" />
-                    <h3 className="font-semibold text-lg">Your Sim Edit Code</h3>
+                    <h3 className="font-semibold text-lg">Your Sim Creator Code</h3>
                   </div>
                   <div className="flex items-center justify-between gap-4 p-4 bg-background/50 rounded-lg border border-border">
                     <div className="flex-1">
@@ -883,27 +883,58 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
               </div>
             </div>
 
-            {/* Welcome Message */}
-            <div className="space-y-3">
-              <div className="flex items-center gap-2">
-                <div className="h-px flex-1 bg-gradient-to-r from-transparent via-border to-transparent" />
-                <Label
-                  htmlFor="welcome-message"
-                  className="text-xs font-medium text-muted-foreground uppercase tracking-wider"
-                >
-                  Welcome Message
-                </Label>
-                <div className="h-px flex-1 bg-gradient-to-r from-transparent via-border to-transparent" />
+            {/* Summary for Autonomous Agent / Welcome Message for others */}
+            {simType === "Autonomous Agent" ? (
+              <div className="space-y-3">
+                <div className="flex items-center gap-2">
+                  <div className="h-px flex-1 bg-gradient-to-r from-transparent via-border to-transparent" />
+                  <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                    Sim Summary
+                  </Label>
+                  <div className="h-px flex-1 bg-gradient-to-r from-transparent via-border to-transparent" />
+                </div>
+                <div className="p-6 rounded-lg bg-muted/50 border border-border space-y-4">
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium text-muted-foreground">Type</p>
+                    <p className="text-base font-semibold">Autonomous Agent - Daily Brief</p>
+                  </div>
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium text-muted-foreground">Brief Topic</p>
+                    <p className="text-base">{briefTopic}</p>
+                  </div>
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium text-muted-foreground">Scheduled Time (UTC)</p>
+                    <p className="text-base">{briefTime}</p>
+                  </div>
+                  <div className="space-y-2">
+                    <p className="text-sm text-muted-foreground">
+                      Your daily brief will be automatically generated every day at the scheduled time and will appear in your Sim dashboard.
+                    </p>
+                  </div>
+                </div>
               </div>
-              <Textarea
-                id="welcome-message"
-                value={welcomeMessage}
-                onChange={(e) => setWelcomeMessage(e.target.value)}
-                placeholder="The first message users will see"
-                rows={3}
-                className="resize-none bg-background border-border text-foreground focus:ring-2 focus:ring-primary/20 transition-all"
-              />
-            </div>
+            ) : (
+              <div className="space-y-3">
+                <div className="flex items-center gap-2">
+                  <div className="h-px flex-1 bg-gradient-to-r from-transparent via-border to-transparent" />
+                  <Label
+                    htmlFor="welcome-message"
+                    className="text-xs font-medium text-muted-foreground uppercase tracking-wider"
+                  >
+                    Welcome Message
+                  </Label>
+                  <div className="h-px flex-1 bg-gradient-to-r from-transparent via-border to-transparent" />
+                </div>
+                <Textarea
+                  id="welcome-message"
+                  value={welcomeMessage}
+                  onChange={(e) => setWelcomeMessage(e.target.value)}
+                  placeholder="The first message users will see"
+                  rows={3}
+                  className="resize-none bg-background border-border text-foreground focus:ring-2 focus:ring-primary/20 transition-all"
+                />
+              </div>
+            )}
 
             {/* System Prompt - only show for Chat sims */}
             {simType === "Chat" && (
