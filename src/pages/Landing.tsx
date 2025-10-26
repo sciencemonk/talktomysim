@@ -424,8 +424,7 @@ const Landing = () => {
                   className="gap-2 font-semibold text-black hover:opacity-90 h-12 px-4 shrink-0"
                 >
                   <Plus className="h-4 w-4" />
-                  <span className="hidden sm:inline">Create a Sim</span>
-                  <span className="sm:hidden">Create</span>
+                  Create Sim
                 </Button>
 
                 {/* Sort dropdown */}
