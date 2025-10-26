@@ -8,7 +8,7 @@ import { useState, useEffect } from "react";
 import { AgentType } from "@/types/agent";
 import { toast as sonnerToast } from "sonner";
 import AuthModal from "@/components/AuthModal";
-import { Search, TrendingUp, ChevronDown } from "lucide-react";
+import { Search, TrendingUp, ChevronDown, Mail, Bot, Zap } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
@@ -25,6 +25,7 @@ import {
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useTheme } from "@/hooks/useTheme";
 import { SimLeaderboard } from "@/components/SimLeaderboard";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const Landing = () => {
   const navigate = useNavigate();
@@ -33,6 +34,7 @@ const Landing = () => {
   const [isSimModalOpen, setIsSimModalOpen] = useState(false);
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [simTypeFilter, setSimTypeFilter] = useState<'all' | 'Contact Me' | 'Chat' | 'Autonomous Agent'>('all');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [sortBy, setSortBy] = useState<'popular' | 'newest' | 'name'>('newest');
   const isMobile = useIsMobile();
@@ -192,7 +194,6 @@ const Landing = () => {
 
   const categories = [
     { id: 'all', label: 'All Categories', count: 0 },
-    { id: 'contact', label: 'Contact Me', count: 0 },
     { id: 'crypto', label: 'Crypto & Web3', count: 0 },
     { id: 'historical', label: 'Historical Figures', count: 0 },
     { id: 'influencers', label: 'Influencers & Celebrities', count: 0 },
@@ -214,13 +215,22 @@ const Landing = () => {
       
       if (!matchesSearch) return false;
 
-      // Handle "Contact Me" filter separately - check sim_category
-      if (selectedCategory === 'contact') {
-        return (sim as any).sim_category === 'Contact Me';
+      // Type filter
+      const simCategory = (sim as any).sim_category;
+      if (simTypeFilter !== 'all') {
+        if (simTypeFilter === 'Contact Me' && simCategory !== 'Contact Me') return false;
+        if (simTypeFilter === 'Chat') {
+          const isChat = simCategory === 'Chat' || !simCategory || simCategory === '';
+          if (!isChat) return false;
+          
+          // Apply category filter for Chat type
+          if (selectedCategory !== 'all') {
+            const marketplaceCategory = (sim as any).marketplace_category?.toLowerCase() || 'uncategorized';
+            if (marketplaceCategory !== selectedCategory) return false;
+          }
+        }
+        if (simTypeFilter === 'Autonomous Agent') return false; // Coming soon
       }
-
-      const simCategory = (sim as any).marketplace_category?.toLowerCase() || 'uncategorized';
-      if (selectedCategory !== 'all' && simCategory !== selectedCategory) return false;
 
       return true;
     })
@@ -240,13 +250,9 @@ const Landing = () => {
     if (cat.id === 'all') {
       return { ...cat, count: allSims?.length || 0 };
     }
-    if (cat.id === 'contact') {
-      const count = allSims?.filter(sim => (sim as any).sim_category === 'Contact Me').length || 0;
-      return { ...cat, count };
-    }
     const count = allSims?.filter(sim => {
-      const simCategory = (sim as any).marketplace_category?.toLowerCase() || 'uncategorized';
-      return simCategory === cat.id;
+      const marketplaceCategory = (sim as any).marketplace_category?.toLowerCase() || 'uncategorized';
+      return marketplaceCategory === cat.id;
     }).length || 0;
     return { ...cat, count };
   });
@@ -276,6 +282,68 @@ const Landing = () => {
         <div className="max-w-7xl mx-auto">
           {/* Search and Filters */}
           <div className="mb-6 space-y-4">
+            {/* Type Filters */}
+            <div className="flex flex-wrap gap-3 items-center">
+              {isMobile ? (
+                <Select value={simTypeFilter} onValueChange={(v) => {
+                  setSimTypeFilter(v as any);
+                  if (v !== 'Chat') setSelectedCategory('all');
+                }}>
+                  <SelectTrigger className="w-full h-12">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-background border-border z-[100]">
+                    <SelectItem value="all">All Types</SelectItem>
+                    <SelectItem value="Contact Me">
+                      <div className="flex items-center gap-2">
+                        <Mail className="h-4 w-4" />
+                        Contact Me
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="Chat">
+                      <div className="flex items-center gap-2">
+                        <Bot className="h-4 w-4" />
+                        Chatbots
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="Autonomous Agent" disabled>
+                      <div className="flex items-center gap-2">
+                        <Zap className="h-4 w-4" />
+                        Autonomous Agent
+                        <Badge variant="secondary" className="text-[9px] px-1.5 py-0 ml-2">
+                          Coming Soon
+                        </Badge>
+                      </div>
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              ) : (
+                <Tabs value={simTypeFilter} onValueChange={(v) => {
+                  setSimTypeFilter(v as any);
+                  if (v !== 'Chat') setSelectedCategory('all');
+                }}>
+                  <TabsList>
+                    <TabsTrigger value="all">All Types</TabsTrigger>
+                    <TabsTrigger value="Contact Me" className="gap-2">
+                      <Mail className="h-4 w-4" />
+                      Contact Me
+                    </TabsTrigger>
+                    <TabsTrigger value="Chat" className="gap-2">
+                      <Bot className="h-4 w-4" />
+                      Chatbots
+                    </TabsTrigger>
+                    <TabsTrigger value="Autonomous Agent" disabled className="gap-2 opacity-50 cursor-not-allowed">
+                      <Zap className="h-4 w-4" />
+                      Autonomous Agent
+                      <Badge variant="secondary" className="text-[9px] px-1.5 py-0 ml-1">
+                        Coming Soon
+                      </Badge>
+                    </TabsTrigger>
+                  </TabsList>
+                </Tabs>
+              )}
+            </div>
+
             {/* Sort and Search on same line */}
             <div className="flex gap-3">
               {/* Sort dropdown */}
@@ -322,8 +390,8 @@ const Landing = () => {
               </div>
             </div>
 
-            {/* Category Filters */}
-            {isMobile ? (
+            {/* Category Filters - only show when Chatbots is selected */}
+            {simTypeFilter === 'Chat' && (isMobile ? (
               <Select value={selectedCategory} onValueChange={setSelectedCategory}>
                 <SelectTrigger className="w-full h-12 bg-background">
                   <SelectValue placeholder="Select category">
@@ -380,7 +448,7 @@ const Landing = () => {
                   </Button>
                 ))}
               </div>
-            )}
+            ))}
           </div>
 
           {/* Sims Grid */}
