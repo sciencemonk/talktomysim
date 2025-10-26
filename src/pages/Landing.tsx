@@ -8,9 +8,11 @@ import { useState, useEffect } from "react";
 import { AgentType } from "@/types/agent";
 import { toast as sonnerToast } from "sonner";
 import AuthModal from "@/components/AuthModal";
-import { Search, TrendingUp, ChevronDown, Mail, Bot, Zap, Code, User, MessageCircle, LogOut } from "lucide-react";
+import { CreateSimModal } from "@/components/CreateSimModal";
+import { Search, TrendingUp, ChevronDown, Mail, Bot, Zap, Code, User, MessageCircle, LogOut, Plus } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -32,7 +34,9 @@ const Landing = () => {
   const [selectedSim, setSelectedSim] = useState<AgentType | null>(null);
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [isSimModalOpen, setIsSimModalOpen] = useState(false);
+  const [showCreateSimModal, setShowCreateSimModal] = useState(false);
   const [currentUser, setCurrentUser] = useState<any>(null);
+  const queryClient = useQueryClient();
   const [searchQuery, setSearchQuery] = useState('');
   const [simTypeFilter, setSimTypeFilter] = useState<'all' | 'Crypto Mail' | 'Chat' | 'Autonomous Agents' | 'x402 API'>('all');
   const [selectedCategory, setSelectedCategory] = useState('all');
@@ -265,14 +269,6 @@ const Landing = () => {
     setIsSimModalOpen(true);
   };
 
-  const handleAddSim = () => {
-    if (!currentUser) {
-      setAuthModalOpen(true);
-      return;
-    }
-    navigate('/home');
-  };
-
 
   return (
     <div className="min-h-screen w-full flex flex-col bg-background">
@@ -373,17 +369,9 @@ const Landing = () => {
               )}
             </div>
 
-            {/* Right: Theme Toggle + Create Button + User Menu */}
+            {/* Right: Theme Toggle + User Menu */}
             <div className="flex items-center gap-2 shrink-0">
               <ThemeToggle />
-              <Button
-                onClick={handleAddSim}
-                style={{ backgroundColor: '#83f1aa' }}
-                className="gap-1 sm:gap-2 font-semibold text-black hover:opacity-90 text-xs sm:text-sm px-2 sm:px-4 h-8 sm:h-10"
-              >
-                <span className="hidden xs:inline">Create a Sim</span>
-                <span className="xs:hidden">Create</span>
-              </Button>
 
               {currentUser && (
                 <DropdownMenu>
@@ -425,8 +413,19 @@ const Landing = () => {
           {/* Search and Filters */}
           <div className="mb-6 space-y-4">
 
-            {/* Sort and Search on same line */}
+            {/* Sort and Search on same line with Create button */}
             <div className="flex gap-3">
+              {/* Create Sim Button */}
+              <Button
+                onClick={() => setShowCreateSimModal(true)}
+                style={{ backgroundColor: '#83f1aa' }}
+                className="gap-2 font-semibold text-black hover:opacity-90 h-12 px-4 shrink-0"
+              >
+                <Plus className="h-4 w-4" />
+                <span className="hidden sm:inline">Create a Sim</span>
+                <span className="sm:hidden">Create</span>
+              </Button>
+
               {/* Sort dropdown */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -621,6 +620,23 @@ const Landing = () => {
           setTimeout(() => setIsSimModalOpen(false), 100);
         }}
       />
+
+      {showCreateSimModal && (
+        <CreateSimModal
+          open={showCreateSimModal}
+          onOpenChange={setShowCreateSimModal}
+          onAuthRequired={() => {
+            setShowCreateSimModal(false);
+            setAuthModalOpen(true);
+          }}
+          onSuccess={async () => {
+            if (currentUser) {
+              await queryClient.invalidateQueries({ queryKey: ['user-sims', currentUser.id] });
+              await queryClient.invalidateQueries({ queryKey: ['all-sims-landing'] });
+            }
+          }}
+        />
+      )}
 
       <SimLeaderboard />
 
