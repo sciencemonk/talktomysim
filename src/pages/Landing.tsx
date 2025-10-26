@@ -8,7 +8,7 @@ import { useState, useEffect } from "react";
 import { AgentType } from "@/types/agent";
 import { toast as sonnerToast } from "sonner";
 import AuthModal from "@/components/AuthModal";
-import { Search, TrendingUp, ChevronDown, Mail, Bot, Zap } from "lucide-react";
+import { Search, TrendingUp, ChevronDown, Mail, Bot, Zap, Code } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
@@ -34,7 +34,7 @@ const Landing = () => {
   const [isSimModalOpen, setIsSimModalOpen] = useState(false);
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [simTypeFilter, setSimTypeFilter] = useState<'all' | 'Contact Me' | 'Chat' | 'Autonomous Agent'>('all');
+  const [simTypeFilter, setSimTypeFilter] = useState<'all' | 'Contact Me' | 'Chat' | 'Autonomous Agents' | 'x402 API'>('all');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [sortBy, setSortBy] = useState<'popular' | 'newest' | 'name'>('newest');
   const isMobile = useIsMobile();
@@ -229,7 +229,8 @@ const Landing = () => {
             if (marketplaceCategory !== selectedCategory) return false;
           }
         }
-        if (simTypeFilter === 'Autonomous Agent') return false; // Coming soon
+        if (simTypeFilter === 'Autonomous Agents') return false; // Coming soon
+        if (simTypeFilter === 'x402 API') return false; // Coming soon
       }
 
       return true;
@@ -306,10 +307,19 @@ const Landing = () => {
                         Chatbots
                       </div>
                     </SelectItem>
-                    <SelectItem value="Autonomous Agent" disabled>
+                    <SelectItem value="Autonomous Agents" disabled>
                       <div className="flex items-center gap-2">
                         <Zap className="h-4 w-4" />
-                        Autonomous Agent
+                        Autonomous Agents
+                        <Badge variant="secondary" className="text-[9px] px-1.5 py-0 ml-2">
+                          Coming Soon
+                        </Badge>
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="x402 API" disabled>
+                      <div className="flex items-center gap-2">
+                        <Code className="h-4 w-4" />
+                        x402 API
                         <Badge variant="secondary" className="text-[9px] px-1.5 py-0 ml-2">
                           Coming Soon
                         </Badge>
@@ -332,9 +342,16 @@ const Landing = () => {
                       <Bot className="h-4 w-4" />
                       Chatbots
                     </TabsTrigger>
-                    <TabsTrigger value="Autonomous Agent" disabled className="gap-2 opacity-50 cursor-not-allowed">
+                    <TabsTrigger value="Autonomous Agents" disabled className="gap-2 opacity-50 cursor-not-allowed">
                       <Zap className="h-4 w-4" />
-                      Autonomous Agent
+                      Autonomous Agents
+                      <Badge variant="secondary" className="text-[9px] px-1.5 py-0 ml-1">
+                        Coming Soon
+                      </Badge>
+                    </TabsTrigger>
+                    <TabsTrigger value="x402 API" disabled className="gap-2 opacity-50 cursor-not-allowed">
+                      <Code className="h-4 w-4" />
+                      x402 API
                       <Badge variant="secondary" className="text-[9px] px-1.5 py-0 ml-1">
                         Coming Soon
                       </Badge>
