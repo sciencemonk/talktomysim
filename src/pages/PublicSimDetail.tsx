@@ -429,8 +429,9 @@ const PublicSimDetail = () => {
         x402_price: data.x402_price || 0,
         x402_wallet: data.x402_wallet,
         sim_category: data.sim_category || 'Chat',
-        is_verified: data.is_verified || false
-      };
+        is_verified: data.is_verified || false,
+        edit_code: data.edit_code
+      } as any;
 
       console.log('Fetched sim with x402 settings:', {
         id: transformedSim.id,
