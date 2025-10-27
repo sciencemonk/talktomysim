@@ -25,7 +25,7 @@ interface CreateSimModalProps {
 const simTypes = [
   { value: "Crypto Mail", label: "Crypto Mail" },
   { value: "Chat", label: "Chatbot" },
-  { value: "Autonomous Agent", label: "Autonomous Agent" },
+  { value: "Autonomous Agent", label: "Autonomous Agent", disabled: true, comingSoon: true },
 ];
 
 const categories = [
