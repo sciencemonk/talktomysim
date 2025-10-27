@@ -18,23 +18,49 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
+    // Check if a specific advisor is requested
+    const { advisorId } = await req.json().catch(() => ({}));
+
     // Get current time in HH:MM format
     const now = new Date();
     const currentTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:00`;
     
     console.log('Checking for briefs to generate at:', currentTime);
 
-    // Find all Autonomous Agent sims with Daily Brief category that are scheduled for current time
-    const { data: agents, error: agentsError } = await supabaseClient
-      .from('advisors')
-      .select('id, name, description, welcome_message, marketplace_category')
-      .eq('sim_category', 'Autonomous Agent')
-      .eq('marketplace_category', 'Daily Brief')
-      .eq('is_active', true);
+    let agents;
+    
+    if (advisorId) {
+      // Generate brief for specific advisor regardless of schedule
+      console.log('Generating brief for specific advisor:', advisorId);
+      const { data, error: agentsError } = await supabaseClient
+        .from('advisors')
+        .select('id, name, description, welcome_message, marketplace_category')
+        .eq('id', advisorId)
+        .eq('sim_category', 'Autonomous Agent')
+        .eq('is_active', true)
+        .single();
+      
+      if (agentsError) {
+        console.error('Error fetching agent:', agentsError);
+        throw agentsError;
+      }
+      
+      agents = data ? [data] : [];
+    } else {
+      // Find all Autonomous Agent sims with Daily Brief category that are scheduled for current time
+      const { data, error: agentsError } = await supabaseClient
+        .from('advisors')
+        .select('id, name, description, welcome_message, marketplace_category')
+        .eq('sim_category', 'Autonomous Agent')
+        .eq('marketplace_category', 'Daily Brief')
+        .eq('is_active', true);
 
-    if (agentsError) {
-      console.error('Error fetching agents:', agentsError);
-      throw agentsError;
+      if (agentsError) {
+        console.error('Error fetching agents:', agentsError);
+        throw agentsError;
+      }
+      
+      agents = data || [];
     }
 
     if (!agents || agents.length === 0) {
@@ -56,8 +82,8 @@ serve(async (req) => {
 
     for (const agent of agents) {
       try {
-        // Check if scheduled time matches (welcome_message stores the time)
-        if (agent.welcome_message !== currentTime) {
+        // Check if scheduled time matches (welcome_message stores the time) - skip if specific advisor requested
+        if (!advisorId && agent.welcome_message !== currentTime) {
           console.log(`Skipping ${agent.name} - scheduled for ${agent.welcome_message}, current time is ${currentTime}`);
           continue;
         }

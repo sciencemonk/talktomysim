@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef, lazy, Suspense } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, Globe, Wallet, ExternalLink, Copy, Check, MessageCircle, X, Share2, Lock } from "lucide-react";
+import { Loader2, Globe, Wallet, ExternalLink, Copy, Check, MessageCircle, X, Share2, Lock, Sparkles, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -645,7 +645,6 @@ const PublicSimDetail = () => {
             name: formData.get('name') as string,
             description: formData.get('brief-topic') as string,
             welcome_message: formData.get('brief-time') as string,
-            marketplace_category: formData.get('agent-category') as string,
             social_links: Object.keys(socialLinks).length > 0 ? socialLinks : null,
           })
           .eq('id', sim.id);
@@ -672,20 +671,29 @@ const PublicSimDetail = () => {
     const briefEmail = ((sim as any).social_links as any)?.brief_email || '';
 
     return (
-      <div className="h-screen flex items-center justify-center relative bg-gradient-to-br from-primary/20 via-background to-secondary/20">
-        <div className="absolute inset-0 bg-background/80 backdrop-blur-sm z-0" />
+      <div className="h-screen flex items-center justify-center relative bg-gradient-to-br from-violet-950/40 via-background to-cyan-950/40">
+        <div className="absolute inset-0 bg-background/90 backdrop-blur-xl z-0" />
         
-        <div className="relative z-10 w-full max-w-4xl mx-auto p-4 h-[90vh] flex flex-col">
-          <div className="backdrop-blur-md bg-card/50 border border-border rounded-3xl shadow-xl h-full flex flex-col">
-            {/* Header */}
-            <div className="p-6 border-b border-border flex items-center justify-between">
+        {/* Animated gradient orbs */}
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-violet-500/10 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
+        
+        <div className="relative z-10 w-full max-w-5xl mx-auto p-4 h-[92vh] flex flex-col">
+          <div className="backdrop-blur-2xl bg-gradient-to-br from-card/80 via-card/60 to-card/80 border border-border/50 rounded-2xl shadow-2xl h-full flex flex-col overflow-hidden">
+            {/* Futuristic Header */}
+            <div className="relative p-6 border-b border-border/50 flex items-center justify-between bg-gradient-to-r from-violet-500/5 via-transparent to-cyan-500/5">
               <div className="flex items-center gap-4">
-                <Avatar className="h-12 w-12 border-2 border-border">
-                  <AvatarImage src={getAvatarUrl(sim.avatar)} alt={sim.name} className="object-cover" />
-                  <AvatarFallback>{sim.name.charAt(0)}</AvatarFallback>
-                </Avatar>
+                <div className="relative">
+                  <Avatar className="h-14 w-14 border-2 border-violet-500/50 shadow-lg shadow-violet-500/20">
+                    <AvatarImage src={getAvatarUrl(sim.avatar)} alt={sim.name} className="object-cover" />
+                    <AvatarFallback>{sim.name.charAt(0)}</AvatarFallback>
+                  </Avatar>
+                  <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-background animate-pulse" />
+                </div>
                 <div>
-                  <h2 className="text-2xl font-bold">{sim.name}</h2>
+                  <h2 className="text-2xl font-bold bg-gradient-to-r from-violet-400 to-cyan-400 bg-clip-text text-transparent">
+                    {sim.name}
+                  </h2>
                   {sim.title && <p className="text-sm text-muted-foreground">{sim.title}</p>}
                 </div>
               </div>
@@ -693,113 +701,110 @@ const PublicSimDetail = () => {
                 variant="ghost"
                 size="icon"
                 onClick={() => navigate('/')}
+                className="hover:bg-red-500/10 hover:text-red-500 transition-colors"
               >
                 <X className="h-5 w-5" />
               </Button>
             </div>
 
-            {/* Tabs */}
+            {/* Futuristic Tabs */}
             <Tabs defaultValue="briefs" className="flex-1 flex flex-col overflow-hidden">
-              <TabsList className="mx-6 mt-4">
-                <TabsTrigger value="briefs">Daily Briefs</TabsTrigger>
-                <TabsTrigger value="settings">Settings</TabsTrigger>
-              </TabsList>
+              <div className="px-6 pt-4">
+                <TabsList className="w-full grid grid-cols-2 bg-background/50 backdrop-blur-sm">
+                  <TabsTrigger 
+                    value="briefs" 
+                    className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-violet-500/20 data-[state=active]:to-cyan-500/20 data-[state=active]:text-foreground"
+                  >
+                    Daily Briefs
+                  </TabsTrigger>
+                  <TabsTrigger 
+                    value="settings"
+                    className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-violet-500/20 data-[state=active]:to-cyan-500/20 data-[state=active]:text-foreground"
+                  >
+                    Settings
+                  </TabsTrigger>
+                </TabsList>
+              </div>
 
-              <TabsContent value="briefs" className="flex-1 overflow-y-auto p-6 mt-0">
+              <TabsContent value="briefs" className="flex-1 overflow-y-auto px-6 pb-6 mt-4">
                 <DailyBriefsList advisorId={sim.id} />
               </TabsContent>
 
-              <TabsContent value="settings" className="flex-1 overflow-y-auto p-6 mt-0">
-                <form onSubmit={handleSaveSettings} className="space-y-6 max-w-2xl">
-                  <div className="space-y-2">
-                    <Label htmlFor="name" className="text-sm font-medium">
-                      Sim Name <span className="text-destructive">*</span>
-                    </Label>
-                    <Input
-                      id="name"
-                      name="name"
-                      defaultValue={sim.name}
-                      placeholder="Enter sim name"
-                      className="h-11 bg-background"
-                      required
-                    />
-                  </div>
+              <TabsContent value="settings" className="flex-1 px-6 pb-6 mt-4 overflow-hidden">
+                <div className="h-full flex items-center justify-center">
+                  <form onSubmit={handleSaveSettings} className="w-full max-w-2xl space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="name" className="text-sm font-medium flex items-center gap-2">
+                          <Sparkles className="w-4 h-4 text-violet-400" />
+                          Sim Name <span className="text-destructive">*</span>
+                        </Label>
+                        <Input
+                          id="name"
+                          name="name"
+                          defaultValue={sim.name}
+                          placeholder="Enter sim name"
+                          className="h-11 bg-background/50 backdrop-blur-sm border-border/50 focus:border-violet-500/50 transition-colors"
+                          required
+                        />
+                      </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="agent-category" className="text-sm font-medium">
-                      Agent Category <span className="text-destructive">*</span>
-                    </Label>
-                    <select
-                      id="agent-category"
-                      name="agent-category"
-                      defaultValue={(sim as any).marketplace_category || 'Daily Brief'}
-                      className="w-full h-11 px-3 rounded-md border border-input bg-background text-foreground"
-                      required
+                      <div className="space-y-2">
+                        <Label htmlFor="brief-time" className="text-sm font-medium flex items-center gap-2">
+                          <Clock className="w-4 h-4 text-cyan-400" />
+                          Brief Time (UTC) <span className="text-destructive">*</span>
+                        </Label>
+                        <Input
+                          id="brief-time"
+                          name="brief-time"
+                          type="time"
+                          defaultValue={sim.welcome_message || '09:00'}
+                          className="h-11 bg-background/50 backdrop-blur-sm border-border/50 focus:border-cyan-500/50 transition-colors"
+                          required
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="brief-topic" className="text-sm font-medium flex items-center gap-2">
+                        <MessageCircle className="w-4 h-4 text-violet-400" />
+                        What do you want a daily brief on? <span className="text-destructive">*</span>
+                      </Label>
+                      <Textarea
+                        id="brief-topic"
+                        name="brief-topic"
+                        defaultValue={sim.description || ''}
+                        placeholder="E.g., AI developments, cryptocurrency markets, climate change news..."
+                        rows={3}
+                        className="resize-none bg-background/50 backdrop-blur-sm border-border/50 focus:border-violet-500/50 transition-colors"
+                        required
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="brief-email" className="text-sm font-medium flex items-center gap-2">
+                        <Globe className="w-4 h-4 text-cyan-400" />
+                        Email <span className="text-muted-foreground text-xs">(Optional)</span>
+                      </Label>
+                      <Input
+                        id="brief-email"
+                        name="brief-email"
+                        type="email"
+                        defaultValue={briefEmail}
+                        placeholder="your@email.com"
+                        className="h-11 bg-background/50 backdrop-blur-sm border-border/50 focus:border-cyan-500/50 transition-colors"
+                      />
+                    </div>
+
+                    <Button 
+                      type="submit" 
+                      className="w-full h-12 font-semibold bg-gradient-to-r from-violet-500 to-cyan-500 hover:from-violet-600 hover:to-cyan-600 text-white shadow-lg shadow-violet-500/25 transition-all"
                     >
-                      <option value="Daily Brief">Daily Brief</option>
-                      <option value="crypto">Crypto & Web3</option>
-                      <option value="business">Business & Finance</option>
-                      <option value="education">Education & Tutoring</option>
-                      <option value="lifestyle">Lifestyle & Wellness</option>
-                    </select>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="brief-topic" className="text-sm font-medium">
-                      What do you want a daily brief on? <span className="text-destructive">*</span>
-                    </Label>
-                    <Textarea
-                      id="brief-topic"
-                      name="brief-topic"
-                      defaultValue={sim.description || ''}
-                      placeholder="E.g., AI developments, cryptocurrency markets, climate change news..."
-                      rows={4}
-                      className="resize-none bg-background"
-                      required
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="brief-time" className="text-sm font-medium">
-                      When do you want to receive your daily brief? (UTC) <span className="text-destructive">*</span>
-                    </Label>
-                    <Input
-                      id="brief-time"
-                      name="brief-time"
-                      type="time"
-                      defaultValue={sim.welcome_message || '09:00'}
-                      className="h-11 bg-background"
-                      required
-                    />
-                    <p className="text-xs text-muted-foreground">
-                      Your brief will be generated daily at this time
-                    </p>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="brief-email" className="text-sm font-medium">
-                      Email <span className="text-muted-foreground">(Optional)</span>
-                    </Label>
-                    <Input
-                      id="brief-email"
-                      name="brief-email"
-                      type="email"
-                      defaultValue={briefEmail}
-                      placeholder="your@email.com"
-                      className="h-11 bg-background"
-                    />
-                    <p className="text-xs text-muted-foreground">
-                      Receive your daily brief in your inbox
-                    </p>
-                  </div>
-
-                  <Button 
-                    type="submit" 
-                    className="w-full h-12 font-semibold bg-[#82f2aa] hover:bg-[#6dd994] text-black"
-                  >
-                    Save Settings
-                  </Button>
-                </form>
+                      <Sparkles className="w-4 h-4 mr-2" />
+                      Save Settings
+                    </Button>
+                  </form>
+                </div>
               </TabsContent>
             </Tabs>
           </div>
