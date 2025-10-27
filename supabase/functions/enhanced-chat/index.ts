@@ -21,6 +21,7 @@ interface Agent {
   prompt: string;
   gradeLevel?: string;
   learningObjective?: string;
+  integrations?: string[];
 }
 
 // Timeout wrapper for async operations
@@ -221,9 +222,15 @@ ${JSON.stringify(walletAnalysis, null, 2)}`;
 
     console.log('System prompt length:', systemPrompt.length);
 
-    // Get agent integrations from database if agent has an ID
+    // Use integrations from request body if provided, otherwise fetch from database
     let agentIntegrations: string[] = [];
-    if (agent.id) {
+    
+    if (agent.integrations && Array.isArray(agent.integrations) && agent.integrations.length > 0) {
+      // Use integrations passed from frontend (user's selected integrations)
+      agentIntegrations = agent.integrations;
+      console.log('Using integrations from request:', agentIntegrations);
+    } else if (agent.id) {
+      // Fall back to database integrations if none provided
       try {
         const { data: advisorData } = await supabase
           .from('advisors')
@@ -236,6 +243,7 @@ ${JSON.stringify(walletAnalysis, null, 2)}`;
             ? advisorData.integrations 
             : [];
         }
+        console.log('Using integrations from database:', agentIntegrations);
       } catch (error) {
         console.error('Error fetching agent integrations:', error);
       }
