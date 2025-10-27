@@ -337,6 +337,27 @@ ${JSON.stringify(walletAnalysis, null, 2)}`;
         }
       });
     }
+    
+    // Add Web Browser tool if enabled
+    if (agentIntegrations.includes('web-browser')) {
+      tools.push({
+        type: "function",
+        function: {
+          name: "search_web",
+          description: "Search the web for current information, news, facts, or any real-time data. Use this when someone asks about recent events, current prices/stats not available in crypto tools, general knowledge questions, or anything requiring up-to-date information from the internet.",
+          parameters: {
+            type: "object",
+            properties: {
+              query: {
+                type: "string",
+                description: "The search query to look up on the web"
+              }
+            },
+            required: ["query"]
+          }
+        }
+      });
+    }
 
     // Build request body
     const requestBody: any = {
@@ -561,6 +582,44 @@ ${JSON.stringify(walletAnalysis, null, 2)}`;
               role: 'tool',
               tool_call_id: toolCall.id,
               content: JSON.stringify({ error: 'Failed to fetch crypto prices' })
+            });
+          }
+        } else if (toolCall.function.name === 'search_web') {
+          const args = JSON.parse(toolCall.function.arguments);
+          console.log('Searching web for:', args.query);
+          
+          try {
+            // Call the web-search function
+            const searchResponse = await fetch(`${supabaseUrl}/functions/v1/web-search`, {
+              method: 'POST',
+              headers: {
+                'Authorization': authHeader || '',
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ query: args.query }),
+            });
+            
+            let toolResult;
+            if (searchResponse.ok) {
+              toolResult = await searchResponse.json();
+              console.log('Web search result retrieved');
+            } else {
+              const errorText = await searchResponse.text();
+              console.error('Web search error:', errorText);
+              toolResult = { error: 'Failed to search the web' };
+            }
+            
+            toolMessages.push({
+              role: 'tool',
+              tool_call_id: toolCall.id,
+              content: JSON.stringify(toolResult)
+            });
+          } catch (error) {
+            console.error('Error calling web-search:', error);
+            toolMessages.push({
+              role: 'tool',
+              tool_call_id: toolCall.id,
+              content: JSON.stringify({ error: 'Failed to search the web' })
             });
           }
         }

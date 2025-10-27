@@ -1,4 +1,4 @@
-import { Coins, Wallet, Twitter } from "lucide-react";
+import { Coins, Wallet, Twitter, Globe } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface IntegrationTilesProps {
@@ -22,6 +22,11 @@ const integrations = [
     id: "x-analyzer",
     name: "X Explorer",
     icon: Twitter,
+  },
+  {
+    id: "web-browser",
+    name: "Web Browser",
+    icon: Globe,
   },
 ];
 
