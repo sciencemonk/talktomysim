@@ -30,12 +30,12 @@ export const WelcomeModal = () => {
           <h2 className="text-3xl font-bold text-white">How it works</h2>
           
           <p className="text-lg text-gray-300 leading-relaxed">
-            Sim allows <span className="text-primary font-semibold">anyone to create an AI agent</span> in seconds. 
+            Sim allows <span className="font-semibold" style={{ color: '#82f2aa' }}>anyone to create an AI agent</span> in seconds. 
             All agents created on Sim are fully customizable, meaning you can train them with your own knowledge 
             and personality to interact with your audience.
           </p>
 
-          <div className="space-y-4 text-left py-4">
+          <div className="space-y-4 text-center py-4">
             <div className="text-gray-200">
               <span className="font-bold text-white">Step 1:</span> choose the type of AI agent you want to create
             </div>
@@ -47,14 +47,11 @@ export const WelcomeModal = () => {
             </div>
           </div>
 
-          <p className="text-sm text-gray-400 pt-2">
-            By clicking this button, you agree to the terms and conditions
-          </p>
-
           <Button 
             onClick={handleClose}
             size="lg"
-            className="w-full text-lg py-6 bg-primary hover:bg-primary/90 text-black font-semibold"
+            className="w-full text-lg py-6 text-black font-semibold"
+            style={{ backgroundColor: '#82f2aa' }}
           >
             I'm ready to create
           </Button>
