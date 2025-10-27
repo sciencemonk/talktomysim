@@ -104,25 +104,25 @@ serve(async (req) => {
                 role: 'system',
                 content: `You are an expert analyst who creates comprehensive daily briefs on specific topics. Your briefs should be:
 - Well-structured with clear sections
-- Include the most important developments from the last 24 hours only
+- Include the most important developments from the last 24 hours
 - Be informative but concise (300-500 words)
 - Include relevant context and implications
 - Written in a professional but accessible tone
 - Similar to briefings given to executives and decision-makers
-- CRITICAL: Only use information from the past 24 hours. Ignore any older news or developments.`
+- Use the web_search function to find current information`
               },
               {
                 role: 'user',
                 content: `Create a daily brief on the following topic: "${agent.description}"
 
-IMPORTANT: Research ONLY developments from the past 24 hours. Do not include older information.
+Use web search to find the latest developments and news. Search for information from today and yesterday.
 
 Please create a comprehensive brief that covers:
 1. Key developments in the last 24 hours
-2. Important trends or patterns from today
+2. Important trends or patterns from recent news
 3. Implications and what to watch for next
 
-Format the brief in markdown with clear sections.`
+Format the brief in markdown with clear sections and headings.`
               }
             ],
             tools: [

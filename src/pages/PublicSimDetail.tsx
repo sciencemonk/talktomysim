@@ -698,19 +698,19 @@ const PublicSimDetail = () => {
       : categoryLabel;
 
     return (
-      <div className="h-screen flex items-center justify-center relative bg-gradient-to-br from-violet-950/40 via-background to-cyan-950/40">
+      <div className="h-screen flex items-center justify-center relative bg-gradient-to-br from-[#76da9a]/20 via-background to-[#76da9a]/10">
         <div className="absolute inset-0 bg-background/90 backdrop-blur-xl z-0" />
         
         {/* Animated gradient orbs */}
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-violet-500/10 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-[#76da9a]/10 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-[#76da9a]/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
         
         <div className="relative z-10 w-full max-w-5xl mx-auto p-4 h-[92vh] flex flex-col">
           <div className="backdrop-blur-2xl bg-gradient-to-br from-card/80 via-card/60 to-card/80 border border-border/50 rounded-2xl shadow-2xl h-full flex flex-col overflow-hidden">
             {/* Futuristic Header */}
-            <div className="relative p-6 border-b border-border/50 flex items-center justify-between bg-gradient-to-r from-violet-500/5 via-transparent to-cyan-500/5">
+            <div className="relative p-6 border-b border-border/50 flex items-center justify-between bg-[#76da9a]/5">
               <div className="flex items-center gap-4">
-                <Avatar className="h-14 w-14 border-2 border-violet-500/50 shadow-lg shadow-violet-500/20">
+                <Avatar className="h-14 w-14 border-2 border-[#76da9a]/50 shadow-lg shadow-[#76da9a]/20">
                   <AvatarImage src={getAvatarUrl(sim.avatar)} alt={sim.name} className="object-cover" />
                   <AvatarFallback>{sim.name.charAt(0)}</AvatarFallback>
                 </Avatar>
@@ -719,11 +719,11 @@ const PublicSimDetail = () => {
                     {sim.name}
                   </h2>
                   <div className="flex items-center gap-2 mt-1">
-                    <span className="px-2 py-0.5 text-xs font-medium rounded-md bg-violet-500/20 text-violet-300 border border-violet-500/30">
+                    <span className="px-2 py-0.5 text-xs font-medium rounded-md bg-[#76da9a]/20 text-[#76da9a] border border-[#76da9a]/30">
                       {typeBadgeText}
                     </span>
                     {secondBadgeText && (
-                      <span className="px-2 py-0.5 text-xs font-medium rounded-md bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">
+                      <span className="px-2 py-0.5 text-xs font-medium rounded-md bg-[#76da9a]/20 text-[#76da9a] border border-[#76da9a]/30">
                         {secondBadgeText}
                       </span>
                     )}
@@ -746,13 +746,13 @@ const PublicSimDetail = () => {
                 <TabsList className="w-full grid grid-cols-2 bg-background/50 backdrop-blur-sm">
                   <TabsTrigger 
                     value="briefs" 
-                    className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-violet-500/20 data-[state=active]:to-cyan-500/20 data-[state=active]:text-foreground"
+                    className="data-[state=active]:bg-[#76da9a]/20 data-[state=active]:text-foreground data-[state=active]:border-[#76da9a]/50 data-[state=active]:border"
                   >
                     Daily Briefs
                   </TabsTrigger>
                   <TabsTrigger 
                     value="settings"
-                    className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-violet-500/20 data-[state=active]:to-cyan-500/20 data-[state=active]:text-foreground"
+                    className="data-[state=active]:bg-[#76da9a]/20 data-[state=active]:text-foreground data-[state=active]:border-[#76da9a]/50 data-[state=active]:border"
                   >
                     Settings
                   </TabsTrigger>
@@ -769,7 +769,7 @@ const PublicSimDetail = () => {
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <Label htmlFor="name" className="text-sm font-medium flex items-center gap-2">
-                          <Sparkles className="w-4 h-4 text-violet-400" />
+                          <Sparkles className="w-4 h-4 text-[#76da9a]" />
                           Sim Name <span className="text-destructive">*</span>
                         </Label>
                         <Input
@@ -777,14 +777,14 @@ const PublicSimDetail = () => {
                           name="name"
                           defaultValue={sim.name}
                           placeholder="Enter sim name"
-                          className="h-11 bg-background/50 backdrop-blur-sm border-border/50 focus:border-violet-500/50 transition-colors"
+                          className="h-11 bg-background/50 backdrop-blur-sm border-border/50 focus:border-[#76da9a]/50 transition-colors"
                           required
                         />
                       </div>
 
                       <div className="space-y-2">
                         <Label htmlFor="brief-time" className="text-sm font-medium flex items-center gap-2">
-                          <Clock className="w-4 h-4 text-cyan-400" />
+                          <Clock className="w-4 h-4 text-[#76da9a]" />
                           Brief Time (UTC) <span className="text-destructive">*</span>
                         </Label>
                         <Input
@@ -792,7 +792,7 @@ const PublicSimDetail = () => {
                           name="brief-time"
                           type="time"
                           defaultValue={sim.welcome_message || '09:00'}
-                          className="h-11 bg-background/50 backdrop-blur-sm border-border/50 focus:border-cyan-500/50 transition-colors"
+                          className="h-11 bg-background/50 backdrop-blur-sm border-border/50 focus:border-[#76da9a]/50 transition-colors"
                           required
                         />
                       </div>
@@ -800,7 +800,7 @@ const PublicSimDetail = () => {
 
                     <div className="space-y-2">
                       <Label htmlFor="brief-topic" className="text-sm font-medium flex items-center gap-2">
-                        <MessageCircle className="w-4 h-4 text-violet-400" />
+                        <MessageCircle className="w-4 h-4 text-[#76da9a]" />
                         What do you want a daily brief on? <span className="text-destructive">*</span>
                       </Label>
                       <Textarea
@@ -809,14 +809,14 @@ const PublicSimDetail = () => {
                         defaultValue={sim.description || ''}
                         placeholder="E.g., AI developments, cryptocurrency markets, climate change news..."
                         rows={3}
-                        className="resize-none bg-background/50 backdrop-blur-sm border-border/50 focus:border-violet-500/50 transition-colors"
+                        className="resize-none bg-background/50 backdrop-blur-sm border-border/50 focus:border-[#76da9a]/50 transition-colors"
                         required
                       />
                     </div>
 
                     <div className="space-y-2">
                       <Label htmlFor="brief-email" className="text-sm font-medium flex items-center gap-2">
-                        <Globe className="w-4 h-4 text-cyan-400" />
+                        <Globe className="w-4 h-4 text-[#76da9a]" />
                         Email <span className="text-muted-foreground text-xs">(Optional)</span>
                       </Label>
                       <Input
@@ -825,7 +825,7 @@ const PublicSimDetail = () => {
                         type="email"
                         defaultValue={briefEmail}
                         placeholder="your@email.com"
-                        className="h-11 bg-background/50 backdrop-blur-sm border-border/50 focus:border-cyan-500/50 transition-colors"
+                        className="h-11 bg-background/50 backdrop-blur-sm border-border/50 focus:border-[#76da9a]/50 transition-colors"
                       />
                     </div>
 

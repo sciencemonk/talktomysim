@@ -4,6 +4,8 @@ import { toast } from "@/hooks/use-toast";
 import { Loader2, Calendar, Trash2, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -208,9 +210,9 @@ const DailyBriefsList = ({ advisorId }: DailyBriefsListProps) => {
           </div>
 
           <div className="prose prose-sm max-w-none dark:prose-invert">
-            <div className="text-sm whitespace-pre-wrap break-words">
+            <ReactMarkdown remarkPlugins={[remarkGfm]}>
               {brief.brief_content}
-            </div>
+            </ReactMarkdown>
           </div>
 
           {brief.sources && brief.sources.length > 0 && (
