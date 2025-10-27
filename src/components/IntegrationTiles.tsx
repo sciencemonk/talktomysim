@@ -32,7 +32,7 @@ export const IntegrationTiles = ({
 }: IntegrationTilesProps) => {
   return (
     <div className="px-4 py-3 overflow-x-auto">
-      <div className="flex gap-2 min-w-max">
+      <div className="flex gap-2">
         {integrations.map((integration) => {
           const isSelected = selectedIntegrations.includes(integration.id);
           const Icon = integration.icon;
