@@ -355,14 +355,28 @@ const SimDirectory = () => {
             </div>
           ) : (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-              {filteredSims?.map((sim) => {
-              // Check sim_category first - if it's "Crypto Mail", use that as the category
-              const isContactMe = (sim as any).sim_category === 'Crypto Mail';
-              const simCategory = isContactMe ? 'Crypto Mail' : ((sim as any).marketplace_category?.toLowerCase() || 'uncategorized');
-              const categoryLabel = categories.find(c => c.id === simCategory)?.label || simCategory;
-              const price = sim.price || 0;
-              const x402Enabled = (sim as any).x402_enabled;
-              const x402Price = (sim as any).x402_price || 0;
+            {filteredSims?.map((sim) => {
+              const simCategoryType = (sim as any).sim_category;
+              const isAutonomousAgent = simCategoryType === 'Autonomous Agent';
+              const isCryptoMail = simCategoryType === 'Crypto Mail';
+              const isVerified = (sim as any).is_verified || false;
+              const marketplaceCategory = (sim as any).marketplace_category?.toLowerCase() || 'uncategorized';
+              const categoryLabel = categories.find(c => c.id === marketplaceCategory)?.label || marketplaceCategory;
+              
+              // Determine type badge
+              let typeBadgeText = 'Chat';
+              if (isAutonomousAgent) typeBadgeText = 'Autonomous Agent';
+              else if (isCryptoMail) typeBadgeText = 'Crypto Mail';
+              
+              // Determine second badge
+              let secondBadgeText = '';
+              if (isAutonomousAgent) {
+                secondBadgeText = marketplaceCategory === 'uncategorized' ? 'Daily Brief' : categoryLabel;
+              } else if (isCryptoMail) {
+                secondBadgeText = isVerified ? 'Verified' : 'Unverified';
+              } else {
+                secondBadgeText = categoryLabel;
+              }
               
               return (
                 <button
@@ -407,20 +421,23 @@ const SimDirectory = () => {
                       )}
                     </div>
                     
-                    {/* Category and Price badges */}
+                    {/* Type and Category badges */}
                     <div className="flex flex-wrap gap-1.5 justify-center">
-                      {simCategory !== 'uncategorized' && (
-                        <Badge variant="outline" className="text-[9px] px-1.5 py-0 bg-muted/50 border-muted-foreground/20 text-muted-foreground whitespace-nowrap">
-                          {categoryLabel}
-                        </Badge>
-                      )}
-                      {x402Enabled && x402Price > 0 ? (
-                        <Badge variant="outline" className="text-[9px] px-1.5 py-0 bg-green-500/10 border-green-500/30 text-green-600 dark:text-green-400 whitespace-nowrap">
-                          ${x402Price.toFixed(2)} USDC
-                        </Badge>
-                      ) : (
-                        <Badge variant="outline" className="text-[9px] px-1.5 py-0 bg-muted/50 border-muted-foreground/20 text-muted-foreground whitespace-nowrap">
-                          {price > 0 ? `${price} $SIMAI` : 'Free'}
+                      <Badge variant="outline" className="text-[9px] px-1.5 py-0 bg-primary/10 border-primary/30 text-primary whitespace-nowrap">
+                        {typeBadgeText}
+                      </Badge>
+                      {secondBadgeText !== 'uncategorized' && (
+                        <Badge 
+                          variant="outline" 
+                          className={`text-[9px] px-1.5 py-0 whitespace-nowrap ${
+                            isCryptoMail && isVerified 
+                              ? 'bg-green-500/10 border-green-500/30 text-green-600 dark:text-green-400'
+                              : isCryptoMail && !isVerified
+                              ? 'bg-yellow-500/10 border-yellow-500/30 text-yellow-600 dark:text-yellow-400'
+                              : 'bg-muted/50 border-muted-foreground/20 text-muted-foreground'
+                          }`}
+                        >
+                          {secondBadgeText}
                         </Badge>
                       )}
                     </div>
