@@ -66,6 +66,7 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
   const [agentCategory, setAgentCategory] = useState("");
   const [briefTopic, setBriefTopic] = useState("");
   const [briefTime, setBriefTime] = useState("09:00");
+  const [briefEmail, setBriefEmail] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // All sims get all integrations by default
@@ -344,6 +345,10 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
         simData.welcome_message = briefTime;
         simData.marketplace_category = agentCategory;
         simData.auto_description = briefTopic.trim().substring(0, 150);
+        // Store email in social_links if provided
+        if (briefEmail.trim()) {
+          simData.social_links = { ...simData.social_links, brief_email: briefEmail.trim() };
+        }
       } else {
         simData.description = description.trim();
         simData.marketplace_category = category || null;
@@ -405,6 +410,7 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
       setAgentCategory("");
       setBriefTopic("");
       setBriefTime("09:00");
+      setBriefEmail("");
       setSocialLinksOpen(false);
 
       // Call onSuccess to refresh queries
@@ -447,6 +453,7 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
     setAgentCategory("");
     setBriefTopic("");
     setBriefTime("09:00");
+    setBriefEmail("");
     setSocialLinksOpen(false);
     onOpenChange(false);
   };
@@ -670,6 +677,26 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
                   />
                   <p className="text-xs text-muted-foreground">
                     Your brief will be generated daily at this time
+                  </p>
+                </div>
+              )}
+
+              {/* Brief Email - only show after selecting Daily Brief */}
+              {simType === "Autonomous Agent" && agentCategory === "Daily Brief" && (
+                <div className="space-y-2">
+                  <Label htmlFor="brief-email" className="text-sm font-medium">
+                    Email <span className="text-muted-foreground">(Optional)</span>
+                  </Label>
+                  <Input
+                    id="brief-email"
+                    type="email"
+                    value={briefEmail}
+                    onChange={(e) => setBriefEmail(e.target.value)}
+                    placeholder="your@email.com"
+                    className="h-11 bg-background"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Receive your daily brief in your inbox
                   </p>
                 </div>
               )}
@@ -908,9 +935,16 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
                     <p className="text-sm font-medium text-muted-foreground">Scheduled Time (UTC)</p>
                     <p className="text-base">{briefTime}</p>
                   </div>
+                  {briefEmail && (
+                    <div className="space-y-2">
+                      <p className="text-sm font-medium text-muted-foreground">Email</p>
+                      <p className="text-base">{briefEmail}</p>
+                    </div>
+                  )}
                   <div className="space-y-2">
                     <p className="text-sm text-muted-foreground">
                       Your daily brief will be automatically generated every day at the scheduled time and will appear in your Sim dashboard.
+                      {briefEmail && " You will also receive it in your inbox."}
                     </p>
                   </div>
                 </div>
