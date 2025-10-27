@@ -19,6 +19,7 @@ import { validateX402Session } from "@/utils/x402Session";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { updateMetaTags, resetMetaTags } from "@/lib/metaTags";
 
 // Lazy load X402PaymentModal to avoid blocking app initialization with ethers.js
 const X402PaymentModal = lazy(() => 
@@ -286,6 +287,11 @@ const PublicSimDetail = () => {
     if (customUrl) {
       fetchSim();
     }
+    
+    // Cleanup: reset meta tags when component unmounts
+    return () => {
+      resetMetaTags();
+    };
   }, [customUrl]);
 
   // Check for x402 payment when showing Crypto Mail form
@@ -445,6 +451,26 @@ const PublicSimDetail = () => {
       });
 
       setSim(transformedSim);
+      
+      // Update meta tags for social sharing
+      const simSlug = transformedSim.custom_url || generateSlug(transformedSim.name);
+      const simUrl = `https://simproject.org/${simSlug}`;
+      const simDescription = transformedSim.auto_description || 
+        (transformedSim.sim_category === 'Crypto Mail' && transformedSim.description) || 
+        `Chat with ${transformedSim.name}, your AI assistant.`;
+      
+      // Use full URL for avatar if it's a relative path
+      let avatarUrl = getAvatarUrl(transformedSim.avatar);
+      if (avatarUrl && !avatarUrl.startsWith('http')) {
+        avatarUrl = `https://simproject.org${avatarUrl}`;
+      }
+      
+      updateMetaTags({
+        title: `${transformedSim.name} - Sim`,
+        description: simDescription,
+        image: avatarUrl || 'https://simproject.org/sim-logo.png?v=2',
+        url: simUrl
+      });
       
       // Check if this is an Autonomous Agent and show creator code modal
       if (transformedSim.sim_category === 'Autonomous Agent') {
