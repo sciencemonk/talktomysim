@@ -28,6 +28,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useTheme } from "@/hooks/useTheme";
 import { SimLeaderboard } from "@/components/SimLeaderboard";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { WelcomeModal } from "@/components/WelcomeModal";
 
 const Landing = () => {
   const navigate = useNavigate();
@@ -672,6 +673,8 @@ const Landing = () => {
 
         <SimpleFooter />
       </div>
+
+      <WelcomeModal />
     </div>
   );
 };
