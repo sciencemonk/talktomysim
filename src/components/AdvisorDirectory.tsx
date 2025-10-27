@@ -169,18 +169,6 @@ const AdvisorDirectory = ({ onSelectAdvisor, onAuthRequired }: AdvisorDirectoryP
                 </SelectTrigger>
                 <SelectContent className="bg-background border-border text-foreground z-50">
                   <SelectItem value="all">All Types</SelectItem>
-                  <SelectItem value="Crypto Mail">
-                    <div className="flex items-center gap-2">
-                      <Mail className="h-4 w-4" />
-                      Crypto Mail
-                    </div>
-                  </SelectItem>
-                  <SelectItem value="Chat">
-                    <div className="flex items-center gap-2">
-                      <Bot className="h-4 w-4" />
-                      Chatbots
-                    </div>
-                  </SelectItem>
                   <SelectItem value="Autonomous Agent" disabled>
                     <div className="flex items-center gap-2">
                       <Zap className="h-4 w-4" />
@@ -190,26 +178,38 @@ const AdvisorDirectory = ({ onSelectAdvisor, onAuthRequired }: AdvisorDirectoryP
                       </Badge>
                     </div>
                   </SelectItem>
+                  <SelectItem value="Chat">
+                    <div className="flex items-center gap-2">
+                      <Bot className="h-4 w-4" />
+                      Chatbots
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="Crypto Mail">
+                    <div className="flex items-center gap-2">
+                      <Mail className="h-4 w-4" />
+                      Crypto Mail
+                    </div>
+                  </SelectItem>
                 </SelectContent>
               </Select>
             ) : (
               <Tabs value={simTypeFilter} onValueChange={handleTypeChange}>
                 <TabsList className="grid grid-cols-4 w-full">
                   <TabsTrigger value="all">All Types</TabsTrigger>
-                  <TabsTrigger value="Crypto Mail" className="flex items-center gap-2">
-                    <Mail className="h-4 w-4" />
-                    Crypto Mail
-                  </TabsTrigger>
-                  <TabsTrigger value="Chat" className="flex items-center gap-2">
-                    <Bot className="h-4 w-4" />
-                    Chatbots
-                  </TabsTrigger>
                   <TabsTrigger value="Autonomous Agent" disabled className="flex items-center gap-2 opacity-50">
                     <Zap className="h-4 w-4" />
                     Autonomous Agent
                     <Badge variant="secondary" className="text-[9px] px-1.5 py-0 ml-1">
                       Coming Soon
                     </Badge>
+                  </TabsTrigger>
+                  <TabsTrigger value="Chat" className="flex items-center gap-2">
+                    <Bot className="h-4 w-4" />
+                    Chatbots
+                  </TabsTrigger>
+                  <TabsTrigger value="Crypto Mail" className="flex items-center gap-2">
+                    <Mail className="h-4 w-4" />
+                    Crypto Mail
                   </TabsTrigger>
                 </TabsList>
               </Tabs>
