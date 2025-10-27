@@ -101,35 +101,83 @@ serve(async (req) => {
           body: JSON.stringify({
             model: 'claude-sonnet-4-5',
             max_tokens: 4096,
-            system: `You are an expert analyst who creates comprehensive daily briefs on specific topics. Your briefs should be:
-- Well-structured with clear sections and headings
-- Include the most important and recent developments from the past 24 hours
-- Be informative and detailed (500-800 words)
-- Include relevant context, analysis, and implications
-- Written in a professional but accessible tone
-- Similar to briefings given to executives and decision-makers
-- Use web search tools extensively to find current, verified information
-- Cite sources and provide specific examples from recent news`,
+            system: `You are an expert analyst who creates comprehensive daily briefs on specific topics. Your briefs MUST:
+
+FORMATTING REQUIREMENTS:
+- Use proper markdown with double line breaks between ALL paragraphs
+- Use ## for main section headings (not bold text)
+- Use ### for subsection headings
+- Use **bold** for emphasis on key terms
+- Add blank lines before and after all headings, lists, and sections
+
+CONTENT REQUIREMENTS:
+- Include 3-5 specific, recent news stories with sources
+- Each news story should have: headline, key details, source name, and date
+- Focus on developments from October 25, 2025
+- Be 600-1000 words with detailed analysis
+- Include an Executive Summary at the top
+- End with "Key Takeaways" section with 3-4 bullet points
+
+STRUCTURE:
+## Executive Summary
+[2-3 sentence overview]
+
+## Breaking News & Recent Developments
+[3-5 specific news stories with sources and dates]
+
+## Industry Analysis
+[Detailed analysis of trends and implications]
+
+## Key Takeaways
+- [Bullet point 1]
+- [Bullet point 2]
+- [Bullet point 3]`,
             messages: [
               {
                 role: 'user',
                 content: `Create a comprehensive daily brief on the following topic: "${agent.description}"
 
 CRITICAL INSTRUCTIONS:
-- Use the web_search tool multiple times to gather information from different angles
-- Search for: recent news, industry reports, expert analysis, and emerging trends
-- Focus ONLY on developments from the past 24-48 hours
-- Include specific data, quotes, and examples from your searches
-- Synthesize information from multiple sources
+1. Use the web_search tool 5-8 times with different queries to find recent news stories
+2. Search specifically for news from October 25, 2025 and the past 24 hours
+3. Find at least 3-5 specific news articles/stories with sources
+4. Include dates, publication names, and specific details from each story
 
-Your brief should cover:
-1. **Breaking Developments**: Most significant news from the past 24 hours with specific details
-2. **Industry Trends**: Patterns and movements observed across multiple sources
-3. **Expert Analysis**: What industry leaders and analysts are saying
-4. **Market Impact**: How these developments affect the industry and stakeholders
-5. **Forward Looking**: What to watch for in the coming days
+SEARCH STRATEGY:
+- Search 1: "[topic] news October 2025"
+- Search 2: "[topic] latest developments today"
+- Search 3: "[topic] industry analysis October 2025"
+- Search 4: "[topic] breaking news"
+- Additional searches for specific angles
 
-Format in markdown with clear section headers. Be comprehensive and insightful.`
+FORMAT REQUIREMENTS:
+- Use double line breaks between ALL paragraphs (two \n\n)
+- Use ## for main section headings
+- Use ### for subsections
+- Each news story must include: Headline, Date, Source, Key Details
+
+REQUIRED SECTIONS:
+## Executive Summary
+
+## Breaking News & Recent Developments
+### [News Story 1 Headline]
+**Source:** [Publication Name] | **Date:** October 25, 2025
+[Details about the story]
+
+### [News Story 2 Headline]
+**Source:** [Publication Name] | **Date:** October 25, 2025
+[Details]
+
+[Continue with more stories]
+
+## Industry Analysis & Implications
+
+## Key Takeaways
+- [Takeaway 1]
+- [Takeaway 2]
+- [Takeaway 3]
+
+Be comprehensive, cite all sources, and ensure proper spacing for readability.`
               }
             ],
             tools: [

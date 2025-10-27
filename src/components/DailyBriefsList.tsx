@@ -209,8 +209,21 @@ const DailyBriefsList = ({ advisorId }: DailyBriefsListProps) => {
             <h4 className="font-semibold text-sm mb-1">Topic: {brief.topic}</h4>
           </div>
 
-          <div className="prose prose-sm max-w-none dark:prose-invert">
-            <ReactMarkdown remarkPlugins={[remarkGfm]}>
+          <div className="prose prose-invert prose-sm max-w-none">
+            <ReactMarkdown 
+              remarkPlugins={[remarkGfm]}
+              components={{
+                h1: ({node, ...props}) => <h1 className="text-xl font-bold mt-6 mb-3 text-foreground" {...props} />,
+                h2: ({node, ...props}) => <h2 className="text-lg font-semibold mt-5 mb-3 text-foreground" {...props} />,
+                h3: ({node, ...props}) => <h3 className="text-base font-semibold mt-4 mb-2 text-foreground" {...props} />,
+                p: ({node, ...props}) => <p className="mb-4 leading-relaxed text-muted-foreground" {...props} />,
+                ul: ({node, ...props}) => <ul className="mb-4 ml-6 list-disc space-y-2" {...props} />,
+                ol: ({node, ...props}) => <ol className="mb-4 ml-6 list-decimal space-y-2" {...props} />,
+                li: ({node, ...props}) => <li className="leading-relaxed" {...props} />,
+                strong: ({node, ...props}) => <strong className="font-semibold text-foreground" {...props} />,
+                a: ({node, ...props}) => <a className="text-[#76da9a] hover:underline" {...props} target="_blank" rel="noopener noreferrer" />,
+              }}
+            >
               {brief.brief_content}
             </ReactMarkdown>
           </div>
