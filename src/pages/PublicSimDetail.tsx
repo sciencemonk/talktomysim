@@ -597,31 +597,20 @@ const PublicSimDetail = () => {
                     }
                   }}
                   placeholder="Enter code..."
-                  className="h-11"
+                  className="h-11 bg-black text-white"
                 />
                 {creatorCodeError && (
                   <p className="text-sm text-destructive">{creatorCodeError}</p>
                 )}
               </div>
-              <div className="flex gap-2">
-                <Button
-                  onClick={handleCreatorCodeSubmit}
-                  className="flex-1"
-                  disabled={!creatorCodeInput.trim()}
-                >
-                  Submit
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    setShowCreatorCodeModal(false);
-                    navigate('/');
-                  }}
-                  className="flex-1"
-                >
-                  Cancel
-                </Button>
-              </div>
+              <Button
+                onClick={handleCreatorCodeSubmit}
+                className="w-full"
+                disabled={!creatorCodeInput.trim()}
+                style={{ backgroundColor: '#82f2aa', color: 'black' }}
+              >
+                Launch Sim
+              </Button>
             </div>
           </DialogContent>
         </Dialog>
