@@ -141,7 +141,7 @@ const SimDirectory = () => {
       if (simTypeFilter !== 'all') {
         if (simTypeFilter === 'Crypto Mail' && simCategory !== 'Crypto Mail') return false;
         if (simTypeFilter === 'Chat' && simCategory !== 'Chat' && simCategory) return false;
-        if (simTypeFilter === 'Autonomous Agent') return false; // Coming soon
+        if (simTypeFilter === 'Autonomous Agent' && simCategory !== 'Autonomous Agent') return false;
       }
 
       // Category filter (only applies to Chat type)
@@ -246,12 +246,9 @@ const SimDirectory = () => {
                     <Bot className="h-4 w-4" />
                     Chatbots
                   </TabsTrigger>
-                  <TabsTrigger value="Autonomous Agent" disabled className="gap-2 opacity-50 cursor-not-allowed">
+                  <TabsTrigger value="Autonomous Agent" className="gap-2">
                     <Zap className="h-4 w-4" />
                     Autonomous Agent
-                    <Badge variant="secondary" className="text-[9px] px-1.5 py-0 ml-1">
-                      Coming Soon
-                    </Badge>
                   </TabsTrigger>
                 </TabsList>
               </Tabs>

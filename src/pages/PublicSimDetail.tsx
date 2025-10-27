@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef, lazy, Suspense } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, Globe, Wallet, ExternalLink, Copy, Check, MessageCircle, X, Share2 } from "lucide-react";
+import { Loader2, Globe, Wallet, ExternalLink, Copy, Check, MessageCircle, X, Share2, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import PublicChatInterface from "@/components/PublicChatInterface";
@@ -13,6 +13,9 @@ import landingBackground from "@/assets/landing-background.jpg";
 import { getAvatarUrl } from "@/lib/avatarUtils";
 import { fetchSolanaBalance, formatSolBalance } from "@/services/solanaBalanceService";
 import { validateX402Session } from "@/utils/x402Session";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 // Lazy load X402PaymentModal to avoid blocking app initialization with ethers.js
 const X402PaymentModal = lazy(() => 
@@ -43,6 +46,10 @@ const PublicSimDetail = () => {
   const [isLoadingBalance, setIsLoadingBalance] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [paymentSessionId, setPaymentSessionId] = useState<string | null>(null);
+  const [showCreatorCodeModal, setShowCreatorCodeModal] = useState(false);
+  const [creatorCodeInput, setCreatorCodeInput] = useState('');
+  const [creatorCodeError, setCreatorCodeError] = useState('');
+  const [hasAccess, setHasAccess] = useState(false);
 
   // Calculate SOL equivalent (example rate: 1 $SimAI = 0.0001 SOL)
   const SIMAI_TO_SOL_RATE = 0.0001;
@@ -434,11 +441,33 @@ const PublicSimDetail = () => {
       });
 
       setSim(transformedSim);
+      
+      // Check if this is an Autonomous Agent and show creator code modal
+      if (transformedSim.sim_category === 'Autonomous Agent') {
+        setShowCreatorCodeModal(true);
+      }
     } catch (error) {
       console.error('Error fetching sim:', error);
       navigate('/404');
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleCreatorCodeSubmit = () => {
+    if (!sim) return;
+    
+    const editCode = (sim as any).edit_code;
+    if (creatorCodeInput.trim() === editCode) {
+      setHasAccess(true);
+      setShowCreatorCodeModal(false);
+      setCreatorCodeError('');
+      toast({
+        title: "Access granted!",
+        description: "You can now interact with this Autonomous Agent"
+      });
+    } else {
+      setCreatorCodeError('Invalid creator code. Please try again.');
     }
   };
 
@@ -508,6 +537,96 @@ const PublicSimDetail = () => {
     }
     // Valid session exists, show contact form
     return <ContactFormPage agent={sim} />;
+  }
+
+  // If this is an Autonomous Agent and user doesn't have access, show access required screen
+  if (sim.sim_category === 'Autonomous Agent' && !hasAccess) {
+    return (
+      <>
+        <div 
+          className="flex items-center justify-center min-h-screen relative bg-gradient-to-br from-primary/20 via-background to-secondary/20"
+        >
+          <div className="absolute inset-0 bg-background/80 backdrop-blur-sm z-0" />
+          <div className="text-center space-y-4 relative z-10 p-8 backdrop-blur-md bg-card/50 border border-border rounded-3xl max-w-md">
+            <div className="w-16 h-16 bg-muted rounded-xl flex items-center justify-center mb-4 mx-auto">
+              <Lock className="h-8 w-8 text-muted-foreground" />
+            </div>
+            <h1 className="text-2xl font-bold">Creator Code Required</h1>
+            <p className="text-muted-foreground">
+              This Autonomous Agent requires a creator code to access.
+            </p>
+            <Button 
+              onClick={() => setShowCreatorCodeModal(true)}
+              className="mt-4"
+            >
+              Enter Creator Code
+            </Button>
+            <Button 
+              variant="outline"
+              onClick={() => navigate('/')}
+              className="mt-2 w-full"
+            >
+              Go Home
+            </Button>
+          </div>
+        </div>
+
+        {/* Creator Code Modal */}
+        <Dialog open={showCreatorCodeModal} onOpenChange={setShowCreatorCodeModal}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>Enter Creator Code</DialogTitle>
+              <DialogDescription>
+                Enter the creator code to access this Autonomous Agent.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <Label htmlFor="creator-code">Creator Code</Label>
+                <Input
+                  id="creator-code"
+                  type="text"
+                  value={creatorCodeInput}
+                  onChange={(e) => {
+                    setCreatorCodeInput(e.target.value);
+                    setCreatorCodeError('');
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      handleCreatorCodeSubmit();
+                    }
+                  }}
+                  placeholder="Enter code..."
+                  className="h-11"
+                />
+                {creatorCodeError && (
+                  <p className="text-sm text-destructive">{creatorCodeError}</p>
+                )}
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  onClick={handleCreatorCodeSubmit}
+                  className="flex-1"
+                  disabled={!creatorCodeInput.trim()}
+                >
+                  Submit
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setShowCreatorCodeModal(false);
+                    navigate('/');
+                  }}
+                  className="flex-1"
+                >
+                  Cancel
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+      </>
+    );
   }
 
   return (

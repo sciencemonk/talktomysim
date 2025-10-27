@@ -38,7 +38,7 @@ const Landing = () => {
   const [currentUser, setCurrentUser] = useState<any>(null);
   const queryClient = useQueryClient();
   const [searchQuery, setSearchQuery] = useState('');
-  const [simTypeFilter, setSimTypeFilter] = useState<'all' | 'Crypto Mail' | 'Chat' | 'Autonomous Agents' | 'x402 API'>('all');
+  const [simTypeFilter, setSimTypeFilter] = useState<'all' | 'Crypto Mail' | 'Chat' | 'Autonomous Agent' | 'x402 API'>('all');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [sortBy, setSortBy] = useState<'popular' | 'newest' | 'name'>('newest');
   const isMobile = useIsMobile();
@@ -234,7 +234,7 @@ const Landing = () => {
             if (marketplaceCategory !== selectedCategory) return false;
           }
         }
-        if (simTypeFilter === 'Autonomous Agents') return false; // Coming soon
+        if (simTypeFilter === 'Autonomous Agent' && simCategory !== 'Autonomous Agent') return false;
         if (simTypeFilter === 'x402 API') return false; // Coming soon
       }
 
@@ -315,13 +315,10 @@ const Landing = () => {
                         Chatbots
                       </div>
                     </SelectItem>
-                    <SelectItem value="Autonomous Agents" disabled>
+                    <SelectItem value="Autonomous Agent">
                       <div className="flex items-center gap-2">
                         <Zap className="h-4 w-4" />
                         Autonomous Agents
-                        <Badge variant="secondary" className="text-[9px] px-1.5 py-0 ml-2">
-                          Coming Soon
-                        </Badge>
                       </div>
                     </SelectItem>
                     <SelectItem value="x402 API" disabled>
@@ -350,12 +347,9 @@ const Landing = () => {
                       <Bot className="h-4 w-4" />
                       Chatbots
                     </TabsTrigger>
-                    <TabsTrigger value="Autonomous Agents" disabled className="gap-2 opacity-50 cursor-not-allowed">
+                    <TabsTrigger value="Autonomous Agent" className="gap-2">
                       <Zap className="h-4 w-4" />
                       Autonomous Agents
-                      <Badge variant="secondary" className="text-[9px] px-1.5 py-0 ml-1">
-                        Coming Soon
-                      </Badge>
                     </TabsTrigger>
                     <TabsTrigger value="x402 API" disabled className="gap-2 opacity-50 cursor-not-allowed">
                       <Code className="h-4 w-4" />
