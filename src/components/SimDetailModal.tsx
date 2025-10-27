@@ -391,6 +391,22 @@ const SimDetailModal = ({ sim, open, onOpenChange, onAuthRequired }: SimDetailMo
               const isVerified = (sim as any).is_verified || false;
               const marketplaceCategory = (sim as any).marketplace_category?.toLowerCase() || 'uncategorized';
               
+              // Category mapping - same as used in Landing.tsx
+              const categories = [
+                { id: 'all', label: 'All Categories' },
+                { id: 'crypto', label: 'Crypto & Web3' },
+                { id: 'historical', label: 'Historical Figures' },
+                { id: 'influencers', label: 'Influencers & Celebrities' },
+                { id: 'fictional', label: 'Fictional Characters' },
+                { id: 'education', label: 'Education & Tutoring' },
+                { id: 'business', label: 'Business & Finance' },
+                { id: 'lifestyle', label: 'Lifestyle & Wellness' },
+                { id: 'entertainment', label: 'Entertainment & Games' },
+                { id: 'spiritual', label: 'Spiritual & Philosophy' },
+              ];
+              
+              const categoryLabel = categories.find(c => c.id === marketplaceCategory)?.label || marketplaceCategory;
+              
               // Determine type badge
               let typeBadgeText = 'Chat';
               if (isAutonomousAgent) typeBadgeText = 'Autonomous Agent';
@@ -402,12 +418,12 @@ const SimDetailModal = ({ sim, open, onOpenChange, onAuthRequired }: SimDetailMo
                 if (marketplaceCategory === 'uncategorized' || marketplaceCategory === 'daily brief' || !marketplaceCategory) {
                   secondBadgeText = 'Daily Brief';
                 } else {
-                  secondBadgeText = marketplaceCategory;
+                  secondBadgeText = categoryLabel;
                 }
               } else if (isCryptoMail) {
                 secondBadgeText = isVerified ? 'Verified' : 'Unverified';
               } else {
-                secondBadgeText = marketplaceCategory !== 'uncategorized' ? marketplaceCategory : '';
+                secondBadgeText = marketplaceCategory !== 'uncategorized' ? categoryLabel : '';
               }
               
               return (
