@@ -44,7 +44,7 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [name, setName] = useState("");
-  const [simType, setSimType] = useState("Crypto Mail");
+  const [simType, setSimType] = useState("Chat");
   const [category, setCategory] = useState("");
   const [description, setDescription] = useState("");
   const [systemPrompt, setSystemPrompt] = useState("");
@@ -392,7 +392,7 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
       // Reset form
       setStep(1);
       setName("");
-      setSimType("Crypto Mail");
+      setSimType("Chat");
       setCategory("");
       setDescription("");
       setSystemPrompt("");
@@ -435,7 +435,7 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
   const handleClose = () => {
     setStep(1);
     setName("");
-    setSimType("Crypto Mail");
+    setSimType("Chat");
     setCategory("");
     setDescription("");
     setSystemPrompt("");
