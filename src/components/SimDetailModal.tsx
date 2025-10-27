@@ -382,6 +382,56 @@ const SimDetailModal = ({ sim, open, onOpenChange, onAuthRequired }: SimDetailMo
                 </div>
               )}
             </div>
+            
+            {/* Type and Category Badges */}
+            {(() => {
+              const simCategoryType = (sim as any).sim_category;
+              const isAutonomousAgent = simCategoryType === 'Autonomous Agent';
+              const isCryptoMail = simCategoryType === 'Crypto Mail';
+              const isVerified = (sim as any).is_verified || false;
+              const marketplaceCategory = (sim as any).marketplace_category?.toLowerCase() || 'uncategorized';
+              
+              // Determine type badge
+              let typeBadgeText = 'Chat';
+              if (isAutonomousAgent) typeBadgeText = 'Autonomous Agent';
+              else if (isCryptoMail) typeBadgeText = 'Crypto Mail';
+              
+              // Determine second badge
+              let secondBadgeText = '';
+              if (isAutonomousAgent) {
+                if (marketplaceCategory === 'uncategorized' || marketplaceCategory === 'daily brief' || !marketplaceCategory) {
+                  secondBadgeText = 'Daily Brief';
+                } else {
+                  secondBadgeText = marketplaceCategory;
+                }
+              } else if (isCryptoMail) {
+                secondBadgeText = isVerified ? 'Verified' : 'Unverified';
+              } else {
+                secondBadgeText = marketplaceCategory !== 'uncategorized' ? marketplaceCategory : '';
+              }
+              
+              return (
+                <div className="flex flex-wrap gap-2 justify-center mb-2">
+                  <span className="inline-flex items-center text-[10px] px-2 py-0.5 rounded-md bg-primary/10 border border-primary/30 text-primary whitespace-nowrap font-medium">
+                    {typeBadgeText}
+                  </span>
+                  {secondBadgeText && (
+                    <span 
+                      className={`inline-flex items-center text-[10px] px-2 py-0.5 rounded-md whitespace-nowrap font-medium ${
+                        isCryptoMail && isVerified 
+                          ? 'bg-green-500/10 border border-green-500/30 text-green-600 dark:text-green-400'
+                          : isCryptoMail && !isVerified
+                          ? 'bg-yellow-500/10 border border-yellow-500/30 text-yellow-600 dark:text-yellow-400'
+                          : 'bg-muted/50 border border-muted-foreground/20 text-muted-foreground'
+                      }`}
+                    >
+                      {secondBadgeText}
+                    </span>
+                  )}
+                </div>
+              );
+            })()}
+            
             <p className="text-sm text-muted-foreground leading-relaxed px-2">
               {getSimDescription()}
             </p>
