@@ -4,6 +4,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { Loader2, Globe, Wallet, ExternalLink, Copy, Check, MessageCircle, X, Share2, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Textarea } from "@/components/ui/textarea";
 import PublicChatInterface from "@/components/PublicChatInterface";
 import ContactFormPage from "@/components/ContactFormPage";
 import DailyBriefsList from "@/components/DailyBriefsList";
@@ -620,8 +622,42 @@ const PublicSimDetail = () => {
     );
   }
 
-  // If this is an Autonomous Agent with valid access, show daily briefs
+  // If this is an Autonomous Agent with valid access, show daily briefs with tabs
   if (sim.sim_category === 'Autonomous Agent' && hasAccess) {
+    const handleSaveSettings = async (e: React.FormEvent<HTMLFormElement>) => {
+      e.preventDefault();
+      const formData = new FormData(e.currentTarget);
+      
+      try {
+        const { error } = await supabase
+          .from('advisors')
+          .update({
+            name: formData.get('name') as string,
+            title: formData.get('title') as string,
+            description: formData.get('description') as string,
+            marketplace_category: formData.get('category') as string,
+          })
+          .eq('id', sim.id);
+
+        if (error) throw error;
+
+        toast({
+          title: "Settings saved",
+          description: "Your changes have been saved successfully"
+        });
+
+        // Refresh sim data
+        fetchSim();
+      } catch (error) {
+        console.error('Error saving settings:', error);
+        toast({
+          title: "Error",
+          description: "Failed to save settings",
+          variant: "destructive"
+        });
+      }
+    };
+
     return (
       <div className="h-screen flex items-center justify-center relative bg-gradient-to-br from-primary/20 via-background to-secondary/20">
         <div className="absolute inset-0 bg-background/80 backdrop-blur-sm z-0" />
@@ -649,10 +685,70 @@ const PublicSimDetail = () => {
               </Button>
             </div>
 
-            {/* Daily Briefs Content */}
-            <div className="flex-1 overflow-y-auto p-6">
-              <DailyBriefsList advisorId={sim.id} />
-            </div>
+            {/* Tabs */}
+            <Tabs defaultValue="briefs" className="flex-1 flex flex-col overflow-hidden">
+              <TabsList className="mx-6 mt-4">
+                <TabsTrigger value="briefs">Daily Briefs</TabsTrigger>
+                <TabsTrigger value="settings">Settings</TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="briefs" className="flex-1 overflow-y-auto p-6 mt-0">
+                <DailyBriefsList advisorId={sim.id} />
+              </TabsContent>
+
+              <TabsContent value="settings" className="flex-1 overflow-y-auto p-6 mt-0">
+                <form onSubmit={handleSaveSettings} className="space-y-6 max-w-2xl">
+                  <div className="space-y-2">
+                    <Label htmlFor="name">Sim Name</Label>
+                    <Input
+                      id="name"
+                      name="name"
+                      defaultValue={sim.name}
+                      required
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="title">Title</Label>
+                    <Input
+                      id="title"
+                      name="title"
+                      defaultValue={sim.title || ''}
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="description">Description</Label>
+                    <Textarea
+                      id="description"
+                      name="description"
+                      defaultValue={sim.description || ''}
+                      rows={4}
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="category">Category</Label>
+                    <select
+                      id="category"
+                      name="category"
+                      defaultValue={(sim as any).marketplace_category || 'daily brief'}
+                      className="w-full px-3 py-2 rounded-md border border-input bg-background"
+                    >
+                      <option value="daily brief">Daily Brief</option>
+                      <option value="crypto">Crypto & Web3</option>
+                      <option value="business">Business & Finance</option>
+                      <option value="education">Education & Tutoring</option>
+                      <option value="lifestyle">Lifestyle & Wellness</option>
+                    </select>
+                  </div>
+
+                  <Button type="submit" className="w-full">
+                    Save Settings
+                  </Button>
+                </form>
+              </TabsContent>
+            </Tabs>
           </div>
         </div>
       </div>
