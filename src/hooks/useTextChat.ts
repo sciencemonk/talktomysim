@@ -11,6 +11,7 @@ interface UseTextChatProps {
   onAiTextDelta: (messageId: string, delta: string) => void;
   onAiMessageComplete: (messageId: string, conversationId?: string | null) => void;
   existingMessages?: Array<{role: 'user' | 'system' | 'assistant', content: string}>;
+  selectedIntegrations?: string[];
 }
 
 export const useTextChat = ({
@@ -19,7 +20,8 @@ export const useTextChat = ({
   onAiMessageStart,
   onAiTextDelta,
   onAiMessageComplete,
-  existingMessages = []
+  existingMessages = [],
+  selectedIntegrations
 }: UseTextChatProps) => {
   const [connectionStatus, setConnectionStatus] = useState<'connecting' | 'connected' | 'error' | 'disconnected'>('disconnected');
   const [isProcessing, setIsProcessing] = useState(false);
@@ -75,7 +77,8 @@ export const useTextChat = ({
             description: agent.description,
             prompt: agent.prompt,
             gradeLevel: agent.gradeLevel,
-            learningObjective: agent.learningObjective
+            learningObjective: agent.learningObjective,
+            integrations: selectedIntegrations || (Array.isArray(agent.integrations) ? agent.integrations : [])
           },
           userId: user?.id
         }
@@ -137,7 +140,7 @@ export const useTextChat = ({
       setIsProcessing(false);
       abortControllerRef.current = null;
     }
-  }, [agent, isProcessing, existingMessages, onUserMessage, onAiMessageStart, onAiTextDelta, onAiMessageComplete]);
+  }, [agent, isProcessing, existingMessages, onUserMessage, onAiMessageStart, onAiTextDelta, onAiMessageComplete, selectedIntegrations]);
 
   return {
     sendMessage,

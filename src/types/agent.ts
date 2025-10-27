@@ -75,6 +75,7 @@ export interface AgentType {
   x402_wallet?: string; // EVM-compatible wallet address for x402 payments
   x402_enabled?: boolean; // Whether x402 payment is required
   is_verified?: boolean; // Whether the sim has been verified through their X account
+  integrations?: any; // Array of enabled integration IDs (e.g., ['pumpfun', 'solana-explorer', 'x-analyzer'])
 }
 
 export interface PublicAgentType {

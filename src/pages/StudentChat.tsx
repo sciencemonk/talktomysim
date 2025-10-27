@@ -19,6 +19,7 @@ import { InfoModal } from "@/components/InfoModal";
 import { useAuth } from "@/hooks/useAuth";
 import { X402PaymentModal } from "@/components/X402PaymentModal";
 import { validateX402Session } from "@/utils/x402Session";
+import { IntegrationTiles } from "@/components/IntegrationTiles";
 
 const StudentChat = () => {
   const { agentId } = useParams<{ agentId: string }>();
@@ -30,6 +31,22 @@ const StudentChat = () => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [sessionId, setSessionId] = useState<string | null>(null);
+  const [selectedIntegrations, setSelectedIntegrations] = useState<string[]>([]);
+
+  // Initialize with agent's default integrations
+  useEffect(() => {
+    if (agent?.integrations && Array.isArray(agent.integrations)) {
+      setSelectedIntegrations(agent.integrations as string[]);
+    }
+  }, [agent]);
+
+  const handleIntegrationToggle = (integration: string) => {
+    setSelectedIntegrations(prev => 
+      prev.includes(integration)
+        ? prev.filter(i => i !== integration)
+        : [...prev, integration]
+    );
+  };
 
   // Check for x402 payment requirement
   useEffect(() => {
@@ -282,6 +299,11 @@ const StudentChat = () => {
                 ? "Connecting..." 
                 : `Message ${agent.name}...`
             }
+          />
+          <IntegrationTiles
+            selectedIntegrations={selectedIntegrations}
+            onToggle={handleIntegrationToggle}
+            disabled={!realtimeChat.isConnected}
           />
         </div>
       </div>

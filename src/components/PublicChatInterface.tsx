@@ -10,6 +10,7 @@ import { useTextChat } from "@/hooks/useTextChat";
 import { AgentType } from "@/types/agent";
 import { getAvatarUrl } from "@/lib/avatarUtils";
 import { X402PaymentModal } from "@/components/X402PaymentModal";
+import { IntegrationTiles } from "@/components/IntegrationTiles";
 
 interface PublicChatInterfaceProps {
   agent: AgentType;
@@ -20,9 +21,25 @@ const PublicChatInterface = ({ agent }: PublicChatInterfaceProps) => {
   const [hasStartedChat, setHasStartedChat] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [sessionId, setSessionId] = useState<string | null>(null);
+  const [selectedIntegrations, setSelectedIntegrations] = useState<string[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const lastAssistantMessageRef = useRef<HTMLDivElement>(null);
+  
+  // Initialize with agent's default integrations
+  useEffect(() => {
+    if (agent?.integrations && Array.isArray(agent.integrations)) {
+      setSelectedIntegrations(agent.integrations as string[]);
+    }
+  }, [agent]);
+
+  const handleIntegrationToggle = (integration: string) => {
+    setSelectedIntegrations(prev => 
+      prev.includes(integration)
+        ? prev.filter(i => i !== integration)
+        : [...prev, integration]
+    );
+  };
   
   const chatHistory = useChatHistory(agent, false, null);
   const textChat = useTextChat({
@@ -31,6 +48,7 @@ const PublicChatInterface = ({ agent }: PublicChatInterfaceProps) => {
     onAiMessageStart: chatHistory.startAiMessage,
     onAiTextDelta: chatHistory.addAiTextDelta,
     onAiMessageComplete: chatHistory.completeAiMessage,
+    selectedIntegrations,
     existingMessages: chatHistory.messages.map(msg => ({ 
       role: msg.role, 
       content: msg.content 
@@ -259,8 +277,8 @@ const PublicChatInterface = ({ agent }: PublicChatInterfaceProps) => {
       </div>
 
       {/* Input Area - Fixed at bottom */}
-      <div className="flex-shrink-0 p-3 sm:p-4 bg-background/95 backdrop-blur-sm border-t">
-        <div className="max-w-3xl mx-auto">
+      <div className="flex-shrink-0 bg-background/95 backdrop-blur-sm border-t">
+        <div className="max-w-3xl mx-auto p-3 sm:p-4">
           <div className="relative">
             <Input
               value={inputValue}
@@ -280,6 +298,11 @@ const PublicChatInterface = ({ agent }: PublicChatInterfaceProps) => {
             </Button>
           </div>
         </div>
+        <IntegrationTiles
+          selectedIntegrations={selectedIntegrations}
+          onToggle={handleIntegrationToggle}
+          disabled={textChat.isProcessing}
+        />
       </div>
     </div>
   );
