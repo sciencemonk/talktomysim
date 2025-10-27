@@ -73,9 +73,9 @@ serve(async (req) => {
 
     console.log(`Found ${agents.length} autonomous agent(s)`);
 
-    const lovableApiKey = Deno.env.get('LOVABLE_API_KEY');
-    if (!lovableApiKey) {
-      throw new Error('LOVABLE_API_KEY not configured');
+    const anthropicApiKey = Deno.env.get('ANTHROPIC_API_KEY');
+    if (!anthropicApiKey) {
+      throw new Error('ANTHROPIC_API_KEY not configured');
     }
 
     let briefsGenerated = 0;
@@ -90,63 +90,61 @@ serve(async (req) => {
 
         console.log(`Generating brief for ${agent.name} on topic: ${agent.description}`);
 
-        // Generate web search query and brief using Lovable AI
-        const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+        // Generate web search query and brief using Claude
+        const response = await fetch('https://api.anthropic.com/v1/messages', {
           method: 'POST',
           headers: {
-            'Authorization': `Bearer ${lovableApiKey}`,
+            'x-api-key': anthropicApiKey,
+            'anthropic-version': '2023-06-01',
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            model: 'google/gemini-2.5-flash',
-            messages: [
-              {
-                role: 'system',
-                content: `You are an expert analyst who creates comprehensive daily briefs on specific topics. Your briefs should be:
-- Well-structured with clear sections
-- Include the most important developments from the last 24 hours
-- Be informative but concise (300-500 words)
-- Include relevant context and implications
+            model: 'claude-sonnet-4-5',
+            max_tokens: 4096,
+            system: `You are an expert analyst who creates comprehensive daily briefs on specific topics. Your briefs should be:
+- Well-structured with clear sections and headings
+- Include the most important and recent developments from the past 24 hours
+- Be informative and detailed (500-800 words)
+- Include relevant context, analysis, and implications
 - Written in a professional but accessible tone
 - Similar to briefings given to executives and decision-makers
-- Use the web_search function to find current information`
-              },
+- Use web search tools extensively to find current, verified information
+- Cite sources and provide specific examples from recent news`,
+            messages: [
               {
                 role: 'user',
-                content: `Create a daily brief on the following topic: "${agent.description}"
+                content: `Create a comprehensive daily brief on the following topic: "${agent.description}"
 
-Use web search to find the latest developments and news. Search for information from today and yesterday.
+CRITICAL INSTRUCTIONS:
+- Use the web_search tool multiple times to gather information from different angles
+- Search for: recent news, industry reports, expert analysis, and emerging trends
+- Focus ONLY on developments from the past 24-48 hours
+- Include specific data, quotes, and examples from your searches
+- Synthesize information from multiple sources
 
-Please create a comprehensive brief that covers:
-1. Key developments in the last 24 hours
-2. Important trends or patterns from recent news
-3. Implications and what to watch for next
+Your brief should cover:
+1. **Breaking Developments**: Most significant news from the past 24 hours with specific details
+2. **Industry Trends**: Patterns and movements observed across multiple sources
+3. **Expert Analysis**: What industry leaders and analysts are saying
+4. **Market Impact**: How these developments affect the industry and stakeholders
+5. **Forward Looking**: What to watch for in the coming days
 
-Format the brief in markdown with clear sections and headings.`
+Format in markdown with clear section headers. Be comprehensive and insightful.`
               }
             ],
             tools: [
               {
-                type: 'function',
-                function: {
-                  name: 'web_search',
-                  description: 'Search the web for information from the past 24 hours only',
-                  parameters: {
-                    type: 'object',
-                    properties: {
-                      query: {
-                        type: 'string',
-                        description: 'The search query focused on recent developments'
-                      },
-                      time_filter: {
-                        type: 'string',
-                        description: 'Time range filter for search results',
-                        enum: ['day'],
-                        default: 'day'
-                      }
-                    },
-                    required: ['query']
-                  }
+                name: 'web_search',
+                description: 'Search the web for current information. Use this tool multiple times with different queries to gather comprehensive information.',
+                input_schema: {
+                  type: 'object',
+                  properties: {
+                    query: {
+                      type: 'string',
+                      description: 'The search query to find relevant information'
+                    }
+                  },
+                  required: ['query']
                 }
               }
             ]
@@ -155,33 +153,39 @@ Format the brief in markdown with clear sections and headings.`
 
         if (!response.ok) {
           const errorText = await response.text();
-          console.error(`Lovable AI API error for ${agent.name}:`, response.status, errorText);
+          console.error(`Anthropic API error for ${agent.name}:`, response.status, errorText);
           continue;
         }
 
         const data = await response.json();
-        const briefContent = data.choices?.[0]?.message?.content;
+        console.log(`Claude response for ${agent.name}:`, JSON.stringify(data, null, 2));
 
-        if (!briefContent) {
-          console.error(`No content generated for ${agent.name}`);
-          continue;
-        }
-
-        // Extract sources if available from tool calls
+        // Extract content from Claude's response format
+        let briefContent = '';
         const sources: any[] = [];
-        const toolCalls = data.choices?.[0]?.message?.tool_calls;
-        if (toolCalls && Array.isArray(toolCalls)) {
-          for (const toolCall of toolCalls) {
-            if (toolCall.function?.name === 'web_search') {
-              try {
-                const args = JSON.parse(toolCall.function.arguments);
-                sources.push({ query: args.query });
-              } catch (e) {
-                console.error('Error parsing tool call:', e);
-              }
+
+        // Claude may return content in blocks
+        if (data.content && Array.isArray(data.content)) {
+          for (const block of data.content) {
+            if (block.type === 'text') {
+              briefContent += block.text;
+            } else if (block.type === 'tool_use' && block.name === 'web_search') {
+              // Track search queries used
+              sources.push({ 
+                query: block.input?.query || 'web search',
+                tool_use_id: block.id 
+              });
             }
           }
         }
+
+        if (!briefContent) {
+          console.error(`No content generated for ${agent.name}`, data);
+          continue;
+        }
+
+        console.log(`Generated brief content length: ${briefContent.length} characters`);
+        console.log(`Sources tracked: ${sources.length}`);
 
         // Store the brief in the database
         const { error: insertError } = await supabaseClient
