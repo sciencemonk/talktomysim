@@ -577,7 +577,7 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
                           <span>{type.label}</span>
                           {type.comingSoon && (
                             <Badge variant="secondary" className="text-[9px] px-1.5 py-0">
-                              Coming Soon
+                              Coming Soon for $SimAI Holders
                             </Badge>
                           )}
                         </div>
