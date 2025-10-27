@@ -303,10 +303,10 @@ const Landing = () => {
                   </SelectTrigger>
                   <SelectContent className="bg-background border-border z-[100]">
                     <SelectItem value="all">All Types</SelectItem>
-                    <SelectItem value="Crypto Mail">
+                    <SelectItem value="Autonomous Agent">
                       <div className="flex items-center gap-2">
-                        <Mail className="h-4 w-4" />
-                        Crypto Mail
+                        <Zap className="h-4 w-4" />
+                        Autonomous Agents
                       </div>
                     </SelectItem>
                     <SelectItem value="Chat">
@@ -315,10 +315,10 @@ const Landing = () => {
                         Chatbots
                       </div>
                     </SelectItem>
-                    <SelectItem value="Autonomous Agent">
+                    <SelectItem value="Crypto Mail">
                       <div className="flex items-center gap-2">
-                        <Zap className="h-4 w-4" />
-                        Autonomous Agents
+                        <Mail className="h-4 w-4" />
+                        Crypto Mail
                       </div>
                     </SelectItem>
                     <SelectItem value="x402 API" disabled>
@@ -339,17 +339,17 @@ const Landing = () => {
                 }}>
                   <TabsList>
                     <TabsTrigger value="all">All Types</TabsTrigger>
-                    <TabsTrigger value="Crypto Mail" className="gap-2">
-                      <Mail className="h-4 w-4" />
-                      Crypto Mail
+                    <TabsTrigger value="Autonomous Agent" className="gap-2">
+                      <Zap className="h-4 w-4" />
+                      Autonomous Agents
                     </TabsTrigger>
                     <TabsTrigger value="Chat" className="gap-2">
                       <Bot className="h-4 w-4" />
                       Chatbots
                     </TabsTrigger>
-                    <TabsTrigger value="Autonomous Agent" className="gap-2">
-                      <Zap className="h-4 w-4" />
-                      Autonomous Agents
+                    <TabsTrigger value="Crypto Mail" className="gap-2">
+                      <Mail className="h-4 w-4" />
+                      Crypto Mail
                     </TabsTrigger>
                     <TabsTrigger value="x402 API" disabled className="gap-2 opacity-50 cursor-not-allowed">
                       <Code className="h-4 w-4" />
