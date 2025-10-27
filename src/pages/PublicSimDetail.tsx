@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import PublicChatInterface from "@/components/PublicChatInterface";
 import ContactFormPage from "@/components/ContactFormPage";
+import DailyBriefsList from "@/components/DailyBriefsList";
 import AuthModal from "@/components/AuthModal";
 import { AgentType } from "@/types/agent";
 import { useToast } from "@/hooks/use-toast";
@@ -616,6 +617,45 @@ const PublicSimDetail = () => {
           </DialogContent>
         </Dialog>
       </>
+    );
+  }
+
+  // If this is an Autonomous Agent with valid access, show daily briefs
+  if (sim.sim_category === 'Autonomous Agent' && hasAccess) {
+    return (
+      <div className="h-screen flex items-center justify-center relative bg-gradient-to-br from-primary/20 via-background to-secondary/20">
+        <div className="absolute inset-0 bg-background/80 backdrop-blur-sm z-0" />
+        
+        <div className="relative z-10 w-full max-w-4xl mx-auto p-4 h-[90vh] flex flex-col">
+          <div className="backdrop-blur-md bg-card/50 border border-border rounded-3xl shadow-xl h-full flex flex-col">
+            {/* Header */}
+            <div className="p-6 border-b border-border flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <Avatar className="h-12 w-12 border-2 border-border">
+                  <AvatarImage src={getAvatarUrl(sim.avatar)} alt={sim.name} className="object-cover" />
+                  <AvatarFallback>{sim.name.charAt(0)}</AvatarFallback>
+                </Avatar>
+                <div>
+                  <h2 className="text-2xl font-bold">{sim.name}</h2>
+                  {sim.title && <p className="text-sm text-muted-foreground">{sim.title}</p>}
+                </div>
+              </div>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => navigate('/')}
+              >
+                <X className="h-5 w-5" />
+              </Button>
+            </div>
+
+            {/* Daily Briefs Content */}
+            <div className="flex-1 overflow-y-auto p-6">
+              <DailyBriefsList advisorId={sim.id} />
+            </div>
+          </div>
+        </div>
+      </div>
     );
   }
 
