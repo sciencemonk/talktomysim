@@ -629,13 +629,24 @@ const PublicSimDetail = () => {
       const formData = new FormData(e.currentTarget);
       
       try {
+        const email = formData.get('brief-email') as string;
+        const socialLinks = (sim as any).social_links || {};
+        
+        // Update social_links with email if provided
+        if (email?.trim()) {
+          socialLinks.brief_email = email.trim();
+        } else {
+          delete socialLinks.brief_email;
+        }
+
         const { error } = await supabase
           .from('advisors')
           .update({
             name: formData.get('name') as string,
-            title: formData.get('title') as string,
-            description: formData.get('description') as string,
-            marketplace_category: formData.get('category') as string,
+            description: formData.get('brief-topic') as string,
+            welcome_message: formData.get('brief-time') as string,
+            marketplace_category: formData.get('agent-category') as string,
+            social_links: Object.keys(socialLinks).length > 0 ? socialLinks : null,
           })
           .eq('id', sim.id);
 
@@ -657,6 +668,8 @@ const PublicSimDetail = () => {
         });
       }
     };
+
+    const briefEmail = ((sim as any).social_links as any)?.brief_email || '';
 
     return (
       <div className="h-screen flex items-center justify-center relative bg-gradient-to-br from-primary/20 via-background to-secondary/20">
@@ -699,43 +712,31 @@ const PublicSimDetail = () => {
               <TabsContent value="settings" className="flex-1 overflow-y-auto p-6 mt-0">
                 <form onSubmit={handleSaveSettings} className="space-y-6 max-w-2xl">
                   <div className="space-y-2">
-                    <Label htmlFor="name">Sim Name</Label>
+                    <Label htmlFor="name" className="text-sm font-medium">
+                      Sim Name <span className="text-destructive">*</span>
+                    </Label>
                     <Input
                       id="name"
                       name="name"
                       defaultValue={sim.name}
+                      placeholder="Enter sim name"
+                      className="h-11 bg-background"
                       required
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="title">Title</Label>
-                    <Input
-                      id="title"
-                      name="title"
-                      defaultValue={sim.title || ''}
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="description">Description</Label>
-                    <Textarea
-                      id="description"
-                      name="description"
-                      defaultValue={sim.description || ''}
-                      rows={4}
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="category">Category</Label>
+                    <Label htmlFor="agent-category" className="text-sm font-medium">
+                      Agent Category <span className="text-destructive">*</span>
+                    </Label>
                     <select
-                      id="category"
-                      name="category"
-                      defaultValue={(sim as any).marketplace_category || 'daily brief'}
-                      className="w-full px-3 py-2 rounded-md border border-input bg-background"
+                      id="agent-category"
+                      name="agent-category"
+                      defaultValue={(sim as any).marketplace_category || 'Daily Brief'}
+                      className="w-full h-11 px-3 rounded-md border border-input bg-background text-foreground"
+                      required
                     >
-                      <option value="daily brief">Daily Brief</option>
+                      <option value="Daily Brief">Daily Brief</option>
                       <option value="crypto">Crypto & Web3</option>
                       <option value="business">Business & Finance</option>
                       <option value="education">Education & Tutoring</option>
@@ -743,7 +744,59 @@ const PublicSimDetail = () => {
                     </select>
                   </div>
 
-                  <Button type="submit" className="w-full">
+                  <div className="space-y-2">
+                    <Label htmlFor="brief-topic" className="text-sm font-medium">
+                      What do you want a daily brief on? <span className="text-destructive">*</span>
+                    </Label>
+                    <Textarea
+                      id="brief-topic"
+                      name="brief-topic"
+                      defaultValue={sim.description || ''}
+                      placeholder="E.g., AI developments, cryptocurrency markets, climate change news..."
+                      rows={4}
+                      className="resize-none bg-background"
+                      required
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="brief-time" className="text-sm font-medium">
+                      When do you want to receive your daily brief? (UTC) <span className="text-destructive">*</span>
+                    </Label>
+                    <Input
+                      id="brief-time"
+                      name="brief-time"
+                      type="time"
+                      defaultValue={sim.welcome_message || '09:00'}
+                      className="h-11 bg-background"
+                      required
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Your brief will be generated daily at this time
+                    </p>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="brief-email" className="text-sm font-medium">
+                      Email <span className="text-muted-foreground">(Optional)</span>
+                    </Label>
+                    <Input
+                      id="brief-email"
+                      name="brief-email"
+                      type="email"
+                      defaultValue={briefEmail}
+                      placeholder="your@email.com"
+                      className="h-11 bg-background"
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Receive your daily brief in your inbox
+                    </p>
+                  </div>
+
+                  <Button 
+                    type="submit" 
+                    className="w-full h-12 font-semibold bg-[#82f2aa] hover:bg-[#6dd994] text-black"
+                  >
                     Save Settings
                   </Button>
                 </form>
