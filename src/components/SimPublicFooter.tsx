@@ -1,7 +1,9 @@
 import { useToast } from "@/hooks/use-toast";
+import { useTheme } from "@/hooks/useTheme";
 
 const SimPublicFooter = () => {
   const { toast } = useToast();
+  const { theme } = useTheme();
 
   const copyCAToClipboard = async () => {
     const ca = "FFqwoZ7phjoupWjLeE5yFeLqGi8jkGEFrTz6jnsUpump";
@@ -32,11 +34,11 @@ const SimPublicFooter = () => {
             className="hover:opacity-80 transition-opacity"
           >
             <img 
-              src="/sim-logo.png" 
+              src={theme === "dark" ? "/sim-logo-dark.png" : "/sim-logo-light-final.png"}
               alt="Sim" 
               className="h-8 w-8 object-contain"
               onError={(e) => {
-                e.currentTarget.style.display = 'none';
+                e.currentTarget.src = "/sim-logo.png";
               }}
             />
           </a>
