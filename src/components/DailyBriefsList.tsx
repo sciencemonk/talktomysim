@@ -36,6 +36,34 @@ const DailyBriefsList = ({ advisorId }: DailyBriefsListProps) => {
 
   useEffect(() => {
     fetchBriefs();
+
+    // Subscribe to realtime updates
+    const channel = supabase
+      .channel('daily-briefs-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'daily_briefs',
+          filter: `advisor_id=eq.${advisorId}`
+        },
+        (payload) => {
+          console.log('Daily brief change:', payload);
+          if (payload.eventType === 'INSERT') {
+            setBriefs(prev => [payload.new as DailyBrief, ...prev]);
+          } else if (payload.eventType === 'UPDATE') {
+            setBriefs(prev => prev.map(b => b.id === payload.new.id ? payload.new as DailyBrief : b));
+          } else if (payload.eventType === 'DELETE') {
+            setBriefs(prev => prev.filter(b => b.id !== payload.old.id));
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [advisorId]);
 
   const fetchBriefs = async () => {
@@ -50,6 +78,7 @@ const DailyBriefsList = ({ advisorId }: DailyBriefsListProps) => {
 
       if (error) throw error;
       
+      console.log('Fetched briefs:', data);
       setBriefs((data || []) as DailyBrief[]);
     } catch (error) {
       console.error('Error fetching briefs:', error);

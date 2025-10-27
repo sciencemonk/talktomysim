@@ -670,6 +670,33 @@ const PublicSimDetail = () => {
 
     const briefEmail = ((sim as any).social_links as any)?.brief_email || '';
 
+    // Since we're inside the Autonomous Agent block, we know it's that type
+    const marketplaceCategory = (sim as any).marketplace_category?.toLowerCase() || 'uncategorized';
+    
+    // Category mapping
+    const categories = [
+      { id: 'all', label: 'All Categories' },
+      { id: 'crypto', label: 'Crypto & Web3' },
+      { id: 'historical', label: 'Historical Figures' },
+      { id: 'influencers', label: 'Influencers & Celebrities' },
+      { id: 'fictional', label: 'Fictional Characters' },
+      { id: 'education', label: 'Education & Tutoring' },
+      { id: 'business', label: 'Business & Finance' },
+      { id: 'lifestyle', label: 'Lifestyle & Wellness' },
+      { id: 'entertainment', label: 'Entertainment & Games' },
+      { id: 'spiritual', label: 'Spiritual & Philosophy' },
+    ];
+    
+    const categoryLabel = categories.find(c => c.id === marketplaceCategory)?.label || marketplaceCategory;
+    
+    // Type badge is always "Autonomous Agent" since we're in this block
+    const typeBadgeText = 'Autonomous Agent';
+    
+    // Determine second badge based on category
+    const secondBadgeText = (marketplaceCategory === 'uncategorized' || marketplaceCategory === 'daily brief' || !marketplaceCategory)
+      ? 'Daily Brief'
+      : categoryLabel;
+
     return (
       <div className="h-screen flex items-center justify-center relative bg-gradient-to-br from-violet-950/40 via-background to-cyan-950/40">
         <div className="absolute inset-0 bg-background/90 backdrop-blur-xl z-0" />
@@ -683,18 +710,24 @@ const PublicSimDetail = () => {
             {/* Futuristic Header */}
             <div className="relative p-6 border-b border-border/50 flex items-center justify-between bg-gradient-to-r from-violet-500/5 via-transparent to-cyan-500/5">
               <div className="flex items-center gap-4">
-                <div className="relative">
-                  <Avatar className="h-14 w-14 border-2 border-violet-500/50 shadow-lg shadow-violet-500/20">
-                    <AvatarImage src={getAvatarUrl(sim.avatar)} alt={sim.name} className="object-cover" />
-                    <AvatarFallback>{sim.name.charAt(0)}</AvatarFallback>
-                  </Avatar>
-                  <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-background animate-pulse" />
-                </div>
+                <Avatar className="h-14 w-14 border-2 border-violet-500/50 shadow-lg shadow-violet-500/20">
+                  <AvatarImage src={getAvatarUrl(sim.avatar)} alt={sim.name} className="object-cover" />
+                  <AvatarFallback>{sim.name.charAt(0)}</AvatarFallback>
+                </Avatar>
                 <div>
-                  <h2 className="text-2xl font-bold bg-gradient-to-r from-violet-400 to-cyan-400 bg-clip-text text-transparent">
+                  <h2 className="text-2xl font-bold text-white">
                     {sim.name}
                   </h2>
-                  {sim.title && <p className="text-sm text-muted-foreground">{sim.title}</p>}
+                  <div className="flex items-center gap-2 mt-1">
+                    <span className="px-2 py-0.5 text-xs font-medium rounded-md bg-violet-500/20 text-violet-300 border border-violet-500/30">
+                      {typeBadgeText}
+                    </span>
+                    {secondBadgeText && (
+                      <span className="px-2 py-0.5 text-xs font-medium rounded-md bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">
+                        {secondBadgeText}
+                      </span>
+                    )}
+                  </div>
                 </div>
               </div>
               <Button
@@ -798,7 +831,7 @@ const PublicSimDetail = () => {
 
                     <Button 
                       type="submit" 
-                      className="w-full h-12 font-semibold bg-gradient-to-r from-violet-500 to-cyan-500 hover:from-violet-600 hover:to-cyan-600 text-white shadow-lg shadow-violet-500/25 transition-all"
+                      className="w-full h-12 font-semibold bg-[#82f2aa] hover:bg-[#6dd994] text-black shadow-lg transition-all"
                     >
                       <Sparkles className="w-4 h-4 mr-2" />
                       Save Settings
