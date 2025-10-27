@@ -66,7 +66,7 @@ export const TextInput: React.FC<TextInputProps> = ({
 
   return (
     <div className="w-full p-3">
-      <div className="max-w-4xl mx-auto">
+      <div className="w-full">
         <form onSubmit={handleSubmit} className="relative">
           <div className={`flex items-end gap-3 border rounded-xl p-3 shadow-sm focus-within:border-ring transition-colors ${
             transparentMode 
