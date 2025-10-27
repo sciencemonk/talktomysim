@@ -546,7 +546,12 @@ const Landing = () => {
               // Determine second badge
               let secondBadgeText = '';
               if (isAutonomousAgent) {
-                secondBadgeText = marketplaceCategory === 'uncategorized' ? 'Daily Brief' : categoryLabel;
+                // For autonomous agents, always show properly capitalized category
+                if (marketplaceCategory === 'uncategorized' || marketplaceCategory === 'daily brief' || !marketplaceCategory) {
+                  secondBadgeText = 'Daily Brief';
+                } else {
+                  secondBadgeText = categoryLabel;
+                }
               } else if (isCryptoMail) {
                 secondBadgeText = isVerified ? 'Verified' : 'Unverified';
               } else {
