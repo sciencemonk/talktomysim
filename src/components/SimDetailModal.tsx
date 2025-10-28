@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, lazy, Suspense } from "react";
+import { useState, useEffect, lazy, Suspense } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Globe, Wallet, ExternalLink, Copy, Check, MessageCircle, Share2, ArrowLeft, X, Lock } from "lucide-react";
@@ -25,6 +25,7 @@ import EditSimModal from "@/components/EditSimModal";
 import ContactMeEditModal from "@/components/ContactMeEditModal";
 import { fetchSolanaBalance, formatSolBalance } from "@/services/solanaBalanceService";
 import { validateX402Session } from "@/utils/x402Session";
+import pumpLogo from "@/assets/pumpfun-logo.png";
 
 // Lazy load X402PaymentModal to avoid blocking app initialization with ethers.js
 const X402PaymentModal = lazy(() => 
@@ -386,6 +387,7 @@ const SimDetailModal = ({ sim, open, onOpenChange, onAuthRequired }: SimDetailMo
             {/* Type and Category Badges */}
             {(() => {
               const simCategoryType = (sim as any).sim_category;
+              const isPumpFunAgent = simCategoryType === 'PumpFun Agent';
               const isAutonomousAgent = simCategoryType === 'Autonomous Agent';
               const isCryptoMail = simCategoryType === 'Crypto Mail';
               const isVerified = (sim as any).is_verified || false;
@@ -412,18 +414,20 @@ const SimDetailModal = ({ sim, open, onOpenChange, onAuthRequired }: SimDetailMo
               if (isAutonomousAgent) typeBadgeText = 'Autonomous Agent';
               else if (isCryptoMail) typeBadgeText = 'Crypto Mail';
               
-              // Determine second badge
+              // Determine second badge - skip for PumpFun agents
               let secondBadgeText = '';
-              if (isAutonomousAgent) {
-                if (marketplaceCategory === 'uncategorized' || marketplaceCategory === 'daily brief' || !marketplaceCategory) {
-                  secondBadgeText = 'Daily Brief';
+              if (!isPumpFunAgent) {
+                if (isAutonomousAgent) {
+                  if (marketplaceCategory === 'uncategorized' || marketplaceCategory === 'daily brief' || !marketplaceCategory) {
+                    secondBadgeText = 'Daily Brief';
+                  } else {
+                    secondBadgeText = categoryLabel;
+                  }
+                } else if (isCryptoMail) {
+                  secondBadgeText = isVerified ? 'Verified' : 'Unverified';
                 } else {
-                  secondBadgeText = categoryLabel;
+                  secondBadgeText = marketplaceCategory !== 'uncategorized' ? categoryLabel : '';
                 }
-              } else if (isCryptoMail) {
-                secondBadgeText = isVerified ? 'Verified' : 'Unverified';
-              } else {
-                secondBadgeText = marketplaceCategory !== 'uncategorized' ? categoryLabel : '';
               }
               
               return (
@@ -431,7 +435,12 @@ const SimDetailModal = ({ sim, open, onOpenChange, onAuthRequired }: SimDetailMo
                   <span className="inline-flex items-center text-[10px] px-2 py-0.5 rounded-md bg-primary/10 border border-primary/30 text-primary whitespace-nowrap font-medium">
                     {typeBadgeText}
                   </span>
-                  {secondBadgeText && (
+                  {isPumpFunAgent ? (
+                    <span className="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-md bg-background border border-border whitespace-nowrap font-medium">
+                      <img src={pumpLogo} alt="PumpFun" className="h-3 w-3" />
+                      Agent
+                    </span>
+                  ) : secondBadgeText && (
                     <span 
                       className={`inline-flex items-center text-[10px] px-2 py-0.5 rounded-md whitespace-nowrap font-medium ${
                         isCryptoMail && isVerified 
@@ -452,6 +461,75 @@ const SimDetailModal = ({ sim, open, onOpenChange, onAuthRequired }: SimDetailMo
               {getSimDescription()}
             </p>
           </div>
+
+          {/* Market Cap for PumpFun Agents */}
+          {(() => {
+            const simCategoryType = (sim as any).sim_category;
+            const isPumpFunAgent = simCategoryType === 'PumpFun Agent';
+            const contractAddress = isPumpFunAgent 
+              ? (sim.social_links as any)?.contract_address 
+              : undefined;
+            
+            const [marketCapData, setMarketCapData] = useState<{ marketCap?: number } | null>(null);
+            const [isLoadingMarketCap, setIsLoadingMarketCap] = useState(false);
+
+            useEffect(() => {
+              const fetchMarketCap = async () => {
+                if (!isPumpFunAgent || !contractAddress) return;
+                
+                setIsLoadingMarketCap(true);
+                try {
+                  const { data, error } = await supabase.functions.invoke('analyze-pumpfun-token', {
+                    body: { tokenAddress: contractAddress },
+                  });
+
+                  if (!error && data?.success && data?.tokenData) {
+                    setMarketCapData({ marketCap: data.tokenData.usd_market_cap });
+                  }
+                } catch (error) {
+                  console.error('[SimDetailModal] Error fetching market cap:', error);
+                } finally {
+                  setIsLoadingMarketCap(false);
+                }
+              };
+
+              if (open) {
+                fetchMarketCap();
+              }
+            }, [isPumpFunAgent, contractAddress, open]);
+
+            const formatMarketCap = (value: number) => {
+              if (value >= 1_000_000) {
+                return `$${(value / 1_000_000).toFixed(2)}M`;
+              }
+              if (value >= 1_000) {
+                return `$${(value / 1_000).toFixed(2)}K`;
+              }
+              return `$${value.toFixed(2)}`;
+            };
+
+            if (!isPumpFunAgent) return null;
+
+            return (
+              <div className="mb-3 p-3 bg-primary/5 rounded-xl border border-primary/20">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2">
+                    <img src={pumpLogo} alt="PumpFun" className="h-4 w-4" />
+                    <span className="text-xs font-medium text-muted-foreground">Market Cap</span>
+                  </div>
+                  <span className="text-sm font-semibold text-primary">
+                    {isLoadingMarketCap ? (
+                      <span className="animate-pulse">Loading...</span>
+                    ) : marketCapData?.marketCap ? (
+                      formatMarketCap(marketCapData.marketCap)
+                    ) : (
+                      'N/A'
+                    )}
+                  </span>
+                </div>
+              </div>
+            );
+          })()}
 
           {/* SOL Wallet Info */}
           {(sim as any)?.crypto_wallet && (
