@@ -28,6 +28,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useTheme } from "@/hooks/useTheme";
 import { SimLeaderboard } from "@/components/SimLeaderboard";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { SimLikeButton } from "@/components/SimLikeButton";
 
 const Landing = () => {
   const navigate = useNavigate();
@@ -620,6 +621,11 @@ const Landing = () => {
                           {secondBadgeText}
                         </Badge>
                       )}
+                    </div>
+                    
+                    {/* Like button */}
+                    <div className="flex justify-center pt-1">
+                      <SimLikeButton simId={sim.id} variant="compact" />
                     </div>
                   </div>
                 </button>

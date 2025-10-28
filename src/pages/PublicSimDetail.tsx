@@ -20,6 +20,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { updateMetaTags, resetMetaTags } from "@/lib/metaTags";
+import { SimLikeButton } from "@/components/SimLikeButton";
 
 // Lazy load X402PaymentModal to avoid blocking app initialization with ethers.js
 const X402PaymentModal = lazy(() => 
@@ -838,7 +839,7 @@ const PublicSimDetail = () => {
               <Button
                 size="lg"
                 variant="outline"
-                className="w-full h-12 text-base font-semibold mb-6 group"
+                className="w-full h-12 text-base font-semibold mb-4 group"
                 onClick={handleShareLink}
               >
                 {shareLinkCopied ? (
@@ -853,6 +854,11 @@ const PublicSimDetail = () => {
                   </>
                 )}
               </Button>
+
+              {/* Like Button */}
+              <div className="flex justify-center mb-6">
+                <SimLikeButton simId={sim.id} />
+              </div>
 
               {/* Social Links & Wallet */}
               {(sim.twitter_url || sim.website_url || sim.crypto_wallet) && (
