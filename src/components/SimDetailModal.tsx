@@ -122,8 +122,8 @@ const SimDetailModal = ({ sim, open, onOpenChange, onAuthRequired }: SimDetailMo
         if (error) {
           console.error('[SimDetailModal] Error from edge function:', error);
           setMarketCapData(null);
-        } else if (data?.success && data?.tokenData) {
-          const marketCap = data.tokenData.usd_market_cap || data.tokenData.market_cap;
+        } else if (data?.tokenData?.marketCap) {
+          const marketCap = data.tokenData.marketCap;
           console.log('[SimDetailModal] Setting market cap:', marketCap);
           setMarketCapData({ marketCap });
         } else {
