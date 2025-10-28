@@ -46,25 +46,37 @@ export const CreateCABotModal = ({ open, onOpenChange, onSuccess }: CreateCABotM
     setIsLoading(true);
 
     try {
+      const trimmedCA = contractAddress.trim();
+      console.log("Checking for duplicate CA:", trimmedCA);
+      
       // Check if agent with this contract address already exists
       const { data: existingAgents, error: checkError } = await supabase
         .from("advisors")
         .select("id, name, social_links")
         .not("social_links", "is", null);
 
+      console.log("Existing agents with social_links:", existingAgents);
+
       if (!checkError && existingAgents) {
         const duplicateAgent = existingAgents.find(
           (agent) => {
             const socialLinks = agent.social_links as { contract_address?: string } | null;
-            return socialLinks?.contract_address === contractAddress.trim();
+            console.log("Checking agent:", agent.name, "CA:", socialLinks?.contract_address);
+            return socialLinks?.contract_address === trimmedCA;
           }
         );
+
+        console.log("Duplicate agent found?", duplicateAgent);
 
         if (duplicateAgent) {
           toast.error(`An agent for this token already exists: ${duplicateAgent.name}`);
           setIsLoading(false);
           return;
         }
+      }
+
+      if (checkError) {
+        console.error("Error checking for duplicates:", checkError);
       }
 
       // Fetch token data from PumpFun
