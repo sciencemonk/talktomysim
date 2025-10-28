@@ -55,6 +55,8 @@ const SimDetailModal = ({ sim, open, onOpenChange, onAuthRequired }: SimDetailMo
   const [isLoadingBalance, setIsLoadingBalance] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [paymentSessionId, setPaymentSessionId] = useState<string | null>(null);
+  const [marketCapData, setMarketCapData] = useState<{ marketCap?: number } | null>(null);
+  const [isLoadingMarketCap, setIsLoadingMarketCap] = useState(false);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -85,6 +87,42 @@ const SimDetailModal = ({ sim, open, onOpenChange, onAuthRequired }: SimDetailMo
     if (open && sim) {
       loadBalance();
     }
+  }, [open, sim]);
+
+  // Fetch market cap for PumpFun agents
+  useEffect(() => {
+    const fetchMarketCap = async () => {
+      const simCategoryType = (sim as any)?.sim_category;
+      const isPumpFunAgent = simCategoryType === 'PumpFun Agent';
+      const contractAddress = isPumpFunAgent 
+        ? (sim?.social_links as any)?.contract_address 
+        : undefined;
+
+      if (!isPumpFunAgent || !contractAddress || !open) {
+        setMarketCapData(null);
+        return;
+      }
+      
+      setIsLoadingMarketCap(true);
+      try {
+        const { data, error } = await supabase.functions.invoke('analyze-pumpfun-token', {
+          body: { tokenAddress: contractAddress },
+        });
+
+        if (!error && data?.success && data?.tokenData) {
+          setMarketCapData({ marketCap: data.tokenData.usd_market_cap });
+        } else {
+          setMarketCapData(null);
+        }
+      } catch (error) {
+        console.error('[SimDetailModal] Error fetching market cap:', error);
+        setMarketCapData(null);
+      } finally {
+        setIsLoadingMarketCap(false);
+      }
+    };
+
+    fetchMarketCap();
   }, [open, sim]);
 
   // Calculate SOL equivalent (1 $SimAI = 0.001 SOL)
@@ -466,37 +504,6 @@ const SimDetailModal = ({ sim, open, onOpenChange, onAuthRequired }: SimDetailMo
           {(() => {
             const simCategoryType = (sim as any).sim_category;
             const isPumpFunAgent = simCategoryType === 'PumpFun Agent';
-            const contractAddress = isPumpFunAgent 
-              ? (sim.social_links as any)?.contract_address 
-              : undefined;
-            
-            const [marketCapData, setMarketCapData] = useState<{ marketCap?: number } | null>(null);
-            const [isLoadingMarketCap, setIsLoadingMarketCap] = useState(false);
-
-            useEffect(() => {
-              const fetchMarketCap = async () => {
-                if (!isPumpFunAgent || !contractAddress) return;
-                
-                setIsLoadingMarketCap(true);
-                try {
-                  const { data, error } = await supabase.functions.invoke('analyze-pumpfun-token', {
-                    body: { tokenAddress: contractAddress },
-                  });
-
-                  if (!error && data?.success && data?.tokenData) {
-                    setMarketCapData({ marketCap: data.tokenData.usd_market_cap });
-                  }
-                } catch (error) {
-                  console.error('[SimDetailModal] Error fetching market cap:', error);
-                } finally {
-                  setIsLoadingMarketCap(false);
-                }
-              };
-
-              if (open) {
-                fetchMarketCap();
-              }
-            }, [isPumpFunAgent, contractAddress, open]);
 
             const formatMarketCap = (value: number) => {
               if (value >= 1_000_000) {
