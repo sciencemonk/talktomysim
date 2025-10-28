@@ -156,7 +156,7 @@ export const CreateCABotModal = ({ open, onOpenChange, onSuccess }: CreateCABotM
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="contractAddress">PumpFun Token Contract Address</Label>
+            <Label htmlFor="contractAddress" className="text-foreground">PumpFun Token Contract Address</Label>
             <Input
               id="contractAddress"
               placeholder="Enter unbonded token CA..."
