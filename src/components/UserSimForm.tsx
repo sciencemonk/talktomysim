@@ -51,7 +51,7 @@ const UserSimForm = ({ open, onOpenChange, existingSim, onSuccess }: UserSimForm
       setFormData({
         name: existingSim.name || '',
         title: existingSim.title || '',
-        description: existingSim.sim_category === 'Autonomous Agent' ? existingSim.description || '' : '', // Always auto-generate for Chat, use stored for Autonomous Agent
+        description: existingSim.sim_category === 'Autonomous Agent' ? existingSim.description || '' : '', // Always auto-generate for Chat and PumpFun Agent, use stored for Autonomous Agent
         prompt: existingSim.prompt || '',
         custom_url: existingSim.custom_url || '',
         avatar_url: existingSim.avatar_url || '',
@@ -283,7 +283,7 @@ const UserSimForm = ({ open, onOpenChange, existingSim, onSuccess }: UserSimForm
       // Skip generation for "Crypto Mail" category
       let finalDescription = formData.description;
       const shouldGenerateDescription = 
-        formData.sim_category === 'Chat' && (
+        (formData.sim_category === 'Chat' || formData.sim_category === 'PumpFun Agent') && (
           !existingSim || // Always for new sims
           !finalDescription.trim() || // Empty description
           finalDescription.length > 250 // Too long, probably the full prompt
@@ -517,7 +517,7 @@ const UserSimForm = ({ open, onOpenChange, existingSim, onSuccess }: UserSimForm
           </div>
 
           {/* Description is auto-generated - no user input needed */}
-          {formData.sim_category === 'Chat' && formData.description && (
+          {(formData.sim_category === 'Chat' || formData.sim_category === 'PumpFun Agent') && formData.description && (
             <div>
               <Label>Auto-Generated Description (Preview)</Label>
               <div className="p-3 bg-muted/50 rounded-md text-sm text-muted-foreground">
@@ -565,7 +565,7 @@ const UserSimForm = ({ open, onOpenChange, existingSim, onSuccess }: UserSimForm
             </p>
           </div>
 
-          {formData.sim_category === 'Chat' && (
+          {(formData.sim_category === 'Chat' || formData.sim_category === 'PumpFun Agent') && (
             <div>
               <Label htmlFor="prompt">Personality & Instructions (Optional)</Label>
               <Textarea
