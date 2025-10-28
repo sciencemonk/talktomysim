@@ -1,16 +1,32 @@
 import { supabase } from "@/integrations/supabase/client";
 
-// Generate a unique session ID for anonymous users
-const getOrCreateSessionId = (): string => {
-  const SESSION_KEY = 'sim_session_id';
-  let sessionId = localStorage.getItem(SESSION_KEY);
-  
-  if (!sessionId) {
-    sessionId = `anon_${Date.now()}_${Math.random().toString(36).substring(2, 15)}`;
-    localStorage.setItem(SESSION_KEY, sessionId);
+// Cache the IP address in memory for the session
+let cachedIpAddress: string | null = null;
+
+// Get the client's IP address
+const getClientIp = async (): Promise<string> => {
+  // Return cached IP if available
+  if (cachedIpAddress) {
+    return cachedIpAddress;
   }
-  
-  return sessionId;
+
+  try {
+    const { data, error } = await supabase.functions.invoke('get-client-ip');
+    
+    if (error) {
+      console.error('Error getting client IP:', error);
+      cachedIpAddress = 'unknown';
+      return cachedIpAddress;
+    }
+    
+    cachedIpAddress = data?.ip || 'unknown';
+    console.log('Client IP retrieved:', cachedIpAddress);
+    return cachedIpAddress;
+  } catch (error) {
+    console.error('Error fetching client IP:', error);
+    cachedIpAddress = 'unknown';
+    return cachedIpAddress;
+  }
 };
 
 export const getLikeCount = async (simId: string): Promise<number> => {
@@ -38,8 +54,8 @@ export const isSimLiked = async (simId: string): Promise<boolean> => {
   if (user) {
     query = query.eq('user_id', user.id);
   } else {
-    const sessionId = getOrCreateSessionId();
-    query = query.eq('session_id', sessionId);
+    const ipAddress = await getClientIp();
+    query = query.eq('ip_address', ipAddress);
   }
   
   const { data, error } = await query.maybeSingle();
@@ -66,8 +82,8 @@ export const toggleSimLike = async (simId: string): Promise<{ liked: boolean; co
     if (user) {
       deleteQuery = deleteQuery.eq('user_id', user.id);
     } else {
-      const sessionId = getOrCreateSessionId();
-      deleteQuery = deleteQuery.eq('session_id', sessionId);
+      const ipAddress = await getClientIp();
+      deleteQuery = deleteQuery.eq('ip_address', ipAddress);
     }
     
     const { error } = await deleteQuery;
@@ -88,7 +104,7 @@ export const toggleSimLike = async (simId: string): Promise<{ liked: boolean; co
     if (user) {
       likeData.user_id = user.id;
     } else {
-      likeData.session_id = getOrCreateSessionId();
+      likeData.ip_address = await getClientIp();
     }
     
     const { error } = await supabase
@@ -138,8 +154,8 @@ export const getMultipleSimLikedStatus = async (simIds: string[]): Promise<Set<s
   if (user) {
     query = query.eq('user_id', user.id);
   } else {
-    const sessionId = getOrCreateSessionId();
-    query = query.eq('session_id', sessionId);
+    const ipAddress = await getClientIp();
+    query = query.eq('ip_address', ipAddress);
   }
   
   const { data, error } = await query;

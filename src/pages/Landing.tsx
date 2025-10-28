@@ -123,7 +123,7 @@ const Landing = () => {
     enabled: !!currentUser
   });
 
-  // Fetch all sims (both historical and living) with user count
+  // Fetch all sims (both historical and living) with user count and like count
   const { data: allSims } = useQuery({
     queryKey: ['all-sims-landing'],
     queryFn: async () => {
@@ -143,15 +143,30 @@ const Landing = () => {
       
       if (countsError) throw countsError;
 
+      // Get like counts for each advisor
+      const { data: likeCounts, error: likesError } = await supabase
+        .from('sim_likes')
+        .select('sim_id');
+      
+      if (likesError) throw likesError;
+
       // Count how many times each advisor appears in user_advisors
       const countMap = new Map<string, number>();
       userCounts?.forEach(ua => {
         const count = countMap.get(ua.advisor_id) || 0;
         countMap.set(ua.advisor_id, count + 1);
       });
+
+      // Count likes for each advisor
+      const likesMap = new Map<string, number>();
+      likeCounts?.forEach(like => {
+        const count = likesMap.get(like.sim_id) || 0;
+        likesMap.set(like.sim_id, count + 1);
+      });
       
       return (advisorsData || []).map(sim => {
         const userCount = countMap.get(sim.id) || 0;
+        const likeCount = likesMap.get(sim.id) || 0;
         
         return {
           id: sim.id,
@@ -186,6 +201,7 @@ const Landing = () => {
           marketplace_category: sim.marketplace_category || (!sim.user_id ? 'historical' : 'uncategorized'),
           user_id: sim.user_id,
           user_count: userCount,
+          like_count: likeCount,
           social_links: sim.social_links as any,
           background_image_url: sim.background_image_url,
           crypto_wallet: sim.crypto_wallet,
@@ -193,7 +209,7 @@ const Landing = () => {
           x402_price: sim.x402_price || 0,
           x402_wallet: sim.x402_wallet,
           is_verified: sim.is_verified || false
-        } as AgentType & { user_id?: string; marketplace_category?: string; user_count?: number; is_verified?: boolean };
+        } as AgentType & { user_id?: string; marketplace_category?: string; user_count?: number; like_count?: number; is_verified?: boolean };
       });
     },
   });
@@ -243,8 +259,8 @@ const Landing = () => {
     })
     .sort((a, b) => {
       if (sortBy === 'popular') {
-        const aCount = (a as any).user_count || 0;
-        const bCount = (b as any).user_count || 0;
+        const aCount = (a as any).like_count || 0;
+        const bCount = (b as any).like_count || 0;
         return bCount - aCount;
       } else if (sortBy === 'newest') {
         return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();

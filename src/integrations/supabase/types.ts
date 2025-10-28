@@ -928,6 +928,7 @@ export type Database = {
         Row: {
           created_at: string
           id: string
+          ip_address: string | null
           session_id: string | null
           sim_id: string
           user_id: string | null
@@ -935,6 +936,7 @@ export type Database = {
         Insert: {
           created_at?: string
           id?: string
+          ip_address?: string | null
           session_id?: string | null
           sim_id: string
           user_id?: string | null
@@ -942,6 +944,7 @@ export type Database = {
         Update: {
           created_at?: string
           id?: string
+          ip_address?: string | null
           session_id?: string | null
           sim_id?: string
           user_id?: string | null

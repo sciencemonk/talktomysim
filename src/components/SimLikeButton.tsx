@@ -3,7 +3,6 @@ import { Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toggleSimLike, getLikeCount, isSimLiked } from "@/services/simLikesService";
 import { cn } from "@/lib/utils";
-import { toast } from "sonner";
 
 interface SimLikeButtonProps {
   simId: string;
@@ -56,11 +55,8 @@ export const SimLikeButton = ({
       if (onLikeChange) {
         onLikeChange(result.liked, result.count);
       }
-      
-      toast.success(result.liked ? "Added to favorites!" : "Removed from favorites");
     } catch (error) {
       console.error('Error toggling like:', error);
-      toast.error("Failed to update like status");
     } finally {
       setIsLoading(false);
     }
