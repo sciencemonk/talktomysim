@@ -29,6 +29,7 @@ import { useTheme } from "@/hooks/useTheme";
 import { SimLeaderboard } from "@/components/SimLeaderboard";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SimLikeButton } from "@/components/SimLikeButton";
+import { HackathonAnnouncementModal } from "@/components/HackathonAnnouncementModal";
 
 const Landing = () => {
   const navigate = useNavigate();
@@ -289,6 +290,9 @@ const Landing = () => {
 
   return (
     <div className="min-h-screen w-full flex flex-col bg-background">
+      {/* Hackathon Announcement Modal */}
+      <HackathonAnnouncementModal />
+      
       {/* Integrated Header with Navigation */}
       <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container mx-auto px-3 sm:px-4">
