@@ -33,6 +33,178 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SimLikeButton } from "@/components/SimLikeButton";
 import { HackathonAnnouncementModal } from "@/components/HackathonAnnouncementModal";
 
+interface PumpFunSimCardProps {
+  sim: AgentType & { user_id?: string; like_count?: number; is_verified?: boolean };
+  onSimClick: (sim: AgentType) => void;
+  categories: Array<{ id: string; label: string; count: number }>;
+}
+
+const PumpFunSimCard = ({ sim, onSimClick, categories }: PumpFunSimCardProps) => {
+  const [marketCapData, setMarketCapData] = useState<{ marketCap?: number } | null>(null);
+  const [isLoadingMarketCap, setIsLoadingMarketCap] = useState(false);
+  
+  const simCategoryType = (sim as any).sim_category;
+  const isPumpFunAgent = simCategoryType === 'PumpFun Agent';
+  const isAutonomousAgent = simCategoryType === 'Autonomous Agent';
+  const isCryptoMail = simCategoryType === 'Crypto Mail';
+  const isVerified = (sim as any).is_verified || false;
+  const marketplaceCategory = (sim as any).marketplace_category?.toLowerCase() || 'uncategorized';
+  const categoryLabel = categories.find(c => c.id === marketplaceCategory)?.label || marketplaceCategory;
+  
+  const contractAddress = isPumpFunAgent 
+    ? (sim.social_links as any)?.contract_address 
+    : undefined;
+
+  useEffect(() => {
+    const fetchMarketCap = async () => {
+      if (!isPumpFunAgent || !contractAddress) return;
+      
+      setIsLoadingMarketCap(true);
+      try {
+        const { data, error } = await supabase.functions.invoke('analyze-pumpfun-token', {
+          body: { tokenAddress: contractAddress },
+        });
+
+        if (!error && data?.success && data?.tokenData) {
+          setMarketCapData({ marketCap: data.tokenData.usd_market_cap });
+        }
+      } catch (error) {
+        console.error('[PumpFunSimCard] Error fetching market cap:', error);
+      } finally {
+        setIsLoadingMarketCap(false);
+      }
+    };
+
+    fetchMarketCap();
+  }, [isPumpFunAgent, contractAddress]);
+
+  const formatMarketCap = (value: number) => {
+    if (value >= 1_000_000) {
+      return `$${(value / 1_000_000).toFixed(2)}M`;
+    }
+    if (value >= 1_000) {
+      return `$${(value / 1_000).toFixed(2)}K`;
+    }
+    return `$${value.toFixed(2)}`;
+  };
+  
+  // Determine type badge
+  let typeBadgeText = 'Chat';
+  if (isAutonomousAgent) typeBadgeText = 'Autonomous Agent';
+  else if (isCryptoMail) typeBadgeText = 'Crypto Mail';
+  
+  // Determine second badge - skip for PumpFun agents
+  let secondBadgeText = '';
+  if (!isPumpFunAgent) {
+    if (isAutonomousAgent) {
+      if (marketplaceCategory === 'uncategorized' || marketplaceCategory === 'daily brief' || !marketplaceCategory) {
+        secondBadgeText = 'Daily Brief';
+      } else {
+        secondBadgeText = categoryLabel;
+      }
+    } else if (isCryptoMail) {
+      secondBadgeText = isVerified ? 'Verified' : 'Unverified';
+    } else {
+      secondBadgeText = categoryLabel;
+    }
+  }
+
+  return (
+    <button
+      onClick={() => onSimClick(sim)}
+      className="group relative flex flex-col overflow-hidden rounded-2xl bg-card hover:bg-muted border-2 hover:border-[#83f1aa] transition-all duration-300 hover:scale-105 hover:shadow-xl"
+    >
+      {/* Image container */}
+      <div className="relative w-full aspect-[4/3] overflow-hidden bg-muted">
+        {sim.avatar ? (
+          <img
+            src={getAvatarUrl(sim.avatar)} 
+            alt={sim.name}
+            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+          />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center bg-primary/10">
+            <span className="text-5xl font-bold text-primary">
+              {sim.name?.charAt(0)?.toUpperCase() || 'S'}
+            </span>
+          </div>
+        )}
+      </div>
+      
+      {/* Content section */}
+      <div className="w-full p-3 space-y-2">
+        <div className="flex items-center justify-center gap-1.5">
+          <span className="text-sm font-semibold line-clamp-2 leading-tight block">
+            {sim.name}
+          </span>
+          {(sim as any).is_verified && (
+            <div className="group/verified relative flex-shrink-0">
+              <img 
+                src="/lovable-uploads/verified-badge.png" 
+                alt="Verified"
+                className="w-4 h-4"
+              />
+              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 bg-popover text-popover-foreground text-xs rounded-lg shadow-lg opacity-0 group-hover/verified:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50 border border-border">
+                This Sim has been verified through their X account.
+              </div>
+            </div>
+          )}
+        </div>
+        
+        {/* Badges */}
+        <div className="flex flex-wrap gap-1.5 justify-center">
+          <Badge 
+            variant="outline" 
+            className="text-[9px] px-1.5 py-0 bg-primary/10 border-primary/30 text-primary whitespace-nowrap"
+          >
+            {typeBadgeText}
+          </Badge>
+          
+          {isPumpFunAgent ? (
+            <Badge 
+              variant="outline" 
+              className="text-[9px] px-1.5 py-0 flex items-center gap-0.5"
+            >
+              <img src={pumpfunLogo} alt="PumpFun" className="h-3 w-3" />
+              Agent
+            </Badge>
+          ) : secondBadgeText && secondBadgeText !== 'uncategorized' && (
+            <Badge 
+              variant="outline" 
+              className={`text-[9px] px-1.5 py-0 whitespace-nowrap ${
+                isCryptoMail && isVerified 
+                  ? 'bg-green-500/10 border-green-500/30 text-green-600 dark:text-green-400'
+                  : isCryptoMail && !isVerified
+                  ? 'bg-yellow-500/10 border-yellow-500/30 text-yellow-600 dark:text-yellow-400'
+                  : 'bg-muted/50 border-muted-foreground/20 text-muted-foreground'
+              }`}
+            >
+              {secondBadgeText}
+            </Badge>
+          )}
+        </div>
+
+        {/* Market Cap for PumpFun agents */}
+        {isPumpFunAgent && marketCapData?.marketCap && (
+          <div className="pt-1 border-t border-border/50">
+            <div className="flex items-center justify-center gap-1.5">
+              <span className="text-[10px] text-muted-foreground">Market Cap:</span>
+              <span className="text-xs font-semibold text-primary">
+                {formatMarketCap(marketCapData.marketCap)}
+              </span>
+            </div>
+          </div>
+        )}
+        {isPumpFunAgent && isLoadingMarketCap && (
+          <div className="pt-1 border-t border-border/50">
+            <div className="text-[10px] text-muted-foreground text-center">Loading...</div>
+          </div>
+        )}
+      </div>
+    </button>
+  );
+};
+
 const Landing = () => {
   const navigate = useNavigate();
   const [selectedSim, setSelectedSim] = useState<AgentType | null>(null);
@@ -564,102 +736,14 @@ const Landing = () => {
 
           {/* Sims Grid */}
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-            {filteredSims?.map((sim) => {
-              const simCategoryType = (sim as any).sim_category;
-              const isAutonomousAgent = simCategoryType === 'Autonomous Agent';
-              const isCryptoMail = simCategoryType === 'Crypto Mail';
-              const isVerified = (sim as any).is_verified || false;
-              const marketplaceCategory = (sim as any).marketplace_category?.toLowerCase() || 'uncategorized';
-              const categoryLabel = categories.find(c => c.id === marketplaceCategory)?.label || marketplaceCategory;
-              
-              // Determine type badge
-              let typeBadgeText = 'Chat';
-              if (isAutonomousAgent) typeBadgeText = 'Autonomous Agent';
-              else if (isCryptoMail) typeBadgeText = 'Crypto Mail';
-              
-              // Determine second badge
-              let secondBadgeText = '';
-              if (isAutonomousAgent) {
-                // For autonomous agents, always show properly capitalized category
-                if (marketplaceCategory === 'uncategorized' || marketplaceCategory === 'daily brief' || !marketplaceCategory) {
-                  secondBadgeText = 'Daily Brief';
-                } else {
-                  secondBadgeText = categoryLabel;
-                }
-              } else if (isCryptoMail) {
-                secondBadgeText = isVerified ? 'Verified' : 'Unverified';
-              } else {
-                secondBadgeText = categoryLabel;
-              }
-              
-              return (
-                <button
-                  key={sim.id}
-                  onClick={() => handleSimClick(sim)}
-                  className="group relative flex flex-col overflow-hidden rounded-2xl bg-card hover:bg-muted border-2 hover:border-[#83f1aa] transition-all duration-300 hover:scale-105 hover:shadow-xl"
-                >
-                  {/* Image container - fills top portion */}
-                  <div className="relative w-full aspect-[4/3] overflow-hidden bg-muted">
-                    {sim.avatar ? (
-                      <img
-                        src={getAvatarUrl(sim.avatar)} 
-                        alt={sim.name}
-                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center bg-primary/10">
-                        <span className="text-5xl font-bold text-primary">
-                          {sim.name?.charAt(0)?.toUpperCase() || 'S'}
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                  
-                  {/* Content section */}
-                  <div className="w-full p-3 space-y-2">
-                    <div className="flex items-center justify-center gap-1.5">
-                      <span className="text-sm font-semibold line-clamp-2 leading-tight block">
-                        {sim.name}
-                      </span>
-                      {(sim as any).is_verified && (
-                        <div className="group/verified relative flex-shrink-0">
-                          <img 
-                            src="/lovable-uploads/verified-badge.png" 
-                            alt="Verified" 
-                            className="w-4 h-4"
-                          />
-                          <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 bg-popover text-popover-foreground text-xs rounded-lg shadow-lg opacity-0 group-hover/verified:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50 border border-border">
-                            This Sim has been verified through their X account.
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                    
-                    {/* Type and Category badges */}
-                    <div className="flex flex-wrap gap-1.5 justify-center">
-                      <Badge variant="outline" className="text-[9px] px-1.5 py-0 bg-primary/10 border-primary/30 text-primary whitespace-nowrap">
-                        {typeBadgeText}
-                      </Badge>
-                      {secondBadgeText !== 'uncategorized' && (
-                        <Badge 
-                          variant="outline" 
-                          className={`text-[9px] px-1.5 py-0 whitespace-nowrap ${
-                            isCryptoMail && isVerified 
-                              ? 'bg-green-500/10 border-green-500/30 text-green-600 dark:text-green-400'
-                              : isCryptoMail && !isVerified
-                              ? 'bg-yellow-500/10 border-yellow-500/30 text-yellow-600 dark:text-yellow-400'
-                              : 'bg-muted/50 border-muted-foreground/20 text-muted-foreground'
-                          }`}
-                        >
-                          {secondBadgeText}
-                        </Badge>
-                      )}
-                    </div>
-                    
-                  </div>
-                </button>
-              );
-            })}
+            {filteredSims?.map((sim) => (
+              <PumpFunSimCard
+                key={sim.id}
+                sim={sim}
+                onSimClick={handleSimClick}
+                categories={categories}
+              />
+            ))}
           </div>
 
           {filteredSims?.length === 0 && (
