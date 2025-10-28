@@ -275,22 +275,34 @@ const PublicSimDetail = () => {
       setSim(transformedSim);
       
       // Update meta tags for social sharing
-      const simSlug = transformedSim.custom_url || generateSlug(transformedSim.name);
+      const simSlug = data.custom_url || generateSlug(transformedSim.name);
       const simUrl = `https://simproject.org/${simSlug}`;
-      const simDescription = transformedSim.auto_description || 
+      const simDescription = data.auto_description || 
         (transformedSim.sim_category === 'Crypto Mail' && transformedSim.description) || 
         `Chat with ${transformedSim.name}, your AI assistant.`;
       
-      // Use full URL for avatar if it's a relative path
-      let avatarUrl = getAvatarUrl(transformedSim.avatar);
-      if (avatarUrl && !avatarUrl.startsWith('http')) {
-        avatarUrl = `https://simproject.org${avatarUrl}`;
+      // Get the avatar URL and ensure it's a full URL for social sharing
+      let avatarImageUrl = 'https://simproject.org/sim-logo.png?v=2'; // Default fallback
+      
+      if (data.avatar_url) {
+        const avatarPath = getAvatarUrl(data.avatar_url);
+        if (avatarPath) {
+          if (avatarPath.startsWith('http://') || avatarPath.startsWith('https://')) {
+            avatarImageUrl = avatarPath;
+          } else {
+            // Ensure leading slash and convert to full URL
+            const cleanPath = avatarPath.startsWith('/') ? avatarPath : `/${avatarPath}`;
+            avatarImageUrl = `https://simproject.org${cleanPath}`;
+          }
+        }
       }
+      
+      console.log('Setting meta tags with avatar:', avatarImageUrl);
       
       updateMetaTags({
         title: `${transformedSim.name} - Sim`,
         description: simDescription,
-        image: avatarUrl || 'https://simproject.org/sim-logo.png?v=2',
+        image: avatarImageUrl,
         url: simUrl
       });
       
