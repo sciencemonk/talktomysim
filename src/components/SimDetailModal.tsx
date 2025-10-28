@@ -592,6 +592,30 @@ const SimDetailModal = ({ sim, open, onOpenChange, onAuthRequired }: SimDetailMo
             </Button>
           </div>
 
+          {/* PumpFun Link Button */}
+          {(() => {
+            const simCategoryType = (sim as any).sim_category;
+            const isPumpFunAgent = simCategoryType === 'PumpFun Agent';
+            const contractAddress = (sim?.social_links as any)?.contract_address;
+
+            if (!isPumpFunAgent || !contractAddress) return null;
+
+            return (
+              <div className="mb-3">
+                <a
+                  href={`https://pump.fun/${contractAddress}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center gap-2 w-full h-10 px-4 text-sm font-medium rounded-md border border-border bg-accent/10 hover:bg-accent/20 transition-all duration-300 group"
+                >
+                  <img src={pumpLogo} alt="PumpFun" className="h-4 w-4" />
+                  <span className="group-hover:text-foreground transition-colors">View on Pump.fun</span>
+                  <ExternalLink className="h-3.5 w-3.5 text-muted-foreground group-hover:text-foreground transition-colors flex-shrink-0" />
+                </a>
+              </div>
+            );
+          })()}
+
           {/* SOL Wallet Address */}
           {(sim as any)?.crypto_wallet && (
             <div className="flex flex-col gap-2 pt-3 border-t border-border">
