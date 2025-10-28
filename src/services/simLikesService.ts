@@ -1,31 +1,38 @@
 import { supabase } from "@/integrations/supabase/client";
 
-// Cache the IP address in memory for the session
-let cachedIpAddress: string | null = null;
+// Storage key for IP address
+const IP_STORAGE_KEY = 'sim_user_ip';
 
-// Get the client's IP address
+// Get the client's IP address with localStorage persistence
 const getClientIp = async (): Promise<string> => {
-  // Return cached IP if available
-  if (cachedIpAddress) {
-    return cachedIpAddress;
+  // First check localStorage
+  const storedIp = localStorage.getItem(IP_STORAGE_KEY);
+  if (storedIp && storedIp !== 'unknown') {
+    console.log('Using stored IP:', storedIp);
+    return storedIp;
   }
 
   try {
+    console.log('Fetching IP from edge function...');
     const { data, error } = await supabase.functions.invoke('get-client-ip');
     
     if (error) {
       console.error('Error getting client IP:', error);
-      cachedIpAddress = 'unknown';
-      return cachedIpAddress;
+      return 'unknown';
     }
     
-    cachedIpAddress = data?.ip || 'unknown';
-    console.log('Client IP retrieved:', cachedIpAddress);
-    return cachedIpAddress;
+    const ip = data?.ip || 'unknown';
+    
+    // Only store valid IPs
+    if (ip && ip !== 'unknown') {
+      localStorage.setItem(IP_STORAGE_KEY, ip);
+      console.log('IP fetched and stored:', ip);
+    }
+    
+    return ip;
   } catch (error) {
     console.error('Error fetching client IP:', error);
-    cachedIpAddress = 'unknown';
-    return cachedIpAddress;
+    return 'unknown';
   }
 };
 
@@ -83,6 +90,9 @@ export const toggleSimLike = async (simId: string): Promise<{ liked: boolean; co
       deleteQuery = deleteQuery.eq('user_id', user.id);
     } else {
       const ipAddress = await getClientIp();
+      if (ipAddress === 'unknown') {
+        throw new Error('Unable to verify IP address');
+      }
       deleteQuery = deleteQuery.eq('ip_address', ipAddress);
     }
     
@@ -104,7 +114,12 @@ export const toggleSimLike = async (simId: string): Promise<{ liked: boolean; co
     if (user) {
       likeData.user_id = user.id;
     } else {
-      likeData.ip_address = await getClientIp();
+      const ipAddress = await getClientIp();
+      if (ipAddress === 'unknown') {
+        throw new Error('Unable to verify IP address');
+      }
+      likeData.ip_address = ipAddress;
+      console.log('Creating like with IP:', ipAddress);
     }
     
     const { error } = await supabase
@@ -113,6 +128,13 @@ export const toggleSimLike = async (simId: string): Promise<{ liked: boolean; co
     
     if (error) {
       console.error('Error liking sim:', error);
+      // Check if it's a duplicate key error
+      if (error.code === '23505') {
+        console.log('Duplicate like detected - sim already liked');
+        // Return current state since it's already liked
+        const count = await getLikeCount(simId);
+        return { liked: true, count };
+      }
       throw error;
     }
     
