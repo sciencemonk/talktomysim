@@ -247,14 +247,14 @@ You can discuss your tokenomics, community, and answer questions about the proje
               </Label>
               <Input
                 id="contractAddress"
-                placeholder="Enter unbonded token CA..."
+                placeholder="Enter token CA..."
                 value={contractAddress}
                 onChange={(e) => setContractAddress(e.target.value)}
                 disabled={isLoading}
                 className="bg-background"
               />
               <p className="text-xs text-muted-foreground">
-                Enter the contract address of an unbonded PumpFun token to automatically create a chatbot
+                Enter the contract address of a PumpFun token to automatically create a chatbot
               </p>
             </div>
             <Button 
