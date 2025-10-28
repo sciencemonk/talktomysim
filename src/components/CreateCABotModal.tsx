@@ -149,7 +149,7 @@ export const CreateCABotModal = ({ open, onOpenChange, onSuccess }: CreateCABotM
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
+          <DialogTitle className="flex items-center gap-2 text-foreground">
             <Bot className="h-5 w-5" />
             Create CA AI Agent
           </DialogTitle>
@@ -169,7 +169,12 @@ export const CreateCABotModal = ({ open, onOpenChange, onSuccess }: CreateCABotM
               Enter the contract address of an unbonded PumpFun token to automatically create a chatbot
             </p>
           </div>
-          <Button type="submit" disabled={isCreating} className="w-full">
+          <Button 
+            type="submit" 
+            disabled={isCreating} 
+            className="w-full text-black hover:opacity-90"
+            style={{ backgroundColor: '#82f2aa' }}
+          >
             {isCreating ? (
               <>
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
