@@ -22,11 +22,129 @@ import { AgentType } from "@/types/agent";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useNavigate } from "react-router-dom";
+import pumpLogo from "@/assets/pumpfun-logo.png";
 
 interface AdvisorDirectoryProps {
   onSelectAdvisor: (advisorId: string, advisor?: AgentType) => void;
   onAuthRequired?: () => void;
 }
+
+interface PumpFunAgentCardProps {
+  advisor: AgentType;
+  isPumpFunAgent: boolean;
+  contractAddress?: string;
+  onClick: () => void;
+}
+
+const PumpFunAgentCard = ({ advisor, isPumpFunAgent, contractAddress, onClick }: PumpFunAgentCardProps) => {
+  const [marketCapData, setMarketCapData] = useState<{ marketCap?: number } | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    const fetchMarketCap = async () => {
+      if (!isPumpFunAgent || !contractAddress) return;
+      
+      setIsLoading(true);
+      try {
+        const { supabase } = await import('@/integrations/supabase/client');
+        const { data, error } = await supabase.functions.invoke('analyze-pumpfun-token', {
+          body: { tokenAddress: contractAddress },
+        });
+
+        if (!error && data?.success && data?.tokenData) {
+          setMarketCapData({ marketCap: data.tokenData.usd_market_cap });
+        }
+      } catch (error) {
+        console.error('[PumpFunAgentCard] Error fetching market cap:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchMarketCap();
+  }, [isPumpFunAgent, contractAddress]);
+
+  const formatMarketCap = (value: number) => {
+    if (value >= 1_000_000) {
+      return `$${(value / 1_000_000).toFixed(2)}M`;
+    }
+    if (value >= 1_000) {
+      return `$${(value / 1_000).toFixed(2)}K`;
+    }
+    return `$${value.toFixed(2)}`;
+  };
+
+  return (
+    <Card 
+      className="cursor-pointer hover:shadow-md transition-shadow group overflow-hidden"
+      onClick={onClick}
+    >
+      {/* Image at the top */}
+      <div className="relative w-full aspect-[16/9] overflow-hidden bg-muted">
+        {advisor.avatar ? (
+          <img
+            src={advisor.avatar}
+            alt={advisor.name}
+            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+          />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center bg-primary/10">
+            <span className="text-6xl font-bold text-primary">
+              {advisor.name.charAt(0)}
+            </span>
+          </div>
+        )}
+      </div>
+
+      <CardHeader className="p-4">
+        <div className="space-y-2">
+          <div className="flex items-center gap-2 flex-wrap">
+            <CardTitle className="text-lg">{advisor.name}</CardTitle>
+            {advisor.is_featured && (
+              <Badge variant="secondary" className="text-xs">
+                <Star className="h-3 w-3 mr-1" />
+                Featured
+              </Badge>
+            )}
+            {advisor.is_official && advisor.sim_type === 'historical' && (
+              <Badge variant="gradient" className="text-xs">
+                <Award className="h-3 w-3 mr-1" />
+                Official Historical Sim
+              </Badge>
+            )}
+            {isPumpFunAgent && (
+              <Badge variant="outline" className="text-xs flex items-center gap-1 bg-background">
+                <img src={pumpLogo} alt="PumpFun" className="h-3 w-3" />
+                Agent
+              </Badge>
+            )}
+          </div>
+          <CardDescription className="text-sm">
+            {advisor.title || "Advisor"}
+          </CardDescription>
+        </div>
+      </CardHeader>
+      <CardContent className="p-4 pt-0 space-y-2">
+        <p className="text-sm text-muted-foreground line-clamp-3">
+          {advisor.description}
+        </p>
+        {isPumpFunAgent && marketCapData?.marketCap && (
+          <div className="flex items-center gap-2 pt-2 border-t">
+            <span className="text-xs text-muted-foreground">Market Cap:</span>
+            <span className="text-sm font-semibold text-primary">
+              {formatMarketCap(marketCapData.marketCap)}
+            </span>
+          </div>
+        )}
+        {isPumpFunAgent && isLoading && (
+          <div className="flex items-center gap-2 pt-2 border-t">
+            <span className="text-xs text-muted-foreground">Loading market cap...</span>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+};
 
 const AdvisorDirectory = ({ onSelectAdvisor, onAuthRequired }: AdvisorDirectoryProps) => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -272,58 +390,22 @@ const AdvisorDirectory = ({ onSelectAdvisor, onAuthRequired }: AdvisorDirectoryP
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredAdvisors.map((advisor) => (
-                <Card 
-                  key={advisor.id} 
-                  className="cursor-pointer hover:shadow-md transition-shadow group overflow-hidden"
-                  onClick={() => handleAdvisorClick(advisor)}
-                >
-                  {/* Image at the top */}
-                  <div className="relative w-full aspect-[16/9] overflow-hidden bg-muted">
-                    {advisor.avatar ? (
-                      <img
-                        src={advisor.avatar}
-                        alt={advisor.name}
-                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center bg-primary/10">
-                        <span className="text-6xl font-bold text-primary">
-                          {advisor.name.charAt(0)}
-                        </span>
-                      </div>
-                    )}
-                  </div>
+              {filteredAdvisors.map((advisor) => {
+                const isPumpFunAgent = (advisor as any).sim_category === 'PumpFun Agent';
+                const contractAddress = isPumpFunAgent 
+                  ? (advisor.social_links as any)?.contract_address 
+                  : undefined;
 
-                  <CardHeader className="p-4">
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <CardTitle className="text-lg">{advisor.name}</CardTitle>
-                        {advisor.is_featured && (
-                          <Badge variant="secondary" className="text-xs">
-                            <Star className="h-3 w-3 mr-1" />
-                            Featured
-                          </Badge>
-                        )}
-                        {advisor.is_official && advisor.sim_type === 'historical' && (
-                          <Badge variant="gradient" className="text-xs">
-                            <Award className="h-3 w-3 mr-1" />
-                            Official Historical Sim
-                          </Badge>
-                        )}
-                      </div>
-                      <CardDescription className="text-sm">
-                        {advisor.title || "Advisor"}
-                      </CardDescription>
-                    </div>
-                  </CardHeader>
-                  <CardContent className="p-4 pt-0">
-                    <p className="text-sm text-muted-foreground line-clamp-3">
-                      {advisor.description}
-                    </p>
-                  </CardContent>
-                </Card>
-              ))}
+                return (
+                  <PumpFunAgentCard
+                    key={advisor.id}
+                    advisor={advisor}
+                    isPumpFunAgent={isPumpFunAgent}
+                    contractAddress={contractAddress}
+                    onClick={() => handleAdvisorClick(advisor)}
+                  />
+                );
+              })}
             </div>
           )}
 
