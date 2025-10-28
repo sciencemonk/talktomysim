@@ -449,11 +449,22 @@ const EditSimModal = ({ open, onOpenChange, simId, editCode }: EditSimModalProps
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden p-0">
           <div className="p-6">
-            <div className="space-y-2 mb-6">
-              <h2 className="text-2xl font-semibold tracking-tight">Edit Sim</h2>
-              <p className="text-sm text-muted-foreground">
-                Update your AI sim's configuration and behavior
-              </p>
+            <div className="flex items-center gap-4 mb-6">
+              <Avatar className="w-16 h-16 border-2 border-border">
+                {avatarPreview ? (
+                  <AvatarImage src={avatarPreview} alt={name} className="object-cover" />
+                ) : (
+                  <AvatarFallback className="bg-muted text-lg">
+                    {name.charAt(0).toUpperCase()}
+                  </AvatarFallback>
+                )}
+              </Avatar>
+              <div>
+                <h2 className="text-2xl font-semibold tracking-tight">{name || 'Unnamed Sim'}</h2>
+                <p className="text-sm text-muted-foreground">
+                  {marketplaceCategory ? categories.find(c => c.value === marketplaceCategory)?.label : 'Sim Configuration'}
+                </p>
+              </div>
             </div>
 
             <Tabs defaultValue="usage" className="w-full">
