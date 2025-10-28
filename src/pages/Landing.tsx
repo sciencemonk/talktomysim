@@ -451,7 +451,7 @@ const Landing = () => {
                   className="gap-2 font-semibold h-12 px-4 shrink-0"
                 >
                   <Plus className="h-4 w-4" />
-                  Create CA Bot
+                  Create CA Agent
                 </Button>
 
                 {/* Sort dropdown */}

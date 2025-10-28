@@ -94,7 +94,7 @@ export const TopNavBar = () => {
                 className="gap-1 sm:gap-2 font-semibold text-xs sm:text-sm px-2 sm:px-4 h-8 sm:h-10 hidden sm:flex"
               >
                 <Plus className="h-3 w-3 sm:h-4 sm:w-4" />
-                <span>CA Bot</span>
+                <span>CA Agent</span>
               </Button>
 
               {currentUser && (

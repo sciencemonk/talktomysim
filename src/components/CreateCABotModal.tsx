@@ -151,7 +151,7 @@ export const CreateCABotModal = ({ open, onOpenChange, onSuccess }: CreateCABotM
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Bot className="h-5 w-5" />
-            Create CA Bot
+            Create CA AI Agent
           </DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -163,6 +163,7 @@ export const CreateCABotModal = ({ open, onOpenChange, onSuccess }: CreateCABotM
               value={contractAddress}
               onChange={(e) => setContractAddress(e.target.value)}
               disabled={isCreating}
+              className="bg-background"
             />
             <p className="text-xs text-muted-foreground">
               Enter the contract address of an unbonded PumpFun token to automatically create a chatbot
@@ -172,12 +173,12 @@ export const CreateCABotModal = ({ open, onOpenChange, onSuccess }: CreateCABotM
             {isCreating ? (
               <>
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                Creating Bot...
+                Creating AI Agent...
               </>
             ) : (
               <>
                 <Bot className="h-4 w-4 mr-2" />
-                Create CA Bot
+                Create CA Agent
               </>
             )}
           </Button>
