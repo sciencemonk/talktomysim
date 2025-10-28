@@ -158,6 +158,43 @@ serve(async (req) => {
     const needsResearch = shouldDoWebResearch(userMessage);
     console.log('Needs research:', needsResearch);
 
+    // Use integrations from request body if provided, otherwise fetch from database
+    let agentIntegrations: string[] = [];
+    let agentContractAddress: string | null = null;
+    
+    if (agent.integrations && Array.isArray(agent.integrations) && agent.integrations.length > 0) {
+      // Use integrations passed from frontend (user's selected integrations)
+      agentIntegrations = agent.integrations;
+      console.log('Using integrations from request:', agentIntegrations);
+    } else if (agent.id) {
+      // Fall back to database integrations if none provided
+      try {
+        const { data: advisorData } = await supabase
+          .from('advisors')
+          .select('integrations, social_links')
+          .eq('id', agent.id)
+          .single();
+        
+        if (advisorData?.integrations) {
+          agentIntegrations = Array.isArray(advisorData.integrations) 
+            ? advisorData.integrations 
+            : [];
+        }
+        
+        // Get contract address from social_links if this is a PumpFun agent
+        if (advisorData?.social_links && typeof advisorData.social_links === 'object') {
+          agentContractAddress = (advisorData.social_links as any).contract_address || null;
+        }
+        
+        console.log('Using integrations from database:', agentIntegrations);
+        console.log('Agent contract address:', agentContractAddress);
+      } catch (error) {
+        console.error('Error fetching agent integrations:', error);
+      }
+    }
+
+    console.log('Agent integrations:', agentIntegrations);
+
     // Check if this is an ongoing conversation
     const isOngoingConversation = messages.length > 1;
     
@@ -213,6 +250,14 @@ ${agent.prompt || `You are ${agent.name}. ${agent.description || ''}`}
       systemPrompt += `\n\n# REAL-TIME INFORMATION
 IMPORTANT: The user's question requires current, real-time information. You have access to Google Search - use it to find the latest, most accurate data to answer their question. Always provide specific numbers, prices, or facts from your search results.`;
     }
+    
+    // Add contract address for PumpFun agents
+    if (agentContractAddress && agentIntegrations.includes('pumpfun')) {
+      systemPrompt += `\n\n# YOUR TOKEN CONTRACT ADDRESS
+Your token's contract address (CA) is: ${agentContractAddress}
+
+When users ask about your market cap, price, trading volume, or other token metrics, use the analyze_pumpfun_token tool with YOUR contract address to provide real-time data.`;
+    }
 
     // Only add supplementary context if absolutely necessary
     if (walletAnalysis) {
@@ -221,35 +266,6 @@ ${JSON.stringify(walletAnalysis, null, 2)}`;
     }
 
     console.log('System prompt length:', systemPrompt.length);
-
-    // Use integrations from request body if provided, otherwise fetch from database
-    let agentIntegrations: string[] = [];
-    
-    if (agent.integrations && Array.isArray(agent.integrations) && agent.integrations.length > 0) {
-      // Use integrations passed from frontend (user's selected integrations)
-      agentIntegrations = agent.integrations;
-      console.log('Using integrations from request:', agentIntegrations);
-    } else if (agent.id) {
-      // Fall back to database integrations if none provided
-      try {
-        const { data: advisorData } = await supabase
-          .from('advisors')
-          .select('integrations')
-          .eq('id', agent.id)
-          .single();
-        
-        if (advisorData?.integrations) {
-          agentIntegrations = Array.isArray(advisorData.integrations) 
-            ? advisorData.integrations 
-            : [];
-        }
-        console.log('Using integrations from database:', agentIntegrations);
-      } catch (error) {
-        console.error('Error fetching agent integrations:', error);
-      }
-    }
-
-    console.log('Agent integrations:', agentIntegrations);
 
     // Define tools available to the AI - only include tools for enabled integrations
     const tools = [];

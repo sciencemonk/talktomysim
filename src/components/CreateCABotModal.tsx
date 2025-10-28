@@ -46,6 +46,19 @@ export const CreateCABotModal = ({ open, onOpenChange, onSuccess }: CreateCABotM
     setIsLoading(true);
 
     try {
+      // Check if agent with this contract address already exists
+      const { data: existingAgent } = await supabase
+        .from("advisors")
+        .select("id, name")
+        .contains("social_links", { contract_address: contractAddress.trim() })
+        .single();
+
+      if (existingAgent) {
+        toast.error(`An agent for this token already exists: ${existingAgent.name}`);
+        setIsLoading(false);
+        return;
+      }
+
       // Fetch token data from PumpFun
       const { data: response, error: tokenError } = await supabase.functions.invoke(
         "analyze-pumpfun-token",
@@ -94,9 +107,13 @@ export const CreateCABotModal = ({ open, onOpenChange, onSuccess }: CreateCABotM
       } = await supabase.auth.getUser();
 
       // Generate system prompt for the PumpFun Agent
-      const systemPrompt = `You are ${name} (${symbol}), a PumpFun token chatbot. Your contract address is ${contractAddress.trim()}. ${
-        description || ""
-      } You can discuss your tokenomics, community, and answer questions about the project. Be enthusiastic and engaging!`;
+      const systemPrompt = `You are ${name} (${symbol}), a PumpFun token chatbot.
+
+Your contract address (CA) is: ${contractAddress.trim()}
+
+${description || ""}
+
+You can discuss your tokenomics, community, and answer questions about the project. When users ask about market cap, price, trading activity, or any token metrics, use the PumpFun CA Data integration to provide real-time information about your token. Be enthusiastic and engaging!`;
 
       // Generate welcome message
       const welcomeMessage = `Hey! I'm ${name} (${symbol}). Ask me anything about the token!`;
@@ -118,7 +135,10 @@ export const CreateCABotModal = ({ open, onOpenChange, onSuccess }: CreateCABotM
         integrations: ["solana-explorer", "pumpfun", "x-analyzer", "crypto-prices"],
         is_active: true,
         is_public: true,
-        social_links: creator ? { creator: creator } : null,
+        social_links: { 
+          contract_address: contractAddress.trim(),
+          creator: creator || null 
+        },
         edit_code: editCode,
         marketplace_category: "crypto",
         welcome_message: welcomeMessage,
