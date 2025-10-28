@@ -857,7 +857,15 @@ const PublicSimDetail = () => {
 
               {/* Like Button */}
               <div className="flex justify-center mb-6">
-                <SimLikeButton simId={sim.id} />
+                <SimLikeButton 
+                  simId={sim.id}
+                  onLikeChange={() => {
+                    // Refresh the landing page data when like changes
+                    if (window.location.pathname === '/') {
+                      window.location.reload();
+                    }
+                  }}
+                />
               </div>
 
               {/* Social Links & Wallet */}

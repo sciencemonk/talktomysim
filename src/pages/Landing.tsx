@@ -641,7 +641,15 @@ const Landing = () => {
                     
                     {/* Like button */}
                     <div className="flex justify-center pt-1">
-                      <SimLikeButton simId={sim.id} variant="compact" />
+                      <SimLikeButton 
+                        simId={sim.id} 
+                        variant="compact"
+                        initialCount={(sim as any).like_count || 0}
+                        onLikeChange={() => {
+                          // Invalidate query to refresh the list with updated counts
+                          queryClient.invalidateQueries({ queryKey: ['all-sims-landing'] });
+                        }}
+                      />
                     </div>
                   </div>
                 </button>
