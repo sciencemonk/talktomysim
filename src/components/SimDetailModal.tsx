@@ -98,6 +98,13 @@ const SimDetailModal = ({ sim, open, onOpenChange, onAuthRequired }: SimDetailMo
         ? (sim?.social_links as any)?.contract_address 
         : undefined;
 
+      console.log('[SimDetailModal] Market cap fetch check:', { 
+        isPumpFunAgent, 
+        contractAddress,
+        open,
+        simCategory: simCategoryType
+      });
+
       if (!isPumpFunAgent || !contractAddress || !open) {
         setMarketCapData(null);
         return;
@@ -105,24 +112,35 @@ const SimDetailModal = ({ sim, open, onOpenChange, onAuthRequired }: SimDetailMo
       
       setIsLoadingMarketCap(true);
       try {
+        console.log('[SimDetailModal] Fetching market cap for:', contractAddress);
         const { data, error } = await supabase.functions.invoke('analyze-pumpfun-token', {
           body: { tokenAddress: contractAddress },
         });
 
-        if (!error && data?.success && data?.tokenData) {
-          setMarketCapData({ marketCap: data.tokenData.usd_market_cap });
+        console.log('[SimDetailModal] Market cap response:', { data, error });
+
+        if (error) {
+          console.error('[SimDetailModal] Error from edge function:', error);
+          setMarketCapData(null);
+        } else if (data?.success && data?.tokenData) {
+          const marketCap = data.tokenData.usd_market_cap || data.tokenData.market_cap;
+          console.log('[SimDetailModal] Setting market cap:', marketCap);
+          setMarketCapData({ marketCap });
         } else {
+          console.error('[SimDetailModal] Unexpected response structure:', data);
           setMarketCapData(null);
         }
       } catch (error) {
-        console.error('[SimDetailModal] Error fetching market cap:', error);
+        console.error('[SimDetailModal] Exception fetching market cap:', error);
         setMarketCapData(null);
       } finally {
         setIsLoadingMarketCap(false);
       }
     };
 
-    fetchMarketCap();
+    if (open && sim) {
+      fetchMarketCap();
+    }
   }, [open, sim]);
 
   // Calculate SOL equivalent (1 $SimAI = 0.001 SOL)
