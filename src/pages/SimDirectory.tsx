@@ -419,35 +419,35 @@ const SimDirectory = () => {
             </div>
 
             {/* Price & Sort Filters */}
-            <div className="flex flex-wrap gap-3 items-center">
-              <Tabs value={priceFilter} onValueChange={(v) => setPriceFilter(v as FilterType)}>
-                <TabsList>
-                  <TabsTrigger value="all" className="gap-2">
+            <div className="flex flex-col sm:flex-row flex-wrap gap-3 items-stretch sm:items-center">
+              <Tabs value={priceFilter} onValueChange={(v) => setPriceFilter(v as FilterType)} className="w-full sm:w-auto">
+                <TabsList className="w-full sm:w-auto">
+                  <TabsTrigger value="all" className="gap-2 flex-1 sm:flex-none">
                     All
                   </TabsTrigger>
-                  <TabsTrigger value="free" className="gap-2">
+                  <TabsTrigger value="free" className="gap-2 flex-1 sm:flex-none">
                     <Gift className="h-4 w-4" />
                     Free
                   </TabsTrigger>
-                  <TabsTrigger value="paid" className="gap-2">
+                  <TabsTrigger value="paid" className="gap-2 flex-1 sm:flex-none">
                     <DollarSign className="h-4 w-4" />
                     Paid
                   </TabsTrigger>
                 </TabsList>
               </Tabs>
 
-              <div className="h-8 w-px bg-border" />
+              <div className="hidden sm:block h-8 w-px bg-border" />
 
-              <Tabs value={sortBy} onValueChange={(v) => setSortBy(v as SortType)}>
-                <TabsList>
-                  <TabsTrigger value="newest">
+              <Tabs value={sortBy} onValueChange={(v) => setSortBy(v as SortType)} className="w-full sm:w-auto">
+                <TabsList className="w-full sm:w-auto">
+                  <TabsTrigger value="newest" className="flex-1 sm:flex-none">
                     Newest
                   </TabsTrigger>
-                  <TabsTrigger value="popular" className="gap-2">
+                  <TabsTrigger value="popular" className="gap-2 flex-1 sm:flex-none">
                     <TrendingUp className="h-4 w-4" />
                     Popular
                   </TabsTrigger>
-                  <TabsTrigger value="name">
+                  <TabsTrigger value="name" className="flex-1 sm:flex-none">
                     A-Z
                   </TabsTrigger>
                 </TabsList>
