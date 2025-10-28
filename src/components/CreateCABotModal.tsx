@@ -79,7 +79,7 @@ export const CreateCABotModal = ({ open, onOpenChange, onSuccess }: CreateCABotM
       const simData: any = {
         user_id: user?.id || null,
         name: `${name} (${symbol})`,
-        sim_category: "Autonomous Agent",
+        sim_category: "PumpFun Agent",
         prompt: systemPrompt,
         description: description || `${name} - PumpFun token chatbot`,
         avatar_url: image || null,
