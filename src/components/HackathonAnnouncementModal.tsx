@@ -96,7 +96,7 @@ export const HackathonAnnouncementModal = () => {
             <Zap className="h-6 w-6 text-[#83f1aa]" />
           </div>
           <DialogDescription className="text-center text-base">
-            For the next 48 hours, every newly created Sim Chatbot will be entered into the $SIMAI Hackathon!
+            For the next 48 hours, every newly created Sim Chatbot will be entered into the $SIMAI Hackathon! To enter, go to the Sim X page and comment your Sim on the pinned post.
           </DialogDescription>
         </DialogHeader>
 
