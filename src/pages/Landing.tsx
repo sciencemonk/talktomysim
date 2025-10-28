@@ -10,6 +10,7 @@ import { toast as sonnerToast } from "sonner";
 import AuthModal from "@/components/AuthModal";
 import { CreateSimModal } from "@/components/CreateSimModal";
 import { CreateCABotModal } from "@/components/CreateCABotModal";
+import pumpfunLogo from "@/assets/pumpfun-logo.png";
 import { Search, TrendingUp, ChevronDown, Mail, Bot, Zap, Code, User, MessageCircle, LogOut, Plus } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -451,7 +452,7 @@ const Landing = () => {
                   className="gap-2 font-semibold h-12 px-4 shrink-0"
                 >
                   <Plus className="h-4 w-4" />
-                  Create CA Agent
+                  Create <img src={pumpfunLogo} alt="PumpFun" className="h-4 w-4 inline-block mx-1" /> Agent
                 </Button>
 
                 {/* Sort dropdown */}

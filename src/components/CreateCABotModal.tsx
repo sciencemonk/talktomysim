@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Loader2, Bot } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import pumpfunLogo from "@/assets/pumpfun-logo.png";
 
 interface CreateCABotModalProps {
   open: boolean;
@@ -151,7 +152,7 @@ export const CreateCABotModal = ({ open, onOpenChange, onSuccess }: CreateCABotM
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-foreground">
             <Bot className="h-5 w-5" />
-            Create CA AI Agent
+            Create <img src={pumpfunLogo} alt="PumpFun" className="h-5 w-5 inline-block" /> AI Agent
           </DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -183,7 +184,7 @@ export const CreateCABotModal = ({ open, onOpenChange, onSuccess }: CreateCABotM
             ) : (
               <>
                 <Bot className="h-4 w-4 mr-2" />
-                Create CA Agent
+                Create <img src={pumpfunLogo} alt="PumpFun" className="h-4 w-4 inline-block mx-1" /> Agent
               </>
             )}
           </Button>

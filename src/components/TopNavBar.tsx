@@ -14,6 +14,7 @@ import { getAvatarUrl } from "@/lib/avatarUtils";
 import AuthModal from "./AuthModal";
 import { CreateSimModal } from "./CreateSimModal";
 import { CreateCABotModal } from "./CreateCABotModal";
+import pumpfunLogo from "@/assets/pumpfun-logo.png";
 import { useQueryClient } from "@tanstack/react-query";
 import { ThemeToggle } from "./ThemeToggle";
 import { useTheme } from "@/hooks/useTheme";
@@ -94,7 +95,9 @@ export const TopNavBar = () => {
                 className="gap-1 sm:gap-2 font-semibold text-xs sm:text-sm px-2 sm:px-4 h-8 sm:h-10 hidden sm:flex"
               >
                 <Plus className="h-3 w-3 sm:h-4 sm:w-4" />
-                <span>CA Agent</span>
+                <span className="flex items-center gap-1">
+                  <img src={pumpfunLogo} alt="PumpFun" className="h-3 w-3 sm:h-4 sm:w-4 inline-block" /> Agent
+                </span>
               </Button>
 
               {currentUser && (
