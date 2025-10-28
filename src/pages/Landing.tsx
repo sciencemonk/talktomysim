@@ -9,6 +9,7 @@ import { AgentType } from "@/types/agent";
 import { toast as sonnerToast } from "sonner";
 import AuthModal from "@/components/AuthModal";
 import { CreateSimModal } from "@/components/CreateSimModal";
+import { CreateCABotModal } from "@/components/CreateCABotModal";
 import { Search, TrendingUp, ChevronDown, Mail, Bot, Zap, Code, User, MessageCircle, LogOut, Plus } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -37,6 +38,7 @@ const Landing = () => {
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [isSimModalOpen, setIsSimModalOpen] = useState(false);
   const [showCreateSimModal, setShowCreateSimModal] = useState(false);
+  const [showCreateCABotModal, setShowCreateCABotModal] = useState(false);
   const [currentUser, setCurrentUser] = useState<any>(null);
   const queryClient = useQueryClient();
   const [searchQuery, setSearchQuery] = useState('');
@@ -441,6 +443,16 @@ const Landing = () => {
                   <Plus className="h-4 w-4" />
                   Create Sim
                 </Button>
+                
+                {/* Create CA Bot Button */}
+                <Button
+                  onClick={() => setShowCreateCABotModal(true)}
+                  variant="outline"
+                  className="gap-2 font-semibold h-12 px-4 shrink-0"
+                >
+                  <Plus className="h-4 w-4" />
+                  Create CA Bot
+                </Button>
 
                 {/* Sort dropdown */}
                 <DropdownMenu>
@@ -681,6 +693,19 @@ const Landing = () => {
             setShowCreateSimModal(false);
             setAuthModalOpen(true);
           }}
+          onSuccess={async () => {
+            if (currentUser) {
+              await queryClient.invalidateQueries({ queryKey: ['user-sims', currentUser.id] });
+              await queryClient.invalidateQueries({ queryKey: ['all-sims-landing'] });
+            }
+          }}
+        />
+      )}
+
+      {showCreateCABotModal && (
+        <CreateCABotModal
+          open={showCreateCABotModal}
+          onOpenChange={setShowCreateCABotModal}
           onSuccess={async () => {
             if (currentUser) {
               await queryClient.invalidateQueries({ queryKey: ['user-sims', currentUser.id] });

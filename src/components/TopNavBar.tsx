@@ -13,6 +13,7 @@ import {
 import { getAvatarUrl } from "@/lib/avatarUtils";
 import AuthModal from "./AuthModal";
 import { CreateSimModal } from "./CreateSimModal";
+import { CreateCABotModal } from "./CreateCABotModal";
 import { useQueryClient } from "@tanstack/react-query";
 import { ThemeToggle } from "./ThemeToggle";
 import { useTheme } from "@/hooks/useTheme";
@@ -22,6 +23,7 @@ export const TopNavBar = () => {
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showCreateSimModal, setShowCreateSimModal] = useState(false);
+  const [showCreateCABotModal, setShowCreateCABotModal] = useState(false);
   const queryClient = useQueryClient();
   const { theme } = useTheme();
   
@@ -85,6 +87,15 @@ export const TopNavBar = () => {
                 <span className="hidden xs:inline">Create a Sim</span>
                 <span className="xs:hidden">Create</span>
               </Button>
+              
+              <Button
+                onClick={() => setShowCreateCABotModal(true)}
+                variant="outline"
+                className="gap-1 sm:gap-2 font-semibold text-xs sm:text-sm px-2 sm:px-4 h-8 sm:h-10 hidden sm:flex"
+              >
+                <Plus className="h-3 w-3 sm:h-4 sm:w-4" />
+                <span>CA Bot</span>
+              </Button>
 
               {currentUser && (
                 <DropdownMenu>
@@ -131,6 +142,19 @@ export const TopNavBar = () => {
             setShowCreateSimModal(false);
             setShowAuthModal(true);
           }}
+          onSuccess={async () => {
+            if (currentUser) {
+              await queryClient.invalidateQueries({ queryKey: ['user-sims', currentUser.id] });
+              await queryClient.invalidateQueries({ queryKey: ['my-sim-conversations', currentUser.id] });
+            }
+          }}
+        />
+      )}
+
+      {showCreateCABotModal && (
+        <CreateCABotModal
+          open={showCreateCABotModal}
+          onOpenChange={setShowCreateCABotModal}
           onSuccess={async () => {
             if (currentUser) {
               await queryClient.invalidateQueries({ queryKey: ['user-sims', currentUser.id] });
