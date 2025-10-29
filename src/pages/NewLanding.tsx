@@ -2,8 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { MatrixHeroSection } from "@/components/landing/MatrixHeroSection";
 import AuthModal from "@/components/AuthModal";
-import { CreateSimModal } from "@/components/CreateSimModal";
-import { CreateCABotModal } from "@/components/CreateCABotModal";
+import { UnifiedAgentCreation } from "@/components/UnifiedAgentCreation";
 import SimDetailModal from "@/components/SimDetailModal";
 import { AgentType } from "@/types/agent";
 import { HackathonAnnouncementModal } from "@/components/HackathonAnnouncementModal";
@@ -13,8 +12,7 @@ import { LandingFooter } from "@/components/landing/LandingFooter";
 const NewLanding = () => {
   const navigate = useNavigate();
   const [authModalOpen, setAuthModalOpen] = useState(false);
-  const [showCreateSimModal, setShowCreateSimModal] = useState(false);
-  const [showCreateCABotModal, setShowCreateCABotModal] = useState(false);
+  const [showCreateModal, setShowCreateModal] = useState(false);
   const [selectedSim, setSelectedSim] = useState<AgentType | null>(null);
   const [isSimModalOpen, setIsSimModalOpen] = useState(false);
 
@@ -23,12 +21,8 @@ const NewLanding = () => {
     const params = new URLSearchParams(window.location.search);
     const createType = params.get('create');
     
-    if (createType === 'sim') {
-      setShowCreateSimModal(true);
-      // Clean up URL
-      window.history.replaceState({}, '', '/');
-    } else if (createType === 'pumpfun') {
-      setShowCreateCABotModal(true);
+    if (createType) {
+      setShowCreateModal(true);
       // Clean up URL
       window.history.replaceState({}, '', '/');
     }
@@ -45,7 +39,7 @@ const NewLanding = () => {
       
       <div className="flex-1 overflow-hidden">
         <MatrixHeroSection 
-          onCreateAgent={() => setShowCreateSimModal(true)} 
+          onCreateAgent={() => setShowCreateModal(true)} 
           onSimClick={handleSimClick}
           onViewAllAgents={() => navigate('/agents')}
         />
@@ -70,25 +64,11 @@ const NewLanding = () => {
         }}
       />
 
-      {showCreateSimModal && (
-        <CreateSimModal
-          open={showCreateSimModal}
-          onOpenChange={setShowCreateSimModal}
-          onAuthRequired={() => {
-            setShowCreateSimModal(false);
-            setAuthModalOpen(true);
-          }}
-          onSuccess={() => {}}
-        />
-      )}
-
-      {showCreateCABotModal && (
-        <CreateCABotModal
-          open={showCreateCABotModal}
-          onOpenChange={setShowCreateCABotModal}
-          onSuccess={() => {}}
-        />
-      )}
+      <UnifiedAgentCreation
+        open={showCreateModal}
+        onOpenChange={setShowCreateModal}
+        onSuccess={() => {}}
+      />
     </div>
   );
 };
