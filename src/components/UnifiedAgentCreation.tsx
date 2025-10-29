@@ -85,6 +85,7 @@ export const UnifiedAgentCreation = ({ open, onOpenChange, onSuccess }: UnifiedA
     agentCategory: "",
     cryptoWallet: "",
     xProfile: "",
+    x402Price: "5.0",
   });
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
@@ -431,6 +432,7 @@ You can discuss your tokenomics, community, and answer questions about the proje
       agentCategory: "",
       cryptoWallet: "",
       xProfile: "",
+      x402Price: "5.0",
     });
     setAvatarFile(null);
     setAvatarPreview(null);
@@ -651,6 +653,23 @@ You can discuss your tokenomics, community, and answer questions about the proje
                             <p className="text-xs text-muted-foreground/70 flex items-center gap-1">
                               <span className="w-1 h-1 rounded-full bg-neonGreen" />
                               Your X (Twitter) profile handle
+                            </p>
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="x402Price" className="text-xs uppercase tracking-wider text-muted-foreground">Message Price (USDC) *</Label>
+                            <Input
+                              id="x402Price"
+                              type="number"
+                              step="0.01"
+                              min="0.01"
+                              placeholder="5.0"
+                              value={formData.x402Price}
+                              onChange={(e) => setFormData({ ...formData, x402Price: e.target.value })}
+                              className="h-12 bg-bg border-border/50 focus:border-neonGreen transition-colors font-mono"
+                            />
+                            <p className="text-xs text-muted-foreground/70 flex items-center gap-1">
+                              <span className="w-1 h-1 rounded-full bg-neonGreen" />
+                              Price in USDC to receive and respond to messages (x402 enabled)
                             </p>
                           </div>
                         </>
