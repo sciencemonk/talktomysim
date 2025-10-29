@@ -35,10 +35,10 @@ export const FeaturesGrid = () => {
   ];
 
   return (
-    <section className="py-24 bg-muted/30">
+    <section className="py-24 bg-muted/20 border-y border-border">
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl font-bold mb-4">
+          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4">
             Everything You Need to
             <span className="text-primary"> Build AI</span>
           </h2>
@@ -53,7 +53,7 @@ export const FeaturesGrid = () => {
             return (
               <div
                 key={index}
-                className="group p-6 rounded-2xl bg-card border-2 border-border hover:border-primary/50 transition-all duration-300 hover:shadow-lg"
+                className="group p-6 rounded-2xl bg-card/50 backdrop-blur-sm border border-border hover:border-primary/50 transition-all duration-300 hover:shadow-lg"
               >
                 <div className="mb-4 p-3 rounded-xl bg-primary/10 border border-primary/20 w-fit group-hover:scale-110 transition-transform duration-300">
                   <Icon className="h-6 w-6 text-primary" />

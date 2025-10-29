@@ -21,9 +21,7 @@ export const ApplicationsGrid = ({ stats }: ApplicationsGridProps) => {
       badge: "Most Popular",
       badgeVariant: "default" as const,
       metric: stats?.chatSims || 0,
-      metricLabel: "Active Chatbots",
-      gradient: "from-blue-500/10 to-cyan-500/10",
-      iconColor: "text-blue-500"
+      metricLabel: "Active Chatbots"
     },
     {
       icon: TrendingUp,
@@ -33,9 +31,7 @@ export const ApplicationsGrid = ({ stats }: ApplicationsGridProps) => {
       badge: "Trending",
       badgeVariant: "secondary" as const,
       metric: stats?.pumpFunAgents || 0,
-      metricLabel: "Token Agents",
-      gradient: "from-green-500/10 to-emerald-500/10",
-      iconColor: "text-green-500"
+      metricLabel: "Token Agents"
     },
     {
       icon: Zap,
@@ -45,9 +41,7 @@ export const ApplicationsGrid = ({ stats }: ApplicationsGridProps) => {
       badge: "Automated",
       badgeVariant: "outline" as const,
       metric: stats?.autonomousAgents || 0,
-      metricLabel: "Running 24/7",
-      gradient: "from-purple-500/10 to-pink-500/10",
-      iconColor: "text-purple-500"
+      metricLabel: "Running 24/7"
     },
     {
       icon: Mail,
@@ -57,18 +51,16 @@ export const ApplicationsGrid = ({ stats }: ApplicationsGridProps) => {
       badge: "Verified",
       badgeVariant: "outline" as const,
       metric: stats?.cryptoMail || 0,
-      metricLabel: "Verified Accounts",
-      gradient: "from-orange-500/10 to-red-500/10",
-      iconColor: "text-orange-500"
+      metricLabel: "Verified Accounts"
     }
   ];
 
   return (
-    <section className="py-24 bg-muted/30">
+    <section className="py-24 bg-muted/20 border-y border-border">
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl font-bold mb-4">
-            Four Powerful Applications,
+          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4">
+            Four Powerful Applications
             <br />
             <span className="text-primary">One Platform</span>
           </h2>
@@ -83,14 +75,12 @@ export const ApplicationsGrid = ({ stats }: ApplicationsGridProps) => {
             return (
               <Card 
                 key={index}
-                className="relative overflow-hidden border-2 hover:border-primary/50 transition-all duration-300 hover:shadow-xl group"
+                className="relative overflow-hidden border hover:border-primary/50 transition-all duration-300 hover:shadow-lg group bg-card/50 backdrop-blur-sm"
               >
-                <div className={`absolute inset-0 bg-gradient-to-br ${app.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-300`} />
-                
                 <CardHeader className="relative">
                   <div className="flex items-start justify-between mb-4">
-                    <div className={`p-3 rounded-xl bg-card border-2 ${app.iconColor} border-current/20`}>
-                      <Icon className="h-8 w-8" />
+                    <div className="p-3 rounded-xl bg-primary/10 border border-primary/20">
+                      <Icon className="h-8 w-8 text-primary" />
                     </div>
                     <Badge variant={app.badgeVariant} className="text-xs">
                       {app.badge}

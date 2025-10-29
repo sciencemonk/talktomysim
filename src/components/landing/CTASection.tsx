@@ -9,17 +9,17 @@ interface CTASectionProps {
 
 export const CTASection = ({ onGetStarted, onViewWhitepaper, isAuthenticated }: CTASectionProps) => {
   return (
-    <section className="py-24 relative overflow-hidden">
-      {/* Background gradients */}
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-accent/20 to-background" />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(131,241,170,0.1),transparent_70%)]" />
+    <section className="py-24 relative overflow-hidden bg-background">
+      {/* Futuristic background */}
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,hsl(var(--primary)/0.15),transparent_70%)]" />
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,hsl(var(--border))_1px,transparent_1px),linear-gradient(to_bottom,hsl(var(--border))_1px,transparent_1px)] bg-[size:4rem_4rem] opacity-20" />
       
       <div className="container relative z-10 mx-auto px-4">
         <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-5xl md:text-6xl font-bold mb-6 leading-tight">
+          <h2 className="text-5xl md:text-6xl lg:text-7xl font-bold mb-6 leading-tight">
             Start Building Your
             <br />
-            <span className="bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">
+            <span className="text-primary">
               AI Agent Today
             </span>
           </h2>
@@ -34,7 +34,7 @@ export const CTASection = ({ onGetStarted, onViewWhitepaper, isAuthenticated }: 
             <Button
               size="lg"
               onClick={onGetStarted}
-              className="text-lg px-10 py-7 bg-primary hover:bg-primary/90 text-primary-foreground shadow-xl hover:shadow-primary/25 transition-all duration-300"
+              className="text-lg px-10 py-7 bg-primary hover:bg-primary/80 text-primary-foreground shadow-xl transition-all duration-300 hover-scale"
             >
               {isAuthenticated ? "Create Your First Sim" : "Get Started Free"}
               <ArrowRight className="ml-2 h-5 w-5" />
@@ -43,7 +43,7 @@ export const CTASection = ({ onGetStarted, onViewWhitepaper, isAuthenticated }: 
               size="lg"
               variant="outline"
               onClick={onViewWhitepaper}
-              className="text-lg px-10 py-7 border-2 hover:bg-accent/50"
+              className="text-lg px-10 py-7 border-2 hover:bg-muted transition-all duration-300"
             >
               <FileText className="mr-2 h-5 w-5" />
               Read Whitepaper

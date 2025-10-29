@@ -18,7 +18,7 @@ export const MarketplacePreview = ({ sims = [], onSimClick, onViewAll }: Marketp
     .slice(0, 6);
 
   return (
-    <section className="py-24">
+    <section className="py-24 bg-background">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between mb-12">
           <div>
@@ -28,7 +28,7 @@ export const MarketplacePreview = ({ sims = [], onSimClick, onViewAll }: Marketp
                 Live Marketplace
               </Badge>
             </div>
-            <h2 className="text-4xl md:text-5xl font-bold">
+            <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold">
               Trending <span className="text-primary">Sims</span>
             </h2>
             <p className="text-xl text-muted-foreground mt-2">
@@ -50,7 +50,7 @@ export const MarketplacePreview = ({ sims = [], onSimClick, onViewAll }: Marketp
           {topSims.map((sim) => (
             <Card
               key={sim.id}
-              className="group cursor-pointer overflow-hidden border-2 hover:border-primary/50 transition-all duration-300 hover:shadow-xl"
+              className="group cursor-pointer overflow-hidden border hover:border-primary/50 transition-all duration-300 hover:shadow-lg bg-card/50 backdrop-blur-sm"
               onClick={() => onSimClick(sim)}
             >
               <div className="relative w-full aspect-[16/9] overflow-hidden bg-muted">

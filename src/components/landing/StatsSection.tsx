@@ -14,34 +14,30 @@ export const StatsSection = ({ stats }: StatsSectionProps) => {
     {
       icon: Bot,
       value: stats.totalSims.toLocaleString(),
-      label: "Sims Created",
-      gradient: "from-blue-500 to-cyan-500"
+      label: "Sims Created"
     },
     {
       icon: MessageCircle,
       value: stats.totalConversations.toLocaleString(),
-      label: "Conversations",
-      gradient: "from-purple-500 to-pink-500"
+      label: "Conversations"
     },
     {
       icon: Users,
       value: stats.autonomousAgents.toLocaleString(),
-      label: "Active Agents",
-      gradient: "from-green-500 to-emerald-500"
+      label: "Active Agents"
     },
     {
       icon: Shield,
       value: stats.verifiedAccounts.toLocaleString(),
-      label: "Verified Accounts",
-      gradient: "from-orange-500 to-red-500"
+      label: "Verified Accounts"
     }
   ];
 
   return (
-    <section className="py-24 bg-muted/30">
+    <section className="py-24 bg-background">
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl font-bold mb-4">
+          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4">
             Trusted by Thousands of
             <span className="text-primary"> AI Builders</span>
           </h2>
@@ -56,9 +52,9 @@ export const StatsSection = ({ stats }: StatsSectionProps) => {
             return (
               <div
                 key={index}
-                className="relative p-8 rounded-2xl bg-card border-2 border-border hover:border-primary/50 transition-all duration-300 group"
+                className="relative p-8 rounded-2xl bg-card/50 backdrop-blur-sm border border-border hover:border-primary/50 transition-all duration-300 group"
               >
-                <div className={`absolute inset-0 bg-gradient-to-br ${stat.gradient} opacity-0 group-hover:opacity-5 rounded-2xl transition-opacity duration-300`} />
+                <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 rounded-2xl transition-opacity duration-300" />
                 
                 <div className="relative text-center">
                   <div className="inline-flex mb-4 p-3 rounded-xl bg-primary/10 border border-primary/20">
