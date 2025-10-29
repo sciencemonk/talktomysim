@@ -34,14 +34,14 @@ interface UnifiedAgentCreationProps {
 const AGENT_TYPES = [
   {
     id: "chat",
-    label: "Chat Agent",
+    label: "Chat",
     description: "AI chatbot for conversations",
     iconImage: chatbotIcon,
     category: "Chat",
   },
   {
     id: "pumpfun",
-    label: "PumpFun Agent",
+    label: "PumpFun",
     description: "Plug in CA for dedicated agent page",
     iconImage: pumpfunLogo,
     category: "PumpFun Agent",
@@ -56,7 +56,7 @@ const AGENT_TYPES = [
   },
   {
     id: "autonomous",
-    label: "Autonomous Agent",
+    label: "Assistant",
     description: "Automated tasks like daily briefs",
     iconImage: aiIcon,
     category: "Autonomous Agent",
@@ -72,7 +72,7 @@ const AGENT_TYPES = [
   },
   {
     id: "email-agent",
-    label: "Email Agent",
+    label: "Email",
     description: "Review, respond, and summarize your Gmail",
     iconImage: gmailIcon,
     category: "Email Agent",
@@ -674,14 +674,29 @@ You can discuss your tokenomics, community, and answer questions about the proje
                   </div>
 
                   <Button 
-                    onClick={() => {
+                    onClick={async () => {
                       if (!formData.xProfile.trim()) {
                         toast.error("Please enter your X profile");
                         return;
                       }
-                      toast.success("Invite request submitted! We'll reach out soon on X.");
-                      onOpenChange(false);
-                      handleReset();
+                      
+                      try {
+                        const { error } = await supabase
+                          .from('agent_invite_requests')
+                          .insert({
+                            agent_type: selectedType,
+                            x_profile: formData.xProfile
+                          });
+
+                        if (error) throw error;
+                        
+                        toast.success("Invite request submitted! We'll reach out soon on X.");
+                        onOpenChange(false);
+                        handleReset();
+                      } catch (error) {
+                        console.error('Error saving invite request:', error);
+                        toast.error("Failed to submit invite request. Please try again.");
+                      }
                     }}
                     disabled={!formData.xProfile.trim()}
                     className="w-full bg-neonGreen hover:bg-neonGreen/90 text-black font-semibold"

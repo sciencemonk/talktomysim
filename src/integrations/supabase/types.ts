@@ -283,6 +283,30 @@ export type Database = {
         }
         Relationships: []
       }
+      agent_invite_requests: {
+        Row: {
+          agent_type: string
+          created_at: string
+          id: string
+          status: string
+          x_profile: string
+        }
+        Insert: {
+          agent_type: string
+          created_at?: string
+          id?: string
+          status?: string
+          x_profile: string
+        }
+        Update: {
+          agent_type?: string
+          created_at?: string
+          id?: string
+          status?: string
+          x_profile?: string
+        }
+        Relationships: []
+      }
       contact_messages: {
         Row: {
           advisor_id: string
