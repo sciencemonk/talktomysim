@@ -468,10 +468,8 @@ const AgentsDirectory = () => {
       {/* Hackathon Announcement Modal */}
       <HackathonAnnouncementModal />
       
-      {/* Agents Directory Section */}
-      <div className="w-full">
-        {/* Integrated Header with Navigation */}
-        <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      {/* Integrated Header with Navigation */}
+      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container mx-auto px-3 sm:px-4">
           <div className="flex h-16 items-center justify-between gap-4">
             {/* Left: Logo - navigates back to landing */}
@@ -598,6 +596,7 @@ const AgentsDirectory = () => {
         </div>
       </header>
       
+      {/* Main Content */}
       <div className="flex-1">
         {/* Sim Directory Section */}
         <section className="container mx-auto px-3 sm:px-4 py-8 flex-1">
@@ -756,8 +755,9 @@ const AgentsDirectory = () => {
           )}
         </div>
       </section>
+      </div>
 
-      <AuthModal 
+      <AuthModal
         open={authModalOpen} 
         onOpenChange={setAuthModalOpen}
       />
@@ -804,9 +804,7 @@ const AgentsDirectory = () => {
 
       <SimLeaderboard />
 
-        <SimpleFooter />
-      </div>
-      </div>
+      <SimpleFooter />
     </div>
   );
 };
