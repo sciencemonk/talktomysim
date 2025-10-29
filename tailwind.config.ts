@@ -58,6 +58,9 @@ export default {
 				fg: 'hsl(var(--fg))',
 				fgMuted: 'hsl(var(--fg-muted))',
 				brandBlue: 'hsl(var(--brand-blue))',
+				inputBg: 'hsl(var(--input-bg))',
+				inputBorder: 'hsl(var(--input-border))',
+				focusRing: 'hsl(var(--focus-ring))',
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
