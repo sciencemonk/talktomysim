@@ -8,7 +8,7 @@ import { useState, useEffect } from "react";
 import { AgentType } from "@/types/agent";
 import { toast as sonnerToast } from "sonner";
 import AuthModal from "@/components/AuthModal";
-import { CreateSimModal } from "@/components/CreateSimModal";
+import { UnifiedAgentCreation } from "@/components/UnifiedAgentCreation";
 import { CreateCABotModal } from "@/components/CreateCABotModal";
 import pumpfunLogo from "@/assets/pumpfun-logo.png";
 import { Search, TrendingUp, ChevronDown, Mail, Bot, Zap, Code, User, MessageCircle, LogOut, Plus } from "lucide-react";
@@ -210,7 +210,7 @@ const AgentsDirectory = () => {
   const [selectedSim, setSelectedSim] = useState<AgentType | null>(null);
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [isSimModalOpen, setIsSimModalOpen] = useState(false);
-  const [showCreateSimModal, setShowCreateSimModal] = useState(false);
+  const [showCreateModal, setShowCreateModal] = useState(false);
   const [showCreateCABotModal, setShowCreateCABotModal] = useState(false);
   const [currentUser, setCurrentUser] = useState<any>(null);
   const queryClient = useQueryClient();
@@ -771,14 +771,10 @@ const AgentsDirectory = () => {
         }}
       />
 
-      {showCreateSimModal && (
-        <CreateSimModal
-          open={showCreateSimModal}
-          onOpenChange={setShowCreateSimModal}
-          onAuthRequired={() => {
-            setShowCreateSimModal(false);
-            setAuthModalOpen(true);
-          }}
+      {showCreateModal && (
+        <UnifiedAgentCreation
+          open={showCreateModal}
+          onOpenChange={setShowCreateModal}
           onSuccess={async () => {
             if (currentUser) {
               await queryClient.invalidateQueries({ queryKey: ['user-sims', currentUser.id] });
@@ -802,7 +798,7 @@ const AgentsDirectory = () => {
       )}
 
       <Button
-        onClick={() => setShowCreateSimModal(true)}
+        onClick={() => setShowCreateModal(true)}
         className="fixed bottom-6 right-6 h-14 px-6 gap-2 font-semibold text-base transition-all duration-300 bg-[#82f3aa] hover:bg-[#6dd991] text-black border-0 rounded-lg shadow-lg hover:shadow-xl z-50"
       >
         <Plus className="h-4 w-4" />
