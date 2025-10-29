@@ -810,8 +810,6 @@ const AgentsDirectory = () => {
         />
       )}
 
-      <SimLeaderboard />
-
       <SimpleFooter />
     </div>
   );
