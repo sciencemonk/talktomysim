@@ -22,6 +22,8 @@ import pumpfunLogo from "@/assets/pumpfun-logo.png";
 import chatbotIcon from "@/assets/chatbot-icon.png";
 import donationIcon from "@/assets/donation-icon.png";
 import aiIcon from "@/assets/ai-icon.png";
+import predictionIcon from "@/assets/prediction-icon.png";
+import gmailIcon from "@/assets/gmail-icon.png";
 
 interface UnifiedAgentCreationProps {
   open: boolean;
@@ -43,6 +45,7 @@ const AGENT_TYPES = [
     description: "Get paid to respond to messages",
     iconImage: donationIcon,
     category: "Crypto Mail",
+    inviteOnly: true,
   },
   {
     id: "autonomous",
@@ -50,6 +53,7 @@ const AGENT_TYPES = [
     description: "Automated tasks like daily briefs",
     iconImage: aiIcon,
     category: "Autonomous Agent",
+    inviteOnly: true,
   },
   {
     id: "pumpfun",
@@ -57,6 +61,22 @@ const AGENT_TYPES = [
     description: "Plug in CA for dedicated agent page",
     iconImage: pumpfunLogo,
     category: "PumpFun Agent",
+  },
+  {
+    id: "prediction-market",
+    label: "Prediction Market",
+    description: "Host your own prediction market",
+    iconImage: predictionIcon,
+    category: "Prediction Market",
+    inviteOnly: true,
+  },
+  {
+    id: "email-agent",
+    label: "Email Agent",
+    description: "Review, respond, and summarize your Gmail",
+    iconImage: gmailIcon,
+    category: "Email Agent",
+    inviteOnly: true,
   },
 ];
 
@@ -560,7 +580,7 @@ You can discuss your tokenomics, community, and answer questions about the proje
           {step === 0 && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {AGENT_TYPES.map((type) => {
-                const isInviteOnly = type.id === "crypto-mail" || type.id === "autonomous";
+                const isInviteOnly = type.inviteOnly || false;
                 return (
                   <button
                     key={type.id}
