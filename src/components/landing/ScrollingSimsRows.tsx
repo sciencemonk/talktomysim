@@ -13,7 +13,6 @@ interface ScrollingSimsRowsProps {
 export const ScrollingSimsRows = ({ onSimClick }: ScrollingSimsRowsProps) => {
   const scrollRef1 = useRef<HTMLDivElement>(null);
   const scrollRef2 = useRef<HTMLDivElement>(null);
-  const scrollRef3 = useRef<HTMLDivElement>(null);
   const [marketCapData, setMarketCapData] = useState<Record<string, number>>({});
 
   const categories = [
@@ -114,23 +113,6 @@ export const ScrollingSimsRows = ({ onSimClick }: ScrollingSimsRowsProps) => {
     return () => clearInterval(interval);
   }, [sims]);
 
-  // Scroll animation for row 3 (left)
-  useEffect(() => {
-    const scrollContainer = scrollRef3.current;
-    if (!scrollContainer || !sims || sims.length === 0) return;
-
-    let scrollPosition = 0;
-    const scroll = () => {
-      scrollPosition += 1;
-      if (scrollPosition >= scrollContainer.scrollWidth / 3) {
-        scrollPosition = 0;
-      }
-      scrollContainer.scrollLeft = scrollPosition;
-    };
-
-    const interval = setInterval(scroll, 30);
-    return () => clearInterval(interval);
-  }, [sims]);
 
   useEffect(() => {
     const fetchMarketCaps = async () => {
@@ -177,8 +159,7 @@ export const ScrollingSimsRows = ({ onSimClick }: ScrollingSimsRowsProps) => {
 
   const duplicatedSims = [...sims, ...sims, ...sims];
   const row1Sims = duplicatedSims.slice(0, 40);  // Start at index 0
-  const row2Sims = duplicatedSims.slice(10, 50); // Start at index 10
-  const row3Sims = duplicatedSims.slice(20, 60); // Start at index 20
+  const row2Sims = duplicatedSims.slice(15, 55); // Start at index 15
 
   const renderSimCard = (sim: AgentType, index: number) => {
     const simCategoryType = (sim as any).sim_category;
@@ -304,15 +285,6 @@ export const ScrollingSimsRows = ({ onSimClick }: ScrollingSimsRowsProps) => {
         style={{ scrollBehavior: 'auto' }}
       >
         {row2Sims.map((sim, index) => renderSimCard(sim, index))}
-      </div>
-
-      {/* Row 3 - scrolling left */}
-      <div 
-        ref={scrollRef3}
-        className="flex gap-1.5 overflow-x-hidden py-0.5 px-2"
-        style={{ scrollBehavior: 'auto' }}
-      >
-        {row3Sims.map((sim, index) => renderSimCard(sim, index))}
       </div>
     </div>
   );
