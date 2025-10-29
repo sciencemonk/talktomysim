@@ -38,8 +38,8 @@ const AGENT_TYPES = [
   },
   {
     id: "crypto-mail",
-    label: "Crypto Mail",
-    description: "Contact form with message collection",
+    label: "x402 Mail",
+    description: "Get paid to respond to messages",
     iconImage: donationIcon,
     category: "Crypto Mail",
   },
@@ -53,7 +53,7 @@ const AGENT_TYPES = [
   {
     id: "pumpfun",
     label: "PumpFun Agent",
-    description: "Token-based chatbot",
+    description: "Plug in CA for dedicated agent page",
     iconImage: pumpfunLogo,
     category: "PumpFun Agent",
   },
