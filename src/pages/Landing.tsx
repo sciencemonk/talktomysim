@@ -32,6 +32,7 @@ import { SimLeaderboard } from "@/components/SimLeaderboard";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SimLikeButton } from "@/components/SimLikeButton";
 import { HackathonAnnouncementModal } from "@/components/HackathonAnnouncementModal";
+import { MatrixHeroSection } from "@/components/landing/MatrixHeroSection";
 
 interface PumpFunSimCardProps {
   sim: AgentType & { user_id?: string; like_count?: number; is_verified?: boolean };
@@ -468,8 +469,13 @@ const Landing = () => {
       {/* Hackathon Announcement Modal */}
       <HackathonAnnouncementModal />
       
-      {/* Integrated Header with Navigation */}
-      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      {/* Matrix Hero Section */}
+      <MatrixHeroSection onCreateAgent={() => setShowCreateSimModal(true)} />
+      
+      {/* Second Section: Sim Directory */}
+      <div className="w-full">
+        {/* Integrated Header with Navigation */}
+        <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container mx-auto px-3 sm:px-4">
           <div className="flex h-16 items-center justify-between gap-4">
             {/* Left: Logo */}
@@ -803,6 +809,7 @@ const Landing = () => {
       <SimLeaderboard />
 
         <SimpleFooter />
+      </div>
       </div>
     </div>
   );
