@@ -503,7 +503,7 @@ You can discuss your tokenomics, community, and answer questions about the proje
                     <div className={`flex items-center justify-center w-10 h-10 rounded-full border-2 transition-all ${
                       step >= stepNum 
                         ? 'border-neonGreen bg-neonGreen/10 text-neonGreen' 
-                        : 'border-border bg-bg text-muted-foreground'
+                        : 'border-border bg-background text-muted-foreground'
                     }`}>
                       <span className="text-sm font-semibold">{stepNum}</span>
                     </div>
@@ -561,7 +561,7 @@ You can discuss your tokenomics, community, and answer questions about the proje
                       placeholder="Enter token CA..."
                       value={formData.contractAddress}
                       onChange={(e) => setFormData({ ...formData, contractAddress: e.target.value })}
-                      className="h-12 bg-bg border-border/50 focus:border-neonGreen transition-colors font-mono"
+                      className="h-12 bg-background border-border/50 focus:border-neonGreen transition-colors font-mono"
                     />
                     <p className="text-xs text-muted-foreground/70 flex items-center gap-1">
                       <span className="w-1 h-1 rounded-full bg-neonGreen" />
@@ -607,7 +607,7 @@ You can discuss your tokenomics, community, and answer questions about the proje
                       placeholder="@username"
                       value={formData.xProfile}
                       onChange={(e) => setFormData({ ...formData, xProfile: e.target.value })}
-                      className="h-12 bg-bg border-border/50 focus:border-neonGreen transition-colors"
+                      className="h-12 bg-background border-border/50 focus:border-neonGreen transition-colors"
                     />
                     <p className="text-xs text-muted-foreground/70 flex items-center gap-1">
                       <span className="w-1 h-1 rounded-full bg-neonGreen" />
@@ -673,7 +673,7 @@ You can discuss your tokenomics, community, and answer questions about the proje
                           placeholder={selectedType === "crypto-mail" ? "e.g., John Doe" : "e.g., Tech Advisor Alex"}
                           value={formData.name}
                           onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                          className="h-12 bg-bg border-border/50 focus:border-neonGreen transition-colors"
+                          className="h-12 bg-background border-border/50 focus:border-neonGreen transition-colors"
                         />
                       </div>
 
@@ -686,7 +686,7 @@ You can discuss your tokenomics, community, and answer questions about the proje
                               placeholder="0x..."
                               value={formData.cryptoWallet}
                               onChange={(e) => setFormData({ ...formData, cryptoWallet: e.target.value })}
-                              className="h-12 bg-bg border-border/50 focus:border-neonGreen transition-colors font-mono"
+                              className="h-12 bg-background border-border/50 focus:border-neonGreen transition-colors font-mono"
                             />
                             <p className="text-xs text-muted-foreground/70 flex items-center gap-1">
                               <span className="w-1 h-1 rounded-full bg-neonGreen" />
@@ -700,7 +700,7 @@ You can discuss your tokenomics, community, and answer questions about the proje
                               placeholder="@username"
                               value={formData.xProfile}
                               onChange={(e) => setFormData({ ...formData, xProfile: e.target.value })}
-                              className="h-12 bg-bg border-border/50 focus:border-neonGreen transition-colors"
+                              className="h-12 bg-background border-border/50 focus:border-neonGreen transition-colors"
                             />
                             <p className="text-xs text-muted-foreground/70 flex items-center gap-1">
                               <span className="w-1 h-1 rounded-full bg-neonGreen" />
@@ -717,7 +717,7 @@ You can discuss your tokenomics, community, and answer questions about the proje
                               placeholder="5.0"
                               value={formData.x402Price}
                               onChange={(e) => setFormData({ ...formData, x402Price: e.target.value })}
-                              className="h-12 bg-bg border-border/50 focus:border-neonGreen transition-colors font-mono"
+                              className="h-12 bg-background border-border/50 focus:border-neonGreen transition-colors font-mono"
                             />
                             <p className="text-xs text-muted-foreground/70 flex items-center gap-1">
                               <span className="w-1 h-1 rounded-full bg-neonGreen" />
@@ -734,7 +734,7 @@ You can discuss your tokenomics, community, and answer questions about the proje
                             value={formData.category}
                             onValueChange={(value) => setFormData({ ...formData, category: value })}
                           >
-                            <SelectTrigger className="h-12 bg-bg border-border/50 focus:border-neonGreen transition-colors">
+                            <SelectTrigger className="h-12 bg-background border-border/50 focus:border-neonGreen transition-colors">
                               <SelectValue placeholder="Select a category" />
                             </SelectTrigger>
                             <SelectContent>
@@ -755,7 +755,7 @@ You can discuss your tokenomics, community, and answer questions about the proje
                             value={formData.agentCategory}
                             onValueChange={(value) => setFormData({ ...formData, agentCategory: value })}
                           >
-                            <SelectTrigger className="h-12 bg-bg border-border/50 focus:border-neonGreen transition-colors">
+                            <SelectTrigger className="h-12 bg-background border-border/50 focus:border-neonGreen transition-colors">
                               <SelectValue placeholder="Select category" />
                             </SelectTrigger>
                             <SelectContent>
@@ -777,7 +777,7 @@ You can discuss your tokenomics, community, and answer questions about the proje
                           value={formData.briefTopic}
                           onChange={(e) => setFormData({ ...formData, briefTopic: e.target.value })}
                           rows={4}
-                          className="bg-bg border-border/50 focus:border-neonGreen transition-colors resize-none"
+                          className="bg-background border-border/50 focus:border-neonGreen transition-colors resize-none"
                         />
                       </div>
                       <div className="space-y-2">
@@ -787,7 +787,7 @@ You can discuss your tokenomics, community, and answer questions about the proje
                           type="time"
                           value={formData.briefTime}
                           onChange={(e) => setFormData({ ...formData, briefTime: e.target.value })}
-                          className="h-12 bg-bg border-border/50 focus:border-neonGreen transition-colors"
+                          className="h-12 bg-background border-border/50 focus:border-neonGreen transition-colors"
                         />
                         <p className="text-xs text-muted-foreground/70 flex items-center gap-1">
                           <span className="w-1 h-1 rounded-full bg-neonGreen" />
@@ -804,7 +804,7 @@ You can discuss your tokenomics, community, and answer questions about the proje
                         value={formData.description}
                         onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                         rows={4}
-                        className="bg-bg border-border/50 focus:border-neonGreen transition-colors resize-none"
+                        className="bg-background border-border/50 focus:border-neonGreen transition-colors resize-none"
                       />
                     </div>
                   ) : (
@@ -816,7 +816,7 @@ You can discuss your tokenomics, community, and answer questions about the proje
                         value={formData.description}
                         onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                         rows={4}
-                        className="bg-bg border-border/50 focus:border-neonGreen transition-colors resize-none"
+                        className="bg-background border-border/50 focus:border-neonGreen transition-colors resize-none"
                       />
                     </div>
                   )}
@@ -885,7 +885,7 @@ You can discuss your tokenomics, community, and answer questions about the proje
                     value={formData.systemPrompt}
                     onChange={(e) => setFormData({ ...formData, systemPrompt: e.target.value })}
                     rows={8}
-                    className="bg-bg border-border/50 focus:border-neonGreen transition-colors resize-none font-mono text-sm"
+                    className="bg-background border-border/50 focus:border-neonGreen transition-colors resize-none font-mono text-sm"
                     placeholder="System prompt..."
                   />
                   <p className="text-xs text-muted-foreground/70 flex items-center gap-1">
