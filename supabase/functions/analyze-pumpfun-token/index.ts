@@ -63,33 +63,76 @@ serve(async (req) => {
       console.error('Failed to fetch token metadata:', error);
     }
 
-    // Fetch holder count using Helius RPC
+    // Fetch holder count using Helius API
     let holderCount = 0;
     const heliusApiKey = Deno.env.get('HELIUS_API_KEY');
     
     if (heliusApiKey && tokenAddress) {
       try {
-        console.log('[analyze-pumpfun-token] Fetching holder count...');
+        console.log('[analyze-pumpfun-token] Fetching total holder count...');
         const holderResponse = await fetch(
-          `https://mainnet.helius-rpc.com/?api-key=${heliusApiKey}`,
+          `https://api.helius.xyz/v0/token-metadata?api-key=${heliusApiKey}`,
           {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-              jsonrpc: '2.0',
-              id: 'holder-count',
-              method: 'getTokenLargestAccounts',
-              params: [tokenAddress],
+              mintAccounts: [tokenAddress],
+              includeOffChain: false
             }),
           }
         );
         
         if (holderResponse.ok) {
           const holderData = await holderResponse.json();
-          holderCount = holderData?.result?.value?.length || 0;
-          console.log(`[analyze-pumpfun-token] Found ${holderCount} top holders`);
+          // Try to get holder count from token metadata
+          if (holderData && holderData.length > 0) {
+            // Use getProgramAccounts to get actual holder count
+            const accountsResponse = await fetch(
+              `https://mainnet.helius-rpc.com/?api-key=${heliusApiKey}`,
+              {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                  jsonrpc: '2.0',
+                  id: 'get-holders',
+                  method: 'getProgramAccounts',
+                  params: [
+                    'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA',
+                    {
+                      encoding: 'jsonParsed',
+                      filters: [
+                        {
+                          dataSize: 165
+                        },
+                        {
+                          memcmp: {
+                            offset: 0,
+                            bytes: tokenAddress
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }),
+              }
+            );
+            
+            if (accountsResponse.ok) {
+              const accountsData = await accountsResponse.json();
+              // Count accounts with non-zero balance
+              if (accountsData?.result) {
+                holderCount = accountsData.result.filter((account: any) => {
+                  const amount = account?.account?.data?.parsed?.info?.tokenAmount?.uiAmount || 0;
+                  return amount > 0;
+                }).length;
+                console.log(`[analyze-pumpfun-token] Found ${holderCount} total holders with balance`);
+              }
+            }
+          }
         }
       } catch (error) {
         console.error('[analyze-pumpfun-token] Error fetching holder count:', error);
