@@ -92,6 +92,7 @@ export const UnifiedAgentCreation = ({ open, onOpenChange, onSuccess }: UnifiedA
   const [tokenData, setTokenData] = useState<any>(null);
   const [editCode, setEditCode] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const generateEditCode = () => {
@@ -103,19 +104,51 @@ export const UnifiedAgentCreation = ({ open, onOpenChange, onSuccess }: UnifiedA
     setStep(1);
   };
 
+  const processAvatarFile = (file: File) => {
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please upload an image file");
+      return;
+    }
+    setAvatarFile(file);
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setAvatarPreview(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
+
   const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      if (!file.type.startsWith("image/")) {
-        toast.error("Please upload an image file");
-        return;
-      }
-      setAvatarFile(file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setAvatarPreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+      processAvatarFile(file);
+    }
+  };
+
+  const handleDragEnter = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+
+    const files = e.dataTransfer.files;
+    if (files && files.length > 0) {
+      processAvatarFile(files[0]);
     }
   };
 
@@ -438,6 +471,7 @@ You can discuss your tokenomics, community, and answer questions about the proje
     setAvatarPreview(null);
     setTokenData(null);
     setEditCode("");
+    setIsDragging(false);
   };
 
   const handleBack = () => {
@@ -639,7 +673,15 @@ You can discuss your tokenomics, community, and answer questions about the proje
                       <Label className="text-xs uppercase tracking-wider text-muted-foreground">Avatar</Label>
                       <div
                         onClick={() => fileInputRef.current?.click()}
-                        className="relative w-32 h-32 rounded-2xl cursor-pointer border-2 border-dashed border-border hover:border-neonGreen transition-all flex items-center justify-center bg-gradient-to-br from-bg-muted/50 to-bg group overflow-hidden"
+                        onDragEnter={handleDragEnter}
+                        onDragOver={handleDragOver}
+                        onDragLeave={handleDragLeave}
+                        onDrop={handleDrop}
+                        className={`relative w-32 h-32 rounded-2xl cursor-pointer border-2 border-dashed transition-all flex items-center justify-center bg-gradient-to-br from-bg-muted/50 to-bg group overflow-hidden ${
+                          isDragging 
+                            ? 'border-neonGreen bg-neonGreen/10 scale-105' 
+                            : 'border-border hover:border-neonGreen'
+                        }`}
                       >
                         {avatarPreview ? (
                           <Avatar className="w-full h-full rounded-2xl">
@@ -648,8 +690,12 @@ You can discuss your tokenomics, community, and answer questions about the proje
                           </Avatar>
                         ) : (
                           <div className="flex flex-col items-center gap-2">
-                            <Upload className="w-10 h-10 text-muted-foreground group-hover:text-neonGreen transition-colors" />
-                            <span className="text-xs text-muted-foreground">Upload</span>
+                            <Upload className={`w-10 h-10 transition-colors ${
+                              isDragging ? 'text-neonGreen' : 'text-muted-foreground group-hover:text-neonGreen'
+                            }`} />
+                            <span className="text-xs text-muted-foreground">
+                              {isDragging ? 'Drop here' : 'Upload or drag'}
+                            </span>
                           </div>
                         )}
                         <div className="absolute inset-0 bg-neonGreen/10 opacity-0 group-hover:opacity-100 transition-opacity rounded-2xl" />
