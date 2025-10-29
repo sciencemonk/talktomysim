@@ -7,6 +7,8 @@ import { CreateCABotModal } from "@/components/CreateCABotModal";
 import SimDetailModal from "@/components/SimDetailModal";
 import { AgentType } from "@/types/agent";
 import { HackathonAnnouncementModal } from "@/components/HackathonAnnouncementModal";
+import { ScrollingSimsRows } from "@/components/landing/ScrollingSimsRows";
+import { LandingFooter } from "@/components/landing/LandingFooter";
 
 const NewLanding = () => {
   const navigate = useNavigate();
@@ -46,6 +48,10 @@ const NewLanding = () => {
         onSimClick={handleSimClick}
         onViewAllAgents={() => navigate('/agents')}
       />
+
+      <ScrollingSimsRows onSimClick={handleSimClick} />
+      
+      <LandingFooter />
 
       <AuthModal 
         open={authModalOpen} 

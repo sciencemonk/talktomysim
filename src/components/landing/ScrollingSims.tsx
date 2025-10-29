@@ -83,7 +83,7 @@ export const ScrollingSims = ({ onSimClick }: ScrollingSimsProps) => {
     let scrollPosition = 0;
     const scroll = () => {
       scrollPosition += 1;
-      if (scrollPosition >= scrollContainer.scrollWidth / 2) {
+      if (scrollPosition >= scrollContainer.scrollWidth / 3) {
         scrollPosition = 0;
       }
       scrollContainer.scrollLeft = scrollPosition;
@@ -136,17 +136,17 @@ export const ScrollingSims = ({ onSimClick }: ScrollingSimsProps) => {
     return `$${value.toFixed(2)}`;
   };
 
-  // Duplicate the array to create seamless loop
-  const duplicatedSims = [...sims, ...sims];
+  const duplicatedSims = [...sims, ...sims, ...sims];
 
   return (
-    <div className="absolute bottom-0 left-0 right-0 z-50 w-full overflow-hidden py-6 border-t border-border/50 bg-background/80 backdrop-blur-sm">
+    <div className="absolute bottom-0 left-0 right-0 z-50 w-full overflow-hidden border-t border-border/50 bg-background/80 backdrop-blur-sm">
+      {/* Top row - scrolling left */}
       <div 
         ref={scrollRef}
-        className="flex gap-6 overflow-x-hidden px-4"
+        className="flex gap-4 overflow-x-hidden py-3 px-4"
         style={{ scrollBehavior: 'auto' }}
       >
-        {duplicatedSims.map((sim, index) => {
+        {duplicatedSims.slice(0, duplicatedSims.length / 3).map((sim, index) => {
           const simCategoryType = (sim as any).sim_category;
           const isPumpFunAgent = simCategoryType === 'PumpFun Agent';
           const isAutonomousAgent = simCategoryType === 'Autonomous Agent';
@@ -180,7 +180,7 @@ export const ScrollingSims = ({ onSimClick }: ScrollingSimsProps) => {
             <button
               key={`${sim.id}-${index}`}
               onClick={() => onSimClick(sim)}
-              className="flex-shrink-0 w-72 flex flex-col overflow-hidden rounded-2xl bg-card hover:bg-muted border-2 hover:border-[#83f1aa] transition-all duration-300 hover:scale-105 hover:shadow-xl"
+              className="flex-shrink-0 w-52 flex flex-col overflow-hidden rounded-2xl bg-card hover:bg-muted border-2 hover:border-[#83f1aa] transition-all duration-300 hover:scale-105 hover:shadow-xl"
             >
               {/* Image container */}
               <div className="relative w-full aspect-[4/3] overflow-hidden bg-muted">
