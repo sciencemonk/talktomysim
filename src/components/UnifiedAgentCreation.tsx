@@ -510,6 +510,21 @@ You can discuss your tokenomics, community, and answer questions about the proje
           {/* Step 1: Basic Information */}
           {step === 1 && (
             <div className="space-y-6">
+              {/* Selected Agent Type Header */}
+              <div className="flex items-center gap-3 p-4 rounded-xl bg-gradient-to-r from-bg-muted/50 to-bg border border-border/50">
+                <div className="flex items-center justify-center w-12 h-12 rounded-lg bg-neonGreen/10">
+                  <img 
+                    src={AGENT_TYPES.find(t => t.id === selectedType)?.iconImage} 
+                    alt={AGENT_TYPES.find(t => t.id === selectedType)?.label}
+                    className="w-8 h-8"
+                  />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-lg">{AGENT_TYPES.find(t => t.id === selectedType)?.label}</h3>
+                  <p className="text-sm text-muted-foreground">{AGENT_TYPES.find(t => t.id === selectedType)?.description}</p>
+                </div>
+              </div>
+
               {selectedType === "pumpfun" ? (
                 <div className="space-y-5">
                   <div className="space-y-2">
