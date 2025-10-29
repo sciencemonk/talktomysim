@@ -83,6 +83,8 @@ export const UnifiedAgentCreation = ({ open, onOpenChange, onSuccess }: UnifiedA
     briefTopic: "",
     briefTime: "09:00",
     agentCategory: "",
+    cryptoWallet: "",
+    xProfile: "",
   });
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
@@ -427,6 +429,8 @@ You can discuss your tokenomics, community, and answer questions about the proje
       briefTopic: "",
       briefTime: "09:00",
       agentCategory: "",
+      cryptoWallet: "",
+      xProfile: "",
     });
     setAvatarFile(null);
     setAvatarPreview(null);
@@ -573,15 +577,50 @@ You can discuss your tokenomics, community, and answer questions about the proje
 
                     <div className="space-y-5">
                       <div className="space-y-2">
-                        <Label htmlFor="name" className="text-xs uppercase tracking-wider text-muted-foreground">Agent Name *</Label>
+                        <Label htmlFor="name" className="text-xs uppercase tracking-wider text-muted-foreground">
+                          {selectedType === "crypto-mail" ? "Your Name *" : "Agent Name *"}
+                        </Label>
                         <Input
                           id="name"
-                          placeholder="e.g., Tech Advisor Alex"
+                          placeholder={selectedType === "crypto-mail" ? "e.g., John Doe" : "e.g., Tech Advisor Alex"}
                           value={formData.name}
                           onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                           className="h-12 bg-bg border-border/50 focus:border-neonGreen transition-colors"
                         />
                       </div>
+
+                      {selectedType === "crypto-mail" && (
+                        <>
+                          <div className="space-y-2">
+                            <Label htmlFor="cryptoWallet" className="text-xs uppercase tracking-wider text-muted-foreground">EVM Wallet Address *</Label>
+                            <Input
+                              id="cryptoWallet"
+                              placeholder="0x..."
+                              value={formData.cryptoWallet}
+                              onChange={(e) => setFormData({ ...formData, cryptoWallet: e.target.value })}
+                              className="h-12 bg-bg border-border/50 focus:border-neonGreen transition-colors font-mono"
+                            />
+                            <p className="text-xs text-muted-foreground/70 flex items-center gap-1">
+                              <span className="w-1 h-1 rounded-full bg-neonGreen" />
+                              EVM-compatible wallet for receiving payments
+                            </p>
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="xProfile" className="text-xs uppercase tracking-wider text-muted-foreground">X Profile *</Label>
+                            <Input
+                              id="xProfile"
+                              placeholder="@username"
+                              value={formData.xProfile}
+                              onChange={(e) => setFormData({ ...formData, xProfile: e.target.value })}
+                              className="h-12 bg-bg border-border/50 focus:border-neonGreen transition-colors"
+                            />
+                            <p className="text-xs text-muted-foreground/70 flex items-center gap-1">
+                              <span className="w-1 h-1 rounded-full bg-neonGreen" />
+                              Your X (Twitter) profile handle
+                            </p>
+                          </div>
+                        </>
+                      )}
 
                       {selectedType !== "autonomous" && selectedType !== "crypto-mail" && (
                         <div className="space-y-2">
