@@ -4,6 +4,7 @@ import { getAvatarUrl } from "@/lib/avatarUtils";
 import { useEffect, useRef, useState } from "react";
 import { AgentType } from "@/types/agent";
 import { Badge } from "@/components/ui/badge";
+import pumpfunLogo from "@/assets/pumpfun-logo.png";
 
 interface ScrollingSimsProps {
   onSimClick: (sim: AgentType) => void;
@@ -12,6 +13,18 @@ interface ScrollingSimsProps {
 export const ScrollingSims = ({ onSimClick }: ScrollingSimsProps) => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [marketCapData, setMarketCapData] = useState<Record<string, number>>({});
+
+  const categories = [
+    { id: 'all', label: 'All Categories', count: 0 },
+    { id: 'crypto', label: 'Crypto & Web3', count: 0 },
+    { id: 'historical', label: 'Historical Figures', count: 0 },
+    { id: 'influencers', label: 'Influencers & Celebrities', count: 0 },
+    { id: 'fictional', label: 'Fictional Characters', count: 0 },
+    { id: 'education', label: 'Education & Tutoring', count: 0 },
+    { id: 'business', label: 'Business & Finance', count: 0 },
+    { id: 'lifestyle', label: 'Lifestyle & Wellness', count: 0 },
+    { id: 'entertainment', label: 'Entertainment & Games', count: 0 },
+  ];
 
   const { data: sims } = useQuery({
     queryKey: ['scrolling-sims'],
@@ -141,6 +154,7 @@ export const ScrollingSims = ({ onSimClick }: ScrollingSimsProps) => {
           const isVerified = (sim as any).is_verified || false;
           const marketCap = marketCapData[sim.id];
           const marketplaceCategory = (sim as any).marketplace_category?.toLowerCase() || 'uncategorized';
+          const categoryLabel = categories.find(c => c.id === marketplaceCategory)?.label || marketplaceCategory;
 
           let typeBadgeText = 'Chat';
           if (isAutonomousAgent) typeBadgeText = 'Autonomous Agent';
@@ -153,12 +167,12 @@ export const ScrollingSims = ({ onSimClick }: ScrollingSimsProps) => {
               if (marketplaceCategory === 'uncategorized' || marketplaceCategory === 'daily brief' || !marketplaceCategory) {
                 secondBadgeText = 'Daily Brief';
               } else {
-                secondBadgeText = marketplaceCategory;
+                secondBadgeText = categoryLabel;
               }
             } else if (isCryptoMail) {
               secondBadgeText = isVerified ? 'Verified' : 'Unverified';
             } else {
-              secondBadgeText = (sim as any).marketplace_category || 'General';
+              secondBadgeText = categoryLabel;
             }
           }
 
@@ -205,25 +219,50 @@ export const ScrollingSims = ({ onSimClick }: ScrollingSimsProps) => {
                   )}
                 </div>
                 
-                <div className="flex flex-wrap items-center justify-center gap-1.5">
-                  <Badge variant="secondary" className="text-xs px-2 py-0.5">
+                {/* Badges */}
+                <div className="flex flex-wrap gap-1.5 justify-center">
+                  <Badge 
+                    variant="outline" 
+                    className="text-[9px] px-1.5 py-0 bg-primary/10 border-primary/30 text-primary whitespace-nowrap"
+                  >
                     {typeBadgeText}
                   </Badge>
                   
                   {isPumpFunAgent ? (
-                    marketCap && (
-                      <Badge variant="outline" className="text-xs px-2 py-0.5 bg-green-500/10 border-green-500">
-                        {formatMarketCap(marketCap)}
-                      </Badge>
-                    )
-                  ) : (
-                    secondBadgeText && (
-                      <Badge variant="outline" className="text-xs px-2 py-0.5">
-                        {secondBadgeText}
-                      </Badge>
-                    )
+                    <Badge 
+                      variant="outline" 
+                      className="text-[9px] px-1.5 py-0 flex items-center gap-0.5"
+                    >
+                      <img src={pumpfunLogo} alt="PumpFun" className="h-3 w-3" />
+                      Agent
+                    </Badge>
+                  ) : secondBadgeText && secondBadgeText !== 'uncategorized' && (
+                    <Badge 
+                      variant="outline" 
+                      className={`text-[9px] px-1.5 py-0 whitespace-nowrap ${
+                        isCryptoMail && isVerified 
+                          ? 'bg-green-500/10 border-green-500/30 text-green-600 dark:text-green-400'
+                          : isCryptoMail && !isVerified
+                          ? 'bg-yellow-500/10 border-yellow-500/30 text-yellow-600 dark:text-yellow-400'
+                          : 'bg-muted/50 border-muted-foreground/20 text-muted-foreground'
+                      }`}
+                    >
+                      {secondBadgeText}
+                    </Badge>
                   )}
                 </div>
+
+                {/* Market Cap for PumpFun agents */}
+                {isPumpFunAgent && marketCap && (
+                  <div className="pt-1 border-t border-border/50">
+                    <div className="flex items-center justify-center gap-1.5">
+                      <span className="text-[10px] text-muted-foreground">Market Cap:</span>
+                      <span className="text-xs font-semibold text-primary">
+                        {formatMarketCap(marketCap)}
+                      </span>
+                    </div>
+                  </div>
+                )}
               </div>
             </button>
           );
