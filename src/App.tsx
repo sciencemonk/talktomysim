@@ -43,6 +43,7 @@ import AdminWelcomeMessages from "./pages/AdminWelcomeMessages";
 import BatchUpdateDescriptions from "./pages/BatchUpdateDescriptions";
 import Test from "./pages/Test";
 import Demo from "./pages/Demo";
+import TokenAgentPage from "./pages/TokenAgentPage";
 
 const queryClient = new QueryClient();
 
@@ -81,6 +82,9 @@ const App = () => (
               <Route path="/knowledge-enhancement" element={<KnowledgeEnhancement />} />
               <Route path="/sim-conversations" element={<SimConversations />} />
               <Route path="/pumpfun" element={<TradeStream />} />
+              
+              {/* Token Agent Page */}
+              <Route path="/token/:contractAddress" element={<TokenAgentPage />} />
               
               {/* Root route - new landing page */}
               <Route path="/" element={<NewLanding />} />

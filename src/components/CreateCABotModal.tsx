@@ -200,8 +200,8 @@ You can discuss your tokenomics, community, and answer questions about the proje
         await onSuccess();
       }
 
-      // Refresh page
-      window.location.href = "/";
+      // Navigate to the token agent page
+      window.location.href = `/token/${contractAddress.trim()}`;
     } catch (error) {
       console.error("Error creating PumpFun Agent:", error);
       toast.error("Failed to create PumpFun Agent");
