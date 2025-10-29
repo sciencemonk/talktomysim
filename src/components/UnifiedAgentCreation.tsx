@@ -443,7 +443,7 @@ You can discuss your tokenomics, community, and answer questions about the proje
       onOpenChange(false);
       handleReset();
       if (onSuccess) await onSuccess();
-      window.location.href = "/";
+      window.location.href = "/agents";
     } catch (error) {
       console.error("Error creating agent:", error);
       toast.error("Failed to create agent");
