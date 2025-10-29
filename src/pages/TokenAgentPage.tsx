@@ -233,24 +233,6 @@ export default function TokenAgentPage() {
               <Card className="border-border bg-card">
                 <CardHeader className="pb-3">
                   <CardDescription className="text-xs flex items-center gap-1">
-                    <Users className="h-3 w-3" />
-                    Holders
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-xl font-bold">
-                    {isLoadingToken ? (
-                      <Loader2 className="h-5 w-5 animate-spin" />
-                    ) : (
-                      tokenData?.holderCount?.toLocaleString() || 'N/A'
-                    )}
-                  </p>
-                </CardContent>
-              </Card>
-
-              <Card className="border-border bg-card">
-                <CardHeader className="pb-3">
-                  <CardDescription className="text-xs flex items-center gap-1">
                     <Activity className="h-3 w-3" />
                     Status
                   </CardDescription>
@@ -300,10 +282,6 @@ export default function TokenAgentPage() {
                         <div className="flex justify-between items-center py-2 border-b border-border">
                           <span className="text-sm text-muted-foreground">Market Cap</span>
                           <span className="text-sm font-medium">{formatMarketCap(tokenData?.marketCap)}</span>
-                        </div>
-                        <div className="flex justify-between items-center py-2 border-b border-border">
-                          <span className="text-sm text-muted-foreground">Holders</span>
-                          <span className="text-sm font-medium">{tokenData?.holderCount?.toLocaleString() || 'N/A'}</span>
                         </div>
                         <div className="flex justify-between items-center py-2">
                           <span className="text-sm text-muted-foreground">Symbol</span>

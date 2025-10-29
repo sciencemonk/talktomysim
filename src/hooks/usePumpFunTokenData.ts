@@ -3,7 +3,6 @@ import { supabase } from '@/integrations/supabase/client';
 
 export interface TokenData {
   marketCap?: number;
-  holderCount?: number;
   symbol?: string;
   name?: string;
   twitter?: string;
@@ -37,7 +36,6 @@ export const usePumpFunTokenData = (contractAddress: string | undefined, enabled
       
       return {
         marketCap: data.tokenData?.marketCap,
-        holderCount: data.tokenData?.holderCount,
         symbol: data.tokenData?.symbol,
         name: data.tokenData?.name,
         twitter: data.tokenData?.twitter,
