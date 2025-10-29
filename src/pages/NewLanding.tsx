@@ -44,15 +44,8 @@ const NewLanding = () => {
       <MatrixHeroSection 
         onCreateAgent={() => setShowCreateSimModal(true)} 
         onSimClick={handleSimClick}
+        onViewAllAgents={() => navigate('/agents')}
       />
-
-      {/* View All Agents Text Link */}
-      <button
-        onClick={() => navigate('/agents')}
-        className="absolute bottom-32 left-1/2 -translate-x-1/2 z-50 text-sm text-[#83f1aa] hover:underline transition-all duration-300"
-      >
-        View All Agents
-      </button>
 
       <AuthModal 
         open={authModalOpen} 
