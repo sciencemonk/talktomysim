@@ -18,7 +18,7 @@ export default function TokenAgentPage() {
   const [agent, setAgent] = useState<AgentType | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [contractCopied, setContractCopied] = useState(false);
-  const [showChat, setShowChat] = useState(false);
+  const [showChat, setShowChat] = useState(true);
 
   // Fetch real-time token data
   const { data: tokenData, isLoading: isLoadingToken, error: tokenError } = usePumpFunTokenData(contractAddress, true);
@@ -377,21 +377,9 @@ export default function TokenAgentPage() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="p-0">
-                {!showChat ? (
-                  <div className="p-6 text-center">
-                    <Button
-                      onClick={() => setShowChat(true)}
-                      className="w-full"
-                      style={{ backgroundColor: '#82f2aa', color: 'black' }}
-                    >
-                      Start Chat
-                    </Button>
-                  </div>
-                ) : (
-                  <div className="h-[600px] overflow-hidden">
-                    <PublicChatInterface agent={agent} />
-                  </div>
-                )}
+                <div className="h-[600px] overflow-hidden">
+                  <PublicChatInterface agent={agent} />
+                </div>
               </CardContent>
             </Card>
           </div>

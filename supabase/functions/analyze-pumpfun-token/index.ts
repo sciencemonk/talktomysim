@@ -183,6 +183,9 @@ serve(async (req) => {
               description: tokenData.description,
               image: tokenData.image_uri,
               marketCap: tokenData.usd_market_cap,
+              price: tokenData.usd_market_cap && tokenData.total_supply 
+                ? tokenData.usd_market_cap / tokenData.total_supply 
+                : null,
               creator: tokenData.creator
             },
             tradingActivity: {
@@ -218,6 +221,9 @@ serve(async (req) => {
               description: tokenData.description,
               image: tokenData.image_uri,
               marketCap: tokenData.usd_market_cap,
+              price: tokenData.usd_market_cap && tokenData.total_supply 
+                ? tokenData.usd_market_cap / tokenData.total_supply 
+                : null,
               creator: tokenData.creator
             },
             analysis: {

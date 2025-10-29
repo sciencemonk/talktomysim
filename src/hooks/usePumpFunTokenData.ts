@@ -25,16 +25,16 @@ export const usePumpFunTokenData = (contractAddress: string | undefined, enabled
         return null;
       }
 
-      if (!data.success) {
-        console.error('[usePumpFunTokenData] Failed:', data.error);
+      if (!data || data.error) {
+        console.error('[usePumpFunTokenData] Failed:', data?.error);
         return null;
       }
 
       console.log('[usePumpFunTokenData] Token data:', data.tokenData);
       
       return {
-        marketCap: data.tokenData?.market_cap,
-        price: data.tokenData?.usd_market_cap,
+        marketCap: data.tokenData?.marketCap,
+        price: data.tokenData?.price,
         symbol: data.tokenData?.symbol,
         name: data.tokenData?.name,
       } as TokenData;
