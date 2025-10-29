@@ -140,10 +140,27 @@ export const ScrollingSims = ({ onSimClick }: ScrollingSimsProps) => {
           const isCryptoMail = simCategoryType === 'Crypto Mail';
           const isVerified = (sim as any).is_verified || false;
           const marketCap = marketCapData[sim.id];
+          const marketplaceCategory = (sim as any).marketplace_category?.toLowerCase() || 'uncategorized';
 
           let typeBadgeText = 'Chat';
           if (isAutonomousAgent) typeBadgeText = 'Autonomous Agent';
           else if (isCryptoMail) typeBadgeText = 'Crypto Mail';
+
+          // Determine second badge - skip for PumpFun agents
+          let secondBadgeText = '';
+          if (!isPumpFunAgent) {
+            if (isAutonomousAgent) {
+              if (marketplaceCategory === 'uncategorized' || marketplaceCategory === 'daily brief' || !marketplaceCategory) {
+                secondBadgeText = 'Daily Brief';
+              } else {
+                secondBadgeText = marketplaceCategory;
+              }
+            } else if (isCryptoMail) {
+              secondBadgeText = isVerified ? 'Verified' : 'Unverified';
+            } else {
+              secondBadgeText = (sim as any).marketplace_category || 'General';
+            }
+          }
 
           return (
             <button
@@ -199,14 +216,12 @@ export const ScrollingSims = ({ onSimClick }: ScrollingSimsProps) => {
                         {formatMarketCap(marketCap)}
                       </Badge>
                     )
-                  ) : isCryptoMail ? (
-                    <Badge variant="outline" className="text-xs px-2 py-0.5">
-                      {isVerified ? 'Verified' : 'Unverified'}
-                    </Badge>
                   ) : (
-                    <Badge variant="outline" className="text-xs px-2 py-0.5">
-                      {(sim as any).marketplace_category || 'General'}
-                    </Badge>
+                    secondBadgeText && (
+                      <Badge variant="outline" className="text-xs px-2 py-0.5">
+                        {secondBadgeText}
+                      </Badge>
+                    )
                   )}
                 </div>
               </div>
