@@ -604,29 +604,10 @@ const AgentsDirectory = () => {
           {/* Search and Filters */}
           <div className="mb-6 space-y-4">
 
-            {/* Sort and Search with Create button - responsive layout */}
+            {/* Sort and Search - responsive layout */}
             <div className="flex flex-col sm:flex-row gap-3">
-              {/* Create + Sort on same line */}
+              {/* Sort on same line */}
               <div className="flex gap-3">
-                {/* Create Sim Button */}
-                <Button
-                  onClick={() => setShowCreateSimModal(true)}
-                  style={{ backgroundColor: '#83f1aa' }}
-                  className="gap-2 font-semibold text-black hover:opacity-90 h-12 px-4 shrink-0"
-                >
-                  <Plus className="h-4 w-4" />
-                  Create Sim
-                </Button>
-                
-                {/* Create CA Bot Button */}
-                <Button
-                  onClick={() => setShowCreateCABotModal(true)}
-                  variant="outline"
-                  className="gap-2 font-semibold h-12 px-4 shrink-0"
-                >
-                  <Plus className="h-4 w-4" />
-                  Create <img src={pumpfunLogo} alt="PumpFun" className="h-4 w-4 inline-block mx-1" /> Agent
-                </Button>
 
                 {/* Sort dropdown */}
                 <DropdownMenu>
