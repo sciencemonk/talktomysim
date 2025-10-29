@@ -1,12 +1,13 @@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ArrowRight } from "lucide-react";
+import { Bot, TrendingUp } from "lucide-react";
 
 interface TopHeroSectionProps {
-  onGetStarted: () => void;
+  onCreateSim: () => void;
+  onCreatePumpFunAgent: () => void;
 }
 
-export const TopHeroSection = ({ onGetStarted }: TopHeroSectionProps) => {
+export const TopHeroSection = ({ onCreateSim, onCreatePumpFunAgent }: TopHeroSectionProps) => {
   return (
     <section className="relative w-full py-20 sm:py-32 overflow-hidden">
       {/* Grid background pattern */}
@@ -17,7 +18,7 @@ export const TopHeroSection = ({ onGetStarted }: TopHeroSectionProps) => {
           {/* Main title */}
           <div className="space-y-4">
             <h1 className="text-4xl sm:text-6xl md:text-7xl font-bold tracking-tight">
-              <span className="bg-gradient-to-r from-primary via-primary to-primary/60 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-[#83f1aa] via-[#83f1aa] to-[#83f1aa]/60 bg-clip-text text-transparent">
                 ai agent everything
               </span>
             </h1>
@@ -47,15 +48,24 @@ export const TopHeroSection = ({ onGetStarted }: TopHeroSectionProps) => {
             </Badge>
           </div>
 
-          {/* CTA Button */}
-          <div className="pt-6">
+          {/* CTA Buttons */}
+          <div className="pt-6 flex flex-col sm:flex-row gap-4 justify-center">
             <Button 
               size="lg" 
-              onClick={onGetStarted}
+              onClick={onCreateSim}
               className="px-8 py-6 text-lg font-medium group"
             >
-              Get Started
-              <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
+              <Bot className="mr-2 h-5 w-5" />
+              Create Sim
+            </Button>
+            <Button 
+              size="lg" 
+              variant="outline"
+              onClick={onCreatePumpFunAgent}
+              className="px-8 py-6 text-lg font-medium group border-[#83f1aa] hover:bg-[#83f1aa]/10"
+            >
+              <TrendingUp className="mr-2 h-5 w-5" />
+              Create PumpFun Agent
             </Button>
           </div>
         </div>
