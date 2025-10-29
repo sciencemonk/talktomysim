@@ -3,16 +3,16 @@ import { useState, useEffect } from "react";
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { ScrollingSims } from "./ScrollingSims";
-import { TokenModal } from "./TokenModal";
+import { AgentType } from "@/types/agent";
 
 interface MatrixHeroSectionProps {
   onCreateAgent: () => void;
+  onSimClick: (sim: AgentType) => void;
 }
 
-export const MatrixHeroSection = ({ onCreateAgent }: MatrixHeroSectionProps) => {
+export const MatrixHeroSection = ({ onCreateAgent, onSimClick }: MatrixHeroSectionProps) => {
   const [displayedText, setDisplayedText] = useState("");
   const [showCursor, setShowCursor] = useState(true);
-  const [tokenModalOpen, setTokenModalOpen] = useState(false);
   const text = "ai agent everything";
   const { theme } = useTheme();
   
@@ -36,7 +36,7 @@ export const MatrixHeroSection = ({ onCreateAgent }: MatrixHeroSectionProps) => 
 
   return (
     <section className="relative min-h-screen flex flex-col overflow-hidden bg-background">
-      {/* Top Bar with Logo, $SIMAI, and Theme Toggle */}
+      {/* Top Bar with Logo and Theme Toggle */}
       <div className="relative z-50 w-full px-4 py-6 flex items-center justify-between">
         <img 
           src={theme === "dark" ? "/sim-logo-dark.png" : "/sim-logo-light-final.png"}
@@ -46,20 +46,8 @@ export const MatrixHeroSection = ({ onCreateAgent }: MatrixHeroSectionProps) => 
             e.currentTarget.src = "/sim-logo.png";
           }}
         />
-        <div className="flex items-center gap-4">
-          <Button
-            onClick={() => setTokenModalOpen(true)}
-            variant="outline"
-            className="gap-2 font-semibold"
-          >
-            $SIMAI
-          </Button>
-          <ThemeToggle />
-        </div>
+        <ThemeToggle />
       </div>
-
-      {/* Scrolling Sims */}
-      <ScrollingSims />
 
       {/* Matrix-style grid background */}
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#1a1a1a_1px,transparent_1px),linear-gradient(to_bottom,#1a1a1a_1px,transparent_1px)] bg-[size:4rem_4rem] opacity-20"></div>
@@ -88,7 +76,8 @@ export const MatrixHeroSection = ({ onCreateAgent }: MatrixHeroSectionProps) => 
         )}
       </div>
 
-      <TokenModal open={tokenModalOpen} onOpenChange={setTokenModalOpen} />
+      {/* Scrolling Sims at bottom */}
+      <ScrollingSims onSimClick={onSimClick} />
     </section>
   );
 };

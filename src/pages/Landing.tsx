@@ -470,7 +470,10 @@ const Landing = () => {
       <HackathonAnnouncementModal />
       
       {/* Matrix Hero Section */}
-      <MatrixHeroSection onCreateAgent={() => setShowCreateSimModal(true)} />
+      <MatrixHeroSection 
+        onCreateAgent={() => setShowCreateSimModal(true)} 
+        onSimClick={handleSimClick}
+      />
       
       {/* Second Section: Sim Directory */}
       <div className="w-full">
