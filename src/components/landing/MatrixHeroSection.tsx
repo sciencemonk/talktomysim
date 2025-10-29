@@ -36,7 +36,7 @@ export const MatrixHeroSection = ({ onCreateAgent, onSimClick }: MatrixHeroSecti
       
       {/* Content */}
       <div className="relative z-10 flex-1 flex flex-col items-center justify-center px-4 text-center">
-        <h1 className="text-6xl md:text-8xl lg:text-9xl font-mono font-bold mb-8 tracking-tight text-foreground">
+        <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-mono font-bold mb-8 tracking-tight text-foreground">
           {text}
         </h1>
         
@@ -44,7 +44,7 @@ export const MatrixHeroSection = ({ onCreateAgent, onSimClick }: MatrixHeroSecti
           onClick={onCreateAgent}
           size="lg"
           variant="outline"
-          className="gap-2 font-semibold px-24 py-12 text-5xl transition-all duration-300"
+          className="gap-2 font-semibold px-8 sm:px-12 md:px-16 py-4 sm:py-6 md:py-8 text-xl sm:text-2xl md:text-3xl transition-all duration-300"
         >
           Create Agent
         </Button>
