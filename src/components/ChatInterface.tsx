@@ -13,7 +13,6 @@ import { useIOSKeyboard } from "@/hooks/useIOSKeyboard";
 import { AgentType } from "@/types/agent";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { X402PaymentModal } from "@/components/X402PaymentModal";
-import { IntegrationTiles } from "@/components/IntegrationTiles";
 
 interface ChatInterfaceProps {
   agent: AgentType;
@@ -30,7 +29,6 @@ const ChatInterface = ({ agent, onBack, hideHeader = false, transparentMode = fa
   const [isAiResponding, setIsAiResponding] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [sessionId, setSessionId] = useState<string | null>(null);
-  const [selectedIntegrations, setSelectedIntegrations] = useState<string[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
@@ -41,21 +39,6 @@ const ChatInterface = ({ agent, onBack, hideHeader = false, transparentMode = fa
   // Get avatar URL - handle both transformed (avatar) and raw (avatar_url) properties
   const avatarUrl = (currentAgent as any).avatar || (currentAgent as any).avatar_url;
   
-  // Initialize with agent's default integrations
-  useEffect(() => {
-    if (currentAgent?.integrations && Array.isArray(currentAgent.integrations)) {
-      setSelectedIntegrations(currentAgent.integrations as string[]);
-    }
-  }, [currentAgent]);
-
-  const handleIntegrationToggle = (integration: string) => {
-    setSelectedIntegrations(prev => 
-      prev.includes(integration)
-        ? prev.filter(i => i !== integration)
-        : [...prev, integration]
-    );
-  };
-  
   const chatHistory = useChatHistory(currentAgent, forceNewChat, conversationId);
   const textChat = useTextChat({
     agent: currentAgent,
@@ -63,7 +46,9 @@ const ChatInterface = ({ agent, onBack, hideHeader = false, transparentMode = fa
     onAiMessageStart: chatHistory.startAiMessage,
     onAiTextDelta: chatHistory.addAiTextDelta,
     onAiMessageComplete: chatHistory.completeAiMessage,
-    selectedIntegrations,
+    selectedIntegrations: currentAgent?.integrations && Array.isArray(currentAgent.integrations) 
+      ? currentAgent.integrations as string[]
+      : [],
     // Only include completed messages in the history
     existingMessages: chatHistory.messages
       .filter(msg => msg.isComplete)
@@ -289,11 +274,6 @@ const ChatInterface = ({ agent, onBack, hideHeader = false, transparentMode = fa
             transparentMode={transparentMode}
           />
         </div>
-        <IntegrationTiles
-          selectedIntegrations={selectedIntegrations}
-          onToggle={handleIntegrationToggle}
-          disabled={textChat.isProcessing || isAiResponding}
-        />
       </div>
     </div>
   );
