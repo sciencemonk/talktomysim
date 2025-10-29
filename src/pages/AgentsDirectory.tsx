@@ -300,7 +300,7 @@ const AgentsDirectory = () => {
   });
 
   // Fetch all sims (both historical and living) with user count and like count
-  const { data: allSims } = useQuery({
+  const { data: allSims, isLoading } = useQuery({
     queryKey: ['all-sims-landing'],
     queryFn: async () => {
       // Get all advisors (excluding $GRUTA)
@@ -462,6 +462,24 @@ const AgentsDirectory = () => {
     setIsSimModalOpen(true);
   };
 
+  // Show loading state
+  if (isLoading) {
+    return (
+      <div className="min-h-screen w-full flex flex-col bg-background">
+        <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+          <div className="container mx-auto px-3 sm:px-4">
+            <div className="flex h-16 items-center justify-between gap-4">
+              <div className="h-8 w-8 sm:h-10 sm:w-10" />
+              <ThemeToggle />
+            </div>
+          </div>
+        </header>
+        <div className="flex-1 flex items-center justify-center">
+          <div className="text-muted-foreground">Loading...</div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen w-full flex flex-col bg-background">
