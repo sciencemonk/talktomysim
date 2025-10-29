@@ -46,9 +46,9 @@ export const MatrixHeroSection = ({ onCreateAgent, onSimClick, onViewAllAgents }
       
       {/* Content */}
       <div className="relative z-10 flex-1 flex flex-col items-center justify-center px-4 text-center">
-        <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-sans font-semibold mb-4 tracking-tight text-foreground">
+        <h1 className="text-xl sm:text-3xl md:text-4xl lg:text-5xl font-sans font-semibold mb-4 tracking-tight text-foreground">
           AI Agents that make you{" "}
-          <span className="inline-block min-w-[150px] text-left transition-all duration-500">
+          <span className="inline-block min-w-[100px] sm:min-w-[150px] text-left transition-all duration-500">
             {rotatingWords[currentWordIndex]}
           </span>
         </h1>
