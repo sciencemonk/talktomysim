@@ -35,7 +35,7 @@ export const MatrixHeroSection = ({ onCreateAgent, onSimClick }: MatrixHeroSecti
       <div className="absolute inset-0 bg-gradient-to-b from-background via-background/50 to-background"></div>
       
       {/* Content */}
-      <div className="relative z-10 flex-1 flex flex-col items-center justify-center px-4 text-center">
+      <div className="relative z-10 flex-1 flex flex-col items-center justify-center px-4 text-center pb-64">
         <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-mono font-bold mb-8 tracking-tight text-foreground">
           {text}
         </h1>

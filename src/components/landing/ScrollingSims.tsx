@@ -149,7 +149,7 @@ export const ScrollingSims = ({ onSimClick }: ScrollingSimsProps) => {
             <button
               key={`${sim.id}-${index}`}
               onClick={() => onSimClick(sim)}
-              className="flex-shrink-0 w-64 flex flex-col overflow-hidden rounded-xl bg-card hover:bg-muted border-2 hover:border-[#83f1aa] transition-all duration-300 hover:scale-105 hover:shadow-xl"
+              className="flex-shrink-0 w-52 flex flex-col overflow-hidden rounded-xl bg-card hover:bg-muted border-2 hover:border-[#83f1aa] transition-all duration-300 hover:scale-105 hover:shadow-xl"
             >
               {/* Image container */}
               <div className="relative w-full aspect-[4/3] overflow-hidden bg-muted">
