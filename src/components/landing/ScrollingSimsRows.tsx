@@ -157,10 +157,22 @@ export const ScrollingSimsRows = ({ onSimClick }: ScrollingSimsRowsProps) => {
     return `$${value.toFixed(2)}`;
   };
 
-  const duplicatedSims = [...sims, ...sims, ...sims];
-  const middleIndex = Math.floor(sims.length / 2);
-  const row1Sims = duplicatedSims.slice(0, 40);  // Start at index 0
-  const row2Sims = duplicatedSims.slice(middleIndex, middleIndex + 40); // Start at middle
+  // Shuffle function to randomize array
+  const shuffleArray = <T,>(array: T[]): T[] => {
+    const shuffled = [...array];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled;
+  };
+
+  // Create different shuffled versions for each row
+  const shuffled1 = shuffleArray(sims);
+  const shuffled2 = shuffleArray(sims);
+  
+  const row1Sims = [...shuffled1, ...shuffled1, ...shuffled1].slice(0, 40);
+  const row2Sims = [...shuffled2, ...shuffled2, ...shuffled2].slice(0, 40);
 
   const renderSimCard = (sim: AgentType, index: number) => {
     const simCategoryType = (sim as any).sim_category;
