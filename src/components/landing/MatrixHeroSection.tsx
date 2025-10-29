@@ -11,31 +11,45 @@ interface MatrixHeroSectionProps {
 }
 
 export const MatrixHeroSection = ({ onCreateAgent, onSimClick }: MatrixHeroSectionProps) => {
-  const [displayedText, setDisplayedText] = useState("");
-  const [showCursor, setShowCursor] = useState(true);
+  const [chars, setChars] = useState<string[]>([]);
   const text = "ai agent everything";
   const { theme } = useTheme();
+  const possibleChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@#$%^&*";
   
-  // Typing animation effect
+  // Matrix-style animation effect
   useEffect(() => {
-    if (displayedText.length < text.length) {
-      const timeout = setTimeout(() => {
-        setDisplayedText(text.slice(0, displayedText.length + 1));
-      }, 100);
-      return () => clearTimeout(timeout);
-    }
-  }, [displayedText, text]);
-
-  // Cursor blink effect
-  useEffect(() => {
+    const finalChars = text.split('');
+    const currentChars = new Array(text.length).fill('');
+    const iterations = new Array(text.length).fill(0);
+    const maxIterations = 8; // How many times each char cycles before settling
+    
     const interval = setInterval(() => {
-      setShowCursor(prev => !prev);
-    }, 500);
+      let allDone = true;
+      
+      currentChars.forEach((_, index) => {
+        if (iterations[index] < maxIterations) {
+          allDone = false;
+          // Random character cycling
+          currentChars[index] = possibleChars[Math.floor(Math.random() * possibleChars.length)];
+          iterations[index]++;
+        } else {
+          // Settle on final character
+          currentChars[index] = finalChars[index];
+        }
+      });
+      
+      setChars([...currentChars]);
+      
+      if (allDone) {
+        clearInterval(interval);
+      }
+    }, 50);
+    
     return () => clearInterval(interval);
-  }, []);
+  }, [text]);
 
   return (
-    <section className="relative min-h-screen flex flex-col overflow-hidden bg-background">
+    <section className="relative min-h-[50vh] flex flex-col overflow-hidden bg-background">
       {/* Top Bar with Logo and Theme Toggle */}
       <div className="relative z-50 w-full px-4 py-6 flex items-center justify-between">
         <img 
@@ -57,19 +71,27 @@ export const MatrixHeroSection = ({ onCreateAgent, onSimClick }: MatrixHeroSecti
       
       {/* Content */}
       <div className="relative z-10 flex-1 flex flex-col items-center justify-center px-4 text-center">
-        <h1 className="text-4xl md:text-5xl lg:text-6xl font-mono font-bold mb-12 tracking-tight text-[#82f2aa]">
-          {displayedText}
-          {showCursor && displayedText.length < text.length && (
-            <span className="inline-block w-1 h-12 md:h-16 lg:h-20 bg-[#82f2aa] ml-1 animate-pulse"></span>
-          )}
+        <h1 className="text-3xl md:text-4xl lg:text-5xl font-mono font-bold mb-8 tracking-tight text-[#82f2aa]">
+          {chars.map((char, index) => (
+            <span
+              key={index}
+              className="inline-block"
+              style={{
+                textShadow: '0 0 10px #82f2aa',
+                animation: `flicker ${Math.random() * 0.3 + 0.1}s ease-in-out infinite alternate`
+              }}
+            >
+              {char === ' ' ? '\u00A0' : char}
+            </span>
+          ))}
         </h1>
         
-        {displayedText.length >= text.length && (
+        {chars.length === text.length && chars.every((c, i) => c === text[i]) && (
           <Button
             onClick={onCreateAgent}
             size="lg"
             variant="outline"
-            className="animate-fade-in gap-2 font-semibold px-12 py-8 text-xl transition-all duration-300 border-[#83f1aa] text-[#83f1aa] hover:bg-[#83f1aa]/10"
+            className="animate-fade-in gap-2 font-semibold px-8 py-6 text-lg transition-all duration-300 border-[#83f1aa] text-[#83f1aa] hover:bg-[#83f1aa]/10"
           >
             Create Agent
           </Button>

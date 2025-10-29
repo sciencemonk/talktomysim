@@ -132,4 +132,15 @@
       background-position: 200% 0%;
     }
   }
+  
+  @keyframes flicker {
+    0%, 100% {
+      opacity: 1;
+      text-shadow: 0 0 10px #82f2aa, 0 0 20px #82f2aa;
+    }
+    50% {
+      opacity: 0.8;
+      text-shadow: 0 0 5px #82f2aa;
+    }
+  }
 }
