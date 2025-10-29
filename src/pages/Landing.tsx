@@ -32,7 +32,6 @@ import { SimLeaderboard } from "@/components/SimLeaderboard";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SimLikeButton } from "@/components/SimLikeButton";
 import { HackathonAnnouncementModal } from "@/components/HackathonAnnouncementModal";
-import { TopHeroSection } from "@/components/landing/TopHeroSection";
 
 interface PumpFunSimCardProps {
   sim: AgentType & { user_id?: string; like_count?: number; is_verified?: boolean };
@@ -488,6 +487,78 @@ const Landing = () => {
               />
             </button>
 
+            {/* Center: Type Filters */}
+            <div className="flex-1 flex justify-center max-w-3xl mx-4">
+              {isMobile ? (
+                <Select value={simTypeFilter} onValueChange={(v) => {
+                  setSimTypeFilter(v as any);
+                  if (v !== 'Chat') setSelectedCategory('all');
+                }}>
+                  <SelectTrigger className="w-full h-10">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-background border-border z-[100]">
+                    <SelectItem value="all">All Types</SelectItem>
+                    <SelectItem value="Autonomous Agent">
+                      <div className="flex items-center gap-2">
+                        <Zap className="h-4 w-4" />
+                        Autonomous Agents
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="Chat">
+                      <div className="flex items-center gap-2">
+                        <Bot className="h-4 w-4" />
+                        Chatbots
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="Crypto Mail">
+                      <div className="flex items-center gap-2">
+                        <Mail className="h-4 w-4" />
+                        Crypto Mail
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="x402 API" disabled>
+                      <div className="flex items-center gap-2">
+                        <Code className="h-4 w-4" />
+                        x402 API
+                        <Badge variant="secondary" className="text-[9px] px-1.5 py-0 ml-2">
+                          Coming Soon
+                        </Badge>
+                      </div>
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              ) : (
+                <Tabs value={simTypeFilter} onValueChange={(v) => {
+                  setSimTypeFilter(v as any);
+                  if (v !== 'Chat') setSelectedCategory('all');
+                }}>
+                  <TabsList>
+                    <TabsTrigger value="all">All Types</TabsTrigger>
+                    <TabsTrigger value="Autonomous Agent" className="gap-2">
+                      <Zap className="h-4 w-4" />
+                      Autonomous Agents
+                    </TabsTrigger>
+                    <TabsTrigger value="Chat" className="gap-2">
+                      <Bot className="h-4 w-4" />
+                      Chatbots
+                    </TabsTrigger>
+                    <TabsTrigger value="Crypto Mail" className="gap-2">
+                      <Mail className="h-4 w-4" />
+                      Crypto Mail
+                    </TabsTrigger>
+                    <TabsTrigger value="x402 API" disabled className="gap-2 opacity-50 cursor-not-allowed">
+                      <Code className="h-4 w-4" />
+                      x402 API
+                      <Badge variant="secondary" className="text-[9px] px-1.5 py-0 ml-1">
+                        Coming Soon
+                      </Badge>
+                    </TabsTrigger>
+                  </TabsList>
+                </Tabs>
+              )}
+            </div>
+
             {/* Right: Theme Toggle + User Menu */}
             <div className="flex items-center gap-2 shrink-0">
               <ThemeToggle />
@@ -525,100 +596,10 @@ const Landing = () => {
         </div>
       </header>
       
-      {/* Top Hero Section */}
-      <TopHeroSection 
-        onCreateSim={() => {
-          if (currentUser) {
-            setShowCreateSimModal(true);
-          } else {
-            setAuthModalOpen(true);
-          }
-        }}
-        onCreatePumpFunAgent={() => {
-          if (currentUser) {
-            setShowCreateCABotModal(true);
-          } else {
-            setAuthModalOpen(true);
-          }
-        }}
-      />
-      
       <div className="flex-1">
         {/* Sim Directory Section */}
         <section className="container mx-auto px-3 sm:px-4 py-8 flex-1">
         <div className="max-w-7xl mx-auto">
-          {/* Type Filters */}
-          <div className="mb-6 flex justify-center">
-            {isMobile ? (
-              <Select value={simTypeFilter} onValueChange={(v) => {
-                setSimTypeFilter(v as any);
-                if (v !== 'Chat') setSelectedCategory('all');
-              }}>
-                <SelectTrigger className="w-full h-10">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent className="bg-background border-border z-[100]">
-                  <SelectItem value="all">All Types</SelectItem>
-                  <SelectItem value="Autonomous Agent">
-                    <div className="flex items-center gap-2">
-                      <Zap className="h-4 w-4" />
-                      Autonomous Agents
-                    </div>
-                  </SelectItem>
-                  <SelectItem value="Chat">
-                    <div className="flex items-center gap-2">
-                      <Bot className="h-4 w-4" />
-                      Chatbots
-                    </div>
-                  </SelectItem>
-                  <SelectItem value="Crypto Mail">
-                    <div className="flex items-center gap-2">
-                      <Mail className="h-4 w-4" />
-                      Crypto Mail
-                    </div>
-                  </SelectItem>
-                  <SelectItem value="x402 API" disabled>
-                    <div className="flex items-center gap-2">
-                      <Code className="h-4 w-4" />
-                      x402 API
-                      <Badge variant="secondary" className="text-[9px] px-1.5 py-0 ml-2">
-                        Coming Soon
-                      </Badge>
-                    </div>
-                  </SelectItem>
-                </SelectContent>
-              </Select>
-            ) : (
-              <Tabs value={simTypeFilter} onValueChange={(v) => {
-                setSimTypeFilter(v as any);
-                if (v !== 'Chat') setSelectedCategory('all');
-              }}>
-                <TabsList>
-                  <TabsTrigger value="all">All Types</TabsTrigger>
-                  <TabsTrigger value="Autonomous Agent" className="gap-2">
-                    <Zap className="h-4 w-4" />
-                    Autonomous Agents
-                  </TabsTrigger>
-                  <TabsTrigger value="Chat" className="gap-2">
-                    <Bot className="h-4 w-4" />
-                    Chatbots
-                  </TabsTrigger>
-                  <TabsTrigger value="Crypto Mail" className="gap-2">
-                    <Mail className="h-4 w-4" />
-                    Crypto Mail
-                  </TabsTrigger>
-                  <TabsTrigger value="x402 API" disabled className="gap-2 opacity-50 cursor-not-allowed">
-                    <Code className="h-4 w-4" />
-                    x402 API
-                    <Badge variant="secondary" className="text-[9px] px-1.5 py-0 ml-1">
-                      Coming Soon
-                    </Badge>
-                  </TabsTrigger>
-                </TabsList>
-              </Tabs>
-            )}
-          </div>
-          
           {/* Search and Filters */}
           <div className="mb-6 space-y-4">
 
