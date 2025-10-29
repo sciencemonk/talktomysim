@@ -213,7 +213,7 @@ export const ScrollingSimsRows = ({ onSimClick }: ScrollingSimsRowsProps) => {
       <button
         key={`${sim.id}-${index}`}
         onClick={() => onSimClick(sim)}
-        className="flex-shrink-0 w-32 flex flex-col overflow-hidden rounded-xl bg-card hover:bg-muted border hover:border-[#83f1aa] transition-all duration-300 hover:scale-105 hover:shadow-xl"
+        className="flex-shrink-0 w-24 flex flex-col overflow-hidden rounded-lg bg-card hover:bg-muted border hover:border-[#83f1aa] transition-all duration-300 hover:scale-105 hover:shadow-xl"
       >
         <div className="relative w-full aspect-[4/3] overflow-hidden bg-muted">
           {sim.avatar ? (
@@ -227,16 +227,16 @@ export const ScrollingSimsRows = ({ onSimClick }: ScrollingSimsRowsProps) => {
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center bg-primary/10">
-            <span className="text-3xl font-bold text-primary">
+            <span className="text-2xl font-bold text-primary">
               {sim.name?.charAt(0)?.toUpperCase() || 'S'}
             </span>
             </div>
           )}
         </div>
         
-        <div className="w-full p-2 space-y-1">
-          <div className="flex items-center justify-center gap-1">
-            <span className="text-xs font-semibold line-clamp-1 leading-tight">
+        <div className="w-full p-1.5 space-y-0.5">
+          <div className="flex items-center justify-center gap-0.5">
+            <span className="text-[10px] font-semibold line-clamp-1 leading-tight">
               {sim.name}
             </span>
             {isVerified && (
@@ -244,16 +244,16 @@ export const ScrollingSimsRows = ({ onSimClick }: ScrollingSimsRowsProps) => {
                 <img 
                   src="/lovable-uploads/verified-badge.png" 
                   alt="Verified"
-                  className="w-3 h-3"
+                  className="w-2.5 h-2.5"
                 />
               </div>
             )}
           </div>
           
-          <div className="flex flex-wrap gap-1 justify-center">
+          <div className="flex flex-wrap gap-0.5 justify-center">
             <Badge 
               variant="outline" 
-              className="text-[8px] px-1 py-0 bg-primary/10 border-primary/30 text-primary whitespace-nowrap"
+              className="text-[7px] px-1 py-0 bg-primary/10 border-primary/30 text-primary whitespace-nowrap leading-tight"
             >
               {typeBadgeText}
             </Badge>
@@ -261,15 +261,15 @@ export const ScrollingSimsRows = ({ onSimClick }: ScrollingSimsRowsProps) => {
             {isPumpFunAgent ? (
               <Badge 
                 variant="outline" 
-                className="text-[8px] px-1 py-0 flex items-center gap-0.5"
+                className="text-[7px] px-1 py-0 flex items-center gap-0.5 leading-tight"
               >
-                <img src={pumpfunLogo} alt="PumpFun" className="h-2 w-2" />
+                <img src={pumpfunLogo} alt="PumpFun" className="h-1.5 w-1.5" />
                 Agent
               </Badge>
             ) : secondBadgeText && secondBadgeText !== 'uncategorized' && (
               <Badge 
                 variant="outline" 
-                className={`text-[8px] px-1 py-0 whitespace-nowrap ${
+                className={`text-[7px] px-1 py-0 whitespace-nowrap leading-tight ${
                   isCryptoMail && isVerified 
                     ? 'bg-green-500/10 border-green-500/30 text-green-600 dark:text-green-400'
                     : isCryptoMail && !isVerified
@@ -281,28 +281,17 @@ export const ScrollingSimsRows = ({ onSimClick }: ScrollingSimsRowsProps) => {
               </Badge>
             )}
           </div>
-
-          {isPumpFunAgent && marketCap && (
-            <div className="pt-0.5 border-t border-border/50">
-              <div className="flex items-center justify-center gap-1">
-                <span className="text-[8px] text-muted-foreground">MC:</span>
-                <span className="text-[9px] font-semibold text-primary">
-                  {formatMarketCap(marketCap)}
-                </span>
-              </div>
-            </div>
-          )}
         </div>
       </button>
     );
   };
 
   return (
-    <div className="w-full border-t border-border/50 bg-background/80 backdrop-blur-sm py-2">
+    <div className="w-full border-t border-border/50 bg-background/80 backdrop-blur-sm py-1">
       {/* Row 1 - scrolling left */}
       <div 
         ref={scrollRef1}
-        className="flex gap-2 overflow-x-hidden py-1 px-2 mb-1"
+        className="flex gap-1.5 overflow-x-hidden py-0.5 px-2"
         style={{ scrollBehavior: 'auto' }}
       >
         {row1Sims.map((sim, index) => renderSimCard(sim, index))}
@@ -311,7 +300,7 @@ export const ScrollingSimsRows = ({ onSimClick }: ScrollingSimsRowsProps) => {
       {/* Row 2 - scrolling right */}
       <div 
         ref={scrollRef2}
-        className="flex gap-2 overflow-x-hidden py-1 px-2 mb-1"
+        className="flex gap-1.5 overflow-x-hidden py-0.5 px-2"
         style={{ scrollBehavior: 'auto' }}
       >
         {row2Sims.map((sim, index) => renderSimCard(sim, index))}
@@ -320,7 +309,7 @@ export const ScrollingSimsRows = ({ onSimClick }: ScrollingSimsRowsProps) => {
       {/* Row 3 - scrolling left */}
       <div 
         ref={scrollRef3}
-        className="flex gap-2 overflow-x-hidden py-1 px-2"
+        className="flex gap-1.5 overflow-x-hidden py-0.5 px-2"
         style={{ scrollBehavior: 'auto' }}
       >
         {row3Sims.map((sim, index) => renderSimCard(sim, index))}

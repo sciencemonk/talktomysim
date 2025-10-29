@@ -46,9 +46,9 @@ export const MatrixHeroSection = ({ onCreateAgent, onSimClick, onViewAllAgents }
       
       {/* Content */}
       <div className="relative z-10 flex-1 flex flex-col items-center justify-center px-4 text-center">
-        <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-sans font-semibold mb-8 tracking-tight text-foreground">
+        <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-sans font-semibold mb-4 tracking-tight text-foreground">
           AI Agents that make you{" "}
-          <span className="inline-block min-w-[200px] text-left transition-all duration-500">
+          <span className="inline-block min-w-[150px] text-left transition-all duration-500">
             {rotatingWords[currentWordIndex]}
           </span>
         </h1>
@@ -56,14 +56,14 @@ export const MatrixHeroSection = ({ onCreateAgent, onSimClick, onViewAllAgents }
         <Button
           onClick={onCreateAgent}
           size="lg"
-          className="gap-2 font-semibold px-8 sm:px-10 md:px-12 py-4 sm:py-5 md:py-6 text-base sm:text-lg md:text-xl transition-all duration-300 mb-4 bg-[#82f3aa] hover:bg-[#6dd991] text-black border-0"
+          className="gap-2 font-semibold px-6 sm:px-8 md:px-10 py-3 sm:py-4 md:py-5 text-sm sm:text-base md:text-lg transition-all duration-300 mb-3 bg-[#82f3aa] hover:bg-[#6dd991] text-black border-0"
         >
           Create an Agent in Seconds
         </Button>
         
         <button
           onClick={onViewAllAgents}
-          className="text-sm text-muted-foreground hover:text-foreground hover:underline transition-all duration-300"
+          className="text-xs text-muted-foreground hover:text-foreground hover:underline transition-all duration-300"
         >
           View All Agents
         </button>
