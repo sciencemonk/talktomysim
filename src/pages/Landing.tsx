@@ -32,6 +32,7 @@ import { SimLeaderboard } from "@/components/SimLeaderboard";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SimLikeButton } from "@/components/SimLikeButton";
 import { HackathonAnnouncementModal } from "@/components/HackathonAnnouncementModal";
+import { TopHeroSection } from "@/components/landing/TopHeroSection";
 
 interface PumpFunSimCardProps {
   sim: AgentType & { user_id?: string; like_count?: number; is_verified?: boolean };
@@ -595,6 +596,15 @@ const Landing = () => {
           </div>
         </div>
       </header>
+      
+      {/* Top Hero Section */}
+      <TopHeroSection onGetStarted={() => {
+        if (currentUser) {
+          setShowCreateSimModal(true);
+        } else {
+          setAuthModalOpen(true);
+        }
+      }} />
       
       <div className="flex-1">
         {/* Sim Directory Section */}
