@@ -158,8 +158,9 @@ export const ScrollingSimsRows = ({ onSimClick }: ScrollingSimsRowsProps) => {
   };
 
   const duplicatedSims = [...sims, ...sims, ...sims];
+  const middleIndex = Math.floor(sims.length / 2);
   const row1Sims = duplicatedSims.slice(0, 40);  // Start at index 0
-  const row2Sims = duplicatedSims.slice(15, 55); // Start at index 15
+  const row2Sims = duplicatedSims.slice(middleIndex, middleIndex + 40); // Start at middle
 
   const renderSimCard = (sim: AgentType, index: number) => {
     const simCategoryType = (sim as any).sim_category;
