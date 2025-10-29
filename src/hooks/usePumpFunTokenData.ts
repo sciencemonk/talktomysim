@@ -1,9 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 
-interface TokenData {
+export interface TokenData {
   marketCap?: number;
-  price?: number;
+  holderCount?: number;
   symbol?: string;
   name?: string;
 }
@@ -34,7 +34,7 @@ export const usePumpFunTokenData = (contractAddress: string | undefined, enabled
       
       return {
         marketCap: data.tokenData?.marketCap,
-        price: data.tokenData?.price,
+        holderCount: data.tokenData?.holderCount,
         symbol: data.tokenData?.symbol,
         name: data.tokenData?.name,
       } as TokenData;

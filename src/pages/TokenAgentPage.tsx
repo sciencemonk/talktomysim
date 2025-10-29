@@ -114,14 +114,6 @@ export default function TokenAgentPage() {
     return `$${value.toFixed(2)}`;
   };
 
-  const formatPrice = (value: number | undefined) => {
-    if (!value) return 'N/A';
-    if (value < 0.01) {
-      return `$${value.toFixed(6)}`;
-    }
-    return `$${value.toFixed(4)}`;
-  };
-
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-background">
@@ -241,8 +233,8 @@ export default function TokenAgentPage() {
               <Card className="border-border bg-card">
                 <CardHeader className="pb-3">
                   <CardDescription className="text-xs flex items-center gap-1">
-                    <TrendingUp className="h-3 w-3" />
-                    Price
+                    <Users className="h-3 w-3" />
+                    Holders
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -250,7 +242,7 @@ export default function TokenAgentPage() {
                     {isLoadingToken ? (
                       <Loader2 className="h-5 w-5 animate-spin" />
                     ) : (
-                      formatPrice(tokenData?.price)
+                      tokenData?.holderCount?.toLocaleString() || 'N/A'
                     )}
                   </p>
                 </CardContent>
@@ -310,8 +302,8 @@ export default function TokenAgentPage() {
                           <span className="text-sm font-medium">{formatMarketCap(tokenData?.marketCap)}</span>
                         </div>
                         <div className="flex justify-between items-center py-2 border-b border-border">
-                          <span className="text-sm text-muted-foreground">Price (USD)</span>
-                          <span className="text-sm font-medium">{formatPrice(tokenData?.price)}</span>
+                          <span className="text-sm text-muted-foreground">Holders</span>
+                          <span className="text-sm font-medium">{tokenData?.holderCount?.toLocaleString() || 'N/A'}</span>
                         </div>
                         <div className="flex justify-between items-center py-2">
                           <span className="text-sm text-muted-foreground">Symbol</span>

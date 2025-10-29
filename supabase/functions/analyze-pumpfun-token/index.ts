@@ -63,6 +63,39 @@ serve(async (req) => {
       console.error('Failed to fetch token metadata:', error);
     }
 
+    // Fetch holder count using Helius RPC
+    let holderCount = 0;
+    const heliusApiKey = Deno.env.get('HELIUS_API_KEY');
+    
+    if (heliusApiKey && tokenAddress) {
+      try {
+        console.log('[analyze-pumpfun-token] Fetching holder count...');
+        const holderResponse = await fetch(
+          `https://mainnet.helius-rpc.com/?api-key=${heliusApiKey}`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              jsonrpc: '2.0',
+              id: 'holder-count',
+              method: 'getTokenLargestAccounts',
+              params: [tokenAddress],
+            }),
+          }
+        );
+        
+        if (holderResponse.ok) {
+          const holderData = await holderResponse.json();
+          holderCount = holderData?.result?.value?.length || 0;
+          console.log(`[analyze-pumpfun-token] Found ${holderCount} top holders`);
+        }
+      } catch (error) {
+        console.error('[analyze-pumpfun-token] Error fetching holder count:', error);
+      }
+    }
+
     // If we have no data at all, return error
     if (!trades.length && !tokenData) {
       return new Response(
@@ -183,9 +216,7 @@ serve(async (req) => {
               description: tokenData.description,
               image: tokenData.image_uri,
               marketCap: tokenData.usd_market_cap,
-              price: tokenData.usd_market_cap && tokenData.total_supply 
-                ? tokenData.usd_market_cap / tokenData.total_supply 
-                : null,
+              holderCount: holderCount,
               creator: tokenData.creator
             },
             tradingActivity: {
@@ -221,9 +252,7 @@ serve(async (req) => {
               description: tokenData.description,
               image: tokenData.image_uri,
               marketCap: tokenData.usd_market_cap,
-              price: tokenData.usd_market_cap && tokenData.total_supply 
-                ? tokenData.usd_market_cap / tokenData.total_supply 
-                : null,
+              holderCount: holderCount,
               creator: tokenData.creator
             },
             analysis: {
