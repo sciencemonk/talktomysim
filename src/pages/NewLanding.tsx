@@ -40,14 +40,16 @@ const NewLanding = () => {
   };
 
   return (
-    <div className="min-h-screen w-full flex flex-col bg-background relative">
+    <div className="min-h-screen w-full flex flex-col bg-background">
       <HackathonAnnouncementModal />
       
-      <MatrixHeroSection 
-        onCreateAgent={() => setShowCreateSimModal(true)} 
-        onSimClick={handleSimClick}
-        onViewAllAgents={() => navigate('/agents')}
-      />
+      <div className="flex-1">
+        <MatrixHeroSection 
+          onCreateAgent={() => setShowCreateSimModal(true)} 
+          onSimClick={handleSimClick}
+          onViewAllAgents={() => navigate('/agents')}
+        />
+      </div>
 
       <ScrollingSimsRows onSimClick={handleSimClick} />
       

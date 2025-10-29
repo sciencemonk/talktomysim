@@ -2,7 +2,6 @@ import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeToggle } from "@/components/ThemeToggle";
-import { ScrollingSims } from "./ScrollingSims";
 import { AgentType } from "@/types/agent";
 
 interface MatrixHeroSectionProps {
@@ -46,7 +45,7 @@ export const MatrixHeroSection = ({ onCreateAgent, onSimClick, onViewAllAgents }
       <div className="absolute inset-0 bg-gradient-to-b from-background via-background/50 to-background"></div>
       
       {/* Content */}
-      <div className="relative z-10 flex-1 flex flex-col items-center justify-center px-4 text-center pb-64">
+      <div className="relative z-10 flex-1 flex flex-col items-center justify-center px-4 text-center">
         <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-sans font-semibold mb-8 tracking-tight text-foreground">
           AI Agents that make you{" "}
           <span className="inline-block min-w-[200px] text-left transition-all duration-500">
@@ -69,9 +68,6 @@ export const MatrixHeroSection = ({ onCreateAgent, onSimClick, onViewAllAgents }
           View All Agents
         </button>
       </div>
-
-      {/* Scrolling Sims at bottom */}
-      <ScrollingSims onSimClick={onSimClick} />
     </section>
   );
 };

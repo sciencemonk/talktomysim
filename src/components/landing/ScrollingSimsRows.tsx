@@ -298,11 +298,11 @@ export const ScrollingSimsRows = ({ onSimClick }: ScrollingSimsRowsProps) => {
   };
 
   return (
-    <div className="absolute bottom-0 left-0 right-0 z-50 w-full h-[30vh] overflow-hidden border-t border-border/50 bg-background/80 backdrop-blur-sm">
+    <div className="w-full border-t border-border/50 bg-background/80 backdrop-blur-sm py-4">
       {/* Row 1 - scrolling left */}
       <div 
         ref={scrollRef1}
-        className="flex gap-2 overflow-x-hidden py-1 px-2"
+        className="flex gap-2 overflow-x-hidden py-2 px-2 mb-2"
         style={{ scrollBehavior: 'auto' }}
       >
         {row1Sims.map((sim, index) => renderSimCard(sim, index))}
@@ -311,7 +311,7 @@ export const ScrollingSimsRows = ({ onSimClick }: ScrollingSimsRowsProps) => {
       {/* Row 2 - scrolling right */}
       <div 
         ref={scrollRef2}
-        className="flex gap-2 overflow-x-hidden py-1 px-2"
+        className="flex gap-2 overflow-x-hidden py-2 px-2 mb-2"
         style={{ scrollBehavior: 'auto' }}
       >
         {row2Sims.map((sim, index) => renderSimCard(sim, index))}
@@ -320,7 +320,7 @@ export const ScrollingSimsRows = ({ onSimClick }: ScrollingSimsRowsProps) => {
       {/* Row 3 - scrolling left */}
       <div 
         ref={scrollRef3}
-        className="flex gap-2 overflow-x-hidden py-1 px-2"
+        className="flex gap-2 overflow-x-hidden py-2 px-2"
         style={{ scrollBehavior: 'auto' }}
       >
         {row3Sims.map((sim, index) => renderSimCard(sim, index))}
