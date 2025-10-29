@@ -577,8 +577,17 @@ const AgentsDirectory = () => {
               )}
             </div>
 
-            {/* Right: Theme Toggle + User Menu */}
+            {/* Right: Create Agent Button + Theme Toggle + User Menu */}
             <div className="flex items-center gap-2 shrink-0">
+              <Button
+                onClick={() => setShowCreateSimModal(true)}
+                size={isMobile ? "default" : "lg"}
+                className="gap-2 font-semibold px-4 sm:px-6 md:px-8 py-2 sm:py-3 text-xs sm:text-sm md:text-base transition-all duration-300 bg-[#82f3aa] hover:bg-[#6dd991] text-black border-0"
+              >
+                <Plus className="h-4 w-4" />
+                {!isMobile && "Create Agent"}
+              </Button>
+              
               <ThemeToggle />
 
               {currentUser && (
