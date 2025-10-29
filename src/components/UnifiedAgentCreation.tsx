@@ -873,6 +873,28 @@ You can discuss your tokenomics, community, and answer questions about the proje
                 </div>
               </div>
 
+              {/* System Prompt - Only for Chat Agents */}
+              {selectedType === "chat" && formData.systemPrompt && (
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-neonGreen" />
+                    <Label htmlFor="reviewPrompt" className="text-xs uppercase tracking-wider text-muted-foreground">System Prompt</Label>
+                  </div>
+                  <Textarea
+                    id="reviewPrompt"
+                    value={formData.systemPrompt}
+                    onChange={(e) => setFormData({ ...formData, systemPrompt: e.target.value })}
+                    rows={8}
+                    className="bg-bg border-border/50 focus:border-neonGreen transition-colors resize-none font-mono text-sm"
+                    placeholder="System prompt..."
+                  />
+                  <p className="text-xs text-muted-foreground/70 flex items-center gap-1">
+                    <span className="w-1 h-1 rounded-full bg-neonGreen" />
+                    You can modify the system prompt before creating your agent
+                  </p>
+                </div>
+              )}
+
               {/* Edit Code */}
               <div className="p-6 rounded-xl bg-gradient-to-r from-primary/10 via-primary/5 to-primary/10 border-2 border-primary/20">
                 <div className="space-y-3">
