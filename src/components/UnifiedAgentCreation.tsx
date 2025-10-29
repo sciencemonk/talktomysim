@@ -580,6 +580,52 @@ You can discuss your tokenomics, community, and answer questions about the proje
                     )}
                   </Button>
                 </div>
+              ) : selectedType === "crypto-mail" || selectedType === "autonomous" ? (
+                <div className="space-y-6">
+                  <div className="p-8 rounded-xl bg-gradient-to-br from-primary/10 via-primary/5 to-background border-2 border-primary/20 text-center space-y-4">
+                    <div className="flex items-center justify-center w-16 h-16 mx-auto rounded-full bg-neonGreen/10 border-2 border-neonGreen/30">
+                      <Sparkles className="w-8 h-8 text-neonGreen" />
+                    </div>
+                    <div className="space-y-2">
+                      <h3 className="text-2xl font-bold">By Invite Only</h3>
+                      <p className="text-muted-foreground">
+                        This agent type is currently in private beta. Request an invite to get early access.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="inviteXProfile" className="text-xs uppercase tracking-wider text-muted-foreground">Your X Profile *</Label>
+                    <Input
+                      id="inviteXProfile"
+                      placeholder="@username"
+                      value={formData.xProfile}
+                      onChange={(e) => setFormData({ ...formData, xProfile: e.target.value })}
+                      className="h-12 bg-bg border-border/50 focus:border-neonGreen transition-colors"
+                    />
+                    <p className="text-xs text-muted-foreground/70 flex items-center gap-1">
+                      <span className="w-1 h-1 rounded-full bg-neonGreen" />
+                      We'll contact you via X when your invite is ready
+                    </p>
+                  </div>
+
+                  <Button 
+                    onClick={() => {
+                      if (!formData.xProfile.trim()) {
+                        toast.error("Please enter your X profile");
+                        return;
+                      }
+                      toast.success("Invite request submitted! We'll reach out soon on X.");
+                      onOpenChange(false);
+                      handleReset();
+                    }}
+                    disabled={!formData.xProfile.trim()}
+                    className="w-full bg-neonGreen hover:bg-neonGreen/90 text-black font-semibold"
+                  >
+                    Request Invite
+                    <ArrowRight className="w-4 h-4 ml-2" />
+                  </Button>
+                </div>
               ) : (
                 <>
                   <div className="grid grid-cols-[auto,1fr] gap-6">
