@@ -457,7 +457,7 @@ You can discuss your tokenomics, community, and answer questions about the proje
 
   return (
     <Dialog open={open} onOpenChange={(open) => !open && handleReset()}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto [&>button]:hidden">
         <div className="space-y-6">
           {/* Header */}
           <div className="space-y-4">
