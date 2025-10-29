@@ -40,6 +40,13 @@ const AGENT_TYPES = [
     category: "Chat",
   },
   {
+    id: "pumpfun",
+    label: "PumpFun Agent",
+    description: "Plug in CA for dedicated agent page",
+    iconImage: pumpfunLogo,
+    category: "PumpFun Agent",
+  },
+  {
     id: "crypto-mail",
     label: "x402 Mail",
     description: "Get paid to respond to messages",
@@ -54,13 +61,6 @@ const AGENT_TYPES = [
     iconImage: aiIcon,
     category: "Autonomous Agent",
     inviteOnly: true,
-  },
-  {
-    id: "pumpfun",
-    label: "PumpFun Agent",
-    description: "Plug in CA for dedicated agent page",
-    iconImage: pumpfunLogo,
-    category: "PumpFun Agent",
   },
   {
     id: "prediction-market",
