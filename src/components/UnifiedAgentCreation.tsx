@@ -10,18 +10,17 @@ import { Progress } from "@/components/ui/progress";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import {
-  Bot,
-  MessageSquare,
-  Mail,
-  Sparkles,
   Upload,
   Loader2,
   ArrowLeft,
   ArrowRight,
-  Check,
   Rocket,
+  Sparkles,
 } from "lucide-react";
 import pumpfunLogo from "@/assets/pumpfun-logo.png";
+import chatbotIcon from "@/assets/chatbot-icon.png";
+import donationIcon from "@/assets/donation-icon.png";
+import aiIcon from "@/assets/ai-icon.png";
 
 interface UnifiedAgentCreationProps {
   open: boolean;
@@ -34,28 +33,28 @@ const AGENT_TYPES = [
     id: "chat",
     label: "Chat Agent",
     description: "AI chatbot for conversations",
-    icon: MessageSquare,
+    iconImage: chatbotIcon,
     category: "Chat",
   },
   {
     id: "crypto-mail",
     label: "Crypto Mail",
     description: "Contact form with message collection",
-    icon: Mail,
+    iconImage: donationIcon,
     category: "Crypto Mail",
   },
   {
     id: "autonomous",
     label: "Autonomous Agent",
     description: "Automated tasks like daily briefs",
-    icon: Bot,
+    iconImage: aiIcon,
     category: "Autonomous Agent",
   },
   {
     id: "pumpfun",
     label: "PumpFun Agent",
     description: "Token-based chatbot",
-    icon: Sparkles,
+    iconImage: pumpfunLogo,
     category: "PumpFun Agent",
   },
 ];
@@ -478,7 +477,6 @@ You can discuss your tokenomics, community, and answer questions about the proje
           {step === 0 && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {AGENT_TYPES.map((type) => {
-                const Icon = type.icon;
                 return (
                   <button
                     key={type.id}
@@ -486,11 +484,11 @@ You can discuss your tokenomics, community, and answer questions about the proje
                     className="p-6 rounded-lg border-2 border-border hover:border-primary transition-all text-left space-y-3 hover:shadow-lg group"
                   >
                     <div className="flex items-center gap-3">
-                      {type.id === "pumpfun" ? (
-                        <img src={pumpfunLogo} alt="PumpFun" className="w-8 h-8" />
-                      ) : (
-                        <Icon className="w-8 h-8 text-primary group-hover:scale-110 transition-transform" />
-                      )}
+                      <img 
+                        src={type.iconImage} 
+                        alt={type.label} 
+                        className="w-8 h-8 group-hover:scale-110 transition-transform" 
+                      />
                       <h3 className="text-lg font-semibold">{type.label}</h3>
                     </div>
                     <p className="text-sm text-muted-foreground">{type.description}</p>
