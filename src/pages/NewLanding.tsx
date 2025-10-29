@@ -40,10 +40,10 @@ const NewLanding = () => {
   };
 
   return (
-    <div className="min-h-screen w-full flex flex-col bg-background">
+    <div className="h-screen w-full flex flex-col bg-background overflow-hidden">
       <HackathonAnnouncementModal />
       
-      <div className="flex-1">
+      <div className="flex-1 overflow-hidden">
         <MatrixHeroSection 
           onCreateAgent={() => setShowCreateSimModal(true)} 
           onSimClick={handleSimClick}
