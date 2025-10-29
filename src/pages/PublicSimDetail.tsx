@@ -275,6 +275,16 @@ const PublicSimDetail = () => {
 
       setSim(transformedSim);
       
+      // Redirect PumpFun Agents to the dedicated token page
+      if (transformedSim.sim_category === 'PumpFun Agent') {
+        const socialLinks = transformedSim.social_links as { contract_address?: string } | null;
+        const contractAddress = socialLinks?.contract_address;
+        if (contractAddress) {
+          navigate(`/token/${contractAddress}`, { replace: true });
+          return;
+        }
+      }
+      
       // Update meta tags for social sharing
       const simSlug = data.custom_url || generateSlug(transformedSim.name);
       const simUrl = `https://simproject.org/${simSlug}`;
