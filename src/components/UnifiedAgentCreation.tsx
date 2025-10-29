@@ -583,6 +583,27 @@ You can discuss your tokenomics, community, and answer questions about the proje
                         />
                       </div>
 
+                      {selectedType !== "autonomous" && selectedType !== "crypto-mail" && (
+                        <div className="space-y-2">
+                          <Label htmlFor="category" className="text-xs uppercase tracking-wider text-muted-foreground">Category *</Label>
+                          <Select
+                            value={formData.category}
+                            onValueChange={(value) => setFormData({ ...formData, category: value })}
+                          >
+                            <SelectTrigger className="h-12 bg-bg border-border/50 focus:border-neonGreen transition-colors">
+                              <SelectValue placeholder="Select a category" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {CATEGORIES.map((cat) => (
+                                <SelectItem key={cat.value} value={cat.value}>
+                                  {cat.label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      )}
+
                       {selectedType === "autonomous" && (
                         <div className="space-y-2">
                           <Label htmlFor="agentCategory" className="text-xs uppercase tracking-wider text-muted-foreground">Category *</Label>
@@ -643,36 +664,16 @@ You can discuss your tokenomics, community, and answer questions about the proje
                       />
                     </div>
                   ) : (
-                    <div className="space-y-5">
-                      <div className="space-y-2">
-                        <Label htmlFor="description" className="text-xs uppercase tracking-wider text-muted-foreground">Description *</Label>
-                        <Textarea
-                          id="description"
-                          placeholder="Describe your agent's personality and purpose..."
-                          value={formData.description}
-                          onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                          rows={4}
-                          className="bg-bg border-border/50 focus:border-neonGreen transition-colors resize-none"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="category" className="text-xs uppercase tracking-wider text-muted-foreground">Category *</Label>
-                        <Select
-                          value={formData.category}
-                          onValueChange={(value) => setFormData({ ...formData, category: value })}
-                        >
-                          <SelectTrigger className="h-12 bg-bg border-border/50 focus:border-neonGreen transition-colors">
-                            <SelectValue placeholder="Select a category" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {CATEGORIES.map((cat) => (
-                              <SelectItem key={cat.value} value={cat.value}>
-                                {cat.label}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="description" className="text-xs uppercase tracking-wider text-muted-foreground">Description *</Label>
+                      <Textarea
+                        id="description"
+                        placeholder="Describe your agent's personality and purpose..."
+                        value={formData.description}
+                        onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                        rows={4}
+                        className="bg-bg border-border/50 focus:border-neonGreen transition-colors resize-none"
+                      />
                     </div>
                   )}
 
