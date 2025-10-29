@@ -530,8 +530,8 @@ You can discuss your tokenomics, community, and answer questions about the proje
                     className="p-6 rounded-lg border-2 border-border hover:border-primary transition-all text-left space-y-3 hover:shadow-lg group relative"
                   >
                     {isInviteOnly && (
-                      <div className="absolute top-4 right-4 px-2 py-1 rounded-md bg-neonGreen/20 border border-neonGreen/40">
-                        <span className="text-xs font-semibold text-neonGreen">Invite Only</span>
+                      <div className="absolute top-4 right-4 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-md bg-neonGreen/20 border border-neonGreen/40">
+                        <span className="text-[10px] sm:text-xs font-semibold text-neonGreen">Invite Only</span>
                       </div>
                     )}
                     <div className="flex items-center gap-3">
