@@ -445,7 +445,7 @@ You can discuss your tokenomics, community, and answer questions about the proje
 
   const getStepTitle = () => {
     if (step === 0) return "Choose Agent Type";
-    if (step === 1) return "Basic Information";
+    if (step === 1) return ""; // Removed title for step 1
     if (step === 2) return "Configure Agent";
     if (step === 3) return "Review & Create";
     return "";
@@ -467,15 +467,15 @@ You can discuss your tokenomics, community, and answer questions about the proje
           {/* Header */}
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-bold">{getStepTitle()}</h2>
+              {getStepTitle() && <h2 className="text-2xl font-bold">{getStepTitle()}</h2>}
               {step > 0 && (
-                <Button variant="ghost" size="sm" onClick={handleBack} className="gap-2">
+                <Button variant="ghost" size="sm" onClick={handleBack} className="gap-2 ml-auto">
                   <ArrowLeft className="w-4 h-4" />
                   Back
                 </Button>
               )}
             </div>
-            {step > 0 && <Progress value={getProgress()} className="h-2" />}
+            {step > 0 && <Progress value={getProgress()} className="h-2 bg-bg-muted [&>div]:bg-neonGreen" />}
           </div>
 
           {/* Step 0: Agent Type Selection */}
@@ -507,23 +507,25 @@ You can discuss your tokenomics, community, and answer questions about the proje
           {step === 1 && (
             <div className="space-y-6">
               {selectedType === "pumpfun" ? (
-                <div className="space-y-4">
-                  <div>
-                    <Label htmlFor="contractAddress">PumpFun Token Contract Address</Label>
+                <div className="space-y-5">
+                  <div className="space-y-2">
+                    <Label htmlFor="contractAddress" className="text-xs uppercase tracking-wider text-muted-foreground">PumpFun Token Contract Address</Label>
                     <Input
                       id="contractAddress"
                       placeholder="Enter token CA..."
                       value={formData.contractAddress}
                       onChange={(e) => setFormData({ ...formData, contractAddress: e.target.value })}
+                      className="h-12 bg-bg border-border/50 focus:border-neonGreen transition-colors font-mono"
                     />
-                    <p className="text-xs text-muted-foreground mt-1">
+                    <p className="text-xs text-muted-foreground/70 flex items-center gap-1">
+                      <span className="w-1 h-1 rounded-full bg-neonGreen" />
                       Enter the contract address of a PumpFun token
                     </p>
                   </div>
                   <Button
                     onClick={handleFetchPumpFunToken}
                     disabled={isLoading || !formData.contractAddress.trim()}
-                    className="w-full"
+                    className="w-full bg-neonGreen hover:bg-neonGreen/90 text-black font-semibold"
                   >
                     {isLoading ? (
                       <>
@@ -540,21 +542,25 @@ You can discuss your tokenomics, community, and answer questions about the proje
                 </div>
               ) : (
                 <>
-                  <div className="grid grid-cols-[auto,1fr] gap-4">
+                  <div className="grid grid-cols-[auto,1fr] gap-6">
                     <div className="space-y-2">
-                      <Label>Avatar</Label>
+                      <Label className="text-xs uppercase tracking-wider text-muted-foreground">Avatar</Label>
                       <div
                         onClick={() => fileInputRef.current?.click()}
-                        className="w-24 h-24 rounded-xl cursor-pointer border-2 border-dashed border-border hover:border-primary transition-all flex items-center justify-center bg-muted/30"
+                        className="relative w-32 h-32 rounded-2xl cursor-pointer border-2 border-dashed border-border hover:border-neonGreen transition-all flex items-center justify-center bg-gradient-to-br from-bg-muted/50 to-bg group overflow-hidden"
                       >
                         {avatarPreview ? (
-                          <Avatar className="w-full h-full rounded-xl">
+                          <Avatar className="w-full h-full rounded-2xl">
                             <AvatarImage src={avatarPreview} />
                             <AvatarFallback>{formData.name[0]}</AvatarFallback>
                           </Avatar>
                         ) : (
-                          <Upload className="w-8 h-8 text-muted-foreground" />
+                          <div className="flex flex-col items-center gap-2">
+                            <Upload className="w-10 h-10 text-muted-foreground group-hover:text-neonGreen transition-colors" />
+                            <span className="text-xs text-muted-foreground">Upload</span>
+                          </div>
                         )}
+                        <div className="absolute inset-0 bg-neonGreen/10 opacity-0 group-hover:opacity-100 transition-opacity rounded-2xl" />
                       </div>
                       <input
                         ref={fileInputRef}
@@ -565,25 +571,26 @@ You can discuss your tokenomics, community, and answer questions about the proje
                       />
                     </div>
 
-                    <div className="space-y-4">
-                      <div>
-                        <Label htmlFor="name">Agent Name *</Label>
+                    <div className="space-y-5">
+                      <div className="space-y-2">
+                        <Label htmlFor="name" className="text-xs uppercase tracking-wider text-muted-foreground">Agent Name *</Label>
                         <Input
                           id="name"
                           placeholder="e.g., Tech Advisor Alex"
                           value={formData.name}
                           onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                          className="h-12 bg-bg border-border/50 focus:border-neonGreen transition-colors"
                         />
                       </div>
 
                       {selectedType === "autonomous" && (
-                        <div>
-                          <Label htmlFor="agentCategory">Category *</Label>
+                        <div className="space-y-2">
+                          <Label htmlFor="agentCategory" className="text-xs uppercase tracking-wider text-muted-foreground">Category *</Label>
                           <Select
                             value={formData.agentCategory}
                             onValueChange={(value) => setFormData({ ...formData, agentCategory: value })}
                           >
-                            <SelectTrigger>
+                            <SelectTrigger className="h-12 bg-bg border-border/50 focus:border-neonGreen transition-colors">
                               <SelectValue placeholder="Select category" />
                             </SelectTrigger>
                             <SelectContent>
@@ -596,60 +603,65 @@ You can discuss your tokenomics, community, and answer questions about the proje
                   </div>
 
                   {selectedType === "autonomous" ? (
-                    <>
-                      <div>
-                        <Label htmlFor="briefTopic">What do you want a daily brief on? *</Label>
+                    <div className="space-y-5">
+                      <div className="space-y-2">
+                        <Label htmlFor="briefTopic" className="text-xs uppercase tracking-wider text-muted-foreground">What do you want a daily brief on? *</Label>
                         <Textarea
                           id="briefTopic"
                           placeholder="E.g., AI developments, cryptocurrency markets, climate change news..."
                           value={formData.briefTopic}
                           onChange={(e) => setFormData({ ...formData, briefTopic: e.target.value })}
-                          rows={3}
+                          rows={4}
+                          className="bg-bg border-border/50 focus:border-neonGreen transition-colors resize-none"
                         />
                       </div>
-                      <div>
-                        <Label htmlFor="briefTime">When do you want to receive your daily brief? *</Label>
+                      <div className="space-y-2">
+                        <Label htmlFor="briefTime" className="text-xs uppercase tracking-wider text-muted-foreground">When do you want to receive your daily brief? *</Label>
                         <Input
                           id="briefTime"
                           type="time"
                           value={formData.briefTime}
                           onChange={(e) => setFormData({ ...formData, briefTime: e.target.value })}
+                          className="h-12 bg-bg border-border/50 focus:border-neonGreen transition-colors"
                         />
-                        <p className="text-xs text-muted-foreground mt-1">
+                        <p className="text-xs text-muted-foreground/70 flex items-center gap-1">
+                          <span className="w-1 h-1 rounded-full bg-neonGreen" />
                           Your brief will be generated daily at this time
                         </p>
                       </div>
-                    </>
+                    </div>
                   ) : selectedType === "crypto-mail" ? (
-                    <div>
-                      <Label htmlFor="description">Description</Label>
+                    <div className="space-y-2">
+                      <Label htmlFor="description" className="text-xs uppercase tracking-wider text-muted-foreground">Description</Label>
                       <Textarea
                         id="description"
                         placeholder="Describe what this contact form is for..."
                         value={formData.description}
                         onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                        rows={3}
+                        rows={4}
+                        className="bg-bg border-border/50 focus:border-neonGreen transition-colors resize-none"
                       />
                     </div>
                   ) : (
-                    <>
-                      <div>
-                        <Label htmlFor="description">Description *</Label>
+                    <div className="space-y-5">
+                      <div className="space-y-2">
+                        <Label htmlFor="description" className="text-xs uppercase tracking-wider text-muted-foreground">Description *</Label>
                         <Textarea
                           id="description"
                           placeholder="Describe your agent's personality and purpose..."
                           value={formData.description}
                           onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                          rows={3}
+                          rows={4}
+                          className="bg-bg border-border/50 focus:border-neonGreen transition-colors resize-none"
                         />
                       </div>
-                      <div>
-                        <Label htmlFor="category">Category *</Label>
+                      <div className="space-y-2">
+                        <Label htmlFor="category" className="text-xs uppercase tracking-wider text-muted-foreground">Category *</Label>
                         <Select
                           value={formData.category}
                           onValueChange={(value) => setFormData({ ...formData, category: value })}
                         >
-                          <SelectTrigger>
+                          <SelectTrigger className="h-12 bg-bg border-border/50 focus:border-neonGreen transition-colors">
                             <SelectValue placeholder="Select a category" />
                           </SelectTrigger>
                           <SelectContent>
@@ -661,10 +673,10 @@ You can discuss your tokenomics, community, and answer questions about the proje
                           </SelectContent>
                         </Select>
                       </div>
-                    </>
+                    </div>
                   )}
 
-                  <Button onClick={handleGeneratePrompt} disabled={isLoading} className="w-full">
+                  <Button onClick={handleGeneratePrompt} disabled={isLoading} className="w-full bg-neonGreen hover:bg-neonGreen/90 text-black font-semibold">
                     {isLoading ? (
                       <>
                         <Loader2 className="w-4 h-4 mr-2 animate-spin" />
@@ -746,7 +758,7 @@ You can discuss your tokenomics, community, and answer questions about the proje
               </div>
 
               {/* Create Button */}
-              <Button onClick={handleSubmit} disabled={isLoading} className="w-full" size="lg">
+              <Button onClick={handleSubmit} disabled={isLoading} className="w-full bg-neonGreen hover:bg-neonGreen/90 text-black font-semibold" size="lg">
                 {isLoading ? (
                   <>
                     <Loader2 className="w-5 h-5 mr-2 animate-spin" />
