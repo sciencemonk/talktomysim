@@ -57,8 +57,7 @@ export const MatrixHeroSection = ({ onCreateAgent, onSimClick, onViewAllAgents }
         <Button
           onClick={onCreateAgent}
           size="lg"
-          variant="outline"
-          className="gap-2 font-semibold px-8 sm:px-10 md:px-12 py-4 sm:py-5 md:py-6 text-base sm:text-lg md:text-xl transition-all duration-300 mb-4"
+          className="gap-2 font-semibold px-8 sm:px-10 md:px-12 py-4 sm:py-5 md:py-6 text-base sm:text-lg md:text-xl transition-all duration-300 mb-4 bg-[#82f3aa] hover:bg-[#6dd991] text-black border-0"
         >
           Create an Agent in Seconds
         </Button>
