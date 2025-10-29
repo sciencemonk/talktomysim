@@ -1,5 +1,6 @@
 import { useState, useRef } from "react";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -503,6 +504,9 @@ You can discuss your tokenomics, community, and answer questions about the proje
       }
     }}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto [&>button]:hidden">
+        <VisuallyHidden>
+          <DialogTitle>Create Agent</DialogTitle>
+        </VisuallyHidden>
         <div className="space-y-6">
           {/* Agent Type Header - Always visible when agent type is selected */}
           {step > 0 && selectedType && (

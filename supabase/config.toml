@@ -71,3 +71,9 @@ verify_jwt = false
 
 [functions.get-client-ip]
 verify_jwt = false
+
+[functions.generate-system-prompt]
+verify_jwt = false
+
+[functions.chat-completion]
+verify_jwt = false
