@@ -49,7 +49,7 @@ export const MatrixHeroSection = ({ onCreateAgent, onSimClick }: MatrixHeroSecti
   }, [text]);
 
   return (
-    <section className="relative min-h-[50vh] flex flex-col overflow-hidden bg-background">
+    <section className="relative min-h-screen flex flex-col overflow-hidden bg-background">
       {/* Top Bar with Logo and Theme Toggle */}
       <div className="relative z-50 w-full px-4 py-6 flex items-center justify-between">
         <img 

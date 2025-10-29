@@ -32,7 +32,6 @@ import { SimLeaderboard } from "@/components/SimLeaderboard";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SimLikeButton } from "@/components/SimLikeButton";
 import { HackathonAnnouncementModal } from "@/components/HackathonAnnouncementModal";
-import { MatrixHeroSection } from "@/components/landing/MatrixHeroSection";
 
 interface PumpFunSimCardProps {
   sim: AgentType & { user_id?: string; like_count?: number; is_verified?: boolean };
@@ -206,7 +205,7 @@ const PumpFunSimCard = ({ sim, onSimClick, categories }: PumpFunSimCardProps) =>
   );
 };
 
-const Landing = () => {
+const AgentsDirectory = () => {
   const navigate = useNavigate();
   const [selectedSim, setSelectedSim] = useState<AgentType | null>(null);
   const [authModalOpen, setAuthModalOpen] = useState(false);
@@ -469,18 +468,27 @@ const Landing = () => {
       {/* Hackathon Announcement Modal */}
       <HackathonAnnouncementModal />
       
-      {/* Matrix Hero Section */}
-      <MatrixHeroSection 
-        onCreateAgent={() => setShowCreateSimModal(true)} 
-        onSimClick={handleSimClick}
-      />
-      
-      {/* Second Section: Sim Directory */}
+      {/* Agents Directory Section */}
       <div className="w-full">
         {/* Integrated Header with Navigation */}
         <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container mx-auto px-3 sm:px-4">
           <div className="flex h-16 items-center justify-between gap-4">
+            {/* Left: Logo - navigates back to landing */}
+            <button
+              onClick={() => navigate('/')}
+              className="flex items-center hover:opacity-80 transition-opacity shrink-0"
+            >
+              <img 
+                src={theme === "dark" ? "/sim-logo-dark.png" : "/sim-logo-light-final.png"}
+                alt="Sim Logo" 
+                className="h-8 w-8 sm:h-10 sm:w-10 object-contain"
+                onError={(e) => {
+                  e.currentTarget.src = "/sim-logo.png";
+                }}
+              />
+            </button>
+
             {/* Center: Type Filters */}
             <div className="flex-1 flex justify-center max-w-3xl">
               {isMobile ? (
@@ -553,8 +561,10 @@ const Landing = () => {
               )}
             </div>
 
-            {/* Right: User Menu */}
+            {/* Right: Theme Toggle + User Menu */}
             <div className="flex items-center gap-2 shrink-0">
+              <ThemeToggle />
+
               {currentUser && (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -801,4 +811,4 @@ const Landing = () => {
   );
 };
 
-export default Landing;
+export default AgentsDirectory;

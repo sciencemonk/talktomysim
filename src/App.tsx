@@ -15,7 +15,8 @@ import { AuthenticatedLayout } from "./layouts/AuthenticatedLayout";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import Home from "./pages/Home";
-import Landing from "./pages/Landing";
+import NewLanding from "./pages/NewLanding";
+import AgentsDirectory from "./pages/AgentsDirectory";
 import LiveChat from "./pages/LiveChat";
 import LiveStream from "./pages/LiveStream";
 import Pump from "./pages/Pump";
@@ -55,7 +56,8 @@ const App = () => (
           <BrowserRouter>
             <Routes>
               {/* Public routes */}
-              <Route path="/landing" element={<Landing />} />
+              <Route path="/landing" element={<AgentsDirectory />} />
+              <Route path="/agents" element={<AgentsDirectory />} />
               <Route path="/live" element={<LiveChat />} />
               <Route path="/livestream" element={<LiveStream />} />
               <Route path="/pump" element={<Pump />} />
@@ -80,8 +82,8 @@ const App = () => (
               <Route path="/sim-conversations" element={<SimConversations />} />
               <Route path="/pumpfun" element={<TradeStream />} />
               
-              {/* Root route - public landing page */}
-              <Route path="/" element={<Landing />} />
+              {/* Root route - new landing page */}
+              <Route path="/" element={<NewLanding />} />
               
               {/* Authenticated routes with sidebar - MUST come before catch-all */}
               <Route element={<AuthenticatedLayout />}>
