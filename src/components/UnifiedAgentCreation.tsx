@@ -468,18 +468,52 @@ You can discuss your tokenomics, community, and answer questions about the proje
     }}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto [&>button]:hidden">
         <div className="space-y-6">
+          {/* Agent Type Header - Always visible when agent type is selected */}
+          {step > 0 && selectedType && (
+            <div className="flex items-center gap-3 pb-4 border-b border-border/50">
+              <div className="flex items-center justify-center w-12 h-12 rounded-lg bg-neonGreen/10">
+                <img 
+                  src={AGENT_TYPES.find(t => t.id === selectedType)?.iconImage} 
+                  alt={AGENT_TYPES.find(t => t.id === selectedType)?.label}
+                  className="w-8 h-8"
+                />
+              </div>
+              <div className="flex-1">
+                <h3 className="font-semibold text-lg">{AGENT_TYPES.find(t => t.id === selectedType)?.label}</h3>
+                <p className="text-sm text-muted-foreground">{AGENT_TYPES.find(t => t.id === selectedType)?.description}</p>
+              </div>
+              <Button variant="ghost" size="sm" onClick={handleBack} className="gap-2">
+                <ArrowLeft className="w-4 h-4" />
+                Back
+              </Button>
+            </div>
+          )}
+
           {/* Header */}
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               {getStepTitle() && <h2 className="text-2xl font-bold">{getStepTitle()}</h2>}
-              {step > 0 && (
-                <Button variant="ghost" size="sm" onClick={handleBack} className="gap-2 ml-auto">
-                  <ArrowLeft className="w-4 h-4" />
-                  Back
-                </Button>
-              )}
             </div>
-            {step > 0 && <Progress value={getProgress()} className="h-2 bg-bg-muted [&>div]:bg-neonGreen" />}
+            {step > 0 && (
+              <div className="flex items-center justify-center gap-2">
+                {[1, 2, 3].map((stepNum) => (
+                  <div key={stepNum} className="flex items-center">
+                    <div className={`flex items-center justify-center w-10 h-10 rounded-full border-2 transition-all ${
+                      step >= stepNum 
+                        ? 'border-neonGreen bg-neonGreen/10 text-neonGreen' 
+                        : 'border-border bg-bg text-muted-foreground'
+                    }`}>
+                      <span className="text-sm font-semibold">{stepNum}</span>
+                    </div>
+                    {stepNum < 3 && (
+                      <div className={`w-16 h-0.5 mx-1 transition-colors ${
+                        step > stepNum ? 'bg-neonGreen' : 'bg-border'
+                      }`} />
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Step 0: Agent Type Selection */}
@@ -510,21 +544,6 @@ You can discuss your tokenomics, community, and answer questions about the proje
           {/* Step 1: Basic Information */}
           {step === 1 && (
             <div className="space-y-6">
-              {/* Selected Agent Type Header */}
-              <div className="flex items-center gap-3 p-4 rounded-xl bg-gradient-to-r from-bg-muted/50 to-bg border border-border/50">
-                <div className="flex items-center justify-center w-12 h-12 rounded-lg bg-neonGreen/10">
-                  <img 
-                    src={AGENT_TYPES.find(t => t.id === selectedType)?.iconImage} 
-                    alt={AGENT_TYPES.find(t => t.id === selectedType)?.label}
-                    className="w-8 h-8"
-                  />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-lg">{AGENT_TYPES.find(t => t.id === selectedType)?.label}</h3>
-                  <p className="text-sm text-muted-foreground">{AGENT_TYPES.find(t => t.id === selectedType)?.description}</p>
-                </div>
-              </div>
-
               {selectedType === "pumpfun" ? (
                 <div className="space-y-5">
                   <div className="space-y-2">
