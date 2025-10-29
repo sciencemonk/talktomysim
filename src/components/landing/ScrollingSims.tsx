@@ -149,7 +149,7 @@ export const ScrollingSims = ({ onSimClick }: ScrollingSimsProps) => {
             <button
               key={`${sim.id}-${index}`}
               onClick={() => onSimClick(sim)}
-              className="flex-shrink-0 w-52 flex flex-col overflow-hidden rounded-xl bg-card hover:bg-muted border-2 hover:border-[#83f1aa] transition-all duration-300 hover:scale-105 hover:shadow-xl"
+              className="flex-shrink-0 w-72 flex flex-col overflow-hidden rounded-2xl bg-card hover:bg-muted border-2 hover:border-[#83f1aa] transition-all duration-300 hover:scale-105 hover:shadow-xl"
             >
               {/* Image container */}
               <div className="relative w-full aspect-[4/3] overflow-hidden bg-muted">
@@ -157,14 +157,14 @@ export const ScrollingSims = ({ onSimClick }: ScrollingSimsProps) => {
                   <img
                     src={getAvatarUrl(sim.avatar)} 
                     alt={sim.name}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                     onError={(e) => {
                       e.currentTarget.src = `https://api.dicebear.com/7.x/bottts/svg?seed=${sim.name}`;
                     }}
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center bg-primary/10">
-                    <span className="text-4xl font-bold text-primary">
+                    <span className="text-5xl font-bold text-primary">
                       {sim.name?.charAt(0)?.toUpperCase() || 'S'}
                     </span>
                   </div>
@@ -178,11 +178,13 @@ export const ScrollingSims = ({ onSimClick }: ScrollingSimsProps) => {
                     {sim.name}
                   </span>
                   {isVerified && (
-                    <img 
-                      src="/lovable-uploads/verified-badge.png" 
-                      alt="Verified"
-                      className="w-4 h-4 flex-shrink-0"
-                    />
+                    <div className="flex-shrink-0">
+                      <img 
+                        src="/lovable-uploads/verified-badge.png" 
+                        alt="Verified"
+                        className="w-4 h-4"
+                      />
+                    </div>
                   )}
                 </div>
                 
@@ -197,6 +199,10 @@ export const ScrollingSims = ({ onSimClick }: ScrollingSimsProps) => {
                         {formatMarketCap(marketCap)}
                       </Badge>
                     )
+                  ) : isCryptoMail ? (
+                    <Badge variant="outline" className="text-xs px-2 py-0.5">
+                      {isVerified ? 'Verified' : 'Unverified'}
+                    </Badge>
                   ) : (
                     <Badge variant="outline" className="text-xs px-2 py-0.5">
                       {(sim as any).marketplace_category || 'General'}
