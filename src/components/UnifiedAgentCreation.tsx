@@ -644,7 +644,7 @@ You can discuss your tokenomics, community, and answer questions about the proje
                     )}
                   </Button>
                 </div>
-              ) : selectedType === "crypto-mail" || selectedType === "autonomous" ? (
+              ) : selectedType === "crypto-mail" || selectedType === "autonomous" || selectedType === "prediction-market" || selectedType === "email-agent" ? (
                 <div className="space-y-6">
                   <div className="p-8 rounded-xl bg-gradient-to-br from-primary/10 via-primary/5 to-background border-2 border-primary/20 text-center space-y-4">
                     <div className="flex items-center justify-center w-16 h-16 mx-auto rounded-full bg-neonGreen/10 border-2 border-neonGreen/30">
