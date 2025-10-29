@@ -10,7 +10,7 @@ interface MatrixHeroSectionProps {
 }
 
 export const MatrixHeroSection = ({ onCreateAgent, onSimClick }: MatrixHeroSectionProps) => {
-  const text = "ai agent everything";
+  const text = "ai agents in seconds";
   const { theme } = useTheme();
 
   return (
@@ -29,7 +29,7 @@ export const MatrixHeroSection = ({ onCreateAgent, onSimClick }: MatrixHeroSecti
       </div>
 
       {/* Matrix-style grid background */}
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,#1a1a1a_1px,transparent_1px),linear-gradient(to_bottom,#1a1a1a_1px,transparent_1px)] bg-[size:4rem_4rem] opacity-20"></div>
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,hsl(var(--foreground)/0.1)_1px,transparent_1px),linear-gradient(to_bottom,hsl(var(--foreground)/0.1)_1px,transparent_1px)] bg-[size:4rem_4rem] opacity-20"></div>
       
       {/* Gradient overlay */}
       <div className="absolute inset-0 bg-gradient-to-b from-background via-background/50 to-background"></div>
@@ -44,7 +44,7 @@ export const MatrixHeroSection = ({ onCreateAgent, onSimClick }: MatrixHeroSecti
           onClick={onCreateAgent}
           size="lg"
           variant="outline"
-          className="gap-2 font-semibold px-8 py-6 text-lg transition-all duration-300"
+          className="gap-2 font-semibold px-24 py-12 text-5xl transition-all duration-300"
         >
           Create Agent
         </Button>
