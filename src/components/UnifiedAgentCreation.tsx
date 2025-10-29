@@ -534,7 +534,7 @@ You can discuss your tokenomics, community, and answer questions about the proje
             <div className="flex items-center justify-between">
             {getStepTitle() && <h2 className="text-2xl font-bold">{getStepTitle()}</h2>}
             </div>
-            {step > 0 && selectedType !== "crypto-mail" && selectedType !== "autonomous" && (
+            {step > 0 && selectedType !== "crypto-mail" && selectedType !== "autonomous" && selectedType !== "chat" && selectedType !== "pumpfun" && (
               <div className="flex items-center justify-center gap-2">
                 {[1, 2, 3].map((stepNum) => (
                   <div key={stepNum} className="flex items-center">
