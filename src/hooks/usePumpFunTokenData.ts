@@ -6,6 +6,9 @@ export interface TokenData {
   holderCount?: number;
   symbol?: string;
   name?: string;
+  twitter?: string;
+  website?: string;
+  telegram?: string;
 }
 
 export const usePumpFunTokenData = (contractAddress: string | undefined, enabled: boolean = true) => {
@@ -37,6 +40,9 @@ export const usePumpFunTokenData = (contractAddress: string | undefined, enabled
         holderCount: data.tokenData?.holderCount,
         symbol: data.tokenData?.symbol,
         name: data.tokenData?.name,
+        twitter: data.tokenData?.twitter,
+        website: data.tokenData?.website,
+        telegram: data.tokenData?.telegram,
       } as TokenData;
     },
     enabled: enabled && !!contractAddress,

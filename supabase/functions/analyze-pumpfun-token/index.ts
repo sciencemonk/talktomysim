@@ -217,7 +217,10 @@ serve(async (req) => {
               image: tokenData.image_uri,
               marketCap: tokenData.usd_market_cap,
               holderCount: holderCount,
-              creator: tokenData.creator
+              creator: tokenData.creator,
+              twitter: tokenData.twitter,
+              website: tokenData.website,
+              telegram: tokenData.telegram
             },
             tradingActivity: {
               totalTrades: trades.length,
@@ -253,7 +256,10 @@ serve(async (req) => {
               image: tokenData.image_uri,
               marketCap: tokenData.usd_market_cap,
               holderCount: holderCount,
-              creator: tokenData.creator
+              creator: tokenData.creator,
+              twitter: tokenData.twitter,
+              website: tokenData.website,
+              telegram: tokenData.telegram
             },
             analysis: {
               summary: `${tokenData.name} (${tokenData.symbol}) - Market cap: $${tokenData.usd_market_cap ? tokenData.usd_market_cap.toFixed(2) : 'N/A'}. Trading data temporarily unavailable - check pump.fun or dexscreener for live trading activity.`
