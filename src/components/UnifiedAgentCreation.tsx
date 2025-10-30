@@ -828,7 +828,7 @@ You can answer questions about their X profile, interests, opinions, and provide
                     <div className="space-y-2">
                       <h3 className="text-2xl font-bold">By Invite Only</h3>
                       <p className="text-muted-foreground">
-                        This agent type is currently in private beta. Request an invite to get early access.
+                        This agent type is currently in private beta.
                       </p>
                     </div>
                   </div>
