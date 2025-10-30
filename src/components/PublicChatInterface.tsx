@@ -129,8 +129,8 @@ const PublicChatInterface = ({ agent }: PublicChatInterfaceProps) => {
     return null;
   }
 
-  // Show payment modal if required and no valid session
-  if (agent.x402_enabled && !sessionId) {
+  // Show payment modal if required and no valid session (skip for X agents)
+  if (agent.sim_category !== 'Crypto Mail' && agent.x402_enabled && !sessionId) {
     return (
       <>
         <X402PaymentModal
