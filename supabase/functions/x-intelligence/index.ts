@@ -49,6 +49,20 @@ serve(async (req) => {
       throw new Error(userData.msg || 'User not found');
     }
 
+    // Extract user data - the API wraps user data in a 'data' object
+    const user = userData.data || userData;
+    console.log('User object:', JSON.stringify(user));
+
+    // Extract profile image URL - the API uses 'profilePicture' field
+    let profileImageUrl = user.profilePicture || user.profile_image_url_https || user.profile_image_url;
+    
+    // If we got a profile image, convert it to full size (remove _normal suffix)
+    if (profileImageUrl && profileImageUrl.includes('_normal')) {
+      profileImageUrl = profileImageUrl.replace('_normal', '_400x400');
+    }
+    
+    console.log('Extracted profile image URL:', profileImageUrl);
+
   // Fetch recent tweets
   const tweetsResponse = await fetch(
     `https://api.twitterapi.io/twitter/user/last_tweets?userName=${encodeURIComponent(username)}&count=50`,
@@ -68,7 +82,7 @@ serve(async (req) => {
   }
 
   // Generate intelligence report
-  const report = generateIntelligenceReport(userData, tweets, reportType);
+  const report = generateIntelligenceReport(userData, tweets, reportType, profileImageUrl);
 
   return new Response(
     JSON.stringify({ 
@@ -100,8 +114,16 @@ serve(async (req) => {
   }
 });
 
-function generateIntelligenceReport(userData: any, tweets: any[], reportType: string) {
+function generateIntelligenceReport(userData: any, tweets: any[], reportType: string, profileImageUrl?: string) {
   const user = userData.user || userData.data || userData;
+  
+  // Use the passed profileImageUrl or extract it here as fallback
+  if (!profileImageUrl) {
+    profileImageUrl = user.profilePicture || user.profile_image_url_https || user.profile_image_url;
+    if (profileImageUrl && profileImageUrl.includes('_normal')) {
+      profileImageUrl = profileImageUrl.replace('_normal', '_400x400');
+    }
+  }
   
   // Calculate engagement metrics
   const totalLikes = tweets.reduce((sum, t) => sum + (t.favorite_count || t.public_metrics?.like_count || 0), 0);
@@ -146,7 +168,7 @@ function generateIntelligenceReport(userData: any, tweets: any[], reportType: st
     bio: user.description || user.bio,
     location: user.location,
     verified: user.verified || user.isVerified || user.isBlueVerified || false,
-    profileImageUrl: user.profile_image_url_https || user.profile_image_url || user.profileImageUrl || null,
+    profileImageUrl: profileImageUrl,
     
     metrics: {
       followers,
