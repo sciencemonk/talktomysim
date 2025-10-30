@@ -121,6 +121,13 @@ export const UnifiedAgentCreation = ({ open, onOpenChange, onSuccess }: UnifiedA
   };
 
   const handleTypeSelect = (typeId: string) => {
+    const selectedAgentType = AGENT_TYPES.find(t => t.id === typeId);
+    
+    if (selectedAgentType?.inviteOnly) {
+      toast.error("This agent type is invite only. Please contact us for access.");
+      return;
+    }
+    
     setSelectedType(typeId);
     setStep(1);
   };
