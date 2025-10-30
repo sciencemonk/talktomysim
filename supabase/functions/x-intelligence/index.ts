@@ -146,6 +146,7 @@ function generateIntelligenceReport(userData: any, tweets: any[], reportType: st
     bio: user.description || user.bio,
     location: user.location,
     verified: user.verified || user.isVerified || user.isBlueVerified || false,
+    profileImageUrl: user.profile_image_url_https || user.profile_image_url || user.profileImageUrl || null,
     
     metrics: {
       followers,

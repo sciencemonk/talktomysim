@@ -181,7 +181,7 @@ export default function XAgentPage() {
               <CardHeader>
                 <div className="flex items-start gap-4">
                   <Avatar className="h-20 w-20 border-2 border-primary/20">
-                    <AvatarImage src={agent.avatar} alt={agent.name} />
+                    <AvatarImage src={xData?.profileImageUrl || agent.avatar} alt={agent.name} />
                     <AvatarFallback>{agent.name[0]}</AvatarFallback>
                   </Avatar>
                   <div className="flex-1">
