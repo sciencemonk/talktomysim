@@ -22,7 +22,7 @@ import pumpfunLogo from "@/assets/pumpfun-logo.png";
 import chatbotIcon from "@/assets/chatbot-icon.png";
 import xIcon from "@/assets/x-icon.png";
 import aiIcon from "@/assets/ai-icon.png";
-import predictionIcon from "@/assets/prediction-icon.png";
+import predictionIcon from "@/assets/bookie-icon.png";
 import gmailIcon from "@/assets/gmail-icon.png";
 
 interface UnifiedAgentCreationProps {
@@ -64,7 +64,7 @@ const AGENT_TYPES = [
   },
   {
     id: "prediction-market",
-    label: "Prediction Market",
+    label: "Bookie",
     description: "Host your own prediction market",
     iconImage: predictionIcon,
     category: "Prediction Market",

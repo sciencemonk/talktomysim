@@ -215,7 +215,7 @@ const AgentsDirectory = () => {
   const [currentUser, setCurrentUser] = useState<any>(null);
   const queryClient = useQueryClient();
   const [searchQuery, setSearchQuery] = useState('');
-  const [simTypeFilter, setSimTypeFilter] = useState<'all' | 'Crypto Mail' | 'Chat' | 'Autonomous Agent' | 'x402 API'>('all');
+  const [simTypeFilter, setSimTypeFilter] = useState<'all' | 'Crypto Mail' | 'Chat' | 'Autonomous Agent' | 'PumpFun Agent' | 'bookie' | 'email'>('Chat');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [sortBy, setSortBy] = useState<'popular' | 'newest' | 'name'>('newest');
   const isMobile = useIsMobile();
@@ -417,6 +417,7 @@ const AgentsDirectory = () => {
       const simCategory = (sim as any).sim_category;
       if (simTypeFilter !== 'all') {
         if (simTypeFilter === 'Crypto Mail' && simCategory !== 'Crypto Mail') return false;
+        if (simTypeFilter === 'PumpFun Agent' && simCategory !== 'PumpFun Agent') return false;
         if (simTypeFilter === 'Chat') {
           const isChat = simCategory === 'Chat' || !simCategory || simCategory === '';
           if (!isChat) return false;
@@ -428,7 +429,7 @@ const AgentsDirectory = () => {
           }
         }
         if (simTypeFilter === 'Autonomous Agent' && simCategory !== 'Autonomous Agent') return false;
-        if (simTypeFilter === 'x402 API') return false; // Coming soon
+        if (simTypeFilter === 'bookie' || simTypeFilter === 'email') return false; // Coming soon
       }
 
       return true;
@@ -516,29 +517,46 @@ const AgentsDirectory = () => {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent className="bg-background border-border z-[100]">
-                    <SelectItem value="all">All Types</SelectItem>
-                    <SelectItem value="Autonomous Agent">
-                      <div className="flex items-center gap-2">
-                        <Zap className="h-4 w-4" />
-                        Autonomous Agents
-                      </div>
-                    </SelectItem>
                     <SelectItem value="Chat">
                       <div className="flex items-center gap-2">
                         <Bot className="h-4 w-4" />
-                        Chatbots
+                        Chat
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="PumpFun Agent">
+                      <div className="flex items-center gap-2">
+                        <img src={pumpfunLogo} alt="PumpFun" className="h-4 w-4" />
+                        PumpFun
                       </div>
                     </SelectItem>
                     <SelectItem value="Crypto Mail">
                       <div className="flex items-center gap-2">
                         <Mail className="h-4 w-4" />
-                        Crypto Mail
+                        X
                       </div>
                     </SelectItem>
-                    <SelectItem value="x402 API" disabled>
+                    <SelectItem value="Autonomous Agent" disabled>
                       <div className="flex items-center gap-2">
-                        <Code className="h-4 w-4" />
-                        x402 API
+                        <Zap className="h-4 w-4" />
+                        Assistants
+                        <Badge variant="secondary" className="text-[9px] px-1.5 py-0 ml-2">
+                          Coming Soon
+                        </Badge>
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="bookie" disabled>
+                      <div className="flex items-center gap-2">
+                        <TrendingUp className="h-4 w-4" />
+                        Bookie
+                        <Badge variant="secondary" className="text-[9px] px-1.5 py-0 ml-2">
+                          Coming Soon
+                        </Badge>
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="email" disabled>
+                      <div className="flex items-center gap-2">
+                        <Mail className="h-4 w-4" />
+                        Email
                         <Badge variant="secondary" className="text-[9px] px-1.5 py-0 ml-2">
                           Coming Soon
                         </Badge>
@@ -552,22 +570,35 @@ const AgentsDirectory = () => {
                   if (v !== 'Chat') setSelectedCategory('all');
                 }}>
                   <TabsList>
-                    <TabsTrigger value="all">All Types</TabsTrigger>
-                    <TabsTrigger value="Autonomous Agent" className="gap-2">
-                      <Zap className="h-4 w-4" />
-                      Autonomous Agents
-                    </TabsTrigger>
                     <TabsTrigger value="Chat" className="gap-2">
                       <Bot className="h-4 w-4" />
-                      Chatbots
+                      Chat
+                    </TabsTrigger>
+                    <TabsTrigger value="PumpFun Agent" className="gap-2">
+                      <img src={pumpfunLogo} alt="PumpFun" className="h-4 w-4" />
+                      PumpFun
                     </TabsTrigger>
                     <TabsTrigger value="Crypto Mail" className="gap-2">
                       <Mail className="h-4 w-4" />
-                      Crypto Mail
+                      X
                     </TabsTrigger>
-                    <TabsTrigger value="x402 API" disabled className="gap-2 opacity-50 cursor-not-allowed">
-                      <Code className="h-4 w-4" />
-                      x402 API
+                    <TabsTrigger value="Autonomous Agent" disabled className="gap-2 opacity-50 cursor-not-allowed">
+                      <Zap className="h-4 w-4" />
+                      Assistants
+                      <Badge variant="secondary" className="text-[9px] px-1.5 py-0 ml-1">
+                        Coming Soon
+                      </Badge>
+                    </TabsTrigger>
+                    <TabsTrigger value="bookie" disabled className="gap-2 opacity-50 cursor-not-allowed">
+                      <TrendingUp className="h-4 w-4" />
+                      Bookie
+                      <Badge variant="secondary" className="text-[9px] px-1.5 py-0 ml-1">
+                        Coming Soon
+                      </Badge>
+                    </TabsTrigger>
+                    <TabsTrigger value="email" disabled className="gap-2 opacity-50 cursor-not-allowed">
+                      <Mail className="h-4 w-4" />
+                      Email
                       <Badge variant="secondary" className="text-[9px] px-1.5 py-0 ml-1">
                         Coming Soon
                       </Badge>
