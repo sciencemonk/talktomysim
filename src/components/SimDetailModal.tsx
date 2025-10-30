@@ -446,7 +446,7 @@ const SimDetailModal = ({ sim, open, onOpenChange, onAuthRequired }: SimDetailMo
             <div className="relative w-28 h-28 sm:w-32 sm:h-32">
               <div className="absolute inset-0 bg-primary/20 rounded-2xl blur-xl" />
               <img 
-                src={xProfileData?.profileImageUrl || getAvatarUrl(sim.avatar)} 
+                src={xProfileData?.profilePicture || getAvatarUrl(sim.avatar)} 
                 alt={sim.name} 
                 className="relative w-full h-full object-cover rounded-2xl border-2 border-border shadow-2xl"
               />
