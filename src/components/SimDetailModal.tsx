@@ -787,6 +787,7 @@ const SimDetailModal = ({ sim, open, onOpenChange, onAuthRequired }: SimDetailMo
             }
           }}
           simId={sim.id}
+          editCode={editCode}
         />
       )}
 

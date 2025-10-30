@@ -467,23 +467,8 @@ const EditSimModal = ({ open, onOpenChange, simId, editCode }: EditSimModalProps
               </div>
             </div>
 
-            <Tabs defaultValue="usage" className="w-full">
-              <TabsList className="grid w-full grid-cols-3">
-                <TabsTrigger value="usage">Usage Stats</TabsTrigger>
-                <TabsTrigger value="agent">Agent Builder</TabsTrigger>
-                <TabsTrigger value="settings">Settings</TabsTrigger>
-              </TabsList>
-
-              <TabsContent value="usage" className="mt-6">
-                <SimUsageStats simId={simId} />
-              </TabsContent>
-
-              <TabsContent value="agent" className="mt-6">
-                <SimAgentBuilder simId={simId} editCode={editCode || inputEditCode} />
-              </TabsContent>
-
-              <TabsContent value="settings" className="mt-6 max-h-[60vh] overflow-y-auto">
-                <form onSubmit={(e) => { e.preventDefault(); handleSave(); }} className="space-y-8 pr-4">
+            <div className="mt-6 max-h-[60vh] overflow-y-auto">
+              <form onSubmit={(e) => { e.preventDefault(); handleSave(); }} className="space-y-8 pr-4">
 
                   {/* Edit Code - Only show if not provided as prop */}
                   {!editCode && (
@@ -840,8 +825,7 @@ const EditSimModal = ({ open, onOpenChange, simId, editCode }: EditSimModalProps
                     </Button>
                   </div>
                 </form>
-              </TabsContent>
-            </Tabs>
+            </div>
           </div>
         </DialogContent>
       </Dialog>
