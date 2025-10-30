@@ -49,33 +49,42 @@ serve(async (req) => {
       throw new Error(userData.msg || 'User not found');
     }
 
-    // Fetch recent tweets
-    const tweetsResponse = await fetch(
-      `https://api.twitterapi.io/twitter/user/last_tweets?userName=${encodeURIComponent(username)}&count=50`,
-      {
-        method: 'GET',
-        headers: {
-          'x-api-key': TWITTER_API_KEY,
-        },
-      }
-    );
-
-    let tweets = [];
-    if (tweetsResponse.ok) {
-      const tweetsData = await tweetsResponse.json();
-      tweets = tweetsData.tweets || tweetsData.data || [];
-      console.log(`Fetched ${tweets.length} tweets`);
+  // Fetch recent tweets
+  const tweetsResponse = await fetch(
+    `https://api.twitterapi.io/twitter/user/last_tweets?userName=${encodeURIComponent(username)}&count=50`,
+    {
+      method: 'GET',
+      headers: {
+        'x-api-key': TWITTER_API_KEY,
+      },
     }
+  );
 
-    // Generate intelligence report
-    const report = generateIntelligenceReport(userData, tweets, reportType);
+  let tweets = [];
+  if (tweetsResponse.ok) {
+    const tweetsData = await tweetsResponse.json();
+    tweets = tweetsData.tweets || tweetsData.data || [];
+    console.log(`Fetched ${tweets.length} tweets`);
+  }
 
-    return new Response(
-      JSON.stringify({ success: true, report }),
-      {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      }
-    );
+  // Generate intelligence report
+  const report = generateIntelligenceReport(userData, tweets, reportType);
+
+  return new Response(
+    JSON.stringify({ 
+      success: true, 
+      report,
+      tweets: tweets.map((t: any) => ({
+        text: t.full_text || t.text || '',
+        created_at: t.created_at,
+        favorite_count: t.favorite_count || t.public_metrics?.like_count || 0,
+        retweet_count: t.retweet_count || t.public_metrics?.retweet_count || 0,
+      }))
+    }),
+    {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    }
+  );
   } catch (error) {
     console.error('Error in x-intelligence function:', error);
     return new Response(

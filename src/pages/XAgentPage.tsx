@@ -93,7 +93,10 @@ export default function XAgentPage() {
         });
 
         if (!xError && xResponse?.success && xResponse?.report) {
-          setXData(xResponse.report);
+          setXData({
+            ...xResponse.report,
+            tweets: xResponse.tweets || []
+          });
         }
       } catch (error) {
         console.error('Error fetching X data:', error);
@@ -193,6 +196,16 @@ export default function XAgentPage() {
                     <CardDescription className="text-base mb-3">
                       @{xData?.username || username}
                     </CardDescription>
+                    <div className="flex items-center gap-2 mb-2">
+                      <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20">
+                        🤖 AI Agent
+                      </Badge>
+                    </div>
+                    {!agent.x402_enabled && (
+                      <p className="text-xs text-muted-foreground">
+                        Free to chat • Trained on actual posts
+                      </p>
+                    )}
                     {agent.x402_enabled && (
                       <div className="flex items-center gap-2">
                         <div className="px-3 py-1 bg-neonGreen/10 text-neonGreen rounded-md text-sm font-medium border border-neonGreen/20">
@@ -285,8 +298,9 @@ export default function XAgentPage() {
             <Card className="border-border bg-card">
               <Tabs defaultValue="overview" className="w-full">
                 <CardHeader>
-                  <TabsList className="grid w-full grid-cols-3">
+                  <TabsList className="grid w-full grid-cols-4">
                     <TabsTrigger value="overview">Overview</TabsTrigger>
+                    <TabsTrigger value="posts">Recent Posts</TabsTrigger>
                     <TabsTrigger value="insights">Insights</TabsTrigger>
                     <TabsTrigger value="links">Links</TabsTrigger>
                   </TabsList>
@@ -296,7 +310,7 @@ export default function XAgentPage() {
                     <div>
                       <h3 className="font-semibold mb-2">About @{xData?.username || username}</h3>
                       <p className="text-sm text-muted-foreground">
-                        {xData?.bio || agent.description || `X agent powered by x402. Chat with @${username} and ask questions about their X account!`}
+                        {xData?.bio || agent.description || `X agent powered by AI. Chat with @${username} and ask questions about their X account!`}
                       </p>
                     </div>
                     {xData?.engagement && (
@@ -316,6 +330,39 @@ export default function XAgentPage() {
                             <span className="text-sm font-medium">{xData.engagement.avgRepliesPerTweet}</span>
                           </div>
                         </div>
+                      </div>
+                    )}
+                  </TabsContent>
+
+                  <TabsContent value="posts" className="space-y-4">
+                    {xData?.tweets && xData.tweets.length > 0 ? (
+                      <div className="space-y-3 max-h-[500px] overflow-y-auto pr-2">
+                        <p className="text-xs text-muted-foreground mb-3">
+                          Recent posts used to train the AI agent's personality and voice
+                        </p>
+                        {xData.tweets.slice(0, 20).map((tweet: any, index: number) => (
+                          <div key={index} className="p-4 bg-muted/30 rounded-lg border border-border hover:border-primary/50 transition-colors">
+                            <p className="text-sm mb-3 whitespace-pre-wrap">{tweet.text}</p>
+                            <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                              <span className="flex items-center gap-1">
+                                <TrendingUp className="h-3 w-3" />
+                                {tweet.favorite_count} likes
+                              </span>
+                              <span className="flex items-center gap-1">
+                                <Activity className="h-3 w-3" />
+                                {tweet.retweet_count} retweets
+                              </span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="text-center py-8">
+                        <MessageCircle className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                        <h3 className="font-semibold mb-2">No Recent Posts</h3>
+                        <p className="text-sm text-muted-foreground max-w-md mx-auto">
+                          Unable to fetch recent posts. The AI agent will still respond based on profile information.
+                        </p>
                       </div>
                     )}
                   </TabsContent>
@@ -396,7 +443,7 @@ export default function XAgentPage() {
               <CardHeader>
                 <CardTitle className="text-lg">Chat with @{xData?.username || username}</CardTitle>
                 <CardDescription className="text-sm">
-                  Ask questions about this X account and get AI-powered insights
+                  AI agent trained on their actual posts to represent their voice and ideas
                 </CardDescription>
               </CardHeader>
               <CardContent className="p-0">

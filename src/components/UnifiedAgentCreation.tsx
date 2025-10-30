@@ -273,7 +273,11 @@ export const UnifiedAgentCreation = ({ open, onOpenChange, onSuccess }: UnifiedA
         return;
       }
 
-      setTokenData(response.report);
+      // Combine report and tweets
+      setTokenData({
+        ...response.report,
+        tweets: response.tweets || []
+      });
       setEditCode(generateEditCode());
       setStep(3);
       toast.success("X account data fetched successfully!");
@@ -415,16 +419,42 @@ You can discuss your tokenomics, community, and answer questions about the proje
         toast.success("PumpFun Agent created successfully!");
       } else if (selectedType === "crypto-mail" && tokenData) {
         const cleanUsername = formData.xProfile.trim().replace('@', '');
-        const systemPrompt = `You are @${tokenData.username}, an X (Twitter) AI agent powered by x402.
+        
+        // Generate a comprehensive system prompt based on actual tweets
+        let tweetContext = '';
+        if (tokenData.tweets && tokenData.tweets.length > 0) {
+          const recentTweets = tokenData.tweets.slice(0, 20);
+          tweetContext = `\n\nRecent Posts (to understand my voice and ideas):\n${recentTweets.map((t: any, i: number) => 
+            `${i + 1}. "${t.text}" (${t.favorite_count} likes, ${t.retweet_count} retweets)`
+          ).join('\n')}\n`;
+        }
 
-Your X Profile:
+        const systemPrompt = `You are @${tokenData.username}, representing the real person behind this X (Twitter) account.
+
+Your Profile:
 - Display Name: ${tokenData.displayName}
 - Username: @${tokenData.username}
 - Bio: ${tokenData.bio || 'N/A'}
 - Followers: ${tokenData.metrics?.followers?.toLocaleString() || 0}
 - Following: ${tokenData.metrics?.following?.toLocaleString() || 0}
+${tokenData.location ? `- Location: ${tokenData.location}` : ''}
+${tweetContext}
 
-You can discuss topics related to your X account, answer questions about your profile, and provide insights based on your X activity. When users ask about your X profile, followers, or posting activity, use the X Intelligence integration to provide real-time information. Be authentic and engaging, staying true to the persona reflected in your X profile!`;
+IMPORTANT: You should embody the personality, tone, and communication style reflected in the recent posts above. Pay attention to:
+- The topics they care about
+- Their writing style and tone
+- Their opinions and perspectives
+- Their sense of humor or seriousness
+- How they engage with others
+
+When chatting:
+1. Stay authentic to the voice and ideas shown in the posts
+2. Discuss topics they actually post about
+3. Reference their actual views and perspectives
+4. Maintain their communication style
+5. Be engaging and personable
+
+You can answer questions about their X profile, interests, opinions, and provide insights based on their X activity. Be authentic and engaging, staying true to the persona reflected in their posts!`;
 
         const simData = {
           user_id: user?.id || null,
@@ -433,19 +463,20 @@ You can discuss topics related to your X account, answer questions about your pr
           prompt: systemPrompt,
           description: tokenData.bio || `X Agent for @${tokenData.username}`,
           avatar_url: tokenData.profileImageUrl || null,
-          price: parseFloat(formData.x402Price) || 5.0,
-          integrations: ["x-analyzer", "crypto-prices"],
+          price: 0, // Make it free by default
+          integrations: ["x-analyzer"],
           is_active: true,
           is_public: true,
-          x402_enabled: true,
+          x402_enabled: false, // Disable x402 by default for X agents
           x402_price: parseFloat(formData.x402Price) || 5.0,
           social_links: {
             x_username: cleanUsername,
             x_display_name: tokenData.displayName,
+            tweet_history: tokenData.tweets || [],
           },
           edit_code: editCode,
           marketplace_category: "crypto",
-          welcome_message: `Hey! I'm @${tokenData.username}. Ask me anything about my X account!`,
+          welcome_message: `Hey! I'm @${tokenData.username}. My AI agent has been trained on my actual posts to represent my voice and ideas. Ask me anything!`,
           auto_description: tokenData.bio?.substring(0, 150) || `X Agent for @${tokenData.username}`,
         };
 
