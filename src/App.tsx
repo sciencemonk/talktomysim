@@ -44,6 +44,7 @@ import BatchUpdateDescriptions from "./pages/BatchUpdateDescriptions";
 import Test from "./pages/Test";
 import Demo from "./pages/Demo";
 import TokenAgentPage from "./pages/TokenAgentPage";
+import XAgentPage from "./pages/XAgentPage";
 
 const queryClient = new QueryClient();
 
@@ -85,6 +86,9 @@ const App = () => (
               
               {/* Token Agent Page */}
               <Route path="/token/:contractAddress" element={<TokenAgentPage />} />
+              
+              {/* X Agent Page */}
+              <Route path="/x/:username" element={<XAgentPage />} />
               
               {/* Root route - new landing page */}
               <Route path="/" element={<NewLanding />} />

@@ -237,6 +237,54 @@ export const UnifiedAgentCreation = ({ open, onOpenChange, onSuccess }: UnifiedA
     }
   };
 
+  const handleFetchXAccount = async () => {
+    if (!formData.xProfile.trim()) {
+      toast.error("Please enter an X username");
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      // Remove @ if user included it
+      const cleanUsername = formData.xProfile.trim().replace('@', '');
+
+      const { data: existingAgents } = await supabase
+        .from("advisors")
+        .select("id, social_links")
+        .eq("sim_category", "Crypto Mail");
+
+      const duplicateAgent = existingAgents?.find((agent) => {
+        const socialLinks = agent.social_links as { x_username?: string } | null;
+        return socialLinks?.x_username?.toLowerCase() === cleanUsername.toLowerCase();
+      });
+
+      if (duplicateAgent) {
+        toast.error("This X agent has already been created");
+        return;
+      }
+
+      const { data: response, error } = await supabase.functions.invoke("x-intelligence", {
+        body: { username: cleanUsername },
+      });
+
+      if (error) throw error;
+      if (!response?.success || !response?.report) {
+        toast.error(response?.error || "X account not found");
+        return;
+      }
+
+      setTokenData(response.report);
+      setEditCode(generateEditCode());
+      setStep(3);
+      toast.success("X account data fetched successfully!");
+    } catch (error) {
+      console.error("Error fetching X account:", error);
+      toast.error("Failed to fetch X account data");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleGeneratePrompt = async () => {
     if (!formData.name.trim()) {
       toast.error("Please enter a name first");
@@ -365,6 +413,61 @@ You can discuss your tokenomics, community, and answer questions about the proje
         }
 
         toast.success("PumpFun Agent created successfully!");
+      } else if (selectedType === "crypto-mail" && tokenData) {
+        const cleanUsername = formData.xProfile.trim().replace('@', '');
+        const systemPrompt = `You are @${tokenData.username}, an X (Twitter) AI agent powered by x402.
+
+Your X Profile:
+- Display Name: ${tokenData.displayName}
+- Username: @${tokenData.username}
+- Bio: ${tokenData.bio || 'N/A'}
+- Followers: ${tokenData.metrics?.followers?.toLocaleString() || 0}
+- Following: ${tokenData.metrics?.following?.toLocaleString() || 0}
+
+You can discuss topics related to your X account, answer questions about your profile, and provide insights based on your X activity. When users ask about your X profile, followers, or posting activity, use the X Intelligence integration to provide real-time information. Be authentic and engaging, staying true to the persona reflected in your X profile!`;
+
+        const simData = {
+          user_id: user?.id || null,
+          name: `@${tokenData.username}`,
+          sim_category: "Crypto Mail",
+          prompt: systemPrompt,
+          description: tokenData.bio || `X Agent for @${tokenData.username}`,
+          avatar_url: tokenData.profileImageUrl || null,
+          price: parseFloat(formData.x402Price) || 5.0,
+          integrations: ["x-analyzer", "crypto-prices"],
+          is_active: true,
+          is_public: true,
+          x402_enabled: true,
+          x402_price: parseFloat(formData.x402Price) || 5.0,
+          social_links: {
+            x_username: cleanUsername,
+            x_display_name: tokenData.displayName,
+          },
+          edit_code: editCode,
+          marketplace_category: "crypto",
+          welcome_message: `Hey! I'm @${tokenData.username}. Ask me anything about my X account!`,
+          auto_description: tokenData.bio?.substring(0, 150) || `X Agent for @${tokenData.username}`,
+        };
+
+        const { data: newSim, error } = await supabase.from("advisors").insert(simData).select().single();
+
+        if (error) throw error;
+
+        if (newSim && user) {
+          await supabase.from("user_advisors").insert({
+            user_id: user.id,
+            advisor_id: newSim.id,
+            name: newSim.name,
+            description: newSim.description,
+            prompt: newSim.prompt,
+            avatar_url: newSim.avatar_url,
+            marketplace_category: newSim.marketplace_category,
+            sim_category: newSim.sim_category,
+            auto_description: simData.auto_description,
+          });
+        }
+
+        toast.success("X Agent created successfully!");
       } else {
         const selectedAgentType = AGENT_TYPES.find((t) => t.id === selectedType);
         const simCategory = selectedAgentType?.category || "Chat";
@@ -644,7 +747,41 @@ You can discuss your tokenomics, community, and answer questions about the proje
                     )}
                   </Button>
                 </div>
-              ) : selectedType === "crypto-mail" || selectedType === "autonomous" || selectedType === "prediction-market" || selectedType === "email-agent" ? (
+              ) : selectedType === "crypto-mail" ? (
+                <div className="space-y-5">
+                  <div className="space-y-2">
+                    <Label htmlFor="xProfile" className="text-xs uppercase tracking-wider text-muted-foreground">X Account Handle</Label>
+                    <Input
+                      id="xProfile"
+                      placeholder="Enter X username (without @)..."
+                      value={formData.xProfile}
+                      onChange={(e) => setFormData({ ...formData, xProfile: e.target.value })}
+                      className="h-12 bg-background border-border/50 focus:border-neonGreen transition-colors"
+                    />
+                    <p className="text-xs text-muted-foreground/70 flex items-center gap-1">
+                      <span className="w-1 h-1 rounded-full bg-neonGreen" />
+                      Enter your X account username to create your agent
+                    </p>
+                  </div>
+                  <Button
+                    onClick={handleFetchXAccount}
+                    disabled={isLoading || !formData.xProfile.trim()}
+                    className="w-full bg-neonGreen hover:bg-neonGreen/90 text-black font-semibold"
+                  >
+                    {isLoading ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        Fetching X Account Data...
+                      </>
+                    ) : (
+                      <>
+                        Continue
+                        <ArrowRight className="w-4 h-4 ml-2" />
+                      </>
+                    )}
+                  </Button>
+                </div>
+              ) : selectedType === "autonomous" || selectedType === "prediction-market" || selectedType === "email-agent" ? (
                 <div className="space-y-6">
                   <div className="p-8 rounded-xl bg-gradient-to-br from-primary/10 via-primary/5 to-background border-2 border-primary/20 text-center space-y-4">
                     <div className="flex items-center justify-center w-16 h-16 mx-auto rounded-full bg-neonGreen/10 border-2 border-neonGreen/30">
@@ -935,6 +1072,11 @@ You can discuss your tokenomics, community, and answer questions about the proje
                       <AvatarImage src={tokenData.image} />
                       <AvatarFallback>{tokenData.symbol?.[0] || "?"}</AvatarFallback>
                     </>
+                  ) : selectedType === "crypto-mail" && tokenData ? (
+                    <>
+                      <AvatarImage src={tokenData.profileImageUrl} />
+                      <AvatarFallback>{tokenData.username?.[0] || "?"}</AvatarFallback>
+                    </>
                   ) : (
                     <>
                       <AvatarImage src={avatarPreview || undefined} />
@@ -946,14 +1088,18 @@ You can discuss your tokenomics, community, and answer questions about the proje
                   <h3 className="font-semibold text-lg">
                     {selectedType === "pumpfun" && tokenData
                       ? `${tokenData.name} (${tokenData.symbol})`
-                      : formData.name}
+                      : selectedType === "crypto-mail" && tokenData
+                        ? `@${tokenData.username}`
+                        : formData.name}
                   </h3>
                   <p className="text-sm text-muted-foreground line-clamp-2">
                     {selectedType === "pumpfun" && tokenData
                       ? tokenData.description
-                      : selectedType === "autonomous"
-                        ? formData.briefTopic
-                        : formData.description}
+                      : selectedType === "crypto-mail" && tokenData
+                        ? tokenData.bio || `X Agent for @${tokenData.username}`
+                        : selectedType === "autonomous"
+                          ? formData.briefTopic
+                          : formData.description}
                   </p>
                 </div>
               </div>

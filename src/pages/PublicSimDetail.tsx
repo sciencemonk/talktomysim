@@ -284,6 +284,16 @@ const PublicSimDetail = () => {
           return;
         }
       }
+
+      // Redirect X Agents to the dedicated X page
+      if (transformedSim.sim_category === 'Crypto Mail') {
+        const socialLinks = transformedSim.social_links as { x_username?: string } | null;
+        const xUsername = socialLinks?.x_username;
+        if (xUsername) {
+          navigate(`/x/${xUsername}`, { replace: true });
+          return;
+        }
+      }
       
       // Update meta tags for social sharing
       const simSlug = data.custom_url || generateSlug(transformedSim.name);
