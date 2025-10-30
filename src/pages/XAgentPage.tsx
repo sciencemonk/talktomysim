@@ -201,12 +201,17 @@ export default function XAgentPage() {
                         🤖 AI Agent
                       </Badge>
                     </div>
-                    {!agent.x402_enabled && (
+                    {agent.sim_category !== 'Crypto Mail' && !agent.x402_enabled && (
+                      <p className="text-xs text-muted-foreground">
+                        Free to chat
+                      </p>
+                    )}
+                    {agent.sim_category === 'Crypto Mail' && (
                       <p className="text-xs text-muted-foreground">
                         Free to chat • Trained on actual posts
                       </p>
                     )}
-                    {agent.x402_enabled && (
+                    {agent.sim_category !== 'Crypto Mail' && agent.x402_enabled && (
                       <div className="flex items-center gap-2">
                         <div className="px-3 py-1 bg-neonGreen/10 text-neonGreen rounded-md text-sm font-medium border border-neonGreen/20">
                           Monetized with x402 • ${agent.x402_price || 5} per message

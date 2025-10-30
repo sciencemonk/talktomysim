@@ -55,8 +55,13 @@ const PublicChatInterface = ({ agent }: PublicChatInterfaceProps) => {
     }))
   });
 
-  // Check for x402 payment requirement
+  // Check for x402 payment requirement - but SKIP for X agents (Crypto Mail category)
   useEffect(() => {
+    // Skip payment check entirely for X agents
+    if (agent.sim_category === 'Crypto Mail') {
+      return;
+    }
+    
     if (agent.x402_enabled && agent.x402_price && agent.x402_wallet) {
       const storedSessionId = localStorage.getItem(`x402_session_${agent.x402_wallet}`);
       if (storedSessionId) {
@@ -70,8 +75,8 @@ const PublicChatInterface = ({ agent }: PublicChatInterfaceProps) => {
   const handleSend = async () => {
     if (!inputValue.trim() || textChat.isProcessing) return;
     
-    // Check if payment is required
-    if (agent.x402_enabled && !sessionId) {
+    // Check if payment is required (but skip for X agents)
+    if (agent.sim_category !== 'Crypto Mail' && agent.x402_enabled && !sessionId) {
       setShowPaymentModal(true);
       return;
     }
