@@ -11,6 +11,7 @@ import AuthModal from "@/components/AuthModal";
 import { UnifiedAgentCreation } from "@/components/UnifiedAgentCreation";
 import { CreateCABotModal } from "@/components/CreateCABotModal";
 import pumpfunLogo from "@/assets/pumpfun-logo.png";
+import xLogo from "@/assets/x-logo.png";
 import { Search, TrendingUp, ChevronDown, Mail, Bot, Zap, Code, User, MessageCircle, LogOut, Plus } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -531,7 +532,7 @@ const AgentsDirectory = () => {
                     </SelectItem>
                     <SelectItem value="Crypto Mail">
                       <div className="flex items-center gap-2">
-                        <Mail className="h-4 w-4" />
+                        <img src={xLogo} alt="X" className="h-4 w-4" />
                         X
                       </div>
                     </SelectItem>
@@ -579,7 +580,7 @@ const AgentsDirectory = () => {
                       PumpFun
                     </TabsTrigger>
                     <TabsTrigger value="Crypto Mail" className="gap-2">
-                      <Mail className="h-4 w-4" />
+                      <img src={xLogo} alt="X" className="h-4 w-4" />
                       X
                     </TabsTrigger>
                     <TabsTrigger value="Autonomous Agent" disabled className="gap-2 opacity-50 cursor-not-allowed">
