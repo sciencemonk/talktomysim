@@ -121,13 +121,6 @@ export const UnifiedAgentCreation = ({ open, onOpenChange, onSuccess }: UnifiedA
   };
 
   const handleTypeSelect = (typeId: string) => {
-    const selectedAgentType = AGENT_TYPES.find(t => t.id === typeId);
-    
-    if (selectedAgentType?.inviteOnly) {
-      toast.error("This agent type is invite only.");
-      return;
-    }
-    
     setSelectedType(typeId);
     setStep(1);
   };
@@ -828,7 +821,7 @@ You can answer questions about their X profile, interests, opinions, and provide
                     <div className="space-y-2">
                       <h3 className="text-2xl font-bold">By Invite Only</h3>
                       <p className="text-muted-foreground">
-                        This agent type is currently in private beta.
+                        This agent type is currently in private beta. Request an invite to get early access.
                       </p>
                     </div>
                   </div>
