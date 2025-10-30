@@ -852,7 +852,7 @@ const PublicSimDetail = () => {
                 }}
               >
                 <MessageCircle className="h-5 w-5 mr-2 group-hover:scale-110 transition-transform" />
-                {sim?.sim_category === 'Crypto Mail' ? 'Send Crypto Mail' : 'Launch Sim'}
+                {sim?.sim_category === 'Crypto Mail' ? 'Launch X Agent' : 'Launch Sim'}
               </Button>
 
               {/* Share Button */}

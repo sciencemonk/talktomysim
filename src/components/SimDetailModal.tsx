@@ -57,6 +57,7 @@ const SimDetailModal = ({ sim, open, onOpenChange, onAuthRequired }: SimDetailMo
   const [paymentSessionId, setPaymentSessionId] = useState<string | null>(null);
   const [marketCapData, setMarketCapData] = useState<{ marketCap?: number } | null>(null);
   const [isLoadingMarketCap, setIsLoadingMarketCap] = useState(false);
+  const [xProfileData, setXProfileData] = useState<any>(null);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -140,6 +141,36 @@ const SimDetailModal = ({ sim, open, onOpenChange, onAuthRequired }: SimDetailMo
 
     if (open && sim) {
       fetchMarketCap();
+    }
+  }, [open, sim]);
+
+  // Fetch X profile data for Crypto Mail agents
+  useEffect(() => {
+    const fetchXProfile = async () => {
+      const simCategoryType = (sim as any)?.sim_category;
+      const isCryptoMail = simCategoryType === 'Crypto Mail';
+      const xUsername = isCryptoMail ? (sim?.social_links as any)?.x_username : undefined;
+
+      if (!isCryptoMail || !xUsername || !open) {
+        setXProfileData(null);
+        return;
+      }
+
+      try {
+        const { data, error } = await supabase.functions.invoke('x-intelligence', {
+          body: { username: xUsername },
+        });
+
+        if (!error && data?.success && data?.report) {
+          setXProfileData(data.report);
+        }
+      } catch (error) {
+        console.error('Error fetching X profile data:', error);
+      }
+    };
+
+    if (open && sim) {
+      fetchXProfile();
     }
   }, [open, sim]);
 
@@ -415,7 +446,7 @@ const SimDetailModal = ({ sim, open, onOpenChange, onAuthRequired }: SimDetailMo
             <div className="relative w-28 h-28 sm:w-32 sm:h-32">
               <div className="absolute inset-0 bg-primary/20 rounded-2xl blur-xl" />
               <img 
-                src={getAvatarUrl(sim.avatar)} 
+                src={xProfileData?.profileImageUrl || getAvatarUrl(sim.avatar)} 
                 alt={sim.name} 
                 className="relative w-full h-full object-cover rounded-2xl border-2 border-border shadow-2xl"
               />
@@ -585,7 +616,7 @@ const SimDetailModal = ({ sim, open, onOpenChange, onAuthRequired }: SimDetailMo
             disabled={isAddingSim}
           >
             <MessageCircle className="h-4 w-4 mr-2 group-hover:scale-110 transition-transform" />
-            {isAddingSim ? 'Adding...' : (isSignedIn ? 'Add Sim' : ((sim as any)?.sim_category === 'Crypto Mail' ? 'Send Crypto Mail' : 'Launch Sim'))}
+            {isAddingSim ? 'Adding...' : (isSignedIn ? 'Add Sim' : ((sim as any)?.sim_category === 'Crypto Mail' ? 'Launch X Agent' : 'Launch Sim'))}
           </Button>
 
           {/* Share Button */}
