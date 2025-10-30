@@ -20,7 +20,7 @@ import {
 } from "lucide-react";
 import pumpfunLogo from "@/assets/pumpfun-logo.png";
 import chatbotIcon from "@/assets/chatbot-icon.png";
-import donationIcon from "@/assets/donation-icon.png";
+import xIcon from "@/assets/x-icon.png";
 import aiIcon from "@/assets/ai-icon.png";
 import predictionIcon from "@/assets/prediction-icon.png";
 import gmailIcon from "@/assets/gmail-icon.png";
@@ -48,9 +48,9 @@ const AGENT_TYPES = [
   },
   {
     id: "crypto-mail",
-    label: "x402 Mail",
-    description: "Get paid to respond to messages",
-    iconImage: donationIcon,
+    label: "X",
+    description: "Monetize your X account with x402",
+    iconImage: xIcon,
     category: "Crypto Mail",
     inviteOnly: true,
   },
