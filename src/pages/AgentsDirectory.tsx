@@ -527,13 +527,11 @@ const AgentsDirectory = () => {
                     <SelectItem value="PumpFun Agent">
                       <div className="flex items-center gap-2">
                         <img src={pumpfunLogo} alt="PumpFun" className="h-4 w-4" />
-                        PumpFun
                       </div>
                     </SelectItem>
                     <SelectItem value="Crypto Mail">
                       <div className="flex items-center gap-2">
                         <img src={xLogo} alt="X" className="h-4 w-4" />
-                        X
                       </div>
                     </SelectItem>
                     <SelectItem value="Autonomous Agent" disabled>
@@ -577,11 +575,9 @@ const AgentsDirectory = () => {
                     </TabsTrigger>
                     <TabsTrigger value="PumpFun Agent" className="gap-2">
                       <img src={pumpfunLogo} alt="PumpFun" className="h-4 w-4" />
-                      PumpFun
                     </TabsTrigger>
                     <TabsTrigger value="Crypto Mail" className="gap-2">
                       <img src={xLogo} alt="X" className="h-4 w-4" />
-                      X
                     </TabsTrigger>
                     <TabsTrigger value="Autonomous Agent" disabled className="gap-2 opacity-50 cursor-not-allowed">
                       <Zap className="h-4 w-4" />
