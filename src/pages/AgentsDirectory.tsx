@@ -60,9 +60,8 @@ const PumpFunSimCard = ({ sim, onSimClick, categories }: PumpFunSimCardProps) =>
     ? (sim.social_links as any)?.x_username 
     : undefined;
 
-  // List of approved X agents that are not pending
-  const approvedXAgents = ['mrjethroknights', 'degencapitalllc', 'cryptodivix', 'professrweb3'];
-  const isPending = isCryptoMail && !approvedXAgents.includes(xUsername?.toLowerCase() || '');
+  // Only mrjethroknights is approved and clickable, others are pending
+  const isPending = isCryptoMail && xUsername?.toLowerCase() !== 'mrjethroknights';
 
   useEffect(() => {
     const fetchMarketCap = async () => {

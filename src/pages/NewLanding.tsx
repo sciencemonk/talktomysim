@@ -53,9 +53,8 @@ const PumpFunSimCard = ({ sim, onSimClick }: PumpFunSimCardProps) => {
     ? (sim.social_links as any)?.x_username 
     : undefined;
   
-  // List of approved X agents that are not pending
-  const approvedXAgents = ['mrjethroknights', 'degencapitalllc', 'cryptodivix', 'professrweb3'];
-  const isPending = isCryptoMail && !approvedXAgents.includes(xUsername?.toLowerCase() || '');
+  // Only mrjethroknights is approved and clickable, others are pending
+  const isPending = isCryptoMail && xUsername?.toLowerCase() !== 'mrjethroknights';
 
   useEffect(() => {
     const fetchMarketCap = async () => {
@@ -465,6 +464,7 @@ const NewLanding = () => {
     const simCategory = (sim as any).sim_category;
     if (simCategory === 'Crypto Mail') {
       const xUsername = (sim.social_links as any)?.x_username?.toLowerCase();
+      // Show all X agents but only mrjethroknights will be clickable
       return ['mrjethroknights', 'degencapitalllc', 'cryptodivix', 'professrweb3'].includes(xUsername || '');
     }
     return false;
