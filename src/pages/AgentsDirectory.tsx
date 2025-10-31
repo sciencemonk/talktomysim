@@ -861,10 +861,19 @@ const AgentsDirectory = () => {
         <UnifiedAgentCreation
           open={showCreateModal}
           onOpenChange={setShowCreateModal}
-          onSuccess={async () => {
+          onSuccess={async (createdAgent) => {
             if (currentUser) {
               await queryClient.invalidateQueries({ queryKey: ['user-sims', currentUser.id] });
               await queryClient.invalidateQueries({ queryKey: ['all-sims-landing'] });
+            }
+            if (createdAgent?.custom_url) {
+              navigate(`/${createdAgent.custom_url}?chat=true`);
+            } else if (createdAgent?.name) {
+              const slug = createdAgent.name
+                .toLowerCase()
+                .replace(/[^a-z0-9]+/g, '-')
+                .replace(/^-+|-+$/g, '');
+              navigate(`/${slug}?chat=true`);
             }
           }}
         />
@@ -874,10 +883,19 @@ const AgentsDirectory = () => {
         <CreateCABotModal
           open={showCreateCABotModal}
           onOpenChange={setShowCreateCABotModal}
-          onSuccess={async () => {
+          onSuccess={async (createdAgent) => {
             if (currentUser) {
               await queryClient.invalidateQueries({ queryKey: ['user-sims', currentUser.id] });
               await queryClient.invalidateQueries({ queryKey: ['all-sims-landing'] });
+            }
+            if (createdAgent?.custom_url) {
+              navigate(`/${createdAgent.custom_url}?chat=true`);
+            } else if (createdAgent?.name) {
+              const slug = createdAgent.name
+                .toLowerCase()
+                .replace(/[^a-z0-9]+/g, '-')
+                .replace(/^-+|-+$/g, '');
+              navigate(`/${slug}?chat=true`);
             }
           }}
         />

@@ -782,7 +782,17 @@ const NewLanding = () => {
       <UnifiedAgentCreation
         open={showCreateModal}
         onOpenChange={setShowCreateModal}
-        onSuccess={() => {}}
+        onSuccess={(createdAgent) => {
+          if (createdAgent?.custom_url) {
+            navigate(`/${createdAgent.custom_url}?chat=true`);
+          } else if (createdAgent?.name) {
+            const slug = createdAgent.name
+              .toLowerCase()
+              .replace(/[^a-z0-9]+/g, '-')
+              .replace(/^-+|-+$/g, '');
+            navigate(`/${slug}?chat=true`);
+          }
+        }}
       />
     </div>
   );

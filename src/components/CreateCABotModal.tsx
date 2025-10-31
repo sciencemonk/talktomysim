@@ -12,7 +12,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 interface CreateCABotModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSuccess?: () => void;
+  onSuccess?: (createdAgent?: any) => void;
 }
 
 interface TokenData {
@@ -197,11 +197,8 @@ You can discuss your tokenomics, community, and answer questions about the proje
       setEditCode("");
 
       if (onSuccess) {
-        await onSuccess();
+        await onSuccess(newSim);
       }
-
-      // Navigate to the token agent page
-      window.location.href = `/token/${contractAddress.trim()}`;
     } catch (error) {
       console.error("Error creating PumpFun Agent:", error);
       toast.error("Failed to create PumpFun Agent");

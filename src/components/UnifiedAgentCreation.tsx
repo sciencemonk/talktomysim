@@ -28,7 +28,7 @@ import gmailIcon from "@/assets/gmail-icon.png";
 interface UnifiedAgentCreationProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSuccess?: () => void;
+  onSuccess?: (createdAgent?: any) => void;
 }
 
 const AGENT_TYPES = [
@@ -377,6 +377,8 @@ export const UnifiedAgentCreation = ({ open, onOpenChange, onSuccess }: UnifiedA
         avatarUrl = await uploadAvatar();
       }
 
+      let createdSim = null;
+
       if (selectedType === "pumpfun" && tokenData) {
         const systemPrompt = `You are ${tokenData.name} (${tokenData.symbol}), a PumpFun token chatbot.
 
@@ -410,6 +412,8 @@ You can discuss your tokenomics, community, and answer questions about the proje
         const { data: newSim, error } = await supabase.from("advisors").insert(simData).select().single();
 
         if (error) throw error;
+
+        createdSim = newSim;
 
         if (newSim && user) {
           await supabase.from("user_advisors").insert({
@@ -500,6 +504,8 @@ You can answer questions about their X profile, interests, opinions, and provide
           }
           throw error;
         }
+
+        createdSim = newSim;
 
         if (newSim && user) {
           await supabase.from("user_advisors").insert({
@@ -594,6 +600,8 @@ You can answer questions about their X profile, interests, opinions, and provide
 
         if (error) throw error;
 
+        createdSim = newSim;
+
         if (newSim && user) {
           await supabase.from("user_advisors").insert({
             user_id: user.id,
@@ -613,8 +621,7 @@ You can answer questions about their X profile, interests, opinions, and provide
 
       onOpenChange(false);
       handleReset();
-      if (onSuccess) await onSuccess();
-      window.location.href = "/agents";
+      if (onSuccess) await onSuccess(createdSim);
     } catch (error) {
       console.error("Error creating agent:", error);
       toast.error("Failed to create agent");
