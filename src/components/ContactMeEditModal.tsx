@@ -47,10 +47,11 @@ const ContactMeEditModal = ({
   }, [open, simId]);
   const loadSimData = async () => {
     try {
+      // Exclude edit_code for security - only used for verification
       const {
         data: sim,
         error
-      } = await supabase.from('advisors').select('*').eq('id', simId).single();
+      } = await supabase.from('advisors').select('id, name, description, welcome_message, avatar_url').eq('id', simId).single();
       if (error) throw error;
       if (sim) {
         setName(sim.name || '');

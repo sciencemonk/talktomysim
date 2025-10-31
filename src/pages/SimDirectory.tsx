@@ -213,10 +213,10 @@ const SimDirectory = () => {
   const { data: allSims, isLoading } = useQuery({
     queryKey: ['all-sims-directory'],
     queryFn: async () => {
-      // Get all advisors
+      // Get all advisors - exclude edit_code for security
       const { data: advisorsData, error: advisorsError } = await supabase
         .from('advisors')
-        .select('*')
+        .select('id, name, title, description, prompt, sim_category, x402_wallet, auto_description, full_description, avatar_url, response_length, conversation_style, personality_type, website_url, created_at, updated_at, is_verified, date_of_birth, years_experience, interests, skills, sample_scenarios, completion_status, is_public, user_id, is_active, is_official, price, integrations, social_links, x402_price, x402_enabled, expertise_areas, target_audience, background_image_url, marketplace_category, background_content, knowledge_summary, url, full_name, professional_title, location, crypto_wallet, twitter_url, sim_type, owner_welcome_message, education, current_profession, areas_of_expertise, writing_sample, additional_background, custom_url, welcome_message')
         .eq('is_active', true);
       
       if (advisorsError) throw advisorsError;
