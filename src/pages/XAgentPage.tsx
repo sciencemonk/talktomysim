@@ -172,46 +172,50 @@ export default function XAgentPage() {
       </div>
 
       {/* Main Content */}
-      <div className="container mx-auto px-3 md:px-4 py-4 md:py-8 max-w-7xl">
+      <div className="container mx-auto px-3 md:px-4 py-6 md:py-8 max-w-7xl">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
           {/* Left Column - X Profile Info & Stats */}
           <div className="lg:col-span-2 space-y-4 md:space-y-6">
-            {/* Profile Header - More compact on mobile */}
-            <Card className="border-border bg-card">
-              <CardHeader className="p-4 md:p-6">
+            {/* Profile Header - Enhanced Design */}
+            <Card className="border-border bg-card/80 backdrop-blur-sm shadow-lg">
+              <CardHeader className="p-5 md:p-6">
                 <div className="flex items-start gap-3 md:gap-4">
-                  <Avatar className="h-16 w-16 md:h-20 md:w-20 border-2 border-primary/20 shrink-0">
-                    <AvatarImage src={xData?.profilePicture || agent.avatar} alt={agent.name} />
-                    <AvatarFallback>{agent.name[0]}</AvatarFallback>
-                  </Avatar>
+                  <div className="relative">
+                    <Avatar className="h-16 w-16 md:h-20 md:w-20 border-2 shrink-0 ring-2 ring-[#81f4aa]/20" style={{ borderColor: '#81f4aa' }}>
+                      <AvatarImage src={xData?.profilePicture || agent.avatar} alt={agent.name} />
+                      <AvatarFallback className="text-lg font-bold">{agent.name[0]}</AvatarFallback>
+                    </Avatar>
+                    {xData?.verified && (
+                      <div className="absolute -bottom-1 -right-1 h-6 w-6 rounded-full flex items-center justify-center" style={{ backgroundColor: '#81f4aa' }}>
+                        <span className="text-black text-xs font-bold">✓</span>
+                      </div>
+                    )}
+                  </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start gap-2 mb-1 flex-wrap">
-                      <CardTitle className="text-xl md:text-2xl break-words">{xData?.displayName || agent.name}</CardTitle>
-                      {xData?.verified && (
-                        <Badge variant="secondary" className="bg-[#81f4aa]/10 text-[#81f4aa] border-[#81f4aa]/20 text-xs shrink-0">
-                          ✓
-                        </Badge>
-                      )}
+                      <CardTitle className="text-xl md:text-2xl break-words font-bold">{xData?.displayName || agent.name}</CardTitle>
                     </div>
-                    <CardDescription className="text-sm md:text-base mb-2 md:mb-3 break-all">
+                    <CardDescription className="text-sm md:text-base mb-3 break-all font-medium opacity-70">
                       @{xData?.username || username}
                     </CardDescription>
-                    <Badge variant="secondary" className="text-xs px-2 py-0.5" style={{ backgroundColor: 'rgba(129, 244, 170, 0.1)', color: '#81f4aa', borderColor: 'rgba(129, 244, 170, 0.2)' }}>
-                      <Users className="h-3 w-3 mr-1" style={{ color: '#81f4aa' }} />
+                    <Badge variant="secondary" className="text-xs px-2.5 py-1 font-medium" style={{ backgroundColor: 'rgba(129, 244, 170, 0.15)', color: '#81f4aa', borderColor: 'rgba(129, 244, 170, 0.3)' }}>
+                      <Users className="h-3 w-3 mr-1.5" style={{ color: '#81f4aa' }} />
                       {formatNumber(xData?.metrics?.followers)} Followers
                     </Badge>
                   </div>
                 </div>
               </CardHeader>
               {(xData?.bio || xData?.location) && (
-                <CardContent className="p-4 md:p-6 pt-0 md:pt-0">
+                <CardContent className="p-5 md:p-6 pt-0 md:pt-0 space-y-3">
                   {xData?.bio && (
-                    <p className="text-sm text-muted-foreground mb-3 md:mb-4 line-clamp-3 md:line-clamp-none">
+                    <p className="text-sm md:text-base text-foreground/80 leading-relaxed line-clamp-3 md:line-clamp-none">
                       {xData.bio}
                     </p>
                   )}
                   {xData?.location && (
-                    <p className="text-xs text-muted-foreground">📍 {xData.location}</p>
+                    <p className="text-xs md:text-sm text-muted-foreground flex items-center gap-1">
+                      <span>📍</span> {xData.location}
+                    </p>
                   )}
                 </CardContent>
               )}
@@ -230,10 +234,10 @@ export default function XAgentPage() {
 
           {/* Right Column - Chat Interface (Hidden on mobile) */}
           <div className="lg:col-span-1 hidden lg:block">
-            <Card className="border-border bg-card sticky top-24">
-              <CardHeader>
-                <CardTitle className="text-lg">{xData?.username || username} AI</CardTitle>
-                <CardDescription className="text-sm">
+            <Card className="border-border bg-card/80 backdrop-blur-sm sticky top-24 shadow-lg">
+              <CardHeader className="p-5">
+                <CardTitle className="text-lg font-bold">{xData?.username || username} AI</CardTitle>
+                <CardDescription className="text-sm leading-relaxed">
                   AI agent trained on their actual posts to represent their voice and ideas
                 </CardDescription>
               </CardHeader>

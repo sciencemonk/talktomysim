@@ -166,21 +166,23 @@ export const XMessageBoard = ({
 
   return (
     <>
-      <Card className="border-border bg-card">
-        <CardHeader className="p-4 md:p-6">
+      <Card className="border-border bg-card/80 backdrop-blur-sm shadow-lg">
+        <CardHeader className="p-4 md:p-6 border-b border-border/50">
           <div className="flex items-start justify-between gap-3 md:gap-4">
             <div className="flex items-start gap-2 md:gap-3 min-w-0 flex-1">
-              <MessageSquare className="h-5 w-5 md:h-6 md:w-6 mt-0.5 md:mt-1 shrink-0" style={{ color: '#81f4aa' }} />
+              <div className="p-2 rounded-lg" style={{ backgroundColor: 'rgba(129, 244, 170, 0.15)' }}>
+                <MessageSquare className="h-5 w-5 md:h-6 md:w-6 shrink-0" style={{ color: '#81f4aa' }} />
+              </div>
               <div className="min-w-0 flex-1">
-                <CardTitle className="text-lg md:text-xl mb-1">Public Message Board</CardTitle>
-                <CardDescription className="text-xs md:text-sm">
+                <CardTitle className="text-lg md:text-xl mb-1 font-bold">Public Message Board</CardTitle>
+                <CardDescription className="text-xs md:text-sm leading-relaxed">
                   Messages from the community • ${price} per post
                 </CardDescription>
               </div>
             </div>
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
               <DialogTrigger asChild>
-                <Button size="sm" className="gap-2 h-9 px-3 md:px-4 shrink-0" style={{ backgroundColor: '#81f4aa', color: '#000' }}>
+                <Button size="sm" className="gap-2 h-10 px-4 md:px-5 shrink-0 font-medium shadow-md hover:shadow-lg transition-all" style={{ backgroundColor: '#81f4aa', color: '#000' }}>
                   <Plus className="h-4 w-4" />
                   <span className="hidden sm:inline">Post Message</span>
                 </Button>
@@ -194,12 +196,22 @@ export const XMessageBoard = ({
                 </DialogHeader>
                 <div className="space-y-3 md:space-y-4 py-3 md:py-4">
                   <div>
-                    <label className="text-xs md:text-sm font-medium mb-1 block">Message</label>
+                    <div className="flex items-center justify-between mb-1">
+                      <label className="text-xs md:text-sm font-medium">Message</label>
+                      <span className="text-xs text-muted-foreground">
+                        {newMessage.length}/500
+                      </span>
+                    </div>
                     <Textarea
                       value={newMessage}
-                      onChange={(e) => setNewMessage(e.target.value)}
+                      onChange={(e) => {
+                        if (e.target.value.length <= 500) {
+                          setNewMessage(e.target.value);
+                        }
+                      }}
                       placeholder="Write your message..."
                       rows={4}
+                      maxLength={500}
                       className="resize-none text-xs md:text-sm"
                     />
                   </div>
@@ -228,49 +240,53 @@ export const XMessageBoard = ({
         </CardHeader>
         <CardContent className="space-y-3 md:space-y-4 p-4 md:p-6">
           {/* Messages List */}
-          <div className="space-y-3 md:space-y-4 max-h-[500px] md:max-h-[600px] overflow-y-auto">
+          <div className="space-y-3 md:space-y-4 max-h-[500px] md:max-h-[600px] overflow-y-auto pr-2">
             {isLoading ? (
-              <div className="flex items-center justify-center py-6 md:py-8">
-                <Loader2 className="h-5 w-5 md:h-6 md:w-6 animate-spin text-muted-foreground" />
+              <div className="flex items-center justify-center py-8 md:py-12">
+                <Loader2 className="h-6 w-6 md:h-8 md:w-8 animate-spin" style={{ color: '#81f4aa' }} />
               </div>
             ) : displayMessages.length === 0 ? (
-              <div className="text-center py-6 md:py-8 text-muted-foreground">
-                <MessageSquare className="h-10 w-10 md:h-12 md:w-12 mx-auto mb-2 opacity-50" />
-                <p className="text-xs md:text-sm">No messages yet. Be the first to post!</p>
+              <div className="text-center py-10 md:py-16 text-muted-foreground">
+                <div className="p-4 rounded-full inline-flex mb-3" style={{ backgroundColor: 'rgba(129, 244, 170, 0.1)' }}>
+                  <MessageSquare className="h-12 w-12 md:h-16 md:w-16 opacity-50" style={{ color: '#81f4aa' }} />
+                </div>
+                <p className="text-sm md:text-base font-medium">No messages yet. Be the first to post!</p>
               </div>
             ) : (
               displayMessages.map((message) => (
-                <div key={message.id} className="p-3 md:p-4 bg-muted/30 rounded-lg border border-border space-y-2 md:space-y-3">
+                <div key={message.id} className="p-3 md:p-4 bg-card rounded-xl border border-border/50 shadow-sm hover:shadow-md transition-shadow space-y-2 md:space-y-3">
                   {/* Original Message */}
                   <div className="flex gap-2 md:gap-3">
-                    <Avatar className="h-8 w-8 md:h-10 md:w-10 shrink-0">
-                      <AvatarFallback className="text-xs">{message.sender_name[0]?.toUpperCase()}</AvatarFallback>
+                    <Avatar className="h-9 w-9 md:h-11 md:w-11 shrink-0 ring-2 ring-border">
+                      <AvatarFallback className="text-xs font-semibold" style={{ backgroundColor: 'rgba(129, 244, 170, 0.2)', color: '#81f4aa' }}>
+                        {message.sender_name[0]?.toUpperCase()}
+                      </AvatarFallback>
                     </Avatar>
-                    <div className="flex-1 space-y-1 min-w-0">
+                    <div className="flex-1 space-y-1.5 min-w-0">
                       <div className="flex items-center gap-1.5 md:gap-2 flex-wrap">
-                        <span className="font-medium text-xs md:text-sm truncate">{message.sender_name}</span>
-                        <Badge variant="secondary" className="text-[10px] md:text-xs px-1.5 py-0" style={{ backgroundColor: 'rgba(129, 244, 170, 0.1)', color: '#81f4aa', borderColor: 'rgba(129, 244, 170, 0.2)' }}>
+                        <span className="font-semibold text-xs md:text-sm truncate">{message.sender_name}</span>
+                        <Badge variant="secondary" className="text-[10px] md:text-xs px-2 py-0.5 font-medium" style={{ backgroundColor: 'rgba(129, 244, 170, 0.15)', color: '#81f4aa', borderColor: 'rgba(129, 244, 170, 0.3)' }}>
                           Paid ${price}
                         </Badge>
                         <span className="text-[10px] md:text-xs text-muted-foreground whitespace-nowrap">
                           {formatDate(message.created_at)}
                         </span>
                       </div>
-                      <p className="text-xs md:text-sm break-words">{message.content}</p>
+                      <p className="text-xs md:text-sm break-words leading-relaxed">{message.content}</p>
                     </div>
                   </div>
 
                   {/* Response */}
                   {message.response && (
-                    <div className="flex gap-2 md:gap-3 ml-4 md:ml-8 pl-3 md:pl-4 border-l-2 border-primary/30">
-                      <Avatar className="h-8 w-8 md:h-10 md:w-10 shrink-0">
+                    <div className="flex gap-2 md:gap-3 ml-5 md:ml-8 pl-3 md:pl-4 border-l-2 rounded-l-lg py-2" style={{ borderColor: '#81f4aa', backgroundColor: 'rgba(129, 244, 170, 0.05)' }}>
+                      <Avatar className="h-8 w-8 md:h-10 md:w-10 shrink-0 ring-2 ring-[#81f4aa]/30">
                         <AvatarImage src={agentAvatar} />
-                        <AvatarFallback className="text-xs">{agentName[0]}</AvatarFallback>
+                        <AvatarFallback className="text-xs font-semibold">{agentName[0]}</AvatarFallback>
                       </Avatar>
                       <div className="flex-1 space-y-1 min-w-0">
                         <div className="flex items-center gap-1.5 md:gap-2 flex-wrap">
-                          <span className="font-medium text-xs md:text-sm truncate">@{xUsername}</span>
-                          <Badge variant="secondary" className="text-[10px] md:text-xs bg-[#81f4aa]/10 text-[#81f4aa] px-1.5 py-0">
+                          <span className="font-semibold text-xs md:text-sm truncate">@{xUsername}</span>
+                          <Badge variant="secondary" className="text-[10px] md:text-xs px-2 py-0.5 font-medium" style={{ backgroundColor: 'rgba(129, 244, 170, 0.15)', color: '#81f4aa', borderColor: 'rgba(129, 244, 170, 0.3)' }}>
                             Creator
                           </Badge>
                           {message.response_at && (
@@ -279,7 +295,7 @@ export const XMessageBoard = ({
                             </span>
                           )}
                         </div>
-                        <p className="text-xs md:text-sm break-words">{message.response}</p>
+                        <p className="text-xs md:text-sm break-words leading-relaxed opacity-90">{message.response}</p>
                       </div>
                     </div>
                   )}
