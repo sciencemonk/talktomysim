@@ -3,9 +3,24 @@ import { Navigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { Bot, Wallet, Users } from "lucide-react";
+import { useState, useEffect } from "react";
 
 const Index = () => {
   const { user, loading } = useAuth();
+  const [cyclingWord, setCyclingWord] = useState("money");
+  const words = ["money", "smarter", "healthier", "happier"];
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCyclingWord((prev) => {
+        const currentIndex = words.indexOf(prev);
+        const nextIndex = (currentIndex + 1) % words.length;
+        return words[nextIndex];
+      });
+    }, 2000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   if (loading) {
     return (
@@ -41,8 +56,10 @@ const Index = () => {
       <main className="container mx-auto px-4 py-20 text-center">
         <div className="max-w-4xl mx-auto">
           <h1 className="text-5xl font-bold tracking-tight mb-6">
-            The Future of AI is Personal
-            <span className="block text-primary">Not Generic</span>
+            AI Agents that make you{" "}
+            <span className="text-primary inline-block min-w-[200px] transition-all duration-300">
+              {cyclingWord}
+            </span>
           </h1>
           <p className="text-xl text-gray-600 mb-8 leading-relaxed">
             ChatGPT is one-size-fits-all. Sim is uniquely yours. Create your own AI—a personal assistant, 
