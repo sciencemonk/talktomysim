@@ -253,7 +253,7 @@ export default function XAgentPage() {
                       <CardTitle className="text-xl md:text-2xl break-words font-bold">{xData?.displayName || agent.name}</CardTitle>
                     </div>
                     <CardDescription className="text-sm md:text-base mb-3 break-all font-medium opacity-70">
-                      @{xData?.username || username}
+                      {xData?.username || username}
                     </CardDescription>
                     <div className="flex items-center gap-2 flex-wrap">
                       <Badge variant="secondary" className="text-xs px-2.5 py-1 font-medium" style={{ backgroundColor: 'rgba(129, 244, 170, 0.15)', color: '#81f4aa', borderColor: 'rgba(129, 244, 170, 0.3)' }}>
