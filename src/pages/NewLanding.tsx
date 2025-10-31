@@ -126,7 +126,7 @@ const PumpFunSimCard = ({ sim, onSimClick }: PumpFunSimCardProps) => {
   return (
     <button
       onClick={() => onSimClick(sim)}
-      className="group relative flex flex-col overflow-hidden rounded-xl bg-card hover:bg-muted border hover:border-[#83f1aa] transition-all duration-300 hover:scale-105 hover:shadow-lg"
+      className="group relative flex flex-col overflow-hidden rounded-lg bg-card hover:bg-muted border hover:border-[#83f1aa] transition-all duration-300 hover:scale-105 hover:shadow-md"
     >
       <div className="relative w-full aspect-[4/3] overflow-hidden bg-muted">
         <Avatar className="w-full h-full rounded-none">
@@ -138,16 +138,16 @@ const PumpFunSimCard = ({ sim, onSimClick }: PumpFunSimCardProps) => {
             crossOrigin="anonymous"
           />
           <AvatarFallback className="w-full h-full rounded-none bg-primary/10 flex items-center justify-center">
-            <span className="text-3xl font-bold text-primary">
+            <span className="text-xl font-bold text-primary">
               {isCryptoMail ? '@' : (sim.name?.charAt(0)?.toUpperCase() || 'S')}
             </span>
           </AvatarFallback>
         </Avatar>
       </div>
       
-      <div className="w-full p-2 space-y-1.5">
-        <div className="flex items-center justify-center gap-1">
-          <span className="text-xs font-semibold line-clamp-2 leading-tight block">
+      <div className="w-full p-1.5 space-y-1">
+        <div className="flex items-center justify-center gap-0.5">
+          <span className="text-[10px] font-semibold line-clamp-2 leading-tight block">
             {sim.name}
           </span>
           {(sim as any).is_verified && (
@@ -155,16 +155,16 @@ const PumpFunSimCard = ({ sim, onSimClick }: PumpFunSimCardProps) => {
               <img 
                 src="/lovable-uploads/verified-badge.png" 
                 alt="Verified"
-                className="w-3 h-3"
+                className="w-2.5 h-2.5"
               />
             </div>
           )}
         </div>
         
-        <div className="flex flex-wrap gap-1 justify-center">
+        <div className="flex flex-wrap gap-0.5 justify-center">
           <Badge 
             variant="outline" 
-            className="text-[8px] px-1 py-0 bg-primary/10 border-primary/30 text-primary whitespace-nowrap"
+            className="text-[7px] px-0.5 py-0 bg-primary/10 border-primary/30 text-primary whitespace-nowrap leading-none h-3"
           >
             {typeBadgeText}
           </Badge>
@@ -172,9 +172,9 @@ const PumpFunSimCard = ({ sim, onSimClick }: PumpFunSimCardProps) => {
           {isPumpFunAgent && (
             <Badge 
               variant="outline" 
-              className="text-[8px] px-1 py-0 flex items-center gap-0.5"
+              className="text-[7px] px-0.5 py-0 flex items-center gap-0.5 leading-none h-3"
             >
-              <img src={pumpfunLogo} alt="PumpFun" className="h-2.5 w-2.5" />
+              <img src={pumpfunLogo} alt="PumpFun" className="h-2 w-2" />
               Agent
             </Badge>
           )}
@@ -182,9 +182,9 @@ const PumpFunSimCard = ({ sim, onSimClick }: PumpFunSimCardProps) => {
 
         {isPumpFunAgent && marketCapData?.marketCap && (
           <div className="pt-0.5 border-t border-border/50">
-            <div className="flex items-center justify-center gap-1">
-              <span className="text-[9px] text-muted-foreground">Market Cap:</span>
-              <span className="text-[10px] font-semibold text-primary">
+            <div className="flex items-center justify-center gap-0.5">
+              <span className="text-[7px] text-muted-foreground">Market Cap:</span>
+              <span className="text-[8px] font-semibold text-primary">
                 {formatMarketCap(marketCapData.marketCap)}
               </span>
             </div>
@@ -192,7 +192,7 @@ const PumpFunSimCard = ({ sim, onSimClick }: PumpFunSimCardProps) => {
         )}
         {isPumpFunAgent && isLoadingMarketCap && (
           <div className="pt-0.5 border-t border-border/50">
-            <div className="text-[9px] text-muted-foreground text-center">Loading...</div>
+            <div className="text-[7px] text-muted-foreground text-center">Loading...</div>
           </div>
         )}
       </div>
