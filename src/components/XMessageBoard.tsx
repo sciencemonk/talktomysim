@@ -4,7 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, MessageSquare, Send } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Loader2, MessageSquare, Send, Plus } from "lucide-react";
 import { X402PaymentModal } from "./X402PaymentModal";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -41,6 +42,27 @@ export const XMessageBoard = ({
   const [senderName, setSenderName] = useState("");
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [isPosting, setIsPosting] = useState(false);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+  // Demo messages
+  const demoMessages: Message[] = [
+    {
+      id: "demo-1",
+      content: "What's your take on the current market trends?",
+      sender_name: "CryptoEnthusiast",
+      created_at: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+      response: "Great question! Based on recent data, we're seeing increased institutional adoption...",
+      response_at: new Date(Date.now() - 1.5 * 60 * 60 * 1000).toISOString()
+    },
+    {
+      id: "demo-2",
+      content: "Can you share your thoughts on DeFi's future?",
+      sender_name: "BlockchainDev",
+      created_at: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
+      response: "DeFi is evolving rapidly. The key trends I'm watching are...",
+      response_at: new Date(Date.now() - 23 * 60 * 60 * 1000).toISOString()
+    }
+  ];
 
   useEffect(() => {
     fetchMessages();
@@ -116,6 +138,7 @@ export const XMessageBoard = ({
       toast.success("Message posted successfully!");
       setNewMessage("");
       setSenderName("");
+      setIsDialogOpen(false);
       fetchMessages();
     } catch (error) {
       console.error('Error posting message:', error);
@@ -124,6 +147,11 @@ export const XMessageBoard = ({
       setIsPosting(false);
     }
   };
+
+  // Combine real and demo messages
+  const displayMessages = [...messages, ...demoMessages].sort(
+    (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+  );
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -142,69 +170,87 @@ export const XMessageBoard = ({
     <>
       <Card className="border-border bg-card">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <MessageSquare className="h-5 w-5" />
-            Public Message Board
-          </CardTitle>
-          <CardDescription>
-            Post a message for ${price} USDC and get a response from @{xUsername}
-          </CardDescription>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="flex items-center gap-2">
+                <MessageSquare className="h-5 w-5" />
+                Public Message Board
+              </CardTitle>
+              <CardDescription>
+                Messages from the community • ${price} per post
+              </CardDescription>
+            </div>
+            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+              <DialogTrigger asChild>
+                <Button size="sm" className="gap-2">
+                  <Plus className="h-4 w-4" />
+                  Post Message
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Post a Message</DialogTitle>
+                  <DialogDescription>
+                    Pay ${price} USDC to post and get a response from @{xUsername}
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="space-y-4 py-4">
+                  <div>
+                    <label className="text-sm font-medium mb-1 block">Your Name</label>
+                    <input
+                      type="text"
+                      value={senderName}
+                      onChange={(e) => setSenderName(e.target.value)}
+                      placeholder="Enter your name"
+                      className="w-full px-3 py-2 bg-background border border-border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium mb-1 block">Message</label>
+                    <Textarea
+                      value={newMessage}
+                      onChange={(e) => setNewMessage(e.target.value)}
+                      placeholder="Write your message..."
+                      rows={4}
+                      className="resize-none"
+                    />
+                  </div>
+                  <Button 
+                    onClick={handlePostMessage}
+                    disabled={!newMessage.trim() || !senderName.trim() || isPosting}
+                    className="w-full"
+                  >
+                    {isPosting ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Posting...
+                      </>
+                    ) : (
+                      <>
+                        <Send className="mr-2 h-4 w-4" />
+                        Pay ${price} USDC & Post
+                      </>
+                    )}
+                  </Button>
+                </div>
+              </DialogContent>
+            </Dialog>
+          </div>
         </CardHeader>
         <CardContent className="space-y-4">
-          {/* Post Message Form */}
-          <div className="space-y-3 p-4 bg-muted/30 rounded-lg border border-border">
-            <div>
-              <label className="text-sm font-medium mb-1 block">Your Name</label>
-              <input
-                type="text"
-                value={senderName}
-                onChange={(e) => setSenderName(e.target.value)}
-                placeholder="Enter your name"
-                className="w-full px-3 py-2 bg-background border border-border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-              />
-            </div>
-            <div>
-              <label className="text-sm font-medium mb-1 block">Message</label>
-              <Textarea
-                value={newMessage}
-                onChange={(e) => setNewMessage(e.target.value)}
-                placeholder="Write your message..."
-                rows={3}
-                className="resize-none"
-              />
-            </div>
-            <Button 
-              onClick={handlePostMessage}
-              disabled={!newMessage.trim() || !senderName.trim() || isPosting}
-              className="w-full"
-            >
-              {isPosting ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Posting...
-                </>
-              ) : (
-                <>
-                  <Send className="mr-2 h-4 w-4" />
-                  Pay ${price} USDC & Post Message
-                </>
-              )}
-            </Button>
-          </div>
-
           {/* Messages List */}
-          <div className="space-y-4">
+          <div className="space-y-4 max-h-[600px] overflow-y-auto">
             {isLoading ? (
               <div className="flex items-center justify-center py-8">
                 <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
               </div>
-            ) : messages.length === 0 ? (
+            ) : displayMessages.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">
                 <MessageSquare className="h-12 w-12 mx-auto mb-2 opacity-50" />
                 <p className="text-sm">No messages yet. Be the first to post!</p>
               </div>
             ) : (
-              messages.map((message) => (
+              displayMessages.map((message) => (
                 <div key={message.id} className="p-4 bg-muted/30 rounded-lg border border-border space-y-3">
                   {/* Original Message */}
                   <div className="flex gap-3">

@@ -212,29 +212,8 @@ export default function XAgentPage() {
                   </p>
                 )}
                 {xData?.location && (
-                  <p className="text-xs text-muted-foreground mb-4">📍 {xData.location}</p>
+                  <p className="text-xs text-muted-foreground">📍 {xData.location}</p>
                 )}
-                {/* Username Display */}
-                <div className="p-3 bg-muted/50 rounded-lg border border-border">
-                  <div className="flex items-center justify-between gap-2">
-                    <div className="flex-1 overflow-hidden">
-                      <p className="text-xs text-muted-foreground mb-1">X Username</p>
-                      <p className="text-sm font-medium">@{xData?.username || username}</p>
-                    </div>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={handleCopyUsername}
-                      className="shrink-0"
-                    >
-                      {usernameCopied ? (
-                        <Check className="h-4 w-4 text-green-500" />
-                      ) : (
-                        <Copy className="h-4 w-4" />
-                      )}
-                    </Button>
-                  </div>
-                </div>
               </CardContent>
             </Card>
 
