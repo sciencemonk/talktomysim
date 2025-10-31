@@ -117,23 +117,18 @@ const PumpFunSimCard = ({ sim, onSimClick, categories }: PumpFunSimCardProps) =>
     >
       {/* Image container */}
       <div className="relative w-full aspect-[4/3] overflow-hidden bg-muted">
-        {sim.avatar ? (
-          <img
+        <Avatar className="w-full h-full rounded-none">
+          <AvatarImage 
             src={getAvatarUrl(sim.avatar)} 
             alt={sim.name}
             className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
           />
-        ) : isCryptoMail ? (
-          <div className="w-full h-full flex items-center justify-center bg-primary/10">
-            <span className="text-5xl font-bold text-primary">@</span>
-          </div>
-        ) : (
-          <div className="w-full h-full flex items-center justify-center bg-primary/10">
+          <AvatarFallback className="w-full h-full rounded-none bg-primary/10 flex items-center justify-center">
             <span className="text-5xl font-bold text-primary">
-              {sim.name?.charAt(0)?.toUpperCase() || 'S'}
+              {isCryptoMail ? '@' : (sim.name?.charAt(0)?.toUpperCase() || 'S')}
             </span>
-          </div>
-        )}
+          </AvatarFallback>
+        </Avatar>
       </div>
       
       {/* Content section */}
