@@ -355,11 +355,11 @@ const SimDetailModal = ({ sim, open, onOpenChange, onAuthRequired }: SimDetailMo
         setShowEditDialog(false);
         onOpenChange(false); // Close the modal
         
-        // For Crypto Mail agents, navigate to creator view
+        // For Crypto Mail agents, navigate to creator view with edit code
         if (simData.sim_category === 'Crypto Mail') {
           const xUsername = (simData.social_links as any)?.x_username;
           if (xUsername) {
-            navigate(`/x/${xUsername}/creator`);
+            navigate(`/x/${xUsername}/creator?code=${editCode}`);
           } else {
             sonnerToast.error("X username not found");
           }

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2, ArrowLeft, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -17,11 +17,14 @@ import { Input } from "@/components/ui/input";
 export default function XAgentCreatorView() {
   const { username } = useParams<{ username: string }>();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const codeFromUrl = searchParams.get('code');
+  
   const [agent, setAgent] = useState<AgentType | null>(null);
   const [xData, setXData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [totalEarnings, setTotalEarnings] = useState<number>(0);
-  const [editCode, setEditCode] = useState("");
+  const [editCode, setEditCode] = useState(codeFromUrl || "");
   const [isValidated, setIsValidated] = useState(false);
   const [systemPrompt, setSystemPrompt] = useState("");
   const [x402Price, setX402Price] = useState(5);
@@ -33,6 +36,13 @@ export default function XAgentCreatorView() {
       fetchAgent();
     }
   }, [username]);
+
+  // Auto-validate if code is in URL
+  useEffect(() => {
+    if (codeFromUrl && agent && !isValidated) {
+      handleValidateCode();
+    }
+  }, [codeFromUrl, agent]);
 
   const fetchTotalEarnings = async (agentId: string) => {
     try {
