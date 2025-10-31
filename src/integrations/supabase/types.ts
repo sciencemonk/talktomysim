@@ -1205,6 +1205,53 @@ export type Database = {
         }
         Relationships: []
       }
+      x_messages: {
+        Row: {
+          agent_id: string
+          content: string
+          created_at: string
+          id: string
+          payment_amount: number
+          response: string | null
+          response_at: string | null
+          sender_name: string
+          session_id: string
+          updated_at: string
+        }
+        Insert: {
+          agent_id: string
+          content: string
+          created_at?: string
+          id?: string
+          payment_amount?: number
+          response?: string | null
+          response_at?: string | null
+          sender_name: string
+          session_id: string
+          updated_at?: string
+        }
+        Update: {
+          agent_id?: string
+          content?: string
+          created_at?: string
+          id?: string
+          payment_amount?: number
+          response?: string | null
+          response_at?: string | null
+          sender_name?: string
+          session_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "x_messages_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "advisors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       x_requests: {
         Row: {
           company: string | null
