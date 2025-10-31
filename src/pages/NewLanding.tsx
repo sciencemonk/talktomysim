@@ -17,6 +17,7 @@ import { ChevronRight, Bot, Search, TrendingUp, ChevronDown, Mail, Zap } from "l
 import { Card } from "@/components/ui/card";
 import pumpfunLogo from "@/assets/pumpfun-logo.png";
 import xLogo from "@/assets/x-logo.png";
+import xLogoBadge from "@/assets/x-logo-badge.png";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useTheme } from "@/hooks/useTheme";
@@ -175,20 +176,36 @@ const PumpFunSimCard = ({ sim, onSimClick }: PumpFunSimCardProps) => {
         </div>
         
         <div className="flex flex-wrap gap-1.5 justify-center">
-          <Badge 
-            variant="outline" 
-            className="text-[10px] px-2 py-0.5 bg-primary/10 border-primary/30 text-primary whitespace-nowrap"
-          >
-            {typeBadgeText}
-          </Badge>
-          
-          {isPumpFunAgent && (
+          {isCryptoMail ? (
             <Badge 
               variant="outline" 
               className="text-[10px] px-2 py-0.5 flex items-center gap-0.5"
             >
-              <img src={pumpfunLogo} alt="PumpFun" className="h-3 w-3" />
+              <img src={xLogoBadge} alt="X" className="h-3 w-3" />
               Agent
+            </Badge>
+          ) : isPumpFunAgent ? (
+            <>
+              <Badge 
+                variant="outline" 
+                className="text-[10px] px-2 py-0.5 bg-primary/10 border-primary/30 text-primary whitespace-nowrap"
+              >
+                {typeBadgeText}
+              </Badge>
+              <Badge 
+                variant="outline" 
+                className="text-[10px] px-2 py-0.5 flex items-center gap-0.5"
+              >
+                <img src={pumpfunLogo} alt="PumpFun" className="h-3 w-3" />
+                Agent
+              </Badge>
+            </>
+          ) : (
+            <Badge 
+              variant="outline" 
+              className="text-[10px] px-2 py-0.5 bg-primary/10 border-primary/30 text-primary whitespace-nowrap"
+            >
+              {typeBadgeText}
             </Badge>
           )}
         </div>
