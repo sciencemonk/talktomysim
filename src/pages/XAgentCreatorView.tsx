@@ -388,16 +388,18 @@ export default function XAgentCreatorView() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="price">Message Price (USDC)</Label>
+                  <Label htmlFor="price">Post Price (USDC)</Label>
                   <Input
                     id="price"
                     type="text"
-                    inputMode="numeric"
+                    inputMode="decimal"
                     value={x402Price}
                     onChange={(e) => {
-                      const value = e.target.value.replace(/\D/g, '');
-                      const numValue = value === '' ? 1 : Math.min(Math.max(parseInt(value) || 1, 1), 1000);
-                      setX402Price(numValue);
+                      const value = e.target.value;
+                      // Allow numbers and decimals
+                      if (value === '' || /^\d*\.?\d*$/.test(value)) {
+                        setX402Price(value === '' ? 0 : parseFloat(value) || 0);
+                      }
                     }}
                   />
                   <p className="text-xs text-muted-foreground">
