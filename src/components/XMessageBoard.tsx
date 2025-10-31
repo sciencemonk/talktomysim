@@ -254,13 +254,14 @@ export const XMessageBoard = ({
                 </CardDescription>
               </div>
             </div>
-            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-              <DialogTrigger asChild>
-                <Button size="sm" className="gap-2 h-10 px-4 md:px-5 shrink-0 font-medium shadow-md hover:shadow-lg transition-all" style={{ backgroundColor: '#81f4aa', color: '#000' }}>
-                  <Plus className="h-4 w-4" />
-                  <span className="hidden sm:inline">Post Message</span>
-                </Button>
-              </DialogTrigger>
+            {!isCreatorView && (
+              <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button size="sm" className="gap-2 h-10 px-4 md:px-5 shrink-0 font-medium shadow-md hover:shadow-lg transition-all" style={{ backgroundColor: '#81f4aa', color: '#000' }}>
+                    <Plus className="h-4 w-4" />
+                    <span className="hidden sm:inline">Post Message</span>
+                  </Button>
+                </DialogTrigger>
               <DialogContent className="max-w-[95vw] md:max-w-md">
                 <DialogHeader>
                   <DialogTitle className="text-base md:text-lg">Post a Message</DialogTitle>
@@ -309,7 +310,8 @@ export const XMessageBoard = ({
                   </Button>
                 </div>
               </DialogContent>
-            </Dialog>
+              </Dialog>
+            )}
           </div>
         </CardHeader>
         <CardContent className="space-y-3 md:space-y-4 p-4 md:p-6">

@@ -353,6 +353,7 @@ const SimDetailModal = ({ sim, open, onOpenChange, onAuthRequired }: SimDetailMo
       if (simData.edit_code === editCode) {
         sonnerToast.success("Access granted!");
         setShowEditDialog(false);
+        onOpenChange(false); // Close the modal
         
         // For Crypto Mail agents, navigate to creator view
         if (simData.sim_category === 'Crypto Mail') {
