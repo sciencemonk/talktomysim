@@ -19,12 +19,29 @@ export default function XAgentPage() {
   const [xData, setXData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [usernameCopied, setUsernameCopied] = useState(false);
+  const [totalEarnings, setTotalEarnings] = useState<number>(0);
 
   useEffect(() => {
     if (username) {
       fetchAgent();
     }
   }, [username]);
+
+  const fetchTotalEarnings = async (agentId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('x_messages')
+        .select('payment_amount')
+        .eq('agent_id', agentId);
+
+      if (error) throw error;
+
+      const total = data?.reduce((sum, msg) => sum + Number(msg.payment_amount), 0) || 0;
+      setTotalEarnings(total);
+    } catch (error) {
+      console.error('Error fetching earnings:', error);
+    }
+  };
 
   const fetchAgent = async () => {
     try {
@@ -85,6 +102,9 @@ export default function XAgentPage() {
       } as any;
 
       setAgent(transformedAgent);
+
+      // Fetch total earnings
+      fetchTotalEarnings(matchingAgent.id);
 
       // Fetch real-time X data
       try {
@@ -186,6 +206,12 @@ export default function XAgentPage() {
                         src={xData?.profilePicture || agent.avatar} 
                         alt={agent.name}
                         className="object-cover"
+                        crossOrigin="anonymous"
+                        referrerPolicy="no-referrer"
+                        onError={(e) => {
+                          console.log('Avatar failed to load, using fallback');
+                          e.currentTarget.style.display = 'none';
+                        }}
                       />
                       <AvatarFallback className="text-lg font-bold">{agent.name[0]}</AvatarFallback>
                     </Avatar>
@@ -202,10 +228,15 @@ export default function XAgentPage() {
                     <CardDescription className="text-sm md:text-base mb-3 break-all font-medium opacity-70">
                       @{xData?.username || username}
                     </CardDescription>
-                    <Badge variant="secondary" className="text-xs px-2.5 py-1 font-medium" style={{ backgroundColor: 'rgba(129, 244, 170, 0.15)', color: '#81f4aa', borderColor: 'rgba(129, 244, 170, 0.3)' }}>
-                      <Users className="h-3 w-3 mr-1.5" style={{ color: '#81f4aa' }} />
-                      {formatNumber(xData?.metrics?.followers)} Followers
-                    </Badge>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <Badge variant="secondary" className="text-xs px-2.5 py-1 font-medium" style={{ backgroundColor: 'rgba(129, 244, 170, 0.15)', color: '#81f4aa', borderColor: 'rgba(129, 244, 170, 0.3)' }}>
+                        <Users className="h-3 w-3 mr-1.5" style={{ color: '#81f4aa' }} />
+                        {formatNumber(xData?.metrics?.followers)} Followers
+                      </Badge>
+                      <Badge variant="secondary" className="text-xs px-2.5 py-1 font-medium" style={{ backgroundColor: 'rgba(129, 244, 170, 0.15)', color: '#81f4aa', borderColor: 'rgba(129, 244, 170, 0.3)' }}>
+                        💰 ${totalEarnings.toFixed(0)} Earned
+                      </Badge>
+                    </div>
                   </div>
                 </div>
               </CardHeader>
