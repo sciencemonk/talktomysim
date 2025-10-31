@@ -1,6 +1,5 @@
-
-import { Loader } from "lucide-react";
 import { cn } from "@/lib/utils";
+import aiLoadingGif from "@/assets/ai-loading.gif";
 
 interface LoaderIconProps extends React.HTMLAttributes<HTMLDivElement> {
   size?: number;
@@ -8,8 +7,13 @@ interface LoaderIconProps extends React.HTMLAttributes<HTMLDivElement> {
 
 export function LoaderIcon({ className, size = 16, ...props }: LoaderIconProps) {
   return (
-    <div className={cn("animate-spin", className)} {...props}>
-      <Loader size={size} />
+    <div className={cn("flex items-center justify-center", className)} {...props}>
+      <img 
+        src={aiLoadingGif} 
+        alt="Loading..." 
+        style={{ width: size, height: size }}
+        className="object-contain"
+      />
     </div>
   );
 }
