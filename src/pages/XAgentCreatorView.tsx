@@ -391,11 +391,14 @@ export default function XAgentCreatorView() {
                   <Label htmlFor="price">Message Price (USDC)</Label>
                   <Input
                     id="price"
-                    type="number"
-                    min="1"
-                    max="1000"
+                    type="text"
+                    inputMode="numeric"
                     value={x402Price}
-                    onChange={(e) => setX402Price(Number(e.target.value))}
+                    onChange={(e) => {
+                      const value = e.target.value.replace(/\D/g, '');
+                      const numValue = value === '' ? 1 : Math.min(Math.max(parseInt(value) || 1, 1), 1000);
+                      setX402Price(numValue);
+                    }}
                   />
                   <p className="text-xs text-muted-foreground">
                     How much users pay to post on your message board

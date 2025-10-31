@@ -1,7 +1,11 @@
 import { useState, useEffect } from "react";
+import { useWallet, useConnection } from "@solana/wallet-adapter-react";
+import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
+import { PublicKey, Transaction, SystemProgram } from "@solana/web3.js";
+import { getAssociatedTokenAddress, createTransferInstruction, TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Loader2, Wallet } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 interface X402PaymentModalProps {
@@ -22,139 +26,100 @@ export const X402PaymentModal = ({
   walletAddress
 }: X402PaymentModalProps) => {
   const [isProcessing, setIsProcessing] = useState(false);
-  const [walletConnected, setWalletConnected] = useState(false);
-  const [userAddress, setUserAddress] = useState<string>('');
+  const { publicKey, sendTransaction, connected } = useWallet();
+  const { connection } = useConnection();
 
-  // USDC contract address on Base mainnet
-  const USDC_ADDRESS = '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913';
-  const BASE_MAINNET_CHAIN_ID = '0x2105'; // 8453 in hex
-
-  const connectWallet = async () => {
-    try {
-      if (typeof window.ethereum === 'undefined') {
-        toast.error('Please install MetaMask or another Web3 wallet');
-        return;
-      }
-
-      // Request account access
-      const accounts = await window.ethereum.request({ 
-        method: 'eth_requestAccounts' 
-      });
-      
-      if (accounts.length > 0) {
-        setUserAddress(accounts[0]);
-        
-        // Check if user is on Base mainnet network
-        const chainId = await window.ethereum.request({ method: 'eth_chainId' });
-        
-        if (chainId !== BASE_MAINNET_CHAIN_ID) {
-          // Try to switch to Base mainnet
-          try {
-            await window.ethereum.request({
-              method: 'wallet_switchEthereumChain',
-              params: [{ chainId: BASE_MAINNET_CHAIN_ID }],
-            });
-          } catch (switchError: any) {
-            // Chain not added to wallet, add it
-            if (switchError.code === 4902) {
-              await window.ethereum.request({
-                method: 'wallet_addEthereumChain',
-                params: [{
-                  chainId: BASE_MAINNET_CHAIN_ID,
-                  chainName: 'Base',
-                  nativeCurrency: {
-                    name: 'ETH',
-                    symbol: 'ETH',
-                    decimals: 18
-                  },
-                  rpcUrls: ['https://mainnet.base.org'],
-                  blockExplorerUrls: ['https://basescan.org']
-                }]
-              });
-            } else {
-              throw switchError;
-            }
-          }
-        }
-        
-        setWalletConnected(true);
-        toast.success('Wallet connected to Base');
-      }
-    } catch (error: any) {
-      console.error('Wallet connection error:', error);
-      toast.error(error.message || 'Failed to connect wallet');
-    }
-  };
+  // USDC mint address on Solana mainnet
+  const USDC_MINT = new PublicKey('EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v');
 
   const handlePayment = async () => {
-    if (!walletConnected) {
-      toast.error('Please connect your wallet first');
+    if (!connected || !publicKey) {
+      toast.error('Please connect your Solana wallet first');
       return;
     }
 
     setIsProcessing(true);
     try {
-      console.log('Starting USDC payment:', { 
+      console.log('Starting USDC payment on Solana:', { 
         price, 
         recipientWallet: walletAddress, 
-        userAddress,
-        network: 'base-mainnet' 
+        userAddress: publicKey.toString(),
+        network: 'mainnet-beta' 
       });
 
-      // Dynamically import ethers only when needed
-      const { ethers } = await import('ethers');
+      const recipientPubKey = new PublicKey(walletAddress);
 
-      // Create ethers provider
-      const provider = new ethers.BrowserProvider(window.ethereum);
-      const signer = await provider.getSigner();
+      // Get associated token accounts for sender and recipient
+      const senderTokenAccount = await getAssociatedTokenAddress(
+        USDC_MINT,
+        publicKey
+      );
 
-      // USDC ERC20 ABI (minimal for transfer)
-      const usdcAbi = [
-        "function transfer(address to, uint256 amount) returns (bool)",
-        "function balanceOf(address account) view returns (uint256)",
-        "function decimals() view returns (uint8)"
-      ];
+      const recipientTokenAccount = await getAssociatedTokenAddress(
+        USDC_MINT,
+        recipientPubKey
+      );
 
-      // Create contract instance
-      const usdcContract = new ethers.Contract(USDC_ADDRESS, usdcAbi, signer);
+      // USDC has 6 decimals
+      const amount = Math.floor(price * 1_000_000);
 
-      // Check user's USDC balance
-      const balance = await usdcContract.balanceOf(userAddress);
-      const decimals = await usdcContract.decimals();
-      const amount = ethers.parseUnits(price.toString(), decimals);
+      console.log('Token accounts:', {
+        sender: senderTokenAccount.toString(),
+        recipient: recipientTokenAccount.toString(),
+        amount
+      });
 
-      console.log('USDC balance:', ethers.formatUnits(balance, decimals), 'USDC');
-      console.log('Payment amount:', ethers.formatUnits(amount, decimals), 'USDC');
+      // Create transaction
+      const transaction = new Transaction().add(
+        createTransferInstruction(
+          senderTokenAccount,
+          recipientTokenAccount,
+          publicKey,
+          amount,
+          [],
+          TOKEN_PROGRAM_ID
+        )
+      );
 
-      if (balance < amount) {
-        throw new Error('Insufficient USDC balance');
-      }
+      // Get latest blockhash
+      const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
+      transaction.recentBlockhash = blockhash;
+      transaction.feePayer = publicKey;
 
-      // Execute transfer
       toast.info('Please confirm the transaction in your wallet...');
-      const tx = await usdcContract.transfer(walletAddress, amount);
+
+      // Send transaction
+      const signature = await sendTransaction(transaction, connection);
       
       toast.info('Transaction submitted. Waiting for confirmation...');
-      console.log('Transaction hash:', tx.hash);
+      console.log('Transaction signature:', signature);
 
-      // Wait for transaction confirmation
-      const receipt = await tx.wait();
-      
-      console.log('Transaction confirmed:', receipt);
+      // Wait for confirmation
+      const confirmation = await connection.confirmTransaction({
+        signature,
+        blockhash,
+        lastValidBlockHeight
+      });
 
-      // Generate session ID with transaction hash
-      const sessionId = `x402_${receipt.hash}_${Date.now()}`;
+      if (confirmation.value.err) {
+        throw new Error('Transaction failed');
+      }
+
+      console.log('Transaction confirmed:', signature);
+
+      // Generate session ID
+      const sessionId = `corbits_${signature}_${publicKey.toString().slice(0, 8)}`;
       
       // Store session with payment proof
       localStorage.setItem(`x402_session_${walletAddress}`, JSON.stringify({
         sessionId,
-        transactionHash: receipt.hash,
-        blockNumber: receipt.blockNumber,
+        signature,
         amount: price,
         timestamp: Date.now(),
         expiresAt: Date.now() + (24 * 60 * 60 * 1000), // 24 hours
-        from: userAddress,
-        to: walletAddress
+        from: publicKey.toString(),
+        to: walletAddress,
+        provider: 'solana-direct'
       }));
 
       toast.success('Payment successful!');
@@ -162,10 +127,12 @@ export const X402PaymentModal = ({
       onClose();
     } catch (error: any) {
       console.error('Payment error:', error);
-      if (error.code === 4001 || error.code === 'ACTION_REJECTED') {
+      if (error.message?.includes('User rejected')) {
         toast.error('Payment cancelled by user');
-      } else if (error.message?.includes('insufficient funds') || error.message?.includes('Insufficient')) {
+      } else if (error.message?.includes('insufficient')) {
         toast.error('Insufficient USDC balance');
+      } else if (error.message?.includes('TokenAccountNotFoundError')) {
+        toast.error('USDC token account not found. Please ensure you have USDC in your wallet.');
       } else {
         toast.error(error.message || 'Payment failed. Please try again.');
       }
@@ -180,7 +147,7 @@ export const X402PaymentModal = ({
         <DialogHeader>
           <DialogTitle>Payment Required</DialogTitle>
           <DialogDescription>
-            To chat with {simName}, you need to pay ${price.toFixed(2)} USDC
+            To chat with {simName}, you need to pay ${price.toFixed(2)} USDC on Solana
           </DialogDescription>
         </DialogHeader>
 
@@ -192,7 +159,7 @@ export const X402PaymentModal = ({
             </div>
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">Network:</span>
-              <span className="font-medium">Base</span>
+              <span className="font-medium">Solana</span>
             </div>
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">Access:</span>
@@ -200,15 +167,10 @@ export const X402PaymentModal = ({
             </div>
           </div>
 
-          {!walletConnected ? (
-            <Button 
-              onClick={connectWallet} 
-              className="w-full"
-              disabled={isProcessing}
-            >
-              <Wallet className="mr-2 h-4 w-4" />
-              Connect Wallet
-            </Button>
+          {!connected ? (
+            <div className="flex justify-center">
+              <WalletMultiButton className="!bg-primary !text-primary-foreground hover:!bg-primary/90" />
+            </div>
           ) : (
             <Button 
               onClick={handlePayment} 
@@ -227,7 +189,7 @@ export const X402PaymentModal = ({
           )}
 
           <p className="text-xs text-muted-foreground text-center">
-            Payment is processed on Base mainnet using USDC
+            Payment is processed on Solana mainnet using USDC
           </p>
         </div>
       </DialogContent>

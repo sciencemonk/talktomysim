@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import { FloatingChat } from "@/components/FloatingChat";
 import { ThemeProvider } from "@/hooks/useTheme";
+import { WalletProviders } from "@/components/WalletProviders";
 
 // Layouts
 import { AuthenticatedLayout } from "./layouts/AuthenticatedLayout";
@@ -52,11 +53,12 @@ const queryClient = new QueryClient();
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <ThemeProvider defaultTheme="dark" storageKey="sim-theme">
-      <TooltipProvider>
-        <AuthProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
+      <WalletProviders>
+        <TooltipProvider>
+          <AuthProvider>
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
             <Routes>
               {/* Public routes */}
               <Route path="/landing" element={<AgentsDirectory />} />
@@ -114,6 +116,7 @@ const App = () => (
           </BrowserRouter>
         </AuthProvider>
       </TooltipProvider>
+      </WalletProviders>
     </ThemeProvider>
   </QueryClientProvider>
 );

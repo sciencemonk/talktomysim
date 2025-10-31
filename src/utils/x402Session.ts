@@ -13,16 +13,17 @@ export const validateX402Session = (walletAddress: string): string | null => {
 
     const sessionData = JSON.parse(storedData);
     
-    // Validate required fields
-    if (!sessionData.sessionId || !sessionData.transactionHash || !sessionData.expiresAt) {
+    // Validate required fields - support both legacy (transactionHash) and Corbits (signature) formats
+    const hasTransactionProof = sessionData.transactionHash || sessionData.signature;
+    if (!sessionData.sessionId || !hasTransactionProof || !sessionData.expiresAt) {
       console.log('Invalid session data format - missing required fields');
       localStorage.removeItem(sessionKey);
       return null;
     }
 
-    // Validate session ID format (should start with "x402_")
-    if (!sessionData.sessionId.startsWith('x402_')) {
-      console.log('Invalid session ID format - should start with x402_');
+    // Validate session ID format (should start with "x402_" or "corbits_")
+    if (!sessionData.sessionId.startsWith('x402_') && !sessionData.sessionId.startsWith('corbits_')) {
+      console.log('Invalid session ID format');
       localStorage.removeItem(sessionKey);
       return null;
     }
@@ -43,7 +44,8 @@ export const validateX402Session = (walletAddress: string): string | null => {
 
     console.log('Valid x402 session found:', {
       sessionId: sessionData.sessionId,
-      transactionHash: sessionData.transactionHash,
+      proof: sessionData.transactionHash || sessionData.signature,
+      provider: sessionData.provider || 'legacy',
       expiresIn: Math.round((sessionData.expiresAt - Date.now()) / (1000 * 60 * 60)) + ' hours'
     });
 
