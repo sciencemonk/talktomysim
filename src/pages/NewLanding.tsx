@@ -290,6 +290,29 @@ const NewLanding = () => {
   };
 
   const handleSimClick = (sim: AgentType) => {
+    const simCategoryType = (sim as any).sim_category;
+    
+    // For X agents, navigate to /x/:username
+    if (simCategoryType === 'Crypto Mail') {
+      const xUsername = (sim.social_links as any)?.x_username;
+      if (xUsername) {
+        window.scrollTo(0, 0);
+        navigate(`/x/${xUsername}`);
+        return;
+      }
+    }
+    
+    // For PumpFun agents, navigate to /token/:contractAddress
+    if (simCategoryType === 'PumpFun Agent') {
+      const contractAddress = (sim.social_links as any)?.contract_address;
+      if (contractAddress) {
+        window.scrollTo(0, 0);
+        navigate(`/token/${contractAddress}`);
+        return;
+      }
+    }
+    
+    // For regular chat agents, navigate to slug with chat=true
     const simSlug = (sim as any).custom_url || generateSlug(sim.name);
     window.scrollTo(0, 0);
     navigate(`/${simSlug}?chat=true`);
