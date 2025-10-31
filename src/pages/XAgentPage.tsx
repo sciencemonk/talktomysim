@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, ArrowLeft, Users, Copy, Check, Share2 } from "lucide-react";
+import { ArrowLeft, Users, Copy, Check, Share2 } from "lucide-react";
+import aiLoadingGif from "@/assets/ai-loading.gif";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -193,7 +194,11 @@ export default function XAgentPage() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-background">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <img 
+          src={aiLoadingGif} 
+          alt="Loading..." 
+          className="h-16 w-16"
+        />
       </div>
     );
   }

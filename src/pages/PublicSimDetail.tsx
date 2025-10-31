@@ -1,7 +1,8 @@
 import { useEffect, useState, useRef, lazy, Suspense } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, Globe, Wallet, ExternalLink, Copy, Check, MessageCircle, X, Lock, Sparkles, Clock } from "lucide-react";
+import { Globe, Wallet, ExternalLink, Copy, Check, MessageCircle, X, Lock, Sparkles, Clock } from "lucide-react";
+import aiLoadingGif from "@/assets/ai-loading.gif";
 import { ShareButton } from "@/components/ShareButton";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -363,7 +364,11 @@ const PublicSimDetail = () => {
         className="flex items-center justify-center min-h-screen relative bg-gradient-to-br from-primary/20 via-background to-secondary/20"
       >
         <div className="absolute inset-0 bg-background/80 backdrop-blur-sm z-0" />
-        <Loader2 className="h-8 w-8 animate-spin relative z-10" />
+        <img 
+          src={aiLoadingGif} 
+          alt="Loading..." 
+          className="h-16 w-16 relative z-10"
+        />
       </div>
     );
   }
