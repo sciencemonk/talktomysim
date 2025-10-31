@@ -2,7 +2,10 @@ import { FC, ReactNode, useMemo } from 'react';
 import { ConnectionProvider, WalletProvider } from '@solana/wallet-adapter-react';
 import { WalletAdapterNetwork } from '@solana/wallet-adapter-base';
 import { WalletModalProvider } from '@solana/wallet-adapter-react-ui';
-import { PhantomWalletAdapter, SolflareWalletAdapter } from '@solana/wallet-adapter-wallets';
+import { 
+  PhantomWalletAdapter, 
+  SolflareWalletAdapter,
+} from '@solana/wallet-adapter-wallets';
 import { clusterApiUrl } from '@solana/web3.js';
 
 // Import wallet adapter CSS
@@ -13,13 +16,11 @@ interface WalletProvidersProps {
 }
 
 export const WalletProviders: FC<WalletProvidersProps> = ({ children }) => {
-  // Use mainnet-beta for production
   const network = WalletAdapterNetwork.Mainnet;
-
-  // You can also use a custom RPC endpoint
   const endpoint = useMemo(() => clusterApiUrl(network), [network]);
 
-  // Configure only Solana-native wallets to avoid conflicts
+  // Only configure Solana-native wallets explicitly
+  // This prevents browser extensions like MetaMask from being auto-detected
   const wallets = useMemo(
     () => [
       new PhantomWalletAdapter(),
@@ -30,7 +31,10 @@ export const WalletProviders: FC<WalletProvidersProps> = ({ children }) => {
 
   return (
     <ConnectionProvider endpoint={endpoint}>
-      <WalletProvider wallets={wallets} autoConnect={false}>
+      <WalletProvider 
+        wallets={wallets} 
+        autoConnect={false}
+      >
         <WalletModalProvider>
           {children}
         </WalletModalProvider>
