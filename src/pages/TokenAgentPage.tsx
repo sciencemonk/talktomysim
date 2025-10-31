@@ -50,7 +50,7 @@ export default function TokenAgentPage() {
 
       if (!matchingAgent) {
         toast.error("Agent not found");
-        navigate('/');
+        navigate('/agents');
         return;
       }
 
@@ -127,7 +127,7 @@ export default function TokenAgentPage() {
       <div className="flex items-center justify-center min-h-screen bg-background">
         <div className="text-center space-y-4">
           <h1 className="text-2xl font-bold">Agent Not Found</h1>
-          <Button onClick={() => navigate('/')}>Go Home</Button>
+          <Button onClick={() => navigate('/agents')}>Back to Agents</Button>
         </div>
       </div>
     );
@@ -142,7 +142,7 @@ export default function TokenAgentPage() {
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => navigate('/')}
+              onClick={() => navigate('/agents')}
               className="gap-2"
             >
               <ArrowLeft className="h-4 w-4" />

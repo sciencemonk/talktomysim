@@ -47,7 +47,7 @@ export default function XAgentPage() {
 
       if (!matchingAgent) {
         toast.error("Agent not found");
-        navigate('/');
+        navigate('/agents');
         return;
       }
 
@@ -104,7 +104,7 @@ export default function XAgentPage() {
     } catch (error) {
       console.error('Error fetching agent:', error);
       toast.error("Failed to load agent");
-      navigate('/');
+      navigate('/agents');
     } finally {
       setIsLoading(false);
     }
@@ -142,7 +142,7 @@ export default function XAgentPage() {
       <div className="flex items-center justify-center min-h-screen bg-background">
         <div className="text-center space-y-4">
           <h1 className="text-2xl font-bold">Agent Not Found</h1>
-          <Button onClick={() => navigate('/')}>Go Home</Button>
+          <Button onClick={() => navigate('/agents')}>Back to Agents</Button>
         </div>
       </div>
     );
@@ -157,7 +157,7 @@ export default function XAgentPage() {
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => navigate('/')}
+              onClick={() => navigate('/agents')}
               className="gap-2"
             >
               <ArrowLeft className="h-4 w-4" />

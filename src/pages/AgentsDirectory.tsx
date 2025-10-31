@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
-import SimpleFooter from "@/components/SimpleFooter";
+import { LandingFooter } from "@/components/landing/LandingFooter";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useState, useEffect } from "react";
@@ -839,7 +839,7 @@ const AgentsDirectory = () => {
         Create Agent
       </Button>
 
-      <SimpleFooter />
+      <LandingFooter />
     </div>
   );
 };

@@ -377,9 +377,9 @@ const PublicSimDetail = () => {
           <h1 className="text-2xl font-bold">Sim Not Found</h1>
           <p className="text-muted-foreground">This sim doesn't exist or has been deactivated.</p>
           <Button 
-            onClick={() => navigate('/')}
+            onClick={() => navigate('/agents')}
           >
-            Go Home
+            Back to Agents
           </Button>
         </div>
       </div>
@@ -395,7 +395,7 @@ const PublicSimDetail = () => {
           <Suspense fallback={null}>
             <X402PaymentModal
               isOpen={true}
-              onClose={() => navigate('/')}
+              onClose={() => navigate('/agents')}
               onPaymentSuccess={(sessionId) => {
                 console.log('Payment successful, session ID:', sessionId);
                 setPaymentSessionId(sessionId);
@@ -448,10 +448,10 @@ const PublicSimDetail = () => {
             </Button>
             <Button 
               variant="outline"
-              onClick={() => navigate('/')}
+              onClick={() => navigate('/agents')}
               className="mt-2 w-full"
             >
-              Go Home
+              Back to Agents
             </Button>
           </div>
         </div>
@@ -614,7 +614,7 @@ const PublicSimDetail = () => {
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={() => navigate('/')}
+                onClick={() => navigate('/agents')}
                 className="hover:bg-red-500/10 hover:text-red-500 transition-colors"
               >
                 <X className="h-5 w-5" />
@@ -754,7 +754,7 @@ const PublicSimDetail = () => {
                 size="sm"
                 onClick={() => {
                   if (!currentUser) {
-                    navigate('/');
+                    navigate('/agents');
                   } else {
                     setShowChat(false);
                   }
