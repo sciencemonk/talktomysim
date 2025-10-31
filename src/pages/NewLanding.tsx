@@ -51,6 +51,9 @@ const PumpFunSimCard = ({ sim, onSimClick }: PumpFunSimCardProps) => {
   const xUsername = isCryptoMail 
     ? (sim.social_links as any)?.x_username 
     : undefined;
+  
+  // Check if this X agent is pending (not mrjethroknights)
+  const isPending = isCryptoMail && xUsername?.toLowerCase() !== 'mrjethroknights';
 
   useEffect(() => {
     const fetchMarketCap = async () => {
@@ -125,8 +128,11 @@ const PumpFunSimCard = ({ sim, onSimClick }: PumpFunSimCardProps) => {
 
   return (
     <button
-      onClick={() => onSimClick(sim)}
-      className="group relative flex flex-col overflow-hidden rounded-lg bg-card hover:bg-muted border hover:border-[#83f1aa] transition-all duration-300 hover:scale-105 hover:shadow-md"
+      onClick={() => !isPending && onSimClick(sim)}
+      disabled={isPending}
+      className={`group relative flex flex-col overflow-hidden rounded-lg bg-card hover:bg-muted border hover:border-[#83f1aa] transition-all duration-300 ${
+        isPending ? 'opacity-60 cursor-not-allowed' : 'hover:scale-105 hover:shadow-md'
+      }`}
     >
       <div className="relative w-full aspect-[4/3] overflow-hidden bg-muted">
         <Avatar className="w-full h-full rounded-none">
@@ -143,6 +149,13 @@ const PumpFunSimCard = ({ sim, onSimClick }: PumpFunSimCardProps) => {
             </span>
           </AvatarFallback>
         </Avatar>
+        {isPending && (
+          <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+            <Badge className="bg-yellow-500 text-black font-semibold px-3 py-1">
+              Pending
+            </Badge>
+          </div>
+        )}
       </div>
       
       <div className="w-full p-2 space-y-1.5">
@@ -408,7 +421,11 @@ const NewLanding = () => {
 
   const xAgents = filteredSims?.filter(sim => {
     const simCategory = (sim as any).sim_category;
-    return simCategory === 'Crypto Mail';
+    if (simCategory === 'Crypto Mail') {
+      const xUsername = (sim.social_links as any)?.x_username?.toLowerCase();
+      return ['mrjethroknights', 'cryptodivix', 'professrweb3'].includes(xUsername || '');
+    }
+    return false;
   }) || [];
 
   const pumpfunAgents = filteredSims?.filter(sim => (sim as any).sim_category === 'PumpFun Agent') || [];
