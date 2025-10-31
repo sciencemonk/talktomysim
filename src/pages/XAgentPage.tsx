@@ -196,8 +196,8 @@ export default function XAgentPage() {
                     <CardDescription className="text-sm md:text-base mb-2 md:mb-3 break-all">
                       @{xData?.username || username}
                     </CardDescription>
-                    <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20 text-xs">
-                      <Users className="h-3 w-3 mr-1" />
+                    <Badge variant="secondary" className="text-xs px-2 py-0.5" style={{ backgroundColor: 'rgba(129, 244, 170, 0.1)', color: '#81f4aa', borderColor: 'rgba(129, 244, 170, 0.2)' }}>
+                      <Users className="h-3 w-3 mr-1" style={{ color: '#81f4aa' }} />
                       {formatNumber(xData?.metrics?.followers)} Followers
                     </Badge>
                   </div>

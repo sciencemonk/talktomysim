@@ -172,7 +172,7 @@ export const XMessageBoard = ({
         <CardHeader className="p-4 md:p-6">
           <div className="flex items-start justify-between gap-3 md:gap-4">
             <div className="flex items-start gap-2 md:gap-3 min-w-0 flex-1">
-              <MessageSquare className="h-5 w-5 md:h-6 md:w-6 text-primary mt-0.5 md:mt-1 shrink-0" />
+              <MessageSquare className="h-5 w-5 md:h-6 md:w-6 mt-0.5 md:mt-1 shrink-0" style={{ color: '#81f4aa' }} />
               <div className="min-w-0 flex-1">
                 <CardTitle className="text-lg md:text-xl mb-1">Public Message Board</CardTitle>
                 <CardDescription className="text-xs md:text-sm">
@@ -182,7 +182,7 @@ export const XMessageBoard = ({
             </div>
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
               <DialogTrigger asChild>
-                <Button size="sm" className="gap-2 h-9 px-3 md:px-4 shrink-0">
+                <Button size="sm" className="gap-2 h-9 px-3 md:px-4 shrink-0" style={{ backgroundColor: '#81f4aa', color: '#000' }}>
                   <Plus className="h-4 w-4" />
                   <span className="hidden sm:inline">Post Message</span>
                 </Button>
@@ -260,7 +260,7 @@ export const XMessageBoard = ({
                     <div className="flex-1 space-y-1 min-w-0">
                       <div className="flex items-center gap-1.5 md:gap-2 flex-wrap">
                         <span className="font-medium text-xs md:text-sm truncate">{message.sender_name}</span>
-                        <Badge variant="secondary" className="text-[10px] md:text-xs bg-primary/10 text-primary px-1.5 py-0">
+                        <Badge variant="secondary" className="text-[10px] md:text-xs px-1.5 py-0" style={{ backgroundColor: 'rgba(129, 244, 170, 0.1)', color: '#81f4aa', borderColor: 'rgba(129, 244, 170, 0.2)' }}>
                           Paid ${price}
                         </Badge>
                         <span className="text-[10px] md:text-xs text-muted-foreground whitespace-nowrap">
