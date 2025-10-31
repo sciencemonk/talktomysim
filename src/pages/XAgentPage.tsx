@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, ArrowLeft, Users, Copy, Check } from "lucide-react";
+import { Loader2, ArrowLeft, Users, Copy, Check, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -20,6 +20,7 @@ export default function XAgentPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [usernameCopied, setUsernameCopied] = useState(false);
   const [totalEarnings, setTotalEarnings] = useState<number>(0);
+  const [linkCopied, setLinkCopied] = useState(false);
 
   useEffect(() => {
     if (username) {
@@ -139,6 +140,14 @@ export default function XAgentPage() {
     }
   };
 
+  const handleShareLink = () => {
+    const url = window.location.href;
+    navigator.clipboard.writeText(url);
+    setLinkCopied(true);
+    setTimeout(() => setLinkCopied(false), 2000);
+    toast.success("Link copied to clipboard!");
+  };
+
   const formatNumber = (num: number | undefined) => {
     if (!num) return '0';
     if (num >= 1000000) {
@@ -255,6 +264,18 @@ export default function XAgentPage() {
                         <span className="text-black text-xs font-bold">✓</span>
                       </div>
                     )}
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={handleShareLink}
+                      className="absolute -top-2 -right-2 h-7 w-7 md:h-8 md:w-8 rounded-full bg-background border border-border shadow-sm hover:bg-muted"
+                    >
+                      {linkCopied ? (
+                        <Check className="h-3 w-3 md:h-4 md:w-4 text-green-500" />
+                      ) : (
+                        <Share2 className="h-3 w-3 md:h-4 md:w-4" />
+                      )}
+                    </Button>
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start gap-2 mb-1 flex-wrap">

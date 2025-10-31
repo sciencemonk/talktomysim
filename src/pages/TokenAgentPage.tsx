@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, ArrowLeft, ExternalLink, TrendingUp, TrendingDown, Activity, Users, DollarSign, Copy, Check } from "lucide-react";
+import { Loader2, ArrowLeft, ExternalLink, TrendingUp, TrendingDown, Activity, Users, DollarSign, Copy, Check, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -19,6 +19,7 @@ export default function TokenAgentPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [contractCopied, setContractCopied] = useState(false);
   const [showChat, setShowChat] = useState(true);
+  const [linkCopied, setLinkCopied] = useState(false);
 
   // Fetch real-time token data
   const { data: tokenData, isLoading: isLoadingToken, error: tokenError } = usePumpFunTokenData(contractAddress, true);
@@ -104,6 +105,14 @@ export default function TokenAgentPage() {
     }
   };
 
+  const handleShareLink = () => {
+    const url = window.location.href;
+    navigator.clipboard.writeText(url);
+    setLinkCopied(true);
+    setTimeout(() => setLinkCopied(false), 2000);
+    toast.success("Link copied to clipboard!");
+  };
+
   const formatMarketCap = (value: number | undefined) => {
     if (!value) return 'N/A';
     if (value >= 1000000) {
@@ -165,10 +174,24 @@ export default function TokenAgentPage() {
             <Card className="border-border bg-card">
               <CardHeader>
                 <div className="flex items-start gap-4">
-                  <Avatar className="h-20 w-20 border-2 border-primary/20">
-                    <AvatarImage src={agent.avatar} alt={agent.name} />
-                    <AvatarFallback>{tokenData?.symbol?.[0] || agent.name[0]}</AvatarFallback>
-                  </Avatar>
+                  <div className="relative">
+                    <Avatar className="h-20 w-20 border-2 border-primary/20">
+                      <AvatarImage src={agent.avatar} alt={agent.name} />
+                      <AvatarFallback>{tokenData?.symbol?.[0] || agent.name[0]}</AvatarFallback>
+                    </Avatar>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={handleShareLink}
+                      className="absolute -top-2 -right-2 h-8 w-8 rounded-full bg-background border border-border shadow-sm hover:bg-muted"
+                    >
+                      {linkCopied ? (
+                        <Check className="h-4 w-4 text-green-500" />
+                      ) : (
+                        <Share2 className="h-4 w-4" />
+                      )}
+                    </Button>
+                  </div>
                   <div className="flex-1">
                     <CardTitle className="text-2xl mb-2">{tokenData?.name || agent.name}</CardTitle>
                     <CardDescription className="text-base">
