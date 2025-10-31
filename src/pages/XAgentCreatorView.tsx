@@ -304,7 +304,7 @@ export default function XAgentCreatorView() {
                 className="text-center text-2xl tracking-widest font-mono"
               />
             </div>
-            <Button onClick={handleValidateCode} className="w-full">
+            <Button onClick={handleValidateCode} className="w-full" style={{ backgroundColor: '#81f4aa', color: '#000' }}>
               Validate Code
             </Button>
             <Button variant="outline" onClick={() => navigate(`/x/${username}`)} className="w-full">

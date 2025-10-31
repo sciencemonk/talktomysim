@@ -81,25 +81,6 @@ export const XMessageBoard = ({
   const [responseText, setResponseText] = useState<{[key: string]: string}>({});
   const [isResponding, setIsResponding] = useState<{[key: string]: boolean}>({});
 
-  // Demo messages
-  const demoMessages: Message[] = [
-    {
-      id: "demo-1",
-      content: "What's your take on the current market trends?",
-      sender_name: "CryptoEnthusiast",
-      created_at: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-      response: "Great question! Based on recent data, we're seeing increased institutional adoption...",
-      response_at: new Date(Date.now() - 1.5 * 60 * 60 * 1000).toISOString()
-    },
-    {
-      id: "demo-2",
-      content: "Can you share your thoughts on DeFi's future?",
-      sender_name: "BlockchainDev",
-      created_at: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
-      response: "DeFi is evolving rapidly. The key trends I'm watching are...",
-      response_at: new Date(Date.now() - 23 * 60 * 60 * 1000).toISOString()
-    }
-  ];
 
   useEffect(() => {
     fetchMessages();
@@ -218,10 +199,8 @@ export const XMessageBoard = ({
     }
   };
 
-  // Combine real and demo messages
-  const displayMessages = [...messages, ...demoMessages].sort(
-    (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-  );
+  // Display only real messages
+  const displayMessages = messages;
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -257,7 +236,7 @@ export const XMessageBoard = ({
                 <DialogTrigger asChild>
                   <Button size="sm" className="gap-2 h-10 px-4 md:px-5 shrink-0 font-medium shadow-md hover:shadow-lg transition-all" style={{ backgroundColor: '#81f4aa', color: '#000' }}>
                     <Plus className="h-4 w-4" />
-                    <span className="hidden sm:inline">Post Message</span>
+                    <span className="hidden sm:inline">Post</span>
                   </Button>
                 </DialogTrigger>
               <DialogContent className="max-w-[95vw] md:max-w-md">

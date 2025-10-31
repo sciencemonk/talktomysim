@@ -288,9 +288,9 @@ export default function XAgentPage() {
             />
           </div>
 
-          {/* Right Column - Chat Interface (Hidden on mobile) */}
-          <div className="lg:col-span-1 hidden lg:block">
-            <Card className="border-border bg-card/80 backdrop-blur-sm sticky top-24 shadow-lg">
+          {/* Right Column - Chat Interface */}
+          <div className="lg:col-span-1">
+            <Card className="border-border bg-card/80 backdrop-blur-sm lg:sticky lg:top-24 shadow-lg">
               <CardHeader className="p-5">
                 <CardTitle className="text-lg font-bold">Talk to My AI</CardTitle>
                 <CardDescription className="text-sm leading-relaxed">
