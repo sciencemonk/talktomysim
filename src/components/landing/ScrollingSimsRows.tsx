@@ -145,18 +145,6 @@ export const ScrollingSimsRows = ({ onSimClick }: ScrollingSimsRowsProps) => {
     fetchMarketCaps();
   }, [sims]);
 
-  if (!sims || sims.length === 0) return null;
-
-  const formatMarketCap = (value: number) => {
-    if (value >= 1_000_000) {
-      return `$${(value / 1_000_000).toFixed(2)}M`;
-    }
-    if (value >= 1_000) {
-      return `$${(value / 1_000).toFixed(2)}K`;
-    }
-    return `$${value.toFixed(2)}`;
-  };
-
   // Shuffle function to randomize array
   const shuffleArray = <T,>(array: T[]): T[] => {
     const shuffled = [...array];
@@ -179,6 +167,19 @@ export const ScrollingSimsRows = ({ onSimClick }: ScrollingSimsRowsProps) => {
     const shuffled = shuffleArray(sims);
     return [...shuffled, ...shuffled, ...shuffled].slice(0, 40);
   }, [sims]);
+
+  // Early return AFTER all hooks have been called
+  if (!sims || sims.length === 0) return null;
+
+  const formatMarketCap = (value: number) => {
+    if (value >= 1_000_000) {
+      return `$${(value / 1_000_000).toFixed(2)}M`;
+    }
+    if (value >= 1_000) {
+      return `$${(value / 1_000).toFixed(2)}K`;
+    }
+    return `$${value.toFixed(2)}`;
+  };
 
   const renderSimCard = (sim: AgentType, index: number) => {
     const simCategoryType = (sim as any).sim_category;
