@@ -281,7 +281,7 @@ export const XMessageBoard = ({
                       <div className="flex-1 space-y-1 min-w-0">
                         <div className="flex items-center gap-1.5 md:gap-2 flex-wrap">
                           <span className="font-medium text-xs md:text-sm truncate">@{xUsername}</span>
-                          <Badge variant="secondary" className="text-[10px] md:text-xs bg-blue-500/10 text-blue-500 px-1.5 py-0">
+                          <Badge variant="secondary" className="text-[10px] md:text-xs bg-[#81f4aa]/10 text-[#81f4aa] px-1.5 py-0">
                             Creator
                           </Badge>
                           {message.response_at && (

@@ -188,7 +188,7 @@ export default function XAgentPage() {
                     <div className="flex items-start gap-2 mb-1 flex-wrap">
                       <CardTitle className="text-xl md:text-2xl break-words">{xData?.displayName || agent.name}</CardTitle>
                       {xData?.verified && (
-                        <Badge variant="secondary" className="bg-blue-500/10 text-blue-500 border-blue-500/20 text-xs shrink-0">
+                        <Badge variant="secondary" className="bg-[#81f4aa]/10 text-[#81f4aa] border-[#81f4aa]/20 text-xs shrink-0">
                           ✓
                         </Badge>
                       )}
