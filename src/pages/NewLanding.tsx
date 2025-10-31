@@ -95,6 +95,15 @@ const PumpFunSimCard = ({ sim, onSimClick }: PumpFunSimCardProps) => {
     fetchXProfile();
   }, [isCryptoMail, xUsername]);
 
+  const getAvatarSrc = () => {
+    // For X agents (Crypto Mail), use X profile image with proxy
+    if (isCryptoMail && xProfileData?.profileImageUrl) {
+      return `https://images.weserv.nl/?url=${encodeURIComponent(xProfileData.profileImageUrl)}`;
+    }
+    // For PumpFun agents and others, use the avatar URL directly
+    return getAvatarUrl(sim.avatar);
+  };
+
   const formatMarketCap = (value: number) => {
     if (value >= 1_000_000) {
       return `$${(value / 1_000_000).toFixed(2)}M`;
@@ -117,7 +126,7 @@ const PumpFunSimCard = ({ sim, onSimClick }: PumpFunSimCardProps) => {
       <div className="relative w-full aspect-[4/3] overflow-hidden bg-muted">
         <Avatar className="w-full h-full rounded-none">
           <AvatarImage 
-            src={xProfileData?.profileImageUrl ? `https://images.weserv.nl/?url=${encodeURIComponent(xProfileData.profileImageUrl)}` : getAvatarUrl(sim.avatar)}
+            src={getAvatarSrc()}
             alt={sim.name}
             className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
             referrerPolicy="no-referrer"
