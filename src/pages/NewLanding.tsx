@@ -211,9 +211,9 @@ const NewLanding = () => {
     'chat': true
   });
   const [visibleCounts, setVisibleCounts] = useState<Record<string, number>>({
-    'x-agents': 16,
-    'pumpfun': 16,
-    'chat': 16
+    'x-agents': 32,
+    'pumpfun': 32,
+    'chat': 32
   });
   const [searchQuery, setSearchQuery] = useState('');
   const [simTypeFilter, setSimTypeFilter] = useState<'all' | 'Crypto Mail' | 'Chat' | 'PumpFun Agent'>('all');
@@ -433,7 +433,7 @@ const NewLanding = () => {
   };
 
   const showMore = (category: string) => {
-    setVisibleCounts(prev => ({ ...prev, [category]: prev[category] + 16 }));
+    setVisibleCounts(prev => ({ ...prev, [category]: prev[category] + 32 }));
   };
 
   return (
@@ -704,7 +704,7 @@ const NewLanding = () => {
                       onClick={() => showMore('x-agents')}
                       className="mt-4 w-full"
                     >
-                      Show More ({Math.min(16, xAgents.length - visibleCounts['x-agents'])} more)
+                      Show More ({Math.min(32, xAgents.length - visibleCounts['x-agents'])} more)
                     </Button>
                   )}
                 </>
@@ -745,7 +745,7 @@ const NewLanding = () => {
                       onClick={() => showMore('pumpfun')}
                       className="mt-4 w-full"
                     >
-                      Show More ({Math.min(16, pumpfunAgents.length - visibleCounts['pumpfun'])} more)
+                      Show More ({Math.min(32, pumpfunAgents.length - visibleCounts['pumpfun'])} more)
                     </Button>
                   )}
                 </>
@@ -786,7 +786,7 @@ const NewLanding = () => {
                       onClick={() => showMore('chat')}
                       className="mt-4 w-full"
                     >
-                      Show More ({Math.min(16, chatAgents.length - visibleCounts['chat'])} more)
+                      Show More ({Math.min(32, chatAgents.length - visibleCounts['chat'])} more)
                     </Button>
                   )}
                 </>
