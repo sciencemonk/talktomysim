@@ -138,16 +138,16 @@ const PumpFunSimCard = ({ sim, onSimClick }: PumpFunSimCardProps) => {
             crossOrigin="anonymous"
           />
           <AvatarFallback className="w-full h-full rounded-none bg-primary/10 flex items-center justify-center">
-            <span className="text-xl font-bold text-primary">
+            <span className="text-2xl font-bold text-primary">
               {isCryptoMail ? '@' : (sim.name?.charAt(0)?.toUpperCase() || 'S')}
             </span>
           </AvatarFallback>
         </Avatar>
       </div>
       
-      <div className="w-full p-1.5 space-y-1">
-        <div className="flex items-center justify-center gap-0.5">
-          <span className="text-[10px] font-semibold line-clamp-2 leading-tight block">
+      <div className="w-full p-2 space-y-1.5">
+        <div className="flex items-center justify-center gap-1">
+          <span className="text-xs font-semibold line-clamp-2 leading-tight block">
             {sim.name}
           </span>
           {(sim as any).is_verified && (
@@ -155,16 +155,16 @@ const PumpFunSimCard = ({ sim, onSimClick }: PumpFunSimCardProps) => {
               <img 
                 src="/lovable-uploads/verified-badge.png" 
                 alt="Verified"
-                className="w-2.5 h-2.5"
+                className="w-3 h-3"
               />
             </div>
           )}
         </div>
         
-        <div className="flex flex-wrap gap-0.5 justify-center">
+        <div className="flex flex-wrap gap-1 justify-center">
           <Badge 
             variant="outline" 
-            className="text-[7px] px-0.5 py-0 bg-primary/10 border-primary/30 text-primary whitespace-nowrap leading-none h-3"
+            className="text-[8px] px-1 py-0 bg-primary/10 border-primary/30 text-primary whitespace-nowrap leading-none h-3.5"
           >
             {typeBadgeText}
           </Badge>
@@ -172,7 +172,7 @@ const PumpFunSimCard = ({ sim, onSimClick }: PumpFunSimCardProps) => {
           {isPumpFunAgent && (
             <Badge 
               variant="outline" 
-              className="text-[7px] px-0.5 py-0 flex items-center gap-0.5 leading-none h-3"
+              className="text-[8px] px-1 py-0 flex items-center gap-0.5 leading-none h-3.5"
             >
               <img src={pumpfunLogo} alt="PumpFun" className="h-2 w-2" />
               Agent
@@ -181,18 +181,18 @@ const PumpFunSimCard = ({ sim, onSimClick }: PumpFunSimCardProps) => {
         </div>
 
         {isPumpFunAgent && marketCapData?.marketCap && (
-          <div className="pt-0.5 border-t border-border/50">
-            <div className="flex items-center justify-center gap-0.5">
-              <span className="text-[7px] text-muted-foreground">Market Cap:</span>
-              <span className="text-[8px] font-semibold text-primary">
+          <div className="pt-1 border-t border-border/50">
+            <div className="flex items-center justify-center gap-1">
+              <span className="text-[8px] text-muted-foreground">Market Cap:</span>
+              <span className="text-[9px] font-semibold text-primary">
                 {formatMarketCap(marketCapData.marketCap)}
               </span>
             </div>
           </div>
         )}
         {isPumpFunAgent && isLoadingMarketCap && (
-          <div className="pt-0.5 border-t border-border/50">
-            <div className="text-[7px] text-muted-foreground text-center">Loading...</div>
+          <div className="pt-1 border-t border-border/50">
+            <div className="text-[8px] text-muted-foreground text-center">Loading...</div>
           </div>
         )}
       </div>
@@ -689,7 +689,7 @@ const NewLanding = () => {
               </button>
               {expandedCategories['x-agents'] && (
                 <>
-                  <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 xl:grid-cols-12 gap-3">
+                  <div className="grid grid-cols-3 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-10 gap-3">
                     {xAgents.slice(0, visibleCounts['x-agents']).map((sim) => (
                       <PumpFunSimCard
                         key={sim.id}
@@ -730,7 +730,7 @@ const NewLanding = () => {
               </button>
               {expandedCategories['pumpfun'] && (
                 <>
-                  <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 xl:grid-cols-12 gap-3">
+                  <div className="grid grid-cols-3 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-10 gap-3">
                     {pumpfunAgents.slice(0, visibleCounts['pumpfun']).map((sim) => (
                       <PumpFunSimCard
                         key={sim.id}
@@ -771,7 +771,7 @@ const NewLanding = () => {
               </button>
               {expandedCategories['chat'] && (
                 <>
-                  <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 xl:grid-cols-12 gap-3">
+                  <div className="grid grid-cols-3 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-10 gap-3">
                     {chatAgents.slice(0, visibleCounts['chat']).map((sim) => (
                       <PumpFunSimCard
                         key={sim.id}
