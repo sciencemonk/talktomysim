@@ -52,7 +52,6 @@ const AGENT_TYPES = [
     description: "Monetize your X account with x402",
     iconImage: xIcon,
     category: "Crypto Mail",
-    inviteOnly: true,
   },
   {
     id: "autonomous",
@@ -60,7 +59,7 @@ const AGENT_TYPES = [
     description: "Automated tasks like daily briefs",
     iconImage: aiIcon,
     category: "Autonomous Agent",
-    inviteOnly: true,
+    phase2: true,
   },
   {
     id: "prediction-market",
@@ -68,7 +67,7 @@ const AGENT_TYPES = [
     description: "Host your own prediction market",
     iconImage: predictionIcon,
     category: "Prediction Market",
-    inviteOnly: true,
+    phase2: true,
   },
   {
     id: "email-agent",
@@ -76,7 +75,7 @@ const AGENT_TYPES = [
     description: "Review, respond, and summarize your Gmail",
     iconImage: gmailIcon,
     category: "Email Agent",
-    inviteOnly: true,
+    phase2: true,
   },
 ];
 
@@ -738,23 +737,35 @@ You can answer questions about their X profile, interests, opinions, and provide
           {step === 0 && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {AGENT_TYPES.map((type) => {
-                const isInviteOnly = type.inviteOnly || false;
+                const isInviteOnly = (type as any).inviteOnly || false;
+                const isPhase2 = (type as any).phase2 || false;
+                const isDisabled = isPhase2;
                 return (
                   <button
                     key={type.id}
-                    onClick={() => handleTypeSelect(type.id)}
-                    className="p-6 rounded-lg border-2 border-border hover:border-primary transition-all text-left space-y-3 hover:shadow-lg group relative"
+                    onClick={() => !isDisabled && handleTypeSelect(type.id)}
+                    disabled={isDisabled}
+                    className={`p-6 rounded-lg border-2 border-border transition-all text-left space-y-3 group relative ${
+                      isDisabled 
+                        ? 'opacity-60 cursor-not-allowed' 
+                        : 'hover:border-primary hover:shadow-lg'
+                    }`}
                   >
                     {isInviteOnly && (
                       <div className="absolute top-4 right-4 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-md bg-neonGreen/20 border border-neonGreen/40">
                         <span className="text-[10px] sm:text-xs font-semibold text-neonGreen">Invite Only</span>
                       </div>
                     )}
+                    {isPhase2 && (
+                      <div className="absolute top-4 right-4 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-md bg-yellow-500/20 border border-yellow-500/40">
+                        <span className="text-[10px] sm:text-xs font-semibold text-yellow-500">Phase 2</span>
+                      </div>
+                    )}
                     <div className="flex items-center gap-3">
                       <img 
                         src={type.iconImage} 
                         alt={type.label} 
-                        className="w-8 h-8 group-hover:scale-110 transition-transform" 
+                        className={`w-8 h-8 transition-transform ${!isDisabled && 'group-hover:scale-110'}`}
                       />
                       <h3 className="text-lg font-semibold">{type.label}</h3>
                     </div>
@@ -838,14 +849,14 @@ You can answer questions about their X profile, interests, opinions, and provide
                 </div>
               ) : selectedType === "autonomous" || selectedType === "prediction-market" || selectedType === "email-agent" ? (
                 <div className="space-y-6">
-                  <div className="p-8 rounded-xl bg-gradient-to-br from-primary/10 via-primary/5 to-background border-2 border-primary/20 text-center space-y-4">
-                    <div className="flex items-center justify-center w-16 h-16 mx-auto rounded-full bg-neonGreen/10 border-2 border-neonGreen/30">
-                      <Sparkles className="w-8 h-8 text-neonGreen" />
+                  <div className="p-8 rounded-xl bg-gradient-to-br from-yellow-500/10 via-yellow-500/5 to-background border-2 border-yellow-500/20 text-center space-y-4">
+                    <div className="flex items-center justify-center w-16 h-16 mx-auto rounded-full bg-yellow-500/10 border-2 border-yellow-500/30">
+                      <Sparkles className="w-8 h-8 text-yellow-500" />
                     </div>
                     <div className="space-y-2">
-                      <h3 className="text-2xl font-bold">By Invite Only</h3>
+                      <h3 className="text-2xl font-bold">Phase 2 Coming Soon</h3>
                       <p className="text-muted-foreground">
-                        This agent type is currently in private beta. Request an invite to get early access.
+                        This agent type will be available in Phase 2 of our platform launch.
                       </p>
                     </div>
                   </div>
