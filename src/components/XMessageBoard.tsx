@@ -28,6 +28,33 @@ interface XMessageBoardProps {
   xUsername?: string;
 }
 
+const getImageUrl = (url: string | undefined) => {
+  if (!url) return undefined;
+  
+  // Handle IPFS URLs
+  if (url.includes('ipfs://')) {
+    return url.replace('ipfs://', 'https://ipfs.io/ipfs/');
+  }
+  
+  // Handle gateway.pinata.cloud URLs
+  if (url.includes('gateway.pinata.cloud')) {
+    const hash = url.split('/ipfs/')[1];
+    if (hash) {
+      return `https://ipfs.io/ipfs/${hash}`;
+    }
+  }
+  
+  // Handle cf-ipfs.com URLs (which are failing)
+  if (url.includes('cf-ipfs.com')) {
+    const hash = url.split('/ipfs/')[1];
+    if (hash) {
+      return `https://ipfs.io/ipfs/${hash}`;
+    }
+  }
+  
+  return url;
+};
+
 export const XMessageBoard = ({
   agentId,
   agentName,
@@ -272,7 +299,11 @@ export const XMessageBoard = ({
                   {message.response && (
                     <div className="flex gap-2 md:gap-3 pt-2 pl-3 md:pl-4 border-l-2 rounded-l-lg py-2" style={{ borderColor: '#81f4aa', backgroundColor: 'rgba(129, 244, 170, 0.05)' }}>
                       <Avatar className="h-8 w-8 md:h-10 md:w-10 shrink-0 ring-2 ring-[#81f4aa]/30">
-                        <AvatarImage src={agentAvatar} alt={agentName} />
+                        <AvatarImage 
+                          src={getImageUrl(agentAvatar)} 
+                          alt={agentName}
+                          referrerPolicy="no-referrer"
+                        />
                         <AvatarFallback className="text-xs font-semibold">{agentName[0]}</AvatarFallback>
                       </Avatar>
                       <div className="flex-1 space-y-1 min-w-0">

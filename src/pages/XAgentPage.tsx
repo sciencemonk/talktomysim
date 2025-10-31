@@ -149,6 +149,33 @@ export default function XAgentPage() {
     return num.toLocaleString();
   };
 
+  const getImageUrl = (url: string | undefined) => {
+    if (!url) return undefined;
+    
+    // Handle IPFS URLs
+    if (url.includes('ipfs://')) {
+      return url.replace('ipfs://', 'https://ipfs.io/ipfs/');
+    }
+    
+    // Handle gateway.pinata.cloud URLs
+    if (url.includes('gateway.pinata.cloud')) {
+      const hash = url.split('/ipfs/')[1];
+      if (hash) {
+        return `https://ipfs.io/ipfs/${hash}`;
+      }
+    }
+    
+    // Handle cf-ipfs.com URLs (which are failing)
+    if (url.includes('cf-ipfs.com')) {
+      const hash = url.split('/ipfs/')[1];
+      if (hash) {
+        return `https://ipfs.io/ipfs/${hash}`;
+      }
+    }
+    
+    return url;
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-background">
@@ -203,15 +230,10 @@ export default function XAgentPage() {
                   <div className="relative">
                     <Avatar className="h-16 w-16 md:h-20 md:w-20 border-2 shrink-0 ring-2 ring-[#81f4aa]/20" style={{ borderColor: '#81f4aa' }}>
                       <AvatarImage 
-                        src={xData?.profilePicture || agent.avatar} 
+                        src={getImageUrl(xData?.profilePicture || agent.avatar)} 
                         alt={agent.name}
                         className="object-cover"
-                        crossOrigin="anonymous"
                         referrerPolicy="no-referrer"
-                        onError={(e) => {
-                          console.log('Avatar failed to load, using fallback');
-                          e.currentTarget.style.display = 'none';
-                        }}
                       />
                       <AvatarFallback className="text-lg font-bold">{agent.name[0]}</AvatarFallback>
                     </Avatar>
