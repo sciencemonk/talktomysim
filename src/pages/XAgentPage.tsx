@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, ArrowLeft, ExternalLink, Users, MessageCircle, TrendingUp, Activity, Copy, Check } from "lucide-react";
+import { Loader2, ArrowLeft, Users, Copy, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import PublicChatInterface from "@/components/PublicChatInterface";
+import { XMessageBoard } from "@/components/XMessageBoard";
 import { AgentType } from "@/types/agent";
 import { toast } from "sonner";
 import xIcon from "@/assets/x-icon.png";
@@ -196,28 +196,12 @@ export default function XAgentPage() {
                     <CardDescription className="text-base mb-3">
                       @{xData?.username || username}
                     </CardDescription>
-                    <div className="flex items-center gap-2 mb-2">
+                    <div className="flex items-center gap-2">
                       <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20">
-                        🤖 AI Agent
+                        <Users className="h-3 w-3 mr-1" />
+                        {formatNumber(xData?.metrics?.followers)} Followers
                       </Badge>
                     </div>
-                    {agent.sim_category !== 'Crypto Mail' && !agent.x402_enabled && (
-                      <p className="text-xs text-muted-foreground">
-                        Free to chat
-                      </p>
-                    )}
-                    {agent.sim_category === 'Crypto Mail' && (
-                      <p className="text-xs text-muted-foreground">
-                        Free to chat • Trained on actual posts
-                      </p>
-                    )}
-                    {agent.sim_category !== 'Crypto Mail' && agent.x402_enabled && (
-                      <div className="flex items-center gap-2">
-                        <div className="px-3 py-1 bg-neonGreen/10 text-neonGreen rounded-md text-sm font-medium border border-neonGreen/20">
-                          Monetized with x402 • ${agent.x402_price || 5} per message
-                        </div>
-                      </div>
-                    )}
                   </div>
                 </div>
               </CardHeader>
