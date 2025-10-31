@@ -256,6 +256,7 @@ const NewLanding = () => {
 
   const handleSimClick = (sim: AgentType) => {
     const simSlug = (sim as any).custom_url || generateSlug(sim.name);
+    window.scrollTo(0, 0);
     navigate(`/${simSlug}?chat=true`);
   };
 
