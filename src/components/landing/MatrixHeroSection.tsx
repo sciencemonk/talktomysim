@@ -1,5 +1,4 @@
 import { Button } from "@/components/ui/button";
-import { useState, useEffect } from "react";
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { AgentType } from "@/types/agent";
@@ -12,16 +11,6 @@ interface MatrixHeroSectionProps {
 
 export const MatrixHeroSection = ({ onCreateAgent, onSimClick, onViewAllAgents }: MatrixHeroSectionProps) => {
   const { theme } = useTheme();
-  const rotatingWords = ["richer", "smarter", "better", "funnier", "healthier", "informed", "wiser", "money"];
-  const [currentWordIndex, setCurrentWordIndex] = useState(0);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentWordIndex((prev) => (prev + 1) % rotatingWords.length);
-    }, 2000);
-    
-    return () => clearInterval(interval);
-  }, []);
 
   return (
     <section className="relative h-[70vh] flex flex-col overflow-hidden bg-background">
@@ -47,10 +36,7 @@ export const MatrixHeroSection = ({ onCreateAgent, onSimClick, onViewAllAgents }
       {/* Content */}
       <div className="relative z-10 flex-1 flex flex-col items-center justify-center px-4 text-center max-w-5xl mx-auto w-full">
         <h1 className="text-xl sm:text-3xl md:text-4xl lg:text-5xl font-sans font-semibold mb-4 tracking-tight text-foreground text-center w-full">
-          <span>AI Agents that make you</span>{" "}
-          <span className="inline-block min-w-[120px] sm:min-w-[180px] md:min-w-[200px] text-left transition-all duration-500">
-            {rotatingWords[currentWordIndex]}
-          </span>
+          AI Agents that make you money
         </h1>
         
         <Button
