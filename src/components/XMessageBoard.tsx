@@ -39,7 +39,6 @@ export const XMessageBoard = ({
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [newMessage, setNewMessage] = useState("");
-  const [senderName, setSenderName] = useState("");
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [isPosting, setIsPosting] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -107,8 +106,8 @@ export const XMessageBoard = ({
   };
 
   const handlePostMessage = () => {
-    if (!newMessage.trim() || !senderName.trim()) {
-      toast.error("Please enter your name and message");
+    if (!newMessage.trim()) {
+      toast.error("Please enter a message");
       return;
     }
 
@@ -128,7 +127,7 @@ export const XMessageBoard = ({
         .insert({
           agent_id: agentId,
           content: newMessage,
-          sender_name: senderName,
+          sender_name: 'Anonymous',
           session_id: sessionId,
           payment_amount: price
         });
@@ -137,7 +136,6 @@ export const XMessageBoard = ({
 
       toast.success("Message posted successfully!");
       setNewMessage("");
-      setSenderName("");
       setIsDialogOpen(false);
       fetchMessages();
     } catch (error) {
@@ -196,16 +194,6 @@ export const XMessageBoard = ({
                 </DialogHeader>
                 <div className="space-y-3 md:space-y-4 py-3 md:py-4">
                   <div>
-                    <label className="text-xs md:text-sm font-medium mb-1 block">Your Name</label>
-                    <input
-                      type="text"
-                      value={senderName}
-                      onChange={(e) => setSenderName(e.target.value)}
-                      placeholder="Enter your name"
-                      className="w-full px-3 py-2 bg-background border border-border rounded-md text-xs md:text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-                    />
-                  </div>
-                  <div>
                     <label className="text-xs md:text-sm font-medium mb-1 block">Message</label>
                     <Textarea
                       value={newMessage}
@@ -217,8 +205,9 @@ export const XMessageBoard = ({
                   </div>
                   <Button 
                     onClick={handlePostMessage}
-                    disabled={!newMessage.trim() || !senderName.trim() || isPosting}
-                    className="w-full h-10 text-xs md:text-sm"
+                    disabled={!newMessage.trim() || isPosting}
+                    className="w-full h-10 text-xs md:text-sm hover:opacity-90"
+                    style={{ backgroundColor: '#81f4aa', color: '#000' }}
                   >
                     {isPosting ? (
                       <>
