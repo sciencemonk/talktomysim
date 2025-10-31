@@ -235,7 +235,7 @@ export default function XAgentPage() {
                   <div className="relative">
                     <Avatar className="h-16 w-16 md:h-20 md:w-20 border-2 shrink-0 ring-2 ring-[#81f4aa]/20" style={{ borderColor: '#81f4aa' }}>
                       <AvatarImage 
-                        src={getImageUrl(xData?.profilePicture || agent.avatar)} 
+                        src={getImageUrl(xData?.profileImageUrl || agent.avatar)} 
                         alt={agent.name}
                         className="object-cover"
                         referrerPolicy="no-referrer"
@@ -287,7 +287,7 @@ export default function XAgentPage() {
             <XMessageBoard
               agentId={agent.id}
               agentName={agent.name}
-              agentAvatar={xData?.profilePicture || agent.avatar}
+              agentAvatar={xData?.profileImageUrl || agent.avatar}
               price={agent.x402_price || 5}
               walletAddress={(agent.social_links as any)?.x402_wallet}
               xUsername={xData?.username || username}
