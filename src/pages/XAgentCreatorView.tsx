@@ -79,7 +79,7 @@ export default function XAgentCreatorView() {
 
       if (!matchingAgent) {
         toast.error("Agent not found");
-        navigate('/agents');
+        navigate('/', { state: { scrollToAgents: true } });
         return;
       }
 
@@ -139,7 +139,7 @@ export default function XAgentCreatorView() {
     } catch (error) {
       console.error('Error fetching agent:', error);
       toast.error("Failed to load agent");
-      navigate('/agents');
+      navigate('/', { state: { scrollToAgents: true } });
     } finally {
       setIsLoading(false);
     }
@@ -277,7 +277,7 @@ export default function XAgentCreatorView() {
       <div className="flex items-center justify-center min-h-screen bg-background">
         <div className="text-center space-y-4">
           <h1 className="text-2xl font-bold">Agent Not Found</h1>
-          <Button onClick={() => navigate('/agents')}>Back to Agents</Button>
+          <Button onClick={() => navigate('/', { state: { scrollToAgents: true } })}>Back to Agents</Button>
         </div>
       </div>
     );

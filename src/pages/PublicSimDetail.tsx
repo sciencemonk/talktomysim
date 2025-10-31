@@ -378,7 +378,7 @@ const PublicSimDetail = () => {
           <h1 className="text-2xl font-bold">Sim Not Found</h1>
           <p className="text-muted-foreground">This sim doesn't exist or has been deactivated.</p>
           <Button 
-            onClick={() => navigate('/agents')}
+            onClick={() => navigate('/', { state: { scrollToAgents: true } })}
           >
             Back to Agents
           </Button>
@@ -396,7 +396,7 @@ const PublicSimDetail = () => {
           <Suspense fallback={null}>
             <X402PaymentModal
               isOpen={true}
-              onClose={() => navigate('/agents')}
+              onClose={() => navigate('/', { state: { scrollToAgents: true } })}
               onPaymentSuccess={(sessionId) => {
                 console.log('Payment successful, session ID:', sessionId);
                 setPaymentSessionId(sessionId);
@@ -449,7 +449,7 @@ const PublicSimDetail = () => {
             </Button>
             <Button 
               variant="outline"
-              onClick={() => navigate('/agents')}
+              onClick={() => navigate('/', { state: { scrollToAgents: true } })}
               className="mt-2 w-full"
             >
               Back to Agents
@@ -615,7 +615,7 @@ const PublicSimDetail = () => {
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={() => navigate('/agents')}
+                onClick={() => navigate('/', { state: { scrollToAgents: true } })}
                 className="hover:bg-red-500/10 hover:text-red-500 transition-colors"
               >
                 <X className="h-5 w-5" />
@@ -757,7 +757,7 @@ const PublicSimDetail = () => {
                   size="sm"
                   onClick={() => {
                     if (!currentUser) {
-                      navigate('/agents');
+                      navigate('/', { state: { scrollToAgents: true } });
                     } else {
                       setShowChat(false);
                   }

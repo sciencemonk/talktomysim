@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { MatrixHeroSection } from "@/components/landing/MatrixHeroSection";
 import AuthModal from "@/components/AuthModal";
 import { UnifiedAgentCreation } from "@/components/UnifiedAgentCreation";
@@ -188,6 +188,7 @@ const PumpFunSimCard = ({ sim, onSimClick }: PumpFunSimCardProps) => {
 
 const NewLanding = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [expandedCategories, setExpandedCategories] = useState<Record<string, boolean>>({
@@ -208,6 +209,17 @@ const NewLanding = () => {
       agentsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   };
+
+  // Check for scrollToAgents state from navigation
+  useEffect(() => {
+    if (location.state?.scrollToAgents) {
+      setTimeout(() => {
+        scrollToAgents();
+      }, 100);
+      // Clear the state
+      navigate(location.pathname, { replace: true, state: {} });
+    }
+  }, [location.state, navigate, location.pathname]);
 
   // Check for create query params
   useEffect(() => {
