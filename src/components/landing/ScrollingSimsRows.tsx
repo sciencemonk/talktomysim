@@ -34,7 +34,7 @@ export const ScrollingSimsRows = ({ onSimClick }: ScrollingSimsRowsProps) => {
         .from('advisors')
         .select('*')
         .eq('is_active', true)
-        .limit(30);
+        .limit(100); // Increased from 30 to 100 for more variety
       
       if (error) throw error;
       return data?.map(sim => ({
@@ -159,13 +159,13 @@ export const ScrollingSimsRows = ({ onSimClick }: ScrollingSimsRowsProps) => {
   const row1Sims = useMemo(() => {
     if (!sims) return [];
     const shuffled = shuffleArray(sims);
-    return [...shuffled, ...shuffled, ...shuffled].slice(0, 40);
+    return [...shuffled, ...shuffled].slice(0, 60); // Show more sims per row
   }, [sims]);
 
   const row2Sims = useMemo(() => {
     if (!sims) return [];
     const shuffled = shuffleArray(sims);
-    return [...shuffled, ...shuffled, ...shuffled].slice(0, 40);
+    return [...shuffled, ...shuffled].slice(0, 60); // Show more sims per row
   }, [sims]);
 
   // Early return AFTER all hooks have been called
