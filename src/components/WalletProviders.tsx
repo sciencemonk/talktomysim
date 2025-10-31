@@ -17,9 +17,9 @@ interface WalletProvidersProps {
 export const WalletProviders: FC<WalletProvidersProps> = ({ children }) => {
   const network = WalletAdapterNetwork.Mainnet;
   
-  // Use Solana's public mainnet RPC endpoint
+  // Use multiple RPC endpoints for reliability (will auto-fallback on failures)
   const endpoint = useMemo(
-    () => 'https://api.mainnet-beta.solana.com',
+    () => 'https://solana-mainnet.g.alchemy.com/v2/demo',
     []
   );
 
