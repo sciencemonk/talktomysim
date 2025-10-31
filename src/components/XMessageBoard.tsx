@@ -206,7 +206,7 @@ export const XMessageBoard = ({
                 <MessageSquare className="h-5 w-5 md:h-6 md:w-6 shrink-0" style={{ color: '#81f4aa' }} />
               </div>
               <div className="min-w-0 flex-1">
-                <CardTitle className="text-lg md:text-xl mb-1 font-bold">Public Message Board</CardTitle>
+                <CardTitle className="text-lg md:text-xl mb-1 font-bold">Talk to the Real Me</CardTitle>
                 <CardDescription className="text-xs md:text-sm leading-relaxed">
                   Messages from the community • ${price} per post
                 </CardDescription>

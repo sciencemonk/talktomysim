@@ -298,7 +298,7 @@ export default function XAgentPage() {
           <div className="lg:col-span-1 hidden lg:block">
             <Card className="border-border bg-card/80 backdrop-blur-sm sticky top-24 shadow-lg">
               <CardHeader className="p-5">
-                <CardTitle className="text-lg font-bold">{xData?.username || username} AI</CardTitle>
+                <CardTitle className="text-lg font-bold">Talk to My AI</CardTitle>
                 <CardDescription className="text-sm leading-relaxed">
                   AI agent trained on their actual posts to represent their voice and ideas
                 </CardDescription>
