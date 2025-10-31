@@ -13,10 +13,21 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { getAvatarUrl } from "@/lib/avatarUtils";
-import { ChevronRight, Bot } from "lucide-react";
+import { ChevronRight, Bot, Search, TrendingUp, ChevronDown, Mail, Zap } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import pumpfunLogo from "@/assets/pumpfun-logo.png";
 import xLogo from "@/assets/x-logo.png";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useTheme } from "@/hooks/useTheme";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useIsMobile } from "@/hooks/use-mobile";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface PumpFunSimCardProps {
   sim: AgentType & { user_id?: string; like_count?: number; is_verified?: boolean };
@@ -184,6 +195,12 @@ const NewLanding = () => {
     'pumpfun': true,
     'chat': true
   });
+  const [searchQuery, setSearchQuery] = useState('');
+  const [simTypeFilter, setSimTypeFilter] = useState<'all' | 'Crypto Mail' | 'Chat' | 'PumpFun Agent'>('all');
+  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [sortBy, setSortBy] = useState<'popular' | 'newest' | 'name'>('newest');
+  const { theme } = useTheme();
+  const isMobile = useIsMobile();
 
   // Check for create query params
   useEffect(() => {
@@ -282,22 +299,95 @@ const NewLanding = () => {
   });
 
   // Filter and categorize sims
-  const xAgents = allSims?.filter(sim => {
+  const categories = [
+    { id: 'all', label: 'All Categories', count: 0 },
+    { id: 'crypto', label: 'Crypto & Web3', count: 0 },
+    { id: 'historical', label: 'Historical Figures', count: 0 },
+    { id: 'influencers', label: 'Influencers & Celebrities', count: 0 },
+    { id: 'fictional', label: 'Fictional Characters', count: 0 },
+    { id: 'education', label: 'Education & Tutoring', count: 0 },
+    { id: 'business', label: 'Business & Finance', count: 0 },
+    { id: 'lifestyle', label: 'Lifestyle & Wellness', count: 0 },
+    { id: 'entertainment', label: 'Entertainment & Games', count: 0 },
+    { id: 'spiritual', label: 'Spiritual & Philosophy', count: 0 },
+  ];
+
+  const categoryCounts = categories.map(cat => {
+    if (cat.id === 'all') {
+      return { ...cat, count: allSims?.length || 0 };
+    }
+    const count = allSims?.filter(sim => {
+      const marketplaceCategory = (sim as any).marketplace_category?.toLowerCase() || 'uncategorized';
+      return marketplaceCategory === cat.id;
+    }).length || 0;
+    return { ...cat, count };
+  });
+
+  const filteredSims = allSims
+    ?.filter(sim => {
+      const matchesSearch = !searchQuery ||
+        sim.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        sim.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        sim.description.toLowerCase().includes(searchQuery.toLowerCase());
+      
+      if (!matchesSearch) return false;
+
+      const simCategory = (sim as any).sim_category;
+      
+      // Hide all Crypto Mail agents except @mrjethroknights
+      if (simCategory === 'Crypto Mail') {
+        const xUsername = (sim.social_links as any)?.x_username;
+        if (xUsername?.toLowerCase() !== 'mrjethroknights') return false;
+      }
+
+      // Type filter
+      if (simTypeFilter !== 'all') {
+        if (simTypeFilter === 'Crypto Mail' && simCategory !== 'Crypto Mail') return false;
+        if (simTypeFilter === 'PumpFun Agent' && simCategory !== 'PumpFun Agent') return false;
+        if (simTypeFilter === 'Chat') {
+          const isChat = simCategory === 'Chat' || !simCategory || simCategory === '';
+          if (!isChat) return false;
+        }
+      }
+
+      // Apply category filter for Chat type
+      if (selectedCategory !== 'all') {
+        const isChat = simCategory === 'Chat' || !simCategory || simCategory === '';
+        if (isChat) {
+          const marketplaceCategory = (sim as any).marketplace_category?.toLowerCase() || 'uncategorized';
+          if (marketplaceCategory !== selectedCategory) return false;
+        }
+      }
+
+      return true;
+    })
+    .sort((a, b) => {
+      if (sortBy === 'popular') {
+        const aCount = (a as any).like_count || 0;
+        const bCount = (b as any).like_count || 0;
+        return bCount - aCount;
+      } else if (sortBy === 'newest') {
+        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+      } else {
+        return a.name.localeCompare(b.name);
+      }
+    });
+
+  const xAgents = filteredSims?.filter(sim => {
     const simCategory = (sim as any).sim_category;
     if (simCategory === 'Crypto Mail') {
       const xUsername = (sim.social_links as any)?.x_username;
       return xUsername?.toLowerCase() === 'mrjethroknights';
     }
     return false;
-  }).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()) || [];
+  }) || [];
 
-  const pumpfunAgents = allSims?.filter(sim => (sim as any).sim_category === 'PumpFun Agent')
-    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()) || [];
+  const pumpfunAgents = filteredSims?.filter(sim => (sim as any).sim_category === 'PumpFun Agent') || [];
 
-  const chatAgents = allSims?.filter(sim => {
+  const chatAgents = filteredSims?.filter(sim => {
     const simCategory = (sim as any).sim_category;
     return simCategory === 'Chat' || !simCategory || simCategory === '';
-  }).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()) || [];
+  }) || [];
 
   const toggleCategory = (category: string) => {
     setExpandedCategories(prev => ({ ...prev, [category]: !prev[category] }));
@@ -316,6 +406,176 @@ const NewLanding = () => {
       </div>
 
       <ScrollingSimsRows onSimClick={handleSimClick} />
+
+      {/* Search and Filters Section */}
+      <section className="container mx-auto px-3 sm:px-4 py-8 border-b">
+        <div className="max-w-7xl mx-auto space-y-4">
+          {/* Type Filters */}
+          <div className="flex justify-center">
+            {isMobile ? (
+              <Select value={simTypeFilter} onValueChange={(v) => {
+                setSimTypeFilter(v as any);
+                if (v !== 'Chat') setSelectedCategory('all');
+              }}>
+                <SelectTrigger className="w-full h-10">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-background border-border z-[100]">
+                  <SelectItem value="all">All Types</SelectItem>
+                  <SelectItem value="Chat">
+                    <div className="flex items-center gap-2">
+                      <Bot className="h-4 w-4" />
+                      Chat
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="PumpFun Agent">
+                    <div className="flex items-center gap-2">
+                      <img src={pumpfunLogo} alt="PumpFun" className="h-4 w-4" />
+                      PumpFun
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="Crypto Mail">
+                    <div className="flex items-center gap-2">
+                      <img src={xLogo} alt="X" className="h-4 w-4" />
+                      X Agents
+                    </div>
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            ) : (
+              <Tabs value={simTypeFilter} onValueChange={(v) => {
+                setSimTypeFilter(v as any);
+                if (v !== 'Chat') setSelectedCategory('all');
+              }}>
+                <TabsList>
+                  <TabsTrigger value="all">All Types</TabsTrigger>
+                  <TabsTrigger value="Chat" className="gap-2">
+                    <Bot className="h-4 w-4" />
+                    Chat
+                  </TabsTrigger>
+                  <TabsTrigger value="PumpFun Agent" className="gap-2">
+                    <img src={pumpfunLogo} alt="PumpFun" className="h-4 w-4" />
+                    PumpFun
+                  </TabsTrigger>
+                  <TabsTrigger value="Crypto Mail" className="gap-2">
+                    <img src={xLogo} alt="X" className="h-4 w-4" />
+                    X Agents
+                  </TabsTrigger>
+                </TabsList>
+              </Tabs>
+            )}
+          </div>
+
+          {/* Search and Sort */}
+          <div className="flex flex-col sm:flex-row gap-3">
+            <div className="flex gap-3">
+              {/* Sort dropdown */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" className="gap-2 h-12 px-4">
+                    {sortBy === 'newest' && 'Newest'}
+                    {sortBy === 'popular' && (
+                      <>
+                        <TrendingUp className="h-4 w-4" />
+                        Popular
+                      </>
+                    )}
+                    {sortBy === 'name' && 'A-Z'}
+                    <ChevronDown className="h-4 w-4 opacity-50" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start" className="bg-background border-border z-50">
+                  <DropdownMenuItem onClick={() => setSortBy('newest')} className="text-foreground hover:bg-muted">
+                    Newest
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setSortBy('popular')} className="text-foreground hover:bg-muted">
+                    <TrendingUp className="mr-2 h-4 w-4" />
+                    Popular
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setSortBy('name')} className="text-foreground hover:bg-muted">
+                    A-Z
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+            
+            {/* Search */}
+            <div className="relative flex-1">
+              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+              <Input
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search agents by name, title, or description..."
+                className="pl-12 h-12 text-base border-input"
+                style={{
+                  backgroundColor: theme === 'dark' ? 'rgb(31, 41, 55)' : 'rgb(255, 255, 255)',
+                  color: theme === 'dark' ? 'rgb(255, 255, 255)' : 'rgb(0, 0, 0)'
+                }}
+              />
+            </div>
+          </div>
+
+          {/* Category Filters - for chat agents */}
+          {simTypeFilter === 'Chat' && (isMobile ? (
+            <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+              <SelectTrigger className="w-full h-12 bg-background">
+                <SelectValue placeholder="Select category">
+                  <div className="flex items-center justify-between w-full">
+                    <span>{categoryCounts.find(c => c.id === selectedCategory)?.label || 'All Categories'}</span>
+                    <Badge variant="secondary" className="ml-2 px-1.5">
+                      {categoryCounts.find(c => c.id === selectedCategory)?.count || 0}
+                    </Badge>
+                  </div>
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent className="bg-background border-border z-[100] max-h-[300px]">
+                {categoryCounts.map((cat) => (
+                  <SelectItem 
+                    key={cat.id} 
+                    value={cat.id}
+                    className="cursor-pointer"
+                  >
+                    <div className="flex items-center justify-between w-full gap-3">
+                      <span>{cat.label}</span>
+                      <Badge variant="secondary" className="px-1.5 shrink-0">
+                        {cat.count}
+                      </Badge>
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          ) : (
+            <div className="flex flex-wrap gap-2">
+              {categoryCounts.map((cat) => (
+                <Button
+                  key={cat.id}
+                  variant="outline"
+                  onClick={() => setSelectedCategory(cat.id)}
+                  className={`gap-1.5 h-8 text-xs sm:h-10 sm:text-sm sm:gap-2 ${
+                    selectedCategory === cat.id 
+                      ? 'border-[#83f1aa] hover:bg-[#83f1aa]/90' 
+                      : ''
+                  }`}
+                  style={selectedCategory === cat.id ? { backgroundColor: '#83f1aa', color: '#000' } : {}}
+                >
+                  <span className="whitespace-nowrap">{cat.label}</span>
+                  <Badge 
+                    variant="outline"
+                    className={`px-1 text-[10px] sm:px-1.5 sm:text-xs ${
+                      selectedCategory === cat.id 
+                        ? 'bg-white text-black border-white' 
+                        : 'bg-transparent text-gray-500 border-gray-300'
+                    }`}
+                  >
+                    {cat.count}
+                  </Badge>
+                </Button>
+              ))}
+            </div>
+          ))}
+        </div>
+      </section>
 
       {/* Agent Directory Section */}
       <section className="container mx-auto px-3 sm:px-4 py-12">
