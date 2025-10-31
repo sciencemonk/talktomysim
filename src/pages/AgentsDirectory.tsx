@@ -420,6 +420,13 @@ const AgentsDirectory = () => {
 
       // Type filter
       const simCategory = (sim as any).sim_category;
+      
+      // Hide all Crypto Mail agents except @mrjethroknights
+      if (simCategory === 'Crypto Mail') {
+        const xUsername = (sim.social_links as any)?.x_username;
+        if (xUsername !== 'mrjethroknights') return false;
+      }
+      
       if (simTypeFilter !== 'all') {
         if (simTypeFilter === 'Crypto Mail' && simCategory !== 'Crypto Mail') return false;
         if (simTypeFilter === 'PumpFun Agent' && simCategory !== 'PumpFun Agent') return false;
