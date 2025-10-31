@@ -181,17 +181,8 @@ const ChatInterface = ({ agent, onBack, hideHeader = false, transparentMode = fa
                 return (
                   <div
                     key={message.id}
-                    className={`flex gap-4 ${message.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}
+                    className={`flex ${message.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}
                   >
-                    {(message.role === 'assistant' || message.role === 'system') && (
-                      <Avatar className="h-8 w-8 flex-shrink-0">
-                        <AvatarImage src={avatarUrl} alt={currentAgent.name} className="object-cover" />
-                        <AvatarFallback className="bg-primary text-primary-foreground text-xs">
-                          {currentAgent.name.charAt(0).toUpperCase()}
-                        </AvatarFallback>
-                      </Avatar>
-                    )}
-                    
                     <div className={`flex-1 ${message.role === 'user' ? 'flex justify-end' : ''}`}>
                       <div className={`
                         ${message.role === 'user' 
@@ -240,23 +231,13 @@ const ChatInterface = ({ agent, onBack, hideHeader = false, transparentMode = fa
                         )}
                       </div>
                     </div>
-                    
-                    {message.role === 'user' && (
-                      <div className="w-8 flex-shrink-0" />
-                    )}
                   </div>
                 );
               })}
               
               {/* Typing indicator */}
               {textChat.isProcessing && (
-                <div className="flex gap-4">
-                  <Avatar className="h-8 w-8 flex-shrink-0">
-                    <AvatarImage src={avatarUrl} alt={currentAgent.name} className="object-cover" />
-                    <AvatarFallback className="bg-primary text-primary-foreground text-xs">
-                      {currentAgent.name.charAt(0).toUpperCase()}
-                    </AvatarFallback>
-                  </Avatar>
+                <div className="flex">
                   <div className="flex-1">
                     <div className="flex space-x-1.5 py-3">
                       <div className="w-2 h-2 rounded-full bg-[#82f2aa] animate-bounce [animation-delay:-0.3s]"></div>
