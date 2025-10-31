@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { getAvatarUrl } from "@/lib/avatarUtils";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useMemo } from "react";
 import { AgentType } from "@/types/agent";
 import { Badge } from "@/components/ui/badge";
 import pumpfunLogo from "@/assets/pumpfun-logo.png";
@@ -167,12 +167,18 @@ export const ScrollingSimsRows = ({ onSimClick }: ScrollingSimsRowsProps) => {
     return shuffled;
   };
 
-  // Create different shuffled versions for each row
-  const shuffled1 = shuffleArray(sims);
-  const shuffled2 = shuffleArray(sims);
-  
-  const row1Sims = [...shuffled1, ...shuffled1, ...shuffled1].slice(0, 40);
-  const row2Sims = [...shuffled2, ...shuffled2, ...shuffled2].slice(0, 40);
+  // Create stable, different shuffled versions for each row using useMemo
+  const row1Sims = useMemo(() => {
+    if (!sims) return [];
+    const shuffled = shuffleArray(sims);
+    return [...shuffled, ...shuffled, ...shuffled].slice(0, 40);
+  }, [sims]);
+
+  const row2Sims = useMemo(() => {
+    if (!sims) return [];
+    const shuffled = shuffleArray(sims);
+    return [...shuffled, ...shuffled, ...shuffled].slice(0, 40);
+  }, [sims]);
 
   const renderSimCard = (sim: AgentType, index: number) => {
     const simCategoryType = (sim as any).sim_category;
