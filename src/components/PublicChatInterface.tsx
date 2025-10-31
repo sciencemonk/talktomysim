@@ -200,17 +200,8 @@ const PublicChatInterface = ({ agent }: PublicChatInterfaceProps) => {
               <div
                 key={message.id}
                 ref={isLastAssistantMessage ? lastAssistantMessageRef : null}
-                className={`flex gap-4 ${message.role === 'user' ? 'flex-row-reverse' : 'flex-row'} min-w-0`}
+                className={`flex ${message.role === 'user' ? 'flex-row-reverse' : 'flex-row'} min-w-0`}
               >
-                {(message.role === 'assistant' || message.role === 'system') && (
-                  <Avatar className="h-8 w-8 flex-shrink-0 border-2 border-white/30">
-                    <AvatarImage src={getAvatarUrl(agent.avatar)} alt={agent.name} className="object-cover" />
-                    <AvatarFallback className="bg-white/20 text-white text-xs">
-                      {agent.name.charAt(0).toUpperCase()}
-                    </AvatarFallback>
-                  </Avatar>
-                )}
-                
                 <div className={`flex-1 min-w-0 ${message.role === 'user' ? 'flex justify-end' : ''}`}>
                   <div className={`
                     ${message.role === 'user' 
@@ -248,23 +239,13 @@ const PublicChatInterface = ({ agent }: PublicChatInterfaceProps) => {
                     )}
                   </div>
                 </div>
-                
-                {message.role === 'user' && (
-                  <div className="w-8 flex-shrink-0" />
-                )}
               </div>
             );
           })}
           
           {/* Typing indicator */}
           {textChat.isProcessing && (
-            <div className="flex gap-4">
-              <Avatar className="h-8 w-8 flex-shrink-0 border-2 border-white/30">
-                <AvatarImage src={getAvatarUrl(agent.avatar)} alt={agent.name} className="object-cover" />
-                <AvatarFallback className="bg-white/20 text-white text-xs">
-                  {agent.name.charAt(0).toUpperCase()}
-                </AvatarFallback>
-              </Avatar>
+            <div className="flex">
               <div className="flex-1">
                 <div className="bg-card border border-border rounded-2xl px-4 py-3 inline-block">
                   <div className="flex space-x-1.5">
