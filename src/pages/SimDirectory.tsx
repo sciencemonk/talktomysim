@@ -305,7 +305,7 @@ const SimDirectory = () => {
       // Hide all Crypto Mail agents except @mrjethroknights
       if (simCategory === 'Crypto Mail') {
         const xUsername = (sim.social_links as any)?.x_username;
-        if (xUsername !== 'mrjethroknights') return false;
+        if (xUsername?.toLowerCase() !== 'mrjethroknights') return false;
       }
       
       if (simTypeFilter !== 'all') {
