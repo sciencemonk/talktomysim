@@ -202,6 +202,13 @@ const NewLanding = () => {
   const { theme } = useTheme();
   const isMobile = useIsMobile();
 
+  const scrollToAgents = () => {
+    const agentsSection = document.getElementById('agents-section');
+    if (agentsSection) {
+      agentsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
   // Check for create query params
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -401,14 +408,14 @@ const NewLanding = () => {
         <MatrixHeroSection 
           onCreateAgent={() => setShowCreateModal(true)} 
           onSimClick={handleSimClick}
-          onViewAllAgents={() => navigate('/agents')}
+          onViewAllAgents={scrollToAgents}
         />
       </div>
 
       <ScrollingSimsRows onSimClick={handleSimClick} />
 
       {/* Search and Filters Section */}
-      <section className="container mx-auto px-3 sm:px-4 py-8 border-b">
+      <section id="agents-section" className="container mx-auto px-3 sm:px-4 py-8 border-b scroll-mt-4">
         <div className="max-w-7xl mx-auto space-y-4">
           {/* Type Filters */}
           <div className="flex justify-center">
@@ -440,6 +447,33 @@ const NewLanding = () => {
                       X Agents
                     </div>
                   </SelectItem>
+                  <SelectItem value="Autonomous Agent" disabled>
+                    <div className="flex items-center gap-2">
+                      <Zap className="h-4 w-4" />
+                      Assistants
+                      <Badge variant="secondary" className="text-[9px] px-1.5 py-0 ml-2">
+                        Coming Soon
+                      </Badge>
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="bookie" disabled>
+                    <div className="flex items-center gap-2">
+                      <TrendingUp className="h-4 w-4" />
+                      Bookie
+                      <Badge variant="secondary" className="text-[9px] px-1.5 py-0 ml-2">
+                        Coming Soon
+                      </Badge>
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="email" disabled>
+                    <div className="flex items-center gap-2">
+                      <Mail className="h-4 w-4" />
+                      Email
+                      <Badge variant="secondary" className="text-[9px] px-1.5 py-0 ml-2">
+                        Coming Soon
+                      </Badge>
+                    </div>
+                  </SelectItem>
                 </SelectContent>
               </Select>
             ) : (
@@ -460,6 +494,27 @@ const NewLanding = () => {
                   <TabsTrigger value="Crypto Mail" className="gap-2">
                     <img src={xLogo} alt="X" className="h-4 w-4" />
                     X Agents
+                  </TabsTrigger>
+                  <TabsTrigger value="Autonomous Agent" disabled className="gap-2 opacity-50 cursor-not-allowed">
+                    <Zap className="h-4 w-4" />
+                    Assistants
+                    <Badge variant="secondary" className="text-[9px] px-1.5 py-0 ml-1">
+                      Coming Soon
+                    </Badge>
+                  </TabsTrigger>
+                  <TabsTrigger value="bookie" disabled className="gap-2 opacity-50 cursor-not-allowed">
+                    <TrendingUp className="h-4 w-4" />
+                    Bookie
+                    <Badge variant="secondary" className="text-[9px] px-1.5 py-0 ml-1">
+                      Coming Soon
+                    </Badge>
+                  </TabsTrigger>
+                  <TabsTrigger value="email" disabled className="gap-2 opacity-50 cursor-not-allowed">
+                    <Mail className="h-4 w-4" />
+                    Email
+                    <Badge variant="secondary" className="text-[9px] px-1.5 py-0 ml-1">
+                      Coming Soon
+                    </Badge>
                   </TabsTrigger>
                 </TabsList>
               </Tabs>
