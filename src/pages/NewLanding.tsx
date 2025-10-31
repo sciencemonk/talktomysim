@@ -53,8 +53,9 @@ const PumpFunSimCard = ({ sim, onSimClick }: PumpFunSimCardProps) => {
     ? (sim.social_links as any)?.x_username 
     : undefined;
   
-  // Check if this X agent is pending (not mrjethroknights)
-  const isPending = isCryptoMail && xUsername?.toLowerCase() !== 'mrjethroknights';
+  // List of approved X agents that are not pending
+  const approvedXAgents = ['mrjethroknights', 'degencapitalllc', 'cryptodivix', 'professrweb3'];
+  const isPending = isCryptoMail && !approvedXAgents.includes(xUsername?.toLowerCase() || '');
 
   useEffect(() => {
     const fetchMarketCap = async () => {
@@ -464,7 +465,7 @@ const NewLanding = () => {
     const simCategory = (sim as any).sim_category;
     if (simCategory === 'Crypto Mail') {
       const xUsername = (sim.social_links as any)?.x_username?.toLowerCase();
-      return ['mrjethroknights', 'cryptodivix', 'professrweb3'].includes(xUsername || '');
+      return ['mrjethroknights', 'degencapitalllc', 'cryptodivix', 'professrweb3'].includes(xUsername || '');
     }
     return false;
   }) || [];

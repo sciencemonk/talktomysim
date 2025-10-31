@@ -60,6 +60,10 @@ const PumpFunSimCard = ({ sim, onSimClick, categories }: PumpFunSimCardProps) =>
     ? (sim.social_links as any)?.x_username 
     : undefined;
 
+  // List of approved X agents that are not pending
+  const approvedXAgents = ['mrjethroknights', 'degencapitalllc', 'cryptodivix', 'professrweb3'];
+  const isPending = isCryptoMail && !approvedXAgents.includes(xUsername?.toLowerCase() || '');
+
   useEffect(() => {
     const fetchMarketCap = async () => {
       if (!isPumpFunAgent || !contractAddress) return;
@@ -151,8 +155,11 @@ const PumpFunSimCard = ({ sim, onSimClick, categories }: PumpFunSimCardProps) =>
 
   return (
     <button
-      onClick={() => onSimClick(sim)}
-      className="group relative flex flex-col overflow-hidden rounded-lg bg-card hover:bg-muted border hover:border-[#83f1aa] transition-all duration-300 hover:scale-105 hover:shadow-md"
+      onClick={() => !isPending && onSimClick(sim)}
+      disabled={isPending}
+      className={`group relative flex flex-col overflow-hidden rounded-lg bg-card hover:bg-muted border hover:border-[#83f1aa] transition-all duration-300 ${
+        isPending ? 'opacity-60 cursor-not-allowed' : 'hover:scale-105 hover:shadow-md'
+      }`}
     >
       {/* Image container */}
       <div className="relative w-full aspect-[4/3] overflow-hidden bg-muted">
@@ -170,6 +177,13 @@ const PumpFunSimCard = ({ sim, onSimClick, categories }: PumpFunSimCardProps) =>
             </span>
           </AvatarFallback>
         </Avatar>
+        {isPending && (
+          <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+            <Badge className="bg-yellow-500 text-black font-semibold px-2 py-0.5 text-xs">
+              Pending
+            </Badge>
+          </div>
+        )}
       </div>
       
       {/* Content section */}
