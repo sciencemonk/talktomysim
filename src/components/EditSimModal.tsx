@@ -386,6 +386,7 @@ const EditSimModal = ({ open, onOpenChange, simId, editCode }: EditSimModalProps
         .from('advisors')
         .update(updateData)
         .eq('id', simId)
+        .eq('edit_code', codeToUse)  // Validate edit code in WHERE clause
         .select();
 
       console.log('Update result:', updateResult);
@@ -421,10 +422,13 @@ const EditSimModal = ({ open, onOpenChange, simId, editCode }: EditSimModalProps
   const handleDelete = async () => {
     setIsDeleting(true);
     try {
+      const codeToUse = editCode || inputEditCode;
+      
       const { error } = await supabase
         .from('advisors')
         .delete()
-        .eq('id', simId);
+        .eq('id', simId)
+        .eq('edit_code', codeToUse);  // Validate edit code for delete too
 
       if (error) throw error;
 
