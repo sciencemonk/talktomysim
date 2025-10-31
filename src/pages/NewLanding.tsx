@@ -100,8 +100,13 @@ const PumpFunSimCard = ({ sim, onSimClick }: PumpFunSimCardProps) => {
     if (isCryptoMail && xProfileData?.profileImageUrl) {
       return `https://images.weserv.nl/?url=${encodeURIComponent(xProfileData.profileImageUrl)}`;
     }
-    // For PumpFun agents and others, use the avatar URL directly
-    return getAvatarUrl(sim.avatar);
+    // For PumpFun agents with external URLs, proxy them
+    const avatarUrl = getAvatarUrl(sim.avatar);
+    if (avatarUrl && (avatarUrl.startsWith('http://') || avatarUrl.startsWith('https://'))) {
+      return `https://images.weserv.nl/?url=${encodeURIComponent(avatarUrl)}`;
+    }
+    // For local images, use the avatar URL directly
+    return avatarUrl;
   };
 
   const formatMarketCap = (value: number) => {
