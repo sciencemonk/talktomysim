@@ -11,13 +11,13 @@ import { SidebarTrigger } from '@/components/ui/sidebar';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useAuth } from '@/hooks/useAuth';
 import { getAvatarUrl } from '@/lib/avatarUtils';
-import SimDetailModal from '@/components/SimDetailModal';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '@/hooks/useTheme';
 import pumpLogo from '@/assets/pumpfun-logo.png';
+import AuthModal from '@/components/AuthModal';
 
 type FilterType = 'all' | 'free' | 'paid';
 type SortType = 'popular' | 'newest' | 'name';
@@ -199,17 +199,16 @@ const categories = [
 ];
 
 const SimDirectory = () => {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedSim, setSelectedSim] = useState<AgentType | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [priceFilter, setPriceFilter] = useState<FilterType>('all');
-  const [simTypeFilter, setSimTypeFilter] = useState<'all' | 'Crypto Mail' | 'Chat' | 'Autonomous Agent'>('all');
-  const [selectedCategory, setSelectedCategory] = useState('all');
-  const [sortBy, setSortBy] = useState<SortType>('newest');
-  const isMobile = useIsMobile();
-  const { user } = useAuth();
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   const { theme } = useTheme();
+  const { user } = useAuth();
+  const [searchQuery, setSearchQuery] = useState('');
+  const [priceFilter, setPriceFilter] = useState<FilterType>('all');
+  const [simTypeFilter, setSimTypeFilter] = useState<string>('all');
+  const [sortBy, setSortBy] = useState<SortType>('newest');
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [authModalOpen, setAuthModalOpen] = useState(false);
 
   const { data: allSims, isLoading } = useQuery({
     queryKey: ['all-sims-directory'],
@@ -346,9 +345,16 @@ const SimDirectory = () => {
     return { ...cat, count };
   });
 
+  const generateSlug = (name: string) => {
+    return name
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '');
+  };
+
   const handleSimClick = (sim: AgentType) => {
-    setSelectedSim(sim);
-    setIsModalOpen(true);
+    const simSlug = (sim as any).custom_url || generateSlug(sim.name);
+    navigate(`/${simSlug}?chat=true`);
   };
 
   return (
@@ -545,11 +551,9 @@ const SimDirectory = () => {
         </div>
       </div>
 
-      {/* Sim Detail Modal */}
-      <SimDetailModal
-        sim={selectedSim}
-        open={isModalOpen}
-        onOpenChange={setIsModalOpen}
+      <AuthModal
+        open={authModalOpen} 
+        onOpenChange={setAuthModalOpen}
       />
     </div>
   );

@@ -1,7 +1,8 @@
 import { useEffect, useState, useRef, lazy, Suspense } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, Globe, Wallet, ExternalLink, Copy, Check, MessageCircle, X, Share2, Lock, Sparkles, Clock } from "lucide-react";
+import { Loader2, Globe, Wallet, ExternalLink, Copy, Check, MessageCircle, X, Lock, Sparkles, Clock } from "lucide-react";
+import { ShareButton } from "@/components/ShareButton";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -749,19 +750,22 @@ const PublicSimDetail = () => {
                   {sim.title && <p className="text-xs text-muted-foreground">{sim.title}</p>}
                 </div>
               </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => {
-                  if (!currentUser) {
-                    navigate('/agents');
-                  } else {
-                    setShowChat(false);
+              <div className="flex items-center gap-2">
+                <ShareButton tutorId={sim.id} tutorName={sim.name} />
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    if (!currentUser) {
+                      navigate('/agents');
+                    } else {
+                      setShowChat(false);
                   }
                 }}
               >
                 <X className="h-5 w-5" />
               </Button>
+              </div>
             </div>
           )}
           <div className="flex-1 h-full overflow-hidden">
@@ -855,25 +859,10 @@ const PublicSimDetail = () => {
                 {sim?.sim_category === 'Crypto Mail' ? 'Launch X Agent' : 'Launch Sim'}
               </Button>
 
-              {/* Share Button */}
-              <Button
-                size="lg"
-                variant="outline"
-                className="w-full h-12 text-base font-semibold mb-4 group"
-                onClick={handleShareLink}
-              >
-                {shareLinkCopied ? (
-                  <>
-                    <Check className="h-4 w-4 mr-2 text-green-500" />
-                    Link Copied!
-                  </>
-                ) : (
-                  <>
-                    <Share2 className="h-4 w-4 mr-2 group-hover:scale-110 transition-transform" />
-                    Share Sim
-                  </>
-                )}
-              </Button>
+              {/* Share Button - Using ShareButton component */}
+              <div className="mb-4">
+                <ShareButton tutorId={sim.id} tutorName={sim.name} className="w-full h-12 text-base font-semibold" />
+              </div>
 
 
               {/* Social Links & Wallet */}

@@ -25,7 +25,6 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { getAvatarUrl } from "@/lib/avatarUtils";
-import SimDetailModal from "@/components/SimDetailModal";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useTheme } from "@/hooks/useTheme";
@@ -235,9 +234,7 @@ const PumpFunSimCard = ({ sim, onSimClick, categories }: PumpFunSimCardProps) =>
 
 const AgentsDirectory = () => {
   const navigate = useNavigate();
-  const [selectedSim, setSelectedSim] = useState<AgentType | null>(null);
   const [authModalOpen, setAuthModalOpen] = useState(false);
-  const [isSimModalOpen, setIsSimModalOpen] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showCreateCABotModal, setShowCreateCABotModal] = useState(false);
   const [currentUser, setCurrentUser] = useState<any>(null);
@@ -492,10 +489,16 @@ const AgentsDirectory = () => {
     return { ...cat, count };
   });
 
+  const generateSlug = (name: string) => {
+    return name
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '');
+  };
+
   const handleSimClick = (sim: AgentType) => {
-    // Always open the detail modal for both signed-in and signed-out users
-    setSelectedSim(sim);
-    setIsSimModalOpen(true);
+    const simSlug = (sim as any).custom_url || generateSlug(sim.name);
+    navigate(`/${simSlug}?chat=true`);
   };
 
   // Show loading state
@@ -821,16 +824,6 @@ const AgentsDirectory = () => {
       <AuthModal
         open={authModalOpen} 
         onOpenChange={setAuthModalOpen}
-      />
-
-      <SimDetailModal
-        sim={selectedSim}
-        open={isSimModalOpen}
-        onOpenChange={setIsSimModalOpen}
-        onAuthRequired={() => {
-          setAuthModalOpen(true);
-          setTimeout(() => setIsSimModalOpen(false), 100);
-        }}
       />
 
       {showCreateModal && (

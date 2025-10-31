@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { MatrixHeroSection } from "@/components/landing/MatrixHeroSection";
 import AuthModal from "@/components/AuthModal";
 import { UnifiedAgentCreation } from "@/components/UnifiedAgentCreation";
-import SimDetailModal from "@/components/SimDetailModal";
 import { AgentType } from "@/types/agent";
 import { HackathonAnnouncementModal } from "@/components/HackathonAnnouncementModal";
 import { ScrollingSimsRows } from "@/components/landing/ScrollingSimsRows";
@@ -13,8 +12,6 @@ const NewLanding = () => {
   const navigate = useNavigate();
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const [selectedSim, setSelectedSim] = useState<AgentType | null>(null);
-  const [isSimModalOpen, setIsSimModalOpen] = useState(false);
 
   // Check for create query params
   useEffect(() => {
@@ -28,9 +25,16 @@ const NewLanding = () => {
     }
   }, []);
 
+  const generateSlug = (name: string) => {
+    return name
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '');
+  };
+
   const handleSimClick = (sim: AgentType) => {
-    setSelectedSim(sim);
-    setIsSimModalOpen(true);
+    const simSlug = (sim as any).custom_url || generateSlug(sim.name);
+    navigate(`/${simSlug}?chat=true`);
   };
 
   return (
@@ -52,16 +56,6 @@ const NewLanding = () => {
       <AuthModal 
         open={authModalOpen} 
         onOpenChange={setAuthModalOpen}
-      />
-
-      <SimDetailModal
-        sim={selectedSim}
-        open={isSimModalOpen}
-        onOpenChange={setIsSimModalOpen}
-        onAuthRequired={() => {
-          setAuthModalOpen(true);
-          setTimeout(() => setIsSimModalOpen(false), 100);
-        }}
       />
 
       <UnifiedAgentCreation
