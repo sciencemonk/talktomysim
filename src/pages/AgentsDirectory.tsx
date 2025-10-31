@@ -220,7 +220,7 @@ const AgentsDirectory = () => {
   const [currentUser, setCurrentUser] = useState<any>(null);
   const queryClient = useQueryClient();
   const [searchQuery, setSearchQuery] = useState('');
-  const [simTypeFilter, setSimTypeFilter] = useState<'all' | 'Crypto Mail' | 'Chat' | 'Autonomous Agent' | 'PumpFun Agent' | 'bookie' | 'email'>('Chat');
+  const [simTypeFilter, setSimTypeFilter] = useState<'all' | 'Crypto Mail' | 'Chat' | 'Autonomous Agent' | 'PumpFun Agent' | 'bookie' | 'email'>('all');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [sortBy, setSortBy] = useState<'popular' | 'newest' | 'name'>('newest');
   const isMobile = useIsMobile();
