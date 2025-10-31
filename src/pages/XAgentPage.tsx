@@ -152,6 +152,11 @@ export default function XAgentPage() {
   const getImageUrl = (url: string | undefined) => {
     if (!url) return undefined;
     
+    // Handle Twitter/X images with CORS proxy
+    if (url.includes('pbs.twimg.com') || url.includes('twimg.com')) {
+      return `https://images.weserv.nl/?url=${encodeURIComponent(url)}`;
+    }
+    
     // Handle IPFS URLs
     if (url.includes('ipfs://')) {
       return url.replace('ipfs://', 'https://ipfs.io/ipfs/');
