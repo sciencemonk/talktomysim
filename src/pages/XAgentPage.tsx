@@ -267,20 +267,6 @@ export default function XAgentPage() {
                   </div>
                 </div>
               </CardHeader>
-              {(xData?.bio || xData?.location) && (
-                <CardContent className="p-5 md:p-6 pt-0 md:pt-0 space-y-3">
-                  {xData?.bio && (
-                    <p className="text-sm md:text-base text-foreground/80 leading-relaxed line-clamp-3 md:line-clamp-none">
-                      {xData.bio}
-                    </p>
-                  )}
-                  {xData?.location && (
-                    <p className="text-xs md:text-sm text-muted-foreground flex items-center gap-1">
-                      <span>📍</span> {xData.location}
-                    </p>
-                  )}
-                </CardContent>
-              )}
             </Card>
 
             {/* Message Board */}
