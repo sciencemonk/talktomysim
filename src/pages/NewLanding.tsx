@@ -680,7 +680,7 @@ const NewLanding = () => {
               </button>
               {expandedCategories['x-agents'] && (
                 <>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+                  <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 xl:grid-cols-12 gap-3">
                     {xAgents.slice(0, expandedCategories['x-agents'] === true ? 10 : xAgents.length).map((sim) => (
                       <PumpFunSimCard
                         key={sim.id}
@@ -721,7 +721,7 @@ const NewLanding = () => {
               </button>
               {expandedCategories['pumpfun'] && (
                 <>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+                  <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 xl:grid-cols-12 gap-3">
                     {pumpfunAgents.slice(0, expandedCategories['pumpfun'] === true ? 10 : pumpfunAgents.length).map((sim) => (
                       <PumpFunSimCard
                         key={sim.id}
@@ -762,7 +762,7 @@ const NewLanding = () => {
               </button>
               {expandedCategories['chat'] && (
                 <>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+                  <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 xl:grid-cols-12 gap-3">
                     {chatAgents.slice(0, expandedCategories['chat'] === true ? 10 : chatAgents.length).map((sim) => (
                       <PumpFunSimCard
                         key={sim.id}
