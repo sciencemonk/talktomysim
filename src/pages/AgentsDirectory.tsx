@@ -12,7 +12,7 @@ import { UnifiedAgentCreation } from "@/components/UnifiedAgentCreation";
 import { CreateCABotModal } from "@/components/CreateCABotModal";
 import pumpfunLogo from "@/assets/pumpfun-logo.png";
 import xLogo from "@/assets/x-logo.png";
-import { Search, TrendingUp, ChevronDown, Mail, Bot, Zap, Code, User, MessageCircle, LogOut, Plus } from "lucide-react";
+import { Search, TrendingUp, ChevronDown, Mail, Bot, Zap, Code, User, MessageCircle, LogOut, Plus, ChevronRight } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { useQueryClient } from "@tanstack/react-query";
@@ -240,9 +240,13 @@ const AgentsDirectory = () => {
   const [currentUser, setCurrentUser] = useState<any>(null);
   const queryClient = useQueryClient();
   const [searchQuery, setSearchQuery] = useState('');
-  const [simTypeFilter, setSimTypeFilter] = useState<'all' | 'Crypto Mail' | 'Chat' | 'Autonomous Agent' | 'PumpFun Agent' | 'bookie' | 'email'>('all');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [sortBy, setSortBy] = useState<'popular' | 'newest' | 'name'>('newest');
+  const [expandedCategories, setExpandedCategories] = useState<Record<string, boolean>>({
+    'x-agents': true,
+    'pumpfun': true,
+    'chat': true
+  });
   const isMobile = useIsMobile();
   const { theme } = useTheme();
 
@@ -446,24 +450,15 @@ const AgentsDirectory = () => {
         const xUsername = (sim.social_links as any)?.x_username;
         if (xUsername?.toLowerCase() !== 'mrjethroknights') return false;
       }
-      
-      if (simTypeFilter !== 'all') {
-        if (simTypeFilter === 'Crypto Mail' && simCategory !== 'Crypto Mail') return false;
-        if (simTypeFilter === 'PumpFun Agent' && simCategory !== 'PumpFun Agent') return false;
-        if (simTypeFilter === 'Chat') {
-          const isChat = simCategory === 'Chat' || !simCategory || simCategory === '';
-          if (!isChat) return false;
-          
-          // Apply category filter for Chat type
-          if (selectedCategory !== 'all') {
-            const marketplaceCategory = (sim as any).marketplace_category?.toLowerCase() || 'uncategorized';
-            if (marketplaceCategory !== selectedCategory) return false;
-          }
-        }
-        if (simTypeFilter === 'Autonomous Agent' && simCategory !== 'Autonomous Agent') return false;
-        if (simTypeFilter === 'bookie' || simTypeFilter === 'email') return false; // Coming soon
-      }
 
+      // Apply category filter for Chat type
+      if (selectedCategory !== 'all') {
+        const isChat = simCategory === 'Chat' || !simCategory || simCategory === '';
+        if (isChat) {
+          const marketplaceCategory = (sim as any).marketplace_category?.toLowerCase() || 'uncategorized';
+          if (marketplaceCategory !== selectedCategory) return false;
+        }
+      }
       return true;
     })
     .sort((a, b) => {
@@ -488,6 +483,18 @@ const AgentsDirectory = () => {
     }).length || 0;
     return { ...cat, count };
   });
+
+  // Group sims by category
+  const xAgents = filteredSims?.filter(sim => (sim as any).sim_category === 'Crypto Mail') || [];
+  const pumpfunAgents = filteredSims?.filter(sim => (sim as any).sim_category === 'PumpFun Agent') || [];
+  const chatAgents = filteredSims?.filter(sim => {
+    const simCategory = (sim as any).sim_category;
+    return simCategory === 'Chat' || !simCategory || simCategory === '';
+  }) || [];
+
+  const toggleCategory = (category: string) => {
+    setExpandedCategories(prev => ({ ...prev, [category]: !prev[category] }));
+  };
 
   const generateSlug = (name: string) => {
     return name
@@ -544,102 +551,9 @@ const AgentsDirectory = () => {
               />
             </button>
 
-            {/* Center: Type Filters */}
-            <div className="flex-1 flex justify-center max-w-3xl">
-              {isMobile ? (
-                <Select value={simTypeFilter} onValueChange={(v) => {
-                  setSimTypeFilter(v as any);
-                  if (v !== 'Chat') setSelectedCategory('all');
-                }}>
-                  <SelectTrigger className="w-full h-10">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent className="bg-background border-border z-[100]">
-                    <SelectItem value="Chat">
-                      <div className="flex items-center gap-2">
-                        <Bot className="h-4 w-4" />
-                        Chat
-                      </div>
-                    </SelectItem>
-                    <SelectItem value="PumpFun Agent">
-                      <div className="flex items-center gap-2">
-                        <img src={pumpfunLogo} alt="PumpFun" className="h-4 w-4" />
-                      </div>
-                    </SelectItem>
-                    <SelectItem value="Crypto Mail">
-                      <div className="flex items-center gap-2">
-                        <img src={xLogo} alt="X" className="h-4 w-4" />
-                      </div>
-                    </SelectItem>
-                    <SelectItem value="Autonomous Agent" disabled>
-                      <div className="flex items-center gap-2">
-                        <Zap className="h-4 w-4" />
-                        Assistants
-                        <Badge variant="secondary" className="text-[9px] px-1.5 py-0 ml-2">
-                          Coming Soon
-                        </Badge>
-                      </div>
-                    </SelectItem>
-                    <SelectItem value="bookie" disabled>
-                      <div className="flex items-center gap-2">
-                        <TrendingUp className="h-4 w-4" />
-                        Bookie
-                        <Badge variant="secondary" className="text-[9px] px-1.5 py-0 ml-2">
-                          Coming Soon
-                        </Badge>
-                      </div>
-                    </SelectItem>
-                    <SelectItem value="email" disabled>
-                      <div className="flex items-center gap-2">
-                        <Mail className="h-4 w-4" />
-                        Email
-                        <Badge variant="secondary" className="text-[9px] px-1.5 py-0 ml-2">
-                          Coming Soon
-                        </Badge>
-                      </div>
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-              ) : (
-                <Tabs value={simTypeFilter} onValueChange={(v) => {
-                  setSimTypeFilter(v as any);
-                  if (v !== 'Chat') setSelectedCategory('all');
-                }}>
-                  <TabsList>
-                    <TabsTrigger value="Chat" className="gap-2">
-                      <Bot className="h-4 w-4" />
-                      Chat
-                    </TabsTrigger>
-                    <TabsTrigger value="PumpFun Agent" className="gap-2">
-                      <img src={pumpfunLogo} alt="PumpFun" className="h-4 w-4" />
-                    </TabsTrigger>
-                    <TabsTrigger value="Crypto Mail" className="gap-2">
-                      <img src={xLogo} alt="X" className="h-4 w-4" />
-                    </TabsTrigger>
-                    <TabsTrigger value="Autonomous Agent" disabled className="gap-2 opacity-50 cursor-not-allowed">
-                      <Zap className="h-4 w-4" />
-                      Assistants
-                      <Badge variant="secondary" className="text-[9px] px-1.5 py-0 ml-1">
-                        Coming Soon
-                      </Badge>
-                    </TabsTrigger>
-                    <TabsTrigger value="bookie" disabled className="gap-2 opacity-50 cursor-not-allowed">
-                      <TrendingUp className="h-4 w-4" />
-                      Bookie
-                      <Badge variant="secondary" className="text-[9px] px-1.5 py-0 ml-1">
-                        Coming Soon
-                      </Badge>
-                    </TabsTrigger>
-                    <TabsTrigger value="email" disabled className="gap-2 opacity-50 cursor-not-allowed">
-                      <Mail className="h-4 w-4" />
-                      Email
-                      <Badge variant="secondary" className="text-[9px] px-1.5 py-0 ml-1">
-                        Coming Soon
-                      </Badge>
-                    </TabsTrigger>
-                  </TabsList>
-                </Tabs>
-              )}
+            {/* Center: Title */}
+            <div className="flex-1 flex justify-center">
+              <h1 className="text-xl sm:text-2xl font-bold">Agent Directory</h1>
             </div>
 
             {/* Right: Theme Toggle + User Menu */}
@@ -738,8 +652,8 @@ const AgentsDirectory = () => {
               </div>
             </div>
 
-            {/* Category Filters - only show when Chatbots is selected */}
-            {simTypeFilter === 'Chat' && (isMobile ? (
+            {/* Category Filters - for chat agents */}
+            {(isMobile ? (
               <Select value={selectedCategory} onValueChange={setSelectedCategory}>
                 <SelectTrigger className="w-full h-12 bg-background">
                   <SelectValue placeholder="Select category">
@@ -799,24 +713,141 @@ const AgentsDirectory = () => {
             ))}
           </div>
 
-          {/* Sims Grid */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-            {filteredSims?.map((sim) => (
-              <PumpFunSimCard
-                key={sim.id}
-                sim={sim}
-                onSimClick={handleSimClick}
-                categories={categories}
-              />
-            ))}
-          </div>
+          {/* Categorized Sims */}
+          <div className="space-y-8">
+            {/* X Agents Section */}
+            {xAgents.length > 0 && (
+              <div>
+                <button
+                  onClick={() => toggleCategory('x-agents')}
+                  className="flex items-center gap-2 mb-4 group"
+                >
+                  <ChevronRight 
+                    className={`h-5 w-5 transition-transform ${expandedCategories['x-agents'] ? 'rotate-90' : ''}`}
+                  />
+                  <div className="flex items-center gap-2">
+                    <img src={xLogo} alt="X" className="h-5 w-5" />
+                    <h2 className="text-xl font-bold">X Agents</h2>
+                    <Badge variant="secondary">{xAgents.length}</Badge>
+                  </div>
+                </button>
+                {expandedCategories['x-agents'] && (
+                  <>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+                      {xAgents.slice(0, expandedCategories['x-agents'] === true ? 10 : xAgents.length).map((sim) => (
+                        <PumpFunSimCard
+                          key={sim.id}
+                          sim={sim}
+                          onSimClick={handleSimClick}
+                          categories={categories}
+                        />
+                      ))}
+                    </div>
+                    {xAgents.length > 10 && expandedCategories['x-agents'] === true && (
+                      <Button
+                        variant="outline"
+                        onClick={() => setExpandedCategories(prev => ({ ...prev, 'x-agents': 'all' as any }))}
+                        className="mt-4 w-full"
+                      >
+                        Show All ({xAgents.length - 10} more)
+                      </Button>
+                    )}
+                  </>
+                )}
+              </div>
+            )}
 
-          {filteredSims?.length === 0 && (
-            <Card className="p-12 text-center">
-              <p className="text-lg mb-2">No sims found</p>
-              <p className="text-sm text-muted-foreground">Try adjusting your filters or search query</p>
-            </Card>
-          )}
+            {/* PumpFun Agents Section */}
+            {pumpfunAgents.length > 0 && (
+              <div>
+                <button
+                  onClick={() => toggleCategory('pumpfun')}
+                  className="flex items-center gap-2 mb-4 group"
+                >
+                  <ChevronRight 
+                    className={`h-5 w-5 transition-transform ${expandedCategories['pumpfun'] ? 'rotate-90' : ''}`}
+                  />
+                  <div className="flex items-center gap-2">
+                    <img src={pumpfunLogo} alt="PumpFun" className="h-5 w-5" />
+                    <h2 className="text-xl font-bold">PumpFun Agents</h2>
+                    <Badge variant="secondary">{pumpfunAgents.length}</Badge>
+                  </div>
+                </button>
+                {expandedCategories['pumpfun'] && (
+                  <>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+                      {pumpfunAgents.slice(0, expandedCategories['pumpfun'] === true ? 10 : pumpfunAgents.length).map((sim) => (
+                        <PumpFunSimCard
+                          key={sim.id}
+                          sim={sim}
+                          onSimClick={handleSimClick}
+                          categories={categories}
+                        />
+                      ))}
+                    </div>
+                    {pumpfunAgents.length > 10 && expandedCategories['pumpfun'] === true && (
+                      <Button
+                        variant="outline"
+                        onClick={() => setExpandedCategories(prev => ({ ...prev, 'pumpfun': 'all' as any }))}
+                        className="mt-4 w-full"
+                      >
+                        Show All ({pumpfunAgents.length - 10} more)
+                      </Button>
+                    )}
+                  </>
+                )}
+              </div>
+            )}
+
+            {/* Chat Agents Section */}
+            {chatAgents.length > 0 && (
+              <div>
+                <button
+                  onClick={() => toggleCategory('chat')}
+                  className="flex items-center gap-2 mb-4 group"
+                >
+                  <ChevronRight 
+                    className={`h-5 w-5 transition-transform ${expandedCategories['chat'] ? 'rotate-90' : ''}`}
+                  />
+                  <div className="flex items-center gap-2">
+                    <Bot className="h-5 w-5" />
+                    <h2 className="text-xl font-bold">Chat Agents</h2>
+                    <Badge variant="secondary">{chatAgents.length}</Badge>
+                  </div>
+                </button>
+                {expandedCategories['chat'] && (
+                  <>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+                      {chatAgents.slice(0, expandedCategories['chat'] === true ? 10 : chatAgents.length).map((sim) => (
+                        <PumpFunSimCard
+                          key={sim.id}
+                          sim={sim}
+                          onSimClick={handleSimClick}
+                          categories={categories}
+                        />
+                      ))}
+                    </div>
+                    {chatAgents.length > 10 && expandedCategories['chat'] === true && (
+                      <Button
+                        variant="outline"
+                        onClick={() => setExpandedCategories(prev => ({ ...prev, 'chat': 'all' as any }))}
+                        className="mt-4 w-full"
+                      >
+                        Show All ({chatAgents.length - 10} more)
+                      </Button>
+                    )}
+                  </>
+                )}
+              </div>
+            )}
+
+            {xAgents.length === 0 && pumpfunAgents.length === 0 && chatAgents.length === 0 && (
+              <Card className="p-12 text-center">
+                <p className="text-lg mb-2">No agents found</p>
+                <p className="text-sm text-muted-foreground">Try adjusting your search query</p>
+              </Card>
+            )}
+          </div>
         </div>
       </section>
       </div>
