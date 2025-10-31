@@ -232,7 +232,7 @@ export default function XAgentPage() {
           <div className="lg:col-span-1 hidden lg:block">
             <Card className="border-border bg-card sticky top-24">
               <CardHeader>
-                <CardTitle className="text-lg">Chat with @{xData?.username || username}</CardTitle>
+                <CardTitle className="text-lg">{xData?.username || username} AI</CardTitle>
                 <CardDescription className="text-sm">
                   AI agent trained on their actual posts to represent their voice and ideas
                 </CardDescription>
