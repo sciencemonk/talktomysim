@@ -43,6 +43,7 @@ interface PumpFunSimCardProps {
 const PumpFunSimCard = ({ sim, onSimClick, categories }: PumpFunSimCardProps) => {
   const [marketCapData, setMarketCapData] = useState<{ marketCap?: number } | null>(null);
   const [isLoadingMarketCap, setIsLoadingMarketCap] = useState(false);
+  const [xProfileData, setXProfileData] = useState<any>(null);
   
   const simCategoryType = (sim as any).sim_category;
   const isPumpFunAgent = simCategoryType === 'PumpFun Agent';
@@ -54,6 +55,10 @@ const PumpFunSimCard = ({ sim, onSimClick, categories }: PumpFunSimCardProps) =>
   
   const contractAddress = isPumpFunAgent 
     ? (sim.social_links as any)?.contract_address 
+    : undefined;
+
+  const xUsername = isCryptoMail 
+    ? (sim.social_links as any)?.x_username 
     : undefined;
 
   useEffect(() => {
@@ -78,6 +83,27 @@ const PumpFunSimCard = ({ sim, onSimClick, categories }: PumpFunSimCardProps) =>
 
     fetchMarketCap();
   }, [isPumpFunAgent, contractAddress]);
+
+  // Fetch X profile data for Crypto Mail agents
+  useEffect(() => {
+    const fetchXProfile = async () => {
+      if (!isCryptoMail || !xUsername) return;
+
+      try {
+        const { data, error } = await supabase.functions.invoke('x-intelligence', {
+          body: { username: xUsername },
+        });
+
+        if (!error && data?.success && data?.report) {
+          setXProfileData(data.report);
+        }
+      } catch (error) {
+        console.error('[PumpFunSimCard] Error fetching X profile:', error);
+      }
+    };
+
+    fetchXProfile();
+  }, [isCryptoMail, xUsername]);
 
   const formatMarketCap = (value: number) => {
     if (value >= 1_000_000) {
@@ -119,9 +145,11 @@ const PumpFunSimCard = ({ sim, onSimClick, categories }: PumpFunSimCardProps) =>
       <div className="relative w-full aspect-[4/3] overflow-hidden bg-muted">
         <Avatar className="w-full h-full rounded-none">
           <AvatarImage 
-            src={getAvatarUrl(sim.avatar)} 
+            src={xProfileData?.profileImageUrl ? `https://images.weserv.nl/?url=${encodeURIComponent(xProfileData.profileImageUrl)}` : getAvatarUrl(sim.avatar)}
             alt={sim.name}
             className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+            referrerPolicy="no-referrer"
+            crossOrigin="anonymous"
           />
           <AvatarFallback className="w-full h-full rounded-none bg-primary/10 flex items-center justify-center">
             <span className="text-5xl font-bold text-primary">
