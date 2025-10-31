@@ -19,18 +19,18 @@ export const WalletProviders: FC<WalletProvidersProps> = ({ children }) => {
   // You can also use a custom RPC endpoint
   const endpoint = useMemo(() => clusterApiUrl(network), [network]);
 
-  // Configure wallets
+  // Configure only Solana-native wallets to avoid conflicts
   const wallets = useMemo(
     () => [
       new PhantomWalletAdapter(),
-      new SolflareWalletAdapter(),
+      new SolflareWalletAdapter({ network }),
     ],
-    []
+    [network]
   );
 
   return (
     <ConnectionProvider endpoint={endpoint}>
-      <WalletProvider wallets={wallets} autoConnect>
+      <WalletProvider wallets={wallets} autoConnect={false}>
         <WalletModalProvider>
           {children}
         </WalletModalProvider>
