@@ -2,7 +2,14 @@ import { useState, useEffect } from "react";
 import { useWallet, useConnection } from "@solana/wallet-adapter-react";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import { PublicKey, Transaction, SystemProgram } from "@solana/web3.js";
-import { getAssociatedTokenAddress, createTransferInstruction, TOKEN_PROGRAM_ID } from "@solana/spl-token";
+import { 
+  getAssociatedTokenAddress, 
+  createTransferInstruction, 
+  createAssociatedTokenAccountInstruction,
+  TOKEN_PROGRAM_ID,
+  ASSOCIATED_TOKEN_PROGRAM_ID,
+  getAccount
+} from "@solana/spl-token";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
@@ -69,8 +76,29 @@ export const X402PaymentModal = ({
         amount
       });
 
-      // Create transaction
-      const transaction = new Transaction().add(
+      // Check if recipient token account exists, if not create it
+      const transaction = new Transaction();
+      
+      try {
+        await getAccount(connection, recipientTokenAccount);
+        console.log('Recipient token account exists');
+      } catch (error) {
+        console.log('Recipient token account does not exist, creating it...');
+        // Add instruction to create recipient's associated token account
+        transaction.add(
+          createAssociatedTokenAccountInstruction(
+            publicKey, // payer
+            recipientTokenAccount, // associated token account address
+            recipientPubKey, // owner
+            USDC_MINT, // mint
+            TOKEN_PROGRAM_ID,
+            ASSOCIATED_TOKEN_PROGRAM_ID
+          )
+        );
+      }
+
+      // Add transfer instruction
+      transaction.add(
         createTransferInstruction(
           senderTokenAccount,
           recipientTokenAccount,
