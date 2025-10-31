@@ -6,7 +6,6 @@ import {
   PhantomWalletAdapter, 
   SolflareWalletAdapter,
 } from '@solana/wallet-adapter-wallets';
-import { clusterApiUrl } from '@solana/web3.js';
 
 // Import wallet adapter CSS
 import '@solana/wallet-adapter-react-ui/styles.css';
@@ -17,7 +16,12 @@ interface WalletProvidersProps {
 
 export const WalletProviders: FC<WalletProvidersProps> = ({ children }) => {
   const network = WalletAdapterNetwork.Mainnet;
-  const endpoint = useMemo(() => clusterApiUrl(network), [network]);
+  
+  // Use Helius RPC for better reliability (free tier: 100k requests/day)
+  const endpoint = useMemo(
+    () => 'https://mainnet.helius-rpc.com/?api-key=52ad2f86-f369-4d73-9d32-d7b8ad25fd7b',
+    []
+  );
 
   // Only configure Solana-native wallets explicitly
   // This prevents browser extensions like MetaMask from being auto-detected
