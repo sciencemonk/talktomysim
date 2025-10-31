@@ -445,11 +445,18 @@ const SimDetailModal = ({ sim, open, onOpenChange, onAuthRequired }: SimDetailMo
           <div className="flex justify-center mb-4">
             <div className="relative w-28 h-28 sm:w-32 sm:h-32">
               <div className="absolute inset-0 bg-primary/20 rounded-2xl blur-xl" />
-              <img 
-                src={xProfileData?.profilePicture || getAvatarUrl(sim.avatar)} 
-                alt={sim.name} 
-                className="relative w-full h-full object-cover rounded-2xl border-2 border-border shadow-2xl"
-              />
+              <Avatar className="relative w-full h-full rounded-2xl border-2 border-border shadow-2xl">
+                <AvatarImage 
+                  src={xProfileData?.profileImageUrl || getAvatarUrl(sim.avatar)} 
+                  alt={sim.name}
+                  className="object-cover rounded-2xl"
+                />
+                <AvatarFallback className="w-full h-full rounded-2xl bg-primary/10 flex items-center justify-center">
+                  <span className="text-5xl font-bold text-primary">
+                    {(sim as any).sim_category === 'Crypto Mail' ? '@' : (sim.name?.charAt(0)?.toUpperCase() || 'S')}
+                  </span>
+                </AvatarFallback>
+              </Avatar>
             </div>
           </div>
 
