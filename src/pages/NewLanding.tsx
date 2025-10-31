@@ -495,7 +495,7 @@ const NewLanding = () => {
                       <Zap className="h-4 w-4" />
                       Assistants
                       <Badge variant="secondary" className="text-[9px] px-1.5 py-0 ml-2">
-                        Coming Soon
+                        Phase 2
                       </Badge>
                     </div>
                   </SelectItem>
@@ -504,7 +504,7 @@ const NewLanding = () => {
                       <TrendingUp className="h-4 w-4" />
                       Bookie
                       <Badge variant="secondary" className="text-[9px] px-1.5 py-0 ml-2">
-                        Coming Soon
+                        Phase 2
                       </Badge>
                     </div>
                   </SelectItem>
@@ -513,7 +513,7 @@ const NewLanding = () => {
                       <Mail className="h-4 w-4" />
                       Email
                       <Badge variant="secondary" className="text-[9px] px-1.5 py-0 ml-2">
-                        Coming Soon
+                        Phase 2
                       </Badge>
                     </div>
                   </SelectItem>
@@ -542,21 +542,21 @@ const NewLanding = () => {
                     <Zap className="h-4 w-4" />
                     Assistants
                     <Badge variant="secondary" className="text-[9px] px-1.5 py-0 ml-1">
-                      Coming Soon
+                      Phase 2
                     </Badge>
                   </TabsTrigger>
                   <TabsTrigger value="bookie" disabled className="gap-2 opacity-50 cursor-not-allowed">
                     <TrendingUp className="h-4 w-4" />
                     Bookie
                     <Badge variant="secondary" className="text-[9px] px-1.5 py-0 ml-1">
-                      Coming Soon
+                      Phase 2
                     </Badge>
                   </TabsTrigger>
                   <TabsTrigger value="email" disabled className="gap-2 opacity-50 cursor-not-allowed">
                     <Mail className="h-4 w-4" />
                     Email
                     <Badge variant="secondary" className="text-[9px] px-1.5 py-0 ml-1">
-                      Coming Soon
+                      Phase 2
                     </Badge>
                   </TabsTrigger>
                 </TabsList>
