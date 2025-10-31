@@ -76,6 +76,23 @@ export const X402PaymentModal = ({
         amount
       });
 
+      // Check if sender has USDC token account and sufficient balance
+      let senderBalance = 0;
+      try {
+        const senderAccountInfo = await getAccount(connection, senderTokenAccount);
+        senderBalance = Number(senderAccountInfo.amount);
+        console.log('Sender USDC balance:', senderBalance / 1_000_000, 'USDC');
+        
+        if (senderBalance < amount) {
+          toast.error(`Insufficient USDC. You have ${(senderBalance / 1_000_000).toFixed(2)} USDC but need ${price.toFixed(2)} USDC`);
+          return;
+        }
+      } catch (error) {
+        console.error('Sender USDC account check failed:', error);
+        toast.error('You need to have USDC in your wallet first. Please add USDC to your Solana wallet.');
+        return;
+      }
+
       // Check if recipient token account exists, if not create it
       const transaction = new Transaction();
       
@@ -196,29 +213,35 @@ export const X402PaymentModal = ({
           </div>
 
           {!connected ? (
-            <div className="flex justify-center">
-              <WalletMultiButton className="!bg-primary !text-primary-foreground hover:!bg-primary/90" />
+            <div className="space-y-3">
+              <div className="flex justify-center">
+                <WalletMultiButton className="!bg-primary !text-primary-foreground hover:!bg-primary/90" />
+              </div>
+              <p className="text-xs text-muted-foreground text-center">
+                Connect your Solana wallet (Phantom or Solflare)
+              </p>
             </div>
           ) : (
-            <Button 
-              onClick={handlePayment} 
-              className="w-full"
-              disabled={isProcessing}
-            >
-              {isProcessing ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Processing Payment...
-                </>
-              ) : (
-                <>Pay ${price.toFixed(2)} USDC</>
-              )}
-            </Button>
+            <div className="space-y-3">
+              <Button 
+                onClick={handlePayment} 
+                className="w-full"
+                disabled={isProcessing}
+              >
+                {isProcessing ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Processing Payment...
+                  </>
+                ) : (
+                  <>Pay ${price.toFixed(2)} USDC</>
+                )}
+              </Button>
+              <p className="text-xs text-muted-foreground text-center">
+                Make sure you have USDC in your wallet
+              </p>
+            </div>
           )}
-
-          <p className="text-xs text-muted-foreground text-center">
-            Payment is processed on Solana mainnet using USDC
-          </p>
         </div>
       </DialogContent>
     </Dialog>
