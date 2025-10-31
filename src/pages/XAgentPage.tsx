@@ -152,69 +152,69 @@ export default function XAgentPage() {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <div className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-40">
-        <div className="container mx-auto px-4 py-4">
+        <div className="container mx-auto px-3 md:px-4 py-3 md:py-4">
           <div className="flex items-center justify-between">
             <Button
               variant="ghost"
               size="sm"
               onClick={() => navigate('/agents')}
-              className="gap-2"
+              className="gap-2 h-9 px-2 md:px-3"
             >
               <ArrowLeft className="h-4 w-4" />
-              Back
+              <span className="hidden sm:inline">Back</span>
             </Button>
             <div className="flex items-center gap-2">
-              <img src={xIcon} alt="X" className="h-5 w-5" />
-              <span className="text-sm font-medium text-muted-foreground">X Agent</span>
+              <img src={xIcon} alt="X" className="h-4 w-4 md:h-5 md:w-5" />
+              <span className="text-xs md:text-sm font-medium text-muted-foreground">X Agent</span>
             </div>
           </div>
         </div>
       </div>
 
       {/* Main Content */}
-      <div className="container mx-auto px-4 py-8 max-w-7xl">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="container mx-auto px-3 md:px-4 py-4 md:py-8 max-w-7xl">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
           {/* Left Column - X Profile Info & Stats */}
-          <div className="lg:col-span-2 space-y-6">
-            {/* Profile Header */}
+          <div className="lg:col-span-2 space-y-4 md:space-y-6">
+            {/* Profile Header - More compact on mobile */}
             <Card className="border-border bg-card">
-              <CardHeader>
-                <div className="flex items-start gap-4">
-                  <Avatar className="h-20 w-20 border-2 border-primary/20">
+              <CardHeader className="p-4 md:p-6">
+                <div className="flex items-start gap-3 md:gap-4">
+                  <Avatar className="h-16 w-16 md:h-20 md:w-20 border-2 border-primary/20 shrink-0">
                     <AvatarImage src={xData?.profilePicture || agent.avatar} alt={agent.name} />
                     <AvatarFallback>{agent.name[0]}</AvatarFallback>
                   </Avatar>
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <CardTitle className="text-2xl">{xData?.displayName || agent.name}</CardTitle>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start gap-2 mb-1 flex-wrap">
+                      <CardTitle className="text-xl md:text-2xl break-words">{xData?.displayName || agent.name}</CardTitle>
                       {xData?.verified && (
-                        <Badge variant="secondary" className="bg-blue-500/10 text-blue-500 border-blue-500/20">
-                          ✓ Verified
+                        <Badge variant="secondary" className="bg-blue-500/10 text-blue-500 border-blue-500/20 text-xs shrink-0">
+                          ✓
                         </Badge>
                       )}
                     </div>
-                    <CardDescription className="text-base mb-3">
+                    <CardDescription className="text-sm md:text-base mb-2 md:mb-3 break-all">
                       @{xData?.username || username}
                     </CardDescription>
-                    <div className="flex items-center gap-2">
-                      <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20">
-                        <Users className="h-3 w-3 mr-1" />
-                        {formatNumber(xData?.metrics?.followers)} Followers
-                      </Badge>
-                    </div>
+                    <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20 text-xs">
+                      <Users className="h-3 w-3 mr-1" />
+                      {formatNumber(xData?.metrics?.followers)} Followers
+                    </Badge>
                   </div>
                 </div>
               </CardHeader>
-              <CardContent>
-                {xData?.bio && (
-                  <p className="text-sm text-muted-foreground mb-4">
-                    {xData.bio}
-                  </p>
-                )}
-                {xData?.location && (
-                  <p className="text-xs text-muted-foreground">📍 {xData.location}</p>
-                )}
-              </CardContent>
+              {(xData?.bio || xData?.location) && (
+                <CardContent className="p-4 md:p-6 pt-0 md:pt-0">
+                  {xData?.bio && (
+                    <p className="text-sm text-muted-foreground mb-3 md:mb-4 line-clamp-3 md:line-clamp-none">
+                      {xData.bio}
+                    </p>
+                  )}
+                  {xData?.location && (
+                    <p className="text-xs text-muted-foreground">📍 {xData.location}</p>
+                  )}
+                </CardContent>
+              )}
             </Card>
 
             {/* Message Board */}
@@ -228,8 +228,8 @@ export default function XAgentPage() {
             />
           </div>
 
-          {/* Right Column - Chat Interface */}
-          <div className="lg:col-span-1">
+          {/* Right Column - Chat Interface (Hidden on mobile) */}
+          <div className="lg:col-span-1 hidden lg:block">
             <Card className="border-border bg-card sticky top-24">
               <CardHeader>
                 <CardTitle className="text-lg">Chat with @{xData?.username || username}</CardTitle>

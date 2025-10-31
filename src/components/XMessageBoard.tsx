@@ -169,56 +169,56 @@ export const XMessageBoard = ({
   return (
     <>
       <Card className="border-border bg-card">
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle className="flex items-center gap-2">
-                <MessageSquare className="h-5 w-5" />
-                Public Message Board
-              </CardTitle>
-              <CardDescription>
-                Messages from the community • ${price} per post
-              </CardDescription>
+        <CardHeader className="p-4 md:p-6">
+          <div className="flex items-start justify-between gap-3 md:gap-4">
+            <div className="flex items-start gap-2 md:gap-3 min-w-0 flex-1">
+              <MessageSquare className="h-5 w-5 md:h-6 md:w-6 text-primary mt-0.5 md:mt-1 shrink-0" />
+              <div className="min-w-0 flex-1">
+                <CardTitle className="text-lg md:text-xl mb-1">Public Message Board</CardTitle>
+                <CardDescription className="text-xs md:text-sm">
+                  Messages from the community • ${price} per post
+                </CardDescription>
+              </div>
             </div>
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
               <DialogTrigger asChild>
-                <Button size="sm" className="gap-2">
+                <Button size="sm" className="gap-2 h-9 px-3 md:px-4 shrink-0">
                   <Plus className="h-4 w-4" />
-                  Post Message
+                  <span className="hidden sm:inline">Post Message</span>
                 </Button>
               </DialogTrigger>
-              <DialogContent>
+              <DialogContent className="max-w-[95vw] md:max-w-md">
                 <DialogHeader>
-                  <DialogTitle>Post a Message</DialogTitle>
-                  <DialogDescription>
+                  <DialogTitle className="text-base md:text-lg">Post a Message</DialogTitle>
+                  <DialogDescription className="text-xs md:text-sm">
                     Pay ${price} USDC to post and get a response from @{xUsername}
                   </DialogDescription>
                 </DialogHeader>
-                <div className="space-y-4 py-4">
+                <div className="space-y-3 md:space-y-4 py-3 md:py-4">
                   <div>
-                    <label className="text-sm font-medium mb-1 block">Your Name</label>
+                    <label className="text-xs md:text-sm font-medium mb-1 block">Your Name</label>
                     <input
                       type="text"
                       value={senderName}
                       onChange={(e) => setSenderName(e.target.value)}
                       placeholder="Enter your name"
-                      className="w-full px-3 py-2 bg-background border border-border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                      className="w-full px-3 py-2 bg-background border border-border rounded-md text-xs md:text-sm focus:outline-none focus:ring-2 focus:ring-primary"
                     />
                   </div>
                   <div>
-                    <label className="text-sm font-medium mb-1 block">Message</label>
+                    <label className="text-xs md:text-sm font-medium mb-1 block">Message</label>
                     <Textarea
                       value={newMessage}
                       onChange={(e) => setNewMessage(e.target.value)}
                       placeholder="Write your message..."
                       rows={4}
-                      className="resize-none"
+                      className="resize-none text-xs md:text-sm"
                     />
                   </div>
                   <Button 
                     onClick={handlePostMessage}
                     disabled={!newMessage.trim() || !senderName.trim() || isPosting}
-                    className="w-full"
+                    className="w-full h-10 text-xs md:text-sm"
                   >
                     {isPosting ? (
                       <>
@@ -237,60 +237,60 @@ export const XMessageBoard = ({
             </Dialog>
           </div>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-3 md:space-y-4 p-4 md:p-6">
           {/* Messages List */}
-          <div className="space-y-4 max-h-[600px] overflow-y-auto">
+          <div className="space-y-3 md:space-y-4 max-h-[500px] md:max-h-[600px] overflow-y-auto">
             {isLoading ? (
-              <div className="flex items-center justify-center py-8">
-                <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+              <div className="flex items-center justify-center py-6 md:py-8">
+                <Loader2 className="h-5 w-5 md:h-6 md:w-6 animate-spin text-muted-foreground" />
               </div>
             ) : displayMessages.length === 0 ? (
-              <div className="text-center py-8 text-muted-foreground">
-                <MessageSquare className="h-12 w-12 mx-auto mb-2 opacity-50" />
-                <p className="text-sm">No messages yet. Be the first to post!</p>
+              <div className="text-center py-6 md:py-8 text-muted-foreground">
+                <MessageSquare className="h-10 w-10 md:h-12 md:w-12 mx-auto mb-2 opacity-50" />
+                <p className="text-xs md:text-sm">No messages yet. Be the first to post!</p>
               </div>
             ) : (
               displayMessages.map((message) => (
-                <div key={message.id} className="p-4 bg-muted/30 rounded-lg border border-border space-y-3">
+                <div key={message.id} className="p-3 md:p-4 bg-muted/30 rounded-lg border border-border space-y-2 md:space-y-3">
                   {/* Original Message */}
-                  <div className="flex gap-3">
-                    <Avatar className="h-10 w-10">
-                      <AvatarFallback>{message.sender_name[0]?.toUpperCase()}</AvatarFallback>
+                  <div className="flex gap-2 md:gap-3">
+                    <Avatar className="h-8 w-8 md:h-10 md:w-10 shrink-0">
+                      <AvatarFallback className="text-xs">{message.sender_name[0]?.toUpperCase()}</AvatarFallback>
                     </Avatar>
-                    <div className="flex-1 space-y-1">
-                      <div className="flex items-center gap-2">
-                        <span className="font-medium text-sm">{message.sender_name}</span>
-                        <Badge variant="secondary" className="text-xs bg-primary/10 text-primary">
+                    <div className="flex-1 space-y-1 min-w-0">
+                      <div className="flex items-center gap-1.5 md:gap-2 flex-wrap">
+                        <span className="font-medium text-xs md:text-sm truncate">{message.sender_name}</span>
+                        <Badge variant="secondary" className="text-[10px] md:text-xs bg-primary/10 text-primary px-1.5 py-0">
                           Paid ${price}
                         </Badge>
-                        <span className="text-xs text-muted-foreground">
+                        <span className="text-[10px] md:text-xs text-muted-foreground whitespace-nowrap">
                           {formatDate(message.created_at)}
                         </span>
                       </div>
-                      <p className="text-sm">{message.content}</p>
+                      <p className="text-xs md:text-sm break-words">{message.content}</p>
                     </div>
                   </div>
 
                   {/* Response */}
                   {message.response && (
-                    <div className="flex gap-3 ml-8 pl-4 border-l-2 border-primary/30">
-                      <Avatar className="h-10 w-10">
+                    <div className="flex gap-2 md:gap-3 ml-4 md:ml-8 pl-3 md:pl-4 border-l-2 border-primary/30">
+                      <Avatar className="h-8 w-8 md:h-10 md:w-10 shrink-0">
                         <AvatarImage src={agentAvatar} />
-                        <AvatarFallback>{agentName[0]}</AvatarFallback>
+                        <AvatarFallback className="text-xs">{agentName[0]}</AvatarFallback>
                       </Avatar>
-                      <div className="flex-1 space-y-1">
-                        <div className="flex items-center gap-2">
-                          <span className="font-medium text-sm">@{xUsername}</span>
-                          <Badge variant="secondary" className="text-xs bg-blue-500/10 text-blue-500">
+                      <div className="flex-1 space-y-1 min-w-0">
+                        <div className="flex items-center gap-1.5 md:gap-2 flex-wrap">
+                          <span className="font-medium text-xs md:text-sm truncate">@{xUsername}</span>
+                          <Badge variant="secondary" className="text-[10px] md:text-xs bg-blue-500/10 text-blue-500 px-1.5 py-0">
                             Creator
                           </Badge>
                           {message.response_at && (
-                            <span className="text-xs text-muted-foreground">
+                            <span className="text-[10px] md:text-xs text-muted-foreground whitespace-nowrap">
                               {formatDate(message.response_at)}
                             </span>
                           )}
                         </div>
-                        <p className="text-sm">{message.response}</p>
+                        <p className="text-xs md:text-sm break-words">{message.response}</p>
                       </div>
                     </div>
                   )}
