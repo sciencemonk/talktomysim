@@ -74,11 +74,31 @@ serve(async (req) => {
     }
   );
 
-  let tweets = [];
+  let tweets: any[] = [];
   if (tweetsResponse.ok) {
-    const tweetsData = await tweetsResponse.json();
-    tweets = tweetsData.tweets || tweetsData.data || [];
-    console.log(`Fetched ${tweets.length} tweets`);
+    try {
+      const tweetsData = await tweetsResponse.json();
+      console.log('Tweets API response:', JSON.stringify(tweetsData));
+      
+      // Safely extract tweets array - handle various response formats
+      const tweetsArray = tweetsData.tweets || tweetsData.data || tweetsData;
+      
+      // Ensure it's actually an array
+      if (Array.isArray(tweetsArray)) {
+        tweets = tweetsArray;
+      } else if (tweetsArray && typeof tweetsArray === 'object') {
+        // If it's an object, maybe tweets are in a nested property
+        console.warn('Tweets data is not an array:', tweetsArray);
+        tweets = [];
+      }
+      
+      console.log(`Fetched ${tweets.length} tweets`);
+    } catch (e) {
+      console.error('Error parsing tweets response:', e);
+      tweets = [];
+    }
+  } else {
+    console.warn(`Tweets API returned status ${tweetsResponse.status}`);
   }
 
   // Generate intelligence report
@@ -125,21 +145,24 @@ function generateIntelligenceReport(userData: any, tweets: any[], reportType: st
     }
   }
   
+  // Ensure tweets is an array (defensive programming)
+  const safeTweets = Array.isArray(tweets) ? tweets : [];
+  
   // Calculate engagement metrics
-  const totalLikes = tweets.reduce((sum, t) => sum + (t.favorite_count || t.public_metrics?.like_count || 0), 0);
-  const totalRetweets = tweets.reduce((sum, t) => sum + (t.retweet_count || t.public_metrics?.retweet_count || 0), 0);
-  const totalReplies = tweets.reduce((sum, t) => sum + (t.reply_count || t.public_metrics?.reply_count || 0), 0);
-  const avgEngagement = tweets.length > 0 ? (totalLikes + totalRetweets + totalReplies) / tweets.length : 0;
+  const totalLikes = safeTweets.reduce((sum, t) => sum + (t.favorite_count || t.public_metrics?.like_count || 0), 0);
+  const totalRetweets = safeTweets.reduce((sum, t) => sum + (t.retweet_count || t.public_metrics?.retweet_count || 0), 0);
+  const totalReplies = safeTweets.reduce((sum, t) => sum + (t.reply_count || t.public_metrics?.reply_count || 0), 0);
+  const avgEngagement = safeTweets.length > 0 ? (totalLikes + totalRetweets + totalReplies) / safeTweets.length : 0;
 
   // Analyze posting frequency
-  const tweetDates = tweets
+  const tweetDates = safeTweets
     .map(t => new Date(t.created_at))
     .filter(d => !isNaN(d.getTime()));
   
   let postingFrequency = 'Unknown';
   if (tweetDates.length > 1) {
     const daysDiff = (tweetDates[0].getTime() - tweetDates[tweetDates.length - 1].getTime()) / (1000 * 60 * 60 * 24);
-    const tweetsPerDay = tweets.length / Math.max(daysDiff, 1);
+    const tweetsPerDay = safeTweets.length / Math.max(daysDiff, 1);
     
     if (tweetsPerDay > 5) postingFrequency = 'Very Active (5+ tweets/day)';
     else if (tweetsPerDay > 2) postingFrequency = 'Active (2-5 tweets/day)';
@@ -150,7 +173,7 @@ function generateIntelligenceReport(userData: any, tweets: any[], reportType: st
   // Extract topics and hashtags
   const hashtags = new Set<string>();
   const mentions = new Set<string>();
-  tweets.forEach(tweet => {
+  safeTweets.forEach(tweet => {
     const text = tweet.full_text || tweet.text || '';
     const hashtagMatches = text.match(/#\w+/g) || [];
     const mentionMatches = text.match(/@\w+/g) || [];
@@ -176,7 +199,7 @@ function generateIntelligenceReport(userData: any, tweets: any[], reportType: st
       totalTweets,
     },
     
-    insights: generateInsights(user, tweets, {
+    insights: generateInsights(user, safeTweets, {
       totalLikes,
       totalRetweets,
       totalReplies,
@@ -185,19 +208,19 @@ function generateIntelligenceReport(userData: any, tweets: any[], reportType: st
   };
 
   // Only include engagement if there's actual activity
-  if (tweets.length > 0 && avgEngagement > 0) {
+  if (safeTweets.length > 0 && avgEngagement > 0) {
     report.engagement = {
-      avgLikesPerTweet: (totalLikes / tweets.length).toFixed(1),
-      avgRetweetsPerTweet: (totalRetweets / tweets.length).toFixed(1),
-      avgRepliesPerTweet: (totalReplies / tweets.length).toFixed(1),
+      avgLikesPerTweet: (totalLikes / safeTweets.length).toFixed(1),
+      avgRetweetsPerTweet: (totalRetweets / safeTweets.length).toFixed(1),
+      avgRepliesPerTweet: (totalReplies / safeTweets.length).toFixed(1),
     };
   }
 
   // Only include activity details if there are tweets
-  if (tweets.length > 0) {
+  if (safeTweets.length > 0) {
     report.activity = {
       postingFrequency,
-      recentTweetCount: tweets.length,
+      recentTweetCount: safeTweets.length,
       topHashtags: Array.from(hashtags).slice(0, 5),
       frequentMentions: Array.from(mentions).slice(0, 5),
     };
