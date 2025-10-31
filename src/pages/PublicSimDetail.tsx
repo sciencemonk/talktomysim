@@ -364,11 +364,13 @@ const PublicSimDetail = () => {
         className="flex items-center justify-center min-h-screen relative bg-gradient-to-br from-primary/20 via-background to-secondary/20"
       >
         <div className="absolute inset-0 bg-background/80 backdrop-blur-sm z-0" />
-        <img 
-          src={aiLoadingGif} 
-          alt="Loading..." 
-          className="h-16 w-16 relative z-10"
-        />
+        <div className="bg-white rounded-2xl p-6 flex items-center justify-center relative z-10">
+          <img 
+            src={aiLoadingGif} 
+            alt="Loading..." 
+            className="h-32 w-32"
+          />
+        </div>
       </div>
     );
   }

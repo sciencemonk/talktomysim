@@ -194,11 +194,13 @@ export default function XAgentPage() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-background">
-        <img 
-          src={aiLoadingGif} 
-          alt="Loading..." 
-          className="h-16 w-16"
-        />
+        <div className="bg-white rounded-2xl p-6 flex items-center justify-center">
+          <img 
+            src={aiLoadingGif} 
+            alt="Loading..." 
+            className="h-32 w-32"
+          />
+        </div>
       </div>
     );
   }
