@@ -25,6 +25,7 @@ export default function XAgentCreatorView() {
   const [isValidated, setIsValidated] = useState(false);
   const [systemPrompt, setSystemPrompt] = useState("");
   const [x402Price, setX402Price] = useState(5);
+  const [walletAddress, setWalletAddress] = useState("");
   const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
@@ -107,6 +108,8 @@ export default function XAgentCreatorView() {
       setAgent(transformedAgent);
       setSystemPrompt(matchingAgent.prompt || "");
       setX402Price(matchingAgent.x402_price || 5);
+      const socialLinks = matchingAgent.social_links as any;
+      setWalletAddress(socialLinks?.x402_wallet || "");
       fetchTotalEarnings(matchingAgent.id);
 
       try {
@@ -167,13 +170,28 @@ export default function XAgentCreatorView() {
   const handleSaveSettings = async () => {
     if (!agent || !editCode) return;
 
+    // Validate wallet address format (basic Solana address validation)
+    if (walletAddress && !/^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(walletAddress)) {
+      toast.error("Invalid Solana wallet address format");
+      return;
+    }
+
     setIsSaving(true);
     try {
+      // Get current social_links and update with new wallet
+      const currentSocialLinks = (agent.social_links as any) || {};
+      const updatedSocialLinks = {
+        ...currentSocialLinks,
+        x402_wallet: walletAddress
+      };
+
       const { error } = await supabase
         .from('advisors')
         .update({
           prompt: systemPrompt,
           x402_price: x402Price,
+          social_links: updatedSocialLinks,
+          x402_enabled: walletAddress ? true : false,
           updated_at: new Date().toISOString()
         })
         .eq('id', agent.id)
@@ -182,6 +200,14 @@ export default function XAgentCreatorView() {
       if (error) throw error;
 
       toast.success("Settings saved successfully!");
+      
+      // Update local agent state
+      setAgent({
+        ...agent,
+        social_links: updatedSocialLinks,
+        x402_enabled: walletAddress ? true : false,
+        x402_price: x402Price
+      } as any);
     } catch (error) {
       console.error('Error saving settings:', error);
       toast.error("Failed to save settings");
@@ -407,7 +433,21 @@ export default function XAgentCreatorView() {
                   </p>
                 </div>
 
-                <Button 
+                <div className="space-y-2">
+                  <Label htmlFor="wallet">Solana Wallet Address</Label>
+                  <Input
+                    id="wallet"
+                    type="text"
+                    value={walletAddress}
+                    onChange={(e) => setWalletAddress(e.target.value)}
+                    placeholder="Enter your Solana wallet address"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Your Solana wallet address to receive USDC payments
+                  </p>
+                </div>
+
+                <Button
                   onClick={handleSaveSettings} 
                   disabled={isSaving}
                   className="w-full"
