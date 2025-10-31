@@ -182,7 +182,11 @@ export default function XAgentPage() {
                 <div className="flex items-start gap-3 md:gap-4">
                   <div className="relative">
                     <Avatar className="h-16 w-16 md:h-20 md:w-20 border-2 shrink-0 ring-2 ring-[#81f4aa]/20" style={{ borderColor: '#81f4aa' }}>
-                      <AvatarImage src={xData?.profilePicture || agent.avatar} alt={agent.name} />
+                      <AvatarImage 
+                        src={xData?.profilePicture || agent.avatar} 
+                        alt={agent.name}
+                        className="object-cover"
+                      />
                       <AvatarFallback className="text-lg font-bold">{agent.name[0]}</AvatarFallback>
                     </Avatar>
                     {xData?.verified && (

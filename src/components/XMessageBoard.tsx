@@ -255,32 +255,24 @@ export const XMessageBoard = ({
             ) : (
               displayMessages.map((message) => (
                 <div key={message.id} className="p-3 md:p-4 bg-card rounded-xl border border-border/50 shadow-sm hover:shadow-md transition-shadow space-y-2 md:space-y-3">
-                  {/* Original Message */}
-                  <div className="flex gap-2 md:gap-3">
-                    <Avatar className="h-9 w-9 md:h-11 md:w-11 shrink-0 ring-2 ring-border">
-                      <AvatarFallback className="text-xs font-semibold" style={{ backgroundColor: 'rgba(129, 244, 170, 0.2)', color: '#81f4aa' }}>
-                        {message.sender_name[0]?.toUpperCase()}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="flex-1 space-y-1.5 min-w-0">
-                      <div className="flex items-center gap-1.5 md:gap-2 flex-wrap">
-                        <span className="font-semibold text-xs md:text-sm truncate">{message.sender_name}</span>
-                        <Badge variant="secondary" className="text-[10px] md:text-xs px-2 py-0.5 font-medium" style={{ backgroundColor: 'rgba(129, 244, 170, 0.15)', color: '#81f4aa', borderColor: 'rgba(129, 244, 170, 0.3)' }}>
-                          Paid ${price}
-                        </Badge>
-                        <span className="text-[10px] md:text-xs text-muted-foreground whitespace-nowrap">
-                          {formatDate(message.created_at)}
-                        </span>
-                      </div>
-                      <p className="text-xs md:text-sm break-words leading-relaxed">{message.content}</p>
+                  {/* Original Message - Just the content */}
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between gap-2">
+                      <Badge variant="secondary" className="text-[10px] md:text-xs px-2 py-0.5 font-medium" style={{ backgroundColor: 'rgba(129, 244, 170, 0.15)', color: '#81f4aa', borderColor: 'rgba(129, 244, 170, 0.3)' }}>
+                        Paid ${price}
+                      </Badge>
+                      <span className="text-[10px] md:text-xs text-muted-foreground whitespace-nowrap">
+                        {formatDate(message.created_at)}
+                      </span>
                     </div>
+                    <p className="text-sm md:text-base break-words leading-relaxed">{message.content}</p>
                   </div>
 
                   {/* Response */}
                   {message.response && (
-                    <div className="flex gap-2 md:gap-3 ml-5 md:ml-8 pl-3 md:pl-4 border-l-2 rounded-l-lg py-2" style={{ borderColor: '#81f4aa', backgroundColor: 'rgba(129, 244, 170, 0.05)' }}>
+                    <div className="flex gap-2 md:gap-3 pt-2 pl-3 md:pl-4 border-l-2 rounded-l-lg py-2" style={{ borderColor: '#81f4aa', backgroundColor: 'rgba(129, 244, 170, 0.05)' }}>
                       <Avatar className="h-8 w-8 md:h-10 md:w-10 shrink-0 ring-2 ring-[#81f4aa]/30">
-                        <AvatarImage src={agentAvatar} />
+                        <AvatarImage src={agentAvatar} alt={agentName} />
                         <AvatarFallback className="text-xs font-semibold">{agentName[0]}</AvatarFallback>
                       </Avatar>
                       <div className="flex-1 space-y-1 min-w-0">
