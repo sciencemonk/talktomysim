@@ -126,7 +126,7 @@ const PumpFunSimCard = ({ sim, onSimClick }: PumpFunSimCardProps) => {
   return (
     <button
       onClick={() => onSimClick(sim)}
-      className="group relative flex flex-col overflow-hidden rounded-2xl bg-card hover:bg-muted border-2 hover:border-[#83f1aa] transition-all duration-300 hover:scale-105 hover:shadow-xl"
+      className="group relative flex flex-col overflow-hidden rounded-xl bg-card hover:bg-muted border hover:border-[#83f1aa] transition-all duration-300 hover:scale-105 hover:shadow-lg"
     >
       <div className="relative w-full aspect-[4/3] overflow-hidden bg-muted">
         <Avatar className="w-full h-full rounded-none">
@@ -138,16 +138,16 @@ const PumpFunSimCard = ({ sim, onSimClick }: PumpFunSimCardProps) => {
             crossOrigin="anonymous"
           />
           <AvatarFallback className="w-full h-full rounded-none bg-primary/10 flex items-center justify-center">
-            <span className="text-5xl font-bold text-primary">
+            <span className="text-3xl font-bold text-primary">
               {isCryptoMail ? '@' : (sim.name?.charAt(0)?.toUpperCase() || 'S')}
             </span>
           </AvatarFallback>
         </Avatar>
       </div>
       
-      <div className="w-full p-3 space-y-2">
-        <div className="flex items-center justify-center gap-1.5">
-          <span className="text-sm font-semibold line-clamp-2 leading-tight block">
+      <div className="w-full p-2 space-y-1.5">
+        <div className="flex items-center justify-center gap-1">
+          <span className="text-xs font-semibold line-clamp-2 leading-tight block">
             {sim.name}
           </span>
           {(sim as any).is_verified && (
@@ -155,16 +155,16 @@ const PumpFunSimCard = ({ sim, onSimClick }: PumpFunSimCardProps) => {
               <img 
                 src="/lovable-uploads/verified-badge.png" 
                 alt="Verified"
-                className="w-4 h-4"
+                className="w-3 h-3"
               />
             </div>
           )}
         </div>
         
-        <div className="flex flex-wrap gap-1.5 justify-center">
+        <div className="flex flex-wrap gap-1 justify-center">
           <Badge 
             variant="outline" 
-            className="text-[9px] px-1.5 py-0 bg-primary/10 border-primary/30 text-primary whitespace-nowrap"
+            className="text-[8px] px-1 py-0 bg-primary/10 border-primary/30 text-primary whitespace-nowrap"
           >
             {typeBadgeText}
           </Badge>
@@ -172,27 +172,27 @@ const PumpFunSimCard = ({ sim, onSimClick }: PumpFunSimCardProps) => {
           {isPumpFunAgent && (
             <Badge 
               variant="outline" 
-              className="text-[9px] px-1.5 py-0 flex items-center gap-0.5"
+              className="text-[8px] px-1 py-0 flex items-center gap-0.5"
             >
-              <img src={pumpfunLogo} alt="PumpFun" className="h-3 w-3" />
+              <img src={pumpfunLogo} alt="PumpFun" className="h-2.5 w-2.5" />
               Agent
             </Badge>
           )}
         </div>
 
         {isPumpFunAgent && marketCapData?.marketCap && (
-          <div className="pt-1 border-t border-border/50">
-            <div className="flex items-center justify-center gap-1.5">
-              <span className="text-[10px] text-muted-foreground">Market Cap:</span>
-              <span className="text-xs font-semibold text-primary">
+          <div className="pt-0.5 border-t border-border/50">
+            <div className="flex items-center justify-center gap-1">
+              <span className="text-[9px] text-muted-foreground">Market Cap:</span>
+              <span className="text-[10px] font-semibold text-primary">
                 {formatMarketCap(marketCapData.marketCap)}
               </span>
             </div>
           </div>
         )}
         {isPumpFunAgent && isLoadingMarketCap && (
-          <div className="pt-1 border-t border-border/50">
-            <div className="text-[10px] text-muted-foreground text-center">Loading...</div>
+          <div className="pt-0.5 border-t border-border/50">
+            <div className="text-[9px] text-muted-foreground text-center">Loading...</div>
           </div>
         )}
       </div>
