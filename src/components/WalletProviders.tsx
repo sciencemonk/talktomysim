@@ -23,14 +23,13 @@ export const WalletProviders: FC<WalletProvidersProps> = ({ children }) => {
     []
   );
 
-  // Only configure Solana-native wallets explicitly
-  // This prevents browser extensions like MetaMask from being auto-detected
+  // Configure Solana wallets - both Phantom and Solflare
   const wallets = useMemo(
     () => [
       new PhantomWalletAdapter(),
-      new SolflareWalletAdapter({ network }),
+      new SolflareWalletAdapter(),
     ],
-    [network]
+    []
   );
 
   return (
