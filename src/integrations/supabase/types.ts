@@ -307,6 +307,30 @@ export type Database = {
         }
         Relationships: []
       }
+      approved_x_creators: {
+        Row: {
+          added_at: string | null
+          added_by: string | null
+          id: string
+          notes: string | null
+          username: string
+        }
+        Insert: {
+          added_at?: string | null
+          added_by?: string | null
+          id?: string
+          notes?: string | null
+          username: string
+        }
+        Update: {
+          added_at?: string | null
+          added_by?: string | null
+          id?: string
+          notes?: string | null
+          username?: string
+        }
+        Relationships: []
+      }
       contact_messages: {
         Row: {
           advisor_id: string
@@ -1335,6 +1359,10 @@ export type Database = {
           total_conversations: number
           total_messages: number
         }[]
+      }
+      is_approved_x_creator: {
+        Args: { check_username: string }
+        Returns: boolean
       }
       mark_contact_message_read_with_code: {
         Args: {

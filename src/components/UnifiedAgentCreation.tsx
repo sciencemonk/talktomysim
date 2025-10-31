@@ -263,6 +263,15 @@ export const UnifiedAgentCreation = ({ open, onOpenChange, onSuccess }: UnifiedA
         return;
       }
 
+      // Check if the username is approved to create X agents
+      const { data: approvalCheck } = await supabase
+        .rpc('is_approved_x_creator', { check_username: cleanUsername });
+      
+      if (!approvalCheck) {
+        toast.error(`@${cleanUsername} is not approved to create an X agent. Contact us to get approved!`);
+        return;
+      }
+
       const { data: response, error } = await supabase.functions.invoke("x-intelligence", {
         body: { username: cleanUsername },
       });
@@ -482,7 +491,15 @@ You can answer questions about their X profile, interests, opinions, and provide
 
         const { data: newSim, error } = await supabase.from("advisors").insert(simData).select().single();
 
-        if (error) throw error;
+        if (error) {
+          console.error('Error creating X agent:', error);
+          if (error.message?.includes('row-level security') || error.message?.includes('policy')) {
+            toast.error(`@${tokenData.username} is not approved to create an X agent. Contact us to get approved!`);
+          } else {
+            toast.error(error.message || 'Failed to create X agent');
+          }
+          throw error;
+        }
 
         if (newSim && user) {
           await supabase.from("user_advisors").insert({
