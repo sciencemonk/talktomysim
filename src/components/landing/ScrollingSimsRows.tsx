@@ -34,7 +34,7 @@ export const ScrollingSimsRows = ({ onSimClick }: ScrollingSimsRowsProps) => {
         .from('advisors')
         .select('*')
         .eq('is_active', true)
-        .limit(100); // Increased from 30 to 100 for more variety
+        .limit(300); // Fetch all 300+ sims for maximum variety
       
       if (error) throw error;
       return data?.map(sim => ({
