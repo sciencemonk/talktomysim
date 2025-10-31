@@ -198,14 +198,12 @@ export const XMessageBoard = ({
 
     setIsResponding({ ...isResponding, [messageId]: true });
     try {
-      const { error } = await supabase
-        .from('x_messages')
-        .update({
-          response: response.trim(),
-          response_at: new Date().toISOString()
-        })
-        .eq('id', messageId)
-        .eq('agent_id', agentId);
+      const { data, error } = await supabase.rpc('respond_to_x_message_with_code', {
+        p_message_id: messageId,
+        p_agent_id: agentId,
+        p_edit_code: editCode,
+        p_response: response.trim()
+      });
 
       if (error) throw error;
 

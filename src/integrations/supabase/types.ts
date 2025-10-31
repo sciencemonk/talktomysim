@@ -1373,6 +1373,15 @@ export type Database = {
         Returns: undefined
       }
       reset_monthly_credits: { Args: never; Returns: undefined }
+      respond_to_x_message_with_code: {
+        Args: {
+          p_agent_id: string
+          p_edit_code: string
+          p_message_id: string
+          p_response: string
+        }
+        Returns: boolean
+      }
       search_advisor_embeddings: {
         Args: {
           match_count?: number
