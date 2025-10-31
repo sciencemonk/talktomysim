@@ -210,6 +210,11 @@ const NewLanding = () => {
     'pumpfun': true,
     'chat': true
   });
+  const [visibleCounts, setVisibleCounts] = useState<Record<string, number>>({
+    'x-agents': 16,
+    'pumpfun': 16,
+    'chat': 16
+  });
   const [searchQuery, setSearchQuery] = useState('');
   const [simTypeFilter, setSimTypeFilter] = useState<'all' | 'Crypto Mail' | 'Chat' | 'PumpFun Agent'>('all');
   const [selectedCategory, setSelectedCategory] = useState('all');
@@ -425,6 +430,10 @@ const NewLanding = () => {
 
   const toggleCategory = (category: string) => {
     setExpandedCategories(prev => ({ ...prev, [category]: !prev[category] }));
+  };
+
+  const showMore = (category: string) => {
+    setVisibleCounts(prev => ({ ...prev, [category]: prev[category] + 16 }));
   };
 
   return (
@@ -681,7 +690,7 @@ const NewLanding = () => {
               {expandedCategories['x-agents'] && (
                 <>
                   <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 xl:grid-cols-12 gap-3">
-                    {xAgents.slice(0, expandedCategories['x-agents'] === true ? 10 : xAgents.length).map((sim) => (
+                    {xAgents.slice(0, visibleCounts['x-agents']).map((sim) => (
                       <PumpFunSimCard
                         key={sim.id}
                         sim={sim}
@@ -689,13 +698,13 @@ const NewLanding = () => {
                       />
                     ))}
                   </div>
-                  {xAgents.length > 10 && expandedCategories['x-agents'] === true && (
+                  {xAgents.length > visibleCounts['x-agents'] && (
                     <Button
                       variant="outline"
-                      onClick={() => setExpandedCategories(prev => ({ ...prev, 'x-agents': 'all' as any }))}
+                      onClick={() => showMore('x-agents')}
                       className="mt-4 w-full"
                     >
-                      Show All ({xAgents.length - 10} more)
+                      Show More ({Math.min(16, xAgents.length - visibleCounts['x-agents'])} more)
                     </Button>
                   )}
                 </>
@@ -722,7 +731,7 @@ const NewLanding = () => {
               {expandedCategories['pumpfun'] && (
                 <>
                   <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 xl:grid-cols-12 gap-3">
-                    {pumpfunAgents.slice(0, expandedCategories['pumpfun'] === true ? 10 : pumpfunAgents.length).map((sim) => (
+                    {pumpfunAgents.slice(0, visibleCounts['pumpfun']).map((sim) => (
                       <PumpFunSimCard
                         key={sim.id}
                         sim={sim}
@@ -730,13 +739,13 @@ const NewLanding = () => {
                       />
                     ))}
                   </div>
-                  {pumpfunAgents.length > 10 && expandedCategories['pumpfun'] === true && (
+                  {pumpfunAgents.length > visibleCounts['pumpfun'] && (
                     <Button
                       variant="outline"
-                      onClick={() => setExpandedCategories(prev => ({ ...prev, 'pumpfun': 'all' as any }))}
+                      onClick={() => showMore('pumpfun')}
                       className="mt-4 w-full"
                     >
-                      Show All ({pumpfunAgents.length - 10} more)
+                      Show More ({Math.min(16, pumpfunAgents.length - visibleCounts['pumpfun'])} more)
                     </Button>
                   )}
                 </>
@@ -763,7 +772,7 @@ const NewLanding = () => {
               {expandedCategories['chat'] && (
                 <>
                   <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 xl:grid-cols-12 gap-3">
-                    {chatAgents.slice(0, expandedCategories['chat'] === true ? 10 : chatAgents.length).map((sim) => (
+                    {chatAgents.slice(0, visibleCounts['chat']).map((sim) => (
                       <PumpFunSimCard
                         key={sim.id}
                         sim={sim}
@@ -771,13 +780,13 @@ const NewLanding = () => {
                       />
                     ))}
                   </div>
-                  {chatAgents.length > 10 && expandedCategories['chat'] === true && (
+                  {chatAgents.length > visibleCounts['chat'] && (
                     <Button
                       variant="outline"
-                      onClick={() => setExpandedCategories(prev => ({ ...prev, 'chat': 'all' as any }))}
+                      onClick={() => showMore('chat')}
                       className="mt-4 w-full"
                     >
-                      Show All ({chatAgents.length - 10} more)
+                      Show More ({Math.min(16, chatAgents.length - visibleCounts['chat'])} more)
                     </Button>
                   )}
                 </>
