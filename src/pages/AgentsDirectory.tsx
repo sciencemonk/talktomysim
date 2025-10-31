@@ -458,12 +458,6 @@ const AgentsDirectory = () => {
 
       // Type filter
       const simCategory = (sim as any).sim_category;
-      
-      // Hide all Crypto Mail agents except @mrjethroknights
-      if (simCategory === 'Crypto Mail') {
-        const xUsername = (sim.social_links as any)?.x_username;
-        if (xUsername?.toLowerCase() !== 'mrjethroknights') return false;
-      }
 
       // Apply category filter for Chat type
       if (selectedCategory !== 'all') {

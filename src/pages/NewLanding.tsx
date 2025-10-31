@@ -372,12 +372,6 @@ const NewLanding = () => {
       if (!matchesSearch) return false;
 
       const simCategory = (sim as any).sim_category;
-      
-      // Hide all Crypto Mail agents except @mrjethroknights
-      if (simCategory === 'Crypto Mail') {
-        const xUsername = (sim.social_links as any)?.x_username;
-        if (xUsername?.toLowerCase() !== 'mrjethroknights') return false;
-      }
 
       // Type filter
       if (simTypeFilter !== 'all') {
@@ -414,11 +408,7 @@ const NewLanding = () => {
 
   const xAgents = filteredSims?.filter(sim => {
     const simCategory = (sim as any).sim_category;
-    if (simCategory === 'Crypto Mail') {
-      const xUsername = (sim.social_links as any)?.x_username;
-      return xUsername?.toLowerCase() === 'mrjethroknights';
-    }
-    return false;
+    return simCategory === 'Crypto Mail';
   }) || [];
 
   const pumpfunAgents = filteredSims?.filter(sim => (sim as any).sim_category === 'PumpFun Agent') || [];
