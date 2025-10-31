@@ -26,6 +26,8 @@ interface XMessageBoardProps {
   price: number;
   walletAddress?: string;
   xUsername?: string;
+  isCreatorView?: boolean;
+  editCode?: string;
 }
 
 const getImageUrl = (url: string | undefined) => {
@@ -66,7 +68,9 @@ export const XMessageBoard = ({
   agentAvatar,
   price,
   walletAddress,
-  xUsername
+  xUsername,
+  isCreatorView = false,
+  editCode
 }: XMessageBoardProps) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -74,6 +78,8 @@ export const XMessageBoard = ({
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [isPosting, setIsPosting] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [responseText, setResponseText] = useState<{[key: string]: string}>({});
+  const [isResponding, setIsResponding] = useState<{[key: string]: boolean}>({});
 
   // Demo messages
   const demoMessages: Message[] = [
@@ -175,6 +181,42 @@ export const XMessageBoard = ({
       toast.error("Failed to post message");
     } finally {
       setIsPosting(false);
+    }
+  };
+
+  const handleRespondToMessage = async (messageId: string) => {
+    const response = responseText[messageId];
+    if (!response?.trim()) {
+      toast.error("Please enter a response");
+      return;
+    }
+
+    if (!editCode) {
+      toast.error("Edit code required");
+      return;
+    }
+
+    setIsResponding({ ...isResponding, [messageId]: true });
+    try {
+      const { error } = await supabase
+        .from('x_messages')
+        .update({
+          response: response.trim(),
+          response_at: new Date().toISOString()
+        })
+        .eq('id', messageId)
+        .eq('agent_id', agentId);
+
+      if (error) throw error;
+
+      toast.success("Response posted!");
+      setResponseText({ ...responseText, [messageId]: '' });
+      fetchMessages();
+    } catch (error) {
+      console.error('Error responding to message:', error);
+      toast.error("Failed to post response");
+    } finally {
+      setIsResponding({ ...isResponding, [messageId]: false });
     }
   };
 
@@ -324,6 +366,39 @@ export const XMessageBoard = ({
                           )}
                         </div>
                         <p className="text-xs md:text-sm break-words leading-relaxed opacity-90">{message.response}</p>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Creator Response Input */}
+                  {isCreatorView && !message.response && !message.id.startsWith('demo-') && (
+                    <div className="pt-3 space-y-2">
+                      <Textarea
+                        value={responseText[message.id] || ''}
+                        onChange={(e) => setResponseText({ ...responseText, [message.id]: e.target.value })}
+                        placeholder="Write your response..."
+                        rows={3}
+                        className="text-xs md:text-sm resize-none"
+                      />
+                      <div className="flex justify-end">
+                        <Button 
+                          size="sm"
+                          onClick={() => handleRespondToMessage(message.id)}
+                          disabled={isResponding[message.id] || !responseText[message.id]?.trim()}
+                          style={{ backgroundColor: '#81f4aa', color: '#000' }}
+                        >
+                          {isResponding[message.id] ? (
+                            <>
+                              <Loader2 className="mr-2 h-3 w-3 animate-spin" />
+                              Posting...
+                            </>
+                          ) : (
+                            <>
+                              <Send className="mr-2 h-3 w-3" />
+                              Respond
+                            </>
+                          )}
+                        </Button>
                       </div>
                     </div>
                   )}

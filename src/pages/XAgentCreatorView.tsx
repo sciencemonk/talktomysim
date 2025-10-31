@@ -1,25 +1,31 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, ArrowLeft, Users, Copy, Check } from "lucide-react";
+import { Loader2, ArrowLeft, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import PublicChatInterface from "@/components/PublicChatInterface";
 import { XMessageBoard } from "@/components/XMessageBoard";
 import { AgentType } from "@/types/agent";
 import { toast } from "sonner";
 import xIcon from "@/assets/x-icon.png";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 
-export default function XAgentPage() {
+export default function XAgentCreatorView() {
   const { username } = useParams<{ username: string }>();
   const navigate = useNavigate();
   const [agent, setAgent] = useState<AgentType | null>(null);
   const [xData, setXData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [usernameCopied, setUsernameCopied] = useState(false);
   const [totalEarnings, setTotalEarnings] = useState<number>(0);
+  const [editCode, setEditCode] = useState("");
+  const [isValidated, setIsValidated] = useState(false);
+  const [systemPrompt, setSystemPrompt] = useState("");
+  const [x402Price, setX402Price] = useState(5);
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     if (username) {
@@ -47,7 +53,6 @@ export default function XAgentPage() {
     try {
       setIsLoading(true);
       
-      // Find agent by X username in social_links
       const { data, error } = await supabase
         .from('advisors')
         .select('*')
@@ -56,7 +61,6 @@ export default function XAgentPage() {
 
       if (error) throw error;
 
-      // Find the agent with matching X username
       const matchingAgent = data?.find(agent => {
         const socialLinks = agent.social_links as { x_username?: string } | null;
         return socialLinks?.x_username?.toLowerCase() === username?.toLowerCase();
@@ -68,7 +72,6 @@ export default function XAgentPage() {
         return;
       }
 
-      // Transform to AgentType
       const transformedAgent: AgentType = {
         id: matchingAgent.id,
         name: matchingAgent.name,
@@ -102,11 +105,10 @@ export default function XAgentPage() {
       } as any;
 
       setAgent(transformedAgent);
-
-      // Fetch total earnings
+      setSystemPrompt(matchingAgent.prompt || "");
+      setX402Price(matchingAgent.x402_price || 5);
       fetchTotalEarnings(matchingAgent.id);
 
-      // Fetch real-time X data
       try {
         const { data: xResponse, error: xError } = await supabase.functions.invoke("x-intelligence", {
           body: { username: username?.replace('@', '') },
@@ -130,12 +132,61 @@ export default function XAgentPage() {
     }
   };
 
-  const handleCopyUsername = () => {
-    if (username) {
-      navigator.clipboard.writeText(`@${username}`);
-      setUsernameCopied(true);
-      setTimeout(() => setUsernameCopied(false), 2000);
-      toast.success("Username copied!");
+  const handleValidateCode = async () => {
+    if (!agent || !editCode) {
+      toast.error("Please enter your edit code");
+      return;
+    }
+
+    if (!/^\d{6}$/.test(editCode)) {
+      toast.error("Edit code must be 6 digits");
+      return;
+    }
+
+    try {
+      const { data, error } = await supabase
+        .from('advisors')
+        .select('edit_code')
+        .eq('id', agent.id)
+        .single();
+
+      if (error) throw error;
+
+      if (data.edit_code === editCode) {
+        setIsValidated(true);
+        toast.success("Access granted!");
+      } else {
+        toast.error("Invalid edit code");
+      }
+    } catch (error) {
+      console.error('Error validating code:', error);
+      toast.error("Failed to validate code");
+    }
+  };
+
+  const handleSaveSettings = async () => {
+    if (!agent || !editCode) return;
+
+    setIsSaving(true);
+    try {
+      const { error } = await supabase
+        .from('advisors')
+        .update({
+          prompt: systemPrompt,
+          x402_price: x402Price,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', agent.id)
+        .eq('edit_code', editCode);
+
+      if (error) throw error;
+
+      toast.success("Settings saved successfully!");
+    } catch (error) {
+      console.error('Error saving settings:', error);
+      toast.error("Failed to save settings");
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -152,17 +203,14 @@ export default function XAgentPage() {
   const getImageUrl = (url: string | undefined) => {
     if (!url) return undefined;
     
-    // Handle Twitter/X images with CORS proxy
     if (url.includes('pbs.twimg.com') || url.includes('twimg.com')) {
       return `https://images.weserv.nl/?url=${encodeURIComponent(url)}`;
     }
     
-    // Handle IPFS URLs
     if (url.includes('ipfs://')) {
       return url.replace('ipfs://', 'https://ipfs.io/ipfs/');
     }
     
-    // Handle gateway.pinata.cloud URLs
     if (url.includes('gateway.pinata.cloud')) {
       const hash = url.split('/ipfs/')[1];
       if (hash) {
@@ -170,7 +218,6 @@ export default function XAgentPage() {
       }
     }
     
-    // Handle cf-ipfs.com URLs (which are failing)
     if (url.includes('cf-ipfs.com')) {
       const hash = url.split('/ipfs/')[1];
       if (hash) {
@@ -200,6 +247,39 @@ export default function XAgentPage() {
     );
   }
 
+  if (!isValidated) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+        <Card className="w-full max-w-md">
+          <CardHeader>
+            <CardTitle>Creator Access</CardTitle>
+            <CardDescription>Enter your 6-digit edit code to manage this agent</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div>
+              <Label htmlFor="edit-code">Edit Code</Label>
+              <Input
+                id="edit-code"
+                type="text"
+                maxLength={6}
+                value={editCode}
+                onChange={(e) => setEditCode(e.target.value.replace(/\D/g, ''))}
+                placeholder="000000"
+                className="text-center text-2xl tracking-widest font-mono"
+              />
+            </div>
+            <Button onClick={handleValidateCode} className="w-full">
+              Validate Code
+            </Button>
+            <Button variant="outline" onClick={() => navigate(`/x/${username}`)} className="w-full">
+              Back to Public View
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -209,24 +289,16 @@ export default function XAgentPage() {
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => navigate('/agents')}
+              onClick={() => navigate(`/x/${username}`)}
               className="gap-2 h-9 px-2 md:px-3"
             >
               <ArrowLeft className="h-4 w-4" />
-              <span className="hidden sm:inline">Back</span>
+              <span className="hidden sm:inline">Public View</span>
             </Button>
             <div className="flex items-center gap-2">
               <img src={xIcon} alt="X" className="h-4 w-4 md:h-5 md:w-5" />
-              <span className="text-xs md:text-sm font-medium text-muted-foreground">X Agent</span>
+              <span className="text-xs md:text-sm font-medium text-muted-foreground">Creator Dashboard</span>
             </div>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => navigate(`/x/${username}/creator`)}
-              className="gap-2 h-9 px-2 md:px-3"
-            >
-              <span className="text-xs md:text-sm">Creator Access</span>
-            </Button>
           </div>
         </div>
       </div>
@@ -234,9 +306,9 @@ export default function XAgentPage() {
       {/* Main Content */}
       <div className="container mx-auto px-3 md:px-4 py-6 md:py-8 max-w-7xl">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
-          {/* Left Column - X Profile Info & Stats */}
+          {/* Left Column - X Profile Info & Message Board */}
           <div className="lg:col-span-2 space-y-4 md:space-y-6">
-            {/* Profile Header - Enhanced Design */}
+            {/* Profile Header */}
             <Card className="border-border bg-card/80 backdrop-blur-sm shadow-lg">
               <CardHeader className="p-5 md:p-6">
                 <div className="flex items-start gap-3 md:gap-4">
@@ -277,7 +349,7 @@ export default function XAgentPage() {
               </CardHeader>
             </Card>
 
-            {/* Message Board */}
+            {/* Message Board with Response Capability */}
             <XMessageBoard
               agentId={agent.id}
               agentName={agent.name}
@@ -285,22 +357,66 @@ export default function XAgentPage() {
               price={agent.x402_price || 5}
               walletAddress={(agent.social_links as any)?.x402_wallet}
               xUsername={xData?.username || username}
+              isCreatorView={true}
+              editCode={editCode}
             />
           </div>
 
-          {/* Right Column - Chat Interface (Hidden on mobile) */}
-          <div className="lg:col-span-1 hidden lg:block">
+          {/* Right Column - AI Settings */}
+          <div className="lg:col-span-1">
             <Card className="border-border bg-card/80 backdrop-blur-sm sticky top-24 shadow-lg">
               <CardHeader className="p-5">
-                <CardTitle className="text-lg font-bold">Talk to My AI</CardTitle>
+                <CardTitle className="text-lg font-bold">AI Settings</CardTitle>
                 <CardDescription className="text-sm leading-relaxed">
-                  AI agent trained on their actual posts to represent their voice and ideas
+                  Configure your AI chatbot behavior
                 </CardDescription>
               </CardHeader>
-              <CardContent className="p-0">
-                <div className="h-[600px] overflow-hidden">
-                  <PublicChatInterface agent={agent} />
+              <CardContent className="p-5 space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="system-prompt">System Prompt</Label>
+                  <Textarea
+                    id="system-prompt"
+                    value={systemPrompt}
+                    onChange={(e) => setSystemPrompt(e.target.value)}
+                    placeholder="Define how your AI should respond..."
+                    rows={10}
+                    className="resize-none"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    This prompt guides how your AI chatbot responds to users
+                  </p>
                 </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="price">Message Price (USDC)</Label>
+                  <Input
+                    id="price"
+                    type="number"
+                    min="1"
+                    max="1000"
+                    value={x402Price}
+                    onChange={(e) => setX402Price(Number(e.target.value))}
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    How much users pay to post on your message board
+                  </p>
+                </div>
+
+                <Button 
+                  onClick={handleSaveSettings} 
+                  disabled={isSaving}
+                  className="w-full"
+                  style={{ backgroundColor: '#81f4aa', color: '#000' }}
+                >
+                  {isSaving ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Saving...
+                    </>
+                  ) : (
+                    'Save Settings'
+                  )}
+                </Button>
               </CardContent>
             </Card>
           </div>

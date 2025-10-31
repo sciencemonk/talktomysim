@@ -343,7 +343,7 @@ const SimDetailModal = ({ sim, open, onOpenChange, onAuthRequired }: SimDetailMo
       // Fetch the sim's edit_code from the database
       const { data: simData, error } = await supabase
         .from('advisors')
-        .select('edit_code')
+        .select('edit_code, sim_category, social_links')
         .eq('id', sim.id)
         .single();
 
@@ -353,8 +353,19 @@ const SimDetailModal = ({ sim, open, onOpenChange, onAuthRequired }: SimDetailMo
       if (simData.edit_code === editCode) {
         sonnerToast.success("Access granted!");
         setShowEditDialog(false);
-        // Open the edit sim modal
-        setShowEditSimModal(true);
+        
+        // For Crypto Mail agents, navigate to creator view
+        if (simData.sim_category === 'Crypto Mail') {
+          const xUsername = (simData.social_links as any)?.x_username;
+          if (xUsername) {
+            navigate(`/x/${xUsername}/creator`);
+          } else {
+            sonnerToast.error("X username not found");
+          }
+        } else {
+          // For other agents, open the edit sim modal
+          setShowEditSimModal(true);
+        }
       } else {
         sonnerToast.error("Invalid edit code");
       }
