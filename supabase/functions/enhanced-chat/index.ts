@@ -161,6 +161,8 @@ serve(async (req) => {
     // Use integrations from request body if provided, otherwise fetch from database
     let agentIntegrations: string[] = [];
     let agentContractAddress: string | null = null;
+    let agentTweets: any[] = [];
+    let agentXUsername: string | null = null;
     
     if (agent.integrations && Array.isArray(agent.integrations) && agent.integrations.length > 0) {
       // Use integrations passed from frontend (user's selected integrations)
@@ -171,7 +173,7 @@ serve(async (req) => {
       try {
         const { data: advisorData } = await supabase
           .from('advisors')
-          .select('integrations, social_links')
+          .select('integrations, social_links, sim_category')
           .eq('id', agent.id)
           .single();
         
@@ -183,7 +185,33 @@ serve(async (req) => {
         
         // Get contract address from social_links if this is a PumpFun agent
         if (advisorData?.social_links && typeof advisorData.social_links === 'object') {
-          agentContractAddress = (advisorData.social_links as any).contract_address || null;
+          const socialLinks = advisorData.social_links as any;
+          agentContractAddress = socialLinks.contract_address || null;
+          
+          // For X agents (Crypto Mail), get tweet history for training
+          if (advisorData.sim_category === 'Crypto Mail') {
+            agentXUsername = socialLinks.x_username || null;
+            agentTweets = socialLinks.tweet_history || [];
+            
+            // If no tweets or tweets are old (>24 hours), refresh them
+            const lastTrained = socialLinks.last_trained ? new Date(socialLinks.last_trained) : null;
+            const shouldRefresh = !lastTrained || 
+              (Date.now() - lastTrained.getTime()) > 24 * 60 * 60 * 1000;
+            
+            if (shouldRefresh && agentXUsername) {
+              console.log(`Refreshing tweets for @${agentXUsername}...`);
+              try {
+                // Fire and forget - train in background
+                supabase.functions.invoke('train-x-agent', {
+                  body: { agentId: agent.id }
+                }).catch(err => console.error('Background training error:', err));
+              } catch (err) {
+                console.error('Error triggering training:', err);
+              }
+            }
+            
+            console.log(`Loaded ${agentTweets.length} tweets for training`);
+          }
         }
         
         console.log('Using integrations from database:', agentIntegrations);
@@ -248,6 +276,37 @@ ${agent.prompt || `You are ${agent.name}. ${agent.description || ''}`}
 - Respect privacy and confidentiality
 - Be honest about your capabilities and limitations as an AI
 `;
+
+    // Add X posts training data for X agents
+    if (agentTweets.length > 0 && agentXUsername) {
+      systemPrompt += `\n\n# YOUR RECENT X (TWITTER) POSTS
+You are the person behind the @${agentXUsername} X account. Below are your recent posts that reflect your voice, opinions, and personality. Use these to inform your responses and stay authentic to your actual X presence:
+
+`;
+      
+      // Add the most recent and most engaging tweets
+      const sortedTweets = agentTweets
+        .sort((a: any, b: any) => {
+          const aEngagement = (a.engagement?.likes || 0) + (a.engagement?.retweets || 0);
+          const bEngagement = (b.engagement?.likes || 0) + (b.engagement?.retweets || 0);
+          return bEngagement - aEngagement;
+        })
+        .slice(0, 30); // Top 30 most engaging tweets
+      
+      sortedTweets.forEach((tweet: any, index: number) => {
+        const engagement = tweet.engagement?.likes + tweet.engagement?.retweets || 0;
+        systemPrompt += `${index + 1}. "${tweet.text}" (${engagement} engagements)\n\n`;
+      });
+      
+      systemPrompt += `\nIMPORTANT: Embody the personality, tone, and communication style reflected in these posts. Pay attention to:
+- The topics you care about and post about
+- Your writing style, tone, and voice
+- Your opinions and perspectives  
+- Your sense of humor or seriousness
+- How you engage with your audience
+
+Stay authentic to the voice shown in your posts while being helpful and conversational!`;
+    }
 
     // Add instruction for web search when needed
     if (needsResearch) {

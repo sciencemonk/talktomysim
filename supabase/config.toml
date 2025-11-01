@@ -77,3 +77,6 @@ verify_jwt = false
 
 [functions.chat-completion]
 verify_jwt = false
+
+[functions.train-x-agent]
+verify_jwt = false
