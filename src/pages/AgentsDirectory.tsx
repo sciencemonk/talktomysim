@@ -60,8 +60,9 @@ const PumpFunSimCard = ({ sim, onSimClick, categories }: PumpFunSimCardProps) =>
     ? (sim.social_links as any)?.x_username 
     : undefined;
 
-  // Only mrjethroknights is approved and clickable, others are pending
-  const isPending = isCryptoMail && xUsername?.toLowerCase() !== 'mrjethroknights';
+  // Approved X agents that are clickable
+  const approvedXAgents = ['mrjethroknights', 'cryptodivix'];
+  const isPending = isCryptoMail && !approvedXAgents.includes(xUsername?.toLowerCase() || '');
 
   useEffect(() => {
     const fetchMarketCap = async () => {
@@ -506,7 +507,25 @@ const AgentsDirectory = () => {
   });
 
   // Group sims by category
-  const xAgents = filteredSims?.filter(sim => (sim as any).sim_category === 'Crypto Mail') || [];
+  const xAgents = (filteredSims?.filter(sim => (sim as any).sim_category === 'Crypto Mail') || []).sort((a, b) => {
+    // Sort: active agents first, then pending ones
+    const approvedXAgents = ['mrjethroknights', 'cryptodivix'];
+    const aUsername = (a.social_links as any)?.x_username?.toLowerCase() || '';
+    const bUsername = (b.social_links as any)?.x_username?.toLowerCase() || '';
+    const aIsActive = approvedXAgents.includes(aUsername);
+    const bIsActive = approvedXAgents.includes(bUsername);
+    
+    if (aIsActive && !bIsActive) return -1;
+    if (!aIsActive && bIsActive) return 1;
+    
+    // Among active agents, cryptodivix first, then mrjethroknights
+    if (aIsActive && bIsActive) {
+      if (aUsername === 'cryptodivix') return -1;
+      if (bUsername === 'cryptodivix') return 1;
+    }
+    
+    return 0;
+  });
   const pumpfunAgents = filteredSims?.filter(sim => (sim as any).sim_category === 'PumpFun Agent') || [];
   const chatAgents = filteredSims?.filter(sim => {
     const simCategory = (sim as any).sim_category;
