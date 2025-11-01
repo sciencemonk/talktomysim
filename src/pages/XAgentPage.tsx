@@ -101,6 +101,7 @@ export default function XAgentPage() {
         is_verified: matchingAgent.is_verified || false,
         x402_enabled: matchingAgent.x402_enabled || false,
         x402_price: matchingAgent.x402_price || 5.0,
+        x402_wallet: matchingAgent.x402_wallet,
       } as any;
 
       setAgent(transformedAgent);
@@ -328,7 +329,7 @@ export default function XAgentPage() {
               agentName={agent.name}
               agentAvatar={xData?.profileImageUrl || agent.avatar}
               price={agent.x402_price || 5}
-              walletAddress={(agent.social_links as any)?.x402_wallet}
+              walletAddress={(agent as any).x402_wallet}
               xUsername={xData?.username || username}
             />
           </div>
