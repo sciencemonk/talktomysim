@@ -101,9 +101,9 @@ const PublicChatInterface = ({ agent }: PublicChatInterfaceProps) => {
   };
 
   useEffect(() => {
-    // Skip auto-scroll on initial mount to prevent scrolling away from top on mobile
-    if (isInitialMount.current) {
-      isInitialMount.current = false;
+    // Only allow auto-scroll after user has started chatting
+    // This prevents unwanted scrolling on page load or when welcome message appears
+    if (!hasStartedChat) {
       return;
     }
     
@@ -129,7 +129,7 @@ const PublicChatInterface = ({ agent }: PublicChatInterfaceProps) => {
         }
       });
     }
-  }, [chatHistory.messages, chatHistory.messages.length]);
+  }, [chatHistory.messages, chatHistory.messages.length, hasStartedChat]);
 
   // Show loading state while chat history is loading
   if (chatHistory.isLoading) {
