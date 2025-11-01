@@ -53,7 +53,10 @@ serve(async (req) => {
       throw xError;
     }
 
+    console.log('X intelligence response:', JSON.stringify(xData, null, 2));
+
     if (!xData?.success || !xData?.tweets) {
+      console.error('Invalid X data structure:', xData);
       throw new Error('Failed to fetch tweets from X');
     }
 
@@ -65,7 +68,7 @@ serve(async (req) => {
       .filter((t: any) => t.text && t.text.trim().length > 0)
       .slice(0, 50) // Limit to 50 most recent tweets
       .map((t: any) => ({
-        text: t.text || t.full_text || '',
+        text: t.text,
         created_at: t.created_at,
         engagement: {
           likes: t.favorite_count || 0,

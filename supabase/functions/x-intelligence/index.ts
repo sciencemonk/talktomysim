@@ -78,21 +78,21 @@ serve(async (req) => {
   if (tweetsResponse.ok) {
     try {
       const tweetsData = await tweetsResponse.json();
-      console.log('Tweets API response:', JSON.stringify(tweetsData));
+      console.log('Tweets API response structure:', JSON.stringify(Object.keys(tweetsData)));
       
-      // Safely extract tweets array - handle various response formats
-      const tweetsArray = tweetsData.tweets || tweetsData.data || tweetsData;
-      
-      // Ensure it's actually an array
-      if (Array.isArray(tweetsArray)) {
-        tweets = tweetsArray;
-      } else if (tweetsArray && typeof tweetsArray === 'object') {
-        // If it's an object, maybe tweets are in a nested property
-        console.warn('Tweets data is not an array:', tweetsArray);
+      // Handle the nested structure: { tweets: [...] }
+      if (tweetsData.tweets && Array.isArray(tweetsData.tweets)) {
+        tweets = tweetsData.tweets;
+      } else if (tweetsData.data && Array.isArray(tweetsData.data)) {
+        tweets = tweetsData.data;
+      } else if (Array.isArray(tweetsData)) {
+        tweets = tweetsData;
+      } else {
+        console.warn('Unexpected tweets data structure:', typeof tweetsData);
         tweets = [];
       }
       
-      console.log(`Fetched ${tweets.length} tweets`);
+      console.log(`Successfully parsed ${tweets.length} tweets`);
     } catch (e) {
       console.error('Error parsing tweets response:', e);
       tweets = [];
@@ -109,10 +109,10 @@ serve(async (req) => {
       success: true, 
       report,
       tweets: tweets.map((t: any) => ({
-        text: t.full_text || t.text || '',
-        created_at: t.created_at,
-        favorite_count: t.favorite_count || t.public_metrics?.like_count || 0,
-        retweet_count: t.retweet_count || t.public_metrics?.retweet_count || 0,
+        text: t.text || t.full_text || '',
+        created_at: t.createdAt || t.created_at,
+        favorite_count: t.likeCount || t.favorite_count || t.public_metrics?.like_count || 0,
+        retweet_count: t.retweetCount || t.retweet_count || t.public_metrics?.retweet_count || 0,
       }))
     }),
     {
