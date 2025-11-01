@@ -25,6 +25,7 @@ const PublicChatInterface = ({ agent }: PublicChatInterfaceProps) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const lastAssistantMessageRef = useRef<HTMLDivElement>(null);
+  const isInitialMount = useRef(true);
   
   // Initialize with agent's default integrations
   useEffect(() => {
@@ -100,6 +101,12 @@ const PublicChatInterface = ({ agent }: PublicChatInterfaceProps) => {
   };
 
   useEffect(() => {
+    // Skip auto-scroll on initial mount to prevent scrolling away from top on mobile
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      return;
+    }
+    
     // Get the last message
     const lastMessage = chatHistory.messages[chatHistory.messages.length - 1];
     
