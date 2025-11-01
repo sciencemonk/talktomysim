@@ -267,8 +267,15 @@ export default function XAgentPage() {
                       <AvatarFallback className="text-lg font-bold">{agent.name[0]}</AvatarFallback>
                     </Avatar>
                     {xData?.verified && (
-                      <div className="absolute -bottom-1 -right-1 h-6 w-6 rounded-full flex items-center justify-center" style={{ backgroundColor: '#81f4aa' }}>
-                        <span className="text-black text-xs font-bold">✓</span>
+                      <div className="group/verified absolute -bottom-1 -right-1">
+                        <img 
+                          src="/lovable-uploads/verified-badge.png" 
+                          alt="Verified"
+                          className="w-6 h-6"
+                        />
+                        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 bg-popover text-popover-foreground text-xs rounded-md shadow-lg opacity-0 group-hover/verified:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50 border border-border">
+                          This page has been verified to be associated with this X account.
+                        </div>
                       </div>
                     )}
                     <Button
