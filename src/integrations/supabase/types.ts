@@ -1229,6 +1229,107 @@ export type Database = {
         }
         Relationships: []
       }
+      x_agent_offerings: {
+        Row: {
+          agent_id: string
+          created_at: string
+          delivery_method: string
+          description: string
+          id: string
+          is_active: boolean | null
+          price: number
+          required_info: Json | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          agent_id: string
+          created_at?: string
+          delivery_method: string
+          description: string
+          id?: string
+          is_active?: boolean | null
+          price?: number
+          required_info?: Json | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          agent_id?: string
+          created_at?: string
+          delivery_method?: string
+          description?: string
+          id?: string
+          is_active?: boolean | null
+          price?: number
+          required_info?: Json | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "x_agent_offerings_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "advisors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      x_agent_purchases: {
+        Row: {
+          agent_id: string
+          buyer_info: Json
+          created_at: string
+          fulfilled_at: string | null
+          id: string
+          offering_id: string
+          payment_amount: number
+          session_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          agent_id: string
+          buyer_info?: Json
+          created_at?: string
+          fulfilled_at?: string | null
+          id?: string
+          offering_id: string
+          payment_amount: number
+          session_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          agent_id?: string
+          buyer_info?: Json
+          created_at?: string
+          fulfilled_at?: string | null
+          id?: string
+          offering_id?: string
+          payment_amount?: number
+          session_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "x_agent_purchases_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "advisors"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "x_agent_purchases_offering_id_fkey"
+            columns: ["offering_id"]
+            isOneToOne: false
+            referencedRelation: "x_agent_offerings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       x_messages: {
         Row: {
           agent_id: string

@@ -9,6 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import PublicChatInterface from "@/components/PublicChatInterface";
 import { XMessageBoard } from "@/components/XMessageBoard";
+import { XAgentStorefront } from "@/components/XAgentStorefront";
 import { AgentType } from "@/types/agent";
 import { toast } from "sonner";
 import xIcon from "@/assets/x-icon.png";
@@ -334,8 +335,8 @@ export default function XAgentPage() {
             />
           </div>
 
-          {/* Right Column - Chat Interface */}
-          <div className="lg:col-span-1">
+          {/* Right Column - Chat Interface & Store */}
+          <div className="lg:col-span-1 space-y-4 md:space-y-6">
             <Card className="border-border bg-card/80 backdrop-blur-sm lg:sticky lg:top-24 shadow-lg">
               <CardHeader className="p-5">
                 <CardTitle className="text-lg font-bold">Talk to My AI</CardTitle>
@@ -349,6 +350,15 @@ export default function XAgentPage() {
                 </div>
               </CardContent>
             </Card>
+
+            {/* Store Section */}
+            {(agent as any).x402_wallet && (
+              <XAgentStorefront
+                agentId={agent.id}
+                agentName={agent.name}
+                walletAddress={(agent as any).x402_wallet}
+              />
+            )}
           </div>
         </div>
       </div>

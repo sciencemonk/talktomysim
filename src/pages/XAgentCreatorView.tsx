@@ -7,12 +7,15 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { XMessageBoard } from "@/components/XMessageBoard";
+import { XAgentStoreManager } from "@/components/XAgentStoreManager";
+import { XAgentPurchases } from "@/components/XAgentPurchases";
 import { AgentType } from "@/types/agent";
 import { toast } from "sonner";
 import xIcon from "@/assets/x-icon.png";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function XAgentCreatorView() {
   const { username } = useParams<{ username: string }>();
@@ -118,8 +121,7 @@ export default function XAgentCreatorView() {
       setAgent(transformedAgent);
       setSystemPrompt(matchingAgent.prompt || "");
       setX402Price(matchingAgent.x402_price || 5);
-      const socialLinks = matchingAgent.social_links as any;
-      setWalletAddress(socialLinks?.x402_wallet || "");
+      setWalletAddress(matchingAgent.x402_wallet || "");
       fetchTotalEarnings(matchingAgent.id);
 
       try {
@@ -188,19 +190,12 @@ export default function XAgentCreatorView() {
 
     setIsSaving(true);
     try {
-      // Get current social_links and update with new wallet
-      const currentSocialLinks = (agent.social_links as any) || {};
-      const updatedSocialLinks = {
-        ...currentSocialLinks,
-        x402_wallet: walletAddress
-      };
-
       const { error } = await supabase
         .from('advisors')
         .update({
           prompt: systemPrompt,
           x402_price: x402Price,
-          social_links: updatedSocialLinks,
+          x402_wallet: walletAddress,
           x402_enabled: walletAddress ? true : false,
           updated_at: new Date().toISOString()
         })
@@ -214,7 +209,6 @@ export default function XAgentCreatorView() {
       // Update local agent state
       setAgent({
         ...agent,
-        social_links: updatedSocialLinks,
         x402_enabled: walletAddress ? true : false,
         x402_price: x402Price
       } as any);
@@ -385,17 +379,32 @@ export default function XAgentCreatorView() {
               </CardHeader>
             </Card>
 
-            {/* Message Board with Response Capability */}
-            <XMessageBoard
-              agentId={agent.id}
-              agentName={agent.name}
-              agentAvatar={xData?.profileImageUrl || agent.avatar}
-              price={agent.x402_price || 5}
-              walletAddress={(agent.social_links as any)?.x402_wallet}
-              xUsername={xData?.username || username}
-              isCreatorView={true}
-              editCode={editCode}
-            />
+            {/* Message Board, Store Management, and Purchases */}
+            <Tabs defaultValue="messages" className="w-full">
+              <TabsList className="grid w-full grid-cols-3">
+                <TabsTrigger value="messages">Messages</TabsTrigger>
+                <TabsTrigger value="store">Store</TabsTrigger>
+                <TabsTrigger value="purchases">Orders</TabsTrigger>
+              </TabsList>
+              <TabsContent value="messages" className="mt-6">
+                <XMessageBoard
+                  agentId={agent.id}
+                  agentName={agent.name}
+                  agentAvatar={xData?.profileImageUrl || agent.avatar}
+                  price={agent.x402_price || 5}
+                  walletAddress={(agent as any).x402_wallet}
+                  xUsername={xData?.username || username}
+                  isCreatorView={true}
+                  editCode={editCode}
+                />
+              </TabsContent>
+              <TabsContent value="store" className="mt-6">
+                <XAgentStoreManager agentId={agent.id} />
+              </TabsContent>
+              <TabsContent value="purchases" className="mt-6">
+                <XAgentPurchases agentId={agent.id} />
+              </TabsContent>
+            </Tabs>
           </div>
 
           {/* Right Column - AI Settings */}
