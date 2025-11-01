@@ -70,27 +70,17 @@ export function XAgentStorefront({ agentId, agentName, walletAddress }: XAgentSt
 
   return (
     <>
-      <Card className="border-border bg-card/80 backdrop-blur-sm shadow-lg">
-        <CardHeader className="p-5">
-          <div className="flex items-center gap-2">
-            <ShoppingCart className="h-5 w-5" />
-            <CardTitle className="text-lg font-bold">Store</CardTitle>
-          </div>
-          <CardDescription className="text-sm">
-            Purchase offerings directly from {agentName}
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="p-5 pt-0 space-y-4">
-          {offerings.map((offering) => (
-            <Card key={offering.id} className="border border-border/50">
-              <CardHeader className="p-4 pb-3">
-                <CardTitle className="text-base">{offering.title}</CardTitle>
-                <CardDescription className="text-sm leading-relaxed">
-                  {offering.description}
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="p-4 pt-0">
-                <div className="flex items-center justify-between">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {offerings.map((offering) => (
+          <Card key={offering.id} className="border-border bg-card/80 backdrop-blur-sm shadow-lg hover:shadow-xl transition-shadow">
+            <CardHeader className="p-5">
+              <CardTitle className="text-lg">{offering.title}</CardTitle>
+              <CardDescription className="text-sm leading-relaxed mt-2">
+                {offering.description}
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="p-5 pt-0 space-y-4">
+              <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <Badge 
                       variant="secondary" 
@@ -133,11 +123,10 @@ export function XAgentStorefront({ agentId, agentName, walletAddress }: XAgentSt
                     ))}
                   </div>
                 )}
-              </CardContent>
-            </Card>
-          ))}
-        </CardContent>
-      </Card>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
 
       {selectedOffering && (
         <XOfferingPurchaseModal

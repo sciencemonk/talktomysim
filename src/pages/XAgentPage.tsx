@@ -251,114 +251,124 @@ export default function XAgentPage() {
 
       {/* Main Content */}
       <div className="container mx-auto px-3 md:px-4 py-6 md:py-8 max-w-7xl">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
-          {/* Left Column - X Profile Info & Stats */}
-          <div className="lg:col-span-2 space-y-4 md:space-y-6">
-            {/* Profile Header - Enhanced Design */}
-            <Card className="border-border bg-card/80 backdrop-blur-sm shadow-lg">
-              <CardHeader className="p-5 md:p-6">
-                <div className="flex items-start gap-3 md:gap-4">
-                  <div className="relative">
-                    <Avatar className="h-16 w-16 md:h-20 md:w-20 border-2 shrink-0 ring-2 ring-[#81f4aa]/20" style={{ borderColor: '#81f4aa' }}>
-                      <AvatarImage 
-                        src={getImageUrl(xData?.profileImageUrl || agent.avatar)} 
-                        alt={agent.name}
-                        className="object-cover"
-                        referrerPolicy="no-referrer"
-                      />
-                      <AvatarFallback className="text-lg font-bold">{agent.name[0]}</AvatarFallback>
-                    </Avatar>
-                    {xData?.verified && (
-                      <div className="group/verified absolute -bottom-1 -right-1">
-                        <img 
-                          src="/lovable-uploads/verified-badge.png" 
-                          alt="Verified"
-                          className="w-6 h-6"
-                        />
-                        <div className="absolute left-full top-1/2 -translate-y-1/2 ml-2 px-3 py-1.5 bg-popover text-popover-foreground text-xs rounded-md shadow-lg opacity-0 group-hover/verified:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50 border border-border">
-                          This page has been verified to be associated with this X account.
-                        </div>
-                      </div>
-                    )}
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={handleShareLink}
-                      className="absolute -top-2 -right-2 h-7 w-7 md:h-8 md:w-8 rounded-full bg-background border border-border shadow-sm hover:bg-muted"
-                    >
-                      {linkCopied ? (
-                        <Check className="h-3 w-3 md:h-4 md:w-4 text-green-500" />
-                      ) : (
-                        <Share2 className="h-3 w-3 md:h-4 md:w-4" />
-                      )}
-                    </Button>
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-start gap-2 mb-1 flex-wrap">
-                      <CardTitle className="text-xl md:text-2xl break-words font-bold">{xData?.displayName || agent.name}</CardTitle>
+        {/* Profile Header - Hero Section */}
+        <Card className="border-border bg-card/80 backdrop-blur-sm shadow-xl mb-6 md:mb-8">
+          <CardHeader className="p-6 md:p-8">
+            <div className="flex items-start gap-4 md:gap-6">
+              <div className="relative">
+                <Avatar className="h-20 w-20 md:h-28 md:w-28 border-2 shrink-0 ring-4 ring-[#81f4aa]/20" style={{ borderColor: '#81f4aa' }}>
+                  <AvatarImage 
+                    src={getImageUrl(xData?.profileImageUrl || agent.avatar)} 
+                    alt={agent.name}
+                    className="object-cover"
+                    referrerPolicy="no-referrer"
+                  />
+                  <AvatarFallback className="text-2xl font-bold">{agent.name[0]}</AvatarFallback>
+                </Avatar>
+                {xData?.verified && (
+                  <div className="group/verified absolute -bottom-1 -right-1">
+                    <img 
+                      src="/lovable-uploads/verified-badge.png" 
+                      alt="Verified"
+                      className="w-7 h-7"
+                    />
+                    <div className="absolute left-full top-1/2 -translate-y-1/2 ml-2 px-3 py-1.5 bg-popover text-popover-foreground text-xs rounded-md shadow-lg opacity-0 group-hover/verified:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50 border border-border">
+                      This page has been verified to be associated with this X account.
                     </div>
-                    <CardDescription className="text-sm md:text-base mb-3 break-all font-medium opacity-70">
-                      {xData?.username || username}
-                    </CardDescription>
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <Badge variant="secondary" className="text-xs px-2.5 py-1 font-medium" style={{ backgroundColor: 'rgba(129, 244, 170, 0.15)', color: '#81f4aa', borderColor: 'rgba(129, 244, 170, 0.3)' }}>
-                        <Users className="h-3 w-3 mr-1.5" style={{ color: '#81f4aa' }} />
-                        {formatNumber(xData?.metrics?.followers)} Followers
-                      </Badge>
-                      <Badge variant="secondary" className="text-xs px-2.5 py-1 font-medium" style={{ backgroundColor: 'rgba(129, 244, 170, 0.15)', color: '#81f4aa', borderColor: 'rgba(129, 244, 170, 0.3)' }}>
-                        💰 ${totalEarnings.toFixed(0)} Earned
-                      </Badge>
-                    </div>
-                    <a
-                      href={`https://x.com/${username}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors mt-2"
-                    >
-                      <img src={xIcon} alt="X" className="h-3.5 w-3.5" />
-                      View X Profile
-                      <ExternalLink className="h-3 w-3" />
-                    </a>
                   </div>
+                )}
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={handleShareLink}
+                  className="absolute -top-2 -right-2 h-8 w-8 md:h-9 md:w-9 rounded-full bg-background border border-border shadow-sm hover:bg-muted"
+                >
+                  {linkCopied ? (
+                    <Check className="h-4 w-4 text-green-500" />
+                  ) : (
+                    <Share2 className="h-4 w-4" />
+                  )}
+                </Button>
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-start gap-2 mb-2 flex-wrap">
+                  <CardTitle className="text-2xl md:text-3xl break-words font-bold">{xData?.displayName || agent.name}</CardTitle>
                 </div>
-              </CardHeader>
-            </Card>
-
-            {/* Message Board */}
-            <XMessageBoard
-              agentId={agent.id}
-              agentName={agent.name}
-              agentAvatar={xData?.profileImageUrl || agent.avatar}
-              price={agent.x402_price || 5}
-              walletAddress={(agent as any).x402_wallet}
-              xUsername={xData?.username || username}
-            />
-          </div>
-
-          {/* Right Column - Chat Interface & Store */}
-          <div className="lg:col-span-1 space-y-4 md:space-y-6">
-            <Card className="border-border bg-card/80 backdrop-blur-sm lg:sticky lg:top-24 shadow-lg">
-              <CardHeader className="p-5">
-                <CardTitle className="text-lg font-bold">Talk to My AI</CardTitle>
-                <CardDescription className="text-sm leading-relaxed">
-                  AI agent trained on their actual posts to represent their voice and ideas
+                <CardDescription className="text-base md:text-lg mb-4 break-all font-medium opacity-80">
+                  {xData?.username || username}
                 </CardDescription>
-              </CardHeader>
-              <CardContent className="p-0">
-                <div className="h-[600px] overflow-hidden">
-                  <PublicChatInterface agent={agent} />
+                <div className="flex items-center gap-2 flex-wrap mb-4">
+                  <Badge variant="secondary" className="text-sm px-3 py-1.5 font-medium" style={{ backgroundColor: 'rgba(129, 244, 170, 0.15)', color: '#81f4aa', borderColor: 'rgba(129, 244, 170, 0.3)' }}>
+                    <Users className="h-4 w-4 mr-2" style={{ color: '#81f4aa' }} />
+                    {formatNumber(xData?.metrics?.followers)} Followers
+                  </Badge>
+                  <Badge variant="secondary" className="text-sm px-3 py-1.5 font-medium" style={{ backgroundColor: 'rgba(129, 244, 170, 0.15)', color: '#81f4aa', borderColor: 'rgba(129, 244, 170, 0.3)' }}>
+                    💰 ${totalEarnings.toFixed(0)} Earned
+                  </Badge>
                 </div>
-              </CardContent>
-            </Card>
+                <a
+                  href={`https://x.com/${username}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  <img src={xIcon} alt="X" className="h-4 w-4" />
+                  View X Profile
+                  <ExternalLink className="h-3.5 w-3.5" />
+                </a>
+              </div>
+            </div>
+          </CardHeader>
+        </Card>
 
+        {/* Main Grid Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
+          {/* Left Column - Store & Community */}
+          <div className="lg:col-span-2 space-y-6 md:space-y-8">
             {/* Store Section */}
             {(agent as any).x402_wallet && (
-              <XAgentStorefront
+              <div>
+                <h2 className="text-2xl font-bold mb-4 px-1">🛍️ Store</h2>
+                <XAgentStorefront
+                  agentId={agent.id}
+                  agentName={agent.name}
+                  walletAddress={(agent as any).x402_wallet}
+                />
+              </div>
+            )}
+
+            {/* Community Board */}
+            <div>
+              <h2 className="text-2xl font-bold mb-4 px-1">💬 Community Board</h2>
+              <XMessageBoard
                 agentId={agent.id}
                 agentName={agent.name}
+                agentAvatar={xData?.profileImageUrl || agent.avatar}
+                price={agent.x402_price || 5}
                 walletAddress={(agent as any).x402_wallet}
+                xUsername={xData?.username || username}
               />
-            )}
+            </div>
+          </div>
+
+          {/* Right Column - AI Chat */}
+          <div className="lg:col-span-1">
+            <div className="lg:sticky lg:top-24">
+              <h2 className="text-2xl font-bold mb-4 px-1">🤖 AI Chat</h2>
+              <Card className="border-border bg-card/80 backdrop-blur-sm shadow-xl">
+                <CardHeader className="p-5">
+                  <CardTitle className="text-lg font-bold">Talk to My AI</CardTitle>
+                  <CardDescription className="text-sm leading-relaxed">
+                    AI agent trained on their actual posts to represent their voice and ideas
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="p-0">
+                  <div className="h-[600px] overflow-hidden">
+                    <PublicChatInterface agent={agent} />
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
           </div>
         </div>
       </div>
