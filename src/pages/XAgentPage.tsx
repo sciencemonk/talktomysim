@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowLeft, Users, Copy, Check, Share2 } from "lucide-react";
+import { ArrowLeft, Users, Copy, Check, Share2, ExternalLink } from "lucide-react";
 import aiLoadingGif from "@/assets/ai-loading.gif";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -300,6 +300,16 @@ export default function XAgentPage() {
                         💰 ${totalEarnings.toFixed(0)} Earned
                       </Badge>
                     </div>
+                    <a
+                      href={`https://x.com/${username}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors mt-2"
+                    >
+                      <img src={xIcon} alt="X" className="h-3.5 w-3.5" />
+                      View X Profile
+                      <ExternalLink className="h-3 w-3" />
+                    </a>
                   </div>
                 </div>
               </CardHeader>
