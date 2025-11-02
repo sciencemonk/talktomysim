@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { XMessageBoard } from "@/components/XMessageBoard";
 import { XAgentStoreManager } from "@/components/XAgentStoreManager";
 import { XAgentPurchases } from "@/components/XAgentPurchases";
 import { AgentType } from "@/types/agent";
@@ -30,7 +29,6 @@ export default function XAgentCreatorView() {
   const [editCode, setEditCode] = useState(codeFromUrl || "");
   const [isValidated, setIsValidated] = useState(false);
   const [systemPrompt, setSystemPrompt] = useState("");
-  const [x402Price, setX402Price] = useState(5);
   const [walletAddress, setWalletAddress] = useState("");
   const [isSaving, setIsSaving] = useState(false);
 
@@ -120,7 +118,6 @@ export default function XAgentCreatorView() {
 
       setAgent(transformedAgent);
       setSystemPrompt(matchingAgent.prompt || "");
-      setX402Price(matchingAgent.x402_price || 5);
       setWalletAddress(matchingAgent.x402_wallet || "");
       fetchTotalEarnings(matchingAgent.id);
 
@@ -182,21 +179,12 @@ export default function XAgentCreatorView() {
   const handleSaveSettings = async () => {
     if (!agent || !editCode) return;
 
-    // Validate wallet address format (basic Solana address validation)
-    if (walletAddress && !/^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(walletAddress)) {
-      toast.error("Invalid Solana wallet address format");
-      return;
-    }
-
     setIsSaving(true);
     try {
       const { error } = await supabase
         .from('advisors')
         .update({
           prompt: systemPrompt,
-          x402_price: x402Price,
-          x402_wallet: walletAddress,
-          x402_enabled: walletAddress ? true : false,
           updated_at: new Date().toISOString()
         })
         .eq('id', agent.id)
@@ -204,14 +192,7 @@ export default function XAgentCreatorView() {
 
       if (error) throw error;
 
-      toast.success("Settings saved successfully!");
-      
-      // Update local agent state
-      setAgent({
-        ...agent,
-        x402_enabled: walletAddress ? true : false,
-        x402_price: x402Price
-      } as any);
+      toast.success("AI settings saved successfully!");
     } catch (error) {
       console.error('Error saving settings:', error);
       toast.error("Failed to save settings");
@@ -335,155 +316,112 @@ export default function XAgentCreatorView() {
 
       {/* Main Content */}
       <div className="container mx-auto px-3 md:px-4 py-6 md:py-8 max-w-7xl">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
-          {/* Left Column - X Profile Info & Message Board */}
-          <div className="lg:col-span-2 space-y-4 md:space-y-6">
-            {/* Profile Header */}
-            <Card className="border-border bg-card/80 backdrop-blur-sm shadow-lg">
-              <CardHeader className="p-5 md:p-6">
-                <div className="flex items-start gap-3 md:gap-4">
-                  <div className="relative">
-                    <Avatar className="h-16 w-16 md:h-20 md:w-20 border-2 shrink-0 ring-2 ring-[#81f4aa]/20" style={{ borderColor: '#81f4aa' }}>
-                      <AvatarImage 
-                        src={getImageUrl(xData?.profileImageUrl || agent.avatar)} 
-                        alt={agent.name}
-                        className="object-cover"
-                        referrerPolicy="no-referrer"
-                      />
-                      <AvatarFallback className="text-lg font-bold">{agent.name[0]}</AvatarFallback>
-                    </Avatar>
-                    {xData?.verified && (
-                      <div className="absolute -bottom-1 -right-1 h-6 w-6 rounded-full flex items-center justify-center" style={{ backgroundColor: '#81f4aa' }}>
-                        <span className="text-black text-xs font-bold">✓</span>
-                      </div>
-                    )}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-start gap-2 mb-1 flex-wrap">
-                      <CardTitle className="text-xl md:text-2xl break-words font-bold">{xData?.displayName || agent.name}</CardTitle>
+        <div className="space-y-4 md:space-y-6">
+          {/* Profile Header */}
+          <Card className="border-border bg-card/80 backdrop-blur-sm shadow-lg">
+            <CardHeader className="p-5 md:p-6">
+              <div className="flex items-start gap-3 md:gap-4">
+                <div className="relative">
+                  <Avatar className="h-16 w-16 md:h-20 md:w-20 border-2 shrink-0 ring-2 ring-[#81f4aa]/20" style={{ borderColor: '#81f4aa' }}>
+                    <AvatarImage 
+                      src={getImageUrl(xData?.profileImageUrl || agent.avatar)} 
+                      alt={agent.name}
+                      className="object-cover"
+                      referrerPolicy="no-referrer"
+                    />
+                    <AvatarFallback className="text-lg font-bold">{agent.name[0]}</AvatarFallback>
+                  </Avatar>
+                  {xData?.verified && (
+                    <div className="absolute -bottom-1 -right-1 h-6 w-6 rounded-full flex items-center justify-center" style={{ backgroundColor: '#81f4aa' }}>
+                      <span className="text-black text-xs font-bold">✓</span>
                     </div>
-                    <CardDescription className="text-sm md:text-base mb-3 break-all font-medium opacity-70">
-                      {xData?.username || username}
-                    </CardDescription>
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <Badge variant="secondary" className="text-xs px-2.5 py-1 font-medium" style={{ backgroundColor: 'rgba(129, 244, 170, 0.15)', color: '#81f4aa', borderColor: 'rgba(129, 244, 170, 0.3)' }}>
-                        <Users className="h-3 w-3 mr-1.5" style={{ color: '#81f4aa' }} />
-                        {formatNumber(xData?.metrics?.followers)} Followers
-                      </Badge>
-                      <Badge variant="secondary" className="text-xs px-2.5 py-1 font-medium" style={{ backgroundColor: 'rgba(129, 244, 170, 0.15)', color: '#81f4aa', borderColor: 'rgba(129, 244, 170, 0.3)' }}>
-                        💰 ${totalEarnings.toFixed(0)} Earned
-                      </Badge>
-                    </div>
-                  </div>
-                </div>
-              </CardHeader>
-            </Card>
-
-            {/* Message Board, Store Management, and Purchases */}
-            <Tabs defaultValue="messages" className="w-full">
-              <TabsList className="grid w-full grid-cols-3">
-                <TabsTrigger value="messages">Messages</TabsTrigger>
-                <TabsTrigger value="store">Store</TabsTrigger>
-                <TabsTrigger value="purchases">Orders</TabsTrigger>
-              </TabsList>
-              <TabsContent value="messages" className="mt-6">
-                <XMessageBoard
-                  agentId={agent.id}
-                  agentName={agent.name}
-                  agentAvatar={xData?.profileImageUrl || agent.avatar}
-                  price={agent.x402_price || 5}
-                  walletAddress={(agent as any).x402_wallet}
-                  xUsername={xData?.username || username}
-                  isCreatorView={true}
-                  editCode={editCode}
-                />
-              </TabsContent>
-              <TabsContent value="store" className="mt-6">
-                <XAgentStoreManager agentId={agent.id} />
-              </TabsContent>
-              <TabsContent value="purchases" className="mt-6">
-                <XAgentPurchases agentId={agent.id} />
-              </TabsContent>
-            </Tabs>
-          </div>
-
-          {/* Right Column - AI Settings */}
-          <div className="lg:col-span-1">
-            <Card className="border-border bg-card/80 backdrop-blur-sm sticky top-24 shadow-lg">
-              <CardHeader className="p-5">
-                <CardTitle className="text-lg font-bold">AI Settings</CardTitle>
-                <CardDescription className="text-sm leading-relaxed">
-                  Configure your AI chatbot behavior
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="p-5 space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="system-prompt">System Prompt</Label>
-                  <Textarea
-                    id="system-prompt"
-                    value={systemPrompt}
-                    onChange={(e) => setSystemPrompt(e.target.value)}
-                    placeholder="Define how your AI should respond..."
-                    rows={10}
-                    className="resize-none"
-                  />
-                  <p className="text-xs text-muted-foreground">
-                    This prompt guides how your AI chatbot responds to users
-                  </p>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="price">Post Price (USDC)</Label>
-                  <Input
-                    id="price"
-                    type="text"
-                    inputMode="decimal"
-                    value={x402Price}
-                    onChange={(e) => {
-                      const value = e.target.value;
-                      // Allow numbers and decimals
-                      if (value === '' || /^\d*\.?\d*$/.test(value)) {
-                        setX402Price(value === '' ? 0 : parseFloat(value) || 0);
-                      }
-                    }}
-                  />
-                  <p className="text-xs text-muted-foreground">
-                    How much users pay to post on your message board
-                  </p>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="wallet">Solana Wallet Address</Label>
-                  <Input
-                    id="wallet"
-                    type="text"
-                    value={walletAddress}
-                    onChange={(e) => setWalletAddress(e.target.value)}
-                    placeholder="Enter your Solana wallet address"
-                  />
-                  <p className="text-xs text-muted-foreground">
-                    Your Solana wallet address to receive USDC payments
-                  </p>
-                </div>
-
-                <Button
-                  onClick={handleSaveSettings} 
-                  disabled={isSaving}
-                  className="w-full"
-                  style={{ backgroundColor: '#81f4aa', color: '#000' }}
-                >
-                  {isSaving ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Saving...
-                    </>
-                  ) : (
-                    'Save Settings'
                   )}
-                </Button>
-              </CardContent>
-            </Card>
-          </div>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-start gap-2 mb-1 flex-wrap">
+                    <CardTitle className="text-xl md:text-2xl break-words font-bold">{xData?.displayName || agent.name}</CardTitle>
+                  </div>
+                  <CardDescription className="text-sm md:text-base mb-3 break-all font-medium opacity-70">
+                    {xData?.username || username}
+                  </CardDescription>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <Badge variant="secondary" className="text-xs px-2.5 py-1 font-medium" style={{ backgroundColor: 'rgba(129, 244, 170, 0.15)', color: '#81f4aa', borderColor: 'rgba(129, 244, 170, 0.3)' }}>
+                      <Users className="h-3 w-3 mr-1.5" style={{ color: '#81f4aa' }} />
+                      {formatNumber(xData?.metrics?.followers)} Followers
+                    </Badge>
+                    <Badge variant="secondary" className="text-xs px-2.5 py-1 font-medium" style={{ backgroundColor: 'rgba(129, 244, 170, 0.15)', color: '#81f4aa', borderColor: 'rgba(129, 244, 170, 0.3)' }}>
+                      💰 ${totalEarnings.toFixed(0)} Earned
+                    </Badge>
+                  </div>
+                </div>
+              </div>
+            </CardHeader>
+          </Card>
+
+          {/* Tabs */}
+          <Tabs defaultValue="ai-settings" className="w-full">
+            <TabsList className="grid w-full grid-cols-3">
+              <TabsTrigger value="ai-settings">AI Settings</TabsTrigger>
+              <TabsTrigger value="store">Store</TabsTrigger>
+              <TabsTrigger value="purchases">Orders</TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="ai-settings" className="mt-6">
+              <Card className="border-border bg-card/80 backdrop-blur-sm shadow-lg">
+                <CardHeader className="p-5">
+                  <CardTitle className="text-lg font-bold">AI Settings</CardTitle>
+                  <CardDescription className="text-sm leading-relaxed">
+                    Configure your AI chatbot behavior
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="p-5 space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="system-prompt">System Prompt</Label>
+                    <Textarea
+                      id="system-prompt"
+                      value={systemPrompt}
+                      onChange={(e) => setSystemPrompt(e.target.value)}
+                      placeholder="Define how your AI should respond..."
+                      rows={10}
+                      className="resize-none"
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      This prompt guides how your AI chatbot responds to users
+                    </p>
+                  </div>
+
+                  <Button 
+                    onClick={handleSaveSettings} 
+                    className="w-full" 
+                    disabled={isSaving}
+                    variant="mint"
+                  >
+                    {isSaving ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Saving...
+                      </>
+                    ) : (
+                      "Save Settings"
+                    )}
+                  </Button>
+                </CardContent>
+              </Card>
+            </TabsContent>
+            
+            <TabsContent value="store" className="mt-6">
+              <XAgentStoreManager 
+                agentId={agent.id}
+                walletAddress={walletAddress}
+                onWalletUpdate={setWalletAddress}
+                editCode={editCode}
+              />
+            </TabsContent>
+            
+            <TabsContent value="purchases" className="mt-6">
+              <XAgentPurchases agentId={agent.id} />
+            </TabsContent>
+          </Tabs>
         </div>
       </div>
     </div>

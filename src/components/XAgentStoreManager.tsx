@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Plus, Edit, Trash2, DollarSign, Package } from "lucide-react";
+import { Plus, Edit, Trash2, DollarSign, Package, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 interface Offering {
@@ -24,13 +24,17 @@ interface Offering {
 
 interface XAgentStoreManagerProps {
   agentId: string;
+  walletAddress: string;
+  onWalletUpdate: (address: string) => void;
+  editCode: string;
 }
 
-export function XAgentStoreManager({ agentId }: XAgentStoreManagerProps) {
+export function XAgentStoreManager({ agentId, walletAddress, onWalletUpdate, editCode }: XAgentStoreManagerProps) {
   const [offerings, setOfferings] = useState<Offering[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingOffering, setEditingOffering] = useState<Offering | null>(null);
+  const [isSavingWallet, setIsSavingWallet] = useState(false);
   
   const [formData, setFormData] = useState({
     title: "",
@@ -166,12 +170,82 @@ export function XAgentStoreManager({ agentId }: XAgentStoreManagerProps) {
     setRequiredFields(requiredFields.filter((_, i) => i !== index));
   };
 
+  const handleSaveWallet = async () => {
+    // Validate wallet address format (basic Solana address validation)
+    if (walletAddress && !/^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(walletAddress)) {
+      toast.error("Invalid Solana wallet address format");
+      return;
+    }
+
+    setIsSavingWallet(true);
+    try {
+      const { error } = await supabase
+        .from('advisors')
+        .update({
+          x402_wallet: walletAddress,
+          x402_enabled: walletAddress ? true : false,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', agentId)
+        .eq('edit_code', editCode);
+
+      if (error) throw error;
+
+      toast.success("Wallet address saved successfully!");
+    } catch (error) {
+      console.error('Error saving wallet:', error);
+      toast.error("Failed to save wallet address");
+    } finally {
+      setIsSavingWallet(false);
+    }
+  };
+
   if (isLoading) {
     return <div className="text-center py-8">Loading store...</div>;
   }
 
   return (
     <div className="space-y-6">
+      {/* Wallet Configuration */}
+      <Card className="border-border bg-card/80 backdrop-blur-sm shadow-lg">
+        <CardHeader className="p-5">
+          <CardTitle className="text-lg font-bold">Payment Configuration</CardTitle>
+          <CardDescription className="text-sm leading-relaxed">
+            Configure your Solana wallet to receive USDC payments
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="p-5 space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="wallet">Solana Wallet Address</Label>
+            <Input
+              id="wallet"
+              type="text"
+              value={walletAddress}
+              onChange={(e) => onWalletUpdate(e.target.value)}
+              placeholder="Enter your Solana wallet address"
+            />
+            <p className="text-xs text-muted-foreground">
+              Your Solana wallet address to receive USDC payments from store purchases
+            </p>
+          </div>
+          <Button 
+            onClick={handleSaveWallet} 
+            className="w-full" 
+            disabled={isSavingWallet}
+            variant="mint"
+          >
+            {isSavingWallet ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Saving...
+              </>
+            ) : (
+              "Save Wallet Address"
+            )}
+          </Button>
+        </CardContent>
+      </Card>
+
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold">Store Management</h2>
