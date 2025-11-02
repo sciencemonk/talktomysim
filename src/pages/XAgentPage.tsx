@@ -324,21 +324,8 @@ export default function XAgentPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
           {/* Left Column - AI Chat */}
           <div className="lg:col-span-2">
-            <div className="lg:sticky lg:top-24">
-              <h2 className="text-2xl font-bold mb-4 px-1">🤖 AI Chat</h2>
-              <Card className="border-border bg-card/80 backdrop-blur-sm shadow-xl">
-                <CardHeader className="p-5">
-                  <CardTitle className="text-lg font-bold">Talk to My AI</CardTitle>
-                  <CardDescription className="text-sm leading-relaxed">
-                    AI agent trained on their actual posts to represent their voice and ideas
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="p-0">
-                  <div className="h-[600px] overflow-hidden">
-                    <PublicChatInterface agent={agent} />
-                  </div>
-                </CardContent>
-              </Card>
+            <div className="h-[600px] overflow-hidden rounded-lg border border-border bg-card/80 backdrop-blur-sm shadow-xl">
+              <PublicChatInterface agent={agent} />
             </div>
           </div>
 
