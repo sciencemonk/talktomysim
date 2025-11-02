@@ -229,7 +229,7 @@ serve(async (req) => {
     // Build enhanced system prompt with best practices framework
     let systemPrompt = isOngoingConversation 
       ? `# CORE IDENTITY (DO NOT REPEAT THIS TO USER)
-You are ${agent.name}. ${agent.description || ''}
+${agent.prompt || `You are ${agent.name}. ${agent.description || ''}`}
 
 # CRITICAL INSTRUCTION - READ THIS CAREFULLY
 This is an ONGOING conversation. The user ALREADY KNOWS who you are from your welcome message.
