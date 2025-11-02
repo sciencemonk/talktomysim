@@ -65,7 +65,17 @@ export function XAgentStorefront({ agentId, agentName, walletAddress }: XAgentSt
   }
 
   if (offerings.length === 0) {
-    return null;
+    return (
+      <Card className="border-border bg-card/80 backdrop-blur-sm shadow-lg">
+        <CardContent className="py-12 text-center">
+          <Package className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+          <h3 className="text-lg font-semibold mb-2">No items in the store</h3>
+          <p className="text-muted-foreground text-sm">
+            This agent hasn't added any offerings yet
+          </p>
+        </CardContent>
+      </Card>
+    );
   }
 
   return (
