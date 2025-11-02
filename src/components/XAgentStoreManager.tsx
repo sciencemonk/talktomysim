@@ -223,7 +223,7 @@ export function XAgentStoreManager({ agentId, walletAddress, onWalletUpdate, edi
         <CardHeader className="p-5">
           <CardTitle className="text-lg font-bold">Payment Configuration</CardTitle>
           <CardDescription className="text-sm leading-relaxed">
-            Configure your Solana wallet to receive USDC payments
+            Configure your Solana wallet to receive USDC payments. Payments (minus 5% platform fee) go directly to your wallet.
           </CardDescription>
         </CardHeader>
         <CardContent className="p-5 space-y-4">

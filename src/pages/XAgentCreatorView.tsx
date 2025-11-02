@@ -118,7 +118,8 @@ export default function XAgentCreatorView() {
 
       setAgent(transformedAgent);
       setSystemPrompt(matchingAgent.prompt || "");
-      setWalletAddress(matchingAgent.x402_wallet || "");
+      // Try x402_wallet first, fallback to crypto_wallet for backwards compatibility
+      setWalletAddress(matchingAgent.x402_wallet || matchingAgent.crypto_wallet || "");
       fetchTotalEarnings(matchingAgent.id);
 
       try {
