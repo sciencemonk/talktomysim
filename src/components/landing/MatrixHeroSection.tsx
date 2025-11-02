@@ -35,11 +35,11 @@ export const MatrixHeroSection = ({ onCreateXAgent, onSimClick, onViewAllAgents 
 
       {/* Content */}
       <div className="relative z-10 flex-1 flex flex-col items-center justify-center px-4 text-center max-w-5xl mx-auto w-full">
-        <h1 className="text-xl sm:text-3xl md:text-4xl lg:text-5xl font-sans font-semibold mb-6 tracking-tight text-foreground text-center w-full">
+        <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-sans font-semibold mb-6 tracking-tight text-foreground text-center w-full">
           Turn your X account into an AI Agent that can accept payments.
         </h1>
 
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6 mb-8 max-w-3xl mx-auto">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-center gap-3 sm:gap-6 mb-8 max-w-3xl mx-auto w-full">
           <div className="flex items-center gap-3">
             <div className="flex items-center justify-center w-8 h-8 rounded-full bg-[#82f3aa] text-black font-bold text-sm shrink-0">
               1
@@ -62,7 +62,7 @@ export const MatrixHeroSection = ({ onCreateXAgent, onSimClick, onViewAllAgents 
             <div className="flex items-center justify-center w-8 h-8 rounded-full bg-[#82f3aa] text-black font-bold text-sm shrink-0">
               3
             </div>
-            <p className="text-sm sm:text-base text-foreground font-medium">Sell offerings (x402)</p>
+            <p className="text-sm sm:text-base text-foreground font-medium">Accept payments (x402)</p>
           </div>
         </div>
 
