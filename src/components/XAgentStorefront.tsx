@@ -70,7 +70,7 @@ export function XAgentStorefront({ agentId, agentName, walletAddress }: XAgentSt
 
   return (
     <>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="space-y-4">
         {offerings.map((offering) => (
           <Card key={offering.id} className="border-border bg-card/80 backdrop-blur-sm shadow-lg hover:shadow-xl transition-shadow">
             <CardHeader className="p-5">
