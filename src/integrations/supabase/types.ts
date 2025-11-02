@@ -1237,6 +1237,7 @@ export type Database = {
           description: string
           id: string
           is_active: boolean | null
+          media_url: string | null
           price: number
           required_info: Json | null
           title: string
@@ -1249,6 +1250,7 @@ export type Database = {
           description: string
           id?: string
           is_active?: boolean | null
+          media_url?: string | null
           price?: number
           required_info?: Json | null
           title: string
@@ -1261,6 +1263,7 @@ export type Database = {
           description?: string
           id?: string
           is_active?: boolean | null
+          media_url?: string | null
           price?: number
           required_info?: Json | null
           title?: string

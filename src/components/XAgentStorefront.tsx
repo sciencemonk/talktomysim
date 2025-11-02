@@ -14,6 +14,7 @@ interface Offering {
   price: number;
   delivery_method: string;
   required_info: Array<{ label: string; type: string; required: boolean }>;
+  media_url?: string;
 }
 
 interface XAgentStorefrontProps {
@@ -83,6 +84,23 @@ export function XAgentStorefront({ agentId, agentName, walletAddress }: XAgentSt
       <div className="space-y-4">
         {offerings.map((offering) => (
           <Card key={offering.id} className="border-border bg-card/80 backdrop-blur-sm shadow-lg hover:shadow-xl transition-shadow">
+            {offering.media_url && (
+              <div className="w-full">
+                {offering.media_url.includes('.mp4') || offering.media_url.includes('.webm') || offering.media_url.includes('.mov') ? (
+                  <video 
+                    src={offering.media_url} 
+                    controls 
+                    className="w-full h-48 object-cover rounded-t-lg"
+                  />
+                ) : (
+                  <img 
+                    src={offering.media_url} 
+                    alt={offering.title}
+                    className="w-full h-48 object-cover rounded-t-lg"
+                  />
+                )}
+              </div>
+            )}
             <CardHeader className="p-5">
               <CardTitle className="text-lg">{offering.title}</CardTitle>
               <CardDescription className="text-sm leading-relaxed mt-2">

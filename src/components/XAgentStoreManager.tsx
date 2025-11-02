@@ -20,6 +20,7 @@ interface Offering {
   required_info: Array<{ label: string; type: string; required: boolean }>;
   is_active: boolean;
   created_at: string;
+  media_url?: string;
 }
 
 interface XAgentStoreManagerProps {
@@ -45,6 +46,9 @@ export function XAgentStoreManager({ agentId, walletAddress, onWalletUpdate, edi
   });
 
   const [requiredFields, setRequiredFields] = useState<Array<{ label: string; type: string; required: boolean }>>([]);
+  const [mediaFile, setMediaFile] = useState<File | null>(null);
+  const [mediaPreview, setMediaPreview] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
 
   useEffect(() => {
     loadOfferings();
@@ -68,6 +72,33 @@ export function XAgentStoreManager({ agentId, walletAddress, onWalletUpdate, edi
     }
   };
 
+  const handleMediaChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file size (10MB limit)
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error("File size must be less than 10MB");
+      return;
+    }
+
+    // Validate file type
+    const validTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'video/mp4', 'video/webm', 'video/quicktime'];
+    if (!validTypes.includes(file.type)) {
+      toast.error("Please upload a valid image (JPEG, PNG, WEBP, GIF) or video (MP4, WEBM, MOV)");
+      return;
+    }
+
+    setMediaFile(file);
+    
+    // Create preview
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setMediaPreview(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -77,6 +108,31 @@ export function XAgentStoreManager({ agentId, walletAddress, onWalletUpdate, edi
     }
 
     try {
+      setIsUploading(true);
+      let mediaUrl = editingOffering?.media_url || null;
+
+      // Upload media if a new file was selected
+      if (mediaFile) {
+        const fileExt = mediaFile.name.split('.').pop();
+        const fileName = `${agentId}-${Date.now()}.${fileExt}`;
+        const filePath = `${fileName}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from('offering-media')
+          .upload(filePath, mediaFile, {
+            cacheControl: '3600',
+            upsert: false
+          });
+
+        if (uploadError) throw uploadError;
+
+        const { data: { publicUrl } } = supabase.storage
+          .from('offering-media')
+          .getPublicUrl(filePath);
+
+        mediaUrl = publicUrl;
+      }
+
       const { data, error } = await supabase.rpc('manage_offering_with_code', {
         p_agent_id: agentId,
         p_edit_code: editCode,
@@ -92,6 +148,22 @@ export function XAgentStoreManager({ agentId, walletAddress, onWalletUpdate, edi
 
       if (error) throw error;
 
+      // Update media_url separately if we have one
+      if (mediaUrl && data) {
+        const offeringId = typeof data === 'object' && data !== null && 'id' in data 
+          ? (data as any).id 
+          : editingOffering?.id;
+        
+        if (offeringId) {
+          const { error: updateError } = await supabase
+            .from('x_agent_offerings')
+            .update({ media_url: mediaUrl })
+            .eq('id', offeringId);
+
+          if (updateError) throw updateError;
+        }
+      }
+
       toast.success(editingOffering ? "Offering updated successfully" : "Offering created successfully");
       setIsDialogOpen(false);
       resetForm();
@@ -99,6 +171,8 @@ export function XAgentStoreManager({ agentId, walletAddress, onWalletUpdate, edi
     } catch (error) {
       console.error("Error saving offering:", error);
       toast.error("Failed to save offering");
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -112,6 +186,7 @@ export function XAgentStoreManager({ agentId, walletAddress, onWalletUpdate, edi
       is_active: offering.is_active,
     });
     setRequiredFields(offering.required_info || []);
+    setMediaPreview(offering.media_url || null);
     setIsDialogOpen(true);
   };
 
@@ -166,6 +241,8 @@ export function XAgentStoreManager({ agentId, walletAddress, onWalletUpdate, edi
     });
     setRequiredFields([]);
     setEditingOffering(null);
+    setMediaFile(null);
+    setMediaPreview(null);
   };
 
   const addRequiredField = () => {
@@ -325,6 +402,28 @@ export function XAgentStoreManager({ agentId, walletAddress, onWalletUpdate, edi
                 />
               </div>
 
+              <div className="space-y-2">
+                <Label htmlFor="media">Product Image or Video</Label>
+                <Input
+                  id="media"
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,video/webm,video/quicktime"
+                  onChange={handleMediaChange}
+                />
+                <p className="text-xs text-muted-foreground">
+                  Max file size: 10MB. Supported formats: JPEG, PNG, WEBP, GIF, MP4, WEBM, MOV
+                </p>
+                {mediaPreview && (
+                  <div className="mt-2">
+                    {mediaFile?.type.startsWith('video/') || mediaPreview.includes('video') ? (
+                      <video src={mediaPreview} controls className="w-full max-h-48 rounded-md" />
+                    ) : (
+                      <img src={mediaPreview} alt="Preview" className="w-full max-h-48 object-cover rounded-md" />
+                    )}
+                  </div>
+                )}
+              </div>
+
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <Label>Required Information from Buyer</Label>
@@ -380,8 +479,15 @@ export function XAgentStoreManager({ agentId, walletAddress, onWalletUpdate, edi
                 <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
                   Cancel
                 </Button>
-                <Button type="submit" variant="mint">
-                  {editingOffering ? "Update" : "Create"} Offering
+                <Button type="submit" variant="mint" disabled={isUploading}>
+                  {isUploading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      {mediaFile ? "Uploading..." : "Saving..."}
+                    </>
+                  ) : (
+                    <>{editingOffering ? "Update" : "Create"} Offering</>
+                  )}
                 </Button>
               </DialogFooter>
             </form>
