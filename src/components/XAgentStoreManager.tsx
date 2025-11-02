@@ -77,35 +77,24 @@ export function XAgentStoreManager({ agentId, walletAddress, onWalletUpdate, edi
     }
 
     try {
-      const offeringData = {
-        agent_id: agentId,
-        title: formData.title,
-        description: formData.description,
-        price: parseFloat(formData.price),
-        delivery_method: formData.delivery_method,
-        required_info: requiredFields,
-        is_active: formData.is_active,
-      };
+      const { data, error } = await supabase.rpc('manage_offering_with_code', {
+        p_agent_id: agentId,
+        p_edit_code: editCode,
+        p_offering_id: editingOffering?.id || null,
+        p_title: formData.title,
+        p_description: formData.description,
+        p_price: parseFloat(formData.price),
+        p_delivery_method: formData.delivery_method,
+        p_required_info: requiredFields,
+        p_is_active: formData.is_active,
+        p_operation: editingOffering ? 'update' : 'insert'
+      });
 
-      if (editingOffering) {
-        const { error } = await supabase
-          .from("x_agent_offerings")
-          .update(offeringData)
-          .eq("id", editingOffering.id);
+      if (error) throw error;
 
-        if (error) throw error;
-        toast.success("Offering updated successfully");
-      } else {
-        const { error } = await supabase
-          .from("x_agent_offerings")
-          .insert(offeringData);
-
-        if (error) throw error;
-        toast.success("Offering created successfully");
-      }
-
-      resetForm();
+      toast.success(editingOffering ? "Offering updated successfully" : "Offering created successfully");
       setIsDialogOpen(false);
+      resetForm();
       loadOfferings();
     } catch (error) {
       console.error("Error saving offering:", error);
@@ -130,17 +119,40 @@ export function XAgentStoreManager({ agentId, walletAddress, onWalletUpdate, edi
     if (!confirm("Are you sure you want to delete this offering?")) return;
 
     try {
-      const { error } = await supabase
-        .from("x_agent_offerings")
-        .delete()
-        .eq("id", offeringId);
+      const { error } = await supabase.rpc('manage_offering_with_code', {
+        p_agent_id: agentId,
+        p_edit_code: editCode,
+        p_offering_id: offeringId,
+        p_operation: 'delete'
+      });
 
       if (error) throw error;
-      toast.success("Offering deleted");
+
+      toast.success("Offering deleted successfully");
       loadOfferings();
     } catch (error) {
       console.error("Error deleting offering:", error);
       toast.error("Failed to delete offering");
+    }
+  };
+
+  const handleToggleActive = async (offeringId: string, currentStatus: boolean) => {
+    try {
+      const { error } = await supabase.rpc('manage_offering_with_code', {
+        p_agent_id: agentId,
+        p_edit_code: editCode,
+        p_offering_id: offeringId,
+        p_is_active: !currentStatus,
+        p_operation: 'update'
+      });
+
+      if (error) throw error;
+
+      toast.success(currentStatus ? "Offering deactivated" : "Offering activated");
+      loadOfferings();
+    } catch (error) {
+      console.error("Error toggling offering:", error);
+      toast.error("Failed to update offering");
     }
   };
 
@@ -356,11 +368,12 @@ export function XAgentStoreManager({ agentId, walletAddress, onWalletUpdate, edi
 
               <div className="flex items-center space-x-2">
                 <Switch
-                  id="active"
+                  id="is_active"
                   checked={formData.is_active}
                   onCheckedChange={(checked) => setFormData({ ...formData, is_active: checked })}
+                  className="data-[state=checked]:bg-[#81f4aa]"
                 />
-                <Label htmlFor="active">Active (visible to buyers)</Label>
+                <Label htmlFor="is_active">Active (visible to buyers)</Label>
               </div>
 
               <DialogFooter>
@@ -415,7 +428,7 @@ export function XAgentStoreManager({ agentId, walletAddress, onWalletUpdate, edi
                   </div>
                 </div>
               </CardHeader>
-              <CardContent>
+              <CardContent className="space-y-3">
                 <div className="flex items-center gap-6 text-sm">
                   <div className="flex items-center gap-2">
                     <DollarSign className="h-4 w-4 text-muted-foreground" />
@@ -426,6 +439,18 @@ export function XAgentStoreManager({ agentId, walletAddress, onWalletUpdate, edi
                       Requires: {offering.required_info.map(f => f.label).join(", ")}
                     </div>
                   )}
+                </div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2">
+                    <Switch
+                      checked={offering.is_active}
+                      onCheckedChange={() => handleToggleActive(offering.id, offering.is_active)}
+                      className="data-[state=checked]:bg-[#81f4aa]"
+                    />
+                    <span className="text-xs text-muted-foreground">
+                      {offering.is_active ? "Active" : "Inactive"}
+                    </span>
+                  </div>
                 </div>
               </CardContent>
             </Card>

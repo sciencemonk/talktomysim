@@ -1465,6 +1465,21 @@ export type Database = {
         Args: { check_username: string }
         Returns: boolean
       }
+      manage_offering_with_code: {
+        Args: {
+          p_agent_id: string
+          p_delivery_method?: string
+          p_description?: string
+          p_edit_code: string
+          p_is_active?: boolean
+          p_offering_id?: string
+          p_operation?: string
+          p_price?: number
+          p_required_info?: Json
+          p_title?: string
+        }
+        Returns: Json
+      }
       mark_contact_message_read_with_code: {
         Args: {
           p_advisor_id: string
