@@ -8,7 +8,6 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import PublicChatInterface from "@/components/PublicChatInterface";
-import { XMessageBoard } from "@/components/XMessageBoard";
 import { XAgentStorefront } from "@/components/XAgentStorefront";
 import { AgentType } from "@/types/agent";
 import { toast } from "sonner";
@@ -323,36 +322,8 @@ export default function XAgentPage() {
 
         {/* Main Grid Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
-          {/* Left Column - Store & Community */}
-          <div className="lg:col-span-2 space-y-6 md:space-y-8">
-            {/* Store Section */}
-            {(agent as any).x402_wallet && (
-              <div>
-                <h2 className="text-2xl font-bold mb-4 px-1">🛍️ Store</h2>
-                <XAgentStorefront
-                  agentId={agent.id}
-                  agentName={agent.name}
-                  walletAddress={(agent as any).x402_wallet}
-                />
-              </div>
-            )}
-
-            {/* Community Board */}
-            <div>
-              <h2 className="text-2xl font-bold mb-4 px-1">💬 Community Board</h2>
-              <XMessageBoard
-                agentId={agent.id}
-                agentName={agent.name}
-                agentAvatar={xData?.profileImageUrl || agent.avatar}
-                price={agent.x402_price || 5}
-                walletAddress={(agent as any).x402_wallet}
-                xUsername={xData?.username || username}
-              />
-            </div>
-          </div>
-
-          {/* Right Column - AI Chat */}
-          <div className="lg:col-span-1">
+          {/* Left Column - AI Chat */}
+          <div className="lg:col-span-2">
             <div className="lg:sticky lg:top-24">
               <h2 className="text-2xl font-bold mb-4 px-1">🤖 AI Chat</h2>
               <Card className="border-border bg-card/80 backdrop-blur-sm shadow-xl">
@@ -369,6 +340,20 @@ export default function XAgentPage() {
                 </CardContent>
               </Card>
             </div>
+          </div>
+
+          {/* Right Column - Store */}
+          <div className="lg:col-span-1">
+            {(agent as any).x402_wallet && (
+              <div>
+                <h2 className="text-2xl font-bold mb-4 px-1">🛍️ Store</h2>
+                <XAgentStorefront
+                  agentId={agent.id}
+                  agentName={agent.name}
+                  walletAddress={(agent as any).x402_wallet}
+                />
+              </div>
+            )}
           </div>
         </div>
       </div>
