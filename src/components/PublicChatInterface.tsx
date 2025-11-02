@@ -190,8 +190,21 @@ const PublicChatInterface = ({ agent }: PublicChatInterfaceProps) => {
               <div
                 key={message.id}
                 ref={isLastAssistantMessage ? lastAssistantMessageRef : null}
-                className={`flex ${message.role === 'user' ? 'flex-row-reverse' : 'flex-row'} min-w-0`}
+                className={`flex gap-3 ${message.role === 'user' ? 'flex-row-reverse' : 'flex-row'} min-w-0`}
               >
+                {/* Show avatar for assistant messages */}
+                {message.role === 'assistant' || message.role === 'system' ? (
+                  <Avatar className="h-8 w-8 shrink-0 mt-1">
+                    <AvatarImage 
+                      src={getAvatarUrl(agent.avatar)} 
+                      alt={agent.name}
+                      className="object-cover"
+                      referrerPolicy="no-referrer"
+                    />
+                    <AvatarFallback className="text-sm">{agent.name[0]}</AvatarFallback>
+                  </Avatar>
+                ) : null}
+                
                 <div className={`flex-1 min-w-0 ${message.role === 'user' ? 'flex justify-end' : ''}`}>
                   <div className={`
                     ${message.role === 'user' 
@@ -235,7 +248,16 @@ const PublicChatInterface = ({ agent }: PublicChatInterfaceProps) => {
           
           {/* Typing indicator */}
           {textChat.isProcessing && (
-            <div className="flex">
+            <div className="flex gap-3">
+              <Avatar className="h-8 w-8 shrink-0 mt-1">
+                <AvatarImage 
+                  src={getAvatarUrl(agent.avatar)} 
+                  alt={agent.name}
+                  className="object-cover"
+                  referrerPolicy="no-referrer"
+                />
+                <AvatarFallback className="text-sm">{agent.name[0]}</AvatarFallback>
+              </Avatar>
               <div className="flex-1">
                 <div className="bg-card border border-border rounded-2xl px-4 py-3 inline-block">
                   <div className="flex space-x-1.5">
