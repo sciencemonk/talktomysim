@@ -35,20 +35,49 @@ export const MatrixHeroSection = ({ onCreateAgent, onSimClick, onViewAllAgents }
       
       {/* Content */}
       <div className="relative z-10 flex-1 flex flex-col items-center justify-center px-4 text-center max-w-5xl mx-auto w-full">
-        <h1 className="text-xl sm:text-3xl md:text-4xl lg:text-5xl font-sans font-semibold mb-4 tracking-tight text-foreground text-center w-full">
+        <h1 className="text-xl sm:text-3xl md:text-4xl lg:text-5xl font-sans font-semibold mb-6 tracking-tight text-foreground text-center w-full">
           Turn your X account into an AI Agent that makes you money.
         </h1>
         
-        <p className="text-sm sm:text-base md:text-lg text-muted-foreground mb-6 max-w-2xl mx-auto leading-relaxed">
-          Add your X account. Generate an AI based on your posts. Create and sell offerings (paid in crypto with x402).
-        </p>
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6 mb-8 max-w-3xl mx-auto">
+          <div className="flex items-center gap-3">
+            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-[#82f3aa] text-black font-bold text-sm shrink-0">
+              1
+            </div>
+            <p className="text-sm sm:text-base text-foreground font-medium">
+              Add your X account
+            </p>
+          </div>
+          
+          <div className="hidden sm:block text-muted-foreground">→</div>
+          
+          <div className="flex items-center gap-3">
+            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-[#82f3aa] text-black font-bold text-sm shrink-0">
+              2
+            </div>
+            <p className="text-sm sm:text-base text-foreground font-medium">
+              Generate your AI
+            </p>
+          </div>
+          
+          <div className="hidden sm:block text-muted-foreground">→</div>
+          
+          <div className="flex items-center gap-3">
+            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-[#82f3aa] text-black font-bold text-sm shrink-0">
+              3
+            </div>
+            <p className="text-sm sm:text-base text-foreground font-medium">
+              Sell offerings (x402)
+            </p>
+          </div>
+        </div>
         
         <Button
           onClick={onCreateAgent}
           size="lg"
           className="gap-2 font-semibold px-6 sm:px-8 md:px-10 py-3 sm:py-4 md:py-5 text-sm sm:text-base md:text-lg transition-all duration-300 mb-3 bg-[#82f3aa] hover:bg-[#6dd991] text-black border-0"
         >
-          Create an Agent in Seconds
+          Create your AI Agent in Seconds
         </Button>
         
         <button
