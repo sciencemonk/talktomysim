@@ -39,7 +39,7 @@ export const MatrixHeroSection = ({ onCreateXAgent, onSimClick, onViewAllAgents 
           Turn your X account into an AI Agent that can accept payments.
         </h1>
 
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-center gap-3 sm:gap-6 mb-8 max-w-3xl mx-auto w-full">
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6 mb-8 max-w-3xl mx-auto w-full">
           <div className="flex items-center gap-3">
             <div className="flex items-center justify-center w-8 h-8 rounded-full bg-[#82f3aa] text-black font-bold text-sm shrink-0">
               1
