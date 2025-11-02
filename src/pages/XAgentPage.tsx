@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import PublicChatInterface from "@/components/PublicChatInterface";
 import { XAgentStorefront } from "@/components/XAgentStorefront";
 import { AgentType } from "@/types/agent";
@@ -366,11 +367,13 @@ export default function XAgentPage() {
           {/* Right Column - Store */}
           <div className="lg:col-span-1">
             {((agent as any).x402_wallet || (agent.social_links as any)?.x402_wallet) && (
-              <XAgentStorefront
-                agentId={agent.id}
-                agentName={agent.name}
-                walletAddress={(agent as any).x402_wallet || (agent.social_links as any)?.x402_wallet}
-              />
+              <ScrollArea className="h-[600px] rounded-lg border border-border bg-card/80 backdrop-blur-sm shadow-xl p-6">
+                <XAgentStorefront
+                  agentId={agent.id}
+                  agentName={agent.name}
+                  walletAddress={(agent as any).x402_wallet || (agent.social_links as any)?.x402_wallet}
+                />
+              </ScrollArea>
             )}
           </div>
         </div>
