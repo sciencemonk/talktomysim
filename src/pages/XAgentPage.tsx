@@ -259,6 +259,14 @@ export default function XAgentPage() {
         <div className="container mx-auto px-3 md:px-4 py-3 md:py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => navigate('/', { state: { scrollToAgents: true } })}
+                className="h-9 w-9 shrink-0"
+              >
+                <ArrowLeft className="h-4 w-4" />
+              </Button>
               <Avatar className="h-9 w-9 border-2 ring-2 ring-[#81f4aa]/20" style={{ borderColor: '#81f4aa' }}>
                 <AvatarImage 
                   src={getImageUrl(xData?.profileImageUrl || agent.avatar)} 
@@ -289,10 +297,10 @@ export default function XAgentPage() {
 
       {/* Main Content */}
       <div className="container mx-auto px-3 md:px-4 max-w-7xl h-[calc(100vh-4rem)]">
-        {/* Main Grid Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 md:gap-8 h-full py-6 md:py-8">
-          {/* Left Column - Store (3/4 width) */}
-          <div className="lg:col-span-3 h-full">
+        {/* Main Grid Layout - 65/35 split */}
+        <div className="grid grid-cols-1 lg:grid-cols-[65fr_35fr] gap-6 md:gap-8 h-full py-6 md:py-8">
+          {/* Left Column - Store (65%) */}
+          <div className="h-full">
             {((agent as any).x402_wallet || (agent.social_links as any)?.x402_wallet) && (
               <ScrollArea className="h-full rounded-lg border border-border bg-card/80 backdrop-blur-sm shadow-xl p-6">
                 <XAgentStorefront
@@ -304,8 +312,8 @@ export default function XAgentPage() {
             )}
           </div>
 
-          {/* Right Column - AI Chat (1/4 width) */}
-          <div className="lg:col-span-1 h-full">
+          {/* Right Column - AI Chat (35%) */}
+          <div className="h-full">
             <div className="h-full overflow-hidden rounded-lg border border-border bg-card/80 backdrop-blur-sm shadow-xl">
               <PublicChatInterface 
                 agent={agent} 
