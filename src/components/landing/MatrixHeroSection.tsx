@@ -36,7 +36,7 @@ export const MatrixHeroSection = ({ onCreateXAgent, onSimClick, onViewAllAgents 
       {/* Content */}
       <div className="relative z-10 flex-1 flex flex-col items-center justify-center px-4 text-center max-w-5xl mx-auto w-full">
         <h1 className="text-xl sm:text-3xl md:text-4xl lg:text-5xl font-sans font-semibold mb-6 tracking-tight text-foreground text-center w-full">
-          Turn your X account into an AI Agent that makes money.
+          Turn your X account into an AI Agent that can accept payments.
         </h1>
 
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6 mb-8 max-w-3xl mx-auto">
