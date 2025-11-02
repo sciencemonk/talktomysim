@@ -331,13 +331,13 @@ export default function XAgentPage() {
 
           {/* Right Column - Store */}
           <div className="lg:col-span-1">
-            {(agent as any).x402_wallet && (
+            {((agent as any).x402_wallet || (agent.social_links as any)?.x402_wallet) && (
               <div>
                 <h2 className="text-2xl font-bold mb-4 px-1">🛍️ Store</h2>
                 <XAgentStorefront
                   agentId={agent.id}
                   agentName={agent.name}
-                  walletAddress={(agent as any).x402_wallet}
+                  walletAddress={(agent as any).x402_wallet || (agent.social_links as any)?.x402_wallet}
                 />
               </div>
             )}
