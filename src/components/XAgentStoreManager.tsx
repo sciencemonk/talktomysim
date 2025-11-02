@@ -182,7 +182,7 @@ export function XAgentStoreManager({ agentId }: XAgentStoreManagerProps) {
           if (!open) resetForm();
         }}>
           <DialogTrigger asChild>
-            <Button>
+            <Button variant="mint">
               <Plus className="h-4 w-4 mr-2" />
               Add Offering
             </Button>
@@ -293,7 +293,7 @@ export function XAgentStoreManager({ agentId }: XAgentStoreManagerProps) {
                 <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
                   Cancel
                 </Button>
-                <Button type="submit">
+                <Button type="submit" variant="mint">
                   {editingOffering ? "Update" : "Create"} Offering
                 </Button>
               </DialogFooter>

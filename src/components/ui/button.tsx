@@ -31,6 +31,8 @@ const buttonVariants = cva(
         selected: "bg-black text-white hover:bg-black/90",
         // Sim launch button variant with green accent
         simPrimary: "bg-[#83f1aa] text-slate-900 hover:bg-[#6dd994] font-semibold shadow-lg hover:shadow-xl transition-all",
+        // Mint variant for store buttons
+        mint: "bg-mint text-mint-foreground hover:bg-mint/90",
       },
       size: {
         default: "h-10 px-4 py-2",
