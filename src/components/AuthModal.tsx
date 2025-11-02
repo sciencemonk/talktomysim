@@ -17,6 +17,24 @@ interface AuthModalProps {
 const AuthModal = ({ open, onOpenChange, defaultMode = 'signup' }: AuthModalProps) => {
   const [isLoading, setIsLoading] = useState<string | null>(null);
 
+  const handleTwitterSignIn = async () => {
+    setIsLoading('twitter');
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'twitter',
+        options: {
+          redirectTo: `${window.location.origin}/directory`
+        }
+      });
+
+      if (error) throw error;
+    } catch (error: any) {
+      console.error('Error signing in with X:', error);
+      toast.error(error?.message || 'Failed to sign in with X');
+      setIsLoading(null);
+    }
+  };
+
   const isMobile = () => {
     return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
            (window.innerWidth <= 768);
@@ -205,6 +223,15 @@ const AuthModal = ({ open, onOpenChange, defaultMode = 'signup' }: AuthModalProp
           </div>
 
           <div className="w-full space-y-3">
+            <Button
+              onClick={handleTwitterSignIn}
+              disabled={!!isLoading}
+              className="w-full h-12 text-base bg-gradient-to-r from-blue-400 to-blue-600 hover:opacity-90 text-white rounded-full font-medium shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center gap-3"
+              size="lg"
+            >
+              {isLoading === 'twitter' ? 'Connecting...' : 'Sign in with X'}
+            </Button>
+
             <Button
               onClick={() => handleWalletSignIn('phantom')}
               disabled={!!isLoading}

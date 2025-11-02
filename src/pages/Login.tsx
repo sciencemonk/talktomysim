@@ -76,6 +76,24 @@ const Login = () => {
     }
   };
 
+  const handleTwitterSignIn = async () => {
+    setIsLoading(true);
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'twitter',
+        options: {
+          redirectTo: `${window.location.origin}/directory`
+        }
+      });
+
+      if (error) throw error;
+    } catch (error: any) {
+      console.error('Error signing in with X:', error);
+      toast.error(error?.message || 'Failed to sign in with X');
+      setIsLoading(false);
+    }
+  };
+
   const handleTestSignIn = async () => {
     setIsTestLoading(true);
     try {
@@ -145,9 +163,18 @@ const Login = () => {
         </CardHeader>
         <CardContent className="space-y-4">
           <Button
+            onClick={handleTwitterSignIn}
+            disabled={isLoading}
+            className="w-full bg-gradient-to-r from-blue-400 to-blue-600 text-white hover:opacity-90"
+            size="lg"
+          >
+            {isLoading ? 'Connecting...' : 'Sign in with X'}
+          </Button>
+
+          <Button
             onClick={handleSolanaSignIn}
             disabled={isLoading}
-            className="w-full bg-gradient-to-r from-purple-600 via-pink-500 to-blue-500 text-white hover:opacity-90 animate-pulse"
+            className="w-full bg-gradient-to-r from-purple-600 via-pink-500 to-blue-500 text-white hover:opacity-90"
             size="lg"
           >
             {isLoading ? 'Connecting...' : 'Connect Solana Wallet'}
