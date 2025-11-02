@@ -16,8 +16,6 @@ import { getAvatarUrl } from "@/lib/avatarUtils";
 import { ChevronRight, Bot, Search, TrendingUp, ChevronDown, Mail, Zap } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import pumpfunLogo from "@/assets/pumpfun-logo.png";
-import xLogo from "@/assets/x-logo.png";
-import xLogoBadge from "@/assets/x-logo-badge.png";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useTheme } from "@/hooks/useTheme";
@@ -39,6 +37,7 @@ const PumpFunSimCard = ({ sim, onSimClick }: PumpFunSimCardProps) => {
   const [marketCapData, setMarketCapData] = useState<{ marketCap?: number } | null>(null);
   const [isLoadingMarketCap, setIsLoadingMarketCap] = useState(false);
   const [xProfileData, setXProfileData] = useState<any>(null);
+  const [totalEarnings, setTotalEarnings] = useState<number>(0);
   
   const simCategoryType = (sim as any).sim_category;
   const isPumpFunAgent = simCategoryType === 'PumpFun Agent';
@@ -99,6 +98,28 @@ const PumpFunSimCard = ({ sim, onSimClick }: PumpFunSimCardProps) => {
 
     fetchXProfile();
   }, [isCryptoMail, xUsername]);
+
+  useEffect(() => {
+    const fetchEarnings = async () => {
+      if (!isCryptoMail) return;
+
+      try {
+        const { data, error } = await supabase
+          .from('x_messages')
+          .select('payment_amount')
+          .eq('agent_id', sim.id);
+
+        if (error) throw error;
+
+        const total = data?.reduce((sum, msg) => sum + Number(msg.payment_amount), 0) || 0;
+        setTotalEarnings(total);
+      } catch (error) {
+        console.error('[PumpFunSimCard] Error fetching earnings:', error);
+      }
+    };
+
+    fetchEarnings();
+  }, [isCryptoMail, sim.id]);
 
   const getAvatarSrc = () => {
     // For X agents (Crypto Mail), use X profile image with proxy
@@ -181,9 +202,9 @@ const PumpFunSimCard = ({ sim, onSimClick }: PumpFunSimCardProps) => {
             <Badge 
               variant="outline" 
               className="text-[10px] px-2 py-0.5 flex items-center gap-0.5"
+              style={{ backgroundColor: 'rgba(129, 244, 170, 0.15)', color: '#81f4aa', borderColor: 'rgba(129, 244, 170, 0.3)' }}
             >
-              <img src={xLogoBadge} alt="X" className="h-3 w-3" />
-              Agent
+              💰 ${totalEarnings.toFixed(0)} Earned
             </Badge>
           ) : isPumpFunAgent ? (
             <>
@@ -237,7 +258,6 @@ const NewLanding = () => {
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [expandedCategories, setExpandedCategories] = useState<Record<string, boolean>>({
-    'x-agents': true,
     'pumpfun': true,
     'chat': true
   });
@@ -638,40 +658,23 @@ const NewLanding = () => {
           {/* X Agents Section */}
           {xAgents.length > 0 && (
             <div>
-              <button
-                onClick={() => toggleCategory('x-agents')}
-                className="flex items-center gap-2 mb-4 group"
-              >
-                <ChevronRight 
-                  className={`h-5 w-5 transition-transform ${expandedCategories['x-agents'] ? 'rotate-90' : ''}`}
-                />
-                <div className="flex items-center gap-2">
-                  <img src={xLogo} alt="X" className="h-5 w-5" />
-                  <h2 className="text-xl font-bold">X Agents</h2>
-                  <Badge variant="secondary">{xAgents.length}</Badge>
-                </div>
-              </button>
-              {expandedCategories['x-agents'] && (
-                  <>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-5">
-                      {xAgents.slice(0, visibleCounts['x-agents']).map((sim) => (
-                      <PumpFunSimCard
-                        key={sim.id}
-                        sim={sim}
-                        onSimClick={handleSimClick}
-                      />
-                    ))}
-                  </div>
-                  {xAgents.length > visibleCounts['x-agents'] && (
-                    <Button
-                      variant="outline"
-                      onClick={() => showMore('x-agents')}
-                      className="mt-4 w-full"
-                    >
-                      Show More ({Math.min(32, xAgents.length - visibleCounts['x-agents'])} more)
-                    </Button>
-                  )}
-                </>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-5">
+                {xAgents.slice(0, visibleCounts['x-agents']).map((sim) => (
+                  <PumpFunSimCard
+                    key={sim.id}
+                    sim={sim}
+                    onSimClick={handleSimClick}
+                  />
+                ))}
+              </div>
+              {xAgents.length > visibleCounts['x-agents'] && (
+                <Button
+                  variant="outline"
+                  onClick={() => showMore('x-agents')}
+                  className="mt-4 w-full"
+                >
+                  Show More ({Math.min(32, xAgents.length - visibleCounts['x-agents'])} more)
+                </Button>
               )}
             </div>
           )}
