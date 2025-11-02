@@ -284,20 +284,13 @@ export default function XAgentPage() {
       </div>
 
       {/* Main Content */}
-      <div className="container mx-auto px-3 md:px-4 py-6 md:py-8 max-w-7xl">
+      <div className="container mx-auto px-3 md:px-4 max-w-7xl h-[calc(100vh-4rem)]">
         {/* Main Grid Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
-          {/* Left Column - AI Chat */}
-          <div className="lg:col-span-2">
-            <div className="h-[600px] overflow-hidden rounded-lg border border-border bg-card/80 backdrop-blur-sm shadow-xl">
-              <PublicChatInterface agent={agent} />
-            </div>
-          </div>
-
-          {/* Right Column - Store */}
-          <div className="lg:col-span-1">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8 h-full py-6 md:py-8">
+          {/* Left Column - Store */}
+          <div className="lg:col-span-1 h-full">
             {((agent as any).x402_wallet || (agent.social_links as any)?.x402_wallet) && (
-              <ScrollArea className="h-[600px] rounded-lg border border-border bg-card/80 backdrop-blur-sm shadow-xl p-6">
+              <ScrollArea className="h-full rounded-lg border border-border bg-card/80 backdrop-blur-sm shadow-xl p-6">
                 <XAgentStorefront
                   agentId={agent.id}
                   agentName={agent.name}
@@ -305,6 +298,16 @@ export default function XAgentPage() {
                 />
               </ScrollArea>
             )}
+          </div>
+
+          {/* Right Column - AI Chat */}
+          <div className="lg:col-span-2 h-full">
+            <div className="h-full overflow-hidden rounded-lg border border-border bg-card/80 backdrop-blur-sm shadow-xl">
+              <PublicChatInterface 
+                agent={agent} 
+                avatarUrl={getImageUrl(xData?.profileImageUrl || agent.avatar)}
+              />
+            </div>
           </div>
         </div>
       </div>

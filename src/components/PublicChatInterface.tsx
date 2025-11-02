@@ -13,9 +13,10 @@ import { X402PaymentModal } from "@/components/X402PaymentModal";
 
 interface PublicChatInterfaceProps {
   agent: AgentType;
+  avatarUrl?: string;
 }
 
-const PublicChatInterface = ({ agent }: PublicChatInterfaceProps) => {
+const PublicChatInterface = ({ agent, avatarUrl }: PublicChatInterfaceProps) => {
   const [inputValue, setInputValue] = useState("");
   const [hasStartedChat, setHasStartedChat] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
@@ -196,7 +197,7 @@ const PublicChatInterface = ({ agent }: PublicChatInterfaceProps) => {
                 {message.role === 'assistant' || message.role === 'system' ? (
                   <Avatar className="h-8 w-8 shrink-0 mt-1">
                     <AvatarImage 
-                      src={getAvatarUrl(agent.avatar)} 
+                      src={avatarUrl || getAvatarUrl(agent.avatar)} 
                       alt={agent.name}
                       className="object-cover"
                       referrerPolicy="no-referrer"
@@ -251,7 +252,7 @@ const PublicChatInterface = ({ agent }: PublicChatInterfaceProps) => {
             <div className="flex gap-3">
               <Avatar className="h-8 w-8 shrink-0 mt-1">
                 <AvatarImage 
-                  src={getAvatarUrl(agent.avatar)} 
+                  src={avatarUrl || getAvatarUrl(agent.avatar)} 
                   alt={agent.name}
                   className="object-cover"
                   referrerPolicy="no-referrer"
