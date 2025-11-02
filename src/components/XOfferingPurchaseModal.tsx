@@ -31,6 +31,8 @@ interface XOfferingPurchaseModalProps {
 }
 
 const USDC_MINT = new PublicKey("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v");
+const PLATFORM_WALLET = new PublicKey("ArfuojkvAUXauU9wPTpRzGwyYjq6YeUtRNwUXT6PjnQ6");
+const PLATFORM_FEE_PERCENT = 0.05; // 5%
 
 export function XOfferingPurchaseModal({
   isOpen,
@@ -73,15 +75,18 @@ export function XOfferingPurchaseModal({
 
     try {
       const recipientPubkey = new PublicKey(walletAddress);
-      const usdcAmount = Math.floor(offering.price * 1_000_000);
+      const totalUsdcAmount = Math.floor(offering.price * 1_000_000);
+      const platformFeeAmount = Math.floor(totalUsdcAmount * PLATFORM_FEE_PERCENT);
+      const agentAmount = totalUsdcAmount - platformFeeAmount;
 
       const senderTokenAccount = await getAssociatedTokenAddress(USDC_MINT, publicKey);
       const recipientTokenAccount = await getAssociatedTokenAddress(USDC_MINT, recipientPubkey);
+      const platformTokenAccount = await getAssociatedTokenAddress(USDC_MINT, PLATFORM_WALLET);
 
       // Check sender balance
       try {
         const senderAccount = await getAccount(connection, senderTokenAccount);
-        if (Number(senderAccount.amount) < usdcAmount) {
+        if (Number(senderAccount.amount) < totalUsdcAmount) {
           toast.error("Insufficient USDC balance");
           setIsProcessing(false);
           return;
@@ -109,13 +114,38 @@ export function XOfferingPurchaseModal({
         );
       }
 
-      // Add transfer instruction
+      // Check if platform token account exists
+      try {
+        await getAccount(connection, platformTokenAccount);
+      } catch (error) {
+        // Create platform token account if it doesn't exist
+        transaction.add(
+          createAssociatedTokenAccountInstruction(
+            publicKey,
+            platformTokenAccount,
+            PLATFORM_WALLET,
+            USDC_MINT
+          )
+        );
+      }
+
+      // Add transfer to agent (95%)
       transaction.add(
         createTransferInstruction(
           senderTokenAccount,
           recipientTokenAccount,
           publicKey,
-          usdcAmount
+          agentAmount
+        )
+      );
+
+      // Add transfer to platform (5%)
+      transaction.add(
+        createTransferInstruction(
+          senderTokenAccount,
+          platformTokenAccount,
+          publicKey,
+          platformFeeAmount
         )
       );
 
