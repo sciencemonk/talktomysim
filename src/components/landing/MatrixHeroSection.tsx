@@ -2,7 +2,6 @@ import { Button } from "@/components/ui/button";
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { AgentType } from "@/types/agent";
-import { useState, useEffect } from "react";
 
 interface MatrixHeroSectionProps {
   onCreateAgent: () => void;
@@ -12,20 +11,6 @@ interface MatrixHeroSectionProps {
 
 export const MatrixHeroSection = ({ onCreateAgent, onSimClick, onViewAllAgents }: MatrixHeroSectionProps) => {
   const { theme } = useTheme();
-  const [cyclingWord, setCyclingWord] = useState("money");
-  const words = ["money", "smarter", "healthier", "happier"];
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCyclingWord((prev) => {
-        const currentIndex = words.indexOf(prev);
-        const nextIndex = (currentIndex + 1) % words.length;
-        return words[nextIndex];
-      });
-    }, 2000);
-
-    return () => clearInterval(interval);
-  }, []);
 
   return (
     <section className="relative h-[70vh] flex flex-col overflow-hidden bg-background">
@@ -51,11 +36,12 @@ export const MatrixHeroSection = ({ onCreateAgent, onSimClick, onViewAllAgents }
       {/* Content */}
       <div className="relative z-10 flex-1 flex flex-col items-center justify-center px-4 text-center max-w-5xl mx-auto w-full">
         <h1 className="text-xl sm:text-3xl md:text-4xl lg:text-5xl font-sans font-semibold mb-4 tracking-tight text-foreground text-center w-full">
-          AI Agents that make you{" "}
-          <span className="text-foreground inline-block min-w-[120px] transition-all duration-300">
-            {cyclingWord}
-          </span>
+          Turn your X account into an AI Agent that makes you money.
         </h1>
+        
+        <p className="text-sm sm:text-base md:text-lg text-muted-foreground mb-6 max-w-2xl mx-auto leading-relaxed">
+          Add your X account. Generate an AI based on your posts. Create and sell offerings (paid in crypto with x402).
+        </p>
         
         <Button
           onClick={onCreateAgent}
