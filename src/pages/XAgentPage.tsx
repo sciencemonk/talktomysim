@@ -22,6 +22,7 @@ export default function XAgentPage() {
   const [usernameCopied, setUsernameCopied] = useState(false);
   const [totalEarnings, setTotalEarnings] = useState<number>(0);
   const [linkCopied, setLinkCopied] = useState(false);
+  const [offerings, setOfferings] = useState<any[]>([]);
 
   useEffect(() => {
     if (username) {
@@ -70,6 +71,54 @@ export default function XAgentPage() {
         return;
       }
 
+      // Fetch offerings for this agent
+      const { data: offeringsData } = await supabase
+        .from('x_agent_offerings')
+        .select('*')
+        .eq('agent_id', matchingAgent.id)
+        .eq('is_active', true);
+
+      setOfferings(offeringsData || []);
+
+      // Fetch real-time X data and tweets
+      let xResponse: any = null;
+      try {
+        const { data: xResponseData, error: xError } = await supabase.functions.invoke("x-intelligence", {
+          body: { username: username?.replace('@', '') },
+        });
+
+        if (!xError && xResponseData?.success && xResponseData?.report) {
+          xResponse = {
+            ...xResponseData.report,
+            tweets: xResponseData.tweets || []
+          };
+          setXData(xResponse);
+        }
+      } catch (error) {
+        console.error('Error fetching X data:', error);
+      }
+
+      // Build enhanced prompt for X agents
+      let enhancedPrompt = matchingAgent.prompt || `You are ${matchingAgent.name}, an AI assistant representing this X account.`;
+
+      // Add persona from tweets if available
+      if (xResponse?.tweets && xResponse.tweets.length > 0) {
+        const recentTweets = xResponse.tweets.slice(0, 10);
+        const tweetSample = recentTweets.map((t: any) => t.text).join('\n\n');
+        enhancedPrompt += `\n\nYour communication style and personality should match the tone and topics from these recent tweets:\n${tweetSample}`;
+      }
+
+      // Add offerings information if available
+      if (offeringsData && offeringsData.length > 0) {
+        enhancedPrompt += `\n\nYou are here to help visitors learn about and purchase the following offerings:\n\n`;
+        offeringsData.forEach((offering: any) => {
+          enhancedPrompt += `**${offering.title}** - $${offering.price} USDC\n`;
+          enhancedPrompt += `Description: ${offering.description}\n`;
+          enhancedPrompt += `Delivery: ${offering.delivery_method}\n\n`;
+        });
+        enhancedPrompt += `\nWhen visitors ask about your services or what you offer, enthusiastically share information about these offerings. Explain how they can benefit from them and encourage them to make a purchase. Answer any questions they have about the offerings in detail. Make the conversation natural and engaging while subtly guiding them toward making a purchase.`;
+      }
+
       // Transform to AgentType
       const transformedAgent: AgentType = {
         id: matchingAgent.id,
@@ -80,7 +129,7 @@ export default function XAgentPage() {
         createdAt: matchingAgent.created_at,
         updatedAt: matchingAgent.updated_at,
         avatar: matchingAgent.avatar_url,
-        prompt: matchingAgent.prompt,
+        prompt: enhancedPrompt,
         welcome_message: matchingAgent.welcome_message,
         title: matchingAgent.title,
         sim_type: 'living',
@@ -109,21 +158,6 @@ export default function XAgentPage() {
       // Fetch total earnings
       fetchTotalEarnings(matchingAgent.id);
 
-      // Fetch real-time X data
-      try {
-        const { data: xResponse, error: xError } = await supabase.functions.invoke("x-intelligence", {
-          body: { username: username?.replace('@', '') },
-        });
-
-        if (!xError && xResponse?.success && xResponse?.report) {
-          setXData({
-            ...xResponse.report,
-            tweets: xResponse.tweets || []
-          });
-        }
-      } catch (error) {
-        console.error('Error fetching X data:', error);
-      }
     } catch (error) {
       console.error('Error fetching agent:', error);
       toast.error("Failed to load agent");
