@@ -257,6 +257,7 @@ const NewLanding = () => {
   const location = useLocation();
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showXAgentModal, setShowXAgentModal] = useState(false);
   const [expandedCategories, setExpandedCategories] = useState<Record<string, boolean>>({
     'pumpfun': true,
     'chat': true
@@ -529,11 +530,11 @@ const NewLanding = () => {
       <HackathonAnnouncementModal />
       
       <div className="flex-1 overflow-hidden">
-        <MatrixHeroSection 
-          onCreateAgent={() => setShowCreateModal(true)} 
-          onSimClick={handleSimClick}
-          onViewAllAgents={scrollToAgents}
-        />
+      <MatrixHeroSection 
+        onCreateXAgent={() => setShowXAgentModal(true)}
+        onSimClick={handleSimClick}
+        onViewAllAgents={scrollToAgents}
+      />
       </div>
 
       <ScrollingSimsRows onSimClick={handleSimClick} />
@@ -702,6 +703,14 @@ const NewLanding = () => {
             navigate(`/${slug}?chat=true`);
           }
         }}
+      />
+
+      <UnifiedAgentCreation
+        open={showXAgentModal}
+        onOpenChange={setShowXAgentModal}
+        initialAgentType="crypto-mail"
+        hideBackButton={true}
+        showVerificationFlow={true}
       />
     </div>
   );

@@ -29,6 +29,9 @@ interface UnifiedAgentCreationProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSuccess?: (createdAgent?: any) => void;
+  initialAgentType?: string;
+  hideBackButton?: boolean;
+  showVerificationFlow?: boolean;
 }
 
 const AGENT_TYPES = [
@@ -91,9 +94,10 @@ const CATEGORIES = [
   { value: "spiritual", label: "Spiritual & Philosophy" },
 ];
 
-export const UnifiedAgentCreation = ({ open, onOpenChange, onSuccess }: UnifiedAgentCreationProps) => {
-  const [step, setStep] = useState(0);
-  const [selectedType, setSelectedType] = useState<string | null>(null);
+export const UnifiedAgentCreation = ({ open, onOpenChange, onSuccess, initialAgentType, hideBackButton, showVerificationFlow }: UnifiedAgentCreationProps) => {
+  const [step, setStep] = useState(initialAgentType ? 1 : 0);
+  const [selectedType, setSelectedType] = useState<string | null>(initialAgentType || null);
+  const [verificationCode, setVerificationCode] = useState("");
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -521,6 +525,13 @@ You can answer questions about their X profile, interests, opinions, and provide
         }
 
         toast.success("X Agent created successfully!");
+        
+        // Show verification flow instead of closing modal
+        if (showVerificationFlow) {
+          setVerificationCode(editCode);
+          setStep(4); // New verification step
+          return;
+        }
       } else {
         const selectedAgentType = AGENT_TYPES.find((t) => t.id === selectedType);
         const simCategory = selectedAgentType?.category || "Chat";
@@ -630,8 +641,9 @@ You can answer questions about their X profile, interests, opinions, and provide
   };
 
   const handleReset = () => {
-    setStep(0);
-    setSelectedType(null);
+    setStep(initialAgentType ? 1 : 0);
+    setSelectedType(initialAgentType || null);
+    setVerificationCode("");
     setFormData({
       name: "",
       description: "",
@@ -686,7 +698,7 @@ You can answer questions about their X profile, interests, opinions, and provide
         </VisuallyHidden>
         <div className="space-y-6">
           {/* Agent Type Header - Always visible when agent type is selected */}
-          {step > 0 && selectedType && (
+          {step > 0 && step < 4 && selectedType && !hideBackButton && (
             <div className="flex items-center gap-3 pb-4 border-b border-border/50">
               <div className="flex items-center justify-center w-12 h-12 rounded-lg bg-neonGreen/10">
                 <img 
@@ -1234,6 +1246,62 @@ You can answer questions about their X profile, interests, opinions, and provide
                     Create Agent
                   </>
                 )}
+              </Button>
+            </div>
+          )}
+
+          {/* Step 4: Verification Code Display */}
+          {step === 4 && (
+            <div className="space-y-6">
+              <div className="p-8 rounded-xl bg-gradient-to-br from-[#82f3aa]/10 via-[#82f3aa]/5 to-background border-2 border-[#82f3aa]/20 space-y-6">
+                <div className="flex items-center justify-center w-16 h-16 mx-auto rounded-full bg-[#82f3aa]/10 border-2 border-[#82f3aa]/30">
+                  <Sparkles className="w-8 h-8 text-[#82f3aa]" />
+                </div>
+                
+                <div className="space-y-3 text-center">
+                  <h3 className="text-2xl font-bold">Verify Your Account</h3>
+                  <p className="text-muted-foreground max-w-md mx-auto">
+                    To verify your account, post the code below on your X account with the hashtag <span className="font-semibold text-foreground">#VERIFYMYSIM</span>
+                  </p>
+                </div>
+
+                <div className="p-6 rounded-lg bg-background/50 border border-border space-y-3">
+                  <Label className="text-sm font-medium text-muted-foreground">Your Verification Code</Label>
+                  <div className="flex items-center justify-between gap-4">
+                    <p className="text-4xl font-mono font-bold tracking-wider text-[#82f3aa]">{verificationCode}</p>
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        navigator.clipboard.writeText(verificationCode);
+                        toast.success("Code copied!");
+                      }}
+                    >
+                      Copy
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="space-y-2 text-sm text-muted-foreground">
+                  <p className="flex items-start gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#82f3aa] mt-1.5 shrink-0" />
+                    You will receive a DM on X within 24 hours of posting with instructions on how to access your verified Sim page
+                  </p>
+                  <p className="flex items-start gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#82f3aa] mt-1.5 shrink-0" />
+                    Make sure to keep your verification code safe for future access
+                  </p>
+                </div>
+              </div>
+
+              <Button 
+                onClick={() => {
+                  onOpenChange(false);
+                  handleReset();
+                }} 
+                className="w-full bg-[#82f3aa] hover:bg-[#6dd991] text-black font-semibold" 
+                size="lg"
+              >
+                Done
               </Button>
             </div>
           )}

@@ -4,12 +4,12 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { AgentType } from "@/types/agent";
 
 interface MatrixHeroSectionProps {
-  onCreateAgent: () => void;
+  onCreateXAgent: () => void;
   onSimClick: (sim: AgentType) => void;
   onViewAllAgents: () => void;
 }
 
-export const MatrixHeroSection = ({ onCreateAgent, onSimClick, onViewAllAgents }: MatrixHeroSectionProps) => {
+export const MatrixHeroSection = ({ onCreateXAgent, onSimClick, onViewAllAgents }: MatrixHeroSectionProps) => {
   const { theme } = useTheme();
 
   return (
@@ -73,7 +73,7 @@ export const MatrixHeroSection = ({ onCreateAgent, onSimClick, onViewAllAgents }
         </div>
         
         <Button
-          onClick={onCreateAgent}
+          onClick={onCreateXAgent}
           size="lg"
           className="gap-2 font-semibold px-6 sm:px-8 md:px-10 py-3 sm:py-4 md:py-5 text-sm sm:text-base md:text-lg transition-all duration-300 mb-3 bg-[#82f3aa] hover:bg-[#6dd991] text-black border-0"
         >
