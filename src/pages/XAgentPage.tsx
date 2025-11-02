@@ -258,18 +258,22 @@ export default function XAgentPage() {
       <div className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-40">
         <div className="container mx-auto px-3 md:px-4 py-3 md:py-4">
           <div className="flex items-center justify-between">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => navigate('/', { state: { scrollToAgents: true } })}
-              className="gap-2 h-9 px-2 md:px-3"
-            >
-              <ArrowLeft className="h-4 w-4" />
-              <span className="hidden sm:inline">Back</span>
-            </Button>
-            <div className="flex items-center gap-2">
-              <img src={xIcon} alt="X" className="h-4 w-4 md:h-5 md:w-5" />
-              <span className="text-xs md:text-sm font-medium text-muted-foreground">X Agent</span>
+            <div className="flex items-center gap-3">
+              <Avatar className="h-9 w-9 border-2 ring-2 ring-[#81f4aa]/20" style={{ borderColor: '#81f4aa' }}>
+                <AvatarImage 
+                  src={getImageUrl(xData?.profileImageUrl || agent.avatar)} 
+                  alt={agent.name}
+                  className="object-cover"
+                  referrerPolicy="no-referrer"
+                />
+                <AvatarFallback className="text-sm">{agent.name[0]}</AvatarFallback>
+              </Avatar>
+              <div className="flex flex-col">
+                <span className="text-sm md:text-base font-semibold">{xData?.displayName || agent.name}</span>
+                <span className="text-xs text-muted-foreground">
+                  {formatNumber(xData?.metrics?.followers)} Followers
+                </span>
+              </div>
             </div>
             <Button
               variant="outline"
@@ -286,9 +290,9 @@ export default function XAgentPage() {
       {/* Main Content */}
       <div className="container mx-auto px-3 md:px-4 max-w-7xl h-[calc(100vh-4rem)]">
         {/* Main Grid Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8 h-full py-6 md:py-8">
-          {/* Left Column - Store */}
-          <div className="lg:col-span-1 h-full">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 md:gap-8 h-full py-6 md:py-8">
+          {/* Left Column - Store (3/4 width) */}
+          <div className="lg:col-span-3 h-full">
             {((agent as any).x402_wallet || (agent.social_links as any)?.x402_wallet) && (
               <ScrollArea className="h-full rounded-lg border border-border bg-card/80 backdrop-blur-sm shadow-xl p-6">
                 <XAgentStorefront
@@ -300,8 +304,8 @@ export default function XAgentPage() {
             )}
           </div>
 
-          {/* Right Column - AI Chat */}
-          <div className="lg:col-span-2 h-full">
+          {/* Right Column - AI Chat (1/4 width) */}
+          <div className="lg:col-span-1 h-full">
             <div className="h-full overflow-hidden rounded-lg border border-border bg-card/80 backdrop-blur-sm shadow-xl">
               <PublicChatInterface 
                 agent={agent} 

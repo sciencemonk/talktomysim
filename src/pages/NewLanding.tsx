@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { getAvatarUrl } from "@/lib/avatarUtils";
-import { ChevronRight, Bot, Search, TrendingUp, ChevronDown, Mail, Zap } from "lucide-react";
+import { ChevronRight, Bot, Search, TrendingUp, ChevronDown, Mail, Zap, Users } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import pumpfunLogo from "@/assets/pumpfun-logo.png";
 import { Input } from "@/components/ui/input";
@@ -32,6 +32,16 @@ interface PumpFunSimCardProps {
   sim: AgentType & { user_id?: string; like_count?: number; is_verified?: boolean };
   onSimClick: (sim: AgentType) => void;
 }
+
+const formatNumber = (num: number | undefined) => {
+  if (!num) return '0';
+  if (num >= 1000000) {
+    return `${(num / 1000000).toFixed(1)}M`;
+  } else if (num >= 1000) {
+    return `${(num / 1000).toFixed(1)}K`;
+  }
+  return num.toLocaleString();
+};
 
 const PumpFunSimCard = ({ sim, onSimClick }: PumpFunSimCardProps) => {
   const [marketCapData, setMarketCapData] = useState<{ marketCap?: number } | null>(null);
@@ -204,7 +214,8 @@ const PumpFunSimCard = ({ sim, onSimClick }: PumpFunSimCardProps) => {
               className="text-[10px] px-2 py-0.5 flex items-center gap-0.5"
               style={{ backgroundColor: 'rgba(129, 244, 170, 0.15)', color: '#81f4aa', borderColor: 'rgba(129, 244, 170, 0.3)' }}
             >
-              💰 ${totalEarnings.toFixed(0)} Earned
+              <Users className="h-3 w-3" />
+              {formatNumber(xProfileData?.metrics?.followers || 0)} Followers
             </Badge>
           ) : isPumpFunAgent ? (
             <>
