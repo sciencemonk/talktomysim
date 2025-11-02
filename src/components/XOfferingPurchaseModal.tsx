@@ -160,10 +160,13 @@ export function XOfferingPurchaseModal({
         </DialogHeader>
 
         <div className="space-y-4">
-          <div className="p-4 bg-muted rounded-lg">
-            <div className="flex justify-between items-center mb-2">
+          <div className="p-4 bg-muted rounded-lg space-y-3">
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              {offering.description}
+            </p>
+            <div className="flex justify-between items-center pt-2 border-t border-border/50">
               <span className="text-sm text-muted-foreground">Price</span>
-              <span className="text-lg font-bold">${offering.price} USDC</span>
+              <span className="text-lg font-bold">${Number(offering.price).toLocaleString()} USDC</span>
             </div>
             <div className="text-xs text-muted-foreground">
               <strong>Delivery:</strong> {offering.delivery_method}
@@ -215,7 +218,7 @@ export function XOfferingPurchaseModal({
                     Processing...
                   </>
                 ) : (
-                  `Pay $${offering.price} USDC`
+                  `Pay $${Number(offering.price).toLocaleString()} USDC`
                 )}
               </Button>
             )}
