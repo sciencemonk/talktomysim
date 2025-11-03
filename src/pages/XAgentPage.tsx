@@ -279,10 +279,10 @@ export default function XAgentPage() {
                 <span className="hidden sm:inline">Share</span>
               </Button>
               <Button
-                variant="default"
+                variant="outline"
                 size="sm"
                 onClick={() => navigate(`/x/${username}/creator`)}
-                className="gap-2"
+                className="gap-2 bg-black text-white border-white hover:bg-black/90 hover:text-white"
               >
                 <span>Creator Access</span>
               </Button>
@@ -298,9 +298,11 @@ export default function XAgentPage() {
             {/* Profile Image */}
             <Avatar className="h-24 w-24 md:h-32 md:w-32 border-4 shadow-2xl ring-4 ring-primary/20" style={{ borderColor: 'hsl(var(--primary))' }}>
               <AvatarImage 
-                src={(agent.social_links as any)?.profile_image_url || agent.avatar_url || agent.avatar || xData?.profileImageUrl} 
+                src={getImageUrl(xData?.profileImageUrl || (agent.social_links as any)?.profile_image_url || agent.avatar_url || agent.avatar)} 
                 alt={agent.name}
                 className="object-cover"
+                referrerPolicy="no-referrer"
+                crossOrigin="anonymous"
               />
               <AvatarFallback className="text-3xl font-bold">{agent.name[0]}</AvatarFallback>
             </Avatar>
