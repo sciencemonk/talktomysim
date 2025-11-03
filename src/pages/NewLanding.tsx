@@ -9,6 +9,7 @@ import { OfferingsMosaic } from "@/components/landing/OfferingsMosaic";
 import { AgenticCommerceSection } from "@/components/landing/AgenticCommerceSection";
 import { TopStoresSection } from "@/components/landing/TopStoresSection";
 import { SignUpCTASection } from "@/components/landing/SignUpCTASection";
+import { PricingSection } from "@/components/landing/PricingSection";
 import { LandingFooter } from "@/components/landing/LandingFooter";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -573,6 +574,8 @@ const NewLanding = () => {
       </div>
 
       <TopStoresSection />
+
+      <PricingSection onSignUp={handleXSignIn} />
 
       <SignUpCTASection onSignUp={handleXSignIn} />
       
