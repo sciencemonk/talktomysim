@@ -3,7 +3,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
 import { Users, TrendingUp } from "lucide-react";
 
 interface XAgent {
@@ -22,36 +21,16 @@ interface StoreCardProps {
 }
 
 const StoreCard = ({ agent, rank, followers, onClick }: StoreCardProps) => {
-  const [xProfileData, setXProfileData] = useState<any>(null);
   const xUsername = (agent.social_links as any)?.x_username;
 
-  useEffect(() => {
-    const fetchXProfile = async () => {
-      if (!xUsername) return;
-
-      try {
-        const { data, error } = await supabase.functions.invoke('x-intelligence', {
-          body: { username: xUsername },
-        });
-
-        if (!error && data?.success && data?.report) {
-          setXProfileData(data.report);
-        } else if (error || !data?.success) {
-          // Silently handle API credit errors - don't break the UI
-          console.log('[StoreCard] X API temporarily unavailable for:', xUsername);
-        }
-      } catch (error) {
-        // Gracefully handle errors without breaking the UI
-        console.log('[StoreCard] Could not fetch X profile:', error);
-      }
-    };
-
-    fetchXProfile();
-  }, [xUsername]);
-
   const getAvatarSrc = () => {
-    if (xProfileData?.profileImageUrl) {
-      return `https://images.weserv.nl/?url=${encodeURIComponent(xProfileData.profileImageUrl)}`;
+    // Use the avatar_url directly from the database
+    if (agent.avatar_url) {
+      // If it's a Twitter/X image, proxy it through weserv
+      if (agent.avatar_url.includes('pbs.twimg.com')) {
+        return `https://images.weserv.nl/?url=${encodeURIComponent(agent.avatar_url)}`;
+      }
+      return agent.avatar_url;
     }
     return null;
   };
@@ -91,14 +70,16 @@ const StoreCard = ({ agent, rank, followers, onClick }: StoreCardProps) => {
         <p className="text-sm text-muted-foreground line-clamp-1 mb-2">
           {agent.description || 'X Agent Store'}
         </p>
-        <Badge 
-          variant="outline" 
-          className="text-xs flex items-center gap-1 w-fit"
-          style={{ backgroundColor: 'rgba(131, 241, 170, 0.15)', color: '#83f1aa', borderColor: 'rgba(131, 241, 170, 0.3)' }}
-        >
-          <Users className="h-3 w-3" />
-          {formatNumber(followers)} Followers
-        </Badge>
+        {followers > 0 && (
+          <Badge 
+            variant="outline" 
+            className="text-xs flex items-center gap-1 w-fit"
+            style={{ backgroundColor: 'rgba(131, 241, 170, 0.15)', color: '#83f1aa', borderColor: 'rgba(131, 241, 170, 0.3)' }}
+          >
+            <Users className="h-3 w-3" />
+            {formatNumber(followers)} Followers
+          </Badge>
+        )}
       </div>
 
       {/* Trending Icon */}
@@ -123,34 +104,17 @@ export const TopStoresSection = () => {
 
       if (error) throw error;
 
-      // Fetch follower counts for each agent
-      const agentsWithFollowers = await Promise.all(
-        (agents || []).map(async (agent) => {
-          const xUsername = (agent.social_links as any)?.x_username;
-          if (!xUsername) {
-            // Include agents without X usernames with 0 followers
-            return { ...agent, followers: 0 };
-          }
-
-          try {
-            const { data, error } = await supabase.functions.invoke('x-intelligence', {
-              body: { username: xUsername },
-            });
-
-            if (!error && data?.success && data?.report) {
-              return {
-                ...agent,
-                followers: data.report.metrics?.followers || 0,
-              };
-            }
-          } catch (error) {
-            console.log('[TopStoresSection] X API unavailable for:', xUsername);
-          }
-
-          // Return agent with 0 followers if API fails
-          return { ...agent, followers: 0 };
-        })
-      );
+      // Get agents with their stored follower data
+      const agentsWithFollowers = (agents || []).map((agent) => {
+        const xUsername = (agent.social_links as any)?.x_username;
+        // Try to get followers from social_links if available
+        const storedFollowers = (agent.social_links as any)?.followers || 0;
+        
+        return {
+          ...agent,
+          followers: storedFollowers,
+        };
+      });
 
       // Sort by followers (agents with follower data will be first)
       const validAgents = agentsWithFollowers

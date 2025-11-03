@@ -3,7 +3,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
 
 interface Offering {
   id: string;
@@ -25,32 +24,16 @@ interface OfferingCardProps {
 }
 
 const OfferingCard = ({ offering, onClick }: OfferingCardProps) => {
-  const [xProfileData, setXProfileData] = useState<any>(null);
   const xUsername = offering.agent.social_links?.x_username;
 
-  useEffect(() => {
-    const fetchXProfile = async () => {
-      if (!xUsername) return;
-
-      try {
-        const { data, error } = await supabase.functions.invoke('x-intelligence', {
-          body: { username: xUsername },
-        });
-
-        if (!error && data?.success && data?.report) {
-          setXProfileData(data.report);
-        }
-      } catch (error) {
-        console.error('[OfferingCard] Error fetching X profile:', error);
-      }
-    };
-
-    fetchXProfile();
-  }, [xUsername]);
-
   const getAvatarSrc = () => {
-    if (xProfileData?.profileImageUrl) {
-      return `https://images.weserv.nl/?url=${encodeURIComponent(xProfileData.profileImageUrl)}`;
+    // Use the avatar_url directly from the database
+    if (offering.agent.avatar_url) {
+      // If it's a Twitter/X image, proxy it through weserv
+      if (offering.agent.avatar_url.includes('pbs.twimg.com')) {
+        return `https://images.weserv.nl/?url=${encodeURIComponent(offering.agent.avatar_url)}`;
+      }
+      return offering.agent.avatar_url;
     }
     return null;
   };
