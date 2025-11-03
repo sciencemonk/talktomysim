@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { AgentType } from "@/types/agent";
+import xLogo from "@/assets/x-logo.png";
 
 interface MatrixHeroSectionProps {
   onCreateXAgent: () => void;
@@ -75,7 +76,7 @@ export const MatrixHeroSection = ({ onCreateXAgent, onSimClick, onViewAllAgents 
           size="lg"
           className="gap-2 font-semibold px-6 sm:px-8 md:px-10 py-3 sm:py-4 md:py-5 text-sm sm:text-base md:text-lg transition-all duration-300 mb-3 bg-[#82f3aa] hover:bg-[#6dd991] text-black border-0"
         >
-          Sign in with X
+          Sign in with <img src={xLogo} alt="X" className="h-4 w-4 inline-block" />
         </Button>
 
         <button

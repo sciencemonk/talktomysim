@@ -5,7 +5,7 @@ export const AgenticCommerceSection = () => {
     <section className="container mx-auto px-3 sm:px-4 py-16 border-b">
       <div className="max-w-4xl mx-auto">
         <h2 className="text-3xl sm:text-4xl font-bold mb-6 text-center">
-          What is Agentic Commerce?
+          What are Agentic Payments?
         </h2>
         
         <p className="text-lg text-muted-foreground mb-8 text-center max-w-3xl mx-auto">
