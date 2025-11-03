@@ -16,6 +16,12 @@ function validateEnvironmentVariables() {
   if (!API_SECRET) throw new Error("Missing TWITTER_CONSUMER_SECRET");
   if (!ACCESS_TOKEN) throw new Error("Missing TWITTER_ACCESS_TOKEN");
   if (!ACCESS_TOKEN_SECRET) throw new Error("Missing TWITTER_ACCESS_TOKEN_SECRET");
+  
+  console.log("Environment variables check:");
+  console.log("- API_KEY length:", API_KEY?.length);
+  console.log("- API_SECRET length:", API_SECRET?.length);
+  console.log("- ACCESS_TOKEN length:", ACCESS_TOKEN?.length);
+  console.log("- ACCESS_TOKEN_SECRET length:", ACCESS_TOKEN_SECRET?.length);
 }
 
 function generateOAuthSignature(
@@ -89,6 +95,9 @@ Deno.serve(async (req) => {
     // Use official X API v2
     const url = `https://api.x.com/2/users/by/username/${username}?user.fields=public_metrics,profile_image_url`;
     const oauthHeader = generateOAuthHeader("GET", url);
+    
+    console.log("Request URL:", url);
+    console.log("OAuth header (first 50 chars):", oauthHeader.substring(0, 50) + "...");
 
     const twitterResponse = await fetch(url, {
       method: "GET",
@@ -97,7 +106,9 @@ Deno.serve(async (req) => {
 
     if (!twitterResponse.ok) {
       const errorText = await twitterResponse.text();
-      console.error('X API error:', errorText);
+      console.error('X API error status:', twitterResponse.status);
+      console.error('X API error body:', errorText);
+      console.error('Request headers sent:', { Authorization: oauthHeader.substring(0, 100) + "..." });
       throw new Error(`X API error: ${twitterResponse.status}`);
     }
 
