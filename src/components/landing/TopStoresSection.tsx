@@ -70,11 +70,6 @@ const StoreCard = ({ agent, rank, followers, onClick }: StoreCardProps) => {
       onClick={onClick}
       className="group relative flex items-center gap-4 p-6 rounded-xl bg-card hover:bg-muted border-2 hover:border-[#83f1aa] transition-all duration-300 hover:scale-105 hover:shadow-lg"
     >
-      {/* Rank Badge */}
-      <div className="flex-shrink-0 w-12 h-12 rounded-full bg-[#83f1aa]/20 flex items-center justify-center">
-        <span className="text-2xl font-bold text-[#83f1aa]">#{rank}</span>
-      </div>
-
       {/* Avatar */}
       <Avatar className="h-16 w-16 border-2 border-[#83f1aa] flex-shrink-0">
         <AvatarImage 
@@ -179,7 +174,7 @@ export const TopStoresSection = () => {
       <section className="container mx-auto px-3 sm:px-4 py-16 border-b">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-3xl sm:text-4xl font-bold mb-8 text-center">
-            Top Stores
+            Discover Agentic Stores
           </h2>
           <div className="grid sm:grid-cols-2 gap-4">
             {[...Array(10)].map((_, i) => (
@@ -199,10 +194,10 @@ export const TopStoresSection = () => {
     <section className="container mx-auto px-3 sm:px-4 py-16 border-b">
       <div className="max-w-6xl mx-auto">
         <h2 className="text-3xl sm:text-4xl font-bold mb-3 text-center">
-          Top Stores
+          Discover Agentic Stores
         </h2>
         <p className="text-muted-foreground text-center mb-12 max-w-2xl mx-auto">
-          Discover the most popular agentic storefronts with the largest X followings
+          Explore the most popular agentic storefronts with the largest X followings
         </p>
         
         <div className="grid sm:grid-cols-2 gap-4">
