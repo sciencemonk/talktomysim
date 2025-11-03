@@ -88,11 +88,14 @@ export default function XAgentPage() {
           body: { username: username?.replace('@', '') },
         });
 
+        console.log('X Intelligence response:', xResponseData);
+
         if (!xError && xResponseData?.success && xResponseData?.report) {
           xResponse = {
             ...xResponseData.report,
             tweets: xResponseData.tweets || []
           };
+          console.log('Setting xData with profile image:', xResponse.profileImageUrl);
           setXData(xResponse);
         }
       } catch (error) {
@@ -228,6 +231,24 @@ export default function XAgentPage() {
     return url;
   };
 
+  const getAvatarUrl = () => {
+    // Priority order: xData from X API > social_links > avatar_url > avatar
+    const possibleUrls = [
+      xData?.profileImageUrl,
+      xData?.profile_image_url,
+      (agent?.social_links as any)?.profile_image_url,
+      (agent?.social_links as any)?.profileImageUrl,
+      agent?.avatar_url,
+      agent?.avatar,
+    ];
+
+    const url = possibleUrls.find(u => u && u.trim());
+    console.log('Avatar URL candidates:', possibleUrls);
+    console.log('Selected avatar URL:', url);
+    
+    return url ? getImageUrl(url) : undefined;
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-background">
@@ -298,13 +319,19 @@ export default function XAgentPage() {
             {/* Profile Image */}
             <Avatar className="h-24 w-24 md:h-32 md:w-32 border-4 shadow-2xl ring-4 ring-primary/20" style={{ borderColor: 'hsl(var(--primary))' }}>
               <AvatarImage 
-                src={getImageUrl(xData?.profileImageUrl || (agent.social_links as any)?.profile_image_url || agent.avatar_url || agent.avatar)} 
+                key={xData?.profileImageUrl || 'fallback'} 
+                src={getAvatarUrl()} 
                 alt={agent.name}
                 className="object-cover"
                 referrerPolicy="no-referrer"
                 crossOrigin="anonymous"
+                onError={(e) => {
+                  console.error('Avatar failed to load:', e.currentTarget.src);
+                }}
               />
-              <AvatarFallback className="text-3xl font-bold">{agent.name[0]}</AvatarFallback>
+              <AvatarFallback className="text-3xl font-bold bg-primary/10 text-primary">
+                {agent.name[0].toUpperCase()}
+              </AvatarFallback>
             </Avatar>
 
             {/* Profile Info */}
