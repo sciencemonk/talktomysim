@@ -148,16 +148,7 @@ export const OfferingsMosaic = () => {
   }
 
   return (
-    <section className="w-full py-12 border-b overflow-hidden">
-      <div className="container mx-auto px-3 sm:px-4 mb-8">
-        <h2 className="text-2xl sm:text-3xl font-bold mb-2 text-center">
-          Agentic Services & Products
-        </h2>
-        <p className="text-muted-foreground text-center max-w-2xl mx-auto">
-          Zero fees compared to Stripe's 2.9%. Browse services and content from verified creators.
-        </p>
-      </div>
-
+    <section className="w-full py-8 overflow-hidden">
       {/* Scrolling Row */}
       <div className="relative">
         <div className="flex gap-4 animate-scroll-slow hover:pause-animation px-3">

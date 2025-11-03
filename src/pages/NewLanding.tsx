@@ -6,6 +6,7 @@ import { UnifiedAgentCreation } from "@/components/UnifiedAgentCreation";
 import { AgentType } from "@/types/agent";
 import { HackathonAnnouncementModal } from "@/components/HackathonAnnouncementModal";
 import { OfferingsMosaic } from "@/components/landing/OfferingsMosaic";
+import { AgenticCommerceSection } from "@/components/landing/AgenticCommerceSection";
 import { LandingFooter } from "@/components/landing/LandingFooter";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -285,10 +286,10 @@ const NewLanding = () => {
   const { theme } = useTheme();
   const isMobile = useIsMobile();
 
-  const scrollToAgents = () => {
-    const agentsSection = document.getElementById('agents-section');
-    if (agentsSection) {
-      agentsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  const scrollToLearnMore = () => {
+    const learnMoreSection = document.getElementById('learn-more-section');
+    if (learnMoreSection) {
+      learnMoreSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   };
 
@@ -296,7 +297,7 @@ const NewLanding = () => {
   useEffect(() => {
     if (location.state?.scrollToAgents) {
       setTimeout(() => {
-        scrollToAgents();
+        scrollToLearnMore();
       }, 100);
       // Clear the state
       navigate(location.pathname, { replace: true, state: {} });
@@ -559,11 +560,15 @@ const NewLanding = () => {
       <MatrixHeroSection 
         onCreateXAgent={handleXSignIn}
         onSimClick={handleSimClick}
-        onViewAllAgents={scrollToAgents}
+        onViewAllAgents={scrollToLearnMore}
       />
       </div>
 
       <OfferingsMosaic />
+
+      <div id="learn-more-section" className="scroll-mt-4">
+        <AgenticCommerceSection />
+      </div>
 
       {/* Search and Filters Section */}
       <section id="agents-section" className="container mx-auto px-3 sm:px-4 py-8 border-b scroll-mt-4">

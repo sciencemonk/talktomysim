@@ -82,7 +82,7 @@ export const MatrixHeroSection = ({ onCreateXAgent, onSimClick, onViewAllAgents 
           onClick={onViewAllAgents}
           className="text-xs text-muted-foreground hover:text-foreground hover:underline transition-all duration-300"
         >
-          View All Agents
+          Learn More
         </button>
       </div>
     </section>
