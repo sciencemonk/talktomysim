@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
-import { Users, TrendingUp } from "lucide-react";
+import { Users, TrendingUp, Sparkles, Zap } from "lucide-react";
 
 interface XAgent {
   id: string;
@@ -44,43 +44,70 @@ const StoreCard = ({ agent, rank, followers, onClick }: StoreCardProps) => {
     return num.toLocaleString();
   };
 
+  // Determine rank styling
+  const isTopRank = rank <= 3;
+  const rankColor = rank === 1 ? 'bg-yellow-500' : rank === 2 ? 'bg-gray-400' : rank === 3 ? 'bg-orange-500' : 'bg-[#83f1aa]';
+
   return (
     <button
       onClick={onClick}
-      className="group relative flex items-center gap-4 p-6 rounded-xl bg-card hover:bg-muted border-2 hover:border-[#83f1aa] transition-all duration-300 hover:scale-105 hover:shadow-lg"
+      className="group relative flex items-center gap-4 p-5 rounded-xl bg-gradient-to-br from-card to-card/50 hover:from-card hover:to-muted border-2 border-border hover:border-[#83f1aa] transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-[#83f1aa]/20 overflow-hidden"
     >
-      {/* Avatar */}
-      <Avatar className="h-16 w-16 border-2 border-[#83f1aa] flex-shrink-0">
-        <AvatarImage 
-          src={getAvatarSrc() || undefined} 
-          alt={agent.name}
-          referrerPolicy="no-referrer"
-          crossOrigin="anonymous"
-        />
-        <AvatarFallback className="bg-primary/10 text-primary text-lg">
-          {agent.name.charAt(0).toUpperCase()}
-        </AvatarFallback>
-      </Avatar>
+      {/* Animated background gradient */}
+      <div className="absolute inset-0 bg-gradient-to-r from-[#83f1aa]/0 via-[#83f1aa]/5 to-[#83f1aa]/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+      
+      {/* Rank badge with glow */}
+      <div className="relative flex-shrink-0">
+        <div className={`absolute inset-0 ${rankColor} blur-md opacity-50 group-hover:opacity-75 transition-opacity`} />
+        <div className={`relative z-10 flex items-center justify-center w-10 h-10 rounded-full ${rankColor} text-black font-bold shadow-lg`}>
+          {rank}
+        </div>
+      </div>
+
+      {/* Avatar with animated ring */}
+      <div className="relative flex-shrink-0">
+        <div className="absolute inset-0 bg-[#83f1aa] rounded-full blur-md opacity-0 group-hover:opacity-40 transition-opacity duration-300" />
+        <Avatar className="relative h-16 w-16 border-2 border-[#83f1aa] ring-2 ring-[#83f1aa]/20 group-hover:ring-4 group-hover:ring-[#83f1aa]/40 transition-all duration-300">
+          <AvatarImage 
+            src={getAvatarSrc() || undefined} 
+            alt={agent.name}
+            referrerPolicy="no-referrer"
+            crossOrigin="anonymous"
+            className="group-hover:scale-110 transition-transform duration-300"
+          />
+          <AvatarFallback className="bg-gradient-to-br from-primary/20 to-primary/10 text-primary text-lg font-semibold">
+            {agent.name.charAt(0).toUpperCase()}
+          </AvatarFallback>
+        </Avatar>
+        {isTopRank && (
+          <div className="absolute -top-1 -right-1 z-10">
+            <Sparkles className="h-4 w-4 text-[#83f1aa] animate-pulse" />
+          </div>
+        )}
+      </div>
 
       {/* Info */}
-      <div className="flex-1 min-w-0 text-left">
-        <p className="text-lg font-semibold truncate mb-1">
+      <div className="relative flex-1 min-w-0 text-left">
+        <p className="text-lg font-semibold truncate mb-1 group-hover:text-[#83f1aa] transition-colors">
           {xUsername ? `@${xUsername}` : agent.name}
         </p>
         {followers > 0 && (
           <Badge 
             variant="outline" 
-            className="text-sm flex items-center gap-1 w-fit"
+            className="text-xs flex items-center gap-1.5 w-fit group-hover:shadow-md transition-shadow"
             style={{ backgroundColor: 'rgba(131, 241, 170, 0.15)', color: '#83f1aa', borderColor: 'rgba(131, 241, 170, 0.3)' }}
           >
-            <Users className="h-3 w-3" />
-            {formatNumber(followers)} Followers
+            <Users className="h-3.5 w-3.5" />
+            {formatNumber(followers)}
           </Badge>
         )}
       </div>
 
-      {/* Trending Icon */}
-      <TrendingUp className="h-6 w-6 text-[#83f1aa] flex-shrink-0" />
+      {/* Trending Icon with animation */}
+      <div className="relative flex-shrink-0">
+        <TrendingUp className="h-6 w-6 text-[#83f1aa] group-hover:scale-110 group-hover:rotate-12 transition-all duration-300" />
+        <Zap className="absolute inset-0 h-6 w-6 text-[#83f1aa] opacity-0 group-hover:opacity-100 group-hover:scale-150 transition-all duration-300" />
+      </div>
     </button>
   );
 };
@@ -196,24 +223,37 @@ export const TopStoresSection = () => {
   }
 
   return (
-    <section className="container mx-auto px-3 sm:px-4 py-16 border-b">
-      <div className="max-w-6xl mx-auto">
-        <h2 className="text-3xl sm:text-4xl font-bold mb-3 text-center">
-          Discover Agentic Stores
-        </h2>
-        <p className="text-muted-foreground text-center mb-12 max-w-2xl mx-auto">
-          Explore the most popular agentic storefronts with the largest X followings
-        </p>
+    <section className="relative container mx-auto px-3 sm:px-4 py-16 border-b overflow-hidden">
+      {/* Animated background gradient */}
+      <div className="absolute inset-0 bg-gradient-to-b from-[#83f1aa]/5 via-transparent to-transparent opacity-50" />
+      <div className="absolute top-0 left-1/4 w-96 h-96 bg-[#83f1aa]/10 rounded-full blur-3xl animate-pulse" />
+      <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-[#83f1aa]/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
+      
+      <div className="relative max-w-6xl mx-auto">
+        <div className="text-center mb-12">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#83f1aa]/10 border border-[#83f1aa]/30 mb-4">
+            <Sparkles className="h-4 w-4 text-[#83f1aa] animate-pulse" />
+            <span className="text-sm font-semibold text-[#83f1aa]">Trending Now</span>
+          </div>
+          
+          <h2 className="text-3xl sm:text-4xl font-bold mb-3 bg-gradient-to-r from-foreground via-foreground to-[#83f1aa] bg-clip-text text-transparent">
+            Discover Agentic Stores
+          </h2>
+          <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+            Explore the most popular agentic storefronts with the largest X followings
+          </p>
+        </div>
         
         <div className="grid sm:grid-cols-2 gap-4">
           {topStores.map((store, index) => (
-            <StoreCard
-              key={store.id}
-              agent={store}
-              rank={index + 1}
-              followers={store.followers}
-              onClick={() => handleStoreClick(store)}
-            />
+            <div key={store.id} className="animate-fade-in" style={{ animationDelay: `${index * 50}ms` }}>
+              <StoreCard
+                agent={store}
+                rank={index + 1}
+                followers={store.followers}
+                onClick={() => handleStoreClick(store)}
+              />
+            </div>
           ))}
         </div>
       </div>

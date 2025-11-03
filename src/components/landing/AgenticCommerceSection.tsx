@@ -7,7 +7,7 @@ export const AgenticCommerceSection = () => {
         </h2>
         
         <p className="text-lg text-muted-foreground mb-8 text-center max-w-3xl mx-auto">
-          Social Internet Money is a payment layer for your X account that uses agentic flows and crypto payments (x402) to help creators make money—with no middle men.
+          Social Internet Money is a payment layer for your X account that uses agentic flows and crypto payments (x402) to help you make money—with no middle men.
         </p>
 
         <div className="grid sm:grid-cols-3 gap-6">
