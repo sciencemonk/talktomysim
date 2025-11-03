@@ -1,9 +1,59 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createHmac } from "node:crypto";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
+
+const API_KEY = Deno.env.get("TWITTER_CONSUMER_KEY")?.trim();
+const API_SECRET = Deno.env.get("TWITTER_CONSUMER_SECRET")?.trim();
+const ACCESS_TOKEN = Deno.env.get("TWITTER_ACCESS_TOKEN")?.trim();
+const ACCESS_TOKEN_SECRET = Deno.env.get("TWITTER_ACCESS_TOKEN_SECRET")?.trim();
+
+function validateEnvironmentVariables() {
+  if (!API_KEY) throw new Error("Missing TWITTER_CONSUMER_KEY");
+  if (!API_SECRET) throw new Error("Missing TWITTER_CONSUMER_SECRET");
+  if (!ACCESS_TOKEN) throw new Error("Missing TWITTER_ACCESS_TOKEN");
+  if (!ACCESS_TOKEN_SECRET) throw new Error("Missing TWITTER_ACCESS_TOKEN_SECRET");
+}
+
+function generateOAuthSignature(
+  method: string,
+  url: string,
+  params: Record<string, string>,
+  consumerSecret: string,
+  tokenSecret: string
+): string {
+  const signatureBaseString = `${method}&${encodeURIComponent(url)}&${encodeURIComponent(
+    Object.entries(params)
+      .sort()
+      .map(([k, v]) => `${k}=${v}`)
+      .join("&")
+  )}`;
+  const signingKey = `${encodeURIComponent(consumerSecret)}&${encodeURIComponent(tokenSecret)}`;
+  const hmacSha1 = createHmac("sha1", signingKey);
+  return hmacSha1.update(signatureBaseString).digest("base64");
+}
+
+function generateOAuthHeader(method: string, url: string): string {
+  const oauthParams = {
+    oauth_consumer_key: API_KEY!,
+    oauth_nonce: Math.random().toString(36).substring(2),
+    oauth_signature_method: "HMAC-SHA1",
+    oauth_timestamp: Math.floor(Date.now() / 1000).toString(),
+    oauth_token: ACCESS_TOKEN!,
+    oauth_version: "1.0",
+  };
+
+  const signature = generateOAuthSignature(method, url, oauthParams, API_SECRET!, ACCESS_TOKEN_SECRET!);
+  const signedOAuthParams = { ...oauthParams, oauth_signature: signature };
+
+  return "OAuth " + Object.entries(signedOAuthParams)
+    .sort((a, b) => a[0].localeCompare(b[0]))
+    .map(([k, v]) => `${encodeURIComponent(k)}="${encodeURIComponent(v)}"`)
+    .join(", ");
+}
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -11,114 +61,81 @@ serve(async (req) => {
   }
 
   try {
+    validateEnvironmentVariables();
+    
     const { username, reportType = 'profile' } = await req.json();
     
     if (!username) {
       throw new Error('Username is required');
     }
 
-    const TWITTER_API_KEY = Deno.env.get('TWITTER_API_IO_KEY');
-    if (!TWITTER_API_KEY) {
-      throw new Error('Twitter API key not configured');
-    }
-
     console.log(`Generating ${reportType} report for @${username}`);
 
-    // Fetch user profile using the correct endpoint format
-    const userResponse = await fetch(
-      `https://api.twitterapi.io/twitter/user/info?userName=${encodeURIComponent(username)}`,
-      {
-        method: 'GET',
-        headers: {
-          'x-api-key': TWITTER_API_KEY,
-        },
-      }
-    );
+    // Fetch user profile using official X API v2
+    const userUrl = `https://api.x.com/2/users/by/username/${username}?user.fields=description,public_metrics,profile_image_url,verified,verified_type,created_at,location`;
+    const userOAuthHeader = generateOAuthHeader("GET", userUrl);
+
+    const userResponse = await fetch(userUrl, {
+      method: "GET",
+      headers: { Authorization: userOAuthHeader },
+    });
 
     if (!userResponse.ok) {
       const errorText = await userResponse.text();
-      console.error('Twitter API user lookup error:', errorText);
+      console.error('X API user lookup error:', errorText);
       throw new Error(`Failed to fetch user data: ${userResponse.status}`);
     }
 
-    const userData = await userResponse.json();
-    console.log('User data fetched:', JSON.stringify(userData));
+    const userResponseData = await userResponse.json();
+    console.log('User data received:', JSON.stringify(userResponseData).substring(0, 200));
 
-    // Check if the API returned an error
-    if (userData.status === 'error' || !userData.data) {
-      throw new Error(userData.msg || 'User not found');
+    const userId = userResponseData.data?.id;
+    if (!userId) {
+      throw new Error('User ID not found in response');
     }
 
-    // Extract user data - the API wraps user data in a 'data' object
-    const user = userData.data || userData;
-    console.log('User object:', JSON.stringify(user));
+    // Fetch recent tweets using official X API v2
+    const tweetsUrl = `https://api.x.com/2/users/${userId}/tweets?max_results=100&tweet.fields=created_at,public_metrics,text`;
+    const tweetsOAuthHeader = generateOAuthHeader("GET", tweetsUrl);
 
-    // Extract profile image URL - the API uses 'profilePicture' field
-    let profileImageUrl = user.profilePicture || user.profile_image_url_https || user.profile_image_url;
-    
-    // If we got a profile image, convert it to full size (remove _normal suffix)
-    if (profileImageUrl && profileImageUrl.includes('_normal')) {
-      profileImageUrl = profileImageUrl.replace('_normal', '_400x400');
-    }
-    
-    console.log('Extracted profile image URL:', profileImageUrl);
+    const tweetsResponse = await fetch(tweetsUrl, {
+      method: "GET",
+      headers: { Authorization: tweetsOAuthHeader },
+    });
 
-  // Fetch recent tweets
-  const tweetsResponse = await fetch(
-    `https://api.twitterapi.io/twitter/user/last_tweets?userName=${encodeURIComponent(username)}&count=50`,
-    {
-      method: 'GET',
-      headers: {
-        'x-api-key': TWITTER_API_KEY,
-      },
-    }
-  );
-
-  let tweets: any[] = [];
-  if (tweetsResponse.ok) {
-    try {
-      const tweetsData = await tweetsResponse.json();
-      console.log('Tweets API response structure:', JSON.stringify(Object.keys(tweetsData)));
-      
-      // Handle the nested structure: { tweets: [...] }
-      if (tweetsData.tweets && Array.isArray(tweetsData.tweets)) {
-        tweets = tweetsData.tweets;
-      } else if (tweetsData.data && Array.isArray(tweetsData.data)) {
-        tweets = tweetsData.data;
-      } else if (Array.isArray(tweetsData)) {
-        tweets = tweetsData;
-      } else {
-        console.warn('Unexpected tweets data structure:', typeof tweetsData);
+    let tweets: any[] = [];
+    if (tweetsResponse.ok) {
+      try {
+        const tweetsData = await tweetsResponse.json();
+        tweets = tweetsData.data || [];
+        console.log(`Successfully fetched ${tweets.length} tweets`);
+      } catch (e) {
+        console.error('Error parsing tweets response:', e);
         tweets = [];
       }
-      
-      console.log(`Successfully parsed ${tweets.length} tweets`);
-    } catch (e) {
-      console.error('Error parsing tweets response:', e);
-      tweets = [];
+    } else {
+      console.warn(`Tweets API returned status ${tweetsResponse.status}`);
     }
-  } else {
-    console.warn(`Tweets API returned status ${tweetsResponse.status}`);
-  }
 
-  // Generate intelligence report
-  const report = generateIntelligenceReport(userData, tweets, reportType, profileImageUrl);
+    // Generate intelligence report
+    const report = generateIntelligenceReport(userResponseData, tweets, reportType);
 
-  return new Response(
-    JSON.stringify({ 
-      success: true, 
-      report,
-      tweets: tweets.map((t: any) => ({
-        text: t.text || t.full_text || '',
-        created_at: t.createdAt || t.created_at,
-        favorite_count: t.likeCount || t.favorite_count || t.public_metrics?.like_count || 0,
-        retweet_count: t.retweetCount || t.retweet_count || t.public_metrics?.retweet_count || 0,
-      }))
-    }),
-    {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    }
-  );
+    return new Response(
+      JSON.stringify({ 
+        success: true, 
+        report,
+        tweets: tweets.map((t: any) => ({
+          text: t.text || '',
+          created_at: t.created_at,
+          favorite_count: t.public_metrics?.like_count || 0,
+          retweet_count: t.public_metrics?.retweet_count || 0,
+          reply_count: t.public_metrics?.reply_count || 0,
+        }))
+      }),
+      {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      }
+    );
   } catch (error) {
     console.error('Error in x-intelligence function:', error);
     return new Response(
@@ -134,24 +151,22 @@ serve(async (req) => {
   }
 });
 
-function generateIntelligenceReport(userData: any, tweets: any[], reportType: string, profileImageUrl?: string) {
-  const user = userData.user || userData.data || userData;
+function generateIntelligenceReport(userData: any, tweets: any[], reportType: string) {
+  const user = userData.data;
   
-  // Use the passed profileImageUrl or extract it here as fallback
-  if (!profileImageUrl) {
-    profileImageUrl = user.profilePicture || user.profile_image_url_https || user.profile_image_url;
-    if (profileImageUrl && profileImageUrl.includes('_normal')) {
-      profileImageUrl = profileImageUrl.replace('_normal', '_400x400');
-    }
+  // Extract profile image and convert to full size
+  let profileImageUrl = user.profile_image_url;
+  if (profileImageUrl && profileImageUrl.includes('_normal')) {
+    profileImageUrl = profileImageUrl.replace('_normal', '_400x400');
   }
   
-  // Ensure tweets is an array (defensive programming)
+  // Ensure tweets is an array
   const safeTweets = Array.isArray(tweets) ? tweets : [];
   
   // Calculate engagement metrics
-  const totalLikes = safeTweets.reduce((sum, t) => sum + (t.favorite_count || t.public_metrics?.like_count || 0), 0);
-  const totalRetweets = safeTweets.reduce((sum, t) => sum + (t.retweet_count || t.public_metrics?.retweet_count || 0), 0);
-  const totalReplies = safeTweets.reduce((sum, t) => sum + (t.reply_count || t.public_metrics?.reply_count || 0), 0);
+  const totalLikes = safeTweets.reduce((sum, t) => sum + (t.public_metrics?.like_count || 0), 0);
+  const totalRetweets = safeTweets.reduce((sum, t) => sum + (t.public_metrics?.retweet_count || 0), 0);
+  const totalReplies = safeTweets.reduce((sum, t) => sum + (t.public_metrics?.reply_count || 0), 0);
   const avgEngagement = safeTweets.length > 0 ? (totalLikes + totalRetweets + totalReplies) / safeTweets.length : 0;
 
   // Analyze posting frequency
@@ -174,23 +189,23 @@ function generateIntelligenceReport(userData: any, tweets: any[], reportType: st
   const hashtags = new Set<string>();
   const mentions = new Set<string>();
   safeTweets.forEach(tweet => {
-    const text = tweet.full_text || tweet.text || '';
+    const text = tweet.text || '';
     const hashtagMatches = text.match(/#\w+/g) || [];
     const mentionMatches = text.match(/@\w+/g) || [];
     hashtagMatches.forEach(h => hashtags.add(h));
     mentionMatches.forEach(m => mentions.add(m));
   });
 
-  const followers = user.followers || user.followers_count || user.public_metrics?.followers_count || 0;
-  const following = user.following || user.friends_count || user.public_metrics?.following_count || 0;
-  const totalTweets = user.statusesCount || user.statuses_count || user.public_metrics?.tweet_count || 0;
+  const followers = user.public_metrics?.followers_count || 0;
+  const following = user.public_metrics?.following_count || 0;
+  const totalTweets = user.public_metrics?.tweet_count || 0;
 
   const report: any = {
-    username: user.userName || user.username || user.screen_name,
+    username: user.username,
     displayName: user.name,
-    bio: user.description || user.bio,
+    bio: user.description,
     location: user.location,
-    verified: user.verified || user.isVerified || user.isBlueVerified || false,
+    verified: user.verified || user.verified_type === 'blue',
     profileImageUrl: profileImageUrl,
     
     metrics: {
@@ -232,8 +247,8 @@ function generateIntelligenceReport(userData: any, tweets: any[], reportType: st
 function generateInsights(user: any, tweets: any[], metrics: any) {
   const insights = [];
   
-  const followerCount = user.followers || user.followers_count || user.public_metrics?.followers_count || 0;
-  const followingCount = user.following || user.friends_count || user.public_metrics?.following_count || 0;
+  const followerCount = user.public_metrics?.followers_count || 0;
+  const followingCount = user.public_metrics?.following_count || 0;
   
   // Follower insights
   if (followerCount > 100000) {
@@ -265,7 +280,7 @@ function generateInsights(user: any, tweets: any[], metrics: any) {
   }
   
   // Verification
-  if (user.verified || user.isVerified || user.isBlueVerified) {
+  if (user.verified || user.verified_type) {
     insights.push('✓ Verified account');
   }
   
