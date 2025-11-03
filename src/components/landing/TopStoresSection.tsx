@@ -153,7 +153,7 @@ export const TopStoresSection = () => {
       const validAgents = agentsWithFollowers
         .filter((agent): agent is XAgent & { followers: number } => agent !== null)
         .sort((a, b) => b.followers - a.followers)
-        .slice(0, 5);
+        .slice(0, 10);
 
       return validAgents;
     },
@@ -169,12 +169,12 @@ export const TopStoresSection = () => {
   if (isLoading) {
     return (
       <section className="container mx-auto px-3 sm:px-4 py-16 border-b">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-6xl mx-auto">
           <h2 className="text-3xl sm:text-4xl font-bold mb-8 text-center">
             Top Stores
           </h2>
-          <div className="space-y-4">
-            {[...Array(5)].map((_, i) => (
+          <div className="grid sm:grid-cols-2 gap-4">
+            {[...Array(10)].map((_, i) => (
               <div key={i} className="h-32 bg-muted animate-pulse rounded-xl" />
             ))}
           </div>
@@ -189,7 +189,7 @@ export const TopStoresSection = () => {
 
   return (
     <section className="container mx-auto px-3 sm:px-4 py-16 border-b">
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-6xl mx-auto">
         <h2 className="text-3xl sm:text-4xl font-bold mb-3 text-center">
           Top Stores
         </h2>
@@ -197,7 +197,7 @@ export const TopStoresSection = () => {
           Discover the most popular agentic storefronts with the largest X followings
         </p>
         
-        <div className="space-y-4">
+        <div className="grid sm:grid-cols-2 gap-4">
           {topStores.map((store, index) => (
             <StoreCard
               key={store.id}
