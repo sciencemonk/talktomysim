@@ -30,7 +30,7 @@ export const SignUpCTASection = ({ onSignUp }: SignUpCTASectionProps) => {
           size="lg"
           className="gap-2 font-semibold px-8 py-6 text-base sm:text-lg transition-all duration-300 bg-[#82f3aa] hover:bg-[#6dd991] text-black border-0 group"
         >
-          Sign in with <img src={xLogo} alt="X" className="h-4 w-4 inline-block" />
+          Generate with <img src={xLogo} alt="X" className="h-4 w-4 inline-block" />
           <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
         </Button>
       </div>

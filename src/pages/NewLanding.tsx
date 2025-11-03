@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { MatrixHeroSection } from "@/components/landing/MatrixHeroSection";
 import AuthModal from "@/components/AuthModal";
 import { UnifiedAgentCreation } from "@/components/UnifiedAgentCreation";
+import { CreateXAgentModal } from "@/components/CreateXAgentModal";
 import { AgentType } from "@/types/agent";
 import { HackathonAnnouncementModal } from "@/components/HackathonAnnouncementModal";
 import { OfferingsMosaic } from "@/components/landing/OfferingsMosaic";
@@ -273,6 +274,7 @@ const NewLanding = () => {
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showXAgentModal, setShowXAgentModal] = useState(false);
+  const [createXAgentModalOpen, setCreateXAgentModalOpen] = useState(false);
   const [expandedCategories, setExpandedCategories] = useState<Record<string, boolean>>({
     'pumpfun': true,
     'chat': true
@@ -540,19 +542,8 @@ const NewLanding = () => {
     setVisibleCounts(prev => ({ ...prev, [category]: prev[category] + 32 }));
   };
 
-  const handleXSignIn = async () => {
-    try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'twitter',
-        options: {
-          redirectTo: `${window.location.origin}/directory`
-        }
-      });
-
-      if (error) throw error;
-    } catch (error) {
-      console.error('Error signing in with X:', error);
-    }
+  const handleXSignIn = () => {
+    setCreateXAgentModalOpen(true);
   };
 
   return (
@@ -608,6 +599,11 @@ const NewLanding = () => {
         initialAgentType="crypto-mail"
         hideBackButton={true}
         showVerificationFlow={true}
+      />
+
+      <CreateXAgentModal 
+        open={createXAgentModalOpen}
+        onOpenChange={setCreateXAgentModalOpen}
       />
     </div>
   );

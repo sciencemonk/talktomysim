@@ -6,10 +6,12 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
 import bs58 from 'bs58';
+import { CreateXAgentModal } from '@/components/CreateXAgentModal';
 
 const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isTestLoading, setIsTestLoading] = useState(false);
+  const [createXAgentModalOpen, setCreateXAgentModalOpen] = useState(false);
   const { user } = useAuth();
   const navigate = useNavigate();
 
@@ -76,22 +78,8 @@ const Login = () => {
     }
   };
 
-  const handleTwitterSignIn = async () => {
-    setIsLoading(true);
-    try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'twitter',
-        options: {
-          redirectTo: `${window.location.origin}/auth/callback`
-        }
-      });
-
-      if (error) throw error;
-    } catch (error: any) {
-      console.error('Error signing in with X:', error);
-      toast.error(error?.message || 'Failed to sign in with X');
-      setIsLoading(false);
-    }
+  const handleTwitterSignIn = () => {
+    setCreateXAgentModalOpen(true);
   };
 
   const handleTestSignIn = async () => {
@@ -168,7 +156,7 @@ const Login = () => {
             className="w-full bg-gradient-to-r from-blue-400 to-blue-600 text-white hover:opacity-90"
             size="lg"
           >
-            {isLoading ? 'Connecting...' : 'Sign in with X to Create Your Agent'}
+            Generate with X to Create Your Agent
           </Button>
 
           <Button
@@ -191,6 +179,11 @@ const Login = () => {
           </Button>
         </CardContent>
       </Card>
+
+      <CreateXAgentModal 
+        open={createXAgentModalOpen}
+        onOpenChange={setCreateXAgentModalOpen}
+      />
     </div>
   );
 };

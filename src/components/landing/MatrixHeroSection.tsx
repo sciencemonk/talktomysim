@@ -95,7 +95,7 @@ export const MatrixHeroSection = ({ onCreateXAgent, onSimClick, onViewAllAgents 
           size="lg"
           className="gap-2 font-bold px-8 sm:px-10 md:px-12 py-4 sm:py-5 md:py-6 text-base sm:text-lg md:text-xl transition-all duration-300 mb-4 bg-[#82f3aa] hover:bg-[#6dd991] text-black border-0 shadow-xl shadow-[#82f3aa]/30 hover:shadow-2xl hover:shadow-[#82f3aa]/40 hover:scale-105"
         >
-          Sign in with <img src={xLogo} alt="X" className="h-5 w-5 inline-block" />
+          Generate with <img src={xLogo} alt="X" className="h-5 w-5 inline-block" />
         </Button>
 
         <button
