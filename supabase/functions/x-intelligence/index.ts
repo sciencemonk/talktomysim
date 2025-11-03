@@ -16,6 +16,12 @@ function validateEnvironmentVariables() {
   if (!API_SECRET) throw new Error("Missing TWITTER_CONSUMER_SECRET");
   if (!ACCESS_TOKEN) throw new Error("Missing TWITTER_ACCESS_TOKEN");
   if (!ACCESS_TOKEN_SECRET) throw new Error("Missing TWITTER_ACCESS_TOKEN_SECRET");
+  
+  console.log("Environment variables check:");
+  console.log("- API_KEY length:", API_KEY?.length);
+  console.log("- API_SECRET length:", API_SECRET?.length);
+  console.log("- ACCESS_TOKEN length:", ACCESS_TOKEN?.length);
+  console.log("- ACCESS_TOKEN_SECRET length:", ACCESS_TOKEN_SECRET?.length);
 }
 
 function generateOAuthSignature(
@@ -37,6 +43,16 @@ function generateOAuthSignature(
 }
 
 function generateOAuthHeader(method: string, url: string): string {
+  // Parse URL to extract base URL and query parameters
+  const urlObj = new URL(url);
+  const baseUrl = `${urlObj.protocol}//${urlObj.host}${urlObj.pathname}`;
+  
+  // Extract query parameters
+  const queryParams: Record<string, string> = {};
+  urlObj.searchParams.forEach((value, key) => {
+    queryParams[key] = value;
+  });
+  
   const oauthParams = {
     oauth_consumer_key: API_KEY!,
     oauth_nonce: Math.random().toString(36).substring(2),
@@ -46,7 +62,9 @@ function generateOAuthHeader(method: string, url: string): string {
     oauth_version: "1.0",
   };
 
-  const signature = generateOAuthSignature(method, url, oauthParams, API_SECRET!, ACCESS_TOKEN_SECRET!);
+  // Combine OAuth params and query params for signature
+  const allParams = { ...oauthParams, ...queryParams };
+  const signature = generateOAuthSignature(method, baseUrl, allParams, API_SECRET!, ACCESS_TOKEN_SECRET!);
   const signedOAuthParams = { ...oauthParams, oauth_signature: signature };
 
   return "OAuth " + Object.entries(signedOAuthParams)
@@ -75,6 +93,9 @@ serve(async (req) => {
     const userUrl = `https://api.x.com/2/users/by/username/${username}?user.fields=description,public_metrics,profile_image_url,verified,verified_type,created_at,location`;
     const userOAuthHeader = generateOAuthHeader("GET", userUrl);
 
+    console.log("Request URL:", userUrl);
+    console.log("OAuth header (first 50 chars):", userOAuthHeader.substring(0, 50) + "...");
+
     const userResponse = await fetch(userUrl, {
       method: "GET",
       headers: { Authorization: userOAuthHeader },
@@ -82,7 +103,9 @@ serve(async (req) => {
 
     if (!userResponse.ok) {
       const errorText = await userResponse.text();
-      console.error('X API user lookup error:', errorText);
+      console.error('X API user lookup error status:', userResponse.status);
+      console.error('X API user lookup error body:', errorText);
+      console.error('Request headers sent:', { Authorization: userOAuthHeader.substring(0, 100) + "..." });
       throw new Error(`Failed to fetch user data: ${userResponse.status}`);
     }
 
