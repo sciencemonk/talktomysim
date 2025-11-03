@@ -161,6 +161,10 @@ export type Database = {
           updated_at: string
           url: string | null
           user_id: string | null
+          verification_deadline: string | null
+          verification_post_required: string | null
+          verification_status: string | null
+          verified_at: string | null
           website_url: string | null
           welcome_message: string | null
           writing_sample: string | null
@@ -217,6 +221,10 @@ export type Database = {
           updated_at?: string
           url?: string | null
           user_id?: string | null
+          verification_deadline?: string | null
+          verification_post_required?: string | null
+          verification_status?: string | null
+          verified_at?: string | null
           website_url?: string | null
           welcome_message?: string | null
           writing_sample?: string | null
@@ -273,6 +281,10 @@ export type Database = {
           updated_at?: string
           url?: string | null
           user_id?: string | null
+          verification_deadline?: string | null
+          verification_post_required?: string | null
+          verification_status?: string | null
+          verified_at?: string | null
           website_url?: string | null
           welcome_message?: string | null
           writing_sample?: string | null

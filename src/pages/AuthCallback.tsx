@@ -119,6 +119,10 @@ When chatting:
 
 You can answer questions about your X profile, interests, opinions, and provide insights based on your X activity. Be authentic and engaging!`;
 
+        // Set verification deadline to 24 hours from now
+        const verificationDeadline = new Date();
+        verificationDeadline.setHours(verificationDeadline.getHours() + 24);
+
         const { data: newAgent, error: createError } = await supabase
           .from('advisors')
           .insert({
@@ -126,10 +130,10 @@ You can answer questions about your X profile, interests, opinions, and provide 
             description: bio,
             auto_description: bio,
             prompt: systemPrompt,
-            avatar_url: avatarUrl || report.profileImageUrl,
+            avatar_url: report.profileImageUrl || avatarUrl,
             sim_category: 'Crypto Mail',
-            is_active: true,
-            is_public: true,
+            is_active: false, // Not active until verified
+            is_public: false, // Not public until verified
             marketplace_category: 'crypto',
             personality_type: 'friendly',
             conversation_style: 'balanced',
@@ -140,11 +144,15 @@ You can answer questions about your X profile, interests, opinions, and provide 
               x_display_name: fullName,
               followers: followers,
               last_updated: new Date().toISOString(),
+              profile_image_url: report.profileImageUrl || avatarUrl,
             },
             edit_code: editCode,
             custom_url: xUsername.toLowerCase().replace(/[^a-z0-9]/g, ''),
             welcome_message: `Hey! I'm @${xUsername}. My AI agent has been trained on my actual posts to represent my voice and ideas. Ask me anything!`,
             user_id: user.id,
+            verification_status: 'pending',
+            verification_deadline: verificationDeadline.toISOString(),
+            verification_post_required: 'Verify me on $SIMAI',
           })
           .select()
           .single();

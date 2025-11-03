@@ -76,6 +76,11 @@ export interface AgentType {
   x402_enabled?: boolean; // Whether x402 payment is required
   is_verified?: boolean; // Whether the sim has been verified through their X account
   integrations?: any; // Array of enabled integration IDs (e.g., ['pumpfun', 'solana-explorer', 'x-analyzer'])
+  verification_status?: string; // X account verification status (pending, verified, or failed)
+  verification_post_required?: string; // The text that must be posted for verification
+  verification_deadline?: string; // ISO date string for verification deadline
+  verified_at?: string; // ISO date string when verification was completed
+  avatar_url?: string; // Avatar URL from database
 }
 
 export interface PublicAgentType {

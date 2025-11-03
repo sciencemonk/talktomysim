@@ -298,7 +298,7 @@ export default function XAgentPage() {
             {/* Profile Image */}
             <Avatar className="h-24 w-24 md:h-32 md:w-32 border-4 shadow-2xl ring-4 ring-primary/20" style={{ borderColor: 'hsl(var(--primary))' }}>
               <AvatarImage 
-                src={agent.avatar} 
+                src={(agent.social_links as any)?.profile_image_url || agent.avatar_url || agent.avatar || xData?.profileImageUrl} 
                 alt={agent.name}
                 className="object-cover"
               />
