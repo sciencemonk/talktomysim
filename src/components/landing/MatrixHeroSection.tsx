@@ -36,52 +36,71 @@ export const MatrixHeroSection = ({ onCreateXAgent, onSimClick, onViewAllAgents 
 
       {/* Content */}
       <div className="relative z-10 flex-1 flex flex-col items-center justify-center px-4 text-center max-w-5xl mx-auto w-full">
-        <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-sans font-semibold mb-4 tracking-tight text-foreground text-center w-full">
+        {/* Powered by badge */}
+        <div className="mb-6 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-card/50 backdrop-blur-sm border border-border/50">
+          <span className="text-xs sm:text-sm text-muted-foreground font-medium">Powered by</span>
+          <span className="text-xs sm:text-sm font-bold text-foreground">x402</span>
+        </div>
+
+        <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-sans font-bold mb-4 tracking-tight text-foreground text-center w-full">
           Agentic Payments
         </h1>
         
-        <p className="text-base sm:text-lg md:text-xl text-muted-foreground mb-8 max-w-3xl">
-          Zero fees compared to 2.9% from Stripe. Verify your X account and create an agentic storefront to sell your services, content, and agentic workflows.
+        {/* Zero fees text */}
+        <p className="text-sm sm:text-base text-[#82f3aa] font-semibold mb-3">
+          Zero fees compared to 2.9% from Stripe.
+        </p>
+        
+        <p className="text-base sm:text-lg md:text-xl text-muted-foreground mb-10 max-w-3xl leading-relaxed">
+          Verify your X account and create an agentic storefront to sell your services, content, and agentic workflows.
         </p>
 
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6 mb-8 max-w-3xl mx-auto w-full">
-          <div className="flex items-center gap-3">
-            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-[#82f3aa] text-black font-bold text-sm shrink-0">
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8 mb-10 max-w-4xl mx-auto w-full">
+          <div className="flex items-center gap-3 group">
+            <div className="flex items-center justify-center w-10 h-10 rounded-full bg-[#82f3aa] text-black font-bold text-base shrink-0 shadow-lg shadow-[#82f3aa]/20 transition-transform group-hover:scale-110">
               1
             </div>
-            <p className="text-sm sm:text-base text-foreground font-medium">Verify your X account</p>
+            <p className="text-sm sm:text-base text-foreground font-semibold">Verify X account</p>
           </div>
 
-          <div className="hidden sm:block text-muted-foreground">→</div>
+          <div className="hidden sm:flex items-center gap-2 text-[#82f3aa]">
+            <div className="w-8 h-0.5 bg-[#82f3aa]/30"></div>
+            <span className="text-lg">→</span>
+            <div className="w-8 h-0.5 bg-[#82f3aa]/30"></div>
+          </div>
 
-          <div className="flex items-center gap-3">
-            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-[#82f3aa] text-black font-bold text-sm shrink-0">
+          <div className="flex items-center gap-3 group">
+            <div className="flex items-center justify-center w-10 h-10 rounded-full bg-[#82f3aa] text-black font-bold text-base shrink-0 shadow-lg shadow-[#82f3aa]/20 transition-transform group-hover:scale-110">
               2
             </div>
-            <p className="text-sm sm:text-base text-foreground font-medium">Create agentic storefront</p>
+            <p className="text-sm sm:text-base text-foreground font-semibold">Create storefront</p>
           </div>
 
-          <div className="hidden sm:block text-muted-foreground">→</div>
+          <div className="hidden sm:flex items-center gap-2 text-[#82f3aa]">
+            <div className="w-8 h-0.5 bg-[#82f3aa]/30"></div>
+            <span className="text-lg">→</span>
+            <div className="w-8 h-0.5 bg-[#82f3aa]/30"></div>
+          </div>
 
-          <div className="flex items-center gap-3">
-            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-[#82f3aa] text-black font-bold text-sm shrink-0">
+          <div className="flex items-center gap-3 group">
+            <div className="flex items-center justify-center w-10 h-10 rounded-full bg-[#82f3aa] text-black font-bold text-base shrink-0 shadow-lg shadow-[#82f3aa]/20 transition-transform group-hover:scale-110">
               3
             </div>
-            <p className="text-sm sm:text-base text-foreground font-medium">Sell services & content</p>
+            <p className="text-sm sm:text-base text-foreground font-semibold">Start selling</p>
           </div>
         </div>
 
         <Button
           onClick={onCreateXAgent}
           size="lg"
-          className="gap-2 font-semibold px-6 sm:px-8 md:px-10 py-3 sm:py-4 md:py-5 text-sm sm:text-base md:text-lg transition-all duration-300 mb-3 bg-[#82f3aa] hover:bg-[#6dd991] text-black border-0"
+          className="gap-2 font-bold px-8 sm:px-10 md:px-12 py-4 sm:py-5 md:py-6 text-base sm:text-lg md:text-xl transition-all duration-300 mb-4 bg-[#82f3aa] hover:bg-[#6dd991] text-black border-0 shadow-xl shadow-[#82f3aa]/30 hover:shadow-2xl hover:shadow-[#82f3aa]/40 hover:scale-105"
         >
-          Sign in with <img src={xLogo} alt="X" className="h-4 w-4 inline-block" />
+          Sign in with <img src={xLogo} alt="X" className="h-5 w-5 inline-block" />
         </Button>
 
         <button
           onClick={onViewAllAgents}
-          className="text-xs text-muted-foreground hover:text-foreground hover:underline transition-all duration-300"
+          className="text-sm text-muted-foreground hover:text-[#82f3aa] hover:underline transition-all duration-300 font-medium"
         >
           Learn More
         </button>
