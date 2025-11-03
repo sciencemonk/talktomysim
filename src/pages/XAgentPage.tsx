@@ -253,73 +253,174 @@ export default function XAgentPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <div className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-40">
-        <div className="container mx-auto px-3 md:px-4 py-3 md:py-4">
+    <div className="min-h-screen bg-gradient-to-b from-background via-background to-muted/20">
+      {/* Top Navigation Bar */}
+      <div className="border-b border-border/40 bg-card/95 backdrop-blur-md sticky top-0 z-50">
+        <div className="container mx-auto px-4 md:px-6 py-3">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => navigate('/', { state: { scrollToAgents: true } })}
-                className="h-9 w-9 shrink-0"
-              >
-                <ArrowLeft className="h-4 w-4" />
-              </Button>
-              <Avatar className="h-9 w-9 border-2 ring-2 ring-[#81f4aa]/20" style={{ borderColor: '#81f4aa' }}>
-                <AvatarImage 
-                  src={getImageUrl(xData?.profileImageUrl || agent.avatar)} 
-                  alt={agent.name}
-                  className="object-cover"
-                  referrerPolicy="no-referrer"
-                />
-                <AvatarFallback className="text-sm">{agent.name[0]}</AvatarFallback>
-              </Avatar>
-              <div className="flex flex-col">
-                <span className="text-sm md:text-base font-semibold">{xData?.displayName || agent.name}</span>
-                <span className="text-xs text-muted-foreground">
-                  {formatNumber(xData?.metrics?.followers)} Followers
-                </span>
-              </div>
-            </div>
             <Button
-              variant="outline"
+              variant="ghost"
               size="sm"
-              onClick={() => navigate(`/x/${username}/creator`)}
-              className="gap-2 h-9 px-2 md:px-3"
+              onClick={() => navigate('/', { state: { scrollToAgents: true } })}
+              className="gap-2"
             >
-              <span className="text-xs md:text-sm">Creator Access</span>
+              <ArrowLeft className="h-4 w-4" />
+              <span className="hidden sm:inline">Back</span>
             </Button>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleShareLink}
+                className="gap-2"
+              >
+                {linkCopied ? <Check className="h-4 w-4" /> : <Share2 className="h-4 w-4" />}
+                <span className="hidden sm:inline">Share</span>
+              </Button>
+              <Button
+                variant="default"
+                size="sm"
+                onClick={() => navigate(`/x/${username}/creator`)}
+                className="gap-2"
+              >
+                <span>Creator Access</span>
+              </Button>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Main Content */}
-      <div className="container mx-auto px-3 md:px-4 max-w-7xl h-[calc(100vh-4rem)]">
-        {/* Main Grid Layout - 65/35 split */}
-        <div className="grid grid-cols-1 lg:grid-cols-[65fr_35fr] gap-6 md:gap-8 h-full py-6 md:py-8">
-          {/* Left Column - Store (65%) */}
-          <div className="h-full">
-            {((agent as any).x402_wallet || (agent.social_links as any)?.x402_wallet) && (
-              <ScrollArea className="h-full rounded-lg border border-border bg-card/80 backdrop-blur-sm shadow-xl p-6">
-                <XAgentStorefront
-                  agentId={agent.id}
-                  agentName={agent.name}
-                  walletAddress={(agent as any).x402_wallet || (agent.social_links as any)?.x402_wallet}
-                />
-              </ScrollArea>
+      {/* Hero Section - Prominent Profile Header */}
+      <div className="border-b border-border/40 bg-gradient-to-r from-card/95 via-card/80 to-card/95 backdrop-blur-sm">
+        <div className="container mx-auto px-4 md:px-6 py-8 md:py-12">
+          <div className="flex flex-col md:flex-row gap-6 md:gap-8 items-start md:items-center">
+            {/* Profile Image */}
+            <Avatar className="h-24 w-24 md:h-32 md:w-32 border-4 shadow-2xl ring-4 ring-primary/20" style={{ borderColor: 'hsl(var(--primary))' }}>
+              <AvatarImage 
+                src={getImageUrl(xData?.profileImageUrl || agent.avatar)} 
+                alt={agent.name}
+                className="object-cover"
+                referrerPolicy="no-referrer"
+              />
+              <AvatarFallback className="text-3xl font-bold">{agent.name[0]}</AvatarFallback>
+            </Avatar>
+
+            {/* Profile Info */}
+            <div className="flex-1 space-y-4">
+              <div>
+                <div className="flex items-center gap-3 flex-wrap mb-2">
+                  <h1 className="text-3xl md:text-4xl font-bold">{xData?.displayName || agent.name}</h1>
+                  {agent.is_verified && (
+                    <Badge variant="default" className="gap-1">
+                      <Check className="h-3 w-3" />
+                      Verified
+                    </Badge>
+                  )}
+                </div>
+                <div className="flex items-center gap-3 text-muted-foreground">
+                  <button 
+                    onClick={handleCopyUsername}
+                    className="flex items-center gap-1 hover:text-foreground transition-colors"
+                  >
+                    <span className="font-mono">@{username}</span>
+                    {usernameCopied ? (
+                      <Check className="h-3 w-3 text-green-500" />
+                    ) : (
+                      <Copy className="h-3 w-3" />
+                    )}
+                  </button>
+                  {xData?.username && (
+                    <a 
+                      href={`https://x.com/${xData.username}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-1 hover:text-foreground transition-colors"
+                    >
+                      <img src={xIcon} alt="X" className="h-4 w-4" />
+                      <ExternalLink className="h-3 w-3" />
+                    </a>
+                  )}
+                </div>
+              </div>
+
+              {/* Stats */}
+              <div className="flex flex-wrap gap-6">
+                <div className="space-y-1">
+                  <div className="text-2xl font-bold">{formatNumber(xData?.metrics?.followers)}</div>
+                  <div className="text-sm text-muted-foreground">Followers</div>
+                </div>
+                <div className="space-y-1">
+                  <div className="text-2xl font-bold">{formatNumber(xData?.metrics?.following)}</div>
+                  <div className="text-sm text-muted-foreground">Following</div>
+                </div>
+                {totalEarnings > 0 && (
+                  <div className="space-y-1">
+                    <div className="text-2xl font-bold">${totalEarnings.toFixed(2)}</div>
+                    <div className="text-sm text-muted-foreground">Total Earnings</div>
+                  </div>
+                )}
+                {offerings.length > 0 && (
+                  <div className="space-y-1">
+                    <div className="text-2xl font-bold">{offerings.length}</div>
+                    <div className="text-sm text-muted-foreground">Offerings</div>
+                  </div>
+                )}
+              </div>
+
+              {/* Bio */}
+              {(xData?.bio || agent.description) && (
+                <p className="text-sm md:text-base text-muted-foreground max-w-2xl">
+                  {xData?.bio || agent.description}
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Content - Storefront */}
+      <div className="container mx-auto px-4 md:px-6 max-w-7xl py-8 md:py-12">
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_400px] gap-6 md:gap-8">
+          {/* Left Column - Store */}
+          <div className="space-y-6">
+            {((agent as any).x402_wallet || (agent.social_links as any)?.x402_wallet) ? (
+              <Card className="shadow-lg border-border/50">
+                <CardHeader>
+                  <CardTitle className="text-2xl">Offerings</CardTitle>
+                  <CardDescription>Browse and purchase services from @{username}</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <XAgentStorefront
+                    agentId={agent.id}
+                    agentName={agent.name}
+                    walletAddress={(agent as any).x402_wallet || (agent.social_links as any)?.x402_wallet}
+                  />
+                </CardContent>
+              </Card>
+            ) : (
+              <Card className="shadow-lg border-border/50 p-12 text-center">
+                <div className="space-y-2">
+                  <h3 className="text-xl font-semibold text-muted-foreground">No offerings yet</h3>
+                  <p className="text-sm text-muted-foreground">Check back later for updates</p>
+                </div>
+              </Card>
             )}
           </div>
 
-          {/* Right Column - AI Chat (35%) */}
-          <div className="h-full">
-            <div className="h-full overflow-hidden rounded-lg border border-border bg-card/80 backdrop-blur-sm shadow-xl">
-              <PublicChatInterface 
-                agent={agent} 
-                avatarUrl={getImageUrl(xData?.profileImageUrl || agent.avatar)}
-              />
-            </div>
+          {/* Right Column - AI Chat */}
+          <div className="lg:sticky lg:top-20 h-fit">
+            <Card className="shadow-lg border-border/50 overflow-hidden">
+              <CardHeader className="bg-muted/30">
+                <CardTitle className="text-lg">AI Assistant</CardTitle>
+                <CardDescription>Chat with @{username}'s AI agent</CardDescription>
+              </CardHeader>
+              <div className="h-[600px]">
+                <PublicChatInterface 
+                  agent={agent} 
+                  avatarUrl={getImageUrl(xData?.profileImageUrl || agent.avatar)}
+                />
+              </div>
+            </Card>
           </div>
         </div>
       </div>
