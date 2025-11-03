@@ -132,16 +132,39 @@ Deno.serve(async (req) => {
     console.log(`Found ${followersCount} followers for @${username}`);
 
     // Update the advisor record with follower count
-    const { data: advisor, error: fetchError } = await supabase
+    // Try multiple queries to find the advisor
+    let advisor;
+    
+    // First try: exact match on x_username in social_links
+    const { data: advisorByUsername } = await supabase
       .from('advisors')
       .select('id, social_links')
       .eq('sim_category', 'Crypto Mail')
-      .or(`social_links->x_username.eq.${username},name.eq.@${username}`)
-      .single();
+      .not('social_links', 'is', null)
+      .limit(1);
 
-    if (fetchError || !advisor) {
-      console.error('Advisor not found:', username);
-      throw new Error('Advisor not found');
+    // Filter in memory for JSON field match (more reliable than jsonb operators)
+    if (advisorByUsername && advisorByUsername.length > 0) {
+      advisor = advisorByUsername.find(a => 
+        a.social_links?.x_username?.toLowerCase() === username.toLowerCase()
+      );
+    }
+
+    // Second try: match on name field
+    if (!advisor) {
+      const { data: advisorByName } = await supabase
+        .from('advisors')
+        .select('id, social_links')
+        .eq('sim_category', 'Crypto Mail')
+        .or(`name.eq.@${username},name.eq.${username}`)
+        .maybeSingle();
+      
+      advisor = advisorByName;
+    }
+
+    if (!advisor) {
+      console.error('Advisor not found for username:', username);
+      throw new Error(`Advisor not found for username: ${username}`);
     }
 
     // Update social_links with follower count and avatar
