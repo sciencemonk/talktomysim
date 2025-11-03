@@ -11,7 +11,6 @@ import { AgenticCommerceSection } from "@/components/landing/AgenticCommerceSect
 import { Whyx402Section } from "@/components/landing/Whyx402Section";
 import { TopStoresSection } from "@/components/landing/TopStoresSection";
 import { SignUpCTASection } from "@/components/landing/SignUpCTASection";
-import { PricingSection } from "@/components/landing/PricingSection";
 import { LandingFooter } from "@/components/landing/LandingFooter";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -565,11 +564,9 @@ const NewLanding = () => {
         <AgenticCommerceSection />
       </div>
 
-      <Whyx402Section />
-
       <TopStoresSection />
 
-      <PricingSection onSignUp={handleXSignIn} />
+      <Whyx402Section />
 
       <SignUpCTASection onSignUp={handleXSignIn} />
       
