@@ -82,7 +82,7 @@ const Login = () => {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'twitter',
         options: {
-          redirectTo: `${window.location.origin}/directory`
+          redirectTo: `${window.location.origin}/auth/callback`
         }
       });
 
@@ -168,7 +168,7 @@ const Login = () => {
             className="w-full bg-gradient-to-r from-blue-400 to-blue-600 text-white hover:opacity-90"
             size="lg"
           >
-            {isLoading ? 'Connecting...' : 'Sign in with X'}
+            {isLoading ? 'Connecting...' : 'Sign in with X to Create Your Agent'}
           </Button>
 
           <Button

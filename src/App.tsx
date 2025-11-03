@@ -15,6 +15,7 @@ import { AuthenticatedLayout } from "./layouts/AuthenticatedLayout";
 // Pages
 import Index from "./pages/Index";
 import Login from "./pages/Login";
+import AuthCallback from "./pages/AuthCallback";
 import Home from "./pages/Home";
 import NewLanding from "./pages/NewLanding";
 import AgentsDirectory from "./pages/AgentsDirectory";
@@ -69,6 +70,7 @@ const App = () => (
               <Route path="/sim-directory" element={<Home />} />
               <Route path="/index" element={<Index />} />
               <Route path="/login" element={<Login />} />
+              <Route path="/auth/callback" element={<AuthCallback />} />
               <Route path="/whitepaper" element={<WhitePaper />} />
               <Route path="/contact" element={<Contact />} />
               <Route path="/privacy" element={<Privacy />} />
