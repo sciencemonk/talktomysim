@@ -121,7 +121,22 @@ Deno.serve(async (req) => {
       const errorText = await twitterResponse.text();
       console.error('X API error status:', twitterResponse.status);
       console.error('X API error body:', errorText);
-      console.error('Request headers sent:', { Authorization: oauthHeader.substring(0, 100) + "..." });
+      
+      // Handle rate limiting gracefully
+      if (twitterResponse.status === 429) {
+        return new Response(
+          JSON.stringify({ 
+            success: false, 
+            error: 'Rate limit reached. Please try again later.',
+            retry_after: twitterResponse.headers.get('x-rate-limit-reset') 
+          }),
+          {
+            status: 429,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          }
+        );
+      }
+      
       throw new Error(`X API error: ${twitterResponse.status}`);
     }
 

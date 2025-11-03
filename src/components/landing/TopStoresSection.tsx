@@ -141,21 +141,27 @@ export const TopStoresSection = () => {
         return new Date(lastUpdated) < dayAgo;
       });
 
-      // Fetch follower data for agents that need updates (do this in parallel)
+      // Fetch follower data for agents that need updates (rate limited to avoid 429 errors)
       if (agentsToUpdate.length > 0) {
-        console.log(`Updating follower data for ${agentsToUpdate.length} agents`);
-        await Promise.allSettled(
-          agentsToUpdate.slice(0, 10).map(async (agent) => {
-            const xUsername = (agent.social_links as any)?.x_username;
-            try {
-              await supabase.functions.invoke('fetch-x-followers', {
-                body: { username: xUsername }
-              });
-            } catch (err) {
-              console.error(`Failed to fetch followers for ${xUsername}:`, err);
+        console.log(`Updating follower data for ${Math.min(agentsToUpdate.length, 3)} agents`);
+        // Process sequentially with delay to respect rate limits
+        for (const agent of agentsToUpdate.slice(0, 3)) {
+          const xUsername = (agent.social_links as any)?.x_username;
+          try {
+            await supabase.functions.invoke('fetch-x-followers', {
+              body: { username: xUsername }
+            });
+            // Wait 2 seconds before next request
+            await new Promise(resolve => setTimeout(resolve, 2000));
+          } catch (err: any) {
+            console.error(`Failed to fetch followers for ${xUsername}:`, err);
+            // Stop if we hit rate limit
+            if (err?.message?.includes('429')) {
+              console.log('Rate limit reached, stopping updates');
+              break;
             }
-          })
-        );
+          }
+        }
 
         // Refetch agents after updates
         const { data: updatedAgents } = await supabase
