@@ -5,7 +5,7 @@ import AuthModal from "@/components/AuthModal";
 import { UnifiedAgentCreation } from "@/components/UnifiedAgentCreation";
 import { AgentType } from "@/types/agent";
 import { HackathonAnnouncementModal } from "@/components/HackathonAnnouncementModal";
-import { ScrollingSimsRows } from "@/components/landing/ScrollingSimsRows";
+import { OfferingsMosaic } from "@/components/landing/OfferingsMosaic";
 import { LandingFooter } from "@/components/landing/LandingFooter";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -563,7 +563,7 @@ const NewLanding = () => {
       />
       </div>
 
-      <ScrollingSimsRows onSimClick={handleSimClick} />
+      <OfferingsMosaic />
 
       {/* Search and Filters Section */}
       <section id="agents-section" className="container mx-auto px-3 sm:px-4 py-8 border-b scroll-mt-4">
