@@ -27,15 +27,15 @@ const OfferingCard = ({ offering, onClick }: OfferingCardProps) => {
   const xUsername = offering.agent.social_links?.x_username;
 
   const getAvatarSrc = () => {
-    // Use the avatar_url directly from the database
-    if (offering.agent.avatar_url) {
-      // If it's a Twitter/X image, proxy it through weserv
-      if (offering.agent.avatar_url.includes('pbs.twimg.com')) {
-        return `https://images.weserv.nl/?url=${encodeURIComponent(offering.agent.avatar_url)}`;
-      }
-      return offering.agent.avatar_url;
+    if (!offering.agent.avatar_url) return undefined;
+    
+    // If it's a Twitter/X image, proxy it through weserv for CORS
+    if (offering.agent.avatar_url.includes('pbs.twimg.com')) {
+      return `https://images.weserv.nl/?url=${encodeURIComponent(offering.agent.avatar_url)}`;
     }
-    return null;
+    
+    // Return the URL as-is
+    return offering.agent.avatar_url;
   };
 
   return (

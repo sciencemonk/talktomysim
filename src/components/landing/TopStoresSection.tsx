@@ -67,19 +67,14 @@ const StoreCard = ({ agent, rank, followers, onClick }: StoreCardProps) => {
         <p className="text-lg font-semibold truncate mb-1">
           {xUsername ? `@${xUsername}` : agent.name}
         </p>
-        <p className="text-sm text-muted-foreground line-clamp-1 mb-2">
-          {agent.description || 'X Agent Store'}
-        </p>
-        {followers > 0 && (
-          <Badge 
-            variant="outline" 
-            className="text-xs flex items-center gap-1 w-fit"
-            style={{ backgroundColor: 'rgba(131, 241, 170, 0.15)', color: '#83f1aa', borderColor: 'rgba(131, 241, 170, 0.3)' }}
-          >
-            <Users className="h-3 w-3" />
-            {formatNumber(followers)} Followers
-          </Badge>
-        )}
+        <Badge 
+          variant="outline" 
+          className="text-sm flex items-center gap-1 w-fit"
+          style={{ backgroundColor: 'rgba(131, 241, 170, 0.15)', color: '#83f1aa', borderColor: 'rgba(131, 241, 170, 0.3)' }}
+        >
+          <Users className="h-3 w-3" />
+          {formatNumber(followers)} Followers
+        </Badge>
       </div>
 
       {/* Trending Icon */}
