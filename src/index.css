@@ -149,6 +149,23 @@
       text-shadow: 0 0 5px #82f2aa;
     }
   }
+
+  @keyframes scroll {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(-50%);
+    }
+  }
+
+  .animate-scroll-slow {
+    animation: scroll 60s linear infinite;
+  }
+
+  .hover\:pause-animation:hover {
+    animation-play-state: paused;
+  }
 }
 
 /* Solana Wallet Adapter Modal z-index fix - must be extremely high */

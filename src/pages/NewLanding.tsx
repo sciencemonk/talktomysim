@@ -7,6 +7,8 @@ import { AgentType } from "@/types/agent";
 import { HackathonAnnouncementModal } from "@/components/HackathonAnnouncementModal";
 import { OfferingsMosaic } from "@/components/landing/OfferingsMosaic";
 import { AgenticCommerceSection } from "@/components/landing/AgenticCommerceSection";
+import { TopStoresSection } from "@/components/landing/TopStoresSection";
+import { SignUpCTASection } from "@/components/landing/SignUpCTASection";
 import { LandingFooter } from "@/components/landing/LandingFooter";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -570,148 +572,9 @@ const NewLanding = () => {
         <AgenticCommerceSection />
       </div>
 
-      {/* Search and Filters Section */}
-      <section id="agents-section" className="container mx-auto px-3 sm:px-4 py-8 border-b scroll-mt-4">
-        <div className="max-w-7xl mx-auto space-y-4">
-          {/* Search and Sort */}
-          <div className="flex flex-col sm:flex-row gap-3">
-            <div className="flex gap-3">
-              {/* Sort dropdown */}
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" className="gap-2 h-12 px-4">
-                    {sortBy === 'newest' && 'Newest'}
-                    {sortBy === 'popular' && (
-                      <>
-                        <TrendingUp className="h-4 w-4" />
-                        Popular
-                      </>
-                    )}
-                    {sortBy === 'name' && 'A-Z'}
-                    <ChevronDown className="h-4 w-4 opacity-50" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="start" className="bg-background border-border z-50">
-                  <DropdownMenuItem onClick={() => setSortBy('newest')} className="text-foreground hover:bg-muted">
-                    Newest
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setSortBy('popular')} className="text-foreground hover:bg-muted">
-                    <TrendingUp className="mr-2 h-4 w-4" />
-                    Popular
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setSortBy('name')} className="text-foreground hover:bg-muted">
-                    A-Z
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
-            
-            {/* Search */}
-            <div className="relative flex-1">
-              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-              <Input
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search agents by name, title, or description..."
-                className="pl-12 h-12 text-base border-input"
-                style={{
-                  backgroundColor: theme === 'dark' ? 'rgb(31, 41, 55)' : 'rgb(255, 255, 255)',
-                  color: theme === 'dark' ? 'rgb(255, 255, 255)' : 'rgb(0, 0, 0)'
-                }}
-              />
-            </div>
-          </div>
+      <TopStoresSection />
 
-          {/* Category Filters - for chat agents */}
-          {simTypeFilter === 'Chat' && (isMobile ? (
-            <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-              <SelectTrigger className="w-full h-12 bg-background">
-                <SelectValue placeholder="Select category">
-                  <div className="flex items-center justify-between w-full">
-                    <span>{categoryCounts.find(c => c.id === selectedCategory)?.label || 'All Categories'}</span>
-                    <Badge variant="secondary" className="ml-2 px-1.5">
-                      {categoryCounts.find(c => c.id === selectedCategory)?.count || 0}
-                    </Badge>
-                  </div>
-                </SelectValue>
-              </SelectTrigger>
-              <SelectContent className="bg-background border-border z-[100] max-h-[300px]">
-                {categoryCounts.map((cat) => (
-                  <SelectItem 
-                    key={cat.id} 
-                    value={cat.id}
-                    className="cursor-pointer"
-                  >
-                    <div className="flex items-center justify-between w-full gap-3">
-                      <span>{cat.label}</span>
-                      <Badge variant="secondary" className="px-1.5 shrink-0">
-                        {cat.count}
-                      </Badge>
-                    </div>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          ) : (
-            <div className="flex flex-wrap gap-2">
-              {categoryCounts.map((cat) => (
-                <Button
-                  key={cat.id}
-                  variant="outline"
-                  onClick={() => setSelectedCategory(cat.id)}
-                  className={`gap-1.5 h-8 text-xs sm:h-10 sm:text-sm sm:gap-2 ${
-                    selectedCategory === cat.id 
-                      ? 'border-[#83f1aa] hover:bg-[#83f1aa]/90' 
-                      : ''
-                  }`}
-                  style={selectedCategory === cat.id ? { backgroundColor: '#83f1aa', color: '#000' } : {}}
-                >
-                  <span className="whitespace-nowrap">{cat.label}</span>
-                  <Badge 
-                    variant="outline"
-                    className={`px-1 text-[10px] sm:px-1.5 sm:text-xs ${
-                      selectedCategory === cat.id 
-                        ? 'bg-white text-black border-white' 
-                        : 'bg-transparent text-gray-500 border-gray-300'
-                    }`}
-                  >
-                    {cat.count}
-                  </Badge>
-                </Button>
-              ))}
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Agent Directory Section */}
-      <section className="container mx-auto px-3 sm:px-4 py-12">
-        <div className="max-w-7xl mx-auto space-y-8">
-          {/* X Agents Section */}
-          {xAgents.length > 0 && (
-            <div>
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-5">
-                {xAgents.slice(0, visibleCounts['x-agents']).map((sim) => (
-                  <PumpFunSimCard
-                    key={sim.id}
-                    sim={sim}
-                    onSimClick={handleSimClick}
-                  />
-                ))}
-              </div>
-              {xAgents.length > visibleCounts['x-agents'] && (
-                <Button
-                  variant="outline"
-                  onClick={() => showMore('x-agents')}
-                  className="mt-4 w-full"
-                >
-                  Show More ({Math.min(32, xAgents.length - visibleCounts['x-agents'])} more)
-                </Button>
-              )}
-            </div>
-          )}
-        </div>
-      </section>
+      <SignUpCTASection onSignUp={handleXSignIn} />
       
       <LandingFooter />
 
