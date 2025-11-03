@@ -36,9 +36,13 @@ const StoreCard = ({ agent, rank, followers, onClick }: StoreCardProps) => {
 
         if (!error && data?.success && data?.report) {
           setXProfileData(data.report);
+        } else if (error || !data?.success) {
+          // Silently handle API credit errors - don't break the UI
+          console.log('[StoreCard] X API temporarily unavailable for:', xUsername);
         }
       } catch (error) {
-        console.error('[StoreCard] Error fetching X profile:', error);
+        // Gracefully handle errors without breaking the UI
+        console.log('[StoreCard] Could not fetch X profile:', error);
       }
     };
 
@@ -128,7 +132,10 @@ export const TopStoresSection = () => {
       const agentsWithFollowers = await Promise.all(
         (agents || []).map(async (agent) => {
           const xUsername = (agent.social_links as any)?.x_username;
-          if (!xUsername) return null;
+          if (!xUsername) {
+            // Include agents without X usernames with 0 followers
+            return { ...agent, followers: 0 };
+          }
 
           try {
             const { data, error } = await supabase.functions.invoke('x-intelligence', {
@@ -142,14 +149,15 @@ export const TopStoresSection = () => {
               };
             }
           } catch (error) {
-            console.error('[TopStoresSection] Error fetching followers:', error);
+            console.log('[TopStoresSection] X API unavailable for:', xUsername);
           }
 
-          return null;
+          // Return agent with 0 followers if API fails
+          return { ...agent, followers: 0 };
         })
       );
 
-      // Filter out nulls and sort by followers
+      // Sort by followers (agents with follower data will be first)
       const validAgents = agentsWithFollowers
         .filter((agent): agent is XAgent & { followers: number } => agent !== null)
         .sort((a, b) => b.followers - a.followers)
