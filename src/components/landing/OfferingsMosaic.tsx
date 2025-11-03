@@ -27,15 +27,22 @@ const OfferingCard = ({ offering, onClick }: OfferingCardProps) => {
   const xUsername = offering.agent.social_links?.x_username;
 
   const getAvatarSrc = () => {
-    if (!offering.agent.avatar_url) return undefined;
-    
-    // If it's a Twitter/X image, proxy it through weserv for CORS
-    if (offering.agent.avatar_url.includes('pbs.twimg.com')) {
-      return `https://images.weserv.nl/?url=${encodeURIComponent(offering.agent.avatar_url)}`;
+    // First try to get from avatar_url
+    if (offering.agent.avatar_url) {
+      // If it's a Twitter/X image, proxy it through weserv for CORS
+      if (offering.agent.avatar_url.includes('pbs.twimg.com') || offering.agent.avatar_url.includes('twimg.com')) {
+        return `https://images.weserv.nl/?url=${encodeURIComponent(offering.agent.avatar_url)}`;
+      }
+      return offering.agent.avatar_url;
     }
     
-    // Return the URL as-is
-    return offering.agent.avatar_url;
+    // Fallback: try to get profile image URL from social_links
+    const profileImageUrl = offering.agent.social_links?.profileImageUrl || offering.agent.social_links?.profile_image_url;
+    if (profileImageUrl) {
+      return `https://images.weserv.nl/?url=${encodeURIComponent(profileImageUrl)}`;
+    }
+    
+    return undefined;
   };
 
   return (
@@ -49,13 +56,13 @@ const OfferingCard = ({ offering, onClick }: OfferingCardProps) => {
         <div className="flex items-center gap-2">
           <Avatar className="h-10 w-10 border-2 border-[#83f1aa]">
             <AvatarImage 
-              src={getAvatarSrc() || undefined} 
+              src={getAvatarSrc()} 
               alt={offering.agent.name}
               referrerPolicy="no-referrer"
               crossOrigin="anonymous"
             />
             <AvatarFallback className="bg-primary/10 text-primary text-sm">
-              {offering.agent.name.charAt(0).toUpperCase()}
+              {xUsername ? xUsername.charAt(0).toUpperCase() : offering.agent.name.charAt(0).toUpperCase()}
             </AvatarFallback>
           </Avatar>
           <div className="flex-1 min-w-0 text-left">
@@ -82,7 +89,7 @@ const OfferingCard = ({ offering, onClick }: OfferingCardProps) => {
             className="text-sm font-bold"
             style={{ backgroundColor: 'rgba(131, 241, 170, 0.15)', color: '#83f1aa', borderColor: 'rgba(131, 241, 170, 0.3)' }}
           >
-            {offering.price} SOL
+            ${offering.price.toFixed(2)} USDC
           </Badge>
         </div>
       </div>
