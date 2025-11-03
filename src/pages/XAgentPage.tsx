@@ -169,11 +169,12 @@ export default function XAgentPage() {
   };
 
   const handleCopyUsername = () => {
-    if (username) {
-      navigator.clipboard.writeText(`@${username}`);
+    const wallet = (agent as any)?.x402_wallet || (agent?.social_links as any)?.x402_wallet;
+    if (wallet) {
+      navigator.clipboard.writeText(wallet);
       setUsernameCopied(true);
       setTimeout(() => setUsernameCopied(false), 2000);
-      toast.success("Username copied!");
+      toast.success("Wallet address copied!");
     }
   };
 
@@ -297,10 +298,9 @@ export default function XAgentPage() {
             {/* Profile Image */}
             <Avatar className="h-24 w-24 md:h-32 md:w-32 border-4 shadow-2xl ring-4 ring-primary/20" style={{ borderColor: 'hsl(var(--primary))' }}>
               <AvatarImage 
-                src={getImageUrl(xData?.profileImageUrl || agent.avatar)} 
+                src={agent.avatar} 
                 alt={agent.name}
                 className="object-cover"
-                referrerPolicy="no-referrer"
               />
               <AvatarFallback className="text-3xl font-bold">{agent.name[0]}</AvatarFallback>
             </Avatar>
@@ -320,13 +320,15 @@ export default function XAgentPage() {
                 <div className="flex items-center gap-3 text-muted-foreground">
                   <button 
                     onClick={handleCopyUsername}
-                    className="flex items-center gap-1 hover:text-foreground transition-colors"
+                    className="flex items-center gap-2 hover:text-foreground transition-colors font-mono text-sm"
                   >
-                    <span className="font-mono">@{username}</span>
+                    <span className="truncate max-w-[200px] md:max-w-xs">
+                      {(agent as any).x402_wallet || (agent.social_links as any)?.x402_wallet || 'No wallet'}
+                    </span>
                     {usernameCopied ? (
-                      <Check className="h-3 w-3 text-green-500" />
+                      <Check className="h-4 w-4 text-green-500 shrink-0" />
                     ) : (
-                      <Copy className="h-3 w-3" />
+                      <Copy className="h-4 w-4 shrink-0" />
                     )}
                   </button>
                   {xData?.username && (
@@ -348,10 +350,6 @@ export default function XAgentPage() {
                 <div className="space-y-1">
                   <div className="text-2xl font-bold">{formatNumber(xData?.metrics?.followers)}</div>
                   <div className="text-sm text-muted-foreground">Followers</div>
-                </div>
-                <div className="space-y-1">
-                  <div className="text-2xl font-bold">{formatNumber(xData?.metrics?.following)}</div>
-                  <div className="text-sm text-muted-foreground">Following</div>
                 </div>
                 {totalEarnings > 0 && (
                   <div className="space-y-1">
