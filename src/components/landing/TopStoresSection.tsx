@@ -51,23 +51,22 @@ const StoreCard = ({ agent, rank, followers, onClick }: StoreCardProps) => {
   return (
     <button
       onClick={onClick}
-      className="group relative flex items-center gap-4 p-5 rounded-xl bg-gradient-to-br from-card to-card/50 hover:from-card hover:to-muted border-2 border-border hover:border-[#83f1aa] transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-[#83f1aa]/20 overflow-hidden"
+      className="group relative flex flex-col items-center gap-2 p-3 rounded-lg bg-gradient-to-br from-card to-card/50 hover:from-card hover:to-muted border border-border hover:border-[#83f1aa] transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-[#83f1aa]/20 overflow-hidden"
     >
       {/* Animated background gradient */}
       <div className="absolute inset-0 bg-gradient-to-r from-[#83f1aa]/0 via-[#83f1aa]/5 to-[#83f1aa]/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
       
-      {/* Rank badge with glow */}
-      <div className="relative flex-shrink-0">
-        <div className={`absolute inset-0 ${rankColor} blur-md opacity-50 group-hover:opacity-75 transition-opacity`} />
-        <div className={`relative z-10 flex items-center justify-center w-10 h-10 rounded-full ${rankColor} text-black font-bold shadow-lg`}>
+      {/* Rank badge - absolutely positioned */}
+      <div className="absolute top-2 left-2 z-10">
+        <div className={`relative flex items-center justify-center w-7 h-7 rounded-full ${rankColor} text-black text-xs font-bold shadow-md`}>
           {rank}
         </div>
       </div>
 
       {/* Avatar with animated ring */}
-      <div className="relative flex-shrink-0">
+      <div className="relative mt-3">
         <div className="absolute inset-0 bg-[#83f1aa] rounded-full blur-md opacity-0 group-hover:opacity-40 transition-opacity duration-300" />
-        <Avatar className="relative h-16 w-16 border-2 border-[#83f1aa] ring-2 ring-[#83f1aa]/20 group-hover:ring-4 group-hover:ring-[#83f1aa]/40 transition-all duration-300">
+        <Avatar className="relative h-14 w-14 border-2 border-[#83f1aa] ring-2 ring-[#83f1aa]/20 group-hover:ring-4 group-hover:ring-[#83f1aa]/40 transition-all duration-300">
           <AvatarImage 
             src={getAvatarSrc() || undefined} 
             alt={agent.name}
@@ -75,38 +74,37 @@ const StoreCard = ({ agent, rank, followers, onClick }: StoreCardProps) => {
             crossOrigin="anonymous"
             className="group-hover:scale-110 transition-transform duration-300"
           />
-          <AvatarFallback className="bg-gradient-to-br from-primary/20 to-primary/10 text-primary text-lg font-semibold">
+          <AvatarFallback className="bg-gradient-to-br from-primary/20 to-primary/10 text-primary text-sm font-semibold">
             {agent.name.charAt(0).toUpperCase()}
           </AvatarFallback>
         </Avatar>
         {isTopRank && (
           <div className="absolute -top-1 -right-1 z-10">
-            <Sparkles className="h-4 w-4 text-[#83f1aa] animate-pulse" />
+            <Sparkles className="h-3 w-3 text-[#83f1aa] animate-pulse" />
           </div>
         )}
       </div>
 
-      {/* Info */}
-      <div className="relative flex-1 min-w-0 text-left">
-        <p className="text-lg font-semibold truncate mb-1 group-hover:text-[#83f1aa] transition-colors">
+      {/* Info - centered */}
+      <div className="relative text-center w-full px-1">
+        <p className="text-sm font-semibold truncate group-hover:text-[#83f1aa] transition-colors">
           {xUsername ? `@${xUsername}` : agent.name}
         </p>
         {followers > 0 && (
           <Badge 
             variant="outline" 
-            className="text-xs flex items-center gap-1.5 w-fit group-hover:shadow-md transition-shadow"
+            className="text-[10px] flex items-center gap-1 w-fit mx-auto mt-1.5 group-hover:shadow-md transition-shadow px-1.5 py-0.5"
             style={{ backgroundColor: 'rgba(131, 241, 170, 0.15)', color: '#83f1aa', borderColor: 'rgba(131, 241, 170, 0.3)' }}
           >
-            <Users className="h-3.5 w-3.5" />
+            <Users className="h-2.5 w-2.5" />
             {formatNumber(followers)}
           </Badge>
         )}
       </div>
 
-      {/* Trending Icon with animation */}
-      <div className="relative flex-shrink-0">
-        <TrendingUp className="h-6 w-6 text-[#83f1aa] group-hover:scale-110 group-hover:rotate-12 transition-all duration-300" />
-        <Zap className="absolute inset-0 h-6 w-6 text-[#83f1aa] opacity-0 group-hover:opacity-100 group-hover:scale-150 transition-all duration-300" />
+      {/* Trending Icon - bottom right */}
+      <div className="absolute bottom-2 right-2 opacity-60 group-hover:opacity-100">
+        <TrendingUp className="h-4 w-4 text-[#83f1aa] group-hover:scale-110 transition-all duration-300" />
       </div>
     </button>
   );
@@ -203,14 +201,14 @@ export const TopStoresSection = () => {
 
   if (isLoading) {
     return (
-      <section className="container mx-auto px-3 sm:px-4 py-16 border-b">
-        <div className="max-w-6xl mx-auto">
-          <h2 className="text-3xl sm:text-4xl font-bold mb-8 text-center">
+      <section className="container mx-auto px-3 sm:px-4 py-12 border-b">
+        <div className="max-w-7xl mx-auto">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-8 text-center">
             Discover Agentic Stores
           </h2>
-          <div className="grid sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 sm:gap-3">
             {[...Array(10)].map((_, i) => (
-              <div key={i} className="h-32 bg-muted animate-pulse rounded-xl" />
+              <div key={i} className="h-32 bg-muted animate-pulse rounded-lg" />
             ))}
           </div>
         </div>
@@ -223,30 +221,30 @@ export const TopStoresSection = () => {
   }
 
   return (
-    <section className="relative container mx-auto px-3 sm:px-4 py-16 border-b overflow-hidden">
+    <section className="relative container mx-auto px-3 sm:px-4 py-12 border-b overflow-hidden">
       {/* Animated background gradient */}
       <div className="absolute inset-0 bg-gradient-to-b from-[#83f1aa]/5 via-transparent to-transparent opacity-50" />
       <div className="absolute top-0 left-1/4 w-96 h-96 bg-[#83f1aa]/10 rounded-full blur-3xl animate-pulse" />
       <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-[#83f1aa]/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
       
-      <div className="relative max-w-6xl mx-auto">
-        <div className="text-center mb-12">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#83f1aa]/10 border border-[#83f1aa]/30 mb-4">
-            <Sparkles className="h-4 w-4 text-[#83f1aa] animate-pulse" />
-            <span className="text-sm font-semibold text-[#83f1aa]">Trending Now</span>
+      <div className="relative max-w-7xl mx-auto">
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#83f1aa]/10 border border-[#83f1aa]/30 mb-3">
+            <Sparkles className="h-3.5 w-3.5 text-[#83f1aa] animate-pulse" />
+            <span className="text-xs font-semibold text-[#83f1aa]">Trending Now</span>
           </div>
           
-          <h2 className="text-3xl sm:text-4xl font-bold mb-3 bg-gradient-to-r from-foreground via-foreground to-[#83f1aa] bg-clip-text text-transparent">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-2 bg-gradient-to-r from-foreground via-foreground to-[#83f1aa] bg-clip-text text-transparent">
             Discover Agentic Stores
           </h2>
-          <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+          <p className="text-muted-foreground text-sm sm:text-base max-w-2xl mx-auto">
             Explore the most popular agentic storefronts with the largest X followings
           </p>
         </div>
         
-        <div className="grid sm:grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 sm:gap-3">
           {topStores.map((store, index) => (
-            <div key={store.id} className="animate-fade-in" style={{ animationDelay: `${index * 50}ms` }}>
+            <div key={store.id} className="animate-fade-in" style={{ animationDelay: `${index * 30}ms` }}>
               <StoreCard
                 agent={store}
                 rank={index + 1}
