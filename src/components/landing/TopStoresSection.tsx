@@ -67,14 +67,16 @@ const StoreCard = ({ agent, rank, followers, onClick }: StoreCardProps) => {
         <p className="text-lg font-semibold truncate mb-1">
           {xUsername ? `@${xUsername}` : agent.name}
         </p>
-        <Badge 
-          variant="outline" 
-          className="text-sm flex items-center gap-1 w-fit"
-          style={{ backgroundColor: 'rgba(131, 241, 170, 0.15)', color: '#83f1aa', borderColor: 'rgba(131, 241, 170, 0.3)' }}
-        >
-          <Users className="h-3 w-3" />
-          {formatNumber(followers)} Followers
-        </Badge>
+        {followers > 0 && (
+          <Badge 
+            variant="outline" 
+            className="text-sm flex items-center gap-1 w-fit"
+            style={{ backgroundColor: 'rgba(131, 241, 170, 0.15)', color: '#83f1aa', borderColor: 'rgba(131, 241, 170, 0.3)' }}
+          >
+            <Users className="h-3 w-3" />
+            {formatNumber(followers)} Followers
+          </Badge>
+        )}
       </div>
 
       {/* Trending Icon */}
@@ -95,30 +97,74 @@ export const TopStoresSection = () => {
         .select('id, name, avatar_url, social_links, description')
         .eq('is_active', true)
         .eq('sim_category', 'Crypto Mail')
-        .limit(10);
+        .limit(50);
 
       if (error) throw error;
 
-      // Get agents with their stored follower data
-      const agentsWithFollowers = (agents || []).map((agent) => {
+      // Fetch follower counts for agents that don't have them or have outdated data
+      const agentsToUpdate = (agents || []).filter(agent => {
         const xUsername = (agent.social_links as any)?.x_username;
-        // Try to get followers from social_links if available
-        const storedFollowers = (agent.social_links as any)?.followers || 0;
+        const followers = (agent.social_links as any)?.followers;
+        const lastUpdated = (agent.social_links as any)?.last_updated;
         
-        return {
-          ...agent,
-          followers: storedFollowers,
-        };
+        if (!xUsername) return false;
+        if (!followers) return true;
+        if (!lastUpdated) return true;
+        
+        // Update if data is older than 24 hours
+        const dayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+        return new Date(lastUpdated) < dayAgo;
       });
 
-      // Sort by followers (agents with follower data will be first)
-      const validAgents = agentsWithFollowers
+      // Fetch follower data for agents that need updates (do this in parallel)
+      if (agentsToUpdate.length > 0) {
+        console.log(`Updating follower data for ${agentsToUpdate.length} agents`);
+        await Promise.allSettled(
+          agentsToUpdate.slice(0, 10).map(async (agent) => {
+            const xUsername = (agent.social_links as any)?.x_username;
+            try {
+              await supabase.functions.invoke('fetch-x-followers', {
+                body: { username: xUsername }
+              });
+            } catch (err) {
+              console.error(`Failed to fetch followers for ${xUsername}:`, err);
+            }
+          })
+        );
+
+        // Refetch agents after updates
+        const { data: updatedAgents } = await supabase
+          .from('advisors')
+          .select('id, name, avatar_url, social_links, description')
+          .eq('is_active', true)
+          .eq('sim_category', 'Crypto Mail')
+          .limit(50);
+
+        if (updatedAgents) {
+          const agentsWithFollowers = updatedAgents.map(agent => ({
+            ...agent,
+            followers: (agent.social_links as any)?.followers || 0,
+          }));
+
+          return agentsWithFollowers
+            .filter((agent): agent is XAgent & { followers: number } => agent !== null)
+            .sort((a, b) => b.followers - a.followers)
+            .slice(0, 10);
+        }
+      }
+
+      // Return agents with their follower counts
+      const agentsWithFollowers = (agents || []).map(agent => ({
+        ...agent,
+        followers: (agent.social_links as any)?.followers || 0,
+      }));
+
+      return agentsWithFollowers
         .filter((agent): agent is XAgent & { followers: number } => agent !== null)
         .sort((a, b) => b.followers - a.followers)
         .slice(0, 10);
-
-      return validAgents;
     },
+    staleTime: 1000 * 60 * 60, // Cache for 1 hour
   });
 
   const handleStoreClick = (agent: XAgent) => {
