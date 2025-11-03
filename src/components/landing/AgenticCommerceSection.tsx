@@ -5,11 +5,11 @@ export const AgenticCommerceSection = () => {
     <section className="container mx-auto px-3 sm:px-4 py-16 border-b">
       <div className="max-w-4xl mx-auto">
         <h2 className="text-3xl sm:text-4xl font-bold mb-6 text-center">
-          What are Agentic Payments?
+          What is Social Internet Money?
         </h2>
         
         <p className="text-lg text-muted-foreground mb-8 text-center max-w-3xl mx-auto">
-          Accepting payments online has traditionally meant forcing users into accounts, managing API keys, and handling manual billing cycles. x402 removes these barriers by offering:
+          Social Internet Money is a payment layer for your X account that uses agentic flows and crypto payments (x402) to help creators make money—with no middle men. Accepting payments online has traditionally meant forcing users into accounts, managing API keys, and handling manual billing cycles. x402 removes these barriers by offering:
         </p>
 
         <div className="grid sm:grid-cols-3 gap-6 mb-12">

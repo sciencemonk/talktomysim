@@ -43,7 +43,7 @@ export const MatrixHeroSection = ({ onCreateXAgent, onSimClick, onViewAllAgents 
         </div>
 
         <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-sans font-bold mb-4 tracking-tight text-foreground text-center w-full">
-          Agentic Payments
+          Social Internet Money
         </h1>
         
         {/* Zero fees text */}
