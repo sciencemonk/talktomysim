@@ -89,27 +89,6 @@ export function XAgentStoreManager({ agentId, walletAddress, onWalletUpdate, edi
     }
   };
 
-  const handleConvertToAgent = async (offeringId: string) => {
-    try {
-      const { data, error } = await supabase.functions.invoke('fix-offering-type', {
-        body: {
-          offeringId,
-          editCode,
-          agentId,
-          newType: 'agent'
-        }
-      });
-
-      if (error) throw error;
-      
-      toast.success("Offering converted to Agent type!");
-      loadOfferings(); // Reload to refresh the list
-    } catch (error) {
-      console.error("Error converting offering:", error);
-      toast.error("Failed to convert offering");
-    }
-  };
-
   const handleMediaChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -1019,16 +998,6 @@ export function XAgentStoreManager({ agentId, walletAddress, onWalletUpdate, edi
                     <CardDescription>{offering.description}</CardDescription>
                   </div>
                   <div className="flex items-center gap-2">
-                    {offering.offering_type === 'standard' && (
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        onClick={() => handleConvertToAgent(offering.id)}
-                        className="text-xs"
-                      >
-                        Convert to Agent
-                      </Button>
-                    )}
                     <Button variant="ghost" size="sm" onClick={() => handleEdit(offering)}>
                       <Edit className="h-4 w-4" />
                     </Button>
