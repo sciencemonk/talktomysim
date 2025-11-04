@@ -161,7 +161,7 @@ export const LandingFooter = () => {
             
             <div className="flex items-center gap-6">
               <a 
-                href="https://x.com/x402protocol" 
+                href="https://x.com/simprojectorg" 
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-muted-foreground hover:text-[#82f3aa] transition-colors"
@@ -237,39 +237,51 @@ export const LandingFooter = () => {
             <div className="prose prose-sm max-w-none dark:prose-invert space-y-4">
               <h3 className="text-lg font-semibold">Introduction</h3>
               <p className="text-sm text-muted-foreground">
-                Welcome to SimProject ("we," "our," or "us"). We respect your privacy and are committed to protecting your personal data. 
-                This privacy policy explains how we collect, use, and share information when you use our services.
+                Welcome to SIMAI ("we," "our," or "us"). We respect your privacy and are committed to protecting your personal data. 
+                This privacy policy explains how we collect, use, and share information when you use our agentic payment platform and services.
+              </p>
+
+              <h3 className="text-lg font-semibold">About Our Service</h3>
+              <p className="text-sm text-muted-foreground">
+                SIMAI is an agentic payment platform that enables users to transform their X (Twitter) accounts into AI agents capable of accepting x402 payments. Our platform facilitates autonomous commerce through AI-powered storefronts.
               </p>
 
               <h3 className="text-lg font-semibold">Information We Collect</h3>
               <h4 className="text-base font-semibold">Information You Provide</h4>
               <p className="text-sm text-muted-foreground">We collect information you provide directly to us, including:</p>
               <ul className="text-sm text-muted-foreground list-disc pl-5 space-y-1">
-                <li>Account information (name, email, password)</li>
-                <li>Profile information</li>
+                <li>X (Twitter) account information and profile data</li>
+                <li>Email address and contact information</li>
+                <li>Crypto wallet addresses for payment processing</li>
+                <li>Agent configuration and customization data</li>
                 <li>Communications with us</li>
-                <li>Payment information (processed securely through third-party providers)</li>
               </ul>
 
               <h4 className="text-base font-semibold">Automatically Collected Information</h4>
-              <p className="text-sm text-muted-foreground">When you use our services, we automatically collect:</p>
+              <p className="text-sm text-muted-foreground">When you use our platform, we automatically collect:</p>
               <ul className="text-sm text-muted-foreground list-disc pl-5 space-y-1">
+                <li>Transaction data and payment information (on-chain)</li>
                 <li>Usage data and analytics</li>
-                <li>Device information</li>
-                <li>Log data</li>
-                <li>Cookies and similar technologies</li>
+                <li>Device and browser information</li>
+                <li>Log data and interaction patterns</li>
               </ul>
 
               <h3 className="text-lg font-semibold">How We Use Your Information</h3>
               <p className="text-sm text-muted-foreground">We use the information we collect to:</p>
               <ul className="text-sm text-muted-foreground list-disc pl-5 space-y-1">
-                <li>Provide, maintain, and improve our services</li>
-                <li>Process transactions and send related information</li>
-                <li>Send technical notices and support messages</li>
-                <li>Respond to your comments and questions</li>
-                <li>Detect, prevent, and address technical issues and fraud</li>
-                <li>Comply with legal obligations</li>
+                <li>Provide and maintain our agentic payment platform</li>
+                <li>Process x402 payments and crypto transactions</li>
+                <li>Train and improve AI agent capabilities</li>
+                <li>Send transaction notifications and updates</li>
+                <li>Respond to your inquiries and provide support</li>
+                <li>Detect, prevent, and address fraud and security issues</li>
+                <li>Comply with legal and regulatory obligations</li>
               </ul>
+
+              <h3 className="text-lg font-semibold">Data Security</h3>
+              <p className="text-sm text-muted-foreground">
+                We implement appropriate technical and organizational measures to protect your data. All payments are processed on-chain using x402 protocol with zero fees. We never store your private keys or have access to your crypto wallets.
+              </p>
 
               <h3 className="text-lg font-semibold">Contact Us</h3>
               <p className="text-sm text-muted-foreground">
@@ -291,35 +303,59 @@ export const LandingFooter = () => {
             <div className="prose prose-sm max-w-none dark:prose-invert space-y-4">
               <h3 className="text-lg font-semibold">Agreement to Terms</h3>
               <p className="text-sm text-muted-foreground">
-                By accessing or using SimProject ("Service"), you agree to be bound by these Terms of Service ("Terms"). 
+                By accessing or using SIMAI ("Service"), you agree to be bound by these Terms of Service ("Terms"). 
                 If you disagree with any part of these terms, you may not access the Service.
               </p>
 
               <h3 className="text-lg font-semibold">Description of Service</h3>
               <p className="text-sm text-muted-foreground">
-                SimProject provides an AI-powered platform for creating and interacting with simulated personas and advisors. 
-                We reserve the right to modify, suspend, or discontinue the Service at any time.
+                SIMAI is an agentic payment platform that enables users to create AI agents from their X (Twitter) accounts and accept x402 payments. Our platform facilitates autonomous commerce through AI-powered storefronts with zero-fee crypto transactions.
               </p>
+
+              <h3 className="text-lg font-semibold">Agent Creation and Ownership</h3>
+              <p className="text-sm text-muted-foreground">When you create an AI agent on SIMAI:</p>
+              <ul className="text-sm text-muted-foreground list-disc pl-5 space-y-1">
+                <li>You retain ownership of your X account and associated content</li>
+                <li>You authorize us to analyze your public X posts to train your AI agent</li>
+                <li>You are responsible for the content and behavior of your AI agent</li>
+                <li>You must ensure your agent complies with X's Terms of Service</li>
+              </ul>
+
+              <h3 className="text-lg font-semibold">Payment Terms</h3>
+              <p className="text-sm text-muted-foreground">Regarding payments on the platform:</p>
+              <ul className="text-sm text-muted-foreground list-disc pl-5 space-y-1">
+                <li>All payments are processed on-chain using x402 protocol</li>
+                <li>SIMAI charges zero platform fees on transactions</li>
+                <li>You are responsible for managing your crypto wallet</li>
+                <li>All transactions are final and irreversible on the blockchain</li>
+                <li>You must comply with applicable tax and regulatory requirements</li>
+              </ul>
 
               <h3 className="text-lg font-semibold">User Accounts</h3>
               <h4 className="text-base font-semibold">Registration</h4>
-              <p className="text-sm text-muted-foreground">To use certain features, you must register for an account. You agree to:</p>
+              <p className="text-sm text-muted-foreground">To use our platform, you agree to:</p>
               <ul className="text-sm text-muted-foreground list-disc pl-5 space-y-1">
-                <li>Provide accurate, current, and complete information</li>
-                <li>Maintain and update your information</li>
-                <li>Keep your password secure and confidential</li>
+                <li>Provide accurate information about your X account</li>
+                <li>Maintain the security of your wallet and credentials</li>
                 <li>Accept responsibility for all activities under your account</li>
+                <li>Notify us immediately of any unauthorized access</li>
               </ul>
 
               <h3 className="text-lg font-semibold">Acceptable Use</h3>
               <p className="text-sm text-muted-foreground">You agree not to:</p>
               <ul className="text-sm text-muted-foreground list-disc pl-5 space-y-1">
-                <li>Use the Service for any illegal purpose</li>
-                <li>Violate any laws or regulations</li>
-                <li>Infringe on intellectual property rights</li>
-                <li>Transmit harmful code or malware</li>
+                <li>Use the Service for any illegal purpose or fraud</li>
+                <li>Impersonate others or create misleading AI agents</li>
+                <li>Violate intellectual property rights</li>
+                <li>Engage in market manipulation or scams</li>
                 <li>Harass, abuse, or harm other users</li>
+                <li>Attempt to compromise the security of the platform</li>
               </ul>
+
+              <h3 className="text-lg font-semibold">Disclaimers</h3>
+              <p className="text-sm text-muted-foreground">
+                THE SERVICE IS PROVIDED "AS IS" WITHOUT WARRANTIES. AI-generated content is not professional advice. Cryptocurrency transactions carry risk and are irreversible. We are not responsible for losses from market volatility or user error.
+              </p>
 
               <h3 className="text-lg font-semibold">Contact Information</h3>
               <p className="text-sm text-muted-foreground">
