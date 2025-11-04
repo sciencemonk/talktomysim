@@ -45,12 +45,12 @@ export function PendingAgentModal({
             <DialogTitle>Agent Pending Verification</DialogTitle>
           </div>
           <DialogDescription className="space-y-3 pt-2">
-            <p>
+            <div>
               <span className="font-semibold">{agentName}</span> is currently pending verification and not yet available for public use.
-            </p>
-            <p className="text-sm">
+            </div>
+            <div className="text-sm">
               If you're the creator of this agent, sign in with your edit code to manage and verify your agent.
-            </p>
+            </div>
           </DialogDescription>
         </DialogHeader>
         
