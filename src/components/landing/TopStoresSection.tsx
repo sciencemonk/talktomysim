@@ -47,11 +47,6 @@ const StoreCard = ({ agent, rank, onClick }: StoreCardProps) => {
       onClick={onClick}
       className="group relative flex flex-col overflow-hidden rounded-lg bg-card hover:bg-muted border hover:border-[#83f1aa] transition-all duration-300 hover:scale-105 hover:shadow-md"
     >
-      {/* Rank badge */}
-      <div className="absolute top-2 left-2 z-10 flex items-center justify-center w-8 h-8 rounded-full bg-background/90 backdrop-blur-sm border border-border">
-        <span className="text-sm font-bold text-foreground">#{rank}</span>
-      </div>
-
       {/* Image container */}
       <div className="relative w-full aspect-[4/3] overflow-hidden bg-muted">
         <Avatar className="w-full h-full rounded-none">
