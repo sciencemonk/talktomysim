@@ -289,7 +289,8 @@ export function XAgentStoreManager({ agentId, walletAddress, onWalletUpdate, edi
           updateData.agent_system_prompt = formData.agent_system_prompt;
           updateData.agent_data_source = formData.agent_data_source;
           updateData.agent_functionality = formData.agent_functionality;
-          updateData.agent_avatar_url = mediaUrl; // Use media as agent avatar
+          // Use new mediaUrl if uploaded, otherwise preserve existing agent_avatar_url
+          updateData.agent_avatar_url = mediaUrl || editingOffering?.agent_avatar_url;
           updateData.price_per_conversation = parseFloat(formData.price_per_conversation || '0');
         } else if (selectedType) {
           updateData.offering_type = selectedType;
@@ -338,7 +339,11 @@ export function XAgentStoreManager({ agentId, walletAddress, onWalletUpdate, edi
       price_per_conversation: offering.price_per_conversation?.toString() || "",
     });
     setRequiredFields(offering.required_info || []);
-    setMediaPreview(offering.media_url || null);
+    // For agent offerings, use agent_avatar_url; for others use media_url
+    const previewUrl = offering.offering_type === 'agent' 
+      ? offering.agent_avatar_url 
+      : offering.media_url;
+    setMediaPreview(previewUrl || null);
     setShowTypeSelection(false);
     setIsDialogOpen(true);
   };
