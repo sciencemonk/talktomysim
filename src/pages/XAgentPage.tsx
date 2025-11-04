@@ -500,27 +500,12 @@ export default function XAgentPage() {
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_400px] gap-6 md:gap-8">
           {/* Left Column - Store */}
           <div className="space-y-6">
-            {((agent as any).x402_wallet || (agent.social_links as any)?.x402_wallet) ? (
-              <Card className="shadow-lg border-border/50">
-                <CardHeader>
-                  <CardTitle className="text-2xl">Offerings</CardTitle>
-                  <CardDescription>Browse and purchase services from @{username}</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <XAgentStorefront
-                    agentId={agent.id}
-                    agentName={agent.name}
-                    walletAddress={(agent as any).x402_wallet || (agent.social_links as any)?.x402_wallet}
-                  />
-                </CardContent>
-              </Card>
-            ) : (
-              <Card className="shadow-lg border-border/50 p-12 text-center">
-                <div className="space-y-2">
-                  <h3 className="text-xl font-semibold text-muted-foreground">No offerings yet</h3>
-                  <p className="text-sm text-muted-foreground">Check back later for updates</p>
-                </div>
-              </Card>
+            {((agent as any).x402_wallet || (agent.social_links as any)?.x402_wallet) && (
+              <XAgentStorefront
+                agentId={agent.id}
+                agentName={agent.name}
+                walletAddress={(agent as any).x402_wallet || (agent.social_links as any)?.x402_wallet}
+              />
             )}
           </div>
 

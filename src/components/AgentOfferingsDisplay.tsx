@@ -71,7 +71,7 @@ export function AgentOfferingsDisplay({ offerings, avatarUrl, agentName, onAgent
           <Bot className="h-5 w-5" />
           AI Agents
         </CardTitle>
-        <CardDescription>AI-powered assistants by @{agentName}</CardDescription>
+        <CardDescription>AI Agents created by @{agentName}</CardDescription>
       </CardHeader>
       <CardContent className="p-0">
         <div className="divide-y divide-border">
