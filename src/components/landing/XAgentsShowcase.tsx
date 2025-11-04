@@ -10,6 +10,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { getAvatarUrl } from "@/lib/avatarUtils";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect } from "react";
+import { PendingAgentModal } from "@/components/PendingAgentModal";
 
 interface XAgentsShowcaseProps {
   agents: (AgentType & { user_id?: string; like_count?: number; is_verified?: boolean })[];
@@ -132,9 +133,33 @@ export const XAgentsShowcase = ({ agents }: XAgentsShowcaseProps) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState<'followers' | 'newest' | 'name'>('followers');
   const [visibleCount, setVisibleCount] = useState(42);
+  const [pendingAgentModal, setPendingAgentModal] = useState<{
+    open: boolean;
+    agentName: string;
+    agentId: string;
+    customUrl: string;
+  }>({
+    open: false,
+    agentName: '',
+    agentId: '',
+    customUrl: ''
+  });
 
   const handleAgentClick = (agent: AgentType) => {
+    const verificationStatus = (agent as any).verification_status;
     const xUsername = (agent.social_links as any)?.x_username;
+    
+    // If agent is pending verification, show pending modal
+    if (verificationStatus === 'pending') {
+      setPendingAgentModal({
+        open: true,
+        agentName: agent.name,
+        agentId: agent.id,
+        customUrl: xUsername || ''
+      });
+      return;
+    }
+    
     if (xUsername) {
       window.scrollTo(0, 0);
       navigate(`/x/${xUsername}`);
@@ -250,6 +275,14 @@ export const XAgentsShowcase = ({ agents }: XAgentsShowcaseProps) => {
           </div>
         )}
       </div>
+
+      <PendingAgentModal
+        open={pendingAgentModal.open}
+        onOpenChange={(open) => setPendingAgentModal(prev => ({ ...prev, open }))}
+        agentName={pendingAgentModal.agentName}
+        agentId={pendingAgentModal.agentId}
+        customUrl={pendingAgentModal.customUrl}
+      />
     </section>
   );
 };
