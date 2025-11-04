@@ -24,6 +24,10 @@ interface Offering {
   offering_type?: 'standard' | 'digital' | 'agent';
   digital_file_url?: string;
   blur_preview?: boolean;
+  agent_system_prompt?: string;
+  agent_data_source?: string;
+  agent_avatar_url?: string;
+  price_per_conversation?: number;
 }
 
 interface XAgentStoreManagerProps {
@@ -339,9 +343,9 @@ export function XAgentStoreManager({ agentId, walletAddress, onWalletUpdate, edi
       delivery_method: offering.delivery_method,
       is_active: offering.is_active,
       blur_preview: offering.blur_preview || false,
-      agent_system_prompt: (offering as any).agent_system_prompt || "",
-      agent_data_source: (offering as any).agent_data_source || "",
-      price_per_conversation: (offering as any).price_per_conversation?.toString() || "",
+      agent_system_prompt: offering.agent_system_prompt || "",
+      agent_data_source: offering.agent_data_source || "",
+      price_per_conversation: offering.price_per_conversation?.toString() || "",
     });
     setRequiredFields(offering.required_info || []);
     setMediaPreview(offering.media_url || null);
