@@ -84,7 +84,7 @@ export function AgentOfferingsDisplay({ offerings, avatarUrl, agentName, onAgent
               <div className="flex items-start gap-4">
                 <Avatar className="h-12 w-12 shrink-0 ring-2 ring-primary/10">
                   <AvatarImage 
-                    src={offering.agent_avatar_url || avatarUrl} 
+                    src={offering.agent_avatar_url} 
                     alt={offering.title}
                     className="object-cover"
                   />
