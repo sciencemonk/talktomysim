@@ -58,6 +58,11 @@ serve(async (req) => {
     const userResponseData = await userResponse.json();
     console.log('User data received:', JSON.stringify(userResponseData).substring(0, 200));
 
+    // Check if the API returned an error
+    if (userResponseData.status === 'error' || !userResponseData.data) {
+      throw new Error(userResponseData.msg || 'User not found');
+    }
+
     // Fetch recent tweets using TwitterAPI.io
     const tweetsUrl = `https://api.twitterapi.io/twitter/user/last_tweets?userName=${encodeURIComponent(username)}&count=100`;
     const tweetsResponse = await fetch(tweetsUrl, {
