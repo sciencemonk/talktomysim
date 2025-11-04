@@ -757,6 +757,38 @@ export type Database = {
           },
         ]
       }
+      edit_code_attempts: {
+        Row: {
+          agent_id: string
+          attempt_time: string
+          created_at: string
+          id: string
+          ip_address: string | null
+        }
+        Insert: {
+          agent_id: string
+          attempt_time?: string
+          created_at?: string
+          id?: string
+          ip_address?: string | null
+        }
+        Update: {
+          agent_id?: string
+          attempt_time?: string
+          created_at?: string
+          id?: string
+          ip_address?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "edit_code_attempts_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "advisors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       escalation_rules: {
         Row: {
           advisor_id: string
@@ -1445,6 +1477,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      check_edit_code_rate_limit: {
+        Args: { p_agent_id: string }
+        Returns: boolean
+      }
       deduct_credit: {
         Args: {
           p_conversation_id?: string
@@ -1510,6 +1546,10 @@ export type Database = {
           p_edit_code: string
           p_message_id: string
         }
+        Returns: undefined
+      }
+      record_failed_edit_code_attempt: {
+        Args: { p_agent_id: string; p_ip_address?: string }
         Returns: undefined
       }
       reset_monthly_credits: { Args: never; Returns: undefined }
