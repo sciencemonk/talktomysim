@@ -429,6 +429,10 @@ export function XAgentStoreManager({ agentId, walletAddress, onWalletUpdate, edi
             <Button 
               variant="mint"
               onClick={() => {
+                if (!walletAddress) {
+                  toast.error("Please add a Solana wallet address before creating offerings");
+                  return;
+                }
                 setShowTypeSelection(true);
                 setIsDialogOpen(true);
               }}
