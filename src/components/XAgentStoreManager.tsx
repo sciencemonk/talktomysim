@@ -256,82 +256,87 @@ export function XAgentStoreManager({ agentId, walletAddress, onWalletUpdate, edi
         digitalFileUrl = publicUrl;
       }
 
-      const { data, error } = await supabase.rpc('manage_offering_with_code', {
-        p_agent_id: agentId,
-        p_edit_code: editCode,
-        p_offering_id: editingOffering?.id || null,
-        p_title: formData.title,
-        p_description: formData.description,
-        p_price: selectedType === 'agent' 
-          ? parseFloat(formData.price_per_conversation || '0')
-          : parseFloat(formData.price),
-        p_delivery_method: formData.delivery_method || 'Digital delivery',
-        p_required_info: requiredFields,
-        p_is_active: formData.is_active,
-        p_operation: editingOffering ? 'update' : 'insert'
-      });
-
-      if (error) throw error;
-
-      // Get the offering ID from RPC response or fetch the latest offering
-      let offeringId = typeof data === 'object' && data !== null && 'id' in data 
-        ? (data as any).id 
-        : editingOffering?.id;
-      
-      // If we don't have the ID yet (new offering), fetch the latest offering for this agent
-      if (!offeringId && !editingOffering) {
-        const { data: latestOffering, error: fetchError } = await supabase
+      // For NEW agent offerings, bypass RPC and create directly with offering_type
+      if (!editingOffering && selectedType === 'agent') {
+        const { data: newOffering, error: createError } = await supabase
           .from('x_agent_offerings')
-          .select('id')
-          .eq('agent_id', agentId)
-          .eq('title', formData.title)
-          .order('created_at', { ascending: false })
-          .limit(1)
+          .insert({
+            agent_id: agentId,
+            title: formData.title,
+            description: formData.description,
+            price: parseFloat(formData.price_per_conversation || '0'),
+            price_per_conversation: parseFloat(formData.price_per_conversation || '0'),
+            delivery_method: formData.delivery_method || 'Digital delivery',
+            required_info: requiredFields,
+            is_active: formData.is_active,
+            offering_type: 'agent',
+            agent_system_prompt: formData.agent_system_prompt,
+            agent_data_source: formData.agent_data_source,
+            agent_functionality: formData.agent_functionality,
+            agent_avatar_url: mediaUrl || null,
+            digital_file_url: digitalFileUrl || null
+          })
+          .select()
           .single();
+
+        if (createError) throw createError;
+      } else {
+        // Use RPC for non-agent offerings or updates
+        const { data, error } = await supabase.rpc('manage_offering_with_code', {
+          p_agent_id: agentId,
+          p_edit_code: editCode,
+          p_offering_id: editingOffering?.id || null,
+          p_title: formData.title,
+          p_description: formData.description,
+          p_price: selectedType === 'agent' 
+            ? parseFloat(formData.price_per_conversation || '0')
+            : parseFloat(formData.price),
+          p_delivery_method: formData.delivery_method || 'Digital delivery',
+          p_required_info: requiredFields,
+          p_is_active: formData.is_active,
+          p_operation: editingOffering ? 'update' : 'insert'
+        });
+
+        if (error) throw error;
+
+        // Get the offering ID
+        let offeringId = typeof data === 'object' && data !== null && 'id' in data 
+          ? (data as any).id 
+          : editingOffering?.id;
         
-        if (!fetchError && latestOffering) {
-          offeringId = latestOffering.id;
-        }
-      }
-      
-      if (offeringId) {
-        const updateData: any = {};
-        
-        // CRITICAL: Always set offering_type for agent offerings
-        if (selectedType === 'agent') {
-          updateData.offering_type = 'agent';
-          updateData.agent_system_prompt = formData.agent_system_prompt;
-          updateData.agent_data_source = formData.agent_data_source;
-          updateData.agent_functionality = formData.agent_functionality;
-          updateData.price_per_conversation = parseFloat(formData.price_per_conversation || '0');
+        if (offeringId) {
+          const updateData: any = {};
           
-          // For agent offerings, avatar goes to agent_avatar_url (NOT media_url)
-          if (mediaUrl) {
-            updateData.agent_avatar_url = mediaUrl;
-          } else if (editingOffering?.agent_avatar_url) {
-            updateData.agent_avatar_url = editingOffering.agent_avatar_url;
-          }
-        } else {
-          // For non-agent offerings, set media_url
-          if (mediaUrl) updateData.media_url = mediaUrl;
-          if (digitalFileUrl !== undefined) updateData.digital_file_url = digitalFileUrl;
-          
-          if (selectedType) {
-            updateData.offering_type = selectedType;
-            if (selectedType === 'digital') {
-              updateData.blur_preview = formData.blur_preview;
+          if (selectedType === 'agent') {
+            updateData.offering_type = 'agent';
+            updateData.agent_system_prompt = formData.agent_system_prompt;
+            updateData.agent_data_source = formData.agent_data_source;
+            updateData.agent_functionality = formData.agent_functionality;
+            updateData.price_per_conversation = parseFloat(formData.price_per_conversation || '0');
+            
+            if (mediaUrl) {
+              updateData.agent_avatar_url = mediaUrl;
+            } else if (editingOffering?.agent_avatar_url) {
+              updateData.agent_avatar_url = editingOffering.agent_avatar_url;
+            }
+          } else {
+            if (mediaUrl) updateData.media_url = mediaUrl;
+            if (digitalFileUrl !== undefined) updateData.digital_file_url = digitalFileUrl;
+            
+            if (selectedType) {
+              updateData.offering_type = selectedType;
+              if (selectedType === 'digital') {
+                updateData.blur_preview = formData.blur_preview;
+              }
             }
           }
-        }
-        
-        const { error: updateError } = await supabase
-          .from('x_agent_offerings')
-          .update(updateData)
-          .eq('id', offeringId);
+          
+          const { error: updateError } = await supabase
+            .from('x_agent_offerings')
+            .update(updateData)
+            .eq('id', offeringId);
 
-        if (updateError) {
-          console.error('Update error:', updateError);
-          throw updateError;
+          if (updateError) throw updateError;
         }
       }
 
