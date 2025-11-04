@@ -67,7 +67,7 @@ export default function XAgentCreatorView() {
       
       const { data, error } = await supabase
         .from('advisors')
-        .select('*')
+        .select('id, name, description, prompt, avatar_url, welcome_message, title, created_at, updated_at, is_active, is_verified, x402_enabled, x402_price, x402_wallet, crypto_wallet, sim_category, social_links, edit_code')
         .eq('sim_category', 'Crypto Mail')
         .eq('is_active', true);
 
@@ -118,8 +118,12 @@ export default function XAgentCreatorView() {
 
       setAgent(transformedAgent);
       setSystemPrompt(matchingAgent.prompt || "");
-      // Try x402_wallet first, fallback to crypto_wallet for backwards compatibility
-      setWalletAddress(matchingAgent.x402_wallet || matchingAgent.crypto_wallet || "");
+      
+      // Load wallet address - prioritize x402_wallet, fallback to crypto_wallet
+      const loadedWallet = matchingAgent.x402_wallet || matchingAgent.crypto_wallet || "";
+      console.log('Loaded wallet address:', loadedWallet); // Debug log
+      setWalletAddress(loadedWallet);
+      
       fetchTotalEarnings(matchingAgent.id);
 
       try {
