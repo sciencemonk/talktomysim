@@ -29,10 +29,15 @@ serve(async (req) => {
       throw new Error('Username is required');
     }
 
-    console.log(`Generating ${reportType} report for @${username}`);
+    // Remove @ symbol if present
+    const cleanUsername = username.replace('@', '');
+    console.log(`Generating ${reportType} report for @${cleanUsername}`);
+    console.log(`API Key length: ${TWITTER_API_IO_KEY?.length || 0}`);
 
     // Fetch user profile using TwitterAPI.io
-    const userUrl = `https://api.twitterapi.io/twitter/user/info?userName=${encodeURIComponent(username)}`;
+    const userUrl = `https://api.twitterapi.io/twitter/user/info?userName=${encodeURIComponent(cleanUsername)}`;
+    console.log(`Full request URL: ${userUrl}`);
+    
     const userResponse = await fetch(userUrl, {
       method: "GET",
       headers: {
@@ -40,10 +45,14 @@ serve(async (req) => {
       },
     });
 
+    console.log(`Response status: ${userResponse.status}`);
+    console.log(`Response statusText: ${userResponse.statusText}`);
+    
     if (!userResponse.ok) {
       const errorText = await userResponse.text();
+      console.error('Full error response:', errorText);
       console.error('TwitterAPI.io user lookup error:', userResponse.status, errorText);
-      throw new Error(`Failed to fetch user data: ${userResponse.status}`);
+      throw new Error(`Failed to fetch user data: ${userResponse.status} - ${errorText}`);
     }
 
     const userResponseData = await userResponse.json();
