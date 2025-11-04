@@ -8,7 +8,6 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import PublicChatInterface from "@/components/PublicChatInterface";
 import { XAgentStorefront } from "@/components/XAgentStorefront";
 import { AgentOfferingsDisplay } from "@/components/AgentOfferingsDisplay";
 import { AgentType } from "@/types/agent";
@@ -436,28 +435,13 @@ export default function XAgentPage() {
             )}
           </div>
 
-          {/* Right Column - AI Agents or Chat */}
+          {/* Right Column - AI Agents */}
           <div className="lg:sticky lg:top-20 h-fit">
-            {offerings.some(o => o.offering_type === 'agent') ? (
-              <AgentOfferingsDisplay 
-                offerings={offerings}
-                avatarUrl={getAvatarUrl()}
-                agentName={username}
-              />
-            ) : (
-              <Card className="shadow-lg border-border/50 overflow-hidden">
-                <CardHeader className="bg-muted/30">
-                  <CardTitle className="text-lg">AI Assistant</CardTitle>
-                  <CardDescription>Chat with @{username}'s AI agent</CardDescription>
-                </CardHeader>
-                <div className="h-[600px]">
-                  <PublicChatInterface 
-                    agent={agent} 
-                    avatarUrl={getImageUrl(xData?.profileImageUrl || agent.avatar)}
-                  />
-                </div>
-              </Card>
-            )}
+            <AgentOfferingsDisplay 
+              offerings={offerings}
+              avatarUrl={getAvatarUrl()}
+              agentName={username}
+            />
           </div>
         </div>
       </div>
