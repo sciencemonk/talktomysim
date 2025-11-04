@@ -273,10 +273,26 @@ export function XAgentStoreManager({ agentId, walletAddress, onWalletUpdate, edi
 
       if (error) throw error;
 
-      // Update additional fields separately if we have them
-      const offeringId = typeof data === 'object' && data !== null && 'id' in data 
+      // Get the offering ID from RPC response or fetch the latest offering
+      let offeringId = typeof data === 'object' && data !== null && 'id' in data 
         ? (data as any).id 
         : editingOffering?.id;
+      
+      // If we don't have the ID yet (new offering), fetch the latest offering for this agent
+      if (!offeringId && !editingOffering) {
+        const { data: latestOffering, error: fetchError } = await supabase
+          .from('x_agent_offerings')
+          .select('id')
+          .eq('agent_id', agentId)
+          .eq('title', formData.title)
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .single();
+        
+        if (!fetchError && latestOffering) {
+          offeringId = latestOffering.id;
+        }
+      }
       
       if (offeringId) {
         const updateData: any = {};
