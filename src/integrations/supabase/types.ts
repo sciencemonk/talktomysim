@@ -1543,30 +1543,56 @@ export type Database = {
         Args: { check_username: string }
         Returns: boolean
       }
-      manage_offering_with_code: {
-        Args: {
-          p_agent_avatar_url?: string
-          p_agent_data_source?: string
-          p_agent_functionality?: string
-          p_agent_id: string
-          p_agent_system_prompt?: string
-          p_blur_preview?: boolean
-          p_delivery_method?: string
-          p_description?: string
-          p_digital_file_url?: string
-          p_edit_code: string
-          p_is_active?: boolean
-          p_media_url?: string
-          p_offering_id?: string
-          p_offering_type?: string
-          p_operation?: string
-          p_price?: number
-          p_price_per_conversation?: number
-          p_required_info?: Json
-          p_title?: string
-        }
-        Returns: Json
-      }
+      manage_offering_with_code:
+        | {
+            Args: {
+              p_agent_avatar_url?: string
+              p_agent_data_source?: string
+              p_agent_functionality?: string
+              p_agent_id: string
+              p_agent_system_prompt?: string
+              p_blur_preview?: boolean
+              p_delivery_method?: string
+              p_description?: string
+              p_digital_file_url?: string
+              p_edit_code: string
+              p_is_active?: boolean
+              p_media_url?: string
+              p_offering_id?: string
+              p_offering_type?: string
+              p_operation?: string
+              p_price?: number
+              p_price_per_conversation?: number
+              p_required_info?: Json
+              p_title?: string
+            }
+            Returns: Json
+          }
+        | {
+            Args: {
+              p_agent_avatar_url?: string
+              p_agent_data_source?: string
+              p_agent_functionality?: string
+              p_agent_id: string
+              p_agent_system_prompt?: string
+              p_blur_preview?: boolean
+              p_delivery_method?: string
+              p_description?: string
+              p_digital_file_url?: string
+              p_edit_code: string
+              p_integrations?: Json
+              p_is_active?: boolean
+              p_media_url?: string
+              p_offering_id?: string
+              p_offering_type?: string
+              p_operation?: string
+              p_price?: number
+              p_price_per_conversation?: number
+              p_required_info?: Json
+              p_title?: string
+            }
+            Returns: Json
+          }
       mark_contact_message_read_with_code: {
         Args: {
           p_advisor_id: string

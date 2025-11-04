@@ -281,7 +281,8 @@ export function XAgentStoreManager({ agentId, walletAddress, onWalletUpdate, edi
         p_price_per_conversation: parseFloat(formData.price_per_conversation || '0'),
         p_media_url: selectedType !== 'agent' ? mediaUrl : null,
         p_digital_file_url: digitalFileUrl || null,
-        p_blur_preview: formData.blur_preview || false
+        p_blur_preview: formData.blur_preview || false,
+        p_integrations: JSON.parse(JSON.stringify(integrations))
       });
 
       if (error) throw error;
