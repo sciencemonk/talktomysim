@@ -97,7 +97,7 @@ export function AgentInfoCollectionModal({
           <Button variant="outline" onClick={onClose}>
             Cancel
           </Button>
-          <Button onClick={handleSubmit}>
+          <Button onClick={handleSubmit} className="bg-[#83f1aa] hover:bg-[#6dd88f] text-black">
             Start Chat
           </Button>
         </div>
