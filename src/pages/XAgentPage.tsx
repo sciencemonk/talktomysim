@@ -10,6 +10,8 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { XAgentStorefront } from "@/components/XAgentStorefront";
 import { AgentOfferingsDisplay } from "@/components/AgentOfferingsDisplay";
+import { AgentChatModal } from "@/components/AgentChatModal";
+import { XOfferingPurchaseModal } from "@/components/XOfferingPurchaseModal";
 import { AgentType } from "@/types/agent";
 import { toast } from "sonner";
 import xIcon from "@/assets/x-icon.png";
@@ -24,6 +26,10 @@ export default function XAgentPage() {
   const [totalEarnings, setTotalEarnings] = useState<number>(0);
   const [linkCopied, setLinkCopied] = useState(false);
   const [offerings, setOfferings] = useState<any[]>([]);
+  const [selectedAgent, setSelectedAgent] = useState<any>(null);
+  const [showChatModal, setShowChatModal] = useState(false);
+  const [showPurchaseModal, setShowPurchaseModal] = useState(false);
+  const [pendingAgent, setPendingAgent] = useState<any>(null);
 
   useEffect(() => {
     if (username) {
@@ -188,6 +194,85 @@ export default function XAgentPage() {
     setLinkCopied(true);
     setTimeout(() => setLinkCopied(false), 2000);
     toast.success("Link copied to clipboard!");
+  };
+
+  const handleAgentClick = (offering: any) => {
+    const isFree = !offering.price_per_conversation || offering.price_per_conversation === 0;
+    
+    if (isFree) {
+      // Free agent - open chat directly
+      const chatAgent: AgentType = {
+        id: offering.id,
+        name: offering.title,
+        description: offering.description || '',
+        type: 'General Tutor',
+        status: 'active',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        avatar: offering.agent_avatar_url || getAvatarUrl(),
+        prompt: offering.agent_system_prompt || '',
+        welcome_message: `Hi! I'm ${offering.title}. How can I help you today?`,
+        title: offering.title,
+        sim_type: 'living',
+        is_featured: false,
+        model: 'GPT-4',
+        interactions: 0,
+        studentsSaved: 0,
+        helpfulnessScore: 0,
+        avmScore: 0,
+        csat: 0,
+        performance: 0,
+        channels: [],
+        channelConfigs: {},
+        isPersonal: false,
+        voiceTraits: [],
+      } as any;
+      
+      setSelectedAgent(chatAgent);
+      setShowChatModal(true);
+    } else {
+      // Paid agent - show purchase modal
+      setPendingAgent(offering);
+      setShowPurchaseModal(true);
+    }
+  };
+
+  const handlePurchaseSuccess = () => {
+    if (!pendingAgent) return;
+    
+    // After successful purchase, open chat with the agent
+    const chatAgent: AgentType = {
+      id: pendingAgent.id,
+      name: pendingAgent.title,
+      description: pendingAgent.description || '',
+      type: 'General Tutor',
+      status: 'active',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      avatar: pendingAgent.agent_avatar_url || getAvatarUrl(),
+      prompt: pendingAgent.agent_system_prompt || '',
+      welcome_message: `Hi! I'm ${pendingAgent.title}. How can I help you today?`,
+      title: pendingAgent.title,
+      sim_type: 'living',
+      is_featured: false,
+      model: 'GPT-4',
+      interactions: 0,
+      studentsSaved: 0,
+      helpfulnessScore: 0,
+      avmScore: 0,
+      csat: 0,
+      performance: 0,
+      channels: [],
+      channelConfigs: {},
+      isPersonal: false,
+      voiceTraits: [],
+    } as any;
+    
+    setShowPurchaseModal(false);
+    setPendingAgent(null);
+    setSelectedAgent(chatAgent);
+    setShowChatModal(true);
+    toast.success("Purchase successful! Starting your chat...");
   };
 
   const formatNumber = (num: number | undefined) => {
@@ -441,10 +526,40 @@ export default function XAgentPage() {
               offerings={offerings}
               avatarUrl={getAvatarUrl()}
               agentName={username}
+              onAgentClick={handleAgentClick}
             />
           </div>
         </div>
       </div>
+
+      {/* Chat Modal */}
+      {selectedAgent && (
+        <AgentChatModal
+          isOpen={showChatModal}
+          onClose={() => {
+            setShowChatModal(false);
+            setSelectedAgent(null);
+          }}
+          agent={selectedAgent}
+          avatarUrl={getAvatarUrl()}
+        />
+      )}
+
+      {/* Purchase Modal */}
+      {pendingAgent && agent && (
+        <XOfferingPurchaseModal
+          isOpen={showPurchaseModal}
+          onClose={() => {
+            setShowPurchaseModal(false);
+            setPendingAgent(null);
+          }}
+          offering={pendingAgent}
+          agentId={agent.id}
+          agentName={agent.name}
+          walletAddress={(agent as any).x402_wallet || (agent.social_links as any)?.x402_wallet}
+          onPurchaseSuccess={handlePurchaseSuccess}
+        />
+      )}
     </div>
   );
 }

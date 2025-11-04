@@ -28,6 +28,7 @@ interface XOfferingPurchaseModalProps {
   agentId: string;
   agentName: string;
   walletAddress: string;
+  onPurchaseSuccess?: () => void;
 }
 
 const USDC_MINT = new PublicKey("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v");
@@ -39,6 +40,7 @@ export function XOfferingPurchaseModal({
   agentId,
   agentName,
   walletAddress,
+  onPurchaseSuccess,
 }: XOfferingPurchaseModalProps) {
   const { connection } = useConnection();
   const { publicKey, sendTransaction } = useWallet();
@@ -140,6 +142,7 @@ export function XOfferingPurchaseModal({
       if (purchaseError) throw purchaseError;
 
       toast.success(`Purchase successful! Transaction: ${signature.slice(0, 8)}...`);
+      onPurchaseSuccess?.();
       onClose();
     } catch (error: any) {
       console.error("Purchase error:", error);

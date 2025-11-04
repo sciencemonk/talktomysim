@@ -20,6 +20,7 @@ interface AgentOfferingsDisplayProps {
   offerings: AgentOffering[];
   avatarUrl?: string;
   agentName?: string;
+  onAgentClick?: (offering: AgentOffering) => void;
 }
 
 // Generate a short display description from the system prompt
@@ -36,7 +37,7 @@ const generateDisplayDescription = (systemPrompt?: string): string => {
   return cleaned.length > 150 ? cleaned.substring(0, 150) + '...' : cleaned;
 };
 
-export function AgentOfferingsDisplay({ offerings, avatarUrl, agentName }: AgentOfferingsDisplayProps) {
+export function AgentOfferingsDisplay({ offerings, avatarUrl, agentName, onAgentClick }: AgentOfferingsDisplayProps) {
   // Filter to only show agent type offerings
   // An offering is an agent if it has offering_type='agent' OR has agent_system_prompt
   const agentOfferings = offerings.filter(o => 
@@ -75,7 +76,11 @@ export function AgentOfferingsDisplay({ offerings, avatarUrl, agentName }: Agent
       <CardContent className="p-0">
         <div className="divide-y divide-border">
           {agentOfferings.map((offering) => (
-            <div key={offering.id} className="p-6 hover:bg-muted/20 transition-colors">
+            <div 
+              key={offering.id} 
+              className="p-6 hover:bg-muted/30 transition-all cursor-pointer"
+              onClick={() => onAgentClick?.(offering)}
+            >
               <div className="flex items-start gap-4">
                 <Avatar className="h-12 w-12 shrink-0 ring-2 ring-primary/10">
                   <AvatarImage 
