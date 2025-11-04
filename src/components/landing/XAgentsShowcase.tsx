@@ -25,7 +25,7 @@ const XAgentCard = ({ agent, onAgentClick }: XAgentCardProps) => {
   const [xProfileData, setXProfileData] = useState<any>(null);
   const xUsername = (agent.social_links as any)?.x_username;
   const isVerified = (agent as any).is_verified || false;
-  const isPending = !isVerified;
+  const isPending = (agent as any).verification_status === 'pending';
 
   useEffect(() => {
     const fetchXProfile = async () => {
