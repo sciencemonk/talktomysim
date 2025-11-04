@@ -1244,12 +1244,15 @@ export type Database = {
       x_agent_offerings: {
         Row: {
           agent_id: string
+          blur_preview: boolean | null
           created_at: string
           delivery_method: string
           description: string
+          digital_file_url: string | null
           id: string
           is_active: boolean | null
           media_url: string | null
+          offering_type: string | null
           price: number
           required_info: Json | null
           title: string
@@ -1257,12 +1260,15 @@ export type Database = {
         }
         Insert: {
           agent_id: string
+          blur_preview?: boolean | null
           created_at?: string
           delivery_method: string
           description: string
+          digital_file_url?: string | null
           id?: string
           is_active?: boolean | null
           media_url?: string | null
+          offering_type?: string | null
           price?: number
           required_info?: Json | null
           title: string
@@ -1270,12 +1276,15 @@ export type Database = {
         }
         Update: {
           agent_id?: string
+          blur_preview?: boolean | null
           created_at?: string
           delivery_method?: string
           description?: string
+          digital_file_url?: string | null
           id?: string
           is_active?: boolean | null
           media_url?: string | null
+          offering_type?: string | null
           price?: number
           required_info?: Json | null
           title?: string
