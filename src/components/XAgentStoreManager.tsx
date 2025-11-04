@@ -536,16 +536,18 @@ export function XAgentStoreManager({ agentId, walletAddress, onWalletUpdate, edi
                 />
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="description">Description *</Label>
-                <Textarea
-                  id="description"
-                  value={formData.description}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  placeholder={selectedType === 'agent' ? "Describe what your AI agent specializes in and what problems it solves..." : "Describe what you're offering..."}
-                  rows={4}
-                />
-              </div>
+              {selectedType !== 'agent' && (
+                <div className="space-y-2">
+                  <Label htmlFor="description">Description *</Label>
+                  <Textarea
+                    id="description"
+                    value={formData.description}
+                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                    placeholder="Describe what you're offering..."
+                    rows={4}
+                  />
+                </div>
+              )}
 
               {selectedType !== 'agent' && (
                 <div className="space-y-2">
@@ -563,21 +565,6 @@ export function XAgentStoreManager({ agentId, walletAddress, onWalletUpdate, edi
 
               {selectedType === 'agent' && (
                 <>
-                  <div className="space-y-2">
-                    <Label htmlFor="pricePerConversation">Price Per Conversation (USDC)</Label>
-                    <Input
-                      id="pricePerConversation"
-                      type="number"
-                      step="0.01"
-                      value={formData.price_per_conversation}
-                      onChange={(e) => setFormData({ ...formData, price_per_conversation: e.target.value })}
-                      placeholder="0.00 (Free) or enter price per conversation"
-                    />
-                    <p className="text-xs text-muted-foreground">
-                      Leave at 0.00 to make conversations free. Or charge per conversation (e.g., 1.00 for $1 per chat).
-                    </p>
-                  </div>
-
                   <div className="space-y-2">
                     <Label htmlFor="agentDescription">Agent Description *</Label>
                     <Textarea
@@ -626,6 +613,21 @@ export function XAgentStoreManager({ agentId, walletAddress, onWalletUpdate, edi
                         />
                       </div>
                     )}
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="pricePerConversation">Price Per Conversation (USDC)</Label>
+                    <Input
+                      id="pricePerConversation"
+                      type="number"
+                      step="0.01"
+                      value={formData.price_per_conversation}
+                      onChange={(e) => setFormData({ ...formData, price_per_conversation: e.target.value })}
+                      placeholder="0.00 (Free) or enter price per conversation"
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Leave at 0.00 to make conversations free. Or charge per conversation (e.g., 1.00 for $1 per chat).
+                    </p>
                   </div>
                 </>
               )}
