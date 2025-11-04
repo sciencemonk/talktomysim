@@ -377,7 +377,8 @@ const AgentsDirectory = () => {
         .from('advisors')
         .select('*')
         .eq('is_active', true)
-        .neq('name', '$GRUTA');
+        .neq('name', '$GRUTA')
+        .neq('verification_status', 'pending');
       
       if (advisorsError) throw advisorsError;
 
@@ -453,8 +454,9 @@ const AgentsDirectory = () => {
           x402_enabled: sim.x402_enabled || false,
           x402_price: sim.x402_price || 0,
           x402_wallet: sim.x402_wallet,
-          is_verified: sim.is_verified || false
-        } as AgentType & { user_id?: string; marketplace_category?: string; user_count?: number; like_count?: number; is_verified?: boolean };
+          is_verified: sim.is_verified || false,
+          verification_status: sim.verification_status
+        } as AgentType & { user_id?: string; marketplace_category?: string; user_count?: number; like_count?: number; is_verified?: boolean; verification_status?: string };
       });
     },
   });

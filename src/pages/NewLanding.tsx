@@ -391,7 +391,8 @@ const NewLanding = () => {
         .from('advisors')
         .select('id, name, title, description, prompt, sim_category, x402_wallet, auto_description, full_description, avatar_url, response_length, conversation_style, personality_type, website_url, created_at, updated_at, is_verified, verification_status, date_of_birth, years_experience, interests, skills, sample_scenarios, completion_status, is_public, user_id, is_active, is_official, price, integrations, social_links, x402_price, x402_enabled, expertise_areas, target_audience, background_image_url, marketplace_category, background_content, knowledge_summary, url, full_name, professional_title, location, crypto_wallet, twitter_url, sim_type, owner_welcome_message, education, current_profession, areas_of_expertise, writing_sample, additional_background, custom_url, welcome_message')
         .eq('is_active', true)
-        .neq('name', '$GRUTA');
+        .neq('name', '$GRUTA')
+        .neq('verification_status', 'pending');
       
       if (advisorsError) throw advisorsError;
 
@@ -449,8 +450,9 @@ const NewLanding = () => {
           x402_enabled: sim.x402_enabled || false,
           x402_price: sim.x402_price || 0,
           x402_wallet: sim.x402_wallet,
-          is_verified: sim.is_verified || false
-        } as AgentType & { user_id?: string; marketplace_category?: string; like_count?: number; is_verified?: boolean };
+          is_verified: sim.is_verified || false,
+          verification_status: sim.verification_status
+        } as AgentType & { user_id?: string; marketplace_category?: string; like_count?: number; is_verified?: boolean; verification_status?: string };
       });
     },
   });
