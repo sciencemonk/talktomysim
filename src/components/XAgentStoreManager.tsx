@@ -749,8 +749,54 @@ export function XAgentStoreManager({ agentId, walletAddress, onWalletUpdate, edi
                     </p>
                   </div>
 
-                  {/* System Prompt Section - Always show for agents */}
-                  <div className="space-y-2 p-4 bg-muted/50 rounded-lg border border-border">
+                  {/* Required Information from Buyer - Moved here for agents */}
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <Label>Required Information from Buyer</Label>
+                      <Button type="button" variant="outline" size="sm" onClick={addRequiredField}>
+                        <Plus className="h-3 w-3 mr-1" />
+                        Add Field
+                      </Button>
+                    </div>
+                    {requiredFields.map((field, index) => (
+                      <div key={index} className="flex gap-2 items-end">
+                        <div className="flex-1">
+                          <Input
+                            placeholder="Field label (e.g., Email, Phone)"
+                            value={field.label}
+                            onChange={(e) => updateRequiredField(index, "label", e.target.value)}
+                          />
+                        </div>
+                        <div className="w-32">
+                          <select
+                            className="w-full h-10 px-3 rounded-md border border-input bg-background"
+                            value={field.type}
+                            onChange={(e) => updateRequiredField(index, "type", e.target.value)}
+                          >
+                            <option value="text">Text</option>
+                            <option value="email">Email</option>
+                            <option value="phone">Phone</option>
+                            <option value="textarea">Long Text</option>
+                          </select>
+                        </div>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => removeRequiredField(index)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    ))}
+                    <p className="text-xs text-muted-foreground">
+                      Collect information from buyers (email, phone, etc.)
+                    </p>
+                  </div>
+
+                  {/* System Prompt Section - Show only after generation or when editing */}
+                  {(formData.agent_system_prompt || editingOffering) && (
+                    <div className="space-y-2 p-4 bg-muted/50 rounded-lg border border-border">
                     <div className="flex items-center justify-between">
                       <Label>Agent System Prompt {!editingOffering && '*'}</Label>
                       <Button
@@ -799,21 +845,71 @@ export function XAgentStoreManager({ agentId, walletAddress, onWalletUpdate, edi
                           formData.agent_system_prompt ? 'Regenerate' : 'Generate'
                         )}
                       </Button>
+                      </div>
+                      <Textarea
+                        value={formData.agent_system_prompt}
+                        onChange={(e) => setFormData({ ...formData, agent_system_prompt: e.target.value })}
+                        rows={10}
+                        className="text-sm resize-none bg-background font-mono"
+                        placeholder="The agent's system prompt will appear here. Click 'Generate' to create one, or write your own custom prompt..."
+                      />
+                      <p className="text-xs text-muted-foreground">
+                        {editingOffering 
+                          ? "Edit the system prompt to change your agent's behavior and expertise."
+                          : "This prompt defines your agent's personality and expertise. You can generate one or write your own."
+                        }
+                      </p>
                     </div>
-                    <Textarea
-                      value={formData.agent_system_prompt}
-                      onChange={(e) => setFormData({ ...formData, agent_system_prompt: e.target.value })}
-                      rows={10}
-                      className="text-sm resize-none bg-background font-mono"
-                      placeholder="The agent's system prompt will appear here. Click 'Generate' to create one, or write your own custom prompt..."
-                    />
-                    <p className="text-xs text-muted-foreground">
-                      {editingOffering 
-                        ? "Edit the system prompt to change your agent's behavior and expertise."
-                        : "This prompt defines your agent's personality and expertise. You can generate one or write your own."
-                      }
-                    </p>
-                  </div>
+                  )}
+
+                  {/* Generate Button - Only show if system prompt not generated yet */}
+                  {!formData.agent_system_prompt && !editingOffering && (
+                    <Button
+                      type="button"
+                      onClick={async () => {
+                        if (!formData.title || !formData.description) {
+                          toast.error("Please fill in title and description first");
+                          return;
+                        }
+                        setIsGeneratingPrompt(true);
+                        try {
+                          const { data: promptData, error: promptError } = await supabase.functions.invoke(
+                            'generate-agent-system-prompt',
+                            {
+                              body: {
+                                title: formData.title,
+                                description: formData.description,
+                                dataSource: formData.agent_data_source
+                              }
+                            }
+                          );
+
+                          if (promptError) throw promptError;
+                          
+                          if (promptData?.success && promptData.systemPrompt) {
+                            setFormData(prev => ({ ...prev, agent_system_prompt: promptData.systemPrompt }));
+                            toast.success("Agent system prompt generated!");
+                          }
+                        } catch (error) {
+                          console.error("Error generating system prompt:", error);
+                          toast.error("Failed to generate system prompt");
+                        } finally {
+                          setIsGeneratingPrompt(false);
+                        }
+                      }}
+                      disabled={isGeneratingPrompt}
+                      className="w-full"
+                    >
+                      {isGeneratingPrompt ? (
+                        <>
+                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                          Generating Agent...
+                        </>
+                      ) : (
+                        'Generate Agent'
+                      )}
+                    </Button>
+                  )}
                 </>
               )}
 
@@ -909,46 +1005,51 @@ export function XAgentStoreManager({ agentId, walletAddress, onWalletUpdate, edi
                 </div>
               )}
 
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <Label>Required Information from Buyer</Label>
-                  <Button type="button" variant="outline" size="sm" onClick={addRequiredField}>
-                    <Plus className="h-3 w-3 mr-1" />
-                    Add Field
-                  </Button>
-                </div>
-                {requiredFields.map((field, index) => (
-                  <div key={index} className="flex gap-2 items-end">
-                    <div className="flex-1">
-                      <Input
-                        placeholder="Field label (e.g., Email, Phone)"
-                        value={field.label}
-                        onChange={(e) => updateRequiredField(index, "label", e.target.value)}
-                      />
-                    </div>
-                    <div className="w-32">
-                      <select
-                        className="w-full h-10 px-3 rounded-md border border-input bg-background"
-                        value={field.type}
-                        onChange={(e) => updateRequiredField(index, "type", e.target.value)}
-                      >
-                        <option value="text">Text</option>
-                        <option value="email">Email</option>
-                        <option value="phone">Phone</option>
-                        <option value="textarea">Long Text</option>
-                      </select>
-                    </div>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => removeRequiredField(index)}
-                    >
-                      <Trash2 className="h-4 w-4" />
+              {selectedType !== 'agent' && (
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <Label>Required Information from Buyer</Label>
+                    <Button type="button" variant="outline" size="sm" onClick={addRequiredField}>
+                      <Plus className="h-3 w-3 mr-1" />
+                      Add Field
                     </Button>
                   </div>
-                ))}
-              </div>
+                  {requiredFields.map((field, index) => (
+                    <div key={index} className="flex gap-2 items-end">
+                      <div className="flex-1">
+                        <Input
+                          placeholder="Field label (e.g., Email, Phone)"
+                          value={field.label}
+                          onChange={(e) => updateRequiredField(index, "label", e.target.value)}
+                        />
+                      </div>
+                      <div className="w-32">
+                        <select
+                          className="w-full h-10 px-3 rounded-md border border-input bg-background"
+                          value={field.type}
+                          onChange={(e) => updateRequiredField(index, "type", e.target.value)}
+                        >
+                          <option value="text">Text</option>
+                          <option value="email">Email</option>
+                          <option value="phone">Phone</option>
+                          <option value="textarea">Long Text</option>
+                        </select>
+                      </div>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => removeRequiredField(index)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ))}
+                  <p className="text-xs text-muted-foreground">
+                    Collect information from buyers (email, phone, etc.)
+                  </p>
+                </div>
+              )}
 
               <div className="flex items-center space-x-2">
                 <Switch
