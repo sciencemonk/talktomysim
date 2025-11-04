@@ -1286,6 +1286,7 @@ export type Database = {
           description: string
           digital_file_url: string | null
           id: string
+          integrations: Json | null
           is_active: boolean | null
           media_url: string | null
           offering_type: string | null
@@ -1307,6 +1308,7 @@ export type Database = {
           description: string
           digital_file_url?: string | null
           id?: string
+          integrations?: Json | null
           is_active?: boolean | null
           media_url?: string | null
           offering_type?: string | null
@@ -1328,6 +1330,7 @@ export type Database = {
           description?: string
           digital_file_url?: string | null
           id?: string
+          integrations?: Json | null
           is_active?: boolean | null
           media_url?: string | null
           offering_type?: string | null
