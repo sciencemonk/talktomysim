@@ -59,6 +59,7 @@ export function XAgentStoreManager({ agentId, walletAddress, onWalletUpdate, edi
   const [mediaPreview, setMediaPreview] = useState<string | null>(null);
   const [digitalFile, setDigitalFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [isGeneratingPrompt, setIsGeneratingPrompt] = useState(false);
 
   useEffect(() => {
     loadOfferings();
@@ -130,6 +131,41 @@ export function XAgentStoreManager({ agentId, walletAddress, onWalletUpdate, edi
     toast.success("File selected: " + file.name);
   };
 
+  const handleGenerateAgent = async () => {
+    if (!formData.title || !formData.description) {
+      toast.error("Please fill in title and description first");
+      return;
+    }
+
+    setIsGeneratingPrompt(true);
+    try {
+      const { data: promptData, error: promptError } = await supabase.functions.invoke(
+        'generate-agent-system-prompt',
+        {
+          body: {
+            title: formData.title,
+            description: formData.description,
+            dataSource: formData.agent_data_source
+          }
+        }
+      );
+
+      if (promptError) throw promptError;
+      
+      if (promptData?.success && promptData.systemPrompt) {
+        setFormData(prev => ({ ...prev, agent_system_prompt: promptData.systemPrompt }));
+        toast.success("Agent system prompt generated! Review it and click 'Create Offering' when ready.");
+      } else {
+        toast.error("Failed to generate system prompt");
+      }
+    } catch (error) {
+      console.error("Error generating system prompt:", error);
+      toast.error("Failed to generate system prompt");
+    } finally {
+      setIsGeneratingPrompt(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -143,34 +179,10 @@ export function XAgentStoreManager({ agentId, walletAddress, onWalletUpdate, edi
       return;
     }
 
-    // For 'agent' type, generate system prompt if not provided
+    // For 'agent' type, require system prompt to be generated first
     if (selectedType === 'agent' && !formData.agent_system_prompt) {
-      try {
-        const { data: promptData, error: promptError } = await supabase.functions.invoke(
-          'generate-agent-system-prompt',
-          {
-            body: {
-              title: formData.title,
-              description: formData.description,
-              dataSource: formData.agent_data_source
-            }
-          }
-        );
-
-        if (promptError) throw promptError;
-        
-        if (promptData?.success && promptData.systemPrompt) {
-          setFormData(prev => ({ ...prev, agent_system_prompt: promptData.systemPrompt }));
-          toast.success("System prompt generated!");
-        } else {
-          toast.error("Failed to generate system prompt");
-          return;
-        }
-      } catch (error) {
-        console.error("Error generating system prompt:", error);
-        toast.error("Failed to generate system prompt");
-        return;
-      }
+      toast.error("Please generate the agent first by clicking 'Generate Agent'");
+      return;
     }
 
     if (selectedType === 'standard' && !formData.delivery_method) {
@@ -371,6 +383,7 @@ export function XAgentStoreManager({ agentId, walletAddress, onWalletUpdate, edi
     setDigitalFile(null);
     setSelectedType(null);
     setShowTypeSelection(false);
+    setIsGeneratingPrompt(false);
   };
 
   const handleTypeSelect = (type: 'standard' | 'digital' | 'agent') => {
@@ -875,16 +888,34 @@ export function XAgentStoreManager({ agentId, walletAddress, onWalletUpdate, edi
                 }}>
                   {showTypeSelection ? "Cancel" : "Back"}
                 </Button>
-                <Button type="submit" variant="mint" disabled={isUploading}>
-                  {isUploading ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      {mediaFile || digitalFile ? "Uploading..." : "Saving..."}
-                    </>
-                  ) : (
-                    <>{editingOffering ? "Update" : "Create"} Offering</>
-                  )}
-                </Button>
+                {selectedType === 'agent' && !formData.agent_system_prompt ? (
+                  <Button 
+                    type="button" 
+                    variant="mint" 
+                    disabled={isGeneratingPrompt}
+                    onClick={handleGenerateAgent}
+                  >
+                    {isGeneratingPrompt ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Generating...
+                      </>
+                    ) : (
+                      "Generate Agent"
+                    )}
+                  </Button>
+                ) : (
+                  <Button type="submit" variant="mint" disabled={isUploading}>
+                    {isUploading ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        {mediaFile || digitalFile ? "Uploading..." : "Saving..."}
+                      </>
+                    ) : (
+                      <>{editingOffering ? "Update" : "Create"} Offering</>
+                    )}
+                  </Button>
+                )}
               </DialogFooter>
             </form>
             </>
