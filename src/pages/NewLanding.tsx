@@ -9,7 +9,6 @@ import { HackathonAnnouncementModal } from "@/components/HackathonAnnouncementMo
 import { OfferingsMosaic } from "@/components/landing/OfferingsMosaic";
 import { AgenticCommerceSection } from "@/components/landing/AgenticCommerceSection";
 import { Whyx402Section } from "@/components/landing/Whyx402Section";
-import { TopStoresSection } from "@/components/landing/TopStoresSection";
 import { SignUpCTASection } from "@/components/landing/SignUpCTASection";
 import { LandingFooter } from "@/components/landing/LandingFooter";
 import { SimVsStripeSection } from "@/components/landing/SimVsStripeSection";
@@ -566,8 +565,6 @@ const NewLanding = () => {
       <div id="learn-more-section" className="scroll-mt-4">
         <AgenticCommerceSection />
       </div>
-
-      <TopStoresSection />
 
       <Whyx402Section />
 

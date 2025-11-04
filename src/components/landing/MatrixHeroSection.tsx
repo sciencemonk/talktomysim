@@ -3,6 +3,12 @@ import { useTheme } from "@/hooks/useTheme";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { AgentType } from "@/types/agent";
 import xLogo from "@/assets/x-logo.png";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { useNavigate } from "react-router-dom";
+import { Badge } from "@/components/ui/badge";
+import { Users } from "lucide-react";
 
 interface MatrixHeroSectionProps {
   onCreateXAgent: () => void;
@@ -12,9 +18,55 @@ interface MatrixHeroSectionProps {
 
 export const MatrixHeroSection = ({ onCreateXAgent, onSimClick, onViewAllAgents }: MatrixHeroSectionProps) => {
   const { theme } = useTheme();
+  const navigate = useNavigate();
+
+  const { data: topStores } = useQuery({
+    queryKey: ['top-stores-hero'],
+    queryFn: async () => {
+      const { data: agents, error } = await supabase
+        .from('advisors')
+        .select('id, name, avatar_url, social_links')
+        .eq('is_active', true)
+        .eq('sim_category', 'Crypto Mail')
+        .limit(100);
+
+      if (error) throw error;
+
+      const agentsWithFollowers = (agents || []).map(agent => ({
+        ...agent,
+        followers: (agent.social_links as any)?.followers || 0,
+      }));
+
+      return agentsWithFollowers
+        .filter(agent => agent.followers > 0)
+        .sort((a, b) => b.followers - a.followers)
+        .slice(0, 15);
+    },
+    staleTime: 1000 * 60 * 60,
+  });
+
+  const getAvatarSrc = (avatarUrl: string | null) => {
+    if (avatarUrl && avatarUrl.includes('pbs.twimg.com')) {
+      return `https://images.weserv.nl/?url=${encodeURIComponent(avatarUrl)}`;
+    }
+    return avatarUrl;
+  };
+
+  const formatNumber = (num: number) => {
+    if (num >= 1000000) return `${(num / 1000000).toFixed(1)}M`;
+    if (num >= 1000) return `${(num / 1000).toFixed(1)}K`;
+    return num.toLocaleString();
+  };
+
+  const handleStoreClick = (agent: any) => {
+    const xUsername = (agent.social_links as any)?.x_username;
+    if (xUsername) {
+      navigate(`/x/${xUsername}`);
+    }
+  };
 
   return (
-    <section className="relative h-[70vh] flex flex-col overflow-hidden bg-background">
+    <section className="relative min-h-[80vh] flex flex-col overflow-hidden bg-background pb-0">
       {/* Top Bar with Logo and Theme Toggle */}
       <div className="absolute top-0 left-0 right-0 z-50 w-full px-4 py-6 flex items-center justify-between">
         <img
@@ -105,6 +157,60 @@ export const MatrixHeroSection = ({ onCreateXAgent, onSimClick, onViewAllAgents 
           Learn More
         </button>
       </div>
+
+      {/* Auto-scrolling stores at bottom */}
+      {topStores && topStores.length > 0 && (
+        <div className="relative z-10 pb-8 px-4 overflow-hidden">
+          <div className="max-w-7xl mx-auto">
+            <div className="flex items-center gap-2 mb-4 justify-center">
+              <h3 className="text-sm font-semibold text-muted-foreground">Trending Stores</h3>
+            </div>
+            
+            {/* Scrolling container */}
+            <div className="relative overflow-hidden">
+              <div className="flex gap-4 animate-scroll-left">
+                {/* Duplicate the stores array for seamless loop */}
+                {[...topStores, ...topStores].map((store, index) => {
+                  const xUsername = (store.social_links as any)?.x_username;
+                  return (
+                    <button
+                      key={`${store.id}-${index}`}
+                      onClick={() => handleStoreClick(store)}
+                      className="group flex-shrink-0 w-32 flex flex-col items-center gap-2 p-3 rounded-lg bg-card/50 hover:bg-card border border-border/50 hover:border-[#83f1aa]/50 transition-all duration-300 hover:scale-105"
+                    >
+                      <Avatar className="h-16 w-16 border-2 border-border">
+                        <AvatarImage 
+                          src={getAvatarSrc(store.avatar_url) || undefined}
+                          alt={store.name}
+                          referrerPolicy="no-referrer"
+                          crossOrigin="anonymous"
+                        />
+                        <AvatarFallback className="bg-primary/10 text-primary text-sm font-semibold">
+                          {store.name.charAt(0).toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="text-center w-full">
+                        <p className="text-xs font-semibold truncate">
+                          {xUsername ? `@${xUsername}` : store.name}
+                        </p>
+                        {store.followers > 0 && (
+                          <Badge 
+                            variant="outline" 
+                            className="text-[10px] px-1.5 py-0 mt-1 bg-primary/10 border-primary/30 text-primary flex items-center gap-1 w-fit mx-auto"
+                          >
+                            <Users className="h-2.5 w-2.5" />
+                            {formatNumber(store.followers)}
+                          </Badge>
+                        )}
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   );
 };
