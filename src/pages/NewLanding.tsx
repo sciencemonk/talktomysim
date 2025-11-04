@@ -346,8 +346,11 @@ const NewLanding = () => {
     const verificationStatus = (sim as any).verification_status;
     const simSlug = (sim as any).custom_url || generateSlug(sim.name);
     
+    console.log('Sim clicked:', sim.name, 'verification_status:', verificationStatus);
+    
     // If agent is pending verification, show pending modal
     if (verificationStatus === 'pending') {
+      console.log('Showing pending modal for agent:', sim.name);
       setPendingAgentModal({
         open: true,
         agentName: sim.name,
