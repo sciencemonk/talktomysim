@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { DollarSign, ShoppingCart, Package, Check } from "lucide-react";
 import { XOfferingPurchaseModal } from "./XOfferingPurchaseModal";
+import { AgentOfferingModal } from "./AgentOfferingModal";
 import { toast } from "sonner";
 
 interface Offering {
@@ -15,6 +16,9 @@ interface Offering {
   delivery_method: string;
   required_info: Array<{ label: string; type: string; required: boolean }>;
   media_url?: string;
+  offering_type?: 'standard' | 'digital' | 'agent';
+  digital_file_url?: string;
+  blur_preview?: boolean;
 }
 
 interface XAgentStorefrontProps {
@@ -28,10 +32,29 @@ export function XAgentStorefront({ agentId, agentName, walletAddress }: XAgentSt
   const [isLoading, setIsLoading] = useState(true);
   const [selectedOffering, setSelectedOffering] = useState<Offering | null>(null);
   const [isPurchaseModalOpen, setIsPurchaseModalOpen] = useState(false);
+  const [showAgentList, setShowAgentList] = useState(false);
+  const [selectedAgentOffering, setSelectedAgentOffering] = useState<Offering | null>(null);
+  const [agentData, setAgentData] = useState<any>(null);
 
   useEffect(() => {
     loadOfferings();
+    loadAgentData();
   }, [agentId]);
+
+  const loadAgentData = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("advisors")
+        .select("*")
+        .eq("id", agentId)
+        .single();
+
+      if (error) throw error;
+      setAgentData(data);
+    } catch (error) {
+      console.error("Error loading agent data:", error);
+    }
+  };
 
   const loadOfferings = async () => {
     try {
@@ -57,6 +80,14 @@ export function XAgentStorefront({ agentId, agentName, walletAddress }: XAgentSt
       toast.error("Wallet address not configured for this agent");
       return;
     }
+    
+    // If it's an agent offering, show agent list instead of purchase modal
+    if (offering.offering_type === 'agent') {
+      setSelectedAgentOffering(offering);
+      setShowAgentList(true);
+      return;
+    }
+    
     setSelectedOffering(offering);
     setIsPurchaseModalOpen(true);
   };
@@ -123,14 +154,14 @@ export function XAgentStorefront({ agentId, agentName, walletAddress }: XAgentSt
                       {Number(offering.price).toLocaleString()} USDC
                     </Badge>
                   </div>
-                  <Button 
-                    size="sm" 
-                    onClick={() => handlePurchaseClick(offering)}
-                    style={{ backgroundColor: '#81f4aa', color: '#000' }}
-                    className="hover:opacity-90"
-                  >
-                    Purchase
-                  </Button>
+                <Button 
+                  size="sm" 
+                  onClick={() => handlePurchaseClick(offering)}
+                  style={{ backgroundColor: '#81f4aa', color: '#000' }}
+                  className="hover:opacity-90"
+                >
+                  {offering.offering_type === 'agent' ? 'View Agents' : 'Purchase'}
+                </Button>
                 </div>
                 
                 {offering.delivery_method && (
@@ -167,6 +198,25 @@ export function XAgentStorefront({ agentId, agentName, walletAddress }: XAgentSt
           agentId={agentId}
           agentName={agentName}
           walletAddress={walletAddress}
+        />
+      )}
+
+      {selectedAgentOffering && agentData && (
+        <AgentOfferingModal
+          isOpen={showAgentList}
+          onClose={() => {
+            setShowAgentList(false);
+            setSelectedAgentOffering(null);
+          }}
+          offering={selectedAgentOffering}
+          agentData={{
+            id: agentData.id,
+            name: agentData.name,
+            description: agentData.description,
+            avatar: agentData.avatar_url || agentData.avatar || '',
+            avatar_url: agentData.avatar_url || agentData.avatar || ''
+          }}
+          pricePerConversation={0}
         />
       )}
     </>

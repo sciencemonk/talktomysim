@@ -21,7 +21,7 @@ interface Offering {
   is_active: boolean;
   created_at: string;
   media_url?: string;
-  offering_type?: 'standard' | 'digital';
+  offering_type?: 'standard' | 'digital' | 'agent';
   digital_file_url?: string;
   blur_preview?: boolean;
 }
@@ -38,7 +38,7 @@ export function XAgentStoreManager({ agentId, walletAddress, onWalletUpdate, edi
   const [isLoading, setIsLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [showTypeSelection, setShowTypeSelection] = useState(false);
-  const [selectedType, setSelectedType] = useState<'standard' | 'digital' | null>(null);
+  const [selectedType, setSelectedType] = useState<'standard' | 'digital' | 'agent' | null>(null);
   const [editingOffering, setEditingOffering] = useState<Offering | null>(null);
   const [isSavingWallet, setIsSavingWallet] = useState(false);
   
@@ -49,6 +49,9 @@ export function XAgentStoreManager({ agentId, walletAddress, onWalletUpdate, edi
     delivery_method: "",
     is_active: true,
     blur_preview: false,
+    agent_system_prompt: "",
+    agent_data_source: "",
+    price_per_conversation: "",
   });
 
   const [requiredFields, setRequiredFields] = useState<Array<{ label: string; type: string; required: boolean }>>([]);
@@ -255,6 +258,9 @@ export function XAgentStoreManager({ agentId, walletAddress, onWalletUpdate, edi
       delivery_method: offering.delivery_method,
       is_active: offering.is_active,
       blur_preview: offering.blur_preview || false,
+      agent_system_prompt: "",
+      agent_data_source: "",
+      price_per_conversation: "",
     });
     setRequiredFields(offering.required_info || []);
     setMediaPreview(offering.media_url || null);
@@ -311,6 +317,9 @@ export function XAgentStoreManager({ agentId, walletAddress, onWalletUpdate, edi
       delivery_method: "",
       is_active: true,
       blur_preview: false,
+      agent_system_prompt: "",
+      agent_data_source: "",
+      price_per_conversation: "",
     });
     setRequiredFields([]);
     setEditingOffering(null);
@@ -321,7 +330,7 @@ export function XAgentStoreManager({ agentId, walletAddress, onWalletUpdate, edi
     setShowTypeSelection(false);
   };
 
-  const handleTypeSelect = (type: 'standard' | 'digital') => {
+  const handleTypeSelect = (type: 'standard' | 'digital' | 'agent') => {
     setSelectedType(type);
     setShowTypeSelection(false);
   };
@@ -482,21 +491,21 @@ export function XAgentStoreManager({ agentId, walletAddress, onWalletUpdate, edi
                       </div>
                     </div>
                   </button>
-                  
-                  <div className="p-6 border-2 border-border rounded-lg opacity-50 cursor-not-allowed">
+                  <button
+                    type="button"
+                    onClick={() => handleTypeSelect('agent')}
+                    className="p-6 border-2 border-border rounded-lg hover:border-primary transition-colors text-left group"
+                  >
                     <div className="flex items-start gap-4">
-                      <Package className="h-8 w-8 text-muted-foreground mt-1" />
+                      <Package className="h-8 w-8 text-primary mt-1" />
                       <div>
-                        <div className="flex items-center gap-2 mb-1">
-                          <h3 className="font-semibold text-lg">Agentic Workflow</h3>
-                          <Badge variant="secondary">Coming Soon</Badge>
-                        </div>
+                        <h3 className="font-semibold text-lg mb-1">Agent</h3>
                         <p className="text-sm text-muted-foreground">
-                          Create automated AI-powered services. Let your agent handle complex tasks autonomously.
+                          Create an AI agent trained on your expertise. Charge per conversation or make it free.
                         </p>
                       </div>
                     </div>
-                  </div>
+                  </button>
                 </div>
               </>
             ) : (
@@ -506,6 +515,8 @@ export function XAgentStoreManager({ agentId, walletAddress, onWalletUpdate, edi
                   <DialogDescription>
                     {selectedType === 'digital' 
                       ? "Create a digital product that buyers can access instantly"
+                      : selectedType === 'agent'
+                      ? "Create an AI agent that users can chat with"
                       : "Create offerings that users can purchase with x402 payments"}
                   </DialogDescription>
                 </DialogHeader>
@@ -542,6 +553,75 @@ export function XAgentStoreManager({ agentId, walletAddress, onWalletUpdate, edi
                   placeholder="10.00"
                 />
               </div>
+
+              {selectedType === 'agent' && (
+                <>
+                  <div className="space-y-2">
+                    <Label htmlFor="pricePerConversation">Price Per Conversation (USDC)</Label>
+                    <Input
+                      id="pricePerConversation"
+                      type="number"
+                      step="0.01"
+                      value={formData.price_per_conversation}
+                      onChange={(e) => setFormData({ ...formData, price_per_conversation: e.target.value })}
+                      placeholder="0.00 (Free) or enter price per conversation"
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Leave at 0.00 to make conversations free. Or charge per conversation (e.g., 1.00 for $1 per chat).
+                    </p>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="agentDescription">Agent Description *</Label>
+                    <Textarea
+                      id="agentDescription"
+                      value={formData.description}
+                      onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                      placeholder="Describe your agent's expertise and what it can help with..."
+                      rows={3}
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      This will be used to generate the agent's system prompt and capabilities.
+                    </p>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="agentDataSource">Proprietary Data Source (Optional)</Label>
+                    <Textarea
+                      id="agentDataSource"
+                      value={formData.agent_data_source}
+                      onChange={(e) => setFormData({ ...formData, agent_data_source: e.target.value })}
+                      placeholder="Add any specialized knowledge, data, or context that your agent should reference..."
+                      rows={6}
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Paste proprietary information, guidelines, or knowledge that will enhance your agent's responses.
+                    </p>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="agentImage">Agent Avatar</Label>
+                    <Input
+                      id="agentImage"
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp,image/gif"
+                      onChange={handleMediaChange}
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Upload an avatar for your agent. Max file size: 10MB.
+                    </p>
+                    {mediaPreview && (
+                      <div className="mt-2">
+                        <img 
+                          src={mediaPreview} 
+                          alt="Agent Avatar" 
+                          className="w-24 h-24 object-cover rounded-full"
+                        />
+                      </div>
+                    )}
+                  </div>
+                </>
+              )}
 
               {selectedType === 'standard' && (
                 <div className="space-y-2">
