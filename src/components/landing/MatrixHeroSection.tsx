@@ -157,63 +157,6 @@ export const MatrixHeroSection = ({ onCreateXAgent, onSimClick, onViewAllAgents 
         </button>
       </div>
 
-      {/* Auto-scrolling stores at bottom */}
-      {topStores && topStores.length > 0 && (
-        <div className="relative z-10 pb-8 px-4 overflow-hidden mt-8">
-          <div className="max-w-7xl mx-auto">
-            {/* Scrolling container */}
-            <div className="relative overflow-hidden">
-              <div className="flex gap-6 animate-scroll-left">
-                {/* Duplicate the stores array for seamless loop */}
-                {[...topStores, ...topStores].map((store, index) => {
-                  const xUsername = (store.social_links as any)?.x_username;
-                  return (
-                    <button
-                      key={`${store.id}-${index}`}
-                      onClick={() => handleStoreClick(store)}
-                      className="group flex-shrink-0 w-44 flex flex-col overflow-hidden rounded-lg bg-card/50 hover:bg-card border border-border/50 hover:border-[#83f1aa]/50 transition-all duration-300 hover:scale-105"
-                    >
-                      <div className="relative w-full aspect-square overflow-hidden bg-muted">
-                        <img 
-                          src={getAvatarSrc(store.avatar_url) || undefined}
-                          alt={store.name}
-                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                          referrerPolicy="no-referrer"
-                          crossOrigin="anonymous"
-                          onError={(e) => {
-                            e.currentTarget.style.display = 'none';
-                            const fallback = e.currentTarget.nextElementSibling as HTMLElement;
-                            if (fallback) fallback.style.display = 'flex';
-                          }}
-                        />
-                        <div className="hidden absolute inset-0 bg-primary/10 items-center justify-center">
-                          <span className="text-4xl font-bold text-primary">
-                            {store.name.charAt(0).toUpperCase()}
-                          </span>
-                        </div>
-                      </div>
-                      <div className="text-center w-full p-4">
-                        <p className="text-base font-semibold truncate">
-                          {xUsername ? `@${xUsername}` : store.name}
-                        </p>
-                        {store.followers > 0 && (
-                          <Badge 
-                            variant="outline" 
-                            className="text-xs px-2 py-1 mt-2 bg-primary/10 border-primary/30 text-primary flex items-center gap-1.5 w-fit mx-auto"
-                          >
-                            <Users className="h-3 w-3" />
-                            {formatNumber(store.followers)}
-                          </Badge>
-                        )}
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </section>
   );
 };
