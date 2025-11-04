@@ -56,6 +56,7 @@ export default function XAgentPage() {
         .from('advisors')
         .select('*')
         .eq('sim_category', 'Crypto Mail')
+        .eq('is_verified', true) // Only show verified agents publicly
         .eq('is_active', true);
 
       if (error) throw error;

@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { VerificationPendingModal } from "./VerificationPendingModal";
 
 interface CreateXAgentModalProps {
   open: boolean;
@@ -17,6 +18,8 @@ export const CreateXAgentModal = ({ open, onOpenChange }: CreateXAgentModalProps
   const [username, setUsername] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const [showVerificationModal, setShowVerificationModal] = useState(false);
+  const [verificationData, setVerificationData] = useState<{ editCode: string; xUsername: string } | null>(null);
 
   const generateEditCode = () => {
     return Math.floor(100000 + Math.random() * 900000).toString();
@@ -56,7 +59,7 @@ export const CreateXAgentModal = ({ open, onOpenChange }: CreateXAgentModalProps
       // Check if agent already exists - try by name first
       const { data: existingAgentByName } = await supabase
         .from('advisors')
-        .select('id, edit_code, verification_status, social_links')
+        .select('id, edit_code, verification_status, social_links, is_verified')
         .eq('sim_category', 'Crypto Mail')
         .or(`name.eq.@${cleanUsername},name.eq.${cleanUsername}`)
         .maybeSingle();
@@ -64,7 +67,7 @@ export const CreateXAgentModal = ({ open, onOpenChange }: CreateXAgentModalProps
       // Also check by social_links username in memory since JSONB queries can be tricky
       const { data: allAgents } = await supabase
         .from('advisors')
-        .select('id, edit_code, verification_status, social_links')
+        .select('id, edit_code, verification_status, social_links, is_verified')
         .eq('sim_category', 'Crypto Mail');
 
       const existingAgent = existingAgentByName || allAgents?.find(agent => {
@@ -123,6 +126,7 @@ You can answer questions about your X profile, interests, opinions, and provide 
             sim_category: 'Crypto Mail',
             is_active: false,
             is_public: false,
+            is_verified: false,
             marketplace_category: 'crypto',
             personality_type: 'friendly',
             conversation_style: 'balanced',
@@ -154,9 +158,15 @@ You can answer questions about your X profile, interests, opinions, and provide 
 
         agentId = newAgent.id;
         toast.success('X agent created successfully!');
+        
+        // Show verification modal for new agents
+        setVerificationData({ editCode, xUsername: cleanUsername });
+        setShowVerificationModal(true);
+        onOpenChange(false);
+        return;
       }
 
-      // Redirect to creator view
+      // For existing agents, redirect to creator view
       onOpenChange(false);
       navigate(`/x/${cleanUsername}/creator?code=${editCode}`);
     } catch (error: any) {
@@ -168,8 +178,9 @@ You can answer questions about your X profile, interests, opinions, and provide 
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+    <>
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Generate Your Agentic Storefront</DialogTitle>
           <DialogDescription>
@@ -212,7 +223,23 @@ You can answer questions about your X profile, interests, opinions, and provide 
             </Button>
           </div>
         </form>
-      </DialogContent>
-    </Dialog>
+        </DialogContent>
+      </Dialog>
+
+      {verificationData && (
+        <VerificationPendingModal
+          open={showVerificationModal}
+          onOpenChange={(open) => {
+            setShowVerificationModal(open);
+            if (!open) {
+              // Navigate to creator view after closing modal
+              navigate(`/x/${verificationData.xUsername}/creator?code=${verificationData.editCode}`);
+            }
+          }}
+          editCode={verificationData.editCode}
+          xUsername={verificationData.xUsername}
+        />
+      )}
+    </>
   );
 };

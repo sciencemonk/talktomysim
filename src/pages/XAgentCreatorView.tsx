@@ -349,6 +349,11 @@ export default function XAgentCreatorView() {
                     {xData?.username || username}
                   </CardDescription>
                   <div className="flex items-center gap-2 flex-wrap">
+                    {!agent.is_verified && (
+                      <Badge variant="outline" className="text-xs px-2.5 py-1 font-medium text-yellow-600 border-yellow-500 bg-yellow-50 dark:bg-yellow-950">
+                        Pending Verification
+                      </Badge>
+                    )}
                     <Badge variant="secondary" className="text-xs px-2.5 py-1 font-medium" style={{ backgroundColor: 'rgba(129, 244, 170, 0.15)', color: '#81f4aa', borderColor: 'rgba(129, 244, 170, 0.3)' }}>
                       <Users className="h-3 w-3 mr-1.5" style={{ color: '#81f4aa' }} />
                       {formatNumber(xData?.metrics?.followers)} Followers
@@ -379,6 +384,20 @@ export default function XAgentCreatorView() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="p-5 space-y-4">
+                  {/* Creator Code Display */}
+                  {!agent.is_verified && (
+                    <div className="bg-yellow-50 dark:bg-yellow-950 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4 space-y-2">
+                      <p className="text-sm font-medium text-yellow-900 dark:text-yellow-100">
+                        Your 6-Digit Creator Code:
+                      </p>
+                      <code className="text-xl font-mono font-bold tracking-wider block text-yellow-900 dark:text-yellow-100">
+                        {editCode}
+                      </code>
+                      <p className="text-xs text-yellow-800 dark:text-yellow-200">
+                        To verify your agent, post "Verify me $SIMAI" from your X account @{username}. Your page will be live within 24 hours.
+                      </p>
+                    </div>
+                  )}
                   <div className="space-y-2">
                     <Label htmlFor="system-prompt">System Prompt</Label>
                     <Textarea
