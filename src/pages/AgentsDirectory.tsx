@@ -32,6 +32,7 @@ import { SimLeaderboard } from "@/components/SimLeaderboard";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SimLikeButton } from "@/components/SimLikeButton";
 import { HackathonAnnouncementModal } from "@/components/HackathonAnnouncementModal";
+import { PendingAgentModal } from "@/components/PendingAgentModal";
 
 interface PumpFunSimCardProps {
   sim: AgentType & { user_id?: string; like_count?: number; is_verified?: boolean };
@@ -277,6 +278,17 @@ const AgentsDirectory = () => {
   });
   const isMobile = useIsMobile();
   const { theme } = useTheme();
+  const [pendingAgentModal, setPendingAgentModal] = useState<{
+    open: boolean;
+    agentName: string;
+    agentId: string;
+    customUrl: string;
+  }>({
+    open: false,
+    agentName: '',
+    agentId: '',
+    customUrl: ''
+  });
 
   // Check for signin query param
   useEffect(() => {
@@ -544,7 +556,20 @@ const AgentsDirectory = () => {
   };
 
   const handleSimClick = (sim: AgentType) => {
+    const verificationStatus = (sim as any).verification_status;
     const simSlug = (sim as any).custom_url || generateSlug(sim.name);
+    
+    // If agent is pending verification, show pending modal
+    if (verificationStatus === 'pending') {
+      setPendingAgentModal({
+        open: true,
+        agentName: sim.name,
+        agentId: sim.id,
+        customUrl: simSlug
+      });
+      return;
+    }
+    
     window.scrollTo(0, 0);
     navigate(`/${simSlug}?chat=true`);
   };
@@ -949,6 +974,14 @@ const AgentsDirectory = () => {
         <Plus className="h-4 w-4" />
         Create Agent
       </Button>
+
+      <PendingAgentModal
+        open={pendingAgentModal.open}
+        onOpenChange={(open) => setPendingAgentModal(prev => ({ ...prev, open }))}
+        agentName={pendingAgentModal.agentName}
+        agentId={pendingAgentModal.agentId}
+        customUrl={pendingAgentModal.customUrl}
+      />
 
       <LandingFooter />
     </div>

@@ -18,6 +18,7 @@ import { useNavigate } from 'react-router-dom';
 import { useTheme } from '@/hooks/useTheme';
 import pumpLogo from '@/assets/pumpfun-logo.png';
 import AuthModal from '@/components/AuthModal';
+import { PendingAgentModal } from '@/components/PendingAgentModal';
 
 type FilterType = 'all' | 'free' | 'paid';
 type SortType = 'popular' | 'newest' | 'name';
@@ -209,6 +210,17 @@ const SimDirectory = () => {
   const [sortBy, setSortBy] = useState<SortType>('newest');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [authModalOpen, setAuthModalOpen] = useState(false);
+  const [pendingAgentModal, setPendingAgentModal] = useState<{
+    open: boolean;
+    agentName: string;
+    agentId: string;
+    customUrl: string;
+  }>({
+    open: false,
+    agentName: '',
+    agentId: '',
+    customUrl: ''
+  });
 
   const { data: allSims, isLoading } = useQuery({
     queryKey: ['all-sims-directory'],
@@ -216,7 +228,7 @@ const SimDirectory = () => {
       // Get all advisors - exclude edit_code for security
       const { data: advisorsData, error: advisorsError } = await supabase
         .from('advisors')
-        .select('id, name, title, description, prompt, sim_category, x402_wallet, auto_description, full_description, avatar_url, response_length, conversation_style, personality_type, website_url, created_at, updated_at, is_verified, date_of_birth, years_experience, interests, skills, sample_scenarios, completion_status, is_public, user_id, is_active, is_official, price, integrations, social_links, x402_price, x402_enabled, expertise_areas, target_audience, background_image_url, marketplace_category, background_content, knowledge_summary, url, full_name, professional_title, location, crypto_wallet, twitter_url, sim_type, owner_welcome_message, education, current_profession, areas_of_expertise, writing_sample, additional_background, custom_url, welcome_message')
+        .select('id, name, title, description, prompt, sim_category, x402_wallet, auto_description, full_description, avatar_url, response_length, conversation_style, personality_type, website_url, created_at, updated_at, is_verified, verification_status, date_of_birth, years_experience, interests, skills, sample_scenarios, completion_status, is_public, user_id, is_active, is_official, price, integrations, social_links, x402_price, x402_enabled, expertise_areas, target_audience, background_image_url, marketplace_category, background_content, knowledge_summary, url, full_name, professional_title, location, crypto_wallet, twitter_url, sim_type, owner_welcome_message, education, current_profession, areas_of_expertise, writing_sample, additional_background, custom_url, welcome_message')
         .eq('is_active', true);
       
       if (advisorsError) throw advisorsError;
@@ -277,8 +289,9 @@ const SimDirectory = () => {
         x402_enabled: sim.x402_enabled || false,
         x402_price: sim.x402_price || 0,
         x402_wallet: sim.x402_wallet,
-        is_verified: sim.is_verified || false
-      } as AgentType & { user_id?: string; user_count?: number; is_verified?: boolean };
+        is_verified: sim.is_verified || false,
+        verification_status: (sim as any).verification_status
+      } as AgentType & { user_id?: string; user_count?: number; is_verified?: boolean; verification_status?: string };
       });
     },
   });
@@ -353,7 +366,20 @@ const SimDirectory = () => {
   };
 
   const handleSimClick = (sim: AgentType) => {
+    const verificationStatus = (sim as any).verification_status;
     const simSlug = (sim as any).custom_url || generateSlug(sim.name);
+    
+    // If agent is pending verification, show pending modal
+    if (verificationStatus === 'pending') {
+      setPendingAgentModal({
+        open: true,
+        agentName: sim.name,
+        agentId: sim.id,
+        customUrl: simSlug
+      });
+      return;
+    }
+    
     navigate(`/${simSlug}?chat=true`);
   };
 
@@ -554,6 +580,14 @@ const SimDirectory = () => {
       <AuthModal
         open={authModalOpen} 
         onOpenChange={setAuthModalOpen}
+      />
+      
+      <PendingAgentModal
+        open={pendingAgentModal.open}
+        onOpenChange={(open) => setPendingAgentModal(prev => ({ ...prev, open }))}
+        agentName={pendingAgentModal.agentName}
+        agentId={pendingAgentModal.agentId}
+        customUrl={pendingAgentModal.customUrl}
       />
     </div>
   );
