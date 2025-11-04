@@ -12,6 +12,7 @@ import { Whyx402Section } from "@/components/landing/Whyx402Section";
 import { TopStoresSection } from "@/components/landing/TopStoresSection";
 import { SignUpCTASection } from "@/components/landing/SignUpCTASection";
 import { LandingFooter } from "@/components/landing/LandingFooter";
+import { SimVsStripeSection } from "@/components/landing/SimVsStripeSection";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -557,6 +558,8 @@ const NewLanding = () => {
         onViewAllAgents={scrollToLearnMore}
       />
       </div>
+
+      <SimVsStripeSection />
 
       <OfferingsMosaic />
 
