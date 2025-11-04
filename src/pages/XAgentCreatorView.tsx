@@ -113,6 +113,7 @@ export default function XAgentCreatorView() {
         is_verified: matchingAgent.is_verified || false,
         x402_enabled: matchingAgent.x402_enabled || false,
         x402_price: matchingAgent.x402_price || 5.0,
+        integrations: Array.isArray((matchingAgent as any).integrations) ? (matchingAgent as any).integrations : [],
       } as any;
 
       setAgent(transformedAgent);

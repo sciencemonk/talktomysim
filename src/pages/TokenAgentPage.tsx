@@ -84,6 +84,7 @@ export default function TokenAgentPage() {
         social_links: matchingAgent.social_links as any,
         sim_category: matchingAgent.sim_category || 'Chat',
         is_verified: matchingAgent.is_verified || false,
+        integrations: Array.isArray((matchingAgent as any).integrations) ? (matchingAgent as any).integrations : [],
       } as any;
 
       setAgent(transformedAgent);

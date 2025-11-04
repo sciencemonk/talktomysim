@@ -165,6 +165,7 @@ export default function XAgentPage() {
         x402_enabled: matchingAgent.x402_enabled || false,
         x402_price: matchingAgent.x402_price || 5.0,
         x402_wallet: matchingAgent.x402_wallet,
+        integrations: Array.isArray((matchingAgent as any).integrations) ? (matchingAgent as any).integrations : [],
       } as any;
 
       setAgent(transformedAgent);
