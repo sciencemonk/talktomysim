@@ -101,3 +101,6 @@ verify_jwt = false
 
 [functions.generate-agent-system-prompt]
 verify_jwt = false
+
+[functions.generate-agent-welcome]
+verify_jwt = false
