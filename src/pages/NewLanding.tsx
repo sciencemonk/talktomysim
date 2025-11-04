@@ -69,9 +69,8 @@ const PumpFunSimCard = ({ sim, onSimClick }: PumpFunSimCardProps) => {
     ? (sim.social_links as any)?.x_username 
     : undefined;
   
-  // Approved X agents that are clickable
-  const approvedXAgents = ['mrjethroknights', 'cryptodivix'];
-  const isPending = isCryptoMail && !approvedXAgents.includes(xUsername?.toLowerCase() || '');
+  // Check verification status from database
+  const isPending = (sim as any).verification_status === 'pending';
 
   useEffect(() => {
     const fetchMarketCap = async () => {
@@ -168,11 +167,10 @@ const PumpFunSimCard = ({ sim, onSimClick }: PumpFunSimCardProps) => {
 
   return (
     <button
-      onClick={() => !isPending && onSimClick(sim)}
-      disabled={isPending}
+      onClick={() => onSimClick(sim)}
       className={`group relative flex flex-col overflow-hidden rounded-xl bg-card hover:bg-muted border-2 hover:border-[#83f1aa] transition-all duration-300 ${
-        isPending ? 'opacity-60 cursor-not-allowed' : 'hover:scale-105 hover:shadow-lg'
-      }`}
+        isPending ? 'opacity-90' : 'hover:scale-105'
+      } hover:shadow-lg`}
     >
       <div className="relative w-full aspect-[4/3] overflow-hidden bg-muted">
         <Avatar className="w-full h-full rounded-none">
@@ -346,11 +344,8 @@ const NewLanding = () => {
     const verificationStatus = (sim as any).verification_status;
     const simSlug = (sim as any).custom_url || generateSlug(sim.name);
     
-    console.log('Sim clicked:', sim.name, 'verification_status:', verificationStatus);
-    
     // If agent is pending verification, show pending modal
     if (verificationStatus === 'pending') {
-      console.log('Showing pending modal for agent:', sim.name);
       setPendingAgentModal({
         open: true,
         agentName: sim.name,
