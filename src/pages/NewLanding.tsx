@@ -559,6 +559,8 @@ const NewLanding = () => {
       />
       </div>
 
+      <XAgentsShowcase agents={allSims || []} />
+
       <div id="learn-more-section" className="scroll-mt-4">
         <AgenticCommerceSection />
       </div>
@@ -566,8 +568,6 @@ const NewLanding = () => {
       <SimVsStripeSection />
 
       <Whyx402Section />
-
-      <XAgentsShowcase agents={allSims || []} />
 
       <SignUpCTASection onSignUp={handleXSignIn} />
       

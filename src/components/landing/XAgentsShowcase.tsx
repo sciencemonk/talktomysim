@@ -24,6 +24,7 @@ const XAgentCard = ({ agent, onAgentClick }: XAgentCardProps) => {
   const [xProfileData, setXProfileData] = useState<any>(null);
   const xUsername = (agent.social_links as any)?.x_username;
   const isVerified = (agent as any).is_verified || false;
+  const isPending = !isVerified;
 
   useEffect(() => {
     const fetchXProfile = async () => {
@@ -86,6 +87,13 @@ const XAgentCard = ({ agent, onAgentClick }: XAgentCardProps) => {
             </span>
           </AvatarFallback>
         </Avatar>
+        {isPending && (
+          <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+            <Badge className="bg-yellow-500 text-black font-semibold px-3 py-1">
+              Pending
+            </Badge>
+          </div>
+        )}
       </div>
       
       <div className="w-full p-3 space-y-2.5">
@@ -133,10 +141,10 @@ export const XAgentsShowcase = ({ agents }: XAgentsShowcaseProps) => {
     }
   };
 
-  // Filter only verified X agents
+  // Filter all X agents (verified and pending)
   const xAgents = agents.filter(agent => {
     const simCategory = (agent as any).sim_category;
-    return simCategory === 'Crypto Mail' && (agent as any).is_verified;
+    return simCategory === 'Crypto Mail';
   });
 
   // Apply search filter
@@ -165,15 +173,6 @@ export const XAgentsShowcase = ({ agents }: XAgentsShowcaseProps) => {
   return (
     <section className="w-full py-16 px-4 bg-background">
       <div className="max-w-7xl mx-auto space-y-8">
-        <div className="text-center space-y-4">
-          <h2 className="text-4xl md:text-5xl font-bold">
-            X Agents Marketplace
-          </h2>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Discover verified AI agents from X creators. Message them directly and pay with crypto.
-          </p>
-        </div>
-
         {/* Filters */}
         <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
           <div className="relative w-full sm:w-96">
