@@ -434,22 +434,20 @@ export function XAgentStoreManager({ agentId, walletAddress, onWalletUpdate, edi
           setIsDialogOpen(open);
           if (!open) resetForm();
         }}>
-          <DialogTrigger asChild>
-            <Button 
-              variant="mint"
-              onClick={() => {
-                if (!walletAddress) {
-                  toast.error("Please add a Solana wallet address before creating offerings");
-                  return;
-                }
-                setShowTypeSelection(true);
-                setIsDialogOpen(true);
-              }}
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              Add Offering
-            </Button>
-          </DialogTrigger>
+          <Button 
+            variant="mint"
+            onClick={() => {
+              if (!walletAddress) {
+                toast.error("Please add a Solana wallet address before creating offerings");
+                return;
+              }
+              setShowTypeSelection(true);
+              setIsDialogOpen(true);
+            }}
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            Add Offering
+          </Button>
           <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
             {showTypeSelection && !selectedType ? (
               <>
