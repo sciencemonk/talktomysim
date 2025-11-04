@@ -377,8 +377,7 @@ const AgentsDirectory = () => {
         .from('advisors')
         .select('*')
         .eq('is_active', true)
-        .neq('name', '$GRUTA')
-        .neq('verification_status', 'pending');
+        .neq('name', '$GRUTA');
       
       if (advisorsError) throw advisorsError;
 
