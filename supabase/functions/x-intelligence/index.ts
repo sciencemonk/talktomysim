@@ -58,9 +58,22 @@ serve(async (req) => {
     const userResponseData = await userResponse.json();
     console.log('User data received:', JSON.stringify(userResponseData).substring(0, 200));
 
-    // Check if the API returned an error
+    // Check if the API returned an error (user not found)
     if (userResponseData.status === 'error' || !userResponseData.data) {
-      throw new Error(userResponseData.msg || 'User not found');
+      const errorMessage = userResponseData.msg || 'User not found';
+      console.log(`Twitter user not found: ${cleanUsername}`);
+      
+      return new Response(
+        JSON.stringify({ 
+          success: false, 
+          error: errorMessage,
+          username: cleanUsername
+        }),
+        {
+          status: 404,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        }
+      );
     }
 
     // Fetch recent tweets using TwitterAPI.io
