@@ -532,7 +532,7 @@ export function XAgentStoreManager({ agentId, walletAddress, onWalletUpdate, edi
                   id="title"
                   value={formData.title}
                   onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                  placeholder="e.g., 1-hour Consulting Call"
+                  placeholder={selectedType === 'agent' ? "e.g., Marketing Strategy AI Agent" : "e.g., 1-hour Consulting Call"}
                 />
               </div>
 
@@ -542,7 +542,7 @@ export function XAgentStoreManager({ agentId, walletAddress, onWalletUpdate, edi
                   id="description"
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  placeholder="Describe what you're offering..."
+                  placeholder={selectedType === 'agent' ? "Describe what your AI agent specializes in and what problems it solves..." : "Describe what you're offering..."}
                   rows={4}
                 />
               </div>
