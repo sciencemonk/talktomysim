@@ -13,6 +13,7 @@ interface AgentOffering {
   agent_avatar_url?: string;
   agent_data_source?: string;
   price_per_conversation?: number;
+  offering_type?: string;
 }
 
 interface AgentOfferingsDisplayProps {
@@ -21,9 +22,23 @@ interface AgentOfferingsDisplayProps {
   agentName?: string;
 }
 
+// Generate a short display description from the system prompt
+const generateDisplayDescription = (systemPrompt?: string): string => {
+  if (!systemPrompt) return '';
+  
+  // Take first 150 characters of the system prompt and clean it up
+  const cleaned = systemPrompt
+    .replace(/You are /i, '')
+    .replace(/\n\n/g, ' ')
+    .replace(/\n/g, ' ')
+    .trim();
+  
+  return cleaned.length > 150 ? cleaned.substring(0, 150) + '...' : cleaned;
+};
+
 export function AgentOfferingsDisplay({ offerings, avatarUrl, agentName }: AgentOfferingsDisplayProps) {
   // Filter to only show agent type offerings
-  const agentOfferings = offerings.filter(o => o.price === 0 || o.price_per_conversation !== undefined);
+  const agentOfferings = offerings.filter(o => o.offering_type === 'agent');
 
   if (agentOfferings.length === 0) {
     return (
@@ -75,34 +90,16 @@ export function AgentOfferingsDisplay({ offerings, avatarUrl, agentName }: Agent
                       {offering.title}
                       <Sparkles className="h-4 w-4 text-primary" />
                     </h3>
-                    <p className="text-sm text-muted-foreground line-clamp-2">
-                      {offering.description}
-                    </p>
+                    {offering.agent_system_prompt && (
+                      <p className="text-sm text-muted-foreground line-clamp-3 leading-relaxed">
+                        {generateDisplayDescription(offering.agent_system_prompt)}
+                      </p>
+                    )}
                   </div>
-
-                  {offering.agent_system_prompt && (
-                    <div className="bg-muted/50 rounded-lg p-3 border border-border/50">
-                      <p className="text-xs font-medium text-muted-foreground mb-1.5">Agent Capabilities:</p>
-                      <p className="text-xs leading-relaxed line-clamp-4">
-                        {offering.agent_system_prompt}
-                      </p>
-                    </div>
-                  )}
-
-                  {offering.agent_data_source && (
-                    <div className="flex items-start gap-2">
-                      <Badge variant="secondary" className="text-xs">
-                        Data Source
-                      </Badge>
-                      <p className="text-xs text-muted-foreground line-clamp-2">
-                        {offering.agent_data_source}
-                      </p>
-                    </div>
-                  )}
 
                   <div className="flex items-center justify-between pt-2">
                     <Badge variant="outline" className="bg-primary/5">
-                      {offering.price_per_conversation 
+                      {offering.price_per_conversation && offering.price_per_conversation > 0
                         ? `$${offering.price_per_conversation} USDC per conversation`
                         : 'Free to use'
                       }

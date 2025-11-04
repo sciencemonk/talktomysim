@@ -66,7 +66,9 @@ export function XAgentStorefront({ agentId, agentName, walletAddress }: XAgentSt
         .order("created_at", { ascending: false });
 
       if (error) throw error;
-      setOfferings((data || []) as unknown as Offering[]);
+      // Filter out agent offerings - they're displayed separately
+      const nonAgentOfferings = (data || []).filter((o: any) => o.offering_type !== 'agent');
+      setOfferings(nonAgentOfferings as unknown as Offering[]);
     } catch (error) {
       console.error("Error loading offerings:", error);
       toast.error("Failed to load store");

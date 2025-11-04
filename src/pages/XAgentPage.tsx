@@ -438,10 +438,10 @@ export default function XAgentPage() {
 
           {/* Right Column - AI Agents or Chat */}
           <div className="lg:sticky lg:top-20 h-fit">
-            {offerings.some(o => o.offering_type === 'agent' || (o.price === 0 && o.agent_system_prompt)) ? (
+            {offerings.some(o => o.offering_type === 'agent') ? (
               <AgentOfferingsDisplay 
                 offerings={offerings}
-                avatarUrl={getImageUrl(xData?.profileImageUrl || agent.avatar)}
+                avatarUrl={getAvatarUrl()}
                 agentName={username}
               />
             ) : (
