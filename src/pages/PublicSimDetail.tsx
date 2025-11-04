@@ -834,8 +834,7 @@ const PublicSimDetail = () => {
               {/* Start Chatting Button */}
               <Button
                 size="lg"
-                variant="simPrimary"
-                className="w-full h-14 text-base shadow-xl hover:shadow-2xl transition-all duration-300 mb-4 group"
+                className="w-full h-14 text-base shadow-xl hover:shadow-2xl transition-all duration-300 mb-4 group bg-[#83f1aa] hover:bg-[#6dd88f] text-black"
                 onClick={() => {
                   console.log('Launch Sim clicked. Current sim x402 settings:', {
                     x402_enabled: sim?.x402_enabled,

@@ -841,7 +841,7 @@ export function XAgentStoreManager({ agentId, walletAddress, onWalletUpdate, edi
                         }
                       }}
                       disabled={isGeneratingPrompt}
-                      className="w-full"
+                      className="w-full bg-[#83f1aa] hover:bg-[#6dd88f] text-black"
                     >
                       {isGeneratingPrompt ? (
                         <>
