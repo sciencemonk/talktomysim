@@ -368,69 +368,11 @@ export default function XAgentCreatorView() {
           </Card>
 
           {/* Tabs */}
-          <Tabs defaultValue="ai-settings" className="w-full">
-            <TabsList className="grid w-full grid-cols-3">
-              <TabsTrigger value="ai-settings">AI Settings</TabsTrigger>
+          <Tabs defaultValue="store" className="w-full">
+            <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="store">Store</TabsTrigger>
               <TabsTrigger value="purchases">Orders</TabsTrigger>
             </TabsList>
-            
-            <TabsContent value="ai-settings" className="mt-6">
-              <Card className="border-border bg-card/80 backdrop-blur-sm shadow-lg">
-                <CardHeader className="p-5">
-                  <CardTitle className="text-lg font-bold">AI Settings</CardTitle>
-                  <CardDescription className="text-sm leading-relaxed">
-                    Configure your AI chatbot behavior
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="p-5 space-y-4">
-                  {/* Creator Code Display */}
-                  {!agent.is_verified && (
-                    <div className="rounded-lg p-4 space-y-2" style={{ backgroundColor: '#80f4aa' }}>
-                      <p className="text-sm font-medium" style={{ color: '#000' }}>
-                        Your 6-Digit Creator Code:
-                      </p>
-                      <code className="text-xl font-mono font-bold tracking-wider block" style={{ color: '#000' }}>
-                        {editCode}
-                      </code>
-                      <p className="text-xs" style={{ color: '#000', opacity: 0.8 }}>
-                        To verify your agent, post "Verify me $SIMAI" from your X account @{username}. Your page will be live within 24 hours.
-                      </p>
-                    </div>
-                  )}
-                  <div className="space-y-2">
-                    <Label htmlFor="system-prompt">System Prompt</Label>
-                    <Textarea
-                      id="system-prompt"
-                      value={systemPrompt}
-                      onChange={(e) => setSystemPrompt(e.target.value)}
-                      placeholder="Define how your AI should respond..."
-                      rows={10}
-                      className="resize-none"
-                    />
-                    <p className="text-xs text-muted-foreground">
-                      This prompt guides how your AI chatbot responds to users
-                    </p>
-                  </div>
-
-                  <Button 
-                    onClick={handleSaveSettings} 
-                    className="w-full" 
-                    disabled={isSaving}
-                    variant="mint"
-                  >
-                    {isSaving ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Saving...
-                      </>
-                    ) : (
-                      "Save Settings"
-                    )}
-                  </Button>
-                </CardContent>
-              </Card>
-            </TabsContent>
             
             <TabsContent value="store" className="mt-6">
               <XAgentStoreManager 
