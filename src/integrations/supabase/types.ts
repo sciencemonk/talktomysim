@@ -1275,7 +1275,10 @@ export type Database = {
       }
       x_agent_offerings: {
         Row: {
+          agent_avatar_url: string | null
+          agent_data_source: string | null
           agent_id: string
+          agent_system_prompt: string | null
           blur_preview: boolean | null
           created_at: string
           delivery_method: string
@@ -1286,12 +1289,16 @@ export type Database = {
           media_url: string | null
           offering_type: string | null
           price: number
+          price_per_conversation: number | null
           required_info: Json | null
           title: string
           updated_at: string
         }
         Insert: {
+          agent_avatar_url?: string | null
+          agent_data_source?: string | null
           agent_id: string
+          agent_system_prompt?: string | null
           blur_preview?: boolean | null
           created_at?: string
           delivery_method: string
@@ -1302,12 +1309,16 @@ export type Database = {
           media_url?: string | null
           offering_type?: string | null
           price?: number
+          price_per_conversation?: number | null
           required_info?: Json | null
           title: string
           updated_at?: string
         }
         Update: {
+          agent_avatar_url?: string | null
+          agent_data_source?: string | null
           agent_id?: string
+          agent_system_prompt?: string | null
           blur_preview?: boolean | null
           created_at?: string
           delivery_method?: string
@@ -1318,6 +1329,7 @@ export type Database = {
           media_url?: string | null
           offering_type?: string | null
           price?: number
+          price_per_conversation?: number | null
           required_info?: Json | null
           title?: string
           updated_at?: string
