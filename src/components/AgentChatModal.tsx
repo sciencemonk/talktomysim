@@ -95,6 +95,7 @@ Remember: The user is asking YOU (${agent.name}) for advice about THEIR project 
             <PublicChatInterface 
               agent={enhancedAgent}
               avatarUrl={avatarUrl}
+              collectedInfo={collectedInfo}
             />
           )}
         </div>

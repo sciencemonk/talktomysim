@@ -14,11 +14,13 @@ import { X402PaymentModal } from "@/components/X402PaymentModal";
 interface PublicChatInterfaceProps {
   agent: AgentType;
   avatarUrl?: string;
+  collectedInfo?: Record<string, string>;
 }
 
-const PublicChatInterface = ({ agent, avatarUrl }: PublicChatInterfaceProps) => {
+const PublicChatInterface = ({ agent, avatarUrl, collectedInfo }: PublicChatInterfaceProps) => {
   const [inputValue, setInputValue] = useState("");
   const [hasStartedChat, setHasStartedChat] = useState(false);
+  const [hasAutoSubmitted, setHasAutoSubmitted] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [sessionId, setSessionId] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -56,6 +58,21 @@ const PublicChatInterface = ({ agent, avatarUrl }: PublicChatInterfaceProps) => 
       }
     }
   }, [agent]);
+
+  // Auto-submit collected info as first message
+  useEffect(() => {
+    if (!hasAutoSubmitted && collectedInfo && Object.keys(collectedInfo).length > 0 && !chatHistory.isLoading) {
+      setHasAutoSubmitted(true);
+      setHasStartedChat(true);
+      
+      // Format collected info as a natural message
+      const message = Object.entries(collectedInfo)
+        .map(([key, value]) => value)
+        .join('\n');
+      
+      textChat.sendMessage(message);
+    }
+  }, [collectedInfo, hasAutoSubmitted, chatHistory.isLoading]);
 
   const handleSend = async () => {
     if (!inputValue.trim() || textChat.isProcessing) return;
