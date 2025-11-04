@@ -143,6 +143,36 @@ export function XAgentStoreManager({ agentId, walletAddress, onWalletUpdate, edi
       return;
     }
 
+    // For 'agent' type, generate system prompt if not provided
+    if (selectedType === 'agent' && !formData.agent_system_prompt) {
+      try {
+        const { data: promptData, error: promptError } = await supabase.functions.invoke(
+          'generate-agent-system-prompt',
+          {
+            body: {
+              title: formData.title,
+              description: formData.description,
+              dataSource: formData.agent_data_source
+            }
+          }
+        );
+
+        if (promptError) throw promptError;
+        
+        if (promptData?.success && promptData.systemPrompt) {
+          setFormData(prev => ({ ...prev, agent_system_prompt: promptData.systemPrompt }));
+          toast.success("System prompt generated!");
+        } else {
+          toast.error("Failed to generate system prompt");
+          return;
+        }
+      } catch (error) {
+        console.error("Error generating system prompt:", error);
+        toast.error("Failed to generate system prompt");
+        return;
+      }
+    }
+
     if (selectedType === 'standard' && !formData.delivery_method) {
       toast.error("Please specify delivery method");
       return;
@@ -224,7 +254,7 @@ export function XAgentStoreManager({ agentId, walletAddress, onWalletUpdate, edi
         ? (data as any).id 
         : editingOffering?.id;
       
-      if (offeringId && (mediaUrl || digitalFileUrl !== undefined || selectedType)) {
+      if (offeringId && (mediaUrl || digitalFileUrl !== undefined || selectedType || formData.agent_system_prompt)) {
         const updateData: any = {};
         if (mediaUrl) updateData.media_url = mediaUrl;
         if (digitalFileUrl !== undefined) updateData.digital_file_url = digitalFileUrl;
@@ -232,6 +262,12 @@ export function XAgentStoreManager({ agentId, walletAddress, onWalletUpdate, edi
           updateData.offering_type = selectedType;
           if (selectedType === 'digital') {
             updateData.blur_preview = formData.blur_preview;
+          }
+          if (selectedType === 'agent') {
+            updateData.agent_system_prompt = formData.agent_system_prompt;
+            updateData.agent_data_source = formData.agent_data_source;
+            updateData.agent_avatar_url = mediaUrl; // Use media as agent avatar
+            updateData.price_per_conversation = parseFloat(formData.price_per_conversation || '0');
           }
         }
         
@@ -265,9 +301,9 @@ export function XAgentStoreManager({ agentId, walletAddress, onWalletUpdate, edi
       delivery_method: offering.delivery_method,
       is_active: offering.is_active,
       blur_preview: offering.blur_preview || false,
-      agent_system_prompt: "",
-      agent_data_source: "",
-      price_per_conversation: "",
+      agent_system_prompt: (offering as any).agent_system_prompt || "",
+      agent_data_source: (offering as any).agent_data_source || "",
+      price_per_conversation: (offering as any).price_per_conversation?.toString() || "",
     });
     setRequiredFields(offering.required_info || []);
     setMediaPreview(offering.media_url || null);
@@ -629,6 +665,59 @@ export function XAgentStoreManager({ agentId, walletAddress, onWalletUpdate, edi
                       Leave at 0.00 to make conversations free. Or charge per conversation (e.g., 1.00 for $1 per chat).
                     </p>
                   </div>
+
+                  {/* System Prompt Section */}
+                  {formData.agent_system_prompt && (
+                    <div className="space-y-2 p-4 bg-muted/50 rounded-lg border border-border">
+                      <div className="flex items-center justify-between">
+                        <Label>Generated System Prompt</Label>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={async () => {
+                            if (!formData.title || !formData.description) {
+                              toast.error("Please fill in title and description first");
+                              return;
+                            }
+                            try {
+                              const { data: promptData, error: promptError } = await supabase.functions.invoke(
+                                'generate-agent-system-prompt',
+                                {
+                                  body: {
+                                    title: formData.title,
+                                    description: formData.description,
+                                    dataSource: formData.agent_data_source
+                                  }
+                                }
+                              );
+
+                              if (promptError) throw promptError;
+                              
+                              if (promptData?.success && promptData.systemPrompt) {
+                                setFormData(prev => ({ ...prev, agent_system_prompt: promptData.systemPrompt }));
+                                toast.success("System prompt regenerated!");
+                              }
+                            } catch (error) {
+                              console.error("Error regenerating system prompt:", error);
+                              toast.error("Failed to regenerate system prompt");
+                            }
+                          }}
+                        >
+                          Regenerate
+                        </Button>
+                      </div>
+                      <Textarea
+                        value={formData.agent_system_prompt}
+                        onChange={(e) => setFormData({ ...formData, agent_system_prompt: e.target.value })}
+                        rows={8}
+                        className="text-sm resize-none bg-background"
+                      />
+                      <p className="text-xs text-muted-foreground">
+                        This prompt defines your agent's behavior. It will be auto-generated when you save, but you can edit it here.
+                      </p>
+                    </div>
+                  )}
                 </>
               )}
 

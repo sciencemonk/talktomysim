@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import PublicChatInterface from "@/components/PublicChatInterface";
 import { XAgentStorefront } from "@/components/XAgentStorefront";
+import { AgentOfferingsDisplay } from "@/components/AgentOfferingsDisplay";
 import { AgentType } from "@/types/agent";
 import { toast } from "sonner";
 import xIcon from "@/assets/x-icon.png";
@@ -435,20 +436,28 @@ export default function XAgentPage() {
             )}
           </div>
 
-          {/* Right Column - AI Chat */}
+          {/* Right Column - AI Agents or Chat */}
           <div className="lg:sticky lg:top-20 h-fit">
-            <Card className="shadow-lg border-border/50 overflow-hidden">
-              <CardHeader className="bg-muted/30">
-                <CardTitle className="text-lg">AI Assistant</CardTitle>
-                <CardDescription>Chat with @{username}'s AI agent</CardDescription>
-              </CardHeader>
-              <div className="h-[600px]">
-                <PublicChatInterface 
-                  agent={agent} 
-                  avatarUrl={getImageUrl(xData?.profileImageUrl || agent.avatar)}
-                />
-              </div>
-            </Card>
+            {offerings.some(o => o.offering_type === 'agent' || (o.price === 0 && o.agent_system_prompt)) ? (
+              <AgentOfferingsDisplay 
+                offerings={offerings}
+                avatarUrl={getImageUrl(xData?.profileImageUrl || agent.avatar)}
+                agentName={username}
+              />
+            ) : (
+              <Card className="shadow-lg border-border/50 overflow-hidden">
+                <CardHeader className="bg-muted/30">
+                  <CardTitle className="text-lg">AI Assistant</CardTitle>
+                  <CardDescription>Chat with @{username}'s AI agent</CardDescription>
+                </CardHeader>
+                <div className="h-[600px]">
+                  <PublicChatInterface 
+                    agent={agent} 
+                    avatarUrl={getImageUrl(xData?.profileImageUrl || agent.avatar)}
+                  />
+                </div>
+              </Card>
+            )}
           </div>
         </div>
       </div>
