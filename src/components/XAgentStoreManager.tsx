@@ -280,8 +280,6 @@ export function XAgentStoreManager({ agentId, walletAddress, onWalletUpdate, edi
       
       if (offeringId) {
         const updateData: any = {};
-        if (mediaUrl) updateData.media_url = mediaUrl;
-        if (digitalFileUrl !== undefined) updateData.digital_file_url = digitalFileUrl;
         
         // CRITICAL: Always set offering_type for agent offerings
         if (selectedType === 'agent') {
@@ -289,13 +287,24 @@ export function XAgentStoreManager({ agentId, walletAddress, onWalletUpdate, edi
           updateData.agent_system_prompt = formData.agent_system_prompt;
           updateData.agent_data_source = formData.agent_data_source;
           updateData.agent_functionality = formData.agent_functionality;
-          // Use new mediaUrl if uploaded, otherwise preserve existing agent_avatar_url
-          updateData.agent_avatar_url = mediaUrl || editingOffering?.agent_avatar_url;
           updateData.price_per_conversation = parseFloat(formData.price_per_conversation || '0');
-        } else if (selectedType) {
-          updateData.offering_type = selectedType;
-          if (selectedType === 'digital') {
-            updateData.blur_preview = formData.blur_preview;
+          
+          // For agent offerings, avatar goes to agent_avatar_url (NOT media_url)
+          if (mediaUrl) {
+            updateData.agent_avatar_url = mediaUrl;
+          } else if (editingOffering?.agent_avatar_url) {
+            updateData.agent_avatar_url = editingOffering.agent_avatar_url;
+          }
+        } else {
+          // For non-agent offerings, set media_url
+          if (mediaUrl) updateData.media_url = mediaUrl;
+          if (digitalFileUrl !== undefined) updateData.digital_file_url = digitalFileUrl;
+          
+          if (selectedType) {
+            updateData.offering_type = selectedType;
+            if (selectedType === 'digital') {
+              updateData.blur_preview = formData.blur_preview;
+            }
           }
         }
         
