@@ -5,7 +5,6 @@ import { AgentType } from "@/types/agent";
 import xLogo from "@/assets/x-logo.png";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { useNavigate } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { Users } from "lucide-react";
@@ -87,7 +86,7 @@ export const MatrixHeroSection = ({ onCreateXAgent, onSimClick, onViewAllAgents 
       <div className="absolute inset-0 bg-gradient-to-b from-background via-background/50 to-background"></div>
 
       {/* Content */}
-      <div className="relative z-10 flex-1 flex flex-col items-center justify-center px-4 text-center max-w-5xl mx-auto w-full">
+      <div className="relative z-10 flex-1 flex flex-col items-center justify-center px-4 pt-24 text-center max-w-5xl mx-auto w-full">
         {/* Powered by badge */}
         <div className="mb-6 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-card/50 backdrop-blur-sm border border-border/50">
           <span className="text-xs sm:text-sm text-muted-foreground font-medium">Powered by</span>
@@ -172,20 +171,28 @@ export const MatrixHeroSection = ({ onCreateXAgent, onSimClick, onViewAllAgents 
                     <button
                       key={`${store.id}-${index}`}
                       onClick={() => handleStoreClick(store)}
-                      className="group flex-shrink-0 w-64 flex flex-col items-center gap-4 p-6 rounded-lg bg-card/50 hover:bg-card border border-border/50 hover:border-[#83f1aa]/50 transition-all duration-300 hover:scale-105"
+                      className="group flex-shrink-0 w-64 flex flex-col overflow-hidden rounded-lg bg-card/50 hover:bg-card border border-border/50 hover:border-[#83f1aa]/50 transition-all duration-300 hover:scale-105"
                     >
-                      <Avatar className="h-32 w-32 border-2 border-border">
-                        <AvatarImage 
+                      <div className="relative w-full aspect-square overflow-hidden bg-muted">
+                        <img 
                           src={getAvatarSrc(store.avatar_url) || undefined}
                           alt={store.name}
+                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                           referrerPolicy="no-referrer"
                           crossOrigin="anonymous"
+                          onError={(e) => {
+                            e.currentTarget.style.display = 'none';
+                            const fallback = e.currentTarget.nextElementSibling as HTMLElement;
+                            if (fallback) fallback.style.display = 'flex';
+                          }}
                         />
-                        <AvatarFallback className="bg-primary/10 text-primary text-2xl font-semibold">
-                          {store.name.charAt(0).toUpperCase()}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="text-center w-full">
+                        <div className="hidden absolute inset-0 bg-primary/10 items-center justify-center">
+                          <span className="text-4xl font-bold text-primary">
+                            {store.name.charAt(0).toUpperCase()}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="text-center w-full p-4">
                         <p className="text-base font-semibold truncate">
                           {xUsername ? `@${xUsername}` : store.name}
                         </p>
