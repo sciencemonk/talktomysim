@@ -80,3 +80,24 @@ verify_jwt = false
 
 [functions.train-x-agent]
 verify_jwt = false
+
+[functions.fix-offering-type]
+verify_jwt = false
+
+[functions.get-token-price]
+verify_jwt = false
+
+[functions.get-solana-balance]
+verify_jwt = false
+
+[functions.realtime-chat]
+verify_jwt = false
+
+[functions.verify-x-agent]
+verify_jwt = false
+
+[functions.enhance-advisor-knowledge]
+verify_jwt = false
+
+[functions.generate-agent-system-prompt]
+verify_jwt = false
