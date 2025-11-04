@@ -133,8 +133,13 @@ export function XAgentStoreManager({ agentId, walletAddress, onWalletUpdate, edi
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!formData.title || !formData.description || !formData.price) {
+    if (!formData.title || !formData.description) {
       toast.error("Please fill in all required fields");
+      return;
+    }
+
+    if (selectedType !== 'agent' && !formData.price) {
+      toast.error("Please enter a price");
       return;
     }
 
@@ -203,7 +208,9 @@ export function XAgentStoreManager({ agentId, walletAddress, onWalletUpdate, edi
         p_offering_id: editingOffering?.id || null,
         p_title: formData.title,
         p_description: formData.description,
-        p_price: parseFloat(formData.price),
+        p_price: selectedType === 'agent' 
+          ? parseFloat(formData.price_per_conversation || '0')
+          : parseFloat(formData.price),
         p_delivery_method: formData.delivery_method || 'Digital delivery',
         p_required_info: requiredFields,
         p_is_active: formData.is_active,
@@ -540,17 +547,19 @@ export function XAgentStoreManager({ agentId, walletAddress, onWalletUpdate, edi
                 />
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="price">Price (USDC) *</Label>
-                <Input
-                  id="price"
-                  type="number"
-                  step="0.01"
-                  value={formData.price}
-                  onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-                  placeholder="10.00"
-                />
-              </div>
+              {selectedType !== 'agent' && (
+                <div className="space-y-2">
+                  <Label htmlFor="price">Price (USDC) *</Label>
+                  <Input
+                    id="price"
+                    type="number"
+                    step="0.01"
+                    value={formData.price}
+                    onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                    placeholder="10.00"
+                  />
+                </div>
+              )}
 
               {selectedType === 'agent' && (
                 <>
