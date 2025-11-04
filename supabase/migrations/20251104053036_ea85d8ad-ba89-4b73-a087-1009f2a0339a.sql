@@ -1,0 +1,2 @@
+-- Re-enable RLS
+ALTER TABLE public.advisors ENABLE ROW LEVEL SECURITY;
