@@ -68,8 +68,7 @@ export default function XAgentCreatorView() {
       const { data, error } = await supabase
         .from('advisors')
         .select('id, name, description, prompt, avatar_url, welcome_message, title, created_at, updated_at, is_active, is_verified, x402_enabled, x402_price, x402_wallet, crypto_wallet, sim_category, social_links, edit_code')
-        .eq('sim_category', 'Crypto Mail')
-        .eq('is_active', true);
+        .eq('sim_category', 'Crypto Mail');
 
       if (error) throw error;
 
