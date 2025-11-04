@@ -117,11 +117,11 @@ export function VerificationPendingModal({
           </div>
 
           {/* What you can do now */}
-          <div className="bg-blue-50 dark:bg-blue-950 rounded-lg p-3 space-y-2">
-            <p className="text-sm font-medium text-blue-900 dark:text-blue-100">
+          <div className="rounded-lg p-3 space-y-2" style={{ backgroundColor: 'rgba(128, 244, 169, 0.15)' }}>
+            <p className="text-sm font-medium" style={{ color: '#80f4a9' }}>
               While pending:
             </p>
-            <ul className="text-xs text-blue-800 dark:text-blue-200 space-y-1 list-disc list-inside">
+            <ul className="text-xs space-y-1 list-disc list-inside" style={{ color: '#80f4a9', opacity: 0.9 }}>
               <li>Access your creator dashboard with your code</li>
               <li>Add products and services</li>
               <li>Configure AI settings</li>
@@ -131,8 +131,8 @@ export function VerificationPendingModal({
 
           <Button 
             onClick={() => onOpenChange(false)} 
-            className="w-full"
-            variant="default"
+            className="w-full text-black hover:opacity-90 transition-opacity"
+            style={{ backgroundColor: '#80f4a9' }}
           >
             Got it!
           </Button>
