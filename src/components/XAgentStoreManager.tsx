@@ -200,9 +200,9 @@ export function XAgentStoreManager({ agentId, walletAddress, onWalletUpdate, edi
       return;
     }
 
-    // For 'agent' type, require system prompt to be generated first
-    if (selectedType === 'agent' && !formData.agent_system_prompt) {
-      toast.error("Please generate the agent first by clicking 'Generate Agent'");
+    // For 'agent' type, require system prompt only when creating new agents
+    if (selectedType === 'agent' && !formData.agent_system_prompt && !editingOffering) {
+      toast.error("Please generate or write a system prompt for your agent");
       return;
     }
 
@@ -705,58 +705,71 @@ export function XAgentStoreManager({ agentId, walletAddress, onWalletUpdate, edi
                     </p>
                   </div>
 
-                  {/* System Prompt Section */}
-                  {formData.agent_system_prompt && (
-                    <div className="space-y-2 p-4 bg-muted/50 rounded-lg border border-border">
-                      <div className="flex items-center justify-between">
-                        <Label>Generated System Prompt</Label>
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          onClick={async () => {
-                            if (!formData.title || !formData.description) {
-                              toast.error("Please fill in title and description first");
-                              return;
-                            }
-                            try {
-                              const { data: promptData, error: promptError } = await supabase.functions.invoke(
-                                'generate-agent-system-prompt',
-                                {
-                                  body: {
-                                    title: formData.title,
-                                    description: formData.description,
-                                    dataSource: formData.agent_data_source
-                                  }
+                  {/* System Prompt Section - Always show for agents */}
+                  <div className="space-y-2 p-4 bg-muted/50 rounded-lg border border-border">
+                    <div className="flex items-center justify-between">
+                      <Label>Agent System Prompt {!editingOffering && '*'}</Label>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={async () => {
+                          if (!formData.title || !formData.description) {
+                            toast.error("Please fill in title and description first");
+                            return;
+                          }
+                          setIsGeneratingPrompt(true);
+                          try {
+                            const { data: promptData, error: promptError } = await supabase.functions.invoke(
+                              'generate-agent-system-prompt',
+                              {
+                                body: {
+                                  title: formData.title,
+                                  description: formData.description,
+                                  dataSource: formData.agent_data_source
                                 }
-                              );
-
-                              if (promptError) throw promptError;
-                              
-                              if (promptData?.success && promptData.systemPrompt) {
-                                setFormData(prev => ({ ...prev, agent_system_prompt: promptData.systemPrompt }));
-                                toast.success("System prompt regenerated!");
                               }
-                            } catch (error) {
-                              console.error("Error regenerating system prompt:", error);
-                              toast.error("Failed to regenerate system prompt");
+                            );
+
+                            if (promptError) throw promptError;
+                            
+                            if (promptData?.success && promptData.systemPrompt) {
+                              setFormData(prev => ({ ...prev, agent_system_prompt: promptData.systemPrompt }));
+                              toast.success(editingOffering ? "System prompt regenerated!" : "System prompt generated!");
                             }
-                          }}
-                        >
-                          Regenerate
-                        </Button>
-                      </div>
-                      <Textarea
-                        value={formData.agent_system_prompt}
-                        onChange={(e) => setFormData({ ...formData, agent_system_prompt: e.target.value })}
-                        rows={8}
-                        className="text-sm resize-none bg-background"
-                      />
-                      <p className="text-xs text-muted-foreground">
-                        This prompt defines your agent's behavior. It will be auto-generated when you save, but you can edit it here.
-                      </p>
+                          } catch (error) {
+                            console.error("Error generating system prompt:", error);
+                            toast.error("Failed to generate system prompt");
+                          } finally {
+                            setIsGeneratingPrompt(false);
+                          }
+                        }}
+                        disabled={isGeneratingPrompt}
+                      >
+                        {isGeneratingPrompt ? (
+                          <>
+                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                            Generating...
+                          </>
+                        ) : (
+                          formData.agent_system_prompt ? 'Regenerate' : 'Generate'
+                        )}
+                      </Button>
                     </div>
-                  )}
+                    <Textarea
+                      value={formData.agent_system_prompt}
+                      onChange={(e) => setFormData({ ...formData, agent_system_prompt: e.target.value })}
+                      rows={10}
+                      className="text-sm resize-none bg-background font-mono"
+                      placeholder="The agent's system prompt will appear here. Click 'Generate' to create one, or write your own custom prompt..."
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      {editingOffering 
+                        ? "Edit the system prompt to change your agent's behavior and expertise."
+                        : "This prompt defines your agent's personality and expertise. You can generate one or write your own."
+                      }
+                    </p>
+                  </div>
                 </>
               )}
 
