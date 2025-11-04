@@ -171,7 +171,7 @@ export const MatrixHeroSection = ({ onCreateXAgent, onSimClick, onViewAllAgents 
                     <button
                       key={`${store.id}-${index}`}
                       onClick={() => handleStoreClick(store)}
-                      className="group flex-shrink-0 w-64 flex flex-col overflow-hidden rounded-lg bg-card/50 hover:bg-card border border-border/50 hover:border-[#83f1aa]/50 transition-all duration-300 hover:scale-105"
+                      className="group flex-shrink-0 w-44 flex flex-col overflow-hidden rounded-lg bg-card/50 hover:bg-card border border-border/50 hover:border-[#83f1aa]/50 transition-all duration-300 hover:scale-105"
                     >
                       <div className="relative w-full aspect-square overflow-hidden bg-muted">
                         <img 

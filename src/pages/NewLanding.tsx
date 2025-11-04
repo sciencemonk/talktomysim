@@ -558,11 +558,11 @@ const NewLanding = () => {
       />
       </div>
 
-      <SimVsStripeSection />
-
       <div id="learn-more-section" className="scroll-mt-4">
         <AgenticCommerceSection />
       </div>
+
+      <SimVsStripeSection />
 
       <Whyx402Section />
 
