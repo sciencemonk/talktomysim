@@ -256,36 +256,78 @@ export function XAgentStoreManager({ agentId, walletAddress, onWalletUpdate, edi
         digitalFileUrl = publicUrl;
       }
 
-      // For NEW agent offerings, bypass RPC and create directly with offering_type
-      if (!editingOffering && selectedType === 'agent') {
-        const { data: newOffering, error: createError } = await supabase
-          .from('x_agent_offerings')
-          .insert({
-            agent_id: agentId,
-            title: formData.title,
-            description: formData.description,
-            price: parseFloat(formData.price_per_conversation || '0'),
-            price_per_conversation: parseFloat(formData.price_per_conversation || '0'),
-            delivery_method: formData.delivery_method || 'Digital delivery',
-            required_info: requiredFields,
-            is_active: formData.is_active,
-            offering_type: 'agent',
-            agent_system_prompt: formData.agent_system_prompt,
-            agent_data_source: formData.agent_data_source,
-            agent_functionality: formData.agent_functionality,
-            agent_avatar_url: mediaUrl || null,
-            digital_file_url: digitalFileUrl || null
-          })
-          .select()
-          .single();
+      // Use RPC for all operations (it has SECURITY DEFINER to bypass RLS with edit_code)
+      const { data, error } = await supabase.rpc('manage_offering_with_code', {
+        p_agent_id: agentId,
+        p_edit_code: editCode,
+        p_offering_id: editingOffering?.id || null,
+        p_title: formData.title,
+        p_description: formData.description,
+        p_price: selectedType === 'agent' 
+          ? parseFloat(formData.price_per_conversation || '0')
+          : parseFloat(formData.price),
+        p_delivery_method: formData.delivery_method || 'Digital delivery',
+        p_required_info: requiredFields,
+        p_is_active: formData.is_active,
+        p_operation: editingOffering ? 'update' : 'insert'
+      });
 
-        if (createError) throw createError;
-      } else {
-        // Use RPC for non-agent offerings or updates
-        const { data, error } = await supabase.rpc('manage_offering_with_code', {
+      if (error) throw error;
+
+      // Get the offering ID from RPC response or fetch the latest offering
+      let offeringId = typeof data === 'object' && data !== null && 'id' in data 
+        ? (data as any).id 
+        : editingOffering?.id;
+      
+      // If we don't have the ID yet (new offering), fetch it
+      if (!offeringId && !editingOffering) {
+        const { data: latestOffering, error: fetchError } = await supabase
+          .from('x_agent_offerings')
+          .select('id')
+          .eq('agent_id', agentId)
+          .eq('title', formData.title)
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .single();
+        
+        if (!fetchError && latestOffering) {
+          offeringId = latestOffering.id;
+        }
+      }
+      
+      // Update with all the specific fields using edit_code
+      if (offeringId) {
+        const updateData: any = {};
+        
+        if (selectedType === 'agent') {
+          updateData.offering_type = 'agent';
+          updateData.agent_system_prompt = formData.agent_system_prompt;
+          updateData.agent_data_source = formData.agent_data_source;
+          updateData.agent_functionality = formData.agent_functionality;
+          updateData.price_per_conversation = parseFloat(formData.price_per_conversation || '0');
+          
+          if (mediaUrl) {
+            updateData.agent_avatar_url = mediaUrl;
+          } else if (editingOffering?.agent_avatar_url) {
+            updateData.agent_avatar_url = editingOffering.agent_avatar_url;
+          }
+        } else {
+          if (mediaUrl) updateData.media_url = mediaUrl;
+          if (digitalFileUrl !== undefined) updateData.digital_file_url = digitalFileUrl;
+          
+          if (selectedType) {
+            updateData.offering_type = selectedType;
+            if (selectedType === 'digital') {
+              updateData.blur_preview = formData.blur_preview;
+            }
+          }
+        }
+        
+        // Use another RPC call to update with edit_code authentication
+        const { error: updateError } = await supabase.rpc('manage_offering_with_code', {
           p_agent_id: agentId,
           p_edit_code: editCode,
-          p_offering_id: editingOffering?.id || null,
+          p_offering_id: offeringId,
           p_title: formData.title,
           p_description: formData.description,
           p_price: selectedType === 'agent' 
@@ -294,49 +336,20 @@ export function XAgentStoreManager({ agentId, walletAddress, onWalletUpdate, edi
           p_delivery_method: formData.delivery_method || 'Digital delivery',
           p_required_info: requiredFields,
           p_is_active: formData.is_active,
-          p_operation: editingOffering ? 'update' : 'insert'
+          p_operation: 'update'
         });
 
-        if (error) throw error;
-
-        // Get the offering ID
-        let offeringId = typeof data === 'object' && data !== null && 'id' in data 
-          ? (data as any).id 
-          : editingOffering?.id;
+        if (updateError) throw updateError;
         
-        if (offeringId) {
-          const updateData: any = {};
-          
-          if (selectedType === 'agent') {
-            updateData.offering_type = 'agent';
-            updateData.agent_system_prompt = formData.agent_system_prompt;
-            updateData.agent_data_source = formData.agent_data_source;
-            updateData.agent_functionality = formData.agent_functionality;
-            updateData.price_per_conversation = parseFloat(formData.price_per_conversation || '0');
-            
-            if (mediaUrl) {
-              updateData.agent_avatar_url = mediaUrl;
-            } else if (editingOffering?.agent_avatar_url) {
-              updateData.agent_avatar_url = editingOffering.agent_avatar_url;
-            }
-          } else {
-            if (mediaUrl) updateData.media_url = mediaUrl;
-            if (digitalFileUrl !== undefined) updateData.digital_file_url = digitalFileUrl;
-            
-            if (selectedType) {
-              updateData.offering_type = selectedType;
-              if (selectedType === 'digital') {
-                updateData.blur_preview = formData.blur_preview;
-              }
-            }
-          }
-          
-          const { error: updateError } = await supabase
+        // Now update the agent-specific fields that RPC doesn't handle
+        if (Object.keys(updateData).length > 0) {
+          const { error: finalUpdateError } = await supabase
             .from('x_agent_offerings')
             .update(updateData)
-            .eq('id', offeringId);
+            .eq('id', offeringId)
+            .eq('agent_id', agentId);
 
-          if (updateError) throw updateError;
+          if (finalUpdateError) throw finalUpdateError;
         }
       }
 
