@@ -266,20 +266,22 @@ export function XAgentStoreManager({ agentId, walletAddress, onWalletUpdate, edi
         ? (data as any).id 
         : editingOffering?.id;
       
-      if (offeringId && (mediaUrl || digitalFileUrl !== undefined || selectedType || formData.agent_system_prompt)) {
+      if (offeringId) {
         const updateData: any = {};
         if (mediaUrl) updateData.media_url = mediaUrl;
         if (digitalFileUrl !== undefined) updateData.digital_file_url = digitalFileUrl;
-        if (selectedType) {
+        
+        // CRITICAL: Always set offering_type for agent offerings
+        if (selectedType === 'agent') {
+          updateData.offering_type = 'agent';
+          updateData.agent_system_prompt = formData.agent_system_prompt;
+          updateData.agent_data_source = formData.agent_data_source;
+          updateData.agent_avatar_url = mediaUrl; // Use media as agent avatar
+          updateData.price_per_conversation = parseFloat(formData.price_per_conversation || '0');
+        } else if (selectedType) {
           updateData.offering_type = selectedType;
           if (selectedType === 'digital') {
             updateData.blur_preview = formData.blur_preview;
-          }
-          if (selectedType === 'agent') {
-            updateData.agent_system_prompt = formData.agent_system_prompt;
-            updateData.agent_data_source = formData.agent_data_source;
-            updateData.agent_avatar_url = mediaUrl; // Use media as agent avatar
-            updateData.price_per_conversation = parseFloat(formData.price_per_conversation || '0');
           }
         }
         
@@ -288,7 +290,10 @@ export function XAgentStoreManager({ agentId, walletAddress, onWalletUpdate, edi
           .update(updateData)
           .eq('id', offeringId);
 
-        if (updateError) throw updateError;
+        if (updateError) {
+          console.error('Update error:', updateError);
+          throw updateError;
+        }
       }
 
       toast.success(editingOffering ? "Offering updated successfully" : "Offering created successfully");
