@@ -60,17 +60,12 @@ serve(async (req) => {
 
       // Fetch user's recent tweets using TwitterAPI.io
       try {
-        const tweetsUrl = `https://api.twitterapi.io/twitter/user/tweets`;
+        const tweetsUrl = `https://api.twitterapi.io/twitter/user/last_tweets?userName=${encodeURIComponent(xUsername)}&count=10`;
         const tweetsResponse = await fetch(tweetsUrl, {
-          method: "POST",
+          method: "GET",
           headers: { 
-            "x-api-key": TWITTER_API_IO_KEY!,
-            "Content-Type": "application/json"
+            "X-API-Key": TWITTER_API_IO_KEY!,
           },
-          body: JSON.stringify({
-            username: xUsername,
-            count: 10
-          }),
         });
 
         if (!tweetsResponse.ok) {
@@ -84,7 +79,7 @@ serve(async (req) => {
         // Check if any tweet contains the verification text
         const verificationText = agent.verification_post_required || 'Verify me on $SIMAI';
         const hasVerificationPost = tweets.some((tweet: any) => {
-          const tweetText = tweet.full_text || tweet.text || '';
+          const tweetText = tweet.text || '';
           return tweetText.includes(verificationText);
         });
 

@@ -32,14 +32,12 @@ serve(async (req) => {
     console.log(`Generating ${reportType} report for @${username}`);
 
     // Fetch user profile using TwitterAPI.io
-    const userUrl = `https://api.twitterapi.io/twitter/user/info`;
+    const userUrl = `https://api.twitterapi.io/twitter/user/info?userName=${encodeURIComponent(username)}`;
     const userResponse = await fetch(userUrl, {
-      method: "POST",
+      method: "GET",
       headers: {
-        "x-api-key": TWITTER_API_IO_KEY!,
-        "Content-Type": "application/json",
+        "X-API-Key": TWITTER_API_IO_KEY!,
       },
-      body: JSON.stringify({ username }),
     });
 
     if (!userResponse.ok) {
@@ -52,17 +50,12 @@ serve(async (req) => {
     console.log('User data received:', JSON.stringify(userResponseData).substring(0, 200));
 
     // Fetch recent tweets using TwitterAPI.io
-    const tweetsUrl = `https://api.twitterapi.io/twitter/user/tweets`;
+    const tweetsUrl = `https://api.twitterapi.io/twitter/user/last_tweets?userName=${encodeURIComponent(username)}&count=100`;
     const tweetsResponse = await fetch(tweetsUrl, {
-      method: "POST",
+      method: "GET",
       headers: {
-        "x-api-key": TWITTER_API_IO_KEY!,
-        "Content-Type": "application/json",
+        "X-API-Key": TWITTER_API_IO_KEY!,
       },
-      body: JSON.stringify({ 
-        username,
-        count: 100
-      }),
     });
 
     let tweets: any[] = [];
@@ -87,11 +80,11 @@ serve(async (req) => {
         success: true, 
         report,
         tweets: tweets.map((t: any) => ({
-          text: t.full_text || t.text || '',
-          created_at: t.created_at,
-          favorite_count: t.favorite_count || 0,
-          retweet_count: t.retweet_count || 0,
-          reply_count: t.reply_count || 0,
+          text: t.text || '',
+          created_at: t.createdAt,
+          favorite_count: t.likeCount || 0,
+          retweet_count: t.retweetCount || 0,
+          reply_count: t.replyCount || 0,
         }))
       }),
       {
@@ -114,10 +107,10 @@ serve(async (req) => {
 });
 
 function generateIntelligenceReport(userData: any, tweets: any[], reportType: string) {
-  const user = userData.data?.legacy || userData.data;
+  const user = userData.data;
   
   // Extract profile image and convert to full size
-  let profileImageUrl = user.profile_image_url_https || user.profile_image_url;
+  let profileImageUrl = user.profilePicture;
   if (profileImageUrl && profileImageUrl.includes('_normal')) {
     profileImageUrl = profileImageUrl.replace('_normal', '_400x400');
   }
@@ -126,9 +119,9 @@ function generateIntelligenceReport(userData: any, tweets: any[], reportType: st
   const safeTweets = Array.isArray(tweets) ? tweets : [];
   
   // Calculate engagement metrics
-  const totalLikes = safeTweets.reduce((sum, t) => sum + (t.favorite_count || 0), 0);
-  const totalRetweets = safeTweets.reduce((sum, t) => sum + (t.retweet_count || 0), 0);
-  const totalReplies = safeTweets.reduce((sum, t) => sum + (t.reply_count || 0), 0);
+  const totalLikes = safeTweets.reduce((sum, t) => sum + (t.likeCount || 0), 0);
+  const totalRetweets = safeTweets.reduce((sum, t) => sum + (t.retweetCount || 0), 0);
+  const totalReplies = safeTweets.reduce((sum, t) => sum + (t.replyCount || 0), 0);
   const avgEngagement = safeTweets.length > 0 ? (totalLikes + totalRetweets + totalReplies) / safeTweets.length : 0;
 
   // Analyze posting frequency
@@ -151,23 +144,23 @@ function generateIntelligenceReport(userData: any, tweets: any[], reportType: st
   const hashtags = new Set<string>();
   const mentions = new Set<string>();
   safeTweets.forEach(tweet => {
-    const text = tweet.full_text || tweet.text || '';
+    const text = tweet.text || '';
     const hashtagMatches = text.match(/#\w+/g) || [];
     const mentionMatches = text.match(/@\w+/g) || [];
     hashtagMatches.forEach(h => hashtags.add(h));
     mentionMatches.forEach(m => mentions.add(m));
   });
 
-  const followers = user.followers_count || 0;
-  const following = user.friends_count || user.following_count || 0;
-  const totalTweets = user.statuses_count || 0;
+  const followers = user.followers || 0;
+  const following = user.following || 0;
+  const totalTweets = user.statusesCount || 0;
 
   const report: any = {
-    username: user.screen_name || user.username,
+    username: user.userName,
     displayName: user.name,
     bio: user.description,
     location: user.location,
-    verified: user.verified || false,
+    verified: user.isBlueVerified || false,
     profileImageUrl: profileImageUrl,
     
     metrics: {
@@ -209,8 +202,8 @@ function generateIntelligenceReport(userData: any, tweets: any[], reportType: st
 function generateInsights(user: any, tweets: any[], metrics: any) {
   const insights = [];
   
-  const followerCount = user.followers_count || 0;
-  const followingCount = user.friends_count || user.following_count || 0;
+  const followerCount = user.followers || 0;
+  const followingCount = user.following || 0;
   
   // Follower insights
   if (followerCount > 100000) {

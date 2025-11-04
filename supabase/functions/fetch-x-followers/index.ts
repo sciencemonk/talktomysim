@@ -32,14 +32,12 @@ Deno.serve(async (req) => {
     console.log(`Fetching follower data for @${username}`);
 
     // Use TwitterAPI.io
-    const url = `https://api.twitterapi.io/twitter/user/info`;
+    const url = `https://api.twitterapi.io/twitter/user/info?userName=${encodeURIComponent(username)}`;
     const twitterResponse = await fetch(url, {
-      method: "POST",
+      method: "GET",
       headers: { 
-        "x-api-key": TWITTER_API_IO_KEY!,
-        "Content-Type": "application/json"
+        "X-API-Key": TWITTER_API_IO_KEY!,
       },
-      body: JSON.stringify({ username }),
     });
 
     if (!twitterResponse.ok) {
@@ -49,8 +47,8 @@ Deno.serve(async (req) => {
     }
 
     const userData = await twitterResponse.json();
-    const followersCount = userData.data?.legacy?.followers_count || 0;
-    const avatarUrl = userData.data?.legacy?.profile_image_url_https?.replace('_normal', '_400x400') || '';
+    const followersCount = userData.data?.followers || 0;
+    const avatarUrl = userData.data?.profilePicture?.replace('_normal', '_400x400') || userData.data?.profilePicture || '';
 
     console.log(`Found ${followersCount} followers for @${username}`);
 
