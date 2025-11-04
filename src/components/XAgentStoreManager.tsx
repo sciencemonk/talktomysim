@@ -21,6 +21,9 @@ interface Offering {
   is_active: boolean;
   created_at: string;
   media_url?: string;
+  offering_type?: 'standard' | 'digital';
+  digital_file_url?: string;
+  blur_preview?: boolean;
 }
 
 interface XAgentStoreManagerProps {
@@ -34,6 +37,8 @@ export function XAgentStoreManager({ agentId, walletAddress, onWalletUpdate, edi
   const [offerings, setOfferings] = useState<Offering[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [showTypeSelection, setShowTypeSelection] = useState(false);
+  const [selectedType, setSelectedType] = useState<'standard' | 'digital' | null>(null);
   const [editingOffering, setEditingOffering] = useState<Offering | null>(null);
   const [isSavingWallet, setIsSavingWallet] = useState(false);
   
@@ -43,11 +48,13 @@ export function XAgentStoreManager({ agentId, walletAddress, onWalletUpdate, edi
     price: "",
     delivery_method: "",
     is_active: true,
+    blur_preview: false,
   });
 
   const [requiredFields, setRequiredFields] = useState<Array<{ label: string; type: string; required: boolean }>>([]);
   const [mediaFile, setMediaFile] = useState<File | null>(null);
   const [mediaPreview, setMediaPreview] = useState<string | null>(null);
+  const [digitalFile, setDigitalFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
 
   useEffect(() => {
@@ -99,22 +106,54 @@ export function XAgentStoreManager({ agentId, walletAddress, onWalletUpdate, edi
     reader.readAsDataURL(file);
   };
 
+  const handleDigitalFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file size (50MB limit for digital products)
+    if (file.size > 50 * 1024 * 1024) {
+      toast.error("File size must be less than 50MB");
+      return;
+    }
+
+    // Validate file type
+    const validTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'video/mp4', 'video/webm', 'video/quicktime', 'application/pdf'];
+    if (!validTypes.includes(file.type)) {
+      toast.error("Please upload a valid image, video, or PDF file");
+      return;
+    }
+
+    setDigitalFile(file);
+    toast.success("File selected: " + file.name);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!formData.title || !formData.description || !formData.price || !formData.delivery_method) {
+    if (!formData.title || !formData.description || !formData.price) {
       toast.error("Please fill in all required fields");
+      return;
+    }
+
+    if (selectedType === 'standard' && !formData.delivery_method) {
+      toast.error("Please specify delivery method");
+      return;
+    }
+
+    if (selectedType === 'digital' && !digitalFile && !editingOffering?.digital_file_url) {
+      toast.error("Please upload a digital file");
       return;
     }
 
     try {
       setIsUploading(true);
       let mediaUrl = editingOffering?.media_url || null;
+      let digitalFileUrl = editingOffering?.digital_file_url || null;
 
-      // Upload media if a new file was selected
+      // Upload preview media if a new file was selected
       if (mediaFile) {
         const fileExt = mediaFile.name.split('.').pop();
-        const fileName = `${agentId}-${Date.now()}.${fileExt}`;
+        const fileName = `preview-${agentId}-${Date.now()}.${fileExt}`;
         const filePath = `${fileName}`;
 
         const { error: uploadError } = await supabase.storage
@@ -133,6 +172,28 @@ export function XAgentStoreManager({ agentId, walletAddress, onWalletUpdate, edi
         mediaUrl = publicUrl;
       }
 
+      // Upload digital file if provided
+      if (digitalFile) {
+        const fileExt = digitalFile.name.split('.').pop();
+        const fileName = `digital-${agentId}-${Date.now()}.${fileExt}`;
+        const filePath = `${fileName}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from('offering-media')
+          .upload(filePath, digitalFile, {
+            cacheControl: '3600',
+            upsert: false
+          });
+
+        if (uploadError) throw uploadError;
+
+        const { data: { publicUrl } } = supabase.storage
+          .from('offering-media')
+          .getPublicUrl(filePath);
+
+        digitalFileUrl = publicUrl;
+      }
+
       const { data, error } = await supabase.rpc('manage_offering_with_code', {
         p_agent_id: agentId,
         p_edit_code: editCode,
@@ -140,7 +201,7 @@ export function XAgentStoreManager({ agentId, walletAddress, onWalletUpdate, edi
         p_title: formData.title,
         p_description: formData.description,
         p_price: parseFloat(formData.price),
-        p_delivery_method: formData.delivery_method,
+        p_delivery_method: formData.delivery_method || 'Digital delivery',
         p_required_info: requiredFields,
         p_is_active: formData.is_active,
         p_operation: editingOffering ? 'update' : 'insert'
@@ -148,20 +209,28 @@ export function XAgentStoreManager({ agentId, walletAddress, onWalletUpdate, edi
 
       if (error) throw error;
 
-      // Update media_url separately if we have one
-      if (mediaUrl && data) {
-        const offeringId = typeof data === 'object' && data !== null && 'id' in data 
-          ? (data as any).id 
-          : editingOffering?.id;
-        
-        if (offeringId) {
-          const { error: updateError } = await supabase
-            .from('x_agent_offerings')
-            .update({ media_url: mediaUrl })
-            .eq('id', offeringId);
-
-          if (updateError) throw updateError;
+      // Update additional fields separately if we have them
+      const offeringId = typeof data === 'object' && data !== null && 'id' in data 
+        ? (data as any).id 
+        : editingOffering?.id;
+      
+      if (offeringId && (mediaUrl || digitalFileUrl !== undefined || selectedType)) {
+        const updateData: any = {};
+        if (mediaUrl) updateData.media_url = mediaUrl;
+        if (digitalFileUrl !== undefined) updateData.digital_file_url = digitalFileUrl;
+        if (selectedType) {
+          updateData.offering_type = selectedType;
+          if (selectedType === 'digital') {
+            updateData.blur_preview = formData.blur_preview;
+          }
         }
+        
+        const { error: updateError } = await supabase
+          .from('x_agent_offerings')
+          .update(updateData)
+          .eq('id', offeringId);
+
+        if (updateError) throw updateError;
       }
 
       toast.success(editingOffering ? "Offering updated successfully" : "Offering created successfully");
@@ -178,15 +247,18 @@ export function XAgentStoreManager({ agentId, walletAddress, onWalletUpdate, edi
 
   const handleEdit = (offering: Offering) => {
     setEditingOffering(offering);
+    setSelectedType(offering.offering_type || 'standard');
     setFormData({
       title: offering.title,
       description: offering.description,
       price: offering.price.toString(),
       delivery_method: offering.delivery_method,
       is_active: offering.is_active,
+      blur_preview: offering.blur_preview || false,
     });
     setRequiredFields(offering.required_info || []);
     setMediaPreview(offering.media_url || null);
+    setShowTypeSelection(false);
     setIsDialogOpen(true);
   };
 
@@ -238,11 +310,20 @@ export function XAgentStoreManager({ agentId, walletAddress, onWalletUpdate, edi
       price: "",
       delivery_method: "",
       is_active: true,
+      blur_preview: false,
     });
     setRequiredFields([]);
     setEditingOffering(null);
     setMediaFile(null);
     setMediaPreview(null);
+    setDigitalFile(null);
+    setSelectedType(null);
+    setShowTypeSelection(false);
+  };
+
+  const handleTypeSelect = (type: 'standard' | 'digital') => {
+    setSelectedType(type);
+    setShowTypeSelection(false);
   };
 
   const addRequiredField = () => {
@@ -345,19 +426,86 @@ export function XAgentStoreManager({ agentId, walletAddress, onWalletUpdate, edi
           if (!open) resetForm();
         }}>
           <DialogTrigger asChild>
-            <Button variant="mint">
+            <Button 
+              variant="mint"
+              onClick={() => {
+                setShowTypeSelection(true);
+                setIsDialogOpen(true);
+              }}
+            >
               <Plus className="h-4 w-4 mr-2" />
               Add Offering
             </Button>
           </DialogTrigger>
           <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>{editingOffering ? "Edit Offering" : "Create New Offering"}</DialogTitle>
-              <DialogDescription>
-                Create offerings that users can purchase with x402 payments
-              </DialogDescription>
-            </DialogHeader>
-            <form onSubmit={handleSubmit} className="space-y-4">
+            {showTypeSelection && !selectedType ? (
+              <>
+                <DialogHeader>
+                  <DialogTitle>Select Product Type</DialogTitle>
+                  <DialogDescription>
+                    Choose the type of offering you want to create
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="grid gap-4 py-4">
+                  <button
+                    type="button"
+                    onClick={() => handleTypeSelect('standard')}
+                    className="p-6 border-2 border-border rounded-lg hover:border-primary transition-colors text-left group"
+                  >
+                    <div className="flex items-start gap-4">
+                      <Package className="h-8 w-8 text-primary mt-1" />
+                      <div>
+                        <h3 className="font-semibold text-lg mb-1">Standard Listing</h3>
+                        <p className="text-sm text-muted-foreground">
+                          Offer services, consultations, or custom work. You'll fulfill orders manually.
+                        </p>
+                      </div>
+                    </div>
+                  </button>
+                  
+                  <button
+                    type="button"
+                    onClick={() => handleTypeSelect('digital')}
+                    className="p-6 border-2 border-border rounded-lg hover:border-primary transition-colors text-left group"
+                  >
+                    <div className="flex items-start gap-4">
+                      <DollarSign className="h-8 w-8 text-primary mt-1" />
+                      <div>
+                        <h3 className="font-semibold text-lg mb-1">Digital Product</h3>
+                        <p className="text-sm text-muted-foreground">
+                          Sell digital files (images, videos, PDFs). Buyers get instant access after payment.
+                        </p>
+                      </div>
+                    </div>
+                  </button>
+                  
+                  <div className="p-6 border-2 border-border rounded-lg opacity-50 cursor-not-allowed">
+                    <div className="flex items-start gap-4">
+                      <Package className="h-8 w-8 text-muted-foreground mt-1" />
+                      <div>
+                        <div className="flex items-center gap-2 mb-1">
+                          <h3 className="font-semibold text-lg">Agentic Workflow</h3>
+                          <Badge variant="secondary">Coming Soon</Badge>
+                        </div>
+                        <p className="text-sm text-muted-foreground">
+                          Create automated AI-powered services. Let your agent handle complex tasks autonomously.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </>
+            ) : (
+              <>
+                <DialogHeader>
+                  <DialogTitle>{editingOffering ? "Edit Offering" : "Create New Offering"}</DialogTitle>
+                  <DialogDescription>
+                    {selectedType === 'digital' 
+                      ? "Create a digital product that buyers can access instantly"
+                      : "Create offerings that users can purchase with x402 payments"}
+                  </DialogDescription>
+                </DialogHeader>
+                <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="title">Title *</Label>
                 <Input
@@ -391,38 +539,97 @@ export function XAgentStoreManager({ agentId, walletAddress, onWalletUpdate, edi
                 />
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="delivery">Delivery Method *</Label>
-                <Textarea
-                  id="delivery"
-                  value={formData.delivery_method}
-                  onChange={(e) => setFormData({ ...formData, delivery_method: e.target.value })}
-                  placeholder="e.g., I'll email you within 24 hours to schedule the call"
-                  rows={3}
-                />
-              </div>
+              {selectedType === 'standard' && (
+                <div className="space-y-2">
+                  <Label htmlFor="delivery">Delivery Method *</Label>
+                  <Textarea
+                    id="delivery"
+                    value={formData.delivery_method}
+                    onChange={(e) => setFormData({ ...formData, delivery_method: e.target.value })}
+                    placeholder="e.g., I'll email you within 24 hours to schedule the call"
+                    rows={3}
+                  />
+                </div>
+              )}
 
-              <div className="space-y-2">
-                <Label htmlFor="media">Product Image or Video</Label>
-                <Input
-                  id="media"
-                  type="file"
-                  accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,video/webm,video/quicktime"
-                  onChange={handleMediaChange}
-                />
-                <p className="text-xs text-muted-foreground">
-                  Max file size: 10MB. Supported formats: JPEG, PNG, WEBP, GIF, MP4, WEBM, MOV
-                </p>
-                {mediaPreview && (
-                  <div className="mt-2">
-                    {mediaFile?.type.startsWith('video/') || mediaPreview.includes('video') ? (
-                      <video src={mediaPreview} controls className="w-full max-h-48 rounded-md" />
-                    ) : (
-                      <img src={mediaPreview} alt="Preview" className="w-full max-h-48 object-cover rounded-md" />
+              {selectedType === 'digital' && (
+                <>
+                  <div className="space-y-2">
+                    <Label htmlFor="digitalFile">Digital File * (Image, Video, or PDF)</Label>
+                    <Input
+                      id="digitalFile"
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,video/webm,video/quicktime,application/pdf"
+                      onChange={handleDigitalFileChange}
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Max file size: 50MB. This is the file buyers will receive after payment.
+                    </p>
+                    {digitalFile && (
+                      <p className="text-sm text-green-600">✓ {digitalFile.name} selected</p>
+                    )}
+                    {editingOffering?.digital_file_url && !digitalFile && (
+                      <p className="text-sm text-muted-foreground">Current file uploaded</p>
                     )}
                   </div>
-                )}
-              </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="media">Preview Image (Optional)</Label>
+                    <Input
+                      id="media"
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp,image/gif"
+                      onChange={handleMediaChange}
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Upload a preview image. Max file size: 10MB.
+                    </p>
+                    {mediaPreview && (
+                      <div className="mt-2">
+                        <img 
+                          src={mediaPreview} 
+                          alt="Preview" 
+                          className={`w-full max-h-48 object-cover rounded-md ${formData.blur_preview ? 'blur-md' : ''}`}
+                        />
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="flex items-center space-x-2">
+                    <Switch
+                      id="blur_preview"
+                      checked={formData.blur_preview}
+                      onCheckedChange={(checked) => setFormData({ ...formData, blur_preview: checked })}
+                      className="data-[state=checked]:bg-[#81f4aa]"
+                    />
+                    <Label htmlFor="blur_preview">Blur preview image (unblurs after purchase)</Label>
+                  </div>
+                </>
+              )}
+
+              {selectedType === 'standard' && (
+                <div className="space-y-2">
+                  <Label htmlFor="media">Product Image or Video</Label>
+                  <Input
+                    id="media"
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,video/webm,video/quicktime"
+                    onChange={handleMediaChange}
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Max file size: 10MB. Supported formats: JPEG, PNG, WEBP, GIF, MP4, WEBM, MOV
+                  </p>
+                  {mediaPreview && (
+                    <div className="mt-2">
+                      {mediaFile?.type.startsWith('video/') || mediaPreview.includes('video') ? (
+                        <video src={mediaPreview} controls className="w-full max-h-48 rounded-md" />
+                      ) : (
+                        <img src={mediaPreview} alt="Preview" className="w-full max-h-48 object-cover rounded-md" />
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
 
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
@@ -476,14 +683,21 @@ export function XAgentStoreManager({ agentId, walletAddress, onWalletUpdate, edi
               </div>
 
               <DialogFooter>
-                <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
-                  Cancel
+                <Button type="button" variant="outline" onClick={() => {
+                  if (showTypeSelection) {
+                    setIsDialogOpen(false);
+                  } else {
+                    setShowTypeSelection(true);
+                    setSelectedType(null);
+                  }
+                }}>
+                  {showTypeSelection ? "Cancel" : "Back"}
                 </Button>
                 <Button type="submit" variant="mint" disabled={isUploading}>
                   {isUploading ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      {mediaFile ? "Uploading..." : "Saving..."}
+                      {mediaFile || digitalFile ? "Uploading..." : "Saving..."}
                     </>
                   ) : (
                     <>{editingOffering ? "Update" : "Create"} Offering</>
@@ -491,6 +705,8 @@ export function XAgentStoreManager({ agentId, walletAddress, onWalletUpdate, edi
                 </Button>
               </DialogFooter>
             </form>
+            </>
+            )}
           </DialogContent>
         </Dialog>
       </div>
