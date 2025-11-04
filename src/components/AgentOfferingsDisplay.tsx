@@ -38,7 +38,10 @@ const generateDisplayDescription = (systemPrompt?: string): string => {
 
 export function AgentOfferingsDisplay({ offerings, avatarUrl, agentName }: AgentOfferingsDisplayProps) {
   // Filter to only show agent type offerings
-  const agentOfferings = offerings.filter(o => o.offering_type === 'agent');
+  // An offering is an agent if it has offering_type='agent' OR has agent_system_prompt
+  const agentOfferings = offerings.filter(o => 
+    o.offering_type === 'agent' || o.agent_system_prompt
+  );
 
   if (agentOfferings.length === 0) {
     return (

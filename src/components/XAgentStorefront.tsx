@@ -67,7 +67,10 @@ export function XAgentStorefront({ agentId, agentName, walletAddress }: XAgentSt
 
       if (error) throw error;
       // Filter out agent offerings - they're displayed separately
-      const nonAgentOfferings = (data || []).filter((o: any) => o.offering_type !== 'agent');
+      // An offering is an agent if it has offering_type='agent' OR has agent_system_prompt
+      const nonAgentOfferings = (data || []).filter((o: any) => 
+        o.offering_type !== 'agent' && !o.agent_system_prompt
+      );
       setOfferings(nonAgentOfferings as unknown as Offering[]);
     } catch (error) {
       console.error("Error loading offerings:", error);
