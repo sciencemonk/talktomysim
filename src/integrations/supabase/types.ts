@@ -163,7 +163,7 @@ export type Database = {
           user_id: string | null
           verification_deadline: string | null
           verification_post_required: string | null
-          verification_status: string | null
+          verification_status: boolean
           verified_at: string | null
           website_url: string | null
           welcome_message: string | null
@@ -223,7 +223,7 @@ export type Database = {
           user_id?: string | null
           verification_deadline?: string | null
           verification_post_required?: string | null
-          verification_status?: string | null
+          verification_status?: boolean
           verified_at?: string | null
           website_url?: string | null
           welcome_message?: string | null
@@ -283,7 +283,7 @@ export type Database = {
           user_id?: string | null
           verification_deadline?: string | null
           verification_post_required?: string | null
-          verification_status?: string | null
+          verification_status?: boolean
           verified_at?: string | null
           website_url?: string | null
           welcome_message?: string | null

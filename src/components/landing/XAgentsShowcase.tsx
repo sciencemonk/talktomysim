@@ -25,7 +25,7 @@ const XAgentCard = ({ agent, onAgentClick }: XAgentCardProps) => {
   const [xProfileData, setXProfileData] = useState<any>(null);
   const xUsername = (agent.social_links as any)?.x_username;
   const isVerified = (agent as any).is_verified || false;
-  const isPending = (agent as any).verification_status === 'pending';
+  const isPending = !(agent as any).verification_status;
 
   useEffect(() => {
     const fetchXProfile = async () => {
@@ -149,8 +149,8 @@ export const XAgentsShowcase = ({ agents }: XAgentsShowcaseProps) => {
     const verificationStatus = (agent as any).verification_status;
     const xUsername = (agent.social_links as any)?.x_username;
     
-    // If agent is pending verification, show pending modal
-    if (verificationStatus === 'pending') {
+    // If agent is pending verification (false), show pending modal
+    if (!verificationStatus) {
       setPendingAgentModal({
         open: true,
         agentName: agent.name,

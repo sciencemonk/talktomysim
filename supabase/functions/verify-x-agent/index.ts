@@ -20,12 +20,12 @@ serve(async (req) => {
 
     console.log('Starting X agent verification check...');
 
-    // Get all pending agents that need verification
+    // Get all pending agents that need verification (verification_status = false)
     const { data: pendingAgents, error: agentsError } = await supabase
       .from('advisors')
       .select('id, name, social_links, verification_post_required, verification_deadline')
       .eq('sim_category', 'Crypto Mail')
-      .eq('verification_status', 'pending')
+      .eq('verification_status', false)
       .not('verification_deadline', 'is', null);
 
     if (agentsError) {
@@ -51,7 +51,7 @@ serve(async (req) => {
         console.log(`Agent ${agent.id} (@${xUsername}) deadline expired`);
         await supabase
           .from('advisors')
-          .update({ verification_status: 'failed' })
+          .update({ verification_status: false }) // Keep as false (pending/failed)
           .eq('id', agent.id);
         
         results.push({ agent_id: agent.id, username: xUsername, status: 'failed', reason: 'deadline_expired' });
@@ -86,11 +86,11 @@ serve(async (req) => {
         if (hasVerificationPost) {
           console.log(`Agent ${agent.id} (@${xUsername}) verified!`);
           
-          // Update agent to verified status
+          // Update agent to verified status (true = verified)
           await supabase
             .from('advisors')
             .update({ 
-              verification_status: 'verified',
+              verification_status: true,
               verified_at: now.toISOString(),
               is_active: true,
               is_public: true

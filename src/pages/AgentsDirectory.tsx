@@ -61,8 +61,8 @@ const PumpFunSimCard = ({ sim, onSimClick, categories }: PumpFunSimCardProps) =>
     ? (sim.social_links as any)?.x_username 
     : undefined;
 
-  // Check verification status from database
-  const isPending = (sim as any).verification_status === 'pending';
+  // Check verification status from database (false = pending, true = verified)
+  const isPending = !(sim as any).verification_status;
 
   useEffect(() => {
     const fetchMarketCap = async () => {

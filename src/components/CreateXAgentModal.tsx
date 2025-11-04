@@ -142,7 +142,7 @@ You can answer questions about your X profile, interests, opinions, and provide 
             edit_code: editCode,
             custom_url: cleanUsername.toLowerCase().replace(/[^a-z0-9]/g, ''),
             welcome_message: `Hey! I'm @${cleanUsername}. My AI agent has been trained on my actual posts to represent my voice and ideas. Ask me anything!`,
-            verification_status: 'pending',
+            verification_status: false, // false = pending, true = verified
             verification_deadline: verificationDeadline.toISOString(),
             verification_post_required: 'Verify me on $SIMAI',
           })
