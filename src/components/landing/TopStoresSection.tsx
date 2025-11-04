@@ -122,7 +122,7 @@ export const TopStoresSection = () => {
         .select('id, name, avatar_url, social_links, description')
         .eq('is_active', true)
         .eq('sim_category', 'Crypto Mail')
-        .limit(50);
+        .limit(100);
 
       if (error) throw error;
 
@@ -193,7 +193,7 @@ export const TopStoresSection = () => {
       return agentsWithFollowers
         .filter((agent): agent is XAgent & { followers: number } => agent !== null)
         .sort((a, b) => b.followers - a.followers)
-        .slice(0, 10);
+        .slice(0, 20);
     },
     staleTime: 1000 * 60 * 60, // Cache for 1 hour
   });
@@ -213,7 +213,7 @@ export const TopStoresSection = () => {
             Discover Agentic Stores
           </h2>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 sm:gap-3">
-            {[...Array(10)].map((_, i) => (
+            {[...Array(20)].map((_, i) => (
               <div key={i} className="h-32 bg-muted animate-pulse rounded-lg" />
             ))}
           </div>

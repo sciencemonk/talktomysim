@@ -167,9 +167,9 @@ You can answer questions about your X profile, interests, opinions, and provide 
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Generate Your X Agent</DialogTitle>
+          <DialogTitle>Generate Your Agentic Storefront</DialogTitle>
           <DialogDescription>
-            Enter your X (Twitter) username to create an AI agent trained on your posts.
+            Enter your X username to create an autonomous storefront that accepts x402 payments.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">

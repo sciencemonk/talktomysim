@@ -43,16 +43,16 @@ export const MatrixHeroSection = ({ onCreateXAgent, onSimClick, onViewAllAgents 
         </div>
 
         <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-sans font-bold mb-4 tracking-tight text-foreground text-center w-full">
-          Social Internet Money
+          Agentic Payments
         </h1>
         
         {/* Zero fees text */}
         <p className="text-sm sm:text-base text-[#82f3aa] font-semibold mb-3">
-          Zero fees compared to 2.9% from Stripe.
+          Accept crypto payments instantly with zero fees — powered by x402
         </p>
         
         <p className="text-base sm:text-lg md:text-xl text-muted-foreground mb-10 max-w-3xl leading-relaxed">
-          Verify your X account and create an agentic storefront to sell your services, content, and agentic workflows.
+          Create an autonomous storefront that accepts payments directly from your customers. No middlemen. No platform fees. Just pure revenue.
         </p>
 
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8 mb-10 max-w-4xl mx-auto w-full">
