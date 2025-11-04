@@ -162,13 +162,9 @@ export const MatrixHeroSection = ({ onCreateXAgent, onSimClick, onViewAllAgents 
       {topStores && topStores.length > 0 && (
         <div className="relative z-10 pb-8 px-4 overflow-hidden">
           <div className="max-w-7xl mx-auto">
-            <div className="flex items-center gap-2 mb-4 justify-center">
-              <h3 className="text-sm font-semibold text-muted-foreground">Trending Stores</h3>
-            </div>
-            
             {/* Scrolling container */}
             <div className="relative overflow-hidden">
-              <div className="flex gap-4 animate-scroll-left">
+              <div className="flex gap-6 animate-scroll-left">
                 {/* Duplicate the stores array for seamless loop */}
                 {[...topStores, ...topStores].map((store, index) => {
                   const xUsername = (store.social_links as any)?.x_username;
@@ -176,29 +172,29 @@ export const MatrixHeroSection = ({ onCreateXAgent, onSimClick, onViewAllAgents 
                     <button
                       key={`${store.id}-${index}`}
                       onClick={() => handleStoreClick(store)}
-                      className="group flex-shrink-0 w-32 flex flex-col items-center gap-2 p-3 rounded-lg bg-card/50 hover:bg-card border border-border/50 hover:border-[#83f1aa]/50 transition-all duration-300 hover:scale-105"
+                      className="group flex-shrink-0 w-64 flex flex-col items-center gap-4 p-6 rounded-lg bg-card/50 hover:bg-card border border-border/50 hover:border-[#83f1aa]/50 transition-all duration-300 hover:scale-105"
                     >
-                      <Avatar className="h-16 w-16 border-2 border-border">
+                      <Avatar className="h-32 w-32 border-2 border-border">
                         <AvatarImage 
                           src={getAvatarSrc(store.avatar_url) || undefined}
                           alt={store.name}
                           referrerPolicy="no-referrer"
                           crossOrigin="anonymous"
                         />
-                        <AvatarFallback className="bg-primary/10 text-primary text-sm font-semibold">
+                        <AvatarFallback className="bg-primary/10 text-primary text-2xl font-semibold">
                           {store.name.charAt(0).toUpperCase()}
                         </AvatarFallback>
                       </Avatar>
                       <div className="text-center w-full">
-                        <p className="text-xs font-semibold truncate">
+                        <p className="text-base font-semibold truncate">
                           {xUsername ? `@${xUsername}` : store.name}
                         </p>
                         {store.followers > 0 && (
                           <Badge 
                             variant="outline" 
-                            className="text-[10px] px-1.5 py-0 mt-1 bg-primary/10 border-primary/30 text-primary flex items-center gap-1 w-fit mx-auto"
+                            className="text-xs px-2 py-1 mt-2 bg-primary/10 border-primary/30 text-primary flex items-center gap-1.5 w-fit mx-auto"
                           >
-                            <Users className="h-2.5 w-2.5" />
+                            <Users className="h-3 w-3" />
                             {formatNumber(store.followers)}
                           </Badge>
                         )}
