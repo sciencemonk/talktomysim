@@ -103,7 +103,7 @@ export const MatrixHeroSection = ({ onCreateXAgent, onSimClick, onViewAllAgents 
         </p>
         
         <p className="text-base sm:text-lg md:text-xl text-muted-foreground mb-10 max-w-3xl leading-relaxed">
-          Create an autonomous storefront that accepts payments directly from your customers. No middlemen. No platform fees. Just pure revenue.
+          Create an AI Agent that accepts payments directly from your customers. No middlemen. No platform fees. Just pure revenue.
         </p>
 
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8 mb-10 max-w-4xl mx-auto w-full">
