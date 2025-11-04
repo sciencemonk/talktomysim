@@ -1,91 +1,17 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.55.0';
-import { createHmac } from "node:crypto";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-const API_KEY = Deno.env.get("TWITTER_CONSUMER_KEY")?.trim();
-const API_SECRET = Deno.env.get("TWITTER_CONSUMER_SECRET")?.trim();
-const ACCESS_TOKEN = Deno.env.get("TWITTER_ACCESS_TOKEN")?.trim();
-const ACCESS_TOKEN_SECRET = Deno.env.get("TWITTER_ACCESS_TOKEN_SECRET")?.trim();
+const TWITTER_API_IO_KEY = Deno.env.get("TWITTER_API_IO_KEY")?.trim();
 
 function validateEnvironmentVariables() {
-  if (!API_KEY) throw new Error("Missing TWITTER_CONSUMER_KEY");
-  if (!API_SECRET) throw new Error("Missing TWITTER_CONSUMER_SECRET");
-  if (!ACCESS_TOKEN) throw new Error("Missing TWITTER_ACCESS_TOKEN");
-  if (!ACCESS_TOKEN_SECRET) throw new Error("Missing TWITTER_ACCESS_TOKEN_SECRET");
-  
-  console.log("Environment variables check:");
-  console.log("- API_KEY length:", API_KEY?.length);
-  console.log("- API_SECRET length:", API_SECRET?.length);
-  console.log("- ACCESS_TOKEN length:", ACCESS_TOKEN?.length);
-  console.log("- ACCESS_TOKEN_SECRET length:", ACCESS_TOKEN_SECRET?.length);
-}
-
-function generateOAuthSignature(
-  method: string,
-  url: string,
-  params: Record<string, string>,
-  consumerSecret: string,
-  tokenSecret: string
-): string {
-  // Percent-encode each parameter name and value individually, then sort
-  const signatureBaseString = `${method}&${encodeURIComponent(url)}&${encodeURIComponent(
-    Object.entries(params)
-      .sort()
-      .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`)
-      .join("&")
-  )}`;
-  const signingKey = `${encodeURIComponent(consumerSecret)}&${encodeURIComponent(tokenSecret)}`;
-  const hmacSha1 = createHmac("sha1", signingKey);
-  return hmacSha1.update(signatureBaseString).digest("base64");
-}
-
-function generateOAuthHeader(method: string, url: string): string {
-  // Parse URL to extract base URL and query parameters
-  const urlObj = new URL(url);
-  const baseUrl = `${urlObj.protocol}//${urlObj.host}${urlObj.pathname}`;
-  
-  // Extract query parameters
-  const queryParams: Record<string, string> = {};
-  urlObj.searchParams.forEach((value, key) => {
-    queryParams[key] = value;
-  });
-  
-  const oauthParams = {
-    oauth_consumer_key: API_KEY!,
-    oauth_nonce: Math.random().toString(36).substring(2),
-    oauth_signature_method: "HMAC-SHA1",
-    oauth_timestamp: Math.floor(Date.now() / 1000).toString(),
-    oauth_token: ACCESS_TOKEN!,
-    oauth_version: "1.0",
-  };
-
-  // Combine OAuth params and query params for signature
-  const allParams = { ...oauthParams, ...queryParams };
-  const signature = generateOAuthSignature(method, baseUrl, allParams, API_SECRET!, ACCESS_TOKEN_SECRET!);
-  const signedOAuthParams = { ...oauthParams, oauth_signature: signature };
-
-  return "OAuth " + Object.entries(signedOAuthParams)
-    .sort((a, b) => a[0].localeCompare(b[0]))
-    .map(([k, v]) => `${encodeURIComponent(k)}="${encodeURIComponent(v)}"`)
-    .join(", ");
-}
-
-interface TwitterUserResponse {
-  data: {
-    id: string;
-    name: string;
-    username: string;
-    profile_image_url: string;
-    public_metrics: {
-      followers_count: number;
-      following_count: number;
-      tweet_count: number;
-    };
-  };
+  if (!TWITTER_API_IO_KEY) {
+    throw new Error("Missing TWITTER_API_IO_KEY environment variable");
+  }
+  console.log("TwitterAPI.io key configured");
 }
 
 Deno.serve(async (req) => {
@@ -105,44 +31,26 @@ Deno.serve(async (req) => {
 
     console.log(`Fetching follower data for @${username}`);
 
-    // Use official X API v2
-    const url = `https://api.x.com/2/users/by/username/${username}?user.fields=public_metrics,profile_image_url`;
-    const oauthHeader = generateOAuthHeader("GET", url);
-    
-    console.log("Request URL:", url);
-    console.log("OAuth header (first 50 chars):", oauthHeader.substring(0, 50) + "...");
-
+    // Use TwitterAPI.io
+    const url = `https://api.twitterapi.io/twitter/user/info`;
     const twitterResponse = await fetch(url, {
-      method: "GET",
-      headers: { Authorization: oauthHeader },
+      method: "POST",
+      headers: { 
+        "x-api-key": TWITTER_API_IO_KEY!,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ username }),
     });
 
     if (!twitterResponse.ok) {
       const errorText = await twitterResponse.text();
-      console.error('X API error status:', twitterResponse.status);
-      console.error('X API error body:', errorText);
-      
-      // Handle rate limiting gracefully
-      if (twitterResponse.status === 429) {
-        return new Response(
-          JSON.stringify({ 
-            success: false, 
-            error: 'Rate limit reached. Please try again later.',
-            retry_after: twitterResponse.headers.get('x-rate-limit-reset') 
-          }),
-          {
-            status: 429,
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          }
-        );
-      }
-      
-      throw new Error(`X API error: ${twitterResponse.status}`);
+      console.error('TwitterAPI.io error:', twitterResponse.status, errorText);
+      throw new Error(`TwitterAPI.io error: ${twitterResponse.status}`);
     }
 
-    const userData: TwitterUserResponse = await twitterResponse.json();
-    const followersCount = userData.data.public_metrics.followers_count;
-    const avatarUrl = userData.data.profile_image_url.replace('_normal', '_400x400');
+    const userData = await twitterResponse.json();
+    const followersCount = userData.data?.legacy?.followers_count || 0;
+    const avatarUrl = userData.data?.legacy?.profile_image_url_https?.replace('_normal', '_400x400') || '';
 
     console.log(`Found ${followersCount} followers for @${username}`);
 

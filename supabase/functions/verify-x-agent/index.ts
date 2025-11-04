@@ -1,71 +1,12 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3';
-import { createHmac } from "node:crypto";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-const API_KEY = Deno.env.get("TWITTER_CONSUMER_KEY")?.trim();
-const API_SECRET = Deno.env.get("TWITTER_CONSUMER_SECRET")?.trim();
-const ACCESS_TOKEN = Deno.env.get("TWITTER_ACCESS_TOKEN")?.trim();
-const ACCESS_TOKEN_SECRET = Deno.env.get("TWITTER_ACCESS_TOKEN_SECRET")?.trim();
-
-function generateOAuthSignature(
-  method: string,
-  url: string,
-  params: Record<string, string>,
-  consumerSecret: string,
-  tokenSecret: string
-): string {
-  const urlObj = new URL(url);
-  const baseUrl = `${urlObj.protocol}//${urlObj.host}${urlObj.pathname}`;
-  
-  const queryParams: Record<string, string> = {};
-  urlObj.searchParams.forEach((value, key) => {
-    queryParams[key] = value;
-  });
-  
-  const allParams = { ...params, ...queryParams };
-  const signatureBaseString = `${method}&${encodeURIComponent(baseUrl)}&${encodeURIComponent(
-    Object.entries(allParams)
-      .sort()
-      .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`)
-      .join("&")
-  )}`;
-  const signingKey = `${encodeURIComponent(consumerSecret)}&${encodeURIComponent(tokenSecret)}`;
-  const hmacSha1 = createHmac("sha1", signingKey);
-  return hmacSha1.update(signatureBaseString).digest("base64");
-}
-
-function generateOAuthHeader(method: string, url: string): string {
-  const urlObj = new URL(url);
-  const baseUrl = `${urlObj.protocol}//${urlObj.host}${urlObj.pathname}`;
-  
-  const queryParams: Record<string, string> = {};
-  urlObj.searchParams.forEach((value, key) => {
-    queryParams[key] = value;
-  });
-  
-  const oauthParams = {
-    oauth_consumer_key: API_KEY!,
-    oauth_nonce: Math.random().toString(36).substring(2),
-    oauth_signature_method: "HMAC-SHA1",
-    oauth_timestamp: Math.floor(Date.now() / 1000).toString(),
-    oauth_token: ACCESS_TOKEN!,
-    oauth_version: "1.0",
-  };
-
-  const allParams = { ...oauthParams, ...queryParams };
-  const signature = generateOAuthSignature(method, baseUrl, allParams, API_SECRET!, ACCESS_TOKEN_SECRET!);
-  const signedOAuthParams = { ...oauthParams, oauth_signature: signature };
-
-  return "OAuth " + Object.entries(signedOAuthParams)
-    .sort((a, b) => a[0].localeCompare(b[0]))
-    .map(([k, v]) => `${encodeURIComponent(k)}="${encodeURIComponent(v)}"`)
-    .join(", ");
-}
+const TWITTER_API_IO_KEY = Deno.env.get("TWITTER_API_IO_KEY")?.trim();
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -117,36 +58,19 @@ serve(async (req) => {
         continue;
       }
 
-      // Fetch user's recent tweets
+      // Fetch user's recent tweets using TwitterAPI.io
       try {
-        const userUrl = `https://api.x.com/2/users/by/username/${xUsername}`;
-        const userOAuthHeader = generateOAuthHeader("GET", userUrl);
-
-        const userResponse = await fetch(userUrl, {
-          method: "GET",
-          headers: { Authorization: userOAuthHeader },
-        });
-
-        if (!userResponse.ok) {
-          console.log(`Failed to fetch user ${xUsername}: ${userResponse.status}`);
-          continue;
-        }
-
-        const userData = await userResponse.json();
-        const userId = userData.data?.id;
-
-        if (!userId) {
-          console.log(`No user ID found for ${xUsername}`);
-          continue;
-        }
-
-        // Fetch recent tweets
-        const tweetsUrl = `https://api.x.com/2/users/${userId}/tweets?max_results=10`;
-        const tweetsOAuthHeader = generateOAuthHeader("GET", tweetsUrl);
-
+        const tweetsUrl = `https://api.twitterapi.io/twitter/user/tweets`;
         const tweetsResponse = await fetch(tweetsUrl, {
-          method: "GET",
-          headers: { Authorization: tweetsOAuthHeader },
+          method: "POST",
+          headers: { 
+            "x-api-key": TWITTER_API_IO_KEY!,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            username: xUsername,
+            count: 10
+          }),
         });
 
         if (!tweetsResponse.ok) {
@@ -155,13 +79,14 @@ serve(async (req) => {
         }
 
         const tweetsData = await tweetsResponse.json();
-        const tweets = tweetsData.data || [];
+        const tweets = tweetsData.tweets || [];
 
         // Check if any tweet contains the verification text
         const verificationText = agent.verification_post_required || 'Verify me on $SIMAI';
-        const hasVerificationPost = tweets.some((tweet: any) => 
-          tweet.text?.includes(verificationText)
-        );
+        const hasVerificationPost = tweets.some((tweet: any) => {
+          const tweetText = tweet.full_text || tweet.text || '';
+          return tweetText.includes(verificationText);
+        });
 
         if (hasVerificationPost) {
           console.log(`Agent ${agent.id} (@${xUsername}) verified!`);
