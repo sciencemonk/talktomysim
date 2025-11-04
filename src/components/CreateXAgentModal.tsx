@@ -53,20 +53,24 @@ export const CreateXAgentModal = ({ open, onOpenChange }: CreateXAgentModalProps
       const followers = report.metrics?.followers || 0;
       const profileImageUrl = report.profileImageUrl;
 
-      // Check if agent already exists
-      const { data: existingAgent, error: checkError } = await supabase
+      // Check if agent already exists - try by name first
+      const { data: existingAgentByName } = await supabase
         .from('advisors')
-        .select('id, edit_code, verification_status')
+        .select('id, edit_code, verification_status, social_links')
         .eq('sim_category', 'Crypto Mail')
-        .or(`social_links->x_username.eq.${cleanUsername},name.eq.@${cleanUsername}`)
+        .or(`name.eq.@${cleanUsername},name.eq.${cleanUsername}`)
         .maybeSingle();
 
-      if (checkError && checkError.code !== 'PGRST116') {
-        console.error('Error checking existing agent:', checkError);
-        toast.error('Failed to check existing agent');
-        setIsLoading(false);
-        return;
-      }
+      // Also check by social_links username in memory since JSONB queries can be tricky
+      const { data: allAgents } = await supabase
+        .from('advisors')
+        .select('id, edit_code, verification_status, social_links')
+        .eq('sim_category', 'Crypto Mail');
+
+      const existingAgent = existingAgentByName || allAgents?.find(agent => {
+        const socialLinks = agent.social_links as any;
+        return socialLinks?.x_username?.toLowerCase() === cleanUsername.toLowerCase();
+      });
 
       let agentId: string;
       let editCode: string;
