@@ -154,8 +154,16 @@ export const XAgentsShowcase = ({ agents }: XAgentsShowcaseProps) => {
            agent.description?.toLowerCase().includes(searchQuery.toLowerCase());
   });
 
-  // Sort agents
+  // Sort agents - verified first, then by user's selected sort
   const sortedAgents = [...filteredAgents].sort((a, b) => {
+    const aVerified = (a as any).is_verified || false;
+    const bVerified = (b as any).is_verified || false;
+    
+    // First priority: verified agents come first
+    if (aVerified && !bVerified) return -1;
+    if (!aVerified && bVerified) return 1;
+    
+    // Second priority: user's selected sort
     if (sortBy === 'followers') {
       const aCount = (a as any).like_count || 0;
       const bCount = (b as any).like_count || 0;

@@ -39,7 +39,7 @@ export const MatrixHeroSection = ({ onCreateXAgent, onSimClick, onViewAllAgents 
       return agentsWithFollowers
         .filter(agent => agent.followers > 0)
         .sort((a, b) => b.followers - a.followers)
-        .slice(0, 15);
+        .slice(0, 10);
     },
     staleTime: 1000 * 60 * 60,
   });
