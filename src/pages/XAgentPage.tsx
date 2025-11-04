@@ -560,7 +560,7 @@ export default function XAgentPage() {
             setCollectedInfo({});
           }}
           agent={selectedAgent}
-          avatarUrl={getAvatarUrl()}
+          avatarUrl={selectedAgent.avatar}
           collectedInfo={collectedInfo}
         />
       )}
