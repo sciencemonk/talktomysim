@@ -560,8 +560,6 @@ const NewLanding = () => {
 
       <SimVsStripeSection />
 
-      <OfferingsMosaic />
-
       <div id="learn-more-section" className="scroll-mt-4">
         <AgenticCommerceSection />
       </div>

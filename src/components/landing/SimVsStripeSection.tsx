@@ -51,11 +51,11 @@ export const SimVsStripeSection = () => {
         <div className="text-center mb-12">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#82f3aa]/10 border border-[#82f3aa]/30 mb-4">
             <Zap className="h-4 w-4 text-[#82f3aa]" />
-            <span className="text-sm font-semibold text-[#82f3aa]">The Clear Choice</span>
+            <span className="text-sm font-semibold text-[#82f3aa]">Crypto-native payments</span>
           </div>
           
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4">
-            Why Choose Sim Over Stripe?
+            SIM vs Stripe
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
             Keep 100% of your revenue with crypto-native payments powered by x402
