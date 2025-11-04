@@ -151,7 +151,7 @@ export const MatrixHeroSection = ({ onCreateXAgent, onSimClick, onViewAllAgents 
 
         <button
           onClick={onViewAllAgents}
-          className="text-sm text-muted-foreground hover:text-[#82f3aa] hover:underline transition-all duration-300 font-medium"
+          className="text-sm text-muted-foreground hover:text-[#82f3aa] hover:underline transition-all duration-300 font-medium mb-16"
         >
           Learn More
         </button>
@@ -159,7 +159,7 @@ export const MatrixHeroSection = ({ onCreateXAgent, onSimClick, onViewAllAgents 
 
       {/* Auto-scrolling stores at bottom */}
       {topStores && topStores.length > 0 && (
-        <div className="relative z-10 pb-8 px-4 overflow-hidden">
+        <div className="relative z-10 pb-8 px-4 overflow-hidden mt-8">
           <div className="max-w-7xl mx-auto">
             {/* Scrolling container */}
             <div className="relative overflow-hidden">
