@@ -28,6 +28,7 @@ interface Offering {
   agent_data_source?: string;
   agent_avatar_url?: string;
   price_per_conversation?: number;
+  agent_functionality?: string;
 }
 
 interface XAgentStoreManagerProps {
@@ -55,6 +56,7 @@ export function XAgentStoreManager({ agentId, walletAddress, onWalletUpdate, edi
     blur_preview: false,
     agent_system_prompt: "",
     agent_data_source: "",
+    agent_functionality: "",
     price_per_conversation: "",
   });
 
@@ -199,6 +201,12 @@ export function XAgentStoreManager({ agentId, walletAddress, onWalletUpdate, edi
       return;
     }
 
+    // For 'agent' type, require functionality description
+    if (selectedType === 'agent' && !formData.agent_functionality) {
+      toast.error("Please describe how your agent works (Functionality)");
+      return;
+    }
+
     if (selectedType !== 'agent' && !formData.price) {
       toast.error("Please enter a price");
       return;
@@ -301,6 +309,7 @@ export function XAgentStoreManager({ agentId, walletAddress, onWalletUpdate, edi
           updateData.offering_type = 'agent';
           updateData.agent_system_prompt = formData.agent_system_prompt;
           updateData.agent_data_source = formData.agent_data_source;
+          updateData.agent_functionality = formData.agent_functionality;
           updateData.agent_avatar_url = mediaUrl; // Use media as agent avatar
           updateData.price_per_conversation = parseFloat(formData.price_per_conversation || '0');
         } else if (selectedType) {
@@ -334,6 +343,7 @@ export function XAgentStoreManager({ agentId, walletAddress, onWalletUpdate, edi
   };
 
   const handleEdit = (offering: Offering) => {
+    console.log("Editing offering:", offering); // Debug log
     setEditingOffering(offering);
     setSelectedType(offering.offering_type || 'standard');
     setFormData({
@@ -345,6 +355,7 @@ export function XAgentStoreManager({ agentId, walletAddress, onWalletUpdate, edi
       blur_preview: offering.blur_preview || false,
       agent_system_prompt: offering.agent_system_prompt || "",
       agent_data_source: offering.agent_data_source || "",
+      agent_functionality: offering.agent_functionality || "",
       price_per_conversation: offering.price_per_conversation?.toString() || "",
     });
     setRequiredFields(offering.required_info || []);
@@ -404,6 +415,7 @@ export function XAgentStoreManager({ agentId, walletAddress, onWalletUpdate, edi
       blur_preview: false,
       agent_system_prompt: "",
       agent_data_source: "",
+      agent_functionality: "",
       price_per_conversation: "",
     });
     setRequiredFields([]);
@@ -655,6 +667,20 @@ export function XAgentStoreManager({ agentId, walletAddress, onWalletUpdate, edi
                     />
                     <p className="text-xs text-muted-foreground">
                       This will be used to generate the agent's system prompt and capabilities.
+                    </p>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="agentFunctionality">How it Works (Functionality) *</Label>
+                    <Textarea
+                      id="agentFunctionality"
+                      value={formData.agent_functionality}
+                      onChange={(e) => setFormData({ ...formData, agent_functionality: e.target.value })}
+                      placeholder="Explain how users interact with this agent and what they can do with it..."
+                      rows={3}
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Describe the agent's functionality and how users will interact with it.
                     </p>
                   </div>
 

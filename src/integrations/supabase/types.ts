@@ -1277,6 +1277,7 @@ export type Database = {
         Row: {
           agent_avatar_url: string | null
           agent_data_source: string | null
+          agent_functionality: string | null
           agent_id: string
           agent_system_prompt: string | null
           blur_preview: boolean | null
@@ -1297,6 +1298,7 @@ export type Database = {
         Insert: {
           agent_avatar_url?: string | null
           agent_data_source?: string | null
+          agent_functionality?: string | null
           agent_id: string
           agent_system_prompt?: string | null
           blur_preview?: boolean | null
@@ -1317,6 +1319,7 @@ export type Database = {
         Update: {
           agent_avatar_url?: string | null
           agent_data_source?: string | null
+          agent_functionality?: string | null
           agent_id?: string
           agent_system_prompt?: string | null
           blur_preview?: boolean | null
