@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Plus, Edit, Trash2, DollarSign, Package, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { AgentIntegrations, DEFAULT_INTEGRATIONS, Integration } from "@/components/AgentIntegrations";
 
 interface Offering {
   id: string;
@@ -29,6 +30,7 @@ interface Offering {
   agent_avatar_url?: string;
   price_per_conversation?: number;
   agent_functionality?: string;
+  integrations?: Integration[];
 }
 
 interface XAgentStoreManagerProps {
@@ -66,6 +68,7 @@ export function XAgentStoreManager({ agentId, walletAddress, onWalletUpdate, edi
   const [digitalFile, setDigitalFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [isGeneratingPrompt, setIsGeneratingPrompt] = useState(false);
+  const [integrations, setIntegrations] = useState<Integration[]>(DEFAULT_INTEGRATIONS);
 
   useEffect(() => {
     loadOfferings();
@@ -312,6 +315,14 @@ export function XAgentStoreManager({ agentId, walletAddress, onWalletUpdate, edi
       price_per_conversation: offering.price_per_conversation?.toString() || "",
     });
     setRequiredFields(offering.required_info || []);
+    
+    // Load integrations if they exist
+    if (offering.integrations && Array.isArray(offering.integrations)) {
+      setIntegrations(offering.integrations);
+    } else {
+      setIntegrations(DEFAULT_INTEGRATIONS);
+    }
+    
     // For agent offerings, use agent_avatar_url; for others use media_url
     const previewUrl = offering.offering_type === 'agent' 
       ? offering.agent_avatar_url 
@@ -383,6 +394,7 @@ export function XAgentStoreManager({ agentId, walletAddress, onWalletUpdate, edi
     setSelectedType(null);
     setShowTypeSelection(false);
     setIsGeneratingPrompt(false);
+    setIntegrations(DEFAULT_INTEGRATIONS);
   };
 
   const handleTypeSelect = (type: 'standard' | 'digital' | 'agent') => {
@@ -639,6 +651,14 @@ export function XAgentStoreManager({ agentId, walletAddress, onWalletUpdate, edi
                     <p className="text-xs text-muted-foreground">
                       Describe the agent's functionality and how users will interact with it.
                     </p>
+                  </div>
+
+                  {/* Integrations Section */}
+                  <div className="space-y-2 p-4 bg-muted/30 rounded-lg border border-border">
+                    <AgentIntegrations
+                      integrations={integrations}
+                      onChange={setIntegrations}
+                    />
                   </div>
 
                   <div className="space-y-2">
