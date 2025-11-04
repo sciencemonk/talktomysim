@@ -12,6 +12,7 @@ import { XAgentStorefront } from "@/components/XAgentStorefront";
 import { AgentOfferingsDisplay } from "@/components/AgentOfferingsDisplay";
 import { AgentChatModal } from "@/components/AgentChatModal";
 import { XOfferingPurchaseModal } from "@/components/XOfferingPurchaseModal";
+import { AgentInfoCollectionModal } from "@/components/AgentInfoCollectionModal";
 import { AgentType } from "@/types/agent";
 import { toast } from "sonner";
 import xIcon from "@/assets/x-icon.png";
@@ -30,6 +31,8 @@ export default function XAgentPage() {
   const [showChatModal, setShowChatModal] = useState(false);
   const [showPurchaseModal, setShowPurchaseModal] = useState(false);
   const [pendingAgent, setPendingAgent] = useState<any>(null);
+  const [showInfoModal, setShowInfoModal] = useState(false);
+  const [collectedInfo, setCollectedInfo] = useState<Record<string, string>>({});
 
   useEffect(() => {
     if (username) {
@@ -198,61 +201,20 @@ export default function XAgentPage() {
 
   const handleAgentClick = (offering: any) => {
     const isFree = !offering.price_per_conversation || offering.price_per_conversation === 0;
+    const hasRequiredInfo = offering.required_info && Array.isArray(offering.required_info) && offering.required_info.length > 0;
     
-    if (isFree) {
-      // Free agent - open chat directly
-      const chatAgent: AgentType = {
-        id: offering.id,
-        name: offering.title,
-        description: offering.description || '',
-        type: 'General Tutor',
-        status: 'active',
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        avatar: offering.agent_avatar_url || getAvatarUrl(),
-        prompt: offering.agent_system_prompt || '',
-        welcome_message: `Hi! I'm ${offering.title}. How can I help you today?`,
-        title: offering.title,
-        sim_type: 'living',
-        is_featured: false,
-        model: 'GPT-4',
-        interactions: 0,
-        studentsSaved: 0,
-        helpfulnessScore: 0,
-        avmScore: 0,
-        csat: 0,
-        performance: 0,
-        channels: [],
-        channelConfigs: {},
-        isPersonal: false,
-        voiceTraits: [],
-      } as any;
-      
-      setSelectedAgent(chatAgent);
-      setShowChatModal(true);
-    } else {
-      // Paid agent - show purchase modal
-      setPendingAgent(offering);
-      setShowPurchaseModal(true);
-    }
-  };
-
-  const handlePurchaseSuccess = () => {
-    if (!pendingAgent) return;
-    
-    // After successful purchase, open chat with the agent
     const chatAgent: AgentType = {
-      id: pendingAgent.id,
-      name: pendingAgent.title,
-      description: pendingAgent.description || '',
+      id: offering.id,
+      name: offering.title,
+      description: offering.description || '',
       type: 'General Tutor',
       status: 'active',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
-      avatar: pendingAgent.agent_avatar_url || getAvatarUrl(),
-      prompt: pendingAgent.agent_system_prompt || '',
-      welcome_message: `Hi! I'm ${pendingAgent.title}. How can I help you today?`,
-      title: pendingAgent.title,
+      avatar: offering.agent_avatar_url || getAvatarUrl(),
+      prompt: offering.agent_system_prompt || '',
+      welcome_message: `Hi! I'm ${offering.title}. How can I help you today?`,
+      title: offering.title,
       sim_type: 'living',
       is_featured: false,
       model: 'GPT-4',
@@ -268,11 +230,53 @@ export default function XAgentPage() {
       voiceTraits: [],
     } as any;
     
-    setShowPurchaseModal(false);
-    setPendingAgent(null);
-    setSelectedAgent(chatAgent);
+    if (isFree) {
+      // Free agent
+      if (hasRequiredInfo) {
+        // Collect info first, then open chat
+        setPendingAgent({ ...offering, chatAgent });
+        setShowInfoModal(true);
+      } else {
+        // Open chat directly
+        setSelectedAgent(chatAgent);
+        setCollectedInfo({});
+        setShowChatModal(true);
+      }
+    } else {
+      // Paid agent - show purchase modal
+      setPendingAgent({ ...offering, chatAgent });
+      setShowPurchaseModal(true);
+    }
+  };
+
+  const handleInfoSubmit = (info: Record<string, string>) => {
+    if (!pendingAgent) return;
+    
+    setCollectedInfo(info);
+    setShowInfoModal(false);
+    setSelectedAgent(pendingAgent.chatAgent);
     setShowChatModal(true);
-    toast.success("Purchase successful! Starting your chat...");
+    setPendingAgent(null);
+  };
+
+  const handlePurchaseSuccess = () => {
+    if (!pendingAgent) return;
+    
+    const hasRequiredInfo = pendingAgent.required_info && Array.isArray(pendingAgent.required_info) && pendingAgent.required_info.length > 0;
+    
+    setShowPurchaseModal(false);
+    
+    if (hasRequiredInfo) {
+      // Collect info before starting chat
+      setShowInfoModal(true);
+    } else {
+      // Start chat directly
+      setSelectedAgent(pendingAgent.chatAgent);
+      setCollectedInfo({});
+      setShowChatModal(true);
+      setPendingAgent(null);
+      toast.success("Purchase successful! Starting your chat...");
+    }
   };
 
   const formatNumber = (num: number | undefined) => {
@@ -532,6 +536,20 @@ export default function XAgentPage() {
         </div>
       </div>
 
+      {/* Info Collection Modal */}
+      {pendingAgent && (
+        <AgentInfoCollectionModal
+          isOpen={showInfoModal}
+          onClose={() => {
+            setShowInfoModal(false);
+            setPendingAgent(null);
+          }}
+          agentName={pendingAgent.title}
+          requiredInfo={pendingAgent.required_info || []}
+          onSubmit={handleInfoSubmit}
+        />
+      )}
+
       {/* Chat Modal */}
       {selectedAgent && (
         <AgentChatModal
@@ -539,9 +557,11 @@ export default function XAgentPage() {
           onClose={() => {
             setShowChatModal(false);
             setSelectedAgent(null);
+            setCollectedInfo({});
           }}
           agent={selectedAgent}
           avatarUrl={getAvatarUrl()}
+          collectedInfo={collectedInfo}
         />
       )}
 
