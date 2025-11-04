@@ -12,6 +12,7 @@ import { Whyx402Section } from "@/components/landing/Whyx402Section";
 import { SignUpCTASection } from "@/components/landing/SignUpCTASection";
 import { LandingFooter } from "@/components/landing/LandingFooter";
 import { SimVsStripeSection } from "@/components/landing/SimVsStripeSection";
+import { XAgentsShowcase } from "@/components/landing/XAgentsShowcase";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -565,6 +566,8 @@ const NewLanding = () => {
       <SimVsStripeSection />
 
       <Whyx402Section />
+
+      <XAgentsShowcase agents={allSims || []} />
 
       <SignUpCTASection onSignUp={handleXSignIn} />
       
