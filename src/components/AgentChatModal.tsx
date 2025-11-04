@@ -58,15 +58,25 @@ export function AgentChatModal({ isOpen, onClose, agent, avatarUrl, collectedInf
     }
   }, [isOpen]);
 
-  // Enhance agent prompt with collected information
+  // Enhance agent prompt with collected information and ensure role is clear
+  const basePrompt = agent.prompt || `You are ${agent.name}. ${agent.description || ''}`;
+  
   const enhancedAgent = collectedInfo && Object.keys(collectedInfo).length > 0 ? {
     ...agent,
-    prompt: `${agent.prompt}\n\nUser Information:\n${Object.entries(collectedInfo)
+    prompt: `${basePrompt}
+
+IMPORTANT: You must stay in character as ${agent.name} at all times. Your expertise is: ${agent.description || 'as defined by your role'}.
+
+User's Project Context:
+${Object.entries(collectedInfo)
       .map(([key, value]) => `${key}: ${value}`)
-      .join('\n')}\n\nUse this information to personalize your responses and provide more relevant assistance.`,
+      .join('\n')}
+
+Remember: The user is asking YOU (${agent.name}) for advice about THEIR project described above. Do not roleplay as their project. Provide guidance based on your expertise in ${agent.description || 'your field'}.`,
     welcome_message: welcomeMessage || agent.welcome_message
   } : {
     ...agent,
+    prompt: basePrompt,
     welcome_message: welcomeMessage || agent.welcome_message
   };
 
