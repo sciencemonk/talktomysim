@@ -360,8 +360,8 @@ const NewLanding = () => {
                            agents.name?.replace('@', '');
           
           if (xUsername) {
-            // Redirect to creator page
-            window.location.href = `/${xUsername}/creator?code=${agents.edit_code}`;
+            // Redirect to creator page (no code needed - using X auth)
+            window.location.href = `/${xUsername}/creator`;
           }
         }
       }
