@@ -599,7 +599,9 @@ const NewLanding = () => {
 
       <SimVsStripeSection />
 
-      <Whyx402Section />
+      <div id="why-crypto" className="scroll-mt-4">
+        <Whyx402Section />
+      </div>
 
       <SignUpCTASection onSignUp={handleXSignIn} />
       

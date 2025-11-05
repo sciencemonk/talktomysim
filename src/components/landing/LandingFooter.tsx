@@ -80,7 +80,7 @@ export const LandingFooter = () => {
                 </li>
                 <li>
                   <a 
-                    href="#top-stores" 
+                    href="#agents-showcase-section" 
                     className="text-sm text-muted-foreground hover:text-[#82f3aa] transition-colors"
                   >
                     Browse Stores
