@@ -209,7 +209,11 @@ You can answer questions about your X profile, interests, opinions, and provide 
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={isLoading}>
+            <Button 
+              type="submit" 
+              disabled={isLoading}
+              className="bg-[#80f4a9] hover:bg-[#6dd991] text-black border-0"
+            >
               {isLoading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
