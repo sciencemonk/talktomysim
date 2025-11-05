@@ -101,8 +101,7 @@ export default function XAgentPage() {
         .from('advisors')
         .select('*')
         .eq('sim_category', 'Crypto Mail')
-        .eq('is_verified', true) // Only show verified agents publicly
-        .eq('is_active', true);
+        .eq('is_active', true); // Removed is_verified requirement to check all active agents
 
       if (error) throw error;
 
@@ -114,12 +113,15 @@ export default function XAgentPage() {
       });
 
       if (!matchingAgent) {
-        console.error('No matching agent found for username:', username);
+        console.error('No matching agent found for username:', username, 'in', data?.length, 'agents');
         setIsLoading(false);
         toast.error("Agent not found");
         navigate('/', { state: { scrollToAgents: true } });
         return;
       }
+
+      // Log verification status for debugging
+      console.log('Found agent:', matchingAgent.name, 'Verified:', matchingAgent.is_verified);
 
       // Extract design settings from social_links
       const socialLinksData = matchingAgent.social_links as any;

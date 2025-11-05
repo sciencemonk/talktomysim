@@ -312,6 +312,7 @@ const PublicSimDetail = () => {
         const socialLinks = transformedSim.social_links as { x_username?: string; userName?: string } | null;
         const xUsername = socialLinks?.x_username || socialLinks?.userName;
         if (xUsername) {
+          setIsLoading(false); // Set loading false before redirect
           navigate(`/store/${xUsername}`, { replace: true });
           return;
         }
