@@ -339,7 +339,25 @@ const NewLanding = () => {
     }
   }, []);
 
-  // No automatic redirect - let authenticated users browse the landing page
+  // Redirect authenticated users to their creator page
+  useEffect(() => {
+    const checkAuthAndRedirect = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (session?.user) {
+        // Get X username from user metadata (this is what XAgentCreatorView uses for authorization)
+        const userMetadata = session.user.user_metadata;
+        const xUsername = userMetadata?.user_name || userMetadata?.preferred_username;
+        
+        if (xUsername) {
+          // Redirect to creator page using the X username from auth metadata
+          window.location.href = `/${xUsername}/creator`;
+        }
+      }
+    };
+    
+    checkAuthAndRedirect();
+  }, []);
 
   const generateSlug = (name: string) => {
     return name
