@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef, lazy, Suspense } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import XAgentPage from "@/pages/XAgentPage";
 import { Globe, Wallet, ExternalLink, Copy, Check, MessageCircle, X, Lock, Sparkles, Clock } from "lucide-react";
 import aiLoadingGif from "@/assets/ai-loading.gif";
 import { ShareButton } from "@/components/ShareButton";
@@ -35,6 +36,8 @@ const PublicSimDetail = () => {
   const { toast } = useToast();
   const [sim, setSim] = useState<AgentType | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isXAgent, setIsXAgent] = useState<boolean | null>(null);
+  
   // Check if this is an embedded view or chat mode and show chat immediately
   const searchParams = new URLSearchParams(window.location.search);
   const embedMode = searchParams.get('embed');
@@ -220,13 +223,13 @@ const PublicSimDetail = () => {
         }
       }
       
-      // Last attempt: Check if it's an X agent username (Crypto Mail agents)
+      // Last attempt: Check if it's an X agent username
+      // (This should not be reached if early check caught it, but kept as fallback)
       if (!data && !error) {
         const { data: xAgents } = await supabase
           .from('advisors')
           .select('*')
           .eq('sim_category', 'Crypto Mail')
-          .eq('is_verified', true)
           .eq('is_active', true);
           
         if (xAgents) {
@@ -235,6 +238,16 @@ const PublicSimDetail = () => {
             const storedUsername = (socialLinks?.x_username || socialLinks?.userName || '').toLowerCase();
             return storedUsername === customUrl?.toLowerCase();
           });
+          
+          // If found, this shouldn't happen (early check should catch it), redirect to avoid confusion
+          if (data) {
+            const socialLinks = data.social_links as { x_username?: string; userName?: string } | null;
+            const xUsername = socialLinks?.x_username || socialLinks?.userName;
+            if (xUsername) {
+              navigate(`/${xUsername}`, { replace: true });
+              return;
+            }
+          }
         }
       }
 
@@ -303,17 +316,6 @@ const PublicSimDetail = () => {
         const contractAddress = socialLinks?.contract_address;
         if (contractAddress) {
           navigate(`/token/${contractAddress}`, { replace: true });
-          return;
-        }
-      }
-
-      // Redirect X Agents (Crypto Mail) to the dedicated store page
-      if (transformedSim.sim_category === 'Crypto Mail') {
-        const socialLinks = transformedSim.social_links as { x_username?: string; userName?: string } | null;
-        const xUsername = socialLinks?.x_username || socialLinks?.userName;
-        if (xUsername) {
-          setIsLoading(false); // Set loading false before redirect
-          navigate(`/store/${xUsername}`, { replace: true });
           return;
         }
       }
