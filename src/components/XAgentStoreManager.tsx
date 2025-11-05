@@ -260,6 +260,9 @@ export function XAgentStoreManager({ agentId, walletAddress, onWalletUpdate, edi
       }
 
       // Use RPC for all operations (it now handles all agent fields with SECURITY DEFINER)
+      // Serialize integrations without icon components (they can't be saved to DB)
+      const serializableIntegrations = integrations.map(({ icon, ...rest }) => rest);
+      
       const { data, error } = await supabase.rpc('manage_offering_with_code', {
         p_agent_id: agentId,
         p_edit_code: editCode,
@@ -282,7 +285,7 @@ export function XAgentStoreManager({ agentId, walletAddress, onWalletUpdate, edi
         p_media_url: selectedType !== 'agent' ? mediaUrl : null,
         p_digital_file_url: digitalFileUrl || null,
         p_blur_preview: formData.blur_preview || false,
-        p_integrations: JSON.parse(JSON.stringify(integrations))
+        p_integrations: serializableIntegrations
       });
 
       if (error) throw error;
@@ -317,9 +320,16 @@ export function XAgentStoreManager({ agentId, walletAddress, onWalletUpdate, edi
     });
     setRequiredFields(offering.required_info || []);
     
-    // Load integrations if they exist
+    // Load integrations if they exist - map them to include proper icon components
     if (offering.integrations && Array.isArray(offering.integrations)) {
-      setIntegrations(offering.integrations);
+      const mappedIntegrations = offering.integrations.map((savedIntegration: any) => {
+        const defaultIntegration = DEFAULT_INTEGRATIONS.find(d => d.id === savedIntegration.id);
+        return {
+          ...savedIntegration,
+          icon: defaultIntegration?.icon || DEFAULT_INTEGRATIONS[0].icon
+        };
+      });
+      setIntegrations(mappedIntegrations);
     } else {
       setIntegrations(DEFAULT_INTEGRATIONS);
     }
