@@ -32,11 +32,19 @@ export default function XAgentCreatorView() {
   const [walletAddress, setWalletAddress] = useState("");
   const [isSaving, setIsSaving] = useState(false);
 
+  // SECURITY: Redirect if no code parameter provided
   useEffect(() => {
-    if (username) {
+    if (!codeFromUrl) {
+      toast.error("Access denied. Edit code required.");
+      navigate(`/x/${username}`, { replace: true });
+    }
+  }, [codeFromUrl, navigate, username]);
+
+  useEffect(() => {
+    if (username && codeFromUrl) {
       fetchAgent();
     }
-  }, [username]);
+  }, [username, codeFromUrl]);
 
   // Auto-validate if code is in URL
   useEffect(() => {
@@ -161,18 +169,35 @@ export default function XAgentCreatorView() {
     }
 
     try {
-      const { data, error } = await supabase
+      // SECURITY: Use the rate-limited function to validate
+      const { data, error } = await supabase.rpc('check_edit_code_rate_limit', {
+        p_agent_id: agent.id
+      });
+
+      if (error) throw error;
+
+      if (!data) {
+        toast.error("Too many failed attempts. Please try again later.");
+        return;
+      }
+
+      // Validate the code
+      const { data: agentData, error: fetchError } = await supabase
         .from('advisors')
         .select('edit_code')
         .eq('id', agent.id)
         .single();
 
-      if (error) throw error;
+      if (fetchError) throw fetchError;
 
-      if (data.edit_code === editCode) {
+      if (agentData.edit_code === editCode) {
         setIsValidated(true);
         toast.success("Access granted!");
       } else {
+        // Record failed attempt
+        await supabase.rpc('record_failed_edit_code_attempt', {
+          p_agent_id: agent.id
+        });
         toast.error("Invalid edit code");
       }
     } catch (error) {
@@ -263,15 +288,26 @@ export default function XAgentCreatorView() {
     );
   }
 
+  // SECURITY: Require validated code before showing any content
   if (!isValidated) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center p-4">
         <Card className="w-full max-w-md">
           <CardHeader>
-            <CardTitle>Creator Access</CardTitle>
-            <CardDescription>Enter your 6-digit edit code to manage this agent</CardDescription>
+            <CardTitle>Creator Access Required</CardTitle>
+            <CardDescription>
+              Enter your 6-digit edit code to manage @{username}
+            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
+            <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-4 mb-4">
+              <p className="text-sm text-destructive font-medium">
+                🔒 Unauthorized access is not allowed
+              </p>
+              <p className="text-xs text-muted-foreground mt-1">
+                This page is for the agent creator only. You must have the edit code that was provided when this agent was created.
+              </p>
+            </div>
             <div>
               <Label htmlFor="edit-code">Edit Code</Label>
               <Input
@@ -282,6 +318,7 @@ export default function XAgentCreatorView() {
                 onChange={(e) => setEditCode(e.target.value.replace(/\D/g, ''))}
                 placeholder="000000"
                 className="text-center text-2xl tracking-widest font-mono"
+                autoFocus
               />
             </div>
             <Button onClick={handleValidateCode} className="w-full" style={{ backgroundColor: '#81f4aa', color: '#000' }}>

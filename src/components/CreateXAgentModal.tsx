@@ -79,10 +79,11 @@ export const CreateXAgentModal = ({ open, onOpenChange }: CreateXAgentModalProps
       let editCode: string;
 
       if (existingAgent) {
-        // Agent exists
-        agentId = existingAgent.id;
-        editCode = existingAgent.edit_code;
-        toast.success('Agent already exists! Redirecting...');
+        // SECURITY: Do NOT redirect to creator page for existing agents
+        // This prevents unauthorized access to someone else's agent
+        toast.error(`An X agent for @${cleanUsername} already exists. If this is your account, you should have received an edit code when it was created.`);
+        setIsLoading(false);
+        return;
       } else {
         // Create new agent
         editCode = generateEditCode();
@@ -163,12 +164,9 @@ You can answer questions about your X profile, interests, opinions, and provide 
         setVerificationData({ editCode, xUsername: cleanUsername });
         setShowVerificationModal(true);
         onOpenChange(false);
+        setIsLoading(false);
         return;
       }
-
-      // For existing agents, redirect to creator view
-      onOpenChange(false);
-      navigate(`/x/${cleanUsername}/creator?code=${editCode}`);
     } catch (error: any) {
       console.error('Error creating X agent:', error);
       toast.error('Failed to create X agent: ' + (error.message || 'Unknown error'));
