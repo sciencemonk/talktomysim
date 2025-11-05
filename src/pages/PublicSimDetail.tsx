@@ -309,8 +309,8 @@ const PublicSimDetail = () => {
 
       // Redirect X Agents to the dedicated X page
       if (transformedSim.sim_category === 'Crypto Mail') {
-        const socialLinks = transformedSim.social_links as { x_username?: string } | null;
-        const xUsername = socialLinks?.x_username;
+        const socialLinks = transformedSim.social_links as { x_username?: string; userName?: string } | null;
+        const xUsername = socialLinks?.x_username || socialLinks?.userName;
         if (xUsername) {
           navigate(`/${xUsername}`, { replace: true });
           return;
