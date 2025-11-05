@@ -149,8 +149,11 @@ export const XAgentsShowcase = ({ agents }: XAgentsShowcaseProps) => {
     const verificationStatus = (agent as any).verification_status;
     const xUsername = (agent.social_links as any)?.x_username;
     
+    console.log('[XAgentsShowcase] Agent clicked:', agent.name, 'verificationStatus:', verificationStatus, 'xUsername:', xUsername);
+    
     // If agent is pending verification (false), show pending modal
     if (!verificationStatus) {
+      console.log('[XAgentsShowcase] Showing pending modal for', agent.name);
       setPendingAgentModal({
         open: true,
         agentName: agent.name,
@@ -161,8 +164,11 @@ export const XAgentsShowcase = ({ agents }: XAgentsShowcaseProps) => {
     }
     
     if (xUsername) {
+      console.log('[XAgentsShowcase] Navigating to:', `/${xUsername}`);
       window.scrollTo(0, 0);
       navigate(`/${xUsername}`);
+    } else {
+      console.error('[XAgentsShowcase] No x_username found for agent:', agent.name);
     }
   };
 

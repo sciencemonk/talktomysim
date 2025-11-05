@@ -19,9 +19,8 @@ import { toast } from "sonner";
 import xIcon from "@/assets/x-icon.png";
 
 export default function XAgentPage() {
-  const params = useParams<{ username?: string; customUrl?: string }>();
-  // Support both /:username and /:customUrl param names
-  const username = params.username || params.customUrl;
+  const params = useParams<{ identifier?: string }>();
+  const username = params.identifier; // Get username from identifier route param
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const codeFromUrl = searchParams.get('code');
