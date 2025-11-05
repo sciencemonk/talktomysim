@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { WhitePaperModal } from "@/components/WhitePaperModal";
 
 export const LandingFooter = () => {
   const { theme } = useTheme();
@@ -367,52 +368,7 @@ export const LandingFooter = () => {
       </Dialog>
 
       {/* Whitepaper Modal */}
-      <Dialog open={showWhitepaperModal} onOpenChange={setShowWhitepaperModal}>
-        <DialogContent className="max-w-4xl max-h-[80vh]">
-          <DialogHeader>
-            <DialogTitle className="text-2xl">Build Your AI</DialogTitle>
-            <DialogDescription>White Paper v2.0</DialogDescription>
-          </DialogHeader>
-          <ScrollArea className="h-[60vh] pr-4">
-            <div className="prose prose-sm max-w-none dark:prose-invert space-y-4">
-              <h3 className="text-lg font-semibold">Why Build Your Own AI?</h3>
-              <p className="text-sm text-muted-foreground">
-                <strong>The AI revolution isn't about using someone else's AI.</strong> It's about creating your own. Your own personality. Your own knowledge. Your own purpose.
-              </p>
-              <p className="text-sm text-muted-foreground">
-                Whether you're building a business consultant, a customer service agent, a personal coach, or a creative companion—<strong>Sim makes it possible for anyone to build their AI.</strong>
-              </p>
-
-              <h3 className="text-lg font-semibold">How to Build Your AI</h3>
-              <div className="grid gap-4">
-                <div>
-                  <h4 className="text-base font-semibold">1. Design</h4>
-                  <p className="text-sm text-muted-foreground">
-                    Give your AI a name, personality, and purpose. Upload an avatar. Define what makes it unique.
-                  </p>
-                </div>
-                <div>
-                  <h4 className="text-base font-semibold">2. Launch</h4>
-                  <p className="text-sm text-muted-foreground">
-                    Your AI goes live instantly with its own URL and landing page. Share it anywhere, anytime.
-                  </p>
-                </div>
-                <div>
-                  <h4 className="text-base font-semibold">3. Scale</h4>
-                  <p className="text-sm text-muted-foreground">
-                    Your AI handles unlimited conversations. Embed it on websites. Monetize it. Watch it grow.
-                  </p>
-                </div>
-              </div>
-
-              <h3 className="text-lg font-semibold">Free to Build. Free to Host.</h3>
-              <p className="text-sm text-muted-foreground">
-                <strong>No hidden fees. No credit card required. No hosting costs.</strong> Build as many AI agents as you want, deploy them instantly, and let them handle unlimited conversations—all completely free.
-              </p>
-            </div>
-          </ScrollArea>
-        </DialogContent>
-      </Dialog>
+      <WhitePaperModal open={showWhitepaperModal} onOpenChange={setShowWhitepaperModal} />
     </>
   );
 };
