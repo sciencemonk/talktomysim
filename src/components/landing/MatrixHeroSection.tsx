@@ -2,12 +2,11 @@ import { Button } from "@/components/ui/button";
 import { useTheme } from "@/hooks/useTheme";
 import { Badge } from "@/components/ui/badge";
 import { AgentType } from "@/types/agent";
-import xLogo from "@/assets/x-logo.png";
+import xIcon from "@/assets/x-icon.png";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { Twitter } from "lucide-react";
 
 interface MatrixHeroSectionProps {
   onCreateXAgent: () => void;
@@ -155,8 +154,7 @@ export const MatrixHeroSection = ({ onCreateXAgent, onSimClick, onViewAllAgents 
           size="lg"
           className="gap-2 font-bold px-8 py-5 text-base transition-all duration-300 bg-[#82f3aa] hover:bg-[#6dd991] text-black border-0 shadow-xl shadow-[#82f3aa]/30 hover:shadow-2xl hover:shadow-[#82f3aa]/40 hover:scale-105 whitespace-nowrap mb-4"
         >
-          <Twitter className="h-5 w-5" />
-          Get Started with X
+          Get Started with <img src={xIcon} alt="X" className="h-5 w-5 inline-block" />
         </Button>
 
         <button
