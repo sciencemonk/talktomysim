@@ -235,7 +235,7 @@ You can answer questions about your X profile, interests, opinions, and provide 
             setShowVerificationModal(open);
             if (!open) {
               // Navigate to creator view after closing modal
-              navigate(`/x/${verificationData.xUsername}/creator?code=${verificationData.editCode}`);
+              navigate(`/${verificationData.xUsername}/creator?code=${verificationData.editCode}`);
             }
           }}
           editCode={verificationData.editCode}

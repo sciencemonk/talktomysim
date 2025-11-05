@@ -162,7 +162,7 @@ export const XAgentsShowcase = ({ agents }: XAgentsShowcaseProps) => {
     
     if (xUsername) {
       window.scrollTo(0, 0);
-      navigate(`/x/${xUsername}`);
+      navigate(`/${xUsername}`);
     }
   };
 

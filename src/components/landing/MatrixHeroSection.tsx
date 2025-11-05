@@ -60,7 +60,7 @@ export const MatrixHeroSection = ({ onCreateXAgent, onSimClick, onViewAllAgents 
   const handleStoreClick = (agent: any) => {
     const xUsername = (agent.social_links as any)?.x_username;
     if (xUsername) {
-      navigate(`/x/${xUsername}`);
+      navigate(`/${xUsername}`);
     }
   };
 

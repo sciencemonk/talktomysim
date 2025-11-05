@@ -362,12 +362,12 @@ const NewLanding = () => {
       return;
     }
     
-    // For X agents, navigate to /x/:username
+    // For X agents, navigate to /:username
     if (simCategoryType === 'Crypto Mail') {
       const xUsername = (sim.social_links as any)?.x_username;
       if (xUsername) {
         window.scrollTo(0, 0);
-        navigate(`/x/${xUsername}`);
+        navigate(`/${xUsername}`);
         return;
       }
     }

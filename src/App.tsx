@@ -92,9 +92,9 @@ const App = () => (
               {/* Token Agent Page */}
               <Route path="/token/:contractAddress" element={<TokenAgentPage />} />
               
-              {/* X Agent Page */}
-              <Route path="/x/:username" element={<XAgentPage />} />
-              <Route path="/x/:username/creator" element={<XAgentCreatorView />} />
+              {/* X Agent Page - simplified paths */}
+              <Route path="/:username" element={<XAgentPage />} />
+              <Route path="/:username/creator" element={<XAgentCreatorView />} />
               
               {/* Root route - new landing page */}
               <Route path="/" element={<NewLanding />} />

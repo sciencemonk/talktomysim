@@ -129,7 +129,7 @@ export const OfferingsMosaic = () => {
   const handleOfferingClick = (offering: Offering) => {
     const xUsername = offering.agent.social_links?.x_username;
     if (xUsername) {
-      navigate(`/x/${xUsername}`);
+      navigate(`/${xUsername}`);
     }
   };
 

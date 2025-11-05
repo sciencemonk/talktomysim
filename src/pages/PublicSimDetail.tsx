@@ -292,7 +292,7 @@ const PublicSimDetail = () => {
         const socialLinks = transformedSim.social_links as { x_username?: string } | null;
         const xUsername = socialLinks?.x_username;
         if (xUsername) {
-          navigate(`/x/${xUsername}`, { replace: true });
+          navigate(`/${xUsername}`, { replace: true });
           return;
         }
       }

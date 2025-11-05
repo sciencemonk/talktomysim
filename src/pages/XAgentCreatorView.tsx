@@ -316,7 +316,7 @@ export default function XAgentCreatorView() {
             <Button onClick={handleValidateCode} className="w-full" style={{ backgroundColor: '#81f4aa', color: '#000' }}>
               Validate Code
             </Button>
-            <Button variant="outline" onClick={() => navigate(`/x/${username}`)} className="w-full">
+            <Button variant="outline" onClick={() => navigate(`/${username}`)} className="w-full">
               Back to Public View
             </Button>
           </CardContent>
@@ -334,7 +334,7 @@ export default function XAgentCreatorView() {
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => navigate(`/x/${username}`)}
+              onClick={() => navigate(`/${username}`)}
               className="gap-2 h-9 px-2 md:px-3"
             >
               <ArrowLeft className="h-4 w-4" />

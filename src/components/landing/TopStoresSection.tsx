@@ -181,7 +181,7 @@ export const TopStoresSection = () => {
   const handleStoreClick = (agent: XAgent) => {
     const xUsername = (agent.social_links as any)?.x_username;
     if (xUsername) {
-      navigate(`/x/${xUsername}`);
+      navigate(`/${xUsername}`);
     }
   };
 

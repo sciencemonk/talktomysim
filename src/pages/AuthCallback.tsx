@@ -171,7 +171,7 @@ You can answer questions about your X profile, interests, opinions, and provide 
       // Redirect to creator view with edit code
       setStatus('Redirecting to your agent dashboard...');
       setTimeout(() => {
-        navigate(`/x/${xUsername}/creator?code=${editCode}`);
+        navigate(`/${xUsername}/creator?code=${editCode}`);
       }, 1000);
 
     } catch (error: any) {

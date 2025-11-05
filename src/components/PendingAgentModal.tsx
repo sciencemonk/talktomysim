@@ -32,7 +32,7 @@ export function PendingAgentModal({
     }
 
     // Navigate to the creator view with the edit code
-    navigate(`/x/${customUrl}/creator?code=${editCode}`);
+    navigate(`/${customUrl}/creator?code=${editCode}`);
     onOpenChange(false);
   };
 

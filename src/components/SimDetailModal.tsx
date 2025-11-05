@@ -359,7 +359,7 @@ const SimDetailModal = ({ sim, open, onOpenChange, onAuthRequired }: SimDetailMo
         if (simData.sim_category === 'Crypto Mail') {
           const xUsername = (simData.social_links as any)?.x_username;
           if (xUsername) {
-            navigate(`/x/${xUsername}/creator?code=${editCode}`);
+            navigate(`/${xUsername}/creator?code=${editCode}`);
           } else {
             sonnerToast.error("X username not found");
           }

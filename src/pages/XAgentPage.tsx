@@ -393,7 +393,7 @@ export default function XAgentPage() {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => navigate(`/x/${username}/creator`)}
+                onClick={() => navigate(`/${username}/creator`)}
                 className="gap-2 bg-black text-white border-white hover:bg-black/90 hover:text-white"
               >
                 <span>Creator Access</span>
