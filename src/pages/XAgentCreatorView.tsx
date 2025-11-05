@@ -8,7 +8,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { XAgentStoreManager } from "@/components/XAgentStoreManager";
 import { XAgentPurchases } from "@/components/XAgentPurchases";
-import { SimDesignerChat } from "@/components/SimDesignerChat";
 import { AgentType } from "@/types/agent";
 import { toast } from "sonner";
 import xIcon from "@/assets/x-icon.png";
@@ -34,7 +33,6 @@ export default function XAgentCreatorView() {
   const [systemPrompt, setSystemPrompt] = useState("");
   const [walletAddress, setWalletAddress] = useState("");
   const [isSaving, setIsSaving] = useState(false);
-  const [designSettings, setDesignSettings] = useState<any>(null);
 
   useEffect(() => {
     if (username) {
@@ -85,12 +83,6 @@ export default function XAgentCreatorView() {
         toast.error("Agent not found");
         navigate('/', { state: { scrollToAgents: true } });
         return;
-      }
-
-      // Extract design settings from social_links
-      const socialLinks = matchingAgent.social_links as any;
-      if (socialLinks?.design_settings) {
-        setDesignSettings(socialLinks.design_settings);
       }
 
       const transformedAgent: AgentType = {
@@ -449,16 +441,6 @@ export default function XAgentCreatorView() {
               <XAgentPurchases agentId={agent.id} />
             </TabsContent>
           </Tabs>
-
-          {/* SIM Designer Chat - Only show when validated */}
-          {isValidated && (
-            <SimDesignerChat
-              agentId={agent.id}
-              editCode={editCode}
-              currentDesignSettings={designSettings}
-              onDesignUpdate={setDesignSettings}
-            />
-          )}
         </div>
       </div>
     </div>

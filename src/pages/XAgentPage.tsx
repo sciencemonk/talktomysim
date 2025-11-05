@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { ArrowLeft, Users, Copy, Check, Share2, ExternalLink } from "lucide-react";
 import aiLoadingGif from "@/assets/ai-loading.gif";
@@ -13,6 +13,7 @@ import { AgentOfferingsDisplay } from "@/components/AgentOfferingsDisplay";
 import { AgentChatModal } from "@/components/AgentChatModal";
 import { XOfferingPurchaseModal } from "@/components/XOfferingPurchaseModal";
 import { AgentInfoCollectionModal } from "@/components/AgentInfoCollectionModal";
+import { SimDesignerChat } from "@/components/SimDesignerChat";
 import { AgentType } from "@/types/agent";
 import { toast } from "sonner";
 import xIcon from "@/assets/x-icon.png";
@@ -20,6 +21,8 @@ import xIcon from "@/assets/x-icon.png";
 export default function XAgentPage() {
   const { username } = useParams<{ username: string }>();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const codeFromUrl = searchParams.get('code');
   const [agent, setAgent] = useState<AgentType | null>(null);
   const [xData, setXData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -34,12 +37,43 @@ export default function XAgentPage() {
   const [showInfoModal, setShowInfoModal] = useState(false);
   const [collectedInfo, setCollectedInfo] = useState<Record<string, string>>({});
   const [designSettings, setDesignSettings] = useState<any>(null);
+  const [isCreator, setIsCreator] = useState(false);
+  const [editCode, setEditCode] = useState(codeFromUrl || "");
 
   useEffect(() => {
     if (username) {
       fetchAgent();
     }
   }, [username]);
+
+  // Check if user is the creator
+  useEffect(() => {
+    const checkCreatorStatus = async () => {
+      if (!agent) return;
+      
+      // Check if code from URL matches
+      if (codeFromUrl && (agent as any).edit_code === codeFromUrl) {
+        setIsCreator(true);
+        return;
+      }
+
+      // Check if user is authenticated and owns the agent
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        const { data: userAgents } = await supabase
+          .from('advisors')
+          .select('id')
+          .eq('id', agent.id)
+          .single();
+        
+        if (userAgents) {
+          setIsCreator(true);
+        }
+      }
+    };
+
+    checkCreatorStatus();
+  }, [agent, codeFromUrl]);
 
   const fetchTotalEarnings = async (agentId: string) => {
     try {
@@ -613,6 +647,16 @@ export default function XAgentPage() {
           agentName={agent.name}
           walletAddress={(agent as any).x402_wallet || (agent.social_links as any)?.x402_wallet}
           onPurchaseSuccess={handlePurchaseSuccess}
+        />
+      )}
+
+      {/* SIM Designer Chat - Only visible to creator */}
+      {isCreator && agent && (
+        <SimDesignerChat
+          agentId={agent.id}
+          editCode={editCode}
+          currentDesignSettings={designSettings}
+          onDesignUpdate={setDesignSettings}
         />
       )}
     </div>
