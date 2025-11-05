@@ -19,6 +19,8 @@ interface Offering {
   price: number;
   delivery_method: string;
   required_info: Array<{ label: string; type: string; required: boolean }>;
+  digital_file_url?: string;
+  offering_type?: string;
 }
 
 interface XOfferingPurchaseModalProps {
@@ -28,7 +30,7 @@ interface XOfferingPurchaseModalProps {
   agentId: string;
   agentName: string;
   walletAddress: string;
-  onPurchaseSuccess?: () => void;
+  onPurchaseSuccess?: (digitalFileUrl?: string) => void;
 }
 
 const USDC_MINT = new PublicKey("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v");
@@ -142,7 +144,14 @@ export function XOfferingPurchaseModal({
       if (purchaseError) throw purchaseError;
 
       toast.success(`Purchase successful! Transaction: ${signature.slice(0, 8)}...`);
-      onPurchaseSuccess?.();
+      
+      // Pass digital file URL to parent if it exists
+      if (offering.digital_file_url) {
+        onPurchaseSuccess?.(offering.digital_file_url);
+      } else {
+        onPurchaseSuccess?.();
+      }
+      
       onClose();
     } catch (error: any) {
       console.error("Purchase error:", error);

@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { DollarSign, ShoppingCart, Package, Check } from "lucide-react";
 import { XOfferingPurchaseModal } from "./XOfferingPurchaseModal";
 import { AgentOfferingModal } from "./AgentOfferingModal";
+import { DigitalFileModal } from "./DigitalFileModal";
 import { toast } from "sonner";
 
 interface Offering {
@@ -35,6 +36,9 @@ export function XAgentStorefront({ agentId, agentName, walletAddress }: XAgentSt
   const [showAgentList, setShowAgentList] = useState(false);
   const [selectedAgentOffering, setSelectedAgentOffering] = useState<Offering | null>(null);
   const [agentData, setAgentData] = useState<any>(null);
+  const [showDigitalFileModal, setShowDigitalFileModal] = useState(false);
+  const [purchasedFileUrl, setPurchasedFileUrl] = useState<string>("");
+  const [purchasedFileName, setPurchasedFileName] = useState<string>("");
 
   useEffect(() => {
     loadOfferings();
@@ -203,8 +207,26 @@ export function XAgentStorefront({ agentId, agentName, walletAddress }: XAgentSt
           agentId={agentId}
           agentName={agentName}
           walletAddress={walletAddress}
+          onPurchaseSuccess={(digitalFileUrl) => {
+            if (digitalFileUrl) {
+              // Extract filename from URL
+              const fileName = digitalFileUrl.split('/').pop() || selectedOffering.title;
+              setPurchasedFileUrl(digitalFileUrl);
+              setPurchasedFileName(fileName);
+              setShowDigitalFileModal(true);
+            }
+          }}
         />
       )}
+
+      {/* Digital File Display Modal */}
+      <DigitalFileModal
+        isOpen={showDigitalFileModal}
+        onClose={() => setShowDigitalFileModal(false)}
+        fileUrl={purchasedFileUrl}
+        fileName={purchasedFileName}
+        offeringTitle={selectedOffering?.title || ""}
+      />
 
       {selectedAgentOffering && agentData && (
         <AgentOfferingModal
