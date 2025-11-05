@@ -8,8 +8,6 @@ import { Search, TrendingUp, Users } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { getAvatarUrl } from "@/lib/avatarUtils";
-import { supabase } from "@/integrations/supabase/client";
-import { useEffect } from "react";
 import { PendingAgentModal } from "@/components/PendingAgentModal";
 
 interface XAgentsShowcaseProps {
@@ -22,34 +20,16 @@ interface XAgentCardProps {
 }
 
 const XAgentCard = ({ agent, onAgentClick }: XAgentCardProps) => {
-  const [xProfileData, setXProfileData] = useState<any>(null);
-  const xUsername = (agent.social_links as any)?.x_username;
+  const socialLinks = agent.social_links as any;
+  const xUsername = socialLinks?.x_username;
   const isVerified = (agent as any).is_verified || false;
   const isPending = !(agent as any).verification_status;
-
-  useEffect(() => {
-    const fetchXProfile = async () => {
-      if (!xUsername) return;
-
-      try {
-        const { data, error } = await supabase.functions.invoke('x-intelligence', {
-          body: { username: xUsername },
-        });
-
-        if (!error && data?.success && data?.report) {
-          setXProfileData(data.report);
-        }
-      } catch (error) {
-        console.error('[XAgentCard] Error fetching X profile:', error);
-      }
-    };
-
-    fetchXProfile();
-  }, [xUsername]);
+  const followerCount = socialLinks?.followers || 0;
 
   const getAvatarSrc = () => {
-    if (xProfileData?.profileImageUrl) {
-      return `https://images.weserv.nl/?url=${encodeURIComponent(xProfileData.profileImageUrl)}`;
+    // Use profile picture from social_links if available
+    if (socialLinks?.profilePicture) {
+      return `https://images.weserv.nl/?url=${encodeURIComponent(socialLinks.profilePicture)}`;
     }
     const avatarUrl = getAvatarUrl(agent.avatar);
     if (avatarUrl && (avatarUrl.startsWith('http://') || avatarUrl.startsWith('https://'))) {
@@ -120,7 +100,7 @@ const XAgentCard = ({ agent, onAgentClick }: XAgentCardProps) => {
             style={{ backgroundColor: 'rgba(129, 244, 170, 0.15)', color: '#81f4aa', borderColor: 'rgba(129, 244, 170, 0.3)' }}
           >
             <Users className="h-3 w-3" />
-            {formatNumber(xProfileData?.metrics?.followers || 0)} Followers
+            {formatNumber(followerCount)} Followers
           </Badge>
         </div>
       </div>
