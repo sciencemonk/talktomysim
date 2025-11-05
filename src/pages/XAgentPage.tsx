@@ -471,8 +471,8 @@ export default function XAgentPage() {
             {/* Profile Info */}
             <div className="flex-1 space-y-4">
               <div>
-                {(designSettings?.storeName || "Turn your X account into a money making machine") && (
-                  <p className="text-sm text-muted-foreground mb-2">{designSettings?.storeName || "Turn your X account into a money making machine"}</p>
+                {(designSettings?.storeName || "Crypto-native Online Stores") && (
+                  <p className="text-sm text-muted-foreground mb-2">{designSettings?.storeName || "Crypto-native Online Stores"}</p>
                 )}
                 <div className="flex items-center gap-3 flex-wrap mb-2">
                   <h1 className="text-3xl md:text-4xl font-bold">{xData?.displayName || agent.name}</h1>
