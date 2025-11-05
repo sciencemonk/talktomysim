@@ -190,9 +190,9 @@ export const XAgentsShowcase = ({ agents }: XAgentsShowcaseProps) => {
     
     // Second priority: user's selected sort
     if (sortBy === 'followers') {
-      const aCount = (a as any).like_count || 0;
-      const bCount = (b as any).like_count || 0;
-      return bCount - aCount;
+      const aFollowers = (a.social_links as any)?.followers || 0;
+      const bFollowers = (b.social_links as any)?.followers || 0;
+      return bFollowers - aFollowers;
     } else if (sortBy === 'newest') {
       return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
     } else {

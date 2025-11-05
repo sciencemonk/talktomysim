@@ -94,7 +94,7 @@ export const MatrixHeroSection = ({ onCreateXAgent, onSimClick, onViewAllAgents 
         </div>
 
         <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-sans font-bold mb-4 tracking-tight text-foreground text-center w-full">
-          Turn your X account into an AI Agent that makes you money
+          Turn your X account into a money making machine
         </h1>
         
         {/* Zero fees text */}
@@ -103,7 +103,7 @@ export const MatrixHeroSection = ({ onCreateXAgent, onSimClick, onViewAllAgents 
         </p>
         
         <p className="text-base sm:text-lg md:text-xl text-muted-foreground mb-10 max-w-3xl leading-relaxed">
-          Create an AI Agent that accepts payments directly from your customers. No middlemen. No platform fees. Just pure revenue.
+          No middlemen. No transaction fees. Just pure profit.
         </p>
 
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8 mb-10 max-w-4xl mx-auto w-full">
