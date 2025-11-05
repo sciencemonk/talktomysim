@@ -1,47 +1,38 @@
 import { Check, X, Zap, TrendingDown, Shield, Users } from "lucide-react";
-
 export const SimVsStripeSection = () => {
-  const comparisons = [
-    {
-      feature: "Transaction Fees",
-      sim: "0%",
-      stripe: "2.9% + $0.30",
-      simIcon: <Check className="h-5 w-5 text-[#82f3aa]" />,
-      stripeIcon: <X className="h-5 w-5 text-destructive" />,
-      highlight: true,
-    },
-    {
-      feature: "Settlement Time",
-      sim: "Instant",
-      stripe: "2-7 business days",
-      simIcon: <Zap className="h-5 w-5 text-[#82f3aa]" />,
-      stripeIcon: <TrendingDown className="h-5 w-5 text-muted-foreground" />,
-    },
-    {
-      feature: "Chargebacks",
-      sim: "None (crypto finality)",
-      stripe: "Risk of chargebacks",
-      simIcon: <Shield className="h-5 w-5 text-[#82f3aa]" />,
-      stripeIcon: <X className="h-5 w-5 text-destructive" />,
-    },
-    {
-      feature: "Global Access",
-      sim: "Anyone with crypto",
-      stripe: "Limited countries",
-      simIcon: <Users className="h-5 w-5 text-[#82f3aa]" />,
-      stripeIcon: <TrendingDown className="h-5 w-5 text-muted-foreground" />,
-    },
-    {
-      feature: "Setup Required",
-      sim: "Verify X account",
-      stripe: "Bank account, KYC, docs",
-      simIcon: <Check className="h-5 w-5 text-[#82f3aa]" />,
-      stripeIcon: <X className="h-5 w-5 text-destructive" />,
-    },
-  ];
-
-  return (
-    <section className="relative container mx-auto px-3 sm:px-4 py-16 border-b overflow-hidden">
+  const comparisons = [{
+    feature: "Transaction Fees",
+    sim: "0%",
+    stripe: "2.9% + $0.30",
+    simIcon: <Check className="h-5 w-5 text-[#82f3aa]" />,
+    stripeIcon: <X className="h-5 w-5 text-destructive" />,
+    highlight: true
+  }, {
+    feature: "Settlement Time",
+    sim: "Instant",
+    stripe: "2-7 business days",
+    simIcon: <Zap className="h-5 w-5 text-[#82f3aa]" />,
+    stripeIcon: <TrendingDown className="h-5 w-5 text-muted-foreground" />
+  }, {
+    feature: "Chargebacks",
+    sim: "None (crypto finality)",
+    stripe: "Risk of chargebacks",
+    simIcon: <Shield className="h-5 w-5 text-[#82f3aa]" />,
+    stripeIcon: <X className="h-5 w-5 text-destructive" />
+  }, {
+    feature: "Global Access",
+    sim: "Anyone with crypto",
+    stripe: "Limited countries",
+    simIcon: <Users className="h-5 w-5 text-[#82f3aa]" />,
+    stripeIcon: <TrendingDown className="h-5 w-5 text-muted-foreground" />
+  }, {
+    feature: "Setup Required",
+    sim: "Verify X account",
+    stripe: "Bank account, KYC, docs",
+    simIcon: <Check className="h-5 w-5 text-[#82f3aa]" />,
+    stripeIcon: <X className="h-5 w-5 text-destructive" />
+  }];
+  return <section className="relative container mx-auto px-3 sm:px-4 py-16 border-b overflow-hidden">
       {/* Background effects */}
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#82f3aa]/5 to-transparent" />
       <div className="absolute top-1/2 left-1/4 w-96 h-96 bg-[#82f3aa]/10 rounded-full blur-3xl" />
@@ -69,7 +60,7 @@ export const SimVsStripeSection = () => {
             <div className="text-sm font-semibold text-muted-foreground">Feature</div>
             <div className="text-center">
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[#82f3aa]/20 border border-[#82f3aa]/40">
-                <span className="text-base font-bold text-foreground">Sim</span>
+                <span className="text-base font-bold text-foreground">SIM</span>
               </div>
             </div>
             <div className="text-center">
@@ -81,13 +72,7 @@ export const SimVsStripeSection = () => {
 
           {/* Comparison Rows */}
           <div className="divide-y divide-border">
-            {comparisons.map((comparison, index) => (
-              <div
-                key={index}
-                className={`grid grid-cols-3 gap-4 p-6 transition-all duration-300 hover:bg-muted/20 ${
-                  comparison.highlight ? 'bg-[#82f3aa]/5' : ''
-                }`}
-              >
+            {comparisons.map((comparison, index) => <div key={index} className={`grid grid-cols-3 gap-4 p-6 transition-all duration-300 hover:bg-muted/20 ${comparison.highlight ? 'bg-[#82f3aa]/5' : ''}`}>
                 {/* Feature Name */}
                 <div className="flex items-center">
                   <span className="font-semibold text-foreground">
@@ -110,8 +95,7 @@ export const SimVsStripeSection = () => {
                     {comparison.stripe}
                   </span>
                 </div>
-              </div>
-            ))}
+              </div>)}
           </div>
 
           {/* Footer CTA */}
@@ -148,6 +132,5 @@ export const SimVsStripeSection = () => {
           </div>
         </div>
       </div>
-    </section>
-  );
+    </section>;
 };
