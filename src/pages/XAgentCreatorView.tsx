@@ -148,7 +148,8 @@ export default function XAgentCreatorView() {
       setWalletAddress(loadedWallet);
       
       // Verify authorization: user's X username must match agent's X username
-      const agentXUsername = (transformedAgent.social_links as any)?.x_username?.toLowerCase();
+      const socialLinks = transformedAgent.social_links as any;
+      const agentXUsername = (socialLinks?.x_username || socialLinks?.userName || '').toLowerCase();
       const normalizedUserXUsername = userXUsername?.toLowerCase();
       
       if (agentXUsername !== normalizedUserXUsername) {
@@ -161,7 +162,6 @@ export default function XAgentCreatorView() {
       fetchTotalEarnings(matchingAgent.id);
 
       // Only fetch fresh X data if cached data is stale (>24 hours old)
-      const socialLinks = matchingAgent.social_links as any;
       const lastFetch = socialLinks?.last_twitter_fetch;
       const shouldFetchFresh = !lastFetch || 
         (new Date().getTime() - new Date(lastFetch).getTime()) > 24 * 60 * 60 * 1000;
