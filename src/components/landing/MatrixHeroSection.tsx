@@ -7,6 +7,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import { useState, useEffect } from "react";
 
 interface MatrixHeroSectionProps {
   onCreateXAgent: () => void;
@@ -17,6 +18,15 @@ interface MatrixHeroSectionProps {
 export const MatrixHeroSection = ({ onCreateXAgent, onSimClick, onViewAllAgents }: MatrixHeroSectionProps) => {
   const { theme } = useTheme();
   const navigate = useNavigate();
+  const [currentWordIndex, setCurrentWordIndex] = useState(0);
+  const words = ["Products", "Services", "AI Agents", "Digital Goods"];
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentWordIndex((prev) => (prev + 1) % words.length);
+    }, 2500);
+    return () => clearInterval(interval);
+  }, []);
 
   const { data: topStores } = useQuery({
     queryKey: ['top-stores-hero'],
@@ -138,7 +148,13 @@ export const MatrixHeroSection = ({ onCreateXAgent, onSimClick, onViewAllAgents 
         </div>
 
         <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-sans font-bold mb-4 tracking-tight text-foreground text-center w-full">
-          Crypto-native Online Stores
+          Sell your{" "}
+          <span 
+            key={currentWordIndex}
+            className="inline-block text-[#82f3aa] animate-fade-in"
+          >
+            {words[currentWordIndex]}
+          </span>
         </h1>
         
         {/* Zero fees text */}
