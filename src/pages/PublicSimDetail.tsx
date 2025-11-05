@@ -35,7 +35,6 @@ const PublicSimDetail = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [sim, setSim] = useState<AgentType | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
   const [isXAgent, setIsXAgent] = useState<boolean | null>(null);
   
   // Check if this is an embedded view or chat mode and show chat immediately
@@ -113,45 +112,28 @@ const PublicSimDetail = () => {
   // Check if this is an X agent first (before fetchSim)
   useEffect(() => {
     const checkIfXAgent = async () => {
-      if (!customUrl) {
-        console.log('[XAgent Check] No customUrl provided');
-        return;
-      }
+      if (!customUrl) return;
 
-      console.log('[XAgent Check] Checking if', customUrl, 'is an X agent');
-
-      const { data: xAgents, error } = await supabase
+      const { data: xAgents } = await supabase
         .from('advisors')
         .select('*')
         .eq('sim_category', 'Crypto Mail')
         .eq('is_active', true);
 
-      console.log('[XAgent Check] Found', xAgents?.length, 'Crypto Mail agents');
-
-      if (error) {
-        console.error('[XAgent Check] Error fetching agents:', error);
-      }
-
       if (xAgents) {
         const matchingXAgent = xAgents.find(agent => {
           const socialLinks = agent.social_links as { x_username?: string; userName?: string } | null;
           const storedUsername = (socialLinks?.x_username || socialLinks?.userName || '').toLowerCase();
-          console.log('[XAgent Check] Comparing', storedUsername, 'with', customUrl?.toLowerCase());
           return storedUsername === customUrl?.toLowerCase();
         });
 
         if (matchingXAgent) {
-          console.log('[XAgent Check] Found matching X agent:', matchingXAgent.name);
           setIsXAgent(true);
-          setIsLoading(false);
           return;
-        } else {
-          console.log('[XAgent Check] No matching X agent found');
         }
       }
       
       // Not an X agent, proceed with normal sim fetch
-      console.log('[XAgent Check] Not an X agent, fetching as regular sim');
       setIsXAgent(false);
       fetchSim();
     };
@@ -227,7 +209,6 @@ const PublicSimDetail = () => {
 
   const fetchSim = async () => {
     try {
-      setIsLoading(true);
       
       // Try to fetch by custom_url first, then by id if not found
       // Explicitly exclude edit_code for security
@@ -376,8 +357,6 @@ const PublicSimDetail = () => {
     } catch (error) {
       console.error('Error fetching sim:', error);
       navigate('/404');
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -398,28 +377,9 @@ const PublicSimDetail = () => {
     }
   };
 
-  // If this is an X agent, render XAgentPage directly (check before loading screen)
+  // If this is an X agent, render XAgentPage directly
   if (isXAgent === true) {
-    console.log('[Render] Rendering XAgentPage');
     return <XAgentPage />;
-  }
-
-  if (isLoading) {
-    console.log('[Render] Showing loading screen, isXAgent:', isXAgent);
-    return (
-      <div 
-        className="flex items-center justify-center min-h-screen relative bg-gradient-to-br from-primary/20 via-background to-secondary/20"
-      >
-        <div className="absolute inset-0 bg-background/80 backdrop-blur-sm z-0" />
-        <div className="bg-white rounded-2xl p-6 flex items-center justify-center relative z-10">
-          <img 
-            src={aiLoadingGif} 
-            alt="Loading..." 
-            className="h-32 w-32"
-          />
-        </div>
-      </div>
-    );
   }
 
   if (!sim) {
