@@ -206,13 +206,23 @@ export const XAgentsShowcase = ({ agents }: XAgentsShowcaseProps) => {
   return (
     <section className="w-full py-16 px-4 bg-background">
       <div className="max-w-7xl mx-auto space-y-8">
+        {/* Title and Description */}
+        <div className="text-center space-y-4 mb-8">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold">
+            Search Stores
+          </h2>
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+            Discover and explore verified X accounts offering products and services
+          </p>
+        </div>
+
         {/* Filters */}
-        <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
+        <div className="flex flex-col sm:flex-row gap-4 items-center justify-center">
           <div className="relative w-full sm:w-96">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               type="text"
-              placeholder="Search X agents..."
+              placeholder="Search Stores..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-10"
