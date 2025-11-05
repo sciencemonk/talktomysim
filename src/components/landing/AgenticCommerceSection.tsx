@@ -20,9 +20,9 @@ export const AgenticCommerceSection = () => {
               <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#83f1aa]/20 to-[#2DD4BF]/20 flex items-center justify-center">
                 <Package className="h-8 w-8 text-[#83f1aa]" />
               </div>
-              <h3 className="text-2xl font-bold">Standard Offerings</h3>
+              <h3 className="text-2xl font-bold">Products & Services</h3>
               <p className="text-muted-foreground leading-relaxed">
-                One-time products or services - physical goods, consultations, exclusive content, tutorials, or any digital product you create.
+                Physical goods, consultations, exclusive content, promoted posts, events, donations, or any product you can dream of.
               </p>
             </div>
           </div>
