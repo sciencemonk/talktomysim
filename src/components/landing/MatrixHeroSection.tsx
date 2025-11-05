@@ -282,7 +282,7 @@ You can answer questions about your X profile, interests, opinions, and provide 
         <form onSubmit={handleGenerateStore} className="w-full max-w-md mb-4">
           <div className="flex flex-col sm:flex-row gap-3">
             <Input
-              placeholder="@username or username"
+              placeholder="Enter your X username"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               disabled={isLoading}
