@@ -315,7 +315,7 @@ export const XAgentDesignManager = ({ agentId, editCode }: XAgentDesignManagerPr
           onClick={handleSave} 
           disabled={isSaving}
           size="lg"
-          className="min-w-32"
+          className="min-w-32 bg-[#81f4aa] hover:bg-[#81f4aa]/90 text-black"
         >
           {isSaving ? (
             <>

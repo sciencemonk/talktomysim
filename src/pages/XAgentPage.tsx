@@ -33,6 +33,7 @@ export default function XAgentPage() {
   const [pendingAgent, setPendingAgent] = useState<any>(null);
   const [showInfoModal, setShowInfoModal] = useState(false);
   const [collectedInfo, setCollectedInfo] = useState<Record<string, string>>({});
+  const [designSettings, setDesignSettings] = useState<any>(null);
 
   useEffect(() => {
     if (username) {
@@ -80,6 +81,12 @@ export default function XAgentPage() {
         toast.error("Agent not found");
         navigate('/', { state: { scrollToAgents: true } });
         return;
+      }
+
+      // Extract design settings from social_links
+      const socialLinks = matchingAgent.social_links as any;
+      if (socialLinks?.design_settings) {
+        setDesignSettings(socialLinks.design_settings);
       }
 
       // Fetch offerings for this agent
@@ -365,8 +372,13 @@ export default function XAgentPage() {
     );
   }
 
+  // Apply design settings
+  const primaryColor = designSettings?.primaryColor || '#81f4aa';
+  const secondaryColor = designSettings?.secondaryColor || '#000000';
+  const fontFamily = designSettings?.fontFamily || 'Inter';
+
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background via-background to-muted/20">
+    <div className="min-h-screen bg-gradient-to-b from-background via-background to-muted/20" style={{ fontFamily }}>
       {/* Top Navigation Bar */}
       <div className="border-b border-border/40 bg-card/95 backdrop-blur-md sticky top-0 z-50">
         <div className="container mx-auto px-4 md:px-6 py-3">
@@ -394,7 +406,8 @@ export default function XAgentPage() {
                 variant="outline"
                 size="sm"
                 onClick={() => navigate(`/${username}/creator`)}
-                className="gap-2 bg-black text-white border-white hover:bg-black/90 hover:text-white"
+                className="gap-2"
+                style={{ backgroundColor: secondaryColor, color: primaryColor, borderColor: primaryColor }}
               >
                 <span>Creator Access</span>
               </Button>
@@ -404,11 +417,20 @@ export default function XAgentPage() {
       </div>
 
       {/* Hero Section - Prominent Profile Header */}
-      <div className="border-b border-border/40 bg-gradient-to-r from-card/95 via-card/80 to-card/95 backdrop-blur-sm">
-        <div className="container mx-auto px-4 md:px-6 py-8 md:py-12">
+      <div 
+        className="border-b border-border/40 bg-gradient-to-r from-card/95 via-card/80 to-card/95 backdrop-blur-sm relative overflow-hidden"
+      >
+        {/* Header Image Background */}
+        {designSettings?.headerImage && (
+          <div 
+            className="absolute inset-0 bg-cover bg-center opacity-20"
+            style={{ backgroundImage: `url(${designSettings.headerImage})` }}
+          />
+        )}
+        <div className="container mx-auto px-4 md:px-6 py-8 md:py-12 relative z-10">
           <div className="flex flex-col md:flex-row gap-6 md:gap-8 items-start md:items-center">
             {/* Profile Image */}
-            <Avatar className="h-24 w-24 md:h-32 md:w-32 border-4 shadow-2xl ring-4 ring-primary/20" style={{ borderColor: 'hsl(var(--primary))' }}>
+            <Avatar className="h-24 w-24 md:h-32 md:w-32 border-4 shadow-2xl ring-4" style={{ borderColor: primaryColor, '--tw-ring-color': `${primaryColor}33` } as any}>
               <AvatarImage 
                 key={xData?.profileImageUrl || 'fallback'} 
                 src={getAvatarUrl()} 
@@ -428,15 +450,21 @@ export default function XAgentPage() {
             {/* Profile Info */}
             <div className="flex-1 space-y-4">
               <div>
+                {designSettings?.storeName && (
+                  <p className="text-sm text-muted-foreground mb-2">{designSettings.storeName}</p>
+                )}
                 <div className="flex items-center gap-3 flex-wrap mb-2">
                   <h1 className="text-3xl md:text-4xl font-bold">{xData?.displayName || agent.name}</h1>
                   {agent.is_verified && (
-                    <Badge variant="default" className="gap-1">
+                    <Badge variant="default" className="gap-1" style={{ backgroundColor: primaryColor, color: secondaryColor }}>
                       <Check className="h-3 w-3" />
                       Verified
                     </Badge>
                   )}
                 </div>
+                {designSettings?.storeTagline && (
+                  <p className="text-muted-foreground italic mb-2">{designSettings.storeTagline}</p>
+                )}
                 <div className="flex items-center gap-3 text-muted-foreground">
                   <button 
                     onClick={handleCopyUsername}
