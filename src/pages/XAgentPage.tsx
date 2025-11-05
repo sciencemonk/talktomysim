@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowLeft, Users, Copy, Check, Share2, ExternalLink } from "lucide-react";
+import { Users, Copy, Check, Share2, ExternalLink } from "lucide-react";
 import aiLoadingGif from "@/assets/ai-loading.gif";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -243,37 +243,6 @@ export default function XAgentPage() {
     toast.success("Link copied to clipboard!");
   };
 
-  const handleBackClick = async () => {
-    // Check if user is authenticated
-    const { data: { session } } = await supabase.auth.getSession();
-    
-    if (session?.user) {
-      // User is authenticated, find their X agent and redirect to creator page
-      const { data: agents } = await supabase
-        .from('advisors')
-        .select('id, name, edit_code, social_links, custom_url')
-        .eq('user_id', session.user.id)
-        .eq('sim_category', 'Crypto Mail')
-        .maybeSingle();
-      
-      if (agents) {
-        // Extract X username from social_links or name
-        const xUsername = (agents.social_links as any)?.x_username || 
-                         agents.custom_url || 
-                         agents.name?.replace('@', '');
-        
-        if (xUsername) {
-          // Redirect to creator page
-          navigate(`/${xUsername}/creator?code=${agents.edit_code}`);
-          return;
-        }
-      }
-    }
-    
-    // Not authenticated or no agent found, go to homepage
-    navigate('/', { state: { scrollToAgents: true } });
-  };
-
   const handleAgentClick = (offering: any) => {
     const isFree = !offering.price_per_conversation || offering.price_per_conversation === 0;
     const hasRequiredInfo = offering.required_info && Array.isArray(offering.required_info) && offering.required_info.length > 0;
@@ -449,15 +418,19 @@ export default function XAgentPage() {
       <div className="border-b border-border/40 bg-card/95 backdrop-blur-md sticky top-0 z-50">
         <div className="container mx-auto px-4 md:px-6 py-3">
           <div className="flex items-center justify-between">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleBackClick}
-              className="gap-2"
+            <button
+              onClick={() => navigate('/')}
+              className="hover:opacity-80 transition-opacity"
             >
-              <ArrowLeft className="h-4 w-4" />
-              <span className="hidden sm:inline">Back</span>
-            </Button>
+              <img
+                src="/sim-logo-dark.png"
+                alt="SIM Logo"
+                className="h-10 w-10 object-contain"
+                onError={(e) => {
+                  e.currentTarget.src = "/sim-logo.png";
+                }}
+              />
+            </button>
             <div className="flex items-center gap-2">
               <Button
                 variant="outline"
