@@ -16,13 +16,15 @@ interface SimDesignerChatProps {
   agentId: string;
   editCode: string;
   currentDesignSettings: any;
+  socialLinks: any;
   onDesignUpdate: (settings: any) => void;
 }
 
 export const SimDesignerChat = ({ 
   agentId, 
   editCode, 
-  currentDesignSettings, 
+  currentDesignSettings,
+  socialLinks,
   onDesignUpdate 
 }: SimDesignerChatProps) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -46,13 +48,14 @@ export const SimDesignerChat = ({
     try {
       setIsLoading(true);
       
+      // Remove design_settings from social_links
+      const updatedSocialLinks = { ...socialLinks };
+      delete updatedSocialLinks.design_settings;
+      
       const { error } = await supabase
         .from('advisors')
         .update({
-          social_links: {
-            ...(currentDesignSettings || {}),
-            design_settings: null,
-          },
+          social_links: updatedSocialLinks,
         })
         .eq('id', agentId)
         .eq('edit_code', editCode);
@@ -162,13 +165,16 @@ If the user's request is not design-related, respond with:
         ...parsedResponse.settings,
       };
 
+      // Update social_links with new design settings
+      const updatedSocialLinks = {
+        ...socialLinks,
+        design_settings: newSettings,
+      };
+
       const { error: updateError } = await supabase
         .from('advisors')
         .update({
-          social_links: {
-            ...(currentDesignSettings || {}),
-            design_settings: newSettings,
-          },
+          social_links: updatedSocialLinks,
         })
         .eq('id', agentId)
         .eq('edit_code', editCode);

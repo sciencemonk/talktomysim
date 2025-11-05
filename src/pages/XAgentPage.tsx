@@ -37,6 +37,7 @@ export default function XAgentPage() {
   const [showInfoModal, setShowInfoModal] = useState(false);
   const [collectedInfo, setCollectedInfo] = useState<Record<string, string>>({});
   const [designSettings, setDesignSettings] = useState<any>(null);
+  const [socialLinks, setSocialLinks] = useState<any>(null);
   const [isCreator, setIsCreator] = useState(false);
   const [editCode, setEditCode] = useState(codeFromUrl || "");
 
@@ -118,9 +119,10 @@ export default function XAgentPage() {
       }
 
       // Extract design settings from social_links
-      const socialLinks = matchingAgent.social_links as any;
-      if (socialLinks?.design_settings) {
-        setDesignSettings(socialLinks.design_settings);
+      const socialLinksData = matchingAgent.social_links as any;
+      setSocialLinks(socialLinksData);
+      if (socialLinksData?.design_settings) {
+        setDesignSettings(socialLinksData.design_settings);
       }
 
       // Fetch offerings for this agent
@@ -651,12 +653,20 @@ export default function XAgentPage() {
       )}
 
       {/* SIM Designer Chat - Only visible to creator */}
-      {isCreator && agent && (
+      {isCreator && agent && socialLinks && (
         <SimDesignerChat
           agentId={agent.id}
           editCode={editCode}
           currentDesignSettings={designSettings}
-          onDesignUpdate={setDesignSettings}
+          socialLinks={socialLinks}
+          onDesignUpdate={(newSettings) => {
+            setDesignSettings(newSettings);
+            // Also update social links with new design settings
+            setSocialLinks({
+              ...socialLinks,
+              design_settings: newSettings
+            });
+          }}
         />
       )}
     </div>
