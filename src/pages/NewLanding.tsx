@@ -309,11 +309,18 @@ const NewLanding = () => {
     }
   };
 
+  const scrollToAgents = () => {
+    const agentsSection = document.getElementById('agents-showcase-section');
+    if (agentsSection) {
+      agentsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
   // Check for scrollToAgents state from navigation
   useEffect(() => {
     if (location.state?.scrollToAgents) {
       setTimeout(() => {
-        scrollToLearnMore();
+        scrollToAgents();
       }, 100);
       // Clear the state
       navigate(location.pathname, { replace: true, state: {} });
@@ -582,7 +589,9 @@ const NewLanding = () => {
       />
       </div>
 
-      <XAgentsShowcase agents={allSims || []} />
+      <div id="agents-showcase-section" className="scroll-mt-4">
+        <XAgentsShowcase agents={allSims || []} />
+      </div>
 
       <div id="learn-more-section" className="scroll-mt-4">
         <AgenticCommerceSection />
