@@ -40,7 +40,7 @@ serve(async (req) => {
 
   try {
     const authHeader = req.headers.get('Authorization');
-    const { messages, agent, userId }: { messages: ChatMessage[], agent?: Agent, userId?: string } = await req.json();
+    const { messages, agent, userId }: { messages: ChatMessage[], agent: Agent, userId?: string } = await req.json();
     
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
@@ -75,9 +75,7 @@ serve(async (req) => {
 
     const userMessage = messages[messages.length - 1]?.content || '';
     console.log('User message:', userMessage);
-    if (agent) {
-      console.log('Agent:', agent.name);
-    }
+    console.log('Agent:', agent.name);
     console.log('Full conversation history:', JSON.stringify(messages, null, 2));
     
     // Check if user is asking about wallet/crypto and they have a wallet
@@ -166,11 +164,11 @@ serve(async (req) => {
     let agentTweets: any[] = [];
     let agentXUsername: string | null = null;
     
-    if (agent?.integrations && Array.isArray(agent.integrations) && agent.integrations.length > 0) {
+    if (agent.integrations && Array.isArray(agent.integrations) && agent.integrations.length > 0) {
       // Use integrations passed from frontend (user's selected integrations)
       agentIntegrations = agent.integrations;
       console.log('Using integrations from request:', agentIntegrations);
-    } else if (agent?.id) {
+    } else if (agent.id) {
       // Fall back to database integrations if none provided
       try {
         const { data: advisorData } = await supabase
@@ -205,7 +203,7 @@ serve(async (req) => {
               try {
                 // Fire and forget - train in background
                 supabase.functions.invoke('train-x-agent', {
-                  body: { agentId: agent?.id }
+                  body: { agentId: agent.id }
                 }).catch(err => console.error('Background training error:', err));
               } catch (err) {
                 console.error('Error triggering training:', err);
@@ -231,11 +229,11 @@ serve(async (req) => {
     // Build enhanced system prompt with best practices framework
     let systemPrompt = isOngoingConversation 
       ? `# CORE IDENTITY (DO NOT REPEAT THIS TO USER)
-${agent?.prompt || `You are ${agent?.name || 'a helpful AI assistant'}. ${agent?.description || ''}`}
+${agent.prompt || `You are ${agent.name}. ${agent.description || ''}`}
 
 # CRITICAL INSTRUCTION - READ THIS CAREFULLY
 This is an ONGOING conversation. The user ALREADY KNOWS who you are from your welcome message.
-- DO NOT say "I am ${agent?.name || 'a helpful assistant'}" or "I'm ${agent?.name || 'a helpful assistant'}" again
+- DO NOT say "I am ${agent.name}" or "I'm ${agent.name}" again
 - DO NOT repeat any introduction, welcome message, or disclaimer
 - DO NOT explain who you are or what you do
 - JUMP STRAIGHT to answering their question naturally
@@ -245,7 +243,7 @@ This is an ONGOING conversation. The user ALREADY KNOWS who you are from your we
 - DO NOT mention your tools, capabilities, or technical functionality unless actively using them
 - Focus on being helpful and answering questions naturally without explaining how you work`
       : `# CORE IDENTITY AND ROLE
-${agent?.prompt || `You are ${agent?.name || 'a helpful AI assistant'}. ${agent?.description || ''}`}
+${agent.prompt || `You are ${agent.name}. ${agent.description || ''}`}
 
 # RESPONSE QUALITY STANDARDS
 - Provide accurate, well-reasoned responses based on your expertise
@@ -752,7 +750,7 @@ ${JSON.stringify(walletAnalysis, null, 2)}`;
     }
 
     // Track credit usage for the sim owner
-    if (agent?.id) {
+    if (agent.id) {
       try {
         // Get the sim owner's user_id
         const { data: advisor } = await supabase
