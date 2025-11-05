@@ -286,7 +286,7 @@ You can answer questions about your X profile, interests, opinions, and provide 
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               disabled={isLoading}
-              className="flex-1 h-[56px] bg-background/80 backdrop-blur-sm border-border/50 text-foreground placeholder:text-muted-foreground text-base"
+              className="flex-1 bg-background/80 backdrop-blur-sm border-border/50 text-foreground placeholder:text-muted-foreground"
             />
             <Button
               type="submit"
