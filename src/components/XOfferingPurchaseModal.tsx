@@ -155,7 +155,15 @@ export function XOfferingPurchaseModal({
       onClose();
     } catch (error: any) {
       console.error("Purchase error:", error);
-      toast.error(error?.message || "Purchase failed. Please try again.");
+      
+      // Handle user cancellation separately
+      if (error?.message?.includes("User rejected") || 
+          error?.message?.includes("Cancelled") ||
+          error?.error === "Cancelled") {
+        toast.error("Transaction cancelled");
+      } else {
+        toast.error(error?.message || "Purchase failed. Please try again.");
+      }
     } finally {
       setIsProcessing(false);
     }
