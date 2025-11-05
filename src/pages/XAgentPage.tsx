@@ -62,13 +62,14 @@ export default function XAgentPage() {
       // Check if user is authenticated and owns the agent
       const { data: { session } } = await supabase.auth.getSession();
       if (session?.user) {
-        const { data: userAgents } = await supabase
+        const { data: userAgent } = await supabase
           .from('advisors')
-          .select('id')
+          .select('id, user_id')
           .eq('id', agent.id)
+          .eq('user_id', session.user.id)
           .single();
         
-        if (userAgents) {
+        if (userAgent) {
           setIsCreator(true);
         }
       }
