@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams, useNavigate, useSearchParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2, ArrowLeft, Users, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -11,41 +11,57 @@ import { XAgentPurchases } from "@/components/XAgentPurchases";
 import { AgentType } from "@/types/agent";
 import { toast } from "sonner";
 import xIcon from "@/assets/x-icon.png";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/hooks/useAuth";
 
 export default function XAgentCreatorView() {
   const { username } = useParams<{ username: string }>();
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  const codeFromUrl = searchParams.get('code');
-  const { signOut } = useAuth();
+  const { user, signOut, loading: authLoading } = useAuth();
   
   const [agent, setAgent] = useState<AgentType | null>(null);
   const [xData, setXData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [totalEarnings, setTotalEarnings] = useState<number>(0);
-  const [editCode, setEditCode] = useState(codeFromUrl || "");
-  const [isValidated, setIsValidated] = useState(false);
   const [systemPrompt, setSystemPrompt] = useState("");
   const [walletAddress, setWalletAddress] = useState("");
   const [isSaving, setIsSaving] = useState(false);
+  const [isAuthorized, setIsAuthorized] = useState(false);
+  const [userXUsername, setUserXUsername] = useState<string | null>(null);
+
+  // Check authentication and authorization
+  useEffect(() => {
+    const checkAuth = async () => {
+      if (authLoading) return;
+      
+      if (!user) {
+        toast.error("You must be signed in with X to access this page");
+        navigate('/login');
+        return;
+      }
+
+      // Get user's X username from their metadata
+      const { data: { user: authUser } } = await supabase.auth.getUser();
+      const userMetadata = authUser?.user_metadata;
+      const xUsername = userMetadata?.user_name || userMetadata?.preferred_username;
+      
+      if (!xUsername) {
+        toast.error("X username not found in your account. Please sign in with X again.");
+        navigate('/login');
+        return;
+      }
+
+      setUserXUsername(xUsername);
+    };
+
+    checkAuth();
+  }, [user, authLoading, navigate]);
 
   useEffect(() => {
-    if (username) {
+    if (username && userXUsername) {
       fetchAgent();
     }
-  }, [username]);
-
-  // Auto-validate if code is in URL
-  useEffect(() => {
-    if (codeFromUrl && agent && !isValidated) {
-      handleValidateCode();
-    }
-  }, [codeFromUrl, agent]);
+  }, [username, userXUsername]);
 
   const fetchTotalEarnings = async (agentId: string) => {
     try {
@@ -129,9 +145,19 @@ export default function XAgentCreatorView() {
       
       // Load wallet address - prioritize x402_wallet, fallback to crypto_wallet
       const loadedWallet = matchingAgent.x402_wallet || matchingAgent.crypto_wallet || "";
-      console.log('Loaded wallet address:', loadedWallet); // Debug log
       setWalletAddress(loadedWallet);
       
+      // Verify authorization: user's X username must match agent's X username
+      const agentXUsername = (transformedAgent.social_links as any)?.x_username?.toLowerCase();
+      const normalizedUserXUsername = userXUsername?.toLowerCase();
+      
+      if (agentXUsername !== normalizedUserXUsername) {
+        toast.error("Unauthorized: You can only access your own agent's creator page");
+        navigate(`/${username}`);
+        return;
+      }
+      
+      setIsAuthorized(true);
       fetchTotalEarnings(matchingAgent.id);
 
       try {
@@ -158,57 +184,8 @@ export default function XAgentCreatorView() {
     }
   };
 
-  const handleValidateCode = async () => {
-    if (!agent || !editCode) {
-      toast.error("Please enter your edit code");
-      return;
-    }
-
-    if (!/^\d{6}$/.test(editCode)) {
-      toast.error("Edit code must be 6 digits");
-      return;
-    }
-
-    try {
-      // SECURITY: Use the rate-limited function to validate
-      const { data, error } = await supabase.rpc('check_edit_code_rate_limit', {
-        p_agent_id: agent.id
-      });
-
-      if (error) throw error;
-
-      if (!data) {
-        toast.error("Too many failed attempts. Please try again later.");
-        return;
-      }
-
-      // Validate the code
-      const { data: agentData, error: fetchError } = await supabase
-        .from('advisors')
-        .select('edit_code')
-        .eq('id', agent.id)
-        .single();
-
-      if (fetchError) throw fetchError;
-
-      if (agentData.edit_code === editCode) {
-        setIsValidated(true);
-        toast.success("Access granted!");
-      } else {
-        // Record failed attempt
-        await supabase.rpc('record_failed_edit_code_attempt', {
-          p_agent_id: agent.id
-        });
-        toast.error("Invalid edit code");
-      }
-    } catch (error) {
-      console.error('Error validating code:', error);
-      toast.error("Failed to validate code");
-    }
-  };
-
   const handleSaveSettings = async () => {
-    if (!agent || !editCode) return;
+    if (!agent || !isAuthorized) return;
 
     setIsSaving(true);
     try {
@@ -218,8 +195,7 @@ export default function XAgentCreatorView() {
           prompt: systemPrompt,
           updated_at: new Date().toISOString()
         })
-        .eq('id', agent.id)
-        .eq('edit_code', editCode);
+        .eq('id', agent.id);
 
       if (error) throw error;
 
@@ -281,7 +257,7 @@ export default function XAgentCreatorView() {
     return url;
   };
 
-  if (isLoading) {
+  if (authLoading || isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-background">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -296,20 +272,11 @@ export default function XAgentCreatorView() {
           <CardHeader>
             <CardTitle>Agent Not Found</CardTitle>
             <CardDescription>
-              We couldn't find an X agent for @{username}. 
-              {codeFromUrl && " Please check that the username is correct."}
+              We couldn't find an X agent for @{username}.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
-            <p className="text-sm text-muted-foreground">
-              Possible reasons:
-            </p>
-            <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
-              <li>The agent is still being created</li>
-              <li>The username format is incorrect</li>
-              <li>The agent hasn't been verified yet</li>
-            </ul>
-            <Button onClick={() => window.location.href = '/'} className="w-full mt-4">
+            <Button onClick={() => navigate('/')} className="w-full">
               <ArrowLeft className="mr-2 h-4 w-4" />
               Return to Home
             </Button>
@@ -319,49 +286,9 @@ export default function XAgentCreatorView() {
     );
   }
 
-  // SECURITY: Require validated code before showing any content
-  if (!isValidated) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center p-4">
-        <Card className="w-full max-w-md">
-          <CardHeader>
-            <CardTitle>Creator Access Required</CardTitle>
-            <CardDescription>
-              Enter your 6-digit edit code to manage @{username}
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-4 mb-4">
-              <p className="text-sm text-destructive font-medium">
-                🔒 Unauthorized access is not allowed
-              </p>
-              <p className="text-xs text-muted-foreground mt-1">
-                This page is for the agent creator only. You must have the edit code that was provided when this agent was created.
-              </p>
-            </div>
-            <div>
-              <Label htmlFor="edit-code">Edit Code</Label>
-              <Input
-                id="edit-code"
-                type="text"
-                maxLength={6}
-                value={editCode}
-                onChange={(e) => setEditCode(e.target.value.replace(/\D/g, ''))}
-                placeholder="000000"
-                className="text-center text-2xl tracking-widest font-mono"
-                autoFocus
-              />
-            </div>
-            <Button onClick={handleValidateCode} className="w-full" style={{ backgroundColor: '#81f4aa', color: '#000' }}>
-              Validate Code
-            </Button>
-            <Button variant="outline" onClick={() => navigate(`/${username}`)} className="w-full">
-              Back to Public View
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-    );
+  // Don't render anything if not authorized (redirect will happen in useEffect)
+  if (!isAuthorized) {
+    return null;
   }
 
   return (
@@ -459,7 +386,6 @@ export default function XAgentCreatorView() {
                 agentId={agent.id}
                 walletAddress={walletAddress}
                 onWalletUpdate={setWalletAddress}
-                editCode={editCode}
               />
             </TabsContent>
             

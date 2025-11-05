@@ -37,10 +37,9 @@ interface XAgentStoreManagerProps {
   agentId: string;
   walletAddress: string;
   onWalletUpdate: (address: string) => void;
-  editCode: string;
 }
 
-export function XAgentStoreManager({ agentId, walletAddress, onWalletUpdate, editCode }: XAgentStoreManagerProps) {
+export function XAgentStoreManager({ agentId, walletAddress, onWalletUpdate }: XAgentStoreManagerProps) {
   const [offerings, setOfferings] = useState<Offering[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -259,36 +258,71 @@ export function XAgentStoreManager({ agentId, walletAddress, onWalletUpdate, edi
         digitalFileUrl = publicUrl;
       }
 
-      // Use RPC for all operations (it now handles all agent fields with SECURITY DEFINER)
-      // Serialize integrations without icon components (they can't be saved to DB)
+      // Use direct database operations instead of RPC since user is now authenticated via X
+      // Authorization is handled by RLS policies
       const serializableIntegrations = integrations.map(({ icon, ...rest }) => rest);
       
-      const { data, error } = await supabase.rpc('manage_offering_with_code', {
-        p_agent_id: agentId,
-        p_edit_code: editCode,
-        p_offering_id: editingOffering?.id || null,
-        p_title: formData.title,
-        p_description: formData.description,
-        p_price: selectedType === 'agent' 
-          ? parseFloat(formData.price_per_conversation || '0')
-          : parseFloat(formData.price),
-        p_delivery_method: formData.delivery_method || 'Digital delivery',
-        p_required_info: requiredFields,
-        p_is_active: formData.is_active,
-        p_operation: editingOffering ? 'update' : 'insert',
-        p_offering_type: selectedType || 'standard',
-        p_agent_system_prompt: formData.agent_system_prompt || null,
-        p_agent_data_source: formData.agent_data_source || null,
-        p_agent_functionality: formData.agent_functionality || null,
-        p_agent_avatar_url: mediaUrl || null,
-        p_price_per_conversation: parseFloat(formData.price_per_conversation || '0'),
-        p_media_url: selectedType !== 'agent' ? mediaUrl : null,
-        p_digital_file_url: digitalFileUrl || null,
-        p_blur_preview: formData.blur_preview || false,
-        p_integrations: serializableIntegrations
-      });
+      if (editingOffering) {
+        // Update existing offering
+        const { error } = await supabase
+          .from('x_agent_offerings')
+          .update({
+            title: formData.title,
+            description: formData.description,
+            price: selectedType === 'agent' 
+              ? parseFloat(formData.price_per_conversation || '0')
+              : parseFloat(formData.price),
+            delivery_method: formData.delivery_method || 'Digital delivery',
+            required_info: requiredFields,
+            is_active: formData.is_active,
+            media_url: mediaUrl || editingOffering.media_url,
+            offering_type: selectedType,
+            digital_file_url: digitalFileUrl || editingOffering.digital_file_url,
+            blur_preview: formData.blur_preview,
+            agent_system_prompt: formData.agent_system_prompt,
+            agent_data_source: formData.agent_data_source,
+            agent_avatar_url: mediaUrl || editingOffering.media_url,
+            price_per_conversation: selectedType === 'agent' 
+              ? parseFloat(formData.price_per_conversation || '0')
+              : null,
+            agent_functionality: formData.agent_functionality,
+            integrations: serializableIntegrations,
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', editingOffering.id)
+          .eq('agent_id', agentId);
 
-      if (error) throw error;
+        if (error) throw error;
+      } else {
+        // Create new offering
+        const { error } = await supabase
+          .from('x_agent_offerings')
+          .insert({
+            agent_id: agentId,
+            title: formData.title,
+            description: formData.description,
+            price: selectedType === 'agent' 
+              ? parseFloat(formData.price_per_conversation || '0')
+              : parseFloat(formData.price),
+            delivery_method: formData.delivery_method || 'Digital delivery',
+            required_info: requiredFields,
+            is_active: formData.is_active,
+            media_url: mediaUrl,
+            offering_type: selectedType,
+            digital_file_url: digitalFileUrl,
+            blur_preview: formData.blur_preview,
+            agent_system_prompt: formData.agent_system_prompt,
+            agent_data_source: formData.agent_data_source,
+            agent_avatar_url: mediaUrl,
+            price_per_conversation: selectedType === 'agent' 
+              ? parseFloat(formData.price_per_conversation || '0')
+              : null,
+            agent_functionality: formData.agent_functionality,
+            integrations: serializableIntegrations
+          });
+
+        if (error) throw error;
+      }
 
       toast.success(editingOffering ? "Offering updated successfully" : "Offering created successfully");
       setIsDialogOpen(false);
@@ -347,12 +381,11 @@ export function XAgentStoreManager({ agentId, walletAddress, onWalletUpdate, edi
     if (!confirm("Are you sure you want to delete this offering?")) return;
 
     try {
-      const { error } = await supabase.rpc('manage_offering_with_code', {
-        p_agent_id: agentId,
-        p_edit_code: editCode,
-        p_offering_id: offeringId,
-        p_operation: 'delete'
-      });
+      const { error } = await supabase
+        .from('x_agent_offerings')
+        .delete()
+        .eq('id', offeringId)
+        .eq('agent_id', agentId);
 
       if (error) throw error;
 
@@ -366,13 +399,14 @@ export function XAgentStoreManager({ agentId, walletAddress, onWalletUpdate, edi
 
   const handleToggleActive = async (offeringId: string, currentStatus: boolean) => {
     try {
-      const { error } = await supabase.rpc('manage_offering_with_code', {
-        p_agent_id: agentId,
-        p_edit_code: editCode,
-        p_offering_id: offeringId,
-        p_is_active: !currentStatus,
-        p_operation: 'update'
-      });
+      const { error } = await supabase
+        .from('x_agent_offerings')
+        .update({ 
+          is_active: !currentStatus,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', offeringId)
+        .eq('agent_id', agentId);
 
       if (error) throw error;
 
@@ -443,8 +477,7 @@ export function XAgentStoreManager({ agentId, walletAddress, onWalletUpdate, edi
           x402_enabled: walletAddress ? true : false,
           updated_at: new Date().toISOString()
         })
-        .eq('id', agentId)
-        .eq('edit_code', editCode);
+        .eq('id', agentId);
 
       if (error) throw error;
 
