@@ -114,6 +114,8 @@ export default function XAgentPage() {
       });
 
       if (!matchingAgent) {
+        console.error('No matching agent found for username:', username);
+        setIsLoading(false);
         toast.error("Agent not found");
         navigate('/', { state: { scrollToAgents: true } });
         return;
