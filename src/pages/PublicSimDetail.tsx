@@ -113,29 +113,45 @@ const PublicSimDetail = () => {
   // Check if this is an X agent first (before fetchSim)
   useEffect(() => {
     const checkIfXAgent = async () => {
-      if (!customUrl) return;
+      if (!customUrl) {
+        console.log('[XAgent Check] No customUrl provided');
+        return;
+      }
 
-      const { data: xAgents } = await supabase
+      console.log('[XAgent Check] Checking if', customUrl, 'is an X agent');
+
+      const { data: xAgents, error } = await supabase
         .from('advisors')
         .select('*')
         .eq('sim_category', 'Crypto Mail')
         .eq('is_active', true);
 
+      console.log('[XAgent Check] Found', xAgents?.length, 'Crypto Mail agents');
+
+      if (error) {
+        console.error('[XAgent Check] Error fetching agents:', error);
+      }
+
       if (xAgents) {
         const matchingXAgent = xAgents.find(agent => {
           const socialLinks = agent.social_links as { x_username?: string; userName?: string } | null;
           const storedUsername = (socialLinks?.x_username || socialLinks?.userName || '').toLowerCase();
+          console.log('[XAgent Check] Comparing', storedUsername, 'with', customUrl?.toLowerCase());
           return storedUsername === customUrl?.toLowerCase();
         });
 
         if (matchingXAgent) {
+          console.log('[XAgent Check] Found matching X agent:', matchingXAgent.name);
           setIsXAgent(true);
           setIsLoading(false);
           return;
+        } else {
+          console.log('[XAgent Check] No matching X agent found');
         }
       }
       
       // Not an X agent, proceed with normal sim fetch
+      console.log('[XAgent Check] Not an X agent, fetching as regular sim');
       setIsXAgent(false);
       fetchSim();
     };
@@ -382,7 +398,14 @@ const PublicSimDetail = () => {
     }
   };
 
+  // If this is an X agent, render XAgentPage directly (check before loading screen)
+  if (isXAgent === true) {
+    console.log('[Render] Rendering XAgentPage');
+    return <XAgentPage />;
+  }
+
   if (isLoading) {
+    console.log('[Render] Showing loading screen, isXAgent:', isXAgent);
     return (
       <div 
         className="flex items-center justify-center min-h-screen relative bg-gradient-to-br from-primary/20 via-background to-secondary/20"
@@ -397,11 +420,6 @@ const PublicSimDetail = () => {
         </div>
       </div>
     );
-  }
-
-  // If this is an X agent, render XAgentPage directly
-  if (isXAgent === true) {
-    return <XAgentPage />;
   }
 
   if (!sim) {
