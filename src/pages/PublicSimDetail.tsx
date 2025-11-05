@@ -31,7 +31,8 @@ const X402PaymentModal = lazy(() =>
 );
 
 const PublicSimDetail = () => {
-  const { customUrl } = useParams<{ customUrl: string }>();
+  const { identifier } = useParams<{ identifier: string }>();
+  const customUrl = identifier; // Use identifier from route params
   const navigate = useNavigate();
   const { toast } = useToast();
   const [sim, setSim] = useState<AgentType | null>(null);
