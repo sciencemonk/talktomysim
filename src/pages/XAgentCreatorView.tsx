@@ -148,6 +148,8 @@ export default function XAgentCreatorView() {
       } catch (error) {
         console.error('Error fetching X data:', error);
       }
+      
+      setIsLoading(false);
     } catch (error) {
       console.error('Error fetching agent:', error);
       toast.error("Failed to load agent");
