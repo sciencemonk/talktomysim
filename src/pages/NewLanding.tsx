@@ -7,6 +7,7 @@ import { CreateXAgentModal } from "@/components/CreateXAgentModal";
 import { AgentType } from "@/types/agent";
 import { HackathonAnnouncementModal } from "@/components/HackathonAnnouncementModal";
 import { OfferingsMosaic } from "@/components/landing/OfferingsMosaic";
+import { OfferingsTextScroll } from "@/components/landing/OfferingsTextScroll";
 import { AgenticCommerceSection } from "@/components/landing/AgenticCommerceSection";
 import { Whyx402Section } from "@/components/landing/Whyx402Section";
 import { SignUpCTASection } from "@/components/landing/SignUpCTASection";
@@ -600,6 +601,8 @@ const NewLanding = () => {
   return (
     <div className="min-h-screen w-full flex flex-col bg-background">
       <HackathonAnnouncementModal />
+      
+      <OfferingsTextScroll />
       
       <div className="flex-1 overflow-hidden">
       <MatrixHeroSection 
