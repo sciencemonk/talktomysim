@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.55.0';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -6,6 +7,10 @@ const corsHeaders = {
 };
 
 const TWITTER_API_IO_KEY = Deno.env.get("TWITTER_API_IO_KEY")?.trim();
+const CACHE_DURATION_HOURS = 6; // Refresh data every 6 hours
+
+// Helper to add delay between API calls to avoid rate limits
+const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 function validateEnvironmentVariables() {
   if (!TWITTER_API_IO_KEY) {
@@ -23,7 +28,7 @@ serve(async (req) => {
   try {
     validateEnvironmentVariables();
     
-    const { username, reportType = 'profile' } = await req.json();
+    const { username, reportType = 'profile', forceRefresh = false } = await req.json();
     
     if (!username) {
       throw new Error('Username is required');
@@ -34,25 +39,97 @@ serve(async (req) => {
     console.log(`Generating ${reportType} report for @${cleanUsername}`);
     console.log(`API Key length: ${TWITTER_API_IO_KEY?.length || 0}`);
 
-    // Fetch user profile using TwitterAPI.io
+    // Initialize Supabase client
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+    // Check for cached data in database
+    if (!forceRefresh) {
+      const { data: cachedAgent } = await supabase
+        .from('advisors')
+        .select('social_links')
+        .eq('custom_url', cleanUsername)
+        .single();
+
+      if (cachedAgent?.social_links) {
+        const socialLinks = cachedAgent.social_links as any;
+        const lastFetched = socialLinks.last_twitter_fetch ? new Date(socialLinks.last_twitter_fetch) : null;
+        const hoursSinceLastFetch = lastFetched ? (Date.now() - lastFetched.getTime()) / (1000 * 60 * 60) : null;
+
+        // Return cached data if it's less than CACHE_DURATION_HOURS old
+        if (hoursSinceLastFetch && hoursSinceLastFetch < CACHE_DURATION_HOURS) {
+          console.log(`Using cached data (${hoursSinceLastFetch.toFixed(1)} hours old)`);
+          
+          const report = generateIntelligenceReport(
+            { data: socialLinks }, 
+            socialLinks.tweet_history || [],
+            reportType
+          );
+
+          return new Response(
+            JSON.stringify({ 
+              success: true, 
+              report,
+              tweets: (socialLinks.tweet_history || []).map((t: any) => ({
+                text: t.text || '',
+                created_at: t.createdAt,
+                favorite_count: t.likeCount || 0,
+                retweet_count: t.retweetCount || 0,
+                reply_count: t.replyCount || 0,
+              })),
+              cached: true,
+              cacheAge: hoursSinceLastFetch.toFixed(1)
+            }),
+            {
+              headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            }
+          );
+        }
+      }
+    }
+
+    console.log('Fetching fresh data from Twitter API...');
+
+    // Fetch user profile using TwitterAPI.io with retry logic
     const userUrl = `https://api.twitterapi.io/twitter/user/info?userName=${encodeURIComponent(cleanUsername)}`;
     console.log(`Full request URL: ${userUrl}`);
     
-    const userResponse = await fetch(userUrl, {
-      method: "GET",
-      headers: {
-        "X-API-Key": TWITTER_API_IO_KEY!,
-      },
-    });
-
-    console.log(`Response status: ${userResponse.status}`);
-    console.log(`Response statusText: ${userResponse.statusText}`);
+    let userResponse;
+    let retries = 0;
+    const maxRetries = 3;
     
-    if (!userResponse.ok) {
-      const errorText = await userResponse.text();
-      console.error('Full error response:', errorText);
-      console.error('TwitterAPI.io user lookup error:', userResponse.status, errorText);
-      throw new Error(`Failed to fetch user data: ${userResponse.status} - ${errorText}`);
+    while (retries < maxRetries) {
+      userResponse = await fetch(userUrl, {
+        method: "GET",
+        headers: {
+          "X-API-Key": TWITTER_API_IO_KEY!,
+        },
+      });
+
+      console.log(`Response status: ${userResponse.status}`);
+      console.log(`Response statusText: ${userResponse.statusText}`);
+      
+      // Handle rate limiting with exponential backoff
+      if (userResponse.status === 429) {
+        retries++;
+        if (retries >= maxRetries) {
+          throw new Error(`Rate limit exceeded after ${maxRetries} retries. Please try again later.`);
+        }
+        const waitTime = Math.pow(2, retries) * 1000; // Exponential backoff: 2s, 4s, 8s
+        console.log(`Rate limited. Waiting ${waitTime}ms before retry ${retries}/${maxRetries}...`);
+        await delay(waitTime);
+        continue;
+      }
+      
+      if (!userResponse.ok) {
+        const errorText = await userResponse.text();
+        console.error('Full error response:', errorText);
+        console.error('TwitterAPI.io user lookup error:', userResponse.status, errorText);
+        throw new Error(`Failed to fetch user data: ${userResponse.status} - ${errorText}`);
+      }
+      
+      break; // Success, exit loop
     }
 
     const userResponseData = await userResponse.json();
@@ -76,31 +153,76 @@ serve(async (req) => {
       );
     }
 
-    // Fetch recent tweets using TwitterAPI.io
-    const tweetsUrl = `https://api.twitterapi.io/twitter/user/last_tweets?userName=${encodeURIComponent(username)}&count=100`;
-    const tweetsResponse = await fetch(tweetsUrl, {
-      method: "GET",
-      headers: {
-        "X-API-Key": TWITTER_API_IO_KEY!,
-      },
-    });
+    // Add delay between API calls to avoid rate limits
+    await delay(150); // 150ms delay = max ~6-7 requests/sec
 
+    // Fetch recent tweets using TwitterAPI.io with retry logic
+    const tweetsUrl = `https://api.twitterapi.io/twitter/user/last_tweets?userName=${encodeURIComponent(cleanUsername)}&count=100`;
+    
     let tweets: any[] = [];
-    if (tweetsResponse.ok) {
-      try {
-        const tweetsData = await tweetsResponse.json();
-        tweets = tweetsData.tweets || [];
-        console.log(`Successfully fetched ${tweets.length} tweets`);
-      } catch (e) {
-        console.error('Error parsing tweets response:', e);
-        tweets = [];
+    retries = 0;
+    
+    while (retries < maxRetries) {
+      const tweetsResponse = await fetch(tweetsUrl, {
+        method: "GET",
+        headers: {
+          "X-API-Key": TWITTER_API_IO_KEY!,
+        },
+      });
+
+      if (tweetsResponse.status === 429) {
+        retries++;
+        if (retries >= maxRetries) {
+          console.warn(`Rate limit exceeded for tweets after ${maxRetries} retries. Using empty tweets array.`);
+          break;
+        }
+        const waitTime = Math.pow(2, retries) * 1000;
+        console.log(`Rate limited on tweets. Waiting ${waitTime}ms before retry ${retries}/${maxRetries}...`);
+        await delay(waitTime);
+        continue;
       }
-    } else {
-      console.warn(`Tweets API returned status ${tweetsResponse.status}`);
+
+      if (tweetsResponse.ok) {
+        try {
+          const tweetsData = await tweetsResponse.json();
+          tweets = tweetsData.tweets || [];
+          console.log(`Successfully fetched ${tweets.length} tweets`);
+        } catch (e) {
+          console.error('Error parsing tweets response:', e);
+          tweets = [];
+        }
+      } else {
+        console.warn(`Tweets API returned status ${tweetsResponse.status}`);
+      }
+      
+      break; // Exit loop after attempt
     }
 
     // Generate intelligence report
     const report = generateIntelligenceReport(userResponseData, tweets, reportType);
+
+    // Cache the results in the database
+    try {
+      const userData = userResponseData.data;
+      const cacheData = {
+        ...userData,
+        tweet_history: tweets,
+        last_twitter_fetch: new Date().toISOString(),
+      };
+
+      await supabase
+        .from('advisors')
+        .update({ 
+          social_links: cacheData,
+          avatar_url: report.profileImageUrl 
+        })
+        .eq('custom_url', cleanUsername);
+
+      console.log('Cached Twitter data in database');
+    } catch (cacheError) {
+      console.error('Error caching data:', cacheError);
+      // Don't fail the request if caching fails
+    }
 
     return new Response(
       JSON.stringify({ 
@@ -112,7 +234,9 @@ serve(async (req) => {
           favorite_count: t.likeCount || 0,
           retweet_count: t.retweetCount || 0,
           reply_count: t.replyCount || 0,
-        }))
+        })),
+        cached: false,
+        freshData: true
       }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
