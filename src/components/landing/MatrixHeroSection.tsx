@@ -1,13 +1,13 @@
 import { Button } from "@/components/ui/button";
 import { useTheme } from "@/hooks/useTheme";
-import { ThemeToggle } from "@/components/ThemeToggle";
+import { Badge } from "@/components/ui/badge";
 import { AgentType } from "@/types/agent";
 import xLogo from "@/assets/x-logo.png";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
-import { Badge } from "@/components/ui/badge";
 import { Users } from "lucide-react";
+import { toast } from "sonner";
 
 interface MatrixHeroSectionProps {
   onCreateXAgent: () => void;
@@ -64,6 +64,15 @@ export const MatrixHeroSection = ({ onCreateXAgent, onSimClick, onViewAllAgents 
     }
   };
 
+  const handleCopyAddress = async () => {
+    try {
+      await navigator.clipboard.writeText("FFqwoZ7phjoupWjLeE5yFeLqGi8jkGEFrTz6jnsUpump");
+      toast.success("Address copied to clipboard!");
+    } catch (err) {
+      toast.error("Failed to copy address");
+    }
+  };
+
   return (
     <section className="relative min-h-[80vh] flex flex-col overflow-hidden bg-background pb-0">
       {/* Video Background */}
@@ -80,7 +89,7 @@ export const MatrixHeroSection = ({ onCreateXAgent, onSimClick, onViewAllAgents 
       {/* Dark overlay for text readability */}
       <div className="absolute inset-0 bg-black/40"></div>
 
-      {/* Top Bar with Logo and Theme Toggle */}
+      {/* Top Bar with Logo and Badge */}
       <div className="absolute top-0 left-0 right-0 z-50 w-full px-4 py-6 flex items-center justify-between">
         <img
           src={theme === "dark" ? "/sim-logo-dark.png" : "/sim-logo-light-final.png"}
@@ -90,7 +99,12 @@ export const MatrixHeroSection = ({ onCreateXAgent, onSimClick, onViewAllAgents 
             e.currentTarget.src = "/sim-logo.png";
           }}
         />
-        <ThemeToggle />
+        <Badge 
+          onClick={handleCopyAddress}
+          className="cursor-pointer bg-[#82f3aa]/20 hover:bg-[#82f3aa]/30 text-[#82f3aa] border-[#82f3aa]/40 font-bold px-4 py-2 transition-all duration-300 hover:scale-105"
+        >
+          $SIMAI
+        </Badge>
       </div>
 
       {/* Content */}
