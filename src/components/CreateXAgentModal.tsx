@@ -220,7 +220,7 @@ You can answer questions about your X profile, interests, opinions, and provide 
                   Generating...
                 </>
               ) : (
-                'Generate Agent'
+                'Generate Store'
               )}
             </Button>
           </div>
