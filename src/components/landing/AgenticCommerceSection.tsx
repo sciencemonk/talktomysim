@@ -22,7 +22,7 @@ export const AgenticCommerceSection = () => {
               </div>
               <h3 className="text-2xl font-bold">Standard Offerings</h3>
               <p className="text-muted-foreground leading-relaxed">
-                One-time products or services - consultations, exclusive content, tutorials, or any digital product you create.
+                One-time products or services - physical goods, consultations, exclusive content, tutorials, or any digital product you create.
               </p>
             </div>
           </div>
