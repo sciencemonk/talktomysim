@@ -84,7 +84,7 @@ export default function AuthCallback() {
       // First, try to find by x_username in social_links
       const { data: agentByUsername } = await supabase
         .from('advisors')
-        .select('id, edit_code, social_links, user_id, custom_url')
+        .select('id, edit_code, social_links, user_id, custom_url, is_verified, is_active, verification_status')
         .eq('sim_category', 'Crypto Mail')
         .filter('social_links->x_username', 'eq', xUsername)
         .maybeSingle();
@@ -95,7 +95,7 @@ export default function AuthCallback() {
         // Try by custom_url
         const { data: agentByUrl } = await supabase
           .from('advisors')
-          .select('id, edit_code, social_links, user_id, custom_url')
+          .select('id, edit_code, social_links, user_id, custom_url, is_verified, is_active, verification_status')
           .eq('sim_category', 'Crypto Mail')
           .eq('custom_url', customUrl)
           .maybeSingle();
@@ -106,7 +106,7 @@ export default function AuthCallback() {
           // Finally, try by name
           const { data: agentByName } = await supabase
             .from('advisors')
-            .select('id, edit_code, social_links, user_id, custom_url')
+            .select('id, edit_code, social_links, user_id, custom_url, is_verified, is_active, verification_status')
             .eq('sim_category', 'Crypto Mail')
             .eq('name', `@${xUsername}`)
             .maybeSingle();
@@ -121,28 +121,40 @@ export default function AuthCallback() {
       let editCode: string;
 
       if (existingAgent) {
-        // Agent exists
+        // Agent exists - verify it and associate with user
         agentId = existingAgent.id;
         editCode = existingAgent.edit_code;
         
+        // Update agent to verified status and associate with user
+        const updateData: any = {
+          is_active: true,
+          is_verified: true,
+          verification_status: true,
+        };
+        
         // Associate with authenticated user if not already associated
         if (!existingAgent.user_id) {
-          const { error: updateError } = await supabase
-            .from('advisors')
-            .update({ user_id: user.id })
-            .eq('id', agentId);
-          
-          if (updateError) {
-            console.error('Error associating agent with user:', updateError);
-          } else {
-            console.log('Agent associated with authenticated user');
-            toast.success('Your X agent has been linked to your account!');
-          }
+          updateData.user_id = user.id;
+        }
+        
+        const { error: updateError } = await supabase
+          .from('advisors')
+          .update(updateData)
+          .eq('id', agentId);
+        
+        if (updateError) {
+          console.error('Error updating agent:', updateError);
+          toast.error('Failed to verify agent');
         } else {
-          toast.success('Welcome back! Redirecting to your agent...');
+          console.log('Agent verified and associated with authenticated user');
+          if (!existingAgent.user_id) {
+            toast.success('Your X agent has been verified and linked to your account!');
+          } else {
+            toast.success('Welcome back! Your agent is verified.');
+          }
         }
       } else {
-        // Create new agent
+        // Create new agent - automatically verified via OAuth
         editCode = generateEditCode();
         
         const followers = report?.metrics?.followers || 0;
@@ -172,10 +184,6 @@ When chatting:
 5. Be engaging and personable
 
 You can answer questions about your X profile, interests, opinions, and provide insights based on your X activity. Be authentic and engaging!`;
-
-        // Set verification deadline to 24 hours from now
-        const verificationDeadline = new Date();
-        verificationDeadline.setHours(verificationDeadline.getHours() + 24);
 
         const { data: newAgent, error: createError } = await supabase
           .from('advisors')
