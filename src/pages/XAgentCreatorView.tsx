@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, ArrowLeft, Users } from "lucide-react";
+import { Loader2, ArrowLeft, Users, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -16,12 +16,14 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function XAgentCreatorView() {
   const { username } = useParams<{ username: string }>();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const codeFromUrl = searchParams.get('code');
+  const { signOut } = useAuth();
   
   const [agent, setAgent] = useState<AgentType | null>(null);
   const [xData, setXData] = useState<any>(null);
@@ -224,6 +226,17 @@ export default function XAgentCreatorView() {
     }
   };
 
+  const handleLogout = async () => {
+    try {
+      await signOut();
+      toast.success("Logged out successfully");
+      navigate('/');
+    } catch (error) {
+      console.error('Error logging out:', error);
+      toast.error("Failed to log out");
+    }
+  };
+
   const formatNumber = (num: number | undefined) => {
     if (!num) return '0';
     if (num >= 1000000) {
@@ -341,9 +354,20 @@ export default function XAgentCreatorView() {
               <ArrowLeft className="h-4 w-4" />
               <span className="hidden sm:inline">Public View</span>
             </Button>
-            <div className="flex items-center gap-2">
-              <img src={xIcon} alt="X" className="h-4 w-4 md:h-5 md:w-5" />
-              <span className="text-xs md:text-sm font-medium text-muted-foreground">Creator Dashboard</span>
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2">
+                <img src={xIcon} alt="X" className="h-4 w-4 md:h-5 md:w-5" />
+                <span className="text-xs md:text-sm font-medium text-muted-foreground">Creator Dashboard</span>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleLogout}
+                className="gap-2 h-9 px-2 md:px-3"
+              >
+                <LogOut className="h-4 w-4" />
+                <span className="hidden sm:inline">Log Out</span>
+              </Button>
             </div>
           </div>
         </div>
