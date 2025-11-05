@@ -196,9 +196,6 @@ You can answer questions about your X profile, interests, opinions, and provide 
               disabled={isLoading}
               autoFocus
             />
-            <p className="text-xs text-muted-foreground">
-              Your X account will be analyzed to create a personalized AI agent.
-            </p>
           </div>
           <div className="flex gap-3 justify-end">
             <Button
