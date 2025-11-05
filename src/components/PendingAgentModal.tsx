@@ -1,11 +1,7 @@
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Clock, Lock } from "lucide-react";
-import { useState } from "react";
+import { Clock } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { toast } from "sonner";
 
 interface PendingAgentModalProps {
   open: boolean;
@@ -22,17 +18,11 @@ export function PendingAgentModal({
   agentId,
   customUrl 
 }: PendingAgentModalProps) {
-  const [editCode, setEditCode] = useState("");
   const navigate = useNavigate();
 
   const handleSignIn = () => {
-    if (!editCode.trim()) {
-      toast.error("Please enter your edit code");
-      return;
-    }
-
-    // Navigate to the creator view with the edit code
-    navigate(`/${customUrl}/creator?code=${editCode}`);
+    // Redirect to sign in with X
+    navigate('/login');
     onOpenChange(false);
   };
 
@@ -49,34 +39,12 @@ export function PendingAgentModal({
               <span className="font-semibold">{agentName}</span> is currently pending verification and not yet available for public use.
             </div>
             <div className="text-sm">
-              If you're the creator of this agent, sign in with your edit code to manage and verify your agent.
+              If you're the creator of this agent, sign in with X to manage and verify your agent.
             </div>
           </DialogDescription>
         </DialogHeader>
         
         <div className="space-y-4 pt-4">
-          <div className="space-y-2">
-            <Label htmlFor="editCode" className="flex items-center gap-2">
-              <Lock className="h-4 w-4" />
-              Creator Edit Code
-            </Label>
-            <Input
-              id="editCode"
-              type="text"
-              placeholder="Enter your edit code"
-              value={editCode}
-              onChange={(e) => setEditCode(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  handleSignIn();
-                }
-              }}
-            />
-            <p className="text-xs text-muted-foreground">
-              The edit code was provided when you created this agent
-            </p>
-          </div>
-          
           <div className="flex gap-2">
             <Button
               variant="outline"
@@ -89,7 +57,7 @@ export function PendingAgentModal({
               onClick={handleSignIn}
               className="flex-1 bg-[#80f4a9] hover:bg-[#6dd991] text-black border-0"
             >
-              Sign In as Creator
+              Sign In with X
             </Button>
           </div>
         </div>

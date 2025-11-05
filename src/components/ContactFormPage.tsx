@@ -49,8 +49,8 @@ const ContactFormPage = ({ agent }: ContactFormPageProps) => {
                          agents.name?.replace('@', '');
         
         if (xUsername) {
-          // Redirect to creator page
-          navigate(`/${xUsername}/creator?code=${agents.edit_code}`);
+          // Redirect to creator page (no code needed - using X auth)
+          navigate(`/${xUsername}/creator`);
           return;
         }
       }
