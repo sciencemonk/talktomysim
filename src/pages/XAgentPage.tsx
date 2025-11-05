@@ -115,7 +115,6 @@ export default function XAgentPage() {
 
       if (!matchingAgent) {
         console.error('No matching agent found for username:', username, 'in', data?.length, 'agents');
-        setIsLoading(false);
         toast.error("Agent not found");
         navigate('/', { state: { scrollToAgents: true } });
         return;
@@ -225,7 +224,6 @@ export default function XAgentPage() {
     } catch (error) {
       console.error('Error fetching agent:', error);
       toast.error("Failed to load agent");
-      setIsLoading(false);
       navigate('/', { state: { scrollToAgents: true } });
     }
   };
