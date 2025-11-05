@@ -87,8 +87,7 @@ export function PendingAgentModal({
             </Button>
             <Button
               onClick={handleSignIn}
-              className="flex-1"
-              variant="default"
+              className="flex-1 bg-[#80f4a9] hover:bg-[#6dd991] text-black border-0"
             >
               Sign In as Creator
             </Button>
