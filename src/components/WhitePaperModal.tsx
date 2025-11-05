@@ -1,4 +1,4 @@
-import { ArrowRight, TrendingUp, Coins, Zap, Shield, Sparkles, Globe, DollarSign, Bot, Network } from "lucide-react";
+import { ArrowRight, TrendingUp, Coins, Zap, Shield, Sparkles, Globe, DollarSign, Bot, Network, CheckCircle, Users } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -274,6 +274,181 @@ export const WhitePaperModal = ({ open, onOpenChange }: WhitePaperModalProps) =>
                     <p className="text-sm md:text-base text-muted-foreground">
                       Service validates payment on-chain and returns the requested data or service
                     </p>
+                  </CardContent>
+                </Card>
+              </div>
+            </section>
+
+            {/* Permissionless Commerce */}
+            <section className="space-y-6 border-b pb-8">
+              <h2 className="text-2xl font-bold text-foreground">Permissionless Commerce</h2>
+              
+              <Card className="bg-gradient-to-r from-green-50 via-emerald-50 to-teal-50 dark:from-green-950/20 dark:via-emerald-950/20 dark:to-teal-950/20 border-2 border-primary/20 mb-8">
+                <CardContent className="pt-6 text-center">
+                  <div className="flex justify-center mb-4">
+                    <Globe className="h-10 md:h-12 w-10 md:w-12 text-primary" />
+                  </div>
+                  <h3 className="text-xl md:text-2xl font-bold mb-4">No Barriers. No Fees.</h3>
+                  <p className="text-base md:text-lg text-muted-foreground max-w-2xl mx-auto mb-6">
+                    Traditional commerce platforms impose gatekeepers, high fees, and complex approval processes. x402 enables <strong className="text-foreground">permissionless commerce</strong>—anyone can create an autonomous storefront and start accepting payments instantly, with zero fees and no middlemen.
+                  </p>
+                </CardContent>
+              </Card>
+
+              <div className="grid md:grid-cols-3 gap-4 md:gap-6">
+                <Card className="border-2 border-primary/30">
+                  <CardHeader>
+                    <div className="flex justify-center mb-2">
+                      <Zap className="h-6 md:h-8 w-6 md:w-8 text-primary" />
+                    </div>
+                    <CardTitle className="text-lg md:text-xl text-center">Zero Barriers to Entry</CardTitle>
+                  </CardHeader>
+                  <CardContent className="text-center">
+                    <p className="text-sm md:text-base text-muted-foreground mb-4">
+                      No approvals, no applications, no waiting—deploy your storefront in seconds
+                    </p>
+                    <div className="space-y-2 text-xs md:text-sm text-muted-foreground">
+                      <div>✓ No KYC required</div>
+                      <div>✓ No business verification</div>
+                      <div>✓ No platform approval</div>
+                    </div>
+                  </CardContent>
+                </Card>
+                
+                <Card className="border-2 border-primary/30">
+                  <CardHeader>
+                    <div className="flex justify-center mb-2">
+                      <DollarSign className="h-6 md:h-8 w-6 md:w-8 text-primary" />
+                    </div>
+                    <CardTitle className="text-lg md:text-xl text-center">Zero Platform Fees</CardTitle>
+                  </CardHeader>
+                  <CardContent className="text-center">
+                    <p className="text-sm md:text-base text-muted-foreground mb-4">
+                      Keep 100% of your revenue—no payment processor taking their cut
+                    </p>
+                    <div className="space-y-2 text-xs md:text-sm text-muted-foreground">
+                      <div>✓ No 3-5% transaction fees</div>
+                      <div>✓ No monthly subscriptions</div>
+                      <div>✓ No hidden charges</div>
+                    </div>
+                  </CardContent>
+                </Card>
+                
+                <Card className="border-2 border-primary/30">
+                  <CardHeader>
+                    <div className="flex justify-center mb-2">
+                      <Globe className="h-6 md:h-8 w-6 md:w-8 text-primary" />
+                    </div>
+                    <CardTitle className="text-lg md:text-xl text-center">Global by Default</CardTitle>
+                  </CardHeader>
+                  <CardContent className="text-center">
+                    <p className="text-sm md:text-base text-muted-foreground mb-4">
+                      Accept payments from anyone, anywhere, with no geographic restrictions
+                    </p>
+                    <div className="space-y-2 text-xs md:text-sm text-muted-foreground">
+                      <div>✓ No country limitations</div>
+                      <div>✓ No currency conversions</div>
+                      <div>✓ Borderless commerce</div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </section>
+
+            {/* Social Internet Money (SIM) */}
+            <section className="space-y-6 border-b pb-8">
+              <h2 className="text-2xl font-bold text-foreground">Social Internet Money: Verified Identity & Trust</h2>
+              
+              <Card className="bg-gradient-to-r from-blue-50 via-indigo-50 to-violet-50 dark:from-blue-950/20 dark:via-indigo-950/20 dark:to-violet-950/20 border-2 border-primary/20 mb-8">
+                <CardContent className="pt-6 text-center">
+                  <div className="flex justify-center mb-4">
+                    <CheckCircle className="h-10 md:h-12 w-10 md:w-12 text-primary" />
+                  </div>
+                  <h3 className="text-xl md:text-2xl font-bold mb-4">Trust Through Verified Social Identity</h3>
+                  <p className="text-base md:text-lg text-muted-foreground max-w-2xl mx-auto mb-6">
+                    <strong className="text-foreground">Social Internet Money (SIM)</strong> combines the power of verified social accounts with autonomous commerce. Verified X accounts become trusted storefronts, allowing creators to sell products, services, and AI agents backed by their established reputation and social proof.
+                  </p>
+                </CardContent>
+              </Card>
+
+              <div className="grid md:grid-cols-2 gap-4 md:gap-6">
+                <Card className="border-2 border-primary/20">
+                  <CardHeader>
+                    <div className="flex justify-center mb-2">
+                      <CheckCircle className="h-6 md:h-8 w-6 md:w-8 text-primary" />
+                    </div>
+                    <CardTitle className="text-lg md:text-xl text-center">Verified Identity Layer</CardTitle>
+                  </CardHeader>
+                  <CardContent className="text-center">
+                    <p className="text-sm md:text-base text-muted-foreground mb-4">
+                      Link your verified X account to create a trusted commerce identity
+                    </p>
+                    <ul className="text-xs md:text-sm text-muted-foreground space-y-2">
+                      <li>• Social proof through follower count</li>
+                      <li>• Reputation from post history</li>
+                      <li>• Verified badge trust signal</li>
+                      <li>• Transparent track record</li>
+                    </ul>
+                  </CardContent>
+                </Card>
+
+                <Card className="border-2 border-primary/20">
+                  <CardHeader>
+                    <div className="flex justify-center mb-2">
+                      <Users className="h-6 md:h-8 w-6 md:w-8 text-primary" />
+                    </div>
+                    <CardTitle className="text-lg md:text-xl text-center">Sell Everything Online</CardTitle>
+                  </CardHeader>
+                  <CardContent className="text-center">
+                    <p className="text-sm md:text-base text-muted-foreground mb-4">
+                      Verified accounts can offer any combination of digital offerings
+                    </p>
+                    <ul className="text-xs md:text-sm text-muted-foreground space-y-2">
+                      <li>• <strong>Products:</strong> Digital goods & NFTs</li>
+                      <li>• <strong>Services:</strong> Consulting & expertise</li>
+                      <li>• <strong>AI Agents:</strong> Trained on your knowledge</li>
+                      <li>• <strong>Access:</strong> Premium content & communities</li>
+                    </ul>
+                  </CardContent>
+                </Card>
+
+                <Card className="border-2 border-primary/20">
+                  <CardHeader>
+                    <div className="flex justify-center mb-2">
+                      <Shield className="h-6 md:h-8 w-6 md:w-8 text-primary" />
+                    </div>
+                    <CardTitle className="text-lg md:text-xl text-center">Built-in Trust Signals</CardTitle>
+                  </CardHeader>
+                  <CardContent className="text-center">
+                    <p className="text-sm md:text-base text-muted-foreground mb-4">
+                      Your social presence becomes your business credibility
+                    </p>
+                    <ul className="text-xs md:text-sm text-muted-foreground space-y-2">
+                      <li>• Public transaction history</li>
+                      <li>• Community endorsements</li>
+                      <li>• Verifiable reputation score</li>
+                      <li>• On-chain proof of delivery</li>
+                    </ul>
+                  </CardContent>
+                </Card>
+
+                <Card className="border-2 border-primary/20">
+                  <CardHeader>
+                    <div className="flex justify-center mb-2">
+                      <Bot className="h-6 md:h-8 w-6 md:w-8 text-primary" />
+                    </div>
+                    <CardTitle className="text-lg md:text-xl text-center">Your AI, Your Revenue</CardTitle>
+                  </CardHeader>
+                  <CardContent className="text-center">
+                    <p className="text-sm md:text-base text-muted-foreground mb-4">
+                      Train AI agents on your X posts to monetize your expertise 24/7
+                    </p>
+                    <ul className="text-xs md:text-sm text-muted-foreground space-y-2">
+                      <li>• Automated personality clone</li>
+                      <li>• Always-on engagement</li>
+                      <li>• Scalable expertise delivery</li>
+                      <li>• Passive income generation</li>
+                    </ul>
                   </CardContent>
                 </Card>
               </div>
