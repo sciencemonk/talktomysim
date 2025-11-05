@@ -401,15 +401,6 @@ export default function XAgentPage() {
                 {linkCopied ? <Check className="h-4 w-4" /> : <Share2 className="h-4 w-4" />}
                 <span className="hidden sm:inline">Share</span>
               </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => navigate(`/${username}/creator`)}
-                className="gap-2"
-                style={{ backgroundColor: secondaryColor, color: primaryColor, borderColor: primaryColor }}
-              >
-                <span>Creator Access</span>
-              </Button>
             </div>
           </div>
         </div>

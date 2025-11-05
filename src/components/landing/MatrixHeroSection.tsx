@@ -110,7 +110,7 @@ export const MatrixHeroSection = ({ onCreateXAgent, onSimClick, onViewAllAgents 
       {/* Dark overlay for text readability */}
       <div className="absolute inset-0 bg-black/40"></div>
 
-      {/* Top Bar with Logo and Badge */}
+      {/* Top Bar with Logo and Sign In Button */}
       <div className="absolute top-0 left-0 right-0 z-50 w-full px-4 py-6 flex items-center justify-between">
         <img
           src={theme === "dark" ? "/sim-logo-dark.png" : "/sim-logo-light-final.png"}
@@ -120,12 +120,13 @@ export const MatrixHeroSection = ({ onCreateXAgent, onSimClick, onViewAllAgents 
             e.currentTarget.src = "/sim-logo.png";
           }}
         />
-        <Badge 
-          onClick={handleCopyAddress}
-          className="cursor-pointer bg-[#82f3aa]/20 hover:bg-[#82f3aa]/30 text-[#82f3aa] border-[#82f3aa]/40 font-bold px-4 py-2 transition-all duration-300 hover:scale-105"
+        <Button
+          onClick={handleXSignIn}
+          size="sm"
+          className="bg-[#82f3aa] hover:bg-[#6dd991] text-black font-semibold px-6 py-2 transition-all duration-300 hover:scale-105"
         >
-          $SIMAI
-        </Badge>
+          Sign In
+        </Button>
       </div>
 
       {/* Content */}
