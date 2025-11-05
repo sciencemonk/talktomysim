@@ -71,7 +71,7 @@ export default function AuthCallback() {
       // Check if agent already exists for this user
       const { data: existingAgent, error: checkError } = await supabase
         .from('advisors')
-        .select('id, edit_code, social_links')
+        .select('id, edit_code, social_links, user_id')
         .eq('sim_category', 'Crypto Mail')
         .or(`social_links->x_username.eq.${xUsername},name.eq.@${xUsername}`)
         .maybeSingle();
@@ -84,10 +84,26 @@ export default function AuthCallback() {
       let editCode: string;
 
       if (existingAgent) {
-        // Agent exists, just redirect
+        // Agent exists
         agentId = existingAgent.id;
         editCode = existingAgent.edit_code;
-        toast.success('Welcome back! Redirecting to your agent...');
+        
+        // Associate with authenticated user if not already associated
+        if (!existingAgent.user_id) {
+          const { error: updateError } = await supabase
+            .from('advisors')
+            .update({ user_id: user.id })
+            .eq('id', agentId);
+          
+          if (updateError) {
+            console.error('Error associating agent with user:', updateError);
+          } else {
+            console.log('Agent associated with authenticated user');
+            toast.success('Your X agent has been linked to your account!');
+          }
+        } else {
+          toast.success('Welcome back! Redirecting to your agent...');
+        }
       } else {
         // Create new agent
         editCode = generateEditCode();

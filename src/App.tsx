@@ -15,6 +15,7 @@ import { AuthenticatedLayout } from "./layouts/AuthenticatedLayout";
 // Pages
 import Index from "./pages/Index";
 import Login from "./pages/Login";
+import SignIn from "./pages/SignIn";
 import AuthCallback from "./pages/AuthCallback";
 import Home from "./pages/Home";
 import NewLanding from "./pages/NewLanding";
@@ -69,8 +70,9 @@ const App = () => (
               <Route path="/pump" element={<Pump />} />
               <Route path="/sim-directory" element={<Home />} />
               <Route path="/index" element={<Index />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/auth/callback" element={<AuthCallback />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/signin" element={<SignIn />} />
+          <Route path="/auth/callback" element={<AuthCallback />} />
               <Route path="/whitepaper" element={<WhitePaper />} />
               <Route path="/contact" element={<Contact />} />
               <Route path="/privacy" element={<Privacy />} />
