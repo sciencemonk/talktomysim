@@ -20,12 +20,14 @@ const SignIn = () => {
   const handleXSignIn = async () => {
     try {
       console.log('Starting X sign in...');
-      console.log('Redirect URL:', `${window.location.origin}/auth/callback`);
+      const redirectUrl = `${window.location.origin}/auth/callback`;
+      console.log('Redirect URL:', redirectUrl);
       
-      const { error } = await supabase.auth.signInWithOAuth({
+      const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'twitter',
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
+          redirectTo: redirectUrl,
+          skipBrowserRedirect: false,
         },
       });
 
@@ -34,7 +36,7 @@ const SignIn = () => {
         throw error;
       }
       
-      console.log('OAuth initiated successfully');
+      console.log('OAuth initiated successfully', data);
     } catch (error: any) {
       console.error('Error signing in with X:', error);
       toast.error(error?.message || 'Failed to sign in with X');
