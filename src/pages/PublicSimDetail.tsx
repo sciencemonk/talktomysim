@@ -110,11 +110,38 @@ const PublicSimDetail = () => {
   };
 
 
+  // Check if this is an X agent first (before fetchSim)
   useEffect(() => {
-    checkUser();
-    if (customUrl) {
+    const checkIfXAgent = async () => {
+      if (!customUrl) return;
+
+      const { data: xAgents } = await supabase
+        .from('advisors')
+        .select('*')
+        .eq('sim_category', 'Crypto Mail')
+        .eq('is_active', true);
+
+      if (xAgents) {
+        const matchingXAgent = xAgents.find(agent => {
+          const socialLinks = agent.social_links as { x_username?: string; userName?: string } | null;
+          const storedUsername = (socialLinks?.x_username || socialLinks?.userName || '').toLowerCase();
+          return storedUsername === customUrl?.toLowerCase();
+        });
+
+        if (matchingXAgent) {
+          setIsXAgent(true);
+          setIsLoading(false);
+          return;
+        }
+      }
+      
+      // Not an X agent, proceed with normal sim fetch
+      setIsXAgent(false);
       fetchSim();
-    }
+    };
+
+    checkUser();
+    checkIfXAgent();
     
     // Cleanup: reset meta tags when component unmounts
     return () => {
@@ -223,33 +250,7 @@ const PublicSimDetail = () => {
         }
       }
       
-      // Last attempt: Check if it's an X agent username
-      // (This should not be reached if early check caught it, but kept as fallback)
-      if (!data && !error) {
-        const { data: xAgents } = await supabase
-          .from('advisors')
-          .select('*')
-          .eq('sim_category', 'Crypto Mail')
-          .eq('is_active', true);
-          
-        if (xAgents) {
-          data = xAgents.find(agent => {
-            const socialLinks = agent.social_links as { x_username?: string; userName?: string } | null;
-            const storedUsername = (socialLinks?.x_username || socialLinks?.userName || '').toLowerCase();
-            return storedUsername === customUrl?.toLowerCase();
-          });
-          
-          // If found, this shouldn't happen (early check should catch it), redirect to avoid confusion
-          if (data) {
-            const socialLinks = data.social_links as { x_username?: string; userName?: string } | null;
-            const xUsername = socialLinks?.x_username || socialLinks?.userName;
-            if (xUsername) {
-              navigate(`/${xUsername}`, { replace: true });
-              return;
-            }
-          }
-        }
-      }
+      // X agents are handled by the early check in useEffect - this shouldn't be reached
 
       if (error) throw error;
 
@@ -396,6 +397,11 @@ const PublicSimDetail = () => {
         </div>
       </div>
     );
+  }
+
+  // If this is an X agent, render XAgentPage directly
+  if (isXAgent === true) {
+    return <XAgentPage />;
   }
 
   if (!sim) {
