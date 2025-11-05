@@ -589,12 +589,12 @@ const NewLanding = () => {
       />
       </div>
 
-      <div id="agents-showcase-section" className="scroll-mt-4">
-        <XAgentsShowcase agents={allSims || []} />
-      </div>
-
       <div id="learn-more-section" className="scroll-mt-4">
         <AgenticCommerceSection />
+      </div>
+
+      <div id="agents-showcase-section" className="scroll-mt-4">
+        <XAgentsShowcase agents={allSims || []} />
       </div>
 
       <SimVsStripeSection />
