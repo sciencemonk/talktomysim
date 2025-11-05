@@ -1,5 +1,11 @@
 project_id = "uovhemqkztmkoozlmqxq"
 
+[functions.store-payment-session]
+verify_jwt = false
+
+[functions.validate-payment-session]
+verify_jwt = false
+
 [functions.google-oauth]
 verify_jwt = false
 

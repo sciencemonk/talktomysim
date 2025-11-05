@@ -14,6 +14,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 interface X402PaymentModalProps {
   isOpen: boolean;
@@ -155,21 +156,41 @@ export const X402PaymentModal = ({
       // Generate session ID
       const sessionId = `corbits_${signature}_${publicKey.toString().slice(0, 8)}`;
       
-      // Store session with payment proof
-      localStorage.setItem(`x402_session_${walletAddress}`, JSON.stringify({
-        sessionId,
-        signature,
-        amount: price,
-        timestamp: Date.now(),
-        expiresAt: Date.now() + (24 * 60 * 60 * 1000), // 24 hours
-        from: publicKey.toString(),
-        to: walletAddress,
-        provider: 'solana-direct'
-      }));
+      // Store payment session server-side for security
+      try {
+        const storeResponse = await supabase.functions.invoke('store-payment-session', {
+          body: {
+            sessionId,
+            walletAddress,
+            signature,
+            amount: price,
+            currency: 'USDC',
+            network: 'solana',
+            expiresInHours: 24
+          }
+        });
 
-      toast.success('Payment successful!');
-      onPaymentSuccess(sessionId);
-      onClose();
+        if (storeResponse.error) {
+          console.error('Failed to store payment session:', storeResponse.error);
+          throw new Error('Failed to store payment session');
+        }
+
+        console.log('Payment session stored server-side:', storeResponse.data);
+
+        // Store minimal session reference in localStorage (just for convenience)
+        localStorage.setItem(`x402_session_${walletAddress}`, JSON.stringify({
+          sessionId,
+          timestamp: Date.now(),
+          expiresAt: Date.now() + (24 * 60 * 60 * 1000)
+        }));
+
+        toast.success('Payment successful!');
+        onPaymentSuccess(sessionId);
+        onClose();
+      } catch (storageError) {
+        console.error('Storage error:', storageError);
+        toast.error('Payment succeeded but session storage failed. Please contact support.');
+      }
     } catch (error: any) {
       console.error('Payment error:', error);
       if (error.message?.includes('User rejected')) {

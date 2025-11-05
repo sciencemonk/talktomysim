@@ -923,6 +923,59 @@ export type Database = {
           },
         ]
       }
+      payment_sessions: {
+        Row: {
+          agent_id: string | null
+          amount: number
+          created_at: string
+          currency: string
+          expires_at: string
+          id: string
+          is_active: boolean
+          metadata: Json | null
+          network: string
+          payment_signature: string
+          session_id: string
+          wallet_address: string
+        }
+        Insert: {
+          agent_id?: string | null
+          amount: number
+          created_at?: string
+          currency?: string
+          expires_at: string
+          id?: string
+          is_active?: boolean
+          metadata?: Json | null
+          network?: string
+          payment_signature: string
+          session_id: string
+          wallet_address: string
+        }
+        Update: {
+          agent_id?: string | null
+          amount?: number
+          created_at?: string
+          currency?: string
+          expires_at?: string
+          id?: string
+          is_active?: boolean
+          metadata?: Json | null
+          network?: string
+          payment_signature?: string
+          session_id?: string
+          wallet_address?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_sessions_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "advisors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           created_at: string | null
@@ -1499,6 +1552,7 @@ export type Database = {
         Args: { p_agent_id: string }
         Returns: boolean
       }
+      cleanup_expired_payment_sessions: { Args: never; Returns: number }
       deduct_credit: {
         Args: {
           p_conversation_id?: string
@@ -1679,6 +1733,10 @@ export type Database = {
           p_social_links?: Json
           p_welcome_message: string
         }
+        Returns: boolean
+      }
+      validate_payment_session: {
+        Args: { p_session_id: string; p_wallet_address: string }
         Returns: boolean
       }
     }

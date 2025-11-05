@@ -1,9 +1,34 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts"
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
+
+// Input validation schema
+const chatMessageSchema = z.object({
+  role: z.enum(['user', 'assistant', 'system']),
+  content: z.string().max(50000)
+})
+
+const agentSchema = z.object({
+  id: z.string().optional(),
+  name: z.string().max(200),
+  type: z.string().max(100),
+  subject: z.string().max(200),
+  description: z.string().max(5000),
+  prompt: z.string().max(10000),
+  gradeLevel: z.string().max(50).optional(),
+  learningObjective: z.string().max(1000).optional(),
+  integrations: z.array(z.string()).optional()
+})
+
+const requestSchema = z.object({
+  messages: z.array(chatMessageSchema).min(1).max(100),
+  agent: agentSchema,
+  isDebate: z.boolean().optional()
+})
 
 serve(async (req) => {
   // Handle CORS preflight requests
@@ -12,7 +37,10 @@ serve(async (req) => {
   }
 
   try {
-    const { messages, agent, isDebate } = await req.json()
+    // Parse and validate input
+    const rawBody = await req.json()
+    const validatedInput = requestSchema.parse(rawBody)
+    const { messages, agent, isDebate } = validatedInput
 
     const openaiApiKey = Deno.env.get('OPENAI_API_KEY')
     if (!openaiApiKey) {
@@ -155,6 +183,21 @@ Always be patient, supportive, and adapt to each user's learning pace and style.
 
   } catch (error) {
     console.error('Error in chat-completion function:', error)
+    
+    // Handle validation errors specifically
+    if (error instanceof z.ZodError) {
+      return new Response(
+        JSON.stringify({ 
+          error: 'Invalid input',
+          details: error.errors
+        }),
+        {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        },
+      )
+    }
+    
     const errorMessage = error instanceof Error ? error.message : 'Internal server error'
     return new Response(
       JSON.stringify({ 
