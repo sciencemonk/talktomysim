@@ -94,14 +94,13 @@ const App = () => (
               {/* Token Agent Page */}
               <Route path="/token/:contractAddress" element={<TokenAgentPage />} />
               
-              {/* X Agent Page - simplified paths */}
-              <Route path="/:username" element={<XAgentPage />} />
+              {/* X Agent Creator - Must come before catch-all */}
               <Route path="/:username/creator" element={<XAgentCreatorView />} />
               
               {/* Root route - new landing page */}
               <Route path="/" element={<NewLanding />} />
               
-              {/* Authenticated routes with sidebar - MUST come before catch-all */}
+              {/* Authenticated routes with sidebar */}
               <Route element={<AuthenticatedLayout />}>
                 <Route path="/directory" element={<SimDirectory />} />
                 <Route path="/home" element={<ChatWithSim />} />
@@ -111,8 +110,8 @@ const App = () => (
                 <Route path="/integrations" element={<Integrations />} />
               </Route>
               
-              {/* Public sim share links - MUST be last to avoid catching other routes */}
-              <Route path="/:customUrl" element={<PublicSimDetail />} />
+              {/* Single catch-all for both X agents and public sims - MUST be last */}
+              <Route path="/:identifier" element={<PublicSimDetail />} />
               
               {/* Catch all 404 */}
               <Route path="*" element={<NotFound />} />

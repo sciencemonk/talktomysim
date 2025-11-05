@@ -219,11 +219,30 @@ const PublicSimDetail = () => {
           data = allSims.find(sim => generateSlug(sim.name) === customUrl) || null;
         }
       }
+      
+      // Last attempt: Check if it's an X agent username (Crypto Mail agents)
+      if (!data && !error) {
+        const { data: xAgents } = await supabase
+          .from('advisors')
+          .select('*')
+          .eq('sim_category', 'Crypto Mail')
+          .eq('is_verified', true)
+          .eq('is_active', true);
+          
+        if (xAgents) {
+          data = xAgents.find(agent => {
+            const socialLinks = agent.social_links as { x_username?: string } | null;
+            return socialLinks?.x_username?.toLowerCase() === customUrl?.toLowerCase();
+          });
+        }
+      }
 
       if (error) throw error;
 
       if (!data) {
-        navigate('/404');
+        // Only navigate to 404 if we've exhausted all options
+        console.log('Agent/Sim not found for identifier:', customUrl);
+        navigate('/', { replace: true }); // Go to home instead of 404 to prevent loops
         return;
       }
 
