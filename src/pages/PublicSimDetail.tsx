@@ -231,8 +231,9 @@ const PublicSimDetail = () => {
           
         if (xAgents) {
           data = xAgents.find(agent => {
-            const socialLinks = agent.social_links as { x_username?: string } | null;
-            return socialLinks?.x_username?.toLowerCase() === customUrl?.toLowerCase();
+            const socialLinks = agent.social_links as { x_username?: string; userName?: string } | null;
+            const storedUsername = (socialLinks?.x_username || socialLinks?.userName || '').toLowerCase();
+            return storedUsername === customUrl?.toLowerCase();
           });
         }
       }
