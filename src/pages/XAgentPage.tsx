@@ -388,7 +388,86 @@ export default function XAgentPage() {
   };
 
   if (isLoading) {
-    return null; // Don't show anything while loading
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-background via-background to-muted/20 font-system">
+        {/* Top Navigation Bar Skeleton */}
+        <div className="border-b border-border/40 bg-card/95 backdrop-blur-md sticky top-0 z-50">
+          <div className="container mx-auto px-4 md:px-6 py-3">
+            <div className="flex items-center justify-between">
+              <div className="h-10 w-10 rounded-full bg-muted animate-pulse" />
+              <div className="h-8 w-20 rounded bg-muted animate-pulse" />
+            </div>
+          </div>
+        </div>
+
+        {/* Hero Section Skeleton */}
+        <div className="border-b border-border/40 bg-gradient-to-r from-card/95 via-card/80 to-card/95 backdrop-blur-sm">
+          <div className="container mx-auto px-4 md:px-6 py-8 md:py-12">
+            <div className="flex flex-col md:flex-row gap-6 md:gap-8 items-start md:items-center">
+              {/* Profile Image Skeleton */}
+              <div className="h-24 w-24 md:h-32 md:w-32 rounded-full bg-muted animate-pulse" />
+              
+              {/* Profile Info Skeleton */}
+              <div className="flex-1 space-y-4 w-full">
+                <div className="space-y-2">
+                  <div className="h-8 w-48 bg-muted animate-pulse rounded" />
+                  <div className="h-6 w-32 bg-muted animate-pulse rounded" />
+                </div>
+                <div className="h-20 w-full bg-muted animate-pulse rounded" />
+              </div>
+            </div>
+
+            {/* Stats Grid Skeleton */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="bg-muted animate-pulse rounded-lg p-4 space-y-2">
+                  <div className="h-4 w-20 bg-background/50 rounded" />
+                  <div className="h-6 w-24 bg-background/50 rounded" />
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Main Content Skeleton */}
+        <div className="container mx-auto px-4 md:px-6 py-8">
+          <div className="grid lg:grid-cols-3 gap-6">
+            {/* Main Content Area */}
+            <div className="lg:col-span-2 space-y-6">
+              {/* Section Title */}
+              <div className="h-8 w-48 bg-muted animate-pulse rounded" />
+              
+              {/* Offerings Grid */}
+              <div className="grid gap-4">
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="bg-card border rounded-lg p-6 space-y-4">
+                    <div className="flex items-start gap-4">
+                      <div className="h-16 w-16 rounded-lg bg-muted animate-pulse" />
+                      <div className="flex-1 space-y-2">
+                        <div className="h-6 w-3/4 bg-muted animate-pulse rounded" />
+                        <div className="h-4 w-full bg-muted animate-pulse rounded" />
+                        <div className="h-4 w-2/3 bg-muted animate-pulse rounded" />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Sidebar */}
+            <div className="space-y-6">
+              <div className="bg-card border rounded-lg p-6 space-y-4">
+                <div className="h-6 w-32 bg-muted animate-pulse rounded" />
+                <div className="space-y-3">
+                  <div className="h-10 w-full bg-muted animate-pulse rounded" />
+                  <div className="h-10 w-full bg-muted animate-pulse rounded" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   if (!agent) {
