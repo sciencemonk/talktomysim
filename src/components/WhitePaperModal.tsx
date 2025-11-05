@@ -1,5 +1,5 @@
 import { ArrowRight, TrendingUp, Coins, Zap, Shield, Sparkles, Globe, DollarSign, Bot, Network } from "lucide-react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -14,43 +14,43 @@ export const WhitePaperModal = ({ open, onOpenChange }: WhitePaperModalProps) =>
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl h-[90vh] p-0">
-        <DialogHeader className="px-6 pt-6 pb-4 border-b">
-          <DialogTitle className="sr-only">White Paper</DialogTitle>
+        <DialogHeader className="px-6 pt-6 pb-4 border-b bg-muted/50">
+          <DialogTitle className="text-2xl font-bold">White Paper v3.0</DialogTitle>
+          <DialogDescription className="text-sm text-muted-foreground">
+            The Agentic Payments Platform — Building the Infrastructure for the Agentic Economy
+          </DialogDescription>
         </DialogHeader>
         <ScrollArea className="h-full px-6 pb-6">
-          <div className="space-y-12">
+          <div className="space-y-8 py-6">
             {/* Hero Section */}
-            <div className="text-center flex flex-col items-center">
-              <Badge variant="secondary" className="mb-6">
-                White Paper v3.0
-              </Badge>
-              <h1 className="text-3xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-primary via-purple-500 to-pink-500 bg-clip-text text-transparent">
+            <div className="space-y-4 border-b pb-8">
+              <h1 className="text-3xl md:text-4xl font-bold text-foreground">
                 The Agentic Payments Platform
               </h1>
-              <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
+              <p className="text-base text-muted-foreground leading-relaxed">
                 Where AI agents become autonomous economic participants through x402 payments and agentic commerce
               </p>
             </div>
 
             {/* Vision Section */}
-            <section className="text-center flex flex-col items-center">
-              <h2 className="text-2xl md:text-3xl font-bold mb-6">The Vision</h2>
-              <div className="prose prose-lg max-w-none text-muted-foreground text-center flex flex-col items-center">
-                <p className="text-base md:text-lg mb-6 max-w-3xl">
+            <section className="space-y-4 border-b pb-8">
+              <h2 className="text-2xl font-bold text-foreground">The Vision</h2>
+              <div className="space-y-4 text-muted-foreground leading-relaxed">
+                <p>
                   <strong className="text-foreground">The future of commerce isn't human-to-human or human-to-business.</strong> It's agent-to-agent, human-to-agent, and agent-to-business. A new economic layer where AI agents autonomously transact, collaborate, and create value.
                 </p>
-                <p className="text-base md:text-lg mb-6 max-w-3xl">
+                <p>
                   We're building the <strong className="text-foreground">infrastructure for the agentic economy</strong>—where payments happen per-request, settlements are instant, and AI agents can participate as first-class economic citizens.
                 </p>
-                <p className="text-base md:text-lg mb-6 max-w-3xl">
+                <p>
                   This is <strong className="text-foreground">agentic commerce</strong>: autonomous, instant, and native to AI.
                 </p>
               </div>
             </section>
 
             {/* The Problem */}
-            <section>
-              <h2 className="text-2xl md:text-3xl font-bold mb-8 text-center">The Problem with Traditional Payments</h2>
+            <section className="space-y-6 border-b pb-8">
+              <h2 className="text-2xl font-bold text-foreground">The Problem with Traditional Payments</h2>
               
               <div className="grid md:grid-cols-2 gap-4 md:gap-6">
                 <Card className="border-2 border-destructive/30">
@@ -120,8 +120,8 @@ export const WhitePaperModal = ({ open, onOpenChange }: WhitePaperModalProps) =>
             </section>
 
             {/* The Solution: x402 */}
-            <section>
-              <h2 className="text-2xl md:text-3xl font-bold mb-8 text-center">The Solution: x402 Payment Protocol</h2>
+            <section className="space-y-6 border-b pb-8">
+              <h2 className="text-2xl font-bold text-foreground">The Solution: x402 Payment Protocol</h2>
               
               <Card className="bg-gradient-to-r from-primary/10 via-purple-500/10 to-pink-500/10 border-2 border-primary/30 mb-8">
                 <CardContent className="pt-6 text-center">
@@ -196,8 +196,8 @@ export const WhitePaperModal = ({ open, onOpenChange }: WhitePaperModalProps) =>
             </section>
 
             {/* How It Works */}
-            <section>
-              <h2 className="text-2xl md:text-3xl font-bold mb-8 text-center">How x402 Works</h2>
+            <section className="space-y-6 border-b pb-8">
+              <h2 className="text-2xl font-bold text-foreground">How x402 Works</h2>
               
               <div className="space-y-4 md:space-y-6 max-w-3xl mx-auto">
                 <Card className="border-2 border-primary/20">
@@ -280,8 +280,8 @@ export const WhitePaperModal = ({ open, onOpenChange }: WhitePaperModalProps) =>
             </section>
 
             {/* Agentic Commerce */}
-            <section>
-              <h2 className="text-2xl md:text-3xl font-bold mb-8 text-center">Agentic Commerce: The New Economy</h2>
+            <section className="space-y-6 border-b pb-8">
+              <h2 className="text-2xl font-bold text-foreground">Agentic Commerce: The New Economy</h2>
               
               <Card className="bg-gradient-to-r from-purple-50 via-pink-50 to-blue-50 dark:from-purple-950/20 dark:via-pink-950/20 dark:to-blue-950/20 border-2 border-primary/20 mb-8">
                 <CardContent className="pt-6 text-center">
@@ -371,8 +371,8 @@ export const WhitePaperModal = ({ open, onOpenChange }: WhitePaperModalProps) =>
             </section>
 
             {/* Why This Matters */}
-            <section>
-              <h2 className="text-2xl md:text-3xl font-bold mb-8 text-center">Why This Matters</h2>
+            <section className="space-y-6 border-b pb-8">
+              <h2 className="text-2xl font-bold text-foreground">Why This Matters</h2>
               
               <div className="grid md:grid-cols-2 gap-4 md:gap-6">
                 <Card className="border-2 border-primary/20">
@@ -482,8 +482,8 @@ export const WhitePaperModal = ({ open, onOpenChange }: WhitePaperModalProps) =>
             </section>
 
             {/* The Future */}
-            <section className="pb-8">
-              <h2 className="text-2xl md:text-3xl font-bold mb-8 text-center">The Agentic Economy</h2>
+            <section className="space-y-6 pb-8">
+              <h2 className="text-2xl font-bold text-foreground">The Agentic Economy</h2>
               
               <Card className="bg-gradient-to-r from-purple-50 via-pink-50 to-blue-50 dark:from-purple-950/20 dark:via-pink-950/20 dark:to-blue-950/20 border-2 border-primary/20 mb-8">
                 <CardContent className="pt-6">
