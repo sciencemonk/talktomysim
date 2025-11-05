@@ -8,6 +8,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { WhitePaperModal } from "@/components/WhitePaperModal";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Badge } from "@/components/ui/badge";
 
 export const LandingFooter = () => {
   const { theme } = useTheme();
@@ -70,18 +72,18 @@ export const LandingFooter = () => {
                 </li>
                 <li>
                   <a 
-                    href="#pricing" 
+                    href="#why-crypto" 
                     className="text-sm text-muted-foreground hover:text-[#82f3aa] transition-colors"
                   >
-                    Pricing
+                    Why Crypto?
                   </a>
                 </li>
                 <li>
                   <a 
-                    href="/agents" 
+                    href="#top-stores" 
                     className="text-sm text-muted-foreground hover:text-[#82f3aa] transition-colors"
                   >
-                    Browse Agents
+                    Browse Stores
                   </a>
                 </li>
               </ul>
@@ -92,14 +94,20 @@ export const LandingFooter = () => {
               <h3 className="text-base font-semibold text-foreground">Resources</h3>
               <ul className="space-y-3">
                 <li>
-                  <a 
-                    href="https://docs.x402.org" 
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-sm text-muted-foreground hover:text-[#82f3aa] transition-colors"
-                  >
-                    Documentation
-                  </a>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <span className="text-sm text-muted-foreground cursor-not-allowed inline-flex items-center gap-2">
+                          Documentation
+                        </span>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <div className="flex items-center gap-2">
+                          <Badge variant="secondary" className="text-xs">Coming Soon</Badge>
+                        </div>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
                 </li>
                 <li>
                   <a 
