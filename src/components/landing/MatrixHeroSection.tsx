@@ -113,7 +113,7 @@ export const MatrixHeroSection = ({ onCreateXAgent, onSimClick, onViewAllAgents 
       {/* Top Bar with Logo and Sign In Button */}
       <div className="absolute top-0 left-0 right-0 z-50 w-full px-4 py-6 flex items-center justify-between">
         <img
-          src={theme === "dark" ? "/sim-logo-dark.png" : "/sim-logo-light-final.png"}
+          src="/sim-logo-dark.png"
           alt="Sim Logo"
           className="h-10 w-10 object-contain"
           onError={(e) => {

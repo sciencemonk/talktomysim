@@ -46,7 +46,7 @@ export const LandingFooter = () => {
             {/* Brand Column */}
             <div className="space-y-4">
               <img
-                src={theme === "dark" ? "/sim-logo-dark.png" : "/sim-logo-light-final.png"}
+                src="/sim-logo-dark.png"
                 alt="Sim Logo"
                 className="h-12 w-12 object-contain"
                 onError={(e) => {

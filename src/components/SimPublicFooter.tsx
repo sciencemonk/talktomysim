@@ -34,7 +34,7 @@ const SimPublicFooter = () => {
             className="hover:opacity-80 transition-opacity"
           >
             <img 
-              src={theme === "dark" ? "/sim-logo-dark.png" : "/sim-logo-light-final.png"}
+              src="/sim-logo-dark.png"
               alt="Sim" 
               className="h-8 w-8 object-contain"
               onError={(e) => {

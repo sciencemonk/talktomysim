@@ -1,5 +1,4 @@
-
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect } from "react";
 
 type Theme = "dark" | "light" | "system";
 
@@ -15,7 +14,7 @@ type ThemeProviderState = {
 };
 
 const initialState: ThemeProviderState = {
-  theme: "system",
+  theme: "dark",
   setTheme: () => null,
 };
 
@@ -27,35 +26,27 @@ export function ThemeProvider({
   storageKey = "vite-ui-theme",
   ...props
 }: ThemeProviderProps) {
-  const [theme, setTheme] = useState<Theme>(
-    () => (localStorage.getItem(storageKey) as Theme) || defaultTheme
-  );
+  // Always use dark theme - ignore localStorage and defaultTheme
+  const theme: Theme = "dark";
 
   useEffect(() => {
     const root = window.document.documentElement;
     
+    // Always apply dark mode
     root.classList.remove("light", "dark");
+    root.classList.add("dark");
     
-    if (theme === "system") {
-      const systemTheme = window.matchMedia("(prefers-color-scheme: dark)")
-        .matches
-        ? "dark"
-        : "light";
-      
-      root.classList.add(systemTheme);
-      console.log(`Applied system preference theme: ${systemTheme}`);
-      return;
-    }
+    // Also set it in localStorage to "dark" to override any previous settings
+    localStorage.setItem(storageKey, "dark");
     
-    root.classList.add(theme);
-    console.log(`Applied theme: ${theme}`);
-  }, [theme]);
+    console.log("Applied forced dark theme");
+  }, [storageKey]);
 
   const value = {
     theme,
-    setTheme: (theme: Theme) => {
-      localStorage.setItem(storageKey, theme);
-      setTheme(theme);
+    setTheme: () => {
+      // No-op - theme switching is disabled
+      console.log("Theme switching is disabled - dark mode is enforced");
     },
   };
 

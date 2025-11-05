@@ -26,10 +26,6 @@ export const TopNavBar = () => {
   const [showCreateSimModal, setShowCreateSimModal] = useState(false);
   const [showCreateCABotModal, setShowCreateCABotModal] = useState(false);
   const queryClient = useQueryClient();
-  const { theme } = useTheme();
-  
-  // Determine if we're in dark mode
-  const isDark = theme === "dark" || (theme === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -67,7 +63,7 @@ export const TopNavBar = () => {
                 className="flex items-center hover:opacity-80 transition-opacity"
               >
                 <img 
-                  src={isDark ? "/sim-logo-dark.png" : "/sim-logo-light-final.png"}
+                  src="/sim-logo-dark.png"
                   alt="Sim Logo" 
                   className="h-[32px] w-[32px] sm:h-[38px] sm:w-[38px] object-contain"
                   onError={(e) => {

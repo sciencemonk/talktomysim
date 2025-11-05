@@ -607,7 +607,7 @@ const AgentsDirectory = () => {
               className="flex items-center hover:opacity-80 transition-opacity shrink-0"
             >
               <img 
-                src={theme === "dark" ? "/sim-logo-dark.png" : "/sim-logo-light-final.png"}
+                src="/sim-logo-dark.png"
                 alt="Sim Logo" 
                 className="h-8 w-8 sm:h-10 sm:w-10 object-contain"
                 onError={(e) => {
