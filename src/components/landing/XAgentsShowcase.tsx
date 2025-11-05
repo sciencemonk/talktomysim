@@ -249,11 +249,6 @@ export const XAgentsShowcase = ({ agents }: XAgentsShowcaseProps) => {
           </div>
         </div>
 
-        {/* Agent count */}
-        <div className="text-center text-sm text-muted-foreground">
-          Showing {visibleAgents.length} of {sortedAgents.length} agents
-        </div>
-
         {/* Agents grid */}
         {visibleAgents.length > 0 ? (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
