@@ -147,29 +147,34 @@ export const XAgentsShowcase = ({ agents }: XAgentsShowcaseProps) => {
 
   const handleAgentClick = (agent: AgentType) => {
     const verificationStatus = (agent as any).verification_status;
-    const xUsername = (agent.social_links as any)?.x_username;
+    const socialLinks = agent.social_links as any;
     
-    console.log('[XAgentsShowcase] Agent clicked:', agent.name, 'verificationStatus:', verificationStatus, 'xUsername:', xUsername);
+    // Try to find X username in different fields
+    const xUsername = socialLinks?.x_username || 
+                     socialLinks?.userName || 
+                     agent.name.replace(/^@/, '');
+    
+    console.log('[XAgentsShowcase] Agent clicked:', agent.name);
+    console.log('[XAgentsShowcase] verificationStatus:', verificationStatus);
+    console.log('[XAgentsShowcase] social_links:', socialLinks);
+    console.log('[XAgentsShowcase] extracted username:', xUsername);
     
     // If agent is pending verification (false), show pending modal
-    if (!verificationStatus) {
+    if (verificationStatus === false) {
       console.log('[XAgentsShowcase] Showing pending modal for', agent.name);
       setPendingAgentModal({
         open: true,
         agentName: agent.name,
         agentId: agent.id,
-        customUrl: xUsername || ''
+        customUrl: xUsername
       });
       return;
     }
     
-    if (xUsername) {
-      console.log('[XAgentsShowcase] Navigating to:', `/${xUsername}`);
-      window.scrollTo(0, 0);
-      navigate(`/${xUsername}`);
-    } else {
-      console.error('[XAgentsShowcase] No x_username found for agent:', agent.name);
-    }
+    // Navigate to agent page
+    console.log('[XAgentsShowcase] Navigating to:', `/${xUsername}`);
+    window.scrollTo(0, 0);
+    navigate(`/${xUsername}`);
   };
 
   // Filter all X agents (verified and pending)

@@ -26,6 +26,7 @@ export default function XAgentPage() {
   const codeFromUrl = searchParams.get('code');
   const [agent, setAgent] = useState<AgentType | null>(null);
   const [xData, setXData] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [usernameCopied, setUsernameCopied] = useState(false);
   const [totalEarnings, setTotalEarnings] = useState<number>(0);
   const [linkCopied, setLinkCopied] = useState(false);
@@ -94,6 +95,7 @@ export default function XAgentPage() {
 
   const fetchAgent = async () => {
     try {
+      setIsLoading(true);
       
       // Find agent by X username in social_links
       const { data, error } = await supabase
@@ -113,6 +115,7 @@ export default function XAgentPage() {
 
       if (!matchingAgent) {
         console.error('No matching agent found for username:', username, 'in', data?.length, 'agents');
+        setIsLoading(false);
         toast.error("Agent not found");
         navigate('/', { state: { scrollToAgents: true } });
         return;
@@ -217,10 +220,12 @@ export default function XAgentPage() {
       setAgent(transformedAgent);
 
       fetchTotalEarnings(matchingAgent.id);
+      setIsLoading(false);
 
     } catch (error) {
       console.error('Error fetching agent:', error);
       toast.error("Failed to load agent");
+      setIsLoading(false);
       navigate('/', { state: { scrollToAgents: true } });
     }
   };
@@ -382,6 +387,10 @@ export default function XAgentPage() {
     
     return url ? getImageUrl(url) : undefined;
   };
+
+  if (isLoading) {
+    return null; // Don't show anything while loading
+  }
 
   if (!agent) {
     return (
