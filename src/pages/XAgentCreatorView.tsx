@@ -32,19 +32,11 @@ export default function XAgentCreatorView() {
   const [walletAddress, setWalletAddress] = useState("");
   const [isSaving, setIsSaving] = useState(false);
 
-  // SECURITY: Redirect if no code parameter provided
   useEffect(() => {
-    if (!codeFromUrl) {
-      toast.error("Access denied. Edit code required.");
-      navigate(`/x/${username}`, { replace: true });
-    }
-  }, [codeFromUrl, navigate, username]);
-
-  useEffect(() => {
-    if (username && codeFromUrl) {
+    if (username) {
       fetchAgent();
     }
-  }, [username, codeFromUrl]);
+  }, [username]);
 
   // Auto-validate if code is in URL
   useEffect(() => {
