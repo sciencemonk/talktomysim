@@ -54,8 +54,16 @@ export const MatrixHeroSection = ({ onCreateXAgent, onSimClick, onViewAllAgents 
   });
 
   const getAvatarSrc = (avatarUrl: string | null) => {
-    if (avatarUrl && avatarUrl.includes('pbs.twimg.com')) {
-      return `https://images.weserv.nl/?url=${encodeURIComponent(avatarUrl)}`;
+    if (avatarUrl) {
+      let processedUrl = avatarUrl;
+      // If it's a Twitter image with _normal, upgrade to _400x400 for high resolution
+      if (processedUrl.includes('pbs.twimg.com') && processedUrl.includes('_normal')) {
+        processedUrl = processedUrl.replace('_normal', '_400x400');
+      }
+      if (processedUrl.includes('pbs.twimg.com')) {
+        return `https://images.weserv.nl/?url=${encodeURIComponent(processedUrl)}`;
+      }
+      return processedUrl;
     }
     return avatarUrl;
   };

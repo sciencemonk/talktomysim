@@ -29,7 +29,9 @@ const XAgentCard = ({ agent, onAgentClick }: XAgentCardProps) => {
   const getAvatarSrc = () => {
     // Use profile picture from social_links if available
     if (socialLinks?.profilePicture) {
-      return `https://images.weserv.nl/?url=${encodeURIComponent(socialLinks.profilePicture)}`;
+      // Replace _normal with _400x400 for high resolution
+      const highResUrl = socialLinks.profilePicture.replace('_normal', '_400x400');
+      return `https://images.weserv.nl/?url=${encodeURIComponent(highResUrl)}`;
     }
     const avatarUrl = getAvatarUrl(agent.avatar);
     if (avatarUrl && (avatarUrl.startsWith('http://') || avatarUrl.startsWith('https://'))) {

@@ -28,10 +28,15 @@ const StoreCard = ({ agent, rank, onClick }: StoreCardProps) => {
 
   const getAvatarSrc = () => {
     if (agent.avatar_url) {
-      if (agent.avatar_url.includes('pbs.twimg.com')) {
-        return `https://images.weserv.nl/?url=${encodeURIComponent(agent.avatar_url)}`;
+      let avatarUrl = agent.avatar_url;
+      // If it's a Twitter image with _normal, upgrade to _400x400 for high resolution
+      if (avatarUrl.includes('pbs.twimg.com') && avatarUrl.includes('_normal')) {
+        avatarUrl = avatarUrl.replace('_normal', '_400x400');
       }
-      return agent.avatar_url;
+      if (avatarUrl.includes('pbs.twimg.com')) {
+        return `https://images.weserv.nl/?url=${encodeURIComponent(avatarUrl)}`;
+      }
+      return avatarUrl;
     }
     return null;
   };
