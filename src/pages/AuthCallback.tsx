@@ -229,11 +229,11 @@ You can answer questions about your X profile, interests, opinions, and provide 
         toast.success('X agent created successfully!');
       }
 
-      // Redirect to creator view with edit code
+      // Redirect to creator view (no edit code needed - using X auth)
       setStatus('Redirecting to your agent dashboard...');
       
-      // Use window.location to ensure we bypass any auth redirects
-      window.location.href = `/${xUsername}/creator?code=${editCode}`;
+      // Use navigate to preserve React Router state and auth context
+      navigate(`/${xUsername}/creator`);
     } catch (error: any) {
       console.error('Auth callback error:', error);
       toast.error('Authentication failed: ' + (error.message || 'Unknown error'));
