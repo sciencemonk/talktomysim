@@ -383,6 +383,12 @@ const PublicSimDetail = () => {
     return <XAgentPage />;
   }
 
+  // While checking if this is an X agent, show nothing to avoid flash
+  if (isXAgent === null) {
+    return null;
+  }
+
+  // Only show "Sim Not Found" if we've confirmed it's not an X agent and there's no sim
   if (!sim) {
     return (
       <div 
