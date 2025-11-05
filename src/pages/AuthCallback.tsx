@@ -56,15 +56,22 @@ export default function AuthCallback() {
       setStatus('Fetching X profile data...');
 
       // Fetch detailed X profile data using our intelligence function
-      const { data: xData, error: xError } = await supabase.functions.invoke('x-intelligence', {
-        body: { username: xUsername }
-      });
+      let report: any = {};
+      try {
+        const { data: xData, error: xError } = await supabase.functions.invoke('x-intelligence', {
+          body: { username: xUsername }
+        });
 
-      if (xError) {
-        console.error('Error fetching X data:', xError);
+        if (xError) {
+          console.error('Error fetching X data:', xError);
+          // Continue with basic OAuth data if x-intelligence fails
+        } else {
+          report = xData?.report || {};
+        }
+      } catch (error) {
+        console.error('Failed to fetch X intelligence data:', error);
+        // Continue with basic OAuth data
       }
-
-      const report = xData?.report || {};
 
       setStatus('Creating your X agent...');
 
@@ -108,8 +115,9 @@ export default function AuthCallback() {
         // Create new agent
         editCode = generateEditCode();
         
-        const followers = report.metrics?.followers || 0;
-        const bio = report.bio || userMetadata?.description || '';
+        const followers = report?.metrics?.followers || 0;
+        const bio = report?.bio || userMetadata?.description || `AI agent for @${xUsername}`;
+        const profileImageUrl = report?.profileImageUrl || avatarUrl;
 
         const systemPrompt = `You are @${xUsername}, representing the real person behind this X (Twitter) account.
 
@@ -146,7 +154,7 @@ You can answer questions about your X profile, interests, opinions, and provide 
             description: bio,
             auto_description: bio,
             prompt: systemPrompt,
-            avatar_url: report.profileImageUrl || avatarUrl,
+            avatar_url: profileImageUrl,
             sim_category: 'Crypto Mail',
             is_active: false, // Not active until verified
             is_public: false, // Not public until verified
