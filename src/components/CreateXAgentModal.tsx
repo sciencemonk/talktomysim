@@ -182,7 +182,7 @@ You can answer questions about your X profile, interests, opinions, and provide 
         <DialogHeader>
           <DialogTitle>Generate Your Agentic Storefront</DialogTitle>
           <DialogDescription>
-            Enter your X username to create an autonomous storefront that accepts x402 payments.
+            Create a verified store and start receiving crypto. No barriers. No fees.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
