@@ -375,10 +375,10 @@ export default function XAgentPage() {
   // Apply design settings
   const primaryColor = designSettings?.primaryColor || '#81f4aa';
   const secondaryColor = designSettings?.secondaryColor || '#000000';
-  const fontFamily = designSettings?.fontFamily || 'Inter';
+  const fontFamily = designSettings?.fontFamily;
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background via-background to-muted/20" style={{ fontFamily }}>
+    <div className="min-h-screen bg-gradient-to-b from-background via-background to-muted/20 font-system" style={fontFamily ? { fontFamily } : {}}>
       {/* Top Navigation Bar */}
       <div className="border-b border-border/40 bg-card/95 backdrop-blur-md sticky top-0 z-50">
         <div className="container mx-auto px-4 md:px-6 py-3">
