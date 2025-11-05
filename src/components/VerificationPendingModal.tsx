@@ -49,10 +49,10 @@ export function VerificationPendingModal({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Clock className="h-5 w-5 text-yellow-500" />
-            Agent Pending Verification
+            Verified Store Pending Verification
           </DialogTitle>
           <DialogDescription>
-            Your X agent has been created and is awaiting verification
+            Your verified store has been created and is awaiting verification
           </DialogDescription>
         </DialogHeader>
 

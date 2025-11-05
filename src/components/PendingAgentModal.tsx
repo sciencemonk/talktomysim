@@ -42,7 +42,7 @@ export function PendingAgentModal({
         <DialogHeader>
           <div className="flex items-center gap-2 mb-2">
             <Clock className="h-5 w-5 text-yellow-500" />
-            <DialogTitle>Agent Pending Verification</DialogTitle>
+            <DialogTitle>Verified Store Pending Verification</DialogTitle>
           </div>
           <DialogDescription className="space-y-3 pt-2">
             <div>
