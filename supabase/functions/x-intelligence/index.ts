@@ -14,6 +14,39 @@ function validateEnvironmentVariables() {
   console.log("TwitterAPI.io key configured");
 }
 
+// Retry utility with exponential backoff
+async function fetchWithRetry(
+  url: string,
+  options: RequestInit,
+  maxRetries = 3,
+  baseDelay = 1000
+): Promise<Response> {
+  let lastError: Error | null = null;
+  
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
+    try {
+      const response = await fetch(url, options);
+      
+      // If we get a response (even error), return it
+      // We'll handle non-OK status codes in the calling code
+      return response;
+    } catch (error) {
+      lastError = error as Error;
+      console.error(`Attempt ${attempt + 1}/${maxRetries} failed:`, error.message);
+      
+      // Don't retry on last attempt
+      if (attempt < maxRetries - 1) {
+        const delay = baseDelay * Math.pow(2, attempt);
+        console.log(`Retrying in ${delay}ms...`);
+        await new Promise(resolve => setTimeout(resolve, delay));
+      }
+    }
+  }
+  
+  // If all retries failed, throw the last error
+  throw lastError || new Error('All retry attempts failed');
+}
+
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -34,16 +67,32 @@ serve(async (req) => {
     console.log(`Generating ${reportType} report for @${cleanUsername}`);
     console.log(`API Key length: ${TWITTER_API_IO_KEY?.length || 0}`);
 
-    // Fetch user profile using TwitterAPI.io
+    // Fetch user profile using TwitterAPI.io with retry logic
     const userUrl = `https://api.twitterapi.io/twitter/user/info?userName=${encodeURIComponent(cleanUsername)}`;
     console.log(`Full request URL: ${userUrl}`);
     
-    const userResponse = await fetch(userUrl, {
-      method: "GET",
-      headers: {
-        "X-API-Key": TWITTER_API_IO_KEY!,
-      },
-    });
+    let userResponse: Response;
+    try {
+      userResponse = await fetchWithRetry(userUrl, {
+        method: "GET",
+        headers: {
+          "X-API-Key": TWITTER_API_IO_KEY!,
+        },
+      });
+    } catch (error) {
+      console.error('Failed to fetch user data after retries:', error.message);
+      return new Response(
+        JSON.stringify({ 
+          success: false, 
+          error: 'Twitter API temporarily unavailable. Please try again in a moment.',
+          details: error.message
+        }),
+        {
+          status: 503,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        }
+      );
+    }
 
     console.log(`Response status: ${userResponse.status}`);
     console.log(`Response statusText: ${userResponse.statusText}`);
@@ -76,27 +125,33 @@ serve(async (req) => {
       );
     }
 
-    // Fetch recent tweets using TwitterAPI.io
+    // Fetch recent tweets using TwitterAPI.io with retry logic
     const tweetsUrl = `https://api.twitterapi.io/twitter/user/last_tweets?userName=${encodeURIComponent(username)}&count=100`;
-    const tweetsResponse = await fetch(tweetsUrl, {
-      method: "GET",
-      headers: {
-        "X-API-Key": TWITTER_API_IO_KEY!,
-      },
-    });
-
+    
     let tweets: any[] = [];
-    if (tweetsResponse.ok) {
-      try {
-        const tweetsData = await tweetsResponse.json();
-        tweets = tweetsData.tweets || [];
-        console.log(`Successfully fetched ${tweets.length} tweets`);
-      } catch (e) {
-        console.error('Error parsing tweets response:', e);
-        tweets = [];
+    try {
+      const tweetsResponse = await fetchWithRetry(tweetsUrl, {
+        method: "GET",
+        headers: {
+          "X-API-Key": TWITTER_API_IO_KEY!,
+        },
+      });
+
+      if (tweetsResponse.ok) {
+        try {
+          const tweetsData = await tweetsResponse.json();
+          tweets = tweetsData.tweets || [];
+          console.log(`Successfully fetched ${tweets.length} tweets`);
+        } catch (e) {
+          console.error('Error parsing tweets response:', e);
+          tweets = [];
+        }
+      } else {
+        console.warn(`Tweets API returned status ${tweetsResponse.status}`);
       }
-    } else {
-      console.warn(`Tweets API returned status ${tweetsResponse.status}`);
+    } catch (error) {
+      console.warn('Failed to fetch tweets after retries, continuing without tweets:', error.message);
+      // Continue without tweets - this is non-critical
     }
 
     // Generate intelligence report
