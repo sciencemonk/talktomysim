@@ -75,12 +75,15 @@ export default function AuthCallback() {
 
       setStatus('Creating your X agent...');
 
-      // Check if agent already exists for this user
+      // Generate custom URL
+      const customUrl = xUsername.toLowerCase().replace(/[^a-z0-9]/g, '');
+
+      // Check if agent already exists for this user or username
       const { data: existingAgent, error: checkError } = await supabase
         .from('advisors')
         .select('id, edit_code, social_links, user_id')
         .eq('sim_category', 'Crypto Mail')
-        .or(`social_links->x_username.eq.${xUsername},name.eq.@${xUsername}`)
+        .or(`social_links->x_username.eq.${xUsername},name.eq.@${xUsername},custom_url.eq.${customUrl}`)
         .maybeSingle();
 
       if (checkError && checkError.code !== 'PGRST116') {
