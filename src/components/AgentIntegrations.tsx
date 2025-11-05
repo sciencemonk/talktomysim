@@ -9,7 +9,7 @@ export interface Integration {
   id: string;
   name: string;
   description: string;
-  icon: React.ReactNode;
+  icon: React.ComponentType<{ className?: string }>;
   enabled: boolean;
   comingSoon?: boolean;
 }
@@ -48,7 +48,7 @@ export function AgentIntegrations({ integrations, onChange }: AgentIntegrationsP
               <div className="flex items-start justify-between gap-4">
                 <div className="flex items-start gap-3 flex-1">
                   <div className={`p-2 rounded-lg ${integration.enabled ? 'bg-primary/10' : 'bg-muted'}`}>
-                    {integration.icon}
+                    <integration.icon className="h-4 w-4 text-primary" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
@@ -88,28 +88,28 @@ export const DEFAULT_INTEGRATIONS: Integration[] = [
     id: 'solana',
     name: 'Solana Blockchain Explorer',
     description: 'Access real-time Solana blockchain data, wallet balances, and transaction history',
-    icon: <Wallet className="h-4 w-4 text-primary" />,
+    icon: Wallet,
     enabled: false,
   },
   {
     id: 'x_twitter',
     name: 'X (Twitter) Integration',
     description: 'Fetch and analyze tweets, trends, and social sentiment from X/Twitter',
-    icon: <Twitter className="h-4 w-4 text-primary" />,
+    icon: Twitter,
     enabled: false,
   },
   {
     id: 'pumpfun',
     name: 'Pump.fun',
     description: 'Monitor token launches, trading activity, and market data from Pump.fun',
-    icon: <TrendingUp className="h-4 w-4 text-primary" />,
+    icon: TrendingUp,
     enabled: false,
   },
   {
     id: 'defi',
     name: 'DeFi Data',
     description: 'Access DeFi protocols, liquidity pools, and yield farming opportunities',
-    icon: <Zap className="h-4 w-4 text-primary" />,
+    icon: Zap,
     enabled: false,
     comingSoon: true,
   },
