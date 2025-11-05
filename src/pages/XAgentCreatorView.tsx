@@ -80,8 +80,13 @@ export default function XAgentCreatorView() {
       });
 
       if (!matchingAgent) {
-        toast.error("Agent not found");
-        navigate('/', { state: { scrollToAgents: true } });
+        console.error("Agent not found for username:", username);
+        console.log("Available agents:", data?.map(a => {
+          const sl = a.social_links as any;
+          return { id: a.id, x_username: sl?.x_username };
+        }));
+        setIsLoading(false);
+        // Don't redirect - show error in UI instead
         return;
       }
 
@@ -145,8 +150,7 @@ export default function XAgentCreatorView() {
     } catch (error) {
       console.error('Error fetching agent:', error);
       toast.error("Failed to load agent");
-      navigate('/', { state: { scrollToAgents: true } });
-    } finally {
+      // Don't redirect on error - show error state instead
       setIsLoading(false);
     }
   };
@@ -284,11 +288,30 @@ export default function XAgentCreatorView() {
 
   if (!agent) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-background">
-        <div className="text-center space-y-4">
-          <h1 className="text-2xl font-bold">Agent Not Found</h1>
-          <Button onClick={() => navigate('/', { state: { scrollToAgents: true } })}>Back to Agents</Button>
-        </div>
+      <div className="flex items-center justify-center min-h-screen bg-background p-4">
+        <Card className="w-full max-w-md">
+          <CardHeader>
+            <CardTitle>Agent Not Found</CardTitle>
+            <CardDescription>
+              We couldn't find an X agent for @{username}. 
+              {codeFromUrl && " Please check that the username is correct."}
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <p className="text-sm text-muted-foreground">
+              Possible reasons:
+            </p>
+            <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
+              <li>The agent is still being created</li>
+              <li>The username format is incorrect</li>
+              <li>The agent hasn't been verified yet</li>
+            </ul>
+            <Button onClick={() => window.location.href = '/'} className="w-full mt-4">
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Return to Home
+            </Button>
+          </CardContent>
+        </Card>
       </div>
     );
   }
