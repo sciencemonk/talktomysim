@@ -20,13 +20,10 @@ const SignIn = () => {
   const handleXSignIn = async () => {
     try {
       console.log('Starting X sign in...');
-      const redirectUrl = `${window.location.origin}/auth/callback`;
-      console.log('Redirect URL:', redirectUrl);
       
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'twitter',
         options: {
-          redirectTo: redirectUrl,
           skipBrowserRedirect: false,
         },
       });
