@@ -110,7 +110,7 @@ const App = () => (
                 <Route path="/integrations" element={<Integrations />} />
               </Route>
               
-              {/* Single catch-all for both X agents and public sims - MUST be last */}
+              {/* Single catch-all that handles both X agents and sims */}
               <Route path="/:identifier" element={<PublicSimDetail />} />
               
               {/* Catch all 404 */}
