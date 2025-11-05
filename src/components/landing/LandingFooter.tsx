@@ -54,7 +54,7 @@ export const LandingFooter = () => {
                 }}
               />
               <p className="text-sm text-muted-foreground leading-relaxed">
-                Transform your X account into an AI Agent that generates revenue. Accept crypto payments instantly with zero fees.
+                Create a verified store and start receiving crypto. No barriers. No fees.
               </p>
             </div>
 
