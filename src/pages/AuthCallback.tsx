@@ -186,8 +186,8 @@ You can answer questions about your X profile, interests, opinions, and provide 
             prompt: systemPrompt,
             avatar_url: profileImageUrl,
             sim_category: 'Crypto Mail',
-            is_active: false, // Not active until verified
-            is_public: false, // Not public until verified
+            is_active: true, // Active immediately - no pending status
+            is_public: true,
             marketplace_category: 'crypto',
             personality_type: 'friendly',
             conversation_style: 'balanced',
@@ -204,9 +204,8 @@ You can answer questions about your X profile, interests, opinions, and provide 
             custom_url: xUsername.toLowerCase().replace(/[^a-z0-9]/g, ''),
             welcome_message: `Hey! I'm @${xUsername}. My AI agent has been trained on my actual posts to represent my voice and ideas. Ask me anything!`,
             user_id: user.id,
-            verification_status: false, // false = pending, true = verified
-            verification_deadline: verificationDeadline.toISOString(),
-            verification_post_required: 'Verify me on $SIMAI',
+            verification_status: true, // Auto-verified via OAuth
+            is_verified: true, // Auto-verified via OAuth
           })
           .select()
           .single();
