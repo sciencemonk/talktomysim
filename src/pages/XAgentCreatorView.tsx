@@ -160,19 +160,47 @@ export default function XAgentCreatorView() {
       setIsAuthorized(true);
       fetchTotalEarnings(matchingAgent.id);
 
-      try {
-        const { data: xResponse, error: xError } = await supabase.functions.invoke("x-intelligence", {
-          body: { username: username?.replace('@', '') },
-        });
+      // Only fetch fresh X data if cached data is stale (>24 hours old)
+      const socialLinks = matchingAgent.social_links as any;
+      const lastFetch = socialLinks?.last_twitter_fetch;
+      const shouldFetchFresh = !lastFetch || 
+        (new Date().getTime() - new Date(lastFetch).getTime()) > 24 * 60 * 60 * 1000;
 
-        if (!xError && xResponse?.success && xResponse?.report) {
-          setXData({
-            ...xResponse.report,
-            tweets: xResponse.tweets || []
+      if (shouldFetchFresh) {
+        console.log('Fetching fresh X data (cache is stale or missing)');
+        try {
+          const { data: xResponse, error: xError } = await supabase.functions.invoke("x-intelligence", {
+            body: { 
+              username: username?.replace('@', ''),
+              forceRefresh: false // Let edge function use cache
+            },
           });
+
+          if (!xError && xResponse?.success && xResponse?.report) {
+            setXData({
+              ...xResponse.report,
+              tweets: xResponse.tweets || []
+            });
+            console.log('X data source:', xResponse.cached ? 'cache' : 'fresh API');
+          }
+        } catch (error) {
+          console.error('Error fetching X data:', error);
         }
-      } catch (error) {
-        console.error('Error fetching X data:', error);
+      } else {
+        console.log('Using existing cached X data');
+        // Use cached data from social_links
+        setXData({
+          displayName: socialLinks.name || socialLinks.x_display_name,
+          username: socialLinks.userName || socialLinks.x_username,
+          bio: socialLinks.description,
+          profileImageUrl: socialLinks.profilePicture || socialLinks.profile_image_url,
+          verified: socialLinks.isVerified || socialLinks.isBlueVerified,
+          metrics: {
+            followers: socialLinks.followers,
+            following: socialLinks.following,
+          },
+          tweets: socialLinks.tweet_history || []
+        });
       }
       
       setIsLoading(false);

@@ -58,14 +58,19 @@ export default function AuthCallback() {
       let report: any = {};
       try {
         setStatus('Fetching X profile data...');
+        // Only fetch if data might be stale - let the edge function check cache
         const { data: xData, error: xError } = await supabase.functions.invoke('x-intelligence', {
-          body: { username: xUsername }
+          body: { 
+            username: xUsername,
+            forceRefresh: false // Let edge function use cache if available
+          }
         });
 
         if (xError) {
           console.error('X intelligence error (continuing with OAuth data):', xError);
         } else if (xData?.success && xData?.report) {
           report = xData.report;
+          console.log('X data fetch result:', xData.cached ? 'from cache' : 'fresh from API');
         }
       } catch (error) {
         console.error('Failed to fetch X intelligence (continuing with OAuth data):', error);

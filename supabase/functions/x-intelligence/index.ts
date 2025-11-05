@@ -56,7 +56,7 @@ serve(async (req) => {
   try {
     validateEnvironmentVariables();
     
-    const { username, reportType = 'profile' } = await req.json();
+    const { username, reportType = 'profile', forceRefresh = false } = await req.json();
     
     if (!username) {
       throw new Error('Username is required');
@@ -64,7 +64,60 @@ serve(async (req) => {
 
     // Remove @ symbol if present
     const cleanUsername = username.replace('@', '');
-    console.log(`Generating ${reportType} report for @${cleanUsername}`);
+    console.log(`Generating ${reportType} report for @${cleanUsername}, forceRefresh: ${forceRefresh}`);
+
+    // Initialize Supabase client
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    
+    const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2.39.3');
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
+    // Check for cached data if not forcing refresh
+    if (!forceRefresh) {
+      const { data: cachedAgent } = await supabase
+        .from('advisors')
+        .select('social_links')
+        .eq('sim_category', 'Crypto Mail')
+        .ilike('social_links->>x_username', cleanUsername)
+        .single();
+
+      if (cachedAgent?.social_links) {
+        const lastFetch = cachedAgent.social_links.last_twitter_fetch;
+        const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+        
+        if (lastFetch && new Date(lastFetch) > twentyFourHoursAgo) {
+          console.log('Using cached Twitter data (less than 24 hours old)');
+          
+          // Return cached data
+          return new Response(
+            JSON.stringify({
+              success: true,
+              cached: true,
+              report: {
+                displayName: cachedAgent.social_links.name || cachedAgent.social_links.x_display_name,
+                username: cachedAgent.social_links.userName || cachedAgent.social_links.x_username,
+                bio: cachedAgent.social_links.description,
+                profileImageUrl: cachedAgent.social_links.profilePicture || cachedAgent.social_links.profile_image_url,
+                verified: cachedAgent.social_links.isVerified || cachedAgent.social_links.isBlueVerified,
+                metrics: {
+                  followers: cachedAgent.social_links.followers,
+                  following: cachedAgent.social_links.following,
+                  tweets: cachedAgent.social_links.statusesCount,
+                }
+              },
+              tweets: cachedAgent.social_links.tweet_history || []
+            }),
+            {
+              status: 200,
+              headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            }
+          );
+        }
+      }
+    }
+
+    console.log('Fetching fresh Twitter data from API...');
     console.log(`API Key length: ${TWITTER_API_IO_KEY?.length || 0}`);
 
     // Fetch user profile using TwitterAPI.io with retry logic
@@ -155,12 +208,44 @@ serve(async (req) => {
     }
 
     // Generate intelligence report
-    const report = generateIntelligenceReport(userResponseData, tweets, reportType);
+    const reportData = generateIntelligenceReport(userResponseData, tweets, reportType);
+    const userProfile = userResponseData.data;
+
+    // Try to update cache in background (don't await to not slow down response)
+    // Update the agent's social_links with fresh data and timestamp
+    const updateData = {
+      ...userProfile,
+      last_twitter_fetch: new Date().toISOString(),
+      tweet_history: tweets.map((t: any) => ({
+        text: t.text || '',
+        created_at: t.createdAt,
+        favorite_count: t.likeCount || 0,
+        retweet_count: t.retweetCount || 0,
+      })).slice(0, 20) // Only cache recent 20 tweets
+    };
+    
+    // Update in background (don't await)
+    supabase
+      .from('advisors')
+      .update({ 
+        social_links: updateData,
+        updated_at: new Date().toISOString()
+      })
+      .eq('sim_category', 'Crypto Mail')
+      .ilike('social_links->>x_username', cleanUsername)
+      .then(({ error }) => {
+        if (error) {
+          console.error('Failed to cache Twitter data:', error);
+        } else {
+          console.log('Successfully cached Twitter data for', cleanUsername);
+        }
+      });
 
     return new Response(
       JSON.stringify({ 
-        success: true, 
-        report,
+        success: true,
+        cached: false,
+        report: reportData,
         tweets: tweets.map((t: any) => ({
           text: t.text || '',
           created_at: t.createdAt,
