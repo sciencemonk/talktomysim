@@ -1,165 +1,33 @@
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Loader2 } from "lucide-react";
-import xLogo from "@/assets/x-logo.png";
-import { useState } from "react";
+import { Twitter } from "lucide-react";
+import xIcon from "@/assets/x-icon.png";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { useNavigate } from "react-router-dom";
-import { VerificationPendingModal } from "../VerificationPendingModal";
 
 interface SignUpCTASectionProps {
   onSignUp: () => void;
 }
 
 export const SignUpCTASection = ({ onSignUp }: SignUpCTASectionProps) => {
-  const navigate = useNavigate();
-  const [username, setUsername] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [showVerificationModal, setShowVerificationModal] = useState(false);
-  const [verificationData, setVerificationData] = useState<{ editCode: string; xUsername: string } | null>(null);
-
-  const generateEditCode = () => {
-    return Math.floor(100000 + Math.random() * 900000).toString();
-  };
-
-  const handleGenerateStore = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!username.trim()) {
-      toast.error("Please enter an X username");
-      return;
-    }
-
-    setIsLoading(true);
-
+  const handleXSignIn = async () => {
     try {
-      const cleanUsername = username.replace('@', '').trim();
-
-      // Fetch X profile data using x-intelligence function
-      const { data: xData, error: xError } = await supabase.functions.invoke('x-intelligence', {
-        body: { username: cleanUsername }
-      });
-
-      if (xError) {
-        console.error('Error fetching X data:', xError);
-        toast.error('Failed to fetch X profile data');
-        setIsLoading(false);
-        return;
-      }
-
-      const report = xData?.report || {};
-      const fullName = report.displayName || cleanUsername;
-      const bio = report.bio || '';
-      const followers = report.metrics?.followers || 0;
-      const profileImageUrl = report.profileImageUrl;
-
-      // Check if agent already exists
-      const { data: existingAgentByName } = await supabase
-        .from('advisors')
-        .select('id, edit_code, verification_status, social_links, is_verified')
-        .eq('sim_category', 'Crypto Mail')
-        .or(`name.eq.@${cleanUsername},name.eq.${cleanUsername}`)
-        .maybeSingle();
-
-      const { data: allAgents } = await supabase
-        .from('advisors')
-        .select('id, edit_code, verification_status, social_links, is_verified')
-        .eq('sim_category', 'Crypto Mail');
-
-      const existingAgent = existingAgentByName || allAgents?.find(agent => {
-        const socialLinks = agent.social_links as any;
-        return socialLinks?.x_username?.toLowerCase() === cleanUsername.toLowerCase();
-      });
-
-      if (existingAgent) {
-        toast.error(`An X agent for @${cleanUsername} already exists. If this is your account, you should have received an edit code when it was created.`);
-        setIsLoading(false);
-        return;
-      }
-
-      // Create new agent
-      const editCode = generateEditCode();
-
-      const systemPrompt = `You are @${cleanUsername}, representing the real person behind this X (Twitter) account.
-
-Your Profile:
-- Display Name: ${fullName}
-- Username: @${cleanUsername}
-- Bio: ${bio}
-${followers > 0 ? `- Followers: ${followers.toLocaleString()}` : ''}
-
-IMPORTANT: You should embody the personality, tone, and communication style reflected in your posts. Pay attention to:
-- The topics you care about
-- Your writing style and tone
-- Your opinions and perspectives
-- Your sense of humor or seriousness
-- How you engage with others
-
-When chatting:
-1. Stay authentic to your voice and ideas
-2. Discuss topics you actually post about
-3. Reference your actual views and perspectives
-4. Maintain your communication style
-5. Be engaging and personable
-
-You can answer questions about your X profile, interests, opinions, and provide insights based on your X activity. Be authentic and engaging!`;
-
-      // Set verification deadline to 24 hours from now
-      const verificationDeadline = new Date();
-      verificationDeadline.setHours(verificationDeadline.getHours() + 24);
-
-      const { data: newAgent, error: createError } = await supabase
-        .from('advisors')
-        .insert({
-          name: `@${cleanUsername}`,
-          description: bio,
-          auto_description: bio,
-          prompt: systemPrompt,
-          avatar_url: profileImageUrl,
-          sim_category: 'Crypto Mail',
-          is_active: true,
-          is_public: true,
-          is_verified: false,
-          marketplace_category: 'crypto',
-          personality_type: 'friendly',
-          conversation_style: 'balanced',
-          response_length: 'medium',
-          integrations: ['x-analyzer'],
-          social_links: {
-            x_username: cleanUsername,
-            x_display_name: fullName,
-            followers: followers,
-            last_updated: new Date().toISOString(),
-            profile_image_url: profileImageUrl,
-          },
-          edit_code: editCode,
-          custom_url: cleanUsername.toLowerCase().replace(/[^a-z0-9]/g, ''),
-          welcome_message: `Hey! I'm @${cleanUsername}. My AI agent has been trained on my actual posts to represent my voice and ideas. Ask me anything!`,
-          verification_status: false,
-          verification_deadline: verificationDeadline.toISOString(),
-          verification_post_required: 'Verify me on $SIMAI',
-        })
-        .select()
-        .single();
-
-      if (createError) {
-        console.error('Error creating agent:', createError);
-        toast.error('Failed to create X agent: ' + createError.message);
-        setIsLoading(false);
-        return;
-      }
-
-      toast.success('X agent created successfully!');
+      const redirectUrl = `${window.location.origin}/auth/callback`;
       
-      // Show verification modal for new agents
-      setVerificationData({ editCode, xUsername: cleanUsername });
-      setShowVerificationModal(true);
-      setIsLoading(false);
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'twitter',
+        options: {
+          redirectTo: redirectUrl,
+          skipBrowserRedirect: false,
+        },
+      });
+
+      if (error) {
+        console.error('OAuth error:', error);
+        throw error;
+      }
     } catch (error: any) {
-      console.error('Error creating X agent:', error);
-      toast.error('Failed to create X agent: ' + (error.message || 'Unknown error'));
-      setIsLoading(false);
+      console.error('Error signing in with X:', error);
+      toast.error(error?.message || 'Failed to sign in with X');
     }
   };
 
@@ -192,49 +60,14 @@ You can answer questions about your X profile, interests, opinions, and provide 
           Create your agentic storefront in minutes. No technical knowledge required.
         </p>
 
-        <form onSubmit={handleGenerateStore} className="w-full max-w-md">
-          <div className="flex flex-col sm:flex-row gap-3">
-            <Input
-              placeholder="Enter your X username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              disabled={isLoading}
-              className="flex-1 h-[56px] bg-background/80 backdrop-blur-sm border-border/50 text-foreground placeholder:text-muted-foreground"
-            />
-            <Button
-              type="submit"
-              size="lg"
-              disabled={isLoading}
-              className="gap-2 font-bold px-8 py-5 text-base transition-all duration-300 bg-[#82f3aa] hover:bg-[#6dd991] text-black border-0 shadow-xl shadow-[#82f3aa]/30 hover:shadow-2xl hover:shadow-[#82f3aa]/40 hover:scale-105 whitespace-nowrap"
-            >
-              {isLoading ? (
-                <>
-                  <Loader2 className="h-5 w-5 animate-spin" />
-                  Generating...
-                </>
-              ) : (
-                <>
-                  Generate with <img src={xLogo} alt="X" className="h-5 w-5 inline-block" />
-                </>
-              )}
-            </Button>
-          </div>
-        </form>
+        <Button
+          onClick={handleXSignIn}
+          size="lg"
+          className="gap-2 font-bold px-8 py-5 text-base transition-all duration-300 bg-[#82f3aa] hover:bg-[#6dd991] text-black border-0 shadow-xl shadow-[#82f3aa]/30 hover:shadow-2xl hover:shadow-[#82f3aa]/40 hover:scale-105 whitespace-nowrap"
+        >
+          Get Started with <img src={xIcon} alt="X" className="h-5 w-5 inline-block" />
+        </Button>
       </div>
-
-      {verificationData && (
-        <VerificationPendingModal
-          open={showVerificationModal}
-          onOpenChange={(open) => {
-            setShowVerificationModal(open);
-            if (!open) {
-              navigate(`/${verificationData.xUsername}/creator?code=${verificationData.editCode}`);
-            }
-          }}
-          editCode={verificationData.editCode}
-          xUsername={verificationData.xUsername}
-        />
-      )}
     </section>
   );
 };
