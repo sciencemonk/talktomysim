@@ -53,29 +53,27 @@ export default function AuthCallback() {
         return;
       }
 
-      setStatus('Fetching X profile data...');
-
       // Fetch detailed X profile data using our intelligence function
+      // This is optional - if it fails, we'll continue with OAuth data
       let report: any = {};
       try {
+        setStatus('Fetching X profile data...');
         const { data: xData, error: xError } = await supabase.functions.invoke('x-intelligence', {
           body: { username: xUsername }
         });
 
         if (xError) {
-          console.error('Error fetching X data:', xError);
-          // Continue with basic OAuth data if x-intelligence fails
-        } else {
-          report = xData?.report || {};
+          console.error('X intelligence error (continuing with OAuth data):', xError);
+        } else if (xData?.success && xData?.report) {
+          report = xData.report;
         }
       } catch (error) {
-        console.error('Failed to fetch X intelligence data:', error);
-        // Continue with basic OAuth data
+        console.error('Failed to fetch X intelligence (continuing with OAuth data):', error);
       }
 
-      setStatus('Creating your X agent...');
+      setStatus('Setting up your X agent...');
 
-      // Generate custom URL
+      // Generate custom URL from username
       const customUrl = xUsername.toLowerCase().replace(/[^a-z0-9]/g, '');
 
       // Check if agent already exists - check each condition separately for better reliability
@@ -157,9 +155,10 @@ export default function AuthCallback() {
         // Create new agent - automatically verified via OAuth
         editCode = generateEditCode();
         
+        // Use report data if available, otherwise fall back to OAuth metadata
         const followers = report?.metrics?.followers || 0;
-        const bio = report?.bio || userMetadata?.description || `AI agent for @${xUsername}`;
-        const profileImageUrl = report?.profileImageUrl || avatarUrl;
+        const bio = report?.bio || userMetadata?.description || `AI-powered agent for @${xUsername}`;
+        const profileImageUrl = report?.profileImageUrl || avatarUrl || '';
 
         const systemPrompt = `You are @${xUsername}, representing the real person behind this X (Twitter) account.
 
@@ -229,10 +228,13 @@ You can answer questions about your X profile, interests, opinions, and provide 
         toast.success('X agent created successfully!');
       }
 
-      // Redirect to creator view (no edit code needed - using X auth)
-      setStatus('Redirecting to your agent dashboard...');
+      // Wait a moment for session to be fully persisted
+      await new Promise(resolve => setTimeout(resolve, 500));
       
-      // Use navigate to preserve React Router state and auth context
+      // Redirect to creator view (no edit code needed - using X auth)
+      setStatus('Redirecting to your dashboard...');
+      
+      // Navigate to creator page
       navigate(`/${xUsername}/creator`);
     } catch (error: any) {
       console.error('Auth callback error:', error);
