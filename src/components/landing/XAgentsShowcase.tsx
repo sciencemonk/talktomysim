@@ -212,7 +212,7 @@ export const XAgentsShowcase = ({ agents }: XAgentsShowcaseProps) => {
             Search Stores
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Discover and explore verified X accounts offering products and services
+            Discover and explore verified X accounts offering products, services, and AI agents
           </p>
         </div>
 
