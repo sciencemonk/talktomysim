@@ -50,7 +50,7 @@ export const SimVsStripeSection = () => {
     },
     {
       feature: "Best For",
-      sim: "Digital products & services",
+      sim: "Products, services, digital goods, AI agents",
       stripe: "Standard payments",
       shopify: "Physical products only",
       simIcon: <Zap className="h-5 w-5 text-[#82f3aa]" />,
