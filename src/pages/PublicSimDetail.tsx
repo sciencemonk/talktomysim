@@ -307,8 +307,15 @@ const PublicSimDetail = () => {
         }
       }
 
-      // For Crypto Mail agents, just render them here (no redirect to avoid loops)
-      // The page will handle them appropriately
+      // Redirect X Agents (Crypto Mail) to the dedicated store page
+      if (transformedSim.sim_category === 'Crypto Mail') {
+        const socialLinks = transformedSim.social_links as { x_username?: string; userName?: string } | null;
+        const xUsername = socialLinks?.x_username || socialLinks?.userName;
+        if (xUsername) {
+          navigate(`/store/${xUsername}`, { replace: true });
+          return;
+        }
+      }
       
       // Update meta tags for social sharing
       const simSlug = data.custom_url || generateSlug(transformedSim.name);

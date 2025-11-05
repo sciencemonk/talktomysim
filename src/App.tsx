@@ -94,6 +94,9 @@ const App = () => (
               {/* Token Agent Page */}
               <Route path="/token/:contractAddress" element={<TokenAgentPage />} />
               
+              {/* X Agent Store - dedicated route */}
+              <Route path="/store/:username" element={<XAgentPage />} />
+              
               {/* X Agent Creator - Must come before catch-all */}
               <Route path="/:username/creator" element={<XAgentCreatorView />} />
               
