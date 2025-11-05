@@ -207,6 +207,37 @@ export default function XAgentPage() {
     toast.success("Link copied to clipboard!");
   };
 
+  const handleBackClick = async () => {
+    // Check if user is authenticated
+    const { data: { session } } = await supabase.auth.getSession();
+    
+    if (session?.user) {
+      // User is authenticated, find their X agent and redirect to creator page
+      const { data: agents } = await supabase
+        .from('advisors')
+        .select('id, name, edit_code, social_links, custom_url')
+        .eq('user_id', session.user.id)
+        .eq('sim_category', 'Crypto Mail')
+        .maybeSingle();
+      
+      if (agents) {
+        // Extract X username from social_links or name
+        const xUsername = (agents.social_links as any)?.x_username || 
+                         agents.custom_url || 
+                         agents.name?.replace('@', '');
+        
+        if (xUsername) {
+          // Redirect to creator page
+          navigate(`/${xUsername}/creator?code=${agents.edit_code}`);
+          return;
+        }
+      }
+    }
+    
+    // Not authenticated or no agent found, go to homepage
+    navigate('/', { state: { scrollToAgents: true } });
+  };
+
   const handleAgentClick = (offering: any) => {
     const isFree = !offering.price_per_conversation || offering.price_per_conversation === 0;
     const hasRequiredInfo = offering.required_info && Array.isArray(offering.required_info) && offering.required_info.length > 0;
@@ -385,7 +416,7 @@ export default function XAgentPage() {
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => navigate('/', { state: { scrollToAgents: true } })}
+              onClick={handleBackClick}
               className="gap-2"
             >
               <ArrowLeft className="h-4 w-4" />

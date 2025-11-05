@@ -29,6 +29,37 @@ const ContactFormPage = ({ agent }: ContactFormPageProps) => {
     }
   }, [agent.id]);
 
+  const handleNavigateHome = async () => {
+    // Check if user is authenticated
+    const { data: { session } } = await supabase.auth.getSession();
+    
+    if (session?.user) {
+      // User is authenticated, find their X agent and redirect to creator page
+      const { data: agents } = await supabase
+        .from('advisors')
+        .select('id, name, edit_code, social_links, custom_url')
+        .eq('user_id', session.user.id)
+        .eq('sim_category', 'Crypto Mail')
+        .maybeSingle();
+      
+      if (agents) {
+        // Extract X username from social_links or name
+        const xUsername = (agents.social_links as any)?.x_username || 
+                         agents.custom_url || 
+                         agents.name?.replace('@', '');
+        
+        if (xUsername) {
+          // Redirect to creator page
+          navigate(`/${xUsername}/creator?code=${agents.edit_code}`);
+          return;
+        }
+      }
+    }
+    
+    // Not authenticated or no agent found, go to homepage
+    navigate('/');
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -75,7 +106,7 @@ const ContactFormPage = ({ agent }: ContactFormPageProps) => {
 
       // Redirect to home page after a brief delay
       setTimeout(() => {
-        navigate('/');
+        handleNavigateHome();
       }, 1500);
     } catch (error) {
       console.error('Error sending message:', error);
@@ -124,7 +155,7 @@ const ContactFormPage = ({ agent }: ContactFormPageProps) => {
                 You've already sent a message to {agent.name}. They'll get back to you soon!
               </p>
               <Button 
-                onClick={() => navigate('/')}
+                onClick={handleNavigateHome}
                 className="mt-4"
               >
                 Go to Home

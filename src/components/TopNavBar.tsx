@@ -45,6 +45,37 @@ export const TopNavBar = () => {
     navigate('/');
   };
 
+  const handleLogoClick = async () => {
+    // Check if user is authenticated
+    const { data: { session } } = await supabase.auth.getSession();
+    
+    if (session?.user) {
+      // User is authenticated, find their X agent and redirect to creator page
+      const { data: agents } = await supabase
+        .from('advisors')
+        .select('id, name, edit_code, social_links, custom_url')
+        .eq('user_id', session.user.id)
+        .eq('sim_category', 'Crypto Mail')
+        .maybeSingle();
+      
+      if (agents) {
+        // Extract X username from social_links or name
+        const xUsername = (agents.social_links as any)?.x_username || 
+                         agents.custom_url || 
+                         agents.name?.replace('@', '');
+        
+        if (xUsername) {
+          // Redirect to creator page
+          navigate(`/${xUsername}/creator?code=${agents.edit_code}`);
+          return;
+        }
+      }
+    }
+    
+    // Not authenticated or no agent found, go to homepage
+    navigate('/');
+  };
+
 
   return (
     <>
@@ -59,7 +90,7 @@ export const TopNavBar = () => {
             {/* Center: Logo */}
             <div className="flex items-center shrink-0">
               <button
-                onClick={() => navigate('/')}
+                onClick={handleLogoClick}
                 className="flex items-center hover:opacity-80 transition-opacity"
               >
                 <img 

@@ -339,6 +339,37 @@ const NewLanding = () => {
     }
   }, []);
 
+  // Redirect authenticated users to their creator page
+  useEffect(() => {
+    const checkAuthAndRedirect = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (session?.user) {
+        // User is authenticated, find their X agent
+        const { data: agents } = await supabase
+          .from('advisors')
+          .select('id, name, edit_code, social_links, custom_url')
+          .eq('user_id', session.user.id)
+          .eq('sim_category', 'Crypto Mail')
+          .maybeSingle();
+        
+        if (agents) {
+          // Extract X username from social_links or name
+          const xUsername = (agents.social_links as any)?.x_username || 
+                           agents.custom_url || 
+                           agents.name?.replace('@', '');
+          
+          if (xUsername) {
+            // Redirect to creator page
+            window.location.href = `/${xUsername}/creator?code=${agents.edit_code}`;
+          }
+        }
+      }
+    };
+    
+    checkAuthAndRedirect();
+  }, []);
+
   const generateSlug = (name: string) => {
     return name
       .toLowerCase()
