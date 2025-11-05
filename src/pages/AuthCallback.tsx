@@ -78,16 +78,43 @@ export default function AuthCallback() {
       // Generate custom URL
       const customUrl = xUsername.toLowerCase().replace(/[^a-z0-9]/g, '');
 
-      // Check if agent already exists for this user or username
-      const { data: existingAgent, error: checkError } = await supabase
+      // Check if agent already exists - check each condition separately for better reliability
+      let existingAgent = null;
+      
+      // First, try to find by x_username in social_links
+      const { data: agentByUsername } = await supabase
         .from('advisors')
-        .select('id, edit_code, social_links, user_id')
+        .select('id, edit_code, social_links, user_id, custom_url')
         .eq('sim_category', 'Crypto Mail')
-        .or(`social_links->x_username.eq.${xUsername},name.eq.@${xUsername},custom_url.eq.${customUrl}`)
+        .filter('social_links->x_username', 'eq', xUsername)
         .maybeSingle();
-
-      if (checkError && checkError.code !== 'PGRST116') {
-        console.error('Error checking existing agent:', checkError);
+      
+      if (agentByUsername) {
+        existingAgent = agentByUsername;
+      } else {
+        // Try by custom_url
+        const { data: agentByUrl } = await supabase
+          .from('advisors')
+          .select('id, edit_code, social_links, user_id, custom_url')
+          .eq('sim_category', 'Crypto Mail')
+          .eq('custom_url', customUrl)
+          .maybeSingle();
+        
+        if (agentByUrl) {
+          existingAgent = agentByUrl;
+        } else {
+          // Finally, try by name
+          const { data: agentByName } = await supabase
+            .from('advisors')
+            .select('id, edit_code, social_links, user_id, custom_url')
+            .eq('sim_category', 'Crypto Mail')
+            .eq('name', `@${xUsername}`)
+            .maybeSingle();
+          
+          if (agentByName) {
+            existingAgent = agentByName;
+          }
+        }
       }
 
       let agentId: string;
@@ -197,10 +224,9 @@ You can answer questions about your X profile, interests, opinions, and provide 
 
       // Redirect to creator view with edit code
       setStatus('Redirecting to your agent dashboard...');
-      setTimeout(() => {
-        navigate(`/${xUsername}/creator?code=${editCode}`);
-      }, 1000);
-
+      
+      // Use window.location to ensure we bypass any auth redirects
+      window.location.href = `/${xUsername}/creator?code=${editCode}`;
     } catch (error: any) {
       console.error('Auth callback error:', error);
       toast.error('Authentication failed: ' + (error.message || 'Unknown error'));
