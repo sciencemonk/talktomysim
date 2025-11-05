@@ -126,13 +126,13 @@ export function XAgentStorefront({ agentId, agentName, walletAddress }: XAgentSt
                   <video 
                     src={offering.media_url} 
                     controls 
-                    className="w-full h-48 object-cover rounded-t-lg"
+                    className={`w-full h-64 object-contain bg-muted rounded-t-lg ${offering.blur_preview ? 'blur-xl' : ''}`}
                   />
                 ) : (
                   <img 
                     src={offering.media_url} 
                     alt={offering.title}
-                    className="w-full h-48 object-cover rounded-t-lg"
+                    className={`w-full h-64 object-contain bg-muted rounded-t-lg ${offering.blur_preview ? 'blur-xl' : ''}`}
                   />
                 )}
               </div>
