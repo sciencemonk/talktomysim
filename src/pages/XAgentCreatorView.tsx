@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { XAgentStoreManager } from "@/components/XAgentStoreManager";
 import { XAgentPurchases } from "@/components/XAgentPurchases";
-import { XAgentDesignManager } from "@/components/XAgentDesignManager";
+import { SimDesignerChat } from "@/components/SimDesignerChat";
 import { AgentType } from "@/types/agent";
 import { toast } from "sonner";
 import xIcon from "@/assets/x-icon.png";
@@ -34,6 +34,7 @@ export default function XAgentCreatorView() {
   const [systemPrompt, setSystemPrompt] = useState("");
   const [walletAddress, setWalletAddress] = useState("");
   const [isSaving, setIsSaving] = useState(false);
+  const [designSettings, setDesignSettings] = useState<any>(null);
 
   useEffect(() => {
     if (username) {
@@ -84,6 +85,12 @@ export default function XAgentCreatorView() {
         toast.error("Agent not found");
         navigate('/', { state: { scrollToAgents: true } });
         return;
+      }
+
+      // Extract design settings from social_links
+      const socialLinks = matchingAgent.social_links as any;
+      if (socialLinks?.design_settings) {
+        setDesignSettings(socialLinks.design_settings);
       }
 
       const transformedAgent: AgentType = {
@@ -424,9 +431,8 @@ export default function XAgentCreatorView() {
 
           {/* Tabs */}
           <Tabs defaultValue="store" className="w-full">
-            <TabsList className="grid w-full grid-cols-3">
+            <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="store">Store</TabsTrigger>
-              <TabsTrigger value="design">Design</TabsTrigger>
               <TabsTrigger value="purchases">Orders</TabsTrigger>
             </TabsList>
             
@@ -439,17 +445,20 @@ export default function XAgentCreatorView() {
               />
             </TabsContent>
             
-            <TabsContent value="design" className="mt-6">
-              <XAgentDesignManager 
-                agentId={agent.id}
-                editCode={editCode}
-              />
-            </TabsContent>
-            
             <TabsContent value="purchases" className="mt-6">
               <XAgentPurchases agentId={agent.id} />
             </TabsContent>
           </Tabs>
+
+          {/* SIM Designer Chat - Only show when validated */}
+          {isValidated && (
+            <SimDesignerChat
+              agentId={agent.id}
+              editCode={editCode}
+              currentDesignSettings={designSettings}
+              onDesignUpdate={setDesignSettings}
+            />
+          )}
         </div>
       </div>
     </div>
