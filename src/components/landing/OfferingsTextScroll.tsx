@@ -53,7 +53,7 @@ export const OfferingsTextScroll = () => {
   }
 
   return (
-    <div className="w-full border-b border-border/40 backdrop-blur-sm py-2 overflow-hidden">
+    <div className="w-full py-2 overflow-hidden bg-transparent">
       <div className="relative">
         <div className="flex gap-3 animate-scroll hover:pause-animation px-4">
           {/* First set */}
