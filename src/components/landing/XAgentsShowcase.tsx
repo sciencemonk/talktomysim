@@ -244,7 +244,7 @@ export const XAgentsShowcase = ({ agents }: XAgentsShowcaseProps) => {
 
         {/* Agents grid */}
         {visibleAgents.length > 0 ? (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-5 gap-4">
             {visibleAgents.map((agent) => (
               <XAgentCard
                 key={agent.id}
@@ -264,7 +264,7 @@ export const XAgentsShowcase = ({ agents }: XAgentsShowcaseProps) => {
           <div className="flex justify-center pt-4">
             <button
               onClick={() => setVisibleCount(prev => prev + 9)}
-              className="text-sm font-medium text-primary hover:text-primary/80 transition-colors underline underline-offset-4"
+              className="text-sm font-medium text-white hover:text-white/80 transition-colors"
             >
               Show More
             </button>
