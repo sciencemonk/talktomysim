@@ -66,7 +66,7 @@ export default function XAgentCreatorView() {
   const fetchTotalEarnings = async (agentId: string) => {
     try {
       const { data, error } = await supabase
-        .from('x_messages')
+        .from('x_agent_purchases')
         .select('payment_amount')
         .eq('agent_id', agentId);
 

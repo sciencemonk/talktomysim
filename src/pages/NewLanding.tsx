@@ -122,7 +122,7 @@ const PumpFunSimCard = ({ sim, onSimClick }: PumpFunSimCardProps) => {
 
       try {
         const { data, error } = await supabase
-          .from('x_messages')
+          .from('x_agent_purchases')
           .select('payment_amount')
           .eq('agent_id', sim.id);
 
