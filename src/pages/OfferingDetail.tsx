@@ -31,7 +31,8 @@ export default function OfferingDetail() {
             name,
             avatar_url,
             social_links,
-            x402_wallet
+            x402_wallet,
+            custom_url
           )
         `)
         .eq('id', offeringId)
@@ -60,12 +61,50 @@ export default function OfferingDetail() {
   };
 
   const handleAgentClick = () => {
-    const socialLinks = offering?.agent?.social_links as any;
-    const xUrl = socialLinks?.x || '';
-    const username = xUrl.split('/').pop() || '';
+    if (!offering?.agent) return;
+    
+    const socialLinks = offering.agent.social_links as any;
+    
+    // Try to get username from social_links
+    let username = socialLinks?.x_username || '';
+    
+    // If no x_username, try to extract from x URL
+    if (!username && socialLinks?.x) {
+      const xUrl = socialLinks.x;
+      username = xUrl.split('/').pop() || '';
+    }
+    
+    // Fallback to custom_url if available
+    if (!username) {
+      // Query for the agent's custom_url
+      supabase
+        .from('advisors')
+        .select('custom_url')
+        .eq('id', offering.agent.id)
+        .single()
+        .then(({ data }) => {
+          if (data?.custom_url) {
+            navigate(`/${data.custom_url}`);
+          }
+        });
+      return;
+    }
+    
     if (username) {
       navigate(`/${username}`);
     }
+  };
+
+  const getAvatarSrc = () => {
+    const avatarUrl = offering?.agent?.avatar_url;
+    if (!avatarUrl) return undefined;
+    
+    // If it's a Twitter/X image, proxy it through weserv for CORS
+    if (avatarUrl.includes('pbs.twimg.com') || avatarUrl.includes('twimg.com')) {
+      return `https://images.weserv.nl/?url=${encodeURIComponent(avatarUrl)}&w=100&h=100&fit=cover&default=404`;
+    }
+    
+    return avatarUrl;
   };
 
   if (isLoading) {
@@ -156,7 +195,7 @@ export default function OfferingDetail() {
                 >
                   <Avatar className="w-12 h-12">
                     <AvatarImage 
-                      src={offering.agent.avatar_url || undefined}
+                      src={getAvatarSrc()}
                       alt={offering.agent.name}
                     />
                     <AvatarFallback>{offering.agent.name.charAt(0)}</AvatarFallback>
