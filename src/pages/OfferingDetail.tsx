@@ -8,9 +8,10 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ArrowLeft, Share2, Sparkles, DollarSign } from "lucide-react";
 import { toast } from "sonner";
 import { XOfferingPurchaseModal } from "@/components/XOfferingPurchaseModal";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { DigitalFileModal } from "@/components/DigitalFileModal";
 import { AgentOfferingModal } from "@/components/AgentOfferingModal";
+import { updateMetaTags, resetMetaTags } from "@/lib/metaTags";
 
 export default function OfferingDetail() {
   const { offeringId } = useParams();
@@ -43,6 +44,21 @@ export default function OfferingDetail() {
       return data;
     },
   });
+
+  useEffect(() => {
+    if (offering?.title) {
+      updateMetaTags({
+        title: `SIM | ${offering.title}`,
+        description: offering.description,
+        image: offering.media_url,
+        url: window.location.href,
+      });
+    }
+
+    return () => {
+      resetMetaTags();
+    };
+  }, [offering]);
 
   const handleShare = () => {
     const url = window.location.href;
