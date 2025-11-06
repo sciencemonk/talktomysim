@@ -149,11 +149,13 @@ export const MatrixHeroSection = ({ onCreateXAgent, onSimClick, onViewAllAgents 
 
       {/* Content */}
       <div className="relative z-10 flex-1 flex flex-col items-center justify-center px-4 pt-24 text-center max-w-5xl mx-auto w-full">
-        {/* Powered by badge */}
-        <div className="mb-6 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-card/50 backdrop-blur-sm border border-border/50">
-          <span className="text-xs sm:text-sm text-muted-foreground font-medium">Powered by</span>
-          <span className="text-xs sm:text-sm font-bold text-foreground">x402</span>
-        </div>
+        {/* $SIMAI badge */}
+        <button
+          onClick={handleCopyAddress}
+          className="mb-6 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-card/50 backdrop-blur-sm border border-border/50 hover:bg-card/70 transition-all cursor-pointer"
+        >
+          <span className="text-xs sm:text-sm font-bold text-[#82f3aa]">$SIMAI</span>
+        </button>
 
         <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-sans font-bold mb-4 tracking-tight text-foreground text-center w-full">
           Sell your{" "}
@@ -167,7 +169,7 @@ export const MatrixHeroSection = ({ onCreateXAgent, onSimClick, onViewAllAgents 
         
         {/* Zero fees text */}
         <p className="text-sm sm:text-base text-[#82f3aa] font-semibold mb-3">
-          Accept crypto payments instantly with zero fees — powered by x402
+          Accept crypto payments instantly with zero fees
         </p>
         
         <p className="text-base sm:text-lg md:text-xl text-muted-foreground mb-10 max-w-3xl leading-relaxed">
