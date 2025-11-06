@@ -164,26 +164,6 @@ export const TrendingOfferingsSection = () => {
                   )}
                 </div>
 
-                {/* Media Preview */}
-                {offering.media_url && (
-                  <div className="w-full h-32 rounded-lg overflow-hidden bg-muted">
-                    {offering.media_url.includes('.mp4') || 
-                     offering.media_url.includes('.webm') || 
-                     offering.media_url.includes('.mov') ? (
-                      <video 
-                        src={offering.media_url} 
-                        className="w-full h-full object-cover"
-                        muted
-                      />
-                    ) : (
-                      <img 
-                        src={offering.media_url} 
-                        alt={offering.title}
-                        className="w-full h-full object-cover"
-                      />
-                    )}
-                  </div>
-                )}
 
                 {/* Offering Title */}
                 <h3 className="font-semibold text-sm line-clamp-2 min-h-[2.5rem]">
