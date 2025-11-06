@@ -101,7 +101,7 @@ export const TopStoresSection = () => {
   const [visibleCount, setVisibleCount] = useState(9);
 
   const { data: topStores, isLoading } = useQuery({
-    queryKey: ['top-stores'],
+    queryKey: ['top-stores-v2'],
     queryFn: async () => {
       // Get all X agents (Crypto Mail category)
       const { data: agents, error } = await supabase
