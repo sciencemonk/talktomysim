@@ -142,10 +142,10 @@ export default function OfferingDetail() {
 
   const getPrice = () => {
     if (offering.offering_type === 'agent' && offering.price_per_conversation) {
-      return `$${offering.price_per_conversation} per conversation`;
+      return `${offering.price_per_conversation} USDC per conversation`;
     }
     if (offering.price === 0) return 'Free';
-    return `$${offering.price}`;
+    return `${offering.price} USDC`;
   };
 
   return (
