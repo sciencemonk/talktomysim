@@ -1,0 +1,235 @@
+import { useParams, useNavigate } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { ArrowLeft, Share2, Sparkles, DollarSign } from "lucide-react";
+import { toast } from "sonner";
+import { XOfferingPurchaseModal } from "@/components/XOfferingPurchaseModal";
+import { useState } from "react";
+import { DigitalFileModal } from "@/components/DigitalFileModal";
+import { AgentOfferingModal } from "@/components/AgentOfferingModal";
+
+export default function OfferingDetail() {
+  const { offeringId } = useParams();
+  const navigate = useNavigate();
+  const [showPurchaseModal, setShowPurchaseModal] = useState(false);
+  const [showFileModal, setShowFileModal] = useState(false);
+  const [showAgentModal, setShowAgentModal] = useState(false);
+
+  const { data: offering, isLoading } = useQuery({
+    queryKey: ['offering-detail', offeringId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('x_agent_offerings')
+        .select(`
+          *,
+          agent:advisors!agent_id (
+            id,
+            name,
+            avatar_url,
+            social_links,
+            x402_wallet
+          )
+        `)
+        .eq('id', offeringId)
+        .eq('is_active', true)
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const handleShare = () => {
+    const url = window.location.href;
+    navigator.clipboard.writeText(url);
+    toast.success("Link copied to clipboard!");
+  };
+
+  const handlePurchase = () => {
+    if (offering?.offering_type === 'digital_file') {
+      setShowFileModal(true);
+    } else if (offering?.offering_type === 'agent') {
+      setShowAgentModal(true);
+    } else {
+      setShowPurchaseModal(true);
+    }
+  };
+
+  const handleAgentClick = () => {
+    const socialLinks = offering?.agent?.social_links as any;
+    const xUrl = socialLinks?.x || '';
+    const username = xUrl.split('/').pop() || '';
+    if (username) {
+      navigate(`/${username}`);
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="animate-pulse">Loading offering...</div>
+      </div>
+    );
+  }
+
+  if (!offering) {
+    return (
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center gap-4">
+        <p className="text-muted-foreground">Offering not found</p>
+        <Button onClick={() => navigate(-1)}>Go Back</Button>
+      </div>
+    );
+  }
+
+  const getOfferingTypeLabel = () => {
+    if (offering.offering_type === 'agent') return 'AI Agent';
+    if (offering.offering_type === 'digital_file') return 'Digital File';
+    return 'Service';
+  };
+
+  const getPrice = () => {
+    if (offering.offering_type === 'agent' && offering.price_per_conversation) {
+      return `$${offering.price_per_conversation} per conversation`;
+    }
+    if (offering.price === 0) return 'Free';
+    return `$${offering.price}`;
+  };
+
+  return (
+    <div className="min-h-screen bg-background">
+      <div className="container mx-auto px-4 py-8 max-w-4xl">
+        {/* Header */}
+        <div className="flex items-center gap-4 mb-6">
+          <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
+            <ArrowLeft className="w-5 h-5" />
+          </Button>
+          <h1 className="text-2xl font-bold">Offering Details</h1>
+          <Button variant="outline" size="icon" onClick={handleShare} className="ml-auto">
+            <Share2 className="w-4 h-4" />
+          </Button>
+        </div>
+
+        {/* Main Content */}
+        <Card className="mb-6">
+          <CardHeader>
+            <div className="flex items-start gap-4">
+              {offering.media_url && (
+                <div className="w-24 h-24 rounded-lg overflow-hidden flex-shrink-0">
+                  <img 
+                    src={offering.media_url} 
+                    alt={offering.title}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              )}
+              <div className="flex-1">
+                <div className="flex items-start justify-between gap-4 mb-2">
+                  <CardTitle className="text-2xl">{offering.title}</CardTitle>
+                  <Badge variant="secondary" className="flex items-center gap-1">
+                    {offering.offering_type === 'agent' && <Sparkles className="w-3 h-3" />}
+                    {getOfferingTypeLabel()}
+                  </Badge>
+                </div>
+                <CardDescription className="text-base">{offering.description}</CardDescription>
+              </div>
+            </div>
+          </CardHeader>
+
+          <CardContent className="space-y-6">
+            {/* Price */}
+            <div className="flex items-center gap-2 text-2xl font-bold">
+              <DollarSign className="w-6 h-6 text-primary" />
+              {getPrice()}
+            </div>
+
+            {/* Agent Info */}
+            {offering.agent && (
+              <div>
+                <p className="text-sm text-muted-foreground mb-3">Offered by</p>
+                <div 
+                  className="flex items-center gap-3 p-4 rounded-lg bg-secondary/50 cursor-pointer hover:bg-secondary/70 transition-colors"
+                  onClick={handleAgentClick}
+                >
+                  <Avatar className="w-12 h-12">
+                    <AvatarImage 
+                      src={offering.agent.avatar_url || undefined}
+                      alt={offering.agent.name}
+                    />
+                    <AvatarFallback>{offering.agent.name.charAt(0)}</AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <p className="font-semibold">{offering.agent.name}</p>
+                    <p className="text-sm text-muted-foreground">View profile</p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Delivery Method */}
+            {offering.delivery_method && (
+              <div>
+                <p className="text-sm text-muted-foreground mb-2">Delivery Method</p>
+                <p className="text-base capitalize">{offering.delivery_method.replace('_', ' ')}</p>
+              </div>
+            )}
+
+            {/* Purchase Button */}
+            <Button 
+              onClick={handlePurchase}
+              size="lg" 
+              className="w-full"
+            >
+              {offering.price === 0 ? 'Get for Free' : 'Purchase Now'}
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Modals */}
+      {showPurchaseModal && offering && (
+        <XOfferingPurchaseModal
+          isOpen={showPurchaseModal}
+          onClose={() => setShowPurchaseModal(false)}
+          offering={offering as any}
+          agentId={offering.agent?.id || ''}
+          agentName={offering.agent?.name || ''}
+          walletAddress={offering.agent?.x402_wallet || ''}
+          onPurchaseSuccess={() => {
+            setShowPurchaseModal(false);
+            toast.success("Purchase successful!");
+          }}
+        />
+      )}
+
+      {showFileModal && offering && (
+        <DigitalFileModal
+          isOpen={showFileModal}
+          onClose={() => setShowFileModal(false)}
+          fileUrl={offering.digital_file_url || ''}
+          fileName={offering.title}
+          offeringTitle={offering.title}
+        />
+      )}
+
+      {showAgentModal && offering && (
+        <AgentOfferingModal
+          isOpen={showAgentModal}
+          onClose={() => setShowAgentModal(false)}
+          offering={offering as any}
+          agentData={{
+            id: offering.agent?.id || '',
+            name: offering.agent?.name || '',
+            description: offering.description,
+            avatar: offering.agent?.avatar_url || '',
+            avatar_url: offering.agent?.avatar_url || '',
+          }}
+          pricePerConversation={offering.price_per_conversation || 0}
+        />
+      )}
+    </div>
+  );
+}

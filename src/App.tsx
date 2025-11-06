@@ -49,6 +49,7 @@ import Demo from "./pages/Demo";
 import TokenAgentPage from "./pages/TokenAgentPage";
 import XAgentPage from "./pages/XAgentPage";
 import XAgentCreatorView from "./pages/XAgentCreatorView";
+import OfferingDetail from "./pages/OfferingDetail";
 
 const queryClient = new QueryClient();
 
@@ -96,6 +97,9 @@ const App = () => (
               
               {/* X Agent Creator - Must come before catch-all */}
               <Route path="/:username/creator" element={<XAgentCreatorView />} />
+              
+              {/* Offering Detail Page */}
+              <Route path="/offering/:offeringId" element={<OfferingDetail />} />
               
               {/* Root route - new landing page */}
               <Route path="/" element={<NewLanding />} />

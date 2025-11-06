@@ -3,11 +3,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { DollarSign, ShoppingCart, Package, Check } from "lucide-react";
+import { DollarSign, Package, Check, Share2 } from "lucide-react";
 import { XOfferingPurchaseModal } from "./XOfferingPurchaseModal";
-import { AgentOfferingModal } from "./AgentOfferingModal";
 import { DigitalFileModal } from "./DigitalFileModal";
+import { AgentOfferingModal } from "./AgentOfferingModal";
 import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 
 interface Offering {
   id: string;
@@ -29,6 +30,7 @@ interface XAgentStorefrontProps {
 }
 
 export function XAgentStorefront({ agentId, agentName, walletAddress }: XAgentStorefrontProps) {
+  const navigate = useNavigate();
   const [offerings, setOfferings] = useState<Offering[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedOffering, setSelectedOffering] = useState<Offering | null>(null);
@@ -101,6 +103,17 @@ export function XAgentStorefront({ agentId, agentName, walletAddress }: XAgentSt
     setIsPurchaseModalOpen(true);
   };
 
+  const handleShare = (offeringId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    const url = `${window.location.origin}/offering/${offeringId}`;
+    navigator.clipboard.writeText(url);
+    toast.success("Offering link copied to clipboard!");
+  };
+
+  const handleOfferingClick = (offeringId: string) => {
+    navigate(`/offering/${offeringId}`);
+  };
+
   if (isLoading) {
     return <div className="text-center py-8">Loading store...</div>;
   }
@@ -123,7 +136,11 @@ export function XAgentStorefront({ agentId, agentName, walletAddress }: XAgentSt
     <>
       <div className="space-y-4">
         {offerings.map((offering) => (
-          <Card key={offering.id} className="border-border bg-card/80 backdrop-blur-sm shadow-lg hover:shadow-xl transition-shadow">
+          <Card 
+            key={offering.id} 
+            className="border-border bg-card/80 backdrop-blur-sm shadow-lg hover:shadow-xl transition-shadow cursor-pointer"
+            onClick={() => handleOfferingClick(offering.id)}
+          >
             {offering.media_url && (
               <div className="w-full">
                 {offering.media_url.includes('.mp4') || offering.media_url.includes('.webm') || offering.media_url.includes('.mov') ? (
@@ -142,10 +159,22 @@ export function XAgentStorefront({ agentId, agentName, walletAddress }: XAgentSt
               </div>
             )}
             <CardHeader className="p-5">
-              <CardTitle className="text-lg">{offering.title}</CardTitle>
-              <CardDescription className="text-sm leading-relaxed mt-2">
-                {offering.description}
-              </CardDescription>
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <CardTitle className="text-lg">{offering.title}</CardTitle>
+                  <CardDescription className="text-sm leading-relaxed mt-2">
+                    {offering.description}
+                  </CardDescription>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={(e) => handleShare(offering.id, e)}
+                  className="flex-shrink-0"
+                >
+                  <Share2 className="w-4 h-4" />
+                </Button>
+              </div>
             </CardHeader>
             <CardContent className="p-5 pt-0 space-y-4">
               <div className="flex items-center justify-between">
@@ -165,7 +194,10 @@ export function XAgentStorefront({ agentId, agentName, walletAddress }: XAgentSt
                   </div>
                 <Button 
                   size="sm" 
-                  onClick={() => handlePurchaseClick(offering)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handlePurchaseClick(offering);
+                  }}
                   style={{ backgroundColor: '#81f4aa', color: '#000' }}
                   className="hover:opacity-90"
                 >

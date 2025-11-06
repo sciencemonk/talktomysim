@@ -2,7 +2,10 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Share2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 interface Offering {
   id: string;
@@ -21,9 +24,10 @@ interface Offering {
 interface OfferingCardProps {
   offering: Offering;
   onClick: () => void;
+  onShare: (e: React.MouseEvent) => void;
 }
 
-const OfferingCard = ({ offering, onClick }: OfferingCardProps) => {
+const OfferingCard = ({ offering, onClick, onShare }: OfferingCardProps) => {
   const xUsername = offering.agent.social_links?.x_username;
 
   const getAvatarSrc = () => {
@@ -48,8 +52,16 @@ const OfferingCard = ({ offering, onClick }: OfferingCardProps) => {
   return (
     <button
       onClick={onClick}
-      className="group flex-shrink-0 w-[280px] sm:w-[320px] flex flex-col overflow-hidden rounded-xl bg-card hover:bg-muted border-2 hover:border-[#83f1aa] transition-all duration-300 hover:scale-105 hover:shadow-lg"
+      className="group relative flex-shrink-0 w-[280px] sm:w-[320px] flex flex-col overflow-hidden rounded-xl bg-card hover:bg-muted border-2 hover:border-[#83f1aa] transition-all duration-300 hover:scale-105 hover:shadow-lg"
     >
+      <Button
+        variant="ghost"
+        size="icon"
+        className="absolute top-2 right-2 z-10 bg-background/80"
+        onClick={onShare}
+      >
+        <Share2 className="w-4 h-4" />
+      </Button>
       {/* Content */}
       <div className="p-4 space-y-3">
         {/* Creator Info */}
@@ -127,10 +139,14 @@ export const OfferingsMosaic = () => {
   });
 
   const handleOfferingClick = (offering: Offering) => {
-    const xUsername = offering.agent.social_links?.x_username;
-    if (xUsername) {
-      navigate(`/${xUsername}`);
-    }
+    navigate(`/offering/${offering.id}`);
+  };
+
+  const handleShare = (offeringId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    const url = `${window.location.origin}/offering/${offeringId}`;
+    navigator.clipboard.writeText(url);
+    toast.success("Offering link copied to clipboard!");
   };
 
   if (!offerings || offerings.length === 0) {
@@ -148,6 +164,7 @@ export const OfferingsMosaic = () => {
               key={`first-${offering.id}`}
               offering={offering}
               onClick={() => handleOfferingClick(offering)}
+              onShare={(e) => handleShare(offering.id, e)}
             />
           ))}
           {/* Duplicate set for seamless loop */}
@@ -156,6 +173,7 @@ export const OfferingsMosaic = () => {
               key={`second-${offering.id}`}
               offering={offering}
               onClick={() => handleOfferingClick(offering)}
+              onShare={(e) => handleShare(offering.id, e)}
             />
           ))}
         </div>
