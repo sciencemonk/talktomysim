@@ -78,10 +78,20 @@ export const TrendingOfferingsSection = () => {
         purchase_count: purchaseCounts.get(offering.id) || 0
       }));
 
-      // Sort by purchase count (descending) and take top 10
-      return offeringsWithCounts
-        .sort((a, b) => b.purchase_count - a.purchase_count)
-        .slice(0, 10) as TrendingOffering[];
+      // Sort by purchase count (descending)
+      const sorted = offeringsWithCounts.sort((a, b) => b.purchase_count - a.purchase_count);
+
+      // Filter to only one offering per agent, then take top 9
+      const seenAgents = new Set<string>();
+      const uniqueByAgent = sorted.filter(offering => {
+        if (seenAgents.has(offering.agent.id)) {
+          return false;
+        }
+        seenAgents.add(offering.agent.id);
+        return true;
+      });
+
+      return uniqueByAgent.slice(0, 9) as TrendingOffering[];
     },
   });
 
