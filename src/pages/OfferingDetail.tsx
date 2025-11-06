@@ -142,7 +142,7 @@ export default function OfferingDetail() {
           <CardContent className="space-y-6">
             {/* Price */}
             <div className="flex items-center gap-2 text-2xl font-bold">
-              <DollarSign className="w-6 h-6 text-primary" />
+              <DollarSign className="w-6 h-6" style={{ color: '#81f4aa' }} />
               {getPrice()}
             </div>
 
@@ -163,7 +163,7 @@ export default function OfferingDetail() {
                   </Avatar>
                   <div>
                     <p className="font-semibold">{offering.agent.name}</p>
-                    <p className="text-sm text-muted-foreground">View profile</p>
+                    <p className="text-sm text-muted-foreground">View store</p>
                   </div>
                 </div>
               </div>
@@ -182,6 +182,7 @@ export default function OfferingDetail() {
               onClick={handlePurchase}
               size="lg" 
               className="w-full"
+              style={{ backgroundColor: '#81f4aa', color: '#000' }}
             >
               {offering.price === 0 ? 'Get for Free' : 'Purchase Now'}
             </Button>
