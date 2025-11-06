@@ -120,7 +120,7 @@ serve(async (req) => {
           scheme: "exact" as const,
           network: "base" as const,
           maxAmountRequired: price.toString(),
-          resource: `/api/purchase/${offeringId}`,
+          resource: `${supabaseUrl}/functions/v1/x402-purchase/${offeringId}`,
           description: `${offering.title}: ${offering.description || ''}`.trim(),
           mimeType: "application/json",
           payTo: payTo,

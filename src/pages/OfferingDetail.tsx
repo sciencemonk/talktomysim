@@ -7,11 +7,9 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ArrowLeft, Share2, Sparkles, DollarSign } from "lucide-react";
 import { toast } from "sonner";
-import { XOfferingPurchaseModal } from "@/components/XOfferingPurchaseModal";
 import { useState, useEffect } from "react";
-import { DigitalFileModal } from "@/components/DigitalFileModal";
-import { AgentOfferingModal } from "@/components/AgentOfferingModal";
 import { updateMetaTags, resetMetaTags } from "@/lib/metaTags";
+import { X402Instructions } from "@/components/X402Instructions";
 
 export default function OfferingDetail() {
   const { offeringId } = useParams();
@@ -91,16 +89,6 @@ export default function OfferingDetail() {
     const url = window.location.href;
     navigator.clipboard.writeText(url);
     toast.success("Link copied to clipboard!");
-  };
-
-  const handlePurchase = () => {
-    if (offering?.offering_type === 'digital_file') {
-      setShowFileModal(true);
-    } else if (offering?.offering_type === 'agent') {
-      setShowAgentModal(true);
-    } else {
-      setShowPurchaseModal(true);
-    }
   };
 
   const handleAgentClick = () => {
@@ -254,60 +242,15 @@ export default function OfferingDetail() {
               </div>
             )}
 
-            {/* Purchase Button */}
-            <Button 
-              onClick={handlePurchase}
-              size="lg" 
-              className="w-full"
-              style={{ backgroundColor: '#81f4aa', color: '#000' }}
-            >
-              {offering.price === 0 ? 'Get for Free' : 'Purchase Now'}
-            </Button>
+            {/* x402 Payment Instructions */}
+            <X402Instructions
+              offeringTitle={offering.title}
+              price={offering.price}
+              x402Url={`https://uovhemqkztmkoozlmqxq.supabase.co/functions/v1/offering-x402-proxy/offering/${offeringId}`}
+            />
           </CardContent>
         </Card>
       </div>
-
-      {/* Modals */}
-      {showPurchaseModal && offering && (
-        <XOfferingPurchaseModal
-          isOpen={showPurchaseModal}
-          onClose={() => setShowPurchaseModal(false)}
-          offering={offering as any}
-          agentId={offering.agent?.id || ''}
-          agentName={offering.agent?.name || ''}
-          walletAddress={offering.agent?.x402_wallet || ''}
-          onPurchaseSuccess={() => {
-            setShowPurchaseModal(false);
-            toast.success("Purchase successful!");
-          }}
-        />
-      )}
-
-      {showFileModal && offering && (
-        <DigitalFileModal
-          isOpen={showFileModal}
-          onClose={() => setShowFileModal(false)}
-          fileUrl={offering.digital_file_url || ''}
-          fileName={offering.title}
-          offeringTitle={offering.title}
-        />
-      )}
-
-      {showAgentModal && offering && (
-        <AgentOfferingModal
-          isOpen={showAgentModal}
-          onClose={() => setShowAgentModal(false)}
-          offering={offering as any}
-          agentData={{
-            id: offering.agent?.id || '',
-            name: offering.agent?.name || '',
-            description: offering.description,
-            avatar: offering.agent?.avatar_url || '',
-            avatar_url: offering.agent?.avatar_url || '',
-          }}
-          pricePerConversation={offering.price_per_conversation || 0}
-        />
-      )}
     </div>
   );
 }
