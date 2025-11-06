@@ -5,14 +5,6 @@ export const Whyx402Section = () => {
   return (
     <section className="container mx-auto px-3 sm:px-4 py-16 border-b">
       <div className="max-w-4xl mx-auto">
-        <h2 className="text-3xl sm:text-4xl font-bold mb-6 text-center">
-          Why Crypto?
-        </h2>
-        
-        <p className="text-lg text-muted-foreground mb-8 text-center max-w-3xl mx-auto">
-          We use USDC stablecoins powered by x402 protocol to enable instant, global payments with zero platform fees. Unlike traditional payment processors like Stripe or Shopify that take 3-5% of every transaction, crypto payments let you keep 100% of your revenue.
-        </p>
-
         <div className="grid sm:grid-cols-3 gap-6 mb-12">
           <Card className="group hover:shadow-lg transition-all duration-300 border-2 hover:border-[#83f1aa]/50 bg-gradient-to-br from-card to-card/50">
             <CardContent className="flex flex-col items-center text-center space-y-4 p-8">
