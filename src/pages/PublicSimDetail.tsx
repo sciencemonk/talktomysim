@@ -259,6 +259,20 @@ const PublicSimDetail = () => {
         return;
       }
 
+      // If this is a Crypto Mail sim, check if it should be treated as an X Agent
+      // and redirect to the X Agent store view instead
+      if (data.sim_category === 'Crypto Mail' && data.social_links) {
+        const socialLinks = data.social_links as { x_username?: string; userName?: string } | null;
+        const xUsername = (socialLinks?.x_username || socialLinks?.userName || '').toLowerCase();
+        
+        // If it has a username configured and it's different from the current URL, redirect
+        if (xUsername && xUsername !== customUrl?.toLowerCase()) {
+          console.log('Redirecting Crypto Mail sim to X Agent view:', xUsername);
+          navigate(`/${xUsername}`, { replace: true });
+          return;
+        }
+      }
+
       // Transform to AgentType with social links and price
       const transformedSim: AgentType = {
         id: data.id,
