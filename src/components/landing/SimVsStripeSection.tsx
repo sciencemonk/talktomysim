@@ -72,7 +72,7 @@ export const SimVsStripeSection = () => {
           </div>
           
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4">
-            Why SIM?
+            Permissionless Commerce
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
             Keep 100% of your revenue with crypto-native payments
