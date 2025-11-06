@@ -13,11 +13,31 @@ serve(async (req) => {
 
   try {
     const url = new URL(req.url);
-    const offeringId = url.searchParams.get('offeringId');
+    let offeringId = url.searchParams.get('offeringId');
 
-    console.log('[x402-offering-info] Request for offeringId:', offeringId);
+    console.log('[x402-offering-info] Request:', {
+      method: req.method,
+      url: req.url,
+      referer: req.headers.get('referer'),
+      offeringId
+    });
+
+    // If no offeringId in query params, try to extract from referrer
+    if (!offeringId) {
+      const referer = req.headers.get('referer');
+      if (referer) {
+        const refererUrl = new URL(referer);
+        const pathParts = refererUrl.pathname.split('/');
+        const offeringIndex = pathParts.indexOf('offering');
+        if (offeringIndex !== -1 && pathParts[offeringIndex + 1]) {
+          offeringId = pathParts[offeringIndex + 1];
+          console.log('[x402-offering-info] Extracted offeringId from referer:', offeringId);
+        }
+      }
+    }
 
     if (!offeringId) {
+      console.log('[x402-offering-info] No offeringId found');
       return new Response(
         JSON.stringify({ x402Version: 1, error: 'offeringId required' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }

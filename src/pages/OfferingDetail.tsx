@@ -20,15 +20,6 @@ export default function OfferingDetail() {
   const [showFileModal, setShowFileModal] = useState(false);
   const [showAgentModal, setShowAgentModal] = useState(false);
 
-  // Fetch x402 info on mount to make offering 402-compatible
-  useEffect(() => {
-    if (offeringId) {
-      supabase.functions.invoke('x402-offering-info', {
-        body: { offeringId }
-      }).catch(err => console.log('x402 info fetch:', err));
-    }
-  }, [offeringId]);
-
   const { data: offering, isLoading } = useQuery({
     queryKey: ['offering-detail', offeringId],
     queryFn: async () => {
@@ -55,7 +46,10 @@ export default function OfferingDetail() {
   });
 
   useEffect(() => {
-    if (offering?.title) {
+    if (offering?.title && offeringId) {
+      const supabaseUrl = 'https://uovhemqkztmkoozlmqxq.supabase.co';
+      const x402InfoUrl = `${supabaseUrl}/functions/v1/x402-offering-info?offeringId=${offeringId}`;
+      
       updateMetaTags({
         title: `SIM | ${offering.title}`,
         description: offering.description,
@@ -63,32 +57,30 @@ export default function OfferingDetail() {
         url: window.location.href,
       });
 
-      // Add x402 discovery meta tags
-      const supabaseUrl = 'https://uovhemqkztmkoozlmqxq.supabase.co';
-      const x402InfoUrl = `${supabaseUrl}/functions/v1/x402-offering-info?offeringId=${offeringId}`;
-      
-      // Add x402 link meta tag
-      let x402Link = document.querySelector('link[rel="payment"]');
-      if (!x402Link) {
-        x402Link = document.createElement('link');
-        x402Link.setAttribute('rel', 'payment');
-        document.head.appendChild(x402Link);
+      // Add HTTP Link header equivalent as meta tag for x402 discovery
+      let linkTag = document.querySelector('link[rel="payment"]');
+      if (!linkTag) {
+        linkTag = document.createElement('link');
+        linkTag.setAttribute('rel', 'payment');
+        document.head.appendChild(linkTag);
       }
-      x402Link.setAttribute('href', x402InfoUrl);
+      linkTag.setAttribute('href', x402InfoUrl);
+      linkTag.setAttribute('type', 'application/json');
 
-      // Add x402 meta tag
-      let x402Meta = document.querySelector('meta[name="x402"]');
-      if (!x402Meta) {
-        x402Meta = document.createElement('meta');
-        x402Meta.setAttribute('name', 'x402');
-        document.head.appendChild(x402Meta);
+      // Also add as meta tag for broader compatibility
+      let metaTag = document.querySelector('meta[name="x402"]');
+      if (!metaTag) {
+        metaTag = document.createElement('meta');
+        metaTag.setAttribute('name', 'x402');
+        document.head.appendChild(metaTag);
       }
-      x402Meta.setAttribute('content', x402InfoUrl);
+      metaTag.setAttribute('content', x402InfoUrl);
+
+      console.log('[OfferingDetail] Added x402 discovery tags:', x402InfoUrl);
     }
 
     return () => {
       resetMetaTags();
-      // Clean up x402 tags
       document.querySelector('link[rel="payment"]')?.remove();
       document.querySelector('meta[name="x402"]')?.remove();
     };
