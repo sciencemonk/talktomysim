@@ -152,11 +152,18 @@ export default function OfferingDetail() {
             <div className="flex items-start gap-4">
               {offering.media_url && (
                 <div className="w-24 h-24 rounded-lg overflow-hidden flex-shrink-0">
-                  <img 
-                    src={offering.media_url} 
-                    alt={offering.title}
-                    className="w-full h-full object-cover"
-                  />
+                  {offering.media_url.includes('.mp4') || offering.media_url.includes('.webm') || offering.media_url.includes('.mov') ? (
+                    <video 
+                      src={offering.media_url} 
+                      className={`w-full h-full object-cover ${offering.blur_preview ? 'blur-xl' : ''}`}
+                    />
+                  ) : (
+                    <img 
+                      src={offering.media_url} 
+                      alt={offering.title}
+                      className={`w-full h-full object-cover ${offering.blur_preview ? 'blur-xl' : ''}`}
+                    />
+                  )}
                 </div>
               )}
               <div className="flex-1">
