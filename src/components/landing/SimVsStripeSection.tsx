@@ -146,18 +146,13 @@ export const SimVsStripeSection = () => {
 
           {/* Footer CTA */}
           <div className="p-6 bg-gradient-to-r from-[#82f3aa]/10 via-[#82f3aa]/5 to-transparent border-t-2 border-[#82f3aa]/20">
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-              <div>
-                <p className="font-bold text-foreground mb-1">
-                  Save thousands on fees every month
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  On $10,000 in sales, save $290+ compared to traditional platforms
-                </p>
-              </div>
-              <div className="text-3xl font-bold text-[#82f3aa]">
-                0%
-              </div>
+            <div className="flex flex-col items-center justify-center gap-2 text-center">
+              <p className="font-bold text-foreground">
+                Save thousands on fees every month
+              </p>
+              <p className="text-sm text-muted-foreground">
+                On $10,000 in sales, save $290+ compared to traditional platforms
+              </p>
             </div>
           </div>
         </div>
