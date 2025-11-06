@@ -1,5 +1,6 @@
 import { Zap, Shield, Globe } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
+import { toast } from "sonner";
 
 export const Whyx402Section = () => {
   return (
@@ -10,7 +11,17 @@ export const Whyx402Section = () => {
         </h2>
         
         <p className="text-lg text-muted-foreground mb-8 text-center max-w-3xl mx-auto">
-          We use USDC stablecoins powered by x402 protocol to enable instant, global payments with zero platform fees. Unlike traditional payment processors like Stripe or Shopify that take 3-5% of every transaction, crypto payments let you keep 100% of your revenue.
+          We use USDC stablecoins{" "}
+          <button
+            onClick={() => {
+              navigator.clipboard.writeText("FFqwoZ7phjoupWjLeE5yFeLqGi8jkGEFrTz6jnsUpump");
+              toast.success("Contract address copied to clipboard!");
+            }}
+            className="text-[#82f3aa] underline hover:opacity-80 transition-opacity font-semibold"
+          >
+            $SIMAI
+          </button>
+          {" "}to enable instant, global payments with zero platform fees. Unlike traditional payment processors like Stripe or Shopify that take 3-5% of every transaction, crypto payments let you keep 100% of your revenue.
         </p>
 
         <div className="grid sm:grid-cols-3 gap-6 mb-12">

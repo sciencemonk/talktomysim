@@ -167,7 +167,16 @@ export const MatrixHeroSection = ({ onCreateXAgent, onSimClick, onViewAllAgents 
         
         {/* Zero fees text */}
         <p className="text-sm sm:text-base text-[#82f3aa] font-semibold mb-3">
-          Accept crypto payments instantly with zero fees — powered by x402
+          Accept crypto payments instantly with zero fees —{" "}
+          <button
+            onClick={() => {
+              navigator.clipboard.writeText("FFqwoZ7phjoupWjLeE5yFeLqGi8jkGEFrTz6jnsUpump");
+              toast.success("Contract address copied to clipboard!");
+            }}
+            className="underline hover:opacity-80 transition-opacity"
+          >
+            $SIMAI
+          </button>
         </p>
         
         <p className="text-base sm:text-lg md:text-xl text-muted-foreground mb-10 max-w-3xl leading-relaxed">

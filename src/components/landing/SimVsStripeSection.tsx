@@ -1,4 +1,5 @@
 import { Check, X, Zap, TrendingDown, Shield, Users, Package } from "lucide-react";
+import { toast } from "sonner";
 
 export const SimVsStripeSection = () => {
   const comparisons = [
@@ -75,7 +76,16 @@ export const SimVsStripeSection = () => {
             Why SIM?
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Keep 100% of your revenue with crypto-native payments powered by x402
+            Keep 100% of your revenue with crypto-native payments{" "}
+            <button
+              onClick={() => {
+                navigator.clipboard.writeText("FFqwoZ7phjoupWjLeE5yFeLqGi8jkGEFrTz6jnsUpump");
+                toast.success("Contract address copied to clipboard!");
+              }}
+              className="text-[#82f3aa] underline hover:opacity-80 transition-opacity font-semibold"
+            >
+              $SIMAI
+            </button>
           </p>
         </div>
 
