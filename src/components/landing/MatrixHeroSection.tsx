@@ -8,51 +8,46 @@ import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { useState, useEffect } from "react";
-
 interface MatrixHeroSectionProps {
   onCreateXAgent: () => void;
   onSimClick: (sim: AgentType) => void;
   onViewAllAgents: () => void;
 }
-
-export const MatrixHeroSection = ({ onCreateXAgent, onSimClick, onViewAllAgents }: MatrixHeroSectionProps) => {
-  const { theme } = useTheme();
+export const MatrixHeroSection = ({
+  onCreateXAgent,
+  onSimClick,
+  onViewAllAgents
+}: MatrixHeroSectionProps) => {
+  const {
+    theme
+  } = useTheme();
   const navigate = useNavigate();
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
   const words = ["Products", "Services", "AI Agents", "Digital Goods"];
-
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentWordIndex((prev) => (prev + 1) % words.length);
+      setCurrentWordIndex(prev => (prev + 1) % words.length);
     }, 2500);
     return () => clearInterval(interval);
   }, []);
-
-  const { data: topStores } = useQuery({
+  const {
+    data: topStores
+  } = useQuery({
     queryKey: ['top-stores-hero'],
     queryFn: async () => {
-      const { data: agents, error } = await supabase
-        .from('advisors')
-        .select('id, name, avatar_url, social_links')
-        .eq('is_active', true)
-        .eq('sim_category', 'Crypto Mail')
-        .limit(100);
-
+      const {
+        data: agents,
+        error
+      } = await supabase.from('advisors').select('id, name, avatar_url, social_links').eq('is_active', true).eq('sim_category', 'Crypto Mail').limit(100);
       if (error) throw error;
-
       const agentsWithFollowers = (agents || []).map(agent => ({
         ...agent,
-        followers: (agent.social_links as any)?.followers || 0,
+        followers: (agent.social_links as any)?.followers || 0
       }));
-
-      return agentsWithFollowers
-        .filter(agent => agent.followers > 0)
-        .sort((a, b) => b.followers - a.followers)
-        .slice(0, 10);
+      return agentsWithFollowers.filter(agent => agent.followers > 0).sort((a, b) => b.followers - a.followers).slice(0, 10);
     },
-    staleTime: 1000 * 60 * 60,
+    staleTime: 1000 * 60 * 60
   });
-
   const getAvatarSrc = (avatarUrl: string | null) => {
     if (avatarUrl) {
       let processedUrl = avatarUrl;
@@ -67,20 +62,17 @@ export const MatrixHeroSection = ({ onCreateXAgent, onSimClick, onViewAllAgents 
     }
     return avatarUrl;
   };
-
   const formatNumber = (num: number) => {
     if (num >= 1000000) return `${(num / 1000000).toFixed(1)}M`;
     if (num >= 1000) return `${(num / 1000).toFixed(1)}K`;
     return num.toLocaleString();
   };
-
   const handleStoreClick = (agent: any) => {
     const xUsername = (agent.social_links as any)?.x_username;
     if (xUsername) {
       navigate(`/${xUsername}`);
     }
   };
-
   const handleCopyAddress = async () => {
     try {
       await navigator.clipboard.writeText("FFqwoZ7phjoupWjLeE5yFeLqGi8jkGEFrTz6jnsUpump");
@@ -89,19 +81,19 @@ export const MatrixHeroSection = ({ onCreateXAgent, onSimClick, onViewAllAgents 
       toast.error("Failed to copy address");
     }
   };
-
   const handleXSignIn = async () => {
     try {
       const redirectUrl = `${window.location.origin}/auth/callback`;
-      
-      const { data, error } = await supabase.auth.signInWithOAuth({
+      const {
+        data,
+        error
+      } = await supabase.auth.signInWithOAuth({
         provider: 'twitter',
         options: {
           redirectTo: redirectUrl,
-          skipBrowserRedirect: false,
-        },
+          skipBrowserRedirect: false
+        }
       });
-
       if (error) {
         console.error('OAuth error:', error);
         throw error;
@@ -111,17 +103,9 @@ export const MatrixHeroSection = ({ onCreateXAgent, onSimClick, onViewAllAgents 
       toast.error(error?.message || 'Failed to sign in with X');
     }
   };
-
-  return (
-    <section className="relative min-h-[80vh] flex flex-col overflow-hidden bg-background pb-0">
+  return <section className="relative min-h-[80vh] flex flex-col overflow-hidden bg-background pb-0">
       {/* Video Background */}
-      <video
-        autoPlay
-        loop
-        muted
-        playsInline
-        className="absolute inset-0 w-full h-full object-cover"
-      >
+      <video autoPlay loop muted playsInline className="absolute inset-0 w-full h-full object-cover">
         <source src="https://uovhemqkztmkoozlmqxq.supabase.co/storage/v1/object/sign/trimtab/7585041-hd_1920_1080_25fps.mp4?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV82NDZlOGY2My1iYjgzLTQwOGQtYjc1Mi1mOWM0OTMxZjU3OGIiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJ0cmltdGFiLzc1ODUwNDEtaGRfMTkyMF8xMDgwXzI1ZnBzLm1wNCIsImlhdCI6MTc2MjMxNzcyNiwiZXhwIjoxNzkzODUzNzI2fQ.YazfV5ZLdQvHRutUaHvxn1i_Ok4gMX9AnCqw-TbuX_o" type="video/mp4" />
       </video>
 
@@ -130,19 +114,10 @@ export const MatrixHeroSection = ({ onCreateXAgent, onSimClick, onViewAllAgents 
 
       {/* Top Bar with Logo and Sign In Button */}
       <div className="absolute top-0 left-0 right-0 z-50 w-full px-4 py-6 flex items-center justify-between">
-        <img
-          src="/sim-logo-dark.png"
-          alt="Sim Logo"
-          className="h-10 w-10 object-contain"
-          onError={(e) => {
-            e.currentTarget.src = "/sim-logo.png";
-          }}
-        />
-        <Button
-          onClick={handleXSignIn}
-          size="sm"
-          className="bg-[#82f3aa] hover:bg-[#6dd991] text-black font-semibold px-6 py-2 transition-all duration-300 hover:scale-105"
-        >
+        <img src="/sim-logo-dark.png" alt="Sim Logo" className="h-10 w-10 object-contain" onError={e => {
+        e.currentTarget.src = "/sim-logo.png";
+      }} />
+        <Button onClick={handleXSignIn} size="sm" className="bg-[#82f3aa] hover:bg-[#6dd991] text-black font-semibold px-6 py-2 transition-all duration-300 hover:scale-105">
           Sign In
         </Button>
       </div>
@@ -150,19 +125,13 @@ export const MatrixHeroSection = ({ onCreateXAgent, onSimClick, onViewAllAgents 
       {/* Content */}
       <div className="relative z-10 flex-1 flex flex-col items-center justify-center px-4 pt-24 text-center max-w-5xl mx-auto w-full">
         {/* $SIMAI badge */}
-        <button
-          onClick={handleCopyAddress}
-          className="mb-6 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-card/50 backdrop-blur-sm border border-border/50 hover:bg-card/70 transition-all cursor-pointer"
-        >
-          <span className="text-xs sm:text-sm font-bold text-[#82f3aa]">The Everything Market</span>
+        <button onClick={handleCopyAddress} className="mb-6 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-card/50 backdrop-blur-sm border border-border/50 hover:bg-card/70 transition-all cursor-pointer">
+          <span className="text-xs sm:text-sm font-bold text-zinc-50">The Everything Market</span>
         </button>
 
         <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-sans font-bold mb-4 tracking-tight text-foreground text-center w-full">
           Sell your{" "}
-          <span 
-            key={currentWordIndex}
-            className="inline-block text-[#82f3aa] animate-fade-in"
-          >
+          <span key={currentWordIndex} className="inline-block text-[#82f3aa] animate-fade-in">
             {words[currentWordIndex]}
           </span>
         </h1>
@@ -176,21 +145,13 @@ export const MatrixHeroSection = ({ onCreateXAgent, onSimClick, onViewAllAgents 
           No middlemen. No transaction fees. Just pure profit.
         </p>
 
-        <Button
-          onClick={handleXSignIn}
-          size="lg"
-          className="gap-2 font-bold px-8 py-5 text-base transition-all duration-300 bg-[#82f3aa] hover:bg-[#6dd991] text-black border-0 shadow-xl shadow-[#82f3aa]/30 hover:shadow-2xl hover:shadow-[#82f3aa]/40 hover:scale-105 whitespace-nowrap mb-4"
-        >
+        <Button onClick={handleXSignIn} size="lg" className="gap-2 font-bold px-8 py-5 text-base transition-all duration-300 bg-[#82f3aa] hover:bg-[#6dd991] text-black border-0 shadow-xl shadow-[#82f3aa]/30 hover:shadow-2xl hover:shadow-[#82f3aa]/40 hover:scale-105 whitespace-nowrap mb-4">
           Get Started with <img src={xIcon} alt="X" className="h-5 w-5 inline-block" />
         </Button>
 
-        <button
-          onClick={onViewAllAgents}
-          className="text-sm text-muted-foreground hover:text-[#82f3aa] hover:underline transition-all duration-300 font-medium mb-16"
-        >
+        <button onClick={onViewAllAgents} className="text-sm text-muted-foreground hover:text-[#82f3aa] hover:underline transition-all duration-300 font-medium mb-16">
           Learn More
         </button>
       </div>
-    </section>
-  );
+    </section>;
 };
