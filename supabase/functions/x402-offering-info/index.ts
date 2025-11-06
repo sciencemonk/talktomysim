@@ -3,7 +3,8 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-402-payment',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-402-payment, accept',
+  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
 };
 
 serve(async (req) => {
@@ -19,6 +20,7 @@ serve(async (req) => {
       method: req.method,
       url: req.url,
       referer: req.headers.get('referer'),
+      userAgent: req.headers.get('user-agent'),
       offeringId
     });
 
@@ -39,8 +41,17 @@ serve(async (req) => {
     if (!offeringId) {
       console.log('[x402-offering-info] No offeringId found');
       return new Response(
-        JSON.stringify({ x402Version: 1, error: 'offeringId required' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        JSON.stringify({ 
+          x402Version: 1, 
+          error: 'offeringId parameter required' 
+        }),
+        { 
+          status: 400, 
+          headers: { 
+            ...corsHeaders, 
+            'Content-Type': 'application/json',
+          } 
+        }
       );
     }
 
@@ -53,7 +64,7 @@ serve(async (req) => {
       .from('x_agent_offerings')
       .select(`
         *,
-        agent:advisors(
+        agent:advisors!agent_id(
           id,
           name,
           avatar_url,
@@ -62,20 +73,38 @@ serve(async (req) => {
         )
       `)
       .eq('id', offeringId)
+      .eq('is_active', true)
       .single();
 
     if (error || !offering) {
+      console.log('[x402-offering-info] Offering not found:', error);
       return new Response(
-        JSON.stringify({ x402Version: 1, error: 'Offering not found' }),
-        { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        JSON.stringify({ 
+          x402Version: 1, 
+          error: 'Offering not found or inactive' 
+        }),
+        { 
+          status: 404, 
+          headers: { 
+            ...corsHeaders, 
+            'Content-Type': 'application/json',
+          } 
+        }
       );
     }
 
     const agent = offering.agent as any;
     const payTo = agent?.x402_wallet || Deno.env.get('DEFAULT_WALLET_ADDRESS') || '';
-    const price = offering.price || 0;
+    const price = Number(offering.price) || 0;
 
-    // Build required info fields
+    console.log('[x402-offering-info] Offering found:', {
+      id: offering.id,
+      title: offering.title,
+      price,
+      payTo
+    });
+
+    // Build required info fields for outputSchema
     const bodyFields: Record<string, any> = {};
     if (offering.required_info && Array.isArray(offering.required_info)) {
       offering.required_info.forEach((field: any) => {
@@ -91,23 +120,21 @@ serve(async (req) => {
       x402Version: 1,
       accepts: [
         {
-          scheme: "exact",
-          network: "base",
+          scheme: "exact" as const,
+          network: "base" as const,
           maxAmountRequired: price.toString(),
           resource: `/api/purchase/${offeringId}`,
-          description: `${offering.title}: ${offering.description}`,
+          description: `${offering.title}: ${offering.description || ''}`.trim(),
           mimeType: "application/json",
           payTo: payTo,
           maxTimeoutSeconds: 86400,
           asset: "USDC",
           outputSchema: {
             input: {
-              type: "http",
-              method: "POST",
-              bodyType: "json",
-              bodyFields: {
-                ...bodyFields,
-              },
+              type: "http" as const,
+              method: "POST" as const,
+              bodyType: "json" as const,
+              bodyFields: Object.keys(bodyFields).length > 0 ? bodyFields : undefined,
               headerFields: {
                 "x-402-payment": {
                   type: "string",
@@ -140,6 +167,7 @@ serve(async (req) => {
             offeringType: offering.offering_type,
             deliveryMethod: offering.delivery_method,
             agentName: agent?.name,
+            agentId: agent?.id,
             network: "base-mainnet",
             tokenAddress: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"
           }
@@ -147,8 +175,10 @@ serve(async (req) => {
       ]
     };
 
+    console.log('[x402-offering-info] Returning 402 response');
+
     return new Response(
-      JSON.stringify(x402Response),
+      JSON.stringify(x402Response, null, 2),
       {
         status: 402,
         headers: {
@@ -158,11 +188,11 @@ serve(async (req) => {
       },
     );
   } catch (error) {
-    console.error('Error in x402-offering-info:', error);
+    console.error('[x402-offering-info] Error:', error);
     return new Response(
       JSON.stringify({
         x402Version: 1,
-        error: error.message
+        error: error.message || 'Internal server error'
       }),
       {
         status: 500,
