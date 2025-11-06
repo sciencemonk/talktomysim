@@ -602,8 +602,6 @@ const NewLanding = () => {
     <div className="min-h-screen w-full flex flex-col bg-background">
       <HackathonAnnouncementModal />
       
-      <OfferingsTextScroll />
-      
       <div className="flex-1 overflow-hidden">
       <MatrixHeroSection 
         onCreateXAgent={handleXSignIn}
@@ -611,6 +609,8 @@ const NewLanding = () => {
         onViewAllAgents={scrollToLearnMore}
       />
       </div>
+      
+      <OfferingsTextScroll />
 
       <div id="learn-more-section" className="scroll-mt-4">
         <AgenticCommerceSection />

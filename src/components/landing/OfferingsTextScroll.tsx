@@ -34,7 +34,7 @@ export const OfferingsTextScroll = () => {
           )
         `)
         .eq('is_active', true)
-        .limit(50);
+        .limit(30);
 
       if (error) throw error;
       return data as unknown as Offering[];
@@ -55,7 +55,7 @@ export const OfferingsTextScroll = () => {
   return (
     <div className="w-full border-b border-border/40 bg-card/50 backdrop-blur-sm py-2 overflow-hidden">
       <div className="relative">
-        <div className="flex gap-3 animate-scroll-slow hover:pause-animation px-4">
+        <div className="flex gap-3 animate-scroll hover:pause-animation px-4">
           {/* First set */}
           {offerings.map((offering) => (
             <button
