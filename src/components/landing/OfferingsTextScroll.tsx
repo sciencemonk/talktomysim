@@ -61,10 +61,10 @@ export const OfferingsTextScroll = () => {
             <button
               key={`first-${offering.id}`}
               onClick={() => handleOfferingClick(offering)}
-              className="flex-shrink-0 px-3 py-1.5 rounded-full hover:bg-muted/30 border border-border/50 hover:border-[#83f1aa]/50 transition-all duration-200 flex items-center gap-2 group"
+              className="flex-shrink-0 px-3 py-1.5 rounded-full bg-transparent hover:bg-white/10 border border-white/20 hover:border-[#83f1aa]/50 transition-all duration-200 flex items-center gap-2 group"
             >
               <Sparkles className="h-3 w-3 text-[#83f1aa] flex-shrink-0" />
-              <span className="text-xs font-medium text-foreground whitespace-nowrap">
+              <span className="text-xs font-medium text-white whitespace-nowrap">
                 {offering.title}
               </span>
               <Badge 
@@ -81,10 +81,10 @@ export const OfferingsTextScroll = () => {
             <button
               key={`second-${offering.id}`}
               onClick={() => handleOfferingClick(offering)}
-              className="flex-shrink-0 px-3 py-1.5 rounded-full hover:bg-muted/30 border border-border/50 hover:border-[#83f1aa]/50 transition-all duration-200 flex items-center gap-2 group"
+              className="flex-shrink-0 px-3 py-1.5 rounded-full bg-transparent hover:bg-white/10 border border-white/20 hover:border-[#83f1aa]/50 transition-all duration-200 flex items-center gap-2 group"
             >
               <Sparkles className="h-3 w-3 text-[#83f1aa] flex-shrink-0" />
-              <span className="text-xs font-medium text-foreground whitespace-nowrap">
+              <span className="text-xs font-medium text-white whitespace-nowrap">
                 {offering.title}
               </span>
               <Badge 
