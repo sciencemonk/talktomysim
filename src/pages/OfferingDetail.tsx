@@ -62,12 +62,37 @@ export default function OfferingDetail() {
         image: offering.media_url,
         url: window.location.href,
       });
+
+      // Add x402 discovery meta tags
+      const supabaseUrl = 'https://uovhemqkztmkoozlmqxq.supabase.co';
+      const x402InfoUrl = `${supabaseUrl}/functions/v1/x402-offering-info?offeringId=${offeringId}`;
+      
+      // Add x402 link meta tag
+      let x402Link = document.querySelector('link[rel="payment"]');
+      if (!x402Link) {
+        x402Link = document.createElement('link');
+        x402Link.setAttribute('rel', 'payment');
+        document.head.appendChild(x402Link);
+      }
+      x402Link.setAttribute('href', x402InfoUrl);
+
+      // Add x402 meta tag
+      let x402Meta = document.querySelector('meta[name="x402"]');
+      if (!x402Meta) {
+        x402Meta = document.createElement('meta');
+        x402Meta.setAttribute('name', 'x402');
+        document.head.appendChild(x402Meta);
+      }
+      x402Meta.setAttribute('content', x402InfoUrl);
     }
 
     return () => {
       resetMetaTags();
+      // Clean up x402 tags
+      document.querySelector('link[rel="payment"]')?.remove();
+      document.querySelector('meta[name="x402"]')?.remove();
     };
-  }, [offering]);
+  }, [offering, offeringId]);
 
   const handleShare = () => {
     const url = window.location.href;

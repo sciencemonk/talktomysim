@@ -15,6 +15,8 @@ serve(async (req) => {
     const url = new URL(req.url);
     const offeringId = url.searchParams.get('offeringId');
 
+    console.log('[x402-offering-info] Request for offeringId:', offeringId);
+
     if (!offeringId) {
       return new Response(
         JSON.stringify({ x402Version: 1, error: 'offeringId required' }),
