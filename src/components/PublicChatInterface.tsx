@@ -192,8 +192,8 @@ const PublicChatInterface = ({ agent, avatarUrl, collectedInfo }: PublicChatInte
   return (
     <div className="flex flex-col h-full">
       {/* Messages Area */}
-      <div ref={messagesContainerRef} className="flex-1 overflow-y-auto px-3 sm:px-4 py-4 sm:py-8">
-        <div className="max-w-3xl mx-auto space-y-4 sm:space-y-6">
+      <div ref={messagesContainerRef} className="flex-1 overflow-y-auto overflow-x-hidden px-3 sm:px-4 py-4 sm:py-8">
+        <div className="max-w-3xl mx-auto space-y-4 sm:space-y-6 w-full">
           {chatHistory.messages.map((message, index) => {
             // Don't render AI messages that are incomplete and have no content
             if ((message.role === 'assistant' || message.role === 'system') && !message.isComplete && !message.content.trim()) {
@@ -227,7 +227,7 @@ const PublicChatInterface = ({ agent, avatarUrl, collectedInfo }: PublicChatInte
                   <div className={`
                     ${message.role === 'user' 
                       ? 'bg-[#83f1aa] text-black rounded-3xl px-4 py-3 inline-block max-w-[80%] break-words overflow-hidden' 
-                      : 'bg-card border border-border rounded-2xl px-4 py-3 w-full text-foreground overflow-hidden'
+                      : 'bg-card border border-border rounded-2xl px-4 py-3 max-w-full text-foreground overflow-hidden'
                     }
                   `}>
                     {message.role === 'user' ? (
@@ -235,18 +235,18 @@ const PublicChatInterface = ({ agent, avatarUrl, collectedInfo }: PublicChatInte
                         {message.content}
                       </p>
                     ) : (
-                      <div className="prose prose-sm max-w-none break-words overflow-wrap-anywhere
-                        prose-p:leading-7 prose-p:mb-5 prose-p:mt-0 prose-p:text-[15px] prose-p:break-words first:prose-p:mt-0 last:prose-p:mb-0
-                        prose-headings:font-semibold prose-headings:my-4 prose-headings:break-words
+                      <div className="prose prose-sm max-w-full break-words overflow-wrap-anywhere
+                        prose-p:leading-7 prose-p:mb-5 prose-p:mt-0 prose-p:text-[15px] prose-p:break-words prose-p:overflow-wrap-anywhere first:prose-p:mt-0 last:prose-p:mb-0
+                        prose-headings:font-semibold prose-headings:my-4 prose-headings:break-words prose-headings:overflow-wrap-anywhere
                         prose-h1:text-2xl prose-h2:text-xl prose-h3:text-lg
-                        prose-ul:my-4 prose-ul:list-disc prose-ul:pl-6
-                        prose-ol:my-4 prose-ol:list-decimal prose-ol:pl-6
-                        prose-li:my-1 prose-li:leading-7 prose-li:text-[15px] prose-li:break-words
-                        prose-strong:font-semibold prose-strong:break-words
+                        prose-ul:my-4 prose-ul:list-disc prose-ul:pl-6 prose-ul:break-words
+                        prose-ol:my-4 prose-ol:list-decimal prose-ol:pl-6 prose-ol:break-words
+                        prose-li:my-1 prose-li:leading-7 prose-li:text-[15px] prose-li:break-words prose-li:overflow-wrap-anywhere
+                        prose-strong:font-semibold prose-strong:break-words prose-strong:overflow-wrap-anywhere
                         prose-code:bg-muted prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:text-sm prose-code:break-all
-                        prose-pre:bg-muted prose-pre:p-4 prose-pre:rounded-lg prose-pre:overflow-x-auto
-                        prose-blockquote:border-l-4 prose-blockquote:border-border prose-blockquote:pl-4 prose-blockquote:italic prose-blockquote:break-words
-                        prose-a:text-primary prose-a:underline prose-a:break-words hover:prose-a:text-primary/80
+                        prose-pre:bg-muted prose-pre:p-4 prose-pre:rounded-lg prose-pre:overflow-x-auto prose-pre:max-w-full
+                        prose-blockquote:border-l-4 prose-blockquote:border-border prose-blockquote:pl-4 prose-blockquote:italic prose-blockquote:break-words prose-blockquote:overflow-wrap-anywhere
+                        prose-a:text-primary prose-a:underline prose-a:break-words prose-a:overflow-wrap-anywhere hover:prose-a:text-primary/80
                       ">
                         <ReactMarkdown 
                           remarkPlugins={[remarkGfm]}
