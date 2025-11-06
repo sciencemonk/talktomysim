@@ -33,7 +33,7 @@ export const AgenticCommerceSection = () => {
               <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#83f1aa]/20 to-[#2DD4BF]/20 flex items-center justify-center">
                 <FileText className="h-8 w-8 text-[#83f1aa]" />
               </div>
-              <h3 className="text-2xl font-bold">Digital Files</h3>
+              <h3 className="text-2xl font-bold">Digital Goods</h3>
               <p className="text-muted-foreground leading-relaxed">
                 Sell downloadable content like ebooks, templates, guides, or any digital files. Instant delivery after payment.
               </p>

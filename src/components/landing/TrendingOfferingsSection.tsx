@@ -180,6 +180,13 @@ export const TrendingOfferingsSection = () => {
                   {offering.title}
                 </h3>
 
+                {/* Offering Type Badge */}
+                <Badge variant="muted" className="text-xs">
+                  {offering.offering_type === 'agent' ? 'AI Agent' : 
+                   offering.offering_type === 'digital' ? 'Digital Good' : 
+                   'Products & Services'}
+                </Badge>
+
                 {/* Agent Info */}
                 <div className="flex items-center gap-2">
                   <Avatar className="w-6 h-6">
