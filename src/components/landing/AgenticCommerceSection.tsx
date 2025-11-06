@@ -6,10 +6,10 @@ export const AgenticCommerceSection = () => {
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-12">
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4">
-            What can you sell?
+            The Everything Market
           </h2>
           <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
-            Create and sell three types of offerings - each designed to help you monetize your expertise and content.
+            Connect your X account and start selling.
           </p>
         </div>
 
