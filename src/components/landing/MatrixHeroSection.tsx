@@ -154,7 +154,7 @@ export const MatrixHeroSection = ({ onCreateXAgent, onSimClick, onViewAllAgents 
           onClick={handleCopyAddress}
           className="mb-6 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-card/50 backdrop-blur-sm border border-border/50 hover:bg-card/70 transition-all cursor-pointer"
         >
-          <span className="text-xs sm:text-sm font-bold text-[#82f3aa]">$SIMAI</span>
+          <span className="text-xs sm:text-sm font-bold text-[#82f3aa]">The Everything Market</span>
         </button>
 
         <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-sans font-bold mb-4 tracking-tight text-foreground text-center w-full">
