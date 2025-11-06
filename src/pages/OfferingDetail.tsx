@@ -48,7 +48,8 @@ export default function OfferingDetail() {
   useEffect(() => {
     if (offering?.title && offeringId) {
       const supabaseUrl = 'https://uovhemqkztmkoozlmqxq.supabase.co';
-      const x402InfoUrl = `${supabaseUrl}/functions/v1/x402-offering-info?offeringId=${offeringId}`;
+      // Use the /x402 route as the payment endpoint
+      const x402Url = `${window.location.origin}/offering/${offeringId}/x402`;
       
       updateMetaTags({
         title: `SIM | ${offering.title}`,
@@ -64,7 +65,7 @@ export default function OfferingDetail() {
         linkTag.setAttribute('rel', 'payment');
         document.head.appendChild(linkTag);
       }
-      linkTag.setAttribute('href', x402InfoUrl);
+      linkTag.setAttribute('href', x402Url);
       linkTag.setAttribute('type', 'application/json');
 
       // Also add as meta tag for broader compatibility
@@ -74,9 +75,9 @@ export default function OfferingDetail() {
         metaTag.setAttribute('name', 'x402');
         document.head.appendChild(metaTag);
       }
-      metaTag.setAttribute('content', x402InfoUrl);
+      metaTag.setAttribute('content', x402Url);
 
-      console.log('[OfferingDetail] Added x402 discovery tags:', x402InfoUrl);
+      console.log('[OfferingDetail] Added x402 discovery tags:', x402Url);
     }
 
     return () => {

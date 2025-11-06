@@ -50,6 +50,7 @@ import TokenAgentPage from "./pages/TokenAgentPage";
 import XAgentPage from "./pages/XAgentPage";
 import XAgentCreatorView from "./pages/XAgentCreatorView";
 import OfferingDetail from "./pages/OfferingDetail";
+import OfferingX402 from "./pages/OfferingX402";
 
 const queryClient = new QueryClient();
 
@@ -95,11 +96,12 @@ const App = () => (
               {/* Token Agent Page */}
               <Route path="/token/:contractAddress" element={<TokenAgentPage />} />
               
+              {/* Offering routes */}
+              <Route path="/offering/:offeringId/x402" element={<OfferingX402 />} />
+              <Route path="/offering/:offeringId" element={<OfferingDetail />} />
+              
               {/* X Agent Creator - Must come before catch-all */}
               <Route path="/:username/creator" element={<XAgentCreatorView />} />
-              
-              {/* Offering Detail Page */}
-              <Route path="/offering/:offeringId" element={<OfferingDetail />} />
               
               {/* Root route - new landing page */}
               <Route path="/" element={<NewLanding />} />
