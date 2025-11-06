@@ -181,7 +181,7 @@ export const TrendingOfferingsSection = () => {
                 </h3>
 
                 {/* Offering Type Badge */}
-                <Badge variant="muted" className="text-xs">
+                <Badge variant="outline" className="text-xs border-border/60 hover:border-border">
                   {offering.offering_type === 'agent' ? 'AI Agent' : 
                    offering.offering_type === 'digital' ? 'Digital Good' : 
                    'Products & Services'}
