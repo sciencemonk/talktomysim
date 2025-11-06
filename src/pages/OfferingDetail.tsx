@@ -124,12 +124,6 @@ export default function OfferingDetail() {
     );
   }
 
-  const getOfferingTypeLabel = () => {
-    if (offering.offering_type === 'agent') return 'AI Agent';
-    if (offering.offering_type === 'digital_file') return 'Digital File';
-    return 'Service';
-  };
-
   const getPrice = () => {
     if (offering.offering_type === 'agent' && offering.price_per_conversation) {
       return `$${offering.price_per_conversation} per conversation`;
@@ -166,13 +160,7 @@ export default function OfferingDetail() {
                 </div>
               )}
               <div className="flex-1">
-                <div className="flex items-start justify-between gap-4 mb-2">
-                  <CardTitle className="text-2xl">{offering.title}</CardTitle>
-                  <Badge variant="secondary" className="flex items-center gap-1">
-                    {offering.offering_type === 'agent' && <Sparkles className="w-3 h-3" />}
-                    {getOfferingTypeLabel()}
-                  </Badge>
-                </div>
+                <CardTitle className="text-2xl mb-2">{offering.title}</CardTitle>
                 <CardDescription className="text-base">{offering.description}</CardDescription>
               </div>
             </div>
