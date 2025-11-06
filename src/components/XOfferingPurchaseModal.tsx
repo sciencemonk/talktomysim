@@ -30,7 +30,7 @@ interface XOfferingPurchaseModalProps {
   agentId: string;
   agentName: string;
   walletAddress: string;
-  onPurchaseSuccess?: (digitalFileUrl?: string) => void;
+  onPurchaseSuccess?: (digitalFileUrl?: string, signature?: string, buyerInfo?: Record<string, string>) => void;
 }
 
 const USDC_MINT = new PublicKey("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v");
@@ -145,12 +145,8 @@ export function XOfferingPurchaseModal({
 
       toast.success(`Purchase successful! Transaction: ${signature.slice(0, 8)}...`);
       
-      // Pass digital file URL to parent if it exists
-      if (offering.digital_file_url) {
-        onPurchaseSuccess?.(offering.digital_file_url);
-      } else {
-        onPurchaseSuccess?.();
-      }
+      // Pass purchase data to parent
+      onPurchaseSuccess?.(offering.digital_file_url, signature, buyerInfo);
       
       onClose();
     } catch (error: any) {

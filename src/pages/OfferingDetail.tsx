@@ -11,7 +11,18 @@ import { XOfferingPurchaseModal } from "@/components/XOfferingPurchaseModal";
 import { useState, useEffect } from "react";
 import { DigitalFileModal } from "@/components/DigitalFileModal";
 import { AgentOfferingModal } from "@/components/AgentOfferingModal";
+import { OfferingReceiptModal } from "@/components/OfferingReceiptModal";
 import { updateMetaTags, resetMetaTags } from "@/lib/metaTags";
+
+interface PurchaseData {
+  signature: string;
+  amount: number;
+  offeringTitle: string;
+  offeringDescription: string;
+  deliveryMethod: string;
+  buyerInfo: Record<string, string>;
+  timestamp: Date;
+}
 
 export default function OfferingDetail() {
   const { offeringId } = useParams();
@@ -19,6 +30,8 @@ export default function OfferingDetail() {
   const [showPurchaseModal, setShowPurchaseModal] = useState(false);
   const [showFileModal, setShowFileModal] = useState(false);
   const [showAgentModal, setShowAgentModal] = useState(false);
+  const [showReceiptModal, setShowReceiptModal] = useState(false);
+  const [purchaseData, setPurchaseData] = useState<PurchaseData | null>(null);
 
   const { data: offering, isLoading } = useQuery({
     queryKey: ['offering-detail', offeringId],
@@ -276,10 +289,27 @@ export default function OfferingDetail() {
           agentId={offering.agent?.id || ''}
           agentName={offering.agent?.name || ''}
           walletAddress={offering.agent?.x402_wallet || ''}
-          onPurchaseSuccess={() => {
+          onPurchaseSuccess={(digitalFileUrl, signature, buyerInfo) => {
             setShowPurchaseModal(false);
-            toast.success("Purchase successful!");
+            setPurchaseData({
+              signature: signature || '',
+              amount: offering.price,
+              offeringTitle: offering.title,
+              offeringDescription: offering.description,
+              deliveryMethod: offering.delivery_method,
+              buyerInfo: buyerInfo || {},
+              timestamp: new Date(),
+            });
+            setShowReceiptModal(true);
           }}
+        />
+      )}
+
+      {showReceiptModal && (
+        <OfferingReceiptModal
+          isOpen={showReceiptModal}
+          onClose={() => setShowReceiptModal(false)}
+          purchaseData={purchaseData}
         />
       )}
 
