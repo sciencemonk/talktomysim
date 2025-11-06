@@ -75,7 +75,7 @@ export const SimVsStripeSection = () => {
             Why SIM?
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Keep 100% of your revenue with crypto-native payments powered by x402
+            Keep 100% of your revenue with crypto-native payments
           </p>
         </div>
 
