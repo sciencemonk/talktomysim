@@ -9,7 +9,7 @@ export const AgenticCommerceSection = () => {
             The Everything Market
           </h2>
           <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
-            Connect your X account and start selling.
+            Connect your X account and start selling in seconds 💰 🚀
           </p>
         </div>
 
