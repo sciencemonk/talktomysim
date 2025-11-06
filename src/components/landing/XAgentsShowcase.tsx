@@ -114,7 +114,7 @@ export const XAgentsShowcase = ({ agents }: XAgentsShowcaseProps) => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState<'followers' | 'newest' | 'name'>('followers');
-  const [visibleCount, setVisibleCount] = useState(42);
+  const [visibleCount, setVisibleCount] = useState(9);
   const [pendingAgentModal, setPendingAgentModal] = useState<{
     open: boolean;
     agentName: string;
@@ -262,14 +262,12 @@ export const XAgentsShowcase = ({ agents }: XAgentsShowcaseProps) => {
         {/* Show more button */}
         {hasMore && (
           <div className="flex justify-center pt-4">
-            <Button
-              onClick={() => setVisibleCount(prev => prev + 42)}
-              variant="outline"
-              size="lg"
-              className="gap-2"
+            <button
+              onClick={() => setVisibleCount(prev => prev + 9)}
+              className="text-sm font-medium text-primary hover:text-primary/80 transition-colors underline underline-offset-4"
             >
-              Show More Agents
-            </Button>
+              Show More
+            </button>
           </div>
         )}
       </div>
