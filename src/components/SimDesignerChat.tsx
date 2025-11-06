@@ -48,7 +48,7 @@ export const SimDesignerChat = ({
             </div>
             <DialogTitle className="text-center text-2xl">SIM Designer</DialogTitle>
             <DialogDescription className="text-center space-y-4 pt-4">
-              <div className="flex items-center justify-center gap-2 text-primary font-semibold text-lg">
+              <div className="flex items-center justify-center gap-2 font-semibold text-lg" style={{ color: '#81f4aa' }}>
                 <Sparkles className="w-5 h-5" />
                 <span>Coming Soon</span>
                 <Sparkles className="w-5 h-5" />
@@ -72,7 +72,7 @@ export const SimDesignerChat = ({
             </DialogDescription>
           </DialogHeader>
           <div className="flex justify-center pt-4">
-            <Button onClick={() => setIsOpen(false)} className="w-full">
+            <Button onClick={() => setIsOpen(false)} className="w-full" style={{ backgroundColor: '#81f4aa', color: '#000' }}>
               Got it
             </Button>
           </div>
