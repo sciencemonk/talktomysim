@@ -9,6 +9,7 @@ import { HackathonAnnouncementModal } from "@/components/HackathonAnnouncementMo
 import { OfferingsMosaic } from "@/components/landing/OfferingsMosaic";
 import { OfferingsTextScroll } from "@/components/landing/OfferingsTextScroll";
 import { AgenticCommerceSection } from "@/components/landing/AgenticCommerceSection";
+import { TrendingOfferingsSection } from "@/components/landing/TrendingOfferingsSection";
 import { Whyx402Section } from "@/components/landing/Whyx402Section";
 import { SignUpCTASection } from "@/components/landing/SignUpCTASection";
 import { LandingFooter } from "@/components/landing/LandingFooter";
@@ -615,6 +616,8 @@ const NewLanding = () => {
       <div id="learn-more-section" className="scroll-mt-4">
         <AgenticCommerceSection />
       </div>
+
+      <TrendingOfferingsSection />
 
       <div id="agents-showcase-section" className="scroll-mt-4">
         <XAgentsShowcase agents={allSims || []} />
