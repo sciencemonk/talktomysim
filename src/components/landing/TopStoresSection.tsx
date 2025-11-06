@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
@@ -97,6 +98,7 @@ const StoreCard = ({ agent, rank, onClick }: StoreCardProps) => {
 
 export const TopStoresSection = () => {
   const navigate = useNavigate();
+  const [visibleCount, setVisibleCount] = useState(9);
 
   const { data: topStores, isLoading } = useQuery({
     queryKey: ['top-stores'],
@@ -226,7 +228,7 @@ export const TopStoresSection = () => {
 
         {/* Stores grid */}
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-          {topStores.map((store, index) => (
+          {topStores.slice(0, visibleCount).map((store, index) => (
             <StoreCard
               key={store.id}
               agent={store}
@@ -235,6 +237,18 @@ export const TopStoresSection = () => {
             />
           ))}
         </div>
+
+        {/* Show More link */}
+        {visibleCount < topStores.length && (
+          <div className="flex justify-center mt-8">
+            <button
+              onClick={() => setVisibleCount(prev => prev + 9)}
+              className="text-sm font-medium text-primary hover:text-primary/80 transition-colors underline underline-offset-4"
+            >
+              Show More
+            </button>
+          </div>
+        )}
       </div>
     </section>
   );
