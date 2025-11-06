@@ -20,6 +20,15 @@ export default function OfferingDetail() {
   const [showFileModal, setShowFileModal] = useState(false);
   const [showAgentModal, setShowAgentModal] = useState(false);
 
+  // Fetch x402 info on mount to make offering 402-compatible
+  useEffect(() => {
+    if (offeringId) {
+      supabase.functions.invoke('x402-offering-info', {
+        body: { offeringId }
+      }).catch(err => console.log('x402 info fetch:', err));
+    }
+  }, [offeringId]);
+
   const { data: offering, isLoading } = useQuery({
     queryKey: ['offering-detail', offeringId],
     queryFn: async () => {
