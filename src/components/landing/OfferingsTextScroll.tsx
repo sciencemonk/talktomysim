@@ -66,13 +66,37 @@ export const OfferingsTextScroll = () => {
 
   return (
     <div className="w-full py-8 overflow-hidden bg-transparent">
-      <div className="max-w-7xl mx-auto px-4">
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-8 gap-3">
+      <div className="relative">
+        <div className="flex gap-4 animate-scroll hover:pause-animation px-4">
+          {/* First set */}
           {xAgents.map((agent) => (
             <button
-              key={agent.id}
+              key={`first-${agent.id}`}
               onClick={() => handleAgentClick(agent)}
-              className="flex flex-col items-center gap-2 p-3 rounded-xl bg-card/30 backdrop-blur-sm border border-border/30 hover:border-[#83f1aa]/50 hover:bg-card/50 transition-all duration-300 hover:scale-105"
+              className="flex-shrink-0 flex flex-col items-center gap-2 p-3 rounded-xl bg-card/30 backdrop-blur-sm border border-border/30 hover:border-[#83f1aa]/50 hover:bg-card/50 transition-all duration-300 hover:scale-105 w-24"
+            >
+              <Avatar className="w-16 h-16 border-2 border-[#83f1aa]/30">
+                <AvatarImage 
+                  src={getAvatarSrc(agent.avatar_url)}
+                  alt={agent.name}
+                  referrerPolicy="no-referrer"
+                  crossOrigin="anonymous"
+                />
+                <AvatarFallback className="bg-primary/10 text-primary font-semibold">
+                  {agent.name.charAt(0).toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+              <span className="text-xs font-medium text-foreground truncate w-full text-center">
+                {agent.name.replace(/^@/, '')}
+              </span>
+            </button>
+          ))}
+          {/* Duplicate set for seamless loop */}
+          {xAgents.map((agent) => (
+            <button
+              key={`second-${agent.id}`}
+              onClick={() => handleAgentClick(agent)}
+              className="flex-shrink-0 flex flex-col items-center gap-2 p-3 rounded-xl bg-card/30 backdrop-blur-sm border border-border/30 hover:border-[#83f1aa]/50 hover:bg-card/50 transition-all duration-300 hover:scale-105 w-24"
             >
               <Avatar className="w-16 h-16 border-2 border-[#83f1aa]/30">
                 <AvatarImage 
