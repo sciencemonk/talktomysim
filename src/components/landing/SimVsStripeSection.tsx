@@ -46,12 +46,12 @@ export const SimVsStripeSection = () => {
       stripeIcon: <Check className="h-5 w-5 text-muted-foreground" />
     }
   ];
-  return <section className="relative container mx-auto px-3 sm:px-4 py-16 border-b border-gray-200 overflow-hidden bg-white">
+  return <section className="relative w-full py-16 border-b border-gray-200 overflow-hidden bg-white">
       {/* Background effects */}
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#635BFF]/5 to-transparent" />
       <div className="absolute top-1/2 left-1/4 w-96 h-96 bg-[#635BFF]/10 rounded-full blur-3xl" />
       
-      <div className="relative max-w-5xl mx-auto">
+      <div className="relative container mx-auto px-3 sm:px-4 max-w-5xl">
         {/* Header */}
         <div className="text-center mb-12">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#635BFF]/10 border border-[#635BFF]/30 mb-4">
