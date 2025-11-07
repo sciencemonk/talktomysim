@@ -139,9 +139,9 @@ export const HowItWorksSection = () => {
           
           {/* X Agents Scroller */}
           {xAgents && xAgents.length > 0 && (
-            <div className="w-full py-8 overflow-hidden">
+            <div className="w-full overflow-hidden -mx-4 sm:-mx-0">
               <div className="relative">
-                <div className="flex gap-3 animate-scroll-mobile md:animate-scroll hover:pause-animation px-4">
+                <div className="flex gap-3 animate-scroll-mobile md:animate-scroll hover:pause-animation">
                   {/* First set */}
                   {xAgents.map(agent => (
                     <button 
