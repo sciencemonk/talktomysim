@@ -13,6 +13,7 @@ import { toast } from "sonner";
 import xIcon from "@/assets/x-icon.png";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/hooks/useAuth";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 export default function XAgentCreatorView() {
   const { username } = useParams<{ username: string }>();
@@ -334,11 +335,12 @@ export default function XAgentCreatorView() {
               <ArrowLeft className="h-4 w-4" />
               <span className="hidden sm:inline">Public View</span>
             </Button>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 md:gap-3">
               <div className="flex items-center gap-2">
                 <img src={xIcon} alt="X" className="h-4 w-4 md:h-5 md:w-5" />
                 <span className="text-xs md:text-sm font-medium text-muted-foreground">Creator Dashboard</span>
               </div>
+              <ThemeToggle />
               <Button
                 variant="ghost"
                 size="sm"
