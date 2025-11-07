@@ -121,11 +121,28 @@ export const MatrixHeroSection = ({
         </button>
 
         <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-sans font-bold mb-4 tracking-tight text-foreground text-center w-full">
-          Top Stores on Sim
+          Sell your Products & Services
         </h1>
         
+        {/* Zero fees text */}
+        <p className="text-sm sm:text-base text-[#82f3aa] font-semibold mb-3">
+          Accept crypto payments instantly with zero fees
+        </p>
+        
+        <p className="text-base sm:text-lg md:text-xl text-muted-foreground mb-10 max-w-3xl leading-relaxed">
+          No middlemen. No transaction fees. Just pure profit.
+        </p>
+
+        <Button onClick={handleXSignIn} size="lg" className="gap-2 font-bold px-8 py-5 text-base transition-all duration-300 bg-[#82f3aa] hover:bg-[#6dd991] text-black border-0 shadow-xl shadow-[#82f3aa]/30 hover:shadow-2xl hover:shadow-[#82f3aa]/40 hover:scale-105 whitespace-nowrap mb-4">
+          Create Your Store with <img src={xIcon} alt="X" className="h-5 w-5 inline-block" />
+        </Button>
+
+        <button onClick={onViewAllAgents} className="text-sm text-muted-foreground hover:text-[#82f3aa] hover:underline transition-all duration-300 font-medium mb-12">
+          Explore the Marketplace
+        </button>
+
         {/* X Agent Store Tiles */}
-        <div className="w-full max-w-4xl mb-8 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+        <div className="w-full max-w-5xl grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
           {topStores?.slice(0, 10).map((store) => (
             <button
               key={store.id}
@@ -146,23 +163,6 @@ export const MatrixHeroSection = ({
             </button>
           ))}
         </div>
-        
-        {/* Zero fees text */}
-        <p className="text-sm sm:text-base text-[#82f3aa] font-semibold mb-3">
-          Accept crypto payments instantly with zero fees
-        </p>
-        
-        <p className="text-base sm:text-lg md:text-xl text-muted-foreground mb-10 max-w-3xl leading-relaxed">
-          No middlemen. No transaction fees. Just pure profit.
-        </p>
-
-        <Button onClick={handleXSignIn} size="lg" className="gap-2 font-bold px-8 py-5 text-base transition-all duration-300 bg-[#82f3aa] hover:bg-[#6dd991] text-black border-0 shadow-xl shadow-[#82f3aa]/30 hover:shadow-2xl hover:shadow-[#82f3aa]/40 hover:scale-105 whitespace-nowrap mb-4">
-          Create Your Store with <img src={xIcon} alt="X" className="h-5 w-5 inline-block" />
-        </Button>
-
-        <button onClick={onViewAllAgents} className="text-sm text-muted-foreground hover:text-[#82f3aa] hover:underline transition-all duration-300 font-medium mb-16">
-          Explore the Marketplace
-        </button>
       </div>
     </section>;
 };
