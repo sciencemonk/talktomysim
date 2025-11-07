@@ -174,10 +174,10 @@ export const MatrixHeroSection = ({
           </span>
         </h1>
         
-        {/* Zero fees text */}
-        <p className="text-sm sm:text-base text-[#635cff] font-semibold mb-3">
+        {/* Zero fees badge */}
+        <Badge className="mb-3 bg-[#635cff] text-white hover:bg-[#635cff] text-sm sm:text-base font-semibold px-4 py-2">
           Accept crypto payments instantly with zero fees
-        </p>
+        </Badge>
         
         <p className="text-base sm:text-lg md:text-xl text-white/90 mb-10 max-w-3xl leading-relaxed">
           No middlemen. No transaction fees. Just pure profit.
