@@ -149,7 +149,7 @@ export const HowItWorksSection = () => {
                       onClick={() => handleAgentClick(agent)} 
                       className="flex-shrink-0 transition-all duration-300 hover:scale-110 hover:opacity-80 cursor-pointer"
                     >
-                      <Avatar className="w-[4.78rem] h-[4.78rem] md:w-[5.31rem] md:h-[5.31rem] rounded-xl shadow-md">
+                      <Avatar className="w-[6.21rem] h-[6.21rem] md:w-[6.9rem] md:h-[6.9rem] rounded-xl shadow-md">
                         <AvatarImage 
                           src={getAvatarSrc(agent.avatar_url)} 
                           alt={agent.name} 
@@ -170,7 +170,7 @@ export const HowItWorksSection = () => {
                       onClick={() => handleAgentClick(agent)} 
                       className="flex-shrink-0 transition-all duration-300 hover:scale-110 hover:opacity-80 cursor-pointer"
                     >
-                      <Avatar className="w-[4.78rem] h-[4.78rem] md:w-[5.31rem] md:h-[5.31rem] rounded-xl shadow-md">
+                      <Avatar className="w-[6.21rem] h-[6.21rem] md:w-[6.9rem] md:h-[6.9rem] rounded-xl shadow-md">
                         <AvatarImage 
                           src={getAvatarSrc(agent.avatar_url)} 
                           alt={agent.name} 
