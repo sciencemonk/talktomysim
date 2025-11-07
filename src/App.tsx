@@ -46,6 +46,7 @@ import AdminWelcomeMessages from "./pages/AdminWelcomeMessages";
 import BatchUpdateDescriptions from "./pages/BatchUpdateDescriptions";
 import Test from "./pages/Test";
 import Demo from "./pages/Demo";
+import DemoTest from "./pages/DemoTest";
 import TokenAgentPage from "./pages/TokenAgentPage";
 import XAgentPage from "./pages/XAgentPage";
 import XAgentCreatorView from "./pages/XAgentCreatorView";
@@ -81,6 +82,7 @@ const App = () => (
               <Route path="/terms" element={<Terms />} />
               <Route path="/test" element={<Test />} />
               <Route path="/demo" element={<Demo />} />
+              <Route path="/demotest" element={<DemoTest />} />
               <Route path="/app" element={<Home />} />
               <Route path="/tutors/:agentId" element={<PublicTutorDetail />} />
               <Route path="/tutors/:agentId/chat" element={<StudentChat />} />
