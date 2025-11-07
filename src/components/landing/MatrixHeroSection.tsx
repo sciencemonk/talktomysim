@@ -127,7 +127,7 @@ export const MatrixHeroSection = ({
       return agentsWithFollowers
         .filter(agent => agent.followers > 0)
         .sort((a, b) => b.followers - a.followers)
-        .slice(0, 8);
+        .slice(0, 25);
     },
     staleTime: 1000 * 60 * 60
   });
@@ -194,28 +194,26 @@ export const MatrixHeroSection = ({
       {xAgents && xAgents.length > 0 && (
         <div className="absolute bottom-0 left-0 right-0 z-10 w-full py-4 overflow-hidden">
           <div className="relative">
-            <div className="flex gap-3 animate-scroll hover:pause-animation px-4">
+            <div className="flex gap-3 animate-scroll-mobile md:animate-scroll hover:pause-animation px-4">
               {/* First set */}
               {xAgents.map((agent) => (
                 <button
                   key={`first-${agent.id}`}
                   onClick={() => handleAgentClick(agent)}
-                  className="flex-shrink-0 h-16 px-6 rounded-lg bg-card/40 backdrop-blur-md border border-border/40 hover:border-[#83f1aa]/50 hover:bg-card/60 transition-all duration-300 hover:scale-105 flex items-center gap-3"
+                  className="flex-shrink-0 p-2 rounded-lg bg-card/40 backdrop-blur-md border border-border/40 hover:border-[#83f1aa]/50 hover:bg-card/60 transition-all duration-300 hover:scale-105"
                 >
-                  <Avatar className="w-10 h-10 border-2 border-[#83f1aa]/30">
+                  <Avatar className="w-12 h-12 md:w-14 md:h-14 border-2 border-[#83f1aa]/30 rounded-lg">
                     <AvatarImage 
                       src={getAvatarSrc(agent.avatar_url)}
                       alt={agent.name}
                       referrerPolicy="no-referrer"
                       crossOrigin="anonymous"
+                      className="rounded-lg"
                     />
-                    <AvatarFallback className="bg-primary/10 text-primary font-semibold text-sm">
+                    <AvatarFallback className="bg-primary/10 text-primary font-semibold text-sm rounded-lg">
                       {agent.name.charAt(0).toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
-                  <span className="text-sm font-medium text-foreground whitespace-nowrap">
-                    {agent.name.replace(/^@/, '')}
-                  </span>
                 </button>
               ))}
               {/* Duplicate set for seamless loop */}
@@ -223,22 +221,20 @@ export const MatrixHeroSection = ({
                 <button
                   key={`second-${agent.id}`}
                   onClick={() => handleAgentClick(agent)}
-                  className="flex-shrink-0 h-16 px-6 rounded-lg bg-card/40 backdrop-blur-md border border-border/40 hover:border-[#83f1aa]/50 hover:bg-card/60 transition-all duration-300 hover:scale-105 flex items-center gap-3"
+                  className="flex-shrink-0 p-2 rounded-lg bg-card/40 backdrop-blur-md border border-border/40 hover:border-[#83f1aa]/50 hover:bg-card/60 transition-all duration-300 hover:scale-105"
                 >
-                  <Avatar className="w-10 h-10 border-2 border-[#83f1aa]/30">
+                  <Avatar className="w-12 h-12 md:w-14 md:h-14 border-2 border-[#83f1aa]/30 rounded-lg">
                     <AvatarImage 
                       src={getAvatarSrc(agent.avatar_url)}
                       alt={agent.name}
                       referrerPolicy="no-referrer"
                       crossOrigin="anonymous"
+                      className="rounded-lg"
                     />
-                    <AvatarFallback className="bg-primary/10 text-primary font-semibold text-sm">
+                    <AvatarFallback className="bg-primary/10 text-primary font-semibold text-sm rounded-lg">
                       {agent.name.charAt(0).toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
-                  <span className="text-sm font-medium text-foreground whitespace-nowrap">
-                    {agent.name.replace(/^@/, '')}
-                  </span>
                 </button>
               ))}
             </div>

@@ -163,6 +163,10 @@
     animation: scroll 10s linear infinite;
   }
 
+  .animate-scroll-mobile {
+    animation: scroll 5s linear infinite;
+  }
+
   .animate-scroll-slow {
     animation: scroll 60s linear infinite;
   }
