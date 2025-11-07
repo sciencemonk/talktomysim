@@ -9,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { useState, useEffect } from "react";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 interface MatrixHeroSectionProps {
   onCreateXAgent: () => void;
   onSimClick: (sim: AgentType) => void;
@@ -104,6 +105,39 @@ export const MatrixHeroSection = ({
       toast.error(error?.message || 'Failed to sign in with X');
     }
   };
+
+  // Fetch X agents for the scroller
+  const { data: xAgents } = useQuery({
+    queryKey: ['x-agents-tiles'],
+    queryFn: async () => {
+      const { data: agents, error } = await supabase
+        .from('advisors')
+        .select('id, name, avatar_url, social_links')
+        .eq('is_active', true)
+        .eq('sim_category', 'Crypto Mail')
+        .limit(100);
+
+      if (error) throw error;
+
+      const agentsWithFollowers = (agents || []).map(agent => ({
+        ...agent,
+        followers: (agent.social_links as any)?.followers || 0
+      }));
+
+      return agentsWithFollowers
+        .filter(agent => agent.followers > 0)
+        .sort((a, b) => b.followers - a.followers)
+        .slice(0, 8);
+    },
+    staleTime: 1000 * 60 * 60
+  });
+
+  const handleAgentClick = (agent: any) => {
+    const xUsername = (agent.social_links as any)?.x_username;
+    if (xUsername) {
+      navigate(`/${xUsername}`);
+    }
+  };
   return <section className="relative min-h-[80vh] flex flex-col overflow-hidden bg-background pb-0">
       {/* Video Background */}
       <video autoPlay loop muted playsInline className="absolute inset-0 w-full h-full object-cover">
@@ -151,9 +185,65 @@ export const MatrixHeroSection = ({
           Create Your Store with <img src={xIcon} alt="X" className="h-5 w-5 inline-block" />
         </Button>
 
-        <button onClick={onViewAllAgents} className="text-sm text-muted-foreground hover:text-[#82f3aa] hover:underline transition-all duration-300 font-medium mb-16">
+        <button onClick={onViewAllAgents} className="text-sm text-muted-foreground hover:text-[#82f3aa] hover:underline transition-all duration-300 font-medium mb-8">
           Explore the Marketplace
         </button>
       </div>
+
+      {/* X Agents Scroller - positioned at bottom */}
+      {xAgents && xAgents.length > 0 && (
+        <div className="absolute bottom-0 left-0 right-0 z-10 w-full py-4 overflow-hidden">
+          <div className="relative">
+            <div className="flex gap-3 animate-scroll hover:pause-animation px-4">
+              {/* First set */}
+              {xAgents.map((agent) => (
+                <button
+                  key={`first-${agent.id}`}
+                  onClick={() => handleAgentClick(agent)}
+                  className="flex-shrink-0 h-16 px-6 rounded-lg bg-card/40 backdrop-blur-md border border-border/40 hover:border-[#83f1aa]/50 hover:bg-card/60 transition-all duration-300 hover:scale-105 flex items-center gap-3"
+                >
+                  <Avatar className="w-10 h-10 border-2 border-[#83f1aa]/30">
+                    <AvatarImage 
+                      src={getAvatarSrc(agent.avatar_url)}
+                      alt={agent.name}
+                      referrerPolicy="no-referrer"
+                      crossOrigin="anonymous"
+                    />
+                    <AvatarFallback className="bg-primary/10 text-primary font-semibold text-sm">
+                      {agent.name.charAt(0).toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                  <span className="text-sm font-medium text-foreground whitespace-nowrap">
+                    {agent.name.replace(/^@/, '')}
+                  </span>
+                </button>
+              ))}
+              {/* Duplicate set for seamless loop */}
+              {xAgents.map((agent) => (
+                <button
+                  key={`second-${agent.id}`}
+                  onClick={() => handleAgentClick(agent)}
+                  className="flex-shrink-0 h-16 px-6 rounded-lg bg-card/40 backdrop-blur-md border border-border/40 hover:border-[#83f1aa]/50 hover:bg-card/60 transition-all duration-300 hover:scale-105 flex items-center gap-3"
+                >
+                  <Avatar className="w-10 h-10 border-2 border-[#83f1aa]/30">
+                    <AvatarImage 
+                      src={getAvatarSrc(agent.avatar_url)}
+                      alt={agent.name}
+                      referrerPolicy="no-referrer"
+                      crossOrigin="anonymous"
+                    />
+                    <AvatarFallback className="bg-primary/10 text-primary font-semibold text-sm">
+                      {agent.name.charAt(0).toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                  <span className="text-sm font-medium text-foreground whitespace-nowrap">
+                    {agent.name.replace(/^@/, '')}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
     </section>;
 };
