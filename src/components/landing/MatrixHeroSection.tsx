@@ -112,7 +112,7 @@ export const MatrixHeroSection = ({
     queryFn: async () => {
       const { data: agents, error } = await supabase
         .from('advisors')
-        .select('id, name, avatar_url, social_links')
+        .select('id, name, avatar_url, social_links, created_at')
         .eq('is_active', true)
         .eq('sim_category', 'Crypto Mail')
         .limit(100);
@@ -124,9 +124,16 @@ export const MatrixHeroSection = ({
         followers: (agent.social_links as any)?.followers || 0
       }));
 
+      // Sort by followers (if available), then by creation date
       return agentsWithFollowers
-        .filter(agent => agent.followers > 0)
-        .sort((a, b) => b.followers - a.followers)
+        .sort((a, b) => {
+          // First sort by follower count (descending)
+          if (b.followers !== a.followers) {
+            return b.followers - a.followers;
+          }
+          // If followers are equal (or both 0), sort by creation date (newest first)
+          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+        })
         .slice(0, 25);
     },
     staleTime: 1000 * 60 * 60
