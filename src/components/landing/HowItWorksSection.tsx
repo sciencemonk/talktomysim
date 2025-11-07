@@ -56,7 +56,9 @@ export const HowItWorksSection = () => {
 
   const handleAgentClick = (agent: any) => {
     const xUsername = (agent.social_links as any)?.x_username;
+    console.log('[HowItWorksSection] Clicking agent:', agent.name, 'username:', xUsername);
     if (xUsername) {
+      window.scrollTo(0, 0);
       navigate(`/${xUsername}`);
     }
   };
