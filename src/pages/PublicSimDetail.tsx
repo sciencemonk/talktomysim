@@ -23,6 +23,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { updateMetaTags, resetMetaTags } from "@/lib/metaTags";
+import { useTheme } from "@/hooks/useTheme";
 
 
 // Lazy load X402PaymentModal to avoid blocking app initialization with ethers.js
@@ -37,6 +38,12 @@ const PublicSimDetail = () => {
   const { toast } = useToast();
   const [sim, setSim] = useState<AgentType | null>(null);
   const [isXAgent, setIsXAgent] = useState<boolean | null>(null);
+  const { setTheme } = useTheme();
+  
+  // Force light mode for public store pages
+  useEffect(() => {
+    setTheme('light');
+  }, [setTheme]);
   
   // Check if this is an embedded view or chat mode and show chat immediately
   const searchParams = new URLSearchParams(window.location.search);

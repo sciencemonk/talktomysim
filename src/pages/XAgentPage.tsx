@@ -17,6 +17,7 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { AgentType } from "@/types/agent";
 import { toast } from "sonner";
 import xIcon from "@/assets/x-icon.png";
+import { useTheme } from "@/hooks/useTheme";
 
 export default function XAgentPage() {
   const params = useParams<{ identifier?: string }>();
@@ -41,6 +42,12 @@ export default function XAgentPage() {
   const [socialLinks, setSocialLinks] = useState<any>(null);
   const [isCreator, setIsCreator] = useState(false);
   const [editCode, setEditCode] = useState(codeFromUrl || "");
+  const { setTheme } = useTheme();
+
+  // Force light mode for public store pages
+  useEffect(() => {
+    setTheme('light');
+  }, [setTheme]);
 
   useEffect(() => {
     if (username) {
