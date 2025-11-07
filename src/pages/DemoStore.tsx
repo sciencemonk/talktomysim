@@ -7,7 +7,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { ThemeToggle } from "@/components/ThemeToggle";
-import { ShareButton } from "@/components/ShareButton";
 import xIcon from "@/assets/x-icon.png";
 
 // Mock offerings data
@@ -226,11 +225,17 @@ export default function DemoStore() {
                             }} className="hover:opacity-90">
                               Purchase
                             </Button>
-                            <ShareButton
-                              url={`https://solanainternetmarket.com/offering/${offering.id}`}
-                              title={offering.title}
-                              description={offering.description}
-                            />
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                navigator.clipboard.writeText(`https://solanainternetmarket.com/offering/${offering.id}`);
+                                toast.success("Offering link copied!");
+                              }}
+                            >
+                              <Share2 className="h-4 w-4" />
+                            </Button>
                           </div>
                         </div>
                       </div>

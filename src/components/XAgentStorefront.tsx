@@ -3,11 +3,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { DollarSign, Package, Check } from "lucide-react";
+import { DollarSign, Package, Check, Share2 } from "lucide-react";
 import { XOfferingPurchaseModal } from "./XOfferingPurchaseModal";
 import { DigitalFileModal } from "./DigitalFileModal";
 import { AgentOfferingModal } from "./AgentOfferingModal";
-import { ShareButton } from "./ShareButton";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 
@@ -224,11 +223,17 @@ export function XAgentStorefront({ agentId, agentName, walletAddress }: XAgentSt
                         >
                           Purchase
                         </Button>
-                        <ShareButton
-                          url={`https://solanainternetmarket.com/offering/${offering.id}`}
-                          title={offering.title}
-                          description={offering.description}
-                        />
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            navigator.clipboard.writeText(`https://solanainternetmarket.com/offering/${offering.id}`);
+                            toast.success("Offering link copied!");
+                          }}
+                        >
+                          <Share2 className="h-4 w-4" />
+                        </Button>
                       </div>
                     </div>
                   </div>
