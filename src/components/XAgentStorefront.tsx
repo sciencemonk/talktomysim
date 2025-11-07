@@ -137,15 +137,19 @@ export function XAgentStorefront({ agentId, agentName, walletAddress }: XAgentSt
 
         {/* Offerings Grid */}
         {offerings.map((offering) => {
-          // Generate gradient based on offering ID
+          // Generate gradient based on offering ID with better distribution
           const gradients = [
-            'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-            'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
-            'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
-            'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
-            'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
+            'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', // Purple
+            'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)', // Blue
+            'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)', // Green/Teal
+            'linear-gradient(135deg, #fa709a 0%, #fee140 100%)', // Pink/Yellow
+            'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)', // Mint/Pink
+            'linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)', // Coral/Pink
+            'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)', // Peach
           ];
-          const gradientIndex = offering.id.charCodeAt(0) % gradients.length;
+          // Use a hash of the entire ID for better distribution
+          const hash = offering.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+          const gradientIndex = hash % gradients.length;
           const gradient = gradients[gradientIndex];
 
           return (
@@ -157,7 +161,7 @@ export function XAgentStorefront({ agentId, agentName, walletAddress }: XAgentSt
               <div className="flex flex-col md:flex-row">
                 {/* Image or Gradient */}
                 <div 
-                  className="md:w-64 h-48 md:h-auto bg-muted relative overflow-hidden shrink-0"
+                  className="md:w-80 h-48 md:h-auto bg-muted relative overflow-hidden shrink-0"
                   style={offering.media_url ? {} : { background: gradient }}
                 >
                   {offering.media_url ? (
