@@ -47,17 +47,17 @@ export const SignUpCTASection = ({ onSignUp }: SignUpCTASectionProps) => {
         />
       </video>
 
-      {/* Light overlay for better text readability */}
-      <div className="absolute inset-0 bg-white/70"></div>
+      {/* Dark overlay for text readability */}
+      <div className="absolute inset-0 bg-black/40"></div>
 
       {/* Content */}
       <div className="relative z-10 flex-1 flex flex-col items-center justify-center px-4 text-center max-w-4xl mx-auto w-full">
-        <h2 className="text-3xl sm:text-4xl md:text-5xl font-sans font-semibold mb-6 tracking-tight text-gray-900">
+        <h2 className="text-3xl sm:text-4xl md:text-5xl font-sans font-semibold mb-6 tracking-tight text-white">
           Ready to Start Selling?
         </h2>
 
-        <p className="text-lg sm:text-xl text-gray-700 mb-8 max-w-2xl">
-          Create your agentic storefront in minutes. No technical knowledge required.
+        <p className="text-lg sm:text-xl text-white mb-8 max-w-2xl">
+          Accept crypto payments instantly with zero fees
         </p>
 
         <Button
