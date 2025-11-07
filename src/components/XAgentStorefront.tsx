@@ -134,98 +134,118 @@ export function XAgentStorefront({ agentId, agentName, walletAddress }: XAgentSt
 
   return (
     <>
-      <div className="space-y-4">
-        {offerings.map((offering) => (
-          <Card 
-            key={offering.id} 
-            className="border-border bg-card/80 backdrop-blur-sm shadow-lg hover:shadow-xl transition-shadow cursor-pointer"
-            onClick={() => handleOfferingClick(offering.id)}
-          >
-            {offering.media_url && (
-              <div className="w-full">
-                {offering.media_url.includes('.mp4') || offering.media_url.includes('.webm') || offering.media_url.includes('.mov') ? (
-                  <video 
-                    src={offering.media_url} 
-                    controls 
-                    className={`w-full h-64 object-contain bg-muted rounded-t-lg ${offering.blur_preview ? 'blur-xl' : ''}`}
-                  />
-                ) : (
-                  <img 
-                    src={offering.media_url} 
-                    alt={offering.title}
-                    className={`w-full h-64 object-contain bg-muted rounded-t-lg ${offering.blur_preview ? 'blur-xl' : ''}`}
-                  />
-                )}
-              </div>
-            )}
-            <CardHeader className="p-5">
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <CardTitle className="text-lg">{offering.title}</CardTitle>
-                  <CardDescription className="text-sm leading-relaxed mt-2">
-                    {offering.description}
-                  </CardDescription>
-                </div>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={(e) => handleShare(offering.id, e)}
-                  className="flex-shrink-0"
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <h2 className="text-2xl font-bold">Store Offerings</h2>
+          <Badge variant="secondary" className="text-sm">
+            {offerings.length} Available
+          </Badge>
+        </div>
+
+        {/* Offerings Grid */}
+        {offerings.map((offering) => {
+          // Generate gradient based on offering ID
+          const gradients = [
+            'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+            'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+            'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
+            'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
+          ];
+          const gradientIndex = offering.id.charCodeAt(0) % gradients.length;
+          const gradient = gradients[gradientIndex];
+
+          return (
+            <Card 
+              key={offering.id} 
+              className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer border-border"
+              onClick={() => handleOfferingClick(offering.id)}
+            >
+              <div className="flex flex-col md:flex-row">
+                {/* Image or Gradient */}
+                <div 
+                  className="md:w-64 h-48 md:h-auto bg-muted relative overflow-hidden shrink-0"
+                  style={offering.media_url ? {} : { background: gradient }}
                 >
-                  <Share2 className="w-4 h-4" />
-                </Button>
-              </div>
-            </CardHeader>
-            <CardContent className="p-5 pt-0 space-y-4">
-              <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
+                  {offering.media_url ? (
+                    offering.media_url.includes('.mp4') || offering.media_url.includes('.webm') || offering.media_url.includes('.mov') ? (
+                      <video 
+                        src={offering.media_url} 
+                        controls 
+                        className={`w-full h-full object-cover ${offering.blur_preview ? 'blur-xl' : ''}`}
+                      />
+                    ) : (
+                      <img 
+                        src={offering.media_url} 
+                        alt={offering.title}
+                        className={`w-full h-full object-cover ${offering.blur_preview ? 'blur-xl' : ''}`}
+                      />
+                    )
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <Package className="h-16 w-16 text-white/80" />
+                    </div>
+                  )}
+                  {offering.offering_type === 'digital' && (
                     <Badge 
-                      variant="secondary" 
-                      className="text-sm px-3 py-1 font-semibold"
-                      style={{ 
-                        backgroundColor: 'rgba(129, 244, 170, 0.15)', 
-                        color: '#81f4aa', 
-                        borderColor: 'rgba(129, 244, 170, 0.3)' 
-                      }}
+                      className="absolute top-3 right-3 bg-[#635cff] text-white"
                     >
-                      <DollarSign className="h-3.5 w-3.5 mr-1" />
-                      {Number(offering.price).toLocaleString()} USDC
+                      Digital
                     </Badge>
-                  </div>
-                <Button 
-                  size="sm" 
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handlePurchaseClick(offering);
-                  }}
-                  style={{ backgroundColor: '#81f4aa', color: '#000' }}
-                  className="hover:opacity-90"
-                >
-                  {offering.offering_type === 'agent' ? 'View Agents' : 'Purchase'}
-                </Button>
+                  )}
                 </div>
                 
-                {offering.delivery_method && (
-                  <div className="mt-3 pt-3 border-t border-border/50">
-                    <p className="text-xs text-muted-foreground leading-relaxed">
-                      <strong>Delivery:</strong> {offering.delivery_method}
-                    </p>
+                {/* Content */}
+                <div className="flex-1 p-6">
+                  <div className="space-y-3">
+                    <div className="flex items-start justify-between gap-4">
+                      <div>
+                        <h3 className="text-xl font-bold mb-1">{offering.title}</h3>
+                        <p className="text-sm text-muted-foreground">
+                          {offering.description}
+                        </p>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={(e) => handleShare(offering.id, e)}
+                        className="flex-shrink-0"
+                      >
+                        <Share2 className="w-4 h-4" />
+                      </Button>
+                    </div>
+                    
+                    <div className="flex items-center justify-between pt-3 border-t">
+                      <div className="flex items-center gap-6">
+                        <div>
+                          <div className="text-sm text-muted-foreground mb-0.5">Price</div>
+                          <div className="text-2xl font-bold flex items-baseline gap-1">
+                            <DollarSign className="h-5 w-5" />
+                            {Number(offering.price).toFixed(2)}
+                          </div>
+                        </div>
+                        <div>
+                          <div className="text-sm text-muted-foreground mb-0.5">Delivery</div>
+                          <div className="text-sm font-medium">{offering.delivery_method || 'Instant'}</div>
+                        </div>
+                      </div>
+                      <Button 
+                        style={{ backgroundColor: '#635cff', color: 'white' }}
+                        className="hover:opacity-90"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handlePurchaseClick(offering);
+                        }}
+                      >
+                        Purchase
+                      </Button>
+                    </div>
                   </div>
-                )}
-
-                {offering.required_info && offering.required_info.length > 0 && (
-                  <div className="mt-2 flex flex-wrap gap-1">
-                    {offering.required_info.map((field, idx) => (
-                      <Badge key={idx} variant="outline" className="text-xs">
-                        <Check className="h-3 w-3 mr-1" />
-                        {field.label} required
-                      </Badge>
-                    ))}
-                  </div>
-                )}
-            </CardContent>
-          </Card>
-        ))}
+                </div>
+              </div>
+            </Card>
+          );
+        })}
       </div>
 
       {selectedOffering && (

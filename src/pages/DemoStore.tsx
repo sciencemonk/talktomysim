@@ -209,30 +209,6 @@ export default function DemoStore() {
       {/* Main Content - Storefront */}
       <div className="container mx-auto px-4 md:px-6 max-w-7xl py-8 md:py-12">
         <div className="space-y-6">
-          {/* Demo Notice Banner */}
-          <Card className="border-2 border-[#635cff] bg-[#635cff]/5">
-            <CardContent className="p-6">
-              <div className="flex items-start gap-4">
-                <div className="p-2 rounded-full bg-[#635cff]/10">
-                  <Package className="h-6 w-6" style={{ color: '#635cff' }} />
-                </div>
-                <div className="flex-1">
-                  <h3 className="font-semibold text-lg mb-2">Demo Store Preview</h3>
-                  <p className="text-sm text-muted-foreground mb-3">
-                    This is a preview of what your public store will look like. Sign in with X to create your own crypto-enabled store and start selling.
-                  </p>
-                  <Button 
-                    onClick={() => navigate('/')}
-                    style={{ backgroundColor: '#635cff', color: 'white' }}
-                    className="hover:opacity-90"
-                  >
-                    Get Started
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
           {/* Offerings Section */}
           <div className="space-y-4">
             <div className="flex items-center justify-between">
