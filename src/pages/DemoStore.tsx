@@ -101,14 +101,16 @@ export default function DemoStore() {
               onClick={() => navigate('/')}
               className="hover:opacity-80 transition-opacity"
             >
-              <img
-                src="/sim-logo-dark.png"
-                alt="SIM Logo"
-                className="h-10 w-10 object-contain"
-                onError={(e) => {
-                  e.currentTarget.src = "/sim-logo.png";
-                }}
-              />
+              <div className="p-2 rounded-lg bg-slate-800 dark:bg-transparent">
+                <img
+                  src="/sim-logo-dark.png"
+                  alt="SIM Logo"
+                  className="h-8 w-8 object-contain"
+                  onError={(e) => {
+                    e.currentTarget.src = "/sim-logo.png";
+                  }}
+                />
+              </div>
             </button>
             <div className="flex items-center gap-2">
               <Button
