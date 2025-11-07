@@ -66,19 +66,19 @@ export const HowItWorksSection = () => {
       number: "1",
       icon: Store,
       title: "Connect your X account",
-      description: "Sign in with X to instantly create your crypto-enabled store. Customize your offerings, set prices in USDC, and add your Solana wallet address—all in minutes, no coding required."
+      description: "Sign in with X to instantly create your crypto-enabled store. Customize your offerings, set prices in USDC, and add your Solana wallet address. All in minutes, no coding required."
     },
     {
       number: "2",
       icon: Share2,
       title: "Share your store",
-      description: "Your unique store link can be shared anywhere—X bio, Discord, Telegram, or embedded on your website. One link, unlimited reach across all your channels."
+      description: "Your unique store link can be shared anywhere. X bio, Discord, Telegram, or embedded on your website. One link, unlimited reach across all your channels."
     },
     {
       number: "3",
       icon: Wallet,
       title: "Receive instant payments",
-      description: "Get notified instantly when customers pay. USDC transfers directly to your Solana wallet with zero transaction fees—no middlemen, no waiting, just pure profit."
+      description: "Get notified instantly when customers pay. USDC transfers directly to your Solana wallet with zero transaction fees. No middlemen, no waiting, just pure profit."
     }
   ];
 
