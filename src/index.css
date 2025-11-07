@@ -40,8 +40,8 @@
     --success: 142 76% 36%;
     --warning: 38 92% 50%;
     --neon-green: 142 89% 74%;
-    --mint: 143 85% 73%;
-    --mint-foreground: 143 100% 15%;
+    --mint: 242 100% 68%;
+    --mint-foreground: 0 0% 100%;
   }
 
   .dark {
@@ -79,8 +79,8 @@
     --success: 142 76% 36%;
     --warning: 38 92% 50%;
     --neon-green: 142 89% 74%;
-    --mint: 143 85% 73%;
-    --mint-foreground: 143 100% 15%;
+    --mint: 242 100% 68%;
+    --mint-foreground: 0 0% 100%;
   }
 }
 
