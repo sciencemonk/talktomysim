@@ -46,7 +46,7 @@ export const LandingFooter = () => {
             {/* Brand Column */}
             <div className="space-y-4">
               <img
-                src="/sim-logo-new.png"
+                src="/sim-logo-gradient.png"
                 alt="Sim Logo"
                 className="h-12 w-12 object-contain"
               />

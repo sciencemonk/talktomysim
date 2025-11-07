@@ -156,7 +156,7 @@ export const MatrixHeroSection = ({
 
       {/* Top Bar with Logo and Sign In Button */}
       <div className="absolute top-0 left-0 right-0 z-50 w-full px-4 py-6 flex items-center justify-between">
-        <img src="/sim-logo-new.png" alt="Sim Logo" className="h-10 w-10 object-contain" />
+        <img src="/sim-logo-gradient.png" alt="Sim Logo" className="h-10 w-10 object-contain" />
         <Button onClick={handleXSignIn} size="sm" className="bg-[#82f3aa] hover:bg-[#6dd991] text-black font-semibold px-6 py-2 transition-all duration-300 hover:scale-105">
           Sign In
         </Button>
