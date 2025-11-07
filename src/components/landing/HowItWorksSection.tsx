@@ -27,12 +27,12 @@ export const HowItWorksSection = () => {
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4">
+          <p className="text-sm md:text-base text-muted-foreground mb-2 uppercase tracking-wider">
             How it works
-          </h2>
-          <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
-            Accept crypto payments in minutes, without writing code
           </p>
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold">
+            Accept crypto payments in minutes, without writing code
+          </h2>
         </div>
 
         {/* Steps */}
