@@ -496,10 +496,15 @@ export default function XAgentPage() {
               onClick={() => navigate('/')}
               className="hover:opacity-80 transition-opacity"
             >
+              <img 
+                src="/sim-logo-light-mode.png" 
+                alt="SIM Logo" 
+                className="h-10 w-10 object-contain dark:hidden" 
+              />
               <img
                 src="/sim-logo-dark.png"
                 alt="SIM Logo"
-                className="h-10 w-10 object-contain"
+                className="h-10 w-10 object-contain hidden dark:block"
                 onError={(e) => {
                   e.currentTarget.src = "/sim-logo.png";
                 }}

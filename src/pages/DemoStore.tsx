@@ -85,11 +85,19 @@ export default function DemoStore() {
         <div className="container mx-auto px-4 md:px-6 py-3">
           <div className="flex items-center justify-between">
             <button onClick={() => navigate('/')} className="hover:opacity-80 transition-opacity">
-              <div className="p-2 rounded-lg bg-slate-300">
-                <img src="/sim-logo-dark.png" alt="SIM Logo" className="h-8 w-8 object-contain" onError={e => {
-                e.currentTarget.src = "/sim-logo.png";
-              }} />
-              </div>
+              <img 
+                src="/sim-logo-light-mode.png" 
+                alt="SIM Logo" 
+                className="h-10 w-10 object-contain dark:hidden" 
+              />
+              <img 
+                src="/sim-logo-dark.png" 
+                alt="SIM Logo" 
+                className="h-10 w-10 object-contain hidden dark:block" 
+                onError={e => {
+                  e.currentTarget.src = "/sim-logo.png";
+                }} 
+              />
             </button>
             <div className="flex items-center gap-2">
               <ThemeToggle />
