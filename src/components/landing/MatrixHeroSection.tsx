@@ -148,7 +148,7 @@ export const MatrixHeroSection = ({
   return <section className="relative min-h-[80vh] flex flex-col overflow-hidden bg-background pb-0">
       {/* Video Background */}
       <video autoPlay loop muted playsInline className="absolute inset-0 w-full h-full object-cover">
-        <source src="https://uovhemqkztmkoozlmqxq.supabase.co/storage/v1/object/sign/trimtab/7585041-hd_1920_1080_25fps.mp4?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV82NDZlOGY2My1iYjgzLTQwOGQtYjc1Mi1mOWM0OTMxZjU3OGIiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJ0cmltdGFiLzc1ODUwNDEtaGRfMTkyMF8xMDgwXzI1ZnBzLm1wNCIsImlhdCI6MTc2MjMxNzcyNiwiZXhwIjoxNzkzODUzNzI2fQ.YazfV5ZLdQvHRutUaHvxn1i_Ok4gMX9AnCqw-TbuX_o" type="video/mp4" />
+        <source src="https://kxsvyeirqimcydtkowga.supabase.co/storage/v1/object/sign/storage/5404707-uhd_3840_2160_25fps.mp4?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8zNDczMmYzNC1kYzc2LTRhNzgtOGNmOC05MDE5NTRhM2RkMjgiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJzdG9yYWdlLzU0MDQ3MDctdWhkXzM4NDBfMjE2MF8yNWZwcy5tcDQiLCJpYXQiOjE3NjI0ODU3MDUsImV4cCI6MTc5NDAyMTcwNX0.Pytq982adrUXc9sNaK_Z0yivbwROhesiqMIjyWRe-ME" type="video/mp4" />
       </video>
 
       {/* Dark overlay for text readability */}
