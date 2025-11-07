@@ -6,7 +6,7 @@ export const Whyx402Section = () => {
     <section className="container mx-auto px-3 sm:px-4 py-16 border-b border-gray-200 bg-white">
       <div className="max-w-4xl mx-auto">
         <div className="grid sm:grid-cols-3 gap-6 mb-12">
-          <Card className="group hover:shadow-lg transition-all duration-300 border-2 hover:border-[#635BFF]/50 bg-white">
+          <Card className="group hover:shadow-lg transition-all duration-300 border-2 border-[#635BFF]/50 bg-white">
             <CardContent className="flex flex-col items-center text-center space-y-4 p-8">
               <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#635BFF]/20 to-[#635BFF]/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                 <Zap className="h-8 w-8 text-[#635BFF]" />
@@ -18,7 +18,7 @@ export const Whyx402Section = () => {
             </CardContent>
           </Card>
 
-          <Card className="group hover:shadow-lg transition-all duration-300 border-2 hover:border-[#635BFF]/50 bg-white">
+          <Card className="group hover:shadow-lg transition-all duration-300 border-2 border-[#635BFF]/50 bg-white">
             <CardContent className="flex flex-col items-center text-center space-y-4 p-8">
               <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#635BFF]/20 to-[#635BFF]/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                 <Shield className="h-8 w-8 text-[#635BFF]" />
@@ -30,7 +30,7 @@ export const Whyx402Section = () => {
             </CardContent>
           </Card>
 
-          <Card className="group hover:shadow-lg transition-all duration-300 border-2 hover:border-[#635BFF]/50 bg-white">
+          <Card className="group hover:shadow-lg transition-all duration-300 border-2 border-[#635BFF]/50 bg-white">
             <CardContent className="flex flex-col items-center text-center space-y-4 p-8">
               <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#635BFF]/20 to-[#635BFF]/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                 <Globe className="h-8 w-8 text-[#635BFF]" />
