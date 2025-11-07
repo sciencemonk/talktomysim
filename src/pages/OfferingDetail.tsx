@@ -205,9 +205,9 @@ export default function OfferingDetail() {
         {/* Main Content */}
         <Card className="mb-6">
           <CardHeader>
-            <div className="flex items-start gap-4">
+            <div className="flex flex-col gap-4">
               {offering.media_url && (
-                <div className="w-24 h-24 rounded-lg overflow-hidden flex-shrink-0">
+                <div className="w-full aspect-square max-w-md mx-auto rounded-lg overflow-hidden">
                   {offering.media_url.includes('.mp4') || offering.media_url.includes('.webm') || offering.media_url.includes('.mov') ? (
                     <video 
                       src={offering.media_url} 
@@ -230,10 +230,23 @@ export default function OfferingDetail() {
           </CardHeader>
 
           <CardContent className="space-y-6">
-            {/* Price */}
-            <div className="flex items-center gap-2 text-2xl font-bold">
-              <DollarSign className="w-6 h-6" style={{ color: '#81f4aa' }} />
-              {getPrice()}
+            {/* Price and Delivery in a row */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <p className="text-sm text-muted-foreground mb-2">Price</p>
+                <div className="flex items-center gap-2 text-2xl font-bold">
+                  <DollarSign className="w-6 h-6" style={{ color: '#81f4aa' }} />
+                  {getPrice()}
+                </div>
+              </div>
+
+              {/* Delivery Method */}
+              {offering.delivery_method && (
+                <div>
+                  <p className="text-sm text-muted-foreground mb-2">Delivery</p>
+                  <p className="text-base capitalize">{offering.delivery_method.replace('_', ' ')}</p>
+                </div>
+              )}
             </div>
 
             {/* Agent Info */}
@@ -259,19 +272,11 @@ export default function OfferingDetail() {
               </div>
             )}
 
-            {/* Delivery Method */}
-            {offering.delivery_method && (
-              <div>
-                <p className="text-sm text-muted-foreground mb-2">Delivery Method</p>
-                <p className="text-base capitalize">{offering.delivery_method.replace('_', ' ')}</p>
-              </div>
-            )}
-
             {/* Purchase Button */}
             <Button 
               onClick={handlePurchase}
               size="lg" 
-              className="w-full"
+              className="w-full mt-4"
               style={{ backgroundColor: '#81f4aa', color: '#000' }}
             >
               {offering.price === 0 ? 'Get for Free' : 'Purchase Now'}
