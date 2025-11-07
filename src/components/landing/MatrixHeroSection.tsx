@@ -86,7 +86,7 @@ export const MatrixHeroSection = ({
 
         <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-sans font-bold mb-4 tracking-tight text-white text-center w-full">
           Sell your{" "}
-          <span key={currentWordIndex} className="inline-block text-[#635cff] animate-fade-in">
+          <span key={currentWordIndex} className="inline-block text-white animate-fade-in">
             {words[currentWordIndex]}
           </span>
         </h1>
