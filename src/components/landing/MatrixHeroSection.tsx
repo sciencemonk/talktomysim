@@ -7,7 +7,6 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { useState, useEffect } from "react";
 interface MatrixHeroSectionProps {
   onCreateXAgent: () => void;
   onSimClick: (sim: AgentType) => void;
@@ -22,14 +21,6 @@ export const MatrixHeroSection = ({
     theme
   } = useTheme();
   const navigate = useNavigate();
-  const [currentWordIndex, setCurrentWordIndex] = useState(0);
-  const words = ["Products", "Services", "AI Agents", "Digital Goods"];
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentWordIndex(prev => (prev + 1) % words.length);
-    }, 2500);
-    return () => clearInterval(interval);
-  }, []);
   const {
     data: topStores
   } = useQuery({
@@ -126,15 +117,35 @@ export const MatrixHeroSection = ({
       <div className="relative z-10 flex-1 flex flex-col items-center justify-center px-4 pt-24 text-center max-w-5xl mx-auto w-full">
         {/* $SIMAI badge */}
         <button onClick={handleCopyAddress} className="mb-6 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-card/50 backdrop-blur-sm border border-border/50 hover:bg-card/70 transition-all cursor-pointer">
-          <span className="text-xs sm:text-sm font-bold text-zinc-50">The Everything Market</span>
+          <span className="text-xs sm:text-sm font-bold text-zinc-50">Solana Internet Market</span>
         </button>
 
         <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-sans font-bold mb-4 tracking-tight text-foreground text-center w-full">
-          Sell your{" "}
-          <span key={currentWordIndex} className="inline-block text-[#82f3aa] animate-fade-in">
-            {words[currentWordIndex]}
-          </span>
+          Top Stores on Sim
         </h1>
+        
+        {/* X Agent Store Tiles */}
+        <div className="w-full max-w-4xl mb-8 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+          {topStores?.slice(0, 10).map((store) => (
+            <button
+              key={store.id}
+              onClick={() => handleStoreClick(store)}
+              className="group relative overflow-hidden rounded-xl bg-card/50 backdrop-blur-sm border border-border/50 hover:border-[#82f3aa]/50 hover:bg-card/70 transition-all duration-300 hover:scale-105 p-3 flex flex-col items-center gap-2"
+            >
+              <img
+                src={getAvatarSrc(store.avatar_url)}
+                alt={store.name}
+                className="w-12 h-12 rounded-full object-cover"
+              />
+              <span className="text-xs font-semibold text-foreground truncate w-full text-center">
+                {store.name}
+              </span>
+              <span className="text-xs text-muted-foreground">
+                {formatNumber(store.followers)} followers
+              </span>
+            </button>
+          ))}
+        </div>
         
         {/* Zero fees text */}
         <p className="text-sm sm:text-base text-[#82f3aa] font-semibold mb-3">
