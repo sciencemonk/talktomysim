@@ -247,7 +247,7 @@ export default function XAgentPage() {
   };
 
   const handleShareLink = () => {
-    const url = `https://socialinternetmoney.com/${username}`;
+    const url = `${window.location.origin}/${username}`;
     navigator.clipboard.writeText(url);
     setLinkCopied(true);
     setTimeout(() => setLinkCopied(false), 2000);
