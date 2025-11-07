@@ -111,15 +111,6 @@ export default function DemoTest() {
       {/* Main Content */}
       <div className="container mx-auto px-3 md:px-4 py-6 md:py-8 max-w-7xl">
         <div className="space-y-4 md:space-y-6">
-          {/* Demo Notice */}
-          <Card className="border-border bg-blue-50 dark:bg-blue-950/20 border-blue-200 dark:border-blue-800">
-            <CardContent className="p-4">
-              <p className="text-sm text-blue-900 dark:text-blue-100">
-                <strong>Demo Mode:</strong> This is a preview of the creator dashboard experience. Sign in with X to create your own store.
-              </p>
-            </CardContent>
-          </Card>
-
           {/* Profile Header */}
           <Card className="border-border bg-card/80 backdrop-blur-sm shadow-lg">
             <CardHeader className="p-5 md:p-6">

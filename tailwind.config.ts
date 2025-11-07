@@ -62,6 +62,10 @@ export default {
 				inputBorder: 'hsl(var(--input-border))',
 				focusRing: 'hsl(var(--focus-ring))',
 				neonGreen: 'hsl(var(--neon-green))',
+				mint: {
+					DEFAULT: 'hsl(var(--mint))',
+					foreground: 'hsl(var(--mint-foreground))'
+				},
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
