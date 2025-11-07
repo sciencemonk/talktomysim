@@ -1,15 +1,11 @@
 import { Button } from "@/components/ui/button";
-import { useTheme } from "@/hooks/useTheme";
-import { Badge } from "@/components/ui/badge";
 import { AgentType } from "@/types/agent";
 import xIcon from "@/assets/x-icon.png";
 import solanaLogo from "@/assets/solana-logo.png";
-import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { useState, useEffect } from "react";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 interface MatrixHeroSectionProps {
   onCreateXAgent: () => void;
   onSimClick: (sim: AgentType) => void;
@@ -20,9 +16,6 @@ export const MatrixHeroSection = ({
   onSimClick,
   onViewAllAgents
 }: MatrixHeroSectionProps) => {
-  const {
-    theme
-  } = useTheme();
   const navigate = useNavigate();
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
   const words = ["Products", "Services", "AI Agents", "Digital Goods"];
@@ -32,49 +25,7 @@ export const MatrixHeroSection = ({
     }, 2500);
     return () => clearInterval(interval);
   }, []);
-  const {
-    data: topStores
-  } = useQuery({
-    queryKey: ['top-stores-hero'],
-    queryFn: async () => {
-      const {
-        data: agents,
-        error
-      } = await supabase.from('advisors').select('id, name, avatar_url, social_links').eq('is_active', true).eq('sim_category', 'Crypto Mail').limit(100);
-      if (error) throw error;
-      const agentsWithFollowers = (agents || []).map(agent => ({
-        ...agent,
-        followers: (agent.social_links as any)?.followers || 0
-      }));
-      return agentsWithFollowers.filter(agent => agent.followers > 0).sort((a, b) => b.followers - a.followers).slice(0, 10);
-    },
-    staleTime: 1000 * 60 * 60
-  });
-  const getAvatarSrc = (avatarUrl: string | null) => {
-    if (avatarUrl) {
-      let processedUrl = avatarUrl;
-      // If it's a Twitter image with _normal, upgrade to _400x400 for high resolution
-      if (processedUrl.includes('pbs.twimg.com') && processedUrl.includes('_normal')) {
-        processedUrl = processedUrl.replace('_normal', '_400x400');
-      }
-      if (processedUrl.includes('pbs.twimg.com')) {
-        return `https://images.weserv.nl/?url=${encodeURIComponent(processedUrl)}`;
-      }
-      return processedUrl;
-    }
-    return avatarUrl;
-  };
-  const formatNumber = (num: number) => {
-    if (num >= 1000000) return `${(num / 1000000).toFixed(1)}M`;
-    if (num >= 1000) return `${(num / 1000).toFixed(1)}K`;
-    return num.toLocaleString();
-  };
-  const handleStoreClick = (agent: any) => {
-    const xUsername = (agent.social_links as any)?.x_username;
-    if (xUsername) {
-      navigate(`/${xUsername}`);
-    }
-  };
+
   const handleCopyAddress = async () => {
     try {
       await navigator.clipboard.writeText("FFqwoZ7phjoupWjLeE5yFeLqGi8jkGEFrTz6jnsUpump");
@@ -106,40 +57,6 @@ export const MatrixHeroSection = ({
     }
   };
 
-  // Fetch X agents for the scroller
-  const {
-    data: xAgents
-  } = useQuery({
-    queryKey: ['x-agents-tiles'],
-    queryFn: async () => {
-      const {
-        data: agents,
-        error
-      } = await supabase.from('advisors').select('id, name, avatar_url, social_links, created_at').eq('is_active', true).eq('sim_category', 'Crypto Mail').limit(100);
-      if (error) throw error;
-      const agentsWithFollowers = (agents || []).map(agent => ({
-        ...agent,
-        followers: (agent.social_links as any)?.followers || 0
-      }));
-
-      // Sort by followers (if available), then by creation date
-      return agentsWithFollowers.sort((a, b) => {
-        // First sort by follower count (descending)
-        if (b.followers !== a.followers) {
-          return b.followers - a.followers;
-        }
-        // If followers are equal (or both 0), sort by creation date (newest first)
-        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-      }).slice(0, 25);
-    },
-    staleTime: 1000 * 60 * 60
-  });
-  const handleAgentClick = (agent: any) => {
-    const xUsername = (agent.social_links as any)?.x_username;
-    if (xUsername) {
-      navigate(`/${xUsername}`);
-    }
-  };
   return <section className="relative min-h-[80vh] flex flex-col overflow-hidden bg-background pb-0">
       {/* Video Background */}
       <video autoPlay loop muted playsInline className="absolute inset-0 w-full h-full object-cover">
@@ -179,35 +96,9 @@ export const MatrixHeroSection = ({
           Accept crypto payments instantly with zero fees
         </p>
         
-        <Button onClick={handleXSignIn} size="lg" className="gap-2 font-bold px-8 py-5 text-base transition-all duration-300 bg-[#635cff] hover:bg-[#5046E5] text-white border-0 shadow-xl shadow-[#635cff]/30 hover:shadow-2xl hover:shadow-[#635cff]/40 hover:scale-105 whitespace-nowrap mb-40">
+        <Button onClick={handleXSignIn} size="lg" className="gap-2 font-bold px-8 py-5 text-base transition-all duration-300 bg-[#635cff] hover:bg-[#5046E5] text-white border-0 shadow-xl shadow-[#635cff]/30 hover:shadow-2xl hover:shadow-[#635cff]/40 hover:scale-105 whitespace-nowrap mb-12">
           Create Your Store with <img src={xIcon} alt="X" className="h-5 w-5 inline-block" />
         </Button>
       </div>
-
-      {/* X Agents Scroller - positioned at bottom */}
-      {xAgents && xAgents.length > 0 && <div className="absolute bottom-0 left-0 right-0 z-10 w-full py-8 overflow-hidden">
-          <div className="relative">
-            <div className="flex gap-3 animate-scroll-mobile md:animate-scroll hover:pause-animation px-4">
-              {/* First set */}
-              {xAgents.map(agent => <button key={`first-${agent.id}`} onClick={() => handleAgentClick(agent)} className="flex-shrink-0 transition-all duration-300 hover:scale-110 hover:opacity-80 cursor-pointer">
-                  <Avatar className="w-[4.78rem] h-[4.78rem] md:w-[5.31rem] md:h-[5.31rem] rounded-xl shadow-md">
-                    <AvatarImage src={getAvatarSrc(agent.avatar_url)} alt={agent.name} referrerPolicy="no-referrer" crossOrigin="anonymous" className="rounded-xl object-cover" />
-                    <AvatarFallback className="bg-primary/20 text-primary font-semibold text-sm rounded-xl">
-                      {agent.name.charAt(0).toUpperCase()}
-                    </AvatarFallback>
-                  </Avatar>
-                </button>)}
-              {/* Duplicate set for seamless loop */}
-              {xAgents.map(agent => <button key={`second-${agent.id}`} onClick={() => handleAgentClick(agent)} className="flex-shrink-0 transition-all duration-300 hover:scale-110 hover:opacity-80 cursor-pointer">
-                  <Avatar className="w-[4.78rem] h-[4.78rem] md:w-[5.31rem] md:h-[5.31rem] rounded-xl shadow-md">
-                    <AvatarImage src={getAvatarSrc(agent.avatar_url)} alt={agent.name} referrerPolicy="no-referrer" crossOrigin="anonymous" className="rounded-xl object-cover" />
-                    <AvatarFallback className="bg-primary/20 text-primary font-semibold text-sm rounded-xl">
-                      {agent.name.charAt(0).toUpperCase()}
-                    </AvatarFallback>
-                  </Avatar>
-                </button>)}
-            </div>
-          </div>
-        </div>}
     </section>;
 };
