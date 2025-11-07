@@ -226,8 +226,9 @@ const ParentDashboard = () => {
                       </div>
                       <div className="flex items-center gap-2 flex-shrink-0">
                         <ShareButton 
-                          tutorId={agent.id} 
-                          tutorName={agent.name}
+                          url={`https://solanainternetmarket.com/tutors/${agent.id}/chat`}
+                          title={`Chat with ${agent.name}`}
+                          description={`Start learning with ${agent.name}, an AI tutor ready to help!`}
                           className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity"
                         />
                         <Badge className={`${getStatusColor(agent.status)} text-xs border rounded-full px-2 py-0.5`}>

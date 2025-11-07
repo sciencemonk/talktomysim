@@ -786,7 +786,11 @@ const PublicSimDetail = () => {
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <ShareButton tutorId={sim.id} tutorName={sim.name} />
+                <ShareButton 
+                  url={`https://solanainternetmarket.com/tutors/${sim.id}/chat`}
+                  title={`Chat with ${sim.name}`}
+                  description={`Start chatting with ${sim.name}, an AI tutor ready to help!`}
+                />
                 <Button
                   variant="ghost"
                   size="sm"
@@ -895,7 +899,12 @@ const PublicSimDetail = () => {
 
               {/* Share Button - Using ShareButton component */}
               <div className="mb-4">
-                <ShareButton tutorId={sim.id} tutorName={sim.name} className="w-full h-12 text-base font-semibold" />
+                <ShareButton 
+                  url={`https://solanainternetmarket.com/tutors/${sim.id}/chat`}
+                  title={`Chat with ${sim.name}`}
+                  description={`Start chatting with ${sim.name}, an AI tutor ready to help!`}
+                  className="w-full h-12 text-base font-semibold" 
+                />
               </div>
 
 

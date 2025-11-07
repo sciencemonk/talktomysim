@@ -186,8 +186,9 @@ const StudentChat = () => {
           </div>
           
           <ShareButton 
-            tutorId={agent.id}
-            tutorName={agent.name}
+            url={`https://solanainternetmarket.com/tutors/${agent.id}/chat`}
+            title={`Chat with ${agent.name}`}
+            description={`Start learning with ${agent.name}, an AI tutor ready to help!`}
             className="w-full justify-start"
           />
         </div>
@@ -218,8 +219,9 @@ const StudentChat = () => {
           <div className="flex items-center gap-2 flex-shrink-0">
             {!isMobile && (
               <ShareButton 
-                tutorId={agent.id}
-                tutorName={agent.name}
+                url={`https://solanainternetmarket.com/tutors/${agent.id}/chat`}
+                title={`Chat with ${agent.name}`}
+                description={`Start learning with ${agent.name}, an AI tutor ready to help!`}
               />
             )}
             <InfoModal />

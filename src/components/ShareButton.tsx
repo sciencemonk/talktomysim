@@ -11,27 +11,26 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 interface ShareButtonProps {
-  tutorId: string;
-  tutorName: string;
+  url: string;
+  title: string;
+  description: string;
   className?: string;
 }
 
-export const ShareButton = ({ tutorId, tutorName, className }: ShareButtonProps) => {
+export const ShareButton = ({ url, title, description, className }: ShareButtonProps) => {
   const [copied, setCopied] = useState(false);
   const { toast } = useToast();
-
-  const shareUrl = `${window.location.origin}/tutors/${tutorId}/chat`;
 
   const handleCopyLink = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     
     try {
-      await navigator.clipboard.writeText(shareUrl);
+      await navigator.clipboard.writeText(url);
       setCopied(true);
       toast({
         title: "Link Copied!",
-        description: `Share link for ${tutorName} has been copied to clipboard.`,
+        description: "Share link has been copied to clipboard.",
       });
       
       setTimeout(() => setCopied(false), 2000);
@@ -51,9 +50,9 @@ export const ShareButton = ({ tutorId, tutorName, className }: ShareButtonProps)
     if (navigator.share) {
       try {
         await navigator.share({
-          title: `Chat with ${tutorName}`,
-          text: `Start learning with ${tutorName}, an AI tutor ready to help!`,
-          url: shareUrl,
+          title,
+          text: description,
+          url,
         });
       } catch (error) {
         // User cancelled or share failed, fallback to copy

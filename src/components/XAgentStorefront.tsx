@@ -3,10 +3,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { DollarSign, Package, Check, Share2 } from "lucide-react";
+import { DollarSign, Package, Check } from "lucide-react";
 import { XOfferingPurchaseModal } from "./XOfferingPurchaseModal";
 import { DigitalFileModal } from "./DigitalFileModal";
 import { AgentOfferingModal } from "./AgentOfferingModal";
+import { ShareButton } from "./ShareButton";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 
@@ -103,13 +104,6 @@ export function XAgentStorefront({ agentId, agentName, walletAddress }: XAgentSt
     setIsPurchaseModalOpen(true);
   };
 
-  const handleShare = (offeringId: string, e: React.MouseEvent) => {
-    e.stopPropagation();
-    const url = `${window.location.origin}/offering/${offeringId}`;
-    navigator.clipboard.writeText(url);
-    toast.success("Offering link copied to clipboard!");
-  };
-
   const handleOfferingClick = (offeringId: string) => {
     navigate(`/offering/${offeringId}`);
   };
@@ -198,21 +192,11 @@ export function XAgentStorefront({ agentId, agentName, walletAddress }: XAgentSt
                 {/* Content */}
                 <div className="flex-1 p-6">
                   <div className="space-y-3">
-                    <div className="flex items-start justify-between gap-4">
-                      <div>
-                        <h3 className="text-xl font-bold mb-1">{offering.title}</h3>
-                        <p className="text-sm text-muted-foreground">
-                          {offering.description}
-                        </p>
-                      </div>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={(e) => handleShare(offering.id, e)}
-                        className="flex-shrink-0"
-                      >
-                        <Share2 className="w-4 h-4" />
-                      </Button>
+                    <div>
+                      <h3 className="text-xl font-bold mb-1">{offering.title}</h3>
+                      <p className="text-sm text-muted-foreground">
+                        {offering.description}
+                      </p>
                     </div>
                     
                     <div className="flex items-center justify-between pt-3 border-t">
@@ -229,16 +213,23 @@ export function XAgentStorefront({ agentId, agentName, walletAddress }: XAgentSt
                           <div className="text-sm font-medium">{offering.delivery_method || 'Instant'}</div>
                         </div>
                       </div>
-                      <Button 
-                        style={{ backgroundColor: '#635cff', color: 'white' }}
-                        className="hover:opacity-90"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handlePurchaseClick(offering);
-                        }}
-                      >
-                        Purchase
-                      </Button>
+                      <div className="flex items-center gap-2">
+                        <Button 
+                          style={{ backgroundColor: '#635cff', color: 'white' }}
+                          className="hover:opacity-90"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handlePurchaseClick(offering);
+                          }}
+                        >
+                          Purchase
+                        </Button>
+                        <ShareButton
+                          url={`https://solanainternetmarket.com/offering/${offering.id}`}
+                          title={offering.title}
+                          description={offering.description}
+                        />
+                      </div>
                     </div>
                   </div>
                 </div>
