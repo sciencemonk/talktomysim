@@ -28,7 +28,7 @@ interface OfferingCardProps {
 }
 
 const OfferingCard = ({ offering, onClick, onShare }: OfferingCardProps) => {
-  const xUsername = offering.agent.social_links?.x_username;
+  const xUsername = (offering.agent.social_links as any)?.userName || (offering.agent.social_links as any)?.x_username;
 
   const getAvatarSrc = () => {
     // First try to get from avatar_url

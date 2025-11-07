@@ -25,7 +25,7 @@ interface StoreCardProps {
 }
 
 const StoreCard = ({ agent, rank, onClick }: StoreCardProps) => {
-  const xUsername = (agent.social_links as any)?.x_username;
+  const xUsername = (agent.social_links as any)?.userName || (agent.social_links as any)?.x_username;
 
   const getAvatarSrc = () => {
     if (agent.avatar_url) {
@@ -115,7 +115,7 @@ export const TopStoresSection = () => {
 
       // Fetch follower counts for agents that don't have them or have outdated data
       const agentsToUpdate = (agents || []).filter(agent => {
-        const xUsername = (agent.social_links as any)?.x_username;
+        const xUsername = (agent.social_links as any)?.userName || (agent.social_links as any)?.x_username;
         const followers = (agent.social_links as any)?.followers;
         const lastUpdated = (agent.social_links as any)?.last_updated;
         
@@ -133,7 +133,7 @@ export const TopStoresSection = () => {
         console.log(`Updating follower data for ${Math.min(agentsToUpdate.length, 3)} agents`);
         // Process sequentially with delay to respect rate limits
         for (const agent of agentsToUpdate.slice(0, 3)) {
-          const xUsername = (agent.social_links as any)?.x_username;
+          const xUsername = (agent.social_links as any)?.userName || (agent.social_links as any)?.x_username;
           try {
             await supabase.functions.invoke('fetch-x-followers', {
               body: { username: xUsername }
@@ -186,7 +186,7 @@ export const TopStoresSection = () => {
   });
 
   const handleStoreClick = (agent: XAgent) => {
-    const xUsername = (agent.social_links as any)?.x_username;
+    const xUsername = (agent.social_links as any)?.userName || (agent.social_links as any)?.x_username;
     if (xUsername) {
       navigate(`/${xUsername}`);
     }

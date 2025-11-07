@@ -93,7 +93,7 @@ export default function XAgentCreatorView() {
 
       const matchingAgent = data?.find(agent => {
         const socialLinks = agent.social_links as { x_username?: string; userName?: string } | null;
-        const storedUsername = (socialLinks?.x_username || socialLinks?.userName || '').toLowerCase();
+        const storedUsername = (socialLinks?.userName || socialLinks?.x_username || '').toLowerCase();
         return storedUsername === username?.toLowerCase();
       });
 

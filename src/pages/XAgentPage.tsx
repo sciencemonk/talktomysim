@@ -110,7 +110,7 @@ export default function XAgentPage() {
       // Find the agent with matching X username (check both x_username and userName fields)
       const matchingAgent = data?.find(agent => {
         const socialLinks = agent.social_links as { x_username?: string; userName?: string } | null;
-        const storedUsername = (socialLinks?.x_username || socialLinks?.userName || '').toLowerCase();
+        const storedUsername = (socialLinks?.userName || socialLinks?.x_username || '').toLowerCase();
         return storedUsername === username?.toLowerCase();
       });
 

@@ -65,7 +65,7 @@ const PumpFunSimCard = ({ sim, onSimClick }: PumpFunSimCardProps) => {
     : undefined;
 
   const xUsername = isCryptoMail 
-    ? (sim.social_links as any)?.x_username 
+    ? ((sim.social_links as any)?.userName || (sim.social_links as any)?.x_username)
     : undefined;
   
   // Check verification status from database (false = pending, true = verified)
@@ -383,7 +383,7 @@ const NewLanding = () => {
     
     // For X agents, navigate to /:username
     if (simCategoryType === 'Crypto Mail') {
-      const xUsername = (sim.social_links as any)?.x_username;
+      const xUsername = (sim.social_links as any)?.userName || (sim.social_links as any)?.x_username;
       if (xUsername) {
         window.scrollTo(0, 0);
         navigate(`/${xUsername}`);
@@ -552,7 +552,7 @@ const NewLanding = () => {
   const xAgents = (filteredSims?.filter(sim => {
     const simCategory = (sim as any).sim_category;
     if (simCategory === 'Crypto Mail') {
-      const xUsername = (sim.social_links as any)?.x_username?.toLowerCase();
+      const xUsername = ((sim.social_links as any)?.userName || (sim.social_links as any)?.x_username)?.toLowerCase();
       // Show all X agents
       return ['mrjethroknights', 'degencapitalllc', 'cryptodivix', 'professrweb3'].includes(xUsername || '');
     }
@@ -560,8 +560,8 @@ const NewLanding = () => {
   }) || []).sort((a, b) => {
     // Sort: active agents first, then pending ones
     const approvedXAgents = ['mrjethroknights', 'cryptodivix'];
-    const aUsername = (a.social_links as any)?.x_username?.toLowerCase() || '';
-    const bUsername = (b.social_links as any)?.x_username?.toLowerCase() || '';
+    const aUsername = ((a.social_links as any)?.userName || (a.social_links as any)?.x_username)?.toLowerCase() || '';
+    const bUsername = ((b.social_links as any)?.userName || (b.social_links as any)?.x_username)?.toLowerCase() || '';
     const aIsActive = approvedXAgents.includes(aUsername);
     const bIsActive = approvedXAgents.includes(bUsername);
     
