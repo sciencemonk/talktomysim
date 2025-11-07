@@ -8,6 +8,7 @@ import { AgentType } from "@/types/agent";
 import { HackathonAnnouncementModal } from "@/components/HackathonAnnouncementModal";
 import { OfferingsMosaic } from "@/components/landing/OfferingsMosaic";
 import { AgenticCommerceSection } from "@/components/landing/AgenticCommerceSection";
+import { HowItWorksSection } from "@/components/landing/HowItWorksSection";
 import { Whyx402Section } from "@/components/landing/Whyx402Section";
 import { SignUpCTASection } from "@/components/landing/SignUpCTASection";
 import { LandingFooter } from "@/components/landing/LandingFooter";
@@ -611,6 +612,8 @@ const NewLanding = () => {
       <div id="learn-more-section" className="scroll-mt-4">
         <AgenticCommerceSection />
       </div>
+
+      <HowItWorksSection />
 
       <SimVsStripeSection />
 
