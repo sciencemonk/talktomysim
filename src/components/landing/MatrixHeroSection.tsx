@@ -174,10 +174,10 @@ export const MatrixHeroSection = ({
           </span>
         </h1>
         
-        {/* Zero fees badge */}
-        <Badge className="mb-3 bg-white text-black hover:bg-white text-sm sm:text-base font-semibold px-4 py-2">
+        {/* Zero fees text */}
+        <p className="text-sm sm:text-base text-white font-semibold mb-3">
           Accept crypto payments instantly with zero fees
-        </Badge>
+        </p>
         
         <Button onClick={handleXSignIn} size="lg" className="gap-2 font-bold px-8 py-5 text-base transition-all duration-300 bg-[#635cff] hover:bg-[#5046E5] text-white border-0 shadow-xl shadow-[#635cff]/30 hover:shadow-2xl hover:shadow-[#635cff]/40 hover:scale-105 whitespace-nowrap mb-40">
           Create Your Store with <img src={xIcon} alt="X" className="h-5 w-5 inline-block" />
