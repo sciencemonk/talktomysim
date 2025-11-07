@@ -156,9 +156,7 @@ export const MatrixHeroSection = ({
 
       {/* Top Bar with Logo and Sign In Button */}
       <div className="absolute top-0 left-0 right-0 z-50 w-full px-4 py-6 flex items-center justify-between">
-        <img src="/sim-logo-dark.png" alt="Sim Logo" className="h-10 w-10 object-contain" onError={e => {
-        e.currentTarget.src = "/sim-logo.png";
-      }} />
+        <img src="/sim-logo-new.png" alt="Sim Logo" className="h-10 w-10 object-contain" />
         <Button onClick={handleXSignIn} size="sm" className="bg-[#82f3aa] hover:bg-[#6dd991] text-black font-semibold px-6 py-2 transition-all duration-300 hover:scale-105">
           Sign In
         </Button>
@@ -188,13 +186,9 @@ export const MatrixHeroSection = ({
           No middlemen. No transaction fees. Just pure profit.
         </p>
 
-        <Button onClick={handleXSignIn} size="lg" className="gap-2 font-bold px-8 py-5 text-base transition-all duration-300 bg-[#82f3aa] hover:bg-[#6dd991] text-black border-0 shadow-xl shadow-[#82f3aa]/30 hover:shadow-2xl hover:shadow-[#82f3aa]/40 hover:scale-105 whitespace-nowrap mb-4">
+        <Button onClick={handleXSignIn} size="lg" className="gap-2 font-bold px-8 py-5 text-base transition-all duration-300 bg-[#82f3aa] hover:bg-[#6dd991] text-black border-0 shadow-xl shadow-[#82f3aa]/30 hover:shadow-2xl hover:shadow-[#82f3aa]/40 hover:scale-105 whitespace-nowrap">
           Create Your Store with <img src={xIcon} alt="X" className="h-5 w-5 inline-block" />
         </Button>
-
-        <button onClick={onViewAllAgents} className="text-sm text-muted-foreground hover:text-[#82f3aa] hover:underline transition-all duration-300 font-medium mb-8">
-          Explore the Marketplace
-        </button>
       </div>
 
       {/* X Agents Scroller - positioned at bottom */}

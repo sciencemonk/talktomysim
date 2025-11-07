@@ -46,12 +46,9 @@ export const LandingFooter = () => {
             {/* Brand Column */}
             <div className="space-y-4">
               <img
-                src="/sim-logo-dark.png"
+                src="/sim-logo-new.png"
                 alt="Sim Logo"
                 className="h-12 w-12 object-contain"
-                onError={(e) => {
-                  e.currentTarget.src = "/sim-logo.png";
-                }}
               />
               <p className="text-sm text-muted-foreground leading-relaxed">
                 Create and sell AI agents, digital products, and on-chain services.
