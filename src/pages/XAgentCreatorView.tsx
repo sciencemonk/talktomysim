@@ -391,11 +391,11 @@ export default function XAgentCreatorView() {
                         Pending Verification
                       </Badge>
                     )}
-                    <Badge variant="secondary" className="text-xs px-2.5 py-1 font-medium" style={{ backgroundColor: 'rgba(129, 244, 170, 0.15)', color: '#81f4aa', borderColor: 'rgba(129, 244, 170, 0.3)' }}>
-                      <Users className="h-3 w-3 mr-1.5" style={{ color: '#81f4aa' }} />
+                    <Badge variant="secondary" className="text-xs px-2.5 py-1 font-medium" style={{ backgroundColor: '#635cff', color: 'white', borderColor: '#635cff' }}>
+                      <Users className="h-3 w-3 mr-1.5" style={{ color: 'white' }} />
                       {formatNumber(xData?.metrics?.followers)} Followers
                     </Badge>
-                    <Badge variant="secondary" className="text-xs px-2.5 py-1 font-medium" style={{ backgroundColor: 'rgba(129, 244, 170, 0.15)', color: '#81f4aa', borderColor: 'rgba(129, 244, 170, 0.3)' }}>
+                    <Badge variant="secondary" className="text-xs px-2.5 py-1 font-medium" style={{ backgroundColor: '#635cff', color: 'white', borderColor: '#635cff' }}>
                       💰 ${totalEarnings.toFixed(0)} Earned
                     </Badge>
                   </div>
