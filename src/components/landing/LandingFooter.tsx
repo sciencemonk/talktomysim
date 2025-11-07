@@ -40,16 +40,18 @@ export const LandingFooter = () => {
   
   return (
     <>
-      <footer className="w-full py-16 px-6 bg-white">
-        <div className="max-w-7xl mx-auto bg-black rounded-3xl p-12">
+      <footer className="w-full py-16 px-6 border-t border-gray-200 bg-gray-50">
+        <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
             {/* Brand Column */}
             <div className="space-y-4">
-              <img
-                src="/sim-logo-gradient.png"
-                alt="Sim Logo"
-                className="h-12 w-12 object-contain"
-              />
+              <div className="bg-black rounded-2xl p-3 w-fit shadow-lg">
+                <img
+                  src="/sim-logo-gradient.png"
+                  alt="Sim Logo"
+                  className="h-12 w-12 object-contain"
+                />
+              </div>
               <p className="text-sm text-gray-400 leading-relaxed">
                 Create and sell AI agents, digital products, and on-chain services.
               </p>
@@ -57,7 +59,7 @@ export const LandingFooter = () => {
 
             {/* Product Column */}
             <div className="space-y-4">
-              <h3 className="text-base font-semibold text-white">Product</h3>
+              <h3 className="text-base font-semibold text-gray-900">Product</h3>
               <ul className="space-y-3">
                 <li>
                   <a 
@@ -88,7 +90,7 @@ export const LandingFooter = () => {
 
             {/* Resources Column */}
             <div className="space-y-4">
-              <h3 className="text-base font-semibold text-white">Resources</h3>
+              <h3 className="text-base font-semibold text-gray-900">Resources</h3>
               <ul className="space-y-3">
                 <li>
                   <TooltipProvider>
@@ -129,7 +131,7 @@ export const LandingFooter = () => {
 
             {/* Legal Column */}
             <div className="space-y-4">
-              <h3 className="text-base font-semibold text-white">Legal</h3>
+              <h3 className="text-base font-semibold text-gray-900">Legal</h3>
               <ul className="space-y-3">
                 <li>
                   <button
@@ -160,8 +162,8 @@ export const LandingFooter = () => {
           </div>
 
           {/* Bottom Bar */}
-          <div className="pt-8 border-t border-gray-800 flex flex-col md:flex-row items-center justify-between gap-4">
-            <p className="text-sm text-gray-400">
+          <div className="pt-8 border-t border-gray-200 flex flex-col md:flex-row items-center justify-between gap-4">
+            <p className="text-sm text-gray-600">
               © 2025 Solana Internet Market. All rights reserved.
             </p>
             
