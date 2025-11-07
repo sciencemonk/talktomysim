@@ -6,6 +6,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
+import { ThemeToggle } from "@/components/ThemeToggle";
+import { ShareButton } from "@/components/ShareButton";
 import xIcon from "@/assets/x-icon.png";
 
 // Mock offerings data
@@ -91,6 +93,7 @@ export default function DemoStore() {
               </div>
             </button>
             <div className="flex items-center gap-2">
+              <ThemeToggle />
               <Button variant="outline" size="sm" onClick={handleShareLink} className="gap-2">
                 {linkCopied ? <Check className="h-4 w-4" /> : <Share2 className="h-4 w-4" />}
                 <span className="hidden sm:inline">Share</span>
@@ -195,13 +198,11 @@ export default function DemoStore() {
                     {/* Content */}
                     <div className="flex-1 p-6">
                       <div className="space-y-3">
-                        <div className="flex items-start justify-between gap-4">
-                          <div>
-                            <h3 className="text-xl font-bold mb-1">{offering.title}</h3>
-                            <p className="text-sm text-muted-foreground">
-                              {offering.description}
-                            </p>
-                          </div>
+                        <div>
+                          <h3 className="text-xl font-bold mb-1">{offering.title}</h3>
+                          <p className="text-sm text-muted-foreground">
+                            {offering.description}
+                          </p>
                         </div>
                         
                         <div className="flex items-center justify-between pt-3 border-t">
@@ -218,12 +219,19 @@ export default function DemoStore() {
                               <div className="text-sm font-medium">{offering.delivery_method}</div>
                             </div>
                           </div>
-                          <Button style={{
-                        backgroundColor: '#635cff',
-                        color: 'white'
-                      }} className="hover:opacity-90">
-                            Purchase
-                          </Button>
+                          <div className="flex items-center gap-2">
+                            <Button style={{
+                              backgroundColor: '#635cff',
+                              color: 'white'
+                            }} className="hover:opacity-90">
+                              Purchase
+                            </Button>
+                            <ShareButton
+                              url={`https://solanainternetmarket.com/offering/${offering.id}`}
+                              title={offering.title}
+                              description={offering.description}
+                            />
+                          </div>
                         </div>
                       </div>
                     </div>

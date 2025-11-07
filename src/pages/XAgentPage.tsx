@@ -14,6 +14,7 @@ import { AgentChatModal } from "@/components/AgentChatModal";
 import { XOfferingPurchaseModal } from "@/components/XOfferingPurchaseModal";
 import { AgentInfoCollectionModal } from "@/components/AgentInfoCollectionModal";
 import { SimDesignerChat } from "@/components/SimDesignerChat";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { AgentType } from "@/types/agent";
 import { toast } from "sonner";
 import xIcon from "@/assets/x-icon.png";
@@ -505,6 +506,7 @@ export default function XAgentPage() {
               />
             </button>
             <div className="flex items-center gap-2">
+              <ThemeToggle />
               <Button
                 variant="outline"
                 size="sm"
