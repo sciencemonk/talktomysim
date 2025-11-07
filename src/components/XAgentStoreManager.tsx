@@ -563,7 +563,7 @@ export function XAgentStoreManager({ agentId, walletAddress, onWalletUpdate }: X
             {showTypeSelection && !selectedType ? (
               <>
                 <DialogHeader>
-                  <DialogTitle>Select Product Type</DialogTitle>
+                  <DialogTitle className="text-slate-900 dark:text-slate-900">Select Product Type</DialogTitle>
                   <DialogDescription>
                     Choose the type of offering you want to create
                   </DialogDescription>
@@ -620,7 +620,7 @@ export function XAgentStoreManager({ agentId, walletAddress, onWalletUpdate }: X
             ) : (
               <>
                 <DialogHeader>
-                  <DialogTitle>{editingOffering ? "Edit Offering" : "Create New Offering"}</DialogTitle>
+                  <DialogTitle className="text-slate-900 dark:text-slate-900">{editingOffering ? "Edit Offering" : "Create New Offering"}</DialogTitle>
                   <DialogDescription>
                     {selectedType === 'digital' 
                       ? "Create a digital product that buyers can access instantly"
