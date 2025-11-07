@@ -151,13 +151,13 @@ export const MatrixHeroSection = ({
         <source src="https://kxsvyeirqimcydtkowga.supabase.co/storage/v1/object/sign/storage/5404707-uhd_3840_2160_25fps.mp4?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8zNDczMmYzNC1kYzc2LTRhNzgtOGNmOC05MDE5NTRhM2RkMjgiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJzdG9yYWdlLzU0MDQ3MDctdWhkXzM4NDBfMjE2MF8yNWZwcy5tcDQiLCJpYXQiOjE3NjI0ODU3MDUsImV4cCI6MTc5NDAyMTcwNX0.Pytq982adrUXc9sNaK_Z0yivbwROhesiqMIjyWRe-ME" type="video/mp4" />
       </video>
 
-      {/* Dark overlay for text readability */}
-      <div className="absolute inset-0 bg-black/40"></div>
+      {/* Light overlay for text readability */}
+      <div className="absolute inset-0 bg-white/85"></div>
 
       {/* Top Bar with Logo and Sign In Button */}
       <div className="absolute top-0 left-0 right-0 z-50 w-full px-4 py-6 flex items-center justify-between">
         <img src="/sim-logo-gradient.png" alt="Sim Logo" className="h-10 w-10 object-contain" />
-        <Button onClick={handleXSignIn} size="sm" className="bg-[#82f3aa] hover:bg-[#6dd991] text-black font-semibold px-6 py-2 transition-all duration-300 hover:scale-105">
+        <Button onClick={handleXSignIn} size="sm" className="bg-[#635BFF] hover:bg-[#5046E5] text-white font-semibold px-6 py-2 transition-all duration-300 hover:scale-105">
           Sign In
         </Button>
       </div>
@@ -165,28 +165,28 @@ export const MatrixHeroSection = ({
       {/* Content */}
       <div className="relative z-10 flex-1 flex flex-col items-center justify-center px-4 pt-24 text-center max-w-5xl mx-auto w-full">
         {/* $SIMAI badge */}
-        <button onClick={handleCopyAddress} className="mb-6 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-card/50 backdrop-blur-sm border border-border/50 hover:bg-card/70 transition-all cursor-pointer">
+        <button onClick={handleCopyAddress} className="mb-6 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/80 backdrop-blur-sm border border-gray-300 hover:bg-white/90 transition-all cursor-pointer shadow-sm">
           <img src={solanaLogo} alt="Solana" className="h-5 w-5" />
-          <span className="text-xs sm:text-sm font-bold text-zinc-50">Solana Internet Market</span>
+          <span className="text-xs sm:text-sm font-bold text-gray-900">Solana Internet Market</span>
         </button>
 
-        <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-sans font-bold mb-4 tracking-tight text-foreground text-center w-full">
+        <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-sans font-bold mb-4 tracking-tight text-gray-900 text-center w-full">
           Sell your{" "}
-          <span key={currentWordIndex} className="inline-block text-[#82f3aa] animate-fade-in">
+          <span key={currentWordIndex} className="inline-block text-[#635BFF] animate-fade-in">
             {words[currentWordIndex]}
           </span>
         </h1>
         
         {/* Zero fees text */}
-        <p className="text-sm sm:text-base text-[#82f3aa] font-semibold mb-3">
+        <p className="text-sm sm:text-base text-[#635BFF] font-semibold mb-3">
           Accept crypto payments instantly with zero fees
         </p>
         
-        <p className="text-base sm:text-lg md:text-xl text-muted-foreground mb-10 max-w-3xl leading-relaxed">
+        <p className="text-base sm:text-lg md:text-xl text-gray-700 mb-10 max-w-3xl leading-relaxed">
           No middlemen. No transaction fees. Just pure profit.
         </p>
 
-        <Button onClick={handleXSignIn} size="lg" className="gap-2 font-bold px-8 py-5 text-base transition-all duration-300 bg-[#82f3aa] hover:bg-[#6dd991] text-black border-0 shadow-xl shadow-[#82f3aa]/30 hover:shadow-2xl hover:shadow-[#82f3aa]/40 hover:scale-105 whitespace-nowrap mb-24">
+        <Button onClick={handleXSignIn} size="lg" className="gap-2 font-bold px-8 py-5 text-base transition-all duration-300 bg-[#635BFF] hover:bg-[#5046E5] text-white border-0 shadow-xl hover:shadow-2xl hover:scale-105 whitespace-nowrap mb-24">
           Create Your Store with <img src={xIcon} alt="X" className="h-5 w-5 inline-block" />
         </Button>
       </div>
@@ -203,7 +203,7 @@ export const MatrixHeroSection = ({
                   onClick={() => handleAgentClick(agent)}
                   className="flex-shrink-0 transition-all duration-300 hover:scale-110 hover:opacity-80 cursor-pointer"
                 >
-                  <Avatar className="w-14 h-14 md:w-16 md:h-16 rounded-xl border-2 border-transparent hover:border-[#83f1aa]/50">
+                  <Avatar className="w-14 h-14 md:w-16 md:h-16 rounded-xl border-2 border-gray-200 hover:border-[#635BFF]/50 shadow-md">
                     <AvatarImage 
                       src={getAvatarSrc(agent.avatar_url)}
                       alt={agent.name}
@@ -224,7 +224,7 @@ export const MatrixHeroSection = ({
                   onClick={() => handleAgentClick(agent)}
                   className="flex-shrink-0 transition-all duration-300 hover:scale-110 hover:opacity-80 cursor-pointer"
                 >
-                  <Avatar className="w-14 h-14 md:w-16 md:h-16 rounded-xl border-2 border-transparent hover:border-[#83f1aa]/50">
+                  <Avatar className="w-14 h-14 md:w-16 md:h-16 rounded-xl border-2 border-gray-200 hover:border-[#635BFF]/50 shadow-md">
                     <AvatarImage 
                       src={getAvatarSrc(agent.avatar_url)}
                       alt={agent.name}
