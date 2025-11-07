@@ -169,13 +169,13 @@ export const MatrixHeroSection = ({
 
         <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-sans font-bold mb-4 tracking-tight text-white text-center w-full">
           Sell your{" "}
-          <span key={currentWordIndex} className="inline-block text-[#82f3aa] animate-fade-in">
+          <span key={currentWordIndex} className="inline-block text-[#635cff] animate-fade-in">
             {words[currentWordIndex]}
           </span>
         </h1>
         
         {/* Zero fees text */}
-        <p className="text-sm sm:text-base text-[#82f3aa] font-semibold mb-3">
+        <p className="text-sm sm:text-base text-[#635cff] font-semibold mb-3">
           Accept crypto payments instantly with zero fees
         </p>
         
@@ -183,7 +183,7 @@ export const MatrixHeroSection = ({
           No middlemen. No transaction fees. Just pure profit.
         </p>
 
-        <Button onClick={handleXSignIn} size="lg" className="gap-2 font-bold px-8 py-5 text-base transition-all duration-300 bg-[#82f3aa] hover:bg-[#6dd991] text-black border-0 shadow-xl shadow-[#82f3aa]/30 hover:shadow-2xl hover:shadow-[#82f3aa]/40 hover:scale-105 whitespace-nowrap mb-24">
+        <Button onClick={handleXSignIn} size="lg" className="gap-2 font-bold px-8 py-5 text-base transition-all duration-300 bg-[#635cff] hover:bg-[#5046E5] text-white border-0 shadow-xl shadow-[#635cff]/30 hover:shadow-2xl hover:shadow-[#635cff]/40 hover:scale-105 whitespace-nowrap mb-24">
           Create Your Store with <img src={xIcon} alt="X" className="h-5 w-5 inline-block" />
         </Button>
       </div>
