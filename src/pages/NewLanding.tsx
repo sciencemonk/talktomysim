@@ -9,12 +9,11 @@ import { HackathonAnnouncementModal } from "@/components/HackathonAnnouncementMo
 import { OfferingsMosaic } from "@/components/landing/OfferingsMosaic";
 import { OfferingsTextScroll } from "@/components/landing/OfferingsTextScroll";
 import { AgenticCommerceSection } from "@/components/landing/AgenticCommerceSection";
-import { TrendingOfferingsSection } from "@/components/landing/TrendingOfferingsSection";
 import { Whyx402Section } from "@/components/landing/Whyx402Section";
 import { SignUpCTASection } from "@/components/landing/SignUpCTASection";
 import { LandingFooter } from "@/components/landing/LandingFooter";
 import { SimVsStripeSection } from "@/components/landing/SimVsStripeSection";
-import { XAgentsShowcase } from "@/components/landing/XAgentsShowcase";
+import { SocialInternetMarketplace } from "@/components/landing/SocialInternetMarketplace";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -613,14 +612,10 @@ const NewLanding = () => {
       
       <OfferingsTextScroll />
 
+      <SocialInternetMarketplace />
+
       <div id="learn-more-section" className="scroll-mt-4">
         <AgenticCommerceSection />
-      </div>
-
-      <TrendingOfferingsSection />
-
-      <div id="agents-showcase-section" className="scroll-mt-4">
-        <XAgentsShowcase agents={allSims || []} />
       </div>
 
       <SimVsStripeSection />

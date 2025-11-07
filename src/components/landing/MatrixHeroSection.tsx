@@ -146,11 +146,11 @@ export const MatrixHeroSection = ({
         </p>
 
         <Button onClick={handleXSignIn} size="lg" className="gap-2 font-bold px-8 py-5 text-base transition-all duration-300 bg-[#82f3aa] hover:bg-[#6dd991] text-black border-0 shadow-xl shadow-[#82f3aa]/30 hover:shadow-2xl hover:shadow-[#82f3aa]/40 hover:scale-105 whitespace-nowrap mb-4">
-          Get Started with <img src={xIcon} alt="X" className="h-5 w-5 inline-block" />
+          Create Your Store with <img src={xIcon} alt="X" className="h-5 w-5 inline-block" />
         </Button>
 
         <button onClick={onViewAllAgents} className="text-sm text-muted-foreground hover:text-[#82f3aa] hover:underline transition-all duration-300 font-medium mb-16">
-          Learn More
+          Explore the Marketplace
         </button>
       </div>
     </section>;
