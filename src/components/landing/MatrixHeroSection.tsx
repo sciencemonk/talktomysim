@@ -152,7 +152,7 @@ export const MatrixHeroSection = ({
       </video>
 
       {/* Light overlay for text readability */}
-      <div className="absolute inset-0 bg-white/85"></div>
+      <div className="absolute inset-0 bg-white/70"></div>
 
       {/* Top Bar with Logo and Sign In Button */}
       <div className="absolute top-0 left-0 right-0 z-50 w-full px-4 py-6 flex items-center justify-between">
@@ -203,7 +203,7 @@ export const MatrixHeroSection = ({
                   onClick={() => handleAgentClick(agent)}
                   className="flex-shrink-0 transition-all duration-300 hover:scale-110 hover:opacity-80 cursor-pointer"
                 >
-                  <Avatar className="w-14 h-14 md:w-16 md:h-16 rounded-xl border-2 border-gray-200 hover:border-[#635BFF]/50 shadow-md">
+                  <Avatar className="w-[4.5rem] h-[4.5rem] md:w-20 md:h-20 rounded-xl border-2 border-gray-200 hover:border-[#635BFF]/50 shadow-md">
                     <AvatarImage 
                       src={getAvatarSrc(agent.avatar_url)}
                       alt={agent.name}
@@ -224,7 +224,7 @@ export const MatrixHeroSection = ({
                   onClick={() => handleAgentClick(agent)}
                   className="flex-shrink-0 transition-all duration-300 hover:scale-110 hover:opacity-80 cursor-pointer"
                 >
-                  <Avatar className="w-14 h-14 md:w-16 md:h-16 rounded-xl border-2 border-gray-200 hover:border-[#635BFF]/50 shadow-md">
+                  <Avatar className="w-[4.5rem] h-[4.5rem] md:w-20 md:h-20 rounded-xl border-2 border-gray-200 hover:border-[#635BFF]/50 shadow-md">
                     <AvatarImage 
                       src={getAvatarSrc(agent.avatar_url)}
                       alt={agent.name}
