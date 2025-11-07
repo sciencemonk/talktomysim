@@ -196,15 +196,17 @@ export default function OfferingDetail() {
           <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
             <ArrowLeft className="w-5 h-5" />
           </Button>
-          <h1 className="text-2xl font-bold">Offering Details</h1>
-          <Button variant="outline" size="icon" onClick={handleShare} className="ml-auto">
-            <Share2 className="w-4 h-4" />
-          </Button>
         </div>
 
         {/* Main Content */}
         <Card className="mb-6">
           <CardHeader>
+            <div className="flex items-start justify-between mb-4">
+              <div className="flex-1" />
+              <Button variant="outline" size="icon" onClick={handleShare}>
+                <Share2 className="w-4 h-4" />
+              </Button>
+            </div>
             <div className="flex flex-col gap-4">
               {offering.media_url && (
                 <div className="w-full aspect-square max-w-md mx-auto rounded-lg overflow-hidden">
@@ -277,7 +279,7 @@ export default function OfferingDetail() {
               onClick={handlePurchase}
               size="lg" 
               className="w-full mt-4"
-              style={{ backgroundColor: '#81f4aa', color: '#000' }}
+              style={{ backgroundColor: '#635cff', color: '#fff' }}
             >
               {offering.price === 0 ? 'Get for Free' : 'Purchase Now'}
             </Button>
