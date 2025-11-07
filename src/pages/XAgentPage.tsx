@@ -13,7 +13,6 @@ import { AgentOfferingsDisplay } from "@/components/AgentOfferingsDisplay";
 import { AgentChatModal } from "@/components/AgentChatModal";
 import { XOfferingPurchaseModal } from "@/components/XOfferingPurchaseModal";
 import { AgentInfoCollectionModal } from "@/components/AgentInfoCollectionModal";
-import { SimDesignerChat } from "@/components/SimDesignerChat";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { AgentType } from "@/types/agent";
 import { toast } from "sonner";
@@ -705,23 +704,6 @@ export default function XAgentPage() {
         />
       )}
 
-      {/* SIM Designer Chat - Only visible to creator */}
-      {isCreator && agent && socialLinks && (
-        <SimDesignerChat
-          agentId={agent.id}
-          editCode={editCode}
-          currentDesignSettings={designSettings}
-          socialLinks={socialLinks}
-          onDesignUpdate={(newSettings) => {
-            setDesignSettings(newSettings);
-            // Also update social links with new design settings
-            setSocialLinks({
-              ...socialLinks,
-              design_settings: newSettings
-            });
-          }}
-        />
-      )}
     </div>
   );
 }
