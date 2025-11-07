@@ -186,14 +186,14 @@ export const MatrixHeroSection = ({
           No middlemen. No transaction fees. Just pure profit.
         </p>
 
-        <Button onClick={handleXSignIn} size="lg" className="gap-2 font-bold px-8 py-5 text-base transition-all duration-300 bg-[#82f3aa] hover:bg-[#6dd991] text-black border-0 shadow-xl shadow-[#82f3aa]/30 hover:shadow-2xl hover:shadow-[#82f3aa]/40 hover:scale-105 whitespace-nowrap">
+        <Button onClick={handleXSignIn} size="lg" className="gap-2 font-bold px-8 py-5 text-base transition-all duration-300 bg-[#82f3aa] hover:bg-[#6dd991] text-black border-0 shadow-xl shadow-[#82f3aa]/30 hover:shadow-2xl hover:shadow-[#82f3aa]/40 hover:scale-105 whitespace-nowrap mb-24">
           Create Your Store with <img src={xIcon} alt="X" className="h-5 w-5 inline-block" />
         </Button>
       </div>
 
       {/* X Agents Scroller - positioned at bottom */}
       {xAgents && xAgents.length > 0 && (
-        <div className="absolute bottom-0 left-0 right-0 z-10 w-full py-4 overflow-hidden">
+        <div className="absolute bottom-0 left-0 right-0 z-10 w-full py-8 overflow-hidden">
           <div className="relative">
             <div className="flex gap-3 animate-scroll-mobile md:animate-scroll hover:pause-animation px-4">
               {/* First set */}
@@ -201,7 +201,7 @@ export const MatrixHeroSection = ({
                 <button
                   key={`first-${agent.id}`}
                   onClick={() => handleAgentClick(agent)}
-                  className="flex-shrink-0 transition-all duration-300 hover:scale-110 hover:opacity-80"
+                  className="flex-shrink-0 transition-all duration-300 hover:scale-110 hover:opacity-80 cursor-pointer"
                 >
                   <Avatar className="w-14 h-14 md:w-16 md:h-16 rounded-xl border-2 border-transparent hover:border-[#83f1aa]/50">
                     <AvatarImage 
@@ -222,7 +222,7 @@ export const MatrixHeroSection = ({
                 <button
                   key={`second-${agent.id}`}
                   onClick={() => handleAgentClick(agent)}
-                  className="flex-shrink-0 transition-all duration-300 hover:scale-110 hover:opacity-80"
+                  className="flex-shrink-0 transition-all duration-300 hover:scale-110 hover:opacity-80 cursor-pointer"
                 >
                   <Avatar className="w-14 h-14 md:w-16 md:h-16 rounded-xl border-2 border-transparent hover:border-[#83f1aa]/50">
                     <AvatarImage 
