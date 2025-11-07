@@ -107,38 +107,33 @@ export const MatrixHeroSection = ({
   };
 
   // Fetch X agents for the scroller
-  const { data: xAgents } = useQuery({
+  const {
+    data: xAgents
+  } = useQuery({
     queryKey: ['x-agents-tiles'],
     queryFn: async () => {
-      const { data: agents, error } = await supabase
-        .from('advisors')
-        .select('id, name, avatar_url, social_links, created_at')
-        .eq('is_active', true)
-        .eq('sim_category', 'Crypto Mail')
-        .limit(100);
-
+      const {
+        data: agents,
+        error
+      } = await supabase.from('advisors').select('id, name, avatar_url, social_links, created_at').eq('is_active', true).eq('sim_category', 'Crypto Mail').limit(100);
       if (error) throw error;
-
       const agentsWithFollowers = (agents || []).map(agent => ({
         ...agent,
         followers: (agent.social_links as any)?.followers || 0
       }));
 
       // Sort by followers (if available), then by creation date
-      return agentsWithFollowers
-        .sort((a, b) => {
-          // First sort by follower count (descending)
-          if (b.followers !== a.followers) {
-            return b.followers - a.followers;
-          }
-          // If followers are equal (or both 0), sort by creation date (newest first)
-          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-        })
-        .slice(0, 25);
+      return agentsWithFollowers.sort((a, b) => {
+        // First sort by follower count (descending)
+        if (b.followers !== a.followers) {
+          return b.followers - a.followers;
+        }
+        // If followers are equal (or both 0), sort by creation date (newest first)
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      }).slice(0, 25);
     },
     staleTime: 1000 * 60 * 60
   });
-
   const handleAgentClick = (agent: any) => {
     const xUsername = (agent.social_links as any)?.x_username;
     if (xUsername) {
@@ -156,7 +151,7 @@ export const MatrixHeroSection = ({
 
       {/* Top Bar with Logo and Sign In Button */}
       <div className="absolute top-0 left-0 right-0 z-50 w-full px-4 py-6 flex items-center justify-between">
-        <div className="bg-black rounded-2xl p-3 shadow-lg">
+        <div className="rounded-2xl p-3 shadow-lg bg-[#000a00]/0">
           <img src="/sim-logo-gradient.png" alt="Sim Logo" className="h-10 w-10 object-contain" />
         </div>
         <Button onClick={handleXSignIn} size="sm" className="bg-[#635BFF] hover:bg-[#5046E5] text-white font-semibold px-6 py-2 transition-all duration-300 hover:scale-105">
@@ -194,55 +189,29 @@ export const MatrixHeroSection = ({
       </div>
 
       {/* X Agents Scroller - positioned at bottom */}
-      {xAgents && xAgents.length > 0 && (
-        <div className="absolute bottom-0 left-0 right-0 z-10 w-full py-8 overflow-hidden">
+      {xAgents && xAgents.length > 0 && <div className="absolute bottom-0 left-0 right-0 z-10 w-full py-8 overflow-hidden">
           <div className="relative">
             <div className="flex gap-3 animate-scroll-mobile md:animate-scroll hover:pause-animation px-4">
               {/* First set */}
-              {xAgents.map((agent) => (
-                <button
-                  key={`first-${agent.id}`}
-                  onClick={() => handleAgentClick(agent)}
-                  className="flex-shrink-0 transition-all duration-300 hover:scale-110 hover:opacity-80 cursor-pointer"
-                >
+              {xAgents.map(agent => <button key={`first-${agent.id}`} onClick={() => handleAgentClick(agent)} className="flex-shrink-0 transition-all duration-300 hover:scale-110 hover:opacity-80 cursor-pointer">
                   <Avatar className="w-[4.5rem] h-[4.5rem] md:w-20 md:h-20 rounded-xl border-2 border-gray-200 hover:border-[#635BFF]/50 shadow-md">
-                    <AvatarImage 
-                      src={getAvatarSrc(agent.avatar_url)}
-                      alt={agent.name}
-                      referrerPolicy="no-referrer"
-                      crossOrigin="anonymous"
-                      className="rounded-xl object-cover"
-                    />
+                    <AvatarImage src={getAvatarSrc(agent.avatar_url)} alt={agent.name} referrerPolicy="no-referrer" crossOrigin="anonymous" className="rounded-xl object-cover" />
                     <AvatarFallback className="bg-primary/20 text-primary font-semibold text-sm rounded-xl">
                       {agent.name.charAt(0).toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
-                </button>
-              ))}
+                </button>)}
               {/* Duplicate set for seamless loop */}
-              {xAgents.map((agent) => (
-                <button
-                  key={`second-${agent.id}`}
-                  onClick={() => handleAgentClick(agent)}
-                  className="flex-shrink-0 transition-all duration-300 hover:scale-110 hover:opacity-80 cursor-pointer"
-                >
+              {xAgents.map(agent => <button key={`second-${agent.id}`} onClick={() => handleAgentClick(agent)} className="flex-shrink-0 transition-all duration-300 hover:scale-110 hover:opacity-80 cursor-pointer">
                   <Avatar className="w-[4.5rem] h-[4.5rem] md:w-20 md:h-20 rounded-xl border-2 border-gray-200 hover:border-[#635BFF]/50 shadow-md">
-                    <AvatarImage 
-                      src={getAvatarSrc(agent.avatar_url)}
-                      alt={agent.name}
-                      referrerPolicy="no-referrer"
-                      crossOrigin="anonymous"
-                      className="rounded-xl object-cover"
-                    />
+                    <AvatarImage src={getAvatarSrc(agent.avatar_url)} alt={agent.name} referrerPolicy="no-referrer" crossOrigin="anonymous" className="rounded-xl object-cover" />
                     <AvatarFallback className="bg-primary/20 text-primary font-semibold text-sm rounded-xl">
                       {agent.name.charAt(0).toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
-                </button>
-              ))}
+                </button>)}
             </div>
           </div>
-        </div>
-      )}
+        </div>}
     </section>;
 };
