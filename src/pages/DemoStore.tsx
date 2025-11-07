@@ -192,15 +192,39 @@ export default function DemoStore() {
 
             {/* Offerings Grid */}
             <div className="grid gap-6">
-              {mockOfferings.map(offering => <Card key={offering.id} className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer border-border" onClick={handleOfferingClick}>
+              {mockOfferings.map(offering => {
+                // Generate gradient based on offering ID
+                const gradients = [
+                  'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                  'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+                  'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+                  'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
+                  'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
+                  'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                ];
+                const gradientIndex = offering.id.charCodeAt(0) % gradients.length;
+                const gradient = gradients[gradientIndex];
+
+                return <Card key={offering.id} className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer border-border" onClick={handleOfferingClick}>
                   <div className="flex flex-col md:flex-row">
-                    {/* Image */}
-                    {offering.media_url && <div className="md:w-64 h-48 md:h-auto bg-muted relative overflow-hidden shrink-0">
-                        <img src={offering.media_url} alt={offering.title} className="w-full h-full object-cover" />
-                        {offering.offering_type === 'digital' && <Badge className="absolute top-3 right-3 bg-[#635cff] text-white">
-                            Digital
-                          </Badge>}
-                      </div>}
+                    {/* Image or Gradient */}
+                    <div 
+                      className="md:w-64 h-48 md:h-auto bg-muted relative overflow-hidden shrink-0"
+                      style={offering.media_url ? {} : { background: gradient }}
+                    >
+                      {offering.media_url ? (
+                        <>
+                          <img src={offering.media_url} alt={offering.title} className="w-full h-full object-cover" />
+                          {offering.offering_type === 'digital' && <Badge className="absolute top-3 right-3 bg-[#635cff] text-white">
+                              Digital
+                            </Badge>}
+                        </>
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center">
+                          <Package className="h-16 w-16 text-white/80" />
+                        </div>
+                      )}
+                    </div>
                     
                     {/* Content */}
                     <div className="flex-1 p-6">
@@ -249,7 +273,8 @@ export default function DemoStore() {
                       </div>
                     </div>
                   </div>
-                </Card>)}
+                </Card>
+              })}
             </div>
           </div>
         </div>
