@@ -106,7 +106,7 @@ export function AgentOfferingsDisplay({ offerings, avatarUrl, agentName, onAgent
                   </div>
 
                   <div className="flex items-center justify-between pt-2">
-                    <Badge variant="outline" className="bg-primary/5">
+                    <Badge variant="outline" style={{ backgroundColor: '#635cff', color: 'white', borderColor: '#635cff' }}>
                       {offering.price_per_conversation && offering.price_per_conversation > 0
                         ? `$${offering.price_per_conversation} USDC per conversation`
                         : 'Free to use'
