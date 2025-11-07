@@ -135,15 +135,15 @@ export const TrendingOfferingsSection = () => {
   }
 
   return (
-    <section className="container mx-auto px-3 sm:px-4 py-20 border-b bg-gradient-to-b from-muted/30 to-background">
+    <section className="container mx-auto px-3 sm:px-4 py-20 border-b border-gray-200 bg-gradient-to-b from-gray-50 to-white">
       <div className="max-w-7xl mx-auto">
         <div className="flex items-center justify-center gap-3 mb-4">
-          <TrendingUp className="w-8 h-8 text-[#83f1aa]" />
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold">
+          <TrendingUp className="w-8 h-8 text-[#635BFF]" />
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900">
             Trending Now
           </h2>
         </div>
-        <p className="text-center text-lg text-muted-foreground mb-12 max-w-3xl mx-auto">
+        <p className="text-center text-lg text-gray-700 mb-12 max-w-3xl mx-auto">
           Discover the most popular offerings from our community of creators
         </p>
 
@@ -151,7 +151,7 @@ export const TrendingOfferingsSection = () => {
           {trendingOfferings.map((offering, index) => (
             <Card 
               key={offering.id}
-              className="group cursor-pointer hover:border-[#83f1aa] transition-all duration-300 hover:shadow-xl hover:scale-105 overflow-hidden"
+              className="group cursor-pointer bg-white border border-gray-200 hover:border-[#635BFF] transition-all duration-300 hover:shadow-xl hover:scale-105 overflow-hidden"
               onClick={() => handleOfferingClick(offering)}
             >
               <CardContent className="p-4 space-y-3">
@@ -161,8 +161,8 @@ export const TrendingOfferingsSection = () => {
                     variant="secondary" 
                     className="text-xs font-bold"
                     style={{ 
-                      backgroundColor: index < 3 ? '#83f1aa20' : undefined,
-                      color: index < 3 ? '#83f1aa' : undefined
+                      backgroundColor: index < 3 ? '#635BFF20' : undefined,
+                      color: index < 3 ? '#635BFF' : undefined
                     }}
                   >
                     #{index + 1}
@@ -204,11 +204,11 @@ export const TrendingOfferingsSection = () => {
                 </div>
 
                 {/* Price */}
-                <div className="flex items-center justify-between pt-2 border-t">
-                  <span className="text-sm font-bold text-[#83f1aa]">
+                <div className="flex items-center justify-between pt-2 border-t border-gray-200">
+                  <span className="text-sm font-bold text-[#635BFF]">
                     {getPrice(offering)}
                   </span>
-                  <Sparkles className="w-4 h-4 text-[#83f1aa] opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <Sparkles className="w-4 h-4 text-[#635BFF] opacity-0 group-hover:opacity-100 transition-opacity" />
                 </div>
               </CardContent>
             </Card>

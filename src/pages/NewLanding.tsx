@@ -167,7 +167,7 @@ const PumpFunSimCard = ({ sim, onSimClick }: PumpFunSimCardProps) => {
   return (
     <button
       onClick={() => onSimClick(sim)}
-      className={`group relative flex flex-col overflow-hidden rounded-xl bg-card hover:bg-muted border-2 hover:border-[#83f1aa] transition-all duration-300 ${
+      className={`group relative flex flex-col overflow-hidden rounded-xl bg-white hover:bg-gray-50 border-2 border-gray-200 hover:border-[#635BFF] transition-all duration-300 ${
         isPending ? 'opacity-90' : 'hover:scale-105'
       } hover:shadow-lg`}
     >

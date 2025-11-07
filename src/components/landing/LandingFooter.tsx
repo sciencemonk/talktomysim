@@ -40,7 +40,7 @@ export const LandingFooter = () => {
   
   return (
     <>
-      <footer className="w-full py-16 px-6 border-t border-border/50 bg-muted/30">
+      <footer className="w-full py-16 px-6 border-t border-gray-200 bg-gray-50">
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
             {/* Brand Column */}
@@ -57,12 +57,12 @@ export const LandingFooter = () => {
 
             {/* Product Column */}
             <div className="space-y-4">
-              <h3 className="text-base font-semibold text-foreground">Product</h3>
+              <h3 className="text-base font-semibold text-gray-900">Product</h3>
               <ul className="space-y-3">
                 <li>
                   <a 
                     href="#learn-more-section" 
-                    className="text-sm text-muted-foreground hover:text-[#82f3aa] transition-colors"
+                    className="text-sm text-gray-600 hover:text-[#635BFF] transition-colors"
                   >
                     How it Works
                   </a>
@@ -70,7 +70,7 @@ export const LandingFooter = () => {
                 <li>
                   <a 
                     href="#why-crypto" 
-                    className="text-sm text-muted-foreground hover:text-[#82f3aa] transition-colors"
+                    className="text-sm text-gray-600 hover:text-[#635BFF] transition-colors"
                   >
                     Why Crypto?
                   </a>
@@ -78,7 +78,7 @@ export const LandingFooter = () => {
                 <li>
                   <a 
                     href="#agents-showcase-section" 
-                    className="text-sm text-muted-foreground hover:text-[#82f3aa] transition-colors"
+                    className="text-sm text-gray-600 hover:text-[#635BFF] transition-colors"
                   >
                     Browse Stores
                   </a>
@@ -88,13 +88,13 @@ export const LandingFooter = () => {
 
             {/* Resources Column */}
             <div className="space-y-4">
-              <h3 className="text-base font-semibold text-foreground">Resources</h3>
+              <h3 className="text-base font-semibold text-gray-900">Resources</h3>
               <ul className="space-y-3">
                 <li>
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <span className="text-sm text-muted-foreground cursor-not-allowed inline-flex items-center gap-2">
+                        <span className="text-sm text-gray-600 cursor-not-allowed inline-flex items-center gap-2">
                           Documentation
                         </span>
                       </TooltipTrigger>
@@ -111,7 +111,7 @@ export const LandingFooter = () => {
                     href="https://t.me/simprojectofficial" 
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-sm text-muted-foreground hover:text-[#82f3aa] transition-colors"
+                    className="text-sm text-gray-600 hover:text-[#635BFF] transition-colors"
                   >
                     Community
                   </a>
@@ -119,7 +119,7 @@ export const LandingFooter = () => {
                 <li>
                   <button
                     onClick={() => setShowSupportModal(true)}
-                    className="text-sm text-muted-foreground hover:text-[#82f3aa] transition-colors"
+                    className="text-sm text-gray-600 hover:text-[#635BFF] transition-colors"
                   >
                     Support
                   </button>
@@ -129,12 +129,12 @@ export const LandingFooter = () => {
 
             {/* Legal Column */}
             <div className="space-y-4">
-              <h3 className="text-base font-semibold text-foreground">Legal</h3>
+              <h3 className="text-base font-semibold text-gray-900">Legal</h3>
               <ul className="space-y-3">
                 <li>
                   <button
                     onClick={() => setShowPrivacyModal(true)}
-                    className="text-sm text-muted-foreground hover:text-[#82f3aa] transition-colors"
+                    className="text-sm text-gray-600 hover:text-[#635BFF] transition-colors"
                   >
                     Privacy Policy
                   </button>
@@ -142,7 +142,7 @@ export const LandingFooter = () => {
                 <li>
                   <button
                     onClick={() => setShowTermsModal(true)}
-                    className="text-sm text-muted-foreground hover:text-[#82f3aa] transition-colors"
+                    className="text-sm text-gray-600 hover:text-[#635BFF] transition-colors"
                   >
                     Terms of Service
                   </button>
@@ -150,7 +150,7 @@ export const LandingFooter = () => {
                 <li>
                   <button
                     onClick={() => setShowWhitepaperModal(true)}
-                    className="text-sm text-muted-foreground hover:text-[#82f3aa] transition-colors"
+                    className="text-sm text-gray-600 hover:text-[#635BFF] transition-colors"
                   >
                     Whitepaper
                   </button>
@@ -160,8 +160,8 @@ export const LandingFooter = () => {
           </div>
 
           {/* Bottom Bar */}
-          <div className="pt-8 border-t border-border/50 flex flex-col md:flex-row items-center justify-between gap-4">
-            <p className="text-sm text-muted-foreground">
+          <div className="pt-8 border-t border-gray-200 flex flex-col md:flex-row items-center justify-between gap-4">
+            <p className="text-sm text-gray-600">
               © 2025 Solana Internet Market. All rights reserved.
             </p>
             
@@ -170,7 +170,7 @@ export const LandingFooter = () => {
                 href="https://x.com/simprojectorg" 
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-muted-foreground hover:text-[#82f3aa] transition-colors"
+                className="text-gray-600 hover:text-[#635BFF] transition-colors"
               >
                 <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>

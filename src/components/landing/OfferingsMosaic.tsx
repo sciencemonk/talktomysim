@@ -52,7 +52,7 @@ const OfferingCard = ({ offering, onClick, onShare }: OfferingCardProps) => {
   return (
     <button
       onClick={onClick}
-      className="group relative flex-shrink-0 w-[280px] sm:w-[320px] flex flex-col overflow-hidden rounded-xl bg-card hover:bg-muted border-2 hover:border-[#83f1aa] transition-all duration-300 hover:scale-105 hover:shadow-lg"
+      className="group relative flex-shrink-0 w-[280px] sm:w-[320px] flex flex-col overflow-hidden rounded-xl bg-white hover:bg-gray-50 border-2 border-gray-200 hover:border-[#635BFF] transition-all duration-300 hover:scale-105 hover:shadow-lg"
     >
       <Button
         variant="ghost"
@@ -66,7 +66,7 @@ const OfferingCard = ({ offering, onClick, onShare }: OfferingCardProps) => {
       <div className="p-4 space-y-3">
         {/* Creator Info */}
         <div className="flex items-center gap-2">
-          <Avatar className="h-10 w-10 border-2 border-[#83f1aa]">
+          <Avatar className="h-10 w-10 border-2 border-[#635BFF]">
             <AvatarImage 
               src={getAvatarSrc()} 
               alt={offering.agent.name}
@@ -95,11 +95,11 @@ const OfferingCard = ({ offering, onClick, onShare }: OfferingCardProps) => {
         </p>
 
         {/* Price */}
-        <div className="pt-2 border-t border-border/50">
+        <div className="pt-2 border-t border-gray-200">
           <Badge 
             variant="outline" 
             className="text-sm font-bold"
-            style={{ backgroundColor: 'rgba(131, 241, 170, 0.15)', color: '#83f1aa', borderColor: 'rgba(131, 241, 170, 0.3)' }}
+            style={{ backgroundColor: 'rgba(99, 91, 255, 0.15)', color: '#635BFF', borderColor: 'rgba(99, 91, 255, 0.3)' }}
           >
             ${offering.price.toFixed(2)} USDC
           </Badge>

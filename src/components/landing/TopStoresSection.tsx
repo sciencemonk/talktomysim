@@ -51,7 +51,7 @@ const StoreCard = ({ agent, rank, onClick }: StoreCardProps) => {
   return (
     <button
       onClick={onClick}
-      className="group relative flex flex-col overflow-hidden rounded-lg bg-card hover:bg-muted border hover:border-[#83f1aa] transition-all duration-300 hover:scale-105 hover:shadow-md"
+      className="group relative flex flex-col overflow-hidden rounded-lg bg-white hover:bg-gray-50 border border-gray-200 hover:border-[#635BFF] transition-all duration-300 hover:scale-105 hover:shadow-lg"
     >
       {/* Image container */}
       <div className="relative w-full aspect-[4/3] overflow-hidden bg-muted">
@@ -214,14 +214,14 @@ export const TopStoresSection = () => {
   }
 
   return (
-    <section className="relative py-16 px-4 bg-background border-b">
+    <section className="relative py-16 px-4 bg-white border-b border-gray-200">
       <div className="container mx-auto max-w-7xl relative z-10">
         {/* Header */}
         <div className="text-center mb-12 space-y-4">
-          <h2 className="text-4xl md:text-5xl font-bold">
-            Discover <span className="text-gradient bg-gradient-to-r from-[#83f1aa] to-[#2DD4BF] bg-clip-text text-transparent">Agentic Stores</span>
+          <h2 className="text-4xl md:text-5xl font-bold text-gray-900">
+            Discover <span className="text-gradient bg-gradient-to-r from-[#635BFF] to-[#00D4FF] bg-clip-text text-transparent">Agentic Stores</span>
           </h2>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+          <p className="text-lg text-gray-700 max-w-2xl mx-auto">
             Browse the top trending AI agents accepting x402 payments
           </p>
         </div>

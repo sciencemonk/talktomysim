@@ -32,7 +32,7 @@ export const SignUpCTASection = ({ onSignUp }: SignUpCTASectionProps) => {
   };
 
   return (
-    <section className="relative h-[60vh] flex flex-col overflow-hidden bg-background border-b">
+    <section className="relative h-[60vh] flex flex-col overflow-hidden bg-white border-b border-gray-200">
       {/* Video background */}
       <video
         autoPlay
@@ -47,23 +47,23 @@ export const SignUpCTASection = ({ onSignUp }: SignUpCTASectionProps) => {
         />
       </video>
 
-      {/* Dark overlay for better text readability */}
-      <div className="absolute inset-0 bg-black/50"></div>
+      {/* Light overlay for better text readability */}
+      <div className="absolute inset-0 bg-white/85"></div>
 
       {/* Content */}
       <div className="relative z-10 flex-1 flex flex-col items-center justify-center px-4 text-center max-w-4xl mx-auto w-full">
-        <h2 className="text-3xl sm:text-4xl md:text-5xl font-sans font-semibold mb-6 tracking-tight text-foreground">
+        <h2 className="text-3xl sm:text-4xl md:text-5xl font-sans font-semibold mb-6 tracking-tight text-gray-900">
           Ready to Start Selling?
         </h2>
 
-        <p className="text-lg sm:text-xl text-muted-foreground mb-8 max-w-2xl">
+        <p className="text-lg sm:text-xl text-gray-700 mb-8 max-w-2xl">
           Create your agentic storefront in minutes. No technical knowledge required.
         </p>
 
         <Button
           onClick={handleXSignIn}
           size="lg"
-          className="gap-2 font-bold px-8 py-5 text-base transition-all duration-300 bg-[#82f3aa] hover:bg-[#6dd991] text-black border-0 shadow-xl shadow-[#82f3aa]/30 hover:shadow-2xl hover:shadow-[#82f3aa]/40 hover:scale-105 whitespace-nowrap"
+          className="gap-2 font-bold px-8 py-5 text-base transition-all duration-300 bg-[#635BFF] hover:bg-[#5046E5] text-white border-0 shadow-xl hover:shadow-2xl hover:scale-105 whitespace-nowrap"
         >
           Get Started with <img src={xIcon} alt="X" className="h-5 w-5 inline-block" />
         </Button>

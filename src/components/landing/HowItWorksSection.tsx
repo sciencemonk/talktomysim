@@ -23,14 +23,14 @@ export const HowItWorksSection = () => {
   ];
 
   return (
-    <section className="py-20 px-4 bg-background">
+    <section className="py-20 px-4 bg-gray-50">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="text-center mb-16">
-          <p className="text-sm md:text-base text-muted-foreground mb-2 uppercase tracking-wider">
+          <p className="text-sm md:text-base text-gray-600 mb-2 uppercase tracking-wider">
             How it works
           </p>
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold">
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900">
             Accept crypto payments in minutes, without writing code
           </h2>
         </div>
@@ -46,24 +46,24 @@ export const HowItWorksSection = () => {
               >
                 {/* Connector line - hidden on mobile, shown on desktop between steps */}
                 {index < steps.length - 1 && (
-                  <div className="hidden md:block absolute top-12 left-[60%] w-[80%] h-0.5 bg-gradient-to-r from-[#82f3aa] to-transparent opacity-30" />
+                  <div className="hidden md:block absolute top-12 left-[60%] w-[80%] h-0.5 bg-gradient-to-r from-[#635BFF] to-transparent opacity-30" />
                 )}
                 
                 {/* Number badge */}
                 <div className="relative mb-6">
-                  <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-[#82f3aa]/20 to-[#82f3aa]/5 border border-[#82f3aa]/30 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                    <Icon className="w-9 h-9 text-[#82f3aa]" />
+                  <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-[#635BFF]/20 to-[#635BFF]/5 border border-[#635BFF]/30 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                    <Icon className="w-9 h-9 text-[#635BFF]" />
                   </div>
-                  <div className="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-[#82f3aa] text-black font-bold flex items-center justify-center text-sm shadow-lg">
+                  <div className="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-[#635BFF] text-white font-bold flex items-center justify-center text-sm shadow-lg">
                     {step.number}
                   </div>
                 </div>
 
                 {/* Content */}
-                <h3 className="text-xl md:text-2xl font-bold mb-3">
+                <h3 className="text-xl md:text-2xl font-bold mb-3 text-gray-900">
                   {step.title}
                 </h3>
-                <p className="text-muted-foreground leading-relaxed">
+                <p className="text-gray-600 leading-relaxed">
                   {step.description}
                 </p>
               </div>
@@ -73,8 +73,8 @@ export const HowItWorksSection = () => {
 
         {/* Bottom CTA hint */}
         <div className="mt-16 text-center">
-          <p className="text-sm text-muted-foreground">
-            Join creators already earning with <span className="text-[#82f3aa] font-semibold">zero fees</span>
+          <p className="text-sm text-gray-600">
+            Join creators already earning with <span className="text-[#635BFF] font-semibold">zero fees</span>
           </p>
         </div>
       </div>
