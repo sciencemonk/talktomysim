@@ -33,6 +33,12 @@ export default function OfferingDetail() {
   const [showReceiptModal, setShowReceiptModal] = useState(false);
   const [purchaseData, setPurchaseData] = useState<PurchaseData | null>(null);
 
+  // Force light mode on load
+  useEffect(() => {
+    const { setTheme } = require('@/hooks/useTheme');
+    setTheme('light');
+  }, []);
+
   const { data: offering, isLoading } = useQuery({
     queryKey: ['offering-detail', offeringId],
     queryFn: async () => {
@@ -191,13 +197,6 @@ export default function OfferingDetail() {
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-8 max-w-4xl">
-        {/* Header */}
-        <div className="flex items-center gap-4 mb-6">
-          <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
-            <ArrowLeft className="w-5 h-5" />
-          </Button>
-        </div>
-
         {/* Main Content */}
         <Card className="mb-6">
           <CardHeader>
