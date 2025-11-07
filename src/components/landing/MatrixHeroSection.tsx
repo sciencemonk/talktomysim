@@ -200,17 +200,17 @@ export const MatrixHeroSection = ({
                 <button
                   key={`first-${agent.id}`}
                   onClick={() => handleAgentClick(agent)}
-                  className="flex-shrink-0 p-2 rounded-lg bg-card/40 backdrop-blur-md border border-border/40 hover:border-[#83f1aa]/50 hover:bg-card/60 transition-all duration-300 hover:scale-105"
+                  className="flex-shrink-0 transition-all duration-300 hover:scale-110 hover:opacity-80"
                 >
-                  <Avatar className="w-12 h-12 md:w-14 md:h-14 border-2 border-[#83f1aa]/30 rounded-lg">
+                  <Avatar className="w-14 h-14 md:w-16 md:h-16 rounded-xl border-2 border-transparent hover:border-[#83f1aa]/50">
                     <AvatarImage 
                       src={getAvatarSrc(agent.avatar_url)}
                       alt={agent.name}
                       referrerPolicy="no-referrer"
                       crossOrigin="anonymous"
-                      className="rounded-lg"
+                      className="rounded-xl object-cover"
                     />
-                    <AvatarFallback className="bg-primary/10 text-primary font-semibold text-sm rounded-lg">
+                    <AvatarFallback className="bg-primary/20 text-primary font-semibold text-sm rounded-xl">
                       {agent.name.charAt(0).toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
@@ -221,17 +221,17 @@ export const MatrixHeroSection = ({
                 <button
                   key={`second-${agent.id}`}
                   onClick={() => handleAgentClick(agent)}
-                  className="flex-shrink-0 p-2 rounded-lg bg-card/40 backdrop-blur-md border border-border/40 hover:border-[#83f1aa]/50 hover:bg-card/60 transition-all duration-300 hover:scale-105"
+                  className="flex-shrink-0 transition-all duration-300 hover:scale-110 hover:opacity-80"
                 >
-                  <Avatar className="w-12 h-12 md:w-14 md:h-14 border-2 border-[#83f1aa]/30 rounded-lg">
+                  <Avatar className="w-14 h-14 md:w-16 md:h-16 rounded-xl border-2 border-transparent hover:border-[#83f1aa]/50">
                     <AvatarImage 
                       src={getAvatarSrc(agent.avatar_url)}
                       alt={agent.name}
                       referrerPolicy="no-referrer"
                       crossOrigin="anonymous"
-                      className="rounded-lg"
+                      className="rounded-xl object-cover"
                     />
-                    <AvatarFallback className="bg-primary/10 text-primary font-semibold text-sm rounded-lg">
+                    <AvatarFallback className="bg-primary/20 text-primary font-semibold text-sm rounded-xl">
                       {agent.name.charAt(0).toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
