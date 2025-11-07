@@ -1,99 +1,93 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { useNavigate } from "react-router-dom";
-import { Sparkles } from "lucide-react";
 
-interface Offering {
+interface XAgent {
   id: string;
-  title: string;
-  price: number;
-  agent: {
-    id: string;
-    name: string;
-    social_links: any;
-  };
+  name: string;
+  avatar_url: string | null;
+  social_links: any;
+  followers: number;
 }
 
 export const OfferingsTextScroll = () => {
   const navigate = useNavigate();
 
-  const { data: offerings } = useQuery({
-    queryKey: ['offerings-text-scroll'],
+  const { data: xAgents } = useQuery({
+    queryKey: ['x-agents-tiles'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('x_agent_offerings')
-        .select(`
-          id,
-          title,
-          price,
-          agent:advisors!agent_id (
-            id,
-            name,
-            social_links
-          )
-        `)
+      const { data: agents, error } = await supabase
+        .from('advisors')
+        .select('id, name, avatar_url, social_links')
         .eq('is_active', true)
-        .limit(30);
+        .eq('sim_category', 'Crypto Mail')
+        .limit(100);
 
       if (error) throw error;
-      return data as unknown as Offering[];
+
+      const agentsWithFollowers = (agents || []).map(agent => ({
+        ...agent,
+        followers: (agent.social_links as any)?.followers || 0
+      }));
+
+      return agentsWithFollowers
+        .filter(agent => agent.followers > 0)
+        .sort((a, b) => b.followers - a.followers)
+        .slice(0, 8) as XAgent[];
     },
+    staleTime: 1000 * 60 * 60
   });
 
-  const handleOfferingClick = (offering: Offering) => {
-    const xUsername = offering.agent.social_links?.x_username;
+  const handleAgentClick = (agent: XAgent) => {
+    const xUsername = (agent.social_links as any)?.x_username;
     if (xUsername) {
       navigate(`/${xUsername}`);
     }
   };
 
-  if (!offerings || offerings.length === 0) {
+  const getAvatarSrc = (avatarUrl: string | null) => {
+    if (avatarUrl) {
+      let processedUrl = avatarUrl;
+      if (processedUrl.includes('pbs.twimg.com') && processedUrl.includes('_normal')) {
+        processedUrl = processedUrl.replace('_normal', '_400x400');
+      }
+      if (processedUrl.includes('pbs.twimg.com')) {
+        return `https://images.weserv.nl/?url=${encodeURIComponent(processedUrl)}`;
+      }
+      return processedUrl;
+    }
+    return avatarUrl;
+  };
+
+  if (!xAgents || xAgents.length === 0) {
     return null;
   }
 
   return (
-    <div className="w-full py-2 overflow-hidden bg-transparent">
-      <div className="relative">
-        <div className="flex gap-3 animate-scroll hover:pause-animation px-4">
-          {/* First set */}
-          {offerings.map((offering) => (
+    <div className="w-full py-8 overflow-hidden bg-transparent">
+      <div className="max-w-7xl mx-auto px-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-8 gap-3">
+          {xAgents.map((agent) => (
             <button
-              key={`first-${offering.id}`}
-              onClick={() => handleOfferingClick(offering)}
-              className="flex-shrink-0 px-3 py-1.5 rounded-full bg-transparent hover:bg-white/10 border border-white/20 hover:border-[#83f1aa]/50 transition-all duration-200 flex items-center gap-2 group"
+              key={agent.id}
+              onClick={() => handleAgentClick(agent)}
+              className="flex flex-col items-center gap-2 p-3 rounded-xl bg-card/30 backdrop-blur-sm border border-border/30 hover:border-[#83f1aa]/50 hover:bg-card/50 transition-all duration-300 hover:scale-105"
             >
-              <Sparkles className="h-3 w-3 text-[#83f1aa] flex-shrink-0" />
-              <span className="text-xs font-medium text-white whitespace-nowrap">
-                {offering.title}
+              <Avatar className="w-16 h-16 border-2 border-[#83f1aa]/30">
+                <AvatarImage 
+                  src={getAvatarSrc(agent.avatar_url)}
+                  alt={agent.name}
+                  referrerPolicy="no-referrer"
+                  crossOrigin="anonymous"
+                />
+                <AvatarFallback className="bg-primary/10 text-primary font-semibold">
+                  {agent.name.charAt(0).toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+              <span className="text-xs font-medium text-foreground truncate w-full text-center">
+                {agent.name.replace(/^@/, '')}
               </span>
-              <Badge 
-                variant="outline" 
-                className="text-[10px] px-1.5 py-0 ml-1"
-                style={{ backgroundColor: 'rgba(131, 241, 170, 0.1)', color: '#83f1aa', borderColor: 'rgba(131, 241, 170, 0.3)' }}
-              >
-                ${offering.price}
-              </Badge>
-            </button>
-          ))}
-          {/* Duplicate set for seamless loop */}
-          {offerings.map((offering) => (
-            <button
-              key={`second-${offering.id}`}
-              onClick={() => handleOfferingClick(offering)}
-              className="flex-shrink-0 px-3 py-1.5 rounded-full bg-transparent hover:bg-white/10 border border-white/20 hover:border-[#83f1aa]/50 transition-all duration-200 flex items-center gap-2 group"
-            >
-              <Sparkles className="h-3 w-3 text-[#83f1aa] flex-shrink-0" />
-              <span className="text-xs font-medium text-white whitespace-nowrap">
-                {offering.title}
-              </span>
-              <Badge 
-                variant="outline" 
-                className="text-[10px] px-1.5 py-0 ml-1"
-                style={{ backgroundColor: 'rgba(131, 241, 170, 0.1)', color: '#83f1aa', borderColor: 'rgba(131, 241, 170, 0.3)' }}
-              >
-                ${offering.price}
-              </Badge>
             </button>
           ))}
         </div>
