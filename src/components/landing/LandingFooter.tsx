@@ -54,7 +54,7 @@ export const LandingFooter = () => {
                 }}
               />
               <p className="text-sm text-muted-foreground leading-relaxed">
-                Create a verified store and start receiving crypto. No barriers. No fees.
+                Create and sell AI agents, digital products, and on-chain services.
               </p>
             </div>
 
@@ -165,7 +165,7 @@ export const LandingFooter = () => {
           {/* Bottom Bar */}
           <div className="pt-8 border-t border-border/50 flex flex-col md:flex-row items-center justify-between gap-4">
             <p className="text-sm text-muted-foreground">
-              © 2025 SIM Corporation. All rights reserved.
+              © 2025 Solana Internet Market. All rights reserved.
             </p>
             
             <div className="flex items-center gap-6">
