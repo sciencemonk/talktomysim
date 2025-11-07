@@ -336,10 +336,7 @@ export default function XAgentCreatorView() {
               <span className="hidden sm:inline">Public View</span>
             </Button>
             <div className="flex items-center gap-2 md:gap-3">
-              <div className="flex items-center gap-2">
-                <img src={xIcon} alt="X" className="h-4 w-4 md:h-5 md:w-5" />
-                <span className="text-xs md:text-sm font-medium text-muted-foreground">Creator Dashboard</span>
-              </div>
+              <span className="text-xs md:text-sm font-medium text-muted-foreground">Creator Dashboard</span>
               <ThemeToggle />
               <Button
                 variant="ghost"
