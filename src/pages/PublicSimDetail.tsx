@@ -997,7 +997,7 @@ const PublicSimDetail = () => {
                   className="hover:opacity-80 transition-opacity"
                 >
                   <img 
-                    src="/sim-logo.png" 
+                    src="/sim-logo-light-mode.png" 
                     alt="Sim" 
                     className="h-5 w-5 object-contain"
                     onError={(e) => {
