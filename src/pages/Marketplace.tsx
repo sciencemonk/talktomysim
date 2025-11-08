@@ -110,20 +110,22 @@ const Marketplace = () => {
     })),
   ];
 
-  // Count items by category
+  // Count items by category (only offerings, not agents)
   const categoryCounts = {
     'AI Agents': offerings.filter(o => o.offering_type === 'agent').length,
     'Digital Goods': offerings.filter(o => o.offering_type === 'digital').length,
     'Products': offerings.filter(o => o.offering_type === 'standard').length,
-    'Featured': marketplaceItems.filter(item => item.badge).length,
+    'Featured': offerings.filter(o => o.offering_type && ['agent', 'digital', 'standard'].includes(o.offering_type)).length,
   };
 
-  // Filter and sort items
+  // Filter and sort items - exclude agents from products view
   const filteredItems = marketplaceItems.filter(item => {
     const matchesSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
                          item.description.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = categoryFilter === "all" || item.category === categoryFilter;
-    return matchesSearch && matchesCategory;
+    // Only show offerings (not agents) in the products grid
+    const isOffering = item.type === 'offering';
+    return matchesSearch && matchesCategory && isOffering;
   }).sort((a, b) => {
     switch (sortBy) {
       case "trending":
