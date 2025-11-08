@@ -8,8 +8,8 @@ export const updateMetaTags = (config: {
   image?: string;
   url?: string;
 }) => {
-  const defaultTitle = "Sim - Build Your AI";
-  const defaultDescription = "Create AI agents in seconds. Chat with historical figures, experts, and custom AI personalities.";
+  const defaultTitle = "Solana Internet Market";
+  const defaultDescription = "Create and sell AI agents, digital products, and on-chain services. Powered by x402";
   const defaultImage = "https://simproject.org/sim-logo.png?v=2";
   const defaultUrl = "https://simproject.org";
 

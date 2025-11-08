@@ -52,6 +52,11 @@ export default function XAgentPage() {
     }
   }, []);
 
+  // Set page title for public store
+  useEffect(() => {
+    document.title = "Solana Internet Market";
+  }, []);
+
   useEffect(() => {
     if (username) {
       fetchAgent();
