@@ -10,8 +10,10 @@ import { useOfferings } from "@/hooks/useOfferings";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { useQuery } from "@tanstack/react-query";
 import solanaLogo from "@/assets/solana-logo.png";
+import xIcon from "@/assets/x-icon.png";
 import { supabase } from "@/integrations/supabase/client";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { toast } from "sonner";
 
 type MarketplaceItem = {
   id: string;
@@ -166,6 +168,28 @@ const Marketplace = () => {
     return gradients[index % gradients.length];
   };
 
+  const handleXSignIn = async () => {
+    try {
+      const redirectUrl = `${window.location.origin}/auth/callback`;
+      
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'twitter',
+        options: {
+          redirectTo: redirectUrl,
+          skipBrowserRedirect: false,
+        }
+      });
+
+      if (error) {
+        console.error('OAuth error:', error);
+        throw error;
+      }
+    } catch (error: any) {
+      console.error('Error signing in with X:', error);
+      toast.error(error?.message || 'Failed to sign in with X');
+    }
+  };
+
   return (
     <div className="min-h-screen bg-bg">
       {/* Top Header with Logo, Sign In and Theme Toggle */}
@@ -181,16 +205,16 @@ const Marketplace = () => {
               <span className="text-xs sm:text-sm font-bold text-fg">Solana Internet Market</span>
             </button>
             
-            {/* Create a Store and Theme Toggle on the right */}
+            {/* Sign in with X and Theme Toggle on the right */}
             <div className="flex items-center gap-2">
               <ThemeToggle />
               <Button
                 variant="outline"
                 size="sm"
-                className="bg-transparent border border-fg text-fg hover:bg-fg/10 hover:text-fg text-xs sm:text-sm px-2 sm:px-4"
-                onClick={() => navigate('/')}
+                className="bg-transparent border border-fg text-fg hover:bg-fg/10 hover:text-fg text-xs sm:text-sm px-2 sm:px-4 gap-2"
+                onClick={handleXSignIn}
               >
-                Create a Store
+                Sign in with <img src={xIcon} alt="X" className="h-3.5 w-3.5 sm:h-4 sm:w-4 inline-block" />
               </Button>
             </div>
           </div>
