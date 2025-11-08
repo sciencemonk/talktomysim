@@ -38,12 +38,15 @@ const PublicSimDetail = () => {
   const { toast } = useToast();
   const [sim, setSim] = useState<AgentType | null>(null);
   const [isXAgent, setIsXAgent] = useState<boolean | null>(null);
-  const { setTheme } = useTheme();
+  const { theme, setTheme } = useTheme();
   
-  // Force light mode for public store pages
+  // Set light mode as default on initial load only
   useEffect(() => {
-    setTheme('light');
-  }, [setTheme]);
+    const hasThemePreference = localStorage.getItem('vite-ui-theme');
+    if (!hasThemePreference) {
+      setTheme('light');
+    }
+  }, []);
   
   // Check if this is an embedded view or chat mode and show chat immediately
   const searchParams = new URLSearchParams(window.location.search);

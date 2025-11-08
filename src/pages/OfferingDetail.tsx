@@ -13,6 +13,7 @@ import { DigitalFileModal } from "@/components/DigitalFileModal";
 import { AgentOfferingModal } from "@/components/AgentOfferingModal";
 import { OfferingReceiptModal } from "@/components/OfferingReceiptModal";
 import { updateMetaTags, resetMetaTags } from "@/lib/metaTags";
+import { useTheme } from "@/hooks/useTheme";
 
 interface PurchaseData {
   signature: string;
@@ -32,11 +33,14 @@ export default function OfferingDetail() {
   const [showAgentModal, setShowAgentModal] = useState(false);
   const [showReceiptModal, setShowReceiptModal] = useState(false);
   const [purchaseData, setPurchaseData] = useState<PurchaseData | null>(null);
+  const { theme, setTheme } = useTheme();
 
-  // Force light mode on load
+  // Set light mode as default on initial load only
   useEffect(() => {
-    const { setTheme } = require('@/hooks/useTheme');
-    setTheme('light');
+    const hasThemePreference = localStorage.getItem('vite-ui-theme');
+    if (!hasThemePreference) {
+      setTheme('light');
+    }
   }, []);
 
   const { data: offering, isLoading } = useQuery({

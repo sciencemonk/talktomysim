@@ -42,12 +42,15 @@ export default function XAgentPage() {
   const [socialLinks, setSocialLinks] = useState<any>(null);
   const [isCreator, setIsCreator] = useState(false);
   const [editCode, setEditCode] = useState(codeFromUrl || "");
-  const { setTheme } = useTheme();
+  const { theme, setTheme } = useTheme();
 
-  // Force light mode for public store pages
+  // Set light mode as default on initial load only
   useEffect(() => {
-    setTheme('light');
-  }, [setTheme]);
+    const hasThemePreference = localStorage.getItem('vite-ui-theme');
+    if (!hasThemePreference) {
+      setTheme('light');
+    }
+  }, []);
 
   useEffect(() => {
     if (username) {
