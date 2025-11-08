@@ -241,7 +241,6 @@ export function XAgentSimPageEditor({
                 {/* Profile Info */}
                 <div className="flex-1 space-y-4">
                   <div>
-                    <p className="text-sm text-muted-foreground mb-2">Crypto-native Online Stores</p>
                     <div className="flex items-center gap-3 flex-wrap mb-2">
                       <h1 className="text-3xl md:text-4xl font-bold">{agentName}</h1>
                       {isVerified && (
