@@ -357,52 +357,6 @@ export default function XAgentCreatorView() {
       {/* Main Content */}
       <div className="container mx-auto px-3 md:px-4 py-6 md:py-8 max-w-7xl">
         <div className="space-y-4 md:space-y-6">
-          {/* Profile Header */}
-          <Card className="border-border bg-card/80 backdrop-blur-sm shadow-lg">
-            <CardHeader className="p-5 md:p-6">
-              <div className="flex items-start gap-3 md:gap-4">
-                <div className="relative">
-                  <Avatar className="h-16 w-16 md:h-20 md:w-20 border-2 shrink-0 ring-2 ring-[#81f4aa]/20" style={{ borderColor: '#81f4aa' }}>
-                    <AvatarImage 
-                      src={getImageUrl(xData?.profileImageUrl || agent.avatar)} 
-                      alt={agent.name}
-                      className="object-cover"
-                      referrerPolicy="no-referrer"
-                    />
-                    <AvatarFallback className="text-lg font-bold">{agent.name[0]}</AvatarFallback>
-                  </Avatar>
-                  {xData?.verified && (
-                    <div className="absolute -bottom-1 -right-1 h-6 w-6 rounded-full flex items-center justify-center" style={{ backgroundColor: '#81f4aa' }}>
-                      <span className="text-black text-xs font-bold">✓</span>
-                    </div>
-                  )}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-start gap-2 mb-1 flex-wrap">
-                    <CardTitle className="text-xl md:text-2xl break-words font-bold">{xData?.displayName || agent.name}</CardTitle>
-                  </div>
-                  <CardDescription className="text-sm md:text-base mb-3 break-all font-medium opacity-70">
-                    {xData?.username || username}
-                  </CardDescription>
-                  <div className="flex items-center gap-2 flex-wrap">
-                    {!agent.is_verified && (
-                      <Badge variant="outline" className="text-xs px-2.5 py-1 font-medium text-yellow-600 border-yellow-500 bg-yellow-50 dark:bg-yellow-950">
-                        Pending Verification
-                      </Badge>
-                    )}
-                    <Badge variant="secondary" className="text-xs px-2.5 py-1 font-medium" style={{ backgroundColor: '#635cff', color: 'white', borderColor: '#635cff' }}>
-                      <Users className="h-3 w-3 mr-1.5" style={{ color: 'white' }} />
-                      {formatNumber(xData?.metrics?.followers)} Followers
-                    </Badge>
-                    <Badge variant="secondary" className="text-xs px-2.5 py-1 font-medium" style={{ backgroundColor: '#635cff', color: 'white', borderColor: '#635cff' }}>
-                      💰 ${totalEarnings.toFixed(0)} Earned
-                    </Badge>
-                  </div>
-                </div>
-              </div>
-            </CardHeader>
-          </Card>
-
           {/* Tabs */}
           <Tabs defaultValue="your-page" className="w-full">
             <TabsList className="grid w-full grid-cols-3">
