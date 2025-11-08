@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { Bot, Package, FileText, Search, Filter, Star, TrendingUp, Sparkles, Zap, Store } from "lucide-react";
+import { Bot, Package, FileText, Search, Filter, Star, TrendingUp, Sparkles, Zap, Store, Mail } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
@@ -308,16 +308,15 @@ const Marketplace = () => {
           </CardContent>
         </Card>
 
-        {/* All AI Agents Section */}
-        <div className="mb-12">
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <h2 className="text-2xl font-bold text-fg mb-2">AI Agents</h2>
-              <p className="text-sm text-fgMuted">Discover all AI agents on the marketplace</p>
+        {/* Categorized AI Agents Sections */}
+        {agentsLoading ? (
+          <div className="mb-12">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h2 className="text-2xl font-bold text-fg mb-2">AI Agents</h2>
+                <p className="text-sm text-fgMuted">Loading agents...</p>
+              </div>
             </div>
-          </div>
-          
-          {agentsLoading ? (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
               {Array.from({ length: 12 }).map((_, i) => (
                 <Card key={i} className="animate-pulse border-border">
@@ -329,82 +328,246 @@ const Marketplace = () => {
                 </Card>
               ))}
             </div>
-          ) : (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-              {agents
-                .sort((a, b) => {
-                  // Sort verified agents first
-                  if (a.is_verified && !b.is_verified) return -1;
-                  if (!a.is_verified && b.is_verified) return 1;
-                  // Then by creation date
-                  return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-                })
-                .map((agent) => {
-                  const getAvatarSrc = () => {
-                    const avatarUrl = agent.avatar_url || agent.avatar;
-                    
-                    if (avatarUrl && (avatarUrl.startsWith('http://') || avatarUrl.startsWith('https://'))) {
-                      return `https://images.weserv.nl/?url=${encodeURIComponent(avatarUrl)}`;
-                    }
-                    return avatarUrl;
-                  };
+          </div>
+        ) : (
+          <>
+            {/* X Agents Section */}
+            {agents.filter(a => (a as any).sim_category === 'Crypto Mail').length > 0 && (
+              <div className="mb-12">
+                <div className="flex items-center justify-between mb-6">
+                  <div>
+                    <h2 className="text-2xl font-bold text-fg mb-2 flex items-center gap-2">
+                      <Mail className="h-6 w-6" />
+                      X Agents
+                    </h2>
+                    <p className="text-sm text-fgMuted">Verified X/Twitter personalities as AI agents</p>
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+                  {agents
+                    .filter(a => (a as any).sim_category === 'Crypto Mail')
+                    .sort((a, b) => {
+                      if (a.is_verified && !b.is_verified) return -1;
+                      if (!a.is_verified && b.is_verified) return 1;
+                      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+                    })
+                    .map((agent) => {
+                      const getAvatarSrc = () => {
+                        const avatarUrl = agent.avatar_url || agent.avatar;
+                        if (avatarUrl && (avatarUrl.startsWith('http://') || avatarUrl.startsWith('https://'))) {
+                          return `https://images.weserv.nl/?url=${encodeURIComponent(avatarUrl)}`;
+                        }
+                        return avatarUrl;
+                      };
 
-                  return (
-                    <Card 
-                      key={agent.id}
-                      className="group cursor-pointer border-border bg-card hover:shadow-lg hover:border-primary/30 transition-all duration-300 hover:-translate-y-1"
-                      onClick={() => handleItemClick({
-                        id: agent.id,
-                        type: 'agent',
-                        name: agent.name,
-                        description: agent.description,
-                        avatar: agent.avatar,
-                        price: agent.price || 0,
-                        category: agent.marketplace_category || 'AI Agents',
-                        rating: agent.performance || 0,
-                        sales: agent.interactions || 0,
-                        badge: agent.is_verified ? 'Verified' : agent.is_featured ? 'Featured' : undefined,
-                      })}
-                    >
-                      {/* Image container */}
-                      <div className="relative w-full aspect-[4/3] overflow-hidden bg-muted rounded-t-lg">
-                        <Avatar className="w-full h-full rounded-none">
-                          <AvatarImage 
-                            src={getAvatarSrc()}
-                            alt={agent.name}
-                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                            referrerPolicy="no-referrer"
-                            crossOrigin="anonymous"
-                          />
-                          <AvatarFallback className="w-full h-full rounded-none bg-primary/10 flex items-center justify-center">
-                            <Bot className="h-8 w-8 text-primary" />
-                          </AvatarFallback>
-                        </Avatar>
-                      </div>
-                      
-                      {/* Content section */}
-                      <CardContent className="p-3 space-y-2">
-                        <div className="flex items-center justify-between gap-2">
-                          <h3 className="font-semibold text-fg text-sm truncate group-hover:text-primary transition-colors flex-1">
-                            {agent.name}
-                          </h3>
-                          {agent.is_verified && (
-                            <Badge className="text-xs bg-brandPurple text-white shrink-0">
-                              <Sparkles className="h-3 w-3 mr-1" />
-                              Verified
-                            </Badge>
-                          )}
-                        </div>
-                        <p className="text-xs text-fgMuted line-clamp-2">
-                          {agent.description || agent.auto_description}
-                        </p>
-                      </CardContent>
-                    </Card>
-                  );
-                })}
-            </div>
-          )}
-        </div>
+                      return (
+                        <Card 
+                          key={agent.id}
+                          className="group cursor-pointer border-border bg-card hover:shadow-lg hover:border-primary/30 transition-all duration-300 hover:-translate-y-1"
+                          onClick={() => handleItemClick({
+                            id: agent.id,
+                            type: 'agent',
+                            name: agent.name,
+                            description: agent.description,
+                            avatar: agent.avatar,
+                            price: agent.price || 0,
+                            category: agent.marketplace_category || 'AI Agents',
+                            rating: agent.performance || 0,
+                            sales: agent.interactions || 0,
+                            badge: agent.is_verified ? 'Verified' : undefined,
+                          })}
+                        >
+                          <div className="relative w-full aspect-[4/3] overflow-hidden bg-muted rounded-t-lg">
+                            <Avatar className="w-full h-full rounded-none">
+                              <AvatarImage 
+                                src={getAvatarSrc()}
+                                alt={agent.name}
+                                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                                referrerPolicy="no-referrer"
+                                crossOrigin="anonymous"
+                              />
+                              <AvatarFallback className="w-full h-full rounded-none bg-primary/10 flex items-center justify-center">
+                                <Mail className="h-8 w-8 text-primary" />
+                              </AvatarFallback>
+                            </Avatar>
+                          </div>
+                          <CardContent className="p-3 space-y-2">
+                            <div className="flex items-center justify-between gap-2">
+                              <h3 className="font-semibold text-fg text-sm truncate group-hover:text-primary transition-colors flex-1">
+                                {agent.name}
+                              </h3>
+                              {agent.is_verified && (
+                                <Badge className="text-xs bg-brandPurple text-white shrink-0">
+                                  <Sparkles className="h-3 w-3 mr-1" />
+                                  Verified
+                                </Badge>
+                              )}
+                            </div>
+                            <p className="text-xs text-fgMuted line-clamp-2">
+                              {agent.description || agent.auto_description}
+                            </p>
+                          </CardContent>
+                        </Card>
+                      );
+                    })}
+                </div>
+              </div>
+            )}
+
+            {/* PumpFun Agents Section */}
+            {agents.filter(a => (a as any).sim_category === 'PumpFun Agent').length > 0 && (
+              <div className="mb-12">
+                <div className="flex items-center justify-between mb-6">
+                  <div>
+                    <h2 className="text-2xl font-bold text-fg mb-2 flex items-center gap-2">
+                      <Zap className="h-6 w-6" />
+                      PumpFun Agents
+                    </h2>
+                    <p className="text-sm text-fgMuted">AI agents representing PumpFun tokens</p>
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+                  {agents
+                    .filter(a => (a as any).sim_category === 'PumpFun Agent')
+                    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+                    .map((agent) => {
+                      const getAvatarSrc = () => {
+                        const avatarUrl = agent.avatar_url || agent.avatar;
+                        if (avatarUrl && (avatarUrl.startsWith('http://') || avatarUrl.startsWith('https://'))) {
+                          return `https://images.weserv.nl/?url=${encodeURIComponent(avatarUrl)}`;
+                        }
+                        return avatarUrl;
+                      };
+
+                      return (
+                        <Card 
+                          key={agent.id}
+                          className="group cursor-pointer border-border bg-card hover:shadow-lg hover:border-primary/30 transition-all duration-300 hover:-translate-y-1"
+                          onClick={() => handleItemClick({
+                            id: agent.id,
+                            type: 'agent',
+                            name: agent.name,
+                            description: agent.description,
+                            avatar: agent.avatar,
+                            price: agent.price || 0,
+                            category: agent.marketplace_category || 'AI Agents',
+                            rating: agent.performance || 0,
+                            sales: agent.interactions || 0,
+                          })}
+                        >
+                          <div className="relative w-full aspect-[4/3] overflow-hidden bg-muted rounded-t-lg">
+                            <Avatar className="w-full h-full rounded-none">
+                              <AvatarImage 
+                                src={getAvatarSrc()}
+                                alt={agent.name}
+                                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                                referrerPolicy="no-referrer"
+                                crossOrigin="anonymous"
+                              />
+                              <AvatarFallback className="w-full h-full rounded-none bg-primary/10 flex items-center justify-center">
+                                <Zap className="h-8 w-8 text-primary" />
+                              </AvatarFallback>
+                            </Avatar>
+                          </div>
+                          <CardContent className="p-3 space-y-2">
+                            <h3 className="font-semibold text-fg text-sm truncate group-hover:text-primary transition-colors">
+                              {agent.name}
+                            </h3>
+                            <p className="text-xs text-fgMuted line-clamp-2">
+                              {agent.description || agent.auto_description}
+                            </p>
+                          </CardContent>
+                        </Card>
+                      );
+                    })}
+                </div>
+              </div>
+            )}
+
+            {/* Chatbots Section */}
+            {agents.filter(a => !(a as any).sim_category || (a as any).sim_category === 'Chat').length > 0 && (
+              <div className="mb-12">
+                <div className="flex items-center justify-between mb-6">
+                  <div>
+                    <h2 className="text-2xl font-bold text-fg mb-2 flex items-center gap-2">
+                      <Bot className="h-6 w-6" />
+                      Chatbots
+                    </h2>
+                    <p className="text-sm text-fgMuted">AI chatbots for various use cases</p>
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+                  {agents
+                    .filter(a => !(a as any).sim_category || (a as any).sim_category === 'Chat')
+                    .sort((a, b) => {
+                      if (a.is_verified && !b.is_verified) return -1;
+                      if (!a.is_verified && b.is_verified) return 1;
+                      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+                    })
+                    .map((agent) => {
+                      const getAvatarSrc = () => {
+                        const avatarUrl = agent.avatar_url || agent.avatar;
+                        if (avatarUrl && (avatarUrl.startsWith('http://') || avatarUrl.startsWith('https://'))) {
+                          return `https://images.weserv.nl/?url=${encodeURIComponent(avatarUrl)}`;
+                        }
+                        return avatarUrl;
+                      };
+
+                      return (
+                        <Card 
+                          key={agent.id}
+                          className="group cursor-pointer border-border bg-card hover:shadow-lg hover:border-primary/30 transition-all duration-300 hover:-translate-y-1"
+                          onClick={() => handleItemClick({
+                            id: agent.id,
+                            type: 'agent',
+                            name: agent.name,
+                            description: agent.description,
+                            avatar: agent.avatar,
+                            price: agent.price || 0,
+                            category: agent.marketplace_category || 'AI Agents',
+                            rating: agent.performance || 0,
+                            sales: agent.interactions || 0,
+                            badge: agent.is_verified ? 'Verified' : agent.is_featured ? 'Featured' : undefined,
+                          })}
+                        >
+                          <div className="relative w-full aspect-[4/3] overflow-hidden bg-muted rounded-t-lg">
+                            <Avatar className="w-full h-full rounded-none">
+                              <AvatarImage 
+                                src={getAvatarSrc()}
+                                alt={agent.name}
+                                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                                referrerPolicy="no-referrer"
+                                crossOrigin="anonymous"
+                              />
+                              <AvatarFallback className="w-full h-full rounded-none bg-primary/10 flex items-center justify-center">
+                                <Bot className="h-8 w-8 text-primary" />
+                              </AvatarFallback>
+                            </Avatar>
+                          </div>
+                          <CardContent className="p-3 space-y-2">
+                            <div className="flex items-center justify-between gap-2">
+                              <h3 className="font-semibold text-fg text-sm truncate group-hover:text-primary transition-colors flex-1">
+                                {agent.name}
+                              </h3>
+                              {agent.is_verified && (
+                                <Badge className="text-xs bg-brandPurple text-white shrink-0">
+                                  <Sparkles className="h-3 w-3 mr-1" />
+                                  Verified
+                                </Badge>
+                              )}
+                            </div>
+                            <p className="text-xs text-fgMuted line-clamp-2">
+                              {agent.description || agent.auto_description}
+                            </p>
+                          </CardContent>
+                        </Card>
+                      );
+                    })}
+                </div>
+              </div>
+            )}
+          </>
+        )}
 
         {/* Stores Section */}
         <div className="mb-12">
