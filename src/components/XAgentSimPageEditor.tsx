@@ -3,8 +3,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Plus, Trash2, Save, ExternalLink, Check, Package } from "lucide-react";
+import { Plus, Trash2, Save, ExternalLink, Check, Package, Edit2, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
@@ -37,10 +38,14 @@ export function XAgentSimPageEditor({
   const [customLinks, setCustomLinks] = useState<CustomLink[]>([]);
   const [isSaving, setIsSaving] = useState(false);
   const [offerings, setOfferings] = useState<any[]>([]);
+  const [description, setDescription] = useState("");
+  const [isEditingDescription, setIsEditingDescription] = useState(false);
+  const [editingLinkId, setEditingLinkId] = useState<string | null>(null);
 
   useEffect(() => {
     loadCustomLinks();
     loadOfferings();
+    loadDescription();
   }, [agentId]);
 
   const loadOfferings = async () => {
@@ -56,6 +61,21 @@ export function XAgentSimPageEditor({
       setOfferings(data || []);
     } catch (error) {
       console.error('Error loading offerings:', error);
+    }
+  };
+
+  const loadDescription = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('advisors')
+        .select('description')
+        .eq('id', agentId)
+        .single();
+
+      if (error) throw error;
+      setDescription(data?.description || "");
+    } catch (error) {
+      console.error('Error loading description:', error);
     }
   };
 
@@ -99,8 +119,23 @@ export function XAgentSimPageEditor({
     setCustomLinks(customLinks.filter(link => link.id !== id));
   };
 
+  const saveDescription = async () => {
+    try {
+      const { error } = await supabase
+        .from('advisors')
+        .update({ description })
+        .eq('id', agentId);
+
+      if (error) throw error;
+      toast.success("Description saved!");
+      setIsEditingDescription(false);
+    } catch (error) {
+      console.error('Error saving description:', error);
+      toast.error("Failed to save description");
+    }
+  };
+
   const saveLinks = async () => {
-    setIsSaving(true);
     try {
       // Validate links
       const validLinks = customLinks.filter(link => link.label && link.url);
@@ -129,13 +164,12 @@ export function XAgentSimPageEditor({
 
       if (error) throw error;
 
-      toast.success("Links saved successfully!");
+      toast.success("Links saved!");
       setCustomLinks(validLinks);
+      setEditingLinkId(null);
     } catch (error) {
       console.error('Error saving links:', error);
       toast.error("Failed to save links");
-    } finally {
-      setIsSaving(false);
     }
   };
 
@@ -206,7 +240,7 @@ export function XAgentSimPageEditor({
                 </div>
 
                 {/* Profile Info */}
-                <div className="flex-1 space-y-2">
+                <div className="flex-1 space-y-3">
                   <div className="flex items-center gap-2 flex-wrap">
                     <h2 className="text-2xl font-bold">{agentName}</h2>
                     {isVerified && (
@@ -216,7 +250,56 @@ export function XAgentSimPageEditor({
                       </Badge>
                     )}
                   </div>
-                  <p className="text-muted-foreground font-medium text-sm">{agentUsername}</p>
+                  
+                  {/* Editable Description */}
+                  <div className="space-y-2">
+                    {isEditingDescription ? (
+                      <div className="space-y-2">
+                        <Textarea
+                          value={description}
+                          onChange={(e) => setDescription(e.target.value)}
+                          placeholder="Add a description for your page..."
+                          className="min-h-[80px] text-sm"
+                          maxLength={300}
+                        />
+                        <div className="flex gap-2">
+                          <Button
+                            size="sm"
+                            onClick={saveDescription}
+                            style={{ backgroundColor: '#635cff', color: 'white' }}
+                          >
+                            <Check className="h-3 w-3 mr-1" />
+                            Save
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => {
+                              setIsEditingDescription(false);
+                              loadDescription();
+                            }}
+                          >
+                            <X className="h-3 w-3 mr-1" />
+                            Cancel
+                          </Button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="group flex items-start gap-2">
+                        <p className="text-muted-foreground text-sm flex-1">
+                          {description || "Click edit to add a description for your page"}
+                        </p>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => setIsEditingDescription(true)}
+                          className="opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          <Edit2 className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    )}
+                  </div>
                   
                   {/* Wallet Address */}
                   {walletAddress && (
@@ -226,26 +309,96 @@ export function XAgentSimPageEditor({
                   )}
 
                   {/* Custom Links */}
-                  {customLinks.filter(link => link.label && link.url).length > 0 && (
-                    <div className="flex flex-wrap gap-2 pt-2">
+                  <div className="space-y-2">
+                    <div className="flex flex-wrap gap-2">
                       {customLinks
                         .filter(link => link.label && link.url)
                         .map(link => (
-                          <Button
-                            key={link.id}
-                            variant="outline"
-                            size="sm"
-                            className="gap-2"
-                            asChild
-                          >
-                            <a href={link.url} target="_blank" rel="noopener noreferrer">
-                              {link.label}
-                              <ExternalLink className="h-3 w-3" />
-                            </a>
-                          </Button>
+                          editingLinkId === link.id ? (
+                            <Card key={link.id} className="p-3 space-y-2 w-full">
+                              <div className="space-y-2">
+                                <Input
+                                  value={link.label}
+                                  onChange={(e) => updateLink(link.id, 'label', e.target.value)}
+                                  placeholder="Label"
+                                  className="text-sm"
+                                />
+                                <Input
+                                  value={link.url}
+                                  onChange={(e) => updateLink(link.id, 'url', e.target.value)}
+                                  placeholder="https://..."
+                                  className="text-sm"
+                                />
+                              </div>
+                              <div className="flex gap-2">
+                                <Button
+                                  size="sm"
+                                  onClick={saveLinks}
+                                  style={{ backgroundColor: '#635cff', color: 'white' }}
+                                >
+                                  <Check className="h-3 w-3 mr-1" />
+                                  Save
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => {
+                                    setEditingLinkId(null);
+                                    loadCustomLinks();
+                                  }}
+                                >
+                                  <X className="h-3 w-3 mr-1" />
+                                  Cancel
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="destructive"
+                                  onClick={() => {
+                                    removeLink(link.id);
+                                    saveLinks();
+                                  }}
+                                >
+                                  <Trash2 className="h-3 w-3" />
+                                </Button>
+                              </div>
+                            </Card>
+                          ) : (
+                            <div key={link.id} className="group relative">
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="gap-2"
+                                asChild
+                              >
+                                <a href={link.url} target="_blank" rel="noopener noreferrer">
+                                  {link.label}
+                                  <ExternalLink className="h-3 w-3" />
+                                </a>
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={() => setEditingLinkId(link.id)}
+                                className="absolute -top-2 -right-2 h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                              >
+                                <Edit2 className="h-3 w-3" />
+                              </Button>
+                            </div>
+                          )
                         ))}
+                      {customLinks.length < 5 && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={addLink}
+                          className="gap-2"
+                        >
+                          <Plus className="h-3 w-3" />
+                          Add Link
+                        </Button>
+                      )}
                     </div>
-                  )}
+                  </div>
                 </div>
               </div>
             </div>
@@ -286,95 +439,6 @@ export function XAgentSimPageEditor({
               </div>
             </div>
           </div>
-        </CardContent>
-      </Card>
-
-      {/* Link Editor Card */}
-      <Card className="border-border bg-card/80 backdrop-blur-sm shadow-lg">
-        <CardHeader>
-          <CardTitle>Customize Links</CardTitle>
-          <CardDescription>
-            Add up to 5 custom links to display on your public page
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          {/* Link Editor */}
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="text-sm font-medium">Custom Links (max 5)</h3>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={addLink}
-                disabled={customLinks.length >= 5}
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                Add Link
-              </Button>
-            </div>
-
-            <div className="space-y-3">
-              {customLinks.map((link, index) => (
-                <Card key={link.id} className="border-border">
-                  <CardContent className="p-4">
-                    <div className="flex items-start gap-3">
-                      <div className="flex-1 space-y-3">
-                        <div>
-                          <Label htmlFor={`label-${link.id}`} className="text-xs">
-                            Label
-                          </Label>
-                          <Input
-                            id={`label-${link.id}`}
-                            value={link.label}
-                            onChange={(e) => updateLink(link.id, 'label', e.target.value)}
-                            placeholder="e.g., My Website"
-                            className="mt-1"
-                          />
-                        </div>
-                        <div>
-                          <Label htmlFor={`url-${link.id}`} className="text-xs">
-                            URL
-                          </Label>
-                          <Input
-                            id={`url-${link.id}`}
-                            value={link.url}
-                            onChange={(e) => updateLink(link.id, 'url', e.target.value)}
-                            placeholder="https://..."
-                            className="mt-1"
-                          />
-                        </div>
-                      </div>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => removeLink(link.id)}
-                        className="shrink-0 mt-6"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-
-            {customLinks.length === 0 && (
-              <div className="text-center py-8 text-muted-foreground text-sm">
-                No custom links yet. Click "Add Link" to get started.
-              </div>
-            )}
-          </div>
-
-          {/* Save Button */}
-          <Button
-            onClick={saveLinks}
-            disabled={isSaving}
-            className="w-full"
-            style={{ backgroundColor: '#635cff', color: 'white' }}
-          >
-            <Save className="h-4 w-4 mr-2" />
-            {isSaving ? "Saving..." : "Save Changes"}
-          </Button>
         </CardContent>
       </Card>
     </div>
