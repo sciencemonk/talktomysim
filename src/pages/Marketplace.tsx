@@ -46,27 +46,39 @@ const Marketplace = () => {
       
       if (error) throw error;
       
-      return (data || []).map(agent => ({
-        id: agent.id,
-        name: agent.name,
-        description: agent.description || agent.auto_description || '',
-        auto_description: agent.auto_description,
-        type: 'General Tutor' as const,
-        status: 'active' as const,
-        createdAt: agent.created_at,
-        updatedAt: agent.updated_at,
-        avatar: agent.avatar_url,
-        avatar_url: agent.avatar_url,
-        prompt: agent.prompt,
-        sim_category: agent.sim_category,
-        marketplace_category: agent.marketplace_category,
-        is_verified: agent.is_verified || false,
-        is_featured: false,
-        price: agent.price || 0,
-        interactions: 0,
-        performance: 0,
-        social_links: agent.social_links,
-      }));
+      // Filter out Crypto Mail agents that might have invalid X usernames
+      // to prevent errors when fetching profile data
+      return (data || [])
+        .filter(agent => {
+          // Skip Crypto Mail agents except for specific verified ones
+          if (agent.sim_category === 'Crypto Mail') {
+            const xUsername = (agent.social_links as any)?.x_username;
+            // Only include verified Crypto Mail agents or specific whitelisted ones
+            return agent.is_verified || xUsername?.toLowerCase() === 'mrjethroknights';
+          }
+          return true;
+        })
+        .map(agent => ({
+          id: agent.id,
+          name: agent.name,
+          description: agent.description || agent.auto_description || '',
+          auto_description: agent.auto_description,
+          type: 'General Tutor' as const,
+          status: 'active' as const,
+          createdAt: agent.created_at,
+          updatedAt: agent.updated_at,
+          avatar: agent.avatar_url,
+          avatar_url: agent.avatar_url,
+          prompt: agent.prompt,
+          sim_category: agent.sim_category,
+          marketplace_category: agent.marketplace_category,
+          is_verified: agent.is_verified || false,
+          is_featured: false,
+          price: agent.price || 0,
+          interactions: 0,
+          performance: 0,
+          social_links: agent.social_links,
+        }));
     },
   });
 
