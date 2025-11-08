@@ -102,10 +102,10 @@ const Marketplace = () => {
             {/* Logo on the left */}
             <button 
               onClick={() => navigate('/')}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full backdrop-blur-sm transition-all cursor-pointer shadow-sm bg-primary/10 border border-primary/20 hover:bg-primary/20"
+              className="inline-flex items-center gap-1.5 px-2 sm:px-3 py-1.5 rounded-full backdrop-blur-sm transition-all cursor-pointer shadow-sm bg-primary/10 border border-primary/20 hover:bg-primary/20 whitespace-nowrap"
             >
-              <img src={solanaLogo} alt="Solana" className="h-5 w-5" />
-              <span className="text-sm sm:text-base font-bold text-fg">Solana Internet Market</span>
+              <img src={solanaLogo} alt="Solana" className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+              <span className="text-xs sm:text-sm font-bold text-fg">Solana Internet Market</span>
             </button>
             
             {/* Create a Store and Theme Toggle on the right */}
