@@ -520,17 +520,8 @@ export default function XAgentPage() {
               <span className="text-xs sm:text-sm font-bold text-fg">Solana Internet Market</span>
             </button>
             
-            {/* Back to Marketplace, Theme Toggle, Share and Create a Store on the right */}
+            {/* Theme Toggle, Share and Create a Store on the right */}
             <div className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                className="bg-transparent border border-fg text-fg hover:bg-fg/10 hover:text-fg text-xs sm:text-sm px-2 sm:px-4"
-                onClick={() => navigate('/marketplace')}
-              >
-                <ArrowLeft className="h-4 w-4 sm:mr-1" />
-                <span className="hidden sm:inline">Marketplace</span>
-              </Button>
               <ThemeToggle />
               <Button
                 variant="outline"
@@ -554,9 +545,22 @@ export default function XAgentPage() {
         </div>
       </div>
 
+      {/* Back to Marketplace Button */}
+      <div className="container mx-auto px-4 md:px-6 pt-24 pb-4">
+        <Button
+          variant="ghost"
+          size="sm"
+          className="text-fg hover:text-fg hover:bg-fg/10 gap-2"
+          onClick={() => navigate('/marketplace')}
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Back to Marketplace
+        </Button>
+      </div>
+
       {/* Hero Section - Prominent Profile Header */}
       <div 
-        className="border-b border-border/40 bg-gradient-to-r from-card/95 via-card/80 to-card/95 backdrop-blur-sm relative overflow-hidden mt-20"
+        className="border-b border-border/40 bg-gradient-to-r from-card/95 via-card/80 to-card/95 backdrop-blur-sm relative overflow-hidden"
       >
         {/* Header Image Background */}
         {designSettings?.headerImage && (

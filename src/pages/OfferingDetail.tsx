@@ -215,19 +215,8 @@ export default function OfferingDetail() {
               <span className="text-xs sm:text-sm font-bold text-fg">Solana Internet Market</span>
             </button>
             
-            {/* Back to Store, Theme Toggle and Create a Store on the right */}
+            {/* Theme Toggle and Create a Store on the right */}
             <div className="flex items-center gap-2">
-              {offering?.agent && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="bg-transparent border border-fg text-fg hover:bg-fg/10 hover:text-fg text-xs sm:text-sm px-2 sm:px-4"
-                  onClick={handleAgentClick}
-                >
-                  <Store className="h-4 w-4 sm:mr-1" />
-                  <span className="hidden sm:inline">Back to Store</span>
-                </Button>
-              )}
               <ThemeToggle />
               <Button
                 variant="outline"
@@ -242,7 +231,22 @@ export default function OfferingDetail() {
         </div>
       </div>
       
-      <div className="container mx-auto px-4 py-8 max-w-4xl mt-20">
+      {/* Back to Store Button */}
+      {offering?.agent && (
+        <div className="container mx-auto px-4 pt-24 pb-4 max-w-4xl">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="text-fg hover:text-fg hover:bg-fg/10 gap-2"
+            onClick={handleAgentClick}
+          >
+            <Store className="h-4 w-4" />
+            Back to Store
+          </Button>
+        </div>
+      )}
+      
+      <div className="container mx-auto px-4 py-8 max-w-4xl">
         {/* Main Content */}
         <Card className="mb-6">
           <CardHeader>
