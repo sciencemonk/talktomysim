@@ -288,10 +288,18 @@ const Marketplace = () => {
             </div>
           ) : (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-              {agents
-                .filter(agent => agent.is_featured || agent.is_verified)
-                .slice(0, 6)
-                .map((agent) => (
+              {(() => {
+                // Prioritize verified agents, then fill with other agents
+                const featuredAgents = agents
+                  .sort((a, b) => {
+                    // Sort verified agents first
+                    if (a.is_verified && !b.is_verified) return -1;
+                    if (!a.is_verified && b.is_verified) return 1;
+                    return 0;
+                  })
+                  .slice(0, 6);
+                
+                return featuredAgents.map((agent) => (
                   <Card 
                     key={agent.id}
                     className="group cursor-pointer border-border bg-card hover:shadow-lg hover:border-primary/30 transition-all duration-300 hover:-translate-y-1"
@@ -329,7 +337,8 @@ const Marketplace = () => {
                       </p>
                     </CardContent>
                   </Card>
-                ))}
+                ));
+              })()}
             </div>
           )}
         </div>
