@@ -68,9 +68,8 @@ const App = () => (
             <BrowserRouter>
             <Routes>
               {/* Public routes */}
-              <Route path="/landing" element={<AgentsDirectory />} />
+              <Route path="/landing" element={<NewLanding />} />
               <Route path="/agents" element={<AgentsDirectory />} />
-              <Route path="/marketplace" element={<Marketplace />} />
               <Route path="/live" element={<LiveChat />} />
               <Route path="/livestream" element={<LiveStream />} />
               <Route path="/pump" element={<Pump />} />
@@ -109,8 +108,11 @@ const App = () => (
               {/* X Agent Creator - Must come before catch-all */}
               <Route path="/:username/creator" element={<XAgentCreatorView />} />
               
-              {/* Root route - new landing page */}
-              <Route path="/" element={<NewLanding />} />
+              {/* Root route - Marketplace is now the homepage */}
+              <Route path="/" element={<Marketplace />} />
+              
+              {/* Previous landing page moved to /home */}
+              <Route path="/home-old" element={<NewLanding />} />
               
               {/* Authenticated routes with sidebar */}
               <Route element={<AuthenticatedLayout />}>
