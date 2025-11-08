@@ -262,6 +262,78 @@ const Marketplace = () => {
           </CardContent>
         </Card>
 
+        {/* Featured AI Agents Section */}
+        <div className="mb-12">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h2 className="text-2xl font-bold text-fg mb-2">Featured AI Agents</h2>
+              <p className="text-sm text-fgMuted">Discover top AI agents on the marketplace</p>
+            </div>
+            <Button variant="outline" size="sm" onClick={() => setCategoryFilter('AI Agents')}>
+              View All
+            </Button>
+          </div>
+          
+          {agentsLoading ? (
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <Card key={i} className="animate-pulse border-border">
+                  <CardContent className="p-4 text-center">
+                    <div className="w-16 h-16 rounded-full bg-bgMuted mx-auto mb-3" />
+                    <div className="h-4 bg-bgMuted rounded w-3/4 mx-auto mb-2" />
+                    <div className="h-3 bg-bgMuted rounded w-1/2 mx-auto" />
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+              {agents
+                .filter(agent => agent.is_featured || agent.is_verified)
+                .slice(0, 6)
+                .map((agent) => (
+                  <Card 
+                    key={agent.id}
+                    className="group cursor-pointer border-border bg-card hover:shadow-lg hover:border-primary/30 transition-all duration-300 hover:-translate-y-1"
+                    onClick={() => handleItemClick({
+                      id: agent.id,
+                      type: 'agent',
+                      name: agent.name,
+                      description: agent.description,
+                      avatar: agent.avatar,
+                      price: agent.price || 0,
+                      category: agent.marketplace_category || 'AI Agents',
+                      rating: agent.performance || 0,
+                      sales: agent.interactions || 0,
+                      badge: agent.is_verified ? 'Verified' : agent.is_featured ? 'Featured' : undefined,
+                    })}
+                  >
+                    <CardContent className="p-4 text-center">
+                      <Avatar className="w-16 h-16 mx-auto mb-3 ring-2 ring-border group-hover:ring-primary transition-all">
+                        <AvatarImage src={agent.avatar} alt={agent.name} />
+                        <AvatarFallback className="bg-primary/10 text-primary font-semibold">
+                          <Bot className="h-6 w-6" />
+                        </AvatarFallback>
+                      </Avatar>
+                      {agent.is_verified && (
+                        <Badge className="mb-2 text-xs bg-brandPurple text-white">
+                          <Sparkles className="h-3 w-3 mr-1" />
+                          Verified
+                        </Badge>
+                      )}
+                      <h3 className="font-semibold text-fg text-sm truncate group-hover:text-primary transition-colors">
+                        {agent.name}
+                      </h3>
+                      <p className="text-xs text-fgMuted mt-1 line-clamp-2">
+                        {agent.description}
+                      </p>
+                    </CardContent>
+                  </Card>
+                ))}
+            </div>
+          )}
+        </div>
+
         {/* Stores Section */}
         <div className="mb-12">
           <div className="flex items-center justify-between mb-6">
