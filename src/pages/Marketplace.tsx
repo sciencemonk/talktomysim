@@ -123,77 +123,8 @@ const Marketplace = () => {
         </div>
       </div>
 
-      {/* Search and Filters - Moved above hero */}
-      <div className="pt-24 bg-bg">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <Card className="border-border bg-card">
-            <CardContent className="p-6">
-              <div className="flex flex-col gap-4">
-                <div className="relative flex-1">
-                  <Search className="absolute left-3 top-3 h-5 w-5 text-fgMuted" />
-                  <Input 
-                    placeholder="Search for AI agents, products, and digital goods..." 
-                    value={searchTerm} 
-                    onChange={e => setSearchTerm(e.target.value)} 
-                    className="pl-10 h-12 text-base bg-inputBg border-inputBorder"
-                  />
-                </div>
-                
-                <div className="flex flex-wrap gap-3">
-                  <Select value={sortBy} onValueChange={setSortBy}>
-                    <SelectTrigger className="w-[180px] bg-inputBg border-inputBorder">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="trending">
-                        <div className="flex items-center gap-2">
-                          <TrendingUp className="h-4 w-4" />
-                          <span>Trending</span>
-                        </div>
-                      </SelectItem>
-                      <SelectItem value="price-low">
-                        <div className="flex items-center gap-2">
-                          <Filter className="h-4 w-4" />
-                          <span>Price: Low to High</span>
-                        </div>
-                      </SelectItem>
-                      <SelectItem value="price-high">
-                        <div className="flex items-center gap-2">
-                          <Filter className="h-4 w-4" />
-                          <span>Price: High to Low</span>
-                        </div>
-                      </SelectItem>
-                      <SelectItem value="rating">
-                        <div className="flex items-center gap-2">
-                          <Star className="h-4 w-4" />
-                          <span>Top Rated</span>
-                        </div>
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
-
-                  <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-                    <SelectTrigger className="w-[180px] bg-inputBg border-inputBorder">
-                      <SelectValue placeholder="All Categories" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Categories</SelectItem>
-                      {categories.map(category => (
-                        <SelectItem key={category} value={category!}>
-                          {category}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-
       {/* Hero Section */}
-      <div className="bg-gradient-to-r from-primary/20 via-primary/10 to-transparent border-b border-border">
+      <div className="pt-20 bg-gradient-to-r from-primary/20 via-primary/10 to-transparent border-b border-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <h1 className="text-4xl font-bold text-fg mb-4">Marketplace</h1>
           <p className="text-lg text-fgMuted max-w-2xl">
@@ -203,6 +134,71 @@ const Marketplace = () => {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Search and Filters */}
+        <Card className="mb-8 border-border bg-card">
+          <CardContent className="p-6">
+            <div className="flex flex-col gap-4">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-3 h-5 w-5 text-fgMuted" />
+                <Input 
+                  placeholder="Search for AI agents, products, and digital goods..." 
+                  value={searchTerm} 
+                  onChange={e => setSearchTerm(e.target.value)} 
+                  className="pl-10 h-12 text-base bg-inputBg border-inputBorder"
+                />
+              </div>
+              
+              <div className="flex flex-wrap gap-3">
+                <Select value={sortBy} onValueChange={setSortBy}>
+                  <SelectTrigger className="w-[180px] bg-inputBg border-inputBorder">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="trending">
+                      <div className="flex items-center gap-2">
+                        <TrendingUp className="h-4 w-4" />
+                        <span>Trending</span>
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="price-low">
+                      <div className="flex items-center gap-2">
+                        <Filter className="h-4 w-4" />
+                        <span>Price: Low to High</span>
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="price-high">
+                      <div className="flex items-center gap-2">
+                        <Filter className="h-4 w-4" />
+                        <span>Price: High to Low</span>
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="rating">
+                      <div className="flex items-center gap-2">
+                        <Star className="h-4 w-4" />
+                        <span>Top Rated</span>
+                      </div>
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+
+                <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+                  <SelectTrigger className="w-[180px] bg-inputBg border-inputBorder">
+                    <SelectValue placeholder="All Categories" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Categories</SelectItem>
+                    {categories.map(category => (
+                      <SelectItem key={category} value={category!}>
+                        {category}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
         {/* Featured Categories Banner */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
           <Card className="cursor-pointer hover:shadow-lg transition-shadow border-border bg-card hover:border-primary/50" onClick={() => setCategoryFilter('AI Agents')}>
