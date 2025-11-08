@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { XAgentStoreManager } from "@/components/XAgentStoreManager";
 import { XAgentPurchases } from "@/components/XAgentPurchases";
+import { XAgentSimPageEditor } from "@/components/XAgentSimPageEditor";
 import { AgentType } from "@/types/agent";
 import { toast } from "sonner";
 import xIcon from "@/assets/x-icon.png";
@@ -402,17 +403,29 @@ export default function XAgentCreatorView() {
           </Card>
 
           {/* Tabs */}
-          <Tabs defaultValue="store" className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="store">Store</TabsTrigger>
+          <Tabs defaultValue="inventory" className="w-full">
+            <TabsList className="grid w-full grid-cols-3">
+              <TabsTrigger value="inventory">Inventory</TabsTrigger>
+              <TabsTrigger value="sim-page">SIM Page</TabsTrigger>
               <TabsTrigger value="purchases">Orders</TabsTrigger>
             </TabsList>
             
-            <TabsContent value="store" className="mt-6">
+            <TabsContent value="inventory" className="mt-6">
               <XAgentStoreManager 
                 agentId={agent.id}
                 walletAddress={walletAddress}
                 onWalletUpdate={setWalletAddress}
+              />
+            </TabsContent>
+            
+            <TabsContent value="sim-page" className="mt-6">
+              <XAgentSimPageEditor
+                agentId={agent.id}
+                agentName={xData?.displayName || agent.name}
+                agentUsername={xData?.username || username || ''}
+                avatarUrl={xData?.profileImageUrl || agent.avatar}
+                walletAddress={walletAddress}
+                isVerified={xData?.verified}
               />
             </TabsContent>
             

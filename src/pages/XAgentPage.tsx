@@ -612,25 +612,25 @@ export default function XAgentPage() {
                 </div>
               </div>
 
-              {/* Stats */}
-              <div className="flex flex-wrap gap-6">
-                <div className="space-y-1">
-                  <div className="text-2xl font-bold">{formatNumber(xData?.metrics?.followers)}</div>
-                  <div className="text-sm text-muted-foreground">Followers</div>
+              {/* Custom Links */}
+              {socialLinks?.custom_links && socialLinks.custom_links.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  {socialLinks.custom_links.map((link: any) => (
+                    <Button
+                      key={link.id}
+                      variant="outline"
+                      size="sm"
+                      className="gap-2"
+                      asChild
+                    >
+                      <a href={link.url} target="_blank" rel="noopener noreferrer">
+                        {link.label}
+                        <ExternalLink className="h-3 w-3" />
+                      </a>
+                    </Button>
+                  ))}
                 </div>
-                {totalEarnings > 0 && (
-                  <div className="space-y-1">
-                    <div className="text-2xl font-bold">${totalEarnings.toFixed(2)}</div>
-                    <div className="text-sm text-muted-foreground">Total Earnings</div>
-                  </div>
-                )}
-                {offerings.length > 0 && (
-                  <div className="space-y-1">
-                    <div className="text-2xl font-bold">{offerings.length}</div>
-                    <div className="text-sm text-muted-foreground">Offerings</div>
-                  </div>
-                )}
-              </div>
+              )}
 
               {/* Bio */}
               {(xData?.bio || agent.description) && (
