@@ -500,14 +500,14 @@ export function XAgentStoreManager({ agentId, walletAddress, onWalletUpdate }: X
   return (
     <div className="space-y-6">
       {/* Wallet Configuration */}
-      <Card className="border-border bg-card/80 backdrop-blur-sm shadow-lg">
-        <CardHeader className="p-5">
-          <CardTitle className="text-lg font-bold">Payment Configuration</CardTitle>
-          <CardDescription className="text-sm leading-relaxed">
+      <Card className="border-border bg-card/80 backdrop-blur-sm shadow-md">
+        <CardHeader className="p-3">
+          <CardTitle className="text-base font-bold">Payment Configuration</CardTitle>
+          <CardDescription className="text-xs leading-relaxed">
             Configure your Solana wallet to receive USDC payments. Payments (minus 5% platform fee) go directly to your wallet.
           </CardDescription>
         </CardHeader>
-        <CardContent className="p-5 space-y-4">
+        <CardContent className="p-3 space-y-3">
           <div className="space-y-2">
             <Label htmlFor="wallet">Solana Wallet Address</Label>
             <Input
