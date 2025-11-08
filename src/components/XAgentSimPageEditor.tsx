@@ -292,12 +292,14 @@ export function XAgentSimPageEditor({
                   </div>
 
                   {/* Custom Links */}
-                  {customLinks.filter(link => link.label && link.url).length > 0 && (
+                  <div className="space-y-2">
                     <div className="flex flex-wrap gap-2">
-                      {customLinks
-                        .filter(link => link.label && link.url)
-                        .map(link => (
-                          editingLinkId === link.id ? (
+                      {customLinks.map(link => {
+                        const isEditing = editingLinkId === link.id || (!link.label && !link.url);
+                        const isCompleted = link.label && link.url;
+                        
+                        if (isEditing) {
+                          return (
                             <Card key={link.id} className="p-3 space-y-2 w-full">
                               <div className="space-y-2">
                                 <Input
@@ -345,7 +347,11 @@ export function XAgentSimPageEditor({
                                 </Button>
                               </div>
                             </Card>
-                          ) : (
+                          );
+                        }
+                        
+                        if (isCompleted) {
+                          return (
                             <div key={link.id} className="group relative">
                               <Button
                                 variant="outline"
@@ -367,21 +373,24 @@ export function XAgentSimPageEditor({
                                 <Edit2 className="h-3 w-3" />
                               </Button>
                             </div>
-                          )
-                        ))}
+                          );
+                        }
+                        
+                        return null;
+                      })}
+                      {customLinks.length < 5 && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={addLink}
+                          className="gap-2"
+                        >
+                          <Plus className="h-3 w-3" />
+                          Add Link
+                        </Button>
+                      )}
                     </div>
-                  )}
-                  {customLinks.length < 5 && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={addLink}
-                      className="gap-2"
-                    >
-                      <Plus className="h-3 w-3" />
-                      Add Link
-                    </Button>
-                  )}
+                  </div>
 
                   {/* Description */}
                   <div className="space-y-2">
