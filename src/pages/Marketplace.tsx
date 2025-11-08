@@ -1,15 +1,15 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { Bot, Package, FileText, Search, Filter, Star, TrendingUp, Sparkles, ShoppingBag, Zap } from "lucide-react";
+import { Bot, Package, FileText, Search, Filter, Star, TrendingUp, Sparkles, Zap } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { useAgents } from "@/hooks/useAgents";
 import { useOfferings } from "@/hooks/useOfferings";
 import { TopNavBar } from "@/components/TopNavBar";
+import { usePublicAgents } from "@/hooks/usePublicAgents";
+import solanaLogo from "@/assets/solana-logo.png";
 
 type MarketplaceItem = {
   id: string;
@@ -29,7 +29,7 @@ const Marketplace = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState("trending");
   const [categoryFilter, setCategoryFilter] = useState("all");
-  const { agents, isLoading: agentsLoading } = useAgents('all-agents');
+  const { agents, isLoading: agentsLoading } = usePublicAgents();
   const { offerings, isLoading: offeringsLoading } = useOfferings();
 
   const isLoading = agentsLoading || offeringsLoading;
@@ -101,8 +101,10 @@ const Marketplace = () => {
       <div className="bg-gradient-to-r from-primary/20 via-primary/10 to-transparent border-b border-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="flex items-center gap-3 mb-4">
-            <ShoppingBag className="h-8 w-8 text-primary" />
-            <h1 className="text-4xl font-bold text-fg">Marketplace</h1>
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full backdrop-blur-sm shadow-sm bg-primary/10 border border-primary/20">
+              <img src={solanaLogo} alt="Solana" className="h-6 w-6" />
+              <span className="text-base sm:text-lg font-bold text-fg">Solana Internet Market</span>
+            </div>
           </div>
           <p className="text-lg text-fgMuted max-w-2xl">
             Discover AI agents, digital products, and exclusive offerings from creators worldwide
@@ -182,7 +184,9 @@ const Marketplace = () => {
             <CardContent className="p-6 text-center">
               <Bot className="h-8 w-8 mx-auto mb-2 text-primary" />
               <h3 className="font-semibold text-fg">AI Agents</h3>
-              <p className="text-sm text-fgMuted mt-1">{agents.length} available</p>
+              <p className="text-sm text-fgMuted mt-1">
+                {isLoading ? '...' : `${agents.length} available`}
+              </p>
             </CardContent>
           </Card>
           
@@ -190,7 +194,9 @@ const Marketplace = () => {
             <CardContent className="p-6 text-center">
               <FileText className="h-8 w-8 mx-auto mb-2 text-primary" />
               <h3 className="font-semibold text-fg">Digital Goods</h3>
-              <p className="text-sm text-fgMuted mt-1">{offerings.filter(o => o.offering_type === 'digital_file').length} available</p>
+              <p className="text-sm text-fgMuted mt-1">
+                {isLoading ? '...' : `${offerings.filter(o => o.offering_type === 'digital_file').length} available`}
+              </p>
             </CardContent>
           </Card>
           
@@ -198,7 +204,9 @@ const Marketplace = () => {
             <CardContent className="p-6 text-center">
               <Package className="h-8 w-8 mx-auto mb-2 text-primary" />
               <h3 className="font-semibold text-fg">Products</h3>
-              <p className="text-sm text-fgMuted mt-1">{offerings.filter(o => o.offering_type === 'standard').length} available</p>
+              <p className="text-sm text-fgMuted mt-1">
+                {isLoading ? '...' : `${offerings.filter(o => o.offering_type === 'standard').length} available`}
+              </p>
             </CardContent>
           </Card>
           
@@ -206,7 +214,9 @@ const Marketplace = () => {
             <CardContent className="p-6 text-center">
               <Sparkles className="h-8 w-8 mx-auto mb-2 text-primary" />
               <h3 className="font-semibold text-fg">Featured</h3>
-              <p className="text-sm text-fgMuted mt-1">{agents.filter(a => a.is_featured).length} items</p>
+              <p className="text-sm text-fgMuted mt-1">
+                {isLoading ? '...' : `${agents.filter(a => a.is_featured).length} items`}
+              </p>
             </CardContent>
           </Card>
         </div>
