@@ -66,8 +66,8 @@ export const MatrixHeroSection = ({
 
       {/* Top Bar with Sign In Button */}
       <div className="absolute top-0 left-0 right-0 z-50 w-full px-4 py-6 flex items-center justify-end">
-        <Button onClick={handleXSignIn} variant="outline" size="sm" className="bg-transparent border-2 border-white text-white hover:text-white hover:bg-white/10 font-semibold px-6 py-2 transition-all duration-300 hover:scale-105">
-          Sign In
+        <Button onClick={handleXSignIn} variant="outline" size="sm" className="bg-transparent border-2 border-white text-white hover:text-white hover:bg-white/10 font-semibold px-6 py-2 transition-all duration-300 hover:scale-105 gap-2">
+          Sign in with <img src={xIcon} alt="X" className="h-4 w-4 inline-block" />
         </Button>
       </div>
 
@@ -91,8 +91,12 @@ export const MatrixHeroSection = ({
           Accept crypto payments instantly with zero fees
         </p>
         
-        <Button onClick={handleXSignIn} size="lg" className="gap-2 font-bold px-8 py-5 text-base transition-all duration-300 bg-[#635cff] hover:bg-[#5046E5] text-white border-0 shadow-xl shadow-[#635cff]/30 hover:shadow-2xl hover:shadow-[#635cff]/40 hover:scale-105 whitespace-nowrap mb-12">
+        <Button onClick={handleXSignIn} size="lg" className="gap-2 font-bold px-8 py-5 text-base transition-all duration-300 bg-[#635cff] hover:bg-[#5046E5] text-white border-0 shadow-xl shadow-[#635cff]/30 hover:shadow-2xl hover:shadow-[#635cff]/40 hover:scale-105 whitespace-nowrap mb-4">
           Create Your Store with <img src={xIcon} alt="X" className="h-5 w-5 inline-block" />
+        </Button>
+        
+        <Button onClick={() => navigate('/marketplace')} variant="outline" size="lg" className="gap-2 font-semibold px-8 py-4 text-base transition-all duration-300 bg-transparent border-2 border-white text-white hover:text-white hover:bg-white/10 hover:scale-105 mb-12">
+          Explore the Marketplace
         </Button>
       </div>
     </section>;
