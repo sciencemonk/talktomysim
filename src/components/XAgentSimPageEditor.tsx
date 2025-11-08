@@ -103,10 +103,12 @@ export function XAgentSimPageEditor({
       return;
     }
 
+    const newLinkId = crypto.randomUUID();
     setCustomLinks([
       ...customLinks,
-      { id: crypto.randomUUID(), label: "", url: "" }
+      { id: newLinkId, label: "", url: "" }
     ]);
+    setEditingLinkId(newLinkId);
   };
 
   const updateLink = (id: string, field: 'label' | 'url', value: string) => {
@@ -318,11 +320,9 @@ export function XAgentSimPageEditor({
                   {/* Custom Links */}
                   <div className="space-y-2">
                     <div className="flex flex-wrap gap-2">
-                      {customLinks
-                        .filter(link => link.label && link.url)
-                        .map(link => (
-                          editingLinkId === link.id ? (
-                            <Card key={link.id} className="p-3 space-y-2 w-full">
+                      {customLinks.map(link => (
+                        editingLinkId === link.id || (!link.label && !link.url) ? (
+                          <Card key={link.id} className="p-3 space-y-2 w-full">
                               <div className="space-y-2">
                                 <Input
                                   value={link.label}
@@ -369,7 +369,7 @@ export function XAgentSimPageEditor({
                                 </Button>
                               </div>
                             </Card>
-                          ) : (
+                        ) : link.label && link.url ? (
                             <div key={link.id} className="group relative">
                               <Button
                                 variant="outline"
@@ -391,8 +391,8 @@ export function XAgentSimPageEditor({
                                 <Edit2 className="h-3 w-3" />
                               </Button>
                             </div>
-                          )
-                        ))}
+                        ) : null
+                      ))}
                       {customLinks.length < 5 && (
                         <Button
                           variant="outline"
