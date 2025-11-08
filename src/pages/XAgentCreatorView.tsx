@@ -327,15 +327,16 @@ export default function XAgentCreatorView() {
       <div className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-40">
         <div className="container mx-auto px-3 md:px-4 py-3 md:py-4">
           <div className="flex items-center justify-between">
-            <Button
-              variant="ghost"
-              size="sm"
+            <button
               onClick={() => navigate(`/${username}`)}
-              className="gap-2 h-9 px-2 md:px-3"
+              className="flex items-center hover:opacity-80 transition-opacity"
             >
-              <ArrowLeft className="h-4 w-4" />
-              <span className="hidden sm:inline">Public View</span>
-            </Button>
+              <img 
+                src="/sim-logo-gradient.png" 
+                alt="SIM" 
+                className="h-8 md:h-10 w-auto"
+              />
+            </button>
             <div className="flex items-center gap-2 md:gap-3">
               <span className="text-xs md:text-sm font-medium text-muted-foreground">Creator Dashboard</span>
               <ThemeToggle />
