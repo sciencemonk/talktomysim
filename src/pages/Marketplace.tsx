@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { Bot, Package, FileText, Search, Filter, Star, TrendingUp, Sparkles, Zap } from "lucide-react";
+import { Bot, Package, FileText, Search, Filter, Star, TrendingUp, Sparkles, Zap, Store } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
@@ -10,6 +10,8 @@ import { useOfferings } from "@/hooks/useOfferings";
 import { usePublicAgents } from "@/hooks/usePublicAgents";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import solanaLogo from "@/assets/solana-logo.png";
+import { supabase } from "@/integrations/supabase/client";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
 type MarketplaceItem = {
   id: string;
@@ -29,10 +31,38 @@ const Marketplace = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState("trending");
   const [categoryFilter, setCategoryFilter] = useState("all");
+  const [stores, setStores] = useState<Array<{id: string, name: string, description: string, avatar_url: string}>>([]);
+  const [storesLoading, setStoresLoading] = useState(true);
   const { agents, isLoading: agentsLoading } = usePublicAgents();
   const { offerings, isLoading: offeringsLoading } = useOfferings();
 
   const isLoading = agentsLoading || offeringsLoading;
+
+  // Fetch stores with active offerings
+  useEffect(() => {
+    const fetchStores = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('advisors')
+          .select('id, name, description, avatar_url')
+          .in('id', 
+            offerings.map(o => o.agent_id).filter((v, i, a) => a.indexOf(v) === i)
+          )
+          .limit(12);
+        
+        if (error) throw error;
+        setStores(data || []);
+      } catch (error) {
+        console.error('Error fetching stores:', error);
+      } finally {
+        setStoresLoading(false);
+      }
+    };
+
+    if (!offeringsLoading && offerings.length > 0) {
+      fetchStores();
+    }
+  }, [offerings, offeringsLoading]);
 
   // Combine agents and offerings into marketplace items
   const marketplaceItems: MarketplaceItem[] = [
@@ -281,6 +311,57 @@ const Marketplace = () => {
               </p>
             </CardContent>
           </Card>
+        </div>
+
+        {/* Stores Section */}
+        <div className="mb-12">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h2 className="text-2xl font-bold text-fg mb-2">Browse Stores</h2>
+              <p className="text-sm text-fgMuted">Discover creators selling on Solana Internet Market</p>
+            </div>
+            <Button variant="outline" size="sm" onClick={() => navigate('/agents')}>
+              View All
+            </Button>
+          </div>
+          
+          {storesLoading ? (
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <Card key={i} className="animate-pulse border-border">
+                  <CardContent className="p-4 text-center">
+                    <div className="w-16 h-16 rounded-full bg-bgMuted mx-auto mb-3" />
+                    <div className="h-4 bg-bgMuted rounded w-3/4 mx-auto" />
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+              {stores.map((store) => (
+                <Card 
+                  key={store.id}
+                  className="group cursor-pointer border-border bg-card hover:shadow-lg hover:border-primary/30 transition-all duration-300 hover:-translate-y-1"
+                  onClick={() => navigate(`/${store.id}`)}
+                >
+                  <CardContent className="p-4 text-center">
+                    <Avatar className="w-16 h-16 mx-auto mb-3 ring-2 ring-border group-hover:ring-primary transition-all">
+                      <AvatarImage src={store.avatar_url} alt={store.name} />
+                      <AvatarFallback className="bg-primary/10 text-primary font-semibold">
+                        <Store className="h-6 w-6" />
+                      </AvatarFallback>
+                    </Avatar>
+                    <h3 className="font-semibold text-fg text-sm truncate group-hover:text-primary transition-colors">
+                      {store.name}
+                    </h3>
+                    <p className="text-xs text-fgMuted mt-1 line-clamp-2">
+                      {store.description}
+                    </p>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Products Grid */}
