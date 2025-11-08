@@ -66,7 +66,7 @@ export const MatrixHeroSection = ({
 
       {/* Top Bar with Sign In Button */}
       <div className="absolute top-0 left-0 right-0 z-50 w-full px-4 py-6 flex items-center justify-end">
-        <Button onClick={handleXSignIn} variant="outline" size="sm" className="bg-transparent border-2 border-white text-white hover:bg-white/10 font-semibold px-6 py-2 transition-all duration-300 hover:scale-105">
+        <Button onClick={handleXSignIn} variant="outline" size="sm" className="bg-transparent border-2 border-white text-white hover:text-white hover:bg-white/10 font-semibold px-6 py-2 transition-all duration-300 hover:scale-105">
           Sign In
         </Button>
       </div>
