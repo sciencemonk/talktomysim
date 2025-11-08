@@ -109,11 +109,12 @@ const Marketplace = () => {
             </button>
             
             {/* Create a Store and Theme Toggle on the right */}
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
               <ThemeToggle />
               <Button
                 variant="outline"
-                className="bg-transparent border-2 border-fg text-fg hover:bg-fg/10 hover:text-fg hover:scale-105 transition-all"
+                size="sm"
+                className="bg-transparent border border-fg text-fg hover:bg-fg/10 hover:text-fg text-xs sm:text-sm px-2 sm:px-4"
                 onClick={() => navigate('/')}
               >
                 Create a Store
