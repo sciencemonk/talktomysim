@@ -9,6 +9,7 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { useOfferings } from "@/hooks/useOfferings";
 import { usePublicAgents } from "@/hooks/usePublicAgents";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import solanaLogo from "@/assets/solana-logo.png";
 
 type MarketplaceItem = {
   id: string;
@@ -94,18 +95,30 @@ const Marketplace = () => {
 
   return (
     <div className="min-h-screen bg-bg">
-      {/* Top Header with Sign In and Theme Toggle */}
+      {/* Top Header with Logo, Sign In and Theme Toggle */}
       <div className="fixed top-0 left-0 right-0 z-50 bg-bg/80 backdrop-blur-md border-b border-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex justify-end items-center gap-3">
-            <ThemeToggle />
-            <Button
-              variant="outline"
-              className="bg-transparent border-2 border-fg text-fg hover:bg-fg/10 hover:text-fg hover:scale-105 transition-all"
-              onClick={() => navigate('/signin')}
+          <div className="flex justify-between items-center">
+            {/* Logo on the left */}
+            <button 
+              onClick={() => navigate('/')}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full backdrop-blur-sm transition-all cursor-pointer shadow-sm bg-primary/10 border border-primary/20 hover:bg-primary/20"
             >
-              Sign In
-            </Button>
+              <img src={solanaLogo} alt="Solana" className="h-5 w-5" />
+              <span className="text-sm sm:text-base font-bold text-fg">Solana Internet Market</span>
+            </button>
+            
+            {/* Sign In and Theme Toggle on the right */}
+            <div className="flex items-center gap-3">
+              <ThemeToggle />
+              <Button
+                variant="outline"
+                className="bg-transparent border-2 border-fg text-fg hover:bg-fg/10 hover:text-fg hover:scale-105 transition-all"
+                onClick={() => navigate('/signin')}
+              >
+                Sign In
+              </Button>
+            </div>
           </div>
         </div>
       </div>
