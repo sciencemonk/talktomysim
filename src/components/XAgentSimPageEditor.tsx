@@ -303,9 +303,16 @@ export function XAgentSimPageEditor({
                   
                   {/* Wallet Address */}
                   {walletAddress && (
-                    <div className="text-xs text-muted-foreground font-mono break-all max-w-md">
+                    <button
+                      onClick={() => {
+                        navigator.clipboard.writeText(walletAddress);
+                        toast.success("Wallet address copied to clipboard!");
+                      }}
+                      className="text-xs text-muted-foreground font-mono break-all max-w-md hover:text-foreground transition-colors cursor-pointer text-left"
+                      title="Click to copy wallet address"
+                    >
                       {walletAddress}
-                    </div>
+                    </button>
                   )}
 
                   {/* Custom Links */}
