@@ -7,8 +7,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { useOfferings } from "@/hooks/useOfferings";
-import { usePublicAgents } from "@/hooks/usePublicAgents";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { useQuery } from "@tanstack/react-query";
 import solanaLogo from "@/assets/solana-logo.png";
 import { supabase } from "@/integrations/supabase/client";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
@@ -33,8 +33,42 @@ const Marketplace = () => {
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [stores, setStores] = useState<Array<{id: string, name: string, description: string, avatar_url: string}>>([]);
   const [storesLoading, setStoresLoading] = useState(true);
-  const { agents, isLoading: agentsLoading } = usePublicAgents();
   const { offerings, isLoading: offeringsLoading } = useOfferings();
+
+  // Fetch all agents from advisors table
+  const { data: agents = [], isLoading: agentsLoading } = useQuery({
+    queryKey: ['marketplace-agents'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('advisors')
+        .select('*')
+        .eq('is_active', true);
+      
+      if (error) throw error;
+      
+      return (data || []).map(agent => ({
+        id: agent.id,
+        name: agent.name,
+        description: agent.description || agent.auto_description || '',
+        auto_description: agent.auto_description,
+        type: 'General Tutor' as const,
+        status: 'active' as const,
+        createdAt: agent.created_at,
+        updatedAt: agent.updated_at,
+        avatar: agent.avatar_url,
+        avatar_url: agent.avatar_url,
+        prompt: agent.prompt,
+        sim_category: agent.sim_category,
+        marketplace_category: agent.marketplace_category,
+        is_verified: agent.is_verified || false,
+        is_featured: false,
+        price: agent.price || 0,
+        interactions: 0,
+        performance: 0,
+        social_links: agent.social_links,
+      }));
+    },
+  });
 
   const isLoading = agentsLoading || offeringsLoading;
 
@@ -295,8 +329,7 @@ const Marketplace = () => {
                 })
                 .map((agent) => {
                   const getAvatarSrc = () => {
-                    const isCryptoMail = (agent as any).sim_category === 'Crypto Mail';
-                    const avatarUrl = agent.avatar;
+                    const avatarUrl = agent.avatar_url || agent.avatar;
                     
                     if (avatarUrl && (avatarUrl.startsWith('http://') || avatarUrl.startsWith('https://'))) {
                       return `https://images.weserv.nl/?url=${encodeURIComponent(avatarUrl)}`;
