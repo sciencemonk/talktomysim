@@ -7,9 +7,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { useOfferings } from "@/hooks/useOfferings";
-import { TopNavBar } from "@/components/TopNavBar";
 import { usePublicAgents } from "@/hooks/usePublicAgents";
-import solanaLogo from "@/assets/solana-logo.png";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 type MarketplaceItem = {
   id: string;
@@ -95,17 +94,26 @@ const Marketplace = () => {
 
   return (
     <div className="min-h-screen bg-bg">
-      <TopNavBar />
-      
-      {/* Hero Section */}
-      <div className="bg-gradient-to-r from-primary/20 via-primary/10 to-transparent border-b border-border">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full backdrop-blur-sm shadow-sm bg-primary/10 border border-primary/20">
-              <img src={solanaLogo} alt="Solana" className="h-6 w-6" />
-              <span className="text-base sm:text-lg font-bold text-fg">Solana Internet Market</span>
-            </div>
+      {/* Top Header with Sign In and Theme Toggle */}
+      <div className="fixed top-0 left-0 right-0 z-50 bg-bg/80 backdrop-blur-md border-b border-border">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div className="flex justify-end items-center gap-3">
+            <ThemeToggle />
+            <Button
+              variant="outline"
+              className="bg-transparent border-2 border-fg text-fg hover:bg-fg/10 hover:text-fg hover:scale-105 transition-all"
+              onClick={() => navigate('/signin')}
+            >
+              Sign In
+            </Button>
           </div>
+        </div>
+      </div>
+
+      {/* Hero Section */}
+      <div className="pt-20 bg-gradient-to-r from-primary/20 via-primary/10 to-transparent border-b border-border">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          <h1 className="text-4xl font-bold text-fg mb-4">Marketplace</h1>
           <p className="text-lg text-fgMuted max-w-2xl">
             Discover AI agents, digital products, and exclusive offerings from creators worldwide
           </p>
