@@ -869,54 +869,6 @@ export function XAgentStoreManager({ agentId, walletAddress, onWalletUpdate }: X
                     </div>
                   )}
 
-                  {/* Generate Button - Only show if system prompt not generated yet */}
-                  {!formData.agent_system_prompt && !editingOffering && (
-                    <Button
-                      type="button"
-                      onClick={async () => {
-                        if (!formData.title || !formData.description) {
-                          toast.error("Please fill in title and description first");
-                          return;
-                        }
-                        setIsGeneratingPrompt(true);
-                        try {
-                          const { data: promptData, error: promptError } = await supabase.functions.invoke(
-                            'generate-agent-system-prompt',
-                            {
-                              body: {
-                                title: formData.title,
-                                description: formData.description,
-                                dataSource: formData.agent_data_source
-                              }
-                            }
-                          );
-
-                          if (promptError) throw promptError;
-                          
-                          if (promptData?.success && promptData.systemPrompt) {
-                            setFormData(prev => ({ ...prev, agent_system_prompt: promptData.systemPrompt }));
-                            toast.success("Agent system prompt generated!");
-                          }
-                        } catch (error) {
-                          console.error("Error generating system prompt:", error);
-                          toast.error("Failed to generate system prompt");
-                        } finally {
-                          setIsGeneratingPrompt(false);
-                        }
-                      }}
-                      disabled={isGeneratingPrompt}
-                      className="w-full bg-[#83f1aa] hover:bg-[#6dd88f] text-black"
-                    >
-                      {isGeneratingPrompt ? (
-                        <>
-                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                          Generating Agent...
-                        </>
-                      ) : (
-                        'Generate Agent'
-                      )}
-                    </Button>
-                  )}
                 </>
               )}
 
