@@ -10,6 +10,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { WhitePaperModal } from "@/components/WhitePaperModal";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Badge } from "@/components/ui/badge";
+import solanaLogo from "@/assets/solana-logo.png";
 
 export const LandingFooter = () => {
   const { theme } = useTheme();
@@ -45,12 +46,9 @@ export const LandingFooter = () => {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
             {/* Brand Column */}
             <div className="space-y-4">
-              <div className="bg-black rounded-2xl p-3 w-fit shadow-lg">
-                <img
-                  src="/sim-logo-gradient.png"
-                  alt="Sim Logo"
-                  className="h-12 w-12 object-contain"
-                />
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full backdrop-blur-sm shadow-sm bg-black/80">
+                <img src={solanaLogo} alt="Solana" className="h-5 w-5" />
+                <span className="text-xs sm:text-sm font-bold text-white">Solana Internet Market</span>
               </div>
               <p className="text-sm text-gray-400 leading-relaxed">
                 Create and sell AI agents, digital products, and on-chain services.
