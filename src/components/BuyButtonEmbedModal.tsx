@@ -27,12 +27,12 @@ export function BuyButtonEmbedModal({ isOpen, onClose, offeringId, offeringTitle
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[700px]">
+      <DialogContent className="sm:max-w-[700px] max-h-[85vh] flex flex-col">
         <DialogHeader>
           <DialogTitle>Buy button</DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-6">
+        <div className="space-y-6 overflow-y-auto pr-2 flex-1">
           {/* Copy Code Section */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
