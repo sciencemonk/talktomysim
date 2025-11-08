@@ -169,7 +169,7 @@ export function XOfferingPurchaseModal({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle className="text-black dark:text-white">Purchase: {offering.title}</DialogTitle>
+          <DialogTitle>Purchase: {offering.title}</DialogTitle>
           <DialogDescription>
             Complete your purchase from {agentName}
           </DialogDescription>

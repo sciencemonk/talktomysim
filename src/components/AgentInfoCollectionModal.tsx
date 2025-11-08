@@ -53,7 +53,7 @@ export function AgentInfoCollectionModal({
     
     return (
       <div key={field.label} className="space-y-2">
-        <Label htmlFor={field.label} className="text-black dark:text-white">
+        <Label htmlFor={field.label}>
           {field.label}
           {field.required && <span className="text-destructive ml-1">*</span>}
         </Label>
@@ -83,8 +83,8 @@ export function AgentInfoCollectionModal({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-black dark:text-white">Before we start...</DialogTitle>
-          <DialogDescription className="text-black dark:text-white">
+          <DialogTitle>Before we start...</DialogTitle>
+          <DialogDescription>
             {agentName} would like to know a bit more to provide you with the best assistance.
           </DialogDescription>
         </DialogHeader>
