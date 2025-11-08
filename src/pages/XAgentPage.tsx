@@ -3,6 +3,7 @@ import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Users, Copy, Check, Share2, ExternalLink } from "lucide-react";
 import aiLoadingGif from "@/assets/ai-loading.gif";
+import solanaLogo from "@/assets/solana-logo.png";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -699,8 +700,10 @@ export default function XAgentPage() {
             variant="outline"
             size="sm"
             asChild
+            className="gap-2"
           >
             <a href="https://solanainternetmarket.com" target="_blank" rel="noopener noreferrer">
+              <img src={solanaLogo} alt="Solana" className="h-4 w-4" />
               Powered by Solana Internet Market
             </a>
           </Button>

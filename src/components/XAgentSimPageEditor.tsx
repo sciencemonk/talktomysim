@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { XAgentStorefront } from "@/components/XAgentStorefront";
 import { AgentOfferingsDisplay } from "@/components/AgentOfferingsDisplay";
+import solanaLogo from "@/assets/solana-logo.png";
 
 interface CustomLink {
   id: string;
@@ -488,8 +489,10 @@ export function XAgentSimPageEditor({
                   variant="outline"
                   size="sm"
                   asChild
+                  className="gap-2"
                 >
                   <a href="https://solanainternetmarket.com" target="_blank" rel="noopener noreferrer">
+                    <img src={solanaLogo} alt="Solana" className="h-4 w-4" />
                     Powered by Solana Internet Market
                   </a>
                 </Button>
