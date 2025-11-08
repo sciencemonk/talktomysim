@@ -131,6 +131,21 @@ const Marketplace = () => {
     }
   };
 
+  // Generate varied gradient backgrounds for items without images
+  const getGradientForItem = (index: number) => {
+    const gradients = [
+      'from-violet-500/20 via-purple-500/20 to-fuchsia-500/20',
+      'from-blue-500/20 via-cyan-500/20 to-teal-500/20',
+      'from-emerald-500/20 via-green-500/20 to-lime-500/20',
+      'from-amber-500/20 via-orange-500/20 to-red-500/20',
+      'from-pink-500/20 via-rose-500/20 to-red-500/20',
+      'from-indigo-500/20 via-blue-500/20 to-sky-500/20',
+      'from-cyan-500/20 via-teal-500/20 to-emerald-500/20',
+      'from-orange-500/20 via-amber-500/20 to-yellow-500/20',
+    ];
+    return gradients[index % gradients.length];
+  };
+
   return (
     <div className="min-h-screen bg-bg">
       {/* Top Header with Logo, Sign In and Theme Toggle */}
@@ -247,8 +262,59 @@ const Marketplace = () => {
           </CardContent>
         </Card>
 
-        {/* Featured Categories Banner */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        {/* Stores Section */}
+        <div className="mb-12">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h2 className="text-2xl font-bold text-fg mb-2">Browse Stores</h2>
+              <p className="text-sm text-fgMuted">Discover creators selling on Solana Internet Market</p>
+            </div>
+            <Button variant="outline" size="sm" onClick={() => navigate('/agents')}>
+              View All
+            </Button>
+          </div>
+          
+          {storesLoading ? (
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <Card key={i} className="animate-pulse border-border">
+                  <CardContent className="p-4 text-center">
+                    <div className="w-16 h-16 rounded-full bg-bgMuted mx-auto mb-3" />
+                    <div className="h-4 bg-bgMuted rounded w-3/4 mx-auto" />
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+              {stores.map((store) => (
+                <Card 
+                  key={store.id}
+                  className="group cursor-pointer border-border bg-card hover:shadow-lg hover:border-primary/30 transition-all duration-300 hover:-translate-y-1"
+                  onClick={() => navigate(`/${store.id}`)}
+                >
+                  <CardContent className="p-4 text-center">
+                    <Avatar className="w-16 h-16 mx-auto mb-3 ring-2 ring-border group-hover:ring-primary transition-all">
+                      <AvatarImage src={store.avatar_url} alt={store.name} />
+                      <AvatarFallback className="bg-primary/10 text-primary font-semibold">
+                        <Store className="h-6 w-6" />
+                      </AvatarFallback>
+                    </Avatar>
+                    <h3 className="font-semibold text-fg text-sm truncate group-hover:text-primary transition-colors">
+                      {store.name}
+                    </h3>
+                    <p className="text-xs text-fgMuted mt-1 line-clamp-2">
+                      {store.description}
+                    </p>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Categories Section */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-12">
           <Card 
             className="cursor-pointer transition-all duration-300 border-border bg-card hover:shadow-lg hover:border-primary/30 hover:-translate-y-1" 
             onClick={() => setCategoryFilter('AI Agents')}
@@ -313,57 +379,6 @@ const Marketplace = () => {
           </Card>
         </div>
 
-        {/* Stores Section */}
-        <div className="mb-12">
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <h2 className="text-2xl font-bold text-fg mb-2">Browse Stores</h2>
-              <p className="text-sm text-fgMuted">Discover creators selling on Solana Internet Market</p>
-            </div>
-            <Button variant="outline" size="sm" onClick={() => navigate('/agents')}>
-              View All
-            </Button>
-          </div>
-          
-          {storesLoading ? (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-              {Array.from({ length: 6 }).map((_, i) => (
-                <Card key={i} className="animate-pulse border-border">
-                  <CardContent className="p-4 text-center">
-                    <div className="w-16 h-16 rounded-full bg-bgMuted mx-auto mb-3" />
-                    <div className="h-4 bg-bgMuted rounded w-3/4 mx-auto" />
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          ) : (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-              {stores.map((store) => (
-                <Card 
-                  key={store.id}
-                  className="group cursor-pointer border-border bg-card hover:shadow-lg hover:border-primary/30 transition-all duration-300 hover:-translate-y-1"
-                  onClick={() => navigate(`/${store.id}`)}
-                >
-                  <CardContent className="p-4 text-center">
-                    <Avatar className="w-16 h-16 mx-auto mb-3 ring-2 ring-border group-hover:ring-primary transition-all">
-                      <AvatarImage src={store.avatar_url} alt={store.name} />
-                      <AvatarFallback className="bg-primary/10 text-primary font-semibold">
-                        <Store className="h-6 w-6" />
-                      </AvatarFallback>
-                    </Avatar>
-                    <h3 className="font-semibold text-fg text-sm truncate group-hover:text-primary transition-colors">
-                      {store.name}
-                    </h3>
-                    <p className="text-xs text-fgMuted mt-1 line-clamp-2">
-                      {store.description}
-                    </p>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          )}
-        </div>
-
         {/* Products Grid */}
         <div className="mb-6">
           <h2 className="text-2xl font-bold text-fg mb-4">
@@ -390,7 +405,7 @@ const Marketplace = () => {
                   </div>
                 </CardContent>
               </Card>
-            )) : filteredItems.map(item => (
+            )) : filteredItems.map((item, index) => (
               <Card 
                 key={item.id} 
                 className="group cursor-pointer overflow-hidden border border-border bg-card hover:shadow-2xl transition-all duration-300 hover:-translate-y-1"
@@ -398,7 +413,7 @@ const Marketplace = () => {
               >
                 <CardContent className="p-0">
                   {/* Product Image */}
-                  <div className="relative aspect-square bg-bgMuted overflow-hidden">
+                  <div className="relative aspect-square overflow-hidden">
                     {item.avatar ? (
                       <img 
                         src={item.avatar} 
@@ -406,11 +421,11 @@ const Marketplace = () => {
                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                       />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/5 to-primary/10">
+                      <div className={`w-full h-full flex items-center justify-center bg-gradient-to-br ${getGradientForItem(index)} group-hover:scale-105 transition-transform duration-500`}>
                         {item.type === 'agent' ? (
-                          <Bot className="h-16 w-16 text-primary/40" />
+                          <Bot className="h-16 w-16 text-primary/60" />
                         ) : (
-                          <Package className="h-16 w-16 text-primary/40" />
+                          <Package className="h-16 w-16 text-primary/60" />
                         )}
                       </div>
                     )}
