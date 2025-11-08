@@ -8,9 +8,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Plus, Edit, Trash2, DollarSign, Package, Loader2 } from "lucide-react";
+import { Plus, Edit, Trash2, DollarSign, Package, Loader2, Share2, Code } from "lucide-react";
 import { toast } from "sonner";
 import { AgentIntegrations, DEFAULT_INTEGRATIONS, Integration } from "@/components/AgentIntegrations";
+import { BuyButtonEmbedModal } from "@/components/BuyButtonEmbedModal";
 
 interface Offering {
   id: string;
@@ -68,6 +69,8 @@ export function XAgentStoreManager({ agentId, walletAddress, onWalletUpdate }: X
   const [isUploading, setIsUploading] = useState(false);
   const [isGeneratingPrompt, setIsGeneratingPrompt] = useState(false);
   const [integrations, setIntegrations] = useState<Integration[]>(DEFAULT_INTEGRATIONS);
+  const [showBuyButtonModal, setShowBuyButtonModal] = useState(false);
+  const [selectedOfferingForEmbed, setSelectedOfferingForEmbed] = useState<Offering | null>(null);
 
   useEffect(() => {
     loadOfferings();
@@ -1093,6 +1096,28 @@ export function XAgentStoreManager({ agentId, walletAddress, onWalletUpdate }: X
                     <CardDescription>{offering.description}</CardDescription>
                   </div>
                   <div className="flex items-center gap-2">
+                    <Button 
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        navigator.clipboard.writeText(`https://solanainternetmarket.com/offering/${offering.id}`);
+                        toast.success("Link copied to clipboard!");
+                      }}
+                    >
+                      <Share2 className="h-4 w-4 mr-1" />
+                      Share link
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setSelectedOfferingForEmbed(offering);
+                        setShowBuyButtonModal(true);
+                      }}
+                    >
+                      <Code className="h-4 w-4 mr-1" />
+                      Buy button
+                    </Button>
                     <Button variant="ghost" size="sm" onClick={() => handleEdit(offering)}>
                       <Edit className="h-4 w-4" />
                     </Button>
@@ -1134,6 +1159,19 @@ export function XAgentStoreManager({ agentId, walletAddress, onWalletUpdate }: X
             </Card>
           ))}
         </div>
+      )}
+
+      {/* Buy Button Embed Modal */}
+      {selectedOfferingForEmbed && (
+        <BuyButtonEmbedModal
+          isOpen={showBuyButtonModal}
+          onClose={() => {
+            setShowBuyButtonModal(false);
+            setSelectedOfferingForEmbed(null);
+          }}
+          offeringId={selectedOfferingForEmbed.id}
+          offeringTitle={selectedOfferingForEmbed.title}
+        />
       )}
     </div>
   );

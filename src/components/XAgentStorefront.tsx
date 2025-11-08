@@ -10,7 +10,6 @@ import { AgentOfferingModal } from "./AgentOfferingModal";
 import { BuyButtonEmbedModal } from "./BuyButtonEmbedModal";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "@/hooks/useAuth";
 
 interface Offering {
   id: string;
@@ -33,7 +32,6 @@ interface XAgentStorefrontProps {
 
 export function XAgentStorefront({ agentId, agentName, walletAddress }: XAgentStorefrontProps) {
   const navigate = useNavigate();
-  const { user } = useAuth();
   const [offerings, setOfferings] = useState<Offering[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedOffering, setSelectedOffering] = useState<Offering | null>(null);
@@ -44,14 +42,11 @@ export function XAgentStorefront({ agentId, agentName, walletAddress }: XAgentSt
   const [showDigitalFileModal, setShowDigitalFileModal] = useState(false);
   const [purchasedFileUrl, setPurchasedFileUrl] = useState<string>("");
   const [purchasedFileName, setPurchasedFileName] = useState<string>("");
-  const [showBuyButtonModal, setShowBuyButtonModal] = useState(false);
-  const [selectedOfferingForEmbed, setSelectedOfferingForEmbed] = useState<Offering | null>(null);
-  const [isCreator, setIsCreator] = useState(false);
 
   useEffect(() => {
     loadOfferings();
     loadAgentData();
-  }, [agentId, user]);
+  }, [agentId]);
 
   const loadAgentData = async () => {
     try {
@@ -63,11 +58,6 @@ export function XAgentStorefront({ agentId, agentName, walletAddress }: XAgentSt
 
       if (error) throw error;
       setAgentData(data);
-      
-      // Check if current user is the creator
-      if (user && data.user_id === user.id) {
-        setIsCreator(true);
-      }
     } catch (error) {
       console.error("Error loading agent data:", error);
     }
@@ -228,56 +218,27 @@ export function XAgentStorefront({ agentId, agentName, walletAddress }: XAgentSt
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
-                        {isCreator ? (
-                          <>
-                            <Button 
-                              variant="outline"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                navigator.clipboard.writeText(`https://solanainternetmarket.com/offering/${offering.id}`);
-                                toast.success("Link copied to clipboard!");
-                              }}
-                            >
-                              Share link
-                            </Button>
-                            <Button
-                              variant="default"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setSelectedOfferingForEmbed(offering);
-                                setShowBuyButtonModal(true);
-                              }}
-                              className="gap-2"
-                            >
-                              <Code className="h-4 w-4" />
-                              Buy button
-                            </Button>
-                          </>
-                        ) : (
-                          <>
-                            <Button 
-                              style={{ backgroundColor: '#635cff', color: 'white' }}
-                              className="hover:opacity-90"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handlePurchaseClick(offering);
-                              }}
-                            >
-                              Purchase
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                navigator.clipboard.writeText(`https://solanainternetmarket.com/offering/${offering.id}`);
-                                toast.success("Offering link copied!");
-                              }}
-                            >
-                              <Share2 className="h-4 w-4" />
-                            </Button>
-                          </>
-                        )}
+                        <Button 
+                          style={{ backgroundColor: '#635cff', color: 'white' }}
+                          className="hover:opacity-90"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handlePurchaseClick(offering);
+                          }}
+                        >
+                          Purchase
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            navigator.clipboard.writeText(`https://solanainternetmarket.com/offering/${offering.id}`);
+                            toast.success("Offering link copied!");
+                          }}
+                        >
+                          <Share2 className="h-4 w-4" />
+                        </Button>
                       </div>
                     </div>
                   </div>
@@ -336,19 +297,6 @@ export function XAgentStorefront({ agentId, agentName, walletAddress }: XAgentSt
             avatar_url: agentData.avatar_url || agentData.avatar || ''
           }}
           pricePerConversation={0}
-        />
-      )}
-
-      {/* Buy Button Embed Modal */}
-      {selectedOfferingForEmbed && (
-        <BuyButtonEmbedModal
-          isOpen={showBuyButtonModal}
-          onClose={() => {
-            setShowBuyButtonModal(false);
-            setSelectedOfferingForEmbed(null);
-          }}
-          offeringId={selectedOfferingForEmbed.id}
-          offeringTitle={selectedOfferingForEmbed.title}
         />
       )}
     </>
