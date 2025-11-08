@@ -108,15 +108,15 @@ const Marketplace = () => {
               <span className="text-sm sm:text-base font-bold text-fg">Solana Internet Market</span>
             </button>
             
-            {/* Sign In and Theme Toggle on the right */}
+            {/* Create a Store and Theme Toggle on the right */}
             <div className="flex items-center gap-3">
               <ThemeToggle />
               <Button
                 variant="outline"
                 className="bg-transparent border-2 border-fg text-fg hover:bg-fg/10 hover:text-fg hover:scale-105 transition-all"
-                onClick={() => navigate('/signin')}
+                onClick={() => navigate('/')}
               >
-                Sign In
+                Create a Store
               </Button>
             </div>
           </div>
