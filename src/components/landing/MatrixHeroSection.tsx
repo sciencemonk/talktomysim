@@ -77,7 +77,7 @@ export const MatrixHeroSection = ({
       {/* Content */}
       <div className="relative z-10 flex-1 flex flex-col items-center justify-center px-4 pt-24 text-center max-w-5xl mx-auto w-full">
         {/* $SIMAI badge */}
-        <button onClick={handleCopyAddress} className="mb-6 inline-flex items-center gap-2 px-4 py-2 rounded-full backdrop-blur-sm border border-border/50 transition-all cursor-pointer shadow-sm text-slate-950 bg-[#000a0e]/[0.39]">
+        <button onClick={handleCopyAddress} className="mb-6 inline-flex items-center gap-2 px-4 py-2 rounded-full backdrop-blur-sm transition-all cursor-pointer shadow-sm text-slate-950 bg-[#000a0e]/[0.39]">
           <img src={solanaLogo} alt="Solana" className="h-5 w-5" />
           <span className="text-xs sm:text-sm font-bold text-zinc-50">Solana Internet Market</span>
         </button>
