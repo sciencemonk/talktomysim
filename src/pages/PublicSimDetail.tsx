@@ -38,6 +38,7 @@ const PublicSimDetail = () => {
   const { toast } = useToast();
   const [sim, setSim] = useState<AgentType | null>(null);
   const [isXAgent, setIsXAgent] = useState<boolean | null>(null);
+  const [isCheckingAgent, setIsCheckingAgent] = useState(true);
   const { theme, setTheme } = useTheme();
   
   // Set light mode as default on initial load only
@@ -123,30 +124,42 @@ const PublicSimDetail = () => {
   // Check if this is an X agent first (before fetchSim)
   useEffect(() => {
     const checkIfXAgent = async () => {
-      if (!customUrl) return;
-
-      const { data: xAgents } = await supabase
-        .from('advisors')
-        .select('*')
-        .eq('sim_category', 'Crypto Mail')
-        .eq('is_active', true);
-
-      if (xAgents) {
-        const matchingXAgent = xAgents.find(agent => {
-          const socialLinks = agent.social_links as { x_username?: string; userName?: string } | null;
-          const storedUsername = (socialLinks?.userName || socialLinks?.x_username || '').toLowerCase();
-          return storedUsername === customUrl?.toLowerCase();
-        });
-
-        if (matchingXAgent) {
-          setIsXAgent(true);
-          return;
-        }
+      if (!customUrl) {
+        setIsCheckingAgent(false);
+        return;
       }
-      
-      // Not an X agent, proceed with normal sim fetch
-      setIsXAgent(false);
-      fetchSim();
+
+      try {
+        setIsCheckingAgent(true);
+        
+        const { data: xAgents } = await supabase
+          .from('advisors')
+          .select('*')
+          .eq('sim_category', 'Crypto Mail')
+          .eq('is_active', true);
+
+        if (xAgents) {
+          const matchingXAgent = xAgents.find(agent => {
+            const socialLinks = agent.social_links as { x_username?: string; userName?: string } | null;
+            const storedUsername = (socialLinks?.userName || socialLinks?.x_username || '').toLowerCase();
+            return storedUsername === customUrl?.toLowerCase();
+          });
+
+          if (matchingXAgent) {
+            setIsXAgent(true);
+            setIsCheckingAgent(false);
+            return;
+          }
+        }
+        
+        // Not an X agent, proceed with normal sim fetch
+        setIsXAgent(false);
+        await fetchSim();
+        setIsCheckingAgent(false);
+      } catch (error) {
+        console.error('Error checking agent type:', error);
+        setIsCheckingAgent(false);
+      }
     };
 
     checkUser();
@@ -407,9 +420,16 @@ const PublicSimDetail = () => {
     return <XAgentPage />;
   }
 
-  // While checking if this is an X agent, show nothing to avoid flash
-  if (isXAgent === null) {
-    return null;
+  // While checking agent type, show loading state
+  if (isCheckingAgent || isXAgent === null) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-background">
+        <div className="flex flex-col items-center gap-4">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+          <p className="text-muted-foreground">Loading...</p>
+        </div>
+      </div>
+    );
   }
 
   // Only show "Sim Not Found" if we've confirmed it's not an X agent and there's no sim
