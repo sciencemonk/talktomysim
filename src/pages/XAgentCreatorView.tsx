@@ -12,6 +12,7 @@ import { XAgentSimPageEditor } from "@/components/XAgentSimPageEditor";
 import { AgentType } from "@/types/agent";
 import { toast } from "sonner";
 import xIcon from "@/assets/x-icon.png";
+import solanaLogo from "@/assets/solana-logo.png";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/hooks/useAuth";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -329,13 +330,10 @@ export default function XAgentCreatorView() {
           <div className="flex items-center justify-between">
             <button
               onClick={() => navigate(`/${username}`)}
-              className="flex items-center hover:opacity-80 transition-opacity"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full backdrop-blur-sm transition-all cursor-pointer shadow-sm bg-card/50 hover:bg-card/80 border border-border"
             >
-              <img 
-                src="/default-logo.png" 
-                alt="SIM" 
-                className="h-8 md:h-10 w-auto"
-              />
+              <img src={solanaLogo} alt="Solana" className="h-5 w-5" />
+              <span className="text-xs sm:text-sm font-bold">Solana Internet Market</span>
             </button>
             <div className="flex items-center gap-2 md:gap-3">
               <span className="text-xs md:text-sm font-medium text-muted-foreground">Creator Dashboard</span>
