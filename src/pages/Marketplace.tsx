@@ -462,7 +462,7 @@ const Marketplace = () => {
                     <p className="text-sm text-fgMuted">Verified creator stores on the marketplace</p>
                   </div>
                 </div>
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                   {agents
                     .filter(a => (a as any).sim_category === 'Crypto Mail')
                     .sort((a, b) => {
@@ -496,7 +496,7 @@ const Marketplace = () => {
                             badge: agent.is_verified ? 'Verified' : undefined,
                           })}
                         >
-                          <div className="relative w-full aspect-[4/3] overflow-hidden bg-muted rounded-t-lg">
+                           <div className="relative w-full aspect-square overflow-hidden bg-muted rounded-t-lg">
                             <Avatar className="w-full h-full rounded-none">
                               <AvatarImage 
                                 src={getAvatarSrc()}
@@ -510,9 +510,9 @@ const Marketplace = () => {
                               </AvatarFallback>
                             </Avatar>
                           </div>
-                          <CardContent className="p-3 space-y-2">
+                           <CardContent className="p-4 space-y-3">
                             <div className="flex items-center justify-between gap-2">
-                              <h3 className="font-semibold text-fg text-sm truncate group-hover:text-primary transition-colors flex-1">
+                               <h3 className="font-semibold text-fg text-base truncate group-hover:text-primary transition-colors flex-1">
                                 {agent.name}
                               </h3>
                               {agent.is_verified && (
@@ -522,7 +522,7 @@ const Marketplace = () => {
                                 </Badge>
                               )}
                             </div>
-                            <p className="text-xs text-fgMuted line-clamp-2">
+                             <p className="text-sm text-fgMuted line-clamp-2">
                               {agent.description || agent.auto_description}
                             </p>
                           </CardContent>
@@ -535,15 +535,17 @@ const Marketplace = () => {
           </>
         )}
 
-        {/* Products Grid */}
-        <div className="mb-6">
-          <h2 className="text-2xl font-bold text-fg mb-4">
-            {categoryFilter === 'all' ? 'All Products' : categoryFilter}
-            <span className="text-fgMuted text-lg ml-2">({filteredItems.length})</span>
-          </h2>
-        </div>
+        {/* Products Grid - Hide when on Stores tab */}
+        {categoryFilter !== 'Stores' && (
+          <>
+            <div className="mb-6">
+              <h2 className="text-2xl font-bold text-fg mb-4">
+                {categoryFilter === 'all' ? 'All Products' : categoryFilter}
+                <span className="text-fgMuted text-lg ml-2">({filteredItems.length})</span>
+              </h2>
+            </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {isLoading ?
             // Loading skeleton
             Array.from({ length: 8 }).map((_, i) => (
@@ -642,11 +644,11 @@ const Marketplace = () => {
                   </div>
                 </CardContent>
               </Card>
-            ))
+              ))
           }
-        </div>
+            </div>
 
-        {filteredItems.length === 0 && !isLoading && (
+            {filteredItems.length === 0 && !isLoading && (
           <Card className="border-border bg-card">
             <CardContent className="text-center py-12">
               <div className="bg-bgMuted p-4 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
@@ -665,6 +667,8 @@ const Marketplace = () => {
               </Button>
             </CardContent>
           </Card>
+            )}
+          </>
         )}
       </div>
     </div>
