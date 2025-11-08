@@ -407,17 +407,21 @@ export default function XAgentPage() {
     return (
       <div className="min-h-screen bg-gradient-to-b from-background via-background to-muted/20 font-system">
         {/* Top Navigation Bar Skeleton */}
-        <div className="border-b border-border/40 bg-card/95 backdrop-blur-md sticky top-0 z-50">
-          <div className="container mx-auto px-4 md:px-6 py-3">
+        <div className="fixed top-0 left-0 right-0 z-50 bg-bg/80 backdrop-blur-md border-b border-border">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
             <div className="flex items-center justify-between">
-              <div className="h-10 w-10 rounded-full bg-muted animate-pulse" />
-              <div className="h-8 w-20 rounded bg-muted animate-pulse" />
+              <div className="h-8 w-48 rounded-full bg-muted animate-pulse" />
+              <div className="flex items-center gap-2">
+                <div className="h-8 w-8 rounded bg-muted animate-pulse" />
+                <div className="h-8 w-8 rounded bg-muted animate-pulse" />
+                <div className="h-8 w-28 rounded bg-muted animate-pulse" />
+              </div>
             </div>
           </div>
         </div>
 
         {/* Hero Section Skeleton */}
-        <div className="border-b border-border/40 bg-gradient-to-r from-card/95 via-card/80 to-card/95 backdrop-blur-sm">
+        <div className="border-b border-border/40 bg-gradient-to-r from-card/95 via-card/80 to-card/95 backdrop-blur-sm mt-20">
           <div className="container mx-auto px-4 md:px-6 py-8 md:py-12">
             <div className="flex flex-col md:flex-row gap-6 md:gap-8 items-start md:items-center">
               {/* Profile Image Skeleton */}
@@ -503,23 +507,47 @@ export default function XAgentPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background via-background to-muted/20 font-system">
-      {/* Floating Controls - Top Right */}
-      <div className="fixed top-4 right-4 z-50 flex items-center gap-2">
-        <ThemeToggle />
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={handleShareLink}
-          className="gap-2 bg-card/95 backdrop-blur-md"
-        >
-          {linkCopied ? <Check className="h-4 w-4" /> : <Share2 className="h-4 w-4" />}
-          <span className="hidden sm:inline">Share</span>
-        </Button>
+      {/* Top Header with Logo, Sign In and Theme Toggle */}
+      <div className="fixed top-0 left-0 right-0 z-50 bg-bg/80 backdrop-blur-md border-b border-border">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div className="flex justify-between items-center">
+            {/* Logo on the left */}
+            <button 
+              onClick={() => navigate('/marketplace')}
+              className="inline-flex items-center gap-1.5 px-2 sm:px-3 py-1.5 rounded-full backdrop-blur-sm transition-all cursor-pointer shadow-sm bg-primary/10 border border-primary/20 hover:bg-primary/20 whitespace-nowrap"
+            >
+              <img src={solanaLogo} alt="Solana" className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+              <span className="text-xs sm:text-sm font-bold text-fg">Solana Internet Market</span>
+            </button>
+            
+            {/* Share, Theme Toggle and Create a Store on the right */}
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleShareLink}
+                className="gap-2 bg-transparent border border-fg text-fg hover:bg-fg/10 hover:text-fg"
+              >
+                {linkCopied ? <Check className="h-4 w-4" /> : <Share2 className="h-4 w-4" />}
+                <span className="hidden sm:inline">Share</span>
+              </Button>
+              <ThemeToggle />
+              <Button
+                variant="outline"
+                size="sm"
+                className="bg-transparent border border-fg text-fg hover:bg-fg/10 hover:text-fg text-xs sm:text-sm px-2 sm:px-4"
+                onClick={() => navigate('/')}
+              >
+                Create a Store
+              </Button>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Hero Section - Prominent Profile Header */}
       <div 
-        className="border-b border-border/40 bg-gradient-to-r from-card/95 via-card/80 to-card/95 backdrop-blur-sm relative overflow-hidden"
+        className="border-b border-border/40 bg-gradient-to-r from-card/95 via-card/80 to-card/95 backdrop-blur-sm relative overflow-hidden mt-20"
       >
         {/* Header Image Background */}
         {designSettings?.headerImage && (

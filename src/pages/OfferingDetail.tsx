@@ -14,6 +14,8 @@ import { AgentOfferingModal } from "@/components/AgentOfferingModal";
 import { OfferingReceiptModal } from "@/components/OfferingReceiptModal";
 import { updateMetaTags, resetMetaTags } from "@/lib/metaTags";
 import { useTheme } from "@/hooks/useTheme";
+import { ThemeToggle } from "@/components/ThemeToggle";
+import solanaLogo from "@/assets/solana-logo.png";
 
 interface PurchaseData {
   signature: string;
@@ -200,7 +202,36 @@ export default function OfferingDetail() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 py-8 max-w-4xl">
+      {/* Top Header with Logo, Sign In and Theme Toggle */}
+      <div className="fixed top-0 left-0 right-0 z-50 bg-bg/80 backdrop-blur-md border-b border-border">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div className="flex justify-between items-center">
+            {/* Logo on the left */}
+            <button 
+              onClick={() => navigate('/marketplace')}
+              className="inline-flex items-center gap-1.5 px-2 sm:px-3 py-1.5 rounded-full backdrop-blur-sm transition-all cursor-pointer shadow-sm bg-primary/10 border border-primary/20 hover:bg-primary/20 whitespace-nowrap"
+            >
+              <img src={solanaLogo} alt="Solana" className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+              <span className="text-xs sm:text-sm font-bold text-fg">Solana Internet Market</span>
+            </button>
+            
+            {/* Theme Toggle and Create a Store on the right */}
+            <div className="flex items-center gap-2">
+              <ThemeToggle />
+              <Button
+                variant="outline"
+                size="sm"
+                className="bg-transparent border border-fg text-fg hover:bg-fg/10 hover:text-fg text-xs sm:text-sm px-2 sm:px-4"
+                onClick={() => navigate('/')}
+              >
+                Create a Store
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div className="container mx-auto px-4 py-8 max-w-4xl mt-20">
         {/* Main Content */}
         <Card className="mb-6">
           <CardHeader>
