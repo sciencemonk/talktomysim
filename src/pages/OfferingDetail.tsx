@@ -107,7 +107,7 @@ export default function OfferingDetail() {
   }, [offering, offeringId]);
 
   const handleShare = () => {
-    const url = window.location.href;
+    const url = `https://solanainternetmarket.com/offering/${offeringId}`;
     navigator.clipboard.writeText(url);
     toast.success("Link copied to clipboard!");
   };

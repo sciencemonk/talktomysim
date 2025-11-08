@@ -59,7 +59,7 @@ export default function DemoStore() {
     toast.success("Wallet address copied!");
   };
   const handleShareLink = () => {
-    const url = `${window.location.origin}/${mockXData.username}`;
+    const url = `https://solanainternetmarket.com/${mockXData.username}`;
     navigator.clipboard.writeText(url);
     setLinkCopied(true);
     setTimeout(() => setLinkCopied(false), 2000);
