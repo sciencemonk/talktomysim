@@ -221,108 +221,74 @@ export function XAgentSimPageEditor({
         <CardContent>
           <div className="border border-border rounded-lg overflow-hidden bg-background">
             {/* Hero Section - Profile */}
-            <div className="border-b border-border bg-gradient-to-r from-card/95 via-card/80 to-card/95 backdrop-blur-sm p-6 md:p-8">
-              <div className="flex flex-col md:flex-row gap-4 md:gap-6 items-start md:items-center">
+            <div 
+              className="border-b border-border/40 bg-gradient-to-r from-card/95 via-card/80 to-card/95 backdrop-blur-sm p-6 md:p-8"
+            >
+              <div className="flex flex-col md:flex-row gap-6 md:gap-8 items-start md:items-center">
                 {/* Avatar */}
                 <div className="relative">
-                  <Avatar className="h-20 w-20 md:h-24 md:w-24 border-2 ring-2 ring-[#81f4aa]/20" style={{ borderColor: '#81f4aa' }}>
+                  <Avatar className="h-24 w-24 md:h-32 md:w-32 border-4 shadow-2xl ring-4" style={{ borderColor: '#81f4aa', '--tw-ring-color': '#81f4aa33' } as any}>
                     <AvatarImage 
                       src={getImageUrl(avatarUrl)} 
                       alt={agentName}
                       className="object-cover"
                       referrerPolicy="no-referrer"
                     />
-                    <AvatarFallback className="text-2xl font-bold">{agentName[0]}</AvatarFallback>
+                    <AvatarFallback className="text-3xl font-bold bg-primary/10 text-primary">{agentName[0]}</AvatarFallback>
                   </Avatar>
-                  {isVerified && (
-                    <div className="absolute -bottom-1 -right-1 h-6 w-6 rounded-full flex items-center justify-center" style={{ backgroundColor: '#81f4aa' }}>
-                      <span className="text-black text-xs font-bold">✓</span>
-                    </div>
-                  )}
                 </div>
 
                 {/* Profile Info */}
-                <div className="flex-1 space-y-3">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <h2 className="text-2xl font-bold">{agentName}</h2>
-                    {isVerified && (
-                      <Badge variant="default" className="gap-1" style={{ backgroundColor: '#81f4aa', color: '#000' }}>
-                        <Check className="h-3 w-3" />
-                        Verified
-                      </Badge>
-                    )}
-                  </div>
-                  
-                  {/* Editable Description */}
-                  <div className="space-y-2">
-                    {isEditingDescription ? (
-                      <div className="space-y-2">
-                        <Textarea
-                          value={description}
-                          onChange={(e) => setDescription(e.target.value)}
-                          placeholder="Add a description for your page..."
-                          className="min-h-[80px] text-sm"
-                          maxLength={300}
-                        />
-                        <div className="flex gap-2">
-                          <Button
-                            size="sm"
-                            onClick={saveDescription}
-                            style={{ backgroundColor: '#635cff', color: 'white' }}
-                          >
-                            <Check className="h-3 w-3 mr-1" />
-                            Save
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => {
-                              setIsEditingDescription(false);
-                              loadDescription();
-                            }}
-                          >
-                            <X className="h-3 w-3 mr-1" />
-                            Cancel
-                          </Button>
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="group flex items-start gap-2">
-                        <p className="text-muted-foreground text-sm flex-1">
-                          {description || "Click edit to add a description for your page"}
-                        </p>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => setIsEditingDescription(true)}
-                          className="opacity-0 group-hover:opacity-100 transition-opacity"
+                <div className="flex-1 space-y-4">
+                  <div>
+                    <p className="text-sm text-muted-foreground mb-2">Crypto-native Online Stores</p>
+                    <div className="flex items-center gap-3 flex-wrap mb-2">
+                      <h1 className="text-3xl md:text-4xl font-bold">{agentName}</h1>
+                      {isVerified && (
+                        <Badge variant="default" className="gap-1" style={{ backgroundColor: '#81f4aa', color: '#000' }}>
+                          <Check className="h-3 w-3" />
+                          Verified
+                        </Badge>
+                      )}
+                    </div>
+                    
+                    {/* Wallet Address & X Link */}
+                    <div className="flex items-center gap-3 text-muted-foreground mb-3">
+                      {walletAddress && (
+                        <button
+                          onClick={() => {
+                            navigator.clipboard.writeText(walletAddress);
+                            toast.success("Wallet address copied to clipboard!");
+                          }}
+                          className="flex items-center gap-2 hover:text-foreground transition-colors font-mono text-sm"
+                          title="Click to copy wallet address"
                         >
-                          <Edit2 className="h-3 w-3" />
-                        </Button>
-                      </div>
-                    )}
+                          <span className="truncate max-w-[200px] md:max-w-xs">
+                            {walletAddress}
+                          </span>
+                          <span className="shrink-0 h-4 w-4 flex items-center justify-center">📋</span>
+                        </button>
+                      )}
+                      <a 
+                        href={`https://x.com/${agentUsername}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-1 hover:text-foreground transition-colors"
+                      >
+                        𝕏
+                        <ExternalLink className="h-3 w-3" />
+                      </a>
+                    </div>
                   </div>
-                  
-                  {/* Wallet Address */}
-                  {walletAddress && (
-                    <button
-                      onClick={() => {
-                        navigator.clipboard.writeText(walletAddress);
-                        toast.success("Wallet address copied to clipboard!");
-                      }}
-                      className="text-xs text-muted-foreground font-mono break-all max-w-md hover:text-foreground transition-colors cursor-pointer text-left"
-                      title="Click to copy wallet address"
-                    >
-                      {walletAddress}
-                    </button>
-                  )}
 
                   {/* Custom Links */}
-                  <div className="space-y-2">
+                  {customLinks.filter(link => link.label && link.url).length > 0 && (
                     <div className="flex flex-wrap gap-2">
-                      {customLinks.map(link => (
-                        editingLinkId === link.id || (!link.label && !link.url) ? (
-                          <Card key={link.id} className="p-3 space-y-2 w-full">
+                      {customLinks
+                        .filter(link => link.label && link.url)
+                        .map(link => (
+                          editingLinkId === link.id ? (
+                            <Card key={link.id} className="p-3 space-y-2 w-full">
                               <div className="space-y-2">
                                 <Input
                                   value={link.label}
@@ -369,7 +335,7 @@ export function XAgentSimPageEditor({
                                 </Button>
                               </div>
                             </Card>
-                        ) : link.label && link.url ? (
+                          ) : (
                             <div key={link.id} className="group relative">
                               <Button
                                 variant="outline"
@@ -391,30 +357,80 @@ export function XAgentSimPageEditor({
                                 <Edit2 className="h-3 w-3" />
                               </Button>
                             </div>
-                        ) : null
-                      ))}
-                      {customLinks.length < 5 && (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={addLink}
-                          className="gap-2"
-                        >
-                          <Plus className="h-3 w-3" />
-                          Add Link
-                        </Button>
-                      )}
+                          )
+                        ))}
                     </div>
+                  )}
+                  {customLinks.length < 5 && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={addLink}
+                      className="gap-2"
+                    >
+                      <Plus className="h-3 w-3" />
+                      Add Link
+                    </Button>
+                  )}
+
+                  {/* Description */}
+                  <div className="space-y-2">
+                    {isEditingDescription ? (
+                      <div className="space-y-2">
+                        <Textarea
+                          value={description}
+                          onChange={(e) => setDescription(e.target.value)}
+                          placeholder="Add a description for your page..."
+                          className="min-h-[80px] text-sm"
+                          maxLength={300}
+                        />
+                        <div className="flex gap-2">
+                          <Button
+                            size="sm"
+                            onClick={saveDescription}
+                            style={{ backgroundColor: '#635cff', color: 'white' }}
+                          >
+                            <Check className="h-3 w-3 mr-1" />
+                            Save
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => {
+                              setIsEditingDescription(false);
+                              loadDescription();
+                            }}
+                          >
+                            <X className="h-3 w-3 mr-1" />
+                            Cancel
+                          </Button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="group flex items-start gap-2">
+                        <p className="text-sm md:text-base text-muted-foreground max-w-2xl flex-1">
+                          {description || "Click edit to add a description for your page"}
+                        </p>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => setIsEditingDescription(true)}
+                          className="opacity-0 group-hover:opacity-100 transition-opacity shrink-0"
+                        >
+                          <Edit2 className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Store Content */}
-            <div className="p-6 md:p-8">
-              <div className="grid grid-cols-1 lg:grid-cols-[1fr_350px] gap-6">
-                {/* Left Column - Store Offerings */}
-                <div>
+            {/* Main Content */}
+            <div className="container mx-auto px-4 md:px-6 max-w-7xl py-8 md:py-12">
+              <div className="grid grid-cols-1 lg:grid-cols-[1fr_400px] gap-6 md:gap-8">
+                {/* Left Column - Store */}
+                <div className="space-y-6">
                   {walletAddress ? (
                     <XAgentStorefront
                       agentId={agentId}
@@ -435,7 +451,7 @@ export function XAgentSimPageEditor({
                 </div>
 
                 {/* Right Column - AI Agents */}
-                <div className="lg:sticky lg:top-4 h-fit">
+                <div className="lg:sticky lg:top-20 h-fit">
                   <AgentOfferingsDisplay 
                     offerings={offerings.filter((o: any) => o.offering_type === 'agent' || o.agent_system_prompt)}
                     avatarUrl={avatarUrl}
