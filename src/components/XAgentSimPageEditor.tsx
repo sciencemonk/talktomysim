@@ -161,8 +161,19 @@ export function XAgentSimPageEditor({
           <div className="flex items-center justify-between">
             <div>
               <CardTitle>Your Public Page Preview</CardTitle>
-              <CardDescription>
+              <CardDescription className="flex items-center gap-2 flex-wrap">
                 This is exactly how your page appears to visitors
+                <Button
+                  variant="link"
+                  size="sm"
+                  className="h-auto p-0 text-xs gap-1"
+                  asChild
+                >
+                  <a href={`/${agentUsername}`} target="_blank" rel="noopener noreferrer">
+                    View live page
+                    <ExternalLink className="h-3 w-3" />
+                  </a>
+                </Button>
               </CardDescription>
             </div>
             <Badge variant="outline" className="gap-1">
