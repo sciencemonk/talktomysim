@@ -124,11 +124,20 @@ const Marketplace = () => {
         </div>
       </div>
 
-      {/* Hero Section */}
-      <div className="pt-20 bg-gradient-to-r from-primary/20 via-primary/10 to-transparent border-b border-border">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <h1 className="text-4xl font-bold text-fg mb-4">Marketplace</h1>
-          <p className="text-lg text-fgMuted max-w-2xl">
+      {/* Hero Section with Video Background */}
+      <div className="relative pt-20 border-b border-border overflow-hidden">
+        {/* Video Background */}
+        <video autoPlay loop muted playsInline className="absolute inset-0 w-full h-full object-cover">
+          <source src="https://uovhemqkztmkoozlmqxq.supabase.co/storage/v1/object/sign/trimtab/4426378-uhd_3840_2160_25fps.mp4?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV82NDZlOGY2My1iYjgzLTQwOGQtYjc1Mi1mOWM0OTMxZjU3OGIiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJ0cmltdGFiLzQ0MjYzNzgtdWhkXzM4NDBfMjE2MF8yNWZwcy5tcDQiLCJpYXQiOjE3NjIzMTYzOTgsImV4cCI6MTc5Mzg1MjM5OH0.m-yCbNjzr3XR15fzejjFmaZNqbtC-fU0_J9aUDlTEd8" type="video/mp4" />
+        </video>
+        
+        {/* Dark overlay for text readability */}
+        <div className="absolute inset-0 bg-black/40"></div>
+        
+        {/* Content */}
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          <h1 className="text-4xl font-bold text-white mb-4">Marketplace</h1>
+          <p className="text-lg text-white/90 max-w-2xl">
             Discover AI agents, digital products, and exclusive offerings from creators worldwide
           </p>
         </div>
