@@ -497,42 +497,18 @@ export default function XAgentPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background via-background to-muted/20 font-system">
-      {/* Top Navigation Bar */}
-      <div className="border-b border-border/40 bg-card/95 backdrop-blur-md sticky top-0 z-50">
-        <div className="container mx-auto px-4 md:px-6 py-3">
-          <div className="flex items-center justify-between">
-            <button
-              onClick={() => navigate('/')}
-              className="hover:opacity-80 transition-opacity"
-            >
-              <img 
-                src="/sim-logo-light-mode.png" 
-                alt="SIM Logo" 
-                className="h-10 w-10 object-contain dark:hidden" 
-              />
-              <img
-                src="/sim-logo-dark.png"
-                alt="SIM Logo"
-                className="h-10 w-10 object-contain hidden dark:block"
-                onError={(e) => {
-                  e.currentTarget.src = "/sim-logo.png";
-                }}
-              />
-            </button>
-            <div className="flex items-center gap-2">
-              <ThemeToggle />
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleShareLink}
-                className="gap-2"
-              >
-                {linkCopied ? <Check className="h-4 w-4" /> : <Share2 className="h-4 w-4" />}
-                <span className="hidden sm:inline">Share</span>
-              </Button>
-            </div>
-          </div>
-        </div>
+      {/* Floating Controls - Top Right */}
+      <div className="fixed top-4 right-4 z-50 flex items-center gap-2">
+        <ThemeToggle />
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={handleShareLink}
+          className="gap-2 bg-card/95 backdrop-blur-md"
+        >
+          {linkCopied ? <Check className="h-4 w-4" /> : <Share2 className="h-4 w-4" />}
+          <span className="hidden sm:inline">Share</span>
+        </Button>
       </div>
 
       {/* Hero Section - Prominent Profile Header */}
@@ -710,6 +686,21 @@ export default function XAgentPage() {
           onPurchaseSuccess={handlePurchaseSuccess}
         />
       )}
+
+      {/* Footer */}
+      <footer className="border-t border-border/40 bg-card/95 backdrop-blur-md py-6">
+        <div className="container mx-auto px-4 md:px-6 text-center">
+          <Button
+            variant="outline"
+            size="sm"
+            asChild
+          >
+            <a href="https://solanainternetmarket.com" target="_blank" rel="noopener noreferrer">
+              Powered by Solana Internet Market
+            </a>
+          </Button>
+        </div>
+      </footer>
 
     </div>
   );

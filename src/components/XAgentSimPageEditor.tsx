@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Plus, Trash2, Save, ExternalLink, Check, Package, Edit2, X } from "lucide-react";
+import { Plus, Trash2, Save, ExternalLink, Check, Package, Edit2, X, Share2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
@@ -219,7 +219,18 @@ export function XAgentSimPageEditor({
           </div>
         </CardHeader>
         <CardContent>
-          <div className="border border-border rounded-lg overflow-hidden bg-background">
+          <div className="border border-border rounded-lg overflow-hidden bg-background relative">
+            {/* Floating Controls - Top Right */}
+            <div className="absolute top-4 right-4 z-50 flex items-center gap-2">
+              <div className="h-8 w-8 rounded-md border border-border bg-card/95 backdrop-blur-md flex items-center justify-center">
+                <span className="text-xs">🌓</span>
+              </div>
+              <div className="h-8 px-3 rounded-md border border-border bg-card/95 backdrop-blur-md flex items-center gap-1">
+                <Share2 className="h-3 w-3" />
+                <span className="text-xs hidden sm:inline">Share</span>
+              </div>
+            </div>
+
             {/* Hero Section - Profile */}
             <div 
               className="border-b border-border/40 bg-gradient-to-r from-card/95 via-card/80 to-card/95 backdrop-blur-sm p-6 md:p-8"
@@ -458,6 +469,21 @@ export function XAgentSimPageEditor({
                     onAgentClick={() => {}}
                   />
                 </div>
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="border-t border-border/40 bg-card/95 backdrop-blur-md py-6">
+              <div className="text-center">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  asChild
+                >
+                  <a href="https://solanainternetmarket.com" target="_blank" rel="noopener noreferrer">
+                    Powered by Solana Internet Market
+                  </a>
+                </Button>
               </div>
             </div>
           </div>
