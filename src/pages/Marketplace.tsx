@@ -262,24 +262,21 @@ const Marketplace = () => {
           </CardContent>
         </Card>
 
-        {/* Featured AI Agents Section */}
+        {/* All AI Agents Section */}
         <div className="mb-12">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h2 className="text-2xl font-bold text-fg mb-2">Featured AI Agents</h2>
-              <p className="text-sm text-fgMuted">Discover top AI agents on the marketplace</p>
+              <h2 className="text-2xl font-bold text-fg mb-2">AI Agents</h2>
+              <p className="text-sm text-fgMuted">Discover all AI agents on the marketplace</p>
             </div>
-            <Button variant="outline" size="sm" onClick={() => setCategoryFilter('AI Agents')}>
-              View All
-            </Button>
           </div>
           
           {agentsLoading ? (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-              {Array.from({ length: 6 }).map((_, i) => (
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+              {Array.from({ length: 12 }).map((_, i) => (
                 <Card key={i} className="animate-pulse border-border">
                   <CardContent className="p-4 text-center">
-                    <div className="w-16 h-16 rounded-full bg-bgMuted mx-auto mb-3" />
+                    <div className="w-full aspect-[4/3] bg-bgMuted rounded mb-3" />
                     <div className="h-4 bg-bgMuted rounded w-3/4 mx-auto mb-2" />
                     <div className="h-3 bg-bgMuted rounded w-1/2 mx-auto" />
                   </CardContent>
@@ -287,58 +284,79 @@ const Marketplace = () => {
               ))}
             </div>
           ) : (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-              {(() => {
-                // Prioritize verified agents, then fill with other agents
-                const featuredAgents = agents
-                  .sort((a, b) => {
-                    // Sort verified agents first
-                    if (a.is_verified && !b.is_verified) return -1;
-                    if (!a.is_verified && b.is_verified) return 1;
-                    return 0;
-                  })
-                  .slice(0, 6);
-                
-                return featuredAgents.map((agent) => (
-                  <Card 
-                    key={agent.id}
-                    className="group cursor-pointer border-border bg-card hover:shadow-lg hover:border-primary/30 transition-all duration-300 hover:-translate-y-1"
-                    onClick={() => handleItemClick({
-                      id: agent.id,
-                      type: 'agent',
-                      name: agent.name,
-                      description: agent.description,
-                      avatar: agent.avatar,
-                      price: agent.price || 0,
-                      category: agent.marketplace_category || 'AI Agents',
-                      rating: agent.performance || 0,
-                      sales: agent.interactions || 0,
-                      badge: agent.is_verified ? 'Verified' : agent.is_featured ? 'Featured' : undefined,
-                    })}
-                  >
-                    <CardContent className="p-4 text-center">
-                      <Avatar className="w-16 h-16 mx-auto mb-3 ring-2 ring-border group-hover:ring-primary transition-all">
-                        <AvatarImage src={agent.avatar} alt={agent.name} />
-                        <AvatarFallback className="bg-primary/10 text-primary font-semibold">
-                          <Bot className="h-6 w-6" />
-                        </AvatarFallback>
-                      </Avatar>
-                      {agent.is_verified && (
-                        <Badge className="mb-2 text-xs bg-brandPurple text-white">
-                          <Sparkles className="h-3 w-3 mr-1" />
-                          Verified
-                        </Badge>
-                      )}
-                      <h3 className="font-semibold text-fg text-sm truncate group-hover:text-primary transition-colors">
-                        {agent.name}
-                      </h3>
-                      <p className="text-xs text-fgMuted mt-1 line-clamp-2">
-                        {agent.description}
-                      </p>
-                    </CardContent>
-                  </Card>
-                ));
-              })()}
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+              {agents
+                .sort((a, b) => {
+                  // Sort verified agents first
+                  if (a.is_verified && !b.is_verified) return -1;
+                  if (!a.is_verified && b.is_verified) return 1;
+                  // Then by creation date
+                  return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+                })
+                .map((agent) => {
+                  const getAvatarSrc = () => {
+                    const isCryptoMail = (agent as any).sim_category === 'Crypto Mail';
+                    const avatarUrl = agent.avatar;
+                    
+                    if (avatarUrl && (avatarUrl.startsWith('http://') || avatarUrl.startsWith('https://'))) {
+                      return `https://images.weserv.nl/?url=${encodeURIComponent(avatarUrl)}`;
+                    }
+                    return avatarUrl;
+                  };
+
+                  return (
+                    <Card 
+                      key={agent.id}
+                      className="group cursor-pointer border-border bg-card hover:shadow-lg hover:border-primary/30 transition-all duration-300 hover:-translate-y-1"
+                      onClick={() => handleItemClick({
+                        id: agent.id,
+                        type: 'agent',
+                        name: agent.name,
+                        description: agent.description,
+                        avatar: agent.avatar,
+                        price: agent.price || 0,
+                        category: agent.marketplace_category || 'AI Agents',
+                        rating: agent.performance || 0,
+                        sales: agent.interactions || 0,
+                        badge: agent.is_verified ? 'Verified' : agent.is_featured ? 'Featured' : undefined,
+                      })}
+                    >
+                      {/* Image container */}
+                      <div className="relative w-full aspect-[4/3] overflow-hidden bg-muted rounded-t-lg">
+                        <Avatar className="w-full h-full rounded-none">
+                          <AvatarImage 
+                            src={getAvatarSrc()}
+                            alt={agent.name}
+                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                            referrerPolicy="no-referrer"
+                            crossOrigin="anonymous"
+                          />
+                          <AvatarFallback className="w-full h-full rounded-none bg-primary/10 flex items-center justify-center">
+                            <Bot className="h-8 w-8 text-primary" />
+                          </AvatarFallback>
+                        </Avatar>
+                      </div>
+                      
+                      {/* Content section */}
+                      <CardContent className="p-3 space-y-2">
+                        <div className="flex items-center justify-between gap-2">
+                          <h3 className="font-semibold text-fg text-sm truncate group-hover:text-primary transition-colors flex-1">
+                            {agent.name}
+                          </h3>
+                          {agent.is_verified && (
+                            <Badge className="text-xs bg-brandPurple text-white shrink-0">
+                              <Sparkles className="h-3 w-3 mr-1" />
+                              Verified
+                            </Badge>
+                          )}
+                        </div>
+                        <p className="text-xs text-fgMuted line-clamp-2">
+                          {agent.description || agent.auto_description}
+                        </p>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
             </div>
           )}
         </div>
