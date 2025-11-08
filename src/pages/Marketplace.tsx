@@ -31,8 +31,6 @@ const Marketplace = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState("trending");
   const [categoryFilter, setCategoryFilter] = useState("all");
-  const [stores, setStores] = useState<Array<{id: string, name: string, description: string, avatar_url: string}>>([]);
-  const [storesLoading, setStoresLoading] = useState(true);
   const { offerings, isLoading: offeringsLoading } = useOfferings();
 
   // Fetch all agents from advisors table
@@ -83,32 +81,6 @@ const Marketplace = () => {
   });
 
   const isLoading = agentsLoading || offeringsLoading;
-
-  // Fetch stores with active offerings
-  useEffect(() => {
-    const fetchStores = async () => {
-      try {
-        const { data, error } = await supabase
-          .from('advisors')
-          .select('id, name, description, avatar_url')
-          .in('id', 
-            offerings.map(o => o.agent_id).filter((v, i, a) => a.indexOf(v) === i)
-          )
-          .limit(12);
-        
-        if (error) throw error;
-        setStores(data || []);
-      } catch (error) {
-        console.error('Error fetching stores:', error);
-      } finally {
-        setStoresLoading(false);
-      }
-    };
-
-    if (!offeringsLoading && offerings.length > 0) {
-      fetchStores();
-    }
-  }, [offerings, offeringsLoading]);
 
   // Combine agents and offerings into marketplace items
   const marketplaceItems: MarketplaceItem[] = [
@@ -257,52 +229,43 @@ const Marketplace = () => {
                 />
               </div>
               
-              <div className="flex flex-wrap gap-3">
-                <Select value={sortBy} onValueChange={setSortBy}>
-                  <SelectTrigger className="w-[180px] bg-inputBg border-inputBorder">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="trending">
-                      <div className="flex items-center gap-2">
-                        <TrendingUp className="h-4 w-4" />
-                        <span>Trending</span>
-                      </div>
-                    </SelectItem>
-                    <SelectItem value="price-low">
-                      <div className="flex items-center gap-2">
-                        <Filter className="h-4 w-4" />
-                        <span>Price: Low to High</span>
-                      </div>
-                    </SelectItem>
-                    <SelectItem value="price-high">
-                      <div className="flex items-center gap-2">
-                        <Filter className="h-4 w-4" />
-                        <span>Price: High to Low</span>
-                      </div>
-                    </SelectItem>
-                    <SelectItem value="rating">
-                      <div className="flex items-center gap-2">
-                        <Star className="h-4 w-4" />
-                        <span>Top Rated</span>
-                      </div>
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-
-                <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-                  <SelectTrigger className="w-[180px] bg-inputBg border-inputBorder">
-                    <SelectValue placeholder="All Categories" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Categories</SelectItem>
-                    {categories.map(category => (
-                      <SelectItem key={category} value={category!}>
-                        {category}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+              {/* Category Tabs */}
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  variant={categoryFilter === "all" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setCategoryFilter("all")}
+                  className="gap-2"
+                >
+                  All
+                </Button>
+                <Button
+                  variant={categoryFilter === "AI Agents" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setCategoryFilter("AI Agents")}
+                  className="gap-2"
+                >
+                  <Bot className="h-4 w-4" />
+                  AI Agents
+                </Button>
+                <Button
+                  variant={categoryFilter === "Products" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setCategoryFilter("Products")}
+                  className="gap-2"
+                >
+                  <Package className="h-4 w-4" />
+                  Products
+                </Button>
+                <Button
+                  variant={categoryFilter === "Stores" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setCategoryFilter("Stores")}
+                  className="gap-2"
+                >
+                  <Store className="h-4 w-4" />
+                  Stores
+                </Button>
               </div>
             </div>
           </CardContent>
@@ -331,91 +294,9 @@ const Marketplace = () => {
           </div>
         ) : (
           <>
-            {/* X Agents Section */}
-            {agents.filter(a => (a as any).sim_category === 'Crypto Mail').length > 0 && (
-              <div className="mb-12">
-                <div className="flex items-center justify-between mb-6">
-                  <div>
-                    <h2 className="text-2xl font-bold text-fg mb-2 flex items-center gap-2">
-                      <Mail className="h-6 w-6" />
-                      X Agents
-                    </h2>
-                    <p className="text-sm text-fgMuted">Verified X/Twitter personalities as AI agents</p>
-                  </div>
-                </div>
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-                  {agents
-                    .filter(a => (a as any).sim_category === 'Crypto Mail')
-                    .sort((a, b) => {
-                      if (a.is_verified && !b.is_verified) return -1;
-                      if (!a.is_verified && b.is_verified) return 1;
-                      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-                    })
-                    .map((agent) => {
-                      const getAvatarSrc = () => {
-                        const avatarUrl = agent.avatar_url || agent.avatar;
-                        if (avatarUrl && (avatarUrl.startsWith('http://') || avatarUrl.startsWith('https://'))) {
-                          return `https://images.weserv.nl/?url=${encodeURIComponent(avatarUrl)}`;
-                        }
-                        return avatarUrl;
-                      };
-
-                      return (
-                        <Card 
-                          key={agent.id}
-                          className="group cursor-pointer border-border bg-card hover:shadow-lg hover:border-primary/30 transition-all duration-300 hover:-translate-y-1"
-                          onClick={() => handleItemClick({
-                            id: agent.id,
-                            type: 'agent',
-                            name: agent.name,
-                            description: agent.description,
-                            avatar: agent.avatar,
-                            price: agent.price || 0,
-                            category: agent.marketplace_category || 'AI Agents',
-                            rating: agent.performance || 0,
-                            sales: agent.interactions || 0,
-                            badge: agent.is_verified ? 'Verified' : undefined,
-                          })}
-                        >
-                          <div className="relative w-full aspect-[4/3] overflow-hidden bg-muted rounded-t-lg">
-                            <Avatar className="w-full h-full rounded-none">
-                              <AvatarImage 
-                                src={getAvatarSrc()}
-                                alt={agent.name}
-                                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                                referrerPolicy="no-referrer"
-                                crossOrigin="anonymous"
-                              />
-                              <AvatarFallback className="w-full h-full rounded-none bg-primary/10 flex items-center justify-center">
-                                <Mail className="h-8 w-8 text-primary" />
-                              </AvatarFallback>
-                            </Avatar>
-                          </div>
-                          <CardContent className="p-3 space-y-2">
-                            <div className="flex items-center justify-between gap-2">
-                              <h3 className="font-semibold text-fg text-sm truncate group-hover:text-primary transition-colors flex-1">
-                                {agent.name}
-                              </h3>
-                              {agent.is_verified && (
-                                <Badge className="text-xs bg-brandPurple text-white shrink-0">
-                                  <Sparkles className="h-3 w-3 mr-1" />
-                                  Verified
-                                </Badge>
-                              )}
-                            </div>
-                            <p className="text-xs text-fgMuted line-clamp-2">
-                              {agent.description || agent.auto_description}
-                            </p>
-                          </CardContent>
-                        </Card>
-                      );
-                    })}
-                </div>
-              </div>
-            )}
-
             {/* PumpFun Agents Section */}
-            {agents.filter(a => (a as any).sim_category === 'PumpFun Agent').length > 0 && (
+            {(categoryFilter === 'all' || categoryFilter === 'AI Agents') && 
+             agents.filter(a => (a as any).sim_category === 'PumpFun Agent').length > 0 && (
               <div className="mb-12">
                 <div className="flex items-center justify-between mb-6">
                   <div>
@@ -485,7 +366,8 @@ const Marketplace = () => {
             )}
 
             {/* Chatbots Section */}
-            {agents.filter(a => !(a as any).sim_category || (a as any).sim_category === 'Chat').length > 0 && (
+            {(categoryFilter === 'all' || categoryFilter === 'AI Agents') && 
+             agents.filter(a => !(a as any).sim_category || (a as any).sim_category === 'Chat').length > 0 && (
               <div className="mb-12">
                 <div className="flex items-center justify-between mb-6">
                   <div>
@@ -566,125 +448,92 @@ const Marketplace = () => {
                 </div>
               </div>
             )}
+
+            {/* Stores Section */}
+            {(categoryFilter === 'all' || categoryFilter === 'Stores') && 
+             agents.filter(a => (a as any).sim_category === 'Crypto Mail').length > 0 && (
+              <div className="mb-12">
+                <div className="flex items-center justify-between mb-6">
+                  <div>
+                    <h2 className="text-2xl font-bold text-fg mb-2 flex items-center gap-2">
+                      <Store className="h-6 w-6" />
+                      Stores
+                    </h2>
+                    <p className="text-sm text-fgMuted">Verified creator stores on the marketplace</p>
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+                  {agents
+                    .filter(a => (a as any).sim_category === 'Crypto Mail')
+                    .sort((a, b) => {
+                      if (a.is_verified && !b.is_verified) return -1;
+                      if (!a.is_verified && b.is_verified) return 1;
+                      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+                    })
+                    .map((agent) => {
+                      const getAvatarSrc = () => {
+                        const avatarUrl = agent.avatar_url || agent.avatar;
+                        if (avatarUrl && (avatarUrl.startsWith('http://') || avatarUrl.startsWith('https://'))) {
+                          return `https://images.weserv.nl/?url=${encodeURIComponent(avatarUrl)}`;
+                        }
+                        return avatarUrl;
+                      };
+
+                      return (
+                        <Card 
+                          key={agent.id}
+                          className="group cursor-pointer border-border bg-card hover:shadow-lg hover:border-primary/30 transition-all duration-300 hover:-translate-y-1"
+                          onClick={() => handleItemClick({
+                            id: agent.id,
+                            type: 'agent',
+                            name: agent.name,
+                            description: agent.description,
+                            avatar: agent.avatar,
+                            price: agent.price || 0,
+                            category: agent.marketplace_category || 'AI Agents',
+                            rating: agent.performance || 0,
+                            sales: agent.interactions || 0,
+                            badge: agent.is_verified ? 'Verified' : undefined,
+                          })}
+                        >
+                          <div className="relative w-full aspect-[4/3] overflow-hidden bg-muted rounded-t-lg">
+                            <Avatar className="w-full h-full rounded-none">
+                              <AvatarImage 
+                                src={getAvatarSrc()}
+                                alt={agent.name}
+                                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                                referrerPolicy="no-referrer"
+                                crossOrigin="anonymous"
+                              />
+                              <AvatarFallback className="w-full h-full rounded-none bg-primary/10 flex items-center justify-center">
+                                <Store className="h-8 w-8 text-primary" />
+                              </AvatarFallback>
+                            </Avatar>
+                          </div>
+                          <CardContent className="p-3 space-y-2">
+                            <div className="flex items-center justify-between gap-2">
+                              <h3 className="font-semibold text-fg text-sm truncate group-hover:text-primary transition-colors flex-1">
+                                {agent.name}
+                              </h3>
+                              {agent.is_verified && (
+                                <Badge className="text-xs bg-brandPurple text-white shrink-0">
+                                  <Sparkles className="h-3 w-3 mr-1" />
+                                  Verified
+                                </Badge>
+                              )}
+                            </div>
+                            <p className="text-xs text-fgMuted line-clamp-2">
+                              {agent.description || agent.auto_description}
+                            </p>
+                          </CardContent>
+                        </Card>
+                      );
+                    })}
+                </div>
+              </div>
+            )}
           </>
         )}
-
-        {/* Stores Section */}
-        <div className="mb-12">
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <h2 className="text-2xl font-bold text-fg mb-2">Browse Stores</h2>
-              <p className="text-sm text-fgMuted">Discover creators selling on Solana Internet Market</p>
-            </div>
-            <Button variant="outline" size="sm" onClick={() => navigate('/agents')}>
-              View All
-            </Button>
-          </div>
-          
-          {storesLoading ? (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-              {Array.from({ length: 6 }).map((_, i) => (
-                <Card key={i} className="animate-pulse border-border">
-                  <CardContent className="p-4 text-center">
-                    <div className="w-16 h-16 rounded-full bg-bgMuted mx-auto mb-3" />
-                    <div className="h-4 bg-bgMuted rounded w-3/4 mx-auto" />
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          ) : (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-              {stores.map((store) => (
-                <Card 
-                  key={store.id}
-                  className="group cursor-pointer border-border bg-card hover:shadow-lg hover:border-primary/30 transition-all duration-300 hover:-translate-y-1"
-                  onClick={() => navigate(`/${store.id}`)}
-                >
-                  <CardContent className="p-4 text-center">
-                    <Avatar className="w-16 h-16 mx-auto mb-3 ring-2 ring-border group-hover:ring-primary transition-all">
-                      <AvatarImage src={store.avatar_url} alt={store.name} />
-                      <AvatarFallback className="bg-primary/10 text-primary font-semibold">
-                        <Store className="h-6 w-6" />
-                      </AvatarFallback>
-                    </Avatar>
-                    <h3 className="font-semibold text-fg text-sm truncate group-hover:text-primary transition-colors">
-                      {store.name}
-                    </h3>
-                    <p className="text-xs text-fgMuted mt-1 line-clamp-2">
-                      {store.description}
-                    </p>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* Categories Section */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-12">
-          <Card 
-            className="cursor-pointer transition-all duration-300 border-border bg-card hover:shadow-lg hover:border-primary/30 hover:-translate-y-1" 
-            onClick={() => setCategoryFilter('AI Agents')}
-          >
-            <CardContent className="p-6 text-center">
-              <div className="bg-primary/10 rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-3">
-                <Bot className="h-6 w-6 text-primary" />
-              </div>
-              <h3 className="font-semibold text-fg text-base mb-1">AI Agents</h3>
-              <p className="text-sm text-fgMuted">
-                {isLoading ? '...' : `${categoryCounts['AI Agents']} available`}
-              </p>
-            </CardContent>
-          </Card>
-          
-          <Card 
-            className="cursor-pointer transition-all duration-300 border-border bg-card hover:shadow-lg hover:border-primary/30 hover:-translate-y-1" 
-            onClick={() => setCategoryFilter('Digital Goods')}
-          >
-            <CardContent className="p-6 text-center">
-              <div className="bg-primary/10 rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-3">
-                <FileText className="h-6 w-6 text-primary" />
-              </div>
-              <h3 className="font-semibold text-fg text-base mb-1">Digital Goods</h3>
-              <p className="text-sm text-fgMuted">
-                {isLoading ? '...' : `${categoryCounts['Digital Goods']} available`}
-              </p>
-            </CardContent>
-          </Card>
-          
-          <Card 
-            className="cursor-pointer transition-all duration-300 border-border bg-card hover:shadow-lg hover:border-primary/30 hover:-translate-y-1" 
-            onClick={() => setCategoryFilter('Products')}
-          >
-            <CardContent className="p-6 text-center">
-              <div className="bg-primary/10 rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-3">
-                <Package className="h-6 w-6 text-primary" />
-              </div>
-              <h3 className="font-semibold text-fg text-base mb-1">Products</h3>
-              <p className="text-sm text-fgMuted">
-                {isLoading ? '...' : `${categoryCounts['Products']} available`}
-              </p>
-            </CardContent>
-          </Card>
-          
-          <Card 
-            className="cursor-pointer transition-all duration-300 border-border bg-card hover:shadow-lg hover:border-primary/30 hover:-translate-y-1"
-            onClick={() => {
-              setCategoryFilter('all');
-              setSortBy('trending');
-            }}
-          >
-            <CardContent className="p-6 text-center">
-              <div className="bg-primary/10 rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-3">
-                <Sparkles className="h-6 w-6 text-primary" />
-              </div>
-              <h3 className="font-semibold text-fg text-base mb-1">Featured</h3>
-              <p className="text-sm text-fgMuted">
-                {isLoading ? '...' : `${categoryCounts['Featured']} items`}
-              </p>
-            </CardContent>
-          </Card>
-        </div>
 
         {/* Products Grid */}
         <div className="mb-6">
