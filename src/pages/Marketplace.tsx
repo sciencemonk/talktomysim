@@ -445,7 +445,7 @@ const Marketplace = () => {
                   {/* Product Info */}
                   <div className="p-4">
                     {/* Category Badge */}
-                    <Badge variant="outline" className="text-xs mb-2 border-border">
+                    <Badge className="text-xs mb-2 bg-brandPurple text-white border-0">
                       {item.category}
                     </Badge>
                     
