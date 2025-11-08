@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Users, Copy, Check, Share2, ExternalLink } from "lucide-react";
+import { Users, Copy, Check, Share2, ExternalLink, ArrowLeft } from "lucide-react";
 import aiLoadingGif from "@/assets/ai-loading.gif";
 import solanaLogo from "@/assets/solana-logo.png";
 import { Button } from "@/components/ui/button";
@@ -520,8 +520,18 @@ export default function XAgentPage() {
               <span className="text-xs sm:text-sm font-bold text-fg">Solana Internet Market</span>
             </button>
             
-            {/* Share, Theme Toggle and Create a Store on the right */}
+            {/* Back to Marketplace, Theme Toggle, Share and Create a Store on the right */}
             <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                className="bg-transparent border border-fg text-fg hover:bg-fg/10 hover:text-fg text-xs sm:text-sm px-2 sm:px-4"
+                onClick={() => navigate('/marketplace')}
+              >
+                <ArrowLeft className="h-4 w-4 sm:mr-1" />
+                <span className="hidden sm:inline">Marketplace</span>
+              </Button>
+              <ThemeToggle />
               <Button
                 variant="outline"
                 size="sm"
@@ -531,7 +541,6 @@ export default function XAgentPage() {
                 {linkCopied ? <Check className="h-4 w-4" /> : <Share2 className="h-4 w-4" />}
                 <span className="hidden sm:inline">Share</span>
               </Button>
-              <ThemeToggle />
               <Button
                 variant="outline"
                 size="sm"

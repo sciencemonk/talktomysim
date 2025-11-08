@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { ArrowLeft, Share2, Sparkles, DollarSign } from "lucide-react";
+import { ArrowLeft, Share2, Sparkles, DollarSign, Store } from "lucide-react";
 import { toast } from "sonner";
 import { XOfferingPurchaseModal } from "@/components/XOfferingPurchaseModal";
 import { useState, useEffect } from "react";
@@ -215,8 +215,19 @@ export default function OfferingDetail() {
               <span className="text-xs sm:text-sm font-bold text-fg">Solana Internet Market</span>
             </button>
             
-            {/* Theme Toggle and Create a Store on the right */}
+            {/* Back to Store, Theme Toggle and Create a Store on the right */}
             <div className="flex items-center gap-2">
+              {offering?.agent && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="bg-transparent border border-fg text-fg hover:bg-fg/10 hover:text-fg text-xs sm:text-sm px-2 sm:px-4"
+                  onClick={handleAgentClick}
+                >
+                  <Store className="h-4 w-4 sm:mr-1" />
+                  <span className="hidden sm:inline">Back to Store</span>
+                </Button>
+              )}
               <ThemeToggle />
               <Button
                 variant="outline"
