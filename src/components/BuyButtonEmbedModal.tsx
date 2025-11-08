@@ -1,8 +1,9 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Copy } from "lucide-react";
+import { Copy, CreditCard, ArrowRight } from "lucide-react";
 import { toast } from "sonner";
 import { useState } from "react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface BuyButtonEmbedModalProps {
   isOpen: boolean;
@@ -49,8 +50,8 @@ export function BuyButtonEmbedModal({ isOpen, onClose, offeringId, offeringTitle
             </div>
             
             <div className="relative">
-              <pre className="bg-muted rounded-lg p-4 overflow-x-auto text-xs font-mono">
-                <code>{embedCode}</code>
+              <pre className="bg-muted rounded-lg p-4 text-xs font-mono overflow-hidden">
+                <code className="break-all whitespace-pre-wrap">{embedCode}</code>
               </pre>
             </div>
 
@@ -115,9 +116,43 @@ export function BuyButtonEmbedModal({ isOpen, onClose, offeringId, offeringTitle
           <div className="space-y-3">
             <h3 className="text-sm font-medium text-foreground">PREVIEW</h3>
             <div className="bg-muted/30 rounded-lg p-8 flex items-center justify-center min-h-[200px]">
-              <div className="text-center text-muted-foreground text-sm">
-                Preview will display the {selectedFormat} format for "{offeringTitle}"
-              </div>
+              {selectedFormat === 'card' ? (
+                <Card className="w-full max-w-sm border-border shadow-sm">
+                  <CardHeader className="space-y-1">
+                    <CardTitle className="text-lg">{offeringTitle}</CardTitle>
+                    <CardDescription className="text-sm">
+                      Purchase this offering with USDC
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <CreditCard className="h-4 w-4 text-muted-foreground" />
+                        <span className="text-sm text-muted-foreground">Price</span>
+                      </div>
+                      <span className="text-lg font-bold">$XX.XX USDC</span>
+                    </div>
+                    <Button 
+                      className="w-full"
+                      style={{ backgroundColor: '#635cff', color: 'white' }}
+                    >
+                      Purchase Now
+                    </Button>
+                    <p className="text-xs text-center text-muted-foreground">
+                      Secure payment via Solana
+                    </p>
+                  </CardContent>
+                </Card>
+              ) : (
+                <Button 
+                  className="gap-2"
+                  size="lg"
+                  style={{ backgroundColor: '#635cff', color: 'white' }}
+                >
+                  Buy {offeringTitle}
+                  <ArrowRight className="h-4 w-4" />
+                </Button>
+              )}
             </div>
           </div>
         </div>
