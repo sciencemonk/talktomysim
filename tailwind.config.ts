@@ -57,6 +57,7 @@ export default {
 				bgMuted: 'hsl(var(--bg-muted))',
 				fg: 'hsl(var(--fg))',
 				fgMuted: 'hsl(var(--fg-muted))',
+				brandPurple: 'hsl(var(--brand-purple))',
 				brandBlue: 'hsl(var(--brand-blue))',
 				inputBg: 'hsl(var(--input-bg))',
 				inputBorder: 'hsl(var(--input-border))',

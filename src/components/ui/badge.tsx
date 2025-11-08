@@ -17,7 +17,7 @@ const badgeVariants = cva(
           "border-transparent bg-destructive text-white hover:bg-destructive/80",
         outline: "bg-transparent border border-white text-white hover:bg-white/10",
         agent: 
-          "border-transparent bg-agent-primary text-white hover:bg-agent-primary/80 flex items-center",
+          "border-transparent bg-brandPurple text-white hover:bg-brandPurple/80 flex items-center",
         muted:
           "border-transparent bg-bgMuted text-fgMuted hover:bg-bgMuted/80 flex items-center",
         channel:
