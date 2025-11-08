@@ -55,12 +55,20 @@ const Marketplace = () => {
       description: offering.description,
       avatar: offering.agent_avatar_url || offering.media_url,
       price: offering.price,
-      category: offering.offering_type === 'agent' ? 'AI Agents' : offering.offering_type === 'digital_file' ? 'Digital Goods' : 'Products',
+      category: offering.offering_type === 'agent' ? 'AI Agents' : offering.offering_type === 'digital' ? 'Digital Goods' : 'Products',
       rating: 0,
       sales: 0,
       badge: undefined,
     })),
   ];
+
+  // Count items by category
+  const categoryCounts = {
+    'AI Agents': offerings.filter(o => o.offering_type === 'agent').length,
+    'Digital Goods': offerings.filter(o => o.offering_type === 'digital').length,
+    'Products': offerings.filter(o => o.offering_type === 'standard').length,
+    'Featured': marketplaceItems.filter(item => item.badge).length,
+  };
 
   // Filter and sort items
   const filteredItems = marketplaceItems.filter(item => {
@@ -210,43 +218,66 @@ const Marketplace = () => {
         </Card>
 
         {/* Featured Categories Banner */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          <Card className="cursor-pointer hover:shadow-lg transition-shadow border-border bg-card hover:border-primary/50" onClick={() => setCategoryFilter('AI Agents')}>
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+          <Card 
+            className="cursor-pointer transition-all duration-300 border-border bg-card hover:shadow-lg hover:border-primary/30 hover:-translate-y-1" 
+            onClick={() => setCategoryFilter('AI Agents')}
+          >
             <CardContent className="p-6 text-center">
-              <Bot className="h-8 w-8 mx-auto mb-2 text-primary" />
-              <h3 className="font-semibold text-fg">AI Agents</h3>
-              <p className="text-sm text-fgMuted mt-1">
-                {isLoading ? '...' : `${agents.length} available`}
+              <div className="bg-primary/10 rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-3">
+                <Bot className="h-6 w-6 text-primary" />
+              </div>
+              <h3 className="font-semibold text-fg text-base mb-1">AI Agents</h3>
+              <p className="text-sm text-fgMuted">
+                {isLoading ? '...' : `${categoryCounts['AI Agents']} available`}
               </p>
             </CardContent>
           </Card>
           
-          <Card className="cursor-pointer hover:shadow-lg transition-shadow border-border bg-card hover:border-primary/50" onClick={() => setCategoryFilter('Digital Goods')}>
+          <Card 
+            className="cursor-pointer transition-all duration-300 border-border bg-card hover:shadow-lg hover:border-primary/30 hover:-translate-y-1" 
+            onClick={() => setCategoryFilter('Digital Goods')}
+          >
             <CardContent className="p-6 text-center">
-              <FileText className="h-8 w-8 mx-auto mb-2 text-primary" />
-              <h3 className="font-semibold text-fg">Digital Goods</h3>
-              <p className="text-sm text-fgMuted mt-1">
-                {isLoading ? '...' : `${offerings.filter(o => o.offering_type === 'digital_file').length} available`}
+              <div className="bg-primary/10 rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-3">
+                <FileText className="h-6 w-6 text-primary" />
+              </div>
+              <h3 className="font-semibold text-fg text-base mb-1">Digital Goods</h3>
+              <p className="text-sm text-fgMuted">
+                {isLoading ? '...' : `${categoryCounts['Digital Goods']} available`}
               </p>
             </CardContent>
           </Card>
           
-          <Card className="cursor-pointer hover:shadow-lg transition-shadow border-border bg-card hover:border-primary/50" onClick={() => setCategoryFilter('Products')}>
+          <Card 
+            className="cursor-pointer transition-all duration-300 border-border bg-card hover:shadow-lg hover:border-primary/30 hover:-translate-y-1" 
+            onClick={() => setCategoryFilter('Products')}
+          >
             <CardContent className="p-6 text-center">
-              <Package className="h-8 w-8 mx-auto mb-2 text-primary" />
-              <h3 className="font-semibold text-fg">Products</h3>
-              <p className="text-sm text-fgMuted mt-1">
-                {isLoading ? '...' : `${offerings.filter(o => o.offering_type === 'standard').length} available`}
+              <div className="bg-primary/10 rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-3">
+                <Package className="h-6 w-6 text-primary" />
+              </div>
+              <h3 className="font-semibold text-fg text-base mb-1">Products</h3>
+              <p className="text-sm text-fgMuted">
+                {isLoading ? '...' : `${categoryCounts['Products']} available`}
               </p>
             </CardContent>
           </Card>
           
-          <Card className="cursor-pointer hover:shadow-lg transition-shadow border-border bg-card hover:border-primary/50">
+          <Card 
+            className="cursor-pointer transition-all duration-300 border-border bg-card hover:shadow-lg hover:border-primary/30 hover:-translate-y-1"
+            onClick={() => {
+              setCategoryFilter('all');
+              setSortBy('trending');
+            }}
+          >
             <CardContent className="p-6 text-center">
-              <Sparkles className="h-8 w-8 mx-auto mb-2 text-primary" />
-              <h3 className="font-semibold text-fg">Featured</h3>
-              <p className="text-sm text-fgMuted mt-1">
-                {isLoading ? '...' : `${agents.filter(a => a.is_featured).length} items`}
+              <div className="bg-primary/10 rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-3">
+                <Sparkles className="h-6 w-6 text-primary" />
+              </div>
+              <h3 className="font-semibold text-fg text-base mb-1">Featured</h3>
+              <p className="text-sm text-fgMuted">
+                {isLoading ? '...' : `${categoryCounts['Featured']} items`}
               </p>
             </CardContent>
           </Card>
@@ -264,9 +295,9 @@ const Marketplace = () => {
           {isLoading ?
             // Loading skeleton
             Array.from({ length: 8 }).map((_, i) => (
-              <Card key={i} className="animate-pulse border-border">
+              <Card key={i} className="animate-pulse border-border overflow-hidden">
                 <CardContent className="p-0">
-                  <div className="aspect-square bg-bgMuted rounded-t-lg" />
+                  <div className="aspect-square bg-bgMuted" />
                   <div className="p-4 space-y-3">
                     <div className="h-4 bg-bgMuted rounded w-3/4" />
                     <div className="h-3 bg-bgMuted rounded" />
@@ -281,77 +312,83 @@ const Marketplace = () => {
             )) : filteredItems.map(item => (
               <Card 
                 key={item.id} 
-                className="cursor-pointer hover:shadow-xl transition-all duration-300 border-border bg-card hover:scale-105"
+                className="group cursor-pointer overflow-hidden border border-border bg-card hover:shadow-2xl transition-all duration-300 hover:-translate-y-1"
                 onClick={() => handleItemClick(item)}
               >
                 <CardContent className="p-0">
                   {/* Product Image */}
-                  <div className="relative aspect-square bg-bgMuted rounded-t-lg overflow-hidden">
+                  <div className="relative aspect-square bg-bgMuted overflow-hidden">
                     {item.avatar ? (
                       <img 
                         src={item.avatar} 
                         alt={item.name}
-                        className="w-full h-full object-cover"
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                       />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center">
+                      <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/5 to-primary/10">
                         {item.type === 'agent' ? (
-                          <Bot className="h-16 w-16 text-fgMuted" />
+                          <Bot className="h-16 w-16 text-primary/40" />
                         ) : (
-                          <Package className="h-16 w-16 text-fgMuted" />
+                          <Package className="h-16 w-16 text-primary/40" />
                         )}
                       </div>
                     )}
                     
                     {/* Badge */}
                     {item.badge && (
-                      <Badge className="absolute top-2 right-2 bg-primary text-primary-foreground">
+                      <Badge className="absolute top-3 right-3 bg-primary text-primary-foreground shadow-lg">
                         <Zap className="h-3 w-3 mr-1" />
                         {item.badge}
                       </Badge>
                     )}
+                    
+                    {/* Quick View Overlay */}
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
                   </div>
 
                   {/* Product Info */}
                   <div className="p-4">
-                    <h3 className="font-semibold text-fg text-base mb-2 line-clamp-1">
+                    {/* Category Badge */}
+                    <Badge variant="outline" className="text-xs mb-2 border-border">
+                      {item.category}
+                    </Badge>
+                    
+                    <h3 className="font-semibold text-fg text-base mb-2 line-clamp-2 min-h-[3rem]">
                       {item.name}
                     </h3>
-                    <p className="text-sm text-fgMuted line-clamp-2 mb-3">
+                    <p className="text-sm text-fgMuted line-clamp-2 mb-3 min-h-[2.5rem]">
                       {item.description}
                     </p>
                     
                     {/* Rating and Sales */}
-                    <div className="flex items-center gap-3 mb-3 text-xs text-fgMuted">
-                      {item.rating > 0 && (
-                        <div className="flex items-center gap-1">
-                          <Star className="h-3 w-3 fill-yellow-500 text-yellow-500" />
-                          <span>{item.rating.toFixed(1)}</span>
-                        </div>
-                      )}
-                      {item.sales > 0 && (
-                        <div className="flex items-center gap-1">
-                          <span>{item.sales} uses</span>
-                        </div>
+                    {(item.rating > 0 || item.sales > 0) && (
+                      <div className="flex items-center gap-3 mb-3 text-xs text-fgMuted border-t border-border pt-3">
+                        {item.rating > 0 && (
+                          <div className="flex items-center gap-1">
+                            <Star className="h-3.5 w-3.5 fill-yellow-500 text-yellow-500" />
+                            <span className="font-medium">{item.rating.toFixed(1)}</span>
+                          </div>
+                        )}
+                        {item.sales > 0 && (
+                          <div className="flex items-center gap-1">
+                            <span>{item.sales.toLocaleString()} uses</span>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                    
+                    {/* Price */}
+                    <div className="flex justify-between items-center">
+                      {item.price !== undefined && item.price > 0 ? (
+                        <p className="text-xl font-bold text-primary">
+                          ${item.price.toFixed(2)}
+                        </p>
+                      ) : (
+                        <Badge variant="secondary" className="text-sm font-semibold">Free</Badge>
                       )}
                     </div>
                   </div>
                 </CardContent>
-
-                <CardFooter className="p-4 pt-0 flex justify-between items-center">
-                  <div>
-                    {item.price !== undefined && item.price > 0 ? (
-                      <p className="text-xl font-bold text-primary">
-                        ${item.price.toFixed(2)}
-                      </p>
-                    ) : (
-                      <Badge variant="secondary" className="text-xs">Free</Badge>
-                    )}
-                  </div>
-                  <Badge variant="outline" className="text-xs">
-                    {item.category}
-                  </Badge>
-                </CardFooter>
               </Card>
             ))
           }
