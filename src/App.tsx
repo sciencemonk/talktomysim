@@ -20,6 +20,7 @@ import AuthCallback from "./pages/AuthCallback";
 import Home from "./pages/Home";
 import NewLanding from "./pages/NewLanding";
 import AgentsDirectory from "./pages/AgentsDirectory";
+import Marketplace from "./pages/Marketplace";
 import LiveChat from "./pages/LiveChat";
 import LiveStream from "./pages/LiveStream";
 import Pump from "./pages/Pump";
@@ -69,6 +70,7 @@ const App = () => (
               {/* Public routes */}
               <Route path="/landing" element={<AgentsDirectory />} />
               <Route path="/agents" element={<AgentsDirectory />} />
+              <Route path="/marketplace" element={<Marketplace />} />
               <Route path="/live" element={<LiveChat />} />
               <Route path="/livestream" element={<LiveStream />} />
               <Route path="/pump" element={<Pump />} />
