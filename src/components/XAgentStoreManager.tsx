@@ -12,6 +12,10 @@ import { Plus, Edit, Trash2, DollarSign, Package, Loader2, Share2, Code } from "
 import { toast } from "sonner";
 import { AgentIntegrations, DEFAULT_INTEGRATIONS, Integration } from "@/components/AgentIntegrations";
 import { BuyButtonEmbedModal } from "@/components/BuyButtonEmbedModal";
+import { AgentOfferingTypeModal } from "@/components/AgentOfferingTypeModal";
+import { CreateXAgentModal } from "@/components/CreateXAgentModal";
+import { CreateCABotModal } from "@/components/CreateCABotModal";
+import { CreateSimModal } from "@/components/CreateSimModal";
 
 interface Offering {
   id: string;
@@ -71,6 +75,10 @@ export function XAgentStoreManager({ agentId, walletAddress, onWalletUpdate }: X
   const [integrations, setIntegrations] = useState<Integration[]>(DEFAULT_INTEGRATIONS);
   const [showBuyButtonModal, setShowBuyButtonModal] = useState(false);
   const [selectedOfferingForEmbed, setSelectedOfferingForEmbed] = useState<Offering | null>(null);
+  const [showAgentTypeModal, setShowAgentTypeModal] = useState(false);
+  const [showXAgentModal, setShowXAgentModal] = useState(false);
+  const [showPumpFunModal, setShowPumpFunModal] = useState(false);
+  const [showChatbotModal, setShowChatbotModal] = useState(false);
 
   useEffect(() => {
     loadOfferings();
@@ -446,8 +454,48 @@ export function XAgentStoreManager({ agentId, walletAddress, onWalletUpdate }: X
   };
 
   const handleTypeSelect = (type: 'standard' | 'digital' | 'agent') => {
-    setSelectedType(type);
-    setShowTypeSelection(false);
+    if (type === 'agent') {
+      // Show agent type selection modal instead of going directly to form
+      setShowAgentTypeModal(true);
+      setShowTypeSelection(false);
+      setIsDialogOpen(false);
+    } else {
+      setSelectedType(type);
+      setShowTypeSelection(false);
+    }
+  };
+
+  const handleAgentTypeSelect = (agentType: 'x-clone' | 'pumpfun' | 'chatbot' | 'specialized') => {
+    setShowAgentTypeModal(false);
+    
+    switch (agentType) {
+      case 'x-clone':
+        setShowXAgentModal(true);
+        break;
+      case 'pumpfun':
+        setShowPumpFunModal(true);
+        break;
+      case 'chatbot':
+        setShowChatbotModal(true);
+        break;
+      case 'specialized':
+        // For specialized, show the existing agent offering form
+        setSelectedType('agent');
+        setIsDialogOpen(true);
+        break;
+    }
+  };
+
+  const handleAgentCreated = async (createdAgent?: any) => {
+    if (createdAgent) {
+      toast.success(`${createdAgent.name} has been created and added to your store!`);
+      // Refresh offerings to show the new agent
+      await loadOfferings();
+    }
+    // Close all modals
+    setShowXAgentModal(false);
+    setShowPumpFunModal(false);
+    setShowChatbotModal(false);
   };
 
   const addRequiredField = () => {
@@ -1173,6 +1221,37 @@ export function XAgentStoreManager({ agentId, walletAddress, onWalletUpdate }: X
           offeringTitle={selectedOfferingForEmbed.title}
         />
       )}
+
+      {/* Agent Type Selection Modal */}
+      <AgentOfferingTypeModal
+        open={showAgentTypeModal}
+        onOpenChange={setShowAgentTypeModal}
+        onTypeSelect={handleAgentTypeSelect}
+      />
+
+      {/* X Clone Agent Creation Modal */}
+      <CreateXAgentModal
+        open={showXAgentModal}
+        onOpenChange={setShowXAgentModal}
+      />
+
+      {/* PumpFun Agent Creation Modal */}
+      <CreateCABotModal
+        open={showPumpFunModal}
+        onOpenChange={setShowPumpFunModal}
+        onSuccess={handleAgentCreated}
+      />
+
+      {/* Chatbot Creation Modal */}
+      <CreateSimModal
+        open={showChatbotModal}
+        onOpenChange={setShowChatbotModal}
+        onSuccess={handleAgentCreated}
+        onAuthRequired={() => {
+          setShowChatbotModal(false);
+          toast.error("Please sign in to create a chatbot");
+        }}
+      />
     </div>
   );
 }
