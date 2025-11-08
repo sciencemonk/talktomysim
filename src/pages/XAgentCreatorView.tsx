@@ -332,7 +332,7 @@ export default function XAgentCreatorView() {
               className="flex items-center hover:opacity-80 transition-opacity"
             >
               <img 
-                src="/sim-logo-gradient.png" 
+                src="/default-logo.png" 
                 alt="SIM" 
                 className="h-8 md:h-10 w-auto"
               />
