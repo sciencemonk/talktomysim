@@ -233,9 +233,9 @@ const Marketplace = () => {
         
         {/* Content */}
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <h1 className="text-4xl font-bold text-white mb-4">Marketplace</h1>
+          <h1 className="text-4xl font-bold text-white mb-4">x402 Marketplace</h1>
           <p className="text-lg text-white/90 max-w-2xl">
-            Discover AI agents, digital products, and exclusive offerings from creators worldwide
+            Discover AI agents, products, and exclusive offerings from builders worldwide
           </p>
         </div>
       </div>
