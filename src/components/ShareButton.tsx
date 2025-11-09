@@ -1,14 +1,8 @@
 
 import { useState } from "react";
-import { Share2, Copy, Check } from "lucide-react";
+import { Share2, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 
 interface ShareButtonProps {
   url: string;
@@ -43,55 +37,19 @@ export const ShareButton = ({ url, title, description, className }: ShareButtonP
     }
   };
 
-  const handleShare = async (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title,
-          text: description,
-          url,
-        });
-      } catch (error) {
-        // User cancelled or share failed, fallback to copy
-        handleCopyLink(e);
-      }
-    } else {
-      handleCopyLink(e);
-    }
-  };
-
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button
-          variant="ghost"
-          size="sm"
-          className={`gap-2 ${className}`}
-          onClick={(e) => e.stopPropagation()}
-        >
-          <Share2 className="h-4 w-4" />
-          Share
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-48">
-        <DropdownMenuItem onClick={handleCopyLink}>
-          {copied ? (
-            <Check className="mr-2 h-4 w-4 text-green-600" />
-          ) : (
-            <Copy className="mr-2 h-4 w-4" />
-          )}
-          Copy Link
-        </DropdownMenuItem>
-        {navigator.share && (
-          <DropdownMenuItem onClick={handleShare}>
-            <Share2 className="mr-2 h-4 w-4" />
-            Share
-          </DropdownMenuItem>
-        )}
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <Button
+      variant="ghost"
+      size="sm"
+      className={`gap-2 ${className}`}
+      onClick={handleCopyLink}
+    >
+      {copied ? (
+        <Check className="h-4 w-4" />
+      ) : (
+        <Share2 className="h-4 w-4" />
+      )}
+      Share
+    </Button>
   );
 };

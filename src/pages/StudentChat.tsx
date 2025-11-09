@@ -4,7 +4,7 @@ import { usePublicAgent } from "@/hooks/usePublicAgent";
 import { useRealtimeChat } from "@/hooks/useRealtimeChat";
 import { TextInput } from "@/components/TextInput";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Bot, Menu, Lock } from "lucide-react";
+import { Bot, Menu, Lock, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -199,32 +199,44 @@ const StudentChat = () => {
   return (
     <div className="h-screen flex flex-col w-full">
       {/* Header - Always visible and sticky on mobile */}
-      <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-4 sm:px-6 py-5 sticky top-0 z-10 flex-shrink-0">
+      <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-4 sm:px-6 py-3 sticky top-0 z-10 flex-shrink-0">
         <div className="flex items-center justify-between max-w-4xl mx-auto">
           <div className="flex items-center gap-3 min-w-0 flex-1">
-            {isMobile && <MobileMenu />}
+            {/* Back to Marketplace button */}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => navigate('/')}
+              className="gap-2 flex-shrink-0"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              {!isMobile && <span>Back to Marketplace</span>}
+            </Button>
+            
+            {/* Avatar */}
             <Avatar className="h-10 w-10 flex-shrink-0">
               <AvatarImage src={agent.avatar} alt={agent.name} />
               <AvatarFallback className="bg-primary text-primary-foreground text-sm">
                 <Bot className="h-5 w-5" />
               </AvatarFallback>
             </Avatar>
-            <div className="min-w-0 flex-1">
-              <h1 className="font-semibold text-lg truncate">{agent.name}</h1>
-              <p className="text-sm text-muted-foreground truncate">{agent.title || agent.type}</p>
-            </div>
+            
+            {!isMobile && (
+              <div className="min-w-0 flex-1">
+                <h1 className="font-semibold text-lg truncate">{agent.name}</h1>
+                <p className="text-sm text-muted-foreground truncate">{agent.title || agent.type}</p>
+              </div>
+            )}
           </div>
           
           {/* ShareButton and InfoModal */}
           <div className="flex items-center gap-2 flex-shrink-0">
-            {!isMobile && (
-              <ShareButton 
-                url={`https://solanainternetmarket.com/tutors/${agent.id}/chat`}
-                title={`Chat with ${agent.name}`}
-                description={`Start learning with ${agent.name}, an AI tutor ready to help!`}
-              />
-            )}
-            <InfoModal />
+            <ShareButton 
+              url={`https://solanainternetmarket.com/tutors/${agent.id}/chat`}
+              title={`Chat with ${agent.name}`}
+              description={`Start learning with ${agent.name}, an AI tutor ready to help!`}
+            />
+            {!isMobile && <InfoModal />}
           </div>
         </div>
       </div>
