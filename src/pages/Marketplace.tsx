@@ -404,6 +404,11 @@ const Marketplace = () => {
                             <p className="text-xs text-fgMuted line-clamp-2">
                               {agent.description || agent.auto_description}
                             </p>
+                            <div className="pt-1 border-t border-border/50">
+                              <p className="text-xs font-semibold text-primary">
+                                {agent.price && agent.price > 0 ? `${agent.price} USDC` : 'Free'}
+                              </p>
+                            </div>
                           </CardContent>
                         </Card>
                       );
@@ -475,6 +480,11 @@ const Marketplace = () => {
                             <p className="text-xs text-fgMuted line-clamp-2">
                               {agent.description || agent.auto_description}
                             </p>
+                            <div className="pt-1 border-t border-border/50">
+                              <p className="text-xs font-semibold text-primary">
+                                {agent.price && agent.price > 0 ? `${agent.price} USDC` : 'Free'}
+                              </p>
+                            </div>
                           </CardContent>
                         </Card>
                       );
@@ -560,6 +570,11 @@ const Marketplace = () => {
                              <p className="text-sm text-fgMuted line-clamp-2">
                               {agent.description || agent.auto_description}
                             </p>
+                            <div className="pt-2 border-t border-border/50">
+                              <p className="text-sm font-semibold text-primary">
+                                {agent.price && agent.price > 0 ? `${agent.price} USDC` : 'Free'}
+                              </p>
+                            </div>
                           </CardContent>
                         </Card>
                       );
@@ -670,7 +685,7 @@ const Marketplace = () => {
                     <div className="flex justify-between items-center">
                       {item.price !== undefined && item.price > 0 ? (
                         <p className="text-xl font-bold text-primary">
-                          ${item.price.toFixed(2)}
+                          {item.price.toFixed(2)} USDC
                         </p>
                       ) : (
                         <Badge variant="secondary" className="text-sm font-semibold">Free</Badge>
