@@ -50,11 +50,9 @@ export const WelcomeModal = () => {
       <DialogContent className="sm:max-w-md">
         <div className="flex flex-col items-center space-y-6 py-4">
           {/* Logo */}
-          <div className="flex items-center gap-2">
-            <img src={solanaLogo} alt="Solana" className="h-8 w-8" />
-            <span className="text-2xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
-              Solana Internet Market
-            </span>
+          <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full backdrop-blur-sm shadow-sm bg-primary/10 border border-primary/20">
+            <img src={solanaLogo} alt="Solana" className="h-4 w-4" />
+            <span className="text-sm font-bold text-fg">Solana Internet Market</span>
           </div>
 
           {/* Description */}
