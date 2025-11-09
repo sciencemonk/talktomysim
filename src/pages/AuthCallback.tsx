@@ -150,6 +150,37 @@ export default function AuthCallback() {
           toast.error('Failed to verify agent');
         } else {
           console.log('Agent verified and associated with authenticated user');
+          
+          // Check if agent offering exists, create if not
+          const { data: existingOffering } = await supabase
+            .from('x_agent_offerings')
+            .select('id')
+            .eq('agent_id', agentId)
+            .eq('offering_type', 'agent')
+            .maybeSingle();
+          
+          if (!existingOffering) {
+            // Create the AI agent offering
+            const { error: offeringError } = await supabase
+              .from('x_agent_offerings')
+              .insert({
+                agent_id: agentId,
+                title: `Chat with @${xUsername}`,
+                description: `Have a conversation with the AI agent trained on @${xUsername}'s X posts and personality.`,
+                price: 0,
+                offering_type: 'agent',
+                delivery_method: 'Chat with AI agent',
+                is_active: true,
+                agent_avatar_url: avatarUrl || '',
+              });
+
+            if (offeringError) {
+              console.error('Error creating agent offering:', offeringError);
+            } else {
+              console.log('Agent offering created for existing agent');
+            }
+          }
+          
           if (!existingAgent.user_id) {
             toast.success('Your X agent has been verified and linked to your account!');
           } else {
@@ -230,6 +261,28 @@ You can answer questions about your X profile, interests, opinions, and provide 
         }
 
         agentId = newAgent.id;
+        
+        // Create the AI agent offering
+        const { error: offeringError } = await supabase
+          .from('x_agent_offerings')
+          .insert({
+            agent_id: agentId,
+            title: `Chat with @${xUsername}`,
+            description: `Have a conversation with the AI agent trained on @${xUsername}'s X posts and personality.`,
+            price: 0, // Free by default
+            offering_type: 'agent',
+            delivery_method: 'Chat with AI agent',
+            is_active: true,
+            agent_avatar_url: profileImageUrl,
+          });
+
+        if (offeringError) {
+          console.error('Error creating agent offering:', offeringError);
+          // Don't block the flow if offering creation fails
+        } else {
+          console.log('Agent offering created successfully');
+        }
+        
         toast.success('X agent created successfully!');
       }
 
