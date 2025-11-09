@@ -37,6 +37,29 @@ export default function OfferingDetail() {
   const [purchaseData, setPurchaseData] = useState<PurchaseData | null>(null);
   const { theme, setTheme } = useTheme();
 
+  // Handle X Sign In for "Create a Store" button
+  const handleCreateStoreClick = async () => {
+    try {
+      const redirectUrl = `${window.location.origin}/auth/callback`;
+      
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'twitter',
+        options: {
+          redirectTo: redirectUrl,
+          skipBrowserRedirect: false,
+        },
+      });
+
+      if (error) {
+        console.error('OAuth error:', error);
+        throw error;
+      }
+    } catch (error: any) {
+      console.error('Error signing in with X:', error);
+      toast.error(error?.message || 'Failed to sign in with X');
+    }
+  };
+
   // Set dark mode as default on initial load only
   useEffect(() => {
     const hasThemePreference = localStorage.getItem('vite-ui-theme');
@@ -222,7 +245,7 @@ export default function OfferingDetail() {
                 variant="outline"
                 size="sm"
                 className="bg-transparent border border-fg text-fg hover:bg-fg/10 hover:text-fg text-xs sm:text-sm px-2 sm:px-4"
-                onClick={() => navigate('/')}
+                onClick={handleCreateStoreClick}
               >
                 Create a Store
               </Button>
