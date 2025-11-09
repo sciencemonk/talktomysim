@@ -202,24 +202,25 @@ const StudentChat = () => {
       <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-4 sm:px-6 py-3 sticky top-0 z-10 flex-shrink-0">
         <div className="flex items-center justify-between max-w-4xl mx-auto">
           <div className="flex items-center gap-3 min-w-0 flex-1">
-            {/* Back to Marketplace button */}
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => navigate('/')}
-              className="gap-2 flex-shrink-0"
-            >
-              <ArrowLeft className="h-4 w-4" />
-              {!isMobile && <span>Back to Marketplace</span>}
-            </Button>
-            
-            {/* Avatar */}
-            <Avatar className="h-10 w-10 flex-shrink-0">
-              <AvatarImage src={agent.avatar} alt={agent.name} />
-              <AvatarFallback className="bg-primary text-primary-foreground text-sm">
-                <Bot className="h-5 w-5" />
-              </AvatarFallback>
-            </Avatar>
+            {/* Back to Marketplace button and Avatar grouped together */}
+            <div className="flex items-center gap-3">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => navigate('/')}
+                className="gap-2 flex-shrink-0"
+              >
+                <ArrowLeft className="h-4 w-4" />
+                {!isMobile && <span>Back to Marketplace</span>}
+              </Button>
+              
+              <Avatar className="h-10 w-10 flex-shrink-0">
+                <AvatarImage src={agent.avatar} alt={agent.name} />
+                <AvatarFallback className="bg-primary text-primary-foreground text-sm">
+                  <Bot className="h-5 w-5" />
+                </AvatarFallback>
+              </Avatar>
+            </div>
             
             {!isMobile && (
               <div className="min-w-0 flex-1">
