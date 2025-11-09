@@ -14,6 +14,7 @@ import xIcon from "@/assets/x-icon.png";
 import { supabase } from "@/integrations/supabase/client";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { toast } from "sonner";
+import { WelcomeModal } from "@/components/WelcomeModal";
 
 type MarketplaceItem = {
   id: string;
@@ -200,6 +201,7 @@ const Marketplace = () => {
 
   return (
     <div className="min-h-screen bg-bg">
+      <WelcomeModal />
       {/* Top Header with Logo, Sign In and Theme Toggle */}
       <div className="fixed top-0 left-0 right-0 z-50 bg-bg/80 backdrop-blur-md border-b border-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">

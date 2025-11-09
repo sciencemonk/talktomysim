@@ -16,14 +16,14 @@ export const WelcomeModal = () => {
   const contractAddress = "FFqwoZ7phjoupWjLeE5yFeLqGi8jkGEFrTz6jnsUpump";
 
   useEffect(() => {
-    const hasSeenWelcome = localStorage.getItem("sim-welcome-seen");
+    const hasSeenWelcome = localStorage.getItem("sim-welcome-modal-v2");
     if (!hasSeenWelcome) {
       setOpen(true);
     }
   }, []);
 
   const handleClose = () => {
-    localStorage.setItem("sim-welcome-seen", "true");
+    localStorage.setItem("sim-welcome-modal-v2", "true");
     setOpen(false);
   };
 
