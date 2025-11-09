@@ -122,3 +122,6 @@ verify_jwt = false
 
 [functions.generate-x-agent-welcome]
 verify_jwt = false
+
+[functions.fix-agent-offerings]
+verify_jwt = false

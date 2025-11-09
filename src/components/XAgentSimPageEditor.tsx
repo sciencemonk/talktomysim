@@ -476,7 +476,9 @@ export function XAgentSimPageEditor({
                     offerings={offerings.filter((o: any) => o.offering_type === 'agent' || o.agent_system_prompt)}
                     avatarUrl={avatarUrl}
                     agentName={agentUsername}
-                    onAgentClick={() => {}}
+                    onAgentClick={() => {
+                      toast.info("To edit your AI agent, go to the Inventory tab above");
+                    }}
                   />
                 </div>
               </div>

@@ -161,7 +161,7 @@ export default function AuthCallback() {
           
           if (!existingOffering) {
             // Fetch tweets and generate personalized prompt for offering
-            let agentSystemPrompt = '';
+            let agentSystemPrompt = existingAgent.prompt || ''; // Start with agent's prompt as fallback
             
             try {
               const { data: tweetData } = await supabase.functions.invoke('x-intelligence', {
@@ -170,20 +170,32 @@ export default function AuthCallback() {
 
               const tweets = tweetData?.tweets || [];
               
-              const { data: promptData } = await supabase.functions.invoke('generate-x-agent-prompt', {
-                body: {
-                  username: xUsername,
-                  displayName: fullName,
-                  bio: userMetadata?.description || '',
-                  tweets: tweets
-                }
-              });
+              if (tweets.length > 0) {
+                const { data: promptData } = await supabase.functions.invoke('generate-x-agent-prompt', {
+                  body: {
+                    username: xUsername,
+                    displayName: fullName,
+                    bio: userMetadata?.description || '',
+                    tweets: tweets
+                  }
+                });
 
-              agentSystemPrompt = promptData?.prompt || existingAgent.prompt || '';
+                // Use generated prompt if available, otherwise keep the agent's existing prompt
+                if (promptData?.prompt) {
+                  agentSystemPrompt = promptData.prompt;
+                }
+              }
             } catch (error) {
               console.error('Error generating prompt for offering:', error);
-              agentSystemPrompt = existingAgent.prompt || '';
+              // Keep using existingAgent.prompt as fallback
             }
+            
+            // Ensure we have a valid prompt
+            if (!agentSystemPrompt) {
+              agentSystemPrompt = `You are @${xUsername}, an AI agent representing the real person behind this X account. Be authentic and helpful!`;
+            }
+            
+            console.log('Creating offering with system prompt:', agentSystemPrompt.substring(0, 100));
             
             // Create the AI agent offering
             const { error: offeringError } = await supabase

@@ -1132,6 +1132,11 @@ export function XAgentStoreManager({ agentId, walletAddress, onWalletUpdate }: X
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1">
                       <CardTitle>{offering.title}</CardTitle>
+                      {offering.offering_type === 'agent' && (
+                        <Badge variant="secondary" className="bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300">
+                          AI Agent
+                        </Badge>
+                      )}
                       {!offering.is_active && (
                         <Badge variant="secondary">Inactive</Badge>
                       )}
@@ -1176,10 +1181,23 @@ export function XAgentStoreManager({ agentId, walletAddress, onWalletUpdate }: X
               </CardHeader>
               <CardContent className="space-y-3">
                 <div className="flex items-center gap-6 text-sm">
-                  <div className="flex items-center gap-2">
-                    <DollarSign className="h-4 w-4 text-muted-foreground" />
-                    <span className="font-medium">${offering.price} USDC</span>
-                  </div>
+                  {offering.offering_type === 'agent' ? (
+                    offering.price_per_conversation && offering.price_per_conversation > 0 ? (
+                      <div className="flex items-center gap-2">
+                        <DollarSign className="h-4 w-4 text-muted-foreground" />
+                        <span className="font-medium">${offering.price_per_conversation} USDC per conversation</span>
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium text-green-600 dark:text-green-400">Free to use</span>
+                      </div>
+                    )
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      <DollarSign className="h-4 w-4 text-muted-foreground" />
+                      <span className="font-medium">${offering.price} USDC</span>
+                    </div>
+                  )}
                   {offering.required_info && offering.required_info.length > 0 && (
                     <div className="text-muted-foreground">
                       Requires: {offering.required_info.map(f => f.label).join(", ")}
