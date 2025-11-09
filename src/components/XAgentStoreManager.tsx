@@ -608,7 +608,7 @@ export function XAgentStoreManager({ agentId, walletAddress, onWalletUpdate }: X
             }}
           >
             <Plus className="h-4 w-4 mr-2" />
-            Add Offering
+            Create
           </Button>
           <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
             {showTypeSelection && !selectedType ? (
@@ -620,6 +620,22 @@ export function XAgentStoreManager({ agentId, walletAddress, onWalletUpdate }: X
                   </DialogDescription>
                 </DialogHeader>
                 <div className="grid gap-4 py-4">
+                  <button
+                    type="button"
+                    onClick={() => handleTypeSelect('agent')}
+                    className="p-6 border-2 border-border rounded-lg hover:border-primary transition-colors text-left group"
+                  >
+                    <div className="flex items-start gap-4">
+                      <Package className="h-8 w-8 text-primary mt-1" />
+                      <div>
+                        <h3 className="font-semibold text-lg mb-1">AI Agent</h3>
+                        <p className="text-sm text-muted-foreground">
+                          Create an AI agent trained on your expertise. Charge per conversation or make it free.
+                        </p>
+                      </div>
+                    </div>
+                  </button>
+                  
                   <button
                     type="button"
                     onClick={() => handleTypeSelect('standard')}
@@ -647,21 +663,6 @@ export function XAgentStoreManager({ agentId, walletAddress, onWalletUpdate }: X
                         <h3 className="font-semibold text-lg mb-1">Digital Product</h3>
                         <p className="text-sm text-muted-foreground">
                           Sell digital files (images, videos, PDFs). Buyers get instant access after payment.
-                        </p>
-                      </div>
-                    </div>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleTypeSelect('agent')}
-                    className="p-6 border-2 border-border rounded-lg hover:border-primary transition-colors text-left group"
-                  >
-                    <div className="flex items-start gap-4">
-                      <Package className="h-8 w-8 text-primary mt-1" />
-                      <div>
-                        <h3 className="font-semibold text-lg mb-1">Agent</h3>
-                        <p className="text-sm text-muted-foreground">
-                          Create an AI agent trained on your expertise. Charge per conversation or make it free.
                         </p>
                       </div>
                     </div>
