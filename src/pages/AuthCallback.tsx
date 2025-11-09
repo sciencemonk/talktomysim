@@ -160,12 +160,30 @@ export default function AuthCallback() {
             .maybeSingle();
           
           if (!existingOffering) {
-            // Get the agent's system prompt
-            const { data: agentData } = await supabase
-              .from('advisors')
-              .select('prompt')
-              .eq('id', agentId)
-              .single();
+            // Fetch tweets and generate personalized prompt for offering
+            let agentSystemPrompt = '';
+            
+            try {
+              const { data: tweetData } = await supabase.functions.invoke('x-intelligence', {
+                body: { username: xUsername }
+              });
+
+              const tweets = tweetData?.tweets || [];
+              
+              const { data: promptData } = await supabase.functions.invoke('generate-x-agent-prompt', {
+                body: {
+                  username: xUsername,
+                  displayName: fullName,
+                  bio: userMetadata?.description || '',
+                  tweets: tweets
+                }
+              });
+
+              agentSystemPrompt = promptData?.prompt || existingAgent.prompt || '';
+            } catch (error) {
+              console.error('Error generating prompt for offering:', error);
+              agentSystemPrompt = existingAgent.prompt || '';
+            }
             
             // Create the AI agent offering
             const { error: offeringError } = await supabase
@@ -179,7 +197,7 @@ export default function AuthCallback() {
                 delivery_method: 'Chat with AI agent',
                 is_active: true,
                 agent_avatar_url: avatarUrl || '',
-                agent_system_prompt: agentData?.prompt || '',
+                agent_system_prompt: agentSystemPrompt,
               });
 
             if (offeringError) {
@@ -204,7 +222,56 @@ export default function AuthCallback() {
         const bio = report?.bio || userMetadata?.description || `AI-powered agent for @${xUsername}`;
         const profileImageUrl = report?.profileImageUrl || avatarUrl || '';
 
-        const systemPrompt = `You are @${xUsername}, representing the real person behind this X (Twitter) account.
+        // Fetch recent tweets and generate personalized prompt
+        console.log('Fetching tweets for personalized prompt...');
+        let systemPrompt = '';
+        let welcomeMessage = '';
+        
+        try {
+          // Fetch tweets using x-intelligence
+          const { data: tweetData, error: tweetError } = await supabase.functions.invoke('x-intelligence', {
+            body: { username: xUsername }
+          });
+
+          if (tweetError) {
+            console.error('Error fetching tweets:', tweetError);
+          }
+
+          const tweets = tweetData?.tweets || [];
+          console.log(`Fetched ${tweets.length} tweets for prompt generation`);
+
+          // Generate personalized prompt and welcome message using AI
+          const [promptResult, welcomeResult] = await Promise.all([
+            supabase.functions.invoke('generate-x-agent-prompt', {
+              body: {
+                username: xUsername,
+                displayName: fullName,
+                bio: bio,
+                tweets: tweets
+              }
+            }),
+            supabase.functions.invoke('generate-x-agent-welcome', {
+              body: {
+                username: xUsername,
+                displayName: fullName,
+                bio: bio,
+                tweets: tweets
+              }
+            })
+          ]);
+
+          systemPrompt = promptResult.data?.prompt || '';
+          welcomeMessage = welcomeResult.data?.welcomeMessage || '';
+          
+          console.log('Generated personalized prompt:', systemPrompt.substring(0, 200) + '...');
+          console.log('Generated welcome message:', welcomeMessage);
+        } catch (error) {
+          console.error('Error in prompt generation flow:', error);
+        }
+
+        // Fallback to basic prompt if generation failed
+        if (!systemPrompt) {
+          systemPrompt = `You are @${xUsername}, representing the real person behind this X (Twitter) account.
 
 Your Profile:
 - Display Name: ${fullName}
@@ -227,6 +294,11 @@ When chatting:
 5. Be engaging and personable
 
 You can answer questions about your X profile, interests, opinions, and provide insights based on your X activity. Be authentic and engaging!`;
+        }
+
+        if (!welcomeMessage) {
+          welcomeMessage = `Hey! I'm @${xUsername}. My AI agent has been trained on my actual posts to represent my voice and ideas. Ask me anything!`;
+        }
 
         const { data: newAgent, error: createError } = await supabase
           .from('advisors')
@@ -253,7 +325,7 @@ You can answer questions about your X profile, interests, opinions, and provide 
             },
             edit_code: editCode,
             custom_url: xUsername.toLowerCase().replace(/[^a-z0-9]/g, ''),
-            welcome_message: `Hey! I'm @${xUsername}. My AI agent has been trained on my actual posts to represent my voice and ideas. Ask me anything!`,
+            welcome_message: welcomeMessage,
             user_id: user.id,
             verification_status: true, // Auto-verified via OAuth
             is_verified: true, // Auto-verified via OAuth
