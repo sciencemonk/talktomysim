@@ -1,12 +1,11 @@
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Bot, Zap, MessageCircle, Sparkles } from "lucide-react";
-import xIcon from "@/assets/x-icon.png";
 import pumpfunLogo from "@/assets/pumpfun-logo.png";
 
 interface AgentOfferingTypeModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onTypeSelect: (type: 'x-clone' | 'pumpfun' | 'chatbot' | 'specialized') => void;
+  onTypeSelect: (type: 'pumpfun' | 'chatbot' | 'specialized') => void;
 }
 
 export const AgentOfferingTypeModal = ({ 
@@ -25,24 +24,6 @@ export const AgentOfferingTypeModal = ({
         </DialogHeader>
         
         <div className="grid gap-4 py-4">
-          <button
-            type="button"
-            onClick={() => onTypeSelect('x-clone')}
-            className="p-6 border-2 border-border rounded-lg hover:border-primary transition-colors text-left group"
-          >
-            <div className="flex items-start gap-4">
-              <div className="p-3 rounded-lg bg-primary/10">
-                <img src={xIcon} alt="X" className="h-8 w-8" />
-              </div>
-              <div className="flex-1">
-                <h3 className="font-semibold text-lg mb-1">X Clone Agent</h3>
-                <p className="text-sm text-muted-foreground">
-                  Create an AI agent trained on your X profile. Automatically syncs with your tweets and personality.
-                </p>
-              </div>
-            </div>
-          </button>
-
           <button
             type="button"
             onClick={() => onTypeSelect('pumpfun')}

@@ -13,7 +13,6 @@ import { toast } from "sonner";
 import { AgentIntegrations, DEFAULT_INTEGRATIONS, Integration } from "@/components/AgentIntegrations";
 import { BuyButtonEmbedModal } from "@/components/BuyButtonEmbedModal";
 import { AgentOfferingTypeModal } from "@/components/AgentOfferingTypeModal";
-import { CreateXAgentModal } from "@/components/CreateXAgentModal";
 import { CreateCABotModal } from "@/components/CreateCABotModal";
 import { CreateSimModal } from "@/components/CreateSimModal";
 
@@ -76,7 +75,6 @@ export function XAgentStoreManager({ agentId, walletAddress, onWalletUpdate }: X
   const [showBuyButtonModal, setShowBuyButtonModal] = useState(false);
   const [selectedOfferingForEmbed, setSelectedOfferingForEmbed] = useState<Offering | null>(null);
   const [showAgentTypeModal, setShowAgentTypeModal] = useState(false);
-  const [showXAgentModal, setShowXAgentModal] = useState(false);
   const [showPumpFunModal, setShowPumpFunModal] = useState(false);
   const [showChatbotModal, setShowChatbotModal] = useState(false);
 
@@ -465,13 +463,10 @@ export function XAgentStoreManager({ agentId, walletAddress, onWalletUpdate }: X
     }
   };
 
-  const handleAgentTypeSelect = (agentType: 'x-clone' | 'pumpfun' | 'chatbot' | 'specialized') => {
+  const handleAgentTypeSelect = (agentType: 'pumpfun' | 'chatbot' | 'specialized') => {
     setShowAgentTypeModal(false);
     
     switch (agentType) {
-      case 'x-clone':
-        setShowXAgentModal(true);
-        break;
       case 'pumpfun':
         setShowPumpFunModal(true);
         break;
@@ -493,7 +488,6 @@ export function XAgentStoreManager({ agentId, walletAddress, onWalletUpdate }: X
       await loadOfferings();
     }
     // Close all modals
-    setShowXAgentModal(false);
     setShowPumpFunModal(false);
     setShowChatbotModal(false);
   };
@@ -1228,12 +1222,6 @@ export function XAgentStoreManager({ agentId, walletAddress, onWalletUpdate }: X
         open={showAgentTypeModal}
         onOpenChange={setShowAgentTypeModal}
         onTypeSelect={handleAgentTypeSelect}
-      />
-
-      {/* X Clone Agent Creation Modal */}
-      <CreateXAgentModal
-        open={showXAgentModal}
-        onOpenChange={setShowXAgentModal}
       />
 
       {/* PumpFun Agent Creation Modal */}
