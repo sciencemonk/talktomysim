@@ -536,7 +536,7 @@ export default function XAgentPage() {
           <div className="flex justify-between items-center">
             {/* Logo on the left */}
             <button 
-              onClick={() => navigate('/marketplace')}
+              onClick={() => navigate('/')}
               className="inline-flex items-center gap-1.5 px-2 sm:px-3 py-1.5 rounded-full backdrop-blur-sm transition-all cursor-pointer shadow-sm bg-primary/10 border border-primary/20 hover:bg-primary/20 whitespace-nowrap"
             >
               <img src={solanaLogo} alt="Solana" className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
