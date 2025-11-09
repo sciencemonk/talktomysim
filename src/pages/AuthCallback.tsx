@@ -160,6 +160,13 @@ export default function AuthCallback() {
             .maybeSingle();
           
           if (!existingOffering) {
+            // Get the agent's system prompt
+            const { data: agentData } = await supabase
+              .from('advisors')
+              .select('prompt')
+              .eq('id', agentId)
+              .single();
+            
             // Create the AI agent offering
             const { error: offeringError } = await supabase
               .from('x_agent_offerings')
@@ -172,6 +179,7 @@ export default function AuthCallback() {
                 delivery_method: 'Chat with AI agent',
                 is_active: true,
                 agent_avatar_url: avatarUrl || '',
+                agent_system_prompt: agentData?.prompt || '',
               });
 
             if (offeringError) {
@@ -274,6 +282,7 @@ You can answer questions about your X profile, interests, opinions, and provide 
             delivery_method: 'Chat with AI agent',
             is_active: true,
             agent_avatar_url: profileImageUrl,
+            agent_system_prompt: systemPrompt,
           });
 
         if (offeringError) {
