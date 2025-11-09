@@ -981,15 +981,25 @@ const PublicSimDetail = () => {
                 {sim?.sim_category === 'Crypto Mail' ? 'Launch X Agent' : 'Launch AI Agent'}
               </Button>
 
-              {/* Share Button - Using ShareButton component */}
-              <div className="mb-4">
-                <ShareButton 
-                  url={`https://solanainternetmarket.com/tutors/${sim.id}/chat`}
-                  title={`Chat with ${sim.name}`}
-                  description={`Start chatting with ${sim.name}, an AI tutor ready to help!`}
-                  className="w-full h-12 text-base font-semibold" 
-                />
-              </div>
+              {/* Share Button */}
+              <Button
+                variant="outline"
+                size="lg"
+                className="w-full h-12 text-base font-semibold mb-4"
+                onClick={handleShareLink}
+              >
+                {shareLinkCopied ? (
+                  <>
+                    <Check className="h-4 w-4 mr-2" />
+                    Copied!
+                  </>
+                ) : (
+                  <>
+                    <Copy className="h-4 w-4 mr-2" />
+                    Share
+                  </>
+                )}
+              </Button>
 
 
               {/* Social Links & Wallet */}
