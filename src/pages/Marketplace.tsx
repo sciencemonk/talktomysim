@@ -243,9 +243,9 @@ const Marketplace = () => {
         
         {/* Content */}
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <h1 className="text-4xl font-bold text-white mb-4">x402 Marketplace</h1>
+          <h1 className="text-4xl font-bold text-white mb-4">Permissionless Commerce for AI Agents and Degens</h1>
           <p className="text-lg text-white/90 max-w-2xl">
-            Discover AI agents, products, and exclusive offerings from builders worldwide
+            Build, sell, and buy AI agents, products, and on-chain services. No fees. Powered by x402.
           </p>
         </div>
       </div>
@@ -276,13 +276,40 @@ const Marketplace = () => {
                   All
                 </Button>
                 <Button
-                  variant={categoryFilter === "AI Agents" ? "default" : "outline"}
+                  variant={categoryFilter === "Chatbots" ? "default" : "outline"}
                   size="sm"
-                  onClick={() => setCategoryFilter("AI Agents")}
+                  onClick={() => setCategoryFilter("Chatbots")}
                   className="gap-2"
                 >
                   <Bot className="h-4 w-4" />
-                  AI Agents
+                  Chatbots
+                </Button>
+                <Button
+                  variant={categoryFilter === "PumpFun Agents" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setCategoryFilter("PumpFun Agents")}
+                  className="gap-2"
+                >
+                  <Zap className="h-4 w-4" />
+                  PumpFun Agents
+                </Button>
+                <Button
+                  variant={categoryFilter === "Trading Agents" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setCategoryFilter("Trading Agents")}
+                  className="gap-2"
+                >
+                  <TrendingUp className="h-4 w-4" />
+                  Trading Agents
+                </Button>
+                <Button
+                  variant={categoryFilter === "x402 Agents" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setCategoryFilter("x402 Agents")}
+                  className="gap-2"
+                >
+                  <Sparkles className="h-4 w-4" />
+                  x402 Agents
                 </Button>
                 <Button
                   variant={categoryFilter === "Products" ? "default" : "outline"}
@@ -331,7 +358,7 @@ const Marketplace = () => {
         ) : (
           <>
             {/* Chatbots Section */}
-            {(categoryFilter === 'all' || categoryFilter === 'AI Agents') && 
+            {(categoryFilter === 'all' || categoryFilter === 'Chatbots') && 
              filteredAgents.filter(a => !(a as any).sim_category || (a as any).sim_category === 'Chat').length > 0 && (
               <div className="mb-12">
                 <div className="flex items-center justify-between mb-6">
@@ -420,7 +447,7 @@ const Marketplace = () => {
             )}
 
             {/* PumpFun Agents Section */}
-            {(categoryFilter === 'all' || categoryFilter === 'AI Agents') && 
+            {(categoryFilter === 'all' || categoryFilter === 'PumpFun Agents') && 
              filteredAgents.filter(a => (a as any).sim_category === 'PumpFun Agent').length > 0 && (
               <div className="mb-12">
                 <div className="flex items-center justify-between mb-6">
@@ -495,6 +522,53 @@ const Marketplace = () => {
               </div>
             )}
 
+            {/* Trading Agents Section - Empty State */}
+            {(categoryFilter === 'all' || categoryFilter === 'Trading Agents') && (
+              <div className="mb-12">
+                <div className="flex items-center justify-between mb-6">
+                  <div>
+                    <h2 className="text-2xl font-bold text-fg mb-2 flex items-center gap-2">
+                      <TrendingUp className="h-6 w-6" />
+                      Trading Agents
+                    </h2>
+                    <p className="text-sm text-fgMuted">AI agents for trading and market analysis</p>
+                  </div>
+                </div>
+                <Card className="border-border bg-card">
+                  <CardContent className="text-center py-12">
+                    <div className="bg-bgMuted p-4 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+                      <TrendingUp className="h-8 w-8 text-fgMuted" />
+                    </div>
+                    <h3 className="text-xl font-semibold text-fg mb-2">No Trading Agents Yet</h3>
+                    <p className="text-base text-fgMuted">Trading agents will be available soon</p>
+                  </CardContent>
+                </Card>
+              </div>
+            )}
+
+            {/* x402 Agents Section - Empty State */}
+            {(categoryFilter === 'all' || categoryFilter === 'x402 Agents') && (
+              <div className="mb-12">
+                <div className="flex items-center justify-between mb-6">
+                  <div>
+                    <h2 className="text-2xl font-bold text-fg mb-2 flex items-center gap-2">
+                      <Sparkles className="h-6 w-6" />
+                      x402 Agents
+                    </h2>
+                    <p className="text-sm text-fgMuted">AI agents powered by x402 payment protocol</p>
+                  </div>
+                </div>
+                <Card className="border-border bg-card">
+                  <CardContent className="text-center py-12">
+                    <div className="bg-bgMuted p-4 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+                      <Sparkles className="h-8 w-8 text-fgMuted" />
+                    </div>
+                    <h3 className="text-xl font-semibold text-fg mb-2">No x402 Agents Yet</h3>
+                    <p className="text-base text-fgMuted">x402-enabled agents will be available soon</p>
+                  </CardContent>
+                </Card>
+              </div>
+            )}
 
             {/* Stores Section */}
             {(categoryFilter === 'all' || categoryFilter === 'Stores') && 
