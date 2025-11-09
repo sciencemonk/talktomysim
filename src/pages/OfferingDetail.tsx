@@ -37,11 +37,11 @@ export default function OfferingDetail() {
   const [purchaseData, setPurchaseData] = useState<PurchaseData | null>(null);
   const { theme, setTheme } = useTheme();
 
-  // Set light mode as default on initial load only
+  // Set dark mode as default on initial load only
   useEffect(() => {
     const hasThemePreference = localStorage.getItem('vite-ui-theme');
     if (!hasThemePreference) {
-      setTheme('light');
+      setTheme('dark');
     }
   }, []);
 

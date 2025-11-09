@@ -14,7 +14,7 @@ type ThemeProviderState = {
 };
 
 const initialState: ThemeProviderState = {
-  theme: "light",
+  theme: "dark",
   setTheme: () => null,
 };
 
@@ -22,21 +22,12 @@ const ThemeProviderContext = createContext<ThemeProviderState>(initialState);
 
 export function ThemeProvider({
   children,
-  defaultTheme = "light",
+  defaultTheme = "dark",
   storageKey = "vite-ui-theme",
   ...props
 }: ThemeProviderProps) {
   const [theme, setTheme] = useState<Theme>(() => {
     const stored = localStorage.getItem(storageKey) as Theme;
-    const migrated = localStorage.getItem("theme-migrated");
-    
-    // One-time migration: reset from forced dark mode to light default
-    if (!migrated && stored === "dark") {
-      localStorage.setItem("theme-migrated", "true");
-      localStorage.setItem(storageKey, "light");
-      return "light";
-    }
-    
     return stored || defaultTheme;
   });
 
