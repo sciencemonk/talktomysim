@@ -2,7 +2,7 @@ import { useEffect, useState, useRef, lazy, Suspense } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import XAgentPage from "@/pages/XAgentPage";
-import { Globe, Wallet, ExternalLink, Copy, Check, MessageCircle, X, Lock, Sparkles, Clock } from "lucide-react";
+import { Globe, Wallet, ExternalLink, Copy, Check, MessageCircle, X, Lock, Sparkles, Clock, ArrowLeft } from "lucide-react";
 import aiLoadingGif from "@/assets/ai-loading.gif";
 import { ShareButton } from "@/components/ShareButton";
 import { Button } from "@/components/ui/button";
@@ -24,6 +24,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { updateMetaTags, resetMetaTags } from "@/lib/metaTags";
 import { useTheme } from "@/hooks/useTheme";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 
 // Lazy load X402PaymentModal to avoid blocking app initialization with ethers.js
@@ -36,6 +37,7 @@ const PublicSimDetail = () => {
   const customUrl = identifier; // Use identifier from route params
   const navigate = useNavigate();
   const { toast } = useToast();
+  const isMobile = useIsMobile();
   const [sim, setSim] = useState<AgentType | null>(null);
   const [isXAgent, setIsXAgent] = useState<boolean | null>(null);
   const [isCheckingAgent, setIsCheckingAgent] = useState(true);
@@ -827,32 +829,34 @@ const PublicSimDetail = () => {
       {/* Overlay */}
       <div className="absolute inset-0 bg-background/80 backdrop-blur-sm z-0" />
 
-      {/* Back to Marketplace Button */}
-      <div className="absolute top-4 left-4 z-50">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => navigate('/')}
-          className="bg-background/80 backdrop-blur-sm hover:bg-background/90"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            className="mr-2"
+      {/* Back to Marketplace Button - Only show when NOT in chat */}
+      {!showChat && (
+        <div className="absolute top-4 left-4 z-50">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => navigate('/')}
+            className="bg-background/80 backdrop-blur-sm hover:bg-background/90"
           >
-            <path d="m12 19-7-7 7-7" />
-            <path d="M19 12H5" />
-          </svg>
-          Back to Marketplace
-        </Button>
-      </div>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="mr-2"
+            >
+              <path d="m12 19-7-7 7-7" />
+              <path d="M19 12H5" />
+            </svg>
+            Back to Marketplace
+          </Button>
+        </div>
+      )}
 
       {showChat ? (
         <div className="flex-1 flex flex-col relative z-10 h-full">
@@ -860,14 +864,25 @@ const PublicSimDetail = () => {
           {!isEmbedded && !isChatOnly && (
             <div className="border-b border-border px-4 py-3 flex items-center justify-between backdrop-blur-md bg-card/50">
               <div className="flex items-center gap-3">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => navigate('/')}
+                  className="gap-2 flex-shrink-0"
+                >
+                  <ArrowLeft className="h-4 w-4" />
+                  {!isMobile && <span>Back to Marketplace</span>}
+                </Button>
                 <Avatar className="h-10 w-10 border-2 border-border">
                   <AvatarImage src={getAvatarUrl(sim.avatar)} alt={sim.name} className="object-cover" />
                   <AvatarFallback>{sim.name.charAt(0)}</AvatarFallback>
                 </Avatar>
-                <div>
-                  <p className="font-semibold text-sm">{sim.name}</p>
-                  {sim.title && <p className="text-xs text-muted-foreground">{sim.title}</p>}
-                </div>
+                {!isMobile && (
+                  <div>
+                    <p className="font-semibold text-sm">{sim.name}</p>
+                    {sim.title && <p className="text-xs text-muted-foreground">{sim.title}</p>}
+                  </div>
+                )}
               </div>
               <div className="flex items-center gap-2">
                 <ShareButton 
