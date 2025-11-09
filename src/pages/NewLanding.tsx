@@ -33,6 +33,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { PendingAgentModal } from "@/components/PendingAgentModal";
+import { WelcomeModal } from "@/components/WelcomeModal";
 
 interface PumpFunSimCardProps {
   sim: AgentType & { user_id?: string; like_count?: number; is_verified?: boolean };
@@ -598,6 +599,7 @@ const NewLanding = () => {
 
   return (
     <div className="min-h-screen w-full flex flex-col bg-background">
+      <WelcomeModal />
       <HackathonAnnouncementModal />
       
       <div className="flex-1 overflow-hidden">
