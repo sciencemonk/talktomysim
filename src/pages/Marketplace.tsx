@@ -143,6 +143,14 @@ const Marketplace = () => {
     }
   });
 
+  // Filter agents by search term
+  const filteredAgents = agents.filter(agent => {
+    if (!searchTerm) return true;
+    return agent.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+           agent.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+           (agent.auto_description && agent.auto_description.toLowerCase().includes(searchTerm.toLowerCase()));
+  });
+
   const categories = Array.from(new Set(marketplaceItems.map(item => item.category).filter(Boolean)));
 
   const handleItemClick = (item: MarketplaceItem) => {
@@ -322,7 +330,7 @@ const Marketplace = () => {
           <>
             {/* Chatbots Section */}
             {(categoryFilter === 'all' || categoryFilter === 'AI Agents') && 
-             agents.filter(a => !(a as any).sim_category || (a as any).sim_category === 'Chat').length > 0 && (
+             filteredAgents.filter(a => !(a as any).sim_category || (a as any).sim_category === 'Chat').length > 0 && (
               <div className="mb-12">
                 <div className="flex items-center justify-between mb-6">
                   <div>
@@ -334,7 +342,7 @@ const Marketplace = () => {
                   </div>
                 </div>
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-                  {agents
+                  {filteredAgents
                     .filter(a => !(a as any).sim_category || (a as any).sim_category === 'Chat')
                     .sort((a, b) => {
                       if (a.is_verified && !b.is_verified) return -1;
@@ -406,7 +414,7 @@ const Marketplace = () => {
 
             {/* PumpFun Agents Section */}
             {(categoryFilter === 'all' || categoryFilter === 'AI Agents') && 
-             agents.filter(a => (a as any).sim_category === 'PumpFun Agent').length > 0 && (
+             filteredAgents.filter(a => (a as any).sim_category === 'PumpFun Agent').length > 0 && (
               <div className="mb-12">
                 <div className="flex items-center justify-between mb-6">
                   <div>
@@ -418,7 +426,7 @@ const Marketplace = () => {
                   </div>
                 </div>
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-                  {agents
+                  {filteredAgents
                     .filter(a => (a as any).sim_category === 'PumpFun Agent')
                     .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
                     .map((agent) => {
@@ -478,7 +486,7 @@ const Marketplace = () => {
 
             {/* Stores Section */}
             {(categoryFilter === 'all' || categoryFilter === 'Stores') && 
-             agents.filter(a => (a as any).sim_category === 'Crypto Mail').length > 0 && (
+             filteredAgents.filter(a => (a as any).sim_category === 'Crypto Mail').length > 0 && (
               <div className="mb-12">
                 <div className="flex items-center justify-between mb-6">
                   <div>
@@ -490,7 +498,7 @@ const Marketplace = () => {
                   </div>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                  {agents
+                  {filteredAgents
                     .filter(a => (a as any).sim_category === 'Crypto Mail')
                     .sort((a, b) => {
                       if (a.is_verified && !b.is_verified) return -1;
