@@ -274,7 +274,7 @@ const Marketplace = () => {
         
         {/* Content */}
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center justify-center h-[calc(100vh-4rem)]">
-          <h1 className="text-5xl sm:text-7xl font-bold text-white mb-8 text-center font-mono tracking-tight">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-white mb-8 text-center font-mono tracking-tight whitespace-nowrap">
             Create your AI Agent in seconds
           </h1>
           <Button 
