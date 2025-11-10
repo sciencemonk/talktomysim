@@ -202,37 +202,9 @@ const Marketplace = () => {
   return (
     <div className="min-h-screen bg-bg">
       <WelcomeModal />
-      {/* Top Header with Logo, Sign In and Theme Toggle */}
-      <div className="fixed top-0 left-0 right-0 z-50 bg-bg/80 backdrop-blur-md border-b border-border">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex justify-between items-center">
-            {/* Logo on the left */}
-            <button 
-              onClick={() => navigate('/')}
-              className="inline-flex items-center gap-1.5 px-2 sm:px-3 py-1.5 rounded-full backdrop-blur-sm transition-all cursor-pointer shadow-sm bg-primary/10 border border-primary/20 hover:bg-primary/20 whitespace-nowrap"
-            >
-              <img src={solanaLogo} alt="Solana" className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-              <span className="text-xs sm:text-sm font-bold text-fg">Solana Internet Market</span>
-            </button>
-            
-            {/* Sign in with X and Theme Toggle on the right */}
-            <div className="flex items-center gap-2">
-              <ThemeToggle />
-              <Button
-                variant="outline"
-                size="sm"
-                className="bg-transparent border border-fg text-fg hover:bg-fg/10 hover:text-fg text-xs sm:text-sm px-2 sm:px-4 gap-2"
-                onClick={handleXSignIn}
-              >
-                Sign in with <img src={xIcon} alt="X" className="h-3.5 w-3.5 sm:h-4 sm:w-4 inline-block" />
-              </Button>
-            </div>
-          </div>
-        </div>
-      </div>
 
       {/* Hero Section with Video Background */}
-      <div className="relative pt-20 border-b border-border overflow-hidden">
+      <div className="relative border-b border-border overflow-hidden">
         {/* Video Background */}
         <video autoPlay loop muted playsInline className="absolute inset-0 w-full h-full object-cover">
           <source src="https://uovhemqkztmkoozlmqxq.supabase.co/storage/v1/object/sign/trimtab/4426378-uhd_3840_2160_25fps.mp4?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV82NDZlOGY2My1iYjgzLTQwOGQtYjc1Mi1mOWM0OTMxZjU3OGIiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJ0cmltdGFiLzQ0MjYzNzgtdWhkXzM4NDBfMjE2MF8yNWZwcy5tcDQiLCJpYXQiOjE3NjIzMTYzOTgsImV4cCI6MTc5Mzg1MjM5OH0.m-yCbNjzr3XR15fzejjFmaZNqbtC-fU0_J9aUDlTEd8" type="video/mp4" />
@@ -241,12 +213,28 @@ const Marketplace = () => {
         {/* Dark overlay for text readability */}
         <div className="absolute inset-0 bg-black/40"></div>
         
+        {/* Top-right controls - Theme Toggle and Sign in with X */}
+        <div className="absolute top-4 right-4 z-20 flex items-center gap-2">
+          <ThemeToggle />
+          <Button
+            variant="outline"
+            size="sm"
+            className="bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-white/20 hover:text-white text-xs sm:text-sm px-2 sm:px-4 gap-2"
+            onClick={handleXSignIn}
+          >
+            Sign in with <img src={xIcon} alt="X" className="h-3.5 w-3.5 sm:h-4 sm:w-4 inline-block" />
+          </Button>
+        </div>
+        
         {/* Content */}
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <div className="inline-flex items-center gap-2 mb-4">
-            <img src={solanaLogo} alt="Solana" className="h-8 w-8" />
-            <h1 className="text-4xl font-bold text-white">Solana Internet Market</h1>
-          </div>
+          <button 
+            onClick={() => navigate('/')}
+            className="inline-flex items-center gap-1.5 px-2 sm:px-3 py-1.5 rounded-full backdrop-blur-sm transition-all cursor-pointer shadow-sm bg-white/10 border border-white/20 hover:bg-white/20 whitespace-nowrap mb-4"
+          >
+            <img src={solanaLogo} alt="Solana" className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+            <span className="text-xs sm:text-sm font-bold text-white">Solana Internet Market</span>
+          </button>
           <p className="text-lg text-white/90 max-w-2xl">
             Build, sell, and buy AI agents, products, and on-chain services. No fees. Powered by x402.
           </p>
