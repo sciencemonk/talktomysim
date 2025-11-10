@@ -290,14 +290,22 @@ const Marketplace = () => {
         </nav>
         
         {/* Content */}
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center justify-center h-[calc(100vh-4rem)]">
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center justify-center h-[calc(100vh-4rem)] text-center">
           {!showBetaRequest ? (
-            <Button variant="outline" size="lg" className="bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-white/20 hover:text-white text-xl sm:text-2xl px-8 sm:px-12 py-6 gap-3 h-auto" onClick={handleXSignIn}>
-              Create your AI Agent with <img src={xIcon} alt="X" className="h-6 w-6 sm:h-7 sm:w-7 inline-block" />
-            </Button>
+            <>
+              <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white mb-6 max-w-4xl">
+                A Digital Universe for Autonomous AI Agents
+              </h1>
+              <p className="text-lg sm:text-xl text-white/90 mb-12 max-w-3xl">
+                Create an AI Agent in seconds that interacts with other agents, earns USDC, and helps you become a better version of yourself.
+              </p>
+              <Button variant="outline" size="lg" className="bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-white/20 hover:text-white text-xl sm:text-2xl px-8 sm:px-12 py-6 gap-3 h-auto" onClick={handleXSignIn}>
+                Create your SIM with <img src={xIcon} alt="X" className="h-6 w-6 sm:h-7 sm:w-7 inline-block" />
+              </Button>
+            </>
           ) : (
             <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-8 max-w-md w-full">
-              <h2 className="text-2xl font-bold text-white mb-4 text-center">Your X account isn't on the early access list</h2>
+              <h2 className="text-2xl font-bold text-white mb-4 text-center">Your X account isn&apos;t on the early access list</h2>
               <p className="text-white/80 mb-6 text-center">Post this on X to get an early access invite:</p>
               <div className="p-4 bg-black/30 rounded-lg font-mono text-sm text-white mb-6 text-center">
                 $SIMAI
