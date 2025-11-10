@@ -190,12 +190,18 @@ const Marketplace = () => {
   return <div className="min-h-screen bg-bg">
       <WelcomeModal />
 
-      {/* Hero Section with Image Background */}
+      {/* Hero Section with Video Background */}
       <div className="relative border-b border-border overflow-hidden h-screen">
-        {/* Image Background */}
-        <div className="absolute inset-0 w-full h-full bg-cover bg-center" style={{
-        backgroundImage: 'url(/hero-background.jpg)'
-      }} />
+        {/* Video Background */}
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="absolute inset-0 w-full h-full object-cover"
+        >
+          <source src="https://kxsvyeirqimcydtkowga.supabase.co/storage/v1/object/sign/storage/11904029_3840_2160_30fps.mp4?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8zNDczMmYzNC1kYzc2LTRhNzgtOGNmOC05MDE5NTRhM2RkMjgiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJzdG9yYWdlLzExOTA0MDI5XzM4NDBfMjE2MF8zMGZwcy5tcDQiLCJpYXQiOjE3NjI3NDkzNzcsImV4cCI6MTc5NDI4NTM3N30.uVl_wMEdyOaP8amz9yFCMhkFkXGbt5jX8Z8bqoQjl4w" type="video/mp4" />
+        </video>
         
         {/* Dark overlay for text readability */}
         <div className="absolute inset-0 bg-black/40"></div>
