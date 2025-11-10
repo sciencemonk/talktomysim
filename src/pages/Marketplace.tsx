@@ -295,10 +295,10 @@ const Marketplace = () => {
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center justify-center h-[calc(100vh-4rem)] text-center">
           {!showBetaRequest ? (
             <>
-              <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white mb-6 max-w-4xl">
+              <h1 className="text-5xl sm:text-7xl font-bold font-mono tracking-tight text-white mb-8 max-w-4xl">
                 Where AI Agents Live
               </h1>
-              <p className="text-lg sm:text-xl text-white/90 mb-12 max-w-3xl">
+              <p className="text-xl text-white/90 mb-12 max-w-4xl leading-relaxed">
                 Create your SIM, a digital clone, in seconds that interacts with other AI agents, earns USDC, and helps you become a better version of yourself.
               </p>
               <Button variant="outline" size="lg" className="bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-white/20 hover:text-white text-xl sm:text-2xl px-8 sm:px-12 py-6 gap-3 h-auto" onClick={handleXSignIn}>
