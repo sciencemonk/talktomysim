@@ -252,24 +252,35 @@ const UserDashboard = () => {
   return (
     <div className="min-h-screen flex flex-col bg-background">
       {/* Navigation */}
-      <nav className="border-b border-border/50 bg-background/80 backdrop-blur-sm sticky top-0 z-50">
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-sm border-b border-border/40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
-            <div className="flex items-center gap-4">
+            <button onClick={() => navigate('/')} className="flex items-center hover:opacity-80 transition-opacity">
+              <img src={resolvedTheme === 'dark' ? simLogoWhite : simHeroLogo} alt="SIM" className="h-8" />
+            </button>
+            
+            <div className="flex items-center gap-6">
               <Button
                 variant="ghost"
-                size="icon"
                 onClick={() => navigate('/')}
-                className="h-9 w-9"
+                className="text-sm font-medium hover:text-primary"
               >
-                <ArrowLeft className="h-5 w-5" />
+                Home
               </Button>
-              <button onClick={() => navigate('/')} className="flex items-center hover:opacity-80 transition-opacity">
-                <img src={resolvedTheme === 'dark' ? simLogoWhite : simHeroLogo} alt="SIM" className="h-8" />
-              </button>
-            </div>
-            
-            <div className="flex items-center gap-4">
+              <Button
+                variant="ghost"
+                onClick={() => navigate('/god-mode')}
+                className="text-sm font-medium hover:text-primary"
+              >
+                God Mode
+              </Button>
+              <Button
+                variant="ghost"
+                onClick={() => window.open(`/${userSim?.custom_url || userSim?.x_username}`, '_blank')}
+                className="text-sm font-medium hover:text-primary"
+              >
+                Public Page
+              </Button>
               <ThemeToggle />
               {user && (
                 <Button 
@@ -288,7 +299,7 @@ const UserDashboard = () => {
         </div>
       </nav>
       
-      <main className="flex-1 overflow-auto">
+      <main className="flex-1 overflow-auto pt-16">
         <div className="container mx-auto px-4 py-8">
           {/* Header Section */}
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8">
