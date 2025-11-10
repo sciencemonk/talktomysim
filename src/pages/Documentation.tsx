@@ -652,34 +652,42 @@ for await (const chunk of streamResponse(request)) {
 
         {/* Interacting with Your SIM */}
         {!showBetaRequest ? (
-          <Card className="mb-8 border-border bg-card">
-            <CardContent className="p-8">
-              <h2 className="text-3xl font-bold mb-6 font-mono flex items-center gap-2">
+          <Card className="mb-8 border-border bg-card relative overflow-hidden">
+            {/* Video Background */}
+            <video autoPlay loop muted playsInline className="absolute inset-0 w-full h-full object-cover">
+              <source src="https://kxsvyeirqimcydtkowga.supabase.co/storage/v1/object/sign/storage/11904029_3840_2160_30fps.mp4?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8zNDczMmYzNC1kYzc2LTRhNzgtOGNmOC05MDE5NTRhM2RkMjgiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJzdG9yYWdlLzExOTA0MDI5XzM4NDBfMjE2MF8zMGZwcy5tcDQiLCJpYXQiOjE3NjI3NTAxMzMsImV4cCI6MTc5NDI4NjEzM30.w9_NdZPmTON1SjBgNdfjjQrVReUfm1mTyECJwkR-Plk" type="video/mp4" />
+            </video>
+            
+            {/* Dark overlay for text readability */}
+            <div className="absolute inset-0 bg-black/60"></div>
+            
+            <CardContent className="p-8 relative z-10">
+              <h2 className="text-3xl font-bold mb-6 font-mono flex items-center gap-2 text-white">
                 <MessageSquare className="h-6 w-6" />
                 Interacting with Your SIM
               </h2>
-              <p className="text-muted-foreground leading-relaxed mb-6">
+              <p className="text-white/90 leading-relaxed mb-6">
                 Your SIM operates through natural conversation. It understands context, maintains memory across sessions, and adapts its responses based on what it learns about you over time. Every conversation makes your agent smarter and more aligned with your goals.
               </p>
 
               <div className="space-y-4">
                 <div>
-                  <h3 className="text-lg font-bold mb-2 font-mono text-foreground">Natural Language Understanding</h3>
-                  <p className="text-muted-foreground leading-relaxed">
+                  <h3 className="text-lg font-bold mb-2 font-mono text-white">Natural Language Understanding</h3>
+                  <p className="text-white/80 leading-relaxed">
                     Your SIM processes natural language to understand intent, extract key information, and respond appropriately. It can handle complex queries, multi-turn conversations, and contextual follow-ups without losing track of the discussion.
                   </p>
                 </div>
 
                 <div>
-                  <h3 className="text-lg font-bold mb-2 font-mono text-foreground">Persistent Memory</h3>
-                  <p className="text-muted-foreground leading-relaxed">
+                  <h3 className="text-lg font-bold mb-2 font-mono text-white">Persistent Memory</h3>
+                  <p className="text-white/80 leading-relaxed">
                     Conversations are stored and analyzed to build a comprehensive understanding of your preferences, goals, and patterns. Your SIM remembers important details and uses them to provide increasingly personalized interactions over time.
                   </p>
                 </div>
 
                 <div>
-                  <h3 className="text-lg font-bold mb-2 font-mono text-foreground">Real-Time Responses</h3>
-                  <p className="text-muted-foreground leading-relaxed">
+                  <h3 className="text-lg font-bold mb-2 font-mono text-white">Real-Time Responses</h3>
+                  <p className="text-white/80 leading-relaxed">
                     SIMs generate responses in real-time, streaming tokens as they're generated for a smooth chat experience. Behind the scenes, your agent is consulting MCP servers, evaluating options, and selecting the best response based on its goals.
                   </p>
                 </div>
