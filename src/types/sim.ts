@@ -4,6 +4,9 @@ export interface Sim {
   name: string;
   description: string | null;
   prompt: string;
+  creator_prompt: string | null;
+  stranger_prompt: string | null;
+  sim_to_sim_prompt: string | null;
   welcome_message: string | null;
   x_username: string;
   x_display_name: string | null;
@@ -17,18 +20,8 @@ export interface Sim {
   custom_url: string | null;
   is_active: boolean;
   is_public: boolean;
-  integrations: string[];
-  social_links: {
-    x_username?: string;
-    x_display_name?: string;
-    profile_image_url?: string;
-    trained?: boolean;
-    trainedAt?: string;
-    trainingPostCount?: number;
-    tweet_history?: any[];
-    last_trained?: string;
-    tweets_count?: number;
-  } | null;
+  integrations: any;
+  social_links: any;
   training_completed: boolean;
   training_post_count: number;
   created_at: string;

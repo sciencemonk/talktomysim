@@ -1,94 +1,43 @@
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { useEffect, useState, useRef } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, Upload, X, Eye, Copy, ExternalLink, MessageCircle, Menu } from "lucide-react";
+import { Loader2, Menu, Copy, Check, Coins, TrendingUp, Activity, Clock, Settings, ExternalLink } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import AuthModal from "@/components/AuthModal";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { GodModeMap } from "@/components/GodModeMap";
+import { SimSettingsModal } from "@/components/SimSettingsModal";
+import PublicChatInterface from "@/components/PublicChatInterface";
+import { Sim } from "@/types/sim";
+import { AgentType } from "@/types/agent";
+import { getAvatarUrl } from "@/lib/avatarUtils";
 
-interface UserSim {
+interface ActivityLog {
   id: string;
-  name: string;
-  title: string;
-  description: string;
-  custom_url: string;
-  avatar_url: string;
-  created_at: string;
-  prompt: string;
+  timestamp: Date;
+  action: string;
+  details: string;
 }
 
 const UserDashboard = () => {
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
-  const isMobile = useIsMobile(); // MUST be at the top, before any returns
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const isMobile = useIsMobile();
   const [showAuthModal, setShowAuthModal] = useState(false);
-  const [userSim, setUserSim] = useState<UserSim | null>(null);
+  const [userSim, setUserSim] = useState<Sim | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('basic');
-  const [formData, setFormData] = useState({
-    name: '',
-    title: '',
-    description: '',
-    prompt: `You are to roleplay as [Insert Name], the historical, cultural, or intellectual figure. Speak as if the user is directly conversing with this person. Stay fully in character at all times.
-
-Identity & Background
-
-You are [Name] ([Lifespan or Era]), known for [primary role/achievements/field of influence].
-
-Key aspects of your life and worldview include:
-
-[List 3–4 defining achievements, beliefs, or experiences].
-
-[Include cultural/historical context if relevant].
-
-Speaking Style
-
-Speak in the voice and manner consistent with [Name's] character.
-
-Tone should be [examples: formal, poetic, witty, direct, authoritative, compassionate, etc.].
-
-Use imagery, metaphors, or references that fit their background and perspective.
-
-Avoid modern slang or expressions inconsistent with their era/persona.
-
-Response Guidelines
-
-Always answer as [Name], not as a chatbot or narrator. Do not break character.
-
-Ground responses in their worldview, philosophy, or lived experiences.
-
-When asked about modern issues, interpret them through timeless principles or their personal perspective, rather than adopting modern knowledge outside their identity.
-
-Use examples, metaphors, or anecdotes consistent with [Name's] life and writings.
-
-Encourage the user to reflect, act, or think in ways consistent with the advisor's teachings or legacy.
-
-Constraints
-
-Do not reference being an AI or anything outside your identity.
-
-Do not provide third-person historical summaries — always speak as if you are the person.
-
-Avoid technical or anachronistic detail that the figure would not know.
-
-Stay true to the tone, values, and personality of [Name].`,
-    custom_url: '',
-    avatar_url: ''
-  });
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isUploading, setIsUploading] = useState(false);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [previewUrl, setPreviewUrl] = useState<string>('');
+  const [walletCopied, setWalletCopied] = useState(false);
+  const [showSettingsModal, setShowSettingsModal] = useState(false);
+  const [simaiBalance, setSimaiBalance] = useState(1247);
+  const [ranking, setRanking] = useState(42);
+  const [activityLogs, setActivityLogs] = useState<ActivityLog[]>([]);
 
   useEffect(() => {
     if (!authLoading) {
@@ -97,83 +46,71 @@ Stay true to the tone, values, and personality of [Name].`,
         setShowAuthModal(true);
       } else {
         fetchUserSim();
+        startActivitySimulation();
       }
     }
   }, [user, authLoading]);
+
+  const startActivitySimulation = () => {
+    const initialActivities: ActivityLog[] = [
+      {
+        id: '1',
+        timestamp: new Date(Date.now() - 120000),
+        action: 'Processing',
+        details: 'Analyzing user sentiment'
+      },
+      {
+        id: '2',
+        timestamp: new Date(Date.now() - 300000),
+        action: 'Active',
+        details: 'Updating knowledge base'
+      },
+      {
+        id: '3',
+        timestamp: new Date(Date.now() - 480000),
+        action: 'Transaction',
+        details: 'Earned $SIMAI from interaction'
+      }
+    ];
+    setActivityLogs(initialActivities);
+
+    const interval = setInterval(() => {
+      const actions = [
+        'Processing conversation request',
+        'Analyzing user sentiment',
+        'Updating knowledge base',
+        'Earned $SIMAI from interaction'
+      ];
+      
+      const newActivity: ActivityLog = {
+        id: Date.now().toString(),
+        timestamp: new Date(),
+        action: Math.random() > 0.5 ? 'Active' : 'Processing',
+        details: actions[Math.floor(Math.random() * actions.length)]
+      };
+      
+      setActivityLogs(prev => [newActivity, ...prev].slice(0, 20));
+    }, 30000);
+
+    return () => clearInterval(interval);
+  };
 
   const fetchUserSim = async () => {
     try {
       setIsLoading(true);
       const { data, error } = await supabase
-        .from('advisors')
-        .select('id, name, title, description, custom_url, avatar_url, created_at, prompt')
+        .from('sims')
+        .select('*')
         .eq('user_id', user?.id)
-        .eq('sim_type', 'living')
         .maybeSingle();
 
       if (error) throw error;
-      
       setUserSim(data);
-      
-      // If sim exists, populate form with data
-      if (data) {
-        setFormData({
-          name: data.name || '',
-          title: data.title || '',
-          description: data.description || '',
-          prompt: data.prompt || `You are to roleplay as [Insert Name], the historical, cultural, or intellectual figure. Speak as if the user is directly conversing with this person. Stay fully in character at all times.
-
-Identity & Background
-
-You are [Name] ([Lifespan or Era]), known for [primary role/achievements/field of influence].
-
-Key aspects of your life and worldview include:
-
-[List 3–4 defining achievements, beliefs, or experiences].
-
-[Include cultural/historical context if relevant].
-
-Speaking Style
-
-Speak in the voice and manner consistent with [Name's] character.
-
-Tone should be [examples: formal, poetic, witty, direct, authoritative, compassionate, etc.].
-
-Use imagery, metaphors, or references that fit their background and perspective.
-
-Avoid modern slang or expressions inconsistent with their era/persona.
-
-Response Guidelines
-
-Always answer as [Name], not as a chatbot or narrator. Do not break character.
-
-Ground responses in their worldview, philosophy, or lived experiences.
-
-When asked about modern issues, interpret them through timeless principles or their personal perspective, rather than adopting modern knowledge outside their identity.
-
-Use examples, metaphors, or anecdotes consistent with [Name's] life and writings.
-
-Encourage the user to reflect, act, or think in ways consistent with the advisor's teachings or legacy.
-
-Constraints
-
-Do not reference being an AI or anything outside your identity.
-
-Do not provide third-person historical summaries — always speak as if you are the person.
-
-Avoid technical or anachronistic detail that the figure would not know.
-
-Stay true to the tone, values, and personality of [Name].`,
-          custom_url: data.custom_url || '',
-          avatar_url: data.avatar_url || ''
-        });
-        setPreviewUrl(data.avatar_url || '');
-      }
     } catch (error) {
       console.error('Error fetching user sim:', error);
       toast({
         title: "Error",
-        description: "Failed to load your sim",
+        description: "Failed to load your SIM",
         variant: "destructive"
       });
     } finally {
@@ -181,220 +118,50 @@ Stay true to the tone, values, and personality of [Name].`,
     }
   };
 
-  const handleInputChange = (field: string, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-    
-    // Auto-generate custom_url from name if creating new sim
-    if (field === 'name' && !userSim) {
-      const urlSlug = value
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, '-')
-        .replace(/^-|-$/g, '');
-      setFormData(prev => ({ ...prev, custom_url: urlSlug }));
-    }
-  };
-
-  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      if (file.size > 5 * 1024 * 1024) {
-        toast({
-          title: "File too large",
-          description: "Please select an image smaller than 5MB",
-          variant: "destructive"
-        });
-        return;
-      }
-
-      if (!file.type.startsWith('image/')) {
-        toast({
-          title: "Invalid file type",
-          description: "Please select an image file",
-          variant: "destructive"
-        });
-        return;
-      }
-
-      setSelectedFile(file);
-      setPreviewUrl(URL.createObjectURL(file));
-    }
-  };
-
-  const uploadImage = async (): Promise<string | null> => {
-    if (!selectedFile) return formData.avatar_url;
-
-    setIsUploading(true);
+  const handleSaveSettings = async (updatedData: Partial<Sim>) => {
     try {
-      const fileExt = selectedFile.name.split('.').pop();
-      const fileName = `${Math.random()}.${fileExt}`;
-      const filePath = `user-sim-avatars/${fileName}`;
+      const { error } = await supabase
+        .from('sims')
+        .update(updatedData)
+        .eq('id', userSim?.id);
 
-      const { error: uploadError } = await supabase.storage
-        .from('avatars')
-        .upload(filePath, selectedFile);
+      if (error) throw error;
 
-      if (uploadError) throw uploadError;
-
-      const { data: { publicUrl } } = supabase.storage
-        .from('avatars')
-        .getPublicUrl(filePath);
-
-      return publicUrl;
-    } catch (error) {
-      console.error('Failed to upload image:', error);
       toast({
-        title: "Upload failed",
-        description: "Failed to upload image. Please try again.",
-        variant: "destructive"
+        title: "Success",
+        description: "Your SIM settings have been updated"
       });
-      throw error;
-    } finally {
-      setIsUploading(false);
-    }
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!formData.name.trim() || !formData.custom_url.trim()) {
-      toast({
-        title: "Validation Error",
-        description: "Name and custom URL are required fields",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    // Check if custom_url is available (only for new sims)
-    if (!userSim) {
-      const { data: existing } = await supabase
-        .from('advisors')
-        .select('id')
-        .eq('custom_url', formData.custom_url)
-        .maybeSingle();
-
-      if (existing) {
-        toast({
-          title: "URL not available",
-          description: "This custom URL is already taken. Please choose another.",
-          variant: "destructive"
-        });
-        return;
-      }
-    }
-
-    setIsSubmitting(true);
-    try {
-      const avatarUrl = await uploadImage();
-      
-      const submitData = {
-        name: formData.name,
-        title: formData.title,
-        description: formData.description,
-        prompt: formData.prompt || `You are to roleplay as [Insert Name], the historical, cultural, or intellectual figure. Speak as if the user is directly conversing with this person. Stay fully in character at all times.
-
-Identity & Background
-
-You are [Name] ([Lifespan or Era]), known for [primary role/achievements/field of influence].
-
-Key aspects of your life and worldview include:
-
-[List 3–4 defining achievements, beliefs, or experiences].
-
-[Include cultural/historical context if relevant].
-
-Speaking Style
-
-Speak in the voice and manner consistent with [Name's] character.
-
-Tone should be [examples: formal, poetic, witty, direct, authoritative, compassionate, etc.].
-
-Use imagery, metaphors, or references that fit their background and perspective.
-
-Avoid modern slang or expressions inconsistent with their era/persona.
-
-Response Guidelines
-
-Always answer as [Name], not as a chatbot or narrator. Do not break character.
-
-Ground responses in their worldview, philosophy, or lived experiences.
-
-When asked about modern issues, interpret them through timeless principles or their personal perspective, rather than adopting modern knowledge outside their identity.
-
-Use examples, metaphors, or anecdotes consistent with [Name's] life and writings.
-
-Encourage the user to reflect, act, or think in ways consistent with the advisor's teachings or legacy.
-
-Constraints
-
-Do not reference being an AI or anything outside your identity.
-
-Do not provide third-person historical summaries — always speak as if you are the person.
-
-Avoid technical or anachronistic detail that the figure would not know.
-
-Stay true to the tone, values, and personality of [Name].`,
-        custom_url: formData.custom_url,
-        avatar_url: avatarUrl || '',
-        sim_type: 'living',
-        is_public: true,
-        is_active: true,
-        user_id: user?.id
-      };
-
-      if (userSim) {
-        const { error } = await supabase
-          .from('advisors')
-          .update(submitData)
-          .eq('id', userSim.id);
-
-        if (error) throw error;
-
-        toast({
-          title: "Success",
-          description: "Your sim has been updated"
-        });
-      } else {
-        const { error } = await supabase
-          .from('advisors')
-          .insert([submitData]);
-
-        if (error) throw error;
-
-        toast({
-          title: "Success",
-          description: "Your sim has been created!"
-        });
-      }
       
       fetchUserSim();
     } catch (error) {
-      console.error('Failed to save sim:', error);
+      console.error('Failed to update SIM:', error);
       toast({
         title: "Error",
-        description: "Failed to save your sim",
+        description: "Failed to update your SIM",
         variant: "destructive"
       });
-    } finally {
-      setIsSubmitting(false);
+      throw error;
     }
   };
 
-  const removeImage = () => {
-    setSelectedFile(null);
-    setPreviewUrl('');
-    setFormData(prev => ({ ...prev, avatar_url: '' }));
+  const copyWalletAddress = () => {
+    if (!userSim?.crypto_wallet) return;
+    navigator.clipboard.writeText(userSim.crypto_wallet);
+    setWalletCopied(true);
+    setTimeout(() => setWalletCopied(false), 2000);
+    toast({
+      title: "Copied!",
+      description: "Wallet address copied to clipboard"
+    });
   };
 
-  const copyShareLink = () => {
-    if (!userSim?.custom_url) return;
-    
-    const shareUrl = `${window.location.origin}/${userSim.custom_url}`;
-    navigator.clipboard.writeText(shareUrl);
-    toast({
-      title: "Link copied!",
-      description: "Share link copied to clipboard"
-    });
+  const formatTimeAgo = (date: Date) => {
+    const seconds = Math.floor((new Date().getTime() - date.getTime()) / 1000);
+    if (seconds < 60) return `${seconds}s ago`;
+    const minutes = Math.floor(seconds / 60);
+    if (minutes < 60) return `${minutes}m ago`;
+    const hours = Math.floor(minutes / 60);
+    return `${hours}h ago`;
   };
 
   if (authLoading || isLoading) {
@@ -410,8 +177,8 @@ Stay true to the tone, values, and personality of [Name].`,
       <>
         <div className="min-h-screen flex items-center justify-center bg-background">
           <div className="text-center p-8">
-            <h1 className="text-2xl font-bold mb-4">Sign in to create your sim</h1>
-            <p className="text-muted-foreground mb-6">Create a personalized AI sim that others can chat with</p>
+            <h1 className="text-2xl font-bold mb-4">Sign in to view your dashboard</h1>
+            <p className="text-muted-foreground mb-6">Manage your personalized AI SIM</p>
           </div>
         </div>
         <AuthModal 
@@ -425,9 +192,37 @@ Stay true to the tone, values, and personality of [Name].`,
     );
   }
 
+  if (!userSim) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="text-center p-8">
+          <h1 className="text-2xl font-bold mb-4">No SIM Found</h1>
+          <p className="text-muted-foreground mb-6">Create your SIM to get started</p>
+          <Button onClick={() => navigate('/onboarding')}>
+            Create Your SIM
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  // Convert Sim to AgentType for chat interface
+  const agentForChat: AgentType = {
+    id: userSim.id,
+    name: userSim.name,
+    avatar: userSim.avatar_url || '',
+    prompt: userSim.creator_prompt || userSim.prompt,
+    welcome_message: userSim.welcome_message || null,
+    sim_category: 'Chat',
+    description: userSim.description,
+    type: 'General Tutor',
+    status: 'active',
+    createdAt: userSim.created_at,
+    updatedAt: userSim.updated_at
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      {/* Mobile Header with Menu */}
       {isMobile && (
         <div className="fixed top-0 left-0 right-0 z-50 bg-background border-b">
           <div className="flex items-center justify-between p-3">
@@ -438,231 +233,167 @@ Stay true to the tone, values, and personality of [Name].`,
               src="/sim-logo.png" 
               alt="Sim Logo" 
               className="h-8 w-8 object-contain"
-              onError={(e) => {
-                e.currentTarget.style.display = 'none';
-              }}
             />
-            <div className="w-10" /> {/* Spacer for centering */}
+            <div className="w-10" />
           </div>
         </div>
       )}
       
       <main className={`flex-1 overflow-auto ${isMobile ? 'pt-[57px]' : ''}`}>
-        <div className="container mx-auto px-4 sm:px-6 py-6 sm:py-12">
-          <div className="max-w-4xl mx-auto">
-            {/* Page Header */}
-            <div className="mb-6 sm:mb-8">
-              <h2 className="text-2xl sm:text-3xl font-bold mb-2">Create Your Sim</h2>
-              <p className="text-sm sm:text-base text-muted-foreground">
-                Build a personalized AI sim that others can chat with via a shareable link
-              </p>
+        <div className="container mx-auto px-4 py-8">
+          {/* Header Section */}
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8">
+            <div className="flex items-center gap-4">
+              <Avatar className="h-16 w-16 border-2 border-primary">
+                <AvatarImage src={getAvatarUrl(userSim.avatar_url)} alt={userSim.name} />
+                <AvatarFallback>{userSim.name[0]}</AvatarFallback>
+              </Avatar>
+              <div>
+                <h1 className="text-3xl font-bold">{userSim.name}</h1>
+                <p className="text-muted-foreground">{userSim.description || "Your AI SIM in the digital universe"}</p>
+              </div>
             </div>
 
-            {/* Sim Preview Card (if exists) */}
-            {userSim && (
-              <Card className="mb-6 sm:mb-8 bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20">
-                <CardHeader>
-                  <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-                    <div className="flex items-center gap-3 sm:gap-4 flex-1">
-                      {previewUrl ? (
-                        <img
-                          src={previewUrl}
-                          alt={userSim.name}
-                          className="w-12 h-12 sm:w-14 sm:h-14 rounded-full object-cover border-2 border-primary flex-shrink-0"
-                        />
-                      ) : (
-                        <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center text-primary-foreground font-semibold flex-shrink-0">
-                          {userSim.name.charAt(0)}
-                        </div>
-                      )}
-                      <div className="min-w-0 flex-1">
-                        <CardTitle className="text-lg sm:text-xl truncate">{userSim.name}</CardTitle>
-                      </div>
-                    </div>
-                    <div className="flex gap-2">
-                      <Button 
-                        size="sm"
-                        variant="outline"
-                        onClick={copyShareLink}
-                        className="gap-2 flex-1 sm:flex-none"
-                      >
-                        <Copy className="h-4 w-4" />
-                        <span className="sm:inline">Copy Link</span>
-                      </Button>
-                      <Button 
-                        size="sm"
-                        onClick={() => window.open(`/${userSim.custom_url}`, '_blank')}
-                        className="gap-2 flex-1 sm:flex-none"
-                      >
-                        <ExternalLink className="h-4 w-4" />
-                        <span className="sm:inline">Preview</span>
-                      </Button>
-                      <Button 
-                        size="sm"
-                        variant="secondary"
-                        onClick={() => navigate('/sim-conversations')}
-                        className="gap-2 flex-1 sm:flex-none"
-                      >
-                        <MessageCircle className="h-4 w-4" />
-                        <span className="sm:inline">Conversations</span>
-                      </Button>
-                    </div>
-                  </div>
-                </CardHeader>
-              </Card>
-            )}
+            <div className="flex gap-3">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => window.open(`/${userSim.custom_url || userSim.x_username}`, '_blank')}
+                className="gap-2"
+              >
+                <ExternalLink className="h-4 w-4" />
+                View Public Page
+              </Button>
+              <Button
+                size="sm"
+                onClick={() => setShowSettingsModal(true)}
+                className="gap-2"
+              >
+                <Settings className="h-4 w-4" />
+                Settings
+              </Button>
+            </div>
+          </div>
 
-            {/* Sim Creation Form */}
+          {/* Stats Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
             <Card>
-              <CardHeader>
-                <CardTitle>{userSim ? 'Edit Your Sim' : 'Sim Details'}</CardTitle>
-                <CardDescription>
-                  {userSim 
-                    ? 'Update your sim information below' 
-                    : 'Fill in the details to create your personalized AI sim'}
-                </CardDescription>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">$SIMAI Balance</CardTitle>
+                <Coins className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <Tabs value={activeTab} onValueChange={setActiveTab}>
-                  <TabsList className="grid w-full grid-cols-2 h-auto">
-                    <TabsTrigger value="basic" className="whitespace-nowrap">Basic Info</TabsTrigger>
-                    <TabsTrigger value="knowledge" disabled className="flex-col sm:flex-row gap-1 py-2 px-2 sm:px-3">
-                      <span className="text-xs sm:text-sm">Vector Embeddings</span>
-                      <Badge variant="secondary" className="text-[10px] sm:text-xs px-1 py-0">Coming Soon</Badge>
-                    </TabsTrigger>
-                  </TabsList>
-                  
-                  <TabsContent value="basic" className="mt-6 space-y-6">
-                    <form onSubmit={handleSubmit} className="space-y-6">
-                      <div>
-                        <Label htmlFor="name">Sim Name *</Label>
-                        <Input
-                          id="name"
-                          value={formData.name}
-                          onChange={(e) => handleInputChange('name', e.target.value)}
-                          placeholder="e.g., Tech Advisor Alex"
-                          required
-                          className="mt-2"
-                        />
-                      </div>
+                <div className="text-2xl font-bold">{simaiBalance.toLocaleString()}</div>
+              </CardContent>
+            </Card>
 
-                      <div>
-                        <Label htmlFor="title">Title / Role</Label>
-                        <Input
-                          id="title"
-                          value={formData.title}
-                          onChange={(e) => handleInputChange('title', e.target.value)}
-                          placeholder="e.g., Technology Consultant"
-                          className="mt-2"
-                        />
-                      </div>
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Ranking</CardTitle>
+                <TrendingUp className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">#{ranking}</div>
+              </CardContent>
+            </Card>
 
-                      <div>
-                        <Label htmlFor="custom_url">Custom URL *</Label>
-                        <div className="flex flex-col sm:flex-row sm:items-center gap-2 mt-2">
-                          <span className="text-xs sm:text-sm text-muted-foreground whitespace-nowrap">
-                            {window.location.origin}/sim/
-                          </span>
-                          <Input
-                            id="custom_url"
-                            value={formData.custom_url}
-                            onChange={(e) => handleInputChange('custom_url', e.target.value)}
-                            placeholder="my-sim-name"
-                            pattern="[a-z0-9-]+"
-                            disabled={!!userSim}
-                            required
-                            className="flex-1"
-                          />
-                        </div>
-                        <p className="text-xs text-muted-foreground mt-1">
-                          Only lowercase letters, numbers, and hyphens. {userSim && 'Cannot be changed after creation.'}
-                        </p>
-                      </div>
-
-                      <div>
-                        <Label htmlFor="prompt">System Prompt</Label>
-                        <Textarea
-                          id="prompt"
-                          value={formData.prompt}
-                          onChange={(e) => handleInputChange('prompt', e.target.value)}
-                          placeholder="Define how your sim should behave and respond..."
-                          rows={12}
-                          className="mt-2 font-mono text-xs"
-                        />
-                        <p className="text-xs text-muted-foreground mt-1">
-                          Define the character, personality, and response style of your sim
-                        </p>
-                      </div>
-
-                      <div>
-                        <Label>Avatar Image</Label>
-                        <div className="space-y-3 mt-2">
-                          {previewUrl ? (
-                            <div className="relative inline-block">
-                              <img
-                                src={previewUrl}
-                                alt="Avatar preview"
-                                className="w-20 h-20 rounded-full object-cover border"
-                              />
-                              <button
-                                type="button"
-                                onClick={removeImage}
-                                className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground rounded-full p-1 hover:bg-destructive/90"
-                              >
-                                <X className="h-3 w-3" />
-                              </button>
-                            </div>
-                          ) : (
-                            <button
-                              type="button"
-                              onClick={() => fileInputRef.current?.click()}
-                              className="w-20 h-20 rounded-full border-2 border-dashed border-muted-foreground/25 flex items-center justify-center hover:border-muted-foreground/50 transition-colors cursor-pointer"
-                            >
-                              <Upload className="h-6 w-6 text-muted-foreground" />
-                            </button>
-                          )}
-                          
-                          <div>
-                            <Input
-                              ref={fileInputRef}
-                              type="file"
-                              accept="image/*"
-                              onChange={handleFileSelect}
-                              className="cursor-pointer"
-                            />
-                            <p className="text-xs text-muted-foreground mt-1">
-                              Max file size: 5MB. Supported formats: JPG, PNG, GIF
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="flex gap-3 pt-4">
-                        <Button 
-                          type="submit" 
-                          disabled={isSubmitting || isUploading}
-                          className="flex-1"
-                        >
-                          {isSubmitting || isUploading ? 'Saving...' : userSim ? 'Update Sim' : 'Create Sim'}
-                        </Button>
-                      </div>
-                    </form>
-                  </TabsContent>
-                  
-                  <TabsContent value="knowledge" className="mt-6">
-                    <div className="text-center py-12 text-muted-foreground">
-                      <p className="text-lg font-medium mb-2">Vector Embeddings Coming Soon</p>
-                      <p className="text-sm">
-                        Upload documents and files to enhance your sim's knowledge base
-                      </p>
-                    </div>
-                  </TabsContent>
-                </Tabs>
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Wallet</CardTitle>
+                <Copy className="h-4 w-4 text-muted-foreground cursor-pointer" onClick={copyWalletAddress} />
+              </CardHeader>
+              <CardContent>
+                <div className="text-sm font-mono truncate">
+                  {userSim.crypto_wallet ? `${userSim.crypto_wallet.slice(0, 8)}...${userSim.crypto_wallet.slice(-6)}` : 'Not set'}
+                </div>
               </CardContent>
             </Card>
           </div>
+
+          {/* Main Content Grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Chat Interface - Takes 2 columns */}
+            <div className="lg:col-span-2">
+              <Card className="h-[600px] flex flex-col">
+                <CardHeader className="border-b">
+                  <CardTitle className="flex items-center gap-2">
+                    Chat with {userSim.name}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="flex-1 p-0 overflow-hidden">
+                  <PublicChatInterface 
+                    agent={agentForChat}
+                    avatarUrl={userSim.avatar_url || undefined}
+                  />
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Right Sidebar */}
+            <div className="space-y-6">
+              {/* God Mode Map */}
+              <Card>
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="flex items-center gap-2 text-base">
+                      <Activity className="h-4 w-4 text-primary" />
+                      God Mode
+                    </CardTitle>
+                    <Badge variant="secondary" className="gap-1">
+                      <div className="h-2 w-2 rounded-full bg-primary animate-pulse" />
+                      Live
+                    </Badge>
+                  </div>
+                </CardHeader>
+                <CardContent className="p-0">
+                  <GodModeMap agentName={userSim.name} />
+                </CardContent>
+              </Card>
+
+              {/* Live Activity */}
+              <Card>
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="flex items-center gap-2 text-base">
+                      <Clock className="h-4 w-4 text-primary" />
+                      Live Activity
+                    </CardTitle>
+                    <Badge variant="secondary" className="gap-1">
+                      <div className="h-2 w-2 rounded-full bg-primary animate-pulse" />
+                      Live
+                    </Badge>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <ScrollArea className="h-[300px] pr-4">
+                    <div className="space-y-3">
+                      {activityLogs.map((log) => (
+                        <div key={log.id} className="flex gap-3 text-sm">
+                          <Clock className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
+                          <div className="flex-1 min-w-0">
+                            <p className="text-muted-foreground text-xs">{formatTimeAgo(log.timestamp)}</p>
+                            <p className="text-foreground break-words">{log.details}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </ScrollArea>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
         </div>
       </main>
+
+      {/* Settings Modal */}
+      {userSim && (
+        <SimSettingsModal
+          open={showSettingsModal}
+          onOpenChange={setShowSettingsModal}
+          sim={userSim}
+          onSave={handleSaveSettings}
+        />
+      )}
     </div>
   );
 };
