@@ -7,7 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useState, useEffect } from "react";
 import { useTheme } from "@/hooks/useTheme";
 import { GodModeMap } from "@/components/GodModeMap";
-import { LandingFooter } from "@/components/landing/LandingFooter";
+import SimPublicFooter from "@/components/SimPublicFooter";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -203,7 +203,7 @@ const GodMode = () => {
       </main>
 
       {/* Footer */}
-      <LandingFooter />
+      <SimPublicFooter />
     </div>
   );
 };
