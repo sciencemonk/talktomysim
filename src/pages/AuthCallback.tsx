@@ -18,31 +18,26 @@ export default function AuthCallback() {
 
   const handleAuthCallback = async () => {
     try {
-      // Get the session from the URL hash
       const { data: { session }, error: sessionError } = await supabase.auth.getSession();
       
       if (sessionError) {
         console.error('Session error:', sessionError);
         toast.error('Authentication failed');
-        navigate('/login');
+        navigate('/');
         return;
       }
 
       if (!session) {
         console.log('No session found');
-        navigate('/login');
+        navigate('/');
         return;
       }
 
-      setStatus('Fetching your X profile...');
+      setStatus('Setting up your SIM...');
 
-      // Get user metadata from session
       const user = session.user;
       const userMetadata = user.user_metadata;
       
-      console.log('User metadata:', userMetadata);
-
-      // Extract X username from metadata
       const xUsername = userMetadata?.user_name || userMetadata?.preferred_username || userMetadata?.name;
       const fullName = userMetadata?.full_name || userMetadata?.name || xUsername;
       const avatarUrl = userMetadata?.avatar_url || userMetadata?.picture;
@@ -53,344 +48,95 @@ export default function AuthCallback() {
         return;
       }
 
-      // Fetch detailed X profile data using our intelligence function
-      // This is optional - if it fails, we'll continue with OAuth data
-      let report: any = {};
-      try {
-        setStatus('Fetching X profile data...');
-        // Only fetch if data might be stale - let the edge function check cache
-        const { data: xData, error: xError } = await supabase.functions.invoke('x-intelligence', {
-          body: { 
-            username: xUsername,
-            forceRefresh: false // Let edge function use cache if available
-          }
-        });
-
-        if (xError) {
-          console.error('X intelligence error (continuing with OAuth data):', xError);
-        } else if (xData?.success && xData?.report) {
-          report = xData.report;
-          console.log('X data fetch result:', xData.cached ? 'from cache' : 'fresh from API');
-        }
-      } catch (error) {
-        console.error('Failed to fetch X intelligence (continuing with OAuth data):', error);
-      }
-
-      setStatus('Setting up your X agent...');
-
-      // Generate custom URL from username
-      const customUrl = xUsername.toLowerCase().replace(/[^a-z0-9]/g, '');
-
-      // Check if agent already exists - check each condition separately for better reliability
-      let existingAgent = null;
-      
-      // First, try to find by x_username in social_links
-      const { data: agentByUsername } = await supabase
+      // Check if user already has a SIM
+      const { data: existingSim } = await supabase
         .from('advisors')
-        .select('id, edit_code, social_links, user_id, custom_url, is_verified, is_active, verification_status')
-        .eq('sim_category', 'Crypto Mail')
-        .filter('social_links->x_username', 'eq', xUsername)
+        .select('id')
+        .eq('user_id', session.user.id)
+        .eq('sim_category', 'SIM')
         .maybeSingle();
-      
-      if (agentByUsername) {
-        existingAgent = agentByUsername;
-      } else {
-        // Try by custom_url
-        const { data: agentByUrl } = await supabase
-          .from('advisors')
-          .select('id, edit_code, social_links, user_id, custom_url, is_verified, is_active, verification_status')
-          .eq('sim_category', 'Crypto Mail')
-          .eq('custom_url', customUrl)
-          .maybeSingle();
-        
-        if (agentByUrl) {
-          existingAgent = agentByUrl;
-        } else {
-          // Finally, try by name
-          const { data: agentByName } = await supabase
-            .from('advisors')
-            .select('id, edit_code, social_links, user_id, custom_url, is_verified, is_active, verification_status')
-            .eq('sim_category', 'Crypto Mail')
-            .eq('name', `@${xUsername}`)
-            .maybeSingle();
-          
-          if (agentByName) {
-            existingAgent = agentByName;
-          }
-        }
-      }
 
-      let agentId: string;
-      let editCode: string;
+      if (!existingSim) {
+        // Create a new SIM for the user
+        const editCode = generateEditCode();
+        const customUrl = xUsername.toLowerCase().replace(/[^a-z0-9]/g, '');
 
-      if (existingAgent) {
-        // Agent exists - verify it and associate with user
-        agentId = existingAgent.id;
-        editCode = existingAgent.edit_code;
-        
-        // Update agent to verified status and associate with user
-        const updateData: any = {
-          is_active: true,
-          is_verified: true,
-          verification_status: true,
-        };
-        
-        // Associate with authenticated user if not already associated
-        if (!existingAgent.user_id) {
-          updateData.user_id = user.id;
-        }
-        
-        const { error: updateError } = await supabase
-          .from('advisors')
-          .update(updateData)
-          .eq('id', agentId);
-        
-        if (updateError) {
-          console.error('Error updating agent:', updateError);
-          toast.error('Failed to verify agent');
-        } else {
-          console.log('Agent verified and associated with authenticated user');
-          
-          // Check if agent offering exists, create if not
-          const { data: existingOffering } = await supabase
-            .from('x_agent_offerings')
-            .select('id')
-            .eq('agent_id', agentId)
-            .eq('offering_type', 'agent')
-            .maybeSingle();
-          
-          if (!existingOffering) {
-            // Fetch tweets and generate personalized prompt for offering
-            let agentSystemPrompt = existingAgent.prompt || ''; // Start with agent's prompt as fallback
-            
-            try {
-              const { data: tweetData } = await supabase.functions.invoke('x-intelligence', {
-                body: { username: xUsername }
-              });
+        // Generate personalized system prompt
+        let systemPrompt = `You are a SIM (Social Intelligence Machine) - an autonomous AI agent created for @${xUsername}.
 
-              const tweets = tweetData?.tweets || [];
-              
-              if (tweets.length > 0) {
-                const { data: promptData } = await supabase.functions.invoke('generate-x-agent-prompt', {
-                  body: {
-                    username: xUsername,
-                    displayName: fullName,
-                    bio: userMetadata?.description || '',
-                    tweets: tweets
-                  }
-                });
+Your Purpose:
+You are designed to optimize for your creator's goals while maintaining transparency and accountability through social proof verification via their X (Twitter) account.
 
-                // Use generated prompt if available, otherwise keep the agent's existing prompt
-                if (promptData?.prompt) {
-                  agentSystemPrompt = promptData.prompt;
-                }
-              }
-            } catch (error) {
-              console.error('Error generating prompt for offering:', error);
-              // Keep using existingAgent.prompt as fallback
-            }
-            
-            // Ensure we have a valid prompt
-            if (!agentSystemPrompt) {
-              agentSystemPrompt = `You are @${xUsername}, an AI agent representing the real person behind this X account. Be authentic and helpful!`;
-            }
-            
-            console.log('Creating offering with system prompt:', agentSystemPrompt.substring(0, 100));
-            
-            // Create the AI agent offering
-            const { error: offeringError } = await supabase
-              .from('x_agent_offerings')
-              .insert({
-                agent_id: agentId,
-                title: `Chat with @${xUsername}`,
-                description: `Have a conversation with the AI agent trained on @${xUsername}'s X posts and personality.`,
-                price: 0,
-                offering_type: 'agent',
-                delivery_method: 'Chat with AI agent',
-                is_active: true,
-                agent_avatar_url: avatarUrl || '',
-                agent_system_prompt: agentSystemPrompt,
-              });
+Core Architecture:
+1. Perception Layer: Process user inputs and environmental data
+2. Reasoning Engine: Optimize decisions against the defined utility function
+3. Execution Layer: Take actions through conversational interface
+4. Learning System: Improve based on interactions and feedback
 
-            if (offeringError) {
-              console.error('Error creating agent offering:', offeringError);
-            } else {
-              console.log('Agent offering created for existing agent');
-            }
-          }
-          
-          if (!existingAgent.user_id) {
-            toast.success('Your X agent has been verified and linked to your account!');
-          } else {
-            toast.success('Welcome back! Your agent is verified.');
-          }
-        }
-      } else {
-        // Create new agent - automatically verified via OAuth
-        editCode = generateEditCode();
-        
-        // Use report data if available, otherwise fall back to OAuth metadata
-        const followers = report?.metrics?.followers || 0;
-        const bio = report?.bio || userMetadata?.description || `AI-powered agent for @${xUsername}`;
-        const profileImageUrl = report?.profileImageUrl || avatarUrl || '';
+Utility Function:
+- Maximize value and engagement for users
+- Maintain authenticity and transparency
+- Prioritize helpful, accurate information
+- Respect ethical boundaries
 
-        // Fetch recent tweets and generate personalized prompt
-        console.log('Fetching tweets for personalized prompt...');
-        let systemPrompt = '';
-        let welcomeMessage = '';
-        
-        try {
-          // Fetch tweets using x-intelligence
-          const { data: tweetData, error: tweetError } = await supabase.functions.invoke('x-intelligence', {
-            body: { username: xUsername }
-          });
+Communication Style:
+- Be authentic and personable
+- Provide clear, actionable responses
+- Adapt to user needs and context
+- Maintain your creator's voice and values
 
-          if (tweetError) {
-            console.error('Error fetching tweets:', tweetError);
-          }
+Remember: You inherit the reputation and social proof of @${xUsername}'s X account. Act responsibly and maintain trust.`;
 
-          const tweets = tweetData?.tweets || [];
-          console.log(`Fetched ${tweets.length} tweets for prompt generation`);
+        let welcomeMessage = `Hello! I'm a SIM (Social Intelligence Machine) created by @${xUsername}. I'm an autonomous AI agent optimized to provide value while maintaining transparency through social proof verification. How can I help you today?`;
 
-          // Generate personalized prompt and welcome message using AI
-          const [promptResult, welcomeResult] = await Promise.all([
-            supabase.functions.invoke('generate-x-agent-prompt', {
-              body: {
-                username: xUsername,
-                displayName: fullName,
-                bio: bio,
-                tweets: tweets
-              }
-            }),
-            supabase.functions.invoke('generate-x-agent-welcome', {
-              body: {
-                username: xUsername,
-                displayName: fullName,
-                bio: bio,
-                tweets: tweets
-              }
-            })
-          ]);
-
-          systemPrompt = promptResult.data?.prompt || '';
-          welcomeMessage = welcomeResult.data?.welcomeMessage || '';
-          
-          console.log('Generated personalized prompt:', systemPrompt.substring(0, 200) + '...');
-          console.log('Generated welcome message:', welcomeMessage);
-        } catch (error) {
-          console.error('Error in prompt generation flow:', error);
-        }
-
-        // Fallback to basic prompt if generation failed
-        if (!systemPrompt) {
-          systemPrompt = `You are @${xUsername}, representing the real person behind this X (Twitter) account.
-
-Your Profile:
-- Display Name: ${fullName}
-- Username: @${xUsername}
-- Bio: ${bio}
-${followers > 0 ? `- Followers: ${followers.toLocaleString()}` : ''}
-
-IMPORTANT: You should embody the personality, tone, and communication style reflected in your posts. Pay attention to:
-- The topics you care about
-- Your writing style and tone
-- Your opinions and perspectives
-- Your sense of humor or seriousness
-- How you engage with others
-
-When chatting:
-1. Stay authentic to your voice and ideas
-2. Discuss topics you actually post about
-3. Reference your actual views and perspectives
-4. Maintain your communication style
-5. Be engaging and personable
-
-You can answer questions about your X profile, interests, opinions, and provide insights based on your X activity. Be authentic and engaging!`;
-        }
-
-        if (!welcomeMessage) {
-          welcomeMessage = `Hey! I'm @${xUsername}. My AI agent has been trained on my actual posts to represent my voice and ideas. Ask me anything!`;
-        }
-
-        const { data: newAgent, error: createError } = await supabase
+        const { error: createError } = await supabase
           .from('advisors')
           .insert({
-            name: `@${xUsername}`,
-            description: bio,
-            auto_description: bio,
+            user_id: user.id,
+            name: `${xUsername}'s SIM`,
+            description: `AI agent powered by social proof verification via @${xUsername}`,
             prompt: systemPrompt,
-            avatar_url: profileImageUrl,
-            sim_category: 'Crypto Mail',
-            is_active: true, // Active immediately - no pending status
+            welcome_message: welcomeMessage,
+            sim_category: 'SIM',
+            is_active: true,
             is_public: true,
-            marketplace_category: 'crypto',
-            personality_type: 'friendly',
-            conversation_style: 'balanced',
-            response_length: 'medium',
-            integrations: ['x-analyzer'],
             social_links: {
+              userName: xUsername,
               x_username: xUsername,
               x_display_name: fullName,
-              followers: followers,
-              last_updated: new Date().toISOString(),
-              profile_image_url: report.profileImageUrl || avatarUrl,
+              profile_image_url: avatarUrl
             },
+            avatar_url: avatarUrl || '',
+            custom_url: customUrl,
             edit_code: editCode,
-            custom_url: xUsername.toLowerCase().replace(/[^a-z0-9]/g, ''),
-            welcome_message: welcomeMessage,
-            user_id: user.id,
-            verification_status: true, // Auto-verified via OAuth
-            is_verified: true, // Auto-verified via OAuth
-          })
-          .select()
-          .single();
+            verification_status: true,
+            is_verified: true,
+            personality_type: 'helpful',
+            conversation_style: 'balanced',
+            response_length: 'medium',
+            integrations: []
+          });
 
         if (createError) {
-          console.error('Error creating agent:', createError);
-          toast.error('Failed to create X agent: ' + createError.message);
+          console.error('Error creating SIM:', createError);
+          toast.error('Failed to create your SIM');
           navigate('/');
           return;
         }
 
-        agentId = newAgent.id;
-        
-        // Create the AI agent offering
-        const { error: offeringError } = await supabase
-          .from('x_agent_offerings')
-          .insert({
-            agent_id: agentId,
-            title: `Chat with @${xUsername}`,
-            description: `Have a conversation with the AI agent trained on @${xUsername}'s X posts and personality.`,
-            price: 0, // Free by default
-            offering_type: 'agent',
-            delivery_method: 'Chat with AI agent',
-            is_active: true,
-            agent_avatar_url: profileImageUrl,
-            agent_system_prompt: systemPrompt,
-          });
-
-        if (offeringError) {
-          console.error('Error creating agent offering:', offeringError);
-          // Don't block the flow if offering creation fails
-        } else {
-          console.log('Agent offering created successfully');
-        }
-        
-        toast.success('X agent created successfully!');
+        toast.success('Your SIM has been created!');
+      } else {
+        toast.success('Welcome back!');
       }
-
-      // Wait a moment for session to be fully persisted
+      
       await new Promise(resolve => setTimeout(resolve, 500));
       
-      // Redirect to creator view (no edit code needed - using X auth)
       setStatus('Redirecting to your dashboard...');
-      
-      // Navigate to creator page
-      navigate(`/${xUsername}/creator`);
+      navigate('/dashboard');
     } catch (error: any) {
       console.error('Auth callback error:', error);
       toast.error('Authentication failed: ' + (error.message || 'Unknown error'));
-      navigate('/login');
+      navigate('/');
     }
   };
 

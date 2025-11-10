@@ -46,6 +46,17 @@ const Marketplace = () => {
       setResolvedTheme(theme as 'light' | 'dark');
     }
   }, [theme]);
+
+  // Check authentication and redirect to dashboard if logged in
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        navigate('/dashboard');
+      }
+    };
+    checkAuth();
+  }, [navigate]);
   const {
     offerings,
     isLoading: offeringsLoading
@@ -263,10 +274,19 @@ const Marketplace = () => {
         
         {/* Content */}
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center justify-center h-[calc(100vh-4rem)]">
-          <p className="text-3xl sm:text-4xl text-white/90 max-w-5xl mb-8 font-semibold text-center">
-            Create an AI agent in seconds.
+          <h1 className="text-5xl sm:text-7xl font-bold text-white mb-6 text-center">
+            Create Your SIM
+          </h1>
+          <p className="text-xl sm:text-2xl text-white/90 max-w-3xl mb-8 text-center leading-relaxed">
+            Social Intelligence Machine - An autonomous AI agent powered by your X account's social proof. 
+            Optimizes for your goals while maintaining transparency and trust.
           </p>
-          <Button variant="outline" size="lg" className="bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-white/20 hover:text-white text-xl sm:text-2xl px-8 sm:px-12 py-6 gap-3 h-auto" onClick={handleXSignIn}>
+          <Button 
+            variant="outline" 
+            size="lg" 
+            className="bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-white/20 hover:text-white text-xl sm:text-2xl px-8 sm:px-12 py-6 gap-3 h-auto" 
+            onClick={handleXSignIn}
+          >
             Create AI Agent <img src={xIcon} alt="X" className="h-6 w-6 sm:h-7 sm:w-7 inline-block" />
           </Button>
         </div>

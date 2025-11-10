@@ -58,6 +58,7 @@ import NFTDetail from "./pages/NFTDetail";
 import SimCoin from "./pages/SimCoin";
 import About from "./pages/About";
 import Documentation from "./pages/Documentation";
+import SimDashboard from "./pages/SimDashboard";
 
 const queryClient = new QueryClient();
 
@@ -89,6 +90,7 @@ const App = () => (
               <Route path="/simcoin" element={<SimCoin />} />
               <Route path="/about" element={<About />} />
               <Route path="/documentation" element={<Documentation />} />
+              <Route path="/dashboard" element={<SimDashboard />} />
               <Route path="/test" element={<Test />} />
               <Route path="/demo" element={<Demo />} />
               <Route path="/demotest" element={<DemoTest />} />
