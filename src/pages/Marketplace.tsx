@@ -191,7 +191,7 @@ const Marketplace = () => {
       <WelcomeModal />
 
       {/* Hero Section with Image Background */}
-      <div className="relative border-b border-border overflow-hidden">
+      <div className="relative border-b border-border overflow-hidden h-screen">
         {/* Image Background */}
         <div className="absolute inset-0 w-full h-full bg-cover bg-center" style={{
         backgroundImage: 'url(/hero-background.jpg)'
@@ -242,7 +242,7 @@ const Marketplace = () => {
         </nav>
         
         {/* Content */}
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center justify-center" style={{ height: 'calc(800px - 4rem)' }}>
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center justify-center h-[calc(100vh-4rem)]">
           <p className="text-3xl sm:text-4xl text-white/90 max-w-5xl mb-8 font-semibold text-center">
             Create an AI agent in seconds.
           </p>
@@ -253,24 +253,24 @@ const Marketplace = () => {
       </div>
 
       {/* Simple Footer */}
-      <footer className="bg-card border-t border-border py-8">
+      <footer className="bg-card border-t border-border py-4">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-3">
             <div className="flex items-center gap-2">
-              <img src={simHeroLogo} alt="SIM" className="h-6" />
-              <span className="text-sm text-fgMuted">© 2024 SIM. All rights reserved.</span>
+              <img src={simHeroLogo} alt="SIM" className="h-5" />
+              <span className="text-xs text-fgMuted">© 2024 SIM. All rights reserved.</span>
             </div>
             <div className="flex items-center gap-6">
-              <a href="#about" className="text-sm text-fgMuted hover:text-fg transition-colors">
+              <a href="#about" className="text-xs text-fgMuted hover:text-fg transition-colors">
                 About
               </a>
-              <button onClick={() => navigate('/agents')} className="text-sm text-fgMuted hover:text-fg transition-colors">
+              <button onClick={() => navigate('/agents')} className="text-xs text-fgMuted hover:text-fg transition-colors">
                 Agent Directory
               </button>
-              <a href="#documentation" className="text-sm text-fgMuted hover:text-fg transition-colors">
+              <a href="#documentation" className="text-xs text-fgMuted hover:text-fg transition-colors">
                 Documentation
               </a>
-              <a href="#sim-coin" className="text-sm text-fgMuted hover:text-fg transition-colors">
+              <a href="#sim-coin" className="text-xs text-fgMuted hover:text-fg transition-colors">
                 SIM Coin
               </a>
             </div>
