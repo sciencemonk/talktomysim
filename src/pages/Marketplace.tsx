@@ -613,7 +613,7 @@ const Marketplace = () => {
             )}
 
             {/* NFTs Section */}
-            {(categoryFilter === 'all' || categoryFilter === 'NFTs') && 
+            {(categoryFilter === 'all' || categoryFilter === 'nft') && 
              filteredAgents.filter(a => (a as any).marketplace_category === 'nft').length > 0 && (
               <div className="mb-12">
                 <div className="flex items-center justify-between mb-6">
