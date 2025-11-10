@@ -69,6 +69,9 @@ const About = () => {
               <button onClick={() => navigate('/simai')} className="text-foreground/80 hover:text-foreground transition-colors text-sm font-medium">
                 $SIMAI
               </button>
+              <button onClick={() => navigate('/facilitator')} className="text-foreground/80 hover:text-foreground transition-colors text-sm font-medium">
+                x402 Facilitator
+              </button>
             </div>
             
             <div className="flex items-center gap-4">

@@ -59,6 +59,7 @@ import SimCoin from "./pages/SimCoin";
 import About from "./pages/About";
 import Documentation from "./pages/Documentation";
 import SimDashboard from "./pages/SimDashboard";
+import Facilitator from "./pages/Facilitator";
 
 const queryClient = new QueryClient();
 
@@ -88,6 +89,7 @@ const App = () => (
               <Route path="/privacy" element={<Privacy />} />
               <Route path="/terms" element={<Terms />} />
               <Route path="/simai" element={<SimCoin />} />
+              <Route path="/facilitator" element={<Facilitator />} />
               <Route path="/about" element={<About />} />
               <Route path="/documentation" element={<Documentation />} />
               <Route path="/dashboard" element={<SimDashboard />} />

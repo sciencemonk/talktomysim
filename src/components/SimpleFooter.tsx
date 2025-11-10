@@ -58,6 +58,12 @@ const SimpleFooter = () => {
             >
               $SIMAI
             </button>
+            <button 
+              onClick={() => navigate('/facilitator')} 
+              className="text-muted-foreground hover:text-foreground transition-colors text-sm font-medium"
+            >
+              x402 Facilitator
+            </button>
           </div>
         </div>
       </div>

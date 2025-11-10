@@ -254,6 +254,9 @@ const Marketplace = () => {
                 <button onClick={() => navigate('/simai')} className="text-white/90 hover:text-white transition-colors text-sm font-medium">
                   $SIMAI
                 </button>
+                <button onClick={() => navigate('/facilitator')} className="text-white/90 hover:text-white transition-colors text-sm font-medium">
+                  x402 Facilitator
+                </button>
               </div>
               
               {/* Right side - Theme Toggle and Sign In */}

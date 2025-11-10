@@ -65,6 +65,9 @@ export default function Documentation() {
               <button onClick={() => navigate('/simai')} className="text-muted-foreground hover:text-foreground transition-colors text-sm font-medium">
                 $SIMAI
               </button>
+              <button onClick={() => navigate('/facilitator')} className="text-muted-foreground hover:text-foreground transition-colors text-sm font-medium">
+                x402 Facilitator
+              </button>
             </div>
             
             {/* Right side - Theme Toggle and Sign In */}
