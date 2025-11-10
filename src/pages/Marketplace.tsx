@@ -212,7 +212,7 @@ const Marketplace = () => {
         />
         
         {/* Dark overlay for text readability */}
-        <div className="absolute inset-0 bg-black/40"></div>
+        <div className="absolute inset-0 bg-black/60"></div>
         
         {/* Top-right controls - Theme Toggle and Sign in with X */}
         <div className="absolute top-4 right-4 z-20 flex items-center gap-2">
