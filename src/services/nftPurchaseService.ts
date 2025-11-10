@@ -59,8 +59,9 @@ export const purchaseNFT = async ({
     console.log('Purchase initialized:', initData);
 
     // Step 2: Create and sign transaction
+    // Use public Solana RPC endpoint for reliability
     const connection = new Connection(
-      'https://mainnet.helius-rpc.com/?api-key=c2732bf1-5cad-4f76-938c-e3d3ec8e57c9',
+      'https://api.mainnet-beta.solana.com',
       'confirmed'
     );
 
@@ -178,7 +179,7 @@ export const checkUSDCBalance = async (
 
   try {
     const connection = new Connection(
-      'https://mainnet.helius-rpc.com/?api-key=c2732bf1-5cad-4f76-938c-e3d3ec8e57c9',
+      'https://api.mainnet-beta.solana.com',
       'confirmed'
     );
 
