@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { AgentType } from "@/types/agent";
-import { Users, Shield, TrendingUp, CheckCircle, XCircle, Search, User } from "lucide-react";
+import { Users, Shield, CheckCircle, XCircle, Search, User } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
@@ -129,12 +129,6 @@ const AgentsDirectory = () => {
     agent.auto_description?.toLowerCase().includes(searchQuery.toLowerCase())
   ) || [];
 
-  // Calculate statistics
-  const totalAgents = filteredAgents.length;
-  const verifiedAgents = filteredAgents.filter(a => a.is_verified).length;
-  const autonomousAgents = filteredAgents.filter(a => (a as any).sim_category === 'Autonomous Agent').length;
-  const cryptoMailAgents = filteredAgents.filter(a => (a as any).sim_category === 'Crypto Mail').length;
-
   const handleAgentClick = (agent: any) => {
     if (agent.custom_url) {
       navigate(`/${agent.custom_url}`);
@@ -228,30 +222,6 @@ const AgentsDirectory = () => {
           </CardContent>
         </Card>
 
-        {/* Statistics */}
-        <Card className="mb-8 bg-card/50 backdrop-blur-sm border-border/50">
-          <CardContent className="p-8">
-            <h2 className="text-2xl font-bold mb-6 font-mono flex items-center gap-2">
-              <TrendingUp className="h-6 w-6" />
-              SIM Statistics
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <div className="border-l-4 border-primary/50 pl-4">
-                <div className="text-3xl font-bold font-mono text-foreground">{totalAgents}</div>
-                <div className="text-sm text-muted-foreground mt-1">Total SIMs Created</div>
-              </div>
-              <div className="border-l-4 border-green-500/50 pl-4">
-                <div className="text-3xl font-bold font-mono text-green-600 dark:text-green-400">{verifiedAgents}</div>
-                <div className="text-sm text-muted-foreground mt-1">Verified SIMs</div>
-              </div>
-              <div className="border-l-4 border-blue-500/50 pl-4">
-                <div className="text-3xl font-bold font-mono text-blue-600 dark:text-blue-400">{totalAgents - verifiedAgents}</div>
-                <div className="text-sm text-muted-foreground mt-1">Pending Verification</div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
         {/* Search */}
         <Card className="mb-8 bg-card/50 backdrop-blur-sm border-border/50">
           <CardContent className="p-6">
@@ -282,8 +252,20 @@ const AgentsDirectory = () => {
                 <p className="text-muted-foreground mt-4 font-mono">Loading agent registry...</p>
               </div>
             ) : filteredAgents.length === 0 ? (
-              <div className="text-center py-12">
-                <p className="text-muted-foreground font-mono">No agents found matching your search criteria.</p>
+              <div className="text-center py-16">
+                <div className="max-w-2xl mx-auto">
+                  <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-primary/10 flex items-center justify-center">
+                    <Shield className="h-8 w-8 text-primary" />
+                  </div>
+                  <h3 className="text-2xl font-bold mb-4 font-mono">In Development</h3>
+                  <p className="text-muted-foreground font-mono text-lg mb-6">
+                    The agent registry is currently under development. Check back soon for authenticated X agents.
+                  </p>
+                  <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
+                    <div className="w-2 h-2 rounded-full bg-yellow-500 animate-pulse"></div>
+                    <span>Building the future of social AI</span>
+                  </div>
+                </div>
               </div>
             ) : (
               <div className="space-y-4">
