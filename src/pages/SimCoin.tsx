@@ -80,7 +80,7 @@ const SimCoin = () => {
   return (
     <div className="min-h-screen bg-background relative">
       {/* Navigation */}
-      <nav className="border-b border-border bg-background">
+      <nav className="sticky top-0 z-50 border-b border-border bg-background">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
@@ -298,26 +298,19 @@ const SimCoin = () => {
 
         {/* CTA */}
         {!showBetaRequest ? (
-          <Card className="border-border bg-gradient-to-br from-primary/5 to-secondary/5">
-            <CardContent className="p-12 text-center">
-              <h2 className="text-3xl font-bold text-foreground mb-4 font-mono">
+          <Card className="border-border bg-gradient-to-br from-primary/5 to-secondary/5 relative overflow-hidden">
+            {/* Dark overlay for light mode */}
+            <div className="absolute inset-0 bg-gradient-to-br from-black/60 to-black/40 dark:from-transparent dark:to-transparent"></div>
+            <CardContent className="p-12 text-center relative z-10">
+              <h2 className="text-3xl font-bold text-white dark:text-foreground mb-4 font-mono">
                 Create Your SIM
               </h2>
-              <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
+              <p className="text-lg text-white/90 dark:text-muted-foreground mb-8 max-w-2xl mx-auto">
                 Deploy your SIM and watch them earn $SIMAI as they navigate the digital universe. The more value they create, the more they earn.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Button onClick={handleCreateAgent} variant="outline" size="lg" className="bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-white/20 hover:text-white text-xl sm:text-2xl px-8 sm:px-12 py-6 gap-3 h-auto">
                   Create your SIM with <img src={xIcon} alt="X" className="h-6 w-6 sm:h-7 sm:w-7 inline-block" />
-                </Button>
-                <Button 
-                  variant="outline" 
-                  size="lg" 
-                  className="gap-2 font-mono"
-                  onClick={() => window.open(`https://solscan.io/token/${contractAddress}`, '_blank')}
-                >
-                  View Contract
-                  <ExternalLink className="h-4 w-4" />
                 </Button>
               </div>
             </CardContent>
