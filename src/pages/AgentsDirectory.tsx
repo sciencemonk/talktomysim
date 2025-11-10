@@ -177,10 +177,9 @@ const AgentsDirectory = () => {
       <nav className="border-b border-border bg-background">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
-            {/* Logo */}
             <button onClick={() => navigate('/')} className="flex items-center hover:opacity-80 transition-opacity">
-              <div className="bg-foreground/90 rounded px-2 py-1">
-                <img src="/sim-logo-white.png" alt="SIM" className="h-5 w-auto" />
+              <div className="bg-foreground/90 rounded-lg px-2 py-1">
+                <img src="/sim-logo-white.png" alt="SIM" className="h-6 w-auto" />
               </div>
             </button>
             
