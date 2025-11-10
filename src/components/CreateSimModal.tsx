@@ -81,9 +81,9 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired, 
   const [mintingProgress, setMintingProgress] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Auto-populate wallet address for NFT type when wallet is connected
+  // Auto-populate wallet address for non-NFT types when wallet is connected
   useEffect(() => {
-    if (simType === "NFT" && wallet.publicKey && !cryptoWallet) {
+    if (simType !== "NFT" && wallet.publicKey && !cryptoWallet) {
       setCryptoWallet(wallet.publicKey.toBase58());
     }
   }, [simType, wallet.publicKey, cryptoWallet]);
@@ -173,8 +173,8 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired, 
         toast.error("Please upload an image for the NFT");
         return;
       }
-      if (!cryptoWallet.trim()) {
-        toast.error("Please enter a Solana wallet address to receive the NFT");
+      if (!wallet.connected || !wallet.publicKey) {
+        toast.error("Please connect your Solana wallet to mint an NFT");
         return;
       }
       
@@ -367,7 +367,7 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired, 
               description: description.trim(),
               image: '', // Will be set by the minting service
               sellerFeeBasisPoints: Math.floor(parseFloat(nftRoyalty) * 100), // Convert % to basis points
-              creators: cryptoWallet.trim() ? [{ address: cryptoWallet.trim(), share: 100 }] : undefined,
+              creators: wallet.publicKey ? [{ address: wallet.publicKey.toBase58(), share: 100 }] : undefined,
             },
             imageFile: avatarFile,
             onProgress: (stage: string) => {
@@ -388,7 +388,7 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired, 
             integrations: [],
             is_active: true,
             is_public: true,
-            crypto_wallet: cryptoWallet.trim() || null,
+            crypto_wallet: wallet.publicKey ? wallet.publicKey.toBase58() : null,
             marketplace_category: "nft",
             welcome_message: `NFT: ${name.trim()} (${nftSymbol.trim()})`,
             auto_description: description.trim().substring(0, 150),
@@ -746,25 +746,48 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired, 
                 <Label htmlFor="crypto-wallet" className="text-sm font-medium">
                   SOL Wallet Address {simType === "NFT" ? <span className="text-destructive">*</span> : <span className="text-muted-foreground">(Optional)</span>}
                 </Label>
-                <div className="flex gap-2">
+                {simType === "NFT" ? (
+                  // For NFTs, require wallet connection - no manual entry
+                  wallet.connected ? (
+                    <div className="flex items-center justify-between p-3 rounded-lg border border-border bg-muted/50">
+                      <div className="flex items-center gap-3">
+                        <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                        <span className="font-mono text-sm text-foreground">
+                          {wallet.publicKey?.toBase58().slice(0, 4)}...{wallet.publicKey?.toBase58().slice(-4)}
+                        </span>
+                      </div>
+                      <WalletMultiButton className="!h-9 !bg-secondary !text-secondary-foreground hover:!bg-secondary/80" />
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-center p-8 rounded-lg border-2 border-dashed border-primary/30 bg-primary/5">
+                        <WalletMultiButton className="!h-11 !bg-primary !text-primary-foreground hover:!bg-primary/90" />
+                      </div>
+                      <p className="text-xs text-muted-foreground text-center">
+                        Connect your wallet to mint an NFT
+                      </p>
+                    </div>
+                  )
+                ) : (
+                  // For other types, allow manual entry
                   <Input
                     id="crypto-wallet"
                     value={cryptoWallet}
                     onChange={(e) => setCryptoWallet(e.target.value)}
-                    placeholder={simType === "NFT" ? "Connect wallet or paste address" : "7xKXt...aBcD"}
-                    className="h-11 bg-background font-mono text-sm flex-1"
-                    required={simType === "NFT"}
+                    placeholder="7xKXt...aBcD (optional)"
+                    className="h-11 bg-background font-mono text-sm"
                   />
-                  {simType === "NFT" && !wallet.connected && (
-                    <WalletMultiButton className="!h-11 !bg-primary !text-primary-foreground hover:!bg-primary/90" />
-                  )}
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  {simType === "NFT" 
-                    ? "Wallet to receive NFT and royalties from secondary sales on marketplaces"
-                    : "Required if you want to claim Creator Rewards"
-                  }
-                </p>
+                )}
+                {simType === "NFT" && wallet.connected && (
+                  <p className="text-xs text-muted-foreground">
+                    NFT will be minted to this wallet. You'll also receive royalties from secondary sales.
+                  </p>
+                )}
+                {simType !== "NFT" && (
+                  <p className="text-xs text-muted-foreground">
+                    Required if you want to claim Creator Rewards
+                  </p>
+                )}
               </div>
 
               {/* Sim Type - only show if not pre-selected */}
