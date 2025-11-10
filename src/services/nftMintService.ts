@@ -217,7 +217,7 @@ export const mintNFT = async ({
       name: metadata.name,
       symbol: metadata.symbol,
       uri: metadataUri,
-      sellerFeeBasisPoints: percentAmount(metadata.sellerFeeBasisPoints || 0),
+      sellerFeeBasisPoints: percentAmount((metadata.sellerFeeBasisPoints || 0) / 100),
       creators: metadata.creators?.map((creator) => ({
         address: publicKey(creator.address),
         verified: creator.address === wallet.publicKey.toBase58(),
