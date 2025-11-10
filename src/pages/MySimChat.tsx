@@ -6,10 +6,18 @@ import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useToast } from "@/hooks/use-toast";
 import { getAvatarUrl } from "@/lib/avatarUtils";
-import { Send, Loader2, Search, MessageSquare, Mic, Image as ImageIcon, Folder, Clock } from "lucide-react";
+import { Send, Loader2, Search, MessageSquare, Mic, Image as ImageIcon, Folder, Clock, Plus, Trash2 } from "lucide-react";
 import { Sim } from "@/types/sim";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 type Message = { role: "user" | "assistant"; content: string };
+
+type Conversation = {
+  id: string;
+  title: string | null;
+  created_at: string;
+  updated_at: string;
+};
 
 export default function MySimChat() {
   const navigate = useNavigate();
@@ -19,6 +27,7 @@ export default function MySimChat() {
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [conversationId, setConversationId] = useState<string | null>(null);
+  const [conversations, setConversations] = useState<Conversation[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -134,6 +143,9 @@ export default function MySimChat() {
           setMessages([{ role: "assistant", content: simData.welcome_message }]);
         }
       }
+
+      // Load all conversations for history
+      await loadConversations(user.id, simData.id);
     } catch (error) {
       console.error('Error loading SIM:', error);
       toast({
@@ -142,6 +154,22 @@ export default function MySimChat() {
         variant: "destructive"
       });
     }
+  };
+
+  const loadConversations = async (userId: string, simId: string) => {
+    const { data, error } = await supabase
+      .from('conversations')
+      .select('id, title, created_at, updated_at')
+      .eq('user_id', userId)
+      .eq('tutor_id', simId)
+      .order('updated_at', { ascending: false });
+
+    if (error) {
+      console.error('Error loading conversations:', error);
+      return;
+    }
+
+    setConversations(data || []);
   };
 
   const loadConversationMessages = async (convId: string) => {
@@ -161,6 +189,68 @@ export default function MySimChat() {
       content: msg.content
     }));
     setMessages(formattedMessages);
+  };
+
+  const createNewConversation = async () => {
+    if (!sim) return;
+    
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    const { data: newConv, error } = await supabase
+      .from('conversations')
+      .insert({
+        user_id: user.id,
+        tutor_id: sim.id,
+        is_creator_conversation: true,
+        title: `New Chat - ${new Date().toLocaleDateString()}`
+      })
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Error creating conversation:', error);
+      return;
+    }
+
+    setConversationId(newConv.id);
+    setMessages(sim.welcome_message ? [{ role: "assistant", content: sim.welcome_message }] : []);
+    await loadConversations(user.id, sim.id);
+  };
+
+  const switchConversation = async (convId: string) => {
+    setConversationId(convId);
+    await loadConversationMessages(convId);
+  };
+
+  const deleteConversation = async (convId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    
+    const { error } = await supabase
+      .from('conversations')
+      .delete()
+      .eq('id', convId);
+
+    if (error) {
+      console.error('Error deleting conversation:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete conversation",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // If we deleted the current conversation, create a new one
+    if (convId === conversationId) {
+      await createNewConversation();
+    } else {
+      // Just refresh the list
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user && sim) {
+        await loadConversations(user.id, sim.id);
+      }
+    }
   };
 
   const sendMessage = async () => {
@@ -299,7 +389,7 @@ export default function MySimChat() {
         </div>
 
         {/* Navigation */}
-        <nav className="space-y-0.5 flex-1">
+        <nav className="space-y-0.5 mb-4">
           <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-white/50 hover:bg-white/[0.06] hover:text-white/90 transition-all duration-150">
             <Search className="h-[18px] w-[18px] flex-shrink-0" />
             <span className="text-[13px] font-medium">Search</span>
@@ -320,11 +410,51 @@ export default function MySimChat() {
             <Folder className="h-[18px] w-[18px] flex-shrink-0" />
             <span className="text-[13px] font-medium">Projects</span>
           </button>
-          <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-white/50 hover:bg-white/[0.06] hover:text-white/90 transition-all duration-150">
-            <Clock className="h-[18px] w-[18px] flex-shrink-0" />
-            <span className="text-[13px] font-medium">History</span>
-          </button>
         </nav>
+
+        {/* Chat History */}
+        <div className="flex-1 flex flex-col min-h-0 border-t border-white/[0.08] pt-3">
+          <div className="flex items-center justify-between px-3 mb-2">
+            <span className="text-[11px] font-semibold text-white/40 uppercase tracking-wider">History</span>
+            <Button
+              onClick={createNewConversation}
+              size="icon"
+              variant="ghost"
+              className="h-6 w-6 text-white/50 hover:text-white/90 hover:bg-white/[0.06]"
+            >
+              <Plus className="h-3.5 w-3.5" />
+            </Button>
+          </div>
+          
+          <ScrollArea className="flex-1">
+            <div className="space-y-0.5 px-2">
+              {conversations.map((conv) => (
+                <div
+                  key={conv.id}
+                  className={`group relative flex items-center gap-2 px-2 py-2 rounded-md cursor-pointer transition-all duration-150 ${
+                    conv.id === conversationId
+                      ? "bg-white/[0.08] text-white/90"
+                      : "text-white/50 hover:bg-white/[0.04] hover:text-white/70"
+                  }`}
+                  onClick={() => switchConversation(conv.id)}
+                >
+                  <MessageSquare className="h-3.5 w-3.5 flex-shrink-0" />
+                  <span className="text-[12px] truncate flex-1">
+                    {conv.title || `Chat ${new Date(conv.created_at).toLocaleDateString()}`}
+                  </span>
+                  <Button
+                    onClick={(e) => deleteConversation(conv.id, e)}
+                    size="icon"
+                    variant="ghost"
+                    className="h-5 w-5 opacity-0 group-hover:opacity-100 text-white/40 hover:text-red-400 hover:bg-white/[0.06] transition-opacity"
+                  >
+                    <Trash2 className="h-3 w-3" />
+                  </Button>
+                </div>
+              ))}
+            </div>
+          </ScrollArea>
+        </div>
       </div>
 
       {/* Main Chat Area */}
