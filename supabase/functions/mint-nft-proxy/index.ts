@@ -22,6 +22,7 @@ serve(async (req) => {
     }
 
     const supabase = createClient(supabaseUrl!, supabaseServiceKey!);
+    const heliusRpc = `https://mainnet.helius-rpc.com/?api-key=${heliusApiKey}`;
 
     const { 
       operation,
@@ -29,22 +30,20 @@ serve(async (req) => {
       metadata,
       imageBase64,
       imageFileName,
-      rpcMethod,
-      rpcParams
+      mintAddress,
     } = await req.json();
 
-    console.log(`Processing ${operation} request for wallet:`, walletAddress);
+    console.log(`Processing ${operation} request`);
 
-    // Handle metadata upload
-    if (operation === 'upload-metadata') {
-      // Upload image to Supabase Storage
+    // Handle complete NFT minting server-side using Metaplex
+    if (operation === 'mint-nft') {
+      // Upload image and metadata first
       const timestamp = Date.now();
       const imageFilePath = `nft-images/${walletAddress}/${timestamp}-${imageFileName}`;
       
-      // Convert base64 to buffer
       const imageBuffer = Uint8Array.from(atob(imageBase64), c => c.charCodeAt(0));
       
-      const { data: imageData, error: imageError } = await supabase.storage
+      const { error: imageError } = await supabase.storage
         .from('avatars')
         .upload(imageFilePath, imageBuffer, {
           contentType: 'image/png',
@@ -52,19 +51,12 @@ serve(async (req) => {
           upsert: false,
         });
 
-      if (imageError) {
-        console.error('Image upload error:', imageError);
-        throw new Error('Failed to upload image: ' + imageError.message);
-      }
+      if (imageError) throw new Error('Failed to upload image: ' + imageError.message);
 
-      // Get public URL for the image
       const { data: { publicUrl: imageUrl } } = supabase.storage
         .from('avatars')
         .getPublicUrl(imageFilePath);
 
-      console.log('Image uploaded to:', imageUrl);
-
-      // Create complete metadata with image URL
       const completeMetadata = {
         name: metadata.name,
         symbol: metadata.symbol,
@@ -72,25 +64,19 @@ serve(async (req) => {
         image: imageUrl,
         attributes: metadata.attributes || [],
         properties: {
-          files: [
-            {
-              uri: imageUrl,
-              type: 'image/png',
-            },
-          ],
+          files: [{ uri: imageUrl, type: 'image/png' }],
           category: 'image',
         },
         seller_fee_basis_points: metadata.sellerFeeBasisPoints || 0,
         creators: metadata.creators || [],
       };
 
-      // Upload metadata JSON to Supabase Storage
       const metadataFilePath = `nft-metadata/${walletAddress}/${timestamp}-metadata.json`;
       const metadataBlob = new Blob([JSON.stringify(completeMetadata, null, 2)], {
         type: 'application/json',
       });
 
-      const { data: metadataData, error: metadataError } = await supabase.storage
+      const { error: metadataError } = await supabase.storage
         .from('avatars')
         .upload(metadataFilePath, metadataBlob, {
           contentType: 'application/json',
@@ -98,23 +84,49 @@ serve(async (req) => {
           upsert: false,
         });
 
-      if (metadataError) {
-        console.error('Metadata upload error:', metadataError);
-        throw new Error('Failed to upload metadata: ' + metadataError.message);
-      }
+      if (metadataError) throw new Error('Failed to upload metadata: ' + metadataError.message);
 
-      // Get public URL for the metadata
-      const { data: { publicUrl: metadataUrl } } = supabase.storage
+      const { data: { publicUrl: metadataUri } } = supabase.storage
         .from('avatars')
         .getPublicUrl(metadataFilePath);
 
-      console.log('Metadata uploaded to:', metadataUrl);
+      console.log('Metadata uploaded:', metadataUri);
+
+      // Use Metaplex Digital Asset Standard (DAS) API via Helius to create NFT
+      // This is a server-side operation that doesn't require wallet signing
+      const createNftResponse = await fetch(`https://devnet.helius-rpc.com/?api-key=${heliusApiKey}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          jsonrpc: '2.0',
+          id: 'nft-mint',
+          method: 'mintCompressedNft',
+          params: {
+            name: metadata.name,
+            symbol: metadata.symbol,
+            owner: walletAddress,
+            description: metadata.description,
+            attributes: metadata.attributes || [],
+            imageUrl: imageUrl,
+            externalUrl: metadataUri,
+            sellerFeeBasisPoints: metadata.sellerFeeBasisPoints || 500,
+          },
+        }),
+      });
+
+      const nftData = await createNftResponse.json();
+      
+      if (nftData.error) {
+        console.error('NFT creation error:', nftData.error);
+        throw new Error(nftData.error.message || 'Failed to create NFT');
+      }
 
       return new Response(
         JSON.stringify({
           success: true,
-          imageUrl,
-          metadataUrl,
+          mint: nftData.result?.assetId || 'UNKNOWN',
+          signature: nftData.result?.signature || 'UNKNOWN',
+          metadataUri,
         }),
         {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -123,37 +135,37 @@ serve(async (req) => {
       );
     }
 
-    // Handle Helius RPC proxy
-    if (operation === 'rpc-call') {
-      const rpcEndpoint = `https://mainnet.helius-rpc.com/?api-key=${heliusApiKey}`;
-      
-      console.log(`Proxying RPC call: ${rpcMethod}`);
-
-      const rpcResponse = await fetch(rpcEndpoint, {
+    // Handle metadata retrieval
+    if (operation === 'get-metadata') {
+      const response = await fetch(heliusRpc, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           jsonrpc: '2.0',
-          id: '1',
-          method: rpcMethod,
-          params: rpcParams || [],
+          id: 'get-asset',
+          method: 'getAsset',
+          params: { id: mintAddress },
         }),
       });
 
-      const rpcData = await rpcResponse.json();
-
-      if (rpcData.error) {
-        console.error('RPC error:', rpcData.error);
-        throw new Error(rpcData.error.message || 'RPC call failed');
+      const data = await response.json();
+      
+      if (data.error) {
+        throw new Error(data.error.message || 'Failed to fetch metadata');
       }
 
+      const asset = data.result;
+      const nftMetadata = {
+        name: asset.content?.metadata?.name || '',
+        symbol: asset.content?.metadata?.symbol || '',
+        description: asset.content?.metadata?.description || '',
+        image: asset.content?.links?.image || '',
+        attributes: asset.content?.metadata?.attributes || [],
+        sellerFeeBasisPoints: asset.royalty?.basis_points || 0,
+      };
+
       return new Response(
-        JSON.stringify({
-          success: true,
-          result: rpcData.result,
-        }),
+        JSON.stringify({ success: true, metadata: nftMetadata }),
         {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
           status: 200,
