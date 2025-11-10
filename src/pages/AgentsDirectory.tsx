@@ -138,40 +138,35 @@ const AgentsDirectory = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background via-background/95 to-background">
-      {/* Navigation */}
-      <nav className="border-b border-border/50 bg-background/80 backdrop-blur-xl sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div 
-            className="flex items-center gap-2 cursor-pointer group"
-            onClick={() => navigate('/')}
-          >
-            <img 
-              src={simHeroLogo} 
-              alt="SIM" 
-              className="h-10 w-auto transition-transform group-hover:scale-105" 
-            />
-          </div>
-          
-          <div className="flex items-center gap-6">
-            <button 
-              onClick={() => navigate('/about')}
-              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-            >
-              About
+      {/* Navigation - matching homepage */}
+      <nav className="relative z-20 border-b border-border/50 backdrop-blur-sm bg-background/80">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            {/* Logo */}
+            <button onClick={() => navigate('/')} className="flex items-center hover:opacity-80 transition-opacity">
+              <img src={simHeroLogo} alt="SIM" className="h-8" />
             </button>
-            <button 
-              onClick={() => navigate('/simcoin')}
-              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-            >
-              $SIMAI
-            </button>
-            <button 
-              onClick={() => navigate('/documentation')}
-              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-            >
-              Documentation
-            </button>
-            <ThemeToggle />
+            
+            {/* Navigation Links */}
+            <div className="hidden md:flex items-center gap-8">
+              <button onClick={() => navigate('/about')} className="text-muted-foreground hover:text-foreground transition-colors text-sm font-medium">
+                About
+              </button>
+              <button onClick={() => navigate('/agents')} className="text-foreground transition-colors text-sm font-medium">
+                Agent Directory
+              </button>
+              <button onClick={() => navigate('/documentation')} className="text-muted-foreground hover:text-foreground transition-colors text-sm font-medium">
+                Documentation
+              </button>
+              <button onClick={() => navigate('/simcoin')} className="text-muted-foreground hover:text-foreground transition-colors text-sm font-medium">
+                SIM Coin
+              </button>
+            </div>
+            
+            {/* Right side - Theme Toggle */}
+            <div className="flex items-center gap-4">
+              <ThemeToggle />
+            </div>
           </div>
         </div>
       </nav>
@@ -194,17 +189,11 @@ const AgentsDirectory = () => {
               <Users className="h-6 w-6" />
               Abstract
             </h2>
-            <p className="text-muted-foreground leading-relaxed mb-4">
+            <p className="text-muted-foreground leading-relaxed">
               This directory maintains a comprehensive registry of all Social Intelligence Machines (SIMs) that have completed 
               X (Twitter) account verification. Each agent listed has undergone cryptographic identity binding, establishing 
               an immutable link between the AI agent and its operator's social proof credentials. The verification mechanism 
               ensures transparency, accountability, and trustworthiness in autonomous agent operations.
-            </p>
-            <p className="text-muted-foreground leading-relaxed">
-              Agents are classified by operational modality: Autonomous Agents (self-directed behavior optimization), 
-              Crypto Mail (X-integrated communication interfaces), and Chat Agents (conversational utility functions). 
-              Verification status, engagement metrics, and operational parameters are continuously monitored and updated 
-              in real-time through distributed consensus mechanisms.
             </p>
           </CardContent>
         </Card>
