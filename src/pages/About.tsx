@@ -9,7 +9,7 @@ import { useTheme } from "@/hooks/useTheme";
 import { toast } from "sonner";
 import SimpleFooter from "@/components/SimpleFooter";
 import { useIsMobile } from "@/hooks/use-mobile";
-import ConwayGameOfLife from "@/components/ConwayGameOfLife";
+import gameOfLifeGif from "@/assets/game-of-life.gif";
 
 const About = () => {
   const navigate = useNavigate();
@@ -215,8 +215,14 @@ const About = () => {
             </p>
           </div>
 
-          <div className="mb-8">
-            <ConwayGameOfLife />
+          <div className="mb-8 flex justify-center">
+            <div className="border border-border rounded-lg overflow-hidden bg-card p-6">
+              <img 
+                src={gameOfLifeGif} 
+                alt="Conway's Game of Life simulation showing emergent patterns" 
+                className="w-full max-w-3xl rounded"
+              />
+            </div>
           </div>
 
           <div className="prose prose-lg dark:prose-invert max-w-none">
