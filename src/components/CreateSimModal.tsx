@@ -712,35 +712,37 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired, 
                 </p>
               </div>
 
-              {/* Sim Type */}
-              <div className="space-y-2">
-                <Label htmlFor="sim-type" className="text-sm font-medium">
-                  Type <span className="text-destructive">*</span>
-                </Label>
-                <Select value={simType} onValueChange={setSimType} required>
-                  <SelectTrigger className="h-11 bg-background">
-                    <SelectValue placeholder="Select type" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-background z-50">
-                    {simTypes.map((type: any) => (
-                      <SelectItem 
-                        key={type.value} 
-                        value={type.value}
-                        disabled={type.disabled}
-                      >
-                        <div className="flex items-center gap-2">
-                          <span>{type.label}</span>
-                          {type.comingSoon && (
-                            <Badge variant="secondary" className="text-[9px] px-1.5 py-0">
-                              Coming Soon for $SimAI Holders
-                            </Badge>
-                          )}
-                        </div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+              {/* Sim Type - only show if not pre-selected */}
+              {!initialType && (
+                <div className="space-y-2">
+                  <Label htmlFor="sim-type" className="text-sm font-medium">
+                    Type <span className="text-destructive">*</span>
+                  </Label>
+                  <Select value={simType} onValueChange={setSimType} required>
+                    <SelectTrigger className="h-11 bg-background">
+                      <SelectValue placeholder="Select type" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-background z-50">
+                      {simTypes.map((type: any) => (
+                        <SelectItem 
+                          key={type.value} 
+                          value={type.value}
+                          disabled={type.disabled}
+                        >
+                          <div className="flex items-center gap-2">
+                            <span>{type.label}</span>
+                            {type.comingSoon && (
+                              <Badge variant="secondary" className="text-[9px] px-1.5 py-0">
+                                Coming Soon for $SimAI Holders
+                              </Badge>
+                            )}
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
 
               {/* Category - only show for Chat type */}
               {simType === "Chat" && (
