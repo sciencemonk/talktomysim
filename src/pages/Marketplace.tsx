@@ -227,21 +227,21 @@ const Marketplace = () => {
         </div>
         
         {/* Content */}
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
           <button 
             onClick={() => navigate('/')}
-            className="inline-flex items-center gap-3 px-4 sm:px-6 py-3 rounded-full backdrop-blur-sm transition-all cursor-pointer shadow-sm bg-white/10 border border-white/20 hover:bg-white/20 whitespace-nowrap mb-4"
+            className="inline-flex items-center gap-3 px-4 sm:px-6 py-2.5 rounded-full backdrop-blur-sm transition-all cursor-pointer shadow-sm bg-white/10 border border-white/20 hover:bg-white/20 whitespace-nowrap mb-3"
           >
-            <img src={solanaLogo} alt="Solana" className="h-7 w-7 sm:h-8 sm:w-8" />
-            <span className="text-base sm:text-lg font-bold text-white">Solana Internet Market</span>
+            <img src={solanaLogo} alt="Solana" className="h-6 w-6 sm:h-7 sm:w-7" />
+            <span className="text-sm sm:text-base font-bold text-white">Solana Internet Market</span>
           </button>
-          <p className="text-lg text-white/90 max-w-5xl">
+          <p className="text-base sm:text-lg text-white/90 max-w-5xl">
             Build, sell, and buy AI agents, products, and on-chain services. No fees. Powered by x402.
           </p>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         {/* Search and Filters */}
         <Card className="mb-8 border-border bg-card">
           <CardContent className="p-6">
