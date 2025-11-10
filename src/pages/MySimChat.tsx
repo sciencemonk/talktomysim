@@ -487,15 +487,12 @@ export default function MySimChat() {
                     </div>
                   ) : (
                     // User messages - right side, in bubble
-                    <div className="flex gap-4 justify-end">
+                    <div className="flex justify-end">
                       <div className="max-w-[70%]">
                         <div className="rounded-2xl px-4 py-3 bg-white/[0.09] text-white/95 border border-white/[0.08]">
                           <p className="text-[14.5px] leading-[1.65] whitespace-pre-wrap font-normal">{msg.content}</p>
                         </div>
                       </div>
-                      <Avatar className="h-8 w-8 flex-shrink-0 border border-white/[0.08] shadow-sm">
-                        <AvatarFallback className="bg-white/[0.08] text-white/90 text-xs font-medium">U</AvatarFallback>
-                      </Avatar>
                     </div>
                   )}
                 </div>
