@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { mintNFT, getEstimatedMintCost } from '@/services/nftMintService';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -353,9 +354,6 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired, 
 
         toast.info("Minting NFT on Solana...");
         
-        // Import and use NFT minting service
-        const { mintNFT, getEstimatedMintCost } = await import('@/services/nftMintService');
-        
         // Show estimated cost
         const { total } = getEstimatedMintCost();
         toast.info(`Estimated cost: ${total} SOL (includes all fees)`);
@@ -653,17 +651,17 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired, 
         {step === 1 ? (
           <div className="space-y-6 p-8">
             {/* Header */}
-            <div className="space-y-1">
-              <h2 className="text-2xl font-bold tracking-tight">
+            <DialogHeader>
+              <DialogTitle className="text-2xl font-bold tracking-tight">
                 {simType === "NFT" ? "Create NFT" : "Create New Sim"}
-              </h2>
-              <p className="text-sm text-muted-foreground">
+              </DialogTitle>
+              <DialogDescription className="text-sm text-muted-foreground">
                 {simType === "NFT" 
                   ? "Configure your NFT collection details"
                   : "Choose carefully, these details define your AI"
                 }
-              </p>
-            </div>
+              </DialogDescription>
+            </DialogHeader>
 
             {/* Sim Details Section */}
             <div className="space-y-4">
