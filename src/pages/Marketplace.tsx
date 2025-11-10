@@ -52,17 +52,6 @@ const Marketplace = () => {
       setResolvedTheme(theme as 'light' | 'dark');
     }
   }, [theme]);
-
-  // Check authentication and redirect to dashboard if logged in
-  useEffect(() => {
-    const checkAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        navigate('/dashboard');
-      }
-    };
-    checkAuth();
-  }, [navigate]);
   const {
     offerings,
     isLoading: offeringsLoading
