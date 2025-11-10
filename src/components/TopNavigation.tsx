@@ -54,12 +54,9 @@ const TopNavigation = ({ showLiveIndicator = false }: TopNavigationProps) => {
             className="flex items-center hover:opacity-80 transition-opacity flex-shrink-0"
           >
             <img 
-              src="/sim-logo.png" 
+              src="/sim-logo-white.png" 
               alt="Sim Logo" 
-              className="h-8 w-8 object-contain"
-              onError={(e) => {
-                e.currentTarget.style.display = 'none';
-              }}
+              className="h-8 w-auto object-contain"
             />
           </Link>
           
