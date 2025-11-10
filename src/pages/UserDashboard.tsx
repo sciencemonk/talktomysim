@@ -22,7 +22,7 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { useTheme } from "@/hooks/useTheme";
 import simHeroLogo from "@/assets/sim-hero-logo.png";
 import simLogoWhite from "@/assets/sim-logo-white.png";
-import { LandingFooter } from "@/components/landing/LandingFooter";
+import SimpleFooter from "@/components/SimpleFooter";
 
 interface ActivityLog {
   id: string;
@@ -456,7 +456,7 @@ const UserDashboard = () => {
       )}
 
       {/* Footer */}
-      <LandingFooter />
+      <SimpleFooter />
     </div>
   );
 };

@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Trophy, TrendingUp, Coins, Activity } from "lucide-react";
+import { Trophy, TrendingUp, Coins, Activity, ExternalLink, Settings } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { supabase } from "@/integrations/supabase/client";
@@ -11,6 +11,7 @@ import SimPublicFooter from "@/components/SimPublicFooter";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { useAuth } from "@/hooks/useAuth";
 
 interface LeaderboardSim {
   id: string;
@@ -24,6 +25,7 @@ interface LeaderboardSim {
 const GodMode = () => {
   const navigate = useNavigate();
   const { theme } = useTheme();
+  const { user } = useAuth();
   const [resolvedTheme, setResolvedTheme] = useState<'light' | 'dark'>('dark');
   const [leaderboard, setLeaderboard] = useState<LeaderboardSim[]>([]);
 
@@ -69,7 +71,7 @@ const GodMode = () => {
       <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-sm border-b border-border/40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
-            <button onClick={() => navigate('/landing')} className="flex items-center hover:opacity-80 transition-opacity">
+            <button onClick={() => navigate(user ? '/dashboard' : '/')} className="flex items-center hover:opacity-80 transition-opacity">
               <div className="bg-black/90 rounded-lg px-2 py-1">
                 <img src="/sim-logo-white.png" alt="SIM" className="h-6 w-auto" />
               </div>
@@ -78,7 +80,7 @@ const GodMode = () => {
             <div className="flex items-center gap-6">
               <Button
                 variant="ghost"
-                onClick={() => navigate('/landing')}
+                onClick={() => navigate(user ? '/dashboard' : '/')}
                 className="text-sm font-medium hover:text-primary"
               >
                 Home
@@ -90,7 +92,34 @@ const GodMode = () => {
               >
                 God Mode
               </Button>
+              {user && (
+                <Button
+                  variant="ghost"
+                  onClick={() => {
+                    const customUrl = user?.user_metadata?.custom_url || user?.user_metadata?.username;
+                    if (customUrl) {
+                      navigate(`/${customUrl}`);
+                    }
+                  }}
+                  className="text-sm font-medium hover:text-primary"
+                >
+                  Public Page
+                </Button>
+              )}
               <ThemeToggle />
+              {user && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={async () => {
+                    await supabase.auth.signOut();
+                    navigate('/');
+                  }}
+                  className="text-sm"
+                >
+                  Sign Out
+                </Button>
+              )}
             </div>
           </div>
         </div>
