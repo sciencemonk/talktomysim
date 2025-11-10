@@ -60,6 +60,7 @@ import About from "./pages/About";
 import Documentation from "./pages/Documentation";
 import SimDashboard from "./pages/SimDashboard";
 import Facilitator from "./pages/Facilitator";
+import AgentPublicView from "./pages/AgentPublicView";
 
 const queryClient = new QueryClient();
 
@@ -121,6 +122,9 @@ const App = () => (
               
               {/* X Agent Creator - Must come before catch-all */}
               <Route path="/:username/creator" element={<XAgentCreatorView />} />
+              
+              {/* Agent Public View */}
+              <Route path="/agent/:agentId" element={<AgentPublicView />} />
               
               {/* Root route - Marketplace is now the homepage */}
               <Route path="/" element={<Marketplace />} />
