@@ -353,10 +353,12 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired, 
         }
 
         toast.info("Minting NFT on Solana...");
+        setMintingProgress("Connecting to blockchain...");
         
         // Show estimated cost
         const { total } = getEstimatedMintCost();
         toast.info(`Estimated cost: ${total} SOL (includes all fees)`);
+        setMintingProgress(`Estimated cost: ${total} SOL`);
         
         try {
           const { mint, signature, metadataUri } = await mintNFT({

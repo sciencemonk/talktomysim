@@ -28,11 +28,22 @@ export interface MintNFTResult {
   metadataUri: string;
 }
 
-// Get Solana RPC endpoint (public)
+// Get Solana RPC endpoint with fallback options
 const getSolanaRpcEndpoint = (): string => {
-  // Client-side uses public endpoint for wallet operations
-  // Uploads use Helius server-side via proxy (no rate limits)
-  return 'https://api.mainnet-beta.solana.com';
+  // Multiple public RPC endpoints for better reliability
+  // Primary: Ankr (good rate limits, reliable)
+  // Fallback options available in getBackupRpcEndpoint()
+  return 'https://rpc.ankr.com/solana';
+};
+
+// Get backup RPC endpoints if primary fails
+const getBackupRpcEndpoint = (attemptNumber: number): string => {
+  const endpoints = [
+    'https://rpc.ankr.com/solana',
+    'https://solana-api.projectserum.com',
+    'https://api.mainnet-beta.solana.com',
+  ];
+  return endpoints[attemptNumber % endpoints.length] || endpoints[0];
 };
 
 /**
@@ -143,128 +154,157 @@ export const mintNFT = async ({
   imageFile,
   onProgress,
 }: MintNFTParams & { onProgress?: (stage: string) => void }): Promise<MintNFTResult> => {
-  try {
-    if (!wallet.publicKey || !wallet.signTransaction) {
-      throw new Error('Wallet not connected. Please connect your wallet and try again.');
-    }
+  let attemptCount = 0;
+  const maxAttempts = 3;
+  
+  while (attemptCount < maxAttempts) {
+    try {
+      if (!wallet.publicKey || !wallet.signTransaction) {
+        throw new Error('Wallet not connected. Please connect your wallet and try again.');
+      }
 
-    if (!imageFile) {
-      throw new Error('Image file is required for NFT minting');
-    }
+      if (!imageFile) {
+        throw new Error('Image file is required for NFT minting');
+      }
 
-    console.log('Starting NFT minting process...');
-    onProgress?.('Initializing...');
+      console.log(`Starting NFT minting process (attempt ${attemptCount + 1}/${maxAttempts})...`);
+      onProgress?.('Initializing...');
 
-    // Get public RPC endpoint (for client-side wallet operations)
-    const rpcEndpoint = getSolanaRpcEndpoint();
-    console.log('Using public Solana RPC for wallet operations');
-    console.log('Uploads will use Helius via server proxy (no rate limits)');
+      // Get public RPC endpoint (with fallback support)
+      const rpcEndpoint = attemptCount === 0 ? getSolanaRpcEndpoint() : getBackupRpcEndpoint(attemptCount);
+      console.log(`Using RPC endpoint: ${rpcEndpoint}`);
+      console.log('Uploads will use Helius via server proxy (no rate limits)');
 
-    // Initialize Umi with public RPC
-    const umi = createUmi(rpcEndpoint)
-      .use(walletAdapterIdentity(wallet))
-      .use(mplTokenMetadata());
+      // Initialize Umi with public RPC
+      const umi = createUmi(rpcEndpoint)
+        .use(walletAdapterIdentity(wallet))
+        .use(mplTokenMetadata());
 
-    // Upload metadata via Helius-powered proxy (no rate limits)
-    const metadataUri = await uploadMetadataWithProxy(
-      imageFile, 
-      {
+      // Upload metadata via Helius-powered proxy (no rate limits)
+      const metadataUri = await uploadMetadataWithProxy(
+        imageFile, 
+        {
+          name: metadata.name,
+          symbol: metadata.symbol,
+          description: metadata.description,
+          attributes: metadata.attributes,
+          sellerFeeBasisPoints: metadata.sellerFeeBasisPoints,
+          creators: metadata.creators,
+        },
+        wallet.publicKey.toBase58(),
+        onProgress
+      );
+
+      console.log('Metadata uploaded:', metadataUri);
+
+      // Generate a new mint keypair
+      const mint = generateSigner(umi);
+      
+      onProgress?.('Creating NFT on-chain...');
+      console.log('Creating NFT with mint address:', mint.publicKey.toString());
+
+      // Create the NFT using Metaplex
+      const tx = createNft(umi, {
+        mint,
         name: metadata.name,
         symbol: metadata.symbol,
-        description: metadata.description,
-        attributes: metadata.attributes,
-        sellerFeeBasisPoints: metadata.sellerFeeBasisPoints,
-        creators: metadata.creators,
-      },
-      wallet.publicKey.toBase58(),
-      onProgress
-    );
+        uri: metadataUri,
+        sellerFeeBasisPoints: percentAmount((metadata.sellerFeeBasisPoints || 0) / 100),
+        creators: metadata.creators?.map((creator) => ({
+          address: publicKey(creator.address),
+          verified: creator.address === wallet.publicKey.toBase58(),
+          share: creator.share,
+        })),
+      });
 
-    console.log('Metadata uploaded:', metadataUri);
+      // Send and get signature
+      const result = await tx.sendAndConfirm(umi, {
+        confirm: { commitment: 'confirmed' },
+      });
 
-    // Generate a new mint keypair
-    const mint = generateSigner(umi);
-    
-    onProgress?.('Creating NFT on-chain...');
-    console.log('Creating NFT with mint address:', mint.publicKey.toString());
+      const signature = Buffer.from(result.signature).toString('base64');
+      const signatureHex = Buffer.from(result.signature).toString('hex');
+      
+      console.log('Transaction sent:', signatureHex);
+      console.log('View on Solscan:', `https://solscan.io/tx/${signatureHex}`);
+      
+      onProgress?.('Confirming transaction...');
 
-    // Create the NFT using Metaplex
-    const tx = createNft(umi, {
-      mint,
-      name: metadata.name,
-      symbol: metadata.symbol,
-      uri: metadataUri,
-      sellerFeeBasisPoints: percentAmount((metadata.sellerFeeBasisPoints || 0) / 100),
-      creators: metadata.creators?.map((creator) => ({
-        address: publicKey(creator.address),
-        verified: creator.address === wallet.publicKey.toBase58(),
-        share: creator.share,
-      })),
-    });
+      // Confirm with retry logic
+      await confirmTransactionWithRetry(umi, result.signature);
 
-    // Send and get signature
-    const result = await tx.sendAndConfirm(umi, {
-      confirm: { commitment: 'confirmed' },
-    });
+      console.log('NFT minted successfully:', {
+        mint: mint.publicKey.toString(),
+        signature: signatureHex,
+        metadataUri,
+      });
 
-    const signature = Buffer.from(result.signature).toString('base64');
-    const signatureHex = Buffer.from(result.signature).toString('hex');
-    
-    console.log('Transaction sent:', signatureHex);
-    console.log('View on Solscan:', `https://solscan.io/tx/${signatureHex}`);
-    
-    onProgress?.('Confirming transaction...');
+      onProgress?.('NFT created successfully!');
 
-    // Confirm with retry logic
-    await confirmTransactionWithRetry(umi, result.signature);
+      return {
+        mint: mint.publicKey.toString(),
+        signature: signatureHex,
+        metadataUri,
+      };
+    } catch (error) {
+      console.error(`Error minting NFT (attempt ${attemptCount + 1}):`, error);
+      
+      // Check if we should retry with a different RPC endpoint
+      const shouldRetry = 
+        error instanceof Error && 
+        (error.message.includes('403') || 
+         error.message.includes('blockhash') || 
+         error.message.includes('rate limit') ||
+         error.message.includes('429')) &&
+        attemptCount < maxAttempts - 1;
 
-    console.log('NFT minted successfully:', {
-      mint: mint.publicKey.toString(),
-      signature: signatureHex,
-      metadataUri,
-    });
-
-    onProgress?.('NFT created successfully!');
-
-    return {
-      mint: mint.publicKey.toString(),
-      signature: signatureHex,
-      metadataUri,
-    };
-  } catch (error) {
-    console.error('Error minting NFT:', error);
-    
-    if (error instanceof Error) {
-      // User rejected transaction
-      if (error.message.includes('User rejected') || error.message.includes('rejected')) {
-        throw new Error('Transaction was cancelled by user');
+      if (shouldRetry) {
+        attemptCount++;
+        console.log(`Retrying with backup RPC endpoint (attempt ${attemptCount + 1}/${maxAttempts})...`);
+        onProgress?.(`Connection issue, retrying (${attemptCount + 1}/${maxAttempts})...`);
+        await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1s before retry
+        continue; // Try again with next RPC endpoint
       }
       
-      // Insufficient funds
-      if (error.message.includes('insufficient funds') || error.message.includes('0x1')) {
-        throw new Error('Insufficient SOL balance. You need approximately 0.02 SOL to mint an NFT (includes rent + transaction fees).');
+      // If we're here, either it's not a retryable error or we're out of attempts
+      if (error instanceof Error) {
+        // User rejected transaction
+        if (error.message.includes('User rejected') || error.message.includes('rejected')) {
+          throw new Error('Transaction was cancelled by user');
+        }
+        
+        // Insufficient funds
+        if (error.message.includes('insufficient funds') || error.message.includes('0x1')) {
+          throw new Error('Insufficient SOL balance. You need approximately 0.02 SOL to mint an NFT (includes rent + transaction fees).');
+        }
+        
+        // Network/RPC errors
+        if (error.message.includes('429') || error.message.includes('rate limit')) {
+          throw new Error('Network congestion. Please wait a moment and try again.');
+        }
+        
+        if (error.message.includes('timeout') || error.message.includes('timed out')) {
+          throw new Error('Transaction timeout. Your NFT may still be processing - check your wallet in a few minutes.');
+        }
+        
+        if (error.message.includes('403') || error.message.includes('Access forbidden')) {
+          throw new Error('Unable to connect to Solana network. Please try again in a few moments.');
+        }
+        
+        // Wallet connection errors
+        if (error.message.includes('Wallet not connected')) {
+          throw error;
+        }
+        
+        // Generic errors with helpful message
+        throw new Error(`Minting failed: ${error.message}`);
       }
       
-      // Network/RPC errors
-      if (error.message.includes('429') || error.message.includes('rate limit')) {
-        throw new Error('Network congestion. Please wait a moment and try again.');
-      }
-      
-      if (error.message.includes('timeout') || error.message.includes('timed out')) {
-        throw new Error('Transaction timeout. Your NFT may still be processing - check your wallet in a few minutes.');
-      }
-      
-      // Wallet connection errors
-      if (error.message.includes('Wallet not connected')) {
-        throw error;
-      }
-      
-      // Generic errors with helpful message
-      throw new Error(`Minting failed: ${error.message}`);
+      throw new Error('Failed to mint NFT. Please check your connection and try again.');
     }
-    
-    throw new Error('Failed to mint NFT. Please check your connection and try again.');
   }
+  
+  throw new Error('Failed to mint NFT after multiple attempts. Please try again later.');
 };
 
 /**
