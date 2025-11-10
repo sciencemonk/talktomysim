@@ -1,12 +1,14 @@
 import { Buffer } from 'buffer';
+import process from 'process';
 import { createRoot } from 'react-dom/client'
 import App from './App.tsx'
 import './index.css'
 
 console.log('🚀 App initializing...');
 
-// Make Buffer available globally for Solana web3.js
+// Make Buffer and process available globally for Solana/Metaplex libraries
 window.Buffer = Buffer;
+window.process = process;
 
 try {
   const rootElement = document.getElementById("root");

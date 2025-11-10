@@ -1,4 +1,3 @@
-
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
@@ -24,16 +23,22 @@ export default defineConfig(({ mode }) => ({
     alias: {
       "@": path.resolve(__dirname, "./src"),
       buffer: 'buffer',
+      stream: 'stream-browserify',
+      util: 'util',
     },
   },
   define: {
     'global': 'globalThis',
+    'process.env': 'process.env',
   },
   optimizeDeps: {
+    include: ['buffer', 'process'],
+    exclude: ['@noble/ed25519', '@noble/hashes', '@noble/curves'],
     esbuildOptions: {
       define: {
         global: 'globalThis',
       },
+      plugins: [],
     },
   },
 }));
