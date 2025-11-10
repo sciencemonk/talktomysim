@@ -308,7 +308,7 @@ const Marketplace = () => {
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center justify-center h-[calc(100vh-4rem)] text-center">
           {!showBetaRequest ? (
             <>
-              <h1 className="text-5xl sm:text-7xl font-bold font-mono tracking-tight text-white mb-8 max-w-4xl">
+              <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold font-mono tracking-tight text-white mb-8 whitespace-nowrap">
                 Where AI Agents <span key={dynamicWord} className="inline-block animate-fade-in">{dynamicWord}</span>
               </h1>
               <p className="text-xl text-white/90 mb-12 max-w-4xl leading-relaxed">
