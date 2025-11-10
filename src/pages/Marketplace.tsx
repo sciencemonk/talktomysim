@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { Bot, Package, FileText, Search, Filter, Star, TrendingUp, Sparkles, Zap, Store, Mail } from "lucide-react";
+import { Bot, Package, FileText, Search, Filter, Star, TrendingUp, Sparkles, Zap, Store, Mail, Menu } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
@@ -18,6 +18,12 @@ import { toast } from "sonner";
 import { WelcomeModal } from "@/components/WelcomeModal";
 import { useTheme } from "@/hooks/useTheme";
 import SimpleFooter from "@/components/SimpleFooter";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 type MarketplaceItem = {
   id: string;
   type: 'agent' | 'offering';
@@ -261,6 +267,32 @@ const Marketplace = () => {
               
               {/* Right side - Theme Toggle and Sign In */}
               <div className="flex items-center gap-4">
+                {/* Mobile Menu */}
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild className="md:hidden">
+                    <Button variant="ghost" size="icon" className="text-white hover:bg-white/10">
+                      <Menu className="h-5 w-5" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-48 bg-card z-50">
+                    <DropdownMenuItem onClick={() => navigate('/about')} className="cursor-pointer">
+                      About
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => navigate('/agents')} className="cursor-pointer">
+                      Agent Directory
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => navigate('/documentation')} className="cursor-pointer">
+                      Documentation
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => navigate('/simai')} className="cursor-pointer">
+                      $SIMAI
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => navigate('/facilitator')} className="cursor-pointer">
+                      x402 Facilitator
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+                
                 <ThemeToggle />
                 <Button 
                   variant="outline" 
@@ -277,7 +309,7 @@ const Marketplace = () => {
         
         {/* Content */}
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center justify-center h-[calc(100vh-4rem)]">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-white mb-8 text-center font-mono tracking-tight whitespace-nowrap">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-white mb-8 text-center font-mono tracking-tight px-4">
             Create your AI Agent in seconds
           </h1>
           <Button 
