@@ -30,18 +30,15 @@ export interface MintNFTResult {
 
 // Get Solana RPC endpoint with fallback options
 const getSolanaRpcEndpoint = (): string => {
-  // Multiple public RPC endpoints for better reliability
-  // Primary: Ankr (good rate limits, reliable)
-  // Fallback options available in getBackupRpcEndpoint()
-  return 'https://rpc.ankr.com/solana';
+  // Use mainnet-beta as primary (free, no API key required)
+  return 'https://api.mainnet-beta.solana.com';
 };
 
 // Get backup RPC endpoints if primary fails
 const getBackupRpcEndpoint = (attemptNumber: number): string => {
   const endpoints = [
-    'https://rpc.ankr.com/solana',
-    'https://solana-api.projectserum.com',
     'https://api.mainnet-beta.solana.com',
+    'https://solana-api.projectserum.com',
   ];
   return endpoints[attemptNumber % endpoints.length] || endpoints[0];
 };

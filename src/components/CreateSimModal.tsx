@@ -650,7 +650,67 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired, 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto p-0 border-border/50">
-        {step === 1 ? (
+        {/* Show minting status screen when NFT is being minted */}
+        {isNftMinting ? (
+          <div className="p-8 space-y-6">
+            <div className="space-y-3 text-center">
+              <div className="flex justify-center">
+                <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center">
+                  <Loader2 className="w-10 h-10 text-primary animate-spin" />
+                </div>
+              </div>
+              <DialogTitle className="text-2xl font-bold">Minting Your NFT</DialogTitle>
+              <DialogDescription className="text-muted-foreground">
+                Please don't close this window
+              </DialogDescription>
+            </div>
+
+            {/* NFT Preview */}
+            <div className="flex justify-center">
+              <div className="relative w-40 h-40 rounded-xl overflow-hidden border-2 border-border">
+                {avatarPreview ? (
+                  <img src={avatarPreview} alt="NFT" className="w-full h-full object-cover" />
+                ) : (
+                  <div className="w-full h-full bg-muted flex items-center justify-center">
+                    <ImagePlus className="w-12 h-12 text-muted-foreground" />
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* NFT Info */}
+            <div className="space-y-2 text-center">
+              <p className="font-semibold text-lg">{name}</p>
+              <p className="text-sm text-muted-foreground">{nftSymbol}</p>
+            </div>
+
+            {/* Status Display */}
+            <div className="rounded-lg border border-border bg-muted/30 p-6 space-y-4">
+              <div className="flex items-start gap-3">
+                <div className="w-2 h-2 rounded-full bg-primary animate-pulse mt-1.5" />
+                <div className="flex-1">
+                  <p className="font-medium text-sm">Current Status</p>
+                  <p className="text-muted-foreground text-sm mt-1">
+                    {mintingProgress || "Initializing..."}
+                  </p>
+                </div>
+              </div>
+              
+              <div className="text-xs text-muted-foreground space-y-1 pt-2 border-t border-border">
+                <p>✓ Image uploaded</p>
+                <p>✓ Metadata created</p>
+                <p className="flex items-center gap-2">
+                  <Loader2 className="w-3 h-3 animate-spin" />
+                  Creating NFT on Solana blockchain...
+                </p>
+              </div>
+            </div>
+
+            <p className="text-xs text-center text-muted-foreground">
+              This process may take 30-60 seconds. Please approve any wallet transaction prompts.
+            </p>
+          </div>
+        ) : step === 1 ? (
           <div className="space-y-6 p-8">
             {/* Header */}
             <DialogHeader>
