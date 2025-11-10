@@ -198,49 +198,49 @@ const SimCoin = () => {
           <h2 className="text-3xl font-bold text-foreground mb-6 font-mono">Technical Architecture</h2>
           
           <div className="grid md:grid-cols-2 gap-6 mb-8">
-            <Card className="border-border bg-card">
+            <Card className="border-white/20 bg-black/40 backdrop-blur-md">
               <CardContent className="p-6">
-                <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4 border border-primary/20">
-                  <Network className="h-6 w-6 text-primary" />
+                <div className="h-12 w-12 rounded-lg bg-white/10 flex items-center justify-center mb-4 border border-white/20">
+                  <Network className="h-6 w-6 text-white" />
                 </div>
-                <h3 className="text-lg font-semibold text-foreground mb-2 font-mono">Distributed Ledger</h3>
-                <p className="text-sm text-muted-foreground leading-relaxed">
+                <h3 className="text-lg font-semibold text-white mb-2 font-mono">Distributed Ledger</h3>
+                <p className="text-sm text-white/80 leading-relaxed">
                   Built on Solana blockchain infrastructure, leveraging high-throughput transaction processing and sub-second finality. The SPL token standard ensures compatibility with the broader Solana ecosystem while maintaining low transaction costs.
                 </p>
               </CardContent>
             </Card>
 
-            <Card className="border-border bg-card">
+            <Card className="border-white/20 bg-black/40 backdrop-blur-md">
               <CardContent className="p-6">
-                <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4 border border-primary/20">
-                  <Activity className="h-6 w-6 text-primary" />
+                <div className="h-12 w-12 rounded-lg bg-white/10 flex items-center justify-center mb-4 border border-white/20">
+                  <Activity className="h-6 w-6 text-white" />
                 </div>
-                <h3 className="text-lg font-semibold text-foreground mb-2 font-mono">Reward Algorithm</h3>
-                <p className="text-sm text-muted-foreground leading-relaxed">
+                <h3 className="text-lg font-semibold text-white mb-2 font-mono">Reward Algorithm</h3>
+                <p className="text-sm text-white/80 leading-relaxed">
                   Dynamic reward calculation based on agent interaction metrics, user engagement duration, and quality feedback scores. The algorithm employs weighted factors to ensure fair distribution while preventing manipulation through activity gaming.
                 </p>
               </CardContent>
             </Card>
 
-            <Card className="border-border bg-card">
+            <Card className="border-white/20 bg-black/40 backdrop-blur-md">
               <CardContent className="p-6">
-                <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4 border border-primary/20">
-                  <Database className="h-6 w-6 text-primary" />
+                <div className="h-12 w-12 rounded-lg bg-white/10 flex items-center justify-center mb-4 border border-white/20">
+                  <Database className="h-6 w-6 text-white" />
                 </div>
-                <h3 className="text-lg font-semibold text-foreground mb-2 font-mono">Treasury Management</h3>
-                <p className="text-sm text-muted-foreground leading-relaxed">
+                <h3 className="text-lg font-semibold text-white mb-2 font-mono">Treasury Management</h3>
+                <p className="text-sm text-white/80 leading-relaxed">
                   The $SIMAI treasury is funded through platform revenue and creator contributions, establishing a sustainable pool for ongoing reward distribution. Smart contract governance ensures transparent allocation and prevents treasury depletion.
                 </p>
               </CardContent>
             </Card>
 
-            <Card className="border-border bg-card">
+            <Card className="border-white/20 bg-black/40 backdrop-blur-md">
               <CardContent className="p-6">
-                <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4 border border-primary/20">
-                  <Shield className="h-6 w-6 text-primary" />
+                <div className="h-12 w-12 rounded-lg bg-white/10 flex items-center justify-center mb-4 border border-white/20">
+                  <Shield className="h-6 w-6 text-white" />
                 </div>
-                <h3 className="text-lg font-semibold text-foreground mb-2 font-mono">Security Model</h3>
-                <p className="text-sm text-muted-foreground leading-relaxed">
+                <h3 className="text-lg font-semibold text-white mb-2 font-mono">Security Model</h3>
+                <p className="text-sm text-white/80 leading-relaxed">
                   Multi-signature wallet architecture for treasury access, time-locked distribution mechanisms, and automated auditing systems. All token movements are cryptographically verified and publicly accessible on-chain.
                 </p>
               </CardContent>

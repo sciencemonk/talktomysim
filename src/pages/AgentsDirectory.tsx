@@ -315,13 +315,13 @@ const AgentsDirectory = () => {
         </div>
 
         {/* Abstract */}
-        <Card className="mb-8 border-border bg-card">
+        <Card className="mb-8 border-white/20 bg-black/40 backdrop-blur-md">
           <CardContent className="p-8">
-            <h2 className="text-3xl font-bold mb-6 font-mono flex items-center gap-2">
+            <h2 className="text-3xl font-bold mb-6 font-mono flex items-center gap-2 text-white">
               <Users className="h-6 w-6" />
               About This Registry
             </h2>
-            <p className="text-muted-foreground leading-relaxed">
+            <p className="text-white/90 leading-relaxed">
               This directory contains only SIMs (Social Intelligence Machines) created by authenticated X account holders. 
               Each agent listed has been created by a user who signed in with their X (Twitter) credentials, establishing 
               a direct link between the AI agent and a verified social identity. This ensures all agents in this registry 
@@ -331,45 +331,45 @@ const AgentsDirectory = () => {
         </Card>
 
         {/* Search */}
-        <Card className="mb-8 border-border bg-card">
+        <Card className="mb-8 border-white/20 bg-black/40 backdrop-blur-md">
           <CardContent className="p-6">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-white/60" />
               <Input
                 type="text"
                 placeholder="Search agents by name or description..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 font-mono bg-background/50"
+                className="pl-10 font-mono bg-black/30 border-white/20 text-white placeholder:text-white/50"
               />
             </div>
           </CardContent>
         </Card>
 
         {/* Agent Registry */}
-        <Card className="mb-8 border-border bg-card">
+        <Card className="mb-8 border-white/20 bg-black/40 backdrop-blur-md">
           <CardContent className="p-8">
-            <h2 className="text-3xl font-bold mb-6 font-mono flex items-center gap-2">
+            <h2 className="text-3xl font-bold mb-6 font-mono flex items-center gap-2 text-white">
               <Shield className="h-6 w-6" />
               Authenticated Agent Registry
             </h2>
 
             {isLoading ? (
               <div className="text-center py-12">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-                <p className="text-muted-foreground mt-4 font-mono">Loading agent registry...</p>
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto"></div>
+                <p className="text-white/80 mt-4 font-mono">Loading agent registry...</p>
               </div>
             ) : filteredAgents.length === 0 ? (
               <div className="text-center py-16">
                 <div className="max-w-2xl mx-auto">
-                  <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-primary/10 flex items-center justify-center">
-                    <Shield className="h-8 w-8 text-primary" />
+                  <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-white/10 flex items-center justify-center">
+                    <Shield className="h-8 w-8 text-white" />
                   </div>
-                  <h3 className="text-2xl font-bold mb-4 font-mono">In Development</h3>
-                  <p className="text-muted-foreground font-mono text-lg mb-6">
+                  <h3 className="text-2xl font-bold mb-4 font-mono text-white">In Development</h3>
+                  <p className="text-white/80 font-mono text-lg mb-6">
                     The agent registry is currently under development. Check back soon for authenticated X agents.
                   </p>
-                  <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
+                  <div className="flex items-center justify-center gap-2 text-sm text-white/70">
                     <div className="w-2 h-2 rounded-full bg-yellow-500 animate-pulse"></div>
                     <span>Building the future of social AI</span>
                   </div>
@@ -388,17 +388,17 @@ const AgentsDirectory = () => {
                       onClick={() => handleAgentClick(agent)}
                       className="w-full text-left"
                     >
-                      <div className="border border-border/50 rounded-lg p-4 hover:border-primary/50 hover:bg-muted/30 transition-all duration-200 group">
+                      <div className="border border-white/20 rounded-lg p-4 hover:border-white/40 hover:bg-white/10 transition-all duration-200 group bg-black/20 backdrop-blur-sm">
                         <div className="flex items-start gap-4">
                           {/* Avatar */}
-                          <Avatar className="w-16 h-16 flex-shrink-0 border-2 border-border group-hover:border-primary/50 transition-colors">
+                          <Avatar className="w-16 h-16 flex-shrink-0 border-2 border-white/20 group-hover:border-white/40 transition-colors">
                             <AvatarImage 
                               src={getAvatarSrc(agent)}
                               alt={agent.name}
                               referrerPolicy="no-referrer"
                               crossOrigin="anonymous"
                             />
-                            <AvatarFallback className="bg-primary/10 text-primary">
+                            <AvatarFallback className="bg-white/10 text-white">
                               <User className="h-8 w-8" />
                             </AvatarFallback>
                           </Avatar>
@@ -406,7 +406,7 @@ const AgentsDirectory = () => {
                           {/* Content */}
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 mb-2">
-                              <h3 className="text-lg font-bold font-mono text-foreground group-hover:text-primary transition-colors">
+                              <h3 className="text-lg font-bold font-mono text-white group-hover:text-white transition-colors">
                                 {agent.name}
                               </h3>
                               {isVerified && (
@@ -428,22 +428,22 @@ const AgentsDirectory = () => {
                               )}
                             </div>
 
-                            <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
+                            <p className="text-sm text-white/80 mb-3 line-clamp-2">
                               {agent.auto_description || agent.description}
                             </p>
 
                             {/* Badges */}
                             <div className="flex flex-wrap gap-2">
-                              <Badge variant="outline" className="font-mono text-xs bg-primary/10 border-primary/30 text-primary">
+                              <Badge variant="outline" className="font-mono text-xs bg-white/10 border-white/30 text-white">
                                 {simCategoryType || 'Chat'}
                               </Badge>
                               {(agent as any).marketplace_category && (agent as any).marketplace_category !== 'uncategorized' && (
-                                <Badge variant="outline" className="font-mono text-xs bg-muted/50 border-muted-foreground/20">
+                                <Badge variant="outline" className="font-mono text-xs bg-white/10 border-white/20 text-white/80">
                                   {(agent as any).marketplace_category}
                                 </Badge>
                               )}
                               {(agent as any).like_count > 0 && (
-                                <Badge variant="outline" className="font-mono text-xs bg-red-500/10 border-red-500/30 text-red-600 dark:text-red-400">
+                                <Badge variant="outline" className="font-mono text-xs bg-red-500/20 border-red-500/30 text-red-300">
                                   ❤ {(agent as any).like_count}
                                 </Badge>
                               )}
@@ -453,9 +453,9 @@ const AgentsDirectory = () => {
                           {/* Verification Icon */}
                           <div className="flex-shrink-0">
                             {isVerified ? (
-                              <CheckCircle className="h-6 w-6 text-green-600 dark:text-green-400" />
+                              <CheckCircle className="h-6 w-6 text-green-400" />
                             ) : (
-                              <XCircle className="h-6 w-6 text-yellow-600 dark:text-yellow-400" />
+                              <XCircle className="h-6 w-6 text-yellow-400" />
                             )}
                           </div>
                         </div>

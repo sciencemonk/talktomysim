@@ -206,9 +206,9 @@ export default function Documentation() {
         </div>
 
         {/* Abstract */}
-        <Card className="mb-8 border-border bg-card">
+        <Card className="mb-8 border-white/20 bg-black/40 backdrop-blur-md">
           <CardContent className="p-8">
-            <h2 className="text-3xl font-bold mb-6 font-mono flex items-center gap-2">
+            <h2 className="text-3xl font-bold mb-6 font-mono flex items-center gap-2 text-white">
               <FileCode className="h-6 w-6" />
               Abstract
             </h2>
@@ -228,9 +228,9 @@ export default function Documentation() {
         </Card>
 
         {/* System Architecture Overview */}
-        <Card className="mb-8 border-border bg-card">
+        <Card className="mb-8 border-white/20 bg-black/40 backdrop-blur-md">
           <CardContent className="p-8">
-            <h2 className="text-3xl font-bold mb-6 font-mono flex items-center gap-2">
+            <h2 className="text-3xl font-bold mb-6 font-mono flex items-center gap-2 text-white">
               <Brain className="h-6 w-6" />
               1. System Architecture Overview
             </h2>
