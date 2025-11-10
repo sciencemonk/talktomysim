@@ -55,13 +55,13 @@ const Index = () => {
       {/* Hero Section */}
       <main className="container mx-auto px-4 py-20 text-center">
         <div className="max-w-4xl mx-auto">
-          <h1 className="text-5xl font-bold tracking-tight mb-6">
+          <h1 className="text-5xl sm:text-7xl font-bold font-mono tracking-tight text-foreground mb-6">
             AI Agents that make you{" "}
             <span className="text-primary inline-block min-w-[200px] transition-all duration-300">
               {cyclingWord}
             </span>
           </h1>
-          <p className="text-xl text-gray-600 mb-8 leading-relaxed">
+          <p className="text-xl text-muted-foreground mb-8 leading-relaxed max-w-4xl mx-auto">
             ChatGPT is one-size-fits-all. Sim is uniquely yours. Create your own AI—a personal assistant, 
             financial advisor, or trusted friend. Connect your crypto wallet, customize personality and knowledge, 
             and build an AI that truly understands you.
@@ -84,8 +84,8 @@ const Index = () => {
               <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4 mx-auto">
                 <Bot className="h-6 w-6 text-primary" />
               </div>
-              <h3 className="font-semibold text-lg mb-2">Your AI, Your Way</h3>
-              <p className="text-gray-600">
+              <h3 className="text-lg font-semibold text-foreground mb-2 font-mono">Your AI, Your Way</h3>
+              <p className="text-sm text-muted-foreground leading-relaxed">
                 Customize your Sim's personality, knowledge base, and capabilities to match your needs and style.
               </p>
             </div>
@@ -94,8 +94,8 @@ const Index = () => {
               <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4 mx-auto">
                 <Wallet className="h-6 w-6 text-primary" />
               </div>
-              <h3 className="font-semibold text-lg mb-2">Crypto-Connected</h3>
-              <p className="text-gray-600">
+              <h3 className="text-lg font-semibold text-foreground mb-2 font-mono">Crypto-Connected</h3>
+              <p className="text-sm text-muted-foreground leading-relaxed">
                 Connect your crypto wallet for a truly personalized financial advisor that understands your portfolio.
               </p>
             </div>
@@ -104,8 +104,8 @@ const Index = () => {
               <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4 mx-auto">
                 <Users className="h-6 w-6 text-primary" />
               </div>
-              <h3 className="font-semibold text-lg mb-2">Truly Personal</h3>
-              <p className="text-gray-600">
+              <h3 className="text-lg font-semibold text-foreground mb-2 font-mono">Truly Personal</h3>
+              <p className="text-sm text-muted-foreground leading-relaxed">
                 Unlike generic AI, your Sim learns your preferences, context, and goals to provide genuinely personalized assistance.
               </p>
             </div>
