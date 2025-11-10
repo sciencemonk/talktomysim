@@ -471,8 +471,8 @@ const About = () => {
               <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
                 Connect your X account and create your SIM—an AI agent that learns from you, acts on your behalf, and helps you thrive in the digital universe.
               </p>
-              <Button onClick={handleCreateAgent} size="lg" className="gap-2 font-bold px-8 py-5 text-base transition-all duration-300 bg-[#635cff] hover:bg-[#5046E5] text-white border-0 shadow-xl shadow-[#635cff]/30 hover:shadow-2xl hover:shadow-[#635cff]/40 hover:scale-105 whitespace-nowrap">
-                Create your AI Agent with <img src={xIcon} alt="X" className="h-5 w-5 inline-block" />
+              <Button onClick={handleCreateAgent} variant="outline" size="lg" className="bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-white/20 hover:text-white text-xl sm:text-2xl px-8 sm:px-12 py-6 gap-3 h-auto">
+                Create your SIM with <img src={xIcon} alt="X" className="h-6 w-6 sm:h-7 sm:w-7 inline-block" />
               </Button>
             </CardContent>
           </Card>
