@@ -53,7 +53,7 @@ export default function AuthCallback() {
         .from('advisors')
         .select('id')
         .eq('user_id', session.user.id)
-        .eq('sim_category', 'SIM')
+        .eq('sim_category', 'Crypto Mail')
         .maybeSingle();
 
       if (!existingSim) {
@@ -93,13 +93,14 @@ Remember: You inherit the reputation and social proof of @${xUsername}'s X accou
           .from('advisors')
           .insert({
             user_id: user.id,
-            name: `${xUsername}'s SIM`,
+            name: `@${xUsername}`,
             description: `AI agent powered by social proof verification via @${xUsername}`,
             prompt: systemPrompt,
             welcome_message: welcomeMessage,
-            sim_category: 'SIM',
+            sim_category: 'Crypto Mail',
             is_active: true,
             is_public: true,
+            twitter_url: `https://x.com/${xUsername}`,
             social_links: {
               userName: xUsername,
               x_username: xUsername,

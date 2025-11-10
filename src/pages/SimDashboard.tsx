@@ -88,8 +88,8 @@ const SimDashboard = () => {
         .from('advisors')
         .select('*')
         .eq('user_id', userId)
-        .eq('sim_category', 'SIM')
-        .single();
+        .eq('sim_category', 'Crypto Mail')
+        .maybeSingle();
 
       if (error && error.code !== 'PGRST116') {
         throw error;
