@@ -275,7 +275,7 @@ export const GodModeMap = ({ agentName }: { agentName: string }) => {
   return (
     <div 
       ref={containerRef}
-      className="relative w-full h-full rounded-lg border border-border overflow-hidden min-h-[600px]"
+      className="relative w-full h-full rounded-lg border border-border overflow-hidden"
       style={{ backgroundColor: resolvedTheme === 'dark' ? '#000000' : '#ffffff' }}
     >
       <canvas

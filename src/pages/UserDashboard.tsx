@@ -405,7 +405,7 @@ const UserDashboard = () => {
                     </Badge>
                   </div>
                 </CardHeader>
-                <CardContent className="p-0">
+                <CardContent className="p-0 h-[350px]">
                   <GodModeMap agentName={userSim.name} />
                 </CardContent>
               </Card>
