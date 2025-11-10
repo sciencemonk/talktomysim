@@ -19,12 +19,7 @@ import { WelcomeModal } from "@/components/WelcomeModal";
 import { useTheme } from "@/hooks/useTheme";
 import SimpleFooter from "@/components/SimpleFooter";
 import AgentCreationLoading from "@/components/AgentCreationLoading";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 type MarketplaceItem = {
   id: string;
   type: 'agent' | 'offering';
@@ -42,11 +37,12 @@ const Marketplace = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState("trending");
   const [categoryFilter, setCategoryFilter] = useState("all");
-  const { theme } = useTheme();
+  const {
+    theme
+  } = useTheme();
   const [resolvedTheme, setResolvedTheme] = useState<'light' | 'dark'>('dark');
   const [isCreatingAgent, setIsCreatingAgent] = useState(false);
   const [currentUser, setCurrentUser] = useState<any>(null);
-
   useEffect(() => {
     if (theme === 'system') {
       const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -55,10 +51,13 @@ const Marketplace = () => {
       setResolvedTheme(theme as 'light' | 'dark');
     }
   }, [theme]);
-
   useEffect(() => {
     const checkUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: {
+          user
+        }
+      } = await supabase.auth.getUser();
       setCurrentUser(user);
     };
     checkUser();
@@ -222,20 +221,13 @@ const Marketplace = () => {
   if (isCreatingAgent) {
     return <AgentCreationLoading />;
   }
-
   return <div className="min-h-screen bg-bg">
       <WelcomeModal />
 
       {/* Hero Section with Video Background */}
       <div className="relative border-b border-border overflow-hidden h-screen">
         {/* Video Background */}
-        <video
-          autoPlay
-          loop
-          muted
-          playsInline
-          className="absolute inset-0 w-full h-full object-cover"
-        >
+        <video autoPlay loop muted playsInline className="absolute inset-0 w-full h-full object-cover">
           <source src="https://kxsvyeirqimcydtkowga.supabase.co/storage/v1/object/sign/storage/11904029_3840_2160_30fps.mp4?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8zNDczMmYzNC1kYzc2LTRhNzgtOGNmOC05MDE5NTRhM2RkMjgiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJzdG9yYWdlLzExOTA0MDI5XzM4NDBfMjE2MF8zMGZwcy5tcDQiLCJpYXQiOjE3NjI3NDkzNzcsImV4cCI6MTc5NDI4NTM3N30.uVl_wMEdyOaP8amz9yFCMhkFkXGbt5jX8Z8bqoQjl4w" type="video/mp4" />
         </video>
         
@@ -248,12 +240,11 @@ const Marketplace = () => {
             <div className="flex items-center justify-between h-16">
               {/* Logo */}
               <button onClick={() => navigate('/')} className="flex items-center hover:opacity-80 transition-opacity">
-                <img src="/sim-logo-white.png" alt="SIM" className="h-8 w-auto" />
+                <img src="/sim-logo-white.png" alt="SIM" className="h-6 w-auto " />
               </button>
               
               {/* Navigation Links - Only show if not signed in */}
-              {!currentUser && (
-                <div className="hidden md:flex items-center gap-8">
+              {!currentUser && <div className="hidden md:flex items-center gap-8">
                   <button onClick={() => navigate('/about')} className="text-white/90 hover:text-white transition-colors text-sm font-medium">
                     About
                   </button>
@@ -269,13 +260,11 @@ const Marketplace = () => {
                   <button onClick={() => navigate('/facilitator')} className="text-white/90 hover:text-white transition-colors text-sm font-medium">
                     x402 Facilitator
                   </button>
-                </div>
-              )}
+                </div>}
               
               {/* Right side - Theme Toggle and Sign In */}
               <div className="flex items-center gap-4">
-                {!currentUser && (
-                  <DropdownMenu>
+                {!currentUser && <DropdownMenu>
                     <DropdownMenuTrigger asChild className="md:hidden">
                       <Button variant="ghost" size="icon" className="text-white hover:bg-white/10">
                         <Menu className="h-5 w-5" />
@@ -298,20 +287,12 @@ const Marketplace = () => {
                         x402 Facilitator
                       </DropdownMenuItem>
                     </DropdownMenuContent>
-                  </DropdownMenu>
-                )}
+                  </DropdownMenu>}
                 
                 <ThemeToggle />
-                {!currentUser && (
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    className="bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-white/20 hover:text-white"
-                    onClick={handleXSignIn}
-                  >
+                {!currentUser && <Button variant="outline" size="sm" className="bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-white/20 hover:text-white" onClick={handleXSignIn}>
                     Sign In
-                  </Button>
-                )}
+                  </Button>}
               </div>
             </div>
           </div>
@@ -319,12 +300,7 @@ const Marketplace = () => {
         
         {/* Content */}
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center justify-center h-[calc(100vh-4rem)]">
-          <Button 
-            variant="outline" 
-            size="lg" 
-            className="bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-white/20 hover:text-white text-xl sm:text-2xl px-8 sm:px-12 py-6 gap-3 h-auto" 
-            onClick={handleXSignIn}
-          >
+          <Button variant="outline" size="lg" className="bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-white/20 hover:text-white text-xl sm:text-2xl px-8 sm:px-12 py-6 gap-3 h-auto" onClick={handleXSignIn}>
             Create your AI Agent with <img src={xIcon} alt="X" className="h-6 w-6 sm:h-7 sm:w-7 inline-block" />
           </Button>
         </div>
