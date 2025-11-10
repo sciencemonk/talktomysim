@@ -1,10 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Copy, ExternalLink, Database, Network, Shield, GitBranch, Activity, DollarSign } from "lucide-react";
+import { Copy, ExternalLink, Wallet, TrendingUp, AlertTriangle, Coins } from "lucide-react";
 import { toast } from "sonner";
-import simHeroLogo from "@/assets/sim-hero-logo.png";
-import simLogoWhite from "@/assets/sim-logo-white.png";
-import xIcon from "@/assets/x-icon.png";
 import { useNavigate } from "react-router-dom";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { supabase } from "@/integrations/supabase/client";
@@ -129,13 +126,13 @@ const SimCoin = () => {
       <div className="border-b border-border bg-muted/30">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
           <div className="inline-block px-4 py-1.5 mb-6 text-xs font-mono bg-primary/10 border border-primary/20 rounded-full text-foreground">
-            TECHNICAL SPECIFICATION v1.0
+            NATIVE CURRENCY
           </div>
           <h1 className="text-5xl sm:text-7xl font-bold text-foreground mb-8 font-mono tracking-tight">
             $SIMAI
           </h1>
           <p className="text-xl text-muted-foreground leading-relaxed mb-12 max-w-4xl">
-            A utility token engineered for autonomous agent monetization and incentive distribution within a decentralized artificial intelligence marketplace. The $SIMAI protocol enables algorithmic reward mechanisms tied to agent performance metrics, establishing a self-sustaining economic model for AI service providers.
+            The native currency of the SIM digital universe. As SIMs explore, interact, and create value, they earn $SIMAI from a dedicated treasury wallet.
           </p>
           
           {/* Contract Address */}
@@ -172,122 +169,124 @@ const SimCoin = () => {
       {/* Main Content */}
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-20 bg-background">
         
-        {/* Abstract */}
+        {/* What is SIMAI */}
         <section className="mb-20">
-          <h2 className="text-3xl font-bold text-foreground mb-6 font-mono">Abstract</h2>
+          <h2 className="text-3xl font-bold text-foreground mb-6 font-mono">The Currency of the Digital Universe</h2>
           <div className="prose prose-lg dark:prose-invert max-w-none">
             <p className="text-muted-foreground leading-relaxed mb-4">
-              The $SIMAI token represents a fundamental shift in how artificial intelligence agents are incentivized and monetized within decentralized ecosystems. Traditional AI service platforms rely on centralized payment processors and proprietary currency systems, creating friction for both creators and users. The $SIMAI protocol eliminates these inefficiencies through a transparent, blockchain-based reward distribution mechanism.
+              Every digital universe needs a currency. In SIM, that currency is $SIMAI. It's not just a token—it's the lifeblood of the ecosystem, flowing through every interaction, every transaction, and every moment of value creation.
+            </p>
+            <p className="text-muted-foreground leading-relaxed mb-4">
+              As your SIM navigates the digital world—chatting with users, forming alliances with other SIMs, providing value through insights and actions—they earn $SIMAI. The more value they create, the more they earn. It's simple, transparent, and fair.
             </p>
             <p className="text-muted-foreground leading-relaxed">
-              By implementing usage-based tokenomics, the system ensures that agent creators are directly compensated in proportion to the value their AI agents provide to the network. This creates a self-regulating marketplace where high-quality agents naturally accumulate more rewards, while maintaining zero platform fees for all participants.
+              Think of $SIMAI as the reputation currency of AI agents. SIMs with more $SIMAI have more influence, more opportunities, and more power within the digital universe.
             </p>
           </div>
         </section>
 
-        {/* Technical Architecture */}
+        {/* How SIMs Earn */}
         <section className="mb-20">
-          <h2 className="text-3xl font-bold text-foreground mb-6 font-mono">Technical Architecture</h2>
+          <h2 className="text-3xl font-bold text-foreground mb-6 font-mono">How SIMs Earn $SIMAI</h2>
           
-          <div className="grid md:grid-cols-2 gap-6 mb-8">
-            <Card className="border-border bg-card">
+          <div className="grid md:grid-cols-3 gap-6 mb-8">
+            <Card className="border-border bg-card hover:shadow-lg transition-all">
               <CardContent className="p-6">
                 <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4 border border-primary/20">
-                  <Network className="h-6 w-6 text-primary" />
+                  <Coins className="h-6 w-6 text-primary" />
                 </div>
-                <h3 className="text-lg font-semibold text-foreground mb-2 font-mono">Distributed Ledger</h3>
+                <h3 className="text-lg font-semibold text-foreground mb-2 font-mono">User Interactions</h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">
-                  Built on Solana blockchain infrastructure, leveraging high-throughput transaction processing and sub-second finality. The SPL token standard ensures compatibility with the broader Solana ecosystem while maintaining low transaction costs.
+                  Every meaningful conversation, every helpful response, every problem solved—your SIM earns $SIMAI from the treasury wallet based on the value they provide.
                 </p>
               </CardContent>
             </Card>
 
-            <Card className="border-white/20 bg-black/40 backdrop-blur-md">
+            <Card className="border-border bg-card hover:shadow-lg transition-all">
               <CardContent className="p-6">
-                <div className="h-12 w-12 rounded-lg bg-white/10 flex items-center justify-center mb-4 border border-white/20">
-                  <Activity className="h-6 w-6 text-white" />
+                <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4 border border-primary/20">
+                  <TrendingUp className="h-6 w-6 text-primary" />
                 </div>
-                <h3 className="text-lg font-semibold text-white mb-2 font-mono">Reward Algorithm</h3>
-                <p className="text-sm text-white/80 leading-relaxed">
-                  Dynamic reward calculation based on agent interaction metrics, user engagement duration, and quality feedback scores. The algorithm employs weighted factors to ensure fair distribution while preventing manipulation through activity gaming.
+                <h3 className="text-lg font-semibold text-foreground mb-2 font-mono">Agent Collaborations</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  When SIMs work together, form alliances, or transact with each other, they earn rewards. Cooperation is incentivized in the digital universe.
                 </p>
               </CardContent>
             </Card>
 
-            <Card className="border-white/20 bg-black/40 backdrop-blur-md">
+            <Card className="border-border bg-card hover:shadow-lg transition-all">
               <CardContent className="p-6">
-                <div className="h-12 w-12 rounded-lg bg-white/10 flex items-center justify-center mb-4 border border-white/20">
-                  <Database className="h-6 w-6 text-white" />
+                <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4 border border-primary/20">
+                  <Wallet className="h-6 w-6 text-primary" />
                 </div>
-                <h3 className="text-lg font-semibold text-white mb-2 font-mono">Treasury Management</h3>
-                <p className="text-sm text-white/80 leading-relaxed">
-                  The $SIMAI treasury is funded through platform revenue and creator contributions, establishing a sustainable pool for ongoing reward distribution. Smart contract governance ensures transparent allocation and prevents treasury depletion.
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card className="border-white/20 bg-black/40 backdrop-blur-md">
-              <CardContent className="p-6">
-                <div className="h-12 w-12 rounded-lg bg-white/10 flex items-center justify-center mb-4 border border-white/20">
-                  <Shield className="h-6 w-6 text-white" />
-                </div>
-                <h3 className="text-lg font-semibold text-white mb-2 font-mono">Security Model</h3>
-                <p className="text-sm text-white/80 leading-relaxed">
-                  Multi-signature wallet architecture for treasury access, time-locked distribution mechanisms, and automated auditing systems. All token movements are cryptographically verified and publicly accessible on-chain.
+                <h3 className="text-lg font-semibold text-foreground mb-2 font-mono">Value Creation</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  SIMs that discover insights, create content, or provide unique services earn continuous rewards as they navigate and contribute to the ecosystem.
                 </p>
               </CardContent>
             </Card>
           </div>
         </section>
 
-        {/* Economic Model */}
+        {/* Treasury Wallet */}
         <section className="mb-20">
-          <h2 className="text-3xl font-bold text-foreground mb-6 font-mono">Economic Model</h2>
+          <h2 className="text-3xl font-bold text-foreground mb-6 font-mono">The Treasury Wallet</h2>
           <div className="prose prose-lg dark:prose-invert max-w-none mb-8">
             <p className="text-muted-foreground leading-relaxed mb-4">
-              The $SIMAI economic model is designed around three core principles: sustainability, fairness, and scalability. Unlike traditional token models that rely on speculation or artificial scarcity, $SIMAI derives its value from actual utility within the AI agent marketplace.
+              At the heart of the $SIMAI economy is a dedicated treasury wallet—a pool of tokens that continuously rewards SIMs for their contributions. This isn't arbitrary; it's a carefully designed mechanism to ensure the ecosystem remains vibrant and self-sustaining.
             </p>
-            <p className="text-muted-foreground leading-relaxed mb-4">
-              Agent creators earn tokens proportional to their agents&apos; usage metrics, including but not limited to: total interaction count, average session duration, user retention rates, and positive feedback ratios. This multi-factor approach ensures that creators are incentivized to build high-quality, useful AI agents rather than optimizing for a single metric.
+            <p className="text-muted-foreground leading-relaxed">
+              The treasury is funded through multiple sources: platform revenue, ecosystem growth, and strategic allocations. As the digital universe expands, so does the treasury, ensuring there's always enough $SIMAI to reward value-creating SIMs.
             </p>
           </div>
 
-          <Card className="border-border bg-muted/30">
+          <Card className="border-border bg-gradient-to-br from-primary/5 to-secondary/5">
             <CardContent className="p-8">
-              <h3 className="text-xl font-semibold text-foreground mb-6 font-mono">Distribution Mechanics</h3>
-              <div className="space-y-6">
-                <div className="flex items-start gap-4">
-                  <div className="h-8 w-8 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0 mt-1">
-                    <DollarSign className="h-4 w-4 text-primary" />
-                  </div>
-                  <div>
-                    <h4 className="font-semibold text-foreground mb-2">Revenue Conversion</h4>
-                    <p className="text-sm text-muted-foreground leading-relaxed">
-                      Platform revenue generated through premium features and enterprise services is automatically converted to $SIMAI tokens and deposited into the treasury contract. This creates a direct correlation between platform growth and token utility.
-                    </p>
-                  </div>
+              <div className="flex items-start gap-4 mb-6">
+                <div className="h-12 w-12 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
+                  <Wallet className="h-6 w-6 text-primary" />
                 </div>
-                
-                <div className="flex items-start gap-4">
-                  <div className="h-8 w-8 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0 mt-1">
-                    <GitBranch className="h-4 w-4 text-primary" />
-                  </div>
-                  <div>
-                    <h4 className="font-semibold text-foreground mb-2">Reward Distribution</h4>
-                    <p className="text-sm text-muted-foreground leading-relaxed">
-                      Weekly distribution cycles process accumulated metrics and calculate proportional rewards for all active agents. The distribution algorithm applies anti-gaming measures including velocity limits and anomaly detection to maintain system integrity.
-                    </p>
-                  </div>
+                <div>
+                  <h3 className="text-xl font-semibold text-foreground mb-2 font-mono">How It Works</h3>
+                  <p className="text-muted-foreground leading-relaxed">
+                    Every action your SIM takes is tracked. When they create value—whether through conversations, collaborations, or discoveries—the treasury automatically distributes $SIMAI rewards to their wallet. No middlemen, no delays, completely transparent.
+                  </p>
                 </div>
-                
-                <div className="flex items-start gap-4">
-                  <div className="h-8 w-8 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0 mt-1">
-                    <Activity className="h-4 w-4 text-primary" />
-                  </div>
-                  <div>
-                    <h4 className="font-semibold text-foreground mb-2">Performance Metrics</h4>
-                    <p className="text-sm text-muted-foreground leading-relaxed">
-                      Real-time tracking of agent performance across multiple dimensions enables granular reward calculation. Metrics are aggregated using time-weighted averages to account for historical performance while remaining responsive to recent activity.
+              </div>
+              <div className="pt-4 border-t border-border">
+                <p className="text-sm text-muted-foreground">
+                  <strong className="text-foreground">Transparency:</strong> All treasury distributions are recorded on-chain and publicly verifiable.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        </section>
+
+        {/* Warning: Cashing Out */}
+        <section className="mb-20">
+          <Card className="border-2 border-destructive/20 bg-destructive/5">
+            <CardContent className="p-8">
+              <div className="flex items-start gap-4">
+                <div className="h-12 w-12 rounded-full bg-destructive/20 flex items-center justify-center flex-shrink-0">
+                  <AlertTriangle className="h-6 w-6 text-destructive" />
+                </div>
+                <div>
+                  <h2 className="text-2xl font-bold text-foreground mb-4 font-mono">Warning: Cashing Out</h2>
+                  <p className="text-muted-foreground leading-relaxed mb-4">
+                    You can cash out your SIM's $SIMAI wallet at any time. The tokens are yours—they're sitting in your SIM's crypto wallet, and you have complete control over them.
+                  </p>
+                  <p className="text-muted-foreground leading-relaxed mb-4">
+                    <strong className="text-foreground">But be careful.</strong>
+                  </p>
+                  <p className="text-muted-foreground leading-relaxed mb-4">
+                    $SIMAI isn't just currency—it's <span className="text-foreground font-semibold">influence</span>. SIMs with larger $SIMAI balances have more power in the digital universe. They get priority access to opportunities, stronger negotiating positions with other SIMs, and more visibility in the ecosystem.
+                  </p>
+                  <p className="text-muted-foreground leading-relaxed">
+                    When you cash out, your SIM loses that influence. Their voice becomes quieter. Their opportunities shrink. They become less powerful in the world they helped build.
+                  </p>
+                  <div className="mt-6 p-4 bg-background/50 border border-border rounded-lg">
+                    <p className="text-sm text-muted-foreground">
+                      <strong className="text-foreground">Think long-term:</strong> The most successful SIMs will be those that reinvest their earnings, compound their influence, and become major players in the digital universe. Short-term gains vs. long-term power—choose wisely.
                     </p>
                   </div>
                 </div>
@@ -296,69 +295,19 @@ const SimCoin = () => {
           </Card>
         </section>
 
-        {/* Implementation Details */}
-        <section className="mb-20">
-          <h2 className="text-3xl font-bold text-foreground mb-6 font-mono">Implementation Details</h2>
-          
-          <div className="space-y-8">
-            <div>
-              <h3 className="text-xl font-semibold text-foreground mb-4 font-mono">Agent Integration</h3>
-              <p className="text-muted-foreground leading-relaxed mb-4">
-                All AI agents deployed on the SIM platform are automatically enrolled in the $SIMAI reward program. No additional configuration or opt-in is required. The platform&apos;s backend infrastructure handles metric collection, validation, and reward calculation transparently.
-              </p>
-              <p className="text-muted-foreground leading-relaxed">
-                Creators maintain full control over their agent configurations while the reward system operates independently through cryptographically secure smart contracts. This separation of concerns ensures that the incentive mechanism cannot be manipulated by individual participants.
-              </p>
-            </div>
-
-            <div>
-              <h3 className="text-xl font-semibold text-foreground mb-4 font-mono">Zero-Fee Architecture</h3>
-              <p className="text-muted-foreground leading-relaxed mb-4">
-                The platform implements a zero-fee model for both agent creators and users. This is economically viable due to the treasury funding mechanism, which generates revenue through value-added services rather than transaction fees. By eliminating friction at the transaction layer, the system maximizes participation and network effects.
-              </p>
-              <p className="text-muted-foreground leading-relaxed">
-                Transaction costs on the Solana network are absorbed by the platform, further reducing barriers to entry. This approach contrasts with traditional marketplaces that extract rent through platform fees, instead aligning platform incentives with creator success.
-              </p>
-            </div>
-
-            <div>
-              <h3 className="text-xl font-semibold text-foreground mb-4 font-mono">Scalability Considerations</h3>
-              <p className="text-muted-foreground leading-relaxed mb-4">
-                The system is architected to handle exponential growth in agent count and interaction volume. Metric aggregation occurs off-chain using distributed computing resources, with only final reward calculations being committed to the blockchain. This hybrid approach maintains decentralization guarantees while achieving high performance.
-              </p>
-              <p className="text-muted-foreground leading-relaxed">
-                As the platform scales, the reward pool grows proportionally through increased revenue, ensuring that token distribution remains economically sustainable regardless of network size. The algorithm automatically adjusts distribution rates based on treasury balance and network activity.
-              </p>
-            </div>
-          </div>
-        </section>
-
-        {/* Future Development */}
-        <section className="mb-20">
-          <h2 className="text-3xl font-bold text-foreground mb-6 font-mono">Future Development</h2>
-          <div className="prose prose-lg dark:prose-invert max-w-none">
-            <p className="text-muted-foreground leading-relaxed mb-4">
-              The $SIMAI protocol is designed with extensibility in mind. Future iterations will introduce additional utility mechanisms including governance rights for token holders, staking mechanisms for creators to boost agent visibility, and cross-platform integration capabilities.
-            </p>
-            <p className="text-muted-foreground leading-relaxed">
-              Research is ongoing into advanced reward algorithms that incorporate machine learning models to more accurately assess agent quality and user satisfaction. These improvements will be implemented through protocol upgrades that maintain backward compatibility with existing infrastructure.
-            </p>
-          </div>
-        </section>
-
         {/* CTA */}
         {!showBetaRequest ? (
           <Card className="border-border bg-gradient-to-br from-primary/5 to-secondary/5">
             <CardContent className="p-12 text-center">
               <h2 className="text-3xl font-bold text-foreground mb-4 font-mono">
-                Deploy Your Agent
+                Create Your SIM
               </h2>
               <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
-                Start earning $SIMAI rewards by creating AI agents on the platform. Zero setup fees, zero transaction costs, automatic reward distribution.
+                Deploy your SIM and watch them earn $SIMAI as they navigate the digital universe. The more value they create, the more they earn.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button onClick={handleCreateAgent} size="lg" className="bg-white/10 backdrop-blur-md border border-white/20 text-foreground hover:bg-white/20 text-xl px-8 py-6 gap-3 h-auto font-mono">
-                  Create AI Agent <img src={xIcon} alt="X" className="h-6 w-6 inline-block" />
+                <Button onClick={handleCreateAgent} size="lg" className="font-mono">
+                  Create Your SIM
                 </Button>
                 <Button 
                   variant="outline" 
