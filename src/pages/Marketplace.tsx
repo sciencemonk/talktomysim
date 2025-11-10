@@ -15,10 +15,10 @@ import xIcon from "@/assets/x-icon.png";
 import { supabase } from "@/integrations/supabase/client";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { toast } from "sonner";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 import { useTheme } from "@/hooks/useTheme";
 import SimpleFooter from "@/components/SimpleFooter";
-import AgentCreationLoading from "@/components/AgentCreationLoading";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 type MarketplaceItem = {
   id: string;
@@ -41,8 +41,9 @@ const Marketplace = () => {
     theme
   } = useTheme();
   const [resolvedTheme, setResolvedTheme] = useState<'light' | 'dark'>('dark');
-  const [isCreatingAgent, setIsCreatingAgent] = useState(false);
   const [currentUser, setCurrentUser] = useState<any>(null);
+  const [showBetaRequest, setShowBetaRequest] = useState(false);
+  const [betaCode, setBetaCode] = useState('');
   useEffect(() => {
     if (theme === 'system') {
       const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -193,34 +194,77 @@ const Marketplace = () => {
     const gradients = ['from-violet-500/20 via-purple-500/20 to-fuchsia-500/20', 'from-blue-500/20 via-cyan-500/20 to-teal-500/20', 'from-emerald-500/20 via-green-500/20 to-lime-500/20', 'from-amber-500/20 via-orange-500/20 to-red-500/20', 'from-pink-500/20 via-rose-500/20 to-red-500/20', 'from-indigo-500/20 via-blue-500/20 to-sky-500/20', 'from-cyan-500/20 via-teal-500/20 to-emerald-500/20', 'from-orange-500/20 via-amber-500/20 to-yellow-500/20'];
     return gradients[index % gradients.length];
   };
+  const generateBetaCode = () => {
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let result = '';
+    for (let i = 0; i < 8; i++) {
+      result += characters.charAt(Math.floor(Math.random() * characters.length));
+    }
+    return result;
+  };
+
+  const handlePostToX = () => {
+    const tweetText = `SIMAI ${betaCode} Request Early Access`;
+    const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}`;
+    window.open(twitterUrl, '_blank');
+  };
+
   const handleXSignIn = async () => {
     try {
-      setIsCreatingAgent(true);
-      const redirectUrl = `${window.location.origin}/auth/callback`;
-      const {
-        data,
-        error
-      } = await supabase.auth.signInWithOAuth({
+      // Open OAuth in a popup window
+      const width = 600;
+      const height = 700;
+      const left = window.screen.width / 2 - width / 2;
+      const top = window.screen.height / 2 - height / 2;
+      
+      const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'twitter',
         options: {
-          redirectTo: redirectUrl,
-          skipBrowserRedirect: false
+          skipBrowserRedirect: false,
+          redirectTo: `${window.location.origin}/auth/callback`,
         }
       });
-      if (error) {
-        console.error('OAuth error:', error);
-        setIsCreatingAgent(false);
-        throw error;
+
+      if (error) throw error;
+
+      // Open the auth URL in a popup
+      if (data.url) {
+        const popup = window.open(
+          data.url,
+          'X Authentication',
+          `width=${width},height=${height},left=${left},top=${top},resizable=yes,scrollbars=yes`
+        );
+
+        // Listen for the popup to close or for auth completion
+        const checkPopup = setInterval(async () => {
+          if (popup && popup.closed) {
+            clearInterval(checkPopup);
+            
+            // Check if user is now authenticated
+            const { data: { session } } = await supabase.auth.getSession();
+            
+            if (session) {
+              const username = session.user.user_metadata?.user_name || session.user.user_metadata?.preferred_username;
+              
+              // Check if authorized
+              if (username?.toLowerCase() === 'mrjethroknights') {
+                // Refresh the page to load the chat interface
+                window.location.reload();
+              } else {
+                // Not authorized - sign them out and show beta request
+                await supabase.auth.signOut();
+                setBetaCode(generateBetaCode());
+                setShowBetaRequest(true);
+              }
+            }
+          }
+        }, 500);
       }
     } catch (error: any) {
       console.error('Error signing in with X:', error);
-      setIsCreatingAgent(false);
       toast.error(error?.message || 'Failed to sign in with X');
     }
   };
-  if (isCreatingAgent) {
-    return <AgentCreationLoading />;
-  }
   return <div className="min-h-screen bg-bg">
       {/* Hero Section with Video Background */}
       <div className="relative border-b border-border overflow-hidden h-screen">
@@ -298,9 +342,27 @@ const Marketplace = () => {
         
         {/* Content */}
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center justify-center h-[calc(100vh-4rem)]">
-          <Button variant="outline" size="lg" className="bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-white/20 hover:text-white text-xl sm:text-2xl px-8 sm:px-12 py-6 gap-3 h-auto" onClick={handleXSignIn}>
-            Create your AI Agent with <img src={xIcon} alt="X" className="h-6 w-6 sm:h-7 sm:w-7 inline-block" />
-          </Button>
+          {!showBetaRequest ? (
+            <Button variant="outline" size="lg" className="bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-white/20 hover:text-white text-xl sm:text-2xl px-8 sm:px-12 py-6 gap-3 h-auto" onClick={handleXSignIn}>
+              Create your AI Agent with <img src={xIcon} alt="X" className="h-6 w-6 sm:h-7 sm:w-7 inline-block" />
+            </Button>
+          ) : (
+            <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-8 max-w-md w-full">
+              <h2 className="text-2xl font-bold text-white mb-4 text-center">Join Private Beta</h2>
+              <p className="text-white/80 mb-6 text-center">Post this on X to request early access:</p>
+              <div className="p-4 bg-black/30 rounded-lg font-mono text-sm text-white mb-6 text-center">
+                SIMAI {betaCode} Request Early Access
+              </div>
+              <div className="space-y-3">
+                <Button onClick={handlePostToX} className="w-full bg-white text-black hover:bg-white/90" size="lg">
+                  Post on X
+                </Button>
+                <Button variant="outline" onClick={() => setShowBetaRequest(false)} className="w-full bg-white/10 border-white/20 text-white hover:bg-white/20">
+                  Back
+                </Button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
