@@ -56,6 +56,7 @@ import OfferingDetail from "./pages/OfferingDetail";
 import OfferingX402 from "./pages/OfferingX402";
 import NFTDetail from "./pages/NFTDetail";
 import SimCoin from "./pages/SimCoin";
+import About from "./pages/About";
 
 const queryClient = new QueryClient();
 
@@ -85,6 +86,7 @@ const App = () => (
               <Route path="/privacy" element={<Privacy />} />
               <Route path="/terms" element={<Terms />} />
               <Route path="/simcoin" element={<SimCoin />} />
+              <Route path="/about" element={<About />} />
               <Route path="/test" element={<Test />} />
               <Route path="/demo" element={<Demo />} />
               <Route path="/demotest" element={<DemoTest />} />

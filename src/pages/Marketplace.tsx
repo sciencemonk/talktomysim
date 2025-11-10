@@ -217,9 +217,9 @@ const Marketplace = () => {
               
               {/* Navigation Links */}
               <div className="hidden md:flex items-center gap-8">
-                <a href="#about" className="text-white/90 hover:text-white transition-colors text-sm font-medium">
+                <button onClick={() => navigate('/about')} className="text-white/90 hover:text-white transition-colors text-sm font-medium">
                   About
-                </a>
+                </button>
                 <button onClick={() => navigate('/agents')} className="text-white/90 hover:text-white transition-colors text-sm font-medium">
                   Agent Directory
                 </button>
@@ -267,9 +267,9 @@ const Marketplace = () => {
               <span className="text-xs text-fgMuted">© 2024 SIM. All rights reserved.</span>
             </div>
             <div className="flex items-center gap-6">
-              <a href="#about" className="text-xs text-fgMuted hover:text-fg transition-colors">
+              <button onClick={() => navigate('/about')} className="text-xs text-fgMuted hover:text-fg transition-colors">
                 About
-              </a>
+              </button>
               <button onClick={() => navigate('/agents')} className="text-xs text-fgMuted hover:text-fg transition-colors">
                 Agent Directory
               </button>
