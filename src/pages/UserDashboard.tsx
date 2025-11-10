@@ -41,13 +41,8 @@ const UserDashboard = () => {
 
   useEffect(() => {
     if (!authLoading) {
-      if (!user) {
-        setIsLoading(false);
-        setShowAuthModal(true);
-      } else {
-        fetchUserSim();
-        startActivitySimulation();
-      }
+      fetchUserSim();
+      startActivitySimulation();
     }
   }, [user, authLoading]);
 
@@ -98,6 +93,43 @@ const UserDashboard = () => {
   const fetchUserSim = async () => {
     try {
       setIsLoading(true);
+      
+      // For testing: if no user, use test data
+      if (!user) {
+        const testSim: Sim = {
+          id: 'test-id',
+          user_id: 'test-user',
+          name: 'Test User',
+          description: 'This is a test SIM for development purposes. A friendly AI agent ready to help!',
+          prompt: 'You are a helpful AI assistant.',
+          creator_prompt: 'You are speaking with your creator. Be detailed and technical.',
+          stranger_prompt: 'You are speaking with a visitor. Be friendly and welcoming.',
+          sim_to_sim_prompt: 'You are communicating with another AI agent. Be collaborative.',
+          welcome_message: 'Hello! How can I help you today?',
+          x_username: 'testuser',
+          x_display_name: 'Test User',
+          twitter_url: 'https://twitter.com/testuser',
+          avatar_url: '/lovable-uploads/1a618b3c-11e7-43e4-a2d5-c1e6f36e48ba.png',
+          crypto_wallet: 'Ea8MxoojkvVBV3XOttAcB1WeXs1',
+          is_verified: true,
+          verification_status: true,
+          verified_at: new Date().toISOString(),
+          edit_code: 'test-code',
+          custom_url: 'testuser',
+          is_active: true,
+          is_public: true,
+          integrations: [],
+          social_links: null,
+          training_completed: false,
+          training_post_count: 0,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        };
+        setUserSim(testSim);
+        setIsLoading(false);
+        return;
+      }
+
       const { data, error } = await supabase
         .from('sims')
         .select('*')
@@ -169,26 +201,6 @@ const UserDashboard = () => {
       <div className="min-h-screen flex items-center justify-center bg-background">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
-    );
-  }
-
-  if (!user) {
-    return (
-      <>
-        <div className="min-h-screen flex items-center justify-center bg-background">
-          <div className="text-center p-8">
-            <h1 className="text-2xl font-bold mb-4">Sign in to view your dashboard</h1>
-            <p className="text-muted-foreground mb-6">Manage your personalized AI SIM</p>
-          </div>
-        </div>
-        <AuthModal 
-          open={showAuthModal} 
-          onOpenChange={(open) => {
-            setShowAuthModal(open);
-            if (!open) navigate('/');
-          }}
-        />
-      </>
     );
   }
 
