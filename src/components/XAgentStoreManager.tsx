@@ -549,46 +549,6 @@ export function XAgentStoreManager({ agentId, walletAddress, onWalletUpdate }: X
 
   return (
     <div className="space-y-6">
-      {/* Wallet Configuration */}
-      <Card className="border-border bg-card/80 backdrop-blur-sm shadow-md">
-        <CardHeader className="p-3">
-          <CardTitle className="text-base font-bold">Payment Configuration</CardTitle>
-          <CardDescription className="text-xs leading-relaxed">
-            Configure your Solana wallet to receive USDC payments. Payments (minus 5% platform fee) go directly to your wallet.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="p-3 space-y-3">
-          <div className="space-y-2">
-            <Label htmlFor="wallet">Solana Wallet Address</Label>
-            <Input
-              id="wallet"
-              type="text"
-              value={walletAddress}
-              onChange={(e) => onWalletUpdate(e.target.value)}
-              placeholder="Enter your Solana wallet address"
-            />
-            <p className="text-xs text-muted-foreground">
-              Your Solana wallet address to receive USDC payments from store purchases
-            </p>
-          </div>
-          <Button 
-            onClick={handleSaveWallet} 
-            className="w-full" 
-            disabled={isSavingWallet}
-            variant="mint"
-          >
-            {isSavingWallet ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Saving...
-              </>
-            ) : (
-              "Save Wallet Address"
-            )}
-          </Button>
-        </CardContent>
-      </Card>
-
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold">Store Management</h2>
@@ -1138,6 +1098,46 @@ export function XAgentStoreManager({ agentId, walletAddress, onWalletUpdate }: X
           </DialogContent>
         </Dialog>
       </div>
+
+      {/* Wallet Configuration */}
+      <Card className="border-border bg-card/80 backdrop-blur-sm shadow-md">
+        <CardHeader className="p-3">
+          <CardTitle className="text-base font-bold">Payment Configuration</CardTitle>
+          <CardDescription className="text-xs leading-relaxed">
+            Configure your Solana wallet to receive USDC payments. Payments (minus 5% platform fee) go directly to your wallet.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="p-3 space-y-3">
+          <div className="space-y-2">
+            <Label htmlFor="wallet">Solana Wallet Address</Label>
+            <Input
+              id="wallet"
+              type="text"
+              value={walletAddress}
+              onChange={(e) => onWalletUpdate(e.target.value)}
+              placeholder="Enter your Solana wallet address"
+            />
+            <p className="text-xs text-muted-foreground">
+              Your Solana wallet address to receive USDC payments from store purchases
+            </p>
+          </div>
+          <Button 
+            onClick={handleSaveWallet} 
+            className="w-full" 
+            disabled={isSavingWallet}
+            variant="mint"
+          >
+            {isSavingWallet ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Saving...
+              </>
+            ) : (
+              "Save Wallet Address"
+            )}
+          </Button>
+        </CardContent>
+      </Card>
 
       {offerings.length === 0 ? (
         <Card>

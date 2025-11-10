@@ -356,13 +356,21 @@ export default function XAgentCreatorView() {
       <div className="container mx-auto px-3 md:px-4 py-6 md:py-8 max-w-7xl">
         <div className="space-y-4 md:space-y-6">
           {/* Tabs */}
-          <Tabs defaultValue="your-page" className="w-full">
+          <Tabs defaultValue="inventory" className="w-full">
             <TabsList className="grid w-full grid-cols-3">
-              <TabsTrigger value="your-page">Your Page</TabsTrigger>
               <TabsTrigger value="inventory">Inventory</TabsTrigger>
+              <TabsTrigger value="your-page">Your Page</TabsTrigger>
               <TabsTrigger value="purchases">Orders</TabsTrigger>
             </TabsList>
             
+            <TabsContent value="inventory" className="mt-6">
+              <XAgentStoreManager 
+                agentId={agent.id}
+                walletAddress={walletAddress}
+                onWalletUpdate={setWalletAddress}
+              />
+            </TabsContent>
+
             <TabsContent value="your-page" className="mt-6">
               <XAgentSimPageEditor
                 agentId={agent.id}
@@ -371,14 +379,6 @@ export default function XAgentCreatorView() {
                 avatarUrl={xData?.profileImageUrl || agent.avatar}
                 walletAddress={walletAddress}
                 isVerified={xData?.verified}
-              />
-            </TabsContent>
-            
-            <TabsContent value="inventory" className="mt-6">
-              <XAgentStoreManager 
-                agentId={agent.id}
-                walletAddress={walletAddress}
-                onWalletUpdate={setWalletAddress}
               />
             </TabsContent>
             
