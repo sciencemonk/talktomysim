@@ -9,7 +9,7 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { supabase } from "@/integrations/supabase/client";
 import { useState, useEffect } from "react";
 import { useTheme } from "@/hooks/useTheme";
-import { LandingFooter } from "@/components/landing/LandingFooter";
+import SimpleFooter from "@/components/SimpleFooter";
 
 export default function Documentation() {
   const navigate = useNavigate();
@@ -738,7 +738,7 @@ for await (const chunk of streamResponse(request)) {
         </div>
       </div>
 
-      <LandingFooter />
+      <SimpleFooter />
     </div>
   );
 }

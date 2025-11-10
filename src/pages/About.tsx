@@ -10,7 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useState, useEffect } from "react";
 import { useTheme } from "@/hooks/useTheme";
 import { toast } from "sonner";
-import { LandingFooter } from "@/components/landing/LandingFooter";
+import SimpleFooter from "@/components/SimpleFooter";
 
 const About = () => {
   const navigate = useNavigate();
@@ -507,7 +507,7 @@ const About = () => {
       </div>
 
       {/* Footer */}
-      <LandingFooter />
+      <SimpleFooter />
     </div>
   );
 };

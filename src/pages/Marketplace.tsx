@@ -17,7 +17,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { toast } from "sonner";
 import { WelcomeModal } from "@/components/WelcomeModal";
 import { useTheme } from "@/hooks/useTheme";
-import { LandingFooter } from "@/components/landing/LandingFooter";
+import SimpleFooter from "@/components/SimpleFooter";
 type MarketplaceItem = {
   id: string;
   type: 'agent' | 'offering';
@@ -292,7 +292,7 @@ const Marketplace = () => {
         </div>
       </div>
 
-      <LandingFooter />
+      <SimpleFooter />
     </div>;
 };
 export default Marketplace;

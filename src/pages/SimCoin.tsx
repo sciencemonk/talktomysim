@@ -10,7 +10,7 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { supabase } from "@/integrations/supabase/client";
 import { useState, useEffect } from "react";
 import { useTheme } from "@/hooks/useTheme";
-import { LandingFooter } from "@/components/landing/LandingFooter";
+import SimpleFooter from "@/components/SimpleFooter";
 
 const SimCoin = () => {
   const navigate = useNavigate();
@@ -345,7 +345,7 @@ const SimCoin = () => {
       </div>
 
       {/* Footer */}
-      <LandingFooter />
+      <SimpleFooter />
     </div>
   );
 };

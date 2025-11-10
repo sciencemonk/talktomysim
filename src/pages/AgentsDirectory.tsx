@@ -15,7 +15,7 @@ import simLogoWhite from "@/assets/sim-logo-white.png";
 import xIcon from "@/assets/x-icon.png";
 import { useState, useEffect } from "react";
 import { useTheme } from "@/hooks/useTheme";
-import { LandingFooter } from "@/components/landing/LandingFooter";
+import SimpleFooter from "@/components/SimpleFooter";
 
 const AgentsDirectory = () => {
   const navigate = useNavigate();
@@ -391,7 +391,7 @@ const AgentsDirectory = () => {
         </Card>
       </div>
 
-      <LandingFooter />
+      <SimpleFooter />
     </div>
   );
 };
