@@ -1,9 +1,9 @@
 import { createUmi } from '@metaplex-foundation/umi-bundle-defaults';
 import { createNft, mplTokenMetadata } from '@metaplex-foundation/mpl-token-metadata';
-import { generateSigner, percentAmount, publicKey } from '@metaplex-foundation/umi';
+import { generateSigner, percentAmount, publicKey, createGenericFileFromBrowserFile } from '@metaplex-foundation/umi';
 import { walletAdapterIdentity } from '@metaplex-foundation/umi-signer-wallet-adapters';
 import { WalletContextState } from '@solana/wallet-adapter-react';
-import { PublicKey } from '@solana/web3.js';
+import { PublicKey, Connection } from '@solana/web3.js';
 import { supabase } from '@/integrations/supabase/client';
 
 export interface NFTMetadata {
@@ -29,49 +29,56 @@ export interface MintNFTResult {
 }
 
 /**
- * Custom RPC implementation that proxies through our edge function
- * This avoids rate limits and 403 errors from public endpoints
+ * Create a custom Umi RPC that proxies all calls through our edge function
  */
-class ProxiedRpcClient {
-  async call(method: string, params: any[]): Promise<any> {
-    const response = await supabase.functions.invoke('mint-nft-proxy', {
-      body: {
-        operation: 'rpc-call',
-        rpcMethod: method,
-        rpcParams: params,
-      },
-    });
+const createProxiedUmi = (wallet: WalletContextState) => {
+  // Create Umi with a dummy endpoint (won't be used)
+  const umi = createUmi('https://api.mainnet-beta.solana.com')
+    .use(walletAdapterIdentity(wallet))
+    .use(mplTokenMetadata());
 
-    if (response.error) {
-      throw new Error(`RPC call failed: ${response.error.message}`);
+  // Override the RPC client to proxy all calls through our edge function
+  const originalRpc = umi.rpc;
+  
+  umi.rpc = new Proxy(originalRpc, {
+    get(target: any, prop: string) {
+      const original = target[prop];
+      
+      if (typeof original === 'function') {
+        return async function(...args: any[]) {
+          console.log(`Proxying RPC call: ${prop}`);
+          
+          try {
+            // Proxy the call through our edge function
+            const response = await supabase.functions.invoke('mint-nft-proxy', {
+              body: {
+                operation: 'rpc-call',
+                rpcMethod: prop,
+                rpcParams: args,
+              },
+            });
+
+            if (response.error) {
+              throw new Error(`RPC call failed: ${response.error.message}`);
+            }
+
+            if (!response.data?.success) {
+              throw new Error(response.data?.error || 'RPC call failed');
+            }
+
+            return response.data.result;
+          } catch (error) {
+            console.error(`Error proxying ${prop}:`, error);
+            throw error;
+          }
+        };
+      }
+      
+      return original;
     }
+  });
 
-    if (!response.data?.success) {
-      throw new Error(response.data?.error || 'RPC call failed');
-    }
-
-    return response.data.result;
-  }
-
-  async getLatestBlockhash(commitment?: string) {
-    const result = await this.call('getLatestBlockhash', [{ commitment: commitment || 'finalized' }]);
-    return result.value;
-  }
-
-  async confirmTransaction(signature: string, commitment?: string) {
-    const result = await this.call('getSignatureStatuses', [[signature]]);
-    return result.value[0];
-  }
-
-  async sendTransaction(transaction: string) {
-    const result = await this.call('sendTransaction', [transaction, { encoding: 'base64' }]);
-    return result;
-  }
-}
-
-// Use proxy for all RPC calls - no more rate limits or 403 errors
-const getRpcClient = () => {
-  return new ProxiedRpcClient();
+  return umi;
 };
 
 /**
@@ -174,7 +181,7 @@ const confirmTransactionWithRetry = async (
 };
 
 /**
- * Mint an NFT (all operations via Helius proxy - no rate limits)
+ * Mint an NFT using Helius-proxied RPC calls (no rate limits or 403 errors)
  */
 export const mintNFT = async ({
   wallet,
@@ -194,11 +201,8 @@ export const mintNFT = async ({
     console.log('Starting NFT minting process...');
     onProgress?.('Initializing...');
 
-    // Use a dummy RPC endpoint for Umi initialization
-    // All actual RPC calls will be proxied through our edge function
-    const umi = createUmi('https://api.mainnet-beta.solana.com')
-      .use(walletAdapterIdentity(wallet))
-      .use(mplTokenMetadata());
+    // Create Umi with proxied RPC client
+    const umi = createProxiedUmi(wallet);
 
     // Upload metadata via Helius-powered proxy (no rate limits)
     const metadataUri = await uploadMetadataWithProxy(
