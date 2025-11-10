@@ -72,10 +72,17 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired, 
   const [briefTime, setBriefTime] = useState("09:00");
   const [briefEmail, setBriefEmail] = useState("");
   const [nftSymbol, setNftSymbol] = useState("");
-  const [nftSupply, setNftSupply] = useState("1");
   const [nftRoyalty, setNftRoyalty] = useState("5");
   const [isNftMinting, setIsNftMinting] = useState(false);
+  const [mintingProgress, setMintingProgress] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Auto-populate wallet address for NFT type when wallet is connected
+  useEffect(() => {
+    if (simType === "NFT" && wallet.publicKey && !cryptoWallet) {
+      setCryptoWallet(wallet.publicKey.toBase58());
+    }
+  }, [simType, wallet.publicKey, cryptoWallet]);
 
   // All sims get all integrations by default
   const allIntegrations = ["solana-explorer", "pumpfun", "x-analyzer", "crypto-prices"];
@@ -341,8 +348,8 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired, 
         const { mintNFT, getEstimatedMintCost } = await import('@/services/nftMintService');
         
         // Show estimated cost
-        const estimatedCost = getEstimatedMintCost();
-        toast.info(`Estimated cost: ${estimatedCost} SOL (includes all fees)`);
+        const { total } = getEstimatedMintCost();
+        toast.info(`Estimated cost: ${total} SOL (includes all fees)`);
         
         try {
           const { mint, signature, metadataUri } = await mintNFT({
@@ -356,6 +363,10 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired, 
               creators: cryptoWallet.trim() ? [{ address: cryptoWallet.trim(), share: 100 }] : undefined,
             },
             imageFile: avatarFile,
+            onProgress: (stage: string) => {
+              setMintingProgress(stage);
+              toast.info(stage);
+            },
           });
 
           // Store NFT info in database
@@ -380,7 +391,6 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired, 
               transaction_signature: signature,
               metadata_uri: metadataUri,
               symbol: nftSymbol.trim().toUpperCase(),
-              supply: parseInt(nftSupply) || 1,
               royalty_percent: parseFloat(nftRoyalty),
             },
           };
@@ -419,8 +429,8 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired, 
           setAvatarPreview(null);
           setCryptoWallet("");
           setNftSymbol("");
-          setNftSupply("1");
           setNftRoyalty("5");
+          setMintingProgress("");
           
           if (onSuccess) {
             await onSuccess();
@@ -621,8 +631,8 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired, 
     setBriefTime("09:00");
     setBriefEmail("");
     setNftSymbol("");
-    setNftSupply("1");
     setNftRoyalty("5");
+    setMintingProgress("");
     setSocialLinksOpen(false);
     onOpenChange(false);
   };
@@ -647,11 +657,14 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired, 
 
             {/* Sim Details Section */}
             <div className="space-y-4">
-              {/* Avatar and Name side by side */}
+              {/* Avatar/NFT Image and Name side by side */}
               <div className="grid grid-cols-[auto,1fr] gap-4 items-start">
-                {/* Avatar Upload */}
+                {/* Avatar/NFT Image Upload */}
                 <div className="space-y-2">
-                  <Label className="text-sm font-medium">Avatar</Label>
+                  <Label className="text-sm font-medium">
+                    {simType === "NFT" ? "NFT Image" : "Avatar"}
+                    {simType === "NFT" && <span className="text-destructive"> *</span>}
+                  </Label>
                   <div
                     onDragOver={handleDragOver}
                     onDragLeave={handleDragLeave}
@@ -665,14 +678,14 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired, 
                           ? "scale-[1.05] ring-4 ring-primary/50 shadow-lg shadow-primary/25"
                           : "hover:scale-[1.02] hover:shadow-md"
                       }
-                      ${avatarPreview ? "ring-2 ring-border" : "ring-2 ring-dashed ring-border hover:ring-primary/50"}
+                      ${avatarPreview ? "ring-2 ring-border" : `ring-2 ring-dashed ring-border hover:ring-primary/50 ${simType === "NFT" && !avatarPreview ? "ring-destructive/50" : ""}`}
                       bg-muted/30 backdrop-blur-sm
                       overflow-hidden group
                     `}
                   >
                     {avatarPreview ? (
                       <>
-                        <img src={avatarPreview} alt="Avatar preview" className="w-full h-full object-cover" />
+                        <img src={avatarPreview} alt={simType === "NFT" ? "NFT preview" : "Avatar preview"} className="w-full h-full object-cover" />
                         <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center">
                           <ImagePlus className="w-6 h-6 text-white" />
                         </div>
@@ -682,7 +695,7 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired, 
                         <Upload
                           className={`
                           w-8 h-8 transition-colors duration-300
-                          ${isDragging ? "text-primary" : "text-muted-foreground group-hover:text-primary"}
+                          ${isDragging ? "text-primary" : simType === "NFT" && !avatarPreview ? "text-destructive" : "text-muted-foreground group-hover:text-primary"}
                         `}
                         />
                       </div>
@@ -694,7 +707,11 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired, 
                     accept="image/*"
                     onChange={handleAvatarChange}
                     className="hidden"
+                    required={simType === "NFT"}
                   />
+                  {simType === "NFT" && !avatarPreview && (
+                    <p className="text-xs text-destructive">Required</p>
+                  )}
                 </div>
 
                 <div className="space-y-2">
@@ -705,7 +722,7 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired, 
                     id="name"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    placeholder={simType === "NFT" ? "Name your NFT collection" : "Name your sim"}
+                    placeholder={simType === "NFT" ? "My Amazing NFT" : "Name your sim"}
                     required
                     maxLength={50}
                     className="h-11 bg-background"
@@ -721,17 +738,19 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired, 
                 <Label htmlFor="crypto-wallet" className="text-sm font-medium">
                   SOL Wallet Address {simType === "NFT" ? <span className="text-destructive">*</span> : <span className="text-muted-foreground">(Optional)</span>}
                 </Label>
-                <Input
-                  id="crypto-wallet"
-                  value={cryptoWallet}
-                  onChange={(e) => setCryptoWallet(e.target.value)}
-                  placeholder="7xKXt...aBcD"
-                  className="h-11 bg-background"
-                  required={simType === "NFT"}
-                />
+                <div className="relative">
+                  <Input
+                    id="crypto-wallet"
+                    value={cryptoWallet}
+                    onChange={(e) => setCryptoWallet(e.target.value)}
+                    placeholder={simType === "NFT" ? "Connect wallet or paste address" : "7xKXt...aBcD"}
+                    className="h-11 bg-background font-mono text-sm"
+                    required={simType === "NFT"}
+                  />
+                </div>
                 <p className="text-xs text-muted-foreground">
                   {simType === "NFT" 
-                    ? "Wallet address to receive NFT and royalties from secondary sales"
+                    ? "Wallet to receive NFT and royalties from secondary sales on marketplaces"
                     : "Required if you want to claim Creator Rewards"
                   }
                 </p>
@@ -893,33 +912,14 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired, 
                     <Input
                       id="nft-symbol"
                       value={nftSymbol}
-                      onChange={(e) => setNftSymbol(e.target.value)}
-                      placeholder="e.g., MYNFT"
+                      onChange={(e) => setNftSymbol(e.target.value.toUpperCase())}
+                      placeholder="MYNFT"
                       maxLength={10}
                       className="h-11 bg-background uppercase"
                       required
                     />
                     <p className="text-xs text-muted-foreground">
-                      NFT collection symbol (max 10 characters)
-                    </p>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="nft-supply" className="text-sm font-medium">
-                      Supply <span className="text-destructive">*</span>
-                    </Label>
-                    <Input
-                      id="nft-supply"
-                      type="number"
-                      min="1"
-                      value={nftSupply}
-                      onChange={(e) => setNftSupply(e.target.value)}
-                      placeholder="1"
-                      className="h-11 bg-background"
-                      required
-                    />
-                    <p className="text-xs text-muted-foreground">
-                      Number of NFTs to mint (1 for unique NFT)
+                      NFT collection symbol (max 10 characters, e.g., BAYC, DEGEN)
                     </p>
                   </div>
 
@@ -942,6 +942,32 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired, 
                     <p className="text-xs text-muted-foreground">
                       Creator royalty percentage on secondary sales (0-100%)
                     </p>
+                  </div>
+
+                  {/* Cost Estimate */}
+                  <div className="rounded-lg border border-border bg-muted/30 p-4 space-y-2">
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-muted-foreground">Estimated Cost:</span>
+                      <span className="font-semibold">~0.02 SOL</span>
+                    </div>
+                    <div className="text-xs text-muted-foreground space-y-1">
+                      <div className="flex justify-between">
+                        <span>• Mint account rent</span>
+                        <span>0.00089 SOL</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>• Metadata account rent</span>
+                        <span>0.0145 SOL</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>• Arweave storage</span>
+                        <span>0.001 SOL</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>• Transaction fees</span>
+                        <span>~0.00001 SOL</span>
+                      </div>
+                    </div>
                   </div>
                 </>
               )}
@@ -1267,7 +1293,7 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired, 
                 {isSubmitting || isNftMinting ? (
                   <>
                     <Loader2 className="w-5 h-5 animate-spin" />
-                    {isNftMinting ? "Minting NFT..." : "Creating..."}
+                    {isNftMinting && mintingProgress ? mintingProgress : isNftMinting ? "Minting NFT..." : "Creating..."}
                   </>
                 ) : (
                   <>
