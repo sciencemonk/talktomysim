@@ -161,7 +161,7 @@ const confirmTransactionWithRetry = async (
 };
 
 /**
- * Mint an NFT on Solana using Metaplex
+ * Mint an NFT via Helius-powered server proxy (no rate limits)
  */
 export const mintNFT = async ({
   wallet,
@@ -178,82 +178,65 @@ export const mintNFT = async ({
       throw new Error('Image file is required for NFT minting');
     }
 
-    console.log('Starting NFT minting process...');
+    console.log('Starting NFT minting process via proxy...');
     onProgress?.('Initializing...');
 
-    // Initialize Umi with Solana RPC endpoint
-    const rpcEndpoint = getSolanaRpcEndpoint();
-    const umi = createUmi(rpcEndpoint)
-      .use(walletAdapterIdentity(wallet))
-      .use(mplTokenMetadata());
+    // Convert image to base64
+    onProgress?.('Preparing image...');
+    const imageBase64 = await new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const base64 = reader.result as string;
+        // Remove data URL prefix (e.g., "data:image/png;base64,")
+        const base64Data = base64.split(',')[1];
+        resolve(base64Data);
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(imageFile);
+    });
 
-    console.log('Connected to Solana RPC');
+    onProgress?.('Uploading to server...');
 
-    // Upload metadata and image to Supabase Storage
-    const metadataUri = await uploadMetadataWithSupabase(
-      imageFile, 
-      {
-        name: metadata.name,
-        symbol: metadata.symbol,
-        description: metadata.description,
-        attributes: metadata.attributes,
-        sellerFeeBasisPoints: metadata.sellerFeeBasisPoints,
-        creators: metadata.creators,
+    // Call the proxy edge function
+    const response = await supabase.functions.invoke('mint-nft-proxy', {
+      body: {
+        walletAddress: wallet.publicKey.toBase58(),
+        metadata: {
+          name: metadata.name,
+          symbol: metadata.symbol,
+          description: metadata.description,
+          attributes: metadata.attributes,
+          sellerFeeBasisPoints: metadata.sellerFeeBasisPoints,
+          creators: metadata.creators,
+        },
+        imageBase64,
+        imageFileName: imageFile.name,
       },
-      wallet.publicKey.toBase58(),
-      onProgress
-    );
-
-    console.log('Metadata uploaded:', metadataUri);
-
-    // Generate a new mint keypair
-    const mint = generateSigner(umi);
-    
-    onProgress?.('Creating NFT on-chain...');
-    console.log('Creating NFT with mint address:', mint.publicKey.toString());
-
-    // Create the NFT using Metaplex
-    const tx = createNft(umi, {
-      mint,
-      name: metadata.name,
-      symbol: metadata.symbol,
-      uri: metadataUri,
-      sellerFeeBasisPoints: percentAmount((metadata.sellerFeeBasisPoints || 0) / 100),
-      creators: metadata.creators?.map((creator) => ({
-        address: publicKey(creator.address),
-        verified: creator.address === wallet.publicKey.toBase58(),
-        share: creator.share,
-      })),
     });
 
-    // Send and get signature
-    const result = await tx.sendAndConfirm(umi, {
-      confirm: { commitment: 'confirmed' },
-    });
+    if (response.error) {
+      console.error('Proxy function error:', response.error);
+      throw new Error(response.error.message || 'Failed to mint NFT via proxy');
+    }
 
-    const signature = Buffer.from(result.signature).toString('base64');
-    const signatureHex = Buffer.from(result.signature).toString('hex');
-    
-    console.log('Transaction sent:', signatureHex);
-    console.log('View on Solscan:', `https://solscan.io/tx/${signatureHex}`);
-    
-    onProgress?.('Confirming transaction...');
+    const { data } = response;
 
-    // Confirm with retry logic
-    await confirmTransactionWithRetry(umi, result.signature);
+    if (!data.success) {
+      throw new Error(data.error || 'Minting failed');
+    }
 
-    console.log('NFT minted successfully:', {
-      mint: mint.publicKey.toString(),
-      signature: signatureHex,
-      metadataUri,
+    console.log('NFT minted successfully via proxy:', {
+      mint: data.mint,
+      signature: data.signature,
+      metadataUri: data.metadataUri,
     });
 
     onProgress?.('NFT created successfully!');
 
     return {
-      mint: mint.publicKey.toString(),
-      signature: signatureHex,
-      metadataUri,
+      mint: data.mint,
+      signature: data.signature,
+      metadataUri: data.metadataUri,
     };
   } catch (error) {
     console.error('Error minting NFT:', error);
