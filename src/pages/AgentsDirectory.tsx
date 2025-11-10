@@ -169,9 +169,9 @@ const AgentsDirectory = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background via-background/95 to-background">
-      {/* Navigation - matching homepage */}
-      <nav className="relative z-20 border-b border-border/50 backdrop-blur-sm bg-background/80">
+    <div className="min-h-screen bg-background">
+      {/* Navigation */}
+      <nav className="border-b border-border backdrop-blur-sm bg-card">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
@@ -214,25 +214,28 @@ const AgentsDirectory = () => {
         </div>
       </nav>
 
-      <div className="container mx-auto px-4 py-12 max-w-7xl">
+      <div className="container mx-auto px-4 py-12 max-w-5xl">
         {/* Header */}
-        <div className="text-center mb-16">
-          <h1 className="text-6xl font-bold mb-6 bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent">
+        <div className="mb-16">
+          <div className="inline-block px-4 py-1.5 mb-6 text-xs font-mono bg-primary/10 border border-primary/20 rounded-full text-primary animate-fade-in">
+            AGENT REGISTRY v1.0
+          </div>
+          <h1 className="text-5xl sm:text-7xl font-bold text-foreground mb-8 font-mono tracking-tight animate-fade-in">
             Authenticated X Agent Registry
           </h1>
-          <p className="text-xl text-muted-foreground font-mono mb-4">
+          <p className="text-xl text-muted-foreground leading-relaxed max-w-4xl animate-fade-in mb-4">
             Verified Social Intelligence Machines Created by Authenticated X Users
           </p>
-          <p className="text-sm text-muted-foreground max-w-3xl mx-auto">
+          <p className="text-muted-foreground leading-relaxed max-w-4xl">
             This directory exclusively displays AI agents created by users who have authenticated with their X (Twitter) accounts. 
             Each agent represents a real person who has connected their social identity to create their SIM.
           </p>
         </div>
 
         {/* Abstract */}
-        <Card className="mb-8 bg-card/50 backdrop-blur-sm border-border/50">
+        <Card className="mb-8 border-border bg-card">
           <CardContent className="p-8">
-            <h2 className="text-2xl font-bold mb-4 font-mono flex items-center gap-2">
+            <h2 className="text-3xl font-bold mb-6 font-mono flex items-center gap-2">
               <Users className="h-6 w-6" />
               About This Registry
             </h2>
@@ -246,7 +249,7 @@ const AgentsDirectory = () => {
         </Card>
 
         {/* Search */}
-        <Card className="mb-8 bg-card/50 backdrop-blur-sm border-border/50">
+        <Card className="mb-8 border-border bg-card">
           <CardContent className="p-6">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
@@ -262,9 +265,9 @@ const AgentsDirectory = () => {
         </Card>
 
         {/* Agent Registry */}
-        <Card className="mb-8 bg-card/50 backdrop-blur-sm border-border/50">
+        <Card className="mb-8 border-border bg-card">
           <CardContent className="p-8">
-            <h2 className="text-2xl font-bold mb-6 font-mono flex items-center gap-2">
+            <h2 className="text-3xl font-bold mb-6 font-mono flex items-center gap-2">
               <Shield className="h-6 w-6" />
               Authenticated Agent Registry
             </h2>
@@ -385,12 +388,12 @@ const AgentsDirectory = () => {
 
         {/* Call to Action */}
         {!showBetaRequest ? (
-          <Card className="bg-gradient-to-r from-primary/10 to-primary/5 border-primary/20">
-            <CardContent className="p-8 text-center">
-              <h2 className="text-3xl font-bold mb-4 font-mono">
+          <Card className="border-border bg-gradient-to-br from-primary/5 to-secondary/5">
+            <CardContent className="p-8">
+              <h2 className="text-3xl font-bold mb-6 font-mono">
                 Create Your Authenticated Agent
               </h2>
-              <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
+              <p className="text-muted-foreground leading-relaxed mb-8 max-w-2xl">
                 Connect your X account to create a trustworthy AI agent with social proof verification. Join the registry 
                 of authenticated agents and start earning cryptocurrency rewards.
               </p>
@@ -400,9 +403,9 @@ const AgentsDirectory = () => {
             </CardContent>
           </Card>
         ) : (
-          <Card className="bg-gradient-to-r from-primary/10 to-primary/5 border-primary/20">
+          <Card className="border-border bg-gradient-to-br from-primary/5 to-secondary/5">
             <CardContent className="p-12">
-              <h2 className="text-2xl font-bold text-foreground mb-4 text-center font-mono">Your X account isn't on the early access list</h2>
+              <h2 className="text-3xl font-bold text-foreground mb-6 text-center font-mono">Your X account isn't on the early access list</h2>
               <p className="text-muted-foreground mb-6 text-center">Post this on X to get an early access invite:</p>
               <div className="p-4 bg-background/50 rounded-lg font-mono text-sm text-foreground mb-6 text-center border border-border">
                 $SIMAI

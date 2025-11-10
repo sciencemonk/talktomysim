@@ -64,9 +64,9 @@ export default function Documentation() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background via-background/95 to-background">
+    <div className="min-h-screen bg-background">
       {/* Navigation */}
-      <nav className="border-b border-border/50 bg-background/80 backdrop-blur-sm sticky top-0 z-50">
+      <nav className="border-b border-border backdrop-blur-sm bg-card">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
@@ -111,19 +111,22 @@ export default function Documentation() {
 
       <div className="container mx-auto px-4 py-12 max-w-5xl">
         {/* Header */}
-        <div className="text-center mb-16">
-          <h1 className="text-6xl font-bold mb-6 bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent">
+        <div className="mb-16">
+          <div className="inline-block px-4 py-1.5 mb-6 text-xs font-mono bg-primary/10 border border-primary/20 rounded-full text-primary animate-fade-in">
+            DOCUMENTATION v1.0
+          </div>
+          <h1 className="text-5xl sm:text-7xl font-bold text-foreground mb-8 font-mono tracking-tight animate-fade-in">
             SIM Technical Documentation
           </h1>
-          <p className="text-xl text-muted-foreground font-mono">
-            Implementation Guide v1.0 | System Architecture and Integration Protocols
+          <p className="text-xl text-muted-foreground leading-relaxed max-w-4xl animate-fade-in">
+            Implementation Guide | System Architecture and Integration Protocols
           </p>
         </div>
 
         {/* Abstract */}
-        <Card className="mb-8 bg-card/50 backdrop-blur-sm border-border/50">
+        <Card className="mb-8 border-border bg-card">
           <CardContent className="p-8">
-            <h2 className="text-2xl font-bold mb-4 font-mono flex items-center gap-2">
+            <h2 className="text-3xl font-bold mb-6 font-mono flex items-center gap-2">
               <FileCode className="h-6 w-6" />
               Abstract
             </h2>
@@ -143,9 +146,9 @@ export default function Documentation() {
         </Card>
 
         {/* System Architecture Overview */}
-        <Card className="mb-8 bg-card/50 backdrop-blur-sm border-border/50">
+        <Card className="mb-8 border-border bg-card">
           <CardContent className="p-8">
-            <h2 className="text-2xl font-bold mb-4 font-mono flex items-center gap-2">
+            <h2 className="text-3xl font-bold mb-6 font-mono flex items-center gap-2">
               <Brain className="h-6 w-6" />
               1. System Architecture Overview
             </h2>
@@ -203,9 +206,9 @@ export default function Documentation() {
         </Card>
 
         {/* MCP Servers */}
-        <Card className="mb-8 bg-card/50 backdrop-blur-sm border-border/50">
+        <Card className="mb-8 border-border bg-card">
           <CardContent className="p-8">
-            <h2 className="text-2xl font-bold mb-4 font-mono flex items-center gap-2">
+            <h2 className="text-3xl font-bold mb-6 font-mono flex items-center gap-2">
               <Server className="h-6 w-6" />
               2. Model Context Protocol (MCP) Servers
             </h2>
@@ -334,9 +337,9 @@ class CustomMCPServer implements MCPServer {
         </Card>
 
         {/* Utility Functions */}
-        <Card className="mb-8 bg-card/50 backdrop-blur-sm border-border/50">
+        <Card className="mb-8 border-border bg-card">
           <CardContent className="p-8">
-            <h2 className="text-2xl font-bold mb-4 font-mono flex items-center gap-2">
+            <h2 className="text-3xl font-bold mb-6 font-mono flex items-center gap-2">
               <Settings className="h-6 w-6" />
               3. Utility Function Definition
             </h2>
@@ -457,9 +460,9 @@ U(s, a) = w₁ × (expected_profit)
         </Card>
 
         {/* Chat Interface */}
-        <Card className="mb-8 bg-card/50 backdrop-blur-sm border-border/50">
+        <Card className="mb-8 border-border bg-card">
           <CardContent className="p-8">
-            <h2 className="text-2xl font-bold mb-4 font-mono flex items-center gap-2">
+            <h2 className="text-3xl font-bold mb-6 font-mono flex items-center gap-2">
               <MessageSquare className="h-6 w-6" />
               4. Chat-Based Interface Implementation
             </h2>
@@ -633,9 +636,9 @@ for await (const chunk of streamResponse(request)) {
         </Card>
 
         {/* Integration and Deployment */}
-        <Card className="mb-8 bg-card/50 backdrop-blur-sm border-border/50">
+        <Card className="mb-8 border-border bg-card">
           <CardContent className="p-8">
-            <h2 className="text-2xl font-bold mb-4 font-mono flex items-center gap-2">
+            <h2 className="text-3xl font-bold mb-6 font-mono flex items-center gap-2">
               <Zap className="h-6 w-6" />
               5. Integration and Deployment
             </h2>
@@ -734,9 +737,9 @@ for await (const chunk of streamResponse(request)) {
 
         {/* Getting Started */}
         {!showBetaRequest ? (
-          <Card className="mb-8 bg-card/50 backdrop-blur-sm border-border/50">
+          <Card className="mb-8 border-border bg-card">
             <CardContent className="p-8">
-              <h2 className="text-2xl font-bold mb-4 font-mono flex items-center gap-2">
+              <h2 className="text-3xl font-bold mb-6 font-mono flex items-center gap-2">
                 <Terminal className="h-6 w-6" />
                 6. Getting Started
               </h2>
@@ -750,7 +753,7 @@ for await (const chunk of streamResponse(request)) {
                 configuring the chat interface. Once deployed, your SIM operates autonomously, optimizing against your defined 
                 objectives while earning $SIMAI cryptocurrency rewards based on usage and performance.
               </p>
-              <div className="flex justify-center">
+              <div>
                 <Button onClick={handleCreateAgent} size="lg" className="bg-white/10 backdrop-blur-md border border-white/20 text-foreground hover:bg-white/20 text-xl px-8 py-6 gap-3 h-auto font-mono">
                   Create AI Agent <img src={xIcon} alt="X" className="h-6 w-6 inline-block" />
                 </Button>
@@ -758,9 +761,9 @@ for await (const chunk of streamResponse(request)) {
             </CardContent>
           </Card>
         ) : (
-          <Card className="mb-8 bg-card/50 backdrop-blur-sm border-border/50">
+          <Card className="mb-8 border-border bg-card">
             <CardContent className="p-8">
-              <h2 className="text-2xl font-bold text-foreground mb-4 text-center font-mono">Your X account isn't on the early access list</h2>
+              <h2 className="text-3xl font-bold text-foreground mb-6 text-center font-mono">Your X account isn't on the early access list</h2>
               <p className="text-muted-foreground mb-6 text-center">Post this on X to get an early access invite:</p>
               <div className="p-4 bg-background/50 rounded-lg font-mono text-sm text-foreground mb-6 text-center border border-border">
                 $SIMAI

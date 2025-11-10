@@ -32,8 +32,8 @@ const SimpleFooter = () => {
           
           {/* Right side - Navigation Links */}
           <div className="flex flex-wrap items-center justify-center gap-4 md:gap-6">
-            <button onClick={() => navigate('/')} className="text-muted-foreground hover:text-foreground transition-colors text-sm font-medium">
-              Home
+            <button onClick={() => navigate('/about')} className="text-muted-foreground hover:text-foreground transition-colors text-sm font-medium">
+              About
             </button>
             <button onClick={() => navigate('/agents')} className="text-muted-foreground hover:text-foreground transition-colors text-sm font-medium">
               Agent Directory
