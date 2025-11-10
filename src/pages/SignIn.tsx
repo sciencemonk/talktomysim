@@ -21,16 +21,41 @@ const SignIn = () => {
     try {
       console.log('Starting X sign in...');
       
+      // Open OAuth in a popup window
+      const width = 600;
+      const height = 700;
+      const left = window.screen.width / 2 - width / 2;
+      const top = window.screen.height / 2 - height / 2;
+      
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'twitter',
         options: {
           skipBrowserRedirect: false,
+          redirectTo: `${window.location.origin}/auth/callback`,
         },
       });
 
       if (error) {
         console.error('OAuth error:', error);
         throw error;
+      }
+      
+      // Open the auth URL in a popup
+      if (data.url) {
+        const popup = window.open(
+          data.url,
+          'X Authentication',
+          `width=${width},height=${height},left=${left},top=${top},resizable=yes,scrollbars=yes`
+        );
+
+        // Listen for the popup to close or for auth completion
+        const checkPopup = setInterval(() => {
+          if (popup && popup.closed) {
+            clearInterval(checkPopup);
+            // Refresh the page to check auth status
+            window.location.reload();
+          }
+        }, 500);
       }
       
       console.log('OAuth initiated successfully', data);
