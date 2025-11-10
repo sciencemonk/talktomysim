@@ -15,7 +15,7 @@ import xIcon from "@/assets/x-icon.png";
 import { supabase } from "@/integrations/supabase/client";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { toast } from "sonner";
-import { WelcomeModal } from "@/components/WelcomeModal";
+
 import { useTheme } from "@/hooks/useTheme";
 import SimpleFooter from "@/components/SimpleFooter";
 import AgentCreationLoading from "@/components/AgentCreationLoading";
@@ -222,8 +222,6 @@ const Marketplace = () => {
     return <AgentCreationLoading />;
   }
   return <div className="min-h-screen bg-bg">
-      <WelcomeModal />
-
       {/* Hero Section with Video Background */}
       <div className="relative border-b border-border overflow-hidden h-screen">
         {/* Video Background */}
