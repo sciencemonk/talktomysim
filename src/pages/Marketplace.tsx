@@ -754,8 +754,13 @@ const Marketplace = () => {
           </>
         )}
 
-        {/* Products Grid - Hide when on Stores tab */}
-        {categoryFilter !== 'Stores' && (
+        {/* Products Grid - Hide when on Stores, NFT, or agent category tabs */}
+        {categoryFilter !== 'Stores' && 
+         categoryFilter !== 'NFT' && 
+         categoryFilter !== 'Chatbots' && 
+         categoryFilter !== 'PumpFun Agents' && 
+         categoryFilter !== 'Trading Agents' && 
+         categoryFilter !== 'x402 Agents' && (
           <>
             <div className="mb-6">
               <h2 className="text-2xl font-bold text-fg mb-4">
