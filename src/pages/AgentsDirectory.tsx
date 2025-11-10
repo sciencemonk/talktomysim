@@ -232,24 +232,20 @@ const AgentsDirectory = () => {
           <CardContent className="p-8">
             <h2 className="text-2xl font-bold mb-6 font-mono flex items-center gap-2">
               <TrendingUp className="h-6 w-6" />
-              Registry Statistics
+              SIM Statistics
             </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               <div className="border-l-4 border-primary/50 pl-4">
                 <div className="text-3xl font-bold font-mono text-foreground">{totalAgents}</div>
-                <div className="text-sm text-muted-foreground mt-1">Authenticated X Users</div>
+                <div className="text-sm text-muted-foreground mt-1">Total SIMs Created</div>
               </div>
               <div className="border-l-4 border-green-500/50 pl-4">
                 <div className="text-3xl font-bold font-mono text-green-600 dark:text-green-400">{verifiedAgents}</div>
-                <div className="text-sm text-muted-foreground mt-1">Verified Agents</div>
+                <div className="text-sm text-muted-foreground mt-1">Verified SIMs</div>
               </div>
               <div className="border-l-4 border-blue-500/50 pl-4">
-                <div className="text-3xl font-bold font-mono text-blue-600 dark:text-blue-400">{autonomousAgents}</div>
-                <div className="text-sm text-muted-foreground mt-1">Autonomous Agents</div>
-              </div>
-              <div className="border-l-4 border-purple-500/50 pl-4">
-                <div className="text-3xl font-bold font-mono text-purple-600 dark:text-purple-400">{cryptoMailAgents}</div>
-                <div className="text-sm text-muted-foreground mt-1">Crypto Mail Agents</div>
+                <div className="text-3xl font-bold font-mono text-blue-600 dark:text-blue-400">{totalAgents - verifiedAgents}</div>
+                <div className="text-sm text-muted-foreground mt-1">Pending Verification</div>
               </div>
             </div>
           </CardContent>
