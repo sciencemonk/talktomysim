@@ -257,7 +257,7 @@ const UserDashboard = () => {
           <div className="flex items-center justify-between h-16">
             <button onClick={() => navigate('/landing')} className="flex items-center hover:opacity-80 transition-opacity">
               <div className="bg-black/90 rounded-lg px-2 py-1">
-                <img src={simLogoWhite} alt="SIM" className="h-8" />
+                <img src="/sim-logo-white.png" alt="SIM" className="h-6 w-auto" />
               </div>
             </button>
             
