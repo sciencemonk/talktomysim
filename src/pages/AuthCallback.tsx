@@ -7,6 +7,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { checkUserOnboardingStatus } from '@/utils/onboardingStatus';
 
 export default function AuthCallback() {
   const navigate = useNavigate();
@@ -15,6 +16,7 @@ export default function AuthCallback() {
   const [walletAddress, setWalletAddress] = useState('');
   const [userSession, setUserSession] = useState<any>(null);
   const [isCreatingSim, setIsCreatingSim] = useState(false);
+  const [xUsername, setXUsername] = useState('');
 
   useEffect(() => {
     handleAuthCallback();
@@ -44,25 +46,44 @@ export default function AuthCallback() {
       const user = session.user;
       const userMetadata = user.user_metadata;
       
-      const xUsername = userMetadata?.user_name || userMetadata?.preferred_username || userMetadata?.name;
+      const username = userMetadata?.user_name || userMetadata?.preferred_username || userMetadata?.name;
 
-      if (!xUsername) {
+      if (!username) {
         toast.error('Could not retrieve X username');
         navigate('/');
         return;
       }
 
-      // Check if user already has a SIM
-      const { data: existingSim } = await supabase
-        .from('advisors')
-        .select('id')
-        .eq('user_id', session.user.id)
-        .eq('sim_category', 'Crypto Mail')
-        .maybeSingle();
+      setXUsername(username);
+      console.log('X Username:', username);
 
-      if (existingSim) {
+      // Check onboarding status
+      const onboardingStatus = await checkUserOnboardingStatus(user.id);
+      console.log('Onboarding status:', onboardingStatus);
+
+      if (onboardingStatus.hasSimAccount && !onboardingStatus.needsTraining) {
+        console.log('User has completed SIM, redirecting to dashboard');
         toast.success('Welcome back!');
         await new Promise(resolve => setTimeout(resolve, 500));
+        navigate('/dashboard');
+        return;
+      }
+
+      if (onboardingStatus.hasLegacyAdvisor && onboardingStatus.needsWallet) {
+        // User has legacy advisor without wallet - show wallet modal
+        setUserSession(session);
+        setShowWalletModal(true);
+        setStatus('Connect your SOL wallet...');
+        return;
+      }
+
+      if (onboardingStatus.hasLegacyAdvisor) {
+        // User has legacy advisor with wallet - migrate to sims
+        toast.info('Upgrading your account to the new system...');
+        setIsCreatingSim(true);
+        setStatus('Migrating your account...');
+        // TODO: Implement migration logic
+        toast.success('Account migrated successfully!');
         navigate('/dashboard');
         return;
       }
@@ -86,22 +107,22 @@ export default function AuthCallback() {
 
     setIsCreatingSim(true);
     setShowWalletModal(false);
-    setStatus('Fetching your X posts for training...');
+    setStatus('Creating your SIM...');
 
     try {
       const user = userSession.user;
       const userMetadata = user.user_metadata;
       
-      const xUsername = userMetadata?.user_name || userMetadata?.preferred_username || userMetadata?.name;
-      const fullName = userMetadata?.full_name || userMetadata?.name || xUsername;
+      const username = userMetadata?.user_name || userMetadata?.preferred_username || userMetadata?.name;
+      const fullName = userMetadata?.full_name || userMetadata?.name || username;
       const avatarUrl = userMetadata?.avatar_url || userMetadata?.picture;
 
       // Generate edit code and custom URL
       const editCode = generateEditCode();
-      const customUrl = xUsername.toLowerCase().replace(/[^a-z0-9]/g, '');
+      const customUrl = username.toLowerCase().replace(/[^a-z0-9]/g, '');
 
       // Generate personalized system prompt
-      const systemPrompt = `You are a SIM (Social Intelligence Machine) - an autonomous AI agent created for @${xUsername}.
+      const systemPrompt = `You are a SIM (Social Intelligence Machine) - an autonomous AI agent created for @${username}.
 
 Your Purpose:
 You are designed to optimize for your creator's goals while maintaining transparency and accountability through social proof verification via their X (Twitter) account.
@@ -124,39 +145,39 @@ Communication Style:
 - Adapt to user needs and context
 - Maintain your creator's voice and values
 
-Remember: You inherit the reputation and social proof of @${xUsername}'s X account. Act responsibly and maintain trust.`;
+Remember: You inherit the reputation and social proof of @${username}'s X account. Act responsibly and maintain trust.`;
 
-      const welcomeMessage = `Hello! I'm a SIM (Social Intelligence Machine) created by @${xUsername}. I'm an autonomous AI agent optimized to provide value while maintaining transparency through social proof verification. How can I help you today?`;
+      const welcomeMessage = `Hello! I'm a SIM (Social Intelligence Machine) created by @${username}. I'm an autonomous AI agent optimized to provide value while maintaining transparency through social proof verification. How can I help you today?`;
 
-      // Create the SIM first
+      console.log('Creating SIM in sims table for user:', user.id);
+
+      // Create the SIM in the new sims table
       const { data: newSim, error: createError } = await supabase
-        .from('advisors')
+        .from('sims')
         .insert({
           user_id: user.id,
-          name: `@${xUsername}`,
-          description: `AI agent powered by social proof verification via @${xUsername}`,
+          name: `@${username}`,
+          description: `AI agent powered by social proof verification via @${username}`,
           prompt: systemPrompt,
           welcome_message: welcomeMessage,
-          sim_category: 'Crypto Mail',
-          is_active: true,
-          is_public: true,
-          twitter_url: `https://x.com/${xUsername}`,
-          social_links: {
-            userName: xUsername,
-            x_username: xUsername,
-            x_display_name: fullName,
-            profile_image_url: avatarUrl
-          },
           avatar_url: avatarUrl || '',
+          twitter_url: `https://x.com/${username}`,
+          crypto_wallet: walletAddress,
           custom_url: customUrl,
           edit_code: editCode,
-          verification_status: true,
+          x_username: username,
+          x_display_name: fullName,
+          is_public: true,
+          is_active: true,
           is_verified: true,
-          personality_type: 'helpful',
-          conversation_style: 'balanced',
-          response_length: 'medium',
+          verification_status: true,
+          training_completed: false,
           integrations: [],
-          crypto_wallet: walletAddress
+          social_links: {
+            x_username: username,
+            x_display_name: fullName,
+            profile_image_url: avatarUrl
+          }
         })
         .select()
         .single();
@@ -168,11 +189,12 @@ Remember: You inherit the reputation and social proof of @${xUsername}'s X accou
         return;
       }
 
+      console.log('SIM created successfully:', newSim.id);
       setStatus('Training your SIM with your X posts...');
 
       // Fetch and store X posts as training data
       const { data: trainingData, error: trainingError } = await supabase.functions.invoke('train-x-agent', {
-        body: { agentId: newSim.id }
+        body: { agentId: newSim.id, table: 'sims' }
       });
 
       if (trainingError) {

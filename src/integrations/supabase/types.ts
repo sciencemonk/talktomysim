@@ -352,6 +352,7 @@ export type Database = {
           read: boolean
           sender_email: string | null
           sender_phone: string | null
+          sim_id: string | null
         }
         Insert: {
           advisor_id: string
@@ -361,6 +362,7 @@ export type Database = {
           read?: boolean
           sender_email?: string | null
           sender_phone?: string | null
+          sim_id?: string | null
         }
         Update: {
           advisor_id?: string
@@ -370,6 +372,7 @@ export type Database = {
           read?: boolean
           sender_email?: string | null
           sender_phone?: string | null
+          sim_id?: string | null
         }
         Relationships: [
           {
@@ -377,6 +380,13 @@ export type Database = {
             columns: ["advisor_id"]
             isOneToOne: false
             referencedRelation: "advisors"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contact_messages_sim_id_fkey"
+            columns: ["sim_id"]
+            isOneToOne: false
+            referencedRelation: "sims"
             referencedColumns: ["id"]
           },
         ]
@@ -494,6 +504,7 @@ export type Database = {
           id: string
           is_anonymous: boolean | null
           is_creator_conversation: boolean
+          sim_id: string | null
           title: string | null
           tutor_id: string
           updated_at: string | null
@@ -505,6 +516,7 @@ export type Database = {
           id?: string
           is_anonymous?: boolean | null
           is_creator_conversation?: boolean
+          sim_id?: string | null
           title?: string | null
           tutor_id: string
           updated_at?: string | null
@@ -516,12 +528,21 @@ export type Database = {
           id?: string
           is_anonymous?: boolean | null
           is_creator_conversation?: boolean
+          sim_id?: string | null
           title?: string | null
           tutor_id?: string
           updated_at?: string | null
           user_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "conversations_sim_id_fkey"
+            columns: ["sim_id"]
+            isOneToOne: false
+            referencedRelation: "sims"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       credit_usage_log: {
         Row: {
@@ -1153,6 +1174,87 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      sims: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          crypto_wallet: string
+          custom_url: string | null
+          description: string | null
+          edit_code: string
+          id: string
+          integrations: Json | null
+          is_active: boolean
+          is_public: boolean
+          is_verified: boolean
+          name: string
+          prompt: string
+          social_links: Json | null
+          training_completed: boolean | null
+          training_post_count: number | null
+          twitter_url: string
+          updated_at: string
+          user_id: string
+          verification_status: boolean
+          verified_at: string | null
+          welcome_message: string | null
+          x_display_name: string | null
+          x_username: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          crypto_wallet: string
+          custom_url?: string | null
+          description?: string | null
+          edit_code: string
+          id?: string
+          integrations?: Json | null
+          is_active?: boolean
+          is_public?: boolean
+          is_verified?: boolean
+          name: string
+          prompt: string
+          social_links?: Json | null
+          training_completed?: boolean | null
+          training_post_count?: number | null
+          twitter_url: string
+          updated_at?: string
+          user_id: string
+          verification_status?: boolean
+          verified_at?: string | null
+          welcome_message?: string | null
+          x_display_name?: string | null
+          x_username: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          crypto_wallet?: string
+          custom_url?: string | null
+          description?: string | null
+          edit_code?: string
+          id?: string
+          integrations?: Json | null
+          is_active?: boolean
+          is_public?: boolean
+          is_verified?: boolean
+          name?: string
+          prompt?: string
+          social_links?: Json | null
+          training_completed?: boolean | null
+          training_post_count?: number | null
+          twitter_url?: string
+          updated_at?: string
+          user_id?: string
+          verification_status?: boolean
+          verified_at?: string | null
+          welcome_message?: string | null
+          x_display_name?: string | null
+          x_username?: string
+        }
+        Relationships: []
       }
       tutors: {
         Row: {

@@ -96,22 +96,57 @@ const SimDashboard = () => {
 
   const loadSim = async (userId: string) => {
     try {
-      const { data, error } = await supabase
+      // First try to load from the new sims table
+      const { data: simData, error: simError } = await supabase
+        .from('sims')
+        .select('*')
+        .eq('user_id', userId)
+        .maybeSingle();
+
+      if (simError && simError.code !== 'PGRST116') {
+        console.error('Error loading SIM from sims table:', simError);
+      }
+
+      if (simData) {
+        console.log('SIM loaded from sims table:', simData);
+        setSim({
+          id: simData.id,
+          name: simData.name,
+          description: simData.description || '',
+          avatar_url: simData.avatar_url || '',
+          prompt: simData.prompt,
+          welcome_message: simData.welcome_message || '',
+          integrations: simData.integrations,
+          is_verified: simData.is_verified,
+          verification_status: simData.verification_status,
+          social_links: simData.social_links,
+          response_length: 'medium',
+          conversation_style: 'balanced',
+          personality_type: 'helpful',
+        });
+        return;
+      }
+
+      // Fallback to advisors table for legacy users
+      const { data: advisorData, error: advisorError } = await supabase
         .from('advisors')
         .select('*')
         .eq('user_id', userId)
-        .eq('sim_category', 'Crypto Mail')
+        .not('twitter_url', 'is', null)
         .maybeSingle();
 
-      if (error && error.code !== 'PGRST116') {
-        throw error;
+      if (advisorError && advisorError.code !== 'PGRST116') {
+        console.error('Error loading advisor:', advisorError);
       }
 
-      if (data) {
-        setSim(data);
+      if (advisorData) {
+        console.log('Legacy advisor loaded - migration needed');
+        setSim(advisorData);
+        toast.info('Your account needs to be upgraded to the new system');
       }
     } catch (error) {
       console.error('Error loading SIM:', error);
+      toast.error('Failed to load your SIM');
     } finally {
       setLoading(false);
     }

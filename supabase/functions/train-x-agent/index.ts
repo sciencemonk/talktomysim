@@ -16,17 +16,17 @@ serve(async (req) => {
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    const { agentId } = await req.json();
+    const { agentId, table = 'sims' } = await req.json();
     
     if (!agentId) {
       throw new Error('Agent ID is required');
     }
 
-    console.log(`Training X agent: ${agentId}`);
+    console.log(`Training agent: ${agentId} from table: ${table}`);
 
-    // Get the agent's X username
+    // Get the agent's X username from the specified table
     const { data: agent, error: agentError } = await supabase
-      .from('advisors')
+      .from(table)
       .select('social_links, name')
       .eq('id', agentId)
       .single();
@@ -63,10 +63,10 @@ serve(async (req) => {
     const tweets = xData.tweets;
     console.log(`Fetched ${tweets.length} tweets`);
 
-    // Format tweets for training
+    // Format tweets for training (get up to 100 recent tweets)
     const formattedTweets = tweets
       .filter((t: any) => t.text && t.text.trim().length > 0)
-      .slice(0, 100) // Limit to 100 most recent tweets
+      .slice(0, 100)
       .map((t: any) => ({
         text: t.text,
         created_at: t.created_at,
@@ -76,20 +76,32 @@ serve(async (req) => {
         }
       }));
 
-    // Update the agent's social_links with tweet history
+    // Update the agent's social_links with tweet history and training metadata
     const updatedSocialLinks = {
       ...socialLinks,
       tweet_history: formattedTweets,
       last_trained: new Date().toISOString(),
-      tweets_count: formattedTweets.length
+      tweets_count: formattedTweets.length,
+      trained: true,
+      trainedAt: new Date().toISOString(),
+      trainingPostCount: formattedTweets.length
     };
 
+    // Update the agent with training data
+    const updateData: any = {
+      social_links: updatedSocialLinks,
+      updated_at: new Date().toISOString()
+    };
+
+    // For sims table, also update training_completed and training_post_count
+    if (table === 'sims') {
+      updateData.training_completed = true;
+      updateData.training_post_count = formattedTweets.length;
+    }
+
     const { error: updateError } = await supabase
-      .from('advisors')
-      .update({ 
-        social_links: updatedSocialLinks,
-        updated_at: new Date().toISOString()
-      })
+      .from(table)
+      .update(updateData)
       .eq('id', agentId);
 
     if (updateError) {
@@ -103,6 +115,7 @@ serve(async (req) => {
       JSON.stringify({ 
         success: true,
         agentId,
+        table,
         username: xUsername,
         tweetsProcessed: formattedTweets.length,
         lastTrained: updatedSocialLinks.last_trained
