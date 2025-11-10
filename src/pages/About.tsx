@@ -2,14 +2,28 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Shield, UserCheck, Bot, Target, Zap, TrendingUp, Network, Lock } from "lucide-react";
 import simHeroLogo from "@/assets/sim-hero-logo.png";
+import simLogoWhite from "@/assets/sim-logo-white.png";
 import xIcon from "@/assets/x-icon.png";
 import { useNavigate } from "react-router-dom";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { supabase } from "@/integrations/supabase/client";
+import { useState, useEffect } from "react";
+import { useTheme } from "@/hooks/useTheme";
 import { toast } from "sonner";
 
 const About = () => {
   const navigate = useNavigate();
+  const { theme } = useTheme();
+  const [resolvedTheme, setResolvedTheme] = useState<'light' | 'dark'>('dark');
+
+  useEffect(() => {
+    if (theme === 'system') {
+      const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      setResolvedTheme(isDark ? 'dark' : 'light');
+    } else {
+      setResolvedTheme(theme as 'light' | 'dark');
+    }
+  }, [theme]);
 
   const handleXSignIn = async () => {
     try {
@@ -38,7 +52,7 @@ const About = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <button onClick={() => navigate('/')} className="flex items-center hover:opacity-80 transition-opacity">
-              <img src={simHeroLogo} alt="SIM" className="h-8" />
+              <img src={resolvedTheme === 'dark' ? simLogoWhite : simHeroLogo} alt="SIM" className="h-8" />
             </button>
             
             <div className="hidden md:flex items-center gap-8">

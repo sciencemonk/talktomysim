@@ -11,12 +11,25 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { getAvatarUrl } from "@/lib/avatarUtils";
 import { Input } from "@/components/ui/input";
 import simHeroLogo from "@/assets/sim-hero-logo.png";
+import simLogoWhite from "@/assets/sim-logo-white.png";
 import xIcon from "@/assets/x-icon.png";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useTheme } from "@/hooks/useTheme";
 
 const AgentsDirectory = () => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
+  const { theme } = useTheme();
+  const [resolvedTheme, setResolvedTheme] = useState<'light' | 'dark'>('dark');
+
+  useEffect(() => {
+    if (theme === 'system') {
+      const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      setResolvedTheme(isDark ? 'dark' : 'light');
+    } else {
+      setResolvedTheme(theme as 'light' | 'dark');
+    }
+  }, [theme]);
 
   const handleXSignIn = async () => {
     try {
@@ -144,7 +157,7 @@ const AgentsDirectory = () => {
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
             <button onClick={() => navigate('/')} className="flex items-center hover:opacity-80 transition-opacity">
-              <img src={simHeroLogo} alt="SIM" className="h-8" />
+              <img src={resolvedTheme === 'dark' ? simLogoWhite : simHeroLogo} alt="SIM" className="h-8" />
             </button>
             
             {/* Navigation Links */}

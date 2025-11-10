@@ -2,13 +2,27 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Code, Server, Brain, MessageSquare, Settings, Terminal, FileCode, Zap } from "lucide-react";
 import simHeroLogo from "@/assets/sim-hero-logo.png";
+import simLogoWhite from "@/assets/sim-logo-white.png";
 import xIcon from "@/assets/x-icon.png";
 import { useNavigate } from "react-router-dom";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { supabase } from "@/integrations/supabase/client";
+import { useState, useEffect } from "react";
+import { useTheme } from "@/hooks/useTheme";
 
 export default function Documentation() {
   const navigate = useNavigate();
+  const { theme } = useTheme();
+  const [resolvedTheme, setResolvedTheme] = useState<'light' | 'dark'>('dark');
+
+  useEffect(() => {
+    if (theme === 'system') {
+      const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      setResolvedTheme(isDark ? 'dark' : 'light');
+    } else {
+      setResolvedTheme(theme as 'light' | 'dark');
+    }
+  }, [theme]);
 
   const handleXSignIn = async () => {
     try {
@@ -35,7 +49,7 @@ export default function Documentation() {
             onClick={() => navigate('/')}
           >
             <img 
-              src={simHeroLogo} 
+              src={resolvedTheme === 'dark' ? simLogoWhite : simHeroLogo} 
               alt="SIM" 
               className="h-10 w-auto transition-transform group-hover:scale-105" 
             />
