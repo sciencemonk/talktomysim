@@ -21,7 +21,18 @@ const SimpleFooter = () => {
   return (
     <footer className="bg-card border-t border-border px-6 py-6">
       <div className="max-w-7xl mx-auto">
-        <div className="flex flex-col items-center gap-4">
+        <div className="flex items-center justify-between gap-8">
+          {/* Left side - Logo and Copyright */}
+          <div className="flex flex-col gap-2">
+            <button onClick={() => navigate('/')} className="hover:opacity-80 transition-opacity">
+              <img src={resolvedTheme === 'dark' ? simLogoWhite : simHeroLogo} alt="SIM" className="h-6" />
+            </button>
+            <p className="text-xs text-muted-foreground">
+              © 2025 SIM Project. All rights reserved.
+            </p>
+          </div>
+          
+          {/* Right side - Navigation Links */}
           <div className="flex items-center gap-6">
             <button 
               onClick={() => navigate('/')} 
@@ -47,15 +58,6 @@ const SimpleFooter = () => {
             >
               $SIMAI
             </button>
-          </div>
-          
-          <div className="flex flex-col items-center gap-2">
-            <button onClick={() => navigate('/')} className="hover:opacity-80 transition-opacity">
-              <img src={resolvedTheme === 'dark' ? simLogoWhite : simHeroLogo} alt="SIM" className="h-6" />
-            </button>
-            <p className="text-xs text-muted-foreground">
-              © 2025 SIM Project. All rights reserved.
-            </p>
           </div>
         </div>
       </div>
