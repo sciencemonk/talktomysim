@@ -73,6 +73,7 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired, 
   const [briefEmail, setBriefEmail] = useState("");
   const [nftSymbol, setNftSymbol] = useState("");
   const [nftRoyalty, setNftRoyalty] = useState("5");
+  const [nftPrice, setNftPrice] = useState("");
   const [isNftMinting, setIsNftMinting] = useState(false);
   const [mintingProgress, setMintingProgress] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -383,7 +384,7 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired, 
             prompt: "N/A",
             description: description.trim(),
             avatar_url: avatarUrl,
-            price: 0,
+            price: nftPrice ? parseFloat(nftPrice) : 0, // Store listing price for marketplace/store
             integrations: [],
             is_active: true,
             is_public: true,
@@ -435,6 +436,7 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired, 
           setCryptoWallet("");
           setNftSymbol("");
           setNftRoyalty("5");
+          setNftPrice("");
           setMintingProgress("");
           
           if (onSuccess) {
@@ -637,6 +639,7 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired, 
     setBriefEmail("");
     setNftSymbol("");
     setNftRoyalty("5");
+    setNftPrice("");
     setMintingProgress("");
     setSocialLinksOpen(false);
     onOpenChange(false);
@@ -946,6 +949,25 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired, 
                     />
                     <p className="text-xs text-muted-foreground">
                       Creator royalty percentage on secondary sales (0-100%)
+                    </p>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="nft-price" className="text-sm font-medium">
+                      Sale Price (USDC) <span className="text-muted-foreground">(Optional)</span>
+                    </Label>
+                    <Input
+                      id="nft-price"
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      value={nftPrice}
+                      onChange={(e) => setNftPrice(e.target.value)}
+                      placeholder="0.00"
+                      className="h-11 bg-background"
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      List price for your store and marketplace. Leave blank for free mint.
                     </p>
                   </div>
 
