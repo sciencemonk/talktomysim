@@ -204,7 +204,7 @@ const Marketplace = () => {
   };
 
   const handlePostToX = () => {
-    const tweetText = `SIMAI ${betaCode} Request Early Access`;
+    const tweetText = '$SIMAI';
     const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}`;
     window.open(twitterUrl, '_blank');
   };
@@ -297,10 +297,10 @@ const Marketplace = () => {
             </Button>
           ) : (
             <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-8 max-w-md w-full">
-              <h2 className="text-2xl font-bold text-white mb-4 text-center">Join Private Beta</h2>
-              <p className="text-white/80 mb-6 text-center">Post this on X to request early access:</p>
+              <h2 className="text-2xl font-bold text-white mb-4 text-center">Your X account isn't on the private beta list</h2>
+              <p className="text-white/80 mb-6 text-center">Post this on X to get an early access invite:</p>
               <div className="p-4 bg-black/30 rounded-lg font-mono text-sm text-white mb-6 text-center">
-                SIMAI {betaCode} Request Early Access
+                $SIMAI
               </div>
               <div className="space-y-3">
                 <Button onClick={handlePostToX} className="w-full bg-white text-black hover:bg-white/90" size="lg">
