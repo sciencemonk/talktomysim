@@ -28,17 +28,31 @@ export interface MintNFTResult {
   metadataUri: string;
 }
 
-// Get Solana RPC endpoint
-const getSolanaRpcEndpoint = (): string => {
-  // Using public Solana RPC endpoint (free but rate-limited)
-  // For production, consider getting a Helius API key: https://www.helius.dev/
+// Get Helius RPC endpoint via proxy
+const getHeliusRpcEndpoint = async (): Promise<string> => {
+  try {
+    // Use the proxy edge function to get Helius-powered RPC endpoint
+    const response = await supabase.functions.invoke('mint-nft-proxy', {
+      body: {
+        operation: 'get-endpoint',
+      },
+    });
+
+    if (response.data?.endpoint) {
+      return response.data.endpoint;
+    }
+  } catch (error) {
+    console.warn('Could not connect to Helius proxy, using public endpoint:', error);
+  }
+  
+  // Fallback to public endpoint if proxy fails
   return 'https://api.mainnet-beta.solana.com';
 };
 
 /**
- * Upload metadata using Supabase Storage (more reliable than Arweave)
+ * Upload metadata using the Helius-powered proxy (no rate limits)
  */
-const uploadMetadataWithSupabase = async (
+const uploadMetadataWithProxy = async (
   imageFile: File,
   metadata: Omit<NFTMetadata, 'image'>,
   walletAddress: string,
@@ -47,80 +61,54 @@ const uploadMetadataWithSupabase = async (
   try {
     onProgress?.('Uploading image to storage...');
     
-    // Generate unique file name
-    const timestamp = Date.now();
-    const imageFileName = `nft-images/${walletAddress}/${timestamp}-${imageFile.name}`;
-    
-    // Upload image to Supabase Storage
-    const { data: imageData, error: imageError } = await supabase.storage
-      .from('avatars')
-      .upload(imageFileName, imageFile, {
-        cacheControl: '3600',
-        upsert: false,
-      });
-
-    if (imageError) {
-      console.error('Image upload error:', imageError);
-      throw new Error('Failed to upload image: ' + imageError.message);
-    }
-
-    // Get public URL for the image
-    const { data: { publicUrl: imageUrl } } = supabase.storage
-      .from('avatars')
-      .getPublicUrl(imageFileName);
-
-    console.log('Image uploaded to:', imageUrl);
-
-    onProgress?.('Creating metadata file...');
-    
-    // Create complete metadata with image URL
-    const completeMetadata = {
-      name: metadata.name,
-      symbol: metadata.symbol,
-      description: metadata.description,
-      image: imageUrl,
-      attributes: metadata.attributes || [],
-      properties: {
-        files: [
-          {
-            uri: imageUrl,
-            type: imageFile.type,
-          },
-        ],
-        category: 'image',
-      },
-      seller_fee_basis_points: metadata.sellerFeeBasisPoints || 0,
-      creators: metadata.creators || [],
-    };
-
-    // Upload metadata JSON to Supabase Storage
-    const metadataFileName = `nft-metadata/${walletAddress}/${timestamp}-metadata.json`;
-    const metadataBlob = new Blob([JSON.stringify(completeMetadata, null, 2)], {
-      type: 'application/json',
+    // Convert image to base64
+    const imageBase64 = await new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const base64 = reader.result as string;
+        const base64Data = base64.split(',')[1];
+        resolve(base64Data);
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(imageFile);
     });
 
-    const { data: metadataData, error: metadataError } = await supabase.storage
-      .from('avatars')
-      .upload(metadataFileName, metadataBlob, {
-        cacheControl: '3600',
-        upsert: false,
-      });
+    onProgress?.('Creating metadata...');
 
-    if (metadataError) {
-      console.error('Metadata upload error:', metadataError);
-      throw new Error('Failed to upload metadata: ' + metadataError.message);
+    // Upload via proxy edge function
+    const response = await supabase.functions.invoke('mint-nft-proxy', {
+      body: {
+        operation: 'upload-metadata',
+        walletAddress,
+        metadata: {
+          name: metadata.name,
+          symbol: metadata.symbol,
+          description: metadata.description,
+          attributes: metadata.attributes,
+          sellerFeeBasisPoints: metadata.sellerFeeBasisPoints,
+          creators: metadata.creators,
+        },
+        imageBase64,
+        imageFileName: imageFile.name,
+      },
+    });
+
+    if (response.error) {
+      console.error('Proxy upload error:', response.error);
+      throw new Error(response.error.message || 'Failed to upload metadata');
     }
 
-    // Get public URL for the metadata
-    const { data: { publicUrl: metadataUrl } } = supabase.storage
-      .from('avatars')
-      .getPublicUrl(metadataFileName);
+    const { data } = response;
 
-    console.log('Metadata uploaded to:', metadataUrl);
+    if (!data.success) {
+      throw new Error(data.error || 'Upload failed');
+    }
 
-    return metadataUrl;
+    console.log('Metadata uploaded via proxy:', data.metadataUrl);
+    return data.metadataUrl;
+
   } catch (error) {
-    console.error('Error uploading metadata:', error);
+    console.error('Error uploading metadata via proxy:', error);
     
     if (error instanceof Error) {
       throw new Error('Failed to upload NFT data: ' + error.message);
@@ -161,7 +149,7 @@ const confirmTransactionWithRetry = async (
 };
 
 /**
- * Mint an NFT via Helius-powered server proxy (no rate limits)
+ * Mint an NFT using Helius-powered proxy for RPC calls
  */
 export const mintNFT = async ({
   wallet,
@@ -178,65 +166,83 @@ export const mintNFT = async ({
       throw new Error('Image file is required for NFT minting');
     }
 
-    console.log('Starting NFT minting process via proxy...');
+    console.log('Starting NFT minting process with Helius proxy...');
     onProgress?.('Initializing...');
 
-    // Convert image to base64
-    onProgress?.('Preparing image...');
-    const imageBase64 = await new Promise<string>((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => {
-        const base64 = reader.result as string;
-        // Remove data URL prefix (e.g., "data:image/png;base64,")
-        const base64Data = base64.split(',')[1];
-        resolve(base64Data);
-      };
-      reader.onerror = reject;
-      reader.readAsDataURL(imageFile);
-    });
+    // Get Helius RPC endpoint
+    const rpcEndpoint = await getHeliusRpcEndpoint();
+    console.log('Using RPC endpoint:', rpcEndpoint.includes('helius') ? 'Helius (no rate limits)' : 'Public (rate limited)');
 
-    onProgress?.('Uploading to server...');
+    // Initialize Umi with the RPC endpoint
+    const umi = createUmi(rpcEndpoint)
+      .use(walletAdapterIdentity(wallet))
+      .use(mplTokenMetadata());
 
-    // Call the proxy edge function
-    const response = await supabase.functions.invoke('mint-nft-proxy', {
-      body: {
-        walletAddress: wallet.publicKey.toBase58(),
-        metadata: {
-          name: metadata.name,
-          symbol: metadata.symbol,
-          description: metadata.description,
-          attributes: metadata.attributes,
-          sellerFeeBasisPoints: metadata.sellerFeeBasisPoints,
-          creators: metadata.creators,
-        },
-        imageBase64,
-        imageFileName: imageFile.name,
+    // Upload metadata via proxy (uses Helius for any RPC calls)
+    const metadataUri = await uploadMetadataWithProxy(
+      imageFile, 
+      {
+        name: metadata.name,
+        symbol: metadata.symbol,
+        description: metadata.description,
+        attributes: metadata.attributes,
+        sellerFeeBasisPoints: metadata.sellerFeeBasisPoints,
+        creators: metadata.creators,
       },
+      wallet.publicKey.toBase58(),
+      onProgress
+    );
+
+    console.log('Metadata uploaded:', metadataUri);
+
+    // Generate a new mint keypair
+    const mint = generateSigner(umi);
+    
+    onProgress?.('Creating NFT on-chain...');
+    console.log('Creating NFT with mint address:', mint.publicKey.toString());
+
+    // Create the NFT using Metaplex
+    const tx = createNft(umi, {
+      mint,
+      name: metadata.name,
+      symbol: metadata.symbol,
+      uri: metadataUri,
+      sellerFeeBasisPoints: percentAmount((metadata.sellerFeeBasisPoints || 0) / 100),
+      creators: metadata.creators?.map((creator) => ({
+        address: publicKey(creator.address),
+        verified: creator.address === wallet.publicKey.toBase58(),
+        share: creator.share,
+      })),
     });
 
-    if (response.error) {
-      console.error('Proxy function error:', response.error);
-      throw new Error(response.error.message || 'Failed to mint NFT via proxy');
-    }
+    // Send and get signature
+    const result = await tx.sendAndConfirm(umi, {
+      confirm: { commitment: 'confirmed' },
+    });
 
-    const { data } = response;
+    const signature = Buffer.from(result.signature).toString('base64');
+    const signatureHex = Buffer.from(result.signature).toString('hex');
+    
+    console.log('Transaction sent:', signatureHex);
+    console.log('View on Solscan:', `https://solscan.io/tx/${signatureHex}`);
+    
+    onProgress?.('Confirming transaction...');
 
-    if (!data.success) {
-      throw new Error(data.error || 'Minting failed');
-    }
+    // Confirm with retry logic
+    await confirmTransactionWithRetry(umi, result.signature);
 
-    console.log('NFT minted successfully via proxy:', {
-      mint: data.mint,
-      signature: data.signature,
-      metadataUri: data.metadataUri,
+    console.log('NFT minted successfully:', {
+      mint: mint.publicKey.toString(),
+      signature: signatureHex,
+      metadataUri,
     });
 
     onProgress?.('NFT created successfully!');
 
     return {
-      mint: data.mint,
-      signature: data.signature,
-      metadataUri: data.metadataUri,
+      mint: mint.publicKey.toString(),
+      signature: signatureHex,
+      metadataUri,
     };
   } catch (error) {
     console.error('Error minting NFT:', error);
@@ -281,9 +287,33 @@ export const getNFTMetadata = async (
   mintAddress: string
 ): Promise<NFTMetadata | null> => {
   try {
-    const rpcEndpoint = getSolanaRpcEndpoint();
-    
-    // Use Helius DAS API to fetch NFT metadata
+    // Try to use Helius proxy first
+    try {
+      const response = await supabase.functions.invoke('mint-nft-proxy', {
+        body: {
+          operation: 'rpc-call',
+          rpcMethod: 'getAsset',
+          rpcParams: { id: mintAddress },
+        },
+      });
+
+      if (response.data?.success && response.data.result) {
+        const asset = response.data.result;
+        return {
+          name: asset.content?.metadata?.name || '',
+          symbol: asset.content?.metadata?.symbol || '',
+          description: asset.content?.metadata?.description || '',
+          image: asset.content?.links?.image || asset.content?.files?.[0]?.uri || '',
+          attributes: asset.content?.metadata?.attributes || [],
+          sellerFeeBasisPoints: asset.royalty?.basis_points || 0,
+        };
+      }
+    } catch (proxyError) {
+      console.warn('Helius proxy not available, using public endpoint');
+    }
+
+    // Fallback to public endpoint
+    const rpcEndpoint = 'https://api.mainnet-beta.solana.com';
     const response = await fetch(rpcEndpoint, {
       method: 'POST',
       headers: {
@@ -306,7 +336,7 @@ export const getNFTMetadata = async (
     const data = await response.json();
     
     if (data.error) {
-      console.error('Error from Helius:', data.error);
+      console.error('Error from RPC:', data.error);
       return null;
     }
 

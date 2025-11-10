@@ -125,3 +125,6 @@ verify_jwt = false
 
 [functions.fix-agent-offerings]
 verify_jwt = false
+
+[functions.mint-nft-proxy]
+verify_jwt = false
