@@ -1188,6 +1188,7 @@ export type Database = {
         Row: {
           avatar_url: string | null
           created_at: string
+          creator_prompt: string | null
           crypto_wallet: string
           custom_url: string | null
           description: string | null
@@ -1199,7 +1200,9 @@ export type Database = {
           is_verified: boolean
           name: string
           prompt: string
+          sim_to_sim_prompt: string | null
           social_links: Json | null
+          stranger_prompt: string | null
           training_completed: boolean | null
           training_post_count: number | null
           twitter_url: string
@@ -1214,6 +1217,7 @@ export type Database = {
         Insert: {
           avatar_url?: string | null
           created_at?: string
+          creator_prompt?: string | null
           crypto_wallet: string
           custom_url?: string | null
           description?: string | null
@@ -1225,7 +1229,9 @@ export type Database = {
           is_verified?: boolean
           name: string
           prompt: string
+          sim_to_sim_prompt?: string | null
           social_links?: Json | null
+          stranger_prompt?: string | null
           training_completed?: boolean | null
           training_post_count?: number | null
           twitter_url: string
@@ -1240,6 +1246,7 @@ export type Database = {
         Update: {
           avatar_url?: string | null
           created_at?: string
+          creator_prompt?: string | null
           crypto_wallet?: string
           custom_url?: string | null
           description?: string | null
@@ -1251,7 +1258,9 @@ export type Database = {
           is_verified?: boolean
           name?: string
           prompt?: string
+          sim_to_sim_prompt?: string | null
           social_links?: Json | null
+          stranger_prompt?: string | null
           training_completed?: boolean | null
           training_post_count?: number | null
           twitter_url?: string
