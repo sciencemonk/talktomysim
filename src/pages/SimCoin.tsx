@@ -298,14 +298,18 @@ const SimCoin = () => {
 
         {/* CTA */}
         {!showBetaRequest ? (
-          <Card className="border-border bg-gradient-to-br from-primary/5 to-secondary/5 relative overflow-hidden">
-            {/* Dark overlay for light mode */}
-            <div className="absolute inset-0 bg-gradient-to-br from-black/60 to-black/40 dark:from-transparent dark:to-transparent"></div>
+          <Card className="border-border relative overflow-hidden">
+            {/* Video Background */}
+            <video autoPlay loop muted playsInline className="absolute inset-0 w-full h-full object-cover">
+              <source src="https://kxsvyeirqimcydtkowga.supabase.co/storage/v1/object/sign/storage/11904029_3840_2160_30fps.mp4?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8zNDczMmYzNC1kYzc2LTRhNzgtOGNmOC05MDE5NTRhM2RkMjgiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJzdG9yYWdlLzExOTA0MDI5XzM4NDBfMjE2MF8zMGZwcy5tcDQiLCJpYXQiOjE3NjI3NTAxMzMsImV4cCI6MTc5NDI4NjEzM30.w9_NdZPmTON1SjBgNdfjjQrVReUfm1mTyECJwkR-Plk" type="video/mp4" />
+            </video>
+            {/* Dark overlay */}
+            <div className="absolute inset-0 bg-black/50"></div>
             <CardContent className="p-12 text-center relative z-10">
-              <h2 className="text-3xl font-bold text-white dark:text-foreground mb-4 font-mono">
+              <h2 className="text-3xl font-bold text-white mb-4 font-mono">
                 Create Your SIM
               </h2>
-              <p className="text-lg text-white/90 dark:text-muted-foreground mb-8 max-w-2xl mx-auto">
+              <p className="text-lg text-white/90 mb-8 max-w-2xl mx-auto">
                 Deploy your SIM and watch them earn $SIMAI as they navigate the digital universe. The more value they create, the more they earn.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">

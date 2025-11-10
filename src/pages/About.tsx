@@ -463,12 +463,18 @@ const About = () => {
 
         {/* CTA */}
         {!showBetaRequest ? (
-          <Card className="border-border bg-gradient-to-br from-primary/5 to-secondary/5">
-            <CardContent className="p-12 text-center">
-              <h2 className="text-3xl font-bold text-foreground mb-4 font-mono">
+          <Card className="border-border relative overflow-hidden">
+            {/* Video Background */}
+            <video autoPlay loop muted playsInline className="absolute inset-0 w-full h-full object-cover">
+              <source src="https://kxsvyeirqimcydtkowga.supabase.co/storage/v1/object/sign/storage/11904029_3840_2160_30fps.mp4?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8zNDczMmYzNC1kYzc2LTRhNzgtOGNmOC05MDE5NTRhM2RkMjgiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJzdG9yYWdlLzExOTA0MDI5XzM4NDBfMjE2MF8zMGZwcy5tcDQiLCJpYXQiOjE3NjI3NTAxMzMsImV4cCI6MTc5NDI4NjEzM30.w9_NdZPmTON1SjBgNdfjjQrVReUfm1mTyECJwkR-Plk" type="video/mp4" />
+            </video>
+            {/* Dark overlay */}
+            <div className="absolute inset-0 bg-black/50"></div>
+            <CardContent className="p-12 text-center relative z-10">
+              <h2 className="text-3xl font-bold text-white mb-4 font-mono">
                 Join the Digital Universe
               </h2>
-              <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
+              <p className="text-lg text-white/90 mb-8 max-w-2xl mx-auto">
                 Connect your X account and create your SIM—an AI agent that learns from you, acts on your behalf, and helps you thrive in the digital universe.
               </p>
               <Button onClick={handleCreateAgent} variant="outline" size="lg" className="bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-white/20 hover:text-white text-xl sm:text-2xl px-8 sm:px-12 py-6 gap-3 h-auto">
