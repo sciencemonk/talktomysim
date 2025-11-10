@@ -474,27 +474,30 @@ export default function MySimChat() {
             ) : (
               messages.map((msg, idx) => (
                 <div key={idx} className="group">
-                  <div className="flex gap-4">
-                    <Avatar className="h-8 w-8 flex-shrink-0 border border-white/[0.08] shadow-sm">
-                      {msg.role === "assistant" ? (
-                        <>
-                          <AvatarImage src={getAvatarUrl(sim.avatar_url)} alt={sim.name} />
-                          <AvatarFallback className="bg-white/5 text-white text-xs">{sim.name.charAt(0)}</AvatarFallback>
-                        </>
-                      ) : (
-                        <AvatarFallback className="bg-white/[0.08] text-white/90 text-xs font-medium">U</AvatarFallback>
-                      )}
-                    </Avatar>
-                    <div className="flex-1 max-w-[85%]">
-                      <div className={`rounded-2xl px-4 py-3 ${
-                        msg.role === "user" 
-                          ? "bg-white/[0.09] text-white/95 border border-white/[0.08]" 
-                          : "bg-transparent text-white/90"
-                      }`}>
-                        <p className="text-[14.5px] leading-[1.65] whitespace-pre-wrap font-normal">{msg.content}</p>
+                  {msg.role === "assistant" ? (
+                    // SIM messages - left side, rich text without bubble
+                    <div className="flex gap-4">
+                      <Avatar className="h-8 w-8 flex-shrink-0 border border-white/[0.08] shadow-sm">
+                        <AvatarImage src={getAvatarUrl(sim.avatar_url)} alt={sim.name} />
+                        <AvatarFallback className="bg-white/5 text-white text-xs">{sim.name.charAt(0)}</AvatarFallback>
+                      </Avatar>
+                      <div className="flex-1">
+                        <p className="text-[14.5px] leading-[1.65] whitespace-pre-wrap font-normal text-white/90">{msg.content}</p>
                       </div>
                     </div>
-                  </div>
+                  ) : (
+                    // User messages - right side, in bubble
+                    <div className="flex gap-4 justify-end">
+                      <div className="max-w-[70%]">
+                        <div className="rounded-2xl px-4 py-3 bg-white/[0.09] text-white/95 border border-white/[0.08]">
+                          <p className="text-[14.5px] leading-[1.65] whitespace-pre-wrap font-normal">{msg.content}</p>
+                        </div>
+                      </div>
+                      <Avatar className="h-8 w-8 flex-shrink-0 border border-white/[0.08] shadow-sm">
+                        <AvatarFallback className="bg-white/[0.08] text-white/90 text-xs font-medium">U</AvatarFallback>
+                      </Avatar>
+                    </div>
+                  )}
                 </div>
               ))
             )}
