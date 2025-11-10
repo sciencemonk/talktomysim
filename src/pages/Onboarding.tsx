@@ -287,12 +287,8 @@ Remember: Every interaction is an opportunity to create value, earn $SIMAI, and 
 
       toast.success("Your SIM has been created successfully! 🎉");
       
-      // Navigate to the sim's page or dashboard
-      if (sim?.custom_url) {
-        navigate(`/${sim.custom_url}`);
-      } else {
-        navigate('/directory');
-      }
+      // Navigate to the signed-in user dashboard
+      navigate('/dashboard');
     } catch (error: any) {
       console.error('Error creating sim:', error);
       toast.error(error.message || "Failed to create SIM. Please try again.");
