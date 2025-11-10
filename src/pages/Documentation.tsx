@@ -74,25 +74,27 @@ export default function Documentation() {
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
             <button onClick={() => navigate('/')} className="flex items-center hover:opacity-80 transition-opacity">
-              <img src="/sim-logo-white.png" alt="SIM" className="h-6 w-auto" />
+              <div className="bg-foreground/90 rounded px-2 py-1">
+                <img src="/sim-logo-white.png" alt="SIM" className="h-5 w-auto" />
+              </div>
             </button>
             
             {/* Desktop Navigation */}
             {!isMobile && (
               <div className="flex items-center gap-8">
-                <button onClick={() => navigate('/about')} className="text-white/90 hover:text-white transition-colors text-sm font-medium">
+                <button onClick={() => navigate('/about')} className="text-muted-foreground hover:text-foreground transition-colors text-sm font-medium">
                   About
                 </button>
-                <button onClick={() => navigate('/agents')} className="text-white/90 hover:text-white transition-colors text-sm font-medium">
+                <button onClick={() => navigate('/agents')} className="text-muted-foreground hover:text-foreground transition-colors text-sm font-medium">
                   Agent Directory
                 </button>
-                <button onClick={() => navigate('/documentation')} className="text-white hover:text-white transition-colors text-sm font-medium">
+                <button onClick={() => navigate('/documentation')} className="text-foreground hover:text-foreground transition-colors text-sm font-medium">
                   Documentation
                 </button>
-                <button onClick={() => navigate('/simai')} className="text-white/90 hover:text-white transition-colors text-sm font-medium">
+                <button onClick={() => navigate('/simai')} className="text-muted-foreground hover:text-foreground transition-colors text-sm font-medium">
                   $SIMAI
                 </button>
-                <button onClick={() => navigate('/facilitator')} className="text-white/90 hover:text-white transition-colors text-sm font-medium">
+                <button onClick={() => navigate('/facilitator')} className="text-muted-foreground hover:text-foreground transition-colors text-sm font-medium">
                   x402 Facilitator
                 </button>
               </div>
@@ -105,7 +107,6 @@ export default function Documentation() {
                 <Button 
                   variant="outline" 
                   size="sm" 
-                  className="bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-white/20 hover:text-white"
                   onClick={handleXSignIn}
                 >
                   Sign In
@@ -116,7 +117,7 @@ export default function Documentation() {
                   variant="ghost"
                   size="sm"
                   onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                  className="p-2 text-white hover:bg-white/10"
+                  className="p-2"
                 >
                   {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
                 </Button>
@@ -127,13 +128,13 @@ export default function Documentation() {
 
         {/* Mobile Navigation Drawer */}
         {isMobile && mobileMenuOpen && (
-          <div className="absolute top-full left-0 right-0 bg-black/90 backdrop-blur-xl border-b border-white/20 shadow-lg z-50">
+          <div className="absolute top-full left-0 right-0 bg-background border-b border-border shadow-lg z-50">
             <div className="max-w-7xl mx-auto px-4 py-4 space-y-2">
               <Button
                 variant="ghost"
                 size="lg"
                 onClick={() => { navigate('/about'); setMobileMenuOpen(false); }}
-                className="w-full justify-start text-base font-medium text-white/80 hover:text-white"
+                className="w-full justify-start text-base font-medium text-muted-foreground hover:text-foreground"
               >
                 About
               </Button>
@@ -141,7 +142,7 @@ export default function Documentation() {
                 variant="ghost"
                 size="lg"
                 onClick={() => { navigate('/agents'); setMobileMenuOpen(false); }}
-                className="w-full justify-start text-base font-medium text-white/80 hover:text-white"
+                className="w-full justify-start text-base font-medium text-muted-foreground hover:text-foreground"
               >
                 Agent Directory
               </Button>
@@ -149,7 +150,7 @@ export default function Documentation() {
                 variant="ghost"
                 size="lg"
                 onClick={() => { navigate('/documentation'); setMobileMenuOpen(false); }}
-                className="w-full justify-start text-base font-medium text-white"
+                className="w-full justify-start text-base font-medium text-foreground"
               >
                 Documentation
               </Button>
@@ -157,7 +158,7 @@ export default function Documentation() {
                 variant="ghost"
                 size="lg"
                 onClick={() => { navigate('/simai'); setMobileMenuOpen(false); }}
-                className="w-full justify-start text-base font-medium text-white/80 hover:text-white"
+                className="w-full justify-start text-base font-medium text-muted-foreground hover:text-foreground"
               >
                 $SIMAI
               </Button>
@@ -165,14 +166,14 @@ export default function Documentation() {
                 variant="ghost"
                 size="lg"
                 onClick={() => { navigate('/facilitator'); setMobileMenuOpen(false); }}
-                className="w-full justify-start text-base font-medium text-white/80 hover:text-white"
+                className="w-full justify-start text-base font-medium text-muted-foreground hover:text-foreground"
               >
                 x402 Facilitator
               </Button>
               <Button
                 variant="outline" 
                 size="lg" 
-                className="w-full justify-start bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-white/20"
+                className="w-full justify-start"
                 onClick={() => { handleXSignIn(); setMobileMenuOpen(false); }}
               >
                 Sign In

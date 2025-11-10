@@ -87,24 +87,26 @@ const SimCoin = () => {
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
             <button onClick={() => navigate('/')} className="flex items-center hover:opacity-80 transition-opacity">
-              <img src="/sim-logo-white.png" alt="SIM" className="h-6 w-auto" />
+              <div className="bg-foreground/90 rounded px-2 py-1">
+                <img src="/sim-logo-white.png" alt="SIM" className="h-5 w-auto" />
+              </div>
             </button>
             
             {/* Navigation Links */}
             <div className="hidden md:flex items-center gap-8">
-              <button onClick={() => navigate('/about')} className="text-white/90 hover:text-white transition-colors text-sm font-medium">
+              <button onClick={() => navigate('/about')} className="text-muted-foreground hover:text-foreground transition-colors text-sm font-medium">
                 About
               </button>
-              <button onClick={() => navigate('/agents')} className="text-white/90 hover:text-white transition-colors text-sm font-medium">
+              <button onClick={() => navigate('/agents')} className="text-muted-foreground hover:text-foreground transition-colors text-sm font-medium">
                 Agent Directory
               </button>
-              <button onClick={() => navigate('/documentation')} className="text-white/90 hover:text-white transition-colors text-sm font-medium">
+              <button onClick={() => navigate('/documentation')} className="text-muted-foreground hover:text-foreground transition-colors text-sm font-medium">
                 Documentation
               </button>
-              <button onClick={() => navigate('/simai')} className="text-white hover:text-white transition-colors text-sm font-medium">
+              <button onClick={() => navigate('/simai')} className="text-foreground hover:text-foreground transition-colors text-sm font-medium">
                 $SIMAI
               </button>
-              <button onClick={() => navigate('/facilitator')} className="text-white/90 hover:text-white transition-colors text-sm font-medium">
+              <button onClick={() => navigate('/facilitator')} className="text-muted-foreground hover:text-foreground transition-colors text-sm font-medium">
                 x402 Facilitator
               </button>
             </div>
@@ -114,7 +116,6 @@ const SimCoin = () => {
               <Button 
                 variant="outline" 
                 size="sm" 
-                className="bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-white/20 hover:text-white"
                 onClick={handleXSignIn}
               >
                 Sign In
