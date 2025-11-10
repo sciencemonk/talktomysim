@@ -319,16 +319,13 @@ const Marketplace = () => {
         
         {/* Content */}
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center justify-center h-[calc(100vh-4rem)]">
-          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-white mb-8 text-center font-mono tracking-tight px-4">
-            Create your AI Agent in seconds
-          </h1>
           <Button 
             variant="outline" 
             size="lg" 
             className="bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-white/20 hover:text-white text-xl sm:text-2xl px-8 sm:px-12 py-6 gap-3 h-auto" 
             onClick={handleXSignIn}
           >
-            Create AI Agent <img src={xIcon} alt="X" className="h-6 w-6 sm:h-7 sm:w-7 inline-block" />
+            Create your AI Agent with <img src={xIcon} alt="X" className="h-6 w-6 sm:h-7 sm:w-7 inline-block" />
           </Button>
         </div>
       </div>
