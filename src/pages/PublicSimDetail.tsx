@@ -17,7 +17,6 @@ import { updateMetaTags, resetMetaTags } from "@/lib/metaTags";
 import { ArrowLeft, Globe, Wallet, Copy, Check, MessageCircle, Package } from "lucide-react";
 import simHeroLogo from "@/assets/sim-hero-logo.png";
 import simLogoWhite from "@/assets/sim-logo-white.png";
-import verifiedBadge from "@/public/lovable-uploads/verified-badge.png";
 import SimpleFooter from "@/components/SimpleFooter";
 
 const PublicSimDetail = () => {
@@ -285,7 +284,7 @@ const PublicSimDetail = () => {
                 <div className="flex items-center gap-2 mb-2">
                   <h1 className="text-3xl font-bold">{sim.name}</h1>
                   {sim.is_verified && (
-                    <img src={verifiedBadge} alt="Verified" className="h-6 w-6" />
+                    <img src="/lovable-uploads/verified-badge.png" alt="Verified" className="h-6 w-6" />
                   )}
                 </div>
                 
