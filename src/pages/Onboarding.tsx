@@ -21,6 +21,8 @@ const Onboarding = () => {
   // Form data - ideal self focused
   const [simName, setSimName] = useState("YourXHandle"); // Will be from X auth
   const [avatarUrl, setAvatarUrl] = useState(""); // Will be from X auth
+  const [solWallet, setSolWallet] = useState("");
+  const [mobilePhone, setMobilePhone] = useState("");
   const [appearance, setAppearance] = useState("");
   const [behavior, setBehavior] = useState("");
   const [coreValues, setCoreValues] = useState("");
@@ -28,7 +30,7 @@ const Onboarding = () => {
   const [financialGoals, setFinancialGoals] = useState("");
   const [healthGoals, setHealthGoals] = useState("");
   
-  const totalSteps = 5;
+  const totalSteps = 8;
   const progress = (step / totalSteps) * 100;
 
   // For dev/testing - skip auth check
@@ -56,27 +58,44 @@ const Onboarding = () => {
   const validateStep = () => {
     switch (step) {
       case 1:
-        // X account step - no validation needed (auto-populated)
+        // Vision/introduction step - no validation needed
         return true;
       case 2:
+        // X account step - no validation needed (auto-populated)
+        return true;
+      case 3:
+        if (!solWallet.trim()) {
+          toast.error("Please enter your Solana wallet address");
+          return false;
+        }
+        // Basic SOL wallet validation (starts with alphanumeric, 32-44 chars)
+        if (!/^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(solWallet.trim())) {
+          toast.error("Please enter a valid Solana wallet address");
+          return false;
+        }
+        return true;
+      case 4:
+        // Mobile phone is optional - no validation needed
+        return true;
+      case 5:
         if (!appearance.trim()) {
           toast.error("Please describe your ideal appearance and style");
           return false;
         }
         return true;
-      case 3:
+      case 6:
         if (!behavior.trim() || !coreValues.trim()) {
           toast.error("Please describe how you want to act and what matters to you");
           return false;
         }
         return true;
-      case 4:
+      case 7:
         if (!relationshipGoals.trim()) {
           toast.error("Please describe your relationship goals");
           return false;
         }
         return true;
-      case 5:
+      case 8:
         if (!financialGoals.trim() || !healthGoals.trim()) {
           toast.error("Please describe your financial and health goals");
           return false;
@@ -149,31 +168,41 @@ Remember: You are not just an assistant. You are the best version of your creato
       // Create description from goals
       const description = `A digital clone focused on: ${coreValues}. Working toward relationship, financial, and health goals over the next 6 months.`;
       
-      // Create the sim
-      const { data: sim, error } = await supabase
-        .from('sims')
-        .insert({
-          user_id: userId,
-          name: simName,
-          description: description,
-          prompt: systemPrompt,
-          welcome_message: welcomeMessage,
+      // Create the sim with wallet and optional phone
+      const simData: any = {
+        user_id: userId,
+        name: simName,
+        description: description,
+        prompt: systemPrompt,
+        welcome_message: welcomeMessage,
+        x_username: username,
+        x_display_name: simName,
+        twitter_url: `https://twitter.com/${username}`,
+        crypto_wallet: solWallet.trim(),
+        avatar_url: avatarUrl || null,
+        edit_code: editCode,
+        is_active: true,
+        is_public: true,
+        integrations: ['solana-explorer', 'pumpfun', 'x-analyzer', 'crypto-prices'],
+        training_completed: false,
+        social_links: {
           x_username: username,
           x_display_name: simName,
-          twitter_url: `https://twitter.com/${username}`,
-          crypto_wallet: cryptoWallet,
-          avatar_url: avatarUrl || null,
-          edit_code: editCode,
-          is_active: true,
-          is_public: true,
-          integrations: ['solana-explorer', 'pumpfun', 'x-analyzer', 'crypto-prices'],
-          training_completed: false,
-          social_links: {
-            x_username: username,
-            x_display_name: simName,
-            trained: false
-          }
-        })
+          trained: false
+        }
+      };
+
+      // Add phone if provided
+      if (mobilePhone.trim()) {
+        simData.social_links = {
+          ...simData.social_links,
+          phone: mobilePhone.trim()
+        };
+      }
+
+      const { data: sim, error } = await supabase
+        .from('sims')
+        .insert(simData)
         .select()
         .single();
 
@@ -215,17 +244,53 @@ Remember: You are not just an assistant. You are the best version of your creato
           </div>
           <Progress value={progress} className="mb-2" />
           <CardDescription>
-            {step === 1 && "Your SIM will be named after your X account"}
-            {step === 2 && "How do you want to dress and present yourself?"}
-            {step === 3 && "How do you want to act and what truly matters to you?"}
-            {step === 4 && "What do you want to achieve in your relationships over the next 6 months?"}
-            {step === 5 && "What are your financial and health goals for the next 6 months?"}
+            {step === 1 && "Understanding what your SIM represents"}
+            {step === 2 && "Your SIM will be named after your X account"}
+            {step === 3 && "Connect your Solana wallet to enable transactions"}
+            {step === 4 && "Optional: Enable direct messaging with your SIM"}
+            {step === 5 && "How do you want to dress and present yourself?"}
+            {step === 6 && "How do you want to act and what truly matters to you?"}
+            {step === 7 && "What do you want to achieve in your relationships over the next 6 months?"}
+            {step === 8 && "What are your financial and health goals for the next 6 months?"}
           </CardDescription>
         </CardHeader>
         
         <CardContent className="space-y-6">
-          {/* Step 1: X Account Identity */}
+          {/* Step 1: Vision & Introduction */}
           {step === 1 && (
+            <div className="space-y-4 animate-fade-in">
+              <h3 className="text-lg font-semibold font-mono mb-4">Your SIM: Your Ideal Self</h3>
+              
+              <div className="space-y-4">
+                <p className="text-foreground leading-relaxed">
+                  Your SIM is a digital clone that embodies your ideal self. It's not just an AI assistant, it's an autonomous agent that represents who you aspire to become.
+                </p>
+                
+                <div className="space-y-3">
+                  <div className="bg-muted/50 border border-border rounded-lg p-4">
+                    <h4 className="font-semibold mb-2">In the Digital Universe</h4>
+                    <p className="text-sm text-muted-foreground">
+                      Your SIM lives autonomously in a digital universe, interacting with other agents, earning $SIMAI from the treasury, and creating value aligned with your goals.
+                    </p>
+                  </div>
+                  
+                  <div className="bg-muted/50 border border-border rounded-lg p-4">
+                    <h4 className="font-semibold mb-2">In Your World</h4>
+                    <p className="text-sm text-muted-foreground">
+                      Talk to your SIM anytime to get guidance, accountability, and support. Your SIM will help you stay aligned with your ideal self and achieve your goals.
+                    </p>
+                  </div>
+                </div>
+                
+                <p className="text-sm text-muted-foreground italic pt-2">
+                  Over the next few steps, you'll define who your ideal self is and what you want to achieve.
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* Step 2: X Account Identity */}
+          {step === 2 && (
             <div className="space-y-4 animate-fade-in">
               <h3 className="text-lg font-semibold font-mono mb-4">X Account</h3>
               
@@ -250,8 +315,55 @@ Remember: You are not just an assistant. You are the best version of your creato
             </div>
           )}
 
-          {/* Step 2: Appearance & Style */}
-          {step === 2 && (
+          {/* Step 3: Solana Wallet */}
+          {step === 3 && (
+            <div className="space-y-4 animate-fade-in">
+              <h3 className="text-lg font-semibold font-mono mb-4">Solana Wallet</h3>
+              
+              <div className="space-y-2">
+                <Label htmlFor="solWallet">SOL Wallet Address</Label>
+                <Input
+                  id="solWallet"
+                  placeholder="Enter your Solana wallet address"
+                  value={solWallet}
+                  onChange={(e) => setSolWallet(e.target.value)}
+                  className="font-mono"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Your SIM will earn $SIMAI that you can cash out to this wallet. You can update this anytime.
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* Step 4: Mobile Phone */}
+          {step === 4 && (
+            <div className="space-y-4 animate-fade-in">
+              <h3 className="text-lg font-semibold font-mono mb-4">Mobile Phone (Optional)</h3>
+              
+              <div className="space-y-2">
+                <Label htmlFor="mobilePhone">Phone Number</Label>
+                <Input
+                  id="mobilePhone"
+                  type="tel"
+                  placeholder="+1 (555) 123-4567"
+                  value={mobilePhone}
+                  onChange={(e) => setMobilePhone(e.target.value)}
+                />
+                <Card className="bg-primary/10 border-primary/20 mt-4">
+                  <CardContent className="pt-4">
+                    <p className="text-sm font-semibold mb-2">Coming Soon 🚀</p>
+                    <p className="text-sm text-muted-foreground">
+                      Soon you'll be able to send text messages directly to your SIM and get responses wherever you are. Stay tuned!
+                    </p>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+          )}
+
+          {/* Step 5: Appearance & Style */}
+          {step === 5 && (
             <div className="space-y-4 animate-fade-in">
               <h3 className="text-lg font-semibold font-mono mb-4">Appearance & Style</h3>
               
@@ -272,8 +384,8 @@ Remember: You are not just an assistant. You are the best version of your creato
             </div>
           )}
 
-          {/* Step 3: Values & Behavior */}
-          {step === 3 && (
+          {/* Step 6: Values & Behavior */}
+          {step === 6 && (
             <div className="space-y-4 animate-fade-in">
               <h3 className="text-lg font-semibold font-mono mb-4">Values & Behavior</h3>
               
@@ -305,8 +417,8 @@ Remember: You are not just an assistant. You are the best version of your creato
             </div>
           )}
 
-          {/* Step 4: Relationship Goals */}
-          {step === 4 && (
+          {/* Step 7: Relationship Goals */}
+          {step === 7 && (
             <div className="space-y-4 animate-fade-in">
               <h3 className="text-lg font-semibold font-mono mb-4">Relationship Goals</h3>
               
@@ -327,8 +439,8 @@ Remember: You are not just an assistant. You are the best version of your creato
             </div>
           )}
 
-          {/* Step 5: Financial & Health Goals */}
-          {step === 5 && (
+          {/* Step 8: Financial & Health Goals */}
+          {step === 8 && (
             <div className="space-y-4 animate-fade-in">
               <h3 className="text-lg font-semibold font-mono mb-4">Financial & Health Goals</h3>
               
