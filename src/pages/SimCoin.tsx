@@ -134,20 +134,20 @@ const SimCoin = () => {
       </nav>
 
       {/* Hero Section */}
-      <div className="relative border-b border-border bg-gradient-to-b from-background via-background to-muted/20">
+      <div className="relative border-b border-white/10 bg-black/20 backdrop-blur-sm">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-          <div className="inline-block px-4 py-1.5 mb-6 text-xs font-mono bg-primary/10 border border-primary/20 rounded-full text-primary">
+          <div className="inline-block px-4 py-1.5 mb-6 text-xs font-mono bg-white/10 border border-white/20 rounded-full text-white">
             TECHNICAL SPECIFICATION v1.0
           </div>
-          <h1 className="text-5xl sm:text-7xl font-bold text-foreground mb-8 font-mono tracking-tight">
+          <h1 className="text-5xl sm:text-7xl font-bold text-white mb-8 font-mono tracking-tight">
             $SIMAI
           </h1>
-          <p className="text-xl text-muted-foreground leading-relaxed mb-12 max-w-4xl">
+          <p className="text-xl text-white/90 leading-relaxed mb-12 max-w-4xl">
             A utility token engineered for autonomous agent monetization and incentive distribution within a decentralized artificial intelligence marketplace. The $SIMAI protocol enables algorithmic reward mechanisms tied to agent performance metrics, establishing a self-sustaining economic model for AI service providers.
           </p>
           
           {/* Contract Address */}
-          <Card className="bg-muted/30 border-border/50 backdrop-blur">
+          <Card className="bg-black/40 border-white/20 backdrop-blur">
             <CardContent className="p-6">
               <div className="flex items-center justify-between gap-4 flex-wrap">
                 <div className="flex-1 min-w-0">
@@ -178,7 +178,7 @@ const SimCoin = () => {
       </div>
 
       {/* Main Content */}
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-20 bg-black/30 backdrop-blur-md text-white">
         
         {/* Abstract */}
         <section className="mb-20">

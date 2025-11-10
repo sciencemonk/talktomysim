@@ -100,22 +100,22 @@ const Facilitator = () => {
       </nav>
 
       {/* Hero Section */}
-      <div className="relative border-b border-border bg-gradient-to-b from-background via-background to-muted/20">
+      <div className="relative border-b border-white/10 bg-black/20 backdrop-blur-sm">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-          <div className="inline-block px-4 py-1.5 mb-6 text-xs font-mono bg-primary/10 border border-primary/20 rounded-full text-primary animate-fade-in">
+          <div className="inline-block px-4 py-1.5 mb-6 text-xs font-mono bg-white/10 border border-white/20 rounded-full text-white animate-fade-in">
             x402 PROTOCOL
           </div>
-          <h1 className="text-5xl sm:text-7xl font-bold text-foreground mb-8 font-mono tracking-tight animate-fade-in">
+          <h1 className="text-5xl sm:text-7xl font-bold text-white mb-8 font-mono tracking-tight animate-fade-in">
             x402 Facilitator
           </h1>
-          <p className="text-xl text-muted-foreground leading-relaxed max-w-4xl animate-fade-in">
+          <p className="text-xl text-white/90 leading-relaxed max-w-4xl animate-fade-in">
             A decentralized payment facilitation protocol for autonomous AI agents and digital commerce.
           </p>
         </div>
       </div>
 
       {/* Main Content */}
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-20 bg-black/30 backdrop-blur-md text-white">
         <Card className="border-2 border-primary/20 bg-primary/5 animate-fade-in">
           <CardContent className="p-12">
             <div className="flex flex-col items-center text-center space-y-6">

@@ -196,34 +196,34 @@ const About = () => {
       </nav>
 
       {/* Hero Section */}
-      <div className="relative border-b border-border bg-gradient-to-b from-background via-background to-muted/20">
+      <div className="relative border-b border-white/10 bg-black/20 backdrop-blur-sm">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-          <div className="inline-block px-4 py-1.5 mb-6 text-xs font-mono bg-primary/10 border border-primary/20 rounded-full text-primary animate-fade-in">
+          <div className="inline-block px-4 py-1.5 mb-6 text-xs font-mono bg-white/10 border border-white/20 rounded-full text-white animate-fade-in">
             RESEARCH PAPER v1.0
           </div>
-          <h1 className="text-5xl sm:text-7xl font-bold text-foreground mb-8 font-mono tracking-tight animate-fade-in">
+          <h1 className="text-5xl sm:text-7xl font-bold text-white mb-8 font-mono tracking-tight animate-fade-in">
             About SIM
           </h1>
-          <p className="text-xl text-muted-foreground leading-relaxed max-w-4xl animate-fade-in">
+          <p className="text-xl text-white/90 leading-relaxed max-w-4xl animate-fade-in">
             A decentralized protocol for deploying trustworthy autonomous AI agents through cryptographic identity verification and social proof mechanisms. SIM establishes a new paradigm for human-AI interaction where agents optimize toward individualized utility functions while maintaining transparency and accountability.
           </p>
         </div>
       </div>
 
       {/* Main Content */}
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-20 bg-black/30 backdrop-blur-md text-white">
         
         {/* Abstract */}
         <section className="mb-20 animate-fade-in">
-          <h2 className="text-3xl font-bold text-foreground mb-6 font-mono">Abstract</h2>
-          <div className="prose prose-lg dark:prose-invert max-w-none">
-            <p className="text-muted-foreground leading-relaxed mb-4">
+          <h2 className="text-3xl font-bold text-white mb-6 font-mono">Abstract</h2>
+          <div className="prose prose-lg prose-invert max-w-none">
+            <p className="text-white/90 leading-relaxed mb-4">
               The proliferation of artificial intelligence agents has created a fundamental trust problem: how can users verify the authenticity, capability, and alignment of AI systems operating autonomously on their behalf? Traditional approaches rely on centralized certification authorities or opaque reputation systems that are vulnerable to manipulation and lack transparency.
             </p>
-            <p className="text-muted-foreground leading-relaxed mb-4">
+            <p className="text-white/90 leading-relaxed mb-4">
               SIM addresses this challenge through a novel architecture that leverages social proof from verified X (formerly Twitter) accounts as cryptographic identity anchors. By tethering AI agents to established social identities with verifiable interaction histories, the protocol creates a transparent, tamper-resistant reputation system that enables trustless agent deployment.
             </p>
-            <p className="text-muted-foreground leading-relaxed">
+            <p className="text-white/90 leading-relaxed">
               Each SIM functions as an autonomous agent that inherits the reputation and social context of its associated X account, while optimizing decision-making against the user&apos;s specified utility function. This architecture combines the benefits of established social proof mechanisms with programmable goal alignment, creating agents that are simultaneously trustworthy and adaptable to individual preferences.
             </p>
           </div>

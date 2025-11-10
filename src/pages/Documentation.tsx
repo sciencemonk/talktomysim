@@ -191,16 +191,16 @@ export default function Documentation() {
         )}
       </nav>
 
-      <div className="container mx-auto px-4 py-12 max-w-5xl">
+      <div className="container mx-auto px-4 py-12 max-w-5xl bg-black/30 backdrop-blur-md text-white">
         {/* Header */}
         <div className="mb-16">
-          <div className="inline-block px-4 py-1.5 mb-6 text-xs font-mono bg-primary/10 border border-primary/20 rounded-full text-primary animate-fade-in">
+          <div className="inline-block px-4 py-1.5 mb-6 text-xs font-mono bg-white/10 border border-white/20 rounded-full text-white animate-fade-in">
             DOCUMENTATION v1.0
           </div>
-          <h1 className="text-5xl sm:text-7xl font-bold text-foreground mb-8 font-mono tracking-tight animate-fade-in">
+          <h1 className="text-5xl sm:text-7xl font-bold text-white mb-8 font-mono tracking-tight animate-fade-in">
             SIM Technical Documentation
           </h1>
-          <p className="text-xl text-muted-foreground leading-relaxed max-w-4xl animate-fade-in">
+          <p className="text-xl text-white/90 leading-relaxed max-w-4xl animate-fade-in">
             Implementation Guide | System Architecture and Integration Protocols
           </p>
         </div>
