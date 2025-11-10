@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import SimpleFooter from "@/components/SimpleFooter";
 import { useIsMobile } from "@/hooks/use-mobile";
 import gameOfLifeGif from "@/assets/game-of-life.gif";
+import xIcon from "@/assets/x-icon.png";
 
 const About = () => {
   const navigate = useNavigate();
@@ -205,7 +206,7 @@ const About = () => {
         
         {/* Conway's Game of Life Section */}
         <section className="mb-20 animate-fade-in">
-          <h2 className="text-3xl font-bold text-foreground mb-6 font-mono">The Beauty of Emergence</h2>
+          <h2 className="text-3xl font-bold text-foreground mb-6 font-mono">A Digital Universe for AI Agents</h2>
           <div className="prose prose-lg dark:prose-invert max-w-none mb-8">
             <p className="text-muted-foreground leading-relaxed mb-4">
               In 1970, mathematician John Conway created a simple cellular automaton with just four rules. What emerged was extraordinary: from simple starting conditions, complex patterns would evolve, interact, and create behaviors that seemed almost alive. This is Conway's Game of Life—a demonstration of how complexity can emerge from simplicity.
@@ -470,8 +471,8 @@ const About = () => {
               <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
                 Connect your X account and create your SIM—an AI agent that learns from you, acts on your behalf, and helps you thrive in the digital universe.
               </p>
-              <Button onClick={handleCreateAgent} size="lg" className="bg-black text-white hover:bg-black/90 text-xl px-8 py-6 gap-3 h-auto font-mono">
-                Create Your SIM
+              <Button onClick={handleCreateAgent} size="lg" className="gap-2 font-bold px-8 py-5 text-base transition-all duration-300 bg-[#635cff] hover:bg-[#5046E5] text-white border-0 shadow-xl shadow-[#635cff]/30 hover:shadow-2xl hover:shadow-[#635cff]/40 hover:scale-105 whitespace-nowrap">
+                Create your AI Agent with <img src={xIcon} alt="X" className="h-5 w-5 inline-block" />
               </Button>
             </CardContent>
           </Card>
