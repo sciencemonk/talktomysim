@@ -29,7 +29,7 @@ export default defineConfig(({ mode }) => ({
   },
   define: {
     'global': 'globalThis',
-    'process.env': 'process.env',
+    'process.env.NODE_ENV': JSON.stringify(mode),
   },
   optimizeDeps: {
     include: ['buffer', 'process'],

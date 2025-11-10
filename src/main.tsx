@@ -6,9 +6,10 @@ import './index.css'
 
 console.log('🚀 App initializing...');
 
-// Make Buffer and process available globally for Solana/Metaplex libraries
-window.Buffer = Buffer;
-window.process = process;
+// Ensure Buffer and process are available globally (also set in index.html)
+if (!window.Buffer) window.Buffer = Buffer;
+if (!window.process) window.process = process;
+if (!window.global) window.global = window.globalThis;
 
 try {
   const rootElement = document.getElementById("root");

@@ -65,6 +65,14 @@
 
   <body>
     <div id="root"></div>
+    <!-- Polyfills for Solana/Metaplex - MUST load before any modules -->
+    <script type="module">
+      import { Buffer } from 'buffer';
+      import process from 'process';
+      window.Buffer = Buffer;
+      window.process = process;
+      window.global = window.globalThis;
+    </script>
     <!-- IMPORTANT: DO NOT REMOVE THIS SCRIPT TAG OR THIS VERY COMMENT! -->
     <script src="https://cdn.gpteng.co/gptengineer.js" type="module"></script>
     <script type="module" src="/src/main.tsx"></script>
