@@ -17,6 +17,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { toast } from "sonner";
 import { WelcomeModal } from "@/components/WelcomeModal";
 import { useTheme } from "@/hooks/useTheme";
+import { LandingFooter } from "@/components/landing/LandingFooter";
 type MarketplaceItem = {
   id: string;
   type: 'agent' | 'offering';
@@ -271,31 +272,7 @@ const Marketplace = () => {
         </div>
       </div>
 
-      {/* Simple Footer */}
-      <footer className="bg-card border-t border-border py-4">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-3">
-            <div className="flex items-center gap-2">
-              <img src={simHeroLogo} alt="SIM" className="h-5" />
-              <span className="text-xs text-fgMuted">© 2024 SIM. All rights reserved.</span>
-            </div>
-            <div className="flex items-center gap-6">
-              <button onClick={() => navigate('/about')} className="text-xs text-fgMuted hover:text-fg transition-colors">
-                About
-              </button>
-              <button onClick={() => navigate('/agents')} className="text-xs text-fgMuted hover:text-fg transition-colors">
-                Agent Directory
-              </button>
-              <a href="#documentation" className="text-xs text-fgMuted hover:text-fg transition-colors">
-                Documentation
-              </a>
-              <button onClick={() => navigate('/simcoin')} className="text-xs text-fgMuted hover:text-fg transition-colors">
-                SIM Coin
-              </button>
-            </div>
-          </div>
-        </div>
-      </footer>
+      <LandingFooter />
     </div>;
 };
 export default Marketplace;
