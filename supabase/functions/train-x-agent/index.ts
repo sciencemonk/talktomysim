@@ -66,7 +66,7 @@ serve(async (req) => {
     // Format tweets for training
     const formattedTweets = tweets
       .filter((t: any) => t.text && t.text.trim().length > 0)
-      .slice(0, 50) // Limit to 50 most recent tweets
+      .slice(0, 100) // Limit to 100 most recent tweets
       .map((t: any) => ({
         text: t.text,
         created_at: t.created_at,
