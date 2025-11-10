@@ -1,9 +1,10 @@
 import { createUmi } from '@metaplex-foundation/umi-bundle-defaults';
 import { createNft, mplTokenMetadata } from '@metaplex-foundation/mpl-token-metadata';
-import { generateSigner, percentAmount, createGenericFile, publicKey } from '@metaplex-foundation/umi';
+import { generateSigner, percentAmount, publicKey } from '@metaplex-foundation/umi';
 import { walletAdapterIdentity } from '@metaplex-foundation/umi-signer-wallet-adapters';
 import { WalletContextState } from '@solana/wallet-adapter-react';
 import { PublicKey } from '@solana/web3.js';
+import { supabase } from '@/integrations/supabase/client';
 
 export interface NFTMetadata {
   name: string;
@@ -34,69 +35,94 @@ const getHeliusRpcEndpoint = (): string => {
 };
 
 /**
- * Upload metadata using Metaplex's built-in storage (Arweave)
+ * Upload metadata using Supabase Storage (more reliable than Arweave)
  */
-const uploadMetadataWithMetaplex = async (
-  umi: any,
+const uploadMetadataWithSupabase = async (
   imageFile: File,
   metadata: Omit<NFTMetadata, 'image'>,
+  walletAddress: string,
   onProgress?: (stage: string) => void
 ): Promise<string> => {
   try {
-    onProgress?.('Preparing image for upload...');
+    onProgress?.('Uploading image to storage...');
     
-    // Convert File to Buffer
-    const imageBuffer = await imageFile.arrayBuffer();
-    const imageBytes = new Uint8Array(imageBuffer);
-
-    // Create generic file for Metaplex
-    const genericFile = createGenericFile(imageBytes, imageFile.name, {
-      contentType: imageFile.type,
-      uniqueName: `${Date.now()}-${imageFile.name}`,
-    });
-
-    onProgress?.('Uploading image to Arweave...');
+    // Generate unique file name
+    const timestamp = Date.now();
+    const imageFileName = `nft-images/${walletAddress}/${timestamp}-${imageFile.name}`;
     
-    // Upload image using Metaplex's default storage (Arweave via Metaplex)
-    const [imageUri] = await umi.uploader.upload([genericFile]);
-    console.log('Image uploaded to:', imageUri);
+    // Upload image to Supabase Storage
+    const { data: imageData, error: imageError } = await supabase.storage
+      .from('avatars')
+      .upload(imageFileName, imageFile, {
+        cacheControl: '3600',
+        upsert: false,
+      });
 
-    onProgress?.('Creating metadata...');
+    if (imageError) {
+      console.error('Image upload error:', imageError);
+      throw new Error('Failed to upload image: ' + imageError.message);
+    }
+
+    // Get public URL for the image
+    const { data: { publicUrl: imageUrl } } = supabase.storage
+      .from('avatars')
+      .getPublicUrl(imageFileName);
+
+    console.log('Image uploaded to:', imageUrl);
+
+    onProgress?.('Creating metadata file...');
     
-    // Create complete metadata with image URI
+    // Create complete metadata with image URL
     const completeMetadata = {
       name: metadata.name,
       symbol: metadata.symbol,
       description: metadata.description,
-      image: imageUri,
+      image: imageUrl,
       attributes: metadata.attributes || [],
       properties: {
         files: [
           {
-            uri: imageUri,
+            uri: imageUrl,
             type: imageFile.type,
           },
         ],
         category: 'image',
       },
-      sellerFeeBasisPoints: metadata.sellerFeeBasisPoints || 0,
+      seller_fee_basis_points: metadata.sellerFeeBasisPoints || 0,
       creators: metadata.creators || [],
     };
 
-    onProgress?.('Uploading metadata to Arweave...');
-    
-    // Upload metadata JSON
-    const metadataUri = await umi.uploader.uploadJson(completeMetadata);
-    console.log('Metadata uploaded to:', metadataUri);
+    // Upload metadata JSON to Supabase Storage
+    const metadataFileName = `nft-metadata/${walletAddress}/${timestamp}-metadata.json`;
+    const metadataBlob = new Blob([JSON.stringify(completeMetadata, null, 2)], {
+      type: 'application/json',
+    });
 
-    return metadataUri;
+    const { data: metadataData, error: metadataError } = await supabase.storage
+      .from('avatars')
+      .upload(metadataFileName, metadataBlob, {
+        cacheControl: '3600',
+        upsert: false,
+      });
+
+    if (metadataError) {
+      console.error('Metadata upload error:', metadataError);
+      throw new Error('Failed to upload metadata: ' + metadataError.message);
+    }
+
+    // Get public URL for the metadata
+    const { data: { publicUrl: metadataUrl } } = supabase.storage
+      .from('avatars')
+      .getPublicUrl(metadataFileName);
+
+    console.log('Metadata uploaded to:', metadataUrl);
+
+    return metadataUrl;
   } catch (error) {
-    console.error('Error uploading metadata with Metaplex:', error);
+    console.error('Error uploading metadata:', error);
     
     if (error instanceof Error) {
-      if (error.message.includes('storage') || error.message.includes('upload')) {
-        throw new Error('Failed to upload to Arweave. Please check your connection and try again.');
-      }
+      throw new Error('Failed to upload NFT data: ' + error.message);
     }
     
     throw new Error('Failed to upload NFT metadata. Please try again.');
@@ -162,9 +188,8 @@ export const mintNFT = async ({
 
     console.log('Connected to Solana via Helius RPC');
 
-    // Upload metadata and image
-    const metadataUri = await uploadMetadataWithMetaplex(
-      umi, 
+    // Upload metadata and image to Supabase Storage
+    const metadataUri = await uploadMetadataWithSupabase(
       imageFile, 
       {
         name: metadata.name,
@@ -174,6 +199,7 @@ export const mintNFT = async ({
         sellerFeeBasisPoints: metadata.sellerFeeBasisPoints,
         creators: metadata.creators,
       },
+      wallet.publicKey.toBase58(),
       onProgress
     );
 
@@ -333,7 +359,7 @@ export const getEstimatedMintCost = (): {
     mintAccount: 0.00089,      // Rent for token mint account
     metadataAccount: 0.0145,   // Rent for metadata account
     transactionFees: 0.00001,  // Base transaction fee
-    arweaveStorage: 0.001,     // Arweave storage via Metaplex
+    arweaveStorage: 0.0,       // Using Supabase storage (free)
   };
   
   const total = Object.values(breakdown).reduce((sum, cost) => sum + cost, 0);
