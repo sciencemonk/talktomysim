@@ -270,112 +270,53 @@ const PublicSimDetail = () => {
         </div>
       </nav>
 
-      <div className="container mx-auto px-4 py-8 max-w-7xl">
-        {/* Agent Header */}
-        <Card className="mb-6 bg-card/50 backdrop-blur-sm border-border/50">
-          <CardContent className="p-6">
-            <div className="flex items-start gap-6">
-              <Avatar className="h-24 w-24 border-2 border-border">
-                <AvatarImage src={getAvatarUrl(sim.avatar_url)} alt={sim.name} />
-                <AvatarFallback>{sim.name.charAt(0)}</AvatarFallback>
-              </Avatar>
-              
-              <div className="flex-1">
-                <div className="flex items-center gap-2 mb-2">
-                  <h1 className="text-3xl font-bold">{sim.name}</h1>
-                  {sim.is_verified && (
-                    <img src="/lovable-uploads/verified-badge.png" alt="Verified" className="h-6 w-6" />
-                  )}
-                </div>
-                
-                <p className="text-muted-foreground mb-4">{sim.description}</p>
-                
-                <div className="flex flex-wrap gap-3">
-                  {sim.twitter_url && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => window.open(sim.twitter_url, '_blank')}
-                      className="gap-2"
-                    >
-                      <Globe className="h-4 w-4" />
-                      @{sim.x_username}
-                    </Button>
-                  )}
-                  
-                  {sim.crypto_wallet && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={handleCopyWallet}
-                      className="gap-2"
-                    >
-                      <Wallet className="h-4 w-4" />
-                      {walletCopied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-                      {walletCopied ? 'Copied' : 'Wallet'}
-                    </Button>
-                  )}
-                </div>
+      <div className="flex flex-col h-[calc(100vh-4rem)]">
+        {/* Compact Header */}
+        <div className="border-b border-border bg-card/30 backdrop-blur-sm p-4">
+          <div className="max-w-5xl mx-auto flex items-center gap-4">
+            <Avatar className="h-12 w-12 border-2 border-border">
+              <AvatarImage src={getAvatarUrl(sim.avatar_url)} alt={sim.name} />
+              <AvatarFallback>{sim.name.charAt(0)}</AvatarFallback>
+            </Avatar>
+            <div className="flex-1">
+              <div className="flex items-center gap-2">
+                <h1 className="text-xl font-bold">{sim.name}</h1>
+                {sim.is_verified && (
+                  <img src="/lovable-uploads/verified-badge.png" alt="Verified" className="h-5 w-5" />
+                )}
               </div>
+              <p className="text-sm text-muted-foreground">{sim.description}</p>
             </div>
-          </CardContent>
-        </Card>
+            <div className="flex items-center gap-2">
+              {sim.twitter_url && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => window.open(sim.twitter_url, '_blank')}
+                >
+                  <Globe className="h-4 w-4" />
+                </Button>
+              )}
+              {sim.crypto_wallet && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleCopyWallet}
+                >
+                  {walletCopied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                </Button>
+              )}
+            </div>
+          </div>
+        </div>
 
-        {/* Tabs */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full max-w-md grid-cols-3 mb-6">
-            <TabsTrigger value="chat" className="gap-2">
-              <MessageCircle className="h-4 w-4" />
-              Chat
-            </TabsTrigger>
-            <TabsTrigger value="offerings" className="gap-2">
-              <Package className="h-4 w-4" />
-              Offerings
-            </TabsTrigger>
-            <TabsTrigger value="about">About</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="chat" className="mt-0">
-            <Card className="bg-card/50 backdrop-blur-sm border-border/50">
-              <PublicChatInterface 
-                agent={agentForChat}
-                avatarUrl={getAvatarUrl(sim.avatar_url)}
-              />
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="offerings" className="mt-0">
-            <Card className="bg-card/50 backdrop-blur-sm border-border/50">
-              <CardContent className="p-6">
-                <p className="text-muted-foreground">
-                  This SIM doesn't have any offerings yet.
-                </p>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="about" className="mt-0">
-            <Card className="bg-card/50 backdrop-blur-sm border-border/50">
-              <CardContent className="p-8">
-                <h2 className="text-2xl font-bold mb-4">About {sim.name}</h2>
-                <div className="space-y-4 text-muted-foreground">
-                  <p>{sim.description}</p>
-                  
-                  {sim.training_completed && (
-                    <div className="pt-4 border-t border-border">
-                      <p className="text-sm">
-                        <strong>Training Status:</strong> Trained on {sim.training_post_count} posts from X
-                      </p>
-                      <p className="text-sm">
-                        <strong>Created:</strong> {new Date(sim.created_at).toLocaleDateString()}
-                      </p>
-                    </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
+        {/* Chat Interface - Full Height */}
+        <div className="flex-1 overflow-hidden">
+          <PublicChatInterface 
+            agent={agentForChat}
+            avatarUrl={getAvatarUrl(sim.avatar_url)}
+          />
+        </div>
       </div>
 
       <SimpleFooter />

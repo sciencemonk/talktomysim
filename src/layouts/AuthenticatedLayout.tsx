@@ -15,6 +15,9 @@ export const AuthenticatedLayout = () => {
       setCurrentUser(session?.user ?? null);
       if (!session) {
         navigate('/');
+      } else if (location.pathname === '/home') {
+        // Redirect /home to /chat for signed-in users
+        navigate('/chat', { replace: true });
       }
       setIsLoading(false);
     });
@@ -27,7 +30,7 @@ export const AuthenticatedLayout = () => {
     });
 
     return () => subscription.unsubscribe();
-  }, [navigate]);
+  }, [navigate, location]);
 
   if (isLoading) {
     return (

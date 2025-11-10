@@ -27,6 +27,7 @@ import Pump from "./pages/Pump";
 import Admin from "./pages/Admin";
 import PublicTutorDetail from "./pages/PublicTutorDetail";
 import StudentChat from "./pages/StudentChat";
+import MySimChat from "./pages/MySimChat";
 import NotFound from "./pages/NotFound";
 import WhitePaper from "./pages/WhitePaper";
 import Contact from "./pages/Contact";
@@ -134,8 +135,9 @@ const App = () => (
               
               {/* Authenticated routes with sidebar */}
               <Route element={<AuthenticatedLayout />}>
+                <Route path="/chat" element={<MySimChat />} />
                 <Route path="/directory" element={<SimDirectory />} />
-                <Route path="/home" element={<ChatWithSim />} />
+                <Route path="/home" element={<MySimChat />} />
                 <Route path="/conversations" element={<SimConversationsView />} />
                 <Route path="/edit-sim" element={<EditSim />} />
                 <Route path="/edit-sim-page" element={<EditSimPage />} />
