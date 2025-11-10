@@ -284,18 +284,16 @@ const UserDashboard = () => {
                 Public Page
               </Button>
               <ThemeToggle />
-              {user && (
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  onClick={async () => {
-                    await supabase.auth.signOut();
-                    navigate('/');
-                  }}
-                >
-                  Sign Out
-                </Button>
-              )}
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={async () => {
+                  await supabase.auth.signOut();
+                  navigate('/');
+                }}
+              >
+                Sign Out
+              </Button>
             </div>
           </div>
         </div>
