@@ -79,7 +79,7 @@ const About = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <button onClick={() => navigate('/')} className="flex items-center hover:opacity-80 transition-opacity">
-              <img src={resolvedTheme === 'dark' ? simLogoWhite : simHeroLogo} alt="SIM" className="h-8" />
+              <img src="/sim-logo-white.png" alt="SIM" className="h-6 w-auto" />
             </button>
             
             {/* Desktop Navigation */}
