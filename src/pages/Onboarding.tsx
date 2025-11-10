@@ -277,6 +277,21 @@ Remember: Every interaction is an opportunity to create value, earn $SIMAI, and 
         };
       }
 
+      // Check if SIM already exists
+      const { data: existingSim } = await supabase
+        .from('sims')
+        .select('id')
+        .eq('x_username', username)
+        .maybeSingle();
+
+      if (existingSim) {
+        console.log('SIM already exists, redirecting to dashboard');
+        toast.info('You already have a SIM. Redirecting to your dashboard...');
+        navigate('/dashboard');
+        return;
+      }
+
+      // Create new SIM
       const { data: sim, error } = await supabase
         .from('sims')
         .insert(simData)
