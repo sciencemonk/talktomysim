@@ -212,8 +212,6 @@ const Marketplace = () => {
   const handleXSignIn = async () => {
     try {
       console.log('[Marketplace] Starting X sign in...');
-      // Clear any previous auth status
-      localStorage.removeItem('auth_status');
       
       // Open OAuth in a popup window
       const width = 600;
@@ -248,34 +246,37 @@ const Marketplace = () => {
           return;
         }
 
-        // Listen for the popup to close
-        const checkPopup = setInterval(async () => {
-          if (popup && popup.closed) {
-            clearInterval(checkPopup);
-            console.log('[Marketplace] Popup closed, checking auth status...');
+        // Listen for messages from the popup
+        const handleMessage = (event: MessageEvent) => {
+          console.log('[Marketplace] Received message:', event.data);
+          
+          if (event.data.type === 'AUTH_STATUS') {
+            window.removeEventListener('message', handleMessage);
             
-            // Small delay to ensure localStorage is written
-            await new Promise(resolve => setTimeout(resolve, 100));
-            
-            // Check the auth status from localStorage
-            const authStatus = localStorage.getItem('auth_status');
-            console.log('[Marketplace] Auth status from localStorage:', authStatus);
-            localStorage.removeItem('auth_status');
-            
-            if (authStatus === 'authorized') {
+            if (event.data.status === 'authorized') {
               console.log('[Marketplace] Authorized - reloading page');
-              // Authorized user - reload to show chat interface
               window.location.reload();
-            } else if (authStatus === 'unauthorized') {
+            } else if (event.data.status === 'unauthorized') {
               console.log('[Marketplace] Unauthorized - showing beta request');
-              // Not authorized - show beta request
               const code = generateBetaCode();
               console.log('[Marketplace] Generated beta code:', code);
               setBetaCode(code);
               setShowBetaRequest(true);
-            } else {
-              console.log('[Marketplace] No auth status found');
             }
+          }
+        };
+
+        window.addEventListener('message', handleMessage);
+
+        // Fallback: Also check when popup closes
+        const checkPopup = setInterval(() => {
+          if (popup && popup.closed) {
+            clearInterval(checkPopup);
+            console.log('[Marketplace] Popup closed');
+            // Remove the message listener after a delay
+            setTimeout(() => {
+              window.removeEventListener('message', handleMessage);
+            }, 1000);
           }
         }, 500);
       }

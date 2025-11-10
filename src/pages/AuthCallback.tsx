@@ -60,13 +60,16 @@ export default function AuthCallback() {
         
         // Signal to parent window that user is unauthorized
         if (window.opener) {
-          console.log('[AuthCallback] Setting localStorage auth_status to unauthorized');
-          localStorage.setItem('auth_status', 'unauthorized');
+          console.log('[AuthCallback] Sending unauthorized message to parent');
+          window.opener.postMessage({ type: 'AUTH_STATUS', status: 'unauthorized' }, window.location.origin);
         }
         
         // Sign them out
         console.log('[AuthCallback] Signing out unauthorized user');
         await supabase.auth.signOut();
+        
+        // Wait a moment to ensure message is sent
+        await new Promise(resolve => setTimeout(resolve, 100));
         
         if (window.opener) {
           console.log('[AuthCallback] Closing popup window');
@@ -81,9 +84,12 @@ export default function AuthCallback() {
       console.log('[AuthCallback] Authorized user logged in');
       
       if (window.opener) {
-        console.log('[AuthCallback] Setting localStorage auth_status to authorized');
-        localStorage.setItem('auth_status', 'authorized');
+        console.log('[AuthCallback] Sending authorized message to parent');
+        window.opener.postMessage({ type: 'AUTH_STATUS', status: 'authorized' }, window.location.origin);
         toast.success('Welcome back!');
+        
+        // Wait a moment to ensure message is sent
+        await new Promise(resolve => setTimeout(resolve, 100));
         window.close();
       } else {
         toast.success('Welcome back!');
