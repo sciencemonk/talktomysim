@@ -200,17 +200,47 @@ const Marketplace = () => {
         {/* Dark overlay for text readability */}
         <div className="absolute inset-0 bg-black/40"></div>
         
-        {/* Top-right controls - Theme Toggle only */}
-        <div className="absolute top-4 right-4 z-20">
-          <ThemeToggle />
-        </div>
+        {/* Top Navigation */}
+        <nav className="relative z-20 border-b border-white/10 backdrop-blur-sm bg-black/20">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex items-center justify-between h-16">
+              {/* Logo */}
+              <button onClick={() => navigate('/')} className="flex items-center hover:opacity-80 transition-opacity">
+                <img src={simHeroLogo} alt="SIM" className="h-8" />
+              </button>
+              
+              {/* Navigation Links */}
+              <div className="hidden md:flex items-center gap-8">
+                <a href="#about" className="text-white/90 hover:text-white transition-colors text-sm font-medium">
+                  About
+                </a>
+                <a href="#documentation" className="text-white/90 hover:text-white transition-colors text-sm font-medium">
+                  Documentation
+                </a>
+                <a href="#sim-coin" className="text-white/90 hover:text-white transition-colors text-sm font-medium">
+                  SIM Coin
+                </a>
+              </div>
+              
+              {/* Right side - Theme Toggle and Sign In */}
+              <div className="flex items-center gap-4">
+                <ThemeToggle />
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-white/20 hover:text-white"
+                  onClick={handleXSignIn}
+                >
+                  Sign In
+                </Button>
+              </div>
+            </div>
+          </div>
+        </nav>
         
         {/* Content */}
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 sm:py-32">
-          <button onClick={() => navigate('/')} className="inline-flex items-center gap-6 px-8 sm:px-12 py-5 rounded-full backdrop-blur-sm transition-all cursor-pointer shadow-sm bg-white border border-white/20 hover:bg-white/90 whitespace-nowrap mb-6">
-            <img src={simHeroLogo} alt="SIM" className="h-12 sm:h-14" />
-          </button>
-          <p className="text-3xl sm:text-4xl text-white/90 max-w-5xl mb-8 font-semibold">
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center justify-center" style={{ height: 'calc(800px - 4rem)' }}>
+          <p className="text-3xl sm:text-4xl text-white/90 max-w-5xl mb-8 font-semibold text-center">
             Create an AI agent in seconds.
           </p>
           <Button variant="outline" size="lg" className="bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-white/20 hover:text-white text-xl sm:text-2xl px-8 sm:px-12 py-6 gap-3 h-auto" onClick={handleXSignIn}>
