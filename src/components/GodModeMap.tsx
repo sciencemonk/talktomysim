@@ -121,7 +121,8 @@ export const GodModeMap = ({ agentName }: { agentName: string }) => {
     if (!ctx) return;
 
     const animate = () => {
-      // Clear canvas with theme-aware background
+      // Clear canvas with theme-aware solid background
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.fillStyle = resolvedTheme === 'dark' ? '#000000' : '#ffffff';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
@@ -147,22 +148,23 @@ export const GodModeMap = ({ agentName }: { agentName: string }) => {
           return { ...agent, x, y, vx, vy };
         });
 
-        // Draw connections
+        // Draw connections FIRST (so they appear behind agents)
         connections.forEach(conn => {
           const fromAgent = updatedAgents.find(a => a.id === conn.from);
           const toAgent = updatedAgents.find(a => a.id === conn.to);
           
           if (fromAgent && toAgent) {
-            ctx.strokeStyle = `rgba(131, 241, 170, ${conn.strength * 0.4})`;
+            // Main connection line
+            ctx.strokeStyle = `rgba(131, 241, 170, ${conn.strength * 0.3})`;
             ctx.lineWidth = 2;
             ctx.beginPath();
             ctx.moveTo(fromAgent.x, fromAgent.y);
             ctx.lineTo(toAgent.x, toAgent.y);
             ctx.stroke();
 
-            // Draw connection pulse
+            // Gradient pulse effect
             const gradient = ctx.createLinearGradient(fromAgent.x, fromAgent.y, toAgent.x, toAgent.y);
-            gradient.addColorStop(0, `rgba(131, 241, 170, ${conn.strength})`);
+            gradient.addColorStop(0, `rgba(131, 241, 170, ${conn.strength * 0.5})`);
             gradient.addColorStop(1, 'rgba(131, 241, 170, 0)');
             ctx.strokeStyle = gradient;
             ctx.lineWidth = 1;
@@ -170,14 +172,18 @@ export const GodModeMap = ({ agentName }: { agentName: string }) => {
           }
         });
 
-        // Draw agents
+        // Draw agents ON TOP of connections
         updatedAgents.forEach(agent => {
+          // Reset shadow for each agent
+          ctx.shadowBlur = 0;
+          ctx.shadowColor = 'transparent';
+
           // Outer glow for main agent
           if (agent.isMainAgent) {
-            ctx.shadowBlur = 20;
+            ctx.shadowBlur = 15;
             ctx.shadowColor = agent.color;
           } else {
-            ctx.shadowBlur = 10;
+            ctx.shadowBlur = 8;
             ctx.shadowColor = agent.color;
           }
 
@@ -187,24 +193,26 @@ export const GodModeMap = ({ agentName }: { agentName: string }) => {
           ctx.arc(agent.x, agent.y, agent.radius, 0, Math.PI * 2);
           ctx.fill();
 
+          // Reset shadow before drawing ring
+          ctx.shadowBlur = 0;
+          ctx.shadowColor = 'transparent';
+
           // Draw pulsing ring for main agent
           if (agent.isMainAgent) {
-            const pulseRadius = agent.radius + Math.sin(Date.now() / 500) * 3 + 5;
-            ctx.strokeStyle = `rgba(131, 241, 170, ${0.5 - (pulseRadius - agent.radius) / 20})`;
+            const pulseRadius = agent.radius + Math.sin(Date.now() / 500) * 2 + 4;
+            ctx.strokeStyle = `rgba(131, 241, 170, ${0.6 - (pulseRadius - agent.radius) / 15})`;
             ctx.lineWidth = 2;
             ctx.beginPath();
             ctx.arc(agent.x, agent.y, pulseRadius, 0, Math.PI * 2);
             ctx.stroke();
           }
 
-          ctx.shadowBlur = 0;
-
-          // Draw agent label for main agent
+          // Draw agent label for main agent (make it theme-aware)
           if (agent.isMainAgent) {
-            ctx.fillStyle = '#ffffff';
+            ctx.fillStyle = resolvedTheme === 'dark' ? '#ffffff' : '#000000';
             ctx.font = '10px monospace';
             ctx.textAlign = 'center';
-            ctx.fillText(agent.name, agent.x, agent.y - agent.radius - 8);
+            ctx.fillText(agent.name, agent.x, agent.y - agent.radius - 10);
           }
         });
 
