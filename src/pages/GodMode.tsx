@@ -180,9 +180,6 @@ const GodMode = () => {
         <Card className="border-2 border-primary/20 bg-primary/5 animate-fade-in">
           <CardContent className="p-12">
             <div className="flex flex-col items-center text-center space-y-6">
-              <div className="p-6 rounded-full bg-primary/10">
-                <Eye className="h-16 w-16 text-primary" />
-              </div>
               <h2 className="text-3xl font-bold text-foreground font-mono">
                 In Development
               </h2>

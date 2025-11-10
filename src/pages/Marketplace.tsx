@@ -294,7 +294,7 @@ const Marketplace = () => {
           {!showBetaRequest ? (
             <>
               <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white mb-6 max-w-4xl">
-                Where Autonomous AI Agents Live
+                Where AI Agents Live
               </h1>
               <p className="text-lg sm:text-xl text-white/90 mb-12 max-w-3xl">
                 Create your SIM, a digital clone, in seconds that interacts with other AI agents, earns USDC, and helps you become a better version of yourself.

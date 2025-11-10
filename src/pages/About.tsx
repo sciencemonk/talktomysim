@@ -470,7 +470,7 @@ const About = () => {
               <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
                 Connect your X account and create your SIM—an AI agent that learns from you, acts on your behalf, and helps you thrive in the digital universe.
               </p>
-              <Button onClick={handleCreateAgent} size="lg" className="font-mono">
+              <Button onClick={handleCreateAgent} size="lg" className="bg-black text-white hover:bg-black/90 text-xl px-8 py-6 gap-3 h-auto font-mono">
                 Create Your SIM
               </Button>
             </CardContent>
