@@ -9,7 +9,7 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { useOfferings } from "@/hooks/useOfferings";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { useQuery } from "@tanstack/react-query";
-import solanaLogo from "@/assets/solana-logo.png";
+import simHeroLogo from "@/assets/sim-hero-logo.png";
 import xIcon from "@/assets/x-icon.png";
 import { supabase } from "@/integrations/supabase/client";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
@@ -198,25 +198,24 @@ const Marketplace = () => {
       }} />
         
         {/* Dark overlay for text readability */}
-        <div className="absolute inset-0 bg-black/60"></div>
+        <div className="absolute inset-0 bg-black/40"></div>
         
-        {/* Top-right controls - Theme Toggle and Sign in with X */}
-        <div className="absolute top-4 right-4 z-20 flex items-center gap-2">
+        {/* Top-right controls - Theme Toggle only */}
+        <div className="absolute top-4 right-4 z-20">
           <ThemeToggle />
-          <Button variant="outline" size="sm" className="bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-white/20 hover:text-white text-xs sm:text-sm px-2 sm:px-4 gap-2" onClick={handleXSignIn}>
-            Sign in with <img src={xIcon} alt="X" className="h-3.5 w-3.5 sm:h-4 sm:w-4 inline-block" />
-          </Button>
         </div>
         
         {/* Content */}
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
           <button onClick={() => navigate('/')} className="inline-flex items-center gap-3 px-4 sm:px-6 py-2.5 rounded-full backdrop-blur-sm transition-all cursor-pointer shadow-sm bg-white/10 border border-white/20 hover:bg-white/20 whitespace-nowrap mb-3">
-            <img src={solanaLogo} alt="Solana" className="h-6 w-6 sm:h-7 sm:w-7" />
-            <span className="text-sm sm:text-base font-bold text-white">SIM</span>
+            <img src={simHeroLogo} alt="SIM" className="h-6 sm:h-7" />
           </button>
-          <p className="text-base sm:text-lg text-white/90 max-w-5xl">
-            Build, sell, and buy AI agents, products, and on-chain services. No fees. Powered by x402.
+          <p className="text-base sm:text-lg text-white/90 max-w-5xl mb-4">
+            Create an AI agent in seconds.
           </p>
+          <Button variant="outline" size="sm" className="bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-white/20 hover:text-white text-xs sm:text-sm px-4 sm:px-6 gap-2" onClick={handleXSignIn}>
+            Generate your AI Agent with <img src={xIcon} alt="X" className="h-3.5 w-3.5 sm:h-4 sm:w-4 inline-block" />
+          </Button>
         </div>
       </div>
 
