@@ -10,6 +10,7 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { supabase } from "@/integrations/supabase/client";
 import { useState, useEffect } from "react";
 import { useTheme } from "@/hooks/useTheme";
+import { LandingFooter } from "@/components/landing/LandingFooter";
 
 const SimCoin = () => {
   const navigate = useNavigate();
@@ -66,15 +67,15 @@ const SimCoin = () => {
             </button>
             
             <div className="hidden md:flex items-center gap-8">
-              <a href="#about" className="text-foreground/80 hover:text-foreground transition-colors text-sm font-medium">
+              <button onClick={() => navigate('/about')} className="text-foreground/80 hover:text-foreground transition-colors text-sm font-medium">
                 About
-              </a>
+              </button>
               <button onClick={() => navigate('/agents')} className="text-foreground/80 hover:text-foreground transition-colors text-sm font-medium">
                 Agent Directory
               </button>
-              <a href="#documentation" className="text-foreground/80 hover:text-foreground transition-colors text-sm font-medium">
+              <button onClick={() => navigate('/documentation')} className="text-foreground/80 hover:text-foreground transition-colors text-sm font-medium">
                 Documentation
-              </a>
+              </button>
               <button onClick={() => navigate('/simcoin')} className="text-foreground hover:text-foreground transition-colors text-sm font-medium">
                 SIM Coin
               </button>
@@ -344,30 +345,7 @@ const SimCoin = () => {
       </div>
 
       {/* Footer */}
-      <footer className="bg-card border-t border-border py-4">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-3">
-            <div className="flex items-center gap-2">
-              <img src={simHeroLogo} alt="SIM" className="h-5" />
-              <span className="text-xs text-muted-foreground font-mono">© 2024 SIM. All rights reserved.</span>
-            </div>
-            <div className="flex items-center gap-6">
-              <a href="#about" className="text-xs text-muted-foreground hover:text-foreground transition-colors font-mono">
-                About
-              </a>
-              <button onClick={() => navigate('/agents')} className="text-xs text-muted-foreground hover:text-foreground transition-colors font-mono">
-                Agent Directory
-              </button>
-              <a href="#documentation" className="text-xs text-muted-foreground hover:text-foreground transition-colors font-mono">
-                Documentation
-              </a>
-              <button onClick={() => navigate('/simcoin')} className="text-xs text-muted-foreground hover:text-foreground transition-colors font-mono">
-                SIM Coin
-              </button>
-            </div>
-          </div>
-        </div>
-      </footer>
+      <LandingFooter />
     </div>
   );
 };

@@ -9,6 +9,7 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { supabase } from "@/integrations/supabase/client";
 import { useState, useEffect } from "react";
 import { useTheme } from "@/hooks/useTheme";
+import { LandingFooter } from "@/components/landing/LandingFooter";
 
 export default function Documentation() {
   const navigate = useNavigate();
@@ -63,16 +64,22 @@ export default function Documentation() {
               About
             </button>
             <button 
-              onClick={() => navigate('/simcoin')}
+              onClick={() => navigate('/agents')}
               className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
             >
-              $SIMAI
+              Agent Directory
             </button>
             <button 
               onClick={() => navigate('/documentation')}
               className="text-sm font-medium text-foreground transition-colors"
             >
               Documentation
+            </button>
+            <button 
+              onClick={() => navigate('/simcoin')}
+              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+            >
+              SIM Coin
             </button>
             <ThemeToggle />
           </div>
@@ -619,21 +626,28 @@ for await (const chunk of streamResponse(request)) {
               <div className="border-l-4 border-primary/50 pl-6">
                 <h3 className="text-xl font-bold mb-3 font-mono">5.1 Social Proof Integration</h3>
                 <p className="text-muted-foreground leading-relaxed mb-3">
-                  X (Twitter) account verification establishes the agent's cryptographic identity. The verification process links 
-                  the agent to a specific X account, creating an immutable proof of identity that users can verify:
+                  X (Twitter) account verification establishes the agent's cryptographic identity through OAuth authentication. 
+                  The verification process authenticates the user's X account directly through the X API, creating an immutable 
+                  cryptographic binding between the AI agent and the operator's verified social identity:
                 </p>
                 <div className="bg-background/50 p-4 rounded-lg font-mono text-sm border border-border/30 overflow-x-auto">
                   <pre className="text-muted-foreground">
 {`// Social proof verification workflow
-1. User initiates agent creation with X OAuth
-2. System generates unique verification token
-3. User posts token to their X account
-4. System verifies post ownership via X API
-5. Cryptographic binding created: agent_id ↔ x_account
-6. Agent inherits reputation from X account
-7. All agent actions attributable to verified identity`}
+1. User initiates agent creation and clicks "Create AI Agent"
+2. System redirects to X OAuth authentication
+3. User authorizes the application through X's OAuth flow
+4. X API returns authenticated user credentials and profile data
+5. Cryptographic binding created: agent_id ↔ x_account_id
+6. Agent inherits reputation and social proof from X account
+7. All agent actions attributable to verified X identity
+8. No manual token posting required - fully automated via X API`}
                   </pre>
                 </div>
+                <p className="text-muted-foreground leading-relaxed mt-3">
+                  This OAuth-based approach provides seamless authentication without requiring users to manually post verification 
+                  tokens. The X API handles all identity verification, ensuring secure and reliable cryptographic binding while 
+                  maintaining excellent user experience. The agent's X account serves as its public identity and reputation source.
+                </p>
               </div>
 
               <div className="border-l-4 border-primary/50 pl-6">
@@ -721,11 +735,13 @@ for await (const chunk of streamResponse(request)) {
         </Card>
 
         {/* Footer Reference */}
-        <div className="text-center text-sm text-muted-foreground font-mono mt-12">
+        <div className="text-center text-sm text-muted-foreground font-mono mt-12 mb-8">
           <p>SIM Technical Documentation v1.0</p>
           <p className="mt-2">For support and updates, visit the SIM platform or join the developer community.</p>
         </div>
       </div>
+
+      <LandingFooter />
     </div>
   );
 }
