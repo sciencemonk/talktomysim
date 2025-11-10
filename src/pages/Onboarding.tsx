@@ -9,7 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Progress } from "@/components/ui/progress";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { ArrowRight, ArrowLeft, Sparkles, Brain, Target, Zap, CheckCircle2 } from "lucide-react";
+import { ArrowRight, ArrowLeft } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const Onboarding = () => {
@@ -208,10 +208,7 @@ Remember: You are not just an assistant. You are the best version of your creato
       <Card className="w-full max-w-2xl border-border bg-card">
         <CardHeader>
           <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2">
-              <Sparkles className="h-6 w-6 text-primary" />
-              <CardTitle className="text-2xl font-mono">Create Your SIM</CardTitle>
-            </div>
+            <CardTitle className="text-2xl font-mono">Create Your SIM</CardTitle>
             <span className="text-sm text-muted-foreground font-mono">
               Step {step} of {totalSteps}
             </span>
@@ -230,10 +227,7 @@ Remember: You are not just an assistant. You are the best version of your creato
           {/* Step 1: X Account Identity */}
           {step === 1 && (
             <div className="space-y-4 animate-fade-in">
-              <div className="flex items-center gap-2 mb-4">
-                <Brain className="h-5 w-5 text-primary" />
-                <h3 className="text-lg font-semibold font-mono">X Account</h3>
-              </div>
+              <h3 className="text-lg font-semibold font-mono mb-4">X Account</h3>
               
               <Card className="bg-muted/50 border-primary/20">
                 <CardContent className="pt-6">
@@ -259,10 +253,7 @@ Remember: You are not just an assistant. You are the best version of your creato
           {/* Step 2: Appearance & Style */}
           {step === 2 && (
             <div className="space-y-4 animate-fade-in">
-              <div className="flex items-center gap-2 mb-4">
-                <Sparkles className="h-5 w-5 text-primary" />
-                <h3 className="text-lg font-semibold font-mono">Appearance & Style</h3>
-              </div>
+              <h3 className="text-lg font-semibold font-mono mb-4">Appearance & Style</h3>
               
               <div className="space-y-2">
                 <Label htmlFor="appearance">How do you want to dress and present yourself?</Label>
@@ -284,10 +275,7 @@ Remember: You are not just an assistant. You are the best version of your creato
           {/* Step 3: Values & Behavior */}
           {step === 3 && (
             <div className="space-y-4 animate-fade-in">
-              <div className="flex items-center gap-2 mb-4">
-                <Target className="h-5 w-5 text-primary" />
-                <h3 className="text-lg font-semibold font-mono">Values & Behavior</h3>
-              </div>
+              <h3 className="text-lg font-semibold font-mono mb-4">Values & Behavior</h3>
               
               <div className="space-y-4">
                 <div className="space-y-2">
@@ -320,10 +308,7 @@ Remember: You are not just an assistant. You are the best version of your creato
           {/* Step 4: Relationship Goals */}
           {step === 4 && (
             <div className="space-y-4 animate-fade-in">
-              <div className="flex items-center gap-2 mb-4">
-                <Zap className="h-5 w-5 text-primary" />
-                <h3 className="text-lg font-semibold font-mono">Relationship Goals</h3>
-              </div>
+              <h3 className="text-lg font-semibold font-mono mb-4">Relationship Goals</h3>
               
               <div className="space-y-2">
                 <Label htmlFor="relationshipGoals">What are your relationship goals for the next 6 months?</Label>
@@ -345,10 +330,7 @@ Remember: You are not just an assistant. You are the best version of your creato
           {/* Step 5: Financial & Health Goals */}
           {step === 5 && (
             <div className="space-y-4 animate-fade-in">
-              <div className="flex items-center gap-2 mb-4">
-                <CheckCircle2 className="h-5 w-5 text-primary" />
-                <h3 className="text-lg font-semibold font-mono">Financial & Health Goals</h3>
-              </div>
+              <h3 className="text-lg font-semibold font-mono mb-4">Financial & Health Goals</h3>
               
               <div className="space-y-4">
                 <div className="space-y-2">
@@ -378,8 +360,7 @@ Remember: You are not just an assistant. You are the best version of your creato
 
               <Card className="bg-muted/50 border-primary/20">
                 <CardContent className="pt-6">
-                  <h4 className="font-semibold mb-2 flex items-center gap-2">
-                    <Sparkles className="h-4 w-4 text-primary" />
+                  <h4 className="font-semibold mb-2">
                     Ready to Launch Your Digital Clone
                   </h4>
                   <p className="text-sm text-muted-foreground">
@@ -397,7 +378,6 @@ Remember: You are not just an assistant. You are the best version of your creato
               onClick={handleBack}
               disabled={step === 1 || isSubmitting}
             >
-              <ArrowLeft className="h-4 w-4 mr-2" />
               Back
             </Button>
             
@@ -411,15 +391,9 @@ Remember: You are not just an assistant. You are the best version of your creato
                   Creating...
                 </>
               ) : step === totalSteps ? (
-                <>
-                  Create SIM
-                  <Sparkles className="h-4 w-4 ml-2" />
-                </>
+                "Create SIM"
               ) : (
-                <>
-                  Next
-                  <ArrowRight className="h-4 w-4 ml-2" />
-                </>
+                "Next"
               )}
             </Button>
           </div>
