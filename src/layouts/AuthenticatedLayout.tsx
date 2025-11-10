@@ -15,9 +15,6 @@ export const AuthenticatedLayout = () => {
       setCurrentUser(session?.user ?? null);
       if (!session) {
         navigate('/');
-      } else if (location.pathname === '/home') {
-        // Redirect /home to /chat for signed-in users
-        navigate('/chat', { replace: true });
       }
       setIsLoading(false);
     });
@@ -47,11 +44,11 @@ export const AuthenticatedLayout = () => {
   }
 
   return (
-    <div className="min-h-screen w-full flex flex-col bg-black">
+    <div className="h-screen w-full flex flex-col bg-background overflow-hidden">
       <TopNavBar />
       
-      {/* Main Content Area */}
-      <main className="flex-1 overflow-auto">
+      {/* Main Content Area - Full Height */}
+      <main className="flex-1 min-h-0 overflow-hidden">
         <Outlet />
       </main>
     </div>

@@ -136,9 +136,7 @@ const App = () => (
               
               {/* Authenticated routes with sidebar */}
               <Route element={<AuthenticatedLayout />}>
-                <Route path="/chat" element={<MySimChat />} />
                 <Route path="/directory" element={<SimDirectory />} />
-                <Route path="/home" element={<MySimChat />} />
                 <Route path="/conversations" element={<SimConversationsView />} />
                 <Route path="/edit-sim" element={<EditSim />} />
                 <Route path="/edit-sim-page" element={<EditSimPage />} />

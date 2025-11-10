@@ -275,23 +275,23 @@ export default function MySimChat() {
   }
 
   return (
-    <div className="flex flex-col h-screen bg-background">
+    <div className="h-screen w-full flex flex-col bg-background overflow-hidden">
       {/* Header */}
-      <div className="border-b border-border bg-card/50 backdrop-blur-sm p-4">
-        <div className="max-w-4xl mx-auto flex items-center gap-4">
-          <Avatar className="h-12 w-12 border-2 border-primary">
+      <div className="border-b border-border bg-card/50 backdrop-blur-sm px-4 py-3 flex-shrink-0">
+        <div className="max-w-7xl mx-auto flex items-center gap-4">
+          <Avatar className="h-12 w-12 border-2 border-primary flex-shrink-0">
             <AvatarImage src={getAvatarUrl(sim.avatar_url)} alt={sim.name} />
             <AvatarFallback>{sim.name.charAt(0)}</AvatarFallback>
           </Avatar>
-          <div>
-            <h1 className="text-xl font-bold">{sim.name}</h1>
-            <p className="text-sm text-muted-foreground">Your AI companion</p>
+          <div className="flex-1 min-w-0">
+            <h1 className="text-xl font-bold truncate">{sim.name}</h1>
+            <p className="text-sm text-muted-foreground truncate">Your AI companion</p>
           </div>
         </div>
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4">
+      <div className="flex-1 overflow-y-auto p-4 min-h-0">
         <div className="max-w-4xl mx-auto space-y-4">
           {messages.map((msg, idx) => (
             <div
@@ -299,7 +299,7 @@ export default function MySimChat() {
               className={`flex gap-3 ${msg.role === "user" ? "justify-end" : "justify-start"}`}
             >
               {msg.role === "assistant" && (
-                <Avatar className="h-8 w-8 border border-border">
+                <Avatar className="h-8 w-8 border border-border flex-shrink-0">
                   <AvatarImage src={getAvatarUrl(sim.avatar_url)} alt={sim.name} />
                   <AvatarFallback>{sim.name.charAt(0)}</AvatarFallback>
                 </Avatar>
@@ -315,7 +315,7 @@ export default function MySimChat() {
           ))}
           {isLoading && (
             <div className="flex gap-3">
-              <Avatar className="h-8 w-8 border border-border">
+              <Avatar className="h-8 w-8 border border-border flex-shrink-0">
                 <AvatarImage src={getAvatarUrl(sim.avatar_url)} alt={sim.name} />
                 <AvatarFallback>{sim.name.charAt(0)}</AvatarFallback>
               </Avatar>
@@ -329,7 +329,7 @@ export default function MySimChat() {
       </div>
 
       {/* Input */}
-      <div className="border-t border-border bg-card/50 backdrop-blur-sm p-4">
+      <div className="border-t border-border bg-card/50 backdrop-blur-sm p-4 flex-shrink-0">
         <div className="max-w-4xl mx-auto flex gap-2">
           <Textarea
             value={input}

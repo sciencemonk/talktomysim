@@ -1,17 +1,9 @@
-import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import Marketplace from "./Marketplace";
+import MySimChat from "./MySimChat";
 
 const RootRedirect = () => {
-  const navigate = useNavigate();
   const { user, loading } = useAuth();
-
-  useEffect(() => {
-    if (!loading && user) {
-      navigate('/chat', { replace: true });
-    }
-  }, [user, loading, navigate]);
 
   if (loading) {
     return (
@@ -21,7 +13,8 @@ const RootRedirect = () => {
     );
   }
 
-  return <Marketplace />;
+  // If authenticated, show chat dashboard, otherwise show marketplace
+  return user ? <MySimChat /> : <Marketplace />;
 };
 
 export default RootRedirect;
