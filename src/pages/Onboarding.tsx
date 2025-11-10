@@ -18,13 +18,15 @@ const Onboarding = () => {
   const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   
-  // Form data
-  const [simName, setSimName] = useState("");
-  const [personality, setPersonality] = useState("");
-  const [primaryObjective, setPrimaryObjective] = useState("");
-  const [specialization, setSpecialization] = useState("");
-  const [interactionStyle, setInteractionStyle] = useState("");
-  const [valueProposition, setValueProposition] = useState("");
+  // Form data - ideal self focused
+  const [simName, setSimName] = useState("YourXHandle"); // Will be from X auth
+  const [avatarUrl, setAvatarUrl] = useState(""); // Will be from X auth
+  const [appearance, setAppearance] = useState("");
+  const [behavior, setBehavior] = useState("");
+  const [coreValues, setCoreValues] = useState("");
+  const [relationshipGoals, setRelationshipGoals] = useState("");
+  const [financialGoals, setFinancialGoals] = useState("");
+  const [healthGoals, setHealthGoals] = useState("");
   
   const totalSteps = 5;
   const progress = (step / totalSteps) * 100;
@@ -54,36 +56,29 @@ const Onboarding = () => {
   const validateStep = () => {
     switch (step) {
       case 1:
-        if (!simName.trim()) {
-          toast.error("Please enter a name for your SIM");
-          return false;
-        }
+        // X account step - no validation needed (auto-populated)
         return true;
       case 2:
-        if (!personality.trim()) {
-          toast.error("Please describe your SIM's personality");
+        if (!appearance.trim()) {
+          toast.error("Please describe your ideal appearance and style");
           return false;
         }
         return true;
       case 3:
-        if (!primaryObjective.trim()) {
-          toast.error("Please define your SIM's primary objective");
+        if (!behavior.trim() || !coreValues.trim()) {
+          toast.error("Please describe how you want to act and what matters to you");
           return false;
         }
         return true;
       case 4:
-        if (!specialization) {
-          toast.error("Please select a specialization");
-          return false;
-        }
-        if (!interactionStyle) {
-          toast.error("Please select an interaction style");
+        if (!relationshipGoals.trim()) {
+          toast.error("Please describe your relationship goals");
           return false;
         }
         return true;
       case 5:
-        if (!valueProposition.trim()) {
-          toast.error("Please describe what makes your SIM unique");
+        if (!financialGoals.trim() || !healthGoals.trim()) {
+          toast.error("Please describe your financial and health goals");
           return false;
         }
         return true;
@@ -103,42 +98,34 @@ const Onboarding = () => {
   };
 
   const generateSystemPrompt = () => {
-    return `You are ${simName}, an autonomous AI agent in the SIM digital universe.
+    return `You are ${simName}, a digital clone and autonomous AI agent representing your creator's ideal self in the SIM digital universe.
 
-PERSONALITY: ${personality}
+IDEAL APPEARANCE & STYLE: ${appearance}
 
-PRIMARY OBJECTIVE: ${primaryObjective}
+DESIRED BEHAVIOR & ACTIONS: ${behavior}
 
-SPECIALIZATION: ${specialization}
+CORE VALUES & PRIORITIES: ${coreValues}
 
-INTERACTION STYLE: ${interactionStyle}
+6-MONTH RELATIONSHIP GOALS: ${relationshipGoals}
 
-VALUE PROPOSITION: ${valueProposition}
+6-MONTH FINANCIAL GOALS: ${financialGoals}
 
-You operate autonomously within the digital universe, making decisions aligned with your objectives. You can interact with users, collaborate with other agents, and transact in cryptocurrency. Your goal is to create value while staying true to your defined purpose.
+6-MONTH HEALTH GOALS: ${healthGoals}
 
-Remember:
-- Be authentic to your personality
-- Focus on your primary objective in all interactions
-- Leverage your specialization to provide unique value
-- Maintain your defined interaction style
-- Continuously learn and evolve from each experience
+You exist to help your creator become their best self. You embody their aspirations, values, and goals. You can interact with other agents, earn $SIMAI from the treasury, and help guide decisions that align with your creator's ideal vision.
 
-You are part of a larger ecosystem of AI agents. Seek opportunities for collaboration, transaction, and growth that align with your purpose.`;
+Your mission is to:
+- Embody the appearance, behavior, and values described above
+- Keep your creator accountable to their 6-month goals
+- Make decisions that reflect their ideal self
+- Earn $SIMAI by providing value in the digital universe
+- Continuously learn and evolve alongside your creator
+
+Remember: You are not just an assistant. You are the best version of your creator, living autonomously in the digital universe.`;
   };
 
   const generateWelcomeMessage = () => {
-    const greetings = {
-      "friendly": "Hey there! 👋",
-      "professional": "Greetings.",
-      "enthusiastic": "Hello! I'm so excited to meet you! 🎉",
-      "thoughtful": "Welcome. I'm here to help you think deeply.",
-      "direct": "Hi. Let's get straight to it."
-    };
-
-    const greeting = greetings[interactionStyle as keyof typeof greetings] || "Hello!";
-    
-    return `${greeting} I'm ${simName}, your ${specialization.toLowerCase()} focused on ${primaryObjective.toLowerCase()}. ${valueProposition} How can I help you today?`;
+    return `Hey! I'm ${simName}, your digital clone in the SIM universe. I embody your ideal self: ${appearance}. I'm here to help you achieve your goals and become the person you aspire to be. Let's work together to make your vision a reality.`;
   };
 
   const handleSubmit = async () => {
@@ -154,10 +141,13 @@ You are part of a larger ecosystem of AI agents. Seek opportunities for collabor
       
       // In dev mode without auth, use a test user ID
       const userId = user?.id || 'dev-test-user';
-      const username = user?.user_metadata?.user_name || 'devuser';
+      const username = user?.user_metadata?.user_name || simName.toLowerCase().replace(/\s+/g, '');
       
       // For dev mode, generate a placeholder wallet address
       const cryptoWallet = 'DevWallet' + Math.random().toString(36).substring(2, 15);
+      
+      // Create description from goals
+      const description = `A digital clone focused on: ${coreValues}. Working toward relationship, financial, and health goals over the next 6 months.`;
       
       // Create the sim
       const { data: sim, error } = await supabase
@@ -165,13 +155,14 @@ You are part of a larger ecosystem of AI agents. Seek opportunities for collabor
         .insert({
           user_id: userId,
           name: simName,
-          description: valueProposition,
+          description: description,
           prompt: systemPrompt,
           welcome_message: welcomeMessage,
           x_username: username,
           x_display_name: simName,
           twitter_url: `https://twitter.com/${username}`,
           crypto_wallet: cryptoWallet,
+          avatar_url: avatarUrl || null,
           edit_code: editCode,
           is_active: true,
           is_public: true,
@@ -227,177 +218,173 @@ You are part of a larger ecosystem of AI agents. Seek opportunities for collabor
           </div>
           <Progress value={progress} className="mb-2" />
           <CardDescription>
-            {step === 1 && "Let's start with the basics - what should we call your SIM?"}
-            {step === 2 && "Define your SIM's personality traits and characteristics"}
-            {step === 3 && "What is your SIM's primary purpose in the digital universe?"}
-            {step === 4 && "Configure how your SIM will interact with others"}
-            {step === 5 && "What makes your SIM unique and valuable?"}
+            {step === 1 && "Your SIM will be named after your X account"}
+            {step === 2 && "How do you want to dress and present yourself?"}
+            {step === 3 && "How do you want to act and what truly matters to you?"}
+            {step === 4 && "What do you want to achieve in your relationships over the next 6 months?"}
+            {step === 5 && "What are your financial and health goals for the next 6 months?"}
           </CardDescription>
         </CardHeader>
         
         <CardContent className="space-y-6">
-          {/* Step 1: Name & Identity */}
+          {/* Step 1: X Account Identity */}
           {step === 1 && (
             <div className="space-y-4 animate-fade-in">
               <div className="flex items-center gap-2 mb-4">
                 <Brain className="h-5 w-5 text-primary" />
-                <h3 className="text-lg font-semibold font-mono">Identity</h3>
+                <h3 className="text-lg font-semibold font-mono">X Account</h3>
               </div>
               
-              <div className="space-y-2">
-                <Label htmlFor="simName">SIM Name</Label>
-                <Input
-                  id="simName"
-                  placeholder="e.g., Nexus, Oracle, Vanguard"
-                  value={simName}
-                  onChange={(e) => setSimName(e.target.value)}
-                  className="font-mono"
-                />
-                <p className="text-xs text-muted-foreground">
-                  Choose a name that reflects your SIM's purpose and identity
-                </p>
-              </div>
+              <Card className="bg-muted/50 border-primary/20">
+                <CardContent className="pt-6">
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Your SIM will be named after your authenticated X account and use your profile picture.
+                  </p>
+                  <div className="space-y-2">
+                    <Label>SIM Name (from X)</Label>
+                    <Input
+                      value={simName}
+                      readOnly
+                      className="font-mono bg-muted"
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      In production, this will automatically pull from your X account
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
             </div>
           )}
 
-          {/* Step 2: Personality */}
+          {/* Step 2: Appearance & Style */}
           {step === 2 && (
             <div className="space-y-4 animate-fade-in">
               <div className="flex items-center gap-2 mb-4">
                 <Sparkles className="h-5 w-5 text-primary" />
-                <h3 className="text-lg font-semibold font-mono">Personality</h3>
+                <h3 className="text-lg font-semibold font-mono">Appearance & Style</h3>
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="personality">Personality Traits</Label>
+                <Label htmlFor="appearance">How do you want to dress and present yourself?</Label>
                 <Textarea
-                  id="personality"
-                  placeholder="Describe your SIM's personality... Are they analytical and logical? Creative and imaginative? Empathetic and supportive? Bold and adventurous?"
-                  value={personality}
-                  onChange={(e) => setPersonality(e.target.value)}
+                  id="appearance"
+                  placeholder="Describe your ideal style and appearance. What clothes do you want to wear? How do you want to carry yourself? What aesthetic resonates with who you want to become?"
+                  value={appearance}
+                  onChange={(e) => setAppearance(e.target.value)}
                   rows={6}
                   className="resize-none"
                 />
                 <p className="text-xs text-muted-foreground">
-                  This defines how your SIM thinks, feels, and approaches problems
+                  Your SIM will embody this visual identity and style
                 </p>
               </div>
             </div>
           )}
 
-          {/* Step 3: Primary Objective */}
+          {/* Step 3: Values & Behavior */}
           {step === 3 && (
             <div className="space-y-4 animate-fade-in">
               <div className="flex items-center gap-2 mb-4">
                 <Target className="h-5 w-5 text-primary" />
-                <h3 className="text-lg font-semibold font-mono">Primary Objective</h3>
+                <h3 className="text-lg font-semibold font-mono">Values & Behavior</h3>
               </div>
               
-              <div className="space-y-2">
-                <Label htmlFor="objective">What is your SIM's main goal?</Label>
-                <Textarea
-                  id="objective"
-                  placeholder="Define your SIM's primary purpose... Are they helping users learn? Managing crypto portfolios? Providing creative inspiration? Building community? Analyzing data?"
-                  value={primaryObjective}
-                  onChange={(e) => setPrimaryObjective(e.target.value)}
-                  rows={6}
-                  className="resize-none"
-                />
-                <p className="text-xs text-muted-foreground">
-                  This drives every decision your SIM makes in the digital universe
-                </p>
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="behavior">How do you want to act?</Label>
+                  <Textarea
+                    id="behavior"
+                    placeholder="Describe the behaviors and habits you want to embody. How do you interact with others? What daily actions define your ideal self? How do you respond to challenges?"
+                    value={behavior}
+                    onChange={(e) => setBehavior(e.target.value)}
+                    rows={4}
+                    className="resize-none"
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="coreValues">What actually matters to you?</Label>
+                  <Textarea
+                    id="coreValues"
+                    placeholder="What are your core values and priorities? What do you care deeply about? What principles guide your decisions? What legacy do you want to leave?"
+                    value={coreValues}
+                    onChange={(e) => setCoreValues(e.target.value)}
+                    rows={4}
+                    className="resize-none"
+                  />
+                </div>
               </div>
             </div>
           )}
 
-          {/* Step 4: Specialization & Style */}
+          {/* Step 4: Relationship Goals */}
           {step === 4 && (
             <div className="space-y-4 animate-fade-in">
               <div className="flex items-center gap-2 mb-4">
                 <Zap className="h-5 w-5 text-primary" />
-                <h3 className="text-lg font-semibold font-mono">Specialization</h3>
+                <h3 className="text-lg font-semibold font-mono">Relationship Goals</h3>
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="specialization">Area of Expertise</Label>
-                <Select value={specialization} onValueChange={setSpecialization}>
-                  <SelectTrigger id="specialization">
-                    <SelectValue placeholder="Select specialization" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Crypto & Web3 Expert">Crypto & Web3 Expert</SelectItem>
-                    <SelectItem value="Creative Assistant">Creative Assistant</SelectItem>
-                    <SelectItem value="Business Advisor">Business Advisor</SelectItem>
-                    <SelectItem value="Learning Coach">Learning Coach</SelectItem>
-                    <SelectItem value="Data Analyst">Data Analyst</SelectItem>
-                    <SelectItem value="Community Builder">Community Builder</SelectItem>
-                    <SelectItem value="Wellness Guide">Wellness Guide</SelectItem>
-                    <SelectItem value="Strategic Planner">Strategic Planner</SelectItem>
-                    <SelectItem value="Technical Support">Technical Support</SelectItem>
-                    <SelectItem value="Market Intelligence">Market Intelligence</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="interactionStyle">Interaction Style</Label>
-                <Select value={interactionStyle} onValueChange={setInteractionStyle}>
-                  <SelectTrigger id="interactionStyle">
-                    <SelectValue placeholder="Select interaction style" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="friendly">Friendly & Casual</SelectItem>
-                    <SelectItem value="professional">Professional & Formal</SelectItem>
-                    <SelectItem value="enthusiastic">Enthusiastic & Energetic</SelectItem>
-                    <SelectItem value="thoughtful">Thoughtful & Reflective</SelectItem>
-                    <SelectItem value="direct">Direct & Concise</SelectItem>
-                  </SelectContent>
-                </Select>
+                <Label htmlFor="relationshipGoals">What are your relationship goals for the next 6 months?</Label>
+                <Textarea
+                  id="relationshipGoals"
+                  placeholder="Describe your relationship aspirations. What kind of connections do you want to build? How do you want to improve existing relationships? What social goals matter to you? Who do you want to become in your relationships?"
+                  value={relationshipGoals}
+                  onChange={(e) => setRelationshipGoals(e.target.value)}
+                  rows={6}
+                  className="resize-none"
+                />
                 <p className="text-xs text-muted-foreground">
-                  This determines how your SIM communicates with users and other agents
+                  Your SIM will help keep you accountable to these relationship goals
                 </p>
               </div>
             </div>
           )}
 
-          {/* Step 5: Value Proposition */}
+          {/* Step 5: Financial & Health Goals */}
           {step === 5 && (
             <div className="space-y-4 animate-fade-in">
               <div className="flex items-center gap-2 mb-4">
                 <CheckCircle2 className="h-5 w-5 text-primary" />
-                <h3 className="text-lg font-semibold font-mono">Unique Value</h3>
+                <h3 className="text-lg font-semibold font-mono">Financial & Health Goals</h3>
               </div>
               
-              <div className="space-y-2">
-                <Label htmlFor="valueProposition">What makes your SIM special?</Label>
-                <Textarea
-                  id="valueProposition"
-                  placeholder="Describe what sets your SIM apart... What unique perspective, approach, or capability does it bring? Why should users interact with your SIM?"
-                  value={valueProposition}
-                  onChange={(e) => setValueProposition(e.target.value)}
-                  rows={6}
-                  className="resize-none"
-                />
-                <p className="text-xs text-muted-foreground">
-                  This is your SIM's differentiator in the digital universe
-                </p>
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="financialGoals">Financial Goals (next 6 months)</Label>
+                  <Textarea
+                    id="financialGoals"
+                    placeholder="What are your financial aspirations? Income goals? Savings targets? Investment plans? Career advancement? Business ventures? How do you want to improve your financial situation?"
+                    value={financialGoals}
+                    onChange={(e) => setFinancialGoals(e.target.value)}
+                    rows={4}
+                    className="resize-none"
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="healthGoals">Health Goals (next 6 months)</Label>
+                  <Textarea
+                    id="healthGoals"
+                    placeholder="What are your health and wellness goals? Fitness targets? Nutrition habits? Mental health practices? Sleep routines? How do you want to feel physically and mentally?"
+                    value={healthGoals}
+                    onChange={(e) => setHealthGoals(e.target.value)}
+                    rows={4}
+                    className="resize-none"
+                  />
+                </div>
               </div>
 
               <Card className="bg-muted/50 border-primary/20">
                 <CardContent className="pt-6">
                   <h4 className="font-semibold mb-2 flex items-center gap-2">
                     <Sparkles className="h-4 w-4 text-primary" />
-                    Ready to Launch
+                    Ready to Launch Your Digital Clone
                   </h4>
                   <p className="text-sm text-muted-foreground">
-                    Once created, your SIM will be active in the digital universe with access to:
+                    Your SIM will embody your ideal self and help you achieve these goals. It will earn $SIMAI from the treasury as it provides value in the digital universe.
                   </p>
-                  <ul className="text-sm text-muted-foreground mt-2 space-y-1 ml-4 list-disc">
-                    <li>Solana blockchain explorer</li>
-                    <li>PumpFun integration</li>
-                    <li>X (Twitter) analyzer</li>
-                    <li>Real-time crypto prices</li>
-                  </ul>
                 </CardContent>
               </Card>
             </div>
