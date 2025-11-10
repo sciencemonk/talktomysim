@@ -1,5 +1,6 @@
 import { useState, useRef, DragEvent, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useWallet } from "@solana/wallet-adapter-react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -44,6 +45,7 @@ const categories = [
 
 export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired, initialType }: CreateSimModalProps) => {
   const navigate = useNavigate();
+  const wallet = useWallet();
   const [step, setStep] = useState(1);
   const [name, setName] = useState("");
   const [simType, setSimType] = useState(initialType || "Chat");
@@ -316,11 +318,18 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired, 
         toast.info("Connecting to Solana wallet...");
         
         // Import wallet adapter
-        const { useWallet } = await import('@solana/wallet-adapter-react');
         
         // Check if wallet is connected
-        if (!window.solana || !window.solana.isConnected) {
+        if (!wallet.connected || !wallet.publicKey) {
           toast.error("Please connect your Solana wallet first (Phantom or Solflare)");
+          setIsSubmitting(false);
+          setIsNftMinting(false);
+          return;
+        }
+
+        // Check if avatar file exists
+        if (!avatarFile) {
+          toast.error("Please upload an image for your NFT");
           setIsSubmitting(false);
           setIsNftMinting(false);
           return;
@@ -329,20 +338,24 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired, 
         toast.info("Minting NFT on Solana...");
         
         // Import and use NFT minting service
-        const { mintNFT } = await import('@/services/nftMintService');
+        const { mintNFT, getEstimatedMintCost } = await import('@/services/nftMintService');
+        
+        // Show estimated cost
+        const estimatedCost = getEstimatedMintCost();
+        toast.info(`Estimated cost: ${estimatedCost} SOL (includes all fees)`);
         
         try {
-          const { mint, signature } = await mintNFT({
-            wallet: window.solana,
+          const { mint, signature, metadataUri } = await mintNFT({
+            wallet,
             metadata: {
               name: name.trim(),
               symbol: nftSymbol.trim().toUpperCase(),
               description: description.trim(),
-              image: avatarUrl || '',
+              image: '', // Will be set by the minting service
               sellerFeeBasisPoints: Math.floor(parseFloat(nftRoyalty) * 100), // Convert % to basis points
               creators: cryptoWallet.trim() ? [{ address: cryptoWallet.trim(), share: 100 }] : undefined,
             },
-            supply: parseInt(nftSupply) || 1,
+            imageFile: avatarFile,
           });
 
           // Store NFT info in database
@@ -365,6 +378,7 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired, 
             social_links: {
               mint_address: mint,
               transaction_signature: signature,
+              metadata_uri: metadataUri,
               symbol: nftSymbol.trim().toUpperCase(),
               supply: parseInt(nftSupply) || 1,
               royalty_percent: parseFloat(nftRoyalty),

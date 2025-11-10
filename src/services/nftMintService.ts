@@ -1,5 +1,9 @@
-import { Connection, Keypair, PublicKey, SystemProgram, Transaction } from '@solana/web3.js';
-import { TOKEN_PROGRAM_ID, createInitializeMintInstruction, createAssociatedTokenAccountInstruction, createMintToInstruction, getMinimumBalanceForRentExemptMint, MINT_SIZE, getAssociatedTokenAddress } from '@solana/spl-token';
+import { createUmi } from '@metaplex-foundation/umi-bundle-defaults';
+import { createNft, mplTokenMetadata } from '@metaplex-foundation/mpl-token-metadata';
+import { generateSigner, percentAmount, createGenericFile, publicKey } from '@metaplex-foundation/umi';
+import { walletAdapterIdentity } from '@metaplex-foundation/umi-signer-wallet-adapters';
+import { WalletContextState } from '@solana/wallet-adapter-react';
+import { PublicKey } from '@solana/web3.js';
 
 export interface NFTMetadata {
   name: string;
@@ -12,148 +16,227 @@ export interface NFTMetadata {
 }
 
 export interface MintNFTParams {
-  wallet: any; // Solana wallet adapter
+  wallet: WalletContextState;
   metadata: NFTMetadata;
-  supply: number;
+  imageFile?: File;
+}
+
+export interface MintNFTResult {
+  mint: string;
+  signature: string;
+  metadataUri: string;
 }
 
 /**
- * Upload metadata to Arweave or IPFS
- * For now, we'll use a simple JSON storage approach
- * In production, you'd use Arweave, NFT.Storage, or Pinata
+ * Upload image and metadata to NFT.Storage (IPFS)
  */
-const uploadMetadata = async (metadata: NFTMetadata): Promise<string> => {
-  // Convert metadata to JSON string
-  const metadataJson = JSON.stringify(metadata);
-  
-  // For demo purposes, we'll create a data URL
-  // In production, upload to Arweave or IPFS
-  const metadataUrl = `data:application/json;base64,${btoa(metadataJson)}`;
-  
-  console.log('Metadata uploaded:', metadataUrl);
-  return metadataUrl;
+const uploadToNFTStorage = async (
+  imageFile: File,
+  metadata: Omit<NFTMetadata, 'image'>
+): Promise<{ imageUri: string; metadataUri: string }> => {
+  try {
+    // For production, you should use NFT.Storage or similar service
+    // This requires an API key stored in Supabase secrets
+    const formData = new FormData();
+    formData.append('image', imageFile);
+    formData.append('metadata', JSON.stringify(metadata));
+
+    // Call your edge function that handles NFT.Storage upload
+    const response = await fetch(
+      'https://uovhemqkztmkoozlmqxq.supabase.co/functions/v1/upload-nft-metadata',
+      {
+        method: 'POST',
+        body: formData,
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error('Failed to upload metadata to IPFS');
+    }
+
+    const data = await response.json();
+    return {
+      imageUri: data.imageUri,
+      metadataUri: data.metadataUri,
+    };
+  } catch (error) {
+    console.error('Error uploading to NFT.Storage:', error);
+    throw new Error('Failed to upload NFT metadata. Please try again.');
+  }
 };
 
 /**
- * Mint an NFT on Solana
+ * Upload metadata using Metaplex's built-in storage
+ */
+const uploadMetadataWithMetaplex = async (
+  umi: any,
+  imageFile: File,
+  metadata: Omit<NFTMetadata, 'image'>
+): Promise<string> => {
+  try {
+    // Convert File to Buffer
+    const imageBuffer = await imageFile.arrayBuffer();
+    const imageBytes = new Uint8Array(imageBuffer);
+
+    // Create generic file for Metaplex
+    const genericFile = createGenericFile(imageBytes, imageFile.name, {
+      contentType: imageFile.type,
+      uniqueName: `${Date.now()}-${imageFile.name}`,
+    });
+
+    // Upload image using Metaplex's default storage (Arweave via Metaplex)
+    const [imageUri] = await umi.uploader.upload([genericFile]);
+
+    // Create complete metadata with image URI
+    const completeMetadata = {
+      name: metadata.name,
+      symbol: metadata.symbol,
+      description: metadata.description,
+      image: imageUri,
+      attributes: metadata.attributes || [],
+      properties: {
+        files: [
+          {
+            uri: imageUri,
+            type: imageFile.type,
+          },
+        ],
+        category: 'image',
+      },
+      sellerFeeBasisPoints: metadata.sellerFeeBasisPoints || 0,
+      creators: metadata.creators || [],
+    };
+
+    // Upload metadata JSON
+    const metadataUri = await umi.uploader.uploadJson(completeMetadata);
+
+    return metadataUri;
+  } catch (error) {
+    console.error('Error uploading metadata with Metaplex:', error);
+    throw new Error('Failed to upload NFT metadata. Please try again.');
+  }
+};
+
+/**
+ * Mint an NFT on Solana using Metaplex
  */
 export const mintNFT = async ({
   wallet,
   metadata,
-  supply = 1,
-}: MintNFTParams): Promise<{ mint: string; signature: string }> => {
+  imageFile,
+}: MintNFTParams): Promise<MintNFTResult> => {
   try {
-    if (!wallet.publicKey) {
+    if (!wallet.publicKey || !wallet.signTransaction) {
       throw new Error('Wallet not connected');
     }
 
-    // Connect to Solana mainnet
-    const connection = new Connection('https://solana-mainnet.g.alchemy.com/v2/demo', 'confirmed');
+    if (!imageFile) {
+      throw new Error('Image file is required for NFT minting');
+    }
 
-    // Upload metadata
-    const metadataUri = await uploadMetadata(metadata);
+    console.log('Starting NFT minting process...');
 
-    // Create a new mint keypair
-    const mintKeypair = Keypair.generate();
-    const mintPublicKey = mintKeypair.publicKey;
+    // Initialize Umi with Solana mainnet
+    const umi = createUmi('https://solana-mainnet.g.alchemy.com/v2/demo')
+      .use(walletAdapterIdentity(wallet))
+      .use(mplTokenMetadata());
 
-    // Get the minimum lamports for rent exemption
-    const lamports = await getMinimumBalanceForRentExemptMint(connection);
+    console.log('Uploading metadata to permanent storage...');
 
-    // Get associated token account for the wallet
-    const associatedTokenAccount = await getAssociatedTokenAddress(
-      mintPublicKey,
-      wallet.publicKey
-    );
+    // Upload metadata and image
+    const metadataUri = await uploadMetadataWithMetaplex(umi, imageFile, {
+      name: metadata.name,
+      symbol: metadata.symbol,
+      description: metadata.description,
+      attributes: metadata.attributes,
+      sellerFeeBasisPoints: metadata.sellerFeeBasisPoints,
+      creators: metadata.creators,
+    });
 
-    // Create transaction
-    const transaction = new Transaction();
+    console.log('Metadata uploaded:', metadataUri);
 
-    // Add instruction to create mint account
-    transaction.add(
-      SystemProgram.createAccount({
-        fromPubkey: wallet.publicKey,
-        newAccountPubkey: mintPublicKey,
-        space: MINT_SIZE,
-        lamports,
-        programId: TOKEN_PROGRAM_ID,
-      })
-    );
+    // Generate a new mint keypair
+    const mint = generateSigner(umi);
 
-    // Add instruction to initialize mint
-    transaction.add(
-      createInitializeMintInstruction(
-        mintPublicKey,
-        0, // 0 decimals for NFT
-        wallet.publicKey, // mint authority
-        wallet.publicKey, // freeze authority
-        TOKEN_PROGRAM_ID
-      )
-    );
+    console.log('Creating NFT on-chain...');
 
-    // Add instruction to create associated token account
-    transaction.add(
-      createAssociatedTokenAccountInstruction(
-        wallet.publicKey, // payer
-        associatedTokenAccount, // associated token account
-        wallet.publicKey, // owner
-        mintPublicKey // mint
-      )
-    );
+    // Create the NFT using Metaplex
+    const result = await createNft(umi, {
+      mint,
+      name: metadata.name,
+      symbol: metadata.symbol,
+      uri: metadataUri,
+      sellerFeeBasisPoints: percentAmount(metadata.sellerFeeBasisPoints || 0),
+      creators: metadata.creators?.map((creator) => ({
+        address: publicKey(creator.address),
+        verified: creator.address === wallet.publicKey.toBase58(),
+        share: creator.share,
+      })),
+    }).sendAndConfirm(umi);
 
-    // Add instruction to mint tokens
-    transaction.add(
-      createMintToInstruction(
-        mintPublicKey,
-        associatedTokenAccount,
-        wallet.publicKey,
-        supply, // amount
-        [],
-        TOKEN_PROGRAM_ID
-      )
-    );
-
-    // Get recent blockhash
-    const { blockhash } = await connection.getLatestBlockhash();
-    transaction.recentBlockhash = blockhash;
-    transaction.feePayer = wallet.publicKey;
-
-    // Partially sign with mint keypair
-    transaction.partialSign(mintKeypair);
-
-    // Sign and send transaction with wallet
-    const signedTransaction = await wallet.signTransaction(transaction);
-    const signature = await connection.sendRawTransaction(signedTransaction.serialize());
-
-    // Confirm transaction
-    await connection.confirmTransaction(signature, 'confirmed');
+    const signature = Buffer.from(result.signature).toString('base64');
 
     console.log('NFT minted successfully:', {
-      mint: mintPublicKey.toBase58(),
+      mint: mint.publicKey,
       signature,
       metadataUri,
     });
 
     return {
-      mint: mintPublicKey.toBase58(),
+      mint: mint.publicKey.toString(),
       signature,
+      metadataUri,
     };
   } catch (error) {
     console.error('Error minting NFT:', error);
-    throw error;
+    
+    if (error instanceof Error) {
+      if (error.message.includes('User rejected')) {
+        throw new Error('Transaction was cancelled');
+      }
+      if (error.message.includes('insufficient funds')) {
+        throw new Error('Insufficient SOL balance. You need ~0.02 SOL to mint an NFT.');
+      }
+      throw error;
+    }
+    
+    throw new Error('Failed to mint NFT. Please try again.');
   }
 };
 
 /**
  * Get NFT metadata from mint address
  */
-export const getNFTMetadata = async (mintAddress: string): Promise<NFTMetadata | null> => {
+export const getNFTMetadata = async (
+  mintAddress: string
+): Promise<NFTMetadata | null> => {
   try {
-    // In production, fetch from Metaplex metadata program
-    // For now, return null
+    // Initialize Umi
+    const umi = createUmi('https://solana-mainnet.g.alchemy.com/v2/demo').use(
+      mplTokenMetadata()
+    );
+
+    // This would fetch the NFT metadata from the blockchain
+    // Implementation depends on your specific needs
+    console.log('Fetching NFT metadata for:', mintAddress);
+    
+    // For now, return null - implement when needed
     return null;
   } catch (error) {
     console.error('Error fetching NFT metadata:', error);
     return null;
   }
+};
+
+/**
+ * Get estimated cost for minting an NFT
+ */
+export const getEstimatedMintCost = (): number => {
+  // Estimated cost in SOL
+  // Account creation: ~0.00089 SOL
+  // Metadata account: ~0.0145 SOL
+  // Transaction fees: ~0.00001 SOL
+  // Storage fees (Arweave): ~0.001 SOL
+  // Total: ~0.016 SOL
+  return 0.02; // Adding buffer
 };
