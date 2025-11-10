@@ -77,17 +77,41 @@ export default function NFTDetail() {
     
     setIsPurchasing(true);
     try {
-      toast.info('NFT purchase functionality coming soon!');
-      toast.info('This will integrate with Solana SPL token transfers and NFT ownership verification');
+      const { purchaseNFT } = await import('@/services/nftPurchaseService');
       
-      // TODO: Implement actual NFT purchase flow:
-      // 1. Verify NFT ownership is with seller
-      // 2. Create escrow or atomic swap transaction
-      // 3. Transfer USDC/SOL from buyer to seller
-      // 4. Transfer NFT from seller to buyer
-      // 5. Update database with new owner
-      
-      setShowPurchaseDialog(false);
+      const result = await purchaseNFT({
+        nftId: nft.id,
+        wallet,
+        sellerWallet: nft.crypto_wallet,
+        price: nft.price,
+        mintAddress: socialLinks?.mint_address,
+      });
+
+      if (result.success) {
+        toast.success('NFT purchased successfully!');
+        if (result.signature) {
+          toast.success(
+            <div>
+              <p>Transaction confirmed!</p>
+              <a 
+                href={`https://solscan.io/tx/${result.signature}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary underline"
+              >
+                View on Solscan
+              </a>
+            </div>
+          );
+        }
+        setShowPurchaseDialog(false);
+        // Refresh NFT data
+        setTimeout(() => {
+          navigate('/');
+        }, 2000);
+      } else {
+        toast.error(result.error || 'Purchase failed');
+      }
     } catch (error: any) {
       console.error('Purchase error:', error);
       toast.error(error?.message || 'Failed to purchase NFT');

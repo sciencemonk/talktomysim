@@ -923,6 +923,56 @@ export type Database = {
           },
         ]
       }
+      nft_purchases: {
+        Row: {
+          buyer_wallet: string
+          completed_at: string | null
+          created_at: string
+          id: string
+          mint_address: string
+          nft_id: string
+          price: number
+          seller_wallet: string
+          status: string
+          transaction_signature: string | null
+          updated_at: string
+        }
+        Insert: {
+          buyer_wallet: string
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          mint_address: string
+          nft_id: string
+          price: number
+          seller_wallet: string
+          status?: string
+          transaction_signature?: string | null
+          updated_at?: string
+        }
+        Update: {
+          buyer_wallet?: string
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          mint_address?: string
+          nft_id?: string
+          price?: number
+          seller_wallet?: string
+          status?: string
+          transaction_signature?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "nft_purchases_nft_id_fkey"
+            columns: ["nft_id"]
+            isOneToOne: false
+            referencedRelation: "advisors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       payment_sessions: {
         Row: {
           agent_id: string | null

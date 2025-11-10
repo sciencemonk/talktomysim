@@ -128,3 +128,9 @@ verify_jwt = false
 
 [functions.mint-nft-proxy]
 verify_jwt = false
+
+[functions.purchase-nft]
+verify_jwt = false
+
+[functions.confirm-nft-purchase]
+verify_jwt = false
