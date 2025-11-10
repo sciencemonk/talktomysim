@@ -1159,7 +1159,7 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired, 
                   !name.trim() || 
                   (simType === "Chat" && (!description.trim() || !category)) ||
                   (simType === "Crypto Mail" && !description.trim()) ||
-                  (simType === "NFT" && (!description.trim() || !nftSymbol.trim() || !avatarFile || !cryptoWallet.trim())) ||
+                  (simType === "NFT" && (!description.trim() || !nftSymbol.trim() || !avatarFile || !wallet.connected || !wallet.publicKey)) ||
                   (simType === "Autonomous Agent" && (!briefTopic.trim() || !agentCategory || !briefTime))
                 }
                 className="gap-2 w-full h-12 font-semibold bg-[#82f2aa] hover:bg-[#6dd994] text-black"
