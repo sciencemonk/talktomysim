@@ -123,6 +123,7 @@ export type Database = {
           completion_status: Json | null
           conversation_style: string | null
           created_at: string
+          creator_prompt: string | null
           crypto_wallet: string | null
           current_profession: string | null
           custom_url: string | null
@@ -152,9 +153,11 @@ export type Database = {
           response_length: string | null
           sample_scenarios: Json | null
           sim_category: string | null
+          sim_to_sim_prompt: string | null
           sim_type: string | null
           skills: Json | null
           social_links: Json | null
+          stranger_prompt: string | null
           target_audience: string | null
           title: string | null
           twitter_url: string | null
@@ -183,6 +186,7 @@ export type Database = {
           completion_status?: Json | null
           conversation_style?: string | null
           created_at?: string
+          creator_prompt?: string | null
           crypto_wallet?: string | null
           current_profession?: string | null
           custom_url?: string | null
@@ -212,9 +216,11 @@ export type Database = {
           response_length?: string | null
           sample_scenarios?: Json | null
           sim_category?: string | null
+          sim_to_sim_prompt?: string | null
           sim_type?: string | null
           skills?: Json | null
           social_links?: Json | null
+          stranger_prompt?: string | null
           target_audience?: string | null
           title?: string | null
           twitter_url?: string | null
@@ -243,6 +249,7 @@ export type Database = {
           completion_status?: Json | null
           conversation_style?: string | null
           created_at?: string
+          creator_prompt?: string | null
           crypto_wallet?: string | null
           current_profession?: string | null
           custom_url?: string | null
@@ -272,9 +279,11 @@ export type Database = {
           response_length?: string | null
           sample_scenarios?: Json | null
           sim_category?: string | null
+          sim_to_sim_prompt?: string | null
           sim_type?: string | null
           skills?: Json | null
           social_links?: Json | null
+          stranger_prompt?: string | null
           target_audience?: string | null
           title?: string | null
           twitter_url?: string | null
