@@ -209,7 +209,7 @@ export const GodModeMap = ({ agentName }: { agentName: string }) => {
   }, [connections]);
 
   return (
-    <div className="relative w-full h-[220px] bg-gradient-to-br from-background via-background/95 to-primary/5 rounded-lg border border-primary/20 overflow-hidden">
+    <div className="relative w-full h-full bg-gradient-to-br from-background via-background/95 to-primary/5 rounded-lg border border-primary/20 overflow-hidden min-h-[600px]">
       <canvas
         ref={canvasRef}
         width={800}
