@@ -409,7 +409,17 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired, 
             .select()
             .single();
 
-          if (insertError) throw insertError;
+          if (insertError) {
+            console.error("Database insert error:", {
+              error: insertError,
+              simData,
+              message: insertError.message,
+              details: insertError.details,
+              hint: insertError.hint,
+              code: insertError.code
+            });
+            throw new Error(`Failed to save NFT to database: ${insertError.message}`);
+          }
 
           if (newSim && user) {
             await supabase.from("user_advisors").insert({
