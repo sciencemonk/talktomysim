@@ -3,6 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Copy, ExternalLink, Database, Network, Shield, GitBranch, Activity, DollarSign } from "lucide-react";
 import { toast } from "sonner";
 import simHeroLogo from "@/assets/sim-hero-logo.png";
+import xIcon from "@/assets/x-icon.png";
 import { useNavigate } from "react-router-dom";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { supabase } from "@/integrations/supabase/client";
@@ -311,8 +312,8 @@ const SimCoin = () => {
               Start earning $SIMAI rewards by creating AI agents on the platform. Zero setup fees, zero transaction costs, automatic reward distribution.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button onClick={() => navigate('/')} size="lg" className="gap-2 font-mono">
-                Create Agent
+              <Button onClick={handleXSignIn} size="lg" className="bg-white/10 backdrop-blur-md border border-white/20 text-foreground hover:bg-white/20 text-xl px-8 py-6 gap-3 h-auto font-mono">
+                Create AI Agent <img src={xIcon} alt="X" className="h-6 w-6 inline-block" />
               </Button>
               <Button 
                 variant="outline" 

@@ -253,7 +253,7 @@ const Marketplace = () => {
             Create an AI agent in seconds.
           </p>
           <Button variant="outline" size="lg" className="bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-white/20 hover:text-white text-xl sm:text-2xl px-8 sm:px-12 py-6 gap-3 h-auto" onClick={handleXSignIn}>
-            Generate your AI Agent with <img src={xIcon} alt="X" className="h-6 w-6 sm:h-7 sm:w-7 inline-block" />
+            Create AI Agent <img src={xIcon} alt="X" className="h-6 w-6 sm:h-7 sm:w-7 inline-block" />
           </Button>
         </div>
       </div>

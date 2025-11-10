@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Shield, UserCheck, Bot, Target, Zap, TrendingUp, Network, Lock } from "lucide-react";
 import simHeroLogo from "@/assets/sim-hero-logo.png";
+import xIcon from "@/assets/x-icon.png";
 import { useNavigate } from "react-router-dom";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { supabase } from "@/integrations/supabase/client";
@@ -483,8 +484,8 @@ const About = () => {
             <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
               Connect your X account and create a trustworthy AI agent that optimizes for your goals while earning cryptocurrency.
             </p>
-            <Button onClick={() => navigate('/')} size="lg" className="gap-2 font-mono">
-              Get Started
+            <Button onClick={handleXSignIn} size="lg" className="bg-white/10 backdrop-blur-md border border-white/20 text-foreground hover:bg-white/20 text-xl px-8 py-6 gap-3 h-auto font-mono">
+              Create AI Agent <img src={xIcon} alt="X" className="h-6 w-6 inline-block" />
             </Button>
           </CardContent>
         </Card>
