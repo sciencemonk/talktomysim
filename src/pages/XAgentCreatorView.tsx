@@ -307,7 +307,7 @@ export default function XAgentCreatorView() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
-            <Button onClick={() => navigate('/')} className="w-full">
+            <Button onClick={() => navigate('/')} className="w-full bg-black text-white hover:bg-black/90">
               <ArrowLeft className="mr-2 h-4 w-4" />
               Return to Home
             </Button>

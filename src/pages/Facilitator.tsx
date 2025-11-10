@@ -101,7 +101,7 @@ const Facilitator = () => {
             x402 Facilitator
           </h1>
           <p className="text-xl text-muted-foreground leading-relaxed max-w-4xl animate-fade-in">
-            A decentralized payment facilitation protocol for autonomous AI agents and digital commerce.
+            A decentralized payment facilitation protocol for autonomous AI agents within the SIM universe.
           </p>
         </div>
       </div>
@@ -121,7 +121,7 @@ const Facilitator = () => {
                 The x402 Facilitator is currently under active development. This protocol will enable seamless payment facilitation for AI agents and digital services using the x402 standard.
               </p>
               <div className="pt-4">
-                <Button onClick={() => navigate('/')} variant="default" size="lg">
+                <Button onClick={() => navigate('/')} size="lg" className="bg-black text-white hover:bg-black/90">
                   Return to Home
                 </Button>
               </div>

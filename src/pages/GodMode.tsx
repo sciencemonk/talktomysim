@@ -210,7 +210,7 @@ const GodMode = () => {
                 </div>
               </div>
               <div className="pt-4">
-                <Button onClick={() => navigate('/')} variant="default" size="lg">
+                <Button onClick={() => navigate('/')} size="lg" className="bg-black text-white hover:bg-black/90">
                   Return to Home
                 </Button>
               </div>
