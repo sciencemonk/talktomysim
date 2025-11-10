@@ -128,13 +128,23 @@ const PublicSimDetail = () => {
     try {
       setIsLoading(true);
       
-      // Try to fetch from sims table first
-      let { data: simData, error: simError } = await supabase
+      // Check if identifier is a UUID format
+      const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(identifier || '');
+      
+      // Build query conditionally based on identifier format
+      let query = supabase
         .from('sims')
         .select('*')
-        .eq('is_active', true)
-        .or(`custom_url.eq.${identifier},id.eq.${identifier},x_username.ilike.${identifier}`)
-        .maybeSingle();
+        .eq('is_active', true);
+      
+      // Only include id comparison if it's a valid UUID
+      if (isUUID) {
+        query = query.or(`custom_url.eq.${identifier},id.eq.${identifier},x_username.ilike.${identifier}`);
+      } else {
+        query = query.or(`custom_url.eq.${identifier},x_username.ilike.${identifier}`);
+      }
+      
+      let { data: simData, error: simError } = await query.maybeSingle();
 
       // Convert integrations to string array if found
       if (simData) {
@@ -149,12 +159,19 @@ const PublicSimDetail = () => {
 
       // If not found in sims, try advisors (legacy)
       if (!simData && !simError) {
-        const { data: advisorData, error: advisorError } = await supabase
+        let advisorQuery = supabase
           .from('advisors')
           .select('*')
-          .eq('is_active', true)
-          .or(`custom_url.eq.${identifier},id.eq.${identifier}`)
-          .maybeSingle();
+          .eq('is_active', true);
+        
+        // Only include id comparison if it's a valid UUID
+        if (isUUID) {
+          advisorQuery = advisorQuery.or(`custom_url.eq.${identifier},id.eq.${identifier}`);
+        } else {
+          advisorQuery = advisorQuery.eq('custom_url', identifier);
+        }
+        
+        const { data: advisorData, error: advisorError } = await advisorQuery.maybeSingle();
 
         if (advisorData) {
           // Convert advisor to sim format
