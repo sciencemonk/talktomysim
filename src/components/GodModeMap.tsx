@@ -25,50 +25,57 @@ export const GodModeMap = ({ agentName }: { agentName: string }) => {
   const animationFrameRef = useRef<number>();
 
   useEffect(() => {
-    // Initialize agents
+    // Initialize agents with much slower speeds and wider distribution
     const initialAgents: Agent[] = [
       {
         id: 'main',
         name: agentName,
-        x: 150,
-        y: 100,
-        vx: 0.5,
-        vy: 0.3,
-        radius: 8,
+        x: 400,
+        y: 300,
+        vx: 0.08,
+        vy: 0.05,
+        radius: 4,
         color: '#83f1aa',
         isMainAgent: true
       },
-      ...Array.from({ length: 8 }, (_, i) => ({
+      ...Array.from({ length: 150 }, (_, i) => ({
         id: `agent-${i}`,
         name: `Agent ${i + 1}`,
-        x: Math.random() * 280 + 10,
-        y: Math.random() * 180 + 10,
-        vx: (Math.random() - 0.5) * 0.4,
-        vy: (Math.random() - 0.5) * 0.4,
-        radius: 5,
-        color: i % 2 === 0 ? '#60a5fa' : '#a78bfa',
+        x: Math.random() * 760 + 20,
+        y: Math.random() * 560 + 20,
+        vx: (Math.random() - 0.5) * 0.15,
+        vy: (Math.random() - 0.5) * 0.15,
+        radius: 3,
+        color: i % 3 === 0 ? '#60a5fa' : i % 3 === 1 ? '#a78bfa' : '#f472b6',
         isMainAgent: false
       }))
     ];
     setAgents(initialAgents);
 
-    // Create initial connections
-    const initialConnections: Connection[] = [
-      { from: 'main', to: 'agent-0', strength: 0.8 },
-      { from: 'main', to: 'agent-3', strength: 0.6 }
-    ];
-    setConnections(initialConnections);
+    // Start with no connections
+    setConnections([]);
 
-    // Randomly update connections
+    // Randomly create temporary interactions between nearby agents
     const connectionInterval = setInterval(() => {
-      const randomAgent = `agent-${Math.floor(Math.random() * 8)}`;
       setConnections(prev => {
-        const existing = prev.find(c => c.to === randomAgent);
-        if (existing) {
-          return prev.filter(c => c.to !== randomAgent);
-        } else {
-          return [...prev.slice(-3), { from: 'main', to: randomAgent, strength: Math.random() * 0.5 + 0.5 }];
+        // Remove old connections (they last only 3 seconds)
+        const newConnections: Connection[] = [];
+        
+        // Randomly create 2-5 new interactions
+        const numNewConnections = Math.floor(Math.random() * 4) + 2;
+        for (let i = 0; i < numNewConnections; i++) {
+          const agent1 = Math.random() < 0.3 ? 'main' : `agent-${Math.floor(Math.random() * 150)}`;
+          const agent2 = `agent-${Math.floor(Math.random() * 150)}`;
+          if (agent1 !== agent2) {
+            newConnections.push({
+              from: agent1,
+              to: agent2,
+              strength: Math.random() * 0.4 + 0.4
+            });
+          }
         }
+        
+        return newConnections;
       });
     }, 3000);
 
@@ -205,12 +212,12 @@ export const GodModeMap = ({ agentName }: { agentName: string }) => {
     <div className="relative w-full h-[220px] bg-gradient-to-br from-background via-background/95 to-primary/5 rounded-lg border border-primary/20 overflow-hidden">
       <canvas
         ref={canvasRef}
-        width={300}
-        height={220}
+        width={800}
+        height={600}
         className="w-full h-full"
       />
       <div className="absolute bottom-2 right-2 text-[10px] font-mono text-muted-foreground bg-background/80 px-2 py-1 rounded">
-        {agents.filter(a => !a.isMainAgent).length} agents online
+        {agents.filter(a => !a.isMainAgent).length} agents online • {connections.length} active interactions
       </div>
     </div>
   );
