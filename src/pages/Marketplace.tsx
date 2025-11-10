@@ -261,20 +261,20 @@ const Marketplace = () => {
                         <Menu className="h-5 w-5" />
                       </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-48 bg-card z-50">
-                      <DropdownMenuItem onClick={() => navigate('/about')} className="cursor-pointer">
+                    <DropdownMenuContent align="end" className="w-48 bg-card text-foreground z-50">
+                      <DropdownMenuItem onClick={() => navigate('/about')} className="cursor-pointer text-foreground hover:text-primary">
                         About
                       </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => navigate('/agents')} className="cursor-pointer">
+                      <DropdownMenuItem onClick={() => navigate('/agents')} className="cursor-pointer text-foreground hover:text-primary">
                         Agent Directory
                       </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => navigate('/documentation')} className="cursor-pointer">
+                      <DropdownMenuItem onClick={() => navigate('/documentation')} className="cursor-pointer text-foreground hover:text-primary">
                         Documentation
                       </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => navigate('/simai')} className="cursor-pointer">
+                      <DropdownMenuItem onClick={() => navigate('/simai')} className="cursor-pointer text-foreground hover:text-primary">
                         $SIMAI
                       </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => navigate('/facilitator')} className="cursor-pointer">
+                      <DropdownMenuItem onClick={() => navigate('/facilitator')} className="cursor-pointer text-foreground hover:text-primary">
                         x402 Facilitator
                       </DropdownMenuItem>
                     </DropdownMenuContent>
