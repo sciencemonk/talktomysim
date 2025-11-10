@@ -382,7 +382,7 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired, 
           const simData: any = {
             user_id: user.id, // Always required and associated with authenticated user
             name: name.trim(),
-            sim_category: "NFT",
+            sim_category: "Chat",
             prompt: "N/A",
             description: description.trim(),
             avatar_url: avatarUrl,
