@@ -60,9 +60,7 @@ export const purchaseNFT = async ({
 
     // Step 2: Create and sign transaction
     const connection = new Connection(
-      import.meta.env.VITE_HELIUS_API_KEY 
-        ? `https://mainnet.helius-rpc.com/?api-key=${import.meta.env.VITE_HELIUS_API_KEY}`
-        : 'https://api.mainnet-beta.solana.com',
+      'https://mainnet.helius-rpc.com/?api-key=c2732bf1-5cad-4f76-938c-e3d3ec8e57c9',
       'confirmed'
     );
 
@@ -180,9 +178,7 @@ export const checkUSDCBalance = async (
 
   try {
     const connection = new Connection(
-      import.meta.env.VITE_HELIUS_API_KEY 
-        ? `https://mainnet.helius-rpc.com/?api-key=${import.meta.env.VITE_HELIUS_API_KEY}`
-        : 'https://api.mainnet-beta.solana.com',
+      'https://mainnet.helius-rpc.com/?api-key=c2732bf1-5cad-4f76-938c-e3d3ec8e57c9',
       'confirmed'
     );
 
