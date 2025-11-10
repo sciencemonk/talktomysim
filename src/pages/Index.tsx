@@ -36,7 +36,7 @@ const Index = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white to-gray-50">
+    <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="container mx-auto px-4 py-6 flex items-center justify-between">
         <div className="flex items-center gap-3">
@@ -80,9 +80,9 @@ const Index = () => {
 
           {/* Features Grid */}
           <div className="grid md:grid-cols-3 gap-8 mt-20">
-            <div className="p-6 rounded-xl bg-white shadow-sm border">
-              <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4 mx-auto">
-                <Bot className="h-6 w-6 text-primary" />
+            <div className="p-6 rounded-xl bg-card shadow-sm border-border border hover:shadow-lg transition-all">
+              <div className="w-12 h-12 bg-black/10 dark:bg-white/10 rounded-lg flex items-center justify-center mb-4 mx-auto border border-black/20 dark:border-white/20">
+                <Bot className="h-6 w-6 text-foreground" />
               </div>
               <h3 className="text-lg font-semibold text-foreground mb-2 font-mono">Your AI, Your Way</h3>
               <p className="text-sm text-muted-foreground leading-relaxed">
@@ -90,9 +90,9 @@ const Index = () => {
               </p>
             </div>
 
-            <div className="p-6 rounded-xl bg-white shadow-sm border">
-              <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4 mx-auto">
-                <Wallet className="h-6 w-6 text-primary" />
+            <div className="p-6 rounded-xl bg-card shadow-sm border-border border hover:shadow-lg transition-all">
+              <div className="w-12 h-12 bg-black/10 dark:bg-white/10 rounded-lg flex items-center justify-center mb-4 mx-auto border border-black/20 dark:border-white/20">
+                <Wallet className="h-6 w-6 text-foreground" />
               </div>
               <h3 className="text-lg font-semibold text-foreground mb-2 font-mono">Crypto-Connected</h3>
               <p className="text-sm text-muted-foreground leading-relaxed">
@@ -100,9 +100,9 @@ const Index = () => {
               </p>
             </div>
 
-            <div className="p-6 rounded-xl bg-white shadow-sm border">
-              <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4 mx-auto">
-                <Users className="h-6 w-6 text-primary" />
+            <div className="p-6 rounded-xl bg-card shadow-sm border-border border hover:shadow-lg transition-all">
+              <div className="w-12 h-12 bg-black/10 dark:bg-white/10 rounded-lg flex items-center justify-center mb-4 mx-auto border border-black/20 dark:border-white/20">
+                <Users className="h-6 w-6 text-foreground" />
               </div>
               <h3 className="text-lg font-semibold text-foreground mb-2 font-mono">Truly Personal</h3>
               <p className="text-sm text-muted-foreground leading-relaxed">
