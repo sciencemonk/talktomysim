@@ -232,8 +232,8 @@ Remember: Every interaction is an opportunity to create value, earn $SIMAI, and 
       const welcomeMessage = generateWelcomeMessage();
       const editCode = Math.floor(100000 + Math.random() * 900000).toString();
       
-      // In dev mode without auth, use a test user ID (valid UUID format)
-      const userId = user?.id || '00000000-0000-0000-0000-000000000001';
+      // In dev mode without auth, user_id can be null
+      const userId = user?.id || null;
       const username = user?.user_metadata?.user_name || simName.toLowerCase().replace(/\s+/g, '');
       
       // For dev mode, generate a placeholder wallet address

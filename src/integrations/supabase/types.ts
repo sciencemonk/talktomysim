@@ -1207,7 +1207,7 @@ export type Database = {
           training_post_count: number | null
           twitter_url: string
           updated_at: string
-          user_id: string
+          user_id: string | null
           verification_status: boolean
           verified_at: string | null
           welcome_message: string | null
@@ -1236,7 +1236,7 @@ export type Database = {
           training_post_count?: number | null
           twitter_url: string
           updated_at?: string
-          user_id: string
+          user_id?: string | null
           verification_status?: boolean
           verified_at?: string | null
           welcome_message?: string | null
@@ -1265,7 +1265,7 @@ export type Database = {
           training_post_count?: number | null
           twitter_url?: string
           updated_at?: string
-          user_id?: string
+          user_id?: string | null
           verification_status?: boolean
           verified_at?: string | null
           welcome_message?: string | null
