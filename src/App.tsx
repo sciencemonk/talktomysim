@@ -54,6 +54,7 @@ import XAgentPage from "./pages/XAgentPage";
 import XAgentCreatorView from "./pages/XAgentCreatorView";
 import OfferingDetail from "./pages/OfferingDetail";
 import OfferingX402 from "./pages/OfferingX402";
+import NFTDetail from "./pages/NFTDetail";
 
 const queryClient = new QueryClient();
 
@@ -104,6 +105,9 @@ const App = () => (
               {/* Offering routes */}
               <Route path="/offering/:offeringId/x402" element={<OfferingX402 />} />
               <Route path="/offering/:offeringId" element={<OfferingDetail />} />
+              
+              {/* NFT Detail Page */}
+              <Route path="/nft/:id" element={<NFTDetail />} />
               
               {/* X Agent Creator - Must come before catch-all */}
               <Route path="/:username/creator" element={<XAgentCreatorView />} />

@@ -155,7 +155,13 @@ const Marketplace = () => {
   const categories = Array.from(new Set(marketplaceItems.map(item => item.category).filter(Boolean)));
 
   const handleItemClick = (item: MarketplaceItem) => {
+    // Check if it's an NFT
     if (item.type === 'agent') {
+      const agent = agents.find(a => a.id === item.id);
+      if (agent && (agent as any).marketplace_category === 'nft') {
+        navigate(`/nft/${item.id}`);
+        return;
+      }
       navigate(`/${item.id}`);
     } else {
       navigate(`/offering/${item.id}`);
