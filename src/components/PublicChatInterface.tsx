@@ -161,7 +161,7 @@ const PublicChatInterface = ({ agent, avatarUrl, collectedInfo }: PublicChatInte
     return (
       <div className="flex flex-col items-center justify-center h-full w-full px-4">
         <div className="w-full max-w-2xl space-y-8">
-          <h1 className="text-4xl md:text-5xl font-bold text-white text-center">
+          <h1 className="text-4xl md:text-5xl font-bold text-foreground text-center">
             How may I help you?
           </h1>
           
