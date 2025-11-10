@@ -173,11 +173,10 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired, 
         toast.error("Please enter a Solana wallet address to receive the NFT");
         return;
       }
-      const code = generateEditCode();
-      setEditCode(code);
-      setWelcomeMessage(`NFT: ${name.trim()} (${nftSymbol.trim()})`);
-      setSystemPrompt("N/A"); // Not used for NFT
-      setStep(2);
+      
+      // For NFTs with authenticated users, mint directly without edit code or review step
+      const syntheticEvent = { preventDefault: () => {} } as React.FormEvent;
+      await handleSubmit(syntheticEvent);
       return;
     }
 
@@ -322,9 +321,16 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired, 
       // Handle NFT minting
       if (simType === "NFT") {
         setIsNftMinting(true);
-        toast.info("Connecting to Solana wallet...");
         
-        // Import wallet adapter
+        // Check if user is authenticated (required for NFTs)
+        if (!user) {
+          toast.error("Please sign in to mint NFTs");
+          setIsSubmitting(false);
+          setIsNftMinting(false);
+          return;
+        }
+        
+        toast.info("Connecting to Solana wallet...");
         
         // Check if wallet is connected
         if (!wallet.connected || !wallet.publicKey) {
@@ -369,9 +375,9 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired, 
             },
           });
 
-          // Store NFT info in database
+          // Store NFT info in database (no edit code needed - associated with user account)
           const simData: any = {
-            user_id: user?.id || null,
+            user_id: user.id, // Always required and associated with authenticated user
             name: name.trim(),
             sim_category: "NFT",
             prompt: "N/A",
@@ -381,7 +387,6 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired, 
             integrations: [],
             is_active: true,
             is_public: true,
-            edit_code: editCode,
             crypto_wallet: cryptoWallet.trim() || null,
             marketplace_category: "nft",
             welcome_message: `NFT: ${name.trim()} (${nftSymbol.trim()})`,
