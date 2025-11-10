@@ -310,9 +310,9 @@ const Marketplace = () => {
                   Products
                 </Button>
                 <Button
-                  variant={categoryFilter === "NFT" ? "default" : "outline"}
+                  variant={categoryFilter === "nft" ? "default" : "outline"}
                   size="sm"
-                  onClick={() => setCategoryFilter("NFT")}
+                  onClick={() => setCategoryFilter("nft")}
                   className="gap-2"
                 >
                   <FileText className="h-4 w-4" />

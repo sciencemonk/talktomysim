@@ -437,7 +437,8 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired, 
 
           toast.success(`NFT minted successfully! Mint: ${mint.substring(0, 8)}...`);
           setIsNftMinting(false);
-          onOpenChange(false);
+          
+          // Reset form
           setStep(1);
           setName("");
           setSimType("Chat");
@@ -451,10 +452,14 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired, 
           setNftPrice("");
           setMintingProgress("");
           
+          onOpenChange(false);
+          
           if (onSuccess) {
             await onSuccess();
           }
-          window.location.href = "/";
+          
+          // Navigate to the NFT detail page
+          navigate(`/nft/${newSim.id}`);
           return;
         } catch (mintError: any) {
           console.error("Error minting NFT:", mintError);
