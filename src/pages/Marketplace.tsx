@@ -209,81 +209,10 @@ const Marketplace = () => {
     window.open(twitterUrl, '_blank');
   };
 
-  const handleXSignIn = async () => {
-    try {
-      console.log('[Marketplace] Starting X sign in...');
-      
-      // Open OAuth in a popup window
-      const width = 600;
-      const height = 700;
-      const left = window.screen.width / 2 - width / 2;
-      const top = window.screen.height / 2 - height / 2;
-      
-      const { data, error } = await supabase.auth.signInWithOAuth({
-        provider: 'twitter',
-        options: {
-          skipBrowserRedirect: false,
-          redirectTo: `${window.location.origin}/auth/callback`,
-        }
-      });
-
-      if (error) {
-        console.error('[Marketplace] OAuth error:', error);
-        throw error;
-      }
-
-      // Open the auth URL in a popup
-      if (data.url) {
-        console.log('[Marketplace] Opening popup:', data.url);
-        const popup = window.open(
-          data.url,
-          'X Authentication',
-          `width=${width},height=${height},left=${left},top=${top},resizable=yes,scrollbars=yes`
-        );
-
-        if (!popup) {
-          toast.error('Popup was blocked. Please allow popups and try again.');
-          return;
-        }
-
-        // Listen for messages from the popup
-        const handleMessage = (event: MessageEvent) => {
-          console.log('[Marketplace] Received message:', event.data);
-          
-          if (event.data.type === 'AUTH_STATUS') {
-            window.removeEventListener('message', handleMessage);
-            
-            if (event.data.status === 'authorized') {
-              console.log('[Marketplace] Authorized - reloading page');
-              window.location.reload();
-            } else if (event.data.status === 'unauthorized') {
-              console.log('[Marketplace] Unauthorized - showing beta request');
-              const code = generateBetaCode();
-              console.log('[Marketplace] Generated beta code:', code);
-              setBetaCode(code);
-              setShowBetaRequest(true);
-            }
-          }
-        };
-
-        window.addEventListener('message', handleMessage);
-
-        // Fallback: Also check when popup closes
-        const checkPopup = setInterval(() => {
-          if (popup && popup.closed) {
-            clearInterval(checkPopup);
-            console.log('[Marketplace] Popup closed');
-            // Remove the message listener after a delay
-            setTimeout(() => {
-              window.removeEventListener('message', handleMessage);
-            }, 1000);
-          }
-        }, 500);
-      }
-    } catch (error: any) {
-      console.error('[Marketplace] Error signing in with X:', error);
-      toast.error(error?.message || 'Failed to sign in with X');
-    }
+  const handleXSignIn = () => {
+    const code = generateBetaCode();
+    setBetaCode(code);
+    setShowBetaRequest(true);
   };
   return <div className="min-h-screen bg-bg">
       {/* Hero Section with Video Background */}
