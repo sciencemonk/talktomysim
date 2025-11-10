@@ -235,7 +235,7 @@ const Marketplace = () => {
             <img src={solanaLogo} alt="Solana" className="h-7 w-7 sm:h-8 sm:w-8" />
             <span className="text-base sm:text-lg font-bold text-white">Solana Internet Market</span>
           </button>
-          <p className="text-lg text-white/90 max-w-2xl">
+          <p className="text-lg text-white/90 max-w-5xl">
             Build, sell, and buy AI agents, products, and on-chain services. No fees. Powered by x402.
           </p>
         </div>
