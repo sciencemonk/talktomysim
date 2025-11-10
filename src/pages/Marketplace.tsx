@@ -211,6 +211,9 @@ const Marketplace = () => {
 
   const handleXSignIn = async () => {
     try {
+      // Clear any previous auth status
+      localStorage.removeItem('auth_status');
+      
       // Open OAuth in a popup window
       const width = 600;
       const height = 700;
@@ -235,27 +238,24 @@ const Marketplace = () => {
           `width=${width},height=${height},left=${left},top=${top},resizable=yes,scrollbars=yes`
         );
 
-        // Listen for the popup to close or for auth completion
+        // Listen for the popup to close
         const checkPopup = setInterval(async () => {
           if (popup && popup.closed) {
             clearInterval(checkPopup);
             
-            // Check if user is now authenticated
-            const { data: { session } } = await supabase.auth.getSession();
+            // Check the auth status from localStorage
+            const authStatus = localStorage.getItem('auth_status');
+            localStorage.removeItem('auth_status');
             
-            if (session) {
-              const username = session.user.user_metadata?.user_name || session.user.user_metadata?.preferred_username;
-              
-              // Check if authorized
-              if (username?.toLowerCase() === 'mrjethroknights') {
-                // Refresh the page to load the chat interface
-                window.location.reload();
-              } else {
-                // Not authorized - sign them out and show beta request
-                await supabase.auth.signOut();
-                setBetaCode(generateBetaCode());
-                setShowBetaRequest(true);
-              }
+            console.log('Auth status:', authStatus);
+            
+            if (authStatus === 'authorized') {
+              // Authorized user - reload to show chat interface
+              window.location.reload();
+            } else if (authStatus === 'unauthorized') {
+              // Not authorized - show beta request
+              setBetaCode(generateBetaCode());
+              setShowBetaRequest(true);
             }
           }
         }, 500);

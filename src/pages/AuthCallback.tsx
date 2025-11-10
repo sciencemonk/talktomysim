@@ -56,7 +56,13 @@ export default function AuthCallback() {
       // Check if user is authorized
       if (username.toLowerCase() !== 'mrjethroknights') {
         console.log('Unauthorized user attempted to sign in:', username);
-        // Sign them out - the main page will handle showing the beta request
+        
+        // Signal to parent window that user is unauthorized
+        if (window.opener) {
+          localStorage.setItem('auth_status', 'unauthorized');
+        }
+        
+        // Sign them out
         await supabase.auth.signOut();
         
         if (window.opener) {
@@ -67,13 +73,15 @@ export default function AuthCallback() {
         return;
       }
 
-      // Authorized user - close popup or redirect
+      // Authorized user - signal success and close popup
       console.log('Authorized user logged in');
-      toast.success('Welcome back!');
       
       if (window.opener) {
+        localStorage.setItem('auth_status', 'authorized');
+        toast.success('Welcome back!');
         window.close();
       } else {
+        toast.success('Welcome back!');
         navigate('/');
       }
     } catch (error: any) {
