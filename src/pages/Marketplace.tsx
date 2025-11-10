@@ -606,9 +606,85 @@ const Marketplace = () => {
               </div>
             )}
 
+            {/* NFTs Section */}
+            {(categoryFilter === 'all' || categoryFilter === 'NFTs') && 
+             filteredAgents.filter(a => (a as any).marketplace_category === 'nft').length > 0 && (
+              <div className="mb-12">
+                <div className="flex items-center justify-between mb-6">
+                  <div>
+                    <h2 className="text-2xl font-bold text-fg mb-2 flex items-center gap-2">
+                      <Package className="h-6 w-6" />
+                      NFTs
+                    </h2>
+                    <p className="text-sm text-fgMuted">Solana NFTs minted on-chain</p>
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+                  {filteredAgents
+                    .filter(a => (a as any).marketplace_category === 'nft')
+                    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+                    .map((agent) => {
+                      const getAvatarSrc = () => {
+                        const avatarUrl = agent.avatar_url || agent.avatar;
+                        if (avatarUrl && (avatarUrl.startsWith('http://') || avatarUrl.startsWith('https://'))) {
+                          return `https://images.weserv.nl/?url=${encodeURIComponent(avatarUrl)}`;
+                        }
+                        return avatarUrl;
+                      };
+
+                      return (
+                        <Card 
+                          key={agent.id}
+                          className="group cursor-pointer border-border bg-card hover:shadow-lg hover:border-primary/30 transition-all duration-300 hover:-translate-y-1"
+                          onClick={() => handleItemClick({
+                            id: agent.id,
+                            type: 'agent',
+                            name: agent.name,
+                            description: agent.description,
+                            avatar: agent.avatar,
+                            price: agent.price || 0,
+                            category: agent.marketplace_category || 'NFT',
+                            rating: agent.performance || 0,
+                            sales: agent.interactions || 0,
+                          })}
+                        >
+                          <div className="relative w-full aspect-[4/3] overflow-hidden bg-muted rounded-t-lg">
+                            <Avatar className="w-full h-full rounded-none">
+                              <AvatarImage 
+                                src={getAvatarSrc()}
+                                alt={agent.name}
+                                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                                referrerPolicy="no-referrer"
+                                crossOrigin="anonymous"
+                              />
+                              <AvatarFallback className="w-full h-full rounded-none bg-primary/10 flex items-center justify-center">
+                                <Package className="h-8 w-8 text-primary" />
+                              </AvatarFallback>
+                            </Avatar>
+                          </div>
+                          <CardContent className="p-3 space-y-2">
+                            <h3 className="font-semibold text-fg text-sm truncate group-hover:text-primary transition-colors">
+                              {agent.name}
+                            </h3>
+                            <p className="text-xs text-fgMuted line-clamp-2">
+                              {agent.description || agent.auto_description}
+                            </p>
+                            <div className="pt-1 border-t border-border/50">
+                              <p className="text-xs font-semibold text-primary">
+                                {agent.price && agent.price > 0 ? `${agent.price} USDC` : 'Free'}
+                              </p>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      );
+                    })}
+                </div>
+              </div>
+            )}
+
             {/* Chatbots Section */}
             {(categoryFilter === 'all' || categoryFilter === 'Chatbots') && 
-             filteredAgents.filter(a => !(a as any).sim_category || (a as any).sim_category === 'Chat').length > 0 && (
+             filteredAgents.filter(a => (!(a as any).sim_category || (a as any).sim_category === 'Chat') && (a as any).marketplace_category !== 'nft').length > 0 && (
               <div className="mb-12">
                 <div className="flex items-center justify-between mb-6">
                   <div>
@@ -621,7 +697,7 @@ const Marketplace = () => {
                 </div>
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
                   {filteredAgents
-                    .filter(a => !(a as any).sim_category || (a as any).sim_category === 'Chat')
+                    .filter(a => (!(a as any).sim_category || (a as any).sim_category === 'Chat') && (a as any).marketplace_category !== 'nft')
                     .sort((a, b) => {
                       if (a.is_verified && !b.is_verified) return -1;
                       if (!a.is_verified && b.is_verified) return 1;
