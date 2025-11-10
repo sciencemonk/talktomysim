@@ -853,8 +853,9 @@ const Marketplace = () => {
               </div>
             )}
 
-            {/* NFT Section */}
-            {(categoryFilter === 'all' || categoryFilter === 'NFT') && (
+            {/* NFT Section - Legacy sim_category NFT */}
+            {(categoryFilter === 'all' || categoryFilter === 'nft') && 
+             filteredAgents.filter(a => (a as any).sim_category === 'NFT').length > 0 && (
               <div className="mb-12">
                 <div className="flex items-center justify-between mb-6">
                   <div>
@@ -1031,6 +1032,7 @@ const Marketplace = () => {
         {/* Products Grid - Hide when on Stores, NFT, or agent category tabs */}
         {categoryFilter !== 'Stores' && 
          categoryFilter !== 'NFT' && 
+         categoryFilter !== 'nft' && 
          categoryFilter !== 'Chatbots' && 
          categoryFilter !== 'PumpFun Agents' && 
          categoryFilter !== 'MCP Servers' && 
