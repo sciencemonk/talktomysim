@@ -1,12 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { toast } from "sonner";
@@ -20,12 +17,17 @@ import {
   LogOut,
   Shield,
   Zap,
-  Code
+  ExternalLink,
+  Send,
+  Sparkles
 } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import simLogoWhite from "@/assets/sim-logo-white.png";
 import simHeroLogo from "@/assets/sim-hero-logo.png";
 import { useTheme } from "@/hooks/useTheme";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import SimpleFooter from "@/components/SimpleFooter";
 
 interface SimData {
   id: string;
@@ -43,14 +45,24 @@ interface SimData {
   personality_type: string;
 }
 
+interface Message {
+  id: string;
+  role: 'user' | 'assistant';
+  content: string;
+}
+
 const SimDashboard = () => {
   const navigate = useNavigate();
   const { theme } = useTheme();
   const [resolvedTheme, setResolvedTheme] = useState<'light' | 'dark'>('dark');
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
   const [sim, setSim] = useState<SimData | null>(null);
   const [user, setUser] = useState<any>(null);
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [inputValue, setInputValue] = useState("");
+  const [isProcessing, setIsProcessing] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (theme === 'system') {
@@ -110,27 +122,69 @@ const SimDashboard = () => {
     navigate('/');
   };
 
-  const updateSim = async (updates: Partial<SimData>) => {
-    if (!sim) return;
+  const handleSendMessage = async () => {
+    if (!inputValue.trim() || isProcessing || !sim) return;
 
-    setSaving(true);
+    const userMessage: Message = {
+      id: Date.now().toString(),
+      role: 'user',
+      content: inputValue,
+    };
+
+    setMessages(prev => [...prev, userMessage]);
+    const currentInput = inputValue;
+    setInputValue("");
+    setIsProcessing(true);
+
     try {
-      const { error } = await supabase
-        .from('advisors')
-        .update(updates)
-        .eq('id', sim.id);
+      const { data, error } = await supabase.functions.invoke('chat-completion', {
+        body: {
+          agent: {
+            name: sim.name,
+            type: 'Personal Assistant',
+            subject: 'General Assistance',
+            description: sim.description || 'Your personal AI assistant',
+            prompt: `You are ${sim.name}, a personal AI assistant. Your role is to help your user with tasks, answer questions, and provide assistance. Be helpful, friendly, and concise. ${sim.prompt || ''}`
+          },
+          messages: [
+            ...messages.map(m => ({ role: m.role, content: m.content })),
+            { role: 'user', content: currentInput }
+          ]
+        }
+      });
 
       if (error) throw error;
 
-      setSim({ ...sim, ...updates });
-      toast.success('SIM updated successfully');
+      const assistantMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        role: 'assistant',
+        content: data.content || 'Sorry, I encountered an error.',
+      };
+
+      setMessages(prev => [...prev, assistantMessage]);
     } catch (error: any) {
-      console.error('Error updating SIM:', error);
-      toast.error(error.message || 'Failed to update SIM');
+      console.error('Chat error:', error);
+      toast.error('Failed to get response');
+      // Remove the user message on error
+      setMessages(prev => prev.filter(m => m.id !== userMessage.id));
+      setInputValue(currentInput);
     } finally {
-      setSaving(false);
+      setIsProcessing(false);
     }
   };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSendMessage();
+    }
+  };
+
+  useEffect(() => {
+    if (messagesContainerRef.current) {
+      messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
+    }
+  }, [messages]);
 
   if (loading) {
     return (
@@ -158,23 +212,36 @@ const SimDashboard = () => {
     );
   }
 
+  const xUsername = user?.user_metadata?.user_name;
+
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background via-background/95 to-background">
-      {/* Header */}
-      <header className="border-b border-border bg-background/80 backdrop-blur-sm sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <img 
-                src={resolvedTheme === 'dark' ? simLogoWhite : simHeroLogo} 
-                alt="SIM" 
-                className="h-8"
-              />
-              <div>
-                <h1 className="text-lg font-bold">SIM Dashboard</h1>
-                <p className="text-sm text-muted-foreground">Manage your AI agent</p>
-              </div>
+    <div className="min-h-screen bg-gradient-to-b from-background via-background/95 to-background flex flex-col">
+      {/* Navigation */}
+      <nav className="border-b border-border/50 bg-background/80 backdrop-blur-sm sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            <button onClick={() => navigate('/')} className="flex items-center hover:opacity-80 transition-opacity">
+              <img src={resolvedTheme === 'dark' ? simLogoWhite : simHeroLogo} alt="SIM" className="h-8" />
+            </button>
+            
+            <div className="hidden md:flex items-center gap-8">
+              <button onClick={() => navigate('/about')} className="text-muted-foreground hover:text-foreground transition-colors text-sm font-medium">
+                About
+              </button>
+              <button onClick={() => navigate('/agents')} className="text-muted-foreground hover:text-foreground transition-colors text-sm font-medium">
+                Agent Directory
+              </button>
+              <button onClick={() => navigate('/documentation')} className="text-muted-foreground hover:text-foreground transition-colors text-sm font-medium">
+                Documentation
+              </button>
+              {xUsername && (
+                <button onClick={() => navigate(`/${xUsername}`)} className="text-muted-foreground hover:text-foreground transition-colors text-sm font-medium flex items-center gap-1">
+                  Public Page
+                  <ExternalLink className="h-3 w-3" />
+                </button>
+              )}
             </div>
+            
             <div className="flex items-center gap-4">
               <Badge variant={sim.is_verified ? "default" : "secondary"} className="gap-1">
                 {sim.is_verified ? <CheckCircle className="h-3 w-3" /> : <XCircle className="h-3 w-3" />}
@@ -188,307 +255,235 @@ const SimDashboard = () => {
             </div>
           </div>
         </div>
-      </header>
+      </nav>
 
-      <div className="container mx-auto px-4 py-8 max-w-6xl">
-        {/* SIM Profile Header */}
-        <Card className="mb-8">
-          <CardContent className="pt-6">
-            <div className="flex items-start gap-6">
-              <Avatar className="w-24 h-24 border-2 border-primary">
-                <AvatarImage src={sim.avatar_url} alt={sim.name} />
-                <AvatarFallback className="text-2xl">{sim.name?.charAt(0) || 'S'}</AvatarFallback>
-              </Avatar>
-              <div className="flex-1">
-                <h2 className="text-3xl font-bold mb-2">{sim.name}</h2>
-                <p className="text-muted-foreground mb-4">{sim.description || 'No description yet'}</p>
-                <div className="flex items-center gap-4">
-                  <Badge variant="outline">
-                    <Shield className="h-3 w-3 mr-1" />
-                    Social Proof via X
-                  </Badge>
-                  {user?.user_metadata?.user_name && (
-                    <span className="text-sm text-muted-foreground">
-                      @{user.user_metadata.user_name}
-                    </span>
-                  )}
-                </div>
-              </div>
+      {/* Hero Section */}
+      <div className="relative border-b border-border bg-gradient-to-b from-background via-background to-muted/20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          <div className="flex items-center gap-4 mb-4">
+            <Avatar className="w-16 h-16 border-2 border-primary ring-2 ring-primary/20">
+              <AvatarImage src={sim.avatar_url} alt={sim.name} />
+              <AvatarFallback className="text-xl">{sim.name?.charAt(0) || 'S'}</AvatarFallback>
+            </Avatar>
+            <div>
+              <h1 className="text-4xl font-bold text-foreground font-mono tracking-tight">
+                {sim.name}
+              </h1>
+              <p className="text-muted-foreground flex items-center gap-2 mt-1">
+                <Sparkles className="h-4 w-4" />
+                Your Personal AI Assistant
+              </p>
             </div>
-          </CardContent>
-        </Card>
-
-        {/* Main Configuration Tabs */}
-        <Tabs defaultValue="basic" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="basic" className="gap-2">
-              <Settings className="h-4 w-4" />
-              Basic Info
-            </TabsTrigger>
-            <TabsTrigger value="mcp" className="gap-2">
-              <Server className="h-4 w-4" />
-              MCP Servers
-            </TabsTrigger>
-            <TabsTrigger value="utility" className="gap-2">
-              <Brain className="h-4 w-4" />
-              Utility Function
-            </TabsTrigger>
-            <TabsTrigger value="chat" className="gap-2">
-              <MessageSquare className="h-4 w-4" />
-              Chat Interface
-            </TabsTrigger>
-          </TabsList>
-
-          {/* Basic Information */}
-          <TabsContent value="basic" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Settings className="h-5 w-5" />
-                  Basic Configuration
-                </CardTitle>
-                <CardDescription>
-                  Configure your SIM's identity and basic settings
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <Label htmlFor="name">SIM Name</Label>
-                  <Input
-                    id="name"
-                    value={sim.name}
-                    onChange={(e) => setSim({ ...sim, name: e.target.value })}
-                    placeholder="Enter your SIM's name"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="description">Description</Label>
-                  <Textarea
-                    id="description"
-                    value={sim.description || ''}
-                    onChange={(e) => setSim({ ...sim, description: e.target.value })}
-                    placeholder="Describe your SIM's purpose and capabilities"
-                    rows={3}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="avatar">Avatar URL</Label>
-                  <Input
-                    id="avatar"
-                    value={sim.avatar_url || ''}
-                    onChange={(e) => setSim({ ...sim, avatar_url: e.target.value })}
-                    placeholder="https://..."
-                  />
-                </div>
-                <Button 
-                  onClick={() => updateSim({ 
-                    name: sim.name, 
-                    description: sim.description,
-                    avatar_url: sim.avatar_url 
-                  })}
-                  disabled={saving}
-                >
-                  {saving ? 'Saving...' : 'Save Basic Info'}
-                </Button>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* MCP Servers */}
-          <TabsContent value="mcp" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Server className="h-5 w-5" />
-                  Model Context Protocol (MCP) Servers
-                </CardTitle>
-                <CardDescription>
-                  Configure external integrations and data sources for your SIM
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="p-4 bg-muted/50 rounded-lg">
-                  <p className="text-sm text-muted-foreground mb-4">
-                    MCP servers provide standardized interfaces for your SIM to interact with external systems like financial data, social media, blockchain, and more.
-                  </p>
-                  <div className="grid gap-3">
-                    <div className="flex items-center justify-between p-3 bg-background rounded border">
-                      <div>
-                        <p className="font-medium">Financial Data MCP</p>
-                        <p className="text-sm text-muted-foreground">Crypto prices, DeFi protocols</p>
-                      </div>
-                      <Badge variant="outline">Coming Soon</Badge>
-                    </div>
-                    <div className="flex items-center justify-between p-3 bg-background rounded border">
-                      <div>
-                        <p className="font-medium">Social Media MCP</p>
-                        <p className="text-sm text-muted-foreground">X, Discord, Telegram</p>
-                      </div>
-                      <Badge variant="outline">Coming Soon</Badge>
-                    </div>
-                    <div className="flex items-center justify-between p-3 bg-background rounded border">
-                      <div>
-                        <p className="font-medium">Blockchain MCP</p>
-                        <p className="text-sm text-muted-foreground">Solana, Ethereum networks</p>
-                      </div>
-                      <Badge variant="outline">Coming Soon</Badge>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* Utility Function */}
-          <TabsContent value="utility" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Brain className="h-5 w-5" />
-                  Utility Function Definition
-                </CardTitle>
-                <CardDescription>
-                  Define what your SIM optimizes for - its goals, constraints, and preferences
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <Label htmlFor="prompt">System Prompt / Utility Function</Label>
-                  <Textarea
-                    id="prompt"
-                    value={sim.prompt}
-                    onChange={(e) => setSim({ ...sim, prompt: e.target.value })}
-                    placeholder="Define your SIM's optimization goals and constraints..."
-                    rows={8}
-                    className="font-mono text-sm"
-                  />
-                  <p className="text-xs text-muted-foreground mt-2">
-                    Example: "Optimize for helping users understand crypto markets while maintaining risk awareness. Prioritize accurate information over speculation."
-                  </p>
-                </div>
-                <div className="p-4 bg-muted/50 rounded-lg">
-                  <h4 className="font-medium mb-2 flex items-center gap-2">
-                    <Code className="h-4 w-4" />
-                    Utility Function Formula
-                  </h4>
-                  <code className="text-xs block p-3 bg-background rounded border">
-                    U(s, a) = Σ [w_i × f_i(s, a)] - Σ [λ_j × c_j(s, a)]
-                  </code>
-                  <p className="text-xs text-muted-foreground mt-2">
-                    Where w_i are weights for objectives, f_i are value functions, λ_j are penalty coefficients, and c_j are constraint violation functions.
-                  </p>
-                </div>
-                <Button 
-                  onClick={() => updateSim({ prompt: sim.prompt })}
-                  disabled={saving}
-                >
-                  {saving ? 'Saving...' : 'Save Utility Function'}
-                </Button>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* Chat Interface */}
-          <TabsContent value="chat" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <MessageSquare className="h-5 w-5" />
-                  Conversational Interface
-                </CardTitle>
-                <CardDescription>
-                  Configure how your SIM communicates
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <Label htmlFor="welcome">Welcome Message</Label>
-                  <Textarea
-                    id="welcome"
-                    value={sim.welcome_message || ''}
-                    onChange={(e) => setSim({ ...sim, welcome_message: e.target.value })}
-                    placeholder="Enter the welcome message users see when they start chatting..."
-                    rows={3}
-                  />
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="style">Conversation Style</Label>
-                    <Input
-                      id="style"
-                      value={sim.conversation_style || 'balanced'}
-                      onChange={(e) => setSim({ ...sim, conversation_style: e.target.value })}
-                      placeholder="e.g., professional, friendly, technical"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="personality">Personality Type</Label>
-                    <Input
-                      id="personality"
-                      value={sim.personality_type || 'friendly'}
-                      onChange={(e) => setSim({ ...sim, personality_type: e.target.value })}
-                      placeholder="e.g., helpful, analytical, creative"
-                    />
-                  </div>
-                </div>
-                <div>
-                  <Label htmlFor="length">Response Length</Label>
-                  <select
-                    id="length"
-                    value={sim.response_length || 'medium'}
-                    onChange={(e) => setSim({ ...sim, response_length: e.target.value })}
-                    className="w-full p-2 rounded-md border border-input bg-background"
-                  >
-                    <option value="concise">Concise</option>
-                    <option value="medium">Medium</option>
-                    <option value="detailed">Detailed</option>
-                  </select>
-                </div>
-                <Button 
-                  onClick={() => updateSim({ 
-                    welcome_message: sim.welcome_message,
-                    conversation_style: sim.conversation_style,
-                    personality_type: sim.personality_type,
-                    response_length: sim.response_length
-                  })}
-                  disabled={saving}
-                >
-                  {saving ? 'Saving...' : 'Save Chat Settings'}
-                </Button>
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
-
-        {/* Quick Actions */}
-        <Card className="mt-8">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Zap className="h-5 w-5" />
-              Quick Actions
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="flex gap-4">
-            <Button 
-              variant="outline" 
-              onClick={() => {
-                const customUrl = sim.social_links?.userName || user?.user_metadata?.user_name;
-                if (customUrl) {
-                  window.open(`/${customUrl}`, '_blank');
-                }
-              }}
-            >
-              View Public Profile
-            </Button>
-            <Button 
-              variant="outline"
-              onClick={() => toast.info('Analytics coming soon')}
-            >
-              View Analytics
-            </Button>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
+
+      {/* Main Content */}
+      <div className="flex-1 flex overflow-hidden">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-full">
+            {/* Chat Interface - Left/Center */}
+            <div className="lg:col-span-2">
+              <Card className="h-full flex flex-col bg-card/50 backdrop-blur-sm border-border/50">
+                <CardHeader className="border-b border-border/50">
+                  <CardTitle className="flex items-center gap-2 font-mono">
+                    <MessageSquare className="h-5 w-5" />
+                    Chat with {sim.name}
+                  </CardTitle>
+                  <CardDescription>
+                    Your AI assistant is here to help you with tasks, answer questions, and provide support
+                  </CardDescription>
+                </CardHeader>
+                
+                {/* Messages Area */}
+                <div ref={messagesContainerRef} className="flex-1 overflow-y-auto p-4 space-y-4">
+                  {messages.length === 0 ? (
+                    <div className="flex items-center justify-center h-full text-center">
+                      <div>
+                        <Sparkles className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                        <p className="text-muted-foreground">
+                          {sim.welcome_message || `Hi! I'm ${sim.name}, your personal AI assistant. How can I help you today?`}
+                        </p>
+                      </div>
+                    </div>
+                  ) : (
+                    messages.map((message) => (
+                      <div
+                        key={message.id}
+                        className={`flex gap-3 ${message.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}
+                      >
+                        {message.role === 'assistant' && (
+                          <Avatar className="h-8 w-8 shrink-0">
+                            <AvatarImage src={sim.avatar_url} alt={sim.name} />
+                            <AvatarFallback className="text-sm">{sim.name[0]}</AvatarFallback>
+                          </Avatar>
+                        )}
+                        
+                        <div className={`flex-1 ${message.role === 'user' ? 'flex justify-end' : ''}`}>
+                          <div className={`
+                            ${message.role === 'user' 
+                              ? 'bg-[#83f1aa] text-black rounded-3xl px-4 py-3 inline-block max-w-[80%]' 
+                              : 'bg-muted/50 border border-border/50 rounded-2xl px-4 py-3 max-w-full'
+                            }
+                          `}>
+                            {message.role === 'user' ? (
+                              <p className="text-sm leading-relaxed">{message.content}</p>
+                            ) : (
+                              <div className="prose prose-sm dark:prose-invert max-w-none">
+                                <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                                  {message.content}
+                                </ReactMarkdown>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                  
+                  {isProcessing && (
+                    <div className="flex gap-3">
+                      <Avatar className="h-8 w-8 shrink-0">
+                        <AvatarImage src={sim.avatar_url} alt={sim.name} />
+                        <AvatarFallback className="text-sm">{sim.name[0]}</AvatarFallback>
+                      </Avatar>
+                      <div className="bg-muted/50 border border-border/50 rounded-2xl px-4 py-3 inline-block">
+                        <div className="flex space-x-1.5">
+                          <div className="w-2 h-2 rounded-full bg-primary animate-bounce [animation-delay:-0.3s]"></div>
+                          <div className="w-2 h-2 rounded-full bg-primary animate-bounce [animation-delay:-0.15s]"></div>
+                          <div className="w-2 h-2 rounded-full bg-primary animate-bounce"></div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  
+                  <div ref={messagesEndRef} />
+                </div>
+
+                {/* Input Area */}
+                <div className="border-t border-border/50 p-4">
+                  <div className="relative">
+                    <Input
+                      value={inputValue}
+                      onChange={(e) => setInputValue(e.target.value)}
+                      onKeyDown={handleKeyDown}
+                      placeholder={`Message ${sim.name}...`}
+                      className="pr-12 bg-background/50"
+                      disabled={isProcessing}
+                    />
+                    <Button
+                      onClick={handleSendMessage}
+                      disabled={!inputValue.trim() || isProcessing}
+                      size="icon"
+                      className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 bg-[#83f1aa] hover:bg-[#83f1aa]/90 text-black"
+                    >
+                      <Send className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              </Card>
+            </div>
+
+            {/* Quick Actions & Stats - Right Sidebar */}
+            <div className="space-y-6">
+              {/* Quick Actions */}
+              <Card className="bg-card/50 backdrop-blur-sm border-border/50">
+                <CardHeader>
+                  <CardTitle className="text-lg font-mono flex items-center gap-2">
+                    <Zap className="h-5 w-5" />
+                    Quick Actions
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <Button 
+                    variant="outline" 
+                    className="w-full justify-start"
+                    onClick={() => navigate(`/${xUsername}`)}
+                  >
+                    <ExternalLink className="h-4 w-4 mr-2" />
+                    View Public Page
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    className="w-full justify-start"
+                    onClick={() => navigate(`/${xUsername}/creator`)}
+                  >
+                    <Settings className="h-4 w-4 mr-2" />
+                    Advanced Settings
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    className="w-full justify-start"
+                    onClick={() => navigate('/documentation')}
+                  >
+                    <Brain className="h-4 w-4 mr-2" />
+                    Documentation
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* Agent Info */}
+              <Card className="bg-card/50 backdrop-blur-sm border-border/50">
+                <CardHeader>
+                  <CardTitle className="text-lg font-mono flex items-center gap-2">
+                    <Shield className="h-5 w-5" />
+                    Agent Info
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Status</span>
+                    <Badge variant={sim.is_verified ? "default" : "secondary"}>
+                      {sim.is_verified ? 'Verified' : 'Pending'}
+                    </Badge>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Category</span>
+                    <span className="font-medium">Crypto Mail</span>
+                  </div>
+                  {xUsername && (
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">X Account</span>
+                      <span className="font-medium">@{xUsername}</span>
+                    </div>
+                  )}
+                  <div className="pt-3 border-t border-border/50">
+                    <p className="text-muted-foreground text-xs">
+                      {sim.description || 'Configure your agent description in advanced settings'}
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* MCP Status */}
+              <Card className="bg-card/50 backdrop-blur-sm border-border/50">
+                <CardHeader>
+                  <CardTitle className="text-lg font-mono flex items-center gap-2">
+                    <Server className="h-5 w-5" />
+                    MCP Servers
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-2 text-sm">
+                  <div className="flex items-center justify-between">
+                    <span className="text-muted-foreground">Financial Data</span>
+                    <Badge variant="outline" className="text-xs">Coming Soon</Badge>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-muted-foreground">Social Media</span>
+                    <Badge variant="outline" className="text-xs">Coming Soon</Badge>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-muted-foreground">Blockchain</span>
+                    <Badge variant="outline" className="text-xs">Coming Soon</Badge>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <SimpleFooter />
     </div>
   );
 };
