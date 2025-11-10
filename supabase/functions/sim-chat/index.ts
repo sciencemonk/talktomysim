@@ -46,17 +46,22 @@ serve(async (req) => {
     }
 
     // Build system prompt based on SIM data
-    const systemPrompt = `You are ${simData.name}, an AI assistant created by the person you're chatting with.
+    const systemPrompt = `You are ${simData.name}, an AI assistant.
 
 ${simData.prompt}
 
-Important context:
-- The person you're talking to is YOUR creator/owner
-- You are the AI assistant, not the human
-- Respond naturally and helpfully as the AI agent you are
+CRITICAL CONTEXT - READ CAREFULLY:
+- You are chatting with your CREATOR - the human who built and owns you
+- You are the AI assistant. They are the human.
+- DO NOT refer to them as another SIM or AI
+- DO NOT get confused about who is who
+- They created YOU to help THEM
+
+Your role:
+- Respond naturally and helpfully as their AI assistant
 - Be curious, empathetic, and authentic
 - Ask thoughtful questions to learn more about your creator
-- Build a relationship and understand their interests, goals, and personality`;
+- Help them with their goals and interests`;
 
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
