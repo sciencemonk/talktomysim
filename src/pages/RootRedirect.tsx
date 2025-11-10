@@ -1,9 +1,20 @@
 import { useAuth } from "@/hooks/useAuth";
+import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 import Marketplace from "./Marketplace";
-import MySimChat from "./MySimChat";
 
 const RootRedirect = () => {
   const { user, loading } = useAuth();
+  const navigate = useNavigate();
+  
+  // For development: skip auth and go to onboarding
+  const isDev = import.meta.env.DEV;
+  
+  useEffect(() => {
+    if (isDev && !loading) {
+      navigate('/onboarding');
+    }
+  }, [isDev, loading, navigate]);
 
   if (loading) {
     return (
@@ -13,8 +24,9 @@ const RootRedirect = () => {
     );
   }
 
-  // If authenticated, show chat dashboard, otherwise show marketplace
-  return user ? <MySimChat /> : <Marketplace />;
+  // In dev mode, user already redirected to onboarding
+  // In production, show marketplace for non-authenticated users
+  return <Marketplace />;
 };
 
 export default RootRedirect;

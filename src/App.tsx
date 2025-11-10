@@ -63,6 +63,7 @@ import SimDashboard from "./pages/SimDashboard";
 import Facilitator from "./pages/Facilitator";
 import AgentPublicView from "./pages/AgentPublicView";
 import RootRedirect from "./pages/RootRedirect";
+import Onboarding from "./pages/Onboarding";
 
 const queryClient = new QueryClient();
 
@@ -96,6 +97,7 @@ const App = () => (
               <Route path="/about" element={<About />} />
               <Route path="/documentation" element={<Documentation />} />
               <Route path="/dashboard" element={<SimDashboard />} />
+              <Route path="/onboarding" element={<Onboarding />} />
               <Route path="/test" element={<Test />} />
               <Route path="/demo" element={<Demo />} />
               <Route path="/demotest" element={<DemoTest />} />
