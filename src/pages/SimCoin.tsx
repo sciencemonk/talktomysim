@@ -81,17 +81,8 @@ const SimCoin = () => {
 
   return (
     <div className="min-h-screen bg-background relative">
-      {/* Video Background */}
-      <div className="fixed inset-0 -z-10">
-        <video autoPlay loop muted playsInline className="w-full h-full object-cover">
-          <source src="https://kxsvyeirqimcydtkowga.supabase.co/storage/v1/object/sign/storage/11904029_3840_2160_30fps.mp4?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8zNDczMmYzNC1kYzc2LTRhNzgtOGNmOC05MDE5NTRhM2RkMjgiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJzdG9yYWdlLzExOTA0MDI5XzM4NDBfMjE2MF8zMGZwcy5tcDQiLCJpYXQiOjE3NjI3NDkzNzcsImV4cCI6MTc5NDI4NTM3N30.uVl_wMEdyOaP8amz9yFCMhkFkXGbt5jX8Z8bqoQjl4w" type="video/mp4" />
-        </video>
-        {/* Dark overlay for text readability */}
-        <div className="absolute inset-0 bg-black/40"></div>
-      </div>
-      
       {/* Navigation */}
-      <nav className="relative z-20 border-b border-white/10 backdrop-blur-sm bg-black/20">
+      <nav className="border-b border-border bg-background">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
@@ -134,20 +125,20 @@ const SimCoin = () => {
       </nav>
 
       {/* Hero Section */}
-      <div className="relative border-b border-white/10 bg-black/20 backdrop-blur-sm">
+      <div className="border-b border-border bg-muted/30">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-          <div className="inline-block px-4 py-1.5 mb-6 text-xs font-mono bg-white/10 border border-white/20 rounded-full text-white">
+          <div className="inline-block px-4 py-1.5 mb-6 text-xs font-mono bg-primary/10 border border-primary/20 rounded-full text-foreground">
             TECHNICAL SPECIFICATION v1.0
           </div>
-          <h1 className="text-5xl sm:text-7xl font-bold text-white mb-8 font-mono tracking-tight">
+          <h1 className="text-5xl sm:text-7xl font-bold text-foreground mb-8 font-mono tracking-tight">
             $SIMAI
           </h1>
-          <p className="text-xl text-white/90 leading-relaxed mb-12 max-w-4xl">
+          <p className="text-xl text-muted-foreground leading-relaxed mb-12 max-w-4xl">
             A utility token engineered for autonomous agent monetization and incentive distribution within a decentralized artificial intelligence marketplace. The $SIMAI protocol enables algorithmic reward mechanisms tied to agent performance metrics, establishing a self-sustaining economic model for AI service providers.
           </p>
           
           {/* Contract Address */}
-          <Card className="bg-black/40 border-white/20 backdrop-blur">
+          <Card className="bg-card border-border">
             <CardContent className="p-6">
               <div className="flex items-center justify-between gap-4 flex-wrap">
                 <div className="flex-1 min-w-0">
@@ -178,7 +169,7 @@ const SimCoin = () => {
       </div>
 
       {/* Main Content */}
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-20 bg-black/30 backdrop-blur-md text-white">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-20 bg-background">
         
         {/* Abstract */}
         <section className="mb-20">
@@ -198,13 +189,13 @@ const SimCoin = () => {
           <h2 className="text-3xl font-bold text-foreground mb-6 font-mono">Technical Architecture</h2>
           
           <div className="grid md:grid-cols-2 gap-6 mb-8">
-            <Card className="border-white/20 bg-black/40 backdrop-blur-md">
+            <Card className="border-border bg-card">
               <CardContent className="p-6">
-                <div className="h-12 w-12 rounded-lg bg-white/10 flex items-center justify-center mb-4 border border-white/20">
-                  <Network className="h-6 w-6 text-white" />
+                <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4 border border-primary/20">
+                  <Network className="h-6 w-6 text-primary" />
                 </div>
-                <h3 className="text-lg font-semibold text-white mb-2 font-mono">Distributed Ledger</h3>
-                <p className="text-sm text-white/80 leading-relaxed">
+                <h3 className="text-lg font-semibold text-foreground mb-2 font-mono">Distributed Ledger</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">
                   Built on Solana blockchain infrastructure, leveraging high-throughput transaction processing and sub-second finality. The SPL token standard ensures compatibility with the broader Solana ecosystem while maintaining low transaction costs.
                 </p>
               </CardContent>

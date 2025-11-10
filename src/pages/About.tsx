@@ -74,17 +74,8 @@ const About = () => {
 
   return (
     <div className="min-h-screen bg-background relative">
-      {/* Video Background */}
-      <div className="fixed inset-0 -z-10">
-        <video autoPlay loop muted playsInline className="w-full h-full object-cover">
-          <source src="https://kxsvyeirqimcydtkowga.supabase.co/storage/v1/object/sign/storage/11904029_3840_2160_30fps.mp4?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8zNDczMmYzNC1kYzc2LTRhNzgtOGNmOC05MDE5NTRhM2RkMjgiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJzdG9yYWdlLzExOTA0MDI5XzM4NDBfMjE2MF8zMGZwcy5tcDQiLCJpYXQiOjE3NjI3NDkzNzcsImV4cCI6MTc5NDI4NTM3N30.uVl_wMEdyOaP8amz9yFCMhkFkXGbt5jX8Z8bqoQjl4w" type="video/mp4" />
-        </video>
-        {/* Dark overlay for text readability */}
-        <div className="absolute inset-0 bg-black/40"></div>
-      </div>
-      
       {/* Navigation */}
-      <nav className="relative z-20 border-b border-white/10 backdrop-blur-sm bg-black/20">
+      <nav className="border-b border-border bg-background">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <button onClick={() => navigate('/')} className="flex items-center hover:opacity-80 transition-opacity">
@@ -196,28 +187,28 @@ const About = () => {
       </nav>
 
       {/* Hero Section */}
-      <div className="relative border-b border-white/10 bg-black/20 backdrop-blur-sm">
+      <div className="border-b border-border bg-muted/30">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-          <div className="inline-block px-4 py-1.5 mb-6 text-xs font-mono bg-white/10 border border-white/20 rounded-full text-white animate-fade-in">
+          <div className="inline-block px-4 py-1.5 mb-6 text-xs font-mono bg-primary/10 border border-primary/20 rounded-full text-foreground animate-fade-in">
             RESEARCH PAPER v1.0
           </div>
-          <h1 className="text-5xl sm:text-7xl font-bold text-white mb-8 font-mono tracking-tight animate-fade-in">
+          <h1 className="text-5xl sm:text-7xl font-bold text-foreground mb-8 font-mono tracking-tight animate-fade-in">
             About SIM
           </h1>
-          <p className="text-xl text-white/90 leading-relaxed max-w-4xl animate-fade-in">
+          <p className="text-xl text-muted-foreground leading-relaxed max-w-4xl animate-fade-in">
             A decentralized protocol for deploying trustworthy autonomous AI agents through cryptographic identity verification and social proof mechanisms. SIM establishes a new paradigm for human-AI interaction where agents optimize toward individualized utility functions while maintaining transparency and accountability.
           </p>
         </div>
       </div>
 
       {/* Main Content */}
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-20 bg-black/30 backdrop-blur-md text-white">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-20 bg-background">
         
         {/* Abstract */}
         <section className="mb-20 animate-fade-in">
-          <h2 className="text-3xl font-bold text-white mb-6 font-mono">Abstract</h2>
-          <div className="prose prose-lg prose-invert max-w-none">
-            <p className="text-white/90 leading-relaxed mb-4">
+          <h2 className="text-3xl font-bold text-foreground mb-6 font-mono">Abstract</h2>
+          <div className="prose prose-lg dark:prose-invert max-w-none">
+            <p className="text-muted-foreground leading-relaxed mb-4">
               The proliferation of artificial intelligence agents has created a fundamental trust problem: how can users verify the authenticity, capability, and alignment of AI systems operating autonomously on their behalf? Traditional approaches rely on centralized certification authorities or opaque reputation systems that are vulnerable to manipulation and lack transparency.
             </p>
             <p className="text-white/90 leading-relaxed mb-4">

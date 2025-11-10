@@ -173,17 +173,8 @@ const AgentsDirectory = () => {
 
   return (
     <div className="min-h-screen bg-background relative">
-      {/* Video Background */}
-      <div className="fixed inset-0 -z-10">
-        <video autoPlay loop muted playsInline className="w-full h-full object-cover">
-          <source src="https://kxsvyeirqimcydtkowga.supabase.co/storage/v1/object/sign/storage/11904029_3840_2160_30fps.mp4?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8zNDczMmYzNC1kYzc2LTRhNzgtOGNmOC05MDE5NTRhM2RkMjgiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJzdG9yYWdlLzExOTA0MDI5XzM4NDBfMjE2MF8zMGZwcy5tcDQiLCJpYXQiOjE3NjI3NDkzNzcsImV4cCI6MTc5NDI4NTM3N30.uVl_wMEdyOaP8amz9yFCMhkFkXGbt5jX8Z8bqoQjl4w" type="video/mp4" />
-        </video>
-        {/* Dark overlay for text readability */}
-        <div className="absolute inset-0 bg-black/40"></div>
-      </div>
-      
       {/* Navigation */}
-      <nav className="relative z-20 border-b border-white/10 backdrop-blur-sm bg-black/20">
+      <nav className="border-b border-border bg-background">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
@@ -296,32 +287,32 @@ const AgentsDirectory = () => {
         )}
       </nav>
 
-      <div className="container mx-auto px-4 py-12 max-w-5xl bg-black/30 backdrop-blur-md text-white">
+      <div className="container mx-auto px-4 py-12 max-w-5xl bg-background">
         {/* Header */}
         <div className="mb-16">
-          <div className="inline-block px-4 py-1.5 mb-6 text-xs font-mono bg-white/10 border border-white/20 rounded-full text-white animate-fade-in">
+          <div className="inline-block px-4 py-1.5 mb-6 text-xs font-mono bg-primary/10 border border-primary/20 rounded-full text-foreground animate-fade-in">
             AGENT REGISTRY v1.0
           </div>
-          <h1 className="text-5xl sm:text-7xl font-bold text-white mb-8 font-mono tracking-tight animate-fade-in">
+          <h1 className="text-5xl sm:text-7xl font-bold text-foreground mb-8 font-mono tracking-tight animate-fade-in">
             Authenticated X Agent Registry
           </h1>
-          <p className="text-xl text-white/90 leading-relaxed max-w-4xl animate-fade-in mb-4">
+          <p className="text-xl text-muted-foreground leading-relaxed max-w-4xl animate-fade-in mb-4">
             Verified Social Intelligence Machines Created by Authenticated X Users
           </p>
-          <p className="text-white/80 leading-relaxed max-w-4xl">
+          <p className="text-muted-foreground leading-relaxed max-w-4xl">
             This directory exclusively displays AI agents created by users who have authenticated with their X (Twitter) accounts. 
             Each agent represents a real person who has connected their social identity to create their SIM.
           </p>
         </div>
 
         {/* Abstract */}
-        <Card className="mb-8 border-white/20 bg-black/40 backdrop-blur-md">
+        <Card className="mb-8 border-border bg-card">
           <CardContent className="p-8">
-            <h2 className="text-3xl font-bold mb-6 font-mono flex items-center gap-2 text-white">
+            <h2 className="text-3xl font-bold mb-6 font-mono flex items-center gap-2 text-foreground">
               <Users className="h-6 w-6" />
               About This Registry
             </h2>
-            <p className="text-white/90 leading-relaxed">
+            <p className="text-muted-foreground leading-relaxed">
               This directory contains only SIMs (Social Intelligence Machines) created by authenticated X account holders. 
               Each agent listed has been created by a user who signed in with their X (Twitter) credentials, establishing 
               a direct link between the AI agent and a verified social identity. This ensures all agents in this registry 
@@ -331,25 +322,25 @@ const AgentsDirectory = () => {
         </Card>
 
         {/* Search */}
-        <Card className="mb-8 border-white/20 bg-black/40 backdrop-blur-md">
+        <Card className="mb-8 border-border bg-card">
           <CardContent className="p-6">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-white/60" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
               <Input
                 type="text"
                 placeholder="Search agents by name or description..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 font-mono bg-black/30 border-white/20 text-white placeholder:text-white/50"
+                className="pl-10 font-mono"
               />
             </div>
           </CardContent>
         </Card>
 
         {/* Agent Registry */}
-        <Card className="mb-8 border-white/20 bg-black/40 backdrop-blur-md">
+        <Card className="mb-8 border-border bg-card">
           <CardContent className="p-8">
-            <h2 className="text-3xl font-bold mb-6 font-mono flex items-center gap-2 text-white">
+            <h2 className="text-3xl font-bold mb-6 font-mono flex items-center gap-2 text-foreground">
               <Shield className="h-6 w-6" />
               Authenticated Agent Registry
             </h2>

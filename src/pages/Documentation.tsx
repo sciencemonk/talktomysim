@@ -68,17 +68,8 @@ export default function Documentation() {
 
   return (
     <div className="min-h-screen bg-background relative">
-      {/* Video Background */}
-      <div className="fixed inset-0 -z-10">
-        <video autoPlay loop muted playsInline className="w-full h-full object-cover">
-          <source src="https://kxsvyeirqimcydtkowga.supabase.co/storage/v1/object/sign/storage/11904029_3840_2160_30fps.mp4?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8zNDczMmYzNC1kYzc2LTRhNzgtOGNmOC05MDE5NTRhM2RkMjgiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJzdG9yYWdlLzExOTA0MDI5XzM4NDBfMjE2MF8zMGZwcy5tcDQiLCJpYXQiOjE3NjI3NDkzNzcsImV4cCI6MTc5NDI4NTM3N30.uVl_wMEdyOaP8amz9yFCMhkFkXGbt5jX8Z8bqoQjl4w" type="video/mp4" />
-        </video>
-        {/* Dark overlay for text readability */}
-        <div className="absolute inset-0 bg-black/40"></div>
-      </div>
-      
       {/* Navigation */}
-      <nav className="relative z-20 border-b border-white/10 backdrop-blur-sm bg-black/20">
+      <nav className="border-b border-border bg-background">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
@@ -191,24 +182,24 @@ export default function Documentation() {
         )}
       </nav>
 
-      <div className="container mx-auto px-4 py-12 max-w-5xl bg-black/30 backdrop-blur-md text-white">
+      <div className="container mx-auto px-4 py-12 max-w-5xl bg-background">
         {/* Header */}
         <div className="mb-16">
-          <div className="inline-block px-4 py-1.5 mb-6 text-xs font-mono bg-white/10 border border-white/20 rounded-full text-white animate-fade-in">
+          <div className="inline-block px-4 py-1.5 mb-6 text-xs font-mono bg-primary/10 border border-primary/20 rounded-full text-foreground animate-fade-in">
             DOCUMENTATION v1.0
           </div>
-          <h1 className="text-5xl sm:text-7xl font-bold text-white mb-8 font-mono tracking-tight animate-fade-in">
+          <h1 className="text-5xl sm:text-7xl font-bold text-foreground mb-8 font-mono tracking-tight animate-fade-in">
             SIM Technical Documentation
           </h1>
-          <p className="text-xl text-white/90 leading-relaxed max-w-4xl animate-fade-in">
+          <p className="text-xl text-muted-foreground leading-relaxed max-w-4xl animate-fade-in">
             Implementation Guide | System Architecture and Integration Protocols
           </p>
         </div>
 
         {/* Abstract */}
-        <Card className="mb-8 border-white/20 bg-black/40 backdrop-blur-md">
+        <Card className="mb-8 border-border bg-card">
           <CardContent className="p-8">
-            <h2 className="text-3xl font-bold mb-6 font-mono flex items-center gap-2 text-white">
+            <h2 className="text-3xl font-bold mb-6 font-mono flex items-center gap-2 text-foreground">
               <FileCode className="h-6 w-6" />
               Abstract
             </h2>
@@ -228,9 +219,9 @@ export default function Documentation() {
         </Card>
 
         {/* System Architecture Overview */}
-        <Card className="mb-8 border-white/20 bg-black/40 backdrop-blur-md">
+        <Card className="mb-8 border-border bg-card">
           <CardContent className="p-8">
-            <h2 className="text-3xl font-bold mb-6 font-mono flex items-center gap-2 text-white">
+            <h2 className="text-3xl font-bold mb-6 font-mono flex items-center gap-2 text-foreground">
               <Brain className="h-6 w-6" />
               1. System Architecture Overview
             </h2>
