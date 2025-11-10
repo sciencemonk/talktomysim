@@ -20,6 +20,7 @@ interface CreateSimModalProps {
   onOpenChange: (open: boolean) => void;
   onSuccess?: () => void;
   onAuthRequired?: () => void;
+  initialType?: string;
 }
 
 const simTypes = [
@@ -41,11 +42,11 @@ const categories = [
   { value: "spiritual", label: "Spiritual & Philosophy" },
 ];
 
-export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }: CreateSimModalProps) => {
+export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired, initialType }: CreateSimModalProps) => {
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [name, setName] = useState("");
-  const [simType, setSimType] = useState("Chat");
+  const [simType, setSimType] = useState(initialType || "Chat");
   const [category, setCategory] = useState("");
   const [description, setDescription] = useState("");
   const [systemPrompt, setSystemPrompt] = useState("");

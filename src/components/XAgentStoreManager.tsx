@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Plus, Edit, Trash2, DollarSign, Package, Loader2, Share2, Code } from "lucide-react";
+import { Plus, Edit, Trash2, DollarSign, Package, Loader2, Share2, Code, FileText } from "lucide-react";
 import { toast } from "sonner";
 import { AgentIntegrations, DEFAULT_INTEGRATIONS, Integration } from "@/components/AgentIntegrations";
 import { BuyButtonEmbedModal } from "@/components/BuyButtonEmbedModal";
@@ -26,7 +26,7 @@ interface Offering {
   is_active: boolean;
   created_at: string;
   media_url?: string;
-  offering_type?: 'standard' | 'digital' | 'agent';
+  offering_type?: 'standard' | 'digital' | 'agent' | 'nft';
   digital_file_url?: string;
   blur_preview?: boolean;
   agent_system_prompt?: string;
@@ -48,7 +48,7 @@ export function XAgentStoreManager({ agentId, walletAddress, onWalletUpdate }: X
   const [isLoading, setIsLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [showTypeSelection, setShowTypeSelection] = useState(false);
-  const [selectedType, setSelectedType] = useState<'standard' | 'digital' | 'agent' | null>(null);
+  const [selectedType, setSelectedType] = useState<'standard' | 'digital' | 'agent' | 'nft' | null>(null);
   const [editingOffering, setEditingOffering] = useState<Offering | null>(null);
   const [isSavingWallet, setIsSavingWallet] = useState(false);
   
@@ -77,6 +77,7 @@ export function XAgentStoreManager({ agentId, walletAddress, onWalletUpdate }: X
   const [showAgentTypeModal, setShowAgentTypeModal] = useState(false);
   const [showPumpFunModal, setShowPumpFunModal] = useState(false);
   const [showChatbotModal, setShowChatbotModal] = useState(false);
+  const [chatbotInitialType, setChatbotInitialType] = useState<string | undefined>(undefined);
 
   useEffect(() => {
     loadOfferings();
@@ -451,10 +452,16 @@ export function XAgentStoreManager({ agentId, walletAddress, onWalletUpdate }: X
     setIntegrations(DEFAULT_INTEGRATIONS);
   };
 
-  const handleTypeSelect = (type: 'standard' | 'digital' | 'agent') => {
+  const handleTypeSelect = (type: 'standard' | 'digital' | 'agent' | 'nft') => {
     if (type === 'agent') {
       // Show agent type selection modal instead of going directly to form
       setShowAgentTypeModal(true);
+      setShowTypeSelection(false);
+      setIsDialogOpen(false);
+    } else if (type === 'nft') {
+      // For NFT, show the CreateSimModal with NFT type pre-selected
+      setChatbotInitialType('NFT');
+      setShowChatbotModal(true);
       setShowTypeSelection(false);
       setIsDialogOpen(false);
     } else {
@@ -471,6 +478,7 @@ export function XAgentStoreManager({ agentId, walletAddress, onWalletUpdate }: X
         setShowPumpFunModal(true);
         break;
       case 'chatbot':
+        setChatbotInitialType(undefined); // Regular chatbot, no pre-selection
         setShowChatbotModal(true);
         break;
       case 'specialized':
@@ -661,6 +669,22 @@ export function XAgentStoreManager({ agentId, walletAddress, onWalletUpdate }: X
                       </div>
                     </div>
                   </button>
+                  
+                  <button
+                    type="button"
+                    onClick={() => handleTypeSelect('nft')}
+                    className="p-6 border-2 border-border rounded-lg hover:border-primary transition-colors text-left group"
+                  >
+                    <div className="flex items-start gap-4">
+                      <FileText className="h-8 w-8 text-primary mt-1" />
+                      <div>
+                        <h3 className="font-semibold text-lg mb-1">NFT</h3>
+                        <p className="text-sm text-muted-foreground">
+                          Mint and sell NFTs on Solana. Buyers receive the NFT directly to their wallet.
+                        </p>
+                      </div>
+                    </div>
+                  </button>
                 </div>
               </>
             ) : (
@@ -672,6 +696,8 @@ export function XAgentStoreManager({ agentId, walletAddress, onWalletUpdate }: X
                       ? "Create a digital product that buyers can access instantly"
                       : selectedType === 'agent'
                       ? "Create an AI agent that users can chat with"
+                      : selectedType === 'nft'
+                      ? "Mint an NFT on Solana that buyers will receive directly"
                       : "Create offerings that users can purchase with x402 payments"}
                   </DialogDescription>
                 </DialogHeader>
@@ -1252,10 +1278,17 @@ export function XAgentStoreManager({ agentId, walletAddress, onWalletUpdate }: X
       {/* Chatbot Creation Modal */}
       <CreateSimModal
         open={showChatbotModal}
-        onOpenChange={setShowChatbotModal}
+        onOpenChange={(open) => {
+          setShowChatbotModal(open);
+          if (!open) {
+            setChatbotInitialType(undefined); // Reset when closing
+          }
+        }}
         onSuccess={handleAgentCreated}
+        initialType={chatbotInitialType}
         onAuthRequired={() => {
           setShowChatbotModal(false);
+          setChatbotInitialType(undefined);
           toast.error("Please sign in to create a chatbot");
         }}
       />
