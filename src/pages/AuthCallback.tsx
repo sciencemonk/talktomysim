@@ -12,10 +12,11 @@ export default function AuthCallback() {
 
   const handleAuthCallback = async () => {
     try {
+      console.log('[AuthCallback] Starting auth callback...');
       const { data: { session }, error: sessionError } = await supabase.auth.getSession();
       
       if (sessionError) {
-        console.error('Session error:', sessionError);
+        console.error('[AuthCallback] Session error:', sessionError);
         toast.error('Authentication failed');
         
         if (window.opener) {
@@ -27,7 +28,7 @@ export default function AuthCallback() {
       }
 
       if (!session) {
-        console.log('No session found');
+        console.log('[AuthCallback] No session found');
         if (window.opener) {
           window.close();
         } else {
@@ -40,8 +41,10 @@ export default function AuthCallback() {
       const userMetadata = user.user_metadata;
       
       const username = userMetadata?.user_name || userMetadata?.preferred_username || userMetadata?.name;
+      console.log('[AuthCallback] X Username:', username);
 
       if (!username) {
+        console.error('[AuthCallback] Could not retrieve X username');
         toast.error('Could not retrieve X username');
         if (window.opener) {
           window.close();
@@ -51,21 +54,22 @@ export default function AuthCallback() {
         return;
       }
 
-      console.log('X Username:', username);
-
       // Check if user is authorized
       if (username.toLowerCase() !== 'mrjethroknights') {
-        console.log('Unauthorized user attempted to sign in:', username);
+        console.log('[AuthCallback] Unauthorized user:', username);
         
         // Signal to parent window that user is unauthorized
         if (window.opener) {
+          console.log('[AuthCallback] Setting localStorage auth_status to unauthorized');
           localStorage.setItem('auth_status', 'unauthorized');
         }
         
         // Sign them out
+        console.log('[AuthCallback] Signing out unauthorized user');
         await supabase.auth.signOut();
         
         if (window.opener) {
+          console.log('[AuthCallback] Closing popup window');
           window.close();
         } else {
           navigate('/');
@@ -74,9 +78,10 @@ export default function AuthCallback() {
       }
 
       // Authorized user - signal success and close popup
-      console.log('Authorized user logged in');
+      console.log('[AuthCallback] Authorized user logged in');
       
       if (window.opener) {
+        console.log('[AuthCallback] Setting localStorage auth_status to authorized');
         localStorage.setItem('auth_status', 'authorized');
         toast.success('Welcome back!');
         window.close();
@@ -85,7 +90,7 @@ export default function AuthCallback() {
         navigate('/');
       }
     } catch (error: any) {
-      console.error('Auth callback error:', error);
+      console.error('[AuthCallback] Auth callback error:', error);
       toast.error('Authentication failed: ' + (error.message || 'Unknown error'));
       
       if (window.opener) {

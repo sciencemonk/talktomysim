@@ -211,6 +211,7 @@ const Marketplace = () => {
 
   const handleXSignIn = async () => {
     try {
+      console.log('[Marketplace] Starting X sign in...');
       // Clear any previous auth status
       localStorage.removeItem('auth_status');
       
@@ -228,40 +229,58 @@ const Marketplace = () => {
         }
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('[Marketplace] OAuth error:', error);
+        throw error;
+      }
 
       // Open the auth URL in a popup
       if (data.url) {
+        console.log('[Marketplace] Opening popup:', data.url);
         const popup = window.open(
           data.url,
           'X Authentication',
           `width=${width},height=${height},left=${left},top=${top},resizable=yes,scrollbars=yes`
         );
 
+        if (!popup) {
+          toast.error('Popup was blocked. Please allow popups and try again.');
+          return;
+        }
+
         // Listen for the popup to close
         const checkPopup = setInterval(async () => {
           if (popup && popup.closed) {
             clearInterval(checkPopup);
+            console.log('[Marketplace] Popup closed, checking auth status...');
+            
+            // Small delay to ensure localStorage is written
+            await new Promise(resolve => setTimeout(resolve, 100));
             
             // Check the auth status from localStorage
             const authStatus = localStorage.getItem('auth_status');
+            console.log('[Marketplace] Auth status from localStorage:', authStatus);
             localStorage.removeItem('auth_status');
             
-            console.log('Auth status:', authStatus);
-            
             if (authStatus === 'authorized') {
+              console.log('[Marketplace] Authorized - reloading page');
               // Authorized user - reload to show chat interface
               window.location.reload();
             } else if (authStatus === 'unauthorized') {
+              console.log('[Marketplace] Unauthorized - showing beta request');
               // Not authorized - show beta request
-              setBetaCode(generateBetaCode());
+              const code = generateBetaCode();
+              console.log('[Marketplace] Generated beta code:', code);
+              setBetaCode(code);
               setShowBetaRequest(true);
+            } else {
+              console.log('[Marketplace] No auth status found');
             }
           }
         }, 500);
       }
     } catch (error: any) {
-      console.error('Error signing in with X:', error);
+      console.error('[Marketplace] Error signing in with X:', error);
       toast.error(error?.message || 'Failed to sign in with X');
     }
   };
