@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, Menu, Copy, Check, Coins, TrendingUp, Activity, Clock, Settings, ExternalLink } from "lucide-react";
+import { Loader2, Menu, Copy, Check, Coins, TrendingUp, Activity, Clock, Settings, ExternalLink, ArrowLeft } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import AuthModal from "@/components/AuthModal";
@@ -18,6 +18,11 @@ import PublicChatInterface from "@/components/PublicChatInterface";
 import { Sim } from "@/types/sim";
 import { AgentType } from "@/types/agent";
 import { getAvatarUrl } from "@/lib/avatarUtils";
+import { ThemeToggle } from "@/components/ThemeToggle";
+import { useTheme } from "@/hooks/useTheme";
+import simHeroLogo from "@/assets/sim-hero-logo.png";
+import simLogoWhite from "@/assets/sim-logo-white.png";
+import { LandingFooter } from "@/components/landing/LandingFooter";
 
 interface ActivityLog {
   id: string;
@@ -30,6 +35,7 @@ const UserDashboard = () => {
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
+  const { theme } = useTheme();
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [userSim, setUserSim] = useState<Sim | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -38,6 +44,16 @@ const UserDashboard = () => {
   const [simaiBalance, setSimaiBalance] = useState(1247);
   const [ranking, setRanking] = useState(42);
   const [activityLogs, setActivityLogs] = useState<ActivityLog[]>([]);
+  const [resolvedTheme, setResolvedTheme] = useState<'light' | 'dark'>('dark');
+
+  useEffect(() => {
+    if (theme === 'system') {
+      const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      setResolvedTheme(isDark ? 'dark' : 'light');
+    } else {
+      setResolvedTheme(theme as 'light' | 'dark');
+    }
+  }, [theme]);
 
   useEffect(() => {
     if (!authLoading) {
@@ -235,23 +251,44 @@ const UserDashboard = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      {isMobile && (
-        <div className="fixed top-0 left-0 right-0 z-50 bg-background border-b">
-          <div className="flex items-center justify-between p-3">
-            <SidebarTrigger className="h-10 w-10">
-              <Menu className="h-5 w-5" />
-            </SidebarTrigger>
-            <img 
-              src="/sim-logo.png" 
-              alt="Sim Logo" 
-              className="h-8 w-8 object-contain"
-            />
-            <div className="w-10" />
+      {/* Navigation */}
+      <nav className="border-b border-border/50 bg-background/80 backdrop-blur-sm sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            <div className="flex items-center gap-4">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => navigate('/')}
+                className="h-9 w-9"
+              >
+                <ArrowLeft className="h-5 w-5" />
+              </Button>
+              <button onClick={() => navigate('/')} className="flex items-center hover:opacity-80 transition-opacity">
+                <img src={resolvedTheme === 'dark' ? simLogoWhite : simHeroLogo} alt="SIM" className="h-8" />
+              </button>
+            </div>
+            
+            <div className="flex items-center gap-4">
+              <ThemeToggle />
+              {user && (
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={async () => {
+                    await supabase.auth.signOut();
+                    navigate('/');
+                  }}
+                >
+                  Sign Out
+                </Button>
+              )}
+            </div>
           </div>
         </div>
-      )}
+      </nav>
       
-      <main className={`flex-1 overflow-auto ${isMobile ? 'pt-[57px]' : ''}`}>
+      <main className="flex-1 overflow-auto">
         <div className="container mx-auto px-4 py-8">
           {/* Header Section */}
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8">
@@ -406,6 +443,9 @@ const UserDashboard = () => {
           onSave={handleSaveSettings}
         />
       )}
+
+      {/* Footer */}
+      <LandingFooter />
     </div>
   );
 };
