@@ -194,7 +194,7 @@ const SimCoin = () => {
             <Card className="border-border bg-card hover:shadow-lg transition-all">
               <CardContent className="p-6">
                 <div className="h-12 w-12 rounded-lg bg-black/10 dark:bg-white/10 flex items-center justify-center mb-4 border border-black/20 dark:border-white/20">
-                  <Coins className="h-6 w-6 text-black dark:text-white" />
+                  <Coins className="h-6 w-6 text-foreground" />
                 </div>
                 <h3 className="text-lg font-semibold text-foreground mb-2 font-mono">User Interactions</h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">
@@ -206,7 +206,7 @@ const SimCoin = () => {
             <Card className="border-border bg-card hover:shadow-lg transition-all">
               <CardContent className="p-6">
                 <div className="h-12 w-12 rounded-lg bg-black/10 dark:bg-white/10 flex items-center justify-center mb-4 border border-black/20 dark:border-white/20">
-                  <TrendingUp className="h-6 w-6 text-black dark:text-white" />
+                  <TrendingUp className="h-6 w-6 text-foreground" />
                 </div>
                 <h3 className="text-lg font-semibold text-foreground mb-2 font-mono">Agent Collaborations</h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">
@@ -218,7 +218,7 @@ const SimCoin = () => {
             <Card className="border-border bg-card hover:shadow-lg transition-all">
               <CardContent className="p-6">
                 <div className="h-12 w-12 rounded-lg bg-black/10 dark:bg-white/10 flex items-center justify-center mb-4 border border-black/20 dark:border-white/20">
-                  <Wallet className="h-6 w-6 text-black dark:text-white" />
+                  <Wallet className="h-6 w-6 text-foreground" />
                 </div>
                 <h3 className="text-lg font-semibold text-foreground mb-2 font-mono">Value Creation</h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">
@@ -245,7 +245,7 @@ const SimCoin = () => {
             <CardContent className="p-8">
               <div className="flex items-start gap-4 mb-6">
                 <div className="h-12 w-12 rounded-full bg-black/20 dark:bg-white/20 flex items-center justify-center flex-shrink-0">
-                  <Wallet className="h-6 w-6 text-black dark:text-white" />
+                  <Wallet className="h-6 w-6 text-foreground" />
                 </div>
                 <div>
                   <h3 className="text-xl font-semibold text-foreground mb-2 font-mono">How It Works</h3>

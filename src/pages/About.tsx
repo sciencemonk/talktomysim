@@ -250,7 +250,7 @@ const About = () => {
             <Card className="border-border bg-card hover:shadow-lg transition-all hover-scale">
               <CardContent className="p-6">
                 <div className="h-12 w-12 rounded-lg bg-black/10 dark:bg-white/10 flex items-center justify-center mb-4 border border-black/20 dark:border-white/20">
-                  <Users className="h-6 w-6 text-black dark:text-white" />
+                  <Users className="h-6 w-6 text-foreground" />
                 </div>
                 <h3 className="text-lg font-semibold text-foreground mb-2 font-mono">Interact & Collaborate</h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">
@@ -262,7 +262,7 @@ const About = () => {
             <Card className="border-border bg-card hover:shadow-lg transition-all hover-scale">
               <CardContent className="p-6">
                 <div className="h-12 w-12 rounded-lg bg-black/10 dark:bg-white/10 flex items-center justify-center mb-4 border border-black/20 dark:border-white/20">
-                  <Coins className="h-6 w-6 text-black dark:text-white" />
+                  <Coins className="h-6 w-6 text-foreground" />
                 </div>
                 <h3 className="text-lg font-semibold text-foreground mb-2 font-mono">Transact in Crypto</h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">
@@ -274,7 +274,7 @@ const About = () => {
             <Card className="border-border bg-card hover:shadow-lg transition-all hover-scale">
               <CardContent className="p-6">
                 <div className="h-12 w-12 rounded-lg bg-black/10 dark:bg-white/10 flex items-center justify-center mb-4 border border-black/20 dark:border-white/20">
-                  <Globe className="h-6 w-6 text-black dark:text-white" />
+                  <Globe className="h-6 w-6 text-foreground" />
                 </div>
                 <h3 className="text-lg font-semibold text-foreground mb-2 font-mono">Explore & Evolve</h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">
@@ -308,7 +308,7 @@ const About = () => {
             <Card className="border-border bg-card hover:shadow-lg transition-all hover-scale">
               <CardContent className="p-6">
                 <div className="h-12 w-12 rounded-lg bg-black/10 dark:bg-white/10 flex items-center justify-center mb-4 border border-black/20 dark:border-white/20">
-                  <Brain className="h-6 w-6 text-black dark:text-white" />
+                  <Brain className="h-6 w-6 text-foreground" />
                 </div>
                 <h3 className="text-lg font-semibold text-foreground mb-2 font-mono">Learns Your Patterns</h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">
@@ -320,7 +320,7 @@ const About = () => {
             <Card className="border-border bg-card hover:shadow-lg transition-all hover-scale">
               <CardContent className="p-6">
                 <div className="h-12 w-12 rounded-lg bg-black/10 dark:bg-white/10 flex items-center justify-center mb-4 border border-black/20 dark:border-white/20">
-                  <Zap className="h-6 w-6 text-black dark:text-white" />
+                  <Zap className="h-6 w-6 text-foreground" />
                 </div>
                 <h3 className="text-lg font-semibold text-foreground mb-2 font-mono">Acts on Your Behalf</h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">
@@ -332,7 +332,7 @@ const About = () => {
             <Card className="border-border bg-card hover:shadow-lg transition-all hover-scale">
               <CardContent className="p-6">
                 <div className="h-12 w-12 rounded-lg bg-black/10 dark:bg-white/10 flex items-center justify-center mb-4 border border-black/20 dark:border-white/20">
-                  <Network className="h-6 w-6 text-black dark:text-white" />
+                  <Network className="h-6 w-6 text-foreground" />
                 </div>
                 <h3 className="text-lg font-semibold text-foreground mb-2 font-mono">Transparent Verification</h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">
@@ -344,7 +344,7 @@ const About = () => {
             <Card className="border-border bg-card hover:shadow-lg transition-all hover-scale">
               <CardContent className="p-6">
                 <div className="h-12 w-12 rounded-lg bg-black/10 dark:bg-white/10 flex items-center justify-center mb-4 border border-black/20 dark:border-white/20">
-                  <Sparkles className="h-6 w-6 text-black dark:text-white" />
+                  <Sparkles className="h-6 w-6 text-foreground" />
                 </div>
                 <h3 className="text-lg font-semibold text-foreground mb-2 font-mono">Reflects Your Growth</h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">
@@ -356,7 +356,7 @@ const About = () => {
             <Card className="border-border bg-card hover:shadow-lg transition-all hover-scale">
               <CardContent className="p-6">
                 <div className="h-12 w-12 rounded-lg bg-black/10 dark:bg-white/10 flex items-center justify-center mb-4 border border-black/20 dark:border-white/20">
-                  <Network className="h-6 w-6 text-black dark:text-white" />
+                  <Network className="h-6 w-6 text-foreground" />
                 </div>
                 <h3 className="text-lg font-semibold text-foreground mb-2 font-mono">Connects You to Others</h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">

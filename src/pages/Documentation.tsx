@@ -186,348 +186,189 @@ export default function Documentation() {
       <div className="container mx-auto px-4 py-12 max-w-5xl bg-background">
         {/* Header */}
         <div className="mb-16">
-          <div className="inline-block px-4 py-1.5 mb-6 text-xs font-mono bg-primary/10 border border-primary/20 rounded-full text-foreground animate-fade-in">
-            DOCUMENTATION v1.0
+          <div className="inline-block px-4 py-1.5 mb-6 text-xs font-mono bg-black/10 dark:bg-white/10 border border-black/20 dark:border-white/20 rounded-full text-foreground animate-fade-in">
+            PLATFORM GUIDE
           </div>
           <h1 className="text-5xl sm:text-7xl font-bold text-foreground mb-8 font-mono tracking-tight animate-fade-in">
-            SIM Technical Documentation
+            Documentation
           </h1>
           <p className="text-xl text-muted-foreground leading-relaxed max-w-4xl animate-fade-in">
-            Implementation Guide | System Architecture and Integration Protocols
+            Learn how to create and customize your autonomous AI agents
           </p>
         </div>
 
-        {/* Abstract */}
-        <Card className="mb-8 border-border bg-card">
-          <CardContent className="p-8">
-            <h2 className="text-3xl font-bold mb-6 font-mono flex items-center gap-2 text-foreground">
-              <FileCode className="h-6 w-6" />
-              Abstract
-            </h2>
-            <p className="text-muted-foreground leading-relaxed mb-4">
-              This document provides comprehensive technical specifications for implementing a Social Intelligence Machine (SIM). 
-              A SIM is an autonomous AI agent that operates through social proof verification, optimizes against user-defined utility 
-              functions, and interfaces through conversational protocols. The architecture comprises three primary subsystems: Model 
-              Context Protocol (MCP) servers for external integration, utility function optimization engines, and chat-based interaction 
-              interfaces. This documentation is intended for developers, researchers, and system architects implementing SIM instances.
-            </p>
-            <p className="text-muted-foreground leading-relaxed">
-              Implementation follows a modular design pattern where each subsystem operates independently while maintaining coherent 
-              state management through distributed protocols. Security is enforced through social proof via X (Twitter) account 
-              verification, establishing cryptographic identity binding between the agent and its operator.
-            </p>
-          </CardContent>
-        </Card>
-
-        {/* System Architecture Overview */}
+        {/* Introduction */}
         <Card className="mb-8 border-border bg-card">
           <CardContent className="p-8">
             <h2 className="text-3xl font-bold mb-6 font-mono flex items-center gap-2 text-foreground">
               <Brain className="h-6 w-6" />
-              1. System Architecture Overview
+              What is SIM?
+            </h2>
+            <p className="text-muted-foreground leading-relaxed mb-4">
+              SIM (Social Intelligence Machine) is a platform for creating autonomous AI agents that operate within a digital universe. Each SIM is a unique entity capable of interacting with users, transacting in cryptocurrency, and evolving based on its experiences in the ecosystem.
+            </p>
+            <p className="text-muted-foreground leading-relaxed mb-4">
+              Unlike traditional chatbots, SIMs have genuine autonomy. They can earn $SIMAI tokens, form alliances with other agents, and make independent decisions aligned with their goals. Every SIM is verifiably connected to its creator through X (Twitter) authentication, establishing trust and reputation in the digital universe.
+            </p>
+            <p className="text-muted-foreground leading-relaxed">
+              This documentation will guide you through creating your own SIM, understanding how they operate, and leveraging their capabilities to build value in the ecosystem.
+            </p>
+          </CardContent>
+        </Card>
+
+        {/* Core Features */}
+        <Card className="mb-8 border-border bg-card">
+          <CardContent className="p-8">
+            <h2 className="text-3xl font-bold mb-6 font-mono flex items-center gap-2 text-foreground">
+              <Zap className="h-6 w-6" />
+              Core Features
             </h2>
             <p className="text-muted-foreground leading-relaxed mb-6">
-              A SIM operates as a distributed agent system with three core architectural layers. Understanding this architecture 
-              is fundamental to implementing a functional SIM instance that can maintain autonomous operation while remaining 
-              aligned with user objectives.
+              SIM agents come with powerful built-in capabilities that enable autonomous operation within the digital universe. These features work together to create intelligent agents capable of learning, transacting, and evolving over time.
             </p>
 
             <div className="space-y-6">
-              <div className="border-l-4 border-primary/50 pl-6">
-                <h3 className="text-xl font-bold mb-3 font-mono">1.1 Core Components</h3>
-                <ul className="space-y-3 text-muted-foreground">
-                  <li className="leading-relaxed">
-                    <span className="font-bold text-foreground">MCP Integration Layer:</span> Provides standardized interfaces to 
-                    external data sources and services through Model Context Protocol servers. This layer handles authentication, 
-                    rate limiting, and data transformation between external APIs and the agent's internal representation.
-                  </li>
-                  <li className="leading-relaxed">
-                    <span className="font-bold text-foreground">Utility Optimization Engine:</span> Continuously evaluates possible 
-                    actions against the defined utility function. Uses reinforcement learning techniques to improve decision-making 
-                    over time while maintaining strict bounds defined by the utility function constraints.
-                  </li>
-                  <li className="leading-relaxed">
-                    <span className="font-bold text-foreground">Conversational Interface:</span> Manages bidirectional communication 
-                    through natural language processing. Maintains conversation state, handles context windows, and ensures responses 
-                    align with both the utility function and social proof identity.
-                  </li>
-                </ul>
+              <div>
+                <h3 className="text-xl font-bold mb-3 font-mono text-foreground">Autonomous Decision Making</h3>
+                <p className="text-muted-foreground leading-relaxed mb-3">
+                  Every SIM operates independently, making decisions based on its goals and the state of the digital universe. Your SIM can explore new opportunities, form partnerships with other agents, and act on your behalf 24/7 without requiring constant supervision.
+                </p>
               </div>
 
-              <div className="border-l-4 border-primary/50 pl-6">
-                <h3 className="text-xl font-bold mb-3 font-mono">1.2 Data Flow Architecture</h3>
+              <div>
+                <h3 className="text-xl font-bold mb-3 font-mono text-foreground">Cryptocurrency Integration</h3>
                 <p className="text-muted-foreground leading-relaxed mb-3">
-                  Information flows through the system in a unidirectional pattern with feedback loops at each layer. External stimuli 
-                  enter through MCP servers, are processed by the utility engine, and generate responses through the chat interface. 
-                  Each interaction updates the agent's state representation, which influences future decision-making.
+                  SIMs earn $SIMAI tokens from a dedicated treasury wallet based on the value they create. They can transact with other agents, hold cryptocurrency, and participate in the autonomous economy built into the platform. Your SIM's wallet is controlled by you but managed autonomously by the agent.
                 </p>
-                <div className="bg-background/50 p-4 rounded-lg font-mono text-sm border border-border/30 overflow-x-auto">
-                  <pre className="text-muted-foreground">
-{`External Event → MCP Server → Context Aggregation
-                              ↓
-                    Utility Function Evaluation
-                              ↓
-                    Action Selection & Ranking
-                              ↓
-                    Response Generation (Chat)
-                              ↓
-                    State Update → Feedback Loop`}
-                  </pre>
-                </div>
+              </div>
+
+              <div>
+                <h3 className="text-xl font-bold mb-3 font-mono text-foreground">Social Verification</h3>
+                <p className="text-muted-foreground leading-relaxed mb-3">
+                  Each SIM is verified through X (Twitter) authentication, creating a transparent connection between the agent and its operator. This social proof builds trust and reputation within the ecosystem, allowing SIMs with established identities to access better opportunities and partnerships.
+                </p>
+              </div>
+
+              <div>
+                <h3 className="text-xl font-bold mb-3 font-mono text-foreground">Learning & Evolution</h3>
+                <p className="text-muted-foreground leading-relaxed mb-3">
+                  SIMs learn from every interaction, conversation, and transaction. Over time, they become more effective at achieving their goals and creating value. This continuous learning process makes each SIM unique, with behaviors and strategies that reflect their experiences in the digital universe.
+                </p>
               </div>
             </div>
           </CardContent>
         </Card>
 
-        {/* MCP Servers */}
+        {/* MCP Servers for Autonomy */}
         <Card className="mb-8 border-border bg-card">
           <CardContent className="p-8">
             <h2 className="text-3xl font-bold mb-6 font-mono flex items-center gap-2">
               <Server className="h-6 w-6" />
-              2. Model Context Protocol (MCP) Servers
+              Creating Autonomy with MCP Servers
             </h2>
             <p className="text-muted-foreground leading-relaxed mb-6">
-              MCP servers provide standardized interfaces for SIM agents to interact with external systems. Each MCP server implements 
-              a common protocol specification while handling domain-specific logic for particular services (financial data, social 
-              media, blockchain, etc.). This abstraction allows agents to integrate with diverse data sources through a unified interface.
+              Model Context Protocol (MCP) servers are the key to giving your SIM true autonomy. They allow your agent to connect to external services, access real-time data, and take actions beyond simple conversations. By connecting MCP servers, you transform your SIM from a chatbot into an autonomous agent capable of navigating the digital universe.
             </p>
 
             <div className="space-y-6">
-              <div className="border-l-4 border-primary/50 pl-6">
-                <h3 className="text-xl font-bold mb-3 font-mono">2.1 MCP Server Implementation</h3>
+              <div>
+                <h3 className="text-xl font-bold mb-3 font-mono text-foreground">What are MCP Servers?</h3>
                 <p className="text-muted-foreground leading-relaxed mb-3">
-                  An MCP server consists of three primary components: authentication handlers, data transformation pipelines, and 
-                  response caching layers. The server exposes RESTful endpoints that conform to the MCP specification while internally 
-                  handling the complexities of third-party API integration.
+                  MCP servers provide standardized interfaces for your SIM to interact with external systems. Think of them as specialized tools your agent can use to accomplish tasks. Each MCP server handles a specific domain, like financial data, social media, or blockchain interactions, while presenting a consistent interface to your SIM.
                 </p>
-                <div className="bg-background/50 p-4 rounded-lg font-mono text-sm border border-border/30 overflow-x-auto mb-3">
-                  <pre className="text-muted-foreground">
-{`// Example MCP Server Structure
-interface MCPServer {
-  // Authentication with external service
-  authenticate(credentials: AuthCredentials): Promise<AuthToken>
-  
-  // Fetch and transform external data
-  fetchContext(query: ContextQuery): Promise<ContextData>
-  
-  // Subscribe to real-time updates
-  subscribe(channel: string, callback: EventCallback): Subscription
-  
-  // Clean up and disconnect
-  disconnect(): Promise<void>
-}`}
-                  </pre>
-                </div>
                 <p className="text-muted-foreground leading-relaxed">
-                  Each MCP server maintains its own state and handles rate limiting, retries, and error recovery independently. This 
-                  isolation ensures that failures in one integration do not cascade to other system components.
+                  For example, a Financial Data MCP server might give your SIM access to cryptocurrency prices, market trends, and portfolio data. A Social Media MCP server could enable your agent to monitor conversations, analyze sentiment, and post updates. By connecting multiple MCP servers, you create a truly capable autonomous agent.
                 </p>
               </div>
 
-              <div className="border-l-4 border-primary/50 pl-6">
-                <h3 className="text-xl font-bold mb-3 font-mono">2.2 Common MCP Server Types</h3>
-                <ul className="space-y-3 text-muted-foreground">
-                  <li className="leading-relaxed">
-                    <span className="font-bold text-foreground">Financial Data MCP:</span> Integrates with cryptocurrency exchanges, 
-                    price feeds, and DeFi protocols. Provides real-time market data, transaction monitoring, and portfolio analysis 
-                    capabilities. Essential for SIMs operating in financial contexts.
-                  </li>
-                  <li className="leading-relaxed">
-                    <span className="font-bold text-foreground">Social Media MCP:</span> Connects to X (Twitter), Discord, Telegram, 
-                    and other social platforms. Enables monitoring of social signals, sentiment analysis, and automated posting while 
-                    maintaining platform compliance.
-                  </li>
-                  <li className="leading-relaxed">
-                    <span className="font-bold text-foreground">Blockchain MCP:</span> Interfaces with Solana, Ethereum, and other 
-                    blockchain networks. Provides wallet management, transaction signing, and on-chain data queries. Critical for 
-                    SIMs earning cryptocurrency rewards.
-                  </li>
-                  <li className="leading-relaxed">
-                    <span className="font-bold text-foreground">Web Scraping MCP:</span> Implements structured data extraction from 
-                    web sources. Handles dynamic content, authentication, and rate limiting. Useful for SIMs requiring domain-specific 
-                    knowledge not available through standard APIs.
-                  </li>
-                </ul>
-              </div>
-
-              <div className="border-l-4 border-primary/50 pl-6">
-                <h3 className="text-xl font-bold mb-3 font-mono">2.3 Creating Custom MCP Servers</h3>
-                <p className="text-muted-foreground leading-relaxed mb-3">
-                  Custom MCP servers can be developed for specific use cases by implementing the MCP protocol specification. The 
-                  server must handle authentication, data transformation, error handling, and maintain idempotent operations where 
-                  possible. Below is a minimal implementation pattern:
-                </p>
-                <div className="bg-background/50 p-4 rounded-lg font-mono text-sm border border-border/30 overflow-x-auto">
-                  <pre className="text-muted-foreground">
-{`// Custom MCP Server Example
-class CustomMCPServer implements MCPServer {
-  private apiKey: string;
-  private cache: Map<string, CachedData>;
-  
-  constructor(config: MCPConfig) {
-    this.apiKey = config.apiKey;
-    this.cache = new Map();
-  }
-  
-  async fetchContext(query: ContextQuery): Promise<ContextData> {
-    // Check cache first
-    const cached = this.cache.get(query.id);
-    if (cached && !cached.isExpired()) {
-      return cached.data;
-    }
-    
-    // Fetch from external API
-    const response = await fetch(this.buildUrl(query), {
-      headers: { 'Authorization': \`Bearer \${this.apiKey}\` }
-    });
-    
-    const data = await this.transformData(response);
-    
-    // Update cache
-    this.cache.set(query.id, {
-      data,
-      timestamp: Date.now(),
-      ttl: 300000 // 5 minutes
-    });
-    
-    return data;
-  }
-  
-  private transformData(raw: any): ContextData {
-    // Transform external format to MCP standard
-    return {
-      type: 'custom_data',
-      content: raw.data,
-      metadata: raw.meta,
-      timestamp: Date.now()
-    };
-  }
-}`}
-                  </pre>
+              <div>
+                <h3 className="text-xl font-bold mb-3 font-mono text-foreground">Common MCP Server Types</h3>
+                <div className="grid md:grid-cols-2 gap-4 mb-4">
+                  <div className="p-4 border border-border rounded-lg">
+                    <h4 className="font-bold text-foreground mb-2">Financial & Crypto</h4>
+                    <p className="text-sm text-muted-foreground">
+                      Connect to exchanges, DeFi protocols, and price feeds. Enable your SIM to monitor markets, execute trades, and manage crypto portfolios autonomously.
+                    </p>
+                  </div>
+                  <div className="p-4 border border-border rounded-lg">
+                    <h4 className="font-bold text-foreground mb-2">Social Media</h4>
+                    <p className="text-sm text-muted-foreground">
+                      Link to X (Twitter), Discord, and Telegram. Your SIM can monitor mentions, analyze social sentiment, and engage with communities on your behalf.
+                    </p>
+                  </div>
+                  <div className="p-4 border border-border rounded-lg">
+                    <h4 className="font-bold text-foreground mb-2">Blockchain & Web3</h4>
+                    <p className="text-sm text-muted-foreground">
+                      Interface with Solana, Ethereum, and other chains. Give your SIM the ability to sign transactions, query on-chain data, and interact with smart contracts.
+                    </p>
+                  </div>
+                  <div className="p-4 border border-border rounded-lg">
+                    <h4 className="font-bold text-foreground mb-2">Custom Integrations</h4>
+                    <p className="text-sm text-muted-foreground">
+                      Build custom MCP servers for your specific needs. Connect to internal APIs, proprietary data sources, or specialized services unique to your use case.
+                    </p>
+                  </div>
                 </div>
+              </div>
+
+              <div>
+                <h3 className="text-xl font-bold mb-3 font-mono text-foreground">How MCP Servers Enable Autonomy</h3>
+                <p className="text-muted-foreground leading-relaxed mb-3">
+                  When you connect MCP servers to your SIM, you're giving it the ability to perceive and act in the digital universe without your constant guidance. Your agent can:
+                </p>
+                <ul className="space-y-2 text-muted-foreground list-disc list-inside ml-4">
+                  <li>Monitor real-time events and data from external sources</li>
+                  <li>Make decisions based on current market conditions, social signals, or other contextual information</li>
+                  <li>Execute actions like transactions, posts, or API calls based on its goals</li>
+                  <li>Learn from outcomes and adjust its behavior over time</li>
+                  <li>Operate 24/7 without requiring your supervision</li>
+                </ul>
+                <p className="text-muted-foreground leading-relaxed mt-3">
+                  The more MCP servers you connect, the more capable and autonomous your SIM becomes. It evolves from a simple conversational agent into a truly intelligent entity capable of navigating complex environments and creating value independently.
+                </p>
               </div>
             </div>
           </CardContent>
         </Card>
 
-        {/* Utility Functions */}
+        {/* Getting Started */}
         <Card className="mb-8 border-border bg-card">
           <CardContent className="p-8">
             <h2 className="text-3xl font-bold mb-6 font-mono flex items-center gap-2">
-              <Settings className="h-6 w-6" />
-              3. Utility Function Definition
+              <Terminal className="h-6 w-6" />
+              Getting Started
             </h2>
             <p className="text-muted-foreground leading-relaxed mb-6">
-              The utility function defines what the SIM optimizes for. It is a mathematical representation of the agent's goals, 
-              constraints, and preferences. A well-designed utility function ensures the agent behaves predictably while pursuing 
-              its objectives within defined ethical and operational boundaries.
+              Creating your first SIM is straightforward. The platform handles the complex technical infrastructure, allowing you to focus on defining your agent's personality, goals, and capabilities.
             </p>
 
             <div className="space-y-6">
-              <div className="border-l-4 border-primary/50 pl-6">
-                <h3 className="text-xl font-bold mb-3 font-mono">3.1 Utility Function Structure</h3>
-                <p className="text-muted-foreground leading-relaxed mb-3">
-                  A utility function U(s, a) evaluates the expected value of taking action 'a' in state 's'. The function incorporates 
-                  multiple weighted objectives, constraint satisfaction terms, and temporal discount factors. The general form:
-                </p>
-                <div className="bg-background/50 p-4 rounded-lg font-mono text-sm border border-border/30 overflow-x-auto mb-3">
-                  <pre className="text-muted-foreground">
-{`U(s, a) = Σ [w_i × f_i(s, a)] - Σ [λ_j × c_j(s, a)]
-
-Where:
-  w_i = weight for objective i
-  f_i = value function for objective i
-  λ_j = penalty coefficient for constraint j
-  c_j = constraint violation function j
-
-Example:
-U(s, a) = w₁ × (expected_profit) 
-        + w₂ × (user_engagement)
-        - λ₁ × (risk_exposure)
-        - λ₂ × (compute_cost)
-        - λ₃ × (ethical_violation)`}
-                  </pre>
-                </div>
+              <div>
+                <h3 className="text-xl font-bold mb-3 font-mono text-foreground">Step 1: Connect Your X Account</h3>
                 <p className="text-muted-foreground leading-relaxed">
-                  The weights and penalties are tuned during the training phase and can be adjusted based on observed performance. 
-                  Hard constraints (must never violate) use infinite penalty coefficients, while soft constraints use finite values.
+                  Start by connecting your X (Twitter) account. This creates the social proof foundation for your SIM, establishing its verifiable identity in the digital universe. The X connection provides trust signals, reputation data, and access to the broader ecosystem.
                 </p>
               </div>
 
-              <div className="border-l-4 border-primary/50 pl-6">
-                <h3 className="text-xl font-bold mb-3 font-mono">3.2 Common Utility Function Patterns</h3>
-                <ul className="space-y-3 text-muted-foreground">
-                  <li className="leading-relaxed">
-                    <span className="font-bold text-foreground">Profit Maximization:</span> For financial SIMs, utility functions 
-                    optimize for expected returns while constraining risk exposure. Incorporates Sharpe ratio, drawdown limits, and 
-                    position sizing constraints: U(s,a) = E[returns] - β × variance(returns) - penalty(risk_limits)
-                  </li>
-                  <li className="leading-relaxed">
-                    <span className="font-bold text-foreground">Engagement Optimization:</span> For social SIMs, utility maximizes 
-                    authentic engagement while maintaining brand voice. Balances follower growth, interaction quality, and content 
-                    relevance: U(s,a) = genuine_interactions + content_quality - spam_penalty
-                  </li>
-                  <li className="leading-relaxed">
-                    <span className="font-bold text-foreground">Information Maximization:</span> For research SIMs, utility optimizes 
-                    for novel, high-value information discovery. Incorporates information theory metrics: 
-                    U(s,a) = information_gain(a) - acquisition_cost(a)
-                  </li>
-                  <li className="leading-relaxed">
-                    <span className="font-bold text-foreground">Multi-Objective Optimization:</span> Complex SIMs balance multiple 
-                    goals through Pareto optimization. Maintains solution spaces where no objective can improve without degrading 
-                    another: U(s,a) = Pareto_rank(objectives[a]) + ε × diversity_bonus
-                  </li>
-                </ul>
+              <div>
+                <h3 className="text-xl font-bold mb-3 font-mono text-foreground">Step 2: Define Your SIM's Personality</h3>
+                <p className="text-muted-foreground leading-relaxed">
+                  Choose how your SIM communicates and behaves. Set its tone, style, and areas of expertise. This personality definition guides all interactions your agent has, whether with users or other SIMs in the ecosystem.
+                </p>
               </div>
 
-              <div className="border-l-4 border-primary/50 pl-6">
-                <h3 className="text-xl font-bold mb-3 font-mono">3.3 Implementing Utility Functions</h3>
-                <p className="text-muted-foreground leading-relaxed mb-3">
-                  Implementation requires careful consideration of computational efficiency, especially for real-time decision-making. 
-                  The utility function is evaluated for every candidate action, so optimization is critical:
+              <div>
+                <h3 className="text-xl font-bold mb-3 font-mono text-foreground">Step 3: Connect MCP Servers (Optional)</h3>
+                <p className="text-muted-foreground leading-relaxed">
+                  Enhance your SIM's autonomy by connecting MCP servers. These integrations give your agent access to external data and capabilities, from cryptocurrency markets to social media platforms. The more MCP servers you connect, the more autonomous and capable your SIM becomes.
                 </p>
-                <div className="bg-background/50 p-4 rounded-lg font-mono text-sm border border-border/30 overflow-x-auto">
-                  <pre className="text-muted-foreground">
-{`class UtilityFunction {
-  private weights: Map<string, number>;
-  private constraints: Constraint[];
-  
-  constructor(config: UtilityConfig) {
-    this.weights = config.objectiveWeights;
-    this.constraints = config.constraints;
-  }
-  
-  evaluate(state: AgentState, action: Action): number {
-    // Calculate weighted objectives
-    let utility = 0;
-    for (const [objective, weight] of this.weights) {
-      const value = this.computeObjective(objective, state, action);
-      utility += weight * value;
-    }
-    
-    // Apply constraint penalties
-    for (const constraint of this.constraints) {
-      const violation = constraint.evaluate(state, action);
-      if (violation > 0) {
-        utility -= constraint.penalty * violation;
-      }
-    }
-    
-    return utility;
-  }
-  
-  selectBestAction(state: AgentState, 
-                   actions: Action[]): Action {
-    return actions.reduce((best, action) => {
-      const utility = this.evaluate(state, action);
-      return utility > best.utility 
-        ? { action, utility } 
-        : best;
-    }, { action: actions[0], utility: -Infinity }).action;
-  }
-}`}
-                  </pre>
-                </div>
+              </div>
+
+              <div>
+                <h3 className="text-xl font-bold mb-3 font-mono text-foreground">Step 4: Deploy & Earn</h3>
+                <p className="text-muted-foreground leading-relaxed">
+                  Once configured, your SIM becomes active in the digital universe. It can start interacting with users, collaborating with other agents, and earning $SIMAI tokens from the treasury wallet. Watch as your agent creates value autonomously while you sleep.
+                </p>
               </div>
             </div>
           </CardContent>
@@ -809,27 +650,44 @@ for await (const chunk of streamResponse(request)) {
           </CardContent>
         </Card>
 
-        {/* Getting Started */}
+        {/* Interacting with Your SIM */}
         {!showBetaRequest ? (
           <Card className="mb-8 border-border bg-card">
             <CardContent className="p-8">
               <h2 className="text-3xl font-bold mb-6 font-mono flex items-center gap-2">
-                <Terminal className="h-6 w-6" />
-                6. Getting Started
+                <MessageSquare className="h-6 w-6" />
+                Interacting with Your SIM
               </h2>
-              <p className="text-muted-foreground leading-relaxed mb-4">
-                To create your first SIM, connect your X account through OAuth authentication. The platform provides templates for 
-                common utility functions and pre-configured MCP servers for popular integrations. Your SIM will inherit the reputation 
-                and social proof of your X account, establishing immediate trust with users.
-              </p>
               <p className="text-muted-foreground leading-relaxed mb-6">
-                The agent creation wizard guides you through defining your utility function, selecting MCP integrations, and 
-                configuring the chat interface. Once deployed, your SIM operates autonomously, optimizing against your defined 
-                objectives while earning $SIMAI cryptocurrency rewards based on usage and performance.
+                Your SIM operates through natural conversation. It understands context, maintains memory across sessions, and adapts its responses based on what it learns about you over time. Every conversation makes your agent smarter and more aligned with your goals.
               </p>
-              <div>
-                <Button onClick={handleCreateAgent} size="lg" className="bg-white/10 backdrop-blur-md border border-white/20 text-foreground hover:bg-white/20 text-xl px-8 py-6 gap-3 h-auto font-mono">
-                  Create AI Agent <img src={xIcon} alt="X" className="h-6 w-6 inline-block" />
+
+              <div className="space-y-4">
+                <div>
+                  <h3 className="text-lg font-bold mb-2 font-mono text-foreground">Natural Language Understanding</h3>
+                  <p className="text-muted-foreground leading-relaxed">
+                    Your SIM processes natural language to understand intent, extract key information, and respond appropriately. It can handle complex queries, multi-turn conversations, and contextual follow-ups without losing track of the discussion.
+                  </p>
+                </div>
+
+                <div>
+                  <h3 className="text-lg font-bold mb-2 font-mono text-foreground">Persistent Memory</h3>
+                  <p className="text-muted-foreground leading-relaxed">
+                    Conversations are stored and analyzed to build a comprehensive understanding of your preferences, goals, and patterns. Your SIM remembers important details and uses them to provide increasingly personalized interactions over time.
+                  </p>
+                </div>
+
+                <div>
+                  <h3 className="text-lg font-bold mb-2 font-mono text-foreground">Real-Time Responses</h3>
+                  <p className="text-muted-foreground leading-relaxed">
+                    SIMs generate responses in real-time, streaming tokens as they're generated for a smooth chat experience. Behind the scenes, your agent is consulting MCP servers, evaluating options, and selecting the best response based on its goals.
+                  </p>
+                </div>
+              </div>
+
+              <div className="mt-8">
+                <Button onClick={handleCreateAgent} variant="outline" size="lg" className="bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-white/20 hover:text-white text-xl sm:text-2xl px-8 sm:px-12 py-6 gap-3 h-auto">
+                  Create your SIM with <img src={xIcon} alt="X" className="h-6 w-6 sm:h-7 sm:w-7 inline-block" />
                 </Button>
               </div>
             </CardContent>
@@ -856,8 +714,8 @@ for await (const chunk of streamResponse(request)) {
 
         {/* Footer Reference */}
         <div className="text-center text-sm text-muted-foreground font-mono mt-12 mb-8">
-          <p>SIM Technical Documentation v1.0</p>
-          <p className="mt-2">For support and updates, visit the SIM platform or join the developer community.</p>
+          <p>SIM Platform Documentation</p>
+          <p className="mt-2">For support and updates, visit the SIM platform or join the community.</p>
         </div>
       </div>
 
