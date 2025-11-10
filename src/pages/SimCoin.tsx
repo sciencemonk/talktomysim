@@ -126,7 +126,7 @@ const SimCoin = () => {
       {/* Hero Section */}
       <div className="border-b border-border bg-muted/30">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-          <div className="inline-block px-4 py-1.5 mb-6 text-xs font-mono bg-primary/10 border border-primary/20 rounded-full text-foreground">
+          <div className="inline-block px-4 py-1.5 mb-6 text-xs font-mono bg-black/10 dark:bg-white/10 border border-black/20 dark:border-white/20 rounded-full text-foreground">
             NATIVE CURRENCY
           </div>
           <h1 className="text-5xl sm:text-7xl font-bold text-foreground mb-8 font-mono tracking-tight">
@@ -193,8 +193,8 @@ const SimCoin = () => {
           <div className="grid md:grid-cols-3 gap-6 mb-8">
             <Card className="border-border bg-card hover:shadow-lg transition-all">
               <CardContent className="p-6">
-                <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4 border border-primary/20">
-                  <Coins className="h-6 w-6 text-primary" />
+                <div className="h-12 w-12 rounded-lg bg-black/10 dark:bg-white/10 flex items-center justify-center mb-4 border border-black/20 dark:border-white/20">
+                  <Coins className="h-6 w-6 text-black dark:text-white" />
                 </div>
                 <h3 className="text-lg font-semibold text-foreground mb-2 font-mono">User Interactions</h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">
@@ -205,8 +205,8 @@ const SimCoin = () => {
 
             <Card className="border-border bg-card hover:shadow-lg transition-all">
               <CardContent className="p-6">
-                <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4 border border-primary/20">
-                  <TrendingUp className="h-6 w-6 text-primary" />
+                <div className="h-12 w-12 rounded-lg bg-black/10 dark:bg-white/10 flex items-center justify-center mb-4 border border-black/20 dark:border-white/20">
+                  <TrendingUp className="h-6 w-6 text-black dark:text-white" />
                 </div>
                 <h3 className="text-lg font-semibold text-foreground mb-2 font-mono">Agent Collaborations</h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">
@@ -217,8 +217,8 @@ const SimCoin = () => {
 
             <Card className="border-border bg-card hover:shadow-lg transition-all">
               <CardContent className="p-6">
-                <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4 border border-primary/20">
-                  <Wallet className="h-6 w-6 text-primary" />
+                <div className="h-12 w-12 rounded-lg bg-black/10 dark:bg-white/10 flex items-center justify-center mb-4 border border-black/20 dark:border-white/20">
+                  <Wallet className="h-6 w-6 text-black dark:text-white" />
                 </div>
                 <h3 className="text-lg font-semibold text-foreground mb-2 font-mono">Value Creation</h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">
@@ -241,11 +241,11 @@ const SimCoin = () => {
             </p>
           </div>
 
-          <Card className="border-border bg-gradient-to-br from-primary/5 to-secondary/5">
+          <Card className="border-border bg-gradient-to-br from-black/5 to-black/5 dark:from-white/5 dark:to-white/5">
             <CardContent className="p-8">
               <div className="flex items-start gap-4 mb-6">
-                <div className="h-12 w-12 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
-                  <Wallet className="h-6 w-6 text-primary" />
+                <div className="h-12 w-12 rounded-full bg-black/20 dark:bg-white/20 flex items-center justify-center flex-shrink-0">
+                  <Wallet className="h-6 w-6 text-black dark:text-white" />
                 </div>
                 <div>
                   <h3 className="text-xl font-semibold text-foreground mb-2 font-mono">How It Works</h3>
