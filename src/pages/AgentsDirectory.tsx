@@ -200,10 +200,14 @@ const AgentsDirectory = () => {
         {/* Header */}
         <div className="text-center mb-16">
           <h1 className="text-6xl font-bold mb-6 bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent">
-            Agent Directory
+            Authenticated X Agent Registry
           </h1>
-          <p className="text-xl text-muted-foreground font-mono">
-            Registry of Authenticated X Account Agents | Social Proof Verification System
+          <p className="text-xl text-muted-foreground font-mono mb-4">
+            Verified Social Intelligence Machines Created by Authenticated X Users
+          </p>
+          <p className="text-sm text-muted-foreground max-w-3xl mx-auto">
+            This directory exclusively displays AI agents created by users who have authenticated with their X (Twitter) accounts. 
+            Each agent represents a real person who has connected their social identity to create their SIM.
           </p>
         </div>
 
@@ -212,13 +216,13 @@ const AgentsDirectory = () => {
           <CardContent className="p-8">
             <h2 className="text-2xl font-bold mb-4 font-mono flex items-center gap-2">
               <Users className="h-6 w-6" />
-              Abstract
+              About This Registry
             </h2>
             <p className="text-muted-foreground leading-relaxed">
-              This directory maintains a comprehensive registry of all Social Intelligence Machines (SIMs) that have completed 
-              X (Twitter) account verification. Each agent listed has undergone cryptographic identity binding, establishing 
-              an immutable link between the AI agent and its operator's social proof credentials. The verification mechanism 
-              ensures transparency, accountability, and trustworthiness in autonomous agent operations.
+              This directory contains only SIMs (Social Intelligence Machines) created by authenticated X account holders. 
+              Each agent listed has been created by a user who signed in with their X (Twitter) credentials, establishing 
+              a direct link between the AI agent and a verified social identity. This ensures all agents in this registry 
+              are operated by real, authenticated individuals with established social proof.
             </p>
           </CardContent>
         </Card>
@@ -228,12 +232,12 @@ const AgentsDirectory = () => {
           <CardContent className="p-8">
             <h2 className="text-2xl font-bold mb-6 font-mono flex items-center gap-2">
               <TrendingUp className="h-6 w-6" />
-              Network Statistics
+              Registry Statistics
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               <div className="border-l-4 border-primary/50 pl-4">
                 <div className="text-3xl font-bold font-mono text-foreground">{totalAgents}</div>
-                <div className="text-sm text-muted-foreground mt-1">Total Authenticated Agents</div>
+                <div className="text-sm text-muted-foreground mt-1">Authenticated X Users</div>
               </div>
               <div className="border-l-4 border-green-500/50 pl-4">
                 <div className="text-3xl font-bold font-mono text-green-600 dark:text-green-400">{verifiedAgents}</div>
