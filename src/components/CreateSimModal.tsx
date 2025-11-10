@@ -25,6 +25,7 @@ interface CreateSimModalProps {
 const simTypes = [
   { value: "Chat", label: "Chatbot" },
   { value: "Crypto Mail", label: "Crypto Mail" },
+  { value: "NFT", label: "NFT" },
   { value: "Autonomous Agent", label: "Autonomous Agent", disabled: true, comingSoon: true },
 ];
 
@@ -67,6 +68,10 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
   const [briefTopic, setBriefTopic] = useState("");
   const [briefTime, setBriefTime] = useState("09:00");
   const [briefEmail, setBriefEmail] = useState("");
+  const [nftSymbol, setNftSymbol] = useState("");
+  const [nftSupply, setNftSupply] = useState("1");
+  const [nftRoyalty, setNftRoyalty] = useState("5");
+  const [isNftMinting, setIsNftMinting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // All sims get all integrations by default
@@ -128,8 +133,34 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
     }
 
     // Skip description check for Autonomous Agent (uses briefTopic instead)
-    if (simType !== "Autonomous Agent" && !description.trim()) {
+    if (simType !== "Autonomous Agent" && simType !== "NFT" && !description.trim()) {
       toast.error("Please enter a description first");
+      return;
+    }
+
+    // For NFT, validate NFT-specific fields
+    if (simType === "NFT") {
+      if (!description.trim()) {
+        toast.error("Please enter a description for the NFT");
+        return;
+      }
+      if (!nftSymbol.trim()) {
+        toast.error("Please enter an NFT symbol");
+        return;
+      }
+      if (!avatarFile) {
+        toast.error("Please upload an image for the NFT");
+        return;
+      }
+      if (!cryptoWallet.trim()) {
+        toast.error("Please enter a Solana wallet address to receive the NFT");
+        return;
+      }
+      const code = generateEditCode();
+      setEditCode(code);
+      setWelcomeMessage(`NFT: ${name.trim()} (${nftSymbol.trim()})`);
+      setSystemPrompt("N/A"); // Not used for NFT
+      setStep(2);
       return;
     }
 
@@ -269,6 +300,118 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
         const { data: urlData } = supabase.storage.from("avatars").getPublicUrl(filePath);
 
         avatarUrl = urlData.publicUrl;
+      }
+
+      // Handle NFT minting
+      if (simType === "NFT") {
+        setIsNftMinting(true);
+        toast.info("Connecting to Solana wallet...");
+        
+        // Import wallet adapter
+        const { useWallet } = await import('@solana/wallet-adapter-react');
+        
+        // Check if wallet is connected
+        if (!window.solana || !window.solana.isConnected) {
+          toast.error("Please connect your Solana wallet first (Phantom or Solflare)");
+          setIsSubmitting(false);
+          setIsNftMinting(false);
+          return;
+        }
+
+        toast.info("Minting NFT on Solana...");
+        
+        // Import and use NFT minting service
+        const { mintNFT } = await import('@/services/nftMintService');
+        
+        try {
+          const { mint, signature } = await mintNFT({
+            wallet: window.solana,
+            metadata: {
+              name: name.trim(),
+              symbol: nftSymbol.trim().toUpperCase(),
+              description: description.trim(),
+              image: avatarUrl || '',
+              sellerFeeBasisPoints: Math.floor(parseFloat(nftRoyalty) * 100), // Convert % to basis points
+              creators: cryptoWallet.trim() ? [{ address: cryptoWallet.trim(), share: 100 }] : undefined,
+            },
+            supply: parseInt(nftSupply) || 1,
+          });
+
+          // Store NFT info in database
+          const simData: any = {
+            user_id: user?.id || null,
+            name: name.trim(),
+            sim_category: "NFT",
+            prompt: "N/A",
+            description: description.trim(),
+            avatar_url: avatarUrl,
+            price: 0,
+            integrations: [],
+            is_active: true,
+            is_public: true,
+            edit_code: editCode,
+            crypto_wallet: cryptoWallet.trim() || null,
+            marketplace_category: "nft",
+            welcome_message: `NFT: ${name.trim()} (${nftSymbol.trim()})`,
+            auto_description: description.trim().substring(0, 150),
+            social_links: {
+              mint_address: mint,
+              transaction_signature: signature,
+              symbol: nftSymbol.trim().toUpperCase(),
+              supply: parseInt(nftSupply) || 1,
+              royalty_percent: parseFloat(nftRoyalty),
+            },
+          };
+
+          const { data: newSim, error: insertError } = await supabase
+            .from("advisors")
+            .insert(simData)
+            .select()
+            .single();
+
+          if (insertError) throw insertError;
+
+          if (newSim && user) {
+            await supabase.from("user_advisors").insert({
+              user_id: user.id,
+              advisor_id: newSim.id,
+              name: newSim.name,
+              description: newSim.description,
+              prompt: newSim.prompt,
+              avatar_url: newSim.avatar_url,
+              marketplace_category: newSim.marketplace_category,
+              sim_category: newSim.sim_category,
+              auto_description: simData.auto_description,
+            });
+          }
+
+          toast.success(`NFT minted successfully! Mint: ${mint.substring(0, 8)}...`);
+          setIsNftMinting(false);
+          onOpenChange(false);
+          setStep(1);
+          setName("");
+          setSimType("Chat");
+          setCategory("");
+          setDescription("");
+          setAvatarFile(null);
+          setAvatarPreview(null);
+          setCryptoWallet("");
+          setNftSymbol("");
+          setNftSupply("1");
+          setNftRoyalty("5");
+          
+          if (onSuccess) {
+            await onSuccess();
+          }
+          window.location.href = "/";
+          return;
+        } catch (mintError: any) {
+          console.error("Error minting NFT:", mintError);
+          toast.error(mintError?.message || "Failed to mint NFT");
+          setIsSubmitting(false);
+          setIsNftMinting(false);
+          return;
+        }
       }
 
       // Generate a welcome message based on the system prompt
@@ -425,6 +568,7 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
       toast.error("Failed to create Sim");
     } finally {
       setIsSubmitting(false);
+      setIsNftMinting(false);
     }
   };
 
@@ -454,6 +598,9 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
     setBriefTopic("");
     setBriefTime("09:00");
     setBriefEmail("");
+    setNftSymbol("");
+    setNftSupply("1");
+    setNftRoyalty("5");
     setSocialLinksOpen(false);
     onOpenChange(false);
   };
@@ -701,6 +848,69 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
                 </div>
               )}
 
+              {/* NFT Fields - only show for NFT type */}
+              {simType === "NFT" && (
+                <>
+                  <div className="space-y-2">
+                    <Label htmlFor="nft-symbol" className="text-sm font-medium">
+                      Symbol <span className="text-destructive">*</span>
+                    </Label>
+                    <Input
+                      id="nft-symbol"
+                      value={nftSymbol}
+                      onChange={(e) => setNftSymbol(e.target.value)}
+                      placeholder="e.g., MYNFT"
+                      maxLength={10}
+                      className="h-11 bg-background uppercase"
+                      required
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      NFT collection symbol (max 10 characters)
+                    </p>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="nft-supply" className="text-sm font-medium">
+                      Supply <span className="text-destructive">*</span>
+                    </Label>
+                    <Input
+                      id="nft-supply"
+                      type="number"
+                      min="1"
+                      value={nftSupply}
+                      onChange={(e) => setNftSupply(e.target.value)}
+                      placeholder="1"
+                      className="h-11 bg-background"
+                      required
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Number of NFTs to mint (1 for unique NFT)
+                    </p>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="nft-royalty" className="text-sm font-medium">
+                      Royalty % <span className="text-destructive">*</span>
+                    </Label>
+                    <Input
+                      id="nft-royalty"
+                      type="number"
+                      min="0"
+                      max="100"
+                      step="0.1"
+                      value={nftRoyalty}
+                      onChange={(e) => setNftRoyalty(e.target.value)}
+                      placeholder="5"
+                      className="h-11 bg-background"
+                      required
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Creator royalty percentage on secondary sales (0-100%)
+                    </p>
+                  </div>
+                </>
+              )}
+
               {/* Social Links Collapsible - hide for Autonomous Agent */}
               {simType !== "Autonomous Agent" && (
                 <Collapsible open={socialLinksOpen} onOpenChange={setSocialLinksOpen}>
@@ -762,7 +972,7 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
               )}
 
               {/* x402 Payment Settings - hide for Autonomous Agent */}
-              {simType !== "Autonomous Agent" && (
+              {simType !== "Autonomous Agent" && simType !== "NFT" && (
                 <div className="space-y-4 pt-4 border-t border-border">
                   <div className="flex items-center justify-between">
                     <div className="space-y-0.5">
@@ -835,6 +1045,7 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
                   !name.trim() || 
                   (simType === "Chat" && (!description.trim() || !category)) ||
                   (simType === "Crypto Mail" && !description.trim()) ||
+                  (simType === "NFT" && (!description.trim() || !nftSymbol.trim() || !avatarFile || !cryptoWallet.trim())) ||
                   (simType === "Autonomous Agent" && (!briefTopic.trim() || !agentCategory || !briefTime))
                 }
                 className="gap-2 w-full h-12 font-semibold bg-[#82f2aa] hover:bg-[#6dd994] text-black"
@@ -847,7 +1058,7 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
                 ) : (
                   <>
                     <Sparkles className="w-5 h-5" />
-                    {simType === "Crypto Mail" || simType === "Autonomous Agent" ? "Continue" : "Generate Sim"}
+                    {simType === "Crypto Mail" || simType === "Autonomous Agent" || simType === "NFT" ? "Continue" : "Generate Sim"}
                   </>
                 )}
               </Button>
@@ -1010,18 +1221,18 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired }
               </Button>
               <Button
                 type="submit"
-                disabled={isSubmitting || (simType === "Chat" && !systemPrompt.trim())}
+                disabled={isSubmitting || isNftMinting || (simType === "Chat" && !systemPrompt.trim())}
                 className="flex-1 h-12 gap-2 bg-[#82f2aa] hover:bg-[#6dd994] text-black shadow-lg shadow-[#82f2aa]/25 hover:shadow-xl hover:shadow-[#82f2aa]/30 transition-all duration-300 font-semibold"
               >
-                {isSubmitting ? (
+                {isSubmitting || isNftMinting ? (
                   <>
                     <Loader2 className="w-5 h-5 animate-spin" />
-                    Creating...
+                    {isNftMinting ? "Minting NFT..." : "Creating..."}
                   </>
                 ) : (
                   <>
                     <Sparkles className="w-5 h-5" />
-                    Create Sim
+                    {simType === "NFT" ? "Mint NFT" : "Create Sim"}
                   </>
                 )}
               </Button>

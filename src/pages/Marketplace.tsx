@@ -312,6 +312,15 @@ const Marketplace = () => {
                   x402 Agents
                 </Button>
                 <Button
+                  variant={categoryFilter === "NFT" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setCategoryFilter("NFT")}
+                  className="gap-2"
+                >
+                  <FileText className="h-4 w-4" />
+                  NFT
+                </Button>
+                <Button
                   variant={categoryFilter === "Products" ? "default" : "outline"}
                   size="sm"
                   onClick={() => setCategoryFilter("Products")}
@@ -567,6 +576,90 @@ const Marketplace = () => {
                     <p className="text-base text-fgMuted">x402-enabled agents will be available soon</p>
                   </CardContent>
                 </Card>
+              </div>
+            )}
+
+            {/* NFT Section */}
+            {(categoryFilter === 'all' || categoryFilter === 'NFT') && (
+              <div className="mb-12">
+                <div className="flex items-center justify-between mb-6">
+                  <div>
+                    <h2 className="text-2xl font-bold text-fg mb-2 flex items-center gap-2">
+                      <FileText className="h-6 w-6" />
+                      NFT Collection
+                    </h2>
+                    <p className="text-sm text-fgMuted">Mint and trade NFTs on Solana</p>
+                  </div>
+                </div>
+                {filteredAgents.filter(a => (a as any).sim_category === 'NFT').length > 0 ? (
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+                    {filteredAgents
+                      .filter(a => (a as any).sim_category === 'NFT')
+                      .map((agent) => {
+                        const socialLinks = agent.social_links as any;
+                        return (
+                          <Card 
+                            key={agent.id}
+                            className="group cursor-pointer border-border bg-card hover:shadow-lg hover:border-primary/30 transition-all duration-300 hover:-translate-y-1"
+                            onClick={() => handleItemClick({
+                              id: agent.id,
+                              type: 'agent',
+                              name: agent.name,
+                              description: agent.description,
+                              avatar: agent.avatar,
+                              price: agent.price || 0,
+                              category: 'NFT',
+                              rating: 0,
+                              sales: 0,
+                            })}
+                          >
+                            <div className="relative w-full aspect-square overflow-hidden bg-muted rounded-t-lg">
+                              <Avatar className="w-full h-full rounded-none">
+                                <AvatarImage 
+                                  src={agent.avatar_url || agent.avatar}
+                                  alt={agent.name}
+                                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                                />
+                                <AvatarFallback className="w-full h-full rounded-none bg-primary/10 flex items-center justify-center">
+                                  <FileText className="h-8 w-8 text-primary" />
+                                </AvatarFallback>
+                              </Avatar>
+                              {socialLinks?.symbol && (
+                                <Badge className="absolute top-2 right-2 bg-primary text-primary-foreground text-xs">
+                                  {socialLinks.symbol}
+                                </Badge>
+                              )}
+                            </div>
+                            <CardContent className="p-3 space-y-2">
+                              <h3 className="font-semibold text-fg text-sm truncate group-hover:text-primary transition-colors">
+                                {agent.name}
+                              </h3>
+                              <p className="text-xs text-fgMuted line-clamp-2">
+                                {agent.description || agent.auto_description}
+                              </p>
+                              {socialLinks?.supply && (
+                                <div className="pt-1 border-t border-border/50">
+                                  <p className="text-xs text-fgMuted">
+                                    Supply: {socialLinks.supply}
+                                  </p>
+                                </div>
+                              )}
+                            </CardContent>
+                          </Card>
+                        );
+                      })}
+                  </div>
+                ) : (
+                  <Card className="border-border bg-card">
+                    <CardContent className="text-center py-12">
+                      <div className="bg-bgMuted p-4 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+                        <FileText className="h-8 w-8 text-fgMuted" />
+                      </div>
+                      <h3 className="text-xl font-semibold text-fg mb-2">No NFTs Yet</h3>
+                      <p className="text-base text-fgMuted">Create your first NFT on Solana</p>
+                    </CardContent>
+                  </Card>
+                )}
               </div>
             )}
 
