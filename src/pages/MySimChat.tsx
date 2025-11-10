@@ -3,11 +3,10 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Card } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useToast } from "@/hooks/use-toast";
 import { getAvatarUrl } from "@/lib/avatarUtils";
-import { Send, Loader2 } from "lucide-react";
+import { Send, Loader2, Search, MessageSquare, Mic, Image as ImageIcon, Folder, Clock } from "lucide-react";
 import { Sim } from "@/types/sim";
 
 type Message = { role: "user" | "assistant"; content: string };
@@ -275,84 +274,132 @@ export default function MySimChat() {
   }
 
   return (
-    <div className="h-screen w-full flex flex-col bg-background overflow-hidden">
-      {/* Header */}
-      <div className="border-b border-border bg-card/50 backdrop-blur-sm px-4 py-3 flex-shrink-0">
-        <div className="max-w-7xl mx-auto flex items-center gap-4">
-          <Avatar className="h-12 w-12 border-2 border-primary flex-shrink-0">
+    <div className="h-screen w-full flex bg-[#0A0A0A] overflow-hidden">
+      {/* Sidebar */}
+      <div className="w-64 border-r border-white/10 bg-[#0A0A0A] flex flex-col p-4 flex-shrink-0">
+        <div className="flex items-center gap-3 mb-8">
+          <Avatar className="h-10 w-10 border border-white/20">
             <AvatarImage src={getAvatarUrl(sim.avatar_url)} alt={sim.name} />
-            <AvatarFallback>{sim.name.charAt(0)}</AvatarFallback>
+            <AvatarFallback className="bg-white/5 text-white">{sim.name.charAt(0)}</AvatarFallback>
           </Avatar>
           <div className="flex-1 min-w-0">
-            <h1 className="text-xl font-bold truncate">{sim.name}</h1>
-            <p className="text-sm text-muted-foreground truncate">Your AI companion</p>
+            <h2 className="text-sm font-semibold text-white truncate">{sim.name}</h2>
+            <p className="text-xs text-white/50 truncate">Your AI Agent</p>
           </div>
         </div>
+
+        <nav className="space-y-1">
+          <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-colors">
+            <Search className="h-5 w-5 flex-shrink-0" />
+            <span className="text-sm">Search</span>
+          </button>
+          <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg bg-white/10 text-white transition-colors">
+            <MessageSquare className="h-5 w-5 flex-shrink-0" />
+            <span className="text-sm">Chat</span>
+          </button>
+          <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-colors">
+            <Mic className="h-5 w-5 flex-shrink-0" />
+            <span className="text-sm">Voice</span>
+          </button>
+          <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-colors">
+            <ImageIcon className="h-5 w-5 flex-shrink-0" />
+            <span className="text-sm">Imagine</span>
+          </button>
+          <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-colors">
+            <Folder className="h-5 w-5 flex-shrink-0" />
+            <span className="text-sm">Projects</span>
+          </button>
+          <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-colors">
+            <Clock className="h-5 w-5 flex-shrink-0" />
+            <span className="text-sm">History</span>
+          </button>
+        </nav>
       </div>
 
-      {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4 min-h-0">
-        <div className="max-w-4xl mx-auto space-y-4">
-          {messages.map((msg, idx) => (
-            <div
-              key={idx}
-              className={`flex gap-3 ${msg.role === "user" ? "justify-end" : "justify-start"}`}
-            >
-              {msg.role === "assistant" && (
-                <Avatar className="h-8 w-8 border border-border flex-shrink-0">
+      {/* Main Chat Area */}
+      <div className="flex-1 flex flex-col min-w-0">
+        {/* Messages */}
+        <div className="flex-1 overflow-y-auto p-6 min-h-0">
+          <div className="max-w-3xl mx-auto space-y-6">
+            {messages.length === 0 ? (
+              <div className="flex flex-col items-center justify-center h-full text-center py-20">
+                <Avatar className="h-20 w-20 border-2 border-white/20 mb-4">
                   <AvatarImage src={getAvatarUrl(sim.avatar_url)} alt={sim.name} />
-                  <AvatarFallback>{sim.name.charAt(0)}</AvatarFallback>
+                  <AvatarFallback className="bg-white/5 text-white text-2xl">{sim.name.charAt(0)}</AvatarFallback>
                 </Avatar>
-              )}
-              <Card className={`p-3 max-w-[80%] ${
-                msg.role === "user" 
-                  ? "bg-primary text-primary-foreground" 
-                  : "bg-card"
-              }`}>
-                <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
-              </Card>
-            </div>
-          ))}
-          {isLoading && (
-            <div className="flex gap-3">
-              <Avatar className="h-8 w-8 border border-border flex-shrink-0">
-                <AvatarImage src={getAvatarUrl(sim.avatar_url)} alt={sim.name} />
-                <AvatarFallback>{sim.name.charAt(0)}</AvatarFallback>
-              </Avatar>
-              <Card className="p-3 bg-card">
-                <Loader2 className="h-4 w-4 animate-spin" />
-              </Card>
-            </div>
-          )}
-          <div ref={messagesEndRef} />
+                <h2 className="text-2xl font-bold text-white mb-2">Chat with {sim.name}</h2>
+                <p className="text-white/60 max-w-md">Start a conversation with your AI agent. Ask anything!</p>
+              </div>
+            ) : (
+              messages.map((msg, idx) => (
+                <div key={idx} className={`flex gap-4 ${msg.role === "user" ? "flex-row-reverse" : "flex-row"}`}>
+                  <Avatar className="h-8 w-8 flex-shrink-0 border border-white/10">
+                    {msg.role === "assistant" ? (
+                      <>
+                        <AvatarImage src={getAvatarUrl(sim.avatar_url)} alt={sim.name} />
+                        <AvatarFallback className="bg-white/5 text-white">{sim.name.charAt(0)}</AvatarFallback>
+                      </>
+                    ) : (
+                      <AvatarFallback className="bg-white/10 text-white">U</AvatarFallback>
+                    )}
+                  </Avatar>
+                  <div className={`flex-1 max-w-[80%] ${msg.role === "user" ? "flex justify-end" : ""}`}>
+                    <div className={`rounded-2xl px-4 py-3 ${
+                      msg.role === "user" 
+                        ? "bg-white/10 text-white" 
+                        : "bg-transparent text-white"
+                    }`}>
+                      <p className="text-sm leading-relaxed whitespace-pre-wrap">{msg.content}</p>
+                    </div>
+                  </div>
+                </div>
+              ))
+            )}
+            {isLoading && (
+              <div className="flex gap-4">
+                <Avatar className="h-8 w-8 flex-shrink-0 border border-white/10">
+                  <AvatarImage src={getAvatarUrl(sim.avatar_url)} alt={sim.name} />
+                  <AvatarFallback className="bg-white/5 text-white">{sim.name.charAt(0)}</AvatarFallback>
+                </Avatar>
+                <div className="flex-1">
+                  <div className="rounded-2xl px-4 py-3 bg-transparent">
+                    <Loader2 className="h-4 w-4 animate-spin text-white/60" />
+                  </div>
+                </div>
+              </div>
+            )}
+            <div ref={messagesEndRef} />
+          </div>
         </div>
-      </div>
 
-      {/* Input */}
-      <div className="border-t border-border bg-card/50 backdrop-blur-sm p-4 flex-shrink-0">
-        <div className="max-w-4xl mx-auto flex gap-2">
-          <Textarea
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && !e.shiftKey) {
-                e.preventDefault();
-                sendMessage();
-              }
-            }}
-            placeholder="Message your SIM..."
-            className="resize-none"
-            rows={1}
-            disabled={isLoading}
-          />
-          <Button
-            onClick={sendMessage}
-            disabled={!input.trim() || isLoading}
-            size="icon"
-            className="shrink-0"
-          >
-            <Send className="h-4 w-4" />
-          </Button>
+        {/* Input */}
+        <div className="p-4 border-t border-white/10 flex-shrink-0">
+          <div className="max-w-3xl mx-auto">
+            <div className="relative flex items-end gap-2 bg-white/5 rounded-3xl border border-white/10 p-2 focus-within:border-white/20 transition-colors">
+              <Textarea
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !e.shiftKey) {
+                    e.preventDefault();
+                    sendMessage();
+                  }
+                }}
+                placeholder={`How can ${sim.name} help?`}
+                className="resize-none bg-transparent border-0 text-white placeholder:text-white/40 focus-visible:ring-0 focus-visible:ring-offset-0 min-h-[44px] max-h-[200px]"
+                rows={1}
+                disabled={isLoading}
+              />
+              <Button
+                onClick={sendMessage}
+                disabled={!input.trim() || isLoading}
+                size="icon"
+                className="rounded-full bg-white text-black hover:bg-white/90 h-10 w-10 flex-shrink-0"
+              >
+                <Send className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
         </div>
       </div>
     </div>

@@ -134,3 +134,6 @@ verify_jwt = false
 
 [functions.confirm-nft-purchase]
 verify_jwt = false
+
+[functions.sim-chat]
+verify_jwt = false
