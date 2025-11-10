@@ -28,6 +28,7 @@ const simTypes = [
   { value: "Chat", label: "Chatbot" },
   { value: "Crypto Mail", label: "Crypto Mail" },
   { value: "NFT", label: "NFT" },
+  { value: "MCP Server", label: "MCP Server" },
   { value: "Autonomous Agent", label: "Autonomous Agent", disabled: true, comingSoon: true },
 ];
 

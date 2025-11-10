@@ -267,6 +267,24 @@ const Marketplace = () => {
                   All
                 </Button>
                 <Button
+                  variant={categoryFilter === "x402 Agents" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setCategoryFilter("x402 Agents")}
+                  className="gap-2"
+                >
+                  <Sparkles className="h-4 w-4" />
+                  x402 Agents
+                </Button>
+                <Button
+                  variant={categoryFilter === "MCP Servers" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setCategoryFilter("MCP Servers")}
+                  className="gap-2"
+                >
+                  <Bot className="h-4 w-4" />
+                  MCP Servers
+                </Button>
+                <Button
                   variant={categoryFilter === "Chatbots" ? "default" : "outline"}
                   size="sm"
                   onClick={() => setCategoryFilter("Chatbots")}
@@ -276,31 +294,13 @@ const Marketplace = () => {
                   Chatbots
                 </Button>
                 <Button
-                  variant={categoryFilter === "PumpFun Agents" ? "default" : "outline"}
+                  variant={categoryFilter === "Products" ? "default" : "outline"}
                   size="sm"
-                  onClick={() => setCategoryFilter("PumpFun Agents")}
+                  onClick={() => setCategoryFilter("Products")}
                   className="gap-2"
                 >
-                  <Zap className="h-4 w-4" />
-                  PumpFun Agents
-                </Button>
-                <Button
-                  variant={categoryFilter === "Trading Agents" ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setCategoryFilter("Trading Agents")}
-                  className="gap-2"
-                >
-                  <TrendingUp className="h-4 w-4" />
-                  Trading Agents
-                </Button>
-                <Button
-                  variant={categoryFilter === "x402 Agents" ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setCategoryFilter("x402 Agents")}
-                  className="gap-2"
-                >
-                  <Sparkles className="h-4 w-4" />
-                  x402 Agents
+                  <Package className="h-4 w-4" />
+                  Products
                 </Button>
                 <Button
                   variant={categoryFilter === "NFT" ? "default" : "outline"}
@@ -312,13 +312,13 @@ const Marketplace = () => {
                   NFT
                 </Button>
                 <Button
-                  variant={categoryFilter === "Products" ? "default" : "outline"}
+                  variant={categoryFilter === "PumpFun Agents" ? "default" : "outline"}
                   size="sm"
-                  onClick={() => setCategoryFilter("Products")}
+                  onClick={() => setCategoryFilter("PumpFun Agents")}
                   className="gap-2"
                 >
-                  <Package className="h-4 w-4" />
-                  Products
+                  <Zap className="h-4 w-4" />
+                  PumpFun Agents
                 </Button>
                 <Button
                   variant={categoryFilter === "Stores" ? "default" : "outline"}
@@ -357,6 +357,254 @@ const Marketplace = () => {
           </div>
         ) : (
           <>
+            {/* x402 Agents Section */}
+            {(categoryFilter === 'all' || categoryFilter === 'x402 Agents') && (
+              <div className="mb-12">
+                <div className="flex items-center justify-between mb-6">
+                  <div>
+                    <h2 className="text-2xl font-bold text-fg mb-2 flex items-center gap-2">
+                      <Sparkles className="h-6 w-6" />
+                      x402 Agents
+                    </h2>
+                    <p className="text-sm text-fgMuted">AI agents powered by x402 payment protocol</p>
+                  </div>
+                </div>
+                {filteredAgents.filter(a => (a as any).sim_category === 'x402 Agent').length > 0 ? (
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+                    {filteredAgents
+                      .filter(a => (a as any).sim_category === 'x402 Agent')
+                      .map((agent) => {
+                        const getAvatarSrc = () => {
+                          const avatarUrl = agent.avatar_url || agent.avatar;
+                          if (avatarUrl && (avatarUrl.startsWith('http://') || avatarUrl.startsWith('https://'))) {
+                            return `https://images.weserv.nl/?url=${encodeURIComponent(avatarUrl)}`;
+                          }
+                          return avatarUrl;
+                        };
+
+                        return (
+                          <Card 
+                            key={agent.id}
+                            className="group cursor-pointer border-border bg-card hover:shadow-lg hover:border-primary/30 transition-all duration-300 hover:-translate-y-1"
+                            onClick={() => handleItemClick({
+                              id: agent.id,
+                              type: 'agent',
+                              name: agent.name,
+                              description: agent.description,
+                              avatar: agent.avatar,
+                              price: agent.price || 0,
+                              category: 'x402 Agents',
+                              rating: agent.performance || 0,
+                              sales: agent.interactions || 0,
+                            })}
+                          >
+                            <div className="relative w-full aspect-[4/3] overflow-hidden bg-muted rounded-t-lg">
+                              <Avatar className="w-full h-full rounded-none">
+                                <AvatarImage 
+                                  src={getAvatarSrc()}
+                                  alt={agent.name}
+                                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                                  referrerPolicy="no-referrer"
+                                  crossOrigin="anonymous"
+                                />
+                                <AvatarFallback className="w-full h-full rounded-none bg-primary/10 flex items-center justify-center">
+                                  <Sparkles className="h-8 w-8 text-primary" />
+                                </AvatarFallback>
+                              </Avatar>
+                            </div>
+                            <CardContent className="p-3 space-y-2">
+                              <h3 className="font-semibold text-fg text-sm truncate group-hover:text-primary transition-colors">
+                                {agent.name}
+                              </h3>
+                              <p className="text-xs text-fgMuted line-clamp-2">
+                                {agent.description || agent.auto_description}
+                              </p>
+                              <div className="pt-1 border-t border-border/50">
+                                <p className="text-xs font-semibold text-primary">
+                                  {agent.price && agent.price > 0 ? `${agent.price} USDC` : 'Free'}
+                                </p>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        );
+                      })}
+                  </div>
+                ) : (
+                  <Card className="border-border bg-card">
+                    <CardContent className="text-center py-12">
+                      <div className="bg-bgMuted p-4 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+                        <Sparkles className="h-8 w-8 text-fgMuted" />
+                      </div>
+                      <h3 className="text-xl font-semibold text-fg mb-2">No x402 Agents Yet</h3>
+                      <p className="text-base text-fgMuted">x402-enabled agents will be available soon</p>
+                    </CardContent>
+                  </Card>
+                )}
+              </div>
+            )}
+
+            {/* MCP Servers Section */}
+            {(categoryFilter === 'all' || categoryFilter === 'MCP Servers') && (
+              <div className="mb-12">
+                <div className="flex items-center justify-between mb-6">
+                  <div>
+                    <h2 className="text-2xl font-bold text-fg mb-2 flex items-center gap-2">
+                      <Bot className="h-6 w-6" />
+                      MCP Servers
+                    </h2>
+                    <p className="text-sm text-fgMuted">Model Context Protocol servers for AI integration</p>
+                  </div>
+                </div>
+                {filteredAgents.filter(a => (a as any).sim_category === 'MCP Server').length > 0 ? (
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+                    {filteredAgents
+                      .filter(a => (a as any).sim_category === 'MCP Server')
+                      .map((agent) => {
+                        const getAvatarSrc = () => {
+                          const avatarUrl = agent.avatar_url || agent.avatar;
+                          if (avatarUrl && (avatarUrl.startsWith('http://') || avatarUrl.startsWith('https://'))) {
+                            return `https://images.weserv.nl/?url=${encodeURIComponent(avatarUrl)}`;
+                          }
+                          return avatarUrl;
+                        };
+
+                        return (
+                          <Card 
+                            key={agent.id}
+                            className="group cursor-pointer border-border bg-card hover:shadow-lg hover:border-primary/30 transition-all duration-300 hover:-translate-y-1"
+                            onClick={() => handleItemClick({
+                              id: agent.id,
+                              type: 'agent',
+                              name: agent.name,
+                              description: agent.description,
+                              avatar: agent.avatar,
+                              price: agent.price || 0,
+                              category: 'MCP Servers',
+                              rating: agent.performance || 0,
+                              sales: agent.interactions || 0,
+                            })}
+                          >
+                            <div className="relative w-full aspect-[4/3] overflow-hidden bg-muted rounded-t-lg">
+                              <Avatar className="w-full h-full rounded-none">
+                                <AvatarImage 
+                                  src={getAvatarSrc()}
+                                  alt={agent.name}
+                                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                                  referrerPolicy="no-referrer"
+                                  crossOrigin="anonymous"
+                                />
+                                <AvatarFallback className="w-full h-full rounded-none bg-primary/10 flex items-center justify-center">
+                                  <Bot className="h-8 w-8 text-primary" />
+                                </AvatarFallback>
+                              </Avatar>
+                            </div>
+                            <CardContent className="p-3 space-y-2">
+                              <h3 className="font-semibold text-fg text-sm truncate group-hover:text-primary transition-colors">
+                                {agent.name}
+                              </h3>
+                              <p className="text-xs text-fgMuted line-clamp-2">
+                                {agent.description || agent.auto_description}
+                              </p>
+                              <div className="pt-1 border-t border-border/50">
+                                <p className="text-xs font-semibold text-primary">
+                                  {agent.price && agent.price > 0 ? `${agent.price} USDC` : 'Free'}
+                                </p>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        );
+                      })}
+                  </div>
+                ) : (
+                  <Card className="border-border bg-card">
+                    <CardContent className="text-center py-12">
+                      <div className="bg-bgMuted p-4 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+                        <Bot className="h-8 w-8 text-fgMuted" />
+                      </div>
+                      <h3 className="text-xl font-semibold text-fg mb-2">No MCP Servers Yet</h3>
+                      <p className="text-base text-fgMuted">Model Context Protocol servers coming soon</p>
+                    </CardContent>
+                  </Card>
+                )}
+              </div>
+            )}
+
+            {/* PumpFun Agents Section */}
+            {(categoryFilter === 'all' || categoryFilter === 'PumpFun Agents') && 
+             filteredAgents.filter(a => (a as any).sim_category === 'PumpFun Agent').length > 0 && (
+              <div className="mb-12">
+                <div className="flex items-center justify-between mb-6">
+                  <div>
+                    <h2 className="text-2xl font-bold text-fg mb-2 flex items-center gap-2">
+                      <Zap className="h-6 w-6" />
+                      PumpFun Agents
+                    </h2>
+                    <p className="text-sm text-fgMuted">AI agents representing PumpFun tokens</p>
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+                  {filteredAgents
+                    .filter(a => (a as any).sim_category === 'PumpFun Agent')
+                    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+                    .map((agent) => {
+                      const getAvatarSrc = () => {
+                        const avatarUrl = agent.avatar_url || agent.avatar;
+                        if (avatarUrl && (avatarUrl.startsWith('http://') || avatarUrl.startsWith('https://'))) {
+                          return `https://images.weserv.nl/?url=${encodeURIComponent(avatarUrl)}`;
+                        }
+                        return avatarUrl;
+                      };
+
+                      return (
+                        <Card 
+                          key={agent.id}
+                          className="group cursor-pointer border-border bg-card hover:shadow-lg hover:border-primary/30 transition-all duration-300 hover:-translate-y-1"
+                          onClick={() => handleItemClick({
+                            id: agent.id,
+                            type: 'agent',
+                            name: agent.name,
+                            description: agent.description,
+                            avatar: agent.avatar,
+                            price: agent.price || 0,
+                            category: agent.marketplace_category || 'AI Agents',
+                            rating: agent.performance || 0,
+                            sales: agent.interactions || 0,
+                          })}
+                        >
+                          <div className="relative w-full aspect-[4/3] overflow-hidden bg-muted rounded-t-lg">
+                            <Avatar className="w-full h-full rounded-none">
+                              <AvatarImage 
+                                src={getAvatarSrc()}
+                                alt={agent.name}
+                                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                                referrerPolicy="no-referrer"
+                                crossOrigin="anonymous"
+                              />
+                              <AvatarFallback className="w-full h-full rounded-none bg-primary/10 flex items-center justify-center">
+                                <Zap className="h-8 w-8 text-primary" />
+                              </AvatarFallback>
+                            </Avatar>
+                          </div>
+                          <CardContent className="p-3 space-y-2">
+                            <h3 className="font-semibold text-fg text-sm truncate group-hover:text-primary transition-colors">
+                              {agent.name}
+                            </h3>
+                            <p className="text-xs text-fgMuted line-clamp-2">
+                              {agent.description || agent.auto_description}
+                            </p>
+                            <div className="pt-1 border-t border-border/50">
+                              <p className="text-xs font-semibold text-primary">
+                                {agent.price && agent.price > 0 ? `${agent.price} USDC` : 'Free'}
+                              </p>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      );
+                    })}
+                </div>
+              </div>
+            )}
+
             {/* Chatbots Section */}
             {(categoryFilter === 'all' || categoryFilter === 'Chatbots') && 
              filteredAgents.filter(a => !(a as any).sim_category || (a as any).sim_category === 'Chat').length > 0 && (
@@ -519,54 +767,6 @@ const Marketplace = () => {
                       );
                     })}
                 </div>
-              </div>
-            )}
-
-            {/* Trading Agents Section - Empty State */}
-            {(categoryFilter === 'all' || categoryFilter === 'Trading Agents') && (
-              <div className="mb-12">
-                <div className="flex items-center justify-between mb-6">
-                  <div>
-                    <h2 className="text-2xl font-bold text-fg mb-2 flex items-center gap-2">
-                      <TrendingUp className="h-6 w-6" />
-                      Trading Agents
-                    </h2>
-                    <p className="text-sm text-fgMuted">AI agents for trading and market analysis</p>
-                  </div>
-                </div>
-                <Card className="border-border bg-card">
-                  <CardContent className="text-center py-12">
-                    <div className="bg-bgMuted p-4 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
-                      <TrendingUp className="h-8 w-8 text-fgMuted" />
-                    </div>
-                    <h3 className="text-xl font-semibold text-fg mb-2">No Trading Agents Yet</h3>
-                    <p className="text-base text-fgMuted">Trading agents will be available soon</p>
-                  </CardContent>
-                </Card>
-              </div>
-            )}
-
-            {/* x402 Agents Section - Empty State */}
-            {(categoryFilter === 'all' || categoryFilter === 'x402 Agents') && (
-              <div className="mb-12">
-                <div className="flex items-center justify-between mb-6">
-                  <div>
-                    <h2 className="text-2xl font-bold text-fg mb-2 flex items-center gap-2">
-                      <Sparkles className="h-6 w-6" />
-                      x402 Agents
-                    </h2>
-                    <p className="text-sm text-fgMuted">AI agents powered by x402 payment protocol</p>
-                  </div>
-                </div>
-                <Card className="border-border bg-card">
-                  <CardContent className="text-center py-12">
-                    <div className="bg-bgMuted p-4 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
-                      <Sparkles className="h-8 w-8 text-fgMuted" />
-                    </div>
-                    <h3 className="text-xl font-semibold text-fg mb-2">No x402 Agents Yet</h3>
-                    <p className="text-base text-fgMuted">x402-enabled agents will be available soon</p>
-                  </CardContent>
-                </Card>
               </div>
             )}
 
@@ -750,7 +950,7 @@ const Marketplace = () => {
          categoryFilter !== 'NFT' && 
          categoryFilter !== 'Chatbots' && 
          categoryFilter !== 'PumpFun Agents' && 
-         categoryFilter !== 'Trading Agents' && 
+         categoryFilter !== 'MCP Servers' && 
          categoryFilter !== 'x402 Agents' && (
           <>
             <div className="mb-6">
