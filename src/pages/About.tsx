@@ -88,8 +88,8 @@ const About = () => {
                 <button onClick={() => navigate('/about')} className="text-foreground hover:text-foreground transition-colors text-sm font-medium">
                   About
                 </button>
-                <button onClick={() => navigate('/agents')} className="text-muted-foreground hover:text-foreground transition-colors text-sm font-medium">
-                  Agent Directory
+                <button onClick={() => navigate('/godmode')} className="text-muted-foreground hover:text-foreground transition-colors text-sm font-medium">
+                  God Mode
                 </button>
                 <button onClick={() => navigate('/documentation')} className="text-muted-foreground hover:text-foreground transition-colors text-sm font-medium">
                   Documentation
@@ -143,10 +143,10 @@ const About = () => {
               <Button
                 variant="ghost"
                 size="lg"
-                onClick={() => { navigate('/agents'); setMobileMenuOpen(false); }}
+                onClick={() => { navigate('/godmode'); setMobileMenuOpen(false); }}
                 className="w-full justify-start text-base font-medium text-muted-foreground hover:text-foreground"
               >
-                Agent Directory
+                God Mode
               </Button>
               <Button
                 variant="ghost"

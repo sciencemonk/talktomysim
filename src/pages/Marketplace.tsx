@@ -239,8 +239,8 @@ const Marketplace = () => {
                   <button onClick={() => navigate('/about')} className="text-white/90 hover:text-white transition-colors text-sm font-medium">
                     About
                   </button>
-                  <button onClick={() => navigate('/agents')} className="text-white/90 hover:text-white transition-colors text-sm font-medium">
-                    Agent Directory
+                  <button onClick={() => navigate('/godmode')} className="text-white/90 hover:text-white transition-colors text-sm font-medium">
+                    God Mode
                   </button>
                   <button onClick={() => navigate('/documentation')} className="text-white/90 hover:text-white transition-colors text-sm font-medium">
                     Documentation
@@ -265,8 +265,8 @@ const Marketplace = () => {
                       <DropdownMenuItem onClick={() => navigate('/about')} className="cursor-pointer text-foreground hover:text-primary">
                         About
                       </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => navigate('/agents')} className="cursor-pointer text-foreground hover:text-primary">
-                        Agent Directory
+                      <DropdownMenuItem onClick={() => navigate('/godmode')} className="cursor-pointer text-foreground hover:text-primary">
+                        God Mode
                       </DropdownMenuItem>
                       <DropdownMenuItem onClick={() => navigate('/documentation')} className="cursor-pointer text-foreground hover:text-primary">
                         Documentation

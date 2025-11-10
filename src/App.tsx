@@ -19,7 +19,7 @@ import SignIn from "./pages/SignIn";
 import AuthCallback from "./pages/AuthCallback";
 import Home from "./pages/Home";
 import NewLanding from "./pages/NewLanding";
-import AgentsDirectory from "./pages/AgentsDirectory";
+import GodMode from "./pages/GodMode";
 import Marketplace from "./pages/Marketplace";
 import LiveChat from "./pages/LiveChat";
 import LiveStream from "./pages/LiveStream";
@@ -78,7 +78,7 @@ const App = () => (
             <Routes>
               {/* Public routes */}
               <Route path="/landing" element={<NewLanding />} />
-              <Route path="/agents" element={<AgentsDirectory />} />
+              <Route path="/godmode" element={<GodMode />} />
               <Route path="/live" element={<LiveChat />} />
               <Route path="/livestream" element={<LiveStream />} />
               <Route path="/pump" element={<Pump />} />
