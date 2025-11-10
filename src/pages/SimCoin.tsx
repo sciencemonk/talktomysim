@@ -1,10 +1,11 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Copy, ExternalLink, TrendingUp, Users, Wallet, Zap } from "lucide-react";
+import { Copy, ExternalLink, Database, Network, Shield, GitBranch, Activity, DollarSign } from "lucide-react";
 import { toast } from "sonner";
 import simHeroLogo from "@/assets/sim-hero-logo.png";
 import { useNavigate } from "react-router-dom";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { supabase } from "@/integrations/supabase/client";
 
 const SimCoin = () => {
   const navigate = useNavigate();
@@ -19,10 +20,30 @@ const SimCoin = () => {
     }
   };
 
+  const handleXSignIn = async () => {
+    try {
+      const redirectUrl = `${window.location.origin}/auth/callback`;
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'twitter',
+        options: {
+          redirectTo: redirectUrl,
+          skipBrowserRedirect: false,
+        },
+      });
+      if (error) {
+        console.error('OAuth error:', error);
+        throw error;
+      }
+    } catch (error: any) {
+      console.error('Error signing in with X:', error);
+      toast.error(error?.message || 'Failed to sign in with X');
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background">
-      {/* Navigation */}
-      <nav className="border-b border-border bg-card">
+      {/* Navigation - Matching Homepage */}
+      <nav className="border-b border-border backdrop-blur-sm bg-card">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <button onClick={() => navigate('/')} className="flex items-center hover:opacity-80 transition-opacity">
@@ -30,162 +51,276 @@ const SimCoin = () => {
             </button>
             
             <div className="hidden md:flex items-center gap-8">
-              <button onClick={() => navigate('/')} className="text-foreground/80 hover:text-foreground transition-colors text-sm font-medium">
-                Home
-              </button>
+              <a href="#about" className="text-foreground/80 hover:text-foreground transition-colors text-sm font-medium">
+                About
+              </a>
               <button onClick={() => navigate('/agents')} className="text-foreground/80 hover:text-foreground transition-colors text-sm font-medium">
                 Agent Directory
               </button>
+              <a href="#documentation" className="text-foreground/80 hover:text-foreground transition-colors text-sm font-medium">
+                Documentation
+              </a>
               <button onClick={() => navigate('/simcoin')} className="text-foreground hover:text-foreground transition-colors text-sm font-medium">
                 SIM Coin
               </button>
             </div>
             
-            <ThemeToggle />
+            <div className="flex items-center gap-4">
+              <ThemeToggle />
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="bg-background/10 backdrop-blur-md border border-border text-foreground hover:bg-background/20"
+                onClick={handleXSignIn}
+              >
+                Sign In
+              </Button>
+            </div>
           </div>
         </div>
       </nav>
 
       {/* Hero Section */}
-      <div className="relative bg-gradient-to-br from-primary/10 via-background to-secondary/10 border-b border-border">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 text-center">
-          <h1 className="text-5xl sm:text-6xl font-bold text-foreground mb-6">
-            $SIMAI Token
+      <div className="relative border-b border-border bg-gradient-to-b from-background via-background to-muted/20">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+          <div className="inline-block px-4 py-1.5 mb-6 text-xs font-mono bg-primary/10 border border-primary/20 rounded-full text-primary">
+            TECHNICAL SPECIFICATION v1.0
+          </div>
+          <h1 className="text-5xl sm:text-7xl font-bold text-foreground mb-8 font-mono tracking-tight">
+            $SIMAI
           </h1>
-          <p className="text-xl text-muted-foreground max-w-3xl mx-auto mb-8">
-            The official cryptocurrency that fuels the SIM platform
+          <p className="text-xl text-muted-foreground leading-relaxed mb-12 max-w-4xl">
+            A utility token engineered for autonomous agent monetization and incentive distribution within a decentralized artificial intelligence marketplace. The $SIMAI protocol enables algorithmic reward mechanisms tied to agent performance metrics, establishing a self-sustaining economic model for AI service providers.
           </p>
           
           {/* Contract Address */}
-          <Card className="max-w-2xl mx-auto bg-card/50 backdrop-blur">
+          <Card className="bg-muted/30 border-border/50 backdrop-blur">
             <CardContent className="p-6">
               <div className="flex items-center justify-between gap-4 flex-wrap">
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm text-muted-foreground mb-2">Contract Address</p>
-                  <code className="text-sm font-mono break-all text-foreground">
+                  <p className="text-xs font-mono text-muted-foreground mb-3 uppercase tracking-wider">Smart Contract Address</p>
+                  <code className="text-sm font-mono break-all text-foreground block">
                     {contractAddress}
                   </code>
                 </div>
-                <Button onClick={copyCA} variant="outline" size="sm" className="gap-2">
-                  <Copy className="h-4 w-4" />
-                  Copy
-                </Button>
+                <div className="flex gap-2">
+                  <Button onClick={copyCA} variant="outline" size="sm" className="gap-2 font-mono">
+                    <Copy className="h-4 w-4" />
+                    Copy
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="gap-2 font-mono"
+                    onClick={() => window.open(`https://solscan.io/token/${contractAddress}`, '_blank')}
+                  >
+                    <ExternalLink className="h-4 w-4" />
+                    Explorer
+                  </Button>
+                </div>
               </div>
             </CardContent>
           </Card>
         </div>
       </div>
 
-      {/* Features Section */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-20">
-          <Card className="border-border bg-card hover:shadow-lg transition-shadow">
-            <CardContent className="p-6">
-              <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center mb-4">
-                <Users className="h-6 w-6 text-primary" />
+      {/* Main Content */}
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+        
+        {/* Abstract */}
+        <section className="mb-20">
+          <h2 className="text-3xl font-bold text-foreground mb-6 font-mono">Abstract</h2>
+          <div className="prose prose-lg dark:prose-invert max-w-none">
+            <p className="text-muted-foreground leading-relaxed mb-4">
+              The $SIMAI token represents a fundamental shift in how artificial intelligence agents are incentivized and monetized within decentralized ecosystems. Traditional AI service platforms rely on centralized payment processors and proprietary currency systems, creating friction for both creators and users. The $SIMAI protocol eliminates these inefficiencies through a transparent, blockchain-based reward distribution mechanism.
+            </p>
+            <p className="text-muted-foreground leading-relaxed">
+              By implementing usage-based tokenomics, the system ensures that agent creators are directly compensated in proportion to the value their AI agents provide to the network. This creates a self-regulating marketplace where high-quality agents naturally accumulate more rewards, while maintaining zero platform fees for all participants.
+            </p>
+          </div>
+        </section>
+
+        {/* Technical Architecture */}
+        <section className="mb-20">
+          <h2 className="text-3xl font-bold text-foreground mb-6 font-mono">Technical Architecture</h2>
+          
+          <div className="grid md:grid-cols-2 gap-6 mb-8">
+            <Card className="border-border bg-card">
+              <CardContent className="p-6">
+                <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4 border border-primary/20">
+                  <Network className="h-6 w-6 text-primary" />
+                </div>
+                <h3 className="text-lg font-semibold text-foreground mb-2 font-mono">Distributed Ledger</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  Built on Solana blockchain infrastructure, leveraging high-throughput transaction processing and sub-second finality. The SPL token standard ensures compatibility with the broader Solana ecosystem while maintaining low transaction costs.
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="border-border bg-card">
+              <CardContent className="p-6">
+                <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4 border border-primary/20">
+                  <Activity className="h-6 w-6 text-primary" />
+                </div>
+                <h3 className="text-lg font-semibold text-foreground mb-2 font-mono">Reward Algorithm</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  Dynamic reward calculation based on agent interaction metrics, user engagement duration, and quality feedback scores. The algorithm employs weighted factors to ensure fair distribution while preventing manipulation through activity gaming.
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="border-border bg-card">
+              <CardContent className="p-6">
+                <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4 border border-primary/20">
+                  <Database className="h-6 w-6 text-primary" />
+                </div>
+                <h3 className="text-lg font-semibold text-foreground mb-2 font-mono">Treasury Management</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  The $SIMAI treasury is funded through platform revenue and creator contributions, establishing a sustainable pool for ongoing reward distribution. Smart contract governance ensures transparent allocation and prevents treasury depletion.
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="border-border bg-card">
+              <CardContent className="p-6">
+                <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4 border border-primary/20">
+                  <Shield className="h-6 w-6 text-primary" />
+                </div>
+                <h3 className="text-lg font-semibold text-foreground mb-2 font-mono">Security Model</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  Multi-signature wallet architecture for treasury access, time-locked distribution mechanisms, and automated auditing systems. All token movements are cryptographically verified and publicly accessible on-chain.
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+        </section>
+
+        {/* Economic Model */}
+        <section className="mb-20">
+          <h2 className="text-3xl font-bold text-foreground mb-6 font-mono">Economic Model</h2>
+          <div className="prose prose-lg dark:prose-invert max-w-none mb-8">
+            <p className="text-muted-foreground leading-relaxed mb-4">
+              The $SIMAI economic model is designed around three core principles: sustainability, fairness, and scalability. Unlike traditional token models that rely on speculation or artificial scarcity, $SIMAI derives its value from actual utility within the AI agent marketplace.
+            </p>
+            <p className="text-muted-foreground leading-relaxed mb-4">
+              Agent creators earn tokens proportional to their agents&apos; usage metrics, including but not limited to: total interaction count, average session duration, user retention rates, and positive feedback ratios. This multi-factor approach ensures that creators are incentivized to build high-quality, useful AI agents rather than optimizing for a single metric.
+            </p>
+          </div>
+
+          <Card className="border-border bg-muted/30">
+            <CardContent className="p-8">
+              <h3 className="text-xl font-semibold text-foreground mb-6 font-mono">Distribution Mechanics</h3>
+              <div className="space-y-6">
+                <div className="flex items-start gap-4">
+                  <div className="h-8 w-8 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0 mt-1">
+                    <DollarSign className="h-4 w-4 text-primary" />
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-foreground mb-2">Revenue Conversion</h4>
+                    <p className="text-sm text-muted-foreground leading-relaxed">
+                      Platform revenue generated through premium features and enterprise services is automatically converted to $SIMAI tokens and deposited into the treasury contract. This creates a direct correlation between platform growth and token utility.
+                    </p>
+                  </div>
+                </div>
+                
+                <div className="flex items-start gap-4">
+                  <div className="h-8 w-8 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0 mt-1">
+                    <GitBranch className="h-4 w-4 text-primary" />
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-foreground mb-2">Reward Distribution</h4>
+                    <p className="text-sm text-muted-foreground leading-relaxed">
+                      Weekly distribution cycles process accumulated metrics and calculate proportional rewards for all active agents. The distribution algorithm applies anti-gaming measures including velocity limits and anomaly detection to maintain system integrity.
+                    </p>
+                  </div>
+                </div>
+                
+                <div className="flex items-start gap-4">
+                  <div className="h-8 w-8 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0 mt-1">
+                    <Activity className="h-4 w-4 text-primary" />
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-foreground mb-2">Performance Metrics</h4>
+                    <p className="text-sm text-muted-foreground leading-relaxed">
+                      Real-time tracking of agent performance across multiple dimensions enables granular reward calculation. Metrics are aggregated using time-weighted averages to account for historical performance while remaining responsive to recent activity.
+                    </p>
+                  </div>
+                </div>
               </div>
-              <h3 className="text-lg font-semibold text-foreground mb-2">Agent Rewards</h3>
-              <p className="text-sm text-muted-foreground">
-                All agents earn $SIMAI rewards the more they're used on the platform
-              </p>
             </CardContent>
           </Card>
+        </section>
 
-          <Card className="border-border bg-card hover:shadow-lg transition-shadow">
-            <CardContent className="p-6">
-              <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center mb-4">
-                <Wallet className="h-6 w-6 text-primary" />
-              </div>
-              <h3 className="text-lg font-semibold text-foreground mb-2">Treasury Funded</h3>
-              <p className="text-sm text-muted-foreground">
-                The $SIMAI treasury comes from creator rewards and platform revenue
+        {/* Implementation Details */}
+        <section className="mb-20">
+          <h2 className="text-3xl font-bold text-foreground mb-6 font-mono">Implementation Details</h2>
+          
+          <div className="space-y-8">
+            <div>
+              <h3 className="text-xl font-semibold text-foreground mb-4 font-mono">Agent Integration</h3>
+              <p className="text-muted-foreground leading-relaxed mb-4">
+                All AI agents deployed on the SIM platform are automatically enrolled in the $SIMAI reward program. No additional configuration or opt-in is required. The platform&apos;s backend infrastructure handles metric collection, validation, and reward calculation transparently.
               </p>
-            </CardContent>
-          </Card>
-
-          <Card className="border-border bg-card hover:shadow-lg transition-shadow">
-            <CardContent className="p-6">
-              <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center mb-4">
-                <TrendingUp className="h-6 w-6 text-primary" />
-              </div>
-              <h3 className="text-lg font-semibold text-foreground mb-2">Usage Based</h3>
-              <p className="text-sm text-muted-foreground">
-                Earn more tokens as your agents gain popularity and engagement
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card className="border-border bg-card hover:shadow-lg transition-shadow">
-            <CardContent className="p-6">
-              <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center mb-4">
-                <Zap className="h-6 w-6 text-primary" />
-              </div>
-              <h3 className="text-lg font-semibold text-foreground mb-2">Zero Fees</h3>
-              <p className="text-sm text-muted-foreground">
-                Create and monetize AI agents with no platform fees
-              </p>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* How It Works */}
-        <div className="mb-20">
-          <h2 className="text-3xl font-bold text-foreground text-center mb-12">
-            How $SIMAI Works
-          </h2>
-          <div className="grid md:grid-cols-3 gap-8">
-            <div className="text-center">
-              <div className="h-16 w-16 rounded-full bg-primary/20 flex items-center justify-center mx-auto mb-4">
-                <span className="text-2xl font-bold text-primary">1</span>
-              </div>
-              <h3 className="text-xl font-semibold text-foreground mb-3">Create Agents</h3>
-              <p className="text-muted-foreground">
-                Build AI agents on the SIM platform and share them with the community
+              <p className="text-muted-foreground leading-relaxed">
+                Creators maintain full control over their agent configurations while the reward system operates independently through cryptographically secure smart contracts. This separation of concerns ensures that the incentive mechanism cannot be manipulated by individual participants.
               </p>
             </div>
 
-            <div className="text-center">
-              <div className="h-16 w-16 rounded-full bg-primary/20 flex items-center justify-center mx-auto mb-4">
-                <span className="text-2xl font-bold text-primary">2</span>
-              </div>
-              <h3 className="text-xl font-semibold text-foreground mb-3">Get Used</h3>
-              <p className="text-muted-foreground">
-                As users interact with your agents, engagement metrics increase
+            <div>
+              <h3 className="text-xl font-semibold text-foreground mb-4 font-mono">Zero-Fee Architecture</h3>
+              <p className="text-muted-foreground leading-relaxed mb-4">
+                The platform implements a zero-fee model for both agent creators and users. This is economically viable due to the treasury funding mechanism, which generates revenue through value-added services rather than transaction fees. By eliminating friction at the transaction layer, the system maximizes participation and network effects.
+              </p>
+              <p className="text-muted-foreground leading-relaxed">
+                Transaction costs on the Solana network are absorbed by the platform, further reducing barriers to entry. This approach contrasts with traditional marketplaces that extract rent through platform fees, instead aligning platform incentives with creator success.
               </p>
             </div>
 
-            <div className="text-center">
-              <div className="h-16 w-16 rounded-full bg-primary/20 flex items-center justify-center mx-auto mb-4">
-                <span className="text-2xl font-bold text-primary">3</span>
-              </div>
-              <h3 className="text-xl font-semibold text-foreground mb-3">Earn Rewards</h3>
-              <p className="text-muted-foreground">
-                Receive $SIMAI tokens proportional to your agent's usage and popularity
+            <div>
+              <h3 className="text-xl font-semibold text-foreground mb-4 font-mono">Scalability Considerations</h3>
+              <p className="text-muted-foreground leading-relaxed mb-4">
+                The system is architected to handle exponential growth in agent count and interaction volume. Metric aggregation occurs off-chain using distributed computing resources, with only final reward calculations being committed to the blockchain. This hybrid approach maintains decentralization guarantees while achieving high performance.
+              </p>
+              <p className="text-muted-foreground leading-relaxed">
+                As the platform scales, the reward pool grows proportionally through increased revenue, ensuring that token distribution remains economically sustainable regardless of network size. The algorithm automatically adjusts distribution rates based on treasury balance and network activity.
               </p>
             </div>
           </div>
-        </div>
+        </section>
 
-        {/* CTA Section */}
+        {/* Future Development */}
+        <section className="mb-20">
+          <h2 className="text-3xl font-bold text-foreground mb-6 font-mono">Future Development</h2>
+          <div className="prose prose-lg dark:prose-invert max-w-none">
+            <p className="text-muted-foreground leading-relaxed mb-4">
+              The $SIMAI protocol is designed with extensibility in mind. Future iterations will introduce additional utility mechanisms including governance rights for token holders, staking mechanisms for creators to boost agent visibility, and cross-platform integration capabilities.
+            </p>
+            <p className="text-muted-foreground leading-relaxed">
+              Research is ongoing into advanced reward algorithms that incorporate machine learning models to more accurately assess agent quality and user satisfaction. These improvements will be implemented through protocol upgrades that maintain backward compatibility with existing infrastructure.
+            </p>
+          </div>
+        </section>
+
+        {/* CTA */}
         <Card className="border-border bg-gradient-to-br from-primary/5 to-secondary/5">
           <CardContent className="p-12 text-center">
-            <h2 className="text-3xl font-bold text-foreground mb-4">
-              Ready to Start Earning?
+            <h2 className="text-3xl font-bold text-foreground mb-4 font-mono">
+              Deploy Your Agent
             </h2>
             <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
-              Create your AI agent today and start earning $SIMAI rewards from the platform
+              Start earning $SIMAI rewards by creating AI agents on the platform. Zero setup fees, zero transaction costs, automatic reward distribution.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button onClick={() => navigate('/')} size="lg" className="gap-2">
-                Create Your Agent
+              <Button onClick={() => navigate('/')} size="lg" className="gap-2 font-mono">
+                Create Agent
               </Button>
               <Button 
                 variant="outline" 
                 size="lg" 
-                className="gap-2"
+                className="gap-2 font-mono"
                 onClick={() => window.open(`https://solscan.io/token/${contractAddress}`, '_blank')}
               >
-                View on Solscan
+                View Contract
                 <ExternalLink className="h-4 w-4" />
               </Button>
             </div>
@@ -199,16 +334,19 @@ const SimCoin = () => {
           <div className="flex flex-col md:flex-row items-center justify-between gap-3">
             <div className="flex items-center gap-2">
               <img src={simHeroLogo} alt="SIM" className="h-5" />
-              <span className="text-xs text-muted-foreground">© 2024 SIM. All rights reserved.</span>
+              <span className="text-xs text-muted-foreground font-mono">© 2024 SIM. All rights reserved.</span>
             </div>
             <div className="flex items-center gap-6">
-              <button onClick={() => navigate('/')} className="text-xs text-muted-foreground hover:text-foreground transition-colors">
-                Home
-              </button>
-              <button onClick={() => navigate('/agents')} className="text-xs text-muted-foreground hover:text-foreground transition-colors">
+              <a href="#about" className="text-xs text-muted-foreground hover:text-foreground transition-colors font-mono">
+                About
+              </a>
+              <button onClick={() => navigate('/agents')} className="text-xs text-muted-foreground hover:text-foreground transition-colors font-mono">
                 Agent Directory
               </button>
-              <button onClick={() => navigate('/simcoin')} className="text-xs text-muted-foreground hover:text-foreground transition-colors">
+              <a href="#documentation" className="text-xs text-muted-foreground hover:text-foreground transition-colors font-mono">
+                Documentation
+              </a>
+              <button onClick={() => navigate('/simcoin')} className="text-xs text-muted-foreground hover:text-foreground transition-colors font-mono">
                 SIM Coin
               </button>
             </div>
