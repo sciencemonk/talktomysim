@@ -63,7 +63,7 @@ export default function NFTDetail() {
           <CardContent className="p-6 text-center">
             <h2 className="text-xl font-bold text-fg mb-2">NFT Not Found</h2>
             <p className="text-fgMuted mb-4">This NFT does not exist or has been removed.</p>
-            <Button onClick={() => navigate('/marketplace')}>
+            <Button onClick={() => navigate('/')}>
               Back to Marketplace
             </Button>
           </CardContent>
@@ -87,7 +87,7 @@ export default function NFTDetail() {
           <div className="flex items-center justify-between">
             <Button
               variant="ghost"
-              onClick={() => navigate('/marketplace')}
+              onClick={() => navigate('/')}
               className="text-fg hover:text-primary"
             >
               <ArrowLeft className="h-4 w-4 mr-2" />
