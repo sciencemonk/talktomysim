@@ -620,8 +620,15 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired, 
           <div className="space-y-6 p-8">
             {/* Header */}
             <div className="space-y-1">
-              <h2 className="text-2xl font-bold tracking-tight">Create New Sim</h2>
-              <p className="text-sm text-muted-foreground">Choose carefully, these details define your AI</p>
+              <h2 className="text-2xl font-bold tracking-tight">
+                {simType === "NFT" ? "Create NFT" : "Create New Sim"}
+              </h2>
+              <p className="text-sm text-muted-foreground">
+                {simType === "NFT" 
+                  ? "Configure your NFT collection details"
+                  : "Choose carefully, these details define your AI"
+                }
+              </p>
             </div>
 
             {/* Sim Details Section */}
@@ -678,13 +685,13 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired, 
 
                 <div className="space-y-2">
                   <Label htmlFor="name" className="text-sm font-medium">
-                    Sim name <span className="text-destructive">*</span>
+                    {simType === "NFT" ? "NFT Name" : "Sim name"} <span className="text-destructive">*</span>
                   </Label>
                   <Input
                     id="name"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    placeholder="Name your sim"
+                    placeholder={simType === "NFT" ? "Name your NFT collection" : "Name your sim"}
                     required
                     maxLength={50}
                     className="h-11 bg-background"
@@ -698,7 +705,7 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired, 
               {/* SOL Wallet Address */}
               <div className="space-y-2">
                 <Label htmlFor="crypto-wallet" className="text-sm font-medium">
-                  SOL Wallet Address <span className="text-muted-foreground">(Optional)</span>
+                  SOL Wallet Address {simType === "NFT" ? <span className="text-destructive">*</span> : <span className="text-muted-foreground">(Optional)</span>}
                 </Label>
                 <Input
                   id="crypto-wallet"
@@ -706,9 +713,13 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired, 
                   onChange={(e) => setCryptoWallet(e.target.value)}
                   placeholder="7xKXt...aBcD"
                   className="h-11 bg-background"
+                  required={simType === "NFT"}
                 />
                 <p className="text-xs text-muted-foreground">
-                  Required if you want to claim Creator Rewards
+                  {simType === "NFT" 
+                    ? "Wallet address to receive NFT and royalties from secondary sales"
+                    : "Required if you want to claim Creator Rewards"
+                  }
                 </p>
               </div>
 
@@ -775,7 +786,7 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired, 
                     id="description"
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
-                    placeholder="Write a short description"
+                    placeholder={simType === "NFT" ? "Describe your NFT collection" : "Write a short description"}
                     rows={4}
                     className="resize-none bg-background"
                     required
@@ -921,8 +932,8 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired, 
                 </>
               )}
 
-              {/* Social Links Collapsible - hide for Autonomous Agent */}
-              {simType !== "Autonomous Agent" && (
+              {/* Social Links Collapsible - hide for Autonomous Agent and NFT */}
+              {simType !== "Autonomous Agent" && simType !== "NFT" && (
                 <Collapsible open={socialLinksOpen} onOpenChange={setSocialLinksOpen}>
                   <CollapsibleTrigger className="flex items-center gap-2 text-sm font-medium hover:text-foreground transition-colors w-full py-2">
                     <Link2 className="w-4 h-4" />
@@ -1068,7 +1079,12 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired, 
                 ) : (
                   <>
                     <Sparkles className="w-5 h-5" />
-                    {simType === "Crypto Mail" || simType === "Autonomous Agent" || simType === "NFT" ? "Continue" : "Generate Sim"}
+                    {simType === "NFT" 
+                      ? "Continue to Mint" 
+                      : simType === "Crypto Mail" || simType === "Autonomous Agent"
+                      ? "Continue" 
+                      : "Generate Sim"
+                    }
                   </>
                 )}
               </Button>
