@@ -62,8 +62,8 @@ export default function Documentation() {
               <button onClick={() => navigate('/documentation')} className="text-foreground transition-colors text-sm font-medium">
                 Documentation
               </button>
-              <button onClick={() => navigate('/simcoin')} className="text-muted-foreground hover:text-foreground transition-colors text-sm font-medium">
-                SIM Coin
+              <button onClick={() => navigate('/simai')} className="text-muted-foreground hover:text-foreground transition-colors text-sm font-medium">
+                $SIMAI
               </button>
             </div>
             

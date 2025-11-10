@@ -251,8 +251,8 @@ const Marketplace = () => {
                 <button onClick={() => navigate('/documentation')} className="text-white/90 hover:text-white transition-colors text-sm font-medium">
                   Documentation
                 </button>
-                <button onClick={() => navigate('/simcoin')} className="text-white/90 hover:text-white transition-colors text-sm font-medium">
-                  SIM Coin
+                <button onClick={() => navigate('/simai')} className="text-white/90 hover:text-white transition-colors text-sm font-medium">
+                  $SIMAI
                 </button>
               </div>
               
