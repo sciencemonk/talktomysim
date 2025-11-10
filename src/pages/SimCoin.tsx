@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useState, useEffect } from "react";
 import { useTheme } from "@/hooks/useTheme";
 import SimpleFooter from "@/components/SimpleFooter";
+import xIcon from "@/assets/x-icon.png";
 
 const SimCoin = () => {
   const navigate = useNavigate();
@@ -306,8 +307,8 @@ const SimCoin = () => {
                 Deploy your SIM and watch them earn $SIMAI as they navigate the digital universe. The more value they create, the more they earn.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button onClick={handleCreateAgent} size="lg" className="font-mono">
-                  Create Your SIM
+                <Button onClick={handleCreateAgent} variant="outline" size="lg" className="bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-white/20 hover:text-white text-xl sm:text-2xl px-8 sm:px-12 py-6 gap-3 h-auto">
+                  Create your SIM with <img src={xIcon} alt="X" className="h-6 w-6 sm:h-7 sm:w-7 inline-block" />
                 </Button>
                 <Button 
                   variant="outline" 
