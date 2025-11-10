@@ -1,4 +1,4 @@
-import { useState, useRef, DragEvent } from "react";
+import { useState, useRef, DragEvent, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -77,6 +77,13 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired, 
 
   // All sims get all integrations by default
   const allIntegrations = ["solana-explorer", "pumpfun", "x-analyzer", "crypto-prices"];
+
+  // Update simType when initialType changes
+  useEffect(() => {
+    if (initialType) {
+      setSimType(initialType);
+    }
+  }, [initialType]);
 
   // Generate a 6-digit edit code
   const generateEditCode = () => {
