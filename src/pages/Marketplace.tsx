@@ -226,9 +226,9 @@ const Marketplace = () => {
                 <a href="#documentation" className="text-white/90 hover:text-white transition-colors text-sm font-medium">
                   Documentation
                 </a>
-                <a href="#sim-coin" className="text-white/90 hover:text-white transition-colors text-sm font-medium">
+                <button onClick={() => navigate('/simcoin')} className="text-white/90 hover:text-white transition-colors text-sm font-medium">
                   SIM Coin
-                </a>
+                </button>
               </div>
               
               {/* Right side - Theme Toggle and Sign In */}
@@ -276,9 +276,9 @@ const Marketplace = () => {
               <a href="#documentation" className="text-xs text-fgMuted hover:text-fg transition-colors">
                 Documentation
               </a>
-              <a href="#sim-coin" className="text-xs text-fgMuted hover:text-fg transition-colors">
+              <button onClick={() => navigate('/simcoin')} className="text-xs text-fgMuted hover:text-fg transition-colors">
                 SIM Coin
-              </a>
+              </button>
             </div>
           </div>
         </div>
