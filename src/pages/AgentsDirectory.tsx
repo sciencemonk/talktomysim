@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { AgentType } from "@/types/agent";
-import { Users, Shield, CheckCircle, XCircle, Search, User } from "lucide-react";
+import { Users, Shield, CheckCircle, XCircle, Search, User, Menu, X } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
@@ -16,14 +16,17 @@ import xIcon from "@/assets/x-icon.png";
 import { useState, useEffect } from "react";
 import { useTheme } from "@/hooks/useTheme";
 import SimpleFooter from "@/components/SimpleFooter";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const AgentsDirectory = () => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const { theme } = useTheme();
+  const isMobile = useIsMobile();
   const [resolvedTheme, setResolvedTheme] = useState<'light' | 'dark'>('dark');
   const [showBetaRequest, setShowBetaRequest] = useState(false);
   const [betaCode, setBetaCode] = useState('');
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     if (theme === 'system') {
@@ -179,39 +182,109 @@ const AgentsDirectory = () => {
               <img src={resolvedTheme === 'dark' ? simLogoWhite : simHeroLogo} alt="SIM" className="h-8" />
             </button>
             
-            {/* Navigation Links */}
-            <div className="hidden md:flex items-center gap-8">
-              <button onClick={() => navigate('/about')} className="text-muted-foreground hover:text-foreground transition-colors text-sm font-medium">
-                About
-              </button>
-              <button onClick={() => navigate('/agents')} className="text-foreground transition-colors text-sm font-medium">
-                Agent Directory
-              </button>
-              <button onClick={() => navigate('/documentation')} className="text-muted-foreground hover:text-foreground transition-colors text-sm font-medium">
-                Documentation
-              </button>
-              <button onClick={() => navigate('/simai')} className="text-muted-foreground hover:text-foreground transition-colors text-sm font-medium">
-                $SIMAI
-              </button>
-              <button onClick={() => navigate('/facilitator')} className="text-muted-foreground hover:text-foreground transition-colors text-sm font-medium">
-                x402 Facilitator
-              </button>
-            </div>
+            {/* Desktop Navigation */}
+            {!isMobile && (
+              <div className="flex items-center gap-8">
+                <button onClick={() => navigate('/about')} className="text-muted-foreground hover:text-foreground transition-colors text-sm font-medium">
+                  About
+                </button>
+                <button onClick={() => navigate('/agents')} className="text-foreground transition-colors text-sm font-medium">
+                  Agent Directory
+                </button>
+                <button onClick={() => navigate('/documentation')} className="text-muted-foreground hover:text-foreground transition-colors text-sm font-medium">
+                  Documentation
+                </button>
+                <button onClick={() => navigate('/simai')} className="text-muted-foreground hover:text-foreground transition-colors text-sm font-medium">
+                  $SIMAI
+                </button>
+                <button onClick={() => navigate('/facilitator')} className="text-muted-foreground hover:text-foreground transition-colors text-sm font-medium">
+                  x402 Facilitator
+                </button>
+              </div>
+            )}
             
             {/* Right side - Theme Toggle and Sign In */}
             <div className="flex items-center gap-4">
               <ThemeToggle />
+              {!isMobile && (
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="bg-background/10 backdrop-blur-md border border-border text-foreground hover:bg-background/20"
+                  onClick={handleXSignIn}
+                >
+                  Sign In
+                </Button>
+              )}
+              {isMobile && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                  className="p-2"
+                >
+                  {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+                </Button>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Mobile Navigation Drawer */}
+        {isMobile && mobileMenuOpen && (
+          <div className="absolute top-full left-0 right-0 bg-card/95 backdrop-blur-xl border-b border-border/50 shadow-lg z-50">
+            <div className="max-w-7xl mx-auto px-4 py-4 space-y-2">
+              <Button
+                variant="ghost"
+                size="lg"
+                onClick={() => { navigate('/about'); setMobileMenuOpen(false); }}
+                className="w-full justify-start text-base font-medium text-muted-foreground hover:text-foreground"
+              >
+                About
+              </Button>
+              <Button
+                variant="ghost"
+                size="lg"
+                onClick={() => { navigate('/agents'); setMobileMenuOpen(false); }}
+                className="w-full justify-start text-base font-medium text-foreground"
+              >
+                Agent Directory
+              </Button>
+              <Button
+                variant="ghost"
+                size="lg"
+                onClick={() => { navigate('/documentation'); setMobileMenuOpen(false); }}
+                className="w-full justify-start text-base font-medium text-muted-foreground hover:text-foreground"
+              >
+                Documentation
+              </Button>
+              <Button
+                variant="ghost"
+                size="lg"
+                onClick={() => { navigate('/simai'); setMobileMenuOpen(false); }}
+                className="w-full justify-start text-base font-medium text-muted-foreground hover:text-foreground"
+              >
+                $SIMAI
+              </Button>
+              <Button
+                variant="ghost"
+                size="lg"
+                onClick={() => { navigate('/facilitator'); setMobileMenuOpen(false); }}
+                className="w-full justify-start text-base font-medium text-muted-foreground hover:text-foreground"
+              >
+                x402 Facilitator
+              </Button>
               <Button 
                 variant="outline" 
-                size="sm" 
-                className="bg-background/10 backdrop-blur-md border border-border text-foreground hover:bg-background/20"
-                onClick={handleXSignIn}
+                size="lg" 
+                className="w-full justify-start bg-background/10 backdrop-blur-md border border-border text-foreground hover:bg-background/20"
+                onClick={() => { handleXSignIn(); setMobileMenuOpen(false); }}
               >
                 Sign In
               </Button>
             </div>
           </div>
-        </div>
+        )}
       </nav>
 
       <div className="container mx-auto px-4 py-12 max-w-5xl">
