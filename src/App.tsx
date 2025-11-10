@@ -62,6 +62,7 @@ import Documentation from "./pages/Documentation";
 import SimDashboard from "./pages/SimDashboard";
 import Facilitator from "./pages/Facilitator";
 import AgentPublicView from "./pages/AgentPublicView";
+import RootRedirect from "./pages/RootRedirect";
 
 const queryClient = new QueryClient();
 
@@ -127,8 +128,8 @@ const App = () => (
               {/* Agent Public View */}
               <Route path="/agent/:agentId" element={<AgentPublicView />} />
               
-              {/* Root route - Marketplace is now the homepage */}
-              <Route path="/" element={<Marketplace />} />
+              {/* Root route - Shows marketplace or redirects to chat if authenticated */}
+              <Route path="/" element={<RootRedirect />} />
               
               {/* Previous landing page moved to /home */}
               <Route path="/home-old" element={<NewLanding />} />
