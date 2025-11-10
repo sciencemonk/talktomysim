@@ -128,6 +128,8 @@ const PublicSimDetail = () => {
     try {
       setIsLoading(true);
       
+      console.log('Fetching SIM with identifier:', identifier);
+      
       // Check if identifier is a UUID format
       const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(identifier || '');
       
@@ -145,17 +147,8 @@ const PublicSimDetail = () => {
       }
       
       let { data: simData, error: simError } = await query.maybeSingle();
-
-      // Convert integrations to string array if found
-      if (simData) {
-        const integrationsArray = Array.isArray(simData.integrations) 
-          ? simData.integrations 
-          : [];
-        simData = {
-          ...simData,
-          integrations: integrationsArray as string[]
-        };
-      }
+      
+      console.log('Sims query result:', { simData, simError });
 
       // If not found in sims, try advisors (legacy)
       if (!simData && !simError) {
@@ -172,55 +165,92 @@ const PublicSimDetail = () => {
         }
         
         const { data: advisorData, error: advisorError } = await advisorQuery.maybeSingle();
+        
+        console.log('Advisors query result:', { advisorData, advisorError });
 
         if (advisorData) {
-          // Convert advisor to sim format
-          const integrationsArray = Array.isArray(advisorData.integrations) 
-            ? advisorData.integrations 
-            : [];
-          
+          // Convert advisor to sim format - map fields properly
           simData = {
-            id: advisorData.id,
-            user_id: advisorData.user_id,
-            name: advisorData.name,
-            description: advisorData.auto_description || advisorData.description,
-            prompt: advisorData.prompt,
-            creator_prompt: advisorData.creator_prompt || '',
-            stranger_prompt: advisorData.stranger_prompt || '',
-            sim_to_sim_prompt: advisorData.sim_to_sim_prompt || '',
-            welcome_message: advisorData.welcome_message,
-            x_username: (advisorData.social_links as any)?.x_username || 'unknown',
+            ...advisorData,
+            x_username: (advisorData.social_links as any)?.x_username || advisorData.custom_url || 'unknown',
             x_display_name: (advisorData.social_links as any)?.x_display_name || advisorData.name,
-            twitter_url: advisorData.twitter_url || '',
-            avatar_url: advisorData.avatar_url,
-            crypto_wallet: advisorData.crypto_wallet || '',
-            is_verified: advisorData.is_verified || false,
-            verification_status: advisorData.verification_status || false,
-            verified_at: advisorData.verified_at,
-            edit_code: '',
-            custom_url: advisorData.custom_url,
-            is_active: true,
-            is_public: true,
-            integrations: integrationsArray as string[],
-            social_links: advisorData.social_links,
             training_completed: (advisorData.social_links as any)?.trained || false,
             training_post_count: (advisorData.social_links as any)?.trainingPostCount || 0,
-            created_at: advisorData.created_at,
-            updated_at: advisorData.updated_at,
-          };
+          } as any;
         }
       }
 
       if (!simData) {
-        navigate('/404');
-        return;
+        console.log('No SIM found for identifier:', identifier, '- Using test data for development');
+        
+        // For testing purposes, create test data if identifier is 'testuser'
+        if (identifier?.toLowerCase() === 'testuser') {
+          simData = {
+            id: 'test-sim-id',
+            user_id: 'test-user-id',
+            name: 'Test User',
+            description: 'This is a test SIM for development purposes. A friendly AI agent ready to help!',
+            prompt: 'You are a helpful AI assistant created for testing purposes.',
+            welcome_message: 'Hi! I\'m Test User, your test SIM. This is test data for development. How can I help you today?',
+            x_username: 'testuser',
+            x_display_name: 'Test User',
+            twitter_url: 'https://twitter.com/testuser',
+            avatar_url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=TestUser',
+            crypto_wallet: 'EaS8MWRj6qNqkNLjGKjhqgXtV1KmAXCUDHqHpump',
+            is_verified: false,
+            verification_status: false,
+            verified_at: null,
+            edit_code: '',
+            custom_url: 'testuser',
+            is_active: true,
+            is_public: true,
+            integrations: ['solana-explorer', 'pumpfun', 'x-analyzer'],
+            social_links: {},
+            training_completed: false,
+            training_post_count: 0,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+            creator_prompt: '',
+            stranger_prompt: '',
+            sim_to_sim_prompt: ''
+          } as any;
+          
+          toast({
+            title: "Using test data",
+            description: "This is a test SIM for development purposes"
+          });
+        } else {
+          navigate('/404');
+          return;
+        }
       }
 
-      // Ensure all fields are properly typed
+      // Ensure all fields are properly typed for Sim interface
       const typedSim: Sim = {
-        ...simData,
+        id: simData.id,
+        user_id: simData.user_id,
+        name: simData.name,
+        description: simData.description,
+        prompt: simData.prompt,
+        welcome_message: simData.welcome_message,
+        x_username: simData.x_username,
+        x_display_name: simData.x_display_name,
+        twitter_url: simData.twitter_url,
+        avatar_url: simData.avatar_url,
+        crypto_wallet: simData.crypto_wallet,
+        is_verified: simData.is_verified,
+        verification_status: simData.verification_status,
+        verified_at: simData.verified_at,
+        edit_code: simData.edit_code || '',
+        custom_url: simData.custom_url,
+        is_active: simData.is_active,
+        is_public: simData.is_public,
         integrations: Array.isArray(simData.integrations) ? simData.integrations as string[] : [],
-        social_links: simData.social_links as Sim['social_links']
+        social_links: simData.social_links as Sim['social_links'],
+        training_completed: simData.training_completed || false,
+        training_post_count: simData.training_post_count || 0,
+        created_at: simData.created_at,
+        updated_at: simData.updated_at,
       };
 
       setSim(typedSim);
