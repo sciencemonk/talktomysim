@@ -206,15 +206,15 @@ const Marketplace = () => {
         </div>
         
         {/* Content */}
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
-          <button onClick={() => navigate('/')} className="inline-flex items-center gap-3 px-4 sm:px-6 py-2.5 rounded-full backdrop-blur-sm transition-all cursor-pointer shadow-sm bg-white/10 border border-white/20 hover:bg-white/20 whitespace-nowrap mb-3">
-            <img src={simHeroLogo} alt="SIM" className="h-6 sm:h-7" />
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 sm:py-32">
+          <button onClick={() => navigate('/')} className="inline-flex items-center gap-6 px-8 sm:px-12 py-5 rounded-full backdrop-blur-sm transition-all cursor-pointer shadow-sm bg-white border border-white/20 hover:bg-white/90 whitespace-nowrap mb-6">
+            <img src={simHeroLogo} alt="SIM" className="h-12 sm:h-14" />
           </button>
-          <p className="text-base sm:text-lg text-white/90 max-w-5xl mb-4">
+          <p className="text-3xl sm:text-4xl text-white/90 max-w-5xl mb-8 font-semibold">
             Create an AI agent in seconds.
           </p>
-          <Button variant="outline" size="sm" className="bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-white/20 hover:text-white text-xs sm:text-sm px-4 sm:px-6 gap-2" onClick={handleXSignIn}>
-            Generate your AI Agent with <img src={xIcon} alt="X" className="h-3.5 w-3.5 sm:h-4 sm:w-4 inline-block" />
+          <Button variant="outline" size="lg" className="bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-white/20 hover:text-white text-xl sm:text-2xl px-8 sm:px-12 py-6 gap-3 h-auto" onClick={handleXSignIn}>
+            Generate your AI Agent with <img src={xIcon} alt="X" className="h-6 w-6 sm:h-7 sm:w-7 inline-block" />
           </Button>
         </div>
       </div>
