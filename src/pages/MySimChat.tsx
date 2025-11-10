@@ -6,7 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useToast } from "@/hooks/use-toast";
 import { getAvatarUrl } from "@/lib/avatarUtils";
-import { Send, Loader2, Search, MessageSquare, Mic, Image as ImageIcon, Folder, Clock, Plus, Trash2 } from "lucide-react";
+import { Send, Loader2, Search, MessageSquare, Mic, Image as ImageIcon, Folder, Clock, Plus, Trash2, LogOut } from "lucide-react";
 import { Sim } from "@/types/sim";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
@@ -253,6 +253,11 @@ export default function MySimChat() {
     }
   };
 
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    navigate('/');
+  };
+
   const sendMessage = async () => {
     if (!input.trim() || !sim || !conversationId) return;
 
@@ -454,6 +459,18 @@ export default function MySimChat() {
               ))}
             </div>
           </ScrollArea>
+        </div>
+
+        {/* Logout Button */}
+        <div className="px-3 py-3 border-t border-white/[0.08]">
+          <Button
+            onClick={handleSignOut}
+            variant="ghost"
+            className="w-full flex items-center justify-start gap-3 px-3 py-2.5 rounded-md text-white/50 hover:bg-white/[0.06] hover:text-white/90 transition-all duration-150"
+          >
+            <LogOut className="h-[18px] w-[18px] flex-shrink-0" />
+            <span className="text-[13px] font-medium">Log Out</span>
+          </Button>
         </div>
       </div>
 
