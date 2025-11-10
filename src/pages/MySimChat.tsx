@@ -310,7 +310,7 @@ export default function MySimChat() {
           </button>
           <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-white/50 hover:bg-white/[0.06] hover:text-white/90 transition-all duration-150">
             <Mic className="h-[18px] w-[18px] flex-shrink-0" />
-            <span className="text-[13px] font-medium">Voice</span>
+            <span className="text-[13px] font-medium">MCP Servers</span>
           </button>
           <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-white/50 hover:bg-white/[0.06] hover:text-white/90 transition-all duration-150">
             <ImageIcon className="h-[18px] w-[18px] flex-shrink-0" />
@@ -344,7 +344,7 @@ export default function MySimChat() {
             ) : (
               messages.map((msg, idx) => (
                 <div key={idx} className="group">
-                  <div className={`flex gap-4 ${msg.role === "user" ? "flex-row-reverse" : "flex-row"}`}>
+                  <div className="flex gap-4">
                     <Avatar className="h-8 w-8 flex-shrink-0 border border-white/[0.08] shadow-sm">
                       {msg.role === "assistant" ? (
                         <>
@@ -355,7 +355,7 @@ export default function MySimChat() {
                         <AvatarFallback className="bg-white/[0.08] text-white/90 text-xs font-medium">U</AvatarFallback>
                       )}
                     </Avatar>
-                    <div className={`flex-1 max-w-[85%] ${msg.role === "user" ? "flex justify-end" : ""}`}>
+                    <div className="flex-1 max-w-[85%]">
                       <div className={`rounded-2xl px-4 py-3 ${
                         msg.role === "user" 
                           ? "bg-white/[0.09] text-white/95 border border-white/[0.08]" 
