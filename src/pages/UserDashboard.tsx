@@ -255,7 +255,7 @@ const UserDashboard = () => {
       <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-sm border-b border-border/40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
-            <button onClick={() => navigate('/')} className="flex items-center hover:opacity-80 transition-opacity">
+            <button onClick={() => navigate('/landing')} className="flex items-center hover:opacity-80 transition-opacity">
               <div className="bg-black/90 rounded-lg px-2 py-1">
                 <img src={simLogoWhite} alt="SIM" className="h-8" />
               </div>
@@ -264,7 +264,7 @@ const UserDashboard = () => {
             <div className="flex items-center gap-6">
               <Button
                 variant="ghost"
-                onClick={() => navigate('/')}
+                onClick={() => navigate('/landing')}
                 className="text-sm font-medium hover:text-primary"
               >
                 Home
@@ -289,7 +289,7 @@ const UserDashboard = () => {
                 size="sm" 
                 onClick={async () => {
                   await supabase.auth.signOut();
-                  navigate('/');
+                  navigate('/landing');
                 }}
               >
                 Sign Out
