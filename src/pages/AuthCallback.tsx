@@ -17,6 +17,8 @@ export default function AuthCallback() {
   const [userSession, setUserSession] = useState<any>(null);
   const [isCreatingSim, setIsCreatingSim] = useState(false);
   const [xUsername, setXUsername] = useState('');
+  const [showBetaRequest, setShowBetaRequest] = useState(false);
+  const [betaCode, setBetaCode] = useState('');
 
   useEffect(() => {
     handleAuthCallback();
@@ -24,6 +26,21 @@ export default function AuthCallback() {
 
   const generateEditCode = () => {
     return Math.floor(100000 + Math.random() * 900000).toString();
+  };
+
+  const generateBetaCode = () => {
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let result = '';
+    for (let i = 0; i < 8; i++) {
+      result += characters.charAt(Math.floor(Math.random() * characters.length));
+    }
+    return result;
+  };
+
+  const handlePostToX = () => {
+    const tweetText = `SIMAI ${betaCode} Request Early Access`;
+    const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}`;
+    window.open(twitterUrl, '_blank');
   };
 
   const handleAuthCallback = async () => {
@@ -56,6 +73,17 @@ export default function AuthCallback() {
 
       setXUsername(username);
       console.log('X Username:', username);
+
+      // Check if user is authorized
+      if (username.toLowerCase() !== 'mrjethroknights') {
+        console.log('Unauthorized user attempted to sign in:', username);
+        // Sign them out
+        await supabase.auth.signOut();
+        // Generate beta code and show beta request UI
+        setBetaCode(generateBetaCode());
+        setShowBetaRequest(true);
+        return;
+      }
 
       // Check onboarding status
       const onboardingStatus = await checkUserOnboardingStatus(user.id);
@@ -218,7 +246,31 @@ Remember: You inherit the reputation and social proof of @${username}'s X accoun
 
   return (
     <>
-      <AgentCreationLoading />
+      {!showBetaRequest && <AgentCreationLoading />}
+      
+      <Dialog open={showBetaRequest} onOpenChange={() => navigate('/')}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Private Beta</DialogTitle>
+            <DialogDescription>
+              Post this on X to join the private beta.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="p-4 bg-muted rounded-lg font-mono text-sm">
+              SIMAI {betaCode} Request Early Access
+            </div>
+            <Button onClick={handlePostToX} className="w-full" size="lg">
+              Post on X
+            </Button>
+          </div>
+          <div className="flex justify-end">
+            <Button variant="ghost" onClick={() => navigate('/')}>
+              Cancel
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
       
       <Dialog open={showWalletModal} onOpenChange={setShowWalletModal}>
         <DialogContent className="sm:max-w-md">
