@@ -47,7 +47,7 @@ const AgentsDirectory = () => {
     }
   };
 
-  // Fetch all authenticated X users (agents with user_id)
+  // Fetch only X authenticated users (agents with Twitter/X authentication)
   const { data: authenticatedAgents, isLoading } = useQuery({
     queryKey: ['authenticated-agents'],
     queryFn: async () => {
@@ -56,6 +56,7 @@ const AgentsDirectory = () => {
         .select('*')
         .eq('is_active', true)
         .not('user_id', 'is', null)
+        .not('twitter_url', 'is', null) // Only show agents with Twitter URL (X authenticated)
         .order('created_at', { ascending: false });
       
       if (advisorsError) throw advisorsError;
