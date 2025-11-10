@@ -28,24 +28,10 @@ export interface MintNFTResult {
   metadataUri: string;
 }
 
-// Get Helius RPC endpoint via proxy
-const getHeliusRpcEndpoint = async (): Promise<string> => {
-  try {
-    // Use the proxy edge function to get Helius-powered RPC endpoint
-    const response = await supabase.functions.invoke('mint-nft-proxy', {
-      body: {
-        operation: 'get-endpoint',
-      },
-    });
-
-    if (response.data?.endpoint) {
-      return response.data.endpoint;
-    }
-  } catch (error) {
-    console.warn('Could not connect to Helius proxy, using public endpoint:', error);
-  }
-  
-  // Fallback to public endpoint if proxy fails
+// Get Solana RPC endpoint (public)
+const getSolanaRpcEndpoint = (): string => {
+  // Client-side uses public endpoint for wallet operations
+  // Uploads use Helius server-side via proxy (no rate limits)
   return 'https://api.mainnet-beta.solana.com';
 };
 
@@ -149,7 +135,7 @@ const confirmTransactionWithRetry = async (
 };
 
 /**
- * Mint an NFT using Helius-powered proxy for RPC calls
+ * Mint an NFT (uploads via Helius proxy, wallet operations client-side)
  */
 export const mintNFT = async ({
   wallet,
@@ -166,19 +152,20 @@ export const mintNFT = async ({
       throw new Error('Image file is required for NFT minting');
     }
 
-    console.log('Starting NFT minting process with Helius proxy...');
+    console.log('Starting NFT minting process...');
     onProgress?.('Initializing...');
 
-    // Get Helius RPC endpoint
-    const rpcEndpoint = await getHeliusRpcEndpoint();
-    console.log('Using RPC endpoint:', rpcEndpoint.includes('helius') ? 'Helius (no rate limits)' : 'Public (rate limited)');
+    // Get public RPC endpoint (for client-side wallet operations)
+    const rpcEndpoint = getSolanaRpcEndpoint();
+    console.log('Using public Solana RPC for wallet operations');
+    console.log('Uploads will use Helius via server proxy (no rate limits)');
 
-    // Initialize Umi with the RPC endpoint
+    // Initialize Umi with public RPC
     const umi = createUmi(rpcEndpoint)
       .use(walletAdapterIdentity(wallet))
       .use(mplTokenMetadata());
 
-    // Upload metadata via proxy (uses Helius for any RPC calls)
+    // Upload metadata via Helius-powered proxy (no rate limits)
     const metadataUri = await uploadMetadataWithProxy(
       imageFile, 
       {
