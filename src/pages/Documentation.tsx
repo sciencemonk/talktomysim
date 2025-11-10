@@ -760,7 +760,7 @@ for await (const chunk of streamResponse(request)) {
         ) : (
           <Card className="mb-8 bg-card/50 backdrop-blur-sm border-border/50">
             <CardContent className="p-8">
-              <h2 className="text-2xl font-bold text-foreground mb-4 text-center font-mono">Your X account isn't on the private beta list</h2>
+              <h2 className="text-2xl font-bold text-foreground mb-4 text-center font-mono">Your X account isn't on the early access list</h2>
               <p className="text-muted-foreground mb-6 text-center">Post this on X to get an early access invite:</p>
               <div className="p-4 bg-background/50 rounded-lg font-mono text-sm text-foreground mb-6 text-center border border-border">
                 $SIMAI

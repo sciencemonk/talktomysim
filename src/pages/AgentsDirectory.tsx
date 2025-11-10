@@ -402,7 +402,7 @@ const AgentsDirectory = () => {
         ) : (
           <Card className="bg-gradient-to-r from-primary/10 to-primary/5 border-primary/20">
             <CardContent className="p-12">
-              <h2 className="text-2xl font-bold text-foreground mb-4 text-center font-mono">Your X account isn't on the private beta list</h2>
+              <h2 className="text-2xl font-bold text-foreground mb-4 text-center font-mono">Your X account isn't on the early access list</h2>
               <p className="text-muted-foreground mb-6 text-center">Post this on X to get an early access invite:</p>
               <div className="p-4 bg-background/50 rounded-lg font-mono text-sm text-foreground mb-6 text-center border border-border">
                 $SIMAI

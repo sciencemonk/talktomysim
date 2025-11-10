@@ -297,7 +297,7 @@ const Marketplace = () => {
             </Button>
           ) : (
             <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-8 max-w-md w-full">
-              <h2 className="text-2xl font-bold text-white mb-4 text-center">Your X account isn't on the private beta list</h2>
+              <h2 className="text-2xl font-bold text-white mb-4 text-center">Your X account isn't on the early access list</h2>
               <p className="text-white/80 mb-6 text-center">Post this on X to get an early access invite:</p>
               <div className="p-4 bg-black/30 rounded-lg font-mono text-sm text-white mb-6 text-center">
                 $SIMAI
