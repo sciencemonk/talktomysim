@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
+import AgentCreationLoading from '@/components/AgentCreationLoading';
 
 export default function AuthCallback() {
   const navigate = useNavigate();
@@ -140,13 +140,5 @@ Remember: You inherit the reputation and social proof of @${xUsername}'s X accou
     }
   };
 
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-background">
-      <div className="text-center space-y-4">
-        <Loader2 className="h-12 w-12 animate-spin mx-auto text-primary" />
-        <h2 className="text-2xl font-semibold">{status}</h2>
-        <p className="text-muted-foreground">Please wait...</p>
-      </div>
-    </div>
-  );
+  return <AgentCreationLoading />;
 }

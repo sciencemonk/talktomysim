@@ -18,6 +18,7 @@ import { toast } from "sonner";
 import { WelcomeModal } from "@/components/WelcomeModal";
 import { useTheme } from "@/hooks/useTheme";
 import SimpleFooter from "@/components/SimpleFooter";
+import AgentCreationLoading from "@/components/AgentCreationLoading";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -43,6 +44,7 @@ const Marketplace = () => {
   const [categoryFilter, setCategoryFilter] = useState("all");
   const { theme } = useTheme();
   const [resolvedTheme, setResolvedTheme] = useState<'light' | 'dark'>('dark');
+  const [isCreatingAgent, setIsCreatingAgent] = useState(false);
 
   useEffect(() => {
     if (theme === 'system') {
@@ -187,6 +189,7 @@ const Marketplace = () => {
   };
   const handleXSignIn = async () => {
     try {
+      setIsCreatingAgent(true);
       const redirectUrl = `${window.location.origin}/auth/callback`;
       const {
         data,
@@ -200,13 +203,19 @@ const Marketplace = () => {
       });
       if (error) {
         console.error('OAuth error:', error);
+        setIsCreatingAgent(false);
         throw error;
       }
     } catch (error: any) {
       console.error('Error signing in with X:', error);
+      setIsCreatingAgent(false);
       toast.error(error?.message || 'Failed to sign in with X');
     }
   };
+  if (isCreatingAgent) {
+    return <AgentCreationLoading />;
+  }
+
   return <div className="min-h-screen bg-bg">
       <WelcomeModal />
 
