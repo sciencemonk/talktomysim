@@ -293,14 +293,11 @@ const SimDashboard = () => {
             </button>
             
             <div className="hidden md:flex items-center gap-8">
-              <button onClick={() => navigate('/about')} className="text-muted-foreground hover:text-foreground transition-colors text-sm font-medium">
-                About
+              <button onClick={() => navigate('/')} className="text-muted-foreground hover:text-foreground transition-colors text-sm font-medium">
+                Home
               </button>
               <button onClick={() => navigate('/godmode')} className="text-muted-foreground hover:text-foreground transition-colors text-sm font-medium">
                 God Mode
-              </button>
-              <button onClick={() => navigate('/documentation')} className="text-muted-foreground hover:text-foreground transition-colors text-sm font-medium">
-                Documentation
               </button>
               {xUsername && (
                 <button onClick={() => navigate(`/${xUsername}`)} className="text-muted-foreground hover:text-foreground transition-colors text-sm font-medium flex items-center gap-1">

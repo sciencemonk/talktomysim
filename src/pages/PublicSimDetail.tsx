@@ -2,11 +2,11 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import PublicChatInterface from "@/components/PublicChatInterface";
-import { AgentOfferingsDisplay } from "@/components/AgentOfferingsDisplay";
 import { AgentType } from "@/types/agent";
 import { Sim } from "@/types/sim";
 import { useToast } from "@/hooks/use-toast";
@@ -14,10 +14,29 @@ import { useTheme } from "@/hooks/useTheme";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { getAvatarUrl } from "@/lib/avatarUtils";
 import { updateMetaTags, resetMetaTags } from "@/lib/metaTags";
-import { ArrowLeft, Globe, Wallet, Copy, Check, MessageCircle, Package } from "lucide-react";
+import { 
+  ArrowLeft, 
+  Globe, 
+  Wallet, 
+  Copy, 
+  Check, 
+  TrendingUp, 
+  Activity, 
+  Coins,
+  ExternalLink,
+  MessageSquare,
+  Clock
+} from "lucide-react";
 import simHeroLogo from "@/assets/sim-hero-logo.png";
 import simLogoWhite from "@/assets/sim-logo-white.png";
 import SimpleFooter from "@/components/SimpleFooter";
+
+interface ActivityLog {
+  id: string;
+  timestamp: Date;
+  action: string;
+  details: string;
+}
 
 const PublicSimDetail = () => {
   const { identifier } = useParams<{ identifier: string }>();
@@ -27,9 +46,11 @@ const PublicSimDetail = () => {
   const [sim, setSim] = useState<Sim | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [walletCopied, setWalletCopied] = useState(false);
-  const [activeTab, setActiveTab] = useState("chat");
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [resolvedTheme, setResolvedTheme] = useState<'light' | 'dark'>('dark');
+  const [simaiBalance, setSimaiBalance] = useState(1247); // Mock data
+  const [ranking, setRanking] = useState(42); // Mock data
+  const [activityLogs, setActivityLogs] = useState<ActivityLog[]>([]);
 
   useEffect(() => {
     if (theme === 'system') {
@@ -43,6 +64,7 @@ const PublicSimDetail = () => {
   useEffect(() => {
     checkUser();
     fetchSim();
+    startActivitySimulation();
     
     return () => {
       resetMetaTags();
@@ -52,6 +74,54 @@ const PublicSimDetail = () => {
   const checkUser = async () => {
     const { data: { user } } = await supabase.auth.getUser();
     setCurrentUser(user);
+  };
+
+  const startActivitySimulation = () => {
+    // Add initial activities
+    const initialActivities: ActivityLog[] = [
+      {
+        id: '1',
+        timestamp: new Date(Date.now() - 120000),
+        action: 'Conversation',
+        details: 'Completed chat with user about crypto trends'
+      },
+      {
+        id: '2',
+        timestamp: new Date(Date.now() - 300000),
+        action: 'Transaction',
+        details: 'Earned 15 $SIMAI from user interaction'
+      },
+      {
+        id: '3',
+        timestamp: new Date(Date.now() - 480000),
+        action: 'Analysis',
+        details: 'Analyzed trending topics on X'
+      }
+    ];
+    setActivityLogs(initialActivities);
+
+    // Simulate real-time activity every 30 seconds
+    const interval = setInterval(() => {
+      const actions = [
+        'Processing conversation request',
+        'Analyzing user sentiment',
+        'Generating response',
+        'Earned $SIMAI from interaction',
+        'Updating knowledge base',
+        'Monitoring X mentions'
+      ];
+      
+      const newActivity: ActivityLog = {
+        id: Date.now().toString(),
+        timestamp: new Date(),
+        action: actions[Math.floor(Math.random() * 3)] === actions[0] ? 'Active' : 'Processing',
+        details: actions[Math.floor(Math.random() * actions.length)]
+      };
+      
+      setActivityLogs(prev => [newActivity, ...prev].slice(0, 20));
+    }, 30000);
+
+    return () => clearInterval(interval);
   };
 
   const fetchSim = async () => {
@@ -223,12 +293,11 @@ const PublicSimDetail = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background via-background/95 to-background">
+    <div className="min-h-screen bg-gradient-to-b from-background via-background/95 to-background flex flex-col">
       {/* Navigation */}
       <nav className="border-b border-border/50 bg-background/80 backdrop-blur-sm sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
-            {/* Logo */}
             <div className="flex items-center gap-4">
               <Button
                 variant="ghost"
@@ -243,20 +312,6 @@ const PublicSimDetail = () => {
               </button>
             </div>
             
-            {/* Navigation Links */}
-            <div className="hidden md:flex items-center gap-8">
-              <button onClick={() => navigate('/about')} className="text-muted-foreground hover:text-foreground transition-colors text-sm font-medium">
-                About
-              </button>
-              <button onClick={() => navigate('/godmode')} className="text-muted-foreground hover:text-foreground transition-colors text-sm font-medium">
-                God Mode
-              </button>
-              <button onClick={() => navigate('/documentation')} className="text-muted-foreground hover:text-foreground transition-colors text-sm font-medium">
-                Documentation
-              </button>
-            </div>
-            
-            {/* Right side */}
             <div className="flex items-center gap-4">
               <ThemeToggle />
               {!currentUser && (
@@ -273,52 +328,167 @@ const PublicSimDetail = () => {
         </div>
       </nav>
 
-      <div className="flex flex-col h-[calc(100vh-4rem)]">
-        {/* Compact Header */}
-        <div className="border-b border-border bg-card/30 backdrop-blur-sm p-4">
-          <div className="max-w-5xl mx-auto flex items-center gap-4">
-            <Avatar className="h-12 w-12 border-2 border-border">
-              <AvatarImage src={getAvatarUrl(sim.avatar_url)} alt={sim.name} />
-              <AvatarFallback>{sim.name.charAt(0)}</AvatarFallback>
-            </Avatar>
-            <div className="flex-1">
-              <div className="flex items-center gap-2">
-                <h1 className="text-xl font-bold">{sim.name}</h1>
-                {sim.is_verified && (
-                  <img src="/lovable-uploads/verified-badge.png" alt="Verified" className="h-5 w-5" />
-                )}
+      {/* Hero Section with Stats */}
+      <div className="border-b border-border bg-card/30 backdrop-blur-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
+            {/* Avatar and Name */}
+            <div className="flex items-center gap-4">
+              <Avatar className="h-20 w-20 border-2 border-primary ring-4 ring-primary/20">
+                <AvatarImage src={getAvatarUrl(sim.avatar_url)} alt={sim.name} />
+                <AvatarFallback className="text-2xl">{sim.name.charAt(0)}</AvatarFallback>
+              </Avatar>
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <h1 className="text-3xl font-bold font-mono">{sim.name}</h1>
+                  {sim.is_verified && (
+                    <img src="/lovable-uploads/verified-badge.png" alt="Verified" className="h-6 w-6" />
+                  )}
+                </div>
+                <p className="text-muted-foreground">{sim.description}</p>
               </div>
-              <p className="text-sm text-muted-foreground">{sim.description}</p>
             </div>
-            <div className="flex items-center gap-2">
-              {sim.twitter_url && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => window.open(sim.twitter_url, '_blank')}
-                >
-                  <Globe className="h-4 w-4" />
-                </Button>
-              )}
-              {sim.crypto_wallet && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleCopyWallet}
-                >
-                  {walletCopied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-                </Button>
-              )}
+
+            {/* Stats Grid */}
+            <div className="flex-1 grid grid-cols-1 sm:grid-cols-3 gap-4 ml-auto">
+              {/* $SIMAI Balance */}
+              <Card className="bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20">
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-primary/20 rounded-lg">
+                      <Coins className="h-5 w-5 text-primary" />
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground">$SIMAI Balance</p>
+                      <p className="text-2xl font-bold font-mono">{simaiBalance.toLocaleString()}</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Ranking */}
+              <Card className="bg-gradient-to-br from-accent/10 to-accent/5 border-accent/20">
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-accent/20 rounded-lg">
+                      <TrendingUp className="h-5 w-5 text-accent" />
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground">Ranking</p>
+                      <p className="text-2xl font-bold font-mono">#{ranking}</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Wallet & X Links */}
+              <Card className="bg-card/50">
+                <CardContent className="p-4">
+                  <div className="flex flex-col gap-2">
+                    {sim.twitter_url && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="w-full justify-start"
+                        onClick={() => window.open(sim.twitter_url, '_blank')}
+                      >
+                        <Globe className="h-4 w-4 mr-2" />
+                        View on X
+                        <ExternalLink className="h-3 w-3 ml-auto" />
+                      </Button>
+                    )}
+                    {sim.crypto_wallet && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="w-full justify-start"
+                        onClick={handleCopyWallet}
+                      >
+                        <Wallet className="h-4 w-4 mr-2" />
+                        <span className="truncate flex-1 text-left text-xs">
+                          {sim.crypto_wallet.slice(0, 8)}...{sim.crypto_wallet.slice(-6)}
+                        </span>
+                        {walletCopied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                      </Button>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
             </div>
           </div>
         </div>
+      </div>
 
-        {/* Chat Interface - Full Height */}
-        <div className="flex-1 overflow-hidden">
-          <PublicChatInterface 
-            agent={agentForChat}
-            avatarUrl={getAvatarUrl(sim.avatar_url)}
-          />
+      {/* Main Content - Chat and Activity */}
+      <div className="flex-1 overflow-hidden">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 h-full">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-full">
+            {/* Chat Interface - 2/3 width */}
+            <div className="lg:col-span-2 h-full">
+              <Card className="h-full flex flex-col bg-card/50 backdrop-blur-sm">
+                <CardHeader className="border-b border-border/50 pb-4">
+                  <CardTitle className="flex items-center gap-2 font-mono">
+                    <MessageSquare className="h-5 w-5" />
+                    Chat with {sim.name}
+                  </CardTitle>
+                </CardHeader>
+                <div className="flex-1 overflow-hidden">
+                  <PublicChatInterface 
+                    agent={agentForChat}
+                    avatarUrl={getAvatarUrl(sim.avatar_url)}
+                  />
+                </div>
+              </Card>
+            </div>
+
+            {/* Real-time Activity - 1/3 width */}
+            <div className="h-full">
+              <Card className="h-full flex flex-col bg-card/50 backdrop-blur-sm">
+                <CardHeader className="border-b border-border/50 pb-4">
+                  <CardTitle className="flex items-center gap-2 font-mono text-lg">
+                    <Activity className="h-5 w-5 text-primary" />
+                    Live Activity
+                    <Badge variant="secondary" className="ml-auto">
+                      <span className="relative flex h-2 w-2 mr-2">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+                      </span>
+                      Live
+                    </Badge>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="flex-1 overflow-hidden p-0">
+                  <ScrollArea className="h-full px-4 py-4">
+                    <div className="space-y-3">
+                      {activityLogs.map((log) => (
+                        <div 
+                          key={log.id}
+                          className="flex gap-3 p-3 rounded-lg bg-muted/50 border border-border/50 hover:bg-muted/70 transition-colors"
+                        >
+                          <div className="shrink-0">
+                            <Clock className="h-4 w-4 text-muted-foreground mt-0.5" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-1">
+                              <Badge variant="outline" className="text-xs">
+                                {log.action}
+                              </Badge>
+                              <span className="text-xs text-muted-foreground">
+                                {new Date(log.timestamp).toLocaleTimeString()}
+                              </span>
+                            </div>
+                            <p className="text-sm text-foreground leading-relaxed break-words">
+                              {log.details}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </ScrollArea>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
         </div>
       </div>
 
