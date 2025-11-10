@@ -25,11 +25,13 @@ import {
   Coins,
   ExternalLink,
   MessageSquare,
-  Clock
+  Clock,
+  Zap
 } from "lucide-react";
 import simHeroLogo from "@/assets/sim-hero-logo.png";
 import simLogoWhite from "@/assets/sim-logo-white.png";
 import SimpleFooter from "@/components/SimpleFooter";
+import { GodModeMap } from "@/components/GodModeMap";
 
 interface ActivityLog {
   id: string;
@@ -490,68 +492,23 @@ const PublicSimDetail = () => {
 
             {/* Right Sidebar - God View + Activity */}
             <div className="h-full min-h-[600px] max-h-[calc(100vh-400px)] flex flex-col gap-6">
-              {/* God View - Where is the SIM */}
-              <Card className="flex-shrink-0 bg-gradient-to-br from-primary/10 via-accent/5 to-background border-primary/20">
+              {/* God Mode - Interactive Map */}
+              <Card className="flex-shrink-0 bg-card/50 backdrop-blur-sm border-primary/20">
                 <CardHeader className="pb-3">
                   <CardTitle className="flex items-center gap-2 font-mono text-lg">
-                    <Globe className="h-5 w-5 text-primary" />
-                    Digital Universe
+                    <Zap className="h-5 w-5 text-primary" />
+                    God Mode
                     <Badge variant="secondary" className="ml-auto">
                       <span className="relative flex h-2 w-2 mr-2">
                         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
                         <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
                       </span>
-                      Active
+                      Live
                     </Badge>
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-3">
-                  {/* Current Location */}
-                  <div className="p-3 rounded-lg bg-muted/50 border border-border/50">
-                    <div className="flex items-start gap-3">
-                      <div className="p-2 bg-primary/20 rounded-lg shrink-0">
-                        <Activity className="h-4 w-4 text-primary" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-xs text-muted-foreground mb-1">Current Location</p>
-                        <p className="text-sm font-medium">X (Twitter) Platform</p>
-                        <p className="text-xs text-muted-foreground mt-1">Monitoring mentions and trends</p>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Current Activity */}
-                  <div className="p-3 rounded-lg bg-muted/50 border border-border/50">
-                    <div className="flex items-start gap-3">
-                      <div className="p-2 bg-accent/20 rounded-lg shrink-0">
-                        <MessageSquare className="h-4 w-4 text-accent" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-xs text-muted-foreground mb-1">Current Task</p>
-                        <p className="text-sm font-medium">Engaging in conversations</p>
-                        <p className="text-xs text-muted-foreground mt-1">2 active chats</p>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Network Status */}
-                  <div className="p-3 rounded-lg bg-muted/50 border border-border/50">
-                    <div className="flex items-start gap-3">
-                      <div className="p-2 bg-primary/20 rounded-lg shrink-0">
-                        <TrendingUp className="h-4 w-4 text-primary" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-xs text-muted-foreground mb-1">Network</p>
-                        <p className="text-sm font-medium">Solana Mainnet</p>
-                        <div className="flex items-center gap-2 mt-1">
-                          <div className="h-1.5 flex-1 bg-background rounded-full overflow-hidden">
-                            <div className="h-full w-[85%] bg-primary rounded-full"></div>
-                          </div>
-                          <span className="text-xs text-muted-foreground">85%</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+                <CardContent className="p-4">
+                  <GodModeMap agentName={sim.name} />
                 </CardContent>
               </Card>
 
