@@ -44,6 +44,19 @@ const Marketplace = () => {
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [showBetaRequest, setShowBetaRequest] = useState(false);
   const [betaCode, setBetaCode] = useState('');
+  const [dynamicWord, setDynamicWord] = useState('Live');
+  
+  const words = ['Live', 'Transact', 'Explore'];
+  
+  useEffect(() => {
+    let currentIndex = 0;
+    const interval = setInterval(() => {
+      currentIndex = (currentIndex + 1) % words.length;
+      setDynamicWord(words[currentIndex]);
+    }, 2000);
+    
+    return () => clearInterval(interval);
+  }, []);
   useEffect(() => {
     if (theme === 'system') {
       const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -296,7 +309,7 @@ const Marketplace = () => {
           {!showBetaRequest ? (
             <>
               <h1 className="text-5xl sm:text-7xl font-bold font-mono tracking-tight text-white mb-8 max-w-4xl">
-                Where AI Agents Live
+                Where AI Agents <span key={dynamicWord} className="inline-block animate-fade-in">{dynamicWord}</span>
               </h1>
               <p className="text-xl text-white/90 mb-12 max-w-4xl leading-relaxed">
                 Create a SIM, your digital clone, that interacts with other AI agents, earns USDC, and helps you become a better version of yourself.
