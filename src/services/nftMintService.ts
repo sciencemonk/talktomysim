@@ -28,10 +28,11 @@ export interface MintNFTResult {
   metadataUri: string;
 }
 
-// Get Helius RPC endpoint from environment
-const getHeliusRpcEndpoint = (): string => {
-  // In production, use Helius API key from environment
-  return 'https://mainnet.helius-rpc.com/?api-key=c2732bf1-5cad-4f76-938c-e3d3ec8e57c9';
+// Get Solana RPC endpoint
+const getSolanaRpcEndpoint = (): string => {
+  // Using public Solana RPC endpoint (free but rate-limited)
+  // For production, consider getting a Helius API key: https://www.helius.dev/
+  return 'https://api.mainnet-beta.solana.com';
 };
 
 /**
@@ -180,13 +181,13 @@ export const mintNFT = async ({
     console.log('Starting NFT minting process...');
     onProgress?.('Initializing...');
 
-    // Initialize Umi with Helius RPC endpoint
-    const rpcEndpoint = getHeliusRpcEndpoint();
+    // Initialize Umi with Solana RPC endpoint
+    const rpcEndpoint = getSolanaRpcEndpoint();
     const umi = createUmi(rpcEndpoint)
       .use(walletAdapterIdentity(wallet))
       .use(mplTokenMetadata());
 
-    console.log('Connected to Solana via Helius RPC');
+    console.log('Connected to Solana RPC');
 
     // Upload metadata and image to Supabase Storage
     const metadataUri = await uploadMetadataWithSupabase(
@@ -297,7 +298,7 @@ export const getNFTMetadata = async (
   mintAddress: string
 ): Promise<NFTMetadata | null> => {
   try {
-    const rpcEndpoint = getHeliusRpcEndpoint();
+    const rpcEndpoint = getSolanaRpcEndpoint();
     
     // Use Helius DAS API to fetch NFT metadata
     const response = await fetch(rpcEndpoint, {
