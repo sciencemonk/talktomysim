@@ -1,6 +1,7 @@
 import { useState, useRef, DragEvent, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useWallet } from "@solana/wallet-adapter-react";
+import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -747,15 +748,18 @@ export const CreateSimModal = ({ open, onOpenChange, onSuccess, onAuthRequired, 
                 <Label htmlFor="crypto-wallet" className="text-sm font-medium">
                   SOL Wallet Address {simType === "NFT" ? <span className="text-destructive">*</span> : <span className="text-muted-foreground">(Optional)</span>}
                 </Label>
-                <div className="relative">
+                <div className="flex gap-2">
                   <Input
                     id="crypto-wallet"
                     value={cryptoWallet}
                     onChange={(e) => setCryptoWallet(e.target.value)}
                     placeholder={simType === "NFT" ? "Connect wallet or paste address" : "7xKXt...aBcD"}
-                    className="h-11 bg-background font-mono text-sm"
+                    className="h-11 bg-background font-mono text-sm flex-1"
                     required={simType === "NFT"}
                   />
+                  {simType === "NFT" && !wallet.connected && (
+                    <WalletMultiButton className="!h-11 !bg-primary !text-primary-foreground hover:!bg-primary/90" />
+                  )}
                 </div>
                 <p className="text-xs text-muted-foreground">
                   {simType === "NFT" 
