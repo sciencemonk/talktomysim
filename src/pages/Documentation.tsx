@@ -15,6 +15,8 @@ export default function Documentation() {
   const navigate = useNavigate();
   const { theme } = useTheme();
   const [resolvedTheme, setResolvedTheme] = useState<'light' | 'dark'>('dark');
+  const [showBetaRequest, setShowBetaRequest] = useState(false);
+  const [betaCode, setBetaCode] = useState('');
 
   useEffect(() => {
     if (theme === 'system') {
@@ -24,6 +26,27 @@ export default function Documentation() {
       setResolvedTheme(theme as 'light' | 'dark');
     }
   }, [theme]);
+
+  const generateBetaCode = () => {
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let result = '';
+    for (let i = 0; i < 8; i++) {
+      result += characters.charAt(Math.floor(Math.random() * characters.length));
+    }
+    return result;
+  };
+
+  const handlePostToX = () => {
+    const tweetText = '$SIMAI';
+    const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}`;
+    window.open(twitterUrl, '_blank');
+  };
+
+  const handleCreateAgent = () => {
+    const code = generateBetaCode();
+    setBetaCode(code);
+    setShowBetaRequest(true);
+  };
 
   const handleXSignIn = async () => {
     try {
@@ -710,29 +733,49 @@ for await (const chunk of streamResponse(request)) {
         </Card>
 
         {/* Getting Started */}
-        <Card className="mb-8 bg-card/50 backdrop-blur-sm border-border/50">
-          <CardContent className="p-8">
-            <h2 className="text-2xl font-bold mb-4 font-mono flex items-center gap-2">
-              <Terminal className="h-6 w-6" />
-              6. Getting Started
-            </h2>
-            <p className="text-muted-foreground leading-relaxed mb-4">
-              To create your first SIM, connect your X account through OAuth authentication. The platform provides templates for 
-              common utility functions and pre-configured MCP servers for popular integrations. Your SIM will inherit the reputation 
-              and social proof of your X account, establishing immediate trust with users.
-            </p>
-            <p className="text-muted-foreground leading-relaxed mb-6">
-              The agent creation wizard guides you through defining your utility function, selecting MCP integrations, and 
-              configuring the chat interface. Once deployed, your SIM operates autonomously, optimizing against your defined 
-              objectives while earning $SIMAI cryptocurrency rewards based on usage and performance.
-            </p>
-            <div className="flex justify-center">
-              <Button onClick={handleXSignIn} size="lg" className="bg-white/10 backdrop-blur-md border border-white/20 text-foreground hover:bg-white/20 text-xl px-8 py-6 gap-3 h-auto font-mono">
-                Create AI Agent <img src={xIcon} alt="X" className="h-6 w-6 inline-block" />
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+        {!showBetaRequest ? (
+          <Card className="mb-8 bg-card/50 backdrop-blur-sm border-border/50">
+            <CardContent className="p-8">
+              <h2 className="text-2xl font-bold mb-4 font-mono flex items-center gap-2">
+                <Terminal className="h-6 w-6" />
+                6. Getting Started
+              </h2>
+              <p className="text-muted-foreground leading-relaxed mb-4">
+                To create your first SIM, connect your X account through OAuth authentication. The platform provides templates for 
+                common utility functions and pre-configured MCP servers for popular integrations. Your SIM will inherit the reputation 
+                and social proof of your X account, establishing immediate trust with users.
+              </p>
+              <p className="text-muted-foreground leading-relaxed mb-6">
+                The agent creation wizard guides you through defining your utility function, selecting MCP integrations, and 
+                configuring the chat interface. Once deployed, your SIM operates autonomously, optimizing against your defined 
+                objectives while earning $SIMAI cryptocurrency rewards based on usage and performance.
+              </p>
+              <div className="flex justify-center">
+                <Button onClick={handleCreateAgent} size="lg" className="bg-white/10 backdrop-blur-md border border-white/20 text-foreground hover:bg-white/20 text-xl px-8 py-6 gap-3 h-auto font-mono">
+                  Create AI Agent <img src={xIcon} alt="X" className="h-6 w-6 inline-block" />
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        ) : (
+          <Card className="mb-8 bg-card/50 backdrop-blur-sm border-border/50">
+            <CardContent className="p-8">
+              <h2 className="text-2xl font-bold text-foreground mb-4 text-center font-mono">Your X account isn't on the private beta list</h2>
+              <p className="text-muted-foreground mb-6 text-center">Post this on X to get an early access invite:</p>
+              <div className="p-4 bg-background/50 rounded-lg font-mono text-sm text-foreground mb-6 text-center border border-border">
+                $SIMAI
+              </div>
+              <div className="space-y-3">
+                <Button onClick={handlePostToX} className="w-full" size="lg">
+                  Post on X
+                </Button>
+                <Button variant="outline" onClick={() => setShowBetaRequest(false)} className="w-full">
+                  Back
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Footer Reference */}
         <div className="text-center text-sm text-muted-foreground font-mono mt-12 mb-8">

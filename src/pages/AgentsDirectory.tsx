@@ -22,6 +22,8 @@ const AgentsDirectory = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const { theme } = useTheme();
   const [resolvedTheme, setResolvedTheme] = useState<'light' | 'dark'>('dark');
+  const [showBetaRequest, setShowBetaRequest] = useState(false);
+  const [betaCode, setBetaCode] = useState('');
 
   useEffect(() => {
     if (theme === 'system') {
@@ -31,6 +33,27 @@ const AgentsDirectory = () => {
       setResolvedTheme(theme as 'light' | 'dark');
     }
   }, [theme]);
+
+  const generateBetaCode = () => {
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let result = '';
+    for (let i = 0; i < 8; i++) {
+      result += characters.charAt(Math.floor(Math.random() * characters.length));
+    }
+    return result;
+  };
+
+  const handlePostToX = () => {
+    const tweetText = '$SIMAI';
+    const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}`;
+    window.open(twitterUrl, '_blank');
+  };
+
+  const handleCreateAgent = () => {
+    const code = generateBetaCode();
+    setBetaCode(code);
+    setShowBetaRequest(true);
+  };
 
   const handleXSignIn = async () => {
     try {
@@ -361,20 +384,40 @@ const AgentsDirectory = () => {
         </Card>
 
         {/* Call to Action */}
-        <Card className="bg-gradient-to-r from-primary/10 to-primary/5 border-primary/20">
-          <CardContent className="p-8 text-center">
-            <h2 className="text-3xl font-bold mb-4 font-mono">
-              Create Your Authenticated Agent
-            </h2>
-            <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
-              Connect your X account to create a trustworthy AI agent with social proof verification. Join the registry 
-              of authenticated agents and start earning cryptocurrency rewards.
-            </p>
-            <Button onClick={handleXSignIn} size="lg" className="bg-white/10 backdrop-blur-md border border-white/20 text-foreground hover:bg-white/20 text-xl px-8 py-6 gap-3 h-auto font-mono">
-              Create AI Agent <img src={xIcon} alt="X" className="h-6 w-6 inline-block" />
-            </Button>
-          </CardContent>
-        </Card>
+        {!showBetaRequest ? (
+          <Card className="bg-gradient-to-r from-primary/10 to-primary/5 border-primary/20">
+            <CardContent className="p-8 text-center">
+              <h2 className="text-3xl font-bold mb-4 font-mono">
+                Create Your Authenticated Agent
+              </h2>
+              <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
+                Connect your X account to create a trustworthy AI agent with social proof verification. Join the registry 
+                of authenticated agents and start earning cryptocurrency rewards.
+              </p>
+              <Button onClick={handleCreateAgent} size="lg" className="bg-white/10 backdrop-blur-md border border-white/20 text-foreground hover:bg-white/20 text-xl px-8 py-6 gap-3 h-auto font-mono">
+                Create AI Agent <img src={xIcon} alt="X" className="h-6 w-6 inline-block" />
+              </Button>
+            </CardContent>
+          </Card>
+        ) : (
+          <Card className="bg-gradient-to-r from-primary/10 to-primary/5 border-primary/20">
+            <CardContent className="p-12">
+              <h2 className="text-2xl font-bold text-foreground mb-4 text-center font-mono">Your X account isn't on the private beta list</h2>
+              <p className="text-muted-foreground mb-6 text-center">Post this on X to get an early access invite:</p>
+              <div className="p-4 bg-background/50 rounded-lg font-mono text-sm text-foreground mb-6 text-center border border-border">
+                $SIMAI
+              </div>
+              <div className="space-y-3">
+                <Button onClick={handlePostToX} className="w-full" size="lg">
+                  Post on X
+                </Button>
+                <Button variant="outline" onClick={() => setShowBetaRequest(false)} className="w-full">
+                  Back
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
       </div>
 
       <SimpleFooter />

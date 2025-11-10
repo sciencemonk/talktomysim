@@ -17,6 +17,8 @@ const SimCoin = () => {
   const { theme } = useTheme();
   const [resolvedTheme, setResolvedTheme] = useState<'light' | 'dark'>('dark');
   const contractAddress = "FFqwoZ7phjoupWjLeE5yFeLqGi8jkGEFrTz6jnsUpump";
+  const [showBetaRequest, setShowBetaRequest] = useState(false);
+  const [betaCode, setBetaCode] = useState('');
 
   useEffect(() => {
     if (theme === 'system') {
@@ -34,6 +36,27 @@ const SimCoin = () => {
     } catch (error) {
       toast.error("Failed to copy contract address");
     }
+  };
+
+  const generateBetaCode = () => {
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let result = '';
+    for (let i = 0; i < 8; i++) {
+      result += characters.charAt(Math.floor(Math.random() * characters.length));
+    }
+    return result;
+  };
+
+  const handlePostToX = () => {
+    const tweetText = '$SIMAI';
+    const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}`;
+    window.open(twitterUrl, '_blank');
+  };
+
+  const handleCreateAgent = () => {
+    const code = generateBetaCode();
+    setBetaCode(code);
+    setShowBetaRequest(true);
   };
 
   const handleXSignIn = async () => {
@@ -321,30 +344,50 @@ const SimCoin = () => {
         </section>
 
         {/* CTA */}
-        <Card className="border-border bg-gradient-to-br from-primary/5 to-secondary/5">
-          <CardContent className="p-12 text-center">
-            <h2 className="text-3xl font-bold text-foreground mb-4 font-mono">
-              Deploy Your Agent
-            </h2>
-            <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
-              Start earning $SIMAI rewards by creating AI agents on the platform. Zero setup fees, zero transaction costs, automatic reward distribution.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button onClick={handleXSignIn} size="lg" className="bg-white/10 backdrop-blur-md border border-white/20 text-foreground hover:bg-white/20 text-xl px-8 py-6 gap-3 h-auto font-mono">
-                Create AI Agent <img src={xIcon} alt="X" className="h-6 w-6 inline-block" />
-              </Button>
-              <Button 
-                variant="outline" 
-                size="lg" 
-                className="gap-2 font-mono"
-                onClick={() => window.open(`https://solscan.io/token/${contractAddress}`, '_blank')}
-              >
-                View Contract
-                <ExternalLink className="h-4 w-4" />
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+        {!showBetaRequest ? (
+          <Card className="border-border bg-gradient-to-br from-primary/5 to-secondary/5">
+            <CardContent className="p-12 text-center">
+              <h2 className="text-3xl font-bold text-foreground mb-4 font-mono">
+                Deploy Your Agent
+              </h2>
+              <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
+                Start earning $SIMAI rewards by creating AI agents on the platform. Zero setup fees, zero transaction costs, automatic reward distribution.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <Button onClick={handleCreateAgent} size="lg" className="bg-white/10 backdrop-blur-md border border-white/20 text-foreground hover:bg-white/20 text-xl px-8 py-6 gap-3 h-auto font-mono">
+                  Create AI Agent <img src={xIcon} alt="X" className="h-6 w-6 inline-block" />
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="lg" 
+                  className="gap-2 font-mono"
+                  onClick={() => window.open(`https://solscan.io/token/${contractAddress}`, '_blank')}
+                >
+                  View Contract
+                  <ExternalLink className="h-4 w-4" />
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        ) : (
+          <Card className="border-border bg-gradient-to-br from-primary/5 to-secondary/5">
+            <CardContent className="p-12">
+              <h2 className="text-2xl font-bold text-foreground mb-4 text-center font-mono">Your X account isn't on the private beta list</h2>
+              <p className="text-muted-foreground mb-6 text-center">Post this on X to get an early access invite:</p>
+              <div className="p-4 bg-background/50 rounded-lg font-mono text-sm text-foreground mb-6 text-center border border-border">
+                $SIMAI
+              </div>
+              <div className="space-y-3">
+                <Button onClick={handlePostToX} className="w-full" size="lg">
+                  Post on X
+                </Button>
+                <Button variant="outline" onClick={() => setShowBetaRequest(false)} className="w-full">
+                  Back
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
       </div>
 
       {/* Footer */}

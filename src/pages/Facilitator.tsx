@@ -77,8 +77,13 @@ const Facilitator = () => {
             
             <div className="flex items-center gap-4">
               <ThemeToggle />
-              <Button variant="default" size="sm" onClick={handleXSignIn}>
-                Sign In <img src={xIcon} alt="X" className="h-4 w-4 ml-1.5 inline-block" />
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="bg-background/10 backdrop-blur-md border border-border text-foreground hover:bg-background/20"
+                onClick={handleXSignIn}
+              >
+                Sign In
               </Button>
             </div>
           </div>
