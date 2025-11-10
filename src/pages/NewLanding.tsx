@@ -555,12 +555,12 @@ const NewLanding = () => {
     if (simCategory === 'Crypto Mail') {
       const xUsername = ((sim.social_links as any)?.userName || (sim.social_links as any)?.x_username)?.toLowerCase();
       // Show all X agents
-      return ['mrjethroknights', 'degencapitalllc', 'cryptodivix', 'professrweb3'].includes(xUsername || '');
+      return ['degencapitalllc', 'cryptodivix', 'professrweb3'].includes(xUsername || '');
     }
     return false;
   }) || []).sort((a, b) => {
     // Sort: active agents first, then pending ones
-    const approvedXAgents = ['mrjethroknights', 'cryptodivix'];
+    const approvedXAgents = ['cryptodivix'];
     const aUsername = ((a.social_links as any)?.userName || (a.social_links as any)?.x_username)?.toLowerCase() || '';
     const bUsername = ((b.social_links as any)?.userName || (b.social_links as any)?.x_username)?.toLowerCase() || '';
     const aIsActive = approvedXAgents.includes(aUsername);
@@ -569,7 +569,7 @@ const NewLanding = () => {
     if (aIsActive && !bIsActive) return -1;
     if (!aIsActive && bIsActive) return 1;
     
-    // Among active agents, cryptodivix first, then mrjethroknights
+    // Among active agents, prioritize cryptodivix
     if (aIsActive && bIsActive) {
       if (aUsername === 'cryptodivix') return -1;
       if (bUsername === 'cryptodivix') return 1;

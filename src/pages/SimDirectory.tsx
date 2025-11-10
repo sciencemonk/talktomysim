@@ -314,10 +314,10 @@ const SimDirectory = () => {
       // Type filter
       const simCategory = (sim as any).sim_category;
       
-      // Hide all Crypto Mail agents except @mrjethroknights
+      // Hide all Crypto Mail agents except verified ones
       if (simCategory === 'Crypto Mail') {
-        const xUsername = (sim.social_links as any)?.x_username;
-        if (xUsername?.toLowerCase() !== 'mrjethroknights') return false;
+        const isVerified = (sim as any).is_verified;
+        if (!isVerified) return false;
       }
       
       if (simTypeFilter !== 'all') {

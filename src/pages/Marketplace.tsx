@@ -45,6 +45,7 @@ const Marketplace = () => {
   const { theme } = useTheme();
   const [resolvedTheme, setResolvedTheme] = useState<'light' | 'dark'>('dark');
   const [isCreatingAgent, setIsCreatingAgent] = useState(false);
+  const [currentUser, setCurrentUser] = useState<any>(null);
 
   useEffect(() => {
     if (theme === 'system') {
@@ -54,6 +55,14 @@ const Marketplace = () => {
       setResolvedTheme(theme as 'light' | 'dark');
     }
   }, [theme]);
+
+  useEffect(() => {
+    const checkUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setCurrentUser(user);
+    };
+    checkUser();
+  }, []);
   const {
     offerings,
     isLoading: offeringsLoading
@@ -75,11 +84,9 @@ const Marketplace = () => {
       // Filter out Crypto Mail agents that might have invalid X usernames
       // to prevent errors when fetching profile data
       return (data || []).filter(agent => {
-        // Skip Crypto Mail agents except for specific verified ones
+        // Skip Crypto Mail agents except for verified ones
         if (agent.sim_category === 'Crypto Mail') {
-          const xUsername = (agent.social_links as any)?.x_username;
-          // Only include verified Crypto Mail agents or specific whitelisted ones
-          return agent.is_verified || xUsername?.toLowerCase() === 'mrjethroknights';
+          return agent.is_verified;
         }
         return true;
       }).map(agent => ({
@@ -244,62 +251,67 @@ const Marketplace = () => {
                 <img src={resolvedTheme === 'dark' ? simLogoWhite : simHeroLogo} alt="SIM" className="h-8" />
               </button>
               
-              {/* Navigation Links */}
-              <div className="hidden md:flex items-center gap-8">
-                <button onClick={() => navigate('/about')} className="text-white/90 hover:text-white transition-colors text-sm font-medium">
-                  About
-                </button>
-                <button onClick={() => navigate('/agents')} className="text-white/90 hover:text-white transition-colors text-sm font-medium">
-                  Agent Directory
-                </button>
-                <button onClick={() => navigate('/documentation')} className="text-white/90 hover:text-white transition-colors text-sm font-medium">
-                  Documentation
-                </button>
-                <button onClick={() => navigate('/simai')} className="text-white/90 hover:text-white transition-colors text-sm font-medium">
-                  $SIMAI
-                </button>
-                <button onClick={() => navigate('/facilitator')} className="text-white/90 hover:text-white transition-colors text-sm font-medium">
-                  x402 Facilitator
-                </button>
-              </div>
+              {/* Navigation Links - Only show if not signed in */}
+              {!currentUser && (
+                <div className="hidden md:flex items-center gap-8">
+                  <button onClick={() => navigate('/about')} className="text-white/90 hover:text-white transition-colors text-sm font-medium">
+                    About
+                  </button>
+                  <button onClick={() => navigate('/agents')} className="text-white/90 hover:text-white transition-colors text-sm font-medium">
+                    Agent Directory
+                  </button>
+                  <button onClick={() => navigate('/documentation')} className="text-white/90 hover:text-white transition-colors text-sm font-medium">
+                    Documentation
+                  </button>
+                  <button onClick={() => navigate('/simai')} className="text-white/90 hover:text-white transition-colors text-sm font-medium">
+                    $SIMAI
+                  </button>
+                  <button onClick={() => navigate('/facilitator')} className="text-white/90 hover:text-white transition-colors text-sm font-medium">
+                    x402 Facilitator
+                  </button>
+                </div>
+              )}
               
               {/* Right side - Theme Toggle and Sign In */}
               <div className="flex items-center gap-4">
-                {/* Mobile Menu */}
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild className="md:hidden">
-                    <Button variant="ghost" size="icon" className="text-white hover:bg-white/10">
-                      <Menu className="h-5 w-5" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-48 bg-card z-50">
-                    <DropdownMenuItem onClick={() => navigate('/about')} className="cursor-pointer">
-                      About
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => navigate('/agents')} className="cursor-pointer">
-                      Agent Directory
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => navigate('/documentation')} className="cursor-pointer">
-                      Documentation
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => navigate('/simai')} className="cursor-pointer">
-                      $SIMAI
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => navigate('/facilitator')} className="cursor-pointer">
-                      x402 Facilitator
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                {!currentUser && (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild className="md:hidden">
+                      <Button variant="ghost" size="icon" className="text-white hover:bg-white/10">
+                        <Menu className="h-5 w-5" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-48 bg-card z-50">
+                      <DropdownMenuItem onClick={() => navigate('/about')} className="cursor-pointer">
+                        About
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => navigate('/agents')} className="cursor-pointer">
+                        Agent Directory
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => navigate('/documentation')} className="cursor-pointer">
+                        Documentation
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => navigate('/simai')} className="cursor-pointer">
+                        $SIMAI
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => navigate('/facilitator')} className="cursor-pointer">
+                        x402 Facilitator
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                )}
                 
                 <ThemeToggle />
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-white/20 hover:text-white"
-                  onClick={handleXSignIn}
-                >
-                  Sign In
-                </Button>
+                {!currentUser && (
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-white/20 hover:text-white"
+                    onClick={handleXSignIn}
+                  >
+                    Sign In
+                  </Button>
+                )}
               </div>
             </div>
           </div>

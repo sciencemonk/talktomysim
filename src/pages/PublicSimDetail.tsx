@@ -1,1119 +1,385 @@
-import { useEffect, useState, useRef, lazy, Suspense } from "react";
+import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import XAgentPage from "@/pages/XAgentPage";
-import { Globe, Wallet, ExternalLink, Copy, Check, MessageCircle, X, Lock, Sparkles, Clock, ArrowLeft } from "lucide-react";
-import aiLoadingGif from "@/assets/ai-loading.gif";
-import { ShareButton } from "@/components/ShareButton";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Textarea } from "@/components/ui/textarea";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import PublicChatInterface from "@/components/PublicChatInterface";
-import ContactFormPage from "@/components/ContactFormPage";
-import DailyBriefsList from "@/components/DailyBriefsList";
-import AuthModal from "@/components/AuthModal";
+import { AgentOfferingsDisplay } from "@/components/AgentOfferingsDisplay";
 import { AgentType } from "@/types/agent";
+import { Sim } from "@/types/sim";
 import { useToast } from "@/hooks/use-toast";
-import landingBackground from "@/assets/landing-background.jpg";
-import { getAvatarUrl } from "@/lib/avatarUtils";
-import { fetchSolanaBalance, formatSolBalance } from "@/services/solanaBalanceService";
-import { validateX402Session } from "@/utils/x402Session";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { updateMetaTags, resetMetaTags } from "@/lib/metaTags";
 import { useTheme } from "@/hooks/useTheme";
-import { useIsMobile } from "@/hooks/use-mobile";
-
-
-// Lazy load X402PaymentModal to avoid blocking app initialization with ethers.js
-const X402PaymentModal = lazy(() => 
-  import("@/components/X402PaymentModal").then(module => ({ default: module.X402PaymentModal }))
-);
+import { ThemeToggle } from "@/components/ThemeToggle";
+import { getAvatarUrl } from "@/lib/avatarUtils";
+import { updateMetaTags, resetMetaTags } from "@/lib/metaTags";
+import { ArrowLeft, Globe, Wallet, Copy, Check, MessageCircle, Package } from "lucide-react";
+import simHeroLogo from "@/assets/sim-hero-logo.png";
+import simLogoWhite from "@/assets/sim-logo-white.png";
+import verifiedBadge from "@/public/lovable-uploads/verified-badge.png";
+import SimpleFooter from "@/components/SimpleFooter";
 
 const PublicSimDetail = () => {
   const { identifier } = useParams<{ identifier: string }>();
-  const customUrl = identifier; // Use identifier from route params
   const navigate = useNavigate();
   const { toast } = useToast();
-  const isMobile = useIsMobile();
-  const [sim, setSim] = useState<AgentType | null>(null);
-  const [isXAgent, setIsXAgent] = useState<boolean | null>(null);
-  const [isCheckingAgent, setIsCheckingAgent] = useState(true);
-  const { theme, setTheme } = useTheme();
-  
-  // Set dark mode as default on initial load only
-  useEffect(() => {
-    const hasThemePreference = localStorage.getItem('vite-ui-theme');
-    if (!hasThemePreference) {
-      setTheme('dark');
-    }
-  }, []);
-  
-  // Check if this is an embedded view or chat mode and show chat immediately
-  const searchParams = new URLSearchParams(window.location.search);
-  const embedMode = searchParams.get('embed');
-  const isEmbedded = embedMode === 'true' || embedMode === 'chat-only';
-  const isChatOnly = embedMode === 'chat-only';
-  const shouldShowChat = searchParams.get('chat') === 'true' || isEmbedded;
-  const [showChat, setShowChat] = useState(shouldShowChat);
-  const [showAuthModal, setShowAuthModal] = useState(false);
-  const [currentUser, setCurrentUser] = useState<any>(null);
+  const { theme } = useTheme();
+  const [sim, setSim] = useState<Sim | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [walletCopied, setWalletCopied] = useState(false);
-  const [shareLinkCopied, setShareLinkCopied] = useState(false);
-  const [solBalance, setSolBalance] = useState<number | null>(null);
-  const [isLoadingBalance, setIsLoadingBalance] = useState(false);
-  const [showPaymentModal, setShowPaymentModal] = useState(false);
-  const [paymentSessionId, setPaymentSessionId] = useState<string | null>(null);
-  const [showCreatorCodeModal, setShowCreatorCodeModal] = useState(false);
-  const [creatorCodeInput, setCreatorCodeInput] = useState('');
-  const [creatorCodeError, setCreatorCodeError] = useState('');
-  const [hasAccess, setHasAccess] = useState(false);
+  const [activeTab, setActiveTab] = useState("chat");
+  const [currentUser, setCurrentUser] = useState<any>(null);
+  const [resolvedTheme, setResolvedTheme] = useState<'light' | 'dark'>('dark');
 
-  // Calculate SOL equivalent (example rate: 1 $SimAI = 0.0001 SOL)
-  const SIMAI_TO_SOL_RATE = 0.0001;
-
-  const getSimDescription = () => {
-    // For Crypto Mail sims, use the user-written description
-    if (sim?.sim_category === 'Crypto Mail' && sim?.description) {
-      return sim.description;
-    }
-    // For other sims, use auto_description (never the system prompt in 'description' field)
-    if ((sim as any)?.auto_description) {
-      return (sim as any).auto_description;
-    }
-    // Fallback to a friendly default
-    if (sim?.title) {
-      return `Chat with ${sim.name}, an AI expert in ${sim.title}.`;
-    }
-    return `Chat with ${sim.name}, your AI assistant.`;
-  };
-
-  const getSimPrice = () => {
-    const price = (sim as any)?.price || 0;
-    if (!price || price === 0) {
-      return { display: 'Free', isFree: true };
-    }
-    const solEquivalent = (price * SIMAI_TO_SOL_RATE).toFixed(4);
-    return { 
-      display: `${price.toLocaleString()} $SimAI (~${solEquivalent} SOL)`,
-      isFree: false 
-    };
-  };
-
-  const generateSlug = (name: string) => {
-    return name
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/^-+|-+$/g, '');
-  };
-
-  const handleShareLink = () => {
-    if (!sim) return;
-    const simSlug = (sim as any).custom_url || generateSlug(sim.name);
-    const shareUrl = `${window.location.origin}/${simSlug}`;
-    navigator.clipboard.writeText(shareUrl);
-    setShareLinkCopied(true);
-    setTimeout(() => setShareLinkCopied(false), 2000);
-    toast({
-      title: "Link copied!",
-      description: "Share this link with others to let them discover this Sim"
-    });
-  };
-
-
-  // Check if this is an X agent first (before fetchSim)
   useEffect(() => {
-    const checkIfXAgent = async () => {
-      if (!customUrl) {
-        setIsCheckingAgent(false);
-        return;
-      }
+    if (theme === 'system') {
+      const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      setResolvedTheme(isDark ? 'dark' : 'light');
+    } else {
+      setResolvedTheme(theme as 'light' | 'dark');
+    }
+  }, [theme]);
 
-      try {
-        setIsCheckingAgent(true);
-        
-        const { data: xAgents } = await supabase
-          .from('advisors')
-          .select('*')
-          .eq('sim_category', 'Crypto Mail')
-          .eq('is_active', true);
-
-        if (xAgents) {
-          const matchingXAgent = xAgents.find(agent => {
-            const socialLinks = agent.social_links as { x_username?: string; userName?: string } | null;
-            const storedUsername = (socialLinks?.userName || socialLinks?.x_username || '').toLowerCase();
-            return storedUsername === customUrl?.toLowerCase();
-          });
-
-          if (matchingXAgent) {
-            setIsXAgent(true);
-            setIsCheckingAgent(false);
-            return;
-          }
-        }
-        
-        // Not an X agent, proceed with normal sim fetch
-        setIsXAgent(false);
-        await fetchSim();
-        setIsCheckingAgent(false);
-      } catch (error) {
-        console.error('Error checking agent type:', error);
-        setIsCheckingAgent(false);
-      }
-    };
-
+  useEffect(() => {
     checkUser();
-    checkIfXAgent();
+    fetchSim();
     
-    // Cleanup: reset meta tags when component unmounts
     return () => {
       resetMetaTags();
     };
-  }, [customUrl]);
-
-  // Check for x402 payment when showing Crypto Mail form
-  useEffect(() => {
-    if (sim?.sim_category === 'Crypto Mail' && sim?.x402_enabled && sim?.x402_price && sim?.x402_wallet) {
-      const validSession = validateX402Session(sim.x402_wallet);
-      if (validSession) {
-        setPaymentSessionId(validSession);
-      } else if (!showPaymentModal) {
-        setShowPaymentModal(true);
-      }
-    }
-  }, [sim]);
-
-  // Check for x402 payment when chat is shown
-  useEffect(() => {
-    if (showChat && sim && sim.x402_enabled && sim.x402_price && sim.x402_wallet) {
-      const validSession = validateX402Session(sim.x402_wallet);
-      if (!validSession) {
-        console.log('x402 payment required, showing payment modal');
-        setShowPaymentModal(true);
-        setShowChat(false); // Hide chat until payment
-      } else {
-        console.log('Valid x402 session found:', validSession);
-        setPaymentSessionId(validSession);
-      }
-    }
-  }, [showChat, sim]);
-
-  // Fetch SOL balance when sim has a crypto wallet
-  useEffect(() => {
-    const loadBalance = async () => {
-      const wallet = (sim as any)?.crypto_wallet;
-      if (wallet && wallet.trim()) {
-        setIsLoadingBalance(true);
-        const balance = await fetchSolanaBalance(wallet);
-        setSolBalance(balance);
-        setIsLoadingBalance(false);
-      } else {
-        setSolBalance(null);
-      }
-    };
-
-    if (sim) {
-      loadBalance();
-    }
-  }, [sim]);
+  }, [identifier]);
 
   const checkUser = async () => {
     const { data: { user } } = await supabase.auth.getUser();
     setCurrentUser(user);
   };
 
-  const handleCreateSimClick = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (user) {
-      navigate('/directory');
-    } else {
-      setShowAuthModal(true);
-    }
-  };
-
   const fetchSim = async () => {
     try {
+      setIsLoading(true);
       
-      // Try to fetch by custom_url first, then by id if not found
-      // Explicitly exclude edit_code for security
-      let query = supabase
-        .from('advisors')
-        .select('id, name, title, description, prompt, sim_category, x402_wallet, auto_description, full_description, avatar_url, response_length, conversation_style, personality_type, website_url, created_at, updated_at, is_verified, verification_status, date_of_birth, years_experience, interests, skills, sample_scenarios, completion_status, is_public, user_id, is_active, is_official, price, integrations, social_links, x402_price, x402_enabled, expertise_areas, target_audience, background_image_url, marketplace_category, background_content, knowledge_summary, url, full_name, professional_title, location, crypto_wallet, twitter_url, sim_type, owner_welcome_message, education, current_profession, areas_of_expertise, writing_sample, additional_background, custom_url, welcome_message')
-        .eq('is_active', true);
-      
-      // Try custom_url first
-      let { data, error } = await query
-        .eq('custom_url', customUrl)
+      // Try to fetch from sims table first
+      let { data: simData, error: simError } = await supabase
+        .from('sims')
+        .select('*')
+        .eq('is_active', true)
+        .or(`custom_url.eq.${identifier},id.eq.${identifier},x_username.ilike.${identifier}`)
         .maybeSingle();
 
-      // If not found by custom_url, try by id
-      if (!data && !error) {
-        const { data: dataById, error: errorById } = await supabase
-          .from('advisors')
-          .select('id, name, title, description, prompt, sim_category, x402_wallet, auto_description, full_description, avatar_url, response_length, conversation_style, personality_type, website_url, created_at, updated_at, is_verified, verification_status, date_of_birth, years_experience, interests, skills, sample_scenarios, completion_status, is_public, user_id, is_active, is_official, price, integrations, social_links, x402_price, x402_enabled, expertise_areas, target_audience, background_image_url, marketplace_category, background_content, knowledge_summary, url, full_name, professional_title, location, crypto_wallet, twitter_url, sim_type, owner_welcome_message, education, current_profession, areas_of_expertise, writing_sample, additional_background, custom_url, welcome_message')
-          .eq('id', customUrl)
-          .eq('is_active', true)
-          .maybeSingle();
-        
-        data = dataById;
-        error = errorById;
+      // Convert integrations to string array if found
+      if (simData) {
+        const integrationsArray = Array.isArray(simData.integrations) 
+          ? simData.integrations 
+          : [];
+        simData = {
+          ...simData,
+          integrations: integrationsArray as string[]
+        };
       }
 
-      // If still not found, try matching against generated slug from name
-      if (!data && !error) {
-        const { data: allSims, error: allError } = await supabase
+      // If not found in sims, try advisors (legacy)
+      if (!simData && !simError) {
+        const { data: advisorData, error: advisorError } = await supabase
           .from('advisors')
-          .select('id, name, title, description, prompt, sim_category, x402_wallet, auto_description, full_description, avatar_url, response_length, conversation_style, personality_type, website_url, created_at, updated_at, is_verified, verification_status, date_of_birth, years_experience, interests, skills, sample_scenarios, completion_status, is_public, user_id, is_active, is_official, price, integrations, social_links, x402_price, x402_enabled, expertise_areas, target_audience, background_image_url, marketplace_category, background_content, knowledge_summary, url, full_name, professional_title, location, crypto_wallet, twitter_url, sim_type, owner_welcome_message, education, current_profession, areas_of_expertise, writing_sample, additional_background, custom_url, welcome_message')
-          .eq('is_active', true);
-        
-        if (!allError && allSims) {
-          data = allSims.find(sim => generateSlug(sim.name) === customUrl) || null;
+          .select('*')
+          .eq('is_active', true)
+          .or(`custom_url.eq.${identifier},id.eq.${identifier}`)
+          .maybeSingle();
+
+        if (advisorData) {
+          // Convert advisor to sim format
+          const integrationsArray = Array.isArray(advisorData.integrations) 
+            ? advisorData.integrations 
+            : [];
+          
+          simData = {
+            id: advisorData.id,
+            user_id: advisorData.user_id,
+            name: advisorData.name,
+            description: advisorData.auto_description || advisorData.description,
+            prompt: advisorData.prompt,
+            welcome_message: advisorData.welcome_message,
+            x_username: (advisorData.social_links as any)?.x_username || 'unknown',
+            x_display_name: (advisorData.social_links as any)?.x_display_name || advisorData.name,
+            twitter_url: advisorData.twitter_url || '',
+            avatar_url: advisorData.avatar_url,
+            crypto_wallet: advisorData.crypto_wallet || '',
+            is_verified: advisorData.is_verified || false,
+            verification_status: advisorData.verification_status || false,
+            verified_at: advisorData.verified_at,
+            edit_code: '',
+            custom_url: advisorData.custom_url,
+            is_active: true,
+            is_public: true,
+            integrations: integrationsArray as string[],
+            social_links: advisorData.social_links,
+            training_completed: (advisorData.social_links as any)?.trained || false,
+            training_post_count: (advisorData.social_links as any)?.trainingPostCount || 0,
+            created_at: advisorData.created_at,
+            updated_at: advisorData.updated_at,
+          };
         }
       }
-      
-      // X agents are handled by the early check in useEffect - this shouldn't be reached
 
-      if (error) throw error;
-
-      if (!data) {
-        // Only navigate to 404 if we've exhausted all options
-        console.log('Agent/Sim not found for identifier:', customUrl);
-        navigate('/', { replace: true }); // Go to home instead of 404 to prevent loops
+      if (!simData) {
+        navigate('/404');
         return;
       }
 
-      // If this is a Crypto Mail sim, check if it should be treated as an X Agent
-      // and redirect to the X Agent store view instead
-      if (data.sim_category === 'Crypto Mail' && data.social_links) {
-        const socialLinks = data.social_links as { x_username?: string; userName?: string } | null;
-        const xUsername = (socialLinks?.x_username || socialLinks?.userName || '').toLowerCase();
-        
-        // If it has a username configured and it's different from the current URL, redirect
-        if (xUsername && xUsername !== customUrl?.toLowerCase()) {
-          console.log('Redirecting Crypto Mail sim to X Agent view:', xUsername);
-          navigate(`/${xUsername}`, { replace: true });
-          return;
-        }
-      }
+      // Ensure all fields are properly typed
+      const typedSim: Sim = {
+        ...simData,
+        integrations: Array.isArray(simData.integrations) ? simData.integrations as string[] : [],
+        social_links: simData.social_links as Sim['social_links']
+      };
 
-      // Transform to AgentType with social links and price
-      const transformedSim: AgentType = {
-        id: data.id,
-        name: data.name,
-        description: data.description || '',
-        type: 'General Tutor',
-        status: 'active',
-        createdAt: data.created_at,
-        updatedAt: data.updated_at,
-        avatar: data.avatar_url,
-        prompt: data.prompt,
-        welcome_message: data.welcome_message,
-        title: data.title,
-        sim_type: (data.sim_type || 'living') as 'historical' | 'living',
-        is_featured: false,
-        model: 'GPT-4',
-        interactions: 0,
-        studentsSaved: 0,
-        helpfulnessScore: 0,
-        avmScore: 0,
-        csat: 0,
-        performance: 0,
-        channels: [],
-        channelConfigs: {},
-        isPersonal: false,
-        voiceTraits: [],
-        social_links: data.social_links as any,
-        twitter_url: data.twitter_url,
-        website_url: data.website_url,
-        crypto_wallet: data.crypto_wallet,
-        background_image_url: data.background_image_url,
-        price: data.price || 0,
-        auto_description: data.auto_description,
-        x402_enabled: data.x402_enabled || false,
-        x402_price: data.x402_price || 0,
-        x402_wallet: data.x402_wallet,
-        sim_category: data.sim_category || 'Chat',
-        is_verified: data.is_verified || false
-      } as any;
+      setSim(typedSim);
 
-      console.log('Fetched sim with x402 settings:', {
-        id: transformedSim.id,
-        name: transformedSim.name,
-        x402_enabled: transformedSim.x402_enabled,
-        x402_price: transformedSim.x402_price,
-        x402_wallet: transformedSim.x402_wallet
-      });
-
-      setSim(transformedSim);
-      
-      // Redirect PumpFun Agents to the dedicated token page
-      if (transformedSim.sim_category === 'PumpFun Agent') {
-        const socialLinks = transformedSim.social_links as { contract_address?: string } | null;
-        const contractAddress = socialLinks?.contract_address;
-        if (contractAddress) {
-          navigate(`/token/${contractAddress}`, { replace: true });
-          return;
-        }
-      }
-      
-      // Update meta tags for social sharing
-      const simSlug = data.custom_url || generateSlug(transformedSim.name);
-      const simUrl = `https://simproject.org/${simSlug}`;
-      const simDescription = data.auto_description || 
-        (transformedSim.sim_category === 'Crypto Mail' && transformedSim.description) || 
-        `Chat with ${transformedSim.name}, your AI assistant.`;
-      
-      // Get the avatar URL and ensure it's a full URL for social sharing
-      let avatarImageUrl = 'https://simproject.org/sim-logo.png?v=2'; // Default fallback
-      
-      if (data.avatar_url) {
-        const avatarPath = getAvatarUrl(data.avatar_url);
-        if (avatarPath) {
-          if (avatarPath.startsWith('http://') || avatarPath.startsWith('https://')) {
-            avatarImageUrl = avatarPath;
-          } else {
-            // Ensure leading slash and convert to full URL
-            const cleanPath = avatarPath.startsWith('/') ? avatarPath : `/${avatarPath}`;
-            avatarImageUrl = `https://simproject.org${cleanPath}`;
-          }
-        }
-      }
-      
-      console.log('Setting meta tags with avatar:', avatarImageUrl);
+      // Update meta tags
+      const simUrl = `https://simproject.org/${simData.custom_url || simData.x_username}`;
+      const avatarUrl = getAvatarUrl(simData.avatar_url) || 'https://simproject.org/sim-logo.png';
       
       updateMetaTags({
-        title: `${transformedSim.name} - Sim`,
-        description: simDescription,
-        image: avatarImageUrl,
+        title: `${simData.name} - SIM Agent`,
+        description: simData.description || `Chat with ${simData.name}, an AI agent on SIM.`,
+        image: avatarUrl.startsWith('http') ? avatarUrl : `https://simproject.org${avatarUrl}`,
         url: simUrl
       });
-      
-      // Check if this is an Autonomous Agent and show creator code modal
-      if (transformedSim.sim_category === 'Autonomous Agent') {
-        setShowCreatorCodeModal(true);
-      }
     } catch (error) {
       console.error('Error fetching sim:', error);
       navigate('/404');
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const handleCreatorCodeSubmit = () => {
-    if (!sim) return;
-    
-    const editCode = (sim as any).edit_code;
-    if (creatorCodeInput.trim() === editCode) {
-      setHasAccess(true);
-      setShowCreatorCodeModal(false);
-      setCreatorCodeError('');
-      toast({
-        title: "Access granted!",
-        description: "You can now interact with this Autonomous Agent"
+  const handleCopyWallet = () => {
+    if (!sim?.crypto_wallet) return;
+    navigator.clipboard.writeText(sim.crypto_wallet);
+    setWalletCopied(true);
+    setTimeout(() => setWalletCopied(false), 2000);
+    toast({
+      title: "Wallet address copied!",
+      description: "The wallet address has been copied to your clipboard"
+    });
+  };
+
+  const handleXSignIn = async () => {
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'twitter',
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`,
+        },
       });
-    } else {
-      setCreatorCodeError('Invalid creator code. Please try again.');
+      if (error) throw error;
+    } catch (error) {
+      console.error('Error signing in with X:', error);
     }
   };
 
-  // If this is an X agent, render XAgentPage directly
-  if (isXAgent === true) {
-    return <XAgentPage />;
-  }
-
-  // While checking agent type, show loading state
-  if (isCheckingAgent || isXAgent === null) {
+  if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-background">
-        <div className="flex flex-col items-center gap-4">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-          <p className="text-muted-foreground">Loading...</p>
-        </div>
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-muted-foreground">Loading...</div>
       </div>
     );
   }
 
-  // Only show "Sim Not Found" if we've confirmed it's not an X agent and there's no sim
   if (!sim) {
     return (
-      <div 
-        className="flex items-center justify-center min-h-screen relative bg-gradient-to-br from-primary/20 via-background to-secondary/20"
-      >
-        <div className="absolute inset-0 bg-background/80 backdrop-blur-sm z-0" />
-        <div className="text-center space-y-4 relative z-10 p-8 backdrop-blur-md bg-card/50 border border-border rounded-3xl max-w-md">
-          <h1 className="text-2xl font-bold">Sim Not Found</h1>
-          <p className="text-muted-foreground">This sim doesn't exist or has been deactivated.</p>
-          <Button 
-            onClick={() => navigate('/', { state: { scrollToAgents: true } })}
-          >
-            Back to Agents
-          </Button>
-        </div>
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-muted-foreground">SIM not found</div>
       </div>
     );
   }
 
-  // If sim_category is "Crypto Mail", validate x402 payment before showing contact form
-  if (sim.sim_category === 'Crypto Mail') {
-    // Check if x402 payment is required and no valid session
-    if (sim.x402_enabled && sim.x402_price && sim.x402_wallet && !paymentSessionId) {
-      return (
-        <div className="h-screen flex flex-col">
-          <Suspense fallback={null}>
-            <X402PaymentModal
-              isOpen={true}
-              onClose={() => navigate('/', { state: { scrollToAgents: true } })}
-              onPaymentSuccess={(sessionId) => {
-                console.log('Payment successful, session ID:', sessionId);
-                setPaymentSessionId(sessionId);
-                setShowPaymentModal(false);
-              }}
-              simName={sim.name}
-              price={sim.x402_price || 0.01}
-              walletAddress={sim.x402_wallet || ''}
-            />
-          </Suspense>
-          <div className="flex-1 flex items-center justify-center">
-            <div className="text-center">
-              <div className="w-16 h-16 bg-muted rounded-xl flex items-center justify-center mb-6">
-                <MessageCircle className="h-8 w-8 text-muted-foreground" />
-              </div>
-              <h3 className="font-semibold text-xl mb-3">Payment Required</h3>
-              <p className="text-base text-muted-foreground max-w-md mx-auto">
-                This contact form requires a payment of {sim.x402_price} USDC to submit a message.
-              </p>
-            </div>
-          </div>
-        </div>
-      );
-    }
-    // Valid session exists, show contact form
-    return <ContactFormPage agent={sim} />;
-  }
+  // Convert Sim to AgentType for PublicChatInterface compatibility
+  const agentForChat: AgentType = {
+    id: sim.id,
+    name: sim.name,
+    description: sim.description || '',
+    type: 'General Tutor',
+    status: 'active',
+    createdAt: sim.created_at,
+    updatedAt: sim.updated_at,
+    avatar: sim.avatar_url,
+    prompt: sim.prompt,
+    welcome_message: sim.welcome_message,
+    model: 'GPT-4',
+    interactions: 0,
+    studentsSaved: 0,
+    helpfulnessScore: 0,
+    avmScore: 0,
+    csat: 0,
+    performance: 0,
+    channels: [],
+    channelConfigs: {},
+    isPersonal: false,
+    voiceTraits: [],
+  };
 
-  // If this is an Autonomous Agent and user doesn't have access, show access required screen
-  if (sim.sim_category === 'Autonomous Agent' && !hasAccess) {
-    return (
-      <>
-        <div 
-          className="flex items-center justify-center min-h-screen relative bg-gradient-to-br from-primary/20 via-background to-secondary/20"
-        >
-          <div className="absolute inset-0 bg-background/80 backdrop-blur-sm z-0" />
-          <div className="text-center space-y-4 relative z-10 p-8 backdrop-blur-md bg-card/50 border border-border rounded-3xl max-w-md">
-            <div className="w-16 h-16 bg-muted rounded-xl flex items-center justify-center mb-4 mx-auto">
-              <Lock className="h-8 w-8 text-muted-foreground" />
-            </div>
-            <h1 className="text-2xl font-bold">Creator Code Required</h1>
-            <p className="text-muted-foreground">
-              This Autonomous Agent requires a creator code to access.
-            </p>
-            <Button 
-              onClick={() => setShowCreatorCodeModal(true)}
-              className="mt-4"
-            >
-              Enter Creator Code
-            </Button>
-            <Button 
-              variant="outline"
-              onClick={() => navigate('/', { state: { scrollToAgents: true } })}
-              className="mt-2 w-full"
-            >
-              Back to Agents
-            </Button>
-          </div>
-        </div>
-
-        {/* Creator Code Modal */}
-        <Dialog open={showCreatorCodeModal} onOpenChange={setShowCreatorCodeModal}>
-          <DialogContent className="sm:max-w-md">
-            <DialogHeader>
-              <DialogTitle>Enter Creator Code</DialogTitle>
-              <DialogDescription>
-                Enter the creator code to access this Autonomous Agent.
-              </DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4 py-4">
-              <div className="space-y-2">
-                <Label htmlFor="creator-code">Creator Code</Label>
-                <Input
-                  id="creator-code"
-                  type="text"
-                  value={creatorCodeInput}
-                  onChange={(e) => {
-                    setCreatorCodeInput(e.target.value);
-                    setCreatorCodeError('');
-                  }}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                      handleCreatorCodeSubmit();
-                    }
-                  }}
-                  placeholder="Enter code..."
-                  className="h-11 bg-black text-white"
-                />
-                {creatorCodeError && (
-                  <p className="text-sm text-destructive">{creatorCodeError}</p>
-                )}
-              </div>
-              <Button
-                onClick={handleCreatorCodeSubmit}
-                className="w-full"
-                disabled={!creatorCodeInput.trim()}
-                style={{ backgroundColor: '#82f2aa', color: 'black' }}
-              >
-                Launch Sim
-              </Button>
-            </div>
-          </DialogContent>
-        </Dialog>
-      </>
-    );
-  }
-
-  // If this is an Autonomous Agent with valid access, show daily briefs with tabs
-  if (sim.sim_category === 'Autonomous Agent' && hasAccess) {
-    const handleSaveSettings = async (e: React.FormEvent<HTMLFormElement>) => {
-      e.preventDefault();
-      const formData = new FormData(e.currentTarget);
-      
-      try {
-        const email = formData.get('brief-email') as string;
-        const socialLinks = (sim as any).social_links || {};
-        
-        // Update social_links with email if provided
-        if (email?.trim()) {
-          socialLinks.brief_email = email.trim();
-        } else {
-          delete socialLinks.brief_email;
-        }
-
-        const { error } = await supabase
-          .from('advisors')
-          .update({
-            name: formData.get('name') as string,
-            description: formData.get('brief-topic') as string,
-            welcome_message: formData.get('brief-time') as string,
-            social_links: Object.keys(socialLinks).length > 0 ? socialLinks : null,
-          })
-          .eq('id', sim.id);
-
-        if (error) throw error;
-
-        toast({
-          title: "Settings saved",
-          description: "Your changes have been saved successfully"
-        });
-
-        // Refresh sim data
-        fetchSim();
-      } catch (error) {
-        console.error('Error saving settings:', error);
-        toast({
-          title: "Error",
-          description: "Failed to save settings",
-          variant: "destructive"
-        });
-      }
-    };
-
-    const briefEmail = ((sim as any).social_links as any)?.brief_email || '';
-
-    // Since we're inside the Autonomous Agent block, we know it's that type
-    const marketplaceCategory = (sim as any).marketplace_category?.toLowerCase() || 'uncategorized';
-    
-    // Category mapping
-    const categories = [
-      { id: 'all', label: 'All Categories' },
-      { id: 'crypto', label: 'Crypto & Web3' },
-      { id: 'historical', label: 'Historical Figures' },
-      { id: 'influencers', label: 'Influencers & Celebrities' },
-      { id: 'fictional', label: 'Fictional Characters' },
-      { id: 'education', label: 'Education & Tutoring' },
-      { id: 'business', label: 'Business & Finance' },
-      { id: 'lifestyle', label: 'Lifestyle & Wellness' },
-      { id: 'entertainment', label: 'Entertainment & Games' },
-      { id: 'spiritual', label: 'Spiritual & Philosophy' },
-    ];
-    
-    const categoryLabel = categories.find(c => c.id === marketplaceCategory)?.label || marketplaceCategory;
-    
-    // Type badge is always "Autonomous Agent" since we're in this block
-    const typeBadgeText = 'Autonomous Agent';
-    
-    // Determine second badge based on category
-    const secondBadgeText = (marketplaceCategory === 'uncategorized' || marketplaceCategory === 'daily brief' || !marketplaceCategory)
-      ? 'Daily Brief'
-      : categoryLabel;
-
-    return (
-      <div className="h-screen flex items-center justify-center relative bg-gradient-to-br from-[#76da9a]/20 via-background to-[#76da9a]/10">
-        <div className="absolute inset-0 bg-background/90 backdrop-blur-xl z-0" />
-        
-        {/* Back to Marketplace Button */}
-        <div className="absolute top-4 left-4 z-50">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => navigate('/')}
-            className="bg-background/80 backdrop-blur-sm hover:bg-background/90"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="mr-2"
-            >
-              <path d="m12 19-7-7 7-7" />
-              <path d="M19 12H5" />
-            </svg>
-            Back to Marketplace
-          </Button>
-        </div>
-        
-        {/* Animated gradient orbs */}
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-[#76da9a]/10 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-[#76da9a]/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
-        
-        <div className="relative z-10 w-full max-w-5xl mx-auto p-4 h-[92vh] flex flex-col">
-          <div className="backdrop-blur-2xl bg-gradient-to-br from-card/80 via-card/60 to-card/80 border border-border/50 rounded-2xl shadow-2xl h-full flex flex-col overflow-hidden">
-            {/* Futuristic Header */}
-            <div className="relative p-6 border-b border-border/50 flex items-center justify-between bg-[#76da9a]/5">
-              <div className="flex items-center gap-4">
-                <Avatar className="h-14 w-14 border-2 border-[#76da9a]/50 shadow-lg shadow-[#76da9a]/20">
-                  <AvatarImage src={getAvatarUrl(sim.avatar)} alt={sim.name} className="object-cover" />
-                  <AvatarFallback>{sim.name.charAt(0)}</AvatarFallback>
-                </Avatar>
-                <div>
-                  <h2 className="text-2xl font-bold text-white">
-                    {sim.name}
-                  </h2>
-                  <div className="flex items-center gap-2 mt-1">
-                    <span className="px-2 py-0.5 text-xs font-medium rounded-md bg-[#76da9a]/20 text-[#76da9a] border border-[#76da9a]/30">
-                      {typeBadgeText}
-                    </span>
-                    {secondBadgeText && (
-                      <span className="px-2 py-0.5 text-xs font-medium rounded-md bg-[#76da9a]/20 text-[#76da9a] border border-[#76da9a]/30">
-                        {secondBadgeText}
-                      </span>
-                    )}
-                  </div>
-                </div>
-              </div>
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-background via-background/95 to-background">
+      {/* Navigation */}
+      <nav className="border-b border-border/50 bg-background/80 backdrop-blur-sm sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            {/* Logo */}
+            <div className="flex items-center gap-4">
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={() => navigate('/', { state: { scrollToAgents: true } })}
-                className="hover:bg-red-500/10 hover:text-red-500 transition-colors"
+                onClick={() => navigate(-1)}
+                className="h-9 w-9"
               >
-                <X className="h-5 w-5" />
+                <ArrowLeft className="h-5 w-5" />
               </Button>
+              <button onClick={() => navigate('/')} className="flex items-center hover:opacity-80 transition-opacity">
+                <img src={resolvedTheme === 'dark' ? simLogoWhite : simHeroLogo} alt="SIM" className="h-8" />
+              </button>
             </div>
-
-            {/* Futuristic Tabs */}
-            <Tabs defaultValue="briefs" className="flex-1 flex flex-col overflow-hidden">
-              <div className="px-6 pt-4">
-                <TabsList className="w-full grid grid-cols-2 bg-background/50 backdrop-blur-sm">
-                  <TabsTrigger 
-                    value="briefs" 
-                    className="data-[state=active]:bg-[#76da9a]/20 data-[state=active]:text-foreground data-[state=active]:border-[#76da9a]/50 data-[state=active]:border"
-                  >
-                    Daily Briefs
-                  </TabsTrigger>
-                  <TabsTrigger 
-                    value="settings"
-                    className="data-[state=active]:bg-[#76da9a]/20 data-[state=active]:text-foreground data-[state=active]:border-[#76da9a]/50 data-[state=active]:border"
-                  >
-                    Settings
-                  </TabsTrigger>
-                </TabsList>
-              </div>
-
-              <TabsContent value="briefs" className="flex-1 overflow-y-auto px-6 pb-6 mt-4">
-                <DailyBriefsList advisorId={sim.id} />
-              </TabsContent>
-
-              <TabsContent value="settings" className="flex-1 px-6 pb-6 mt-4 overflow-hidden">
-                <div className="h-full flex items-center justify-center">
-                  <form onSubmit={handleSaveSettings} className="w-full max-w-2xl space-y-4">
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="name" className="text-sm font-medium flex items-center gap-2">
-                          <Sparkles className="w-4 h-4 text-[#76da9a]" />
-                          Sim Name <span className="text-destructive">*</span>
-                        </Label>
-                        <Input
-                          id="name"
-                          name="name"
-                          defaultValue={sim.name}
-                          placeholder="Enter sim name"
-                          className="h-11 bg-background/50 backdrop-blur-sm border-border/50 focus:border-[#76da9a]/50 transition-colors"
-                          required
-                        />
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label htmlFor="brief-time" className="text-sm font-medium flex items-center gap-2">
-                          <Clock className="w-4 h-4 text-[#76da9a]" />
-                          Brief Time (UTC) <span className="text-destructive">*</span>
-                        </Label>
-                        <Input
-                          id="brief-time"
-                          name="brief-time"
-                          type="time"
-                          defaultValue={sim.welcome_message || '09:00'}
-                          className="h-11 bg-background/50 backdrop-blur-sm border-border/50 focus:border-[#76da9a]/50 transition-colors"
-                          required
-                        />
-                      </div>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="brief-topic" className="text-sm font-medium flex items-center gap-2">
-                        <MessageCircle className="w-4 h-4 text-[#76da9a]" />
-                        What do you want a daily brief on? <span className="text-destructive">*</span>
-                      </Label>
-                      <Textarea
-                        id="brief-topic"
-                        name="brief-topic"
-                        defaultValue={sim.description || ''}
-                        placeholder="E.g., AI developments, cryptocurrency markets, climate change news..."
-                        rows={3}
-                        className="resize-none bg-background/50 backdrop-blur-sm border-border/50 focus:border-[#76da9a]/50 transition-colors"
-                        required
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="brief-email" className="text-sm font-medium flex items-center gap-2">
-                        <Globe className="w-4 h-4 text-[#76da9a]" />
-                        Email <span className="text-muted-foreground text-xs">(Optional)</span>
-                      </Label>
-                      <Input
-                        id="brief-email"
-                        name="brief-email"
-                        type="email"
-                        defaultValue={briefEmail}
-                        placeholder="your@email.com"
-                        className="h-11 bg-background/50 backdrop-blur-sm border-border/50 focus:border-[#76da9a]/50 transition-colors"
-                      />
-                    </div>
-
-                    <Button 
-                      type="submit" 
-                      className="w-full h-12 font-semibold bg-[#82f2aa] hover:bg-[#6dd994] text-black shadow-lg transition-all"
-                    >
-                      <Sparkles className="w-4 h-4 mr-2" />
-                      Save Settings
-                    </Button>
-                  </form>
-                </div>
-              </TabsContent>
-            </Tabs>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div 
-      className="h-screen flex flex-col relative overflow-hidden bg-gradient-to-br from-primary/20 via-background to-secondary/20"
-    >
-      {/* Overlay */}
-      <div className="absolute inset-0 bg-background/80 backdrop-blur-sm z-0" />
-
-      {/* Back to Marketplace Button - Only show when NOT in chat */}
-      {!showChat && (
-        <div className="absolute top-4 left-4 z-50">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => navigate('/')}
-            className="bg-background/80 backdrop-blur-sm hover:bg-background/90"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="mr-2"
-            >
-              <path d="m12 19-7-7 7-7" />
-              <path d="M19 12H5" />
-            </svg>
-            Back to Marketplace
-          </Button>
-        </div>
-      )}
-
-      {showChat ? (
-        <div className="flex-1 flex flex-col relative z-10 h-full">
-          {/* Only show header if not embedded or in chat-only mode */}
-          {!isEmbedded && !isChatOnly && (
-            <div className="border-b border-border px-4 py-3 flex items-center justify-between backdrop-blur-md bg-card/50">
-              <div className="flex items-center gap-3">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => navigate('/')}
-                  className="gap-2 flex-shrink-0"
+            
+            {/* Navigation Links */}
+            <div className="hidden md:flex items-center gap-8">
+              <button onClick={() => navigate('/about')} className="text-muted-foreground hover:text-foreground transition-colors text-sm font-medium">
+                About
+              </button>
+              <button onClick={() => navigate('/agents')} className="text-muted-foreground hover:text-foreground transition-colors text-sm font-medium">
+                Agent Directory
+              </button>
+              <button onClick={() => navigate('/documentation')} className="text-muted-foreground hover:text-foreground transition-colors text-sm font-medium">
+                Documentation
+              </button>
+            </div>
+            
+            {/* Right side */}
+            <div className="flex items-center gap-4">
+              <ThemeToggle />
+              {!currentUser && (
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={handleXSignIn}
                 >
-                  <ArrowLeft className="h-4 w-4" />
-                  {!isMobile && <span>Back to Marketplace</span>}
+                  Sign In
                 </Button>
-                <Avatar className="h-10 w-10 border-2 border-border">
-                  <AvatarImage src={getAvatarUrl(sim.avatar)} alt={sim.name} className="object-cover" />
-                  <AvatarFallback>{sim.name.charAt(0)}</AvatarFallback>
-                </Avatar>
-                {!isMobile && (
-                  <div>
-                    <p className="font-semibold text-sm">{sim.name}</p>
-                    {sim.title && <p className="text-xs text-muted-foreground">{sim.title}</p>}
-                  </div>
-                )}
-              </div>
-              <div className="flex items-center gap-2">
-                <ShareButton 
-                  url={`https://solanainternetmarket.com/tutors/${sim.id}/chat`}
-                  title={`Chat with ${sim.name}`}
-                  description={`Start chatting with ${sim.name}, an AI tutor ready to help!`}
-                />
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => {
-                    if (!currentUser) {
-                      navigate('/', { state: { scrollToAgents: true } });
-                    } else {
-                      setShowChat(false);
-                  }
-                }}
-              >
-                <X className="h-5 w-5" />
-              </Button>
-              </div>
+              )}
             </div>
-          )}
-          <div className="flex-1 h-full overflow-hidden">
-            <PublicChatInterface agent={sim} />
           </div>
         </div>
-      ) : (
-        <div className="flex-1 flex items-center justify-center p-4 relative z-10">
-          <div className="max-w-xl w-full">
-            {/* Main Card */}
-            <div className="backdrop-blur-xl bg-card/50 border-2 border-border rounded-3xl p-8 sm:p-12 shadow-2xl">
-              {/* Avatar */}
-              <div className="flex justify-center mb-6">
-                <div className="relative">
-                  <div className="absolute inset-0 bg-primary/30 rounded-full blur-2xl animate-pulse" />
-                  <Avatar className="relative h-28 w-28 sm:h-36 sm:w-36 border-4 border-border shadow-2xl">
-                    <AvatarImage src={getAvatarUrl(sim.avatar)} alt={sim.name} className="object-cover" />
-                    <AvatarFallback className="text-4xl sm:text-5xl">{sim.name.charAt(0)}</AvatarFallback>
-                  </Avatar>
+      </nav>
+
+      <div className="container mx-auto px-4 py-8 max-w-7xl">
+        {/* Agent Header */}
+        <Card className="mb-6 bg-card/50 backdrop-blur-sm border-border/50">
+          <CardContent className="p-6">
+            <div className="flex items-start gap-6">
+              <Avatar className="h-24 w-24 border-2 border-border">
+                <AvatarImage src={getAvatarUrl(sim.avatar_url)} alt={sim.name} />
+                <AvatarFallback>{sim.name.charAt(0)}</AvatarFallback>
+              </Avatar>
+              
+              <div className="flex-1">
+                <div className="flex items-center gap-2 mb-2">
+                  <h1 className="text-3xl font-bold">{sim.name}</h1>
+                  {sim.is_verified && (
+                    <img src={verifiedBadge} alt="Verified" className="h-6 w-6" />
+                  )}
                 </div>
-              </div>
-
-              {/* Name and Title */}
-              <div className="text-center space-y-2 mb-6">
-                <h1 className="text-3xl sm:text-4xl font-bold tracking-tight">{sim.name}</h1>
-                {sim.title && (
-                  <p className="text-lg sm:text-xl text-muted-foreground">{sim.title}</p>
-                )}
-              </div>
-
-              {/* Description */}
-              <div className="mb-6 p-4 bg-accent/10 rounded-2xl border border-border">
-                <p className="text-sm text-center leading-relaxed">
-                  {getSimDescription()}
-                </p>
-              </div>
-
-              {/* SOL Wallet Info */}
-              {sim.crypto_wallet && (
-                <div className="mb-6 p-4 bg-accent/10 rounded-2xl border border-border">
-                  <div className="flex items-center justify-between gap-3">
-                    <div className="flex items-center gap-2 min-w-0 flex-1">
-                      <Wallet className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                      <span className="text-xs font-mono text-muted-foreground truncate">
-                        {sim.crypto_wallet}
-                      </span>
-                    </div>
-                    <span className="text-sm font-semibold text-foreground flex-shrink-0">
-                      {isLoadingBalance ? (
-                        <span className="animate-pulse text-xs">Loading...</span>
-                      ) : (
-                        formatSolBalance(solBalance)
-                      )}
-                    </span>
-                  </div>
-                </div>
-              )}
-
-              {/* Start Chatting Button */}
-              <Button
-                size="lg"
-                className="w-full h-14 text-base shadow-xl hover:shadow-2xl transition-all duration-300 mb-4 group bg-[#83f1aa] hover:bg-[#6dd88f] text-black"
-                onClick={() => {
-                  console.log('Launch Sim clicked. Current sim x402 settings:', {
-                    x402_enabled: sim?.x402_enabled,
-                    x402_price: sim?.x402_price,
-                    x402_wallet: sim?.x402_wallet,
-                    hasAllSettings: !!(sim?.x402_enabled && sim?.x402_price && sim?.x402_wallet)
-                  });
-                  
-                  // Check if x402 payment is required
-                  if (sim?.x402_enabled && sim?.x402_price && sim?.x402_wallet) {
-                    const validSession = validateX402Session(sim.x402_wallet);
-                    console.log('Checking for valid session:', validSession);
-                    if (!validSession) {
-                      console.log('No valid session - showing payment modal');
-                      setShowPaymentModal(true);
-                      return;
-                    } else {
-                      console.log('Valid x402 session found:', validSession);
-                      setPaymentSessionId(validSession);
-                    }
-                  } else {
-                    console.log('x402 not required or not properly configured');
-                  }
-                  setShowChat(true);
-                }}
-              >
-                <MessageCircle className="h-5 w-5 mr-2 group-hover:scale-110 transition-transform" />
-                {sim?.sim_category === 'Crypto Mail' ? 'Launch X Agent' : 'Launch AI Agent'}
-              </Button>
-
-              {/* Share Button */}
-              <Button
-                variant="outline"
-                size="lg"
-                className="w-full h-12 text-base font-semibold mb-4"
-                onClick={handleShareLink}
-              >
-                {shareLinkCopied ? (
-                  <>
-                    <Check className="h-4 w-4 mr-2" />
-                    Copied!
-                  </>
-                ) : (
-                  <>
-                    <Copy className="h-4 w-4 mr-2" />
-                    Share
-                  </>
-                )}
-              </Button>
-
-
-              {/* Social Links & Wallet */}
-              {(sim.twitter_url || sim.website_url || sim.crypto_wallet) && (
-                <div className="flex flex-col gap-3 pt-4 border-t border-border">
+                
+                <p className="text-muted-foreground mb-4">{sim.description}</p>
+                
+                <div className="flex flex-wrap gap-3">
                   {sim.twitter_url && (
-                    <a
-                      href={sim.twitter_url.startsWith('http') ? sim.twitter_url : `https://${sim.twitter_url}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-3 w-full px-5 py-3.5 rounded-2xl bg-accent/10 hover:bg-accent/20 border border-border hover:border-primary transition-all duration-300 group"
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => window.open(sim.twitter_url, '_blank')}
+                      className="gap-2"
                     >
-                      <svg className="h-5 w-5 text-muted-foreground group-hover:text-foreground transition-colors flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
-                      </svg>
-                      <span className="text-sm font-medium group-hover:text-foreground transition-colors">Follow on X</span>
-                      <ExternalLink className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors ml-auto flex-shrink-0" />
-                    </a>
+                      <Globe className="h-4 w-4" />
+                      @{sim.x_username}
+                    </Button>
                   )}
-
-                  {sim.website_url && (
-                    <a
-                      href={sim.website_url.startsWith('http') ? sim.website_url : `https://${sim.website_url}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-3 w-full px-5 py-3.5 rounded-2xl bg-accent/10 hover:bg-accent/20 border border-border hover:border-primary transition-all duration-300 group"
-                    >
-                      <Globe className="h-5 w-5 text-muted-foreground group-hover:text-foreground transition-colors flex-shrink-0" />
-                      <span className="text-sm font-medium group-hover:text-foreground transition-colors">Visit Website</span>
-                      <ExternalLink className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors ml-auto flex-shrink-0" />
-                    </a>
-                  )}
-
+                  
                   {sim.crypto_wallet && (
-                    <button
-                      onClick={() => {
-                        navigator.clipboard.writeText(sim.crypto_wallet || '');
-                        setWalletCopied(true);
-                        setTimeout(() => setWalletCopied(false), 2000);
-                        toast({
-                          title: "Copied!",
-                          description: "Wallet address copied to clipboard"
-                        });
-                      }}
-                      className="flex flex-col gap-2 w-full px-5 py-3.5 rounded-2xl bg-accent/10 hover:bg-accent/20 border border-border hover:border-primary transition-all duration-300 group"
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleCopyWallet}
+                      className="gap-2"
                     >
-                      <div className="flex items-center justify-between w-full">
-                        <div className="flex items-center gap-3 min-w-0 flex-1">
-                          <Wallet className="h-5 w-5 text-muted-foreground group-hover:text-foreground transition-colors flex-shrink-0" />
-                          <span className="text-sm font-medium text-muted-foreground group-hover:text-foreground transition-colors">SOL Wallet</span>
-                        </div>
-                        {walletCopied ? (
-                          <Check className="h-4 w-4 text-green-500 flex-shrink-0" />
-                        ) : (
-                          <Copy className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors flex-shrink-0" />
-                        )}
-                      </div>
-                      <div className="flex items-center justify-between w-full pl-8">
-                        <span className="text-xs font-mono text-muted-foreground group-hover:text-foreground transition-colors truncate">
-                          {sim.crypto_wallet}
-                        </span>
-                        <span className="text-sm font-semibold text-foreground ml-3 flex-shrink-0">
-                          {isLoadingBalance ? (
-                            <span className="animate-pulse text-xs">Loading...</span>
-                          ) : (
-                            formatSolBalance(solBalance)
-                          )}
-                        </span>
-                      </div>
-                    </button>
+                      <Wallet className="h-4 w-4" />
+                      {walletCopied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                      {walletCopied ? 'Copied' : 'Wallet'}
+                    </Button>
                   )}
                 </div>
-              )}
-
+              </div>
             </div>
-          </div>
-        </div>
-      )}
+          </CardContent>
+        </Card>
 
-      <AuthModal open={showAuthModal} onOpenChange={setShowAuthModal} />
+        {/* Tabs */}
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="grid w-full max-w-md grid-cols-3 mb-6">
+            <TabsTrigger value="chat" className="gap-2">
+              <MessageCircle className="h-4 w-4" />
+              Chat
+            </TabsTrigger>
+            <TabsTrigger value="offerings" className="gap-2">
+              <Package className="h-4 w-4" />
+              Offerings
+            </TabsTrigger>
+            <TabsTrigger value="about">About</TabsTrigger>
+          </TabsList>
 
-      {/* x402 Payment Modal */}
-      {sim && sim.x402_enabled && (
-        <Suspense fallback={null}>
-          <X402PaymentModal
-            isOpen={showPaymentModal}
-            onClose={() => setShowPaymentModal(false)}
-            onPaymentSuccess={(sessionId) => {
-              console.log('Payment successful, session ID:', sessionId);
-              setPaymentSessionId(sessionId);
-              setShowPaymentModal(false);
-              setShowChat(true);
-            }}
-            simName={sim.name}
-            price={sim.x402_price || 0.01}
-            walletAddress={sim.x402_wallet || ''}
-          />
-        </Suspense>
-      )}
+          <TabsContent value="chat" className="mt-0">
+            <Card className="bg-card/50 backdrop-blur-sm border-border/50">
+              <PublicChatInterface 
+                agent={agentForChat}
+                avatarUrl={getAvatarUrl(sim.avatar_url)}
+              />
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="offerings" className="mt-0">
+            <Card className="bg-card/50 backdrop-blur-sm border-border/50">
+              <CardContent className="p-6">
+                <p className="text-muted-foreground">
+                  This SIM doesn't have any offerings yet.
+                </p>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="about" className="mt-0">
+            <Card className="bg-card/50 backdrop-blur-sm border-border/50">
+              <CardContent className="p-8">
+                <h2 className="text-2xl font-bold mb-4">About {sim.name}</h2>
+                <div className="space-y-4 text-muted-foreground">
+                  <p>{sim.description}</p>
+                  
+                  {sim.training_completed && (
+                    <div className="pt-4 border-t border-border">
+                      <p className="text-sm">
+                        <strong>Training Status:</strong> Trained on {sim.training_post_count} posts from X
+                      </p>
+                      <p className="text-sm">
+                        <strong>Created:</strong> {new Date(sim.created_at).toLocaleDateString()}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
+      </div>
+
+      <SimpleFooter />
     </div>
   );
 };
