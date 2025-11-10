@@ -227,13 +227,13 @@ const Marketplace = () => {
         </div>
         
         {/* Content */}
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
           <button 
             onClick={() => navigate('/')}
-            className="inline-flex items-center gap-1.5 px-2 sm:px-3 py-1.5 rounded-full backdrop-blur-sm transition-all cursor-pointer shadow-sm bg-white/10 border border-white/20 hover:bg-white/20 whitespace-nowrap mb-4"
+            className="inline-flex items-center gap-3 px-4 sm:px-6 py-3 rounded-full backdrop-blur-sm transition-all cursor-pointer shadow-sm bg-white/10 border border-white/20 hover:bg-white/20 whitespace-nowrap mb-4"
           >
-            <img src={solanaLogo} alt="Solana" className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-            <span className="text-xs sm:text-sm font-bold text-white">Solana Internet Market</span>
+            <img src={solanaLogo} alt="Solana" className="h-7 w-7 sm:h-8 sm:w-8" />
+            <span className="text-base sm:text-lg font-bold text-white">Solana Internet Market</span>
           </button>
           <p className="text-lg text-white/90 max-w-2xl">
             Build, sell, and buy AI agents, products, and on-chain services. No fees. Powered by x402.
