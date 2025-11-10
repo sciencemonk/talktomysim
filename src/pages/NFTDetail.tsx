@@ -8,10 +8,26 @@ import { ArrowLeft, ExternalLink, Copy, Wallet, ShoppingCart } from 'lucide-reac
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { toast } from 'sonner';
 import { ThemeToggle } from '@/components/ThemeToggle';
+import { useWallet } from '@solana/wallet-adapter-react';
+import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
+import { useState } from 'react';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 export default function NFTDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const wallet = useWallet();
+  const [showPurchaseDialog, setShowPurchaseDialog] = useState(false);
+  const [isPurchasing, setIsPurchasing] = useState(false);
 
   const { data: nft, isLoading } = useQuery({
     queryKey: ['nft', id],
@@ -45,6 +61,38 @@ export default function NFTDetail() {
     const signature = (nft?.social_links as any)?.transaction_signature;
     if (signature) {
       window.open(`https://solscan.io/tx/${signature}`, '_blank');
+    }
+  };
+
+  const handlePurchaseClick = () => {
+    if (!wallet.connected) {
+      toast.error('Please connect your wallet to purchase this NFT');
+      return;
+    }
+    setShowPurchaseDialog(true);
+  };
+
+  const handleConfirmPurchase = async () => {
+    if (!wallet.publicKey || !nft) return;
+    
+    setIsPurchasing(true);
+    try {
+      toast.info('NFT purchase functionality coming soon!');
+      toast.info('This will integrate with Solana SPL token transfers and NFT ownership verification');
+      
+      // TODO: Implement actual NFT purchase flow:
+      // 1. Verify NFT ownership is with seller
+      // 2. Create escrow or atomic swap transaction
+      // 3. Transfer USDC/SOL from buyer to seller
+      // 4. Transfer NFT from seller to buyer
+      // 5. Update database with new owner
+      
+      setShowPurchaseDialog(false);
+    } catch (error: any) {
+      console.error('Purchase error:', error);
+      toast.error(error?.message || 'Failed to purchase NFT');
+    } finally {
+      setIsPurchasing(false);
     }
   };
 
@@ -144,10 +192,23 @@ export default function NFTDetail() {
                   </div>
                   
                   {nft.price && nft.price > 0 && (
-                    <Button className="w-full" size="lg">
-                      <ShoppingCart className="h-5 w-5 mr-2" />
-                      Purchase NFT
-                    </Button>
+                    wallet.connected ? (
+                      <Button 
+                        className="w-full" 
+                        size="lg"
+                        onClick={handlePurchaseClick}
+                      >
+                        <ShoppingCart className="h-5 w-5 mr-2" />
+                        Purchase NFT
+                      </Button>
+                    ) : (
+                      <div className="w-full">
+                        <p className="text-sm text-fgMuted mb-2 text-center">
+                          Connect wallet to purchase
+                        </p>
+                        <WalletMultiButton className="!w-full !h-11" />
+                      </div>
+                    )
                   )}
                 </div>
               </CardContent>
@@ -236,6 +297,50 @@ export default function NFTDetail() {
           </div>
         </div>
       </div>
+
+      {/* Purchase Confirmation Dialog */}
+      <AlertDialog open={showPurchaseDialog} onOpenChange={setShowPurchaseDialog}>
+        <AlertDialogContent className="bg-card border-border">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-fg">Confirm NFT Purchase</AlertDialogTitle>
+            <AlertDialogDescription className="text-fgMuted">
+              You are about to purchase <strong className="text-fg">{nft?.name}</strong> for{' '}
+              <strong className="text-primary">{nft?.price} USDC</strong>.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="flex justify-between text-sm">
+              <span className="text-fgMuted">NFT</span>
+              <span className="text-fg font-medium">{nft?.name}</span>
+            </div>
+            <div className="flex justify-between text-sm">
+              <span className="text-fgMuted">Price</span>
+              <span className="text-fg font-medium">{nft?.price} USDC</span>
+            </div>
+            <div className="flex justify-between text-sm">
+              <span className="text-fgMuted">Your Wallet</span>
+              <span className="text-fg font-mono text-xs">
+                {wallet.publicKey?.toBase58().slice(0, 4)}...{wallet.publicKey?.toBase58().slice(-4)}
+              </span>
+            </div>
+            <div className="pt-4 border-t border-border">
+              <p className="text-xs text-fgMuted">
+                This NFT will be transferred to your connected wallet after payment is confirmed.
+              </p>
+            </div>
+          </div>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isPurchasing}>Cancel</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={handleConfirmPurchase}
+              disabled={isPurchasing}
+              className="bg-primary text-primary-foreground hover:bg-primary/90"
+            >
+              {isPurchasing ? 'Processing...' : 'Confirm Purchase'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
