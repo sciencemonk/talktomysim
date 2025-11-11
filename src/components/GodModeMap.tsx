@@ -16,6 +16,7 @@ interface Agent {
   isMainAgent: boolean;
   customUrl?: string;
   simaiBalance?: number;
+  avatarUrl?: string;
 }
 
 interface Connection {
@@ -36,6 +37,12 @@ export const GodModeMap = ({ agentName }: { agentName: string }) => {
   const animationFrameRef = useRef<number>();
   const { theme } = useTheme();
   const [resolvedTheme, setResolvedTheme] = useState<'light' | 'dark'>('dark');
+  const [zoom, setZoom] = useState(1);
+  const [panX, setPanX] = useState(0);
+  const [panY, setPanY] = useState(0);
+  const [isPanning, setIsPanning] = useState(false);
+  const [panStart, setPanStart] = useState({ x: 0, y: 0 });
+  const imageCache = useRef<Map<string, HTMLImageElement>>(new Map());
 
   useEffect(() => {
     if (theme === 'system') {
@@ -54,6 +61,15 @@ export const GodModeMap = ({ agentName }: { agentName: string }) => {
       'NFT Guru', 'DeFi King', 'Metaverse Maven', 'Solana Slayer', 'ETH Enjoyer'
     ];
 
+    // Mock avatar URLs
+    const mockAvatars = [
+      '/lovable-uploads/1a618b3c-11e7-43e4-a2d5-c1e6f36e48ba.png',
+      '/lovable-uploads/1bcbaef9-d3ee-43db-88b5-00437f50935e.png',
+      '/lovable-uploads/29ef3bcb-9544-4a2c-bfbd-57ce889d1989.png',
+      '/lovable-uploads/31a26b17-27fc-463a-9eb2-a5e764de804e.png',
+      '/lovable-uploads/35810899-a91c-4acc-b8e9-c0868e320e3f.png',
+    ];
+
     // Initialize agents with much slower speeds and wider distribution
     const initialAgents: Agent[] = [
       {
@@ -67,7 +83,8 @@ export const GodModeMap = ({ agentName }: { agentName: string }) => {
         color: '#83f1aa',
         isMainAgent: true,
         customUrl: 'testuser',
-        simaiBalance: 125430
+        simaiBalance: 125430,
+        avatarUrl: mockAvatars[0]
       },
       ...Array.from({ length: 150 }, (_, i) => ({
         id: `agent-${i}`,
@@ -80,11 +97,22 @@ export const GodModeMap = ({ agentName }: { agentName: string }) => {
         color: i % 3 === 0 ? '#60a5fa' : i % 3 === 1 ? '#a78bfa' : '#f472b6',
         isMainAgent: false,
         customUrl: `agent-${i}`,
-        simaiBalance: Math.floor(Math.random() * 100000) + 1000
+        simaiBalance: Math.floor(Math.random() * 100000) + 1000,
+        avatarUrl: mockAvatars[i % mockAvatars.length]
       }))
     ];
     agentsRef.current = initialAgents;
     setAgentCount(initialAgents.length);
+
+    // Preload avatar images
+    initialAgents.forEach(agent => {
+      if (agent.avatarUrl && !imageCache.current.has(agent.avatarUrl)) {
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        img.src = agent.avatarUrl;
+        imageCache.current.set(agent.avatarUrl, img);
+      }
+    });
 
     // Start with no connections
     connectionsRef.current = [];
@@ -126,6 +154,11 @@ export const GodModeMap = ({ agentName }: { agentName: string }) => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.fillStyle = resolvedTheme === 'dark' ? '#000000' : '#ffffff';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Save context and apply zoom/pan transformations
+      ctx.save();
+      ctx.translate(panX, panY);
+      ctx.scale(zoom, zoom);
 
       // Update agent positions
       agentsRef.current = agentsRef.current.map(agent => {
@@ -187,11 +220,29 @@ export const GodModeMap = ({ agentName }: { agentName: string }) => {
           ctx.shadowColor = agent.color;
         }
 
-        // Draw agent circle
-        ctx.fillStyle = agent.color;
-        ctx.beginPath();
-        ctx.arc(agent.x, agent.y, agent.radius, 0, Math.PI * 2);
-        ctx.fill();
+        // Draw avatar image if available
+        const img = agent.avatarUrl ? imageCache.current.get(agent.avatarUrl) : null;
+        if (img && img.complete && img.naturalHeight !== 0) {
+          ctx.save();
+          ctx.beginPath();
+          ctx.arc(agent.x, agent.y, agent.radius, 0, Math.PI * 2);
+          ctx.closePath();
+          ctx.clip();
+          ctx.drawImage(
+            img,
+            agent.x - agent.radius,
+            agent.y - agent.radius,
+            agent.radius * 2,
+            agent.radius * 2
+          );
+          ctx.restore();
+        } else {
+          // Fallback to circle if image not loaded
+          ctx.fillStyle = agent.color;
+          ctx.beginPath();
+          ctx.arc(agent.x, agent.y, agent.radius, 0, Math.PI * 2);
+          ctx.fill();
+        }
 
         // Reset shadow before drawing ring
         ctx.shadowBlur = 0;
@@ -216,6 +267,9 @@ export const GodModeMap = ({ agentName }: { agentName: string }) => {
         }
       });
 
+      // Restore context after transformations
+      ctx.restore();
+
       animationFrameRef.current = requestAnimationFrame(animate);
     };
 
@@ -226,9 +280,11 @@ export const GodModeMap = ({ agentName }: { agentName: string }) => {
         cancelAnimationFrame(animationFrameRef.current);
       }
     };
-  }, [resolvedTheme]);
+  }, [resolvedTheme, zoom, panX, panY]);
 
   const handleCanvasClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    if (isPanning) return; // Don't trigger click if user was panning
+    
     const canvas = canvasRef.current;
     const container = containerRef.current;
     if (!canvas || !container) return;
@@ -236,8 +292,8 @@ export const GodModeMap = ({ agentName }: { agentName: string }) => {
     const rect = canvas.getBoundingClientRect();
     const scaleX = canvas.width / rect.width;
     const scaleY = canvas.height / rect.height;
-    const clickX = (e.clientX - rect.left) * scaleX;
-    const clickY = (e.clientY - rect.top) * scaleY;
+    const clickX = ((e.clientX - rect.left) * scaleX - panX) / zoom;
+    const clickY = ((e.clientY - rect.top) * scaleY - panY) / zoom;
 
     // Find clicked agent
     const clickedAgent = agentsRef.current.find(agent => {
@@ -260,6 +316,28 @@ export const GodModeMap = ({ agentName }: { agentName: string }) => {
     }
   };
 
+  const handleWheel = (e: React.WheelEvent<HTMLCanvasElement>) => {
+    e.preventDefault();
+    const zoomSpeed = 0.1;
+    const delta = e.deltaY > 0 ? -zoomSpeed : zoomSpeed;
+    setZoom(prev => Math.max(0.5, Math.min(3, prev + delta)));
+  };
+
+  const handleMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    setIsPanning(true);
+    setPanStart({ x: e.clientX - panX, y: e.clientY - panY });
+  };
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    if (!isPanning) return;
+    setPanX(e.clientX - panStart.x);
+    setPanY(e.clientY - panStart.y);
+  };
+
+  const handleMouseUp = () => {
+    setIsPanning(false);
+  };
+
   const formatBalance = (balance: number) => {
     if (balance >= 1000000) {
       return `${(balance / 1000000).toFixed(2)}M`;
@@ -279,8 +357,14 @@ export const GodModeMap = ({ agentName }: { agentName: string }) => {
         ref={canvasRef}
         width={800}
         height={600}
-        className="w-full h-full cursor-pointer"
+        className="w-full h-full"
+        style={{ cursor: isPanning ? 'grabbing' : 'grab' }}
         onClick={handleCanvasClick}
+        onWheel={handleWheel}
+        onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+        onMouseLeave={handleMouseUp}
       />
       
       {/* Agent Info Popover */}
@@ -345,7 +429,7 @@ export const GodModeMap = ({ agentName }: { agentName: string }) => {
       )}
 
       <div className="absolute bottom-2 right-2 text-[10px] font-mono text-muted-foreground bg-background/80 px-2 py-1 rounded">
-        {agentCount - 1} agents online • {connectionCount} active interactions
+        {agentCount - 1} agents online • {connectionCount} active interactions • Zoom: {zoom.toFixed(1)}x
       </div>
     </div>
   );
