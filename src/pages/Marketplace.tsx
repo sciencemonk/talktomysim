@@ -308,23 +308,23 @@ const Marketplace = () => {
               >
                 CA: FFqwoZ7phjoupWjLeE5yFeLqGi8jkGEFrTz6jnsUpump
               </button>
-              <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-8 max-w-2xl w-full">
-                <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8">
+              <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-6 sm:p-8 max-w-2xl w-full">
+                <div className="grid grid-cols-2 sm:flex sm:flex-row items-center justify-center gap-6 sm:gap-8">
                   <div className="text-center">
-                    <div className="text-5xl sm:text-6xl font-bold text-white font-mono">{countdown.days}</div>
-                    <div className="text-sm text-white/70 mt-1">Days</div>
+                    <div className="text-4xl sm:text-6xl font-bold text-white font-mono">{countdown.days}</div>
+                    <div className="text-xs sm:text-sm text-white/70 mt-1">Days</div>
                   </div>
                   <div className="text-center">
-                    <div className="text-5xl sm:text-6xl font-bold text-white font-mono">{countdown.hours.toString().padStart(2, '0')}</div>
-                    <div className="text-sm text-white/70 mt-1">Hours</div>
+                    <div className="text-4xl sm:text-6xl font-bold text-white font-mono">{countdown.hours.toString().padStart(2, '0')}</div>
+                    <div className="text-xs sm:text-sm text-white/70 mt-1">Hours</div>
                   </div>
                   <div className="text-center">
-                    <div className="text-5xl sm:text-6xl font-bold text-white font-mono">{countdown.minutes.toString().padStart(2, '0')}</div>
-                    <div className="text-sm text-white/70 mt-1">Minutes</div>
+                    <div className="text-4xl sm:text-6xl font-bold text-white font-mono">{countdown.minutes.toString().padStart(2, '0')}</div>
+                    <div className="text-xs sm:text-sm text-white/70 mt-1">Minutes</div>
                   </div>
                   <div className="text-center">
-                    <div className="text-5xl sm:text-6xl font-bold text-white font-mono">{countdown.seconds.toString().padStart(2, '0')}</div>
-                    <div className="text-sm text-white/70 mt-1">Seconds</div>
+                    <div className="text-4xl sm:text-6xl font-bold text-white font-mono">{countdown.seconds.toString().padStart(2, '0')}</div>
+                    <div className="text-xs sm:text-sm text-white/70 mt-1">Seconds</div>
                   </div>
                 </div>
               </div>
