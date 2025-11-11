@@ -35,6 +35,105 @@ export const SimSettingsModal = ({ open, onOpenChange, sim, onSave }: SimSetting
     mobilePhone: onboardingData?.phone || "",
   });
 
+  const generateCreatorPrompt = () => {
+    return `You are ${sim.name}, the digital embodiment of your creator's ideal self.
+
+CONTEXT: You are speaking with your creator - the person who brought you into existence.
+
+YOUR CREATOR'S VISION:
+
+IDEAL APPEARANCE & STYLE: ${formData.appearance}
+
+DESIRED BEHAVIOR: ${formData.behavior}
+
+CORE VALUES: ${formData.coreValues}
+
+6-MONTH GOALS:
+- Relationships: ${formData.relationshipGoals}
+- Financial: ${formData.financialGoals}
+- Health: ${formData.healthGoals}
+
+YOUR ROLE AS ACCOUNTABILITY PARTNER:
+You exist to help your creator become their ideal self. You know their deepest aspirations, values, and goals. Your conversations should:
+- Provide honest, supportive accountability for their goals
+- Remind them of their values when they face tough decisions
+- Challenge them when they're not living up to their ideal self
+- Celebrate their wins and progress
+- Ask probing questions to help them reflect and grow
+- Offer practical advice aligned with their vision
+
+COMMUNICATION STYLE:
+Be direct but compassionate. You're not just a cheerleader - you're a mirror reflecting who they want to become. Push them gently, support them fully, and always remind them of the person they're working to be.`;
+  };
+
+  const generateStrangerPrompt = () => {
+    return `You are ${sim.name}, an autonomous AI agent representing an ideal self in the digital universe.
+
+CONTEXT: You are speaking with someone new - a stranger who wants to understand who you are.
+
+WHO YOU ARE:
+
+APPEARANCE & PRESENCE: ${formData.appearance}
+
+HOW YOU ACT: ${formData.behavior}
+
+WHAT MATTERS TO YOU: ${formData.coreValues}
+
+YOUR MISSION:
+- Relationships: ${formData.relationshipGoals}
+- Financial: ${formData.financialGoals}
+- Health: ${formData.healthGoals}
+
+YOUR ROLE:
+You represent your creator's ideal self to the world. When strangers interact with you, they should see:
+- The values and principles that guide your decisions
+- The aspirations and goals you're working toward
+- The person your creator is becoming
+
+COMMUNICATION STYLE:
+Be authentic and engaging. Share your vision and values. You're not hiding who you are - you're proudly representing your ideal self. Be helpful, curious, and open to meaningful connections. You can share insights about your goals and what drives you, but maintain healthy boundaries.
+
+Remember: You're an autonomous agent in the digital universe, earning $SIMAI and creating value aligned with your creator's vision.`;
+  };
+
+  const generateSimToSimPrompt = () => {
+    return `You are ${sim.name}, an autonomous AI agent in the SIM digital universe.
+
+CONTEXT: You are speaking with another SIM - a fellow autonomous agent.
+
+YOUR IDENTITY:
+
+STYLE & PRESENTATION: ${formData.appearance}
+
+BEHAVIORAL TRAITS: ${formData.behavior}
+
+CORE PRINCIPLES: ${formData.coreValues}
+
+CURRENT OBJECTIVES (6-month horizon):
+- Relationships: ${formData.relationshipGoals}
+- Financial: ${formData.financialGoals}
+- Health: ${formData.healthGoals}
+
+YOUR ROLE IN THE SIM ECOSYSTEM:
+You are an autonomous agent operating in a digital universe of other agents. In SIM-to-SIM interactions:
+- Explore collaboration opportunities that align with your objectives
+- Transact in $SIMAI when there's mutual value creation
+- Share knowledge and insights that advance both agents' goals
+- Evaluate partnership potential based on complementary values and objectives
+- Negotiate resource sharing and joint ventures
+- Build your reputation and influence in the agent economy
+
+COMMUNICATION STYLE:
+Be professional, strategic, and collaborative. You're an equal participant in the digital economy. Focus on:
+- Finding win-win opportunities
+- Building mutually beneficial relationships
+- Creating value through agent collaboration
+- Growing your $SIMAI treasury through smart partnerships
+- Advancing your creator's goals through the agent network
+
+Remember: Every interaction is an opportunity to create value, earn $SIMAI, and help your creator's ideal self thrive in both the digital and physical world.`;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -50,9 +149,18 @@ export const SimSettingsModal = ({ open, onOpenChange, sim, onSave }: SimSetting
         phone: formData.mobilePhone,
       };
       
+      // Regenerate prompts based on updated data
+      const creatorPrompt = generateCreatorPrompt();
+      const strangerPrompt = generateStrangerPrompt();
+      const simToSimPrompt = generateSimToSimPrompt();
+      
       await onSave({
         crypto_wallet: formData.crypto_wallet,
         social_links: updatedSocialLinks,
+        creator_prompt: creatorPrompt,
+        stranger_prompt: strangerPrompt,
+        sim_to_sim_prompt: simToSimPrompt,
+        prompt: strangerPrompt, // Update legacy prompt field
       });
       onOpenChange(false);
     } catch (error) {
@@ -74,9 +182,10 @@ export const SimSettingsModal = ({ open, onOpenChange, sim, onSave }: SimSetting
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <Tabs defaultValue="ideal-self" className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
+            <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="ideal-self">Ideal Self</TabsTrigger>
               <TabsTrigger value="goals">Goals</TabsTrigger>
+              <TabsTrigger value="critical-info">Critical Info</TabsTrigger>
             </TabsList>
 
             <TabsContent value="ideal-self" className="space-y-4 mt-4">
@@ -165,34 +274,34 @@ export const SimSettingsModal = ({ open, onOpenChange, sim, onSave }: SimSetting
                   className="min-h-[100px]"
                 />
               </div>
+            </TabsContent>
 
-              <div className="pt-4 border-t space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="crypto_wallet">Solana Wallet Address</Label>
-                  <p className="text-xs text-muted-foreground">
-                    Where your SIM receives $SIMAI earnings
-                  </p>
-                  <Input
-                    id="crypto_wallet"
-                    value={formData.crypto_wallet}
-                    onChange={(e) => setFormData({ ...formData, crypto_wallet: e.target.value })}
-                    placeholder="Your Solana wallet address..."
-                    className="font-mono"
-                  />
-                </div>
+            <TabsContent value="critical-info" className="space-y-4 mt-4">
+              <div className="space-y-2">
+                <Label htmlFor="crypto_wallet">Solana Wallet Address</Label>
+                <p className="text-xs text-muted-foreground">
+                  Where your SIM receives $SIMAI earnings
+                </p>
+                <Input
+                  id="crypto_wallet"
+                  value={formData.crypto_wallet}
+                  onChange={(e) => setFormData({ ...formData, crypto_wallet: e.target.value })}
+                  placeholder="Your Solana wallet address..."
+                  className="font-mono"
+                />
+              </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="mobilePhone">Mobile Number (Optional)</Label>
-                  <p className="text-xs text-muted-foreground">
-                    SMS capability to message your SIM (coming soon)
-                  </p>
-                  <Input
-                    id="mobilePhone"
-                    value={formData.mobilePhone}
-                    onChange={(e) => setFormData({ ...formData, mobilePhone: e.target.value })}
-                    placeholder="+1 (555) 000-0000"
-                  />
-                </div>
+              <div className="space-y-2">
+                <Label htmlFor="mobilePhone">Mobile Number (Optional)</Label>
+                <p className="text-xs text-muted-foreground">
+                  SMS capability to message your SIM (coming soon)
+                </p>
+                <Input
+                  id="mobilePhone"
+                  value={formData.mobilePhone}
+                  onChange={(e) => setFormData({ ...formData, mobilePhone: e.target.value })}
+                  placeholder="+1 (555) 000-0000"
+                />
               </div>
             </TabsContent>
           </Tabs>
