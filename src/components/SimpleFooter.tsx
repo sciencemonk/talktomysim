@@ -23,7 +23,7 @@ const SimpleFooter = () => {
           {/* Left side - Logo and Copyright */}
           <div className="flex flex-col items-center md:items-start gap-2">
             <button onClick={() => navigate('/')} className="hover:opacity-80 transition-opacity">
-              <img src={resolvedTheme === 'dark' ? simLogoWhite : simHeroLogo} alt="SIM" className="h-8" />
+              
             </button>
             <p className="text-xs text-muted-foreground text-center md:text-left">
               © 2025 SIM Project. All rights reserved.
