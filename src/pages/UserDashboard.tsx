@@ -485,47 +485,14 @@ const UserDashboard = () => {
 
           {/* Main Content Grid */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Chat Interface - Takes 2 columns */}
+            {/* Your SIM Map - Takes 2 columns */}
             <div className="lg:col-span-2">
-              <Card className="h-[600px] flex flex-col">
-                <CardHeader className="border-b">
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="flex items-center gap-2">
-                      Chat with {userSim.name}
-                    </CardTitle>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => {
-                        setEditingAction(undefined);
-                        setShowAddActionModal(true);
-                      }}
-                      className="gap-2"
-                    >
-                      <Plus className="h-4 w-4" />
-                      Add Action
-                    </Button>
-                  </div>
-                </CardHeader>
-                <CardContent className="flex-1 p-0 overflow-hidden">
-                  <PublicChatInterface 
-                    agent={agentForChat}
-                    avatarUrl={userSim.avatar_url || undefined}
-                    actions={actions}
-                  />
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Right Sidebar */}
-            <div className="space-y-6">
-              {/* God Mode Map */}
               <Card>
                 <CardHeader>
                   <div className="flex items-center justify-between">
-                    <CardTitle className="flex items-center gap-2 text-base">
-                      <Activity className="h-4 w-4 text-primary" />
-                      God Mode
+                    <CardTitle className="flex items-center gap-2">
+                      <Activity className="h-5 w-5 text-primary" />
+                      Your SIM
                     </CardTitle>
                     <Badge variant="secondary" className="gap-1">
                       <div className="h-2 w-2 rounded-full bg-primary animate-pulse" />
@@ -533,11 +500,14 @@ const UserDashboard = () => {
                     </Badge>
                   </div>
                 </CardHeader>
-                <CardContent className="p-0 h-[350px]">
+                <CardContent className="p-0 h-[600px]">
                   <GodModeMap agentName={userSim.name} />
                 </CardContent>
               </Card>
+            </div>
 
+            {/* Right Sidebar */}
+            <div className="space-y-6">
               {/* Live Activity */}
               <Card>
                 <CardHeader>
