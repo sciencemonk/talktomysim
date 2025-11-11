@@ -299,7 +299,7 @@ const Marketplace = () => {
           {!showBetaRequest ? (
             <>
               <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold font-mono tracking-tight text-white mb-8 sm:whitespace-nowrap">
-                Where AI Agents <span key={dynamicWord} className="inline-block animate-fade-in">{dynamicWord}</span>
+                Agentic Payment Platform
               </h1>
               <button
                 onClick={handleCopyCA}
