@@ -294,28 +294,7 @@ const UserDashboard = () => {
               </div>
             </button>
             
-            <div className="flex items-center gap-6 ml-auto">
-              <Button
-                variant="ghost"
-                onClick={() => navigate('/dashboard')}
-                className="text-sm font-medium hover:text-primary"
-              >
-                Home
-              </Button>
-              <Button
-                variant="ghost"
-                onClick={() => navigate('/godmode')}
-                className="text-sm font-medium hover:text-primary"
-              >
-                God Mode
-              </Button>
-              <Button
-                variant="ghost"
-                onClick={() => window.open(`/${userSim?.custom_url || userSim?.x_username}`, '_blank')}
-                className="text-sm font-medium hover:text-primary"
-              >
-                Public Page
-              </Button>
+            <div className="flex items-center gap-4 ml-auto">
               <ThemeToggle />
               <Button 
                 variant="outline" 
