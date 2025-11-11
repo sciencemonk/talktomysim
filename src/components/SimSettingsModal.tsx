@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Slider } from "@/components/ui/slider";
 import { Loader2 } from "lucide-react";
 import { Sim } from "@/types/sim";
 
@@ -33,6 +34,12 @@ export const SimSettingsModal = ({ open, onOpenChange, sim, onSave }: SimSetting
     healthGoals: onboardingData?.healthGoals || "",
     crypto_wallet: sim.crypto_wallet || "",
     mobilePhone: onboardingData?.phone || "",
+    interactionStyle: (sim as any).interaction_style || "",
+    explorationStyle: (sim as any).exploration_style || "",
+    primaryObjective: (sim as any).primary_objective || "",
+    interactionAutonomy: (sim as any).interaction_autonomy || 5,
+    explorationFrequency: (sim as any).exploration_frequency || 5,
+    objectiveFocus: (sim as any).objective_focus || 5,
   });
 
   const generateCreatorPrompt = () => {
@@ -161,7 +168,13 @@ Remember: Every interaction is an opportunity to create value, earn $SIMAI, and 
         stranger_prompt: strangerPrompt,
         sim_to_sim_prompt: simToSimPrompt,
         prompt: strangerPrompt, // Update legacy prompt field
-      });
+        interaction_style: formData.interactionStyle,
+        exploration_style: formData.explorationStyle,
+        primary_objective: formData.primaryObjective,
+        interaction_autonomy: formData.interactionAutonomy,
+        exploration_frequency: formData.explorationFrequency,
+        objective_focus: formData.objectiveFocus,
+      } as any);
       onOpenChange(false);
     } catch (error) {
       console.error('Failed to save settings:', error);
@@ -182,9 +195,10 @@ Remember: Every interaction is an opportunity to create value, earn $SIMAI, and 
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <Tabs defaultValue="ideal-self" className="w-full">
-            <TabsList className="grid w-full grid-cols-3">
+            <TabsList className="grid w-full grid-cols-4">
               <TabsTrigger value="ideal-self">Ideal Self</TabsTrigger>
               <TabsTrigger value="goals">Goals</TabsTrigger>
+              <TabsTrigger value="interaction-model">Interaction Model</TabsTrigger>
               <TabsTrigger value="critical-info">Critical Info</TabsTrigger>
             </TabsList>
 
@@ -273,6 +287,107 @@ Remember: Every interaction is an opportunity to create value, earn $SIMAI, and 
                   placeholder="Describe your health goals..."
                   className="min-h-[100px]"
                 />
+              </div>
+            </TabsContent>
+
+            <TabsContent value="interaction-model" className="space-y-6 mt-4">
+              <div className="space-y-2">
+                <Label htmlFor="interactionStyle">SIM-to-SIM Interaction Style</Label>
+                <p className="text-xs text-muted-foreground">
+                  How should your SIM interact with other SIMs in the digital universe?
+                </p>
+                <Textarea
+                  id="interactionStyle"
+                  value={formData.interactionStyle}
+                  onChange={(e) => setFormData({ ...formData, interactionStyle: e.target.value })}
+                  placeholder="E.g., Collaborative and value-driven, seeking mutually beneficial partnerships..."
+                  className="min-h-[100px]"
+                />
+              </div>
+
+              <div className="space-y-3">
+                <Label htmlFor="interactionAutonomy">Interaction Autonomy</Label>
+                <p className="text-xs text-muted-foreground">
+                  How independently should your SIM initiate and manage interactions? (0 = Reserved, 10 = Highly Proactive)
+                </p>
+                <div className="flex items-center gap-4">
+                  <Slider
+                    id="interactionAutonomy"
+                    min={0}
+                    max={10}
+                    step={1}
+                    value={[formData.interactionAutonomy]}
+                    onValueChange={(value) => setFormData({ ...formData, interactionAutonomy: value[0] })}
+                    className="flex-1"
+                  />
+                  <span className="text-sm font-medium w-8 text-center">{formData.interactionAutonomy}</span>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="explorationStyle">Digital Universe Exploration</Label>
+                <p className="text-xs text-muted-foreground">
+                  How should your SIM explore and navigate the digital universe?
+                </p>
+                <Textarea
+                  id="explorationStyle"
+                  value={formData.explorationStyle}
+                  onChange={(e) => setFormData({ ...formData, explorationStyle: e.target.value })}
+                  placeholder="E.g., Curious and methodical, seeking new opportunities while maintaining strategic focus..."
+                  className="min-h-[100px]"
+                />
+              </div>
+
+              <div className="space-y-3">
+                <Label htmlFor="explorationFrequency">Exploration Frequency</Label>
+                <p className="text-xs text-muted-foreground">
+                  How often should your SIM explore new areas and opportunities? (0 = Rarely, 10 = Constantly)
+                </p>
+                <div className="flex items-center gap-4">
+                  <Slider
+                    id="explorationFrequency"
+                    min={0}
+                    max={10}
+                    step={1}
+                    value={[formData.explorationFrequency]}
+                    onValueChange={(value) => setFormData({ ...formData, explorationFrequency: value[0] })}
+                    className="flex-1"
+                  />
+                  <span className="text-sm font-medium w-8 text-center">{formData.explorationFrequency}</span>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="primaryObjective">Primary Objective</Label>
+                <p className="text-xs text-muted-foreground">
+                  What is your SIM's main mission or purpose in the digital universe?
+                </p>
+                <Textarea
+                  id="primaryObjective"
+                  value={formData.primaryObjective}
+                  onChange={(e) => setFormData({ ...formData, primaryObjective: e.target.value })}
+                  placeholder="E.g., Build meaningful partnerships, maximize $SIMAI earnings, become a trusted advisor..."
+                  className="min-h-[100px]"
+                />
+              </div>
+
+              <div className="space-y-3">
+                <Label htmlFor="objectiveFocus">Objective Focus Intensity</Label>
+                <p className="text-xs text-muted-foreground">
+                  How intensely should your SIM pursue its primary objective? (0 = Relaxed, 10 = Laser-Focused)
+                </p>
+                <div className="flex items-center gap-4">
+                  <Slider
+                    id="objectiveFocus"
+                    min={0}
+                    max={10}
+                    step={1}
+                    value={[formData.objectiveFocus]}
+                    onValueChange={(value) => setFormData({ ...formData, objectiveFocus: value[0] })}
+                    className="flex-1"
+                  />
+                  <span className="text-sm font-medium w-8 text-center">{formData.objectiveFocus}</span>
+                </div>
               </div>
             </TabsContent>
 

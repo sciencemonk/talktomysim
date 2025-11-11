@@ -24,6 +24,12 @@ export interface Sim {
   social_links: any;
   training_completed: boolean;
   training_post_count: number;
+  interaction_style?: string;
+  exploration_style?: string;
+  primary_objective?: string;
+  interaction_autonomy?: number;
+  exploration_frequency?: number;
+  objective_focus?: number;
   created_at: string;
   updated_at: string;
 }

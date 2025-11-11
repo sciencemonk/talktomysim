@@ -165,6 +165,12 @@ const UserDashboard = () => {
           social_links: null,
           training_completed: false,
           training_post_count: 0,
+          interaction_style: 'Collaborative and value-driven',
+          exploration_style: 'Curious and methodical',
+          primary_objective: 'Build meaningful partnerships',
+          interaction_autonomy: 5,
+          exploration_frequency: 5,
+          objective_focus: 5,
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString()
         };

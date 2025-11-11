@@ -1231,12 +1231,18 @@ export type Database = {
           custom_url: string | null
           description: string | null
           edit_code: string
+          exploration_frequency: number | null
+          exploration_style: string | null
           id: string
           integrations: Json | null
+          interaction_autonomy: number | null
+          interaction_style: string | null
           is_active: boolean
           is_public: boolean
           is_verified: boolean
           name: string
+          objective_focus: number | null
+          primary_objective: string | null
           prompt: string
           sim_to_sim_prompt: string | null
           social_links: Json | null
@@ -1260,12 +1266,18 @@ export type Database = {
           custom_url?: string | null
           description?: string | null
           edit_code: string
+          exploration_frequency?: number | null
+          exploration_style?: string | null
           id?: string
           integrations?: Json | null
+          interaction_autonomy?: number | null
+          interaction_style?: string | null
           is_active?: boolean
           is_public?: boolean
           is_verified?: boolean
           name: string
+          objective_focus?: number | null
+          primary_objective?: string | null
           prompt: string
           sim_to_sim_prompt?: string | null
           social_links?: Json | null
@@ -1289,12 +1301,18 @@ export type Database = {
           custom_url?: string | null
           description?: string | null
           edit_code?: string
+          exploration_frequency?: number | null
+          exploration_style?: string | null
           id?: string
           integrations?: Json | null
+          interaction_autonomy?: number | null
+          interaction_style?: string | null
           is_active?: boolean
           is_public?: boolean
           is_verified?: boolean
           name?: string
+          objective_focus?: number | null
+          primary_objective?: string | null
           prompt?: string
           sim_to_sim_prompt?: string | null
           social_links?: Json | null

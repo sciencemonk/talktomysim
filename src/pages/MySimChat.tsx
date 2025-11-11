@@ -89,6 +89,12 @@ export default function MySimChat() {
             social_links: advisorData.social_links as Sim['social_links'],
             training_completed: false,
             training_post_count: 0,
+            interaction_style: (advisorData as any).interaction_style || '',
+            exploration_style: (advisorData as any).exploration_style || '',
+            primary_objective: (advisorData as any).primary_objective || '',
+            interaction_autonomy: (advisorData as any).interaction_autonomy || 5,
+            exploration_frequency: (advisorData as any).exploration_frequency || 5,
+            objective_focus: (advisorData as any).objective_focus || 5,
             created_at: advisorData.created_at,
             updated_at: advisorData.updated_at,
           };
