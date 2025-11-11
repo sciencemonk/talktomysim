@@ -12,6 +12,13 @@ export interface SimAction {
   updated_at: string;
 }
 
+// Helper to check if a string is a valid UUID
+const isValidUUID = (str: string | undefined): boolean => {
+  if (!str) return false;
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  return uuidRegex.test(str);
+};
+
 export const useSimActions = (simId: string | undefined) => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -19,7 +26,7 @@ export const useSimActions = (simId: string | undefined) => {
   const { data: actions = [], isLoading } = useQuery({
     queryKey: ["sim-actions", simId],
     queryFn: async () => {
-      if (!simId) return [];
+      if (!simId || !isValidUUID(simId)) return [];
 
       const { data, error } = await supabase
         .from("sim_actions")
@@ -30,7 +37,7 @@ export const useSimActions = (simId: string | undefined) => {
       if (error) throw error;
       return data as SimAction[];
     },
-    enabled: !!simId,
+    enabled: !!simId && isValidUUID(simId),
   });
 
   const deleteAction = useMutation({

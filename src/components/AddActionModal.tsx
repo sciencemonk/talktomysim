@@ -48,6 +48,17 @@ export const AddActionModal = ({ open, onOpenChange, simId, actionToEdit, onActi
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    // Validate UUID format
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (!simId || !uuidRegex.test(simId)) {
+      toast({
+        title: "Error",
+        description: "Invalid SIM ID. Please refresh the page and try again.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     if (!description.trim() || !endGoal.trim()) {
       toast({
         title: "Missing fields",
