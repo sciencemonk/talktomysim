@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
+import mapboxgl from 'mapbox-gl';
+import 'mapbox-gl/dist/mapbox-gl.css';
 import { Card, CardContent } from './ui/card';
 import { Button } from './ui/button';
 import { ExternalLink, Coins, TrendingUp } from 'lucide-react';
@@ -7,10 +9,8 @@ import { useTheme } from '@/hooks/useTheme';
 interface Agent {
   id: string;
   name: string;
-  x: number;
-  y: number;
-  vx: number;
-  vy: number;
+  lng: number;
+  lat: number;
   radius: number;
   color: string;
   isMainAgent: boolean;
@@ -25,24 +25,22 @@ interface Connection {
   strength: number;
 }
 
+// Mapbox public token
+mapboxgl.accessToken = 'pk.eyJ1IjoibWljaGFlbGFvIiwiYSI6ImNtNTE1dDhuMzFzemYycXEzbGZqNXRnM2kifQ.MLtu0XCi-r56Whozb0VXgw';
+
 export const GodModeMap = ({ agentName }: { agentName: string }) => {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const agentsRef = useRef<Agent[]>([]);
-  const connectionsRef = useRef<Connection[]>([]);
+  const mapContainer = useRef<HTMLDivElement>(null);
+  const map = useRef<mapboxgl.Map | null>(null);
+  const markers = useRef<Map<string, mapboxgl.Marker>>(new Map());
   const [selectedAgent, setSelectedAgent] = useState<Agent | null>(null);
   const [popoverPosition, setPopoverPosition] = useState<{ x: number; y: number } | null>(null);
   const [agentCount, setAgentCount] = useState(0);
   const [connectionCount, setConnectionCount] = useState(0);
-  const animationFrameRef = useRef<number>();
   const { theme } = useTheme();
   const [resolvedTheme, setResolvedTheme] = useState<'light' | 'dark'>('dark');
-  const [zoom, setZoom] = useState(1);
-  const [panX, setPanX] = useState(0);
-  const [panY, setPanY] = useState(0);
-  const [isPanning, setIsPanning] = useState(false);
-  const [panStart, setPanStart] = useState({ x: 0, y: 0 });
-  const imageCache = useRef<Map<string, HTMLImageElement>>(new Map());
+  const agentsRef = useRef<Agent[]>([]);
+  const connectionsRef = useRef<Connection[]>([]);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (theme === 'system') {
@@ -54,6 +52,25 @@ export const GodModeMap = ({ agentName }: { agentName: string }) => {
   }, [theme]);
 
   useEffect(() => {
+    // Major world cities coordinates for SIM locations
+    const worldLocations = [
+      { lng: -74.006, lat: 40.7128 }, // New York
+      { lng: -118.2437, lat: 34.0522 }, // Los Angeles
+      { lng: -0.1276, lat: 51.5074 }, // London
+      { lng: 2.3522, lat: 48.8566 }, // Paris
+      { lng: 139.6917, lat: 35.6762 }, // Tokyo
+      { lng: 121.4737, lat: 31.2304 }, // Shanghai
+      { lng: 77.2090, lat: 28.6139 }, // Delhi
+      { lng: -43.1729, lat: -22.9068 }, // Rio
+      { lng: 151.2093, lat: -33.8688 }, // Sydney
+      { lng: 18.4241, lat: -33.9249 }, // Cape Town
+      { lng: 55.2708, lat: 25.2048 }, // Dubai
+      { lng: 103.8198, lat: 1.3521 }, // Singapore
+      { lng: -99.1332, lat: 19.4326 }, // Mexico City
+      { lng: 37.6173, lat: 55.7558 }, // Moscow
+      { lng: 12.4964, lat: 41.9028 }, // Rome
+    ];
+
     // Mock SIM names for variety
     const mockNames = [
       'CryptoDiviX', 'DegenCapital', 'ProfessrWeb3', 'AI Trader', 'Smart Agent',
@@ -70,49 +87,42 @@ export const GodModeMap = ({ agentName }: { agentName: string }) => {
       '/lovable-uploads/35810899-a91c-4acc-b8e9-c0868e320e3f.png',
     ];
 
-    // Initialize agents with much slower speeds and wider distribution
+    // Initialize agents at world locations
     const initialAgents: Agent[] = [
       {
         id: 'main',
         name: agentName,
-        x: 400,
-        y: 300,
-        vx: 0.08,
-        vy: 0.05,
-        radius: 8,
+        lng: -74.006,
+        lat: 40.7128,
+        radius: 12,
         color: '#83f1aa',
         isMainAgent: true,
         customUrl: 'testuser',
         simaiBalance: 125430,
         avatarUrl: mockAvatars[0]
       },
-      ...Array.from({ length: 150 }, (_, i) => ({
-        id: `agent-${i}`,
-        name: mockNames[i % mockNames.length] + (i > 14 ? ` ${Math.floor(i / 15)}` : ''),
-        x: Math.random() * 760 + 20,
-        y: Math.random() * 560 + 20,
-        vx: (Math.random() - 0.5) * 0.15,
-        vy: (Math.random() - 0.5) * 0.15,
-        radius: 5,
-        color: i % 3 === 0 ? '#60a5fa' : i % 3 === 1 ? '#a78bfa' : '#f472b6',
-        isMainAgent: false,
-        customUrl: `agent-${i}`,
-        simaiBalance: Math.floor(Math.random() * 100000) + 1000,
-        avatarUrl: mockAvatars[i % mockAvatars.length]
-      }))
+      ...Array.from({ length: 150 }, (_, i) => {
+        const location = worldLocations[i % worldLocations.length];
+        // Add some random offset to spread agents around cities
+        const lngOffset = (Math.random() - 0.5) * 10;
+        const latOffset = (Math.random() - 0.5) * 10;
+        
+        return {
+          id: `agent-${i}`,
+          name: mockNames[i % mockNames.length] + (i > 14 ? ` ${Math.floor(i / 15)}` : ''),
+          lng: location.lng + lngOffset,
+          lat: location.lat + latOffset,
+          radius: 8,
+          color: i % 3 === 0 ? '#60a5fa' : i % 3 === 1 ? '#a78bfa' : '#f472b6',
+          isMainAgent: false,
+          customUrl: `agent-${i}`,
+          simaiBalance: Math.floor(Math.random() * 100000) + 1000,
+          avatarUrl: mockAvatars[i % mockAvatars.length]
+        };
+      })
     ];
     agentsRef.current = initialAgents;
     setAgentCount(initialAgents.length);
-
-    // Preload avatar images
-    initialAgents.forEach(agent => {
-      if (agent.avatarUrl && !imageCache.current.has(agent.avatarUrl)) {
-        const img = new Image();
-        img.crossOrigin = 'anonymous';
-        img.src = agent.avatarUrl;
-        imageCache.current.set(agent.avatarUrl, img);
-      }
-    });
 
     // Start with no connections
     connectionsRef.current = [];
@@ -137,206 +147,140 @@ export const GodModeMap = ({ agentName }: { agentName: string }) => {
       
       connectionsRef.current = newConnections;
       setConnectionCount(newConnections.length);
+      
+      // Update connection lines on map
+      if (map.current && map.current.getSource('connections')) {
+        const lineFeatures = newConnections.map(conn => {
+          const fromAgent = agentsRef.current.find(a => a.id === conn.from);
+          const toAgent = agentsRef.current.find(a => a.id === conn.to);
+          
+          if (fromAgent && toAgent) {
+            return {
+              type: 'Feature' as const,
+              properties: { strength: conn.strength },
+              geometry: {
+                type: 'LineString' as const,
+                coordinates: [
+                  [fromAgent.lng, fromAgent.lat],
+                  [toAgent.lng, toAgent.lat]
+                ]
+              }
+            };
+          }
+          return null;
+        }).filter(Boolean);
+
+        (map.current.getSource('connections') as mapboxgl.GeoJSONSource).setData({
+          type: 'FeatureCollection',
+          features: lineFeatures as any[]
+        });
+      }
     }, 3000);
 
     return () => clearInterval(connectionInterval);
   }, [agentName]);
 
+  // Initialize Mapbox map
   useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
+    if (!mapContainer.current || map.current) return;
 
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    const animate = () => {
-      // Clear canvas with theme-aware solid background
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.fillStyle = resolvedTheme === 'dark' ? '#000000' : '#ffffff';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-      // Save context and apply zoom/pan transformations
-      ctx.save();
-      ctx.translate(panX, panY);
-      ctx.scale(zoom, zoom);
-
-      // Update agent positions
-      agentsRef.current = agentsRef.current.map(agent => {
-        let { x, y, vx, vy } = agent;
-
-        // Update position
-        x += vx;
-        y += vy;
-
-        // Bounce off edges
-        if (x <= agent.radius || x >= canvas.width - agent.radius) {
-          vx *= -1;
-          x = Math.max(agent.radius, Math.min(canvas.width - agent.radius, x));
-        }
-        if (y <= agent.radius || y >= canvas.height - agent.radius) {
-          vy *= -1;
-          y = Math.max(agent.radius, Math.min(canvas.height - agent.radius, y));
-        }
-
-        return { ...agent, x, y, vx, vy };
-      });
-
-      // Draw connections FIRST (so they appear behind agents)
-      connectionsRef.current.forEach(conn => {
-        const fromAgent = agentsRef.current.find(a => a.id === conn.from);
-        const toAgent = agentsRef.current.find(a => a.id === conn.to);
-        
-        if (fromAgent && toAgent) {
-          // Main connection line
-          ctx.strokeStyle = `rgba(131, 241, 170, ${conn.strength * 0.3})`;
-          ctx.lineWidth = 2;
-          ctx.beginPath();
-          ctx.moveTo(fromAgent.x, fromAgent.y);
-          ctx.lineTo(toAgent.x, toAgent.y);
-          ctx.stroke();
-
-          // Gradient pulse effect
-          const gradient = ctx.createLinearGradient(fromAgent.x, fromAgent.y, toAgent.x, toAgent.y);
-          gradient.addColorStop(0, `rgba(131, 241, 170, ${conn.strength * 0.5})`);
-          gradient.addColorStop(1, 'rgba(131, 241, 170, 0)');
-          ctx.strokeStyle = gradient;
-          ctx.lineWidth = 1;
-          ctx.stroke();
-        }
-      });
-
-      // Draw agents ON TOP of connections
-      agentsRef.current.forEach(agent => {
-        // Reset shadow for each agent
-        ctx.shadowBlur = 0;
-        ctx.shadowColor = 'transparent';
-
-        // Outer glow for main agent
-        if (agent.isMainAgent) {
-          ctx.shadowBlur = 15;
-          ctx.shadowColor = agent.color;
-        } else {
-          ctx.shadowBlur = 8;
-          ctx.shadowColor = agent.color;
-        }
-
-        // Draw avatar image if available
-        const img = agent.avatarUrl ? imageCache.current.get(agent.avatarUrl) : null;
-        if (img && img.complete && img.naturalHeight !== 0) {
-          ctx.save();
-          ctx.beginPath();
-          ctx.arc(agent.x, agent.y, agent.radius, 0, Math.PI * 2);
-          ctx.closePath();
-          ctx.clip();
-          ctx.drawImage(
-            img,
-            agent.x - agent.radius,
-            agent.y - agent.radius,
-            agent.radius * 2,
-            agent.radius * 2
-          );
-          ctx.restore();
-        } else {
-          // Fallback to circle if image not loaded
-          ctx.fillStyle = agent.color;
-          ctx.beginPath();
-          ctx.arc(agent.x, agent.y, agent.radius, 0, Math.PI * 2);
-          ctx.fill();
-        }
-
-        // Reset shadow before drawing ring
-        ctx.shadowBlur = 0;
-        ctx.shadowColor = 'transparent';
-
-        // Draw pulsing ring for main agent
-        if (agent.isMainAgent) {
-          const pulseRadius = agent.radius + Math.sin(Date.now() / 500) * 2 + 4;
-          ctx.strokeStyle = `rgba(131, 241, 170, ${0.6 - (pulseRadius - agent.radius) / 15})`;
-          ctx.lineWidth = 2;
-          ctx.beginPath();
-          ctx.arc(agent.x, agent.y, pulseRadius, 0, Math.PI * 2);
-          ctx.stroke();
-        }
-
-        // Draw agent label for main agent (make it theme-aware)
-        if (agent.isMainAgent) {
-          ctx.fillStyle = resolvedTheme === 'dark' ? '#ffffff' : '#000000';
-          ctx.font = '10px monospace';
-          ctx.textAlign = 'center';
-          ctx.fillText(agent.name, agent.x, agent.y - agent.radius - 10);
-        }
-      });
-
-      // Restore context after transformations
-      ctx.restore();
-
-      animationFrameRef.current = requestAnimationFrame(animate);
-    };
-
-    animate();
-
-    return () => {
-      if (animationFrameRef.current) {
-        cancelAnimationFrame(animationFrameRef.current);
-      }
-    };
-  }, [resolvedTheme, zoom, panX, panY]);
-
-  const handleCanvasClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    if (isPanning) return; // Don't trigger click if user was panning
-    
-    const canvas = canvasRef.current;
-    const container = containerRef.current;
-    if (!canvas || !container) return;
-
-    const rect = canvas.getBoundingClientRect();
-    const scaleX = canvas.width / rect.width;
-    const scaleY = canvas.height / rect.height;
-    const clickX = ((e.clientX - rect.left) * scaleX - panX) / zoom;
-    const clickY = ((e.clientY - rect.top) * scaleY - panY) / zoom;
-
-    // Find clicked agent
-    const clickedAgent = agentsRef.current.find(agent => {
-      const dx = clickX - agent.x;
-      const dy = clickY - agent.y;
-      const distance = Math.sqrt(dx * dx + dy * dy);
-      return distance <= agent.radius + 5; // Add some extra click tolerance
+    map.current = new mapboxgl.Map({
+      container: mapContainer.current,
+      style: resolvedTheme === 'dark' ? 'mapbox://styles/mapbox/dark-v11' : 'mapbox://styles/mapbox/light-v11',
+      center: [0, 20],
+      zoom: 1.5,
+      projection: 'globe' as any,
     });
 
-    if (clickedAgent) {
-      setSelectedAgent(clickedAgent);
-      // Position popover near the click
-      setPopoverPosition({
-        x: e.clientX - rect.left,
-        y: e.clientY - rect.top
+    map.current.addControl(new mapboxgl.NavigationControl(), 'top-right');
+    map.current.scrollZoom.enable();
+
+    map.current.on('load', () => {
+      if (!map.current) return;
+
+      // Add atmosphere
+      map.current.setFog({
+        color: resolvedTheme === 'dark' ? 'rgb(20, 20, 30)' : 'rgb(255, 255, 255)',
+        'high-color': resolvedTheme === 'dark' ? 'rgb(40, 40, 60)' : 'rgb(200, 200, 225)',
+        'horizon-blend': 0.2,
       });
-    } else {
-      setSelectedAgent(null);
-      setPopoverPosition(null);
+
+      // Add connection lines layer
+      map.current.addSource('connections', {
+        type: 'geojson',
+        data: {
+          type: 'FeatureCollection',
+          features: []
+        }
+      });
+
+      map.current.addLayer({
+        id: 'connections',
+        type: 'line',
+        source: 'connections',
+        paint: {
+          'line-color': '#83f1aa',
+          'line-width': 2,
+          'line-opacity': ['get', 'strength']
+        }
+      });
+
+      // Add markers for each agent
+      agentsRef.current.forEach(agent => {
+        if (!map.current) return;
+        
+        const el = document.createElement('div');
+        el.className = 'agent-marker';
+        el.style.width = `${agent.radius * 2}px`;
+        el.style.height = `${agent.radius * 2}px`;
+        el.style.borderRadius = '50%';
+        el.style.border = agent.isMainAgent ? '3px solid #83f1aa' : '2px solid ' + agent.color;
+        el.style.backgroundColor = agent.color;
+        el.style.boxShadow = agent.isMainAgent ? '0 0 20px rgba(131, 241, 170, 0.8)' : '0 0 10px rgba(0,0,0,0.3)';
+        el.style.cursor = 'pointer';
+        el.style.backgroundImage = agent.avatarUrl ? `url(${agent.avatarUrl})` : 'none';
+        el.style.backgroundSize = 'cover';
+        el.style.backgroundPosition = 'center';
+        
+        if (agent.isMainAgent) {
+          el.style.animation = 'pulse 2s infinite';
+        }
+
+        el.addEventListener('click', (e) => {
+          e.stopPropagation();
+          setSelectedAgent(agent);
+          if (containerRef.current) {
+            const rect = containerRef.current.getBoundingClientRect();
+            setPopoverPosition({
+              x: (e as any).clientX - rect.left,
+              y: (e as any).clientY - rect.top
+            });
+          }
+        });
+
+        const marker = new mapboxgl.Marker(el)
+          .setLngLat([agent.lng, agent.lat])
+          .addTo(map.current);
+
+        markers.current.set(agent.id, marker);
+      });
+    });
+
+    return () => {
+      markers.current.forEach(marker => marker.remove());
+      markers.current.clear();
+      map.current?.remove();
+      map.current = null;
+    };
+  }, [resolvedTheme]);
+
+  // Update map style when theme changes
+  useEffect(() => {
+    if (map.current) {
+      const style = resolvedTheme === 'dark' ? 'mapbox://styles/mapbox/dark-v11' : 'mapbox://styles/mapbox/light-v11';
+      map.current.setStyle(style);
     }
-  };
-
-  const handleWheel = (e: React.WheelEvent<HTMLCanvasElement>) => {
-    e.preventDefault();
-    const zoomSpeed = 0.1;
-    const delta = e.deltaY > 0 ? -zoomSpeed : zoomSpeed;
-    setZoom(prev => Math.max(0.5, Math.min(3, prev + delta)));
-  };
-
-  const handleMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    setIsPanning(true);
-    setPanStart({ x: e.clientX - panX, y: e.clientY - panY });
-  };
-
-  const handleMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    if (!isPanning) return;
-    setPanX(e.clientX - panStart.x);
-    setPanY(e.clientY - panStart.y);
-  };
-
-  const handleMouseUp = () => {
-    setIsPanning(false);
-  };
+  }, [resolvedTheme]);
 
   const formatBalance = (balance: number) => {
     if (balance >= 1000000) {
@@ -350,22 +294,16 @@ export const GodModeMap = ({ agentName }: { agentName: string }) => {
   return (
     <div 
       ref={containerRef}
-      className="relative w-full h-full rounded-lg border border-border overflow-hidden"
-      style={{ backgroundColor: resolvedTheme === 'dark' ? '#000000' : '#ffffff' }}
+      className="relative w-full h-full rounded-lg overflow-hidden"
     >
-      <canvas
-        ref={canvasRef}
-        width={800}
-        height={600}
-        className="w-full h-full"
-        style={{ cursor: isPanning ? 'grabbing' : 'grab' }}
-        onClick={handleCanvasClick}
-        onWheel={handleWheel}
-        onMouseDown={handleMouseDown}
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
-        onMouseLeave={handleMouseUp}
-      />
+      <style>{`
+        @keyframes pulse {
+          0%, 100% { transform: scale(1); }
+          50% { transform: scale(1.1); }
+        }
+      `}</style>
+      
+      <div ref={mapContainer} className="absolute inset-0" />
       
       {/* Agent Info Popover */}
       {selectedAgent && popoverPosition && (
@@ -429,7 +367,7 @@ export const GodModeMap = ({ agentName }: { agentName: string }) => {
       )}
 
       <div className="absolute bottom-2 right-2 text-[10px] font-mono text-muted-foreground bg-background/80 px-2 py-1 rounded">
-        {agentCount - 1} agents online • {connectionCount} active interactions • Zoom: {zoom.toFixed(1)}x
+        {agentCount - 1} agents online • {connectionCount} active interactions
       </div>
     </div>
   );
