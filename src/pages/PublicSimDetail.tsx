@@ -360,7 +360,9 @@ const PublicSimDetail = () => {
                 <ArrowLeft className="h-5 w-5" />
               </Button>
               <button onClick={() => navigate('/')} className="flex items-center hover:opacity-80 transition-opacity">
-                <img src={resolvedTheme === 'dark' ? simLogoWhite : simHeroLogo} alt="SIM" className="h-8" />
+                <div className="bg-black/90 rounded-lg px-2 py-1">
+                  <img src="/sim-logo-white.png" alt="SIM" className="h-6 w-auto" />
+                </div>
               </button>
             </div>
             
