@@ -286,27 +286,25 @@ const UserDashboard = () => {
     <div className="min-h-screen flex flex-col bg-background">
       {/* Navigation */}
       <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-sm border-b border-border/40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center h-16 gap-6">
-            <button onClick={() => navigate('/dashboard')} className="flex items-center hover:opacity-80 transition-opacity">
-              <div className="bg-black/90 rounded-lg px-2 py-1">
-                <img src="/sim-logo-white.png" alt="SIM" className="h-6 w-auto" />
-              </div>
-            </button>
-            
-            <div className="flex items-center gap-4 ml-auto">
-              <ThemeToggle />
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={async () => {
-                  await supabase.auth.signOut();
-                  navigate('/landing');
-                }}
-              >
-                Sign Out
-              </Button>
+        <div className="flex items-center justify-between h-16 px-4 sm:px-6">
+          <button onClick={() => navigate('/dashboard')} className="flex items-center hover:opacity-80 transition-opacity">
+            <div className="bg-black/90 rounded-lg px-2 py-1">
+              <img src="/sim-logo-white.png" alt="SIM" className="h-6 w-auto" />
             </div>
+          </button>
+          
+          <div className="flex items-center gap-4">
+            <ThemeToggle />
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={async () => {
+                await supabase.auth.signOut();
+                navigate('/landing');
+              }}
+            >
+              Sign Out
+            </Button>
           </div>
         </div>
       </nav>
