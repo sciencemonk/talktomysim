@@ -54,9 +54,16 @@ export const AddLinkModal = ({ open, onOpenChange, simId, linkToEdit, onLinkSave
         .from("sims")
         .select("social_links")
         .eq("id", simId)
-        .single();
+        .maybeSingle();
 
-      if (fetchError) throw fetchError;
+      if (fetchError) {
+        console.error("Error fetching sim:", fetchError);
+        throw new Error(`Failed to fetch SIM data: ${fetchError.message}`);
+      }
+
+      if (!sim) {
+        throw new Error("SIM not found. Please refresh the page and try again.");
+      }
 
       const existingLinks = (sim.social_links as any[]) || [];
       let updatedLinks;
