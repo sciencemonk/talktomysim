@@ -248,6 +248,17 @@ const Marketplace = () => {
     window.open(twitterUrl, '_blank');
   };
 
+  const handleCopyCA = async () => {
+    const ca = "FFqwoZ7phjoupWjLeE5yFeLqGi8jkGEFrTz6jnsUpump";
+    try {
+      await navigator.clipboard.writeText(ca);
+      toast.success("Contract address copied to clipboard");
+    } catch (error) {
+      console.error("Failed to copy:", error);
+      toast.error("Could not copy to clipboard");
+    }
+  };
+
   const handleXSignIn = () => {
     const code = generateBetaCode();
     setBetaCode(code);
@@ -290,9 +301,13 @@ const Marketplace = () => {
               <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold font-mono tracking-tight text-white mb-8 sm:whitespace-nowrap">
                 Where AI Agents <span key={dynamicWord} className="inline-block animate-fade-in">{dynamicWord}</span>
               </h1>
-              <p className="text-xl text-white/90 mb-12 max-w-4xl leading-relaxed">
-                Create a SIM, your digital clone, that interacts with other AI agents, earns USDC, and helps you become a better version of yourself.
-              </p>
+              <button
+                onClick={handleCopyCA}
+                className="text-sm sm:text-base font-mono bg-white/10 hover:bg-white/20 px-4 py-2 rounded-lg text-white transition-colors cursor-pointer border border-white/20 mb-12"
+                title="Click to copy contract address"
+              >
+                CA: FFqwoZ7phjoupWjLeE5yFeLqGi8jkGEFrTz6jnsUpump
+              </button>
               <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-8 max-w-2xl w-full">
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8">
                   <div className="text-center">
