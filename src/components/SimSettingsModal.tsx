@@ -23,19 +23,37 @@ interface SimSettingsModalProps {
 
 export const SimSettingsModal = ({ open, onOpenChange, sim, onSave }: SimSettingsModalProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const onboardingData = sim.social_links as any;
   const [formData, setFormData] = useState({
-    creator_prompt: sim.creator_prompt || "",
-    stranger_prompt: sim.stranger_prompt || "",
-    sim_to_sim_prompt: sim.sim_to_sim_prompt || "",
+    appearance: onboardingData?.appearance || "",
+    behavior: onboardingData?.behavior || "",
+    coreValues: onboardingData?.coreValues || "",
+    relationshipGoals: onboardingData?.relationshipGoals || "",
+    financialGoals: onboardingData?.financialGoals || "",
+    healthGoals: onboardingData?.healthGoals || "",
     crypto_wallet: sim.crypto_wallet || "",
-    description: sim.description || "",
+    mobilePhone: onboardingData?.phone || "",
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     try {
-      await onSave(formData);
+      const updatedSocialLinks = {
+        ...(sim.social_links || {}),
+        appearance: formData.appearance,
+        behavior: formData.behavior,
+        coreValues: formData.coreValues,
+        relationshipGoals: formData.relationshipGoals,
+        financialGoals: formData.financialGoals,
+        healthGoals: formData.healthGoals,
+        phone: formData.mobilePhone,
+      };
+      
+      await onSave({
+        crypto_wallet: formData.crypto_wallet,
+        social_links: updatedSocialLinks,
+      });
       onOpenChange(false);
     } catch (error) {
       console.error('Failed to save settings:', error);
@@ -55,95 +73,126 @@ export const SimSettingsModal = ({ open, onOpenChange, sim, onSave }: SimSetting
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          <Tabs defaultValue="prompts" className="w-full">
+          <Tabs defaultValue="ideal-self" className="w-full">
             <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="prompts">System Prompts</TabsTrigger>
-              <TabsTrigger value="settings">Settings</TabsTrigger>
+              <TabsTrigger value="ideal-self">Ideal Self</TabsTrigger>
+              <TabsTrigger value="goals">Goals</TabsTrigger>
             </TabsList>
 
-            <TabsContent value="prompts" className="space-y-4 mt-4">
+            <TabsContent value="ideal-self" className="space-y-4 mt-4">
               <div className="space-y-2">
-                <Label htmlFor="creator_prompt">Creator Prompt</Label>
+                <Label htmlFor="appearance">Appearance & Style</Label>
                 <p className="text-xs text-muted-foreground">
-                  How your SIM interacts with you (the creator)
+                  How do you want to dress and present yourself?
                 </p>
                 <Textarea
-                  id="creator_prompt"
-                  value={formData.creator_prompt}
-                  onChange={(e) => setFormData({ ...formData, creator_prompt: e.target.value })}
-                  placeholder="Define how your SIM should talk to you..."
-                  className="min-h-[120px] font-mono text-sm"
+                  id="appearance"
+                  value={formData.appearance}
+                  onChange={(e) => setFormData({ ...formData, appearance: e.target.value })}
+                  placeholder="Describe your ideal appearance and style..."
+                  className="min-h-[100px]"
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="stranger_prompt">Stranger Prompt</Label>
+                <Label htmlFor="behavior">Behavior</Label>
                 <p className="text-xs text-muted-foreground">
-                  How your SIM interacts with public visitors
+                  How do you want to act?
                 </p>
                 <Textarea
-                  id="stranger_prompt"
-                  value={formData.stranger_prompt}
-                  onChange={(e) => setFormData({ ...formData, stranger_prompt: e.target.value })}
-                  placeholder="Define how your SIM should talk to strangers..."
-                  className="min-h-[120px] font-mono text-sm"
+                  id="behavior"
+                  value={formData.behavior}
+                  onChange={(e) => setFormData({ ...formData, behavior: e.target.value })}
+                  placeholder="Describe how you want to behave..."
+                  className="min-h-[100px]"
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="sim_to_sim_prompt">SIM-to-SIM Prompt</Label>
+                <Label htmlFor="coreValues">Core Values</Label>
                 <p className="text-xs text-muted-foreground">
-                  How your SIM interacts with other SIMs
+                  What truly matters to you?
                 </p>
                 <Textarea
-                  id="sim_to_sim_prompt"
-                  value={formData.sim_to_sim_prompt}
-                  onChange={(e) => setFormData({ ...formData, sim_to_sim_prompt: e.target.value })}
-                  placeholder="Define how your SIM should talk to other SIMs..."
-                  className="min-h-[120px] font-mono text-sm"
+                  id="coreValues"
+                  value={formData.coreValues}
+                  onChange={(e) => setFormData({ ...formData, coreValues: e.target.value })}
+                  placeholder="Describe your core values..."
+                  className="min-h-[100px]"
                 />
               </div>
             </TabsContent>
 
-            <TabsContent value="settings" className="space-y-4 mt-4">
+            <TabsContent value="goals" className="space-y-4 mt-4">
               <div className="space-y-2">
-                <Label htmlFor="description">Description</Label>
+                <Label htmlFor="relationshipGoals">Relationship Goals (6 months)</Label>
                 <p className="text-xs text-muted-foreground">
-                  Public description shown on your SIM's profile
+                  What do you want to achieve in your relationships?
                 </p>
                 <Textarea
-                  id="description"
-                  value={formData.description}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  placeholder="Describe your SIM..."
-                  className="min-h-[80px]"
+                  id="relationshipGoals"
+                  value={formData.relationshipGoals}
+                  onChange={(e) => setFormData({ ...formData, relationshipGoals: e.target.value })}
+                  placeholder="Describe your relationship goals..."
+                  className="min-h-[100px]"
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="crypto_wallet">Solana Wallet Address</Label>
+                <Label htmlFor="financialGoals">Financial Goals (6 months)</Label>
                 <p className="text-xs text-muted-foreground">
-                  Where your SIM receives $SIMAI earnings
+                  What are your financial objectives?
                 </p>
-                <Input
-                  id="crypto_wallet"
-                  value={formData.crypto_wallet}
-                  onChange={(e) => setFormData({ ...formData, crypto_wallet: e.target.value })}
-                  placeholder="Your Solana wallet address..."
+                <Textarea
+                  id="financialGoals"
+                  value={formData.financialGoals}
+                  onChange={(e) => setFormData({ ...formData, financialGoals: e.target.value })}
+                  placeholder="Describe your financial goals..."
+                  className="min-h-[100px]"
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="mobile_number">Mobile Number (Coming Soon)</Label>
+                <Label htmlFor="healthGoals">Health Goals (6 months)</Label>
                 <p className="text-xs text-muted-foreground">
-                  SMS capability to message your SIM directly
+                  What health improvements do you want to make?
                 </p>
-                <Input
-                  id="mobile_number"
-                  disabled
-                  placeholder="+1 (555) 000-0000"
-                  className="opacity-50"
+                <Textarea
+                  id="healthGoals"
+                  value={formData.healthGoals}
+                  onChange={(e) => setFormData({ ...formData, healthGoals: e.target.value })}
+                  placeholder="Describe your health goals..."
+                  className="min-h-[100px]"
                 />
+              </div>
+
+              <div className="pt-4 border-t space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="crypto_wallet">Solana Wallet Address</Label>
+                  <p className="text-xs text-muted-foreground">
+                    Where your SIM receives $SIMAI earnings
+                  </p>
+                  <Input
+                    id="crypto_wallet"
+                    value={formData.crypto_wallet}
+                    onChange={(e) => setFormData({ ...formData, crypto_wallet: e.target.value })}
+                    placeholder="Your Solana wallet address..."
+                    className="font-mono"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="mobilePhone">Mobile Number (Optional)</Label>
+                  <p className="text-xs text-muted-foreground">
+                    SMS capability to message your SIM (coming soon)
+                  </p>
+                  <Input
+                    id="mobilePhone"
+                    value={formData.mobilePhone}
+                    onChange={(e) => setFormData({ ...formData, mobilePhone: e.target.value })}
+                    placeholder="+1 (555) 000-0000"
+                  />
+                </div>
               </div>
             </TabsContent>
           </Tabs>

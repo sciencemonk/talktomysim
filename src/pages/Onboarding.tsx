@@ -269,12 +269,20 @@ Remember: Every interaction is an opportunity to create value, earn $SIMAI, and 
         }
       };
 
+      // Store onboarding responses in social_links for later editing
+      simData.social_links = {
+        ...simData.social_links,
+        appearance: appearance.trim(),
+        behavior: behavior.trim(),
+        coreValues: coreValues.trim(),
+        relationshipGoals: relationshipGoals.trim(),
+        financialGoals: financialGoals.trim(),
+        healthGoals: healthGoals.trim(),
+      };
+
       // Add phone if provided
       if (mobilePhone.trim()) {
-        simData.social_links = {
-          ...simData.social_links,
-          phone: mobilePhone.trim()
-        };
+        simData.social_links.phone = mobilePhone.trim();
       }
 
       // Check if SIM already exists
