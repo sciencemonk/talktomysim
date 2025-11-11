@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, Menu, Copy, Check, Coins, TrendingUp, Activity, Clock, Settings, ExternalLink, ArrowLeft, Plus } from "lucide-react";
+import { Loader2, Menu, Copy, Check, Coins, TrendingUp, Activity, Clock, Settings, ExternalLink, ArrowLeft, Plus, Pencil, Trash2 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import AuthModal from "@/components/AuthModal";
@@ -24,6 +24,7 @@ import simHeroLogo from "@/assets/sim-hero-logo.png";
 import simLogoWhite from "@/assets/sim-logo-white.png";
 import SimpleFooter from "@/components/SimpleFooter";
 import { AddActionModal } from "@/components/AddActionModal";
+import { useSimActions } from "@/hooks/useSimActions";
 
 interface ActivityLog {
   id: string;
@@ -47,6 +48,14 @@ const UserDashboard = () => {
   const [activityLogs, setActivityLogs] = useState<ActivityLog[]>([]);
   const [resolvedTheme, setResolvedTheme] = useState<'light' | 'dark'>('dark');
   const [showAddActionModal, setShowAddActionModal] = useState(false);
+  const [editingAction, setEditingAction] = useState<{
+    id: string;
+    description: string;
+    end_goal: string;
+    usdc_amount: number;
+  } | undefined>(undefined);
+  
+  const { actions, isLoading: actionsLoading, deleteAction } = useSimActions(userSim?.id);
 
   useEffect(() => {
     if (theme === 'system') {
@@ -385,7 +394,10 @@ const UserDashboard = () => {
                     <Button
                       size="sm"
                       variant="outline"
-                      onClick={() => setShowAddActionModal(true)}
+                      onClick={() => {
+                        setEditingAction(undefined);
+                        setShowAddActionModal(true);
+                      }}
                       className="gap-2"
                     >
                       <Plus className="h-4 w-4" />
@@ -393,11 +405,75 @@ const UserDashboard = () => {
                     </Button>
                   </div>
                 </CardHeader>
-                <CardContent className="flex-1 p-0 overflow-hidden">
-                  <PublicChatInterface 
-                    agent={agentForChat}
-                    avatarUrl={userSim.avatar_url || undefined}
-                  />
+                <CardContent className="space-y-4 flex-1 overflow-auto">
+                  <p className="text-sm text-muted-foreground pt-4 px-4">
+                    How may I help you?
+                  </p>
+
+                  {/* Actions List */}
+                  {actionsLoading ? (
+                    <div className="text-sm text-muted-foreground px-4">Loading actions...</div>
+                  ) : actions.length > 0 ? (
+                    <div className="space-y-2 px-4">
+                      {actions.map((action) => (
+                        <div
+                          key={action.id}
+                          className="group relative flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50 transition-colors"
+                        >
+                          <div className="flex-1 min-w-0 pr-2">
+                            <p className="font-medium text-sm">{action.description}</p>
+                            <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">
+                              {action.end_goal}
+                            </p>
+                            {action.usdc_amount > 0 && (
+                              <p className="text-xs text-primary mt-1">
+                                ${action.usdc_amount} USDC
+                              </p>
+                            )}
+                          </div>
+                          
+                          {/* Edit/Delete buttons - shown on hover */}
+                          <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <Button
+                              size="icon"
+                              variant="ghost"
+                              className="h-8 w-8"
+                              onClick={() => {
+                                setEditingAction({
+                                  id: action.id,
+                                  description: action.description,
+                                  end_goal: action.end_goal,
+                                  usdc_amount: action.usdc_amount,
+                                });
+                                setShowAddActionModal(true);
+                              }}
+                            >
+                              <Pencil className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              size="icon"
+                              variant="ghost"
+                              className="h-8 w-8 text-destructive hover:text-destructive"
+                              onClick={() => deleteAction(action.id)}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-sm text-muted-foreground px-4">
+                      No actions yet. Add your first action to help visitors interact with your SIM.
+                    </p>
+                  )}
+
+                  <div className="px-4 pb-4">
+                    <PublicChatInterface 
+                      agent={agentForChat}
+                      avatarUrl={userSim.avatar_url || undefined}
+                    />
+                  </div>
                 </CardContent>
               </Card>
             </div>
@@ -472,10 +548,14 @@ const UserDashboard = () => {
       {userSim && (
         <AddActionModal
           open={showAddActionModal}
-          onOpenChange={setShowAddActionModal}
+          onOpenChange={(open) => {
+            setShowAddActionModal(open);
+            if (!open) setEditingAction(undefined);
+          }}
           simId={userSim.id}
-          onActionAdded={() => {
-            // TODO: Refresh actions list
+          actionToEdit={editingAction}
+          onActionSaved={() => {
+            // Refetch is handled by react-query
           }}
         />
       )}

@@ -1149,6 +1149,44 @@ export type Database = {
         }
         Relationships: []
       }
+      sim_actions: {
+        Row: {
+          created_at: string
+          description: string
+          end_goal: string
+          id: string
+          sim_id: string
+          updated_at: string
+          usdc_amount: number | null
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          end_goal: string
+          id?: string
+          sim_id: string
+          updated_at?: string
+          usdc_amount?: number | null
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          end_goal?: string
+          id?: string
+          sim_id?: string
+          updated_at?: string
+          usdc_amount?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sim_actions_sim_id_fkey"
+            columns: ["sim_id"]
+            isOneToOne: false
+            referencedRelation: "sims"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       sim_likes: {
         Row: {
           created_at: string

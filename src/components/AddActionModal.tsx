@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -11,19 +11,39 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import { Loader2 } from "lucide-react";
 
 interface AddActionModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   simId: string;
-  onActionAdded: () => void;
+  actionToEdit?: {
+    id: string;
+    description: string;
+    end_goal: string;
+    usdc_amount: number;
+  };
+  onActionSaved?: () => void;
 }
 
-export const AddActionModal = ({ open, onOpenChange, simId, onActionAdded }: AddActionModalProps) => {
+export const AddActionModal = ({ open, onOpenChange, simId, actionToEdit, onActionSaved }: AddActionModalProps) => {
   const [description, setDescription] = useState('');
   const [endGoal, setEndGoal] = useState('');
   const [usdcAmount, setUsdcAmount] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (actionToEdit) {
+      setDescription(actionToEdit.description);
+      setEndGoal(actionToEdit.end_goal);
+      setUsdcAmount(actionToEdit.usdc_amount.toString());
+    } else {
+      setDescription('');
+      setEndGoal('');
+      setUsdcAmount('');
+    }
+  }, [actionToEdit, open]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -40,13 +60,43 @@ export const AddActionModal = ({ open, onOpenChange, simId, onActionAdded }: Add
     setIsSubmitting(true);
     
     try {
-      // TODO: Save to database - for now just showing success
-      toast({
-        title: "Action added",
-        description: "Your action has been created successfully"
-      });
+      if (actionToEdit) {
+        // Update existing action
+        const { error } = await supabase
+          .from("sim_actions")
+          .update({
+            description: description.trim(),
+            end_goal: endGoal.trim(),
+            usdc_amount: usdcAmount ? parseFloat(usdcAmount) : 0,
+          })
+          .eq("id", actionToEdit.id);
+
+        if (error) throw error;
+
+        toast({
+          title: "Action updated",
+          description: "Your action has been updated successfully"
+        });
+      } else {
+        // Create new action
+        const { error } = await supabase
+          .from("sim_actions")
+          .insert({
+            sim_id: simId,
+            description: description.trim(),
+            end_goal: endGoal.trim(),
+            usdc_amount: usdcAmount ? parseFloat(usdcAmount) : 0,
+          });
+
+        if (error) throw error;
+
+        toast({
+          title: "Action added",
+          description: "Your action has been created successfully"
+        });
+      }
       
-      onActionAdded();
+      onActionSaved?.();
       onOpenChange(false);
       
       // Reset form
@@ -54,9 +104,10 @@ export const AddActionModal = ({ open, onOpenChange, simId, onActionAdded }: Add
       setEndGoal('');
       setUsdcAmount('');
     } catch (error) {
+      console.error("Error saving action:", error);
       toast({
         title: "Error",
-        description: "Failed to add action",
+        description: "Failed to save action. Please try again.",
         variant: "destructive"
       });
     } finally {
@@ -68,9 +119,9 @@ export const AddActionModal = ({ open, onOpenChange, simId, onActionAdded }: Add
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>Add Action</DialogTitle>
+          <DialogTitle>{actionToEdit ? "Edit Action" : "Add Action"}</DialogTitle>
           <DialogDescription>
-            Create a custom action that visitors can trigger on your public page
+            {actionToEdit ? "Update this action" : "Create a custom action that visitors can trigger on your public page"}
           </DialogDescription>
         </DialogHeader>
         
@@ -124,7 +175,8 @@ export const AddActionModal = ({ open, onOpenChange, simId, onActionAdded }: Add
               Cancel
             </Button>
             <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? 'Adding...' : 'Add Action'}
+              {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              {actionToEdit ? "Update Action" : "Add Action"}
             </Button>
           </div>
         </form>
