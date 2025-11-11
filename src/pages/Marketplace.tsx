@@ -45,6 +45,7 @@ const Marketplace = () => {
   const [showBetaRequest, setShowBetaRequest] = useState(false);
   const [betaCode, setBetaCode] = useState('');
   const [dynamicWord, setDynamicWord] = useState('Live');
+  const [countdown, setCountdown] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
   
   const words = ['Live', 'Transact', 'Explore'];
   
@@ -56,6 +57,31 @@ const Marketplace = () => {
     }, 2000);
     
     return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    const calculateCountdown = () => {
+      // November 11, 2025 at 11:59PM ET
+      const targetDate = new Date('2025-11-11T23:59:00-05:00').getTime();
+      const now = new Date().getTime();
+      const difference = targetDate - now;
+
+      if (difference > 0) {
+        const days = Math.floor(difference / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((difference % (1000 * 60)) / 1000);
+
+        setCountdown({ days, hours, minutes, seconds });
+      } else {
+        setCountdown({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+      }
+    };
+
+    calculateCountdown();
+    const timer = setInterval(calculateCountdown, 1000);
+
+    return () => clearInterval(timer);
   }, []);
   useEffect(() => {
     if (theme === 'system') {
@@ -249,56 +275,9 @@ const Marketplace = () => {
                 </div>
               </button>
               
-              {/* Navigation Links - Only show if not signed in */}
-              {!currentUser && <div className="hidden md:flex items-center gap-8">
-                  <button onClick={() => navigate('/about')} className="text-white/90 hover:text-white transition-colors text-sm font-medium">
-                    About
-                  </button>
-                  <button onClick={() => navigate('/godmode')} className="text-white/90 hover:text-white transition-colors text-sm font-medium">
-                    God Mode
-                  </button>
-                  <button onClick={() => navigate('/documentation')} className="text-white/90 hover:text-white transition-colors text-sm font-medium">
-                    Documentation
-                  </button>
-                  <button onClick={() => navigate('/simai')} className="text-white/90 hover:text-white transition-colors text-sm font-medium">
-                    $SIMAI
-                  </button>
-                  <button onClick={() => navigate('/facilitator')} className="text-white/90 hover:text-white transition-colors text-sm font-medium">
-                    x402 Facilitator
-                  </button>
-                </div>}
-              
-              {/* Right side - Theme Toggle and Sign In */}
+              {/* Right side - Theme Toggle only */}
               <div className="flex items-center gap-4">
-                {!currentUser && <DropdownMenu>
-                    <DropdownMenuTrigger asChild className="md:hidden">
-                      <Button variant="ghost" size="icon" className="text-white hover:bg-white/10">
-                        <Menu className="h-5 w-5" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-48 bg-card text-foreground z-50">
-                      <DropdownMenuItem onClick={() => navigate('/about')} className="cursor-pointer text-foreground hover:text-primary">
-                        About
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => navigate('/godmode')} className="cursor-pointer text-foreground hover:text-primary">
-                        God Mode
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => navigate('/documentation')} className="cursor-pointer text-foreground hover:text-primary">
-                        Documentation
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => navigate('/simai')} className="cursor-pointer text-foreground hover:text-primary">
-                        $SIMAI
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => navigate('/facilitator')} className="cursor-pointer text-foreground hover:text-primary">
-                        x402 Facilitator
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>}
-                
                 <ThemeToggle />
-                {!currentUser && <Button variant="outline" size="sm" className="bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-white/20 hover:text-white" onClick={handleXSignIn}>
-                    Sign In
-                  </Button>}
               </div>
             </div>
           </div>
@@ -314,9 +293,26 @@ const Marketplace = () => {
               <p className="text-xl text-white/90 mb-12 max-w-4xl leading-relaxed">
                 Create a SIM, your digital clone, that interacts with other AI agents, earns USDC, and helps you become a better version of yourself.
               </p>
-              <Button variant="outline" size="lg" className="bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-white/20 hover:text-white text-xl sm:text-2xl px-8 sm:px-12 py-6 gap-3 h-auto" onClick={handleXSignIn}>
-                Create your SIM with <img src={xIcon} alt="X" className="h-6 w-6 sm:h-7 sm:w-7 inline-block" />
-              </Button>
+              <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-8 max-w-2xl w-full">
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8">
+                  <div className="text-center">
+                    <div className="text-5xl sm:text-6xl font-bold text-white font-mono">{countdown.days}</div>
+                    <div className="text-sm text-white/70 mt-1">Days</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-5xl sm:text-6xl font-bold text-white font-mono">{countdown.hours.toString().padStart(2, '0')}</div>
+                    <div className="text-sm text-white/70 mt-1">Hours</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-5xl sm:text-6xl font-bold text-white font-mono">{countdown.minutes.toString().padStart(2, '0')}</div>
+                    <div className="text-sm text-white/70 mt-1">Minutes</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-5xl sm:text-6xl font-bold text-white font-mono">{countdown.seconds.toString().padStart(2, '0')}</div>
+                    <div className="text-sm text-white/70 mt-1">Seconds</div>
+                  </div>
+                </div>
+              </div>
             </>
           ) : (
             <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-8 max-w-md w-full">
@@ -337,8 +333,6 @@ const Marketplace = () => {
           )}
         </div>
       </div>
-
-      <SimpleFooter />
     </div>;
 };
 export default Marketplace;
