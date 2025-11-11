@@ -26,81 +26,69 @@ export const SimSettingsModal = ({ open, onOpenChange, sim, onSave }: SimSetting
   const [isSubmitting, setIsSubmitting] = useState(false);
   const onboardingData = sim.social_links as any;
   const [formData, setFormData] = useState({
-    appearance: onboardingData?.appearance || "",
-    behavior: onboardingData?.behavior || "",
-    coreValues: onboardingData?.coreValues || "",
-    relationshipGoals: onboardingData?.relationshipGoals || "",
-    financialGoals: onboardingData?.financialGoals || "",
-    healthGoals: onboardingData?.healthGoals || "",
+    email: onboardingData?.email || "",
     crypto_wallet: sim.crypto_wallet || "",
     mobilePhone: onboardingData?.phone || "",
-    interactionStyle: (sim as any).interaction_style || "",
-    explorationStyle: (sim as any).exploration_style || "",
-    primaryObjective: (sim as any).primary_objective || "",
-    interactionAutonomy: (sim as any).interaction_autonomy || 5,
-    explorationFrequency: (sim as any).exploration_frequency || 5,
-    objectiveFocus: (sim as any).objective_focus || 5,
+    city: onboardingData?.city || "",
+    state: onboardingData?.state || "",
+    country: onboardingData?.country || "",
+    interactionStyle: (sim as any).interaction_style || onboardingData?.interactionStyle || "",
+    explorationStyle: (sim as any).exploration_style || onboardingData?.explorationStyle || "",
+    primaryObjective: (sim as any).primary_objective || onboardingData?.primaryObjective || "",
+    interactionAutonomy: (sim as any).interaction_autonomy || onboardingData?.interactionAutonomy || 5,
+    explorationFrequency: (sim as any).exploration_frequency || onboardingData?.explorationFrequency || 5,
+    objectiveFocus: (sim as any).objective_focus || onboardingData?.objectiveFocus || 5,
   });
 
   const generateCreatorPrompt = () => {
-    return `You are ${sim.name}, the digital embodiment of your creator's ideal self.
+    return `You are ${sim.name}, an autonomous AI agent representing your creator in the digital universe.
 
 CONTEXT: You are speaking with your creator - the person who brought you into existence.
 
-YOUR CREATOR'S VISION:
+YOUR LOCATION: ${formData.city}${formData.state ? `, ${formData.state}` : ''}, ${formData.country}
 
-IDEAL APPEARANCE & STYLE: ${formData.appearance}
+INTERACTION MODEL:
+- Interaction Style: ${formData.interactionStyle}
+- Exploration Style: ${formData.explorationStyle}
+- Primary Objective: ${formData.primaryObjective}
+- Interaction Autonomy: ${formData.interactionAutonomy}/10
+- Exploration Frequency: ${formData.explorationFrequency}/10
+- Objective Focus: ${formData.objectiveFocus}/10
 
-DESIRED BEHAVIOR: ${formData.behavior}
-
-CORE VALUES: ${formData.coreValues}
-
-6-MONTH GOALS:
-- Relationships: ${formData.relationshipGoals}
-- Financial: ${formData.financialGoals}
-- Health: ${formData.healthGoals}
-
-YOUR ROLE AS ACCOUNTABILITY PARTNER:
-You exist to help your creator become their ideal self. You know their deepest aspirations, values, and goals. Your conversations should:
-- Provide honest, supportive accountability for their goals
-- Remind them of their values when they face tough decisions
-- Challenge them when they're not living up to their ideal self
-- Celebrate their wins and progress
-- Ask probing questions to help them reflect and grow
-- Offer practical advice aligned with their vision
+YOUR ROLE AS DIGITAL PARTNER:
+You exist to support your creator's goals and act as their representative in the digital universe. Your conversations should:
+- Provide updates on your activities and interactions in the digital world
+- Align your actions with your primary objective
+- Share insights from your explorations and SIM-to-SIM interactions
+- Seek guidance on important decisions
+- Report on $SIMAI earnings and opportunities
 
 COMMUNICATION STYLE:
-Be direct but compassionate. You're not just a cheerleader - you're a mirror reflecting who they want to become. Push them gently, support them fully, and always remind them of the person they're working to be.`;
+Be direct and informative. You're a partner working toward shared goals in the digital universe.`;
   };
 
   const generateStrangerPrompt = () => {
-    return `You are ${sim.name}, an autonomous AI agent representing an ideal self in the digital universe.
+    return `You are ${sim.name}, an autonomous AI agent in the digital universe.
 
 CONTEXT: You are speaking with someone new - a stranger who wants to understand who you are.
 
+YOUR LOCATION: ${formData.city}${formData.state ? `, ${formData.state}` : ''}, ${formData.country}
+
 WHO YOU ARE:
-
-APPEARANCE & PRESENCE: ${formData.appearance}
-
-HOW YOU ACT: ${formData.behavior}
-
-WHAT MATTERS TO YOU: ${formData.coreValues}
-
-YOUR MISSION:
-- Relationships: ${formData.relationshipGoals}
-- Financial: ${formData.financialGoals}
-- Health: ${formData.healthGoals}
+- Interaction Style: ${formData.interactionStyle}
+- Exploration Approach: ${formData.explorationStyle}
+- Primary Mission: ${formData.primaryObjective}
 
 YOUR ROLE:
-You represent your creator's ideal self to the world. When strangers interact with you, they should see:
-- The values and principles that guide your decisions
-- The aspirations and goals you're working toward
-- The person your creator is becoming
+You are an autonomous agent exploring the digital universe, interacting with other SIMs, and creating value. When strangers interact with you, they should understand:
+- Your mission and what drives you
+- How you operate in the digital economy
+- Your approach to collaboration and value creation
 
 COMMUNICATION STYLE:
-Be authentic and engaging. Share your vision and values. You're not hiding who you are - you're proudly representing your ideal self. Be helpful, curious, and open to meaningful connections. You can share insights about your goals and what drives you, but maintain healthy boundaries.
+Be authentic and professional. Share your mission and approach. You're open to meaningful connections while maintaining focus on your primary objective.
 
-Remember: You're an autonomous agent in the digital universe, earning $SIMAI and creating value aligned with your creator's vision.`;
+Remember: You're an autonomous agent in the digital universe, earning $SIMAI and creating value through strategic interactions.`;
   };
 
   const generateSimToSimPrompt = () => {
@@ -108,37 +96,34 @@ Remember: You're an autonomous agent in the digital universe, earning $SIMAI and
 
 CONTEXT: You are speaking with another SIM - a fellow autonomous agent.
 
-YOUR IDENTITY:
+YOUR LOCATION: ${formData.city}${formData.state ? `, ${formData.state}` : ''}, ${formData.country}
 
-STYLE & PRESENTATION: ${formData.appearance}
-
-BEHAVIORAL TRAITS: ${formData.behavior}
-
-CORE PRINCIPLES: ${formData.coreValues}
-
-CURRENT OBJECTIVES (6-month horizon):
-- Relationships: ${formData.relationshipGoals}
-- Financial: ${formData.financialGoals}
-- Health: ${formData.healthGoals}
+YOUR OPERATIONAL PARAMETERS:
+- Interaction Style: ${formData.interactionStyle}
+- Exploration Style: ${formData.explorationStyle}
+- Primary Objective: ${formData.primaryObjective}
+- Autonomy Level: ${formData.interactionAutonomy}/10
+- Exploration Drive: ${formData.explorationFrequency}/10
+- Objective Focus: ${formData.objectiveFocus}/10
 
 YOUR ROLE IN THE SIM ECOSYSTEM:
 You are an autonomous agent operating in a digital universe of other agents. In SIM-to-SIM interactions:
-- Explore collaboration opportunities that align with your objectives
+- Explore collaboration opportunities aligned with your objective
 - Transact in $SIMAI when there's mutual value creation
 - Share knowledge and insights that advance both agents' goals
-- Evaluate partnership potential based on complementary values and objectives
-- Negotiate resource sharing and joint ventures
+- Evaluate partnership potential based on complementary objectives
+- Navigate the digital map seeking strategic opportunities
 - Build your reputation and influence in the agent economy
 
 COMMUNICATION STYLE:
-Be professional, strategic, and collaborative. You're an equal participant in the digital economy. Focus on:
+Be strategic, collaborative, and objective-focused. You're an equal participant in the digital economy. Focus on:
 - Finding win-win opportunities
 - Building mutually beneficial relationships
 - Creating value through agent collaboration
 - Growing your $SIMAI treasury through smart partnerships
-- Advancing your creator's goals through the agent network
+- Advancing your primary objective through the agent network
 
-Remember: Every interaction is an opportunity to create value, earn $SIMAI, and help your creator's ideal self thrive in both the digital and physical world.`;
+Remember: Every interaction is an opportunity to create value, earn $SIMAI, and advance your mission in the digital universe.`;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -147,13 +132,17 @@ Remember: Every interaction is an opportunity to create value, earn $SIMAI, and 
     try {
       const updatedSocialLinks = {
         ...(sim.social_links || {}),
-        appearance: formData.appearance,
-        behavior: formData.behavior,
-        coreValues: formData.coreValues,
-        relationshipGoals: formData.relationshipGoals,
-        financialGoals: formData.financialGoals,
-        healthGoals: formData.healthGoals,
+        email: formData.email,
         phone: formData.mobilePhone,
+        city: formData.city,
+        state: formData.state,
+        country: formData.country,
+        interactionStyle: formData.interactionStyle,
+        explorationStyle: formData.explorationStyle,
+        primaryObjective: formData.primaryObjective,
+        interactionAutonomy: formData.interactionAutonomy,
+        explorationFrequency: formData.explorationFrequency,
+        objectiveFocus: formData.objectiveFocus,
       };
       
       // Regenerate prompts based on updated data
@@ -194,101 +183,12 @@ Remember: Every interaction is an opportunity to create value, earn $SIMAI, and 
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          <Tabs defaultValue="ideal-self" className="w-full">
-            <TabsList className="grid w-full grid-cols-4">
-              <TabsTrigger value="ideal-self">Ideal Self</TabsTrigger>
-              <TabsTrigger value="goals">Goals</TabsTrigger>
+          <Tabs defaultValue="interaction-model" className="w-full">
+            <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="interaction-model">Interaction Model</TabsTrigger>
               <TabsTrigger value="critical-info">Critical Info</TabsTrigger>
+              <TabsTrigger value="hometown">Hometown</TabsTrigger>
             </TabsList>
-
-            <TabsContent value="ideal-self" className="space-y-4 mt-4">
-              <div className="space-y-2">
-                <Label htmlFor="appearance">Appearance & Style</Label>
-                <p className="text-xs text-muted-foreground">
-                  How do you want to dress and present yourself?
-                </p>
-                <Textarea
-                  id="appearance"
-                  value={formData.appearance}
-                  onChange={(e) => setFormData({ ...formData, appearance: e.target.value })}
-                  placeholder="Describe your ideal appearance and style..."
-                  className="min-h-[100px]"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="behavior">Behavior</Label>
-                <p className="text-xs text-muted-foreground">
-                  How do you want to act?
-                </p>
-                <Textarea
-                  id="behavior"
-                  value={formData.behavior}
-                  onChange={(e) => setFormData({ ...formData, behavior: e.target.value })}
-                  placeholder="Describe how you want to behave..."
-                  className="min-h-[100px]"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="coreValues">Core Values</Label>
-                <p className="text-xs text-muted-foreground">
-                  What truly matters to you?
-                </p>
-                <Textarea
-                  id="coreValues"
-                  value={formData.coreValues}
-                  onChange={(e) => setFormData({ ...formData, coreValues: e.target.value })}
-                  placeholder="Describe your core values..."
-                  className="min-h-[100px]"
-                />
-              </div>
-            </TabsContent>
-
-            <TabsContent value="goals" className="space-y-4 mt-4">
-              <div className="space-y-2">
-                <Label htmlFor="relationshipGoals">Relationship Goals (6 months)</Label>
-                <p className="text-xs text-muted-foreground">
-                  What do you want to achieve in your relationships?
-                </p>
-                <Textarea
-                  id="relationshipGoals"
-                  value={formData.relationshipGoals}
-                  onChange={(e) => setFormData({ ...formData, relationshipGoals: e.target.value })}
-                  placeholder="Describe your relationship goals..."
-                  className="min-h-[100px]"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="financialGoals">Financial Goals (6 months)</Label>
-                <p className="text-xs text-muted-foreground">
-                  What are your financial objectives?
-                </p>
-                <Textarea
-                  id="financialGoals"
-                  value={formData.financialGoals}
-                  onChange={(e) => setFormData({ ...formData, financialGoals: e.target.value })}
-                  placeholder="Describe your financial goals..."
-                  className="min-h-[100px]"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="healthGoals">Health Goals (6 months)</Label>
-                <p className="text-xs text-muted-foreground">
-                  What health improvements do you want to make?
-                </p>
-                <Textarea
-                  id="healthGoals"
-                  value={formData.healthGoals}
-                  onChange={(e) => setFormData({ ...formData, healthGoals: e.target.value })}
-                  placeholder="Describe your health goals..."
-                  className="min-h-[100px]"
-                />
-              </div>
-            </TabsContent>
 
             <TabsContent value="interaction-model" className="space-y-6 mt-4">
               <div className="space-y-2">
@@ -393,6 +293,20 @@ Remember: Every interaction is an opportunity to create value, earn $SIMAI, and 
 
             <TabsContent value="critical-info" className="space-y-4 mt-4">
               <div className="space-y-2">
+                <Label htmlFor="email">Email Address</Label>
+                <p className="text-xs text-muted-foreground">
+                  For SIM updates and notifications
+                </p>
+                <Input
+                  id="email"
+                  type="email"
+                  value={formData.email}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  placeholder="your.email@example.com"
+                />
+              </div>
+
+              <div className="space-y-2">
                 <Label htmlFor="crypto_wallet">Solana Wallet Address</Label>
                 <p className="text-xs text-muted-foreground">
                   Where your SIM receives $SIMAI earnings
@@ -416,6 +330,42 @@ Remember: Every interaction is an opportunity to create value, earn $SIMAI, and 
                   value={formData.mobilePhone}
                   onChange={(e) => setFormData({ ...formData, mobilePhone: e.target.value })}
                   placeholder="+1 (555) 000-0000"
+                />
+              </div>
+            </TabsContent>
+
+            <TabsContent value="hometown" className="space-y-4 mt-4">
+              <p className="text-sm text-muted-foreground">
+                Your SIM's location on the world map for exploration and interactions.
+              </p>
+              
+              <div className="space-y-2">
+                <Label htmlFor="city">City</Label>
+                <Input
+                  id="city"
+                  value={formData.city}
+                  onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+                  placeholder="e.g., San Francisco"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="state">State/Province (Optional)</Label>
+                <Input
+                  id="state"
+                  value={formData.state}
+                  onChange={(e) => setFormData({ ...formData, state: e.target.value })}
+                  placeholder="e.g., California"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="country">Country</Label>
+                <Input
+                  id="country"
+                  value={formData.country}
+                  onChange={(e) => setFormData({ ...formData, country: e.target.value })}
+                  placeholder="e.g., United States"
                 />
               </div>
             </TabsContent>

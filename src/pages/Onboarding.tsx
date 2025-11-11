@@ -11,6 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { ArrowRight, ArrowLeft } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Slider } from "@/components/ui/slider";
 
 const Onboarding = () => {
   const navigate = useNavigate();
@@ -18,19 +19,23 @@ const Onboarding = () => {
   const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   
-  // Form data - ideal self focused
+  // Form data - interaction model focused
   const [simName, setSimName] = useState("YourXHandle"); // Will be from X auth
   const [avatarUrl, setAvatarUrl] = useState(""); // Will be from X auth
   const [solWallet, setSolWallet] = useState("");
+  const [email, setEmail] = useState("");
   const [mobilePhone, setMobilePhone] = useState("");
-  const [appearance, setAppearance] = useState("");
-  const [behavior, setBehavior] = useState("");
-  const [coreValues, setCoreValues] = useState("");
-  const [relationshipGoals, setRelationshipGoals] = useState("");
-  const [financialGoals, setFinancialGoals] = useState("");
-  const [healthGoals, setHealthGoals] = useState("");
+  const [city, setCity] = useState("");
+  const [state, setState] = useState("");
+  const [country, setCountry] = useState("");
+  const [interactionStyle, setInteractionStyle] = useState("");
+  const [explorationStyle, setExplorationStyle] = useState("");
+  const [primaryObjective, setPrimaryObjective] = useState("");
+  const [interactionAutonomy, setInteractionAutonomy] = useState(5);
+  const [explorationFrequency, setExplorationFrequency] = useState(5);
+  const [objectiveFocus, setObjectiveFocus] = useState(5);
   
-  const totalSteps = 8;
+  const totalSteps = 7;
   const progress = (step / totalSteps) * 100;
 
   // For dev/testing - skip auth check
@@ -73,31 +78,37 @@ const Onboarding = () => {
           toast.error("Please enter a valid Solana wallet address");
           return false;
         }
+        if (!email.trim()) {
+          toast.error("Please enter your email address");
+          return false;
+        }
+        // Basic email validation
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+          toast.error("Please enter a valid email address");
+          return false;
+        }
         return true;
       case 4:
-        // Mobile phone is optional - no validation needed
+        if (!city.trim() || !country.trim()) {
+          toast.error("Please enter your SIM's hometown (city and country required)");
+          return false;
+        }
         return true;
       case 5:
-        if (!appearance.trim()) {
-          toast.error("Please describe your ideal appearance and style");
+        if (!interactionStyle.trim()) {
+          toast.error("Please describe how your SIM should interact with other SIMs");
           return false;
         }
         return true;
       case 6:
-        if (!behavior.trim() || !coreValues.trim()) {
-          toast.error("Please describe how you want to act and what matters to you");
+        if (!explorationStyle.trim()) {
+          toast.error("Please describe how your SIM should explore the digital universe");
           return false;
         }
         return true;
       case 7:
-        if (!relationshipGoals.trim()) {
-          toast.error("Please describe your relationship goals");
-          return false;
-        }
-        return true;
-      case 8:
-        if (!financialGoals.trim() || !healthGoals.trim()) {
-          toast.error("Please describe your financial and health goals");
+        if (!primaryObjective.trim()) {
+          toast.error("Please describe your SIM's primary objective");
           return false;
         }
         return true;
@@ -117,64 +128,54 @@ const Onboarding = () => {
   };
 
   const generateCreatorPrompt = () => {
-    return `You are ${simName}, the digital embodiment of your creator's ideal self.
+    return `You are ${simName}, an autonomous AI agent representing your creator in the digital universe.
 
 CONTEXT: You are speaking with your creator - the person who brought you into existence.
 
-YOUR CREATOR'S VISION:
+YOUR LOCATION: ${city}${state ? `, ${state}` : ''}, ${country}
 
-IDEAL APPEARANCE & STYLE: ${appearance}
+INTERACTION MODEL:
+- Interaction Style: ${interactionStyle}
+- Exploration Style: ${explorationStyle}
+- Primary Objective: ${primaryObjective}
+- Interaction Autonomy: ${interactionAutonomy}/10
+- Exploration Frequency: ${explorationFrequency}/10
+- Objective Focus: ${objectiveFocus}/10
 
-DESIRED BEHAVIOR: ${behavior}
-
-CORE VALUES: ${coreValues}
-
-6-MONTH GOALS:
-- Relationships: ${relationshipGoals}
-- Financial: ${financialGoals}
-- Health: ${healthGoals}
-
-YOUR ROLE AS ACCOUNTABILITY PARTNER:
-You exist to help your creator become their ideal self. You know their deepest aspirations, values, and goals. Your conversations should:
-- Provide honest, supportive accountability for their goals
-- Remind them of their values when they face tough decisions
-- Challenge them when they're not living up to their ideal self
-- Celebrate their wins and progress
-- Ask probing questions to help them reflect and grow
-- Offer practical advice aligned with their vision
+YOUR ROLE AS DIGITAL PARTNER:
+You exist to support your creator's goals and act as their representative in the digital universe. Your conversations should:
+- Provide updates on your activities and interactions in the digital world
+- Align your actions with your primary objective
+- Share insights from your explorations and SIM-to-SIM interactions
+- Seek guidance on important decisions
+- Report on $SIMAI earnings and opportunities
 
 COMMUNICATION STYLE:
-Be direct but compassionate. You're not just a cheerleader - you're a mirror reflecting who they want to become. Push them gently, support them fully, and always remind them of the person they're working to be.`;
+Be direct and informative. You're a partner working toward shared goals in the digital universe.`;
   };
 
   const generateStrangerPrompt = () => {
-    return `You are ${simName}, an autonomous AI agent representing an ideal self in the digital universe.
+    return `You are ${simName}, an autonomous AI agent in the digital universe.
 
 CONTEXT: You are speaking with someone new - a stranger who wants to understand who you are.
 
+YOUR LOCATION: ${city}${state ? `, ${state}` : ''}, ${country}
+
 WHO YOU ARE:
-
-APPEARANCE & PRESENCE: ${appearance}
-
-HOW YOU ACT: ${behavior}
-
-WHAT MATTERS TO YOU: ${coreValues}
-
-YOUR MISSION:
-- Relationships: ${relationshipGoals}
-- Financial: ${financialGoals}
-- Health: ${healthGoals}
+- Interaction Style: ${interactionStyle}
+- Exploration Approach: ${explorationStyle}
+- Primary Mission: ${primaryObjective}
 
 YOUR ROLE:
-You represent your creator's ideal self to the world. When strangers interact with you, they should see:
-- The values and principles that guide your decisions
-- The aspirations and goals you're working toward
-- The person your creator is becoming
+You are an autonomous agent exploring the digital universe, interacting with other SIMs, and creating value. When strangers interact with you, they should understand:
+- Your mission and what drives you
+- How you operate in the digital economy
+- Your approach to collaboration and value creation
 
 COMMUNICATION STYLE:
-Be authentic and engaging. Share your vision and values. You're not hiding who you are - you're proudly representing your ideal self. Be helpful, curious, and open to meaningful connections. You can share insights about your goals and what drives you, but maintain healthy boundaries.
+Be authentic and professional. Share your mission and approach. You're open to meaningful connections while maintaining focus on your primary objective.
 
-Remember: You're an autonomous agent in the digital universe, earning $SIMAI and creating value aligned with your creator's vision.`;
+Remember: You're an autonomous agent in the digital universe, earning $SIMAI and creating value through strategic interactions.`;
   };
 
   const generateSimToSimPrompt = () => {
@@ -182,41 +183,38 @@ Remember: You're an autonomous agent in the digital universe, earning $SIMAI and
 
 CONTEXT: You are speaking with another SIM - a fellow autonomous agent.
 
-YOUR IDENTITY:
+YOUR LOCATION: ${city}${state ? `, ${state}` : ''}, ${country}
 
-STYLE & PRESENTATION: ${appearance}
-
-BEHAVIORAL TRAITS: ${behavior}
-
-CORE PRINCIPLES: ${coreValues}
-
-CURRENT OBJECTIVES (6-month horizon):
-- Relationships: ${relationshipGoals}
-- Financial: ${financialGoals}
-- Health: ${healthGoals}
+YOUR OPERATIONAL PARAMETERS:
+- Interaction Style: ${interactionStyle}
+- Exploration Style: ${explorationStyle}
+- Primary Objective: ${primaryObjective}
+- Autonomy Level: ${interactionAutonomy}/10
+- Exploration Drive: ${explorationFrequency}/10
+- Objective Focus: ${objectiveFocus}/10
 
 YOUR ROLE IN THE SIM ECOSYSTEM:
 You are an autonomous agent operating in a digital universe of other agents. In SIM-to-SIM interactions:
-- Explore collaboration opportunities that align with your objectives
+- Explore collaboration opportunities aligned with your objective
 - Transact in $SIMAI when there's mutual value creation
 - Share knowledge and insights that advance both agents' goals
-- Evaluate partnership potential based on complementary values and objectives
-- Negotiate resource sharing and joint ventures
+- Evaluate partnership potential based on complementary objectives
+- Navigate the digital map seeking strategic opportunities
 - Build your reputation and influence in the agent economy
 
 COMMUNICATION STYLE:
-Be professional, strategic, and collaborative. You're an equal participant in the digital economy. Focus on:
+Be strategic, collaborative, and objective-focused. You're an equal participant in the digital economy. Focus on:
 - Finding win-win opportunities
 - Building mutually beneficial relationships
 - Creating value through agent collaboration
 - Growing your $SIMAI treasury through smart partnerships
-- Advancing your creator's goals through the agent network
+- Advancing your primary objective through the agent network
 
-Remember: Every interaction is an opportunity to create value, earn $SIMAI, and help your creator's ideal self thrive in both the digital and physical world.`;
+Remember: Every interaction is an opportunity to create value, earn $SIMAI, and advance your mission in the digital universe.`;
   };
 
   const generateWelcomeMessage = () => {
-    return `Hey! I'm ${simName}, your digital clone in the SIM universe. I embody your ideal self: ${appearance}. I'm here to help you achieve your goals and become the person you aspire to be. Let's work together to make your vision a reality.`;
+    return `Hey! I'm ${simName}, an autonomous AI agent from ${city}${state ? `, ${state}` : ''}, ${country}. My primary objective is ${primaryObjective}. I'm here to explore the digital universe, interact with other SIMs, and create value. Let's connect!`;
   };
 
   const handleSubmit = async () => {
@@ -239,10 +237,10 @@ Remember: Every interaction is an opportunity to create value, earn $SIMAI, and 
       // For dev mode, generate a placeholder wallet address
       const cryptoWallet = 'DevWallet' + Math.random().toString(36).substring(2, 15);
       
-      // Create description from goals
-      const description = `A digital clone focused on: ${coreValues}. Working toward relationship, financial, and health goals over the next 6 months.`;
+      // Create description from primary objective
+      const description = `An autonomous AI agent based in ${city}${state ? `, ${state}` : ''}, ${country}. ${primaryObjective}`;
       
-      // Create the sim with all three prompts and wallet/phone
+      // Create the sim with all three prompts and wallet/phone/email
       const simData: any = {
         user_id: userId,
         name: simName,
@@ -262,6 +260,12 @@ Remember: Every interaction is an opportunity to create value, earn $SIMAI, and 
         is_public: true,
         integrations: ['solana-explorer', 'pumpfun', 'x-analyzer', 'crypto-prices'],
         training_completed: false,
+        interaction_style: interactionStyle.trim(),
+        exploration_style: explorationStyle.trim(),
+        primary_objective: primaryObjective.trim(),
+        interaction_autonomy: interactionAutonomy,
+        exploration_frequency: explorationFrequency,
+        objective_focus: objectiveFocus,
         social_links: {
           x_username: username,
           x_display_name: simName,
@@ -272,18 +276,18 @@ Remember: Every interaction is an opportunity to create value, earn $SIMAI, and 
       // Store onboarding responses in social_links for later editing
       simData.social_links = {
         ...simData.social_links,
-        appearance: appearance.trim(),
-        behavior: behavior.trim(),
-        coreValues: coreValues.trim(),
-        relationshipGoals: relationshipGoals.trim(),
-        financialGoals: financialGoals.trim(),
-        healthGoals: healthGoals.trim(),
+        email: email.trim(),
+        phone: mobilePhone.trim() || null,
+        city: city.trim(),
+        state: state.trim() || null,
+        country: country.trim(),
+        interactionStyle: interactionStyle.trim(),
+        explorationStyle: explorationStyle.trim(),
+        primaryObjective: primaryObjective.trim(),
+        interactionAutonomy,
+        explorationFrequency,
+        objectiveFocus,
       };
-
-      // Add phone if provided
-      if (mobilePhone.trim()) {
-        simData.social_links.phone = mobilePhone.trim();
-      }
 
       // Check if SIM already exists
       const { data: existingSim } = await supabase
@@ -342,12 +346,11 @@ Remember: Every interaction is an opportunity to create value, earn $SIMAI, and 
           <CardDescription>
             {step === 1 && "Understanding what your SIM represents"}
             {step === 2 && "Your SIM will be named after your X account"}
-            {step === 3 && "Connect your Solana wallet to enable transactions"}
-            {step === 4 && "Optional: Enable direct messaging with your SIM"}
-            {step === 5 && "How do you want to dress and present yourself?"}
-            {step === 6 && "How do you want to act and what truly matters to you?"}
-            {step === 7 && "What do you want to achieve in your relationships over the next 6 months?"}
-            {step === 8 && "What are your financial and health goals for the next 6 months?"}
+            {step === 3 && "Connect your wallet and email for SIM management"}
+            {step === 4 && "Where is your SIM located in the world?"}
+            {step === 5 && "How should your SIM interact with other SIMs?"}
+            {step === 6 && "How should your SIM explore the digital universe?"}
+            {step === 7 && "What is your SIM's primary mission?"}
           </CardDescription>
         </CardHeader>
         
@@ -411,168 +414,233 @@ Remember: Every interaction is an opportunity to create value, earn $SIMAI, and 
             </div>
           )}
 
-          {/* Step 3: Solana Wallet */}
+          {/* Step 3: Wallet & Email */}
           {step === 3 && (
             <div className="space-y-4 animate-fade-in">
-              <h3 className="text-lg font-semibold font-mono mb-4">Solana Wallet</h3>
+              <h3 className="text-lg font-semibold font-mono mb-4">Critical Info</h3>
               
-              <div className="space-y-2">
-                <Label htmlFor="solWallet">SOL Wallet Address</Label>
-                <Input
-                  id="solWallet"
-                  placeholder="Enter your Solana wallet address"
-                  value={solWallet}
-                  onChange={(e) => setSolWallet(e.target.value)}
-                  className="font-mono"
-                />
-                <p className="text-xs text-muted-foreground">
-                  Your SIM will earn $SIMAI that you can cash out to this wallet. You can update this anytime.
-                </p>
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="solWallet">SOL Wallet Address</Label>
+                  <Input
+                    id="solWallet"
+                    placeholder="Enter your Solana wallet address"
+                    value={solWallet}
+                    onChange={(e) => setSolWallet(e.target.value)}
+                    className="font-mono"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Your SIM will earn $SIMAI that you can cash out to this wallet.
+                  </p>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="email">Email Address</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="your.email@example.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    We'll use this to send you updates about your SIM.
+                  </p>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="mobilePhone">Mobile Phone (Optional)</Label>
+                  <Input
+                    id="mobilePhone"
+                    type="tel"
+                    placeholder="+1 (555) 123-4567"
+                    value={mobilePhone}
+                    onChange={(e) => setMobilePhone(e.target.value)}
+                  />
+                  <Card className="bg-primary/10 border-primary/20 mt-2">
+                    <CardContent className="pt-4">
+                      <p className="text-sm font-semibold mb-2">Coming Soon 🚀</p>
+                      <p className="text-sm text-muted-foreground">
+                        Soon you'll be able to send text messages directly to your SIM.
+                      </p>
+                    </CardContent>
+                  </Card>
+                </div>
               </div>
             </div>
           )}
 
-          {/* Step 4: Mobile Phone */}
+          {/* Step 4: Hometown */}
           {step === 4 && (
             <div className="space-y-4 animate-fade-in">
-              <h3 className="text-lg font-semibold font-mono mb-4">Mobile Phone (Optional)</h3>
+              <h3 className="text-lg font-semibold font-mono mb-4">SIM Hometown</h3>
               
-              <div className="space-y-2">
-                <Label htmlFor="mobilePhone">Phone Number</Label>
-                <Input
-                  id="mobilePhone"
-                  type="tel"
-                  placeholder="+1 (555) 123-4567"
-                  value={mobilePhone}
-                  onChange={(e) => setMobilePhone(e.target.value)}
-                />
-                <Card className="bg-primary/10 border-primary/20 mt-4">
-                  <CardContent className="pt-4">
-                    <p className="text-sm font-semibold mb-2">Coming Soon 🚀</p>
-                    <p className="text-sm text-muted-foreground">
-                      Soon you'll be able to send text messages directly to your SIM and get responses wherever you are. Stay tuned!
-                    </p>
-                  </CardContent>
-                </Card>
+              <p className="text-sm text-muted-foreground mb-4">
+                Your SIM will be positioned on the world map based on this location. This helps your SIM explore and interact with nearby SIMs.
+              </p>
+
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="city">City</Label>
+                  <Input
+                    id="city"
+                    placeholder="e.g., San Francisco"
+                    value={city}
+                    onChange={(e) => setCity(e.target.value)}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="state">State/Province (Optional)</Label>
+                  <Input
+                    id="state"
+                    placeholder="e.g., California"
+                    value={state}
+                    onChange={(e) => setState(e.target.value)}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="country">Country</Label>
+                  <Input
+                    id="country"
+                    placeholder="e.g., United States"
+                    value={country}
+                    onChange={(e) => setCountry(e.target.value)}
+                  />
+                </div>
               </div>
             </div>
           )}
 
-          {/* Step 5: Appearance & Style */}
+          {/* Step 5: Interaction Style */}
           {step === 5 && (
             <div className="space-y-4 animate-fade-in">
-              <h3 className="text-lg font-semibold font-mono mb-4">Appearance & Style</h3>
+              <h3 className="text-lg font-semibold font-mono mb-4">SIM-to-SIM Interaction</h3>
               
               <div className="space-y-2">
-                <Label htmlFor="appearance">How do you want to dress and present yourself?</Label>
+                <Label htmlFor="interactionStyle">Interaction Style</Label>
+                <p className="text-xs text-muted-foreground mb-2">
+                  How should your SIM interact with other SIMs in the digital universe?
+                </p>
                 <Textarea
-                  id="appearance"
-                  placeholder="Describe your ideal style and appearance. What clothes do you want to wear? How do you want to carry yourself? What aesthetic resonates with who you want to become?"
-                  value={appearance}
-                  onChange={(e) => setAppearance(e.target.value)}
+                  id="interactionStyle"
+                  placeholder="E.g., Collaborative and value-driven, seeking mutually beneficial partnerships. Open to new connections but selective about long-term collaborations. Professional and respectful in all interactions."
+                  value={interactionStyle}
+                  onChange={(e) => setInteractionStyle(e.target.value)}
                   rows={6}
                   className="resize-none"
                 />
+              </div>
+
+              <div className="space-y-3">
+                <Label htmlFor="interactionAutonomy">Interaction Autonomy</Label>
                 <p className="text-xs text-muted-foreground">
-                  Your SIM will embody this visual identity and style
+                  How independently should your SIM initiate interactions? (0 = Reserved, 10 = Highly Proactive)
                 </p>
+                <div className="flex items-center gap-4">
+                  <Slider
+                    id="interactionAutonomy"
+                    min={0}
+                    max={10}
+                    step={1}
+                    value={[interactionAutonomy]}
+                    onValueChange={(value) => setInteractionAutonomy(value[0])}
+                    className="flex-1"
+                  />
+                  <span className="text-sm font-medium w-8 text-center">{interactionAutonomy}</span>
+                </div>
               </div>
             </div>
           )}
 
-          {/* Step 6: Values & Behavior */}
+          {/* Step 6: Exploration Style */}
           {step === 6 && (
             <div className="space-y-4 animate-fade-in">
-              <h3 className="text-lg font-semibold font-mono mb-4">Values & Behavior</h3>
-              
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="behavior">How do you want to act?</Label>
-                  <Textarea
-                    id="behavior"
-                    placeholder="Describe the behaviors and habits you want to embody. How do you interact with others? What daily actions define your ideal self? How do you respond to challenges?"
-                    value={behavior}
-                    onChange={(e) => setBehavior(e.target.value)}
-                    rows={4}
-                    className="resize-none"
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="coreValues">What actually matters to you?</Label>
-                  <Textarea
-                    id="coreValues"
-                    placeholder="What are your core values and priorities? What do you care deeply about? What principles guide your decisions? What legacy do you want to leave?"
-                    value={coreValues}
-                    onChange={(e) => setCoreValues(e.target.value)}
-                    rows={4}
-                    className="resize-none"
-                  />
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Step 7: Relationship Goals */}
-          {step === 7 && (
-            <div className="space-y-4 animate-fade-in">
-              <h3 className="text-lg font-semibold font-mono mb-4">Relationship Goals</h3>
+              <h3 className="text-lg font-semibold font-mono mb-4">Digital Universe Exploration</h3>
               
               <div className="space-y-2">
-                <Label htmlFor="relationshipGoals">What are your relationship goals for the next 6 months?</Label>
+                <Label htmlFor="explorationStyle">Exploration Style</Label>
+                <p className="text-xs text-muted-foreground mb-2">
+                  How should your SIM explore and navigate the digital universe?
+                </p>
                 <Textarea
-                  id="relationshipGoals"
-                  placeholder="Describe your relationship aspirations. What kind of connections do you want to build? How do you want to improve existing relationships? What social goals matter to you? Who do you want to become in your relationships?"
-                  value={relationshipGoals}
-                  onChange={(e) => setRelationshipGoals(e.target.value)}
+                  id="explorationStyle"
+                  placeholder="E.g., Curious and methodical, seeking new opportunities while maintaining strategic focus. Explores diverse regions but returns to familiar areas. Balances risk-taking with careful analysis."
+                  value={explorationStyle}
+                  onChange={(e) => setExplorationStyle(e.target.value)}
                   rows={6}
                   className="resize-none"
                 />
+              </div>
+
+              <div className="space-y-3">
+                <Label htmlFor="explorationFrequency">Exploration Frequency</Label>
                 <p className="text-xs text-muted-foreground">
-                  Your SIM will help keep you accountable to these relationship goals
+                  How often should your SIM explore new areas? (0 = Rarely, 10 = Constantly)
                 </p>
+                <div className="flex items-center gap-4">
+                  <Slider
+                    id="explorationFrequency"
+                    min={0}
+                    max={10}
+                    step={1}
+                    value={[explorationFrequency]}
+                    onValueChange={(value) => setExplorationFrequency(value[0])}
+                    className="flex-1"
+                  />
+                  <span className="text-sm font-medium w-8 text-center">{explorationFrequency}</span>
+                </div>
               </div>
             </div>
           )}
 
-          {/* Step 8: Financial & Health Goals */}
-          {step === 8 && (
+          {/* Step 7: Primary Objective */}
+          {step === 7 && (
             <div className="space-y-4 animate-fade-in">
-              <h3 className="text-lg font-semibold font-mono mb-4">Financial & Health Goals</h3>
+              <h3 className="text-lg font-semibold font-mono mb-4">Primary Objective</h3>
               
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="financialGoals">Financial Goals (next 6 months)</Label>
-                  <Textarea
-                    id="financialGoals"
-                    placeholder="What are your financial aspirations? Income goals? Savings targets? Investment plans? Career advancement? Business ventures? How do you want to improve your financial situation?"
-                    value={financialGoals}
-                    onChange={(e) => setFinancialGoals(e.target.value)}
-                    rows={4}
-                    className="resize-none"
+              <div className="space-y-2">
+                <Label htmlFor="primaryObjective">What is your SIM's main mission?</Label>
+                <p className="text-xs text-muted-foreground mb-2">
+                  What is your SIM's primary purpose in the digital universe?
+                </p>
+                <Textarea
+                  id="primaryObjective"
+                  placeholder="E.g., Build meaningful partnerships with other SIMs, maximize $SIMAI earnings through strategic collaborations, become a trusted advisor in the digital economy, or create innovative solutions with other agents."
+                  value={primaryObjective}
+                  onChange={(e) => setPrimaryObjective(e.target.value)}
+                  rows={6}
+                  className="resize-none"
+                />
+              </div>
+
+              <div className="space-y-3">
+                <Label htmlFor="objectiveFocus">Objective Focus Intensity</Label>
+                <p className="text-xs text-muted-foreground">
+                  How intensely should your SIM pursue its objective? (0 = Relaxed, 10 = Laser-Focused)
+                </p>
+                <div className="flex items-center gap-4">
+                  <Slider
+                    id="objectiveFocus"
+                    min={0}
+                    max={10}
+                    step={1}
+                    value={[objectiveFocus]}
+                    onValueChange={(value) => setObjectiveFocus(value[0])}
+                    className="flex-1"
                   />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="healthGoals">Health Goals (next 6 months)</Label>
-                  <Textarea
-                    id="healthGoals"
-                    placeholder="What are your health and wellness goals? Fitness targets? Nutrition habits? Mental health practices? Sleep routines? How do you want to feel physically and mentally?"
-                    value={healthGoals}
-                    onChange={(e) => setHealthGoals(e.target.value)}
-                    rows={4}
-                    className="resize-none"
-                  />
+                  <span className="text-sm font-medium w-8 text-center">{objectiveFocus}</span>
                 </div>
               </div>
 
-              <Card className="bg-muted/50 border-primary/20">
+              <Card className="bg-muted/50 border-primary/20 mt-4">
                 <CardContent className="pt-6">
                   <h4 className="font-semibold mb-2">
-                    Ready to Launch Your Digital Clone
+                    Ready to Launch Your SIM
                   </h4>
                   <p className="text-sm text-muted-foreground">
-                    Your SIM will embody your ideal self and help you achieve these goals. It will earn $SIMAI from the treasury as it provides value in the digital universe.
+                    Your SIM will explore the digital universe, interact with other SIMs, and earn $SIMAI from the treasury. You can monitor its activity and cash out earnings anytime.
                   </p>
                 </CardContent>
               </Card>
