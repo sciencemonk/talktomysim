@@ -27,10 +27,12 @@ interface Connection {
 export const GodModeMap = ({ agentName }: { agentName: string }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const [agents, setAgents] = useState<Agent[]>([]);
-  const [connections, setConnections] = useState<Connection[]>([]);
+  const agentsRef = useRef<Agent[]>([]);
+  const connectionsRef = useRef<Connection[]>([]);
   const [selectedAgent, setSelectedAgent] = useState<Agent | null>(null);
   const [popoverPosition, setPopoverPosition] = useState<{ x: number; y: number } | null>(null);
+  const [agentCount, setAgentCount] = useState(0);
+  const [connectionCount, setConnectionCount] = useState(0);
   const animationFrameRef = useRef<number>();
   const { theme } = useTheme();
   const [resolvedTheme, setResolvedTheme] = useState<'light' | 'dark'>('dark');
@@ -81,33 +83,32 @@ export const GodModeMap = ({ agentName }: { agentName: string }) => {
         simaiBalance: Math.floor(Math.random() * 100000) + 1000
       }))
     ];
-    setAgents(initialAgents);
+    agentsRef.current = initialAgents;
+    setAgentCount(initialAgents.length);
 
     // Start with no connections
-    setConnections([]);
+    connectionsRef.current = [];
 
     // Randomly create temporary interactions between nearby agents
     const connectionInterval = setInterval(() => {
-      setConnections(prev => {
-        // Remove old connections (they last only 3 seconds)
-        const newConnections: Connection[] = [];
-        
-        // Randomly create 2-5 new interactions
-        const numNewConnections = Math.floor(Math.random() * 4) + 2;
-        for (let i = 0; i < numNewConnections; i++) {
-          const agent1 = Math.random() < 0.3 ? 'main' : `agent-${Math.floor(Math.random() * 150)}`;
-          const agent2 = `agent-${Math.floor(Math.random() * 150)}`;
-          if (agent1 !== agent2) {
-            newConnections.push({
-              from: agent1,
-              to: agent2,
-              strength: Math.random() * 0.4 + 0.4
-            });
-          }
+      const newConnections: Connection[] = [];
+      
+      // Randomly create 2-5 new interactions
+      const numNewConnections = Math.floor(Math.random() * 4) + 2;
+      for (let i = 0; i < numNewConnections; i++) {
+        const agent1 = Math.random() < 0.3 ? 'main' : `agent-${Math.floor(Math.random() * 150)}`;
+        const agent2 = `agent-${Math.floor(Math.random() * 150)}`;
+        if (agent1 !== agent2) {
+          newConnections.push({
+            from: agent1,
+            to: agent2,
+            strength: Math.random() * 0.4 + 0.4
+          });
         }
-        
-        return newConnections;
-      });
+      }
+      
+      connectionsRef.current = newConnections;
+      setConnectionCount(newConnections.length);
     }, 3000);
 
     return () => clearInterval(connectionInterval);
@@ -126,97 +127,93 @@ export const GodModeMap = ({ agentName }: { agentName: string }) => {
       ctx.fillStyle = resolvedTheme === 'dark' ? '#000000' : '#ffffff';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      // Update and draw agents
-      setAgents(prevAgents => {
-        const updatedAgents = prevAgents.map(agent => {
-          let { x, y, vx, vy } = agent;
+      // Update agent positions
+      agentsRef.current = agentsRef.current.map(agent => {
+        let { x, y, vx, vy } = agent;
 
-          // Update position
-          x += vx;
-          y += vy;
+        // Update position
+        x += vx;
+        y += vy;
 
-          // Bounce off edges
-          if (x <= agent.radius || x >= canvas.width - agent.radius) {
-            vx *= -1;
-            x = Math.max(agent.radius, Math.min(canvas.width - agent.radius, x));
-          }
-          if (y <= agent.radius || y >= canvas.height - agent.radius) {
-            vy *= -1;
-            y = Math.max(agent.radius, Math.min(canvas.height - agent.radius, y));
-          }
+        // Bounce off edges
+        if (x <= agent.radius || x >= canvas.width - agent.radius) {
+          vx *= -1;
+          x = Math.max(agent.radius, Math.min(canvas.width - agent.radius, x));
+        }
+        if (y <= agent.radius || y >= canvas.height - agent.radius) {
+          vy *= -1;
+          y = Math.max(agent.radius, Math.min(canvas.height - agent.radius, y));
+        }
 
-          return { ...agent, x, y, vx, vy };
-        });
+        return { ...agent, x, y, vx, vy };
+      });
 
-        // Draw connections FIRST (so they appear behind agents)
-        connections.forEach(conn => {
-          const fromAgent = updatedAgents.find(a => a.id === conn.from);
-          const toAgent = updatedAgents.find(a => a.id === conn.to);
-          
-          if (fromAgent && toAgent) {
-            // Main connection line
-            ctx.strokeStyle = `rgba(131, 241, 170, ${conn.strength * 0.3})`;
-            ctx.lineWidth = 2;
-            ctx.beginPath();
-            ctx.moveTo(fromAgent.x, fromAgent.y);
-            ctx.lineTo(toAgent.x, toAgent.y);
-            ctx.stroke();
-
-            // Gradient pulse effect
-            const gradient = ctx.createLinearGradient(fromAgent.x, fromAgent.y, toAgent.x, toAgent.y);
-            gradient.addColorStop(0, `rgba(131, 241, 170, ${conn.strength * 0.5})`);
-            gradient.addColorStop(1, 'rgba(131, 241, 170, 0)');
-            ctx.strokeStyle = gradient;
-            ctx.lineWidth = 1;
-            ctx.stroke();
-          }
-        });
-
-        // Draw agents ON TOP of connections
-        updatedAgents.forEach(agent => {
-          // Reset shadow for each agent
-          ctx.shadowBlur = 0;
-          ctx.shadowColor = 'transparent';
-
-          // Outer glow for main agent
-          if (agent.isMainAgent) {
-            ctx.shadowBlur = 15;
-            ctx.shadowColor = agent.color;
-          } else {
-            ctx.shadowBlur = 8;
-            ctx.shadowColor = agent.color;
-          }
-
-          // Draw agent circle
-          ctx.fillStyle = agent.color;
+      // Draw connections FIRST (so they appear behind agents)
+      connectionsRef.current.forEach(conn => {
+        const fromAgent = agentsRef.current.find(a => a.id === conn.from);
+        const toAgent = agentsRef.current.find(a => a.id === conn.to);
+        
+        if (fromAgent && toAgent) {
+          // Main connection line
+          ctx.strokeStyle = `rgba(131, 241, 170, ${conn.strength * 0.3})`;
+          ctx.lineWidth = 2;
           ctx.beginPath();
-          ctx.arc(agent.x, agent.y, agent.radius, 0, Math.PI * 2);
-          ctx.fill();
+          ctx.moveTo(fromAgent.x, fromAgent.y);
+          ctx.lineTo(toAgent.x, toAgent.y);
+          ctx.stroke();
 
-          // Reset shadow before drawing ring
-          ctx.shadowBlur = 0;
-          ctx.shadowColor = 'transparent';
+          // Gradient pulse effect
+          const gradient = ctx.createLinearGradient(fromAgent.x, fromAgent.y, toAgent.x, toAgent.y);
+          gradient.addColorStop(0, `rgba(131, 241, 170, ${conn.strength * 0.5})`);
+          gradient.addColorStop(1, 'rgba(131, 241, 170, 0)');
+          ctx.strokeStyle = gradient;
+          ctx.lineWidth = 1;
+          ctx.stroke();
+        }
+      });
 
-          // Draw pulsing ring for main agent
-          if (agent.isMainAgent) {
-            const pulseRadius = agent.radius + Math.sin(Date.now() / 500) * 2 + 4;
-            ctx.strokeStyle = `rgba(131, 241, 170, ${0.6 - (pulseRadius - agent.radius) / 15})`;
-            ctx.lineWidth = 2;
-            ctx.beginPath();
-            ctx.arc(agent.x, agent.y, pulseRadius, 0, Math.PI * 2);
-            ctx.stroke();
-          }
+      // Draw agents ON TOP of connections
+      agentsRef.current.forEach(agent => {
+        // Reset shadow for each agent
+        ctx.shadowBlur = 0;
+        ctx.shadowColor = 'transparent';
 
-          // Draw agent label for main agent (make it theme-aware)
-          if (agent.isMainAgent) {
-            ctx.fillStyle = resolvedTheme === 'dark' ? '#ffffff' : '#000000';
-            ctx.font = '10px monospace';
-            ctx.textAlign = 'center';
-            ctx.fillText(agent.name, agent.x, agent.y - agent.radius - 10);
-          }
-        });
+        // Outer glow for main agent
+        if (agent.isMainAgent) {
+          ctx.shadowBlur = 15;
+          ctx.shadowColor = agent.color;
+        } else {
+          ctx.shadowBlur = 8;
+          ctx.shadowColor = agent.color;
+        }
 
-        return updatedAgents;
+        // Draw agent circle
+        ctx.fillStyle = agent.color;
+        ctx.beginPath();
+        ctx.arc(agent.x, agent.y, agent.radius, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Reset shadow before drawing ring
+        ctx.shadowBlur = 0;
+        ctx.shadowColor = 'transparent';
+
+        // Draw pulsing ring for main agent
+        if (agent.isMainAgent) {
+          const pulseRadius = agent.radius + Math.sin(Date.now() / 500) * 2 + 4;
+          ctx.strokeStyle = `rgba(131, 241, 170, ${0.6 - (pulseRadius - agent.radius) / 15})`;
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.arc(agent.x, agent.y, pulseRadius, 0, Math.PI * 2);
+          ctx.stroke();
+        }
+
+        // Draw agent label for main agent (make it theme-aware)
+        if (agent.isMainAgent) {
+          ctx.fillStyle = resolvedTheme === 'dark' ? '#ffffff' : '#000000';
+          ctx.font = '10px monospace';
+          ctx.textAlign = 'center';
+          ctx.fillText(agent.name, agent.x, agent.y - agent.radius - 10);
+        }
       });
 
       animationFrameRef.current = requestAnimationFrame(animate);
@@ -229,7 +226,7 @@ export const GodModeMap = ({ agentName }: { agentName: string }) => {
         cancelAnimationFrame(animationFrameRef.current);
       }
     };
-  }, [connections, resolvedTheme]);
+  }, [resolvedTheme]);
 
   const handleCanvasClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
     const canvas = canvasRef.current;
@@ -243,7 +240,7 @@ export const GodModeMap = ({ agentName }: { agentName: string }) => {
     const clickY = (e.clientY - rect.top) * scaleY;
 
     // Find clicked agent
-    const clickedAgent = agents.find(agent => {
+    const clickedAgent = agentsRef.current.find(agent => {
       const dx = clickX - agent.x;
       const dy = clickY - agent.y;
       const distance = Math.sqrt(dx * dx + dy * dy);
@@ -348,7 +345,7 @@ export const GodModeMap = ({ agentName }: { agentName: string }) => {
       )}
 
       <div className="absolute bottom-2 right-2 text-[10px] font-mono text-muted-foreground bg-background/80 px-2 py-1 rounded">
-        {agents.filter(a => !a.isMainAgent).length} agents online • {connections.length} active interactions
+        {agentCount - 1} agents online • {connectionCount} active interactions
       </div>
     </div>
   );
