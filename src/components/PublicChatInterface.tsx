@@ -5,19 +5,28 @@ import remarkGfm from "remark-gfm";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
 import { useChatHistory } from "@/hooks/useChatHistory";
 import { useTextChat } from "@/hooks/useTextChat";
 import { AgentType } from "@/types/agent";
 import { getAvatarUrl } from "@/lib/avatarUtils";
 import { X402PaymentModal } from "@/components/X402PaymentModal";
 
+interface SimAction {
+  id: string;
+  description: string;
+  end_goal: string;
+  usdc_amount: number;
+}
+
 interface PublicChatInterfaceProps {
   agent: AgentType;
   avatarUrl?: string;
   collectedInfo?: Record<string, string>;
+  actions?: SimAction[];
 }
 
-const PublicChatInterface = ({ agent, avatarUrl, collectedInfo }: PublicChatInterfaceProps) => {
+const PublicChatInterface = ({ agent, avatarUrl, collectedInfo, actions = [] }: PublicChatInterfaceProps) => {
   const [inputValue, setInputValue] = useState("");
   const [hasStartedChat, setHasStartedChat] = useState(false);
   const [hasAutoSubmitted, setHasAutoSubmitted] = useState(false);
@@ -164,6 +173,30 @@ const PublicChatInterface = ({ agent, avatarUrl, collectedInfo }: PublicChatInte
           <h1 className="text-4xl md:text-5xl font-bold text-foreground text-center">
             How may I help you?
           </h1>
+          
+          {/* Action Badges */}
+          {actions.length > 0 && (
+            <div className="flex flex-wrap gap-2 justify-center">
+              {actions.map((action) => (
+                <Button
+                  key={action.id}
+                  variant="outline"
+                  className="gap-2"
+                  onClick={() => {
+                    // TODO: Trigger action workflow
+                    setInputValue(action.description);
+                  }}
+                >
+                  {action.description}
+                  {action.usdc_amount > 0 && (
+                    <Badge variant="secondary" className="ml-1">
+                      ${action.usdc_amount}
+                    </Badge>
+                  )}
+                </Button>
+              ))}
+            </div>
+          )}
           
           <div className="relative">
             <Input

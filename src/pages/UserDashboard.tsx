@@ -405,75 +405,12 @@ const UserDashboard = () => {
                     </Button>
                   </div>
                 </CardHeader>
-                <CardContent className="space-y-4 flex-1 overflow-auto">
-                  <p className="text-sm text-muted-foreground pt-4 px-4">
-                    How may I help you?
-                  </p>
-
-                  {/* Actions List */}
-                  {actionsLoading ? (
-                    <div className="text-sm text-muted-foreground px-4">Loading actions...</div>
-                  ) : actions.length > 0 ? (
-                    <div className="space-y-2 px-4">
-                      {actions.map((action) => (
-                        <div
-                          key={action.id}
-                          className="group relative flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50 transition-colors"
-                        >
-                          <div className="flex-1 min-w-0 pr-2">
-                            <p className="font-medium text-sm">{action.description}</p>
-                            <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">
-                              {action.end_goal}
-                            </p>
-                            {action.usdc_amount > 0 && (
-                              <p className="text-xs text-primary mt-1">
-                                ${action.usdc_amount} USDC
-                              </p>
-                            )}
-                          </div>
-                          
-                          {/* Edit/Delete buttons - shown on hover */}
-                          <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <Button
-                              size="icon"
-                              variant="ghost"
-                              className="h-8 w-8"
-                              onClick={() => {
-                                setEditingAction({
-                                  id: action.id,
-                                  description: action.description,
-                                  end_goal: action.end_goal,
-                                  usdc_amount: action.usdc_amount,
-                                });
-                                setShowAddActionModal(true);
-                              }}
-                            >
-                              <Pencil className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              size="icon"
-                              variant="ghost"
-                              className="h-8 w-8 text-destructive hover:text-destructive"
-                              onClick={() => deleteAction(action.id)}
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <p className="text-sm text-muted-foreground px-4">
-                      No actions yet. Add your first action to help visitors interact with your SIM.
-                    </p>
-                  )}
-
-                  <div className="px-4 pb-4">
-                    <PublicChatInterface 
-                      agent={agentForChat}
-                      avatarUrl={userSim.avatar_url || undefined}
-                    />
-                  </div>
+                <CardContent className="flex-1 p-0 overflow-hidden">
+                  <PublicChatInterface 
+                    agent={agentForChat}
+                    avatarUrl={userSim.avatar_url || undefined}
+                    actions={actions}
+                  />
                 </CardContent>
               </Card>
             </div>
@@ -531,6 +468,63 @@ const UserDashboard = () => {
               </Card>
             </div>
           </div>
+
+          {/* Actions Management Section */}
+          {actions.length > 0 && (
+            <Card className="mt-6">
+              <CardHeader>
+                <CardTitle className="text-base">Manage Actions</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                  {actions.map((action) => (
+                    <div
+                      key={action.id}
+                      className="group relative p-4 border rounded-lg hover:bg-muted/50 transition-colors"
+                    >
+                      <div className="flex items-start justify-between gap-2 mb-2">
+                        <p className="font-medium text-sm flex-1">{action.description}</p>
+                        <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            className="h-7 w-7"
+                            onClick={() => {
+                              setEditingAction({
+                                id: action.id,
+                                description: action.description,
+                                end_goal: action.end_goal,
+                                usdc_amount: action.usdc_amount,
+                              });
+                              setShowAddActionModal(true);
+                            }}
+                          >
+                            <Pencil className="h-3.5 w-3.5" />
+                          </Button>
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            className="h-7 w-7 text-destructive hover:text-destructive"
+                            onClick={() => deleteAction(action.id)}
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </Button>
+                        </div>
+                      </div>
+                      <p className="text-xs text-muted-foreground line-clamp-2 mb-2">
+                        {action.end_goal}
+                      </p>
+                      {action.usdc_amount > 0 && (
+                        <Badge variant="secondary" className="text-xs">
+                          ${action.usdc_amount} USDC
+                        </Badge>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
         </div>
       </main>
 
