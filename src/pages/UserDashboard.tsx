@@ -26,6 +26,7 @@ import SimpleFooter from "@/components/SimpleFooter";
 import { AddActionModal } from "@/components/AddActionModal";
 import { useSimActions } from "@/hooks/useSimActions";
 import { AddLinkModal } from "@/components/AddLinkModal";
+import { TipButton } from "@/components/TipButton";
 import { ExternalLink as ExternalLinkIcon, Link as LinkIcon } from "lucide-react";
 
 interface ActivityLog {
@@ -338,75 +339,85 @@ const UserDashboard = () => {
                 <h1 className="text-3xl font-bold">{userSim.name}</h1>
                 <p className="text-muted-foreground">{userSim.description || "Your AI SIM in the digital universe"}</p>
                 
-                {/* Custom Links */}
-                {customLinks.length > 0 && (
-                  <div className="flex flex-wrap gap-2 mt-2">
-                    {customLinks.map((link) => (
-                      <div
-                        key={link.id}
-                        className="group relative inline-flex items-center gap-1 text-sm text-primary hover:underline"
-                      >
-                        <a
-                          href={link.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center gap-1"
+                <div className="flex items-center gap-3 mt-2 flex-wrap">
+                  {/* Custom Links */}
+                  {customLinks.length > 0 && (
+                    <div className="flex flex-wrap gap-2">
+                      {customLinks.map((link) => (
+                        <div
+                          key={link.id}
+                          className="group relative inline-flex items-center gap-1 text-sm text-primary hover:underline"
                         >
-                          <ExternalLinkIcon className="h-3 w-3" />
-                          {link.label}
-                        </a>
-                        <div className="hidden group-hover:flex gap-1 ml-1">
-                          <Button
-                            size="icon"
-                            variant="ghost"
-                            className="h-5 w-5 p-0"
-                            onClick={(e) => {
-                              e.preventDefault();
-                              setEditingLink(link);
-                              setShowAddLinkModal(true);
-                            }}
+                          <a
+                            href={link.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-1"
                           >
-                            <Pencil className="h-3 w-3" />
-                          </Button>
-                          <Button
-                            size="icon"
-                            variant="ghost"
-                            className="h-5 w-5 p-0 text-destructive hover:text-destructive"
-                            onClick={async (e) => {
-                              e.preventDefault();
-                              const updatedLinks = customLinks.filter((l) => l.id !== link.id);
-                              await supabase
-                                .from("sims")
-                                .update({ social_links: updatedLinks })
-                                .eq("id", userSim.id);
-                              setCustomLinks(updatedLinks);
-                              toast({
-                                title: "Link deleted",
-                                description: "The link has been removed successfully",
-                              });
-                            }}
-                          >
-                            <Trash2 className="h-3 w-3" />
-                          </Button>
+                            <ExternalLinkIcon className="h-3 w-3" />
+                            {link.label}
+                          </a>
+                          <div className="hidden group-hover:flex gap-1 ml-1">
+                            <Button
+                              size="icon"
+                              variant="ghost"
+                              className="h-5 w-5 p-0"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                setEditingLink(link);
+                                setShowAddLinkModal(true);
+                              }}
+                            >
+                              <Pencil className="h-3 w-3" />
+                            </Button>
+                            <Button
+                              size="icon"
+                              variant="ghost"
+                              className="h-5 w-5 p-0 text-destructive hover:text-destructive"
+                              onClick={async (e) => {
+                                e.preventDefault();
+                                const updatedLinks = customLinks.filter((l) => l.id !== link.id);
+                                await supabase
+                                  .from("sims")
+                                  .update({ social_links: updatedLinks })
+                                  .eq("id", userSim.id);
+                                setCustomLinks(updatedLinks);
+                                toast({
+                                  title: "Link deleted",
+                                  description: "The link has been removed successfully",
+                                });
+                              }}
+                            >
+                              <Trash2 className="h-3 w-3" />
+                            </Button>
+                          </div>
                         </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-                
-                {/* Add Link Button */}
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  className="mt-2 h-7 text-xs gap-1"
-                  onClick={() => {
-                    setEditingLink(undefined);
-                    setShowAddLinkModal(true);
-                  }}
-                >
-                  <Plus className="h-3 w-3" />
-                  Add Link
-                </Button>
+                      ))}
+                    </div>
+                  )}
+                  
+                  {/* Add Link Button */}
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="h-7 text-xs gap-1"
+                    onClick={() => {
+                      setEditingLink(undefined);
+                      setShowAddLinkModal(true);
+                    }}
+                  >
+                    <Plus className="h-3 w-3" />
+                    Add Link
+                  </Button>
+                  
+                  {/* Tip Button */}
+                  {userSim.crypto_wallet && (
+                    <TipButton 
+                      simName={userSim.name}
+                      walletAddress={userSim.crypto_wallet}
+                    />
+                  )}
+                </div>
               </div>
             </div>
 

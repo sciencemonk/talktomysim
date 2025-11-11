@@ -32,6 +32,8 @@ import simHeroLogo from "@/assets/sim-hero-logo.png";
 import simLogoWhite from "@/assets/sim-logo-white.png";
 import SimpleFooter from "@/components/SimpleFooter";
 import { GodModeMap } from "@/components/GodModeMap";
+import { TipButton } from "@/components/TipButton";
+import { useSimActions } from "@/hooks/useSimActions";
 
 interface ActivityLog {
   id: string;
@@ -53,6 +55,7 @@ const PublicSimDetail = () => {
   const [simaiBalance, setSimaiBalance] = useState(1247); // Mock data
   const [ranking, setRanking] = useState(42); // Mock data
   const [activityLogs, setActivityLogs] = useState<ActivityLog[]>([]);
+  const { actions, isLoading: actionsLoading } = useSimActions(sim?.id);
 
   useEffect(() => {
     if (theme === 'system') {
@@ -400,6 +403,16 @@ const PublicSimDetail = () => {
                   )}
                 </div>
                 <p className="text-muted-foreground">{sim.description}</p>
+                
+                {/* Tip Button */}
+                {sim.crypto_wallet && (
+                  <div className="mt-3">
+                    <TipButton 
+                      simName={sim.name}
+                      walletAddress={sim.crypto_wallet}
+                    />
+                  </div>
+                )}
               </div>
             </div>
 
@@ -490,6 +503,7 @@ const PublicSimDetail = () => {
                   <PublicChatInterface 
                     agent={agentForChat}
                     avatarUrl={getAvatarUrl(sim.avatar_url)}
+                    actions={actions}
                   />
                 </div>
               </Card>
