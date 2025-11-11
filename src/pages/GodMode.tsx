@@ -28,6 +28,7 @@ const GodMode = () => {
   const { user } = useAuth();
   const [resolvedTheme, setResolvedTheme] = useState<'light' | 'dark'>('dark');
   const [leaderboard, setLeaderboard] = useState<LeaderboardSim[]>([]);
+  const [userSim, setUserSim] = useState<any>(null);
 
   useEffect(() => {
     if (theme === 'system') {
@@ -37,6 +38,20 @@ const GodMode = () => {
       setResolvedTheme(theme as 'light' | 'dark');
     }
   }, [theme]);
+
+  useEffect(() => {
+    const fetchUserSim = async () => {
+      if (user) {
+        const { data } = await supabase
+          .from('sims')
+          .select('*')
+          .eq('user_id', user.id)
+          .maybeSingle();
+        setUserSim(data);
+      }
+    };
+    fetchUserSim();
+  }, [user]);
 
   useEffect(() => {
     // For now, using mock data for the leaderboard
@@ -71,7 +86,7 @@ const GodMode = () => {
       <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-sm border-b border-border/40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
-            <button onClick={() => navigate(user ? '/dashboard' : '/')} className="flex items-center hover:opacity-80 transition-opacity">
+            <button onClick={() => navigate('/dashboard')} className="flex items-center hover:opacity-80 transition-opacity">
               <div className="bg-black/90 rounded-lg px-2 py-1">
                 <img src="/sim-logo-white.png" alt="SIM" className="h-6 w-auto" />
               </div>
@@ -80,7 +95,7 @@ const GodMode = () => {
             <div className="flex items-center gap-6">
               <Button
                 variant="ghost"
-                onClick={() => navigate(user ? '/dashboard' : '/')}
+                onClick={() => navigate('/dashboard')}
                 className="text-sm font-medium hover:text-primary"
               >
                 Home
@@ -88,37 +103,28 @@ const GodMode = () => {
               <Button
                 variant="ghost"
                 onClick={() => navigate('/godmode')}
-                className="text-sm font-medium text-primary"
+                className="text-sm font-medium hover:text-primary"
               >
                 God Mode
               </Button>
-              {user && (
-                <Button
-                  variant="ghost"
-                  onClick={() => {
-                    const customUrl = user?.user_metadata?.custom_url || user?.user_metadata?.username;
-                    if (customUrl) {
-                      navigate(`/${customUrl}`);
-                    }
-                  }}
-                  className="text-sm font-medium hover:text-primary"
-                >
-                  Public Page
-                </Button>
-              )}
+              <Button
+                variant="ghost"
+                onClick={() => window.open(`/${userSim?.custom_url || userSim?.x_username}`, '_blank')}
+                className="text-sm font-medium hover:text-primary"
+              >
+                Public Page
+              </Button>
               <ThemeToggle />
-              {user && (
-                <Button
-                  variant="outline"
-                  onClick={async () => {
-                    await supabase.auth.signOut();
-                    navigate('/');
-                  }}
-                  className="text-sm"
-                >
-                  Sign Out
-                </Button>
-              )}
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={async () => {
+                  await supabase.auth.signOut();
+                  navigate('/landing');
+                }}
+              >
+                Sign Out
+              </Button>
             </div>
           </div>
         </div>
