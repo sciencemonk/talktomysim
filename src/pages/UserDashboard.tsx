@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, Menu, Copy, Check, Coins, TrendingUp, Activity, Clock, Settings, ExternalLink, ArrowLeft } from "lucide-react";
+import { Loader2, Menu, Copy, Check, Coins, TrendingUp, Activity, Clock, Settings, ExternalLink, ArrowLeft, Plus } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import AuthModal from "@/components/AuthModal";
@@ -23,6 +23,7 @@ import { useTheme } from "@/hooks/useTheme";
 import simHeroLogo from "@/assets/sim-hero-logo.png";
 import simLogoWhite from "@/assets/sim-logo-white.png";
 import SimpleFooter from "@/components/SimpleFooter";
+import { AddActionModal } from "@/components/AddActionModal";
 
 interface ActivityLog {
   id: string;
@@ -45,6 +46,7 @@ const UserDashboard = () => {
   const [ranking, setRanking] = useState(42);
   const [activityLogs, setActivityLogs] = useState<ActivityLog[]>([]);
   const [resolvedTheme, setResolvedTheme] = useState<'light' | 'dark'>('dark');
+  const [showAddActionModal, setShowAddActionModal] = useState(false);
 
   useEffect(() => {
     if (theme === 'system') {
@@ -376,9 +378,20 @@ const UserDashboard = () => {
             <div className="lg:col-span-2">
               <Card className="h-[600px] flex flex-col">
                 <CardHeader className="border-b">
-                  <CardTitle className="flex items-center gap-2">
-                    Chat with {userSim.name}
-                  </CardTitle>
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="flex items-center gap-2">
+                      Chat with {userSim.name}
+                    </CardTitle>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => setShowAddActionModal(true)}
+                      className="gap-2"
+                    >
+                      <Plus className="h-4 w-4" />
+                      Add Action
+                    </Button>
+                  </div>
                 </CardHeader>
                 <CardContent className="flex-1 p-0 overflow-hidden">
                   <PublicChatInterface 
@@ -452,6 +465,18 @@ const UserDashboard = () => {
           onOpenChange={setShowSettingsModal}
           sim={userSim}
           onSave={handleSaveSettings}
+        />
+      )}
+
+      {/* Add Action Modal */}
+      {userSim && (
+        <AddActionModal
+          open={showAddActionModal}
+          onOpenChange={setShowAddActionModal}
+          simId={userSim.id}
+          onActionAdded={() => {
+            // TODO: Refresh actions list
+          }}
         />
       )}
 
