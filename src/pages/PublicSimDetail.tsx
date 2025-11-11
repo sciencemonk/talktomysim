@@ -498,51 +498,36 @@ const PublicSimDetail = () => {
         </div>
       </div>
 
-      {/* Main Content - Chat and Activity */}
+      {/* Main Content - Your SIM Map and Activity */}
       <div className="flex-1 overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 h-full">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-full">
-            {/* Chat Interface - 2/3 width */}
+            {/* Your SIM Map - 2/3 width */}
             <div className="lg:col-span-2 h-full min-h-[600px] max-h-[calc(100vh-400px)]">
-              <Card className="h-full flex flex-col bg-card/50 backdrop-blur-sm">
+              <Card className="h-full flex flex-col bg-card/50 backdrop-blur-sm border-primary/20">
                 <CardHeader className="border-b border-border/50 pb-4 flex-shrink-0">
-                  <CardTitle className="flex items-center gap-2 font-mono">
-                    <MessageSquare className="h-5 w-5" />
-                    Chat with {sim.name}
-                  </CardTitle>
-                </CardHeader>
-                <div className="flex-1 overflow-hidden min-h-0">
-                  <PublicChatInterface 
-                    agent={agentForChat}
-                    avatarUrl={getAvatarUrl(sim.avatar_url)}
-                    actions={actions}
-                  />
-                </div>
-              </Card>
-            </div>
-
-            {/* Right Sidebar - God View + Activity */}
-            <div className="h-full min-h-[600px] max-h-[calc(100vh-400px)] flex flex-col gap-6">
-              {/* God Mode - Interactive Map */}
-              <Card className="flex-shrink-0 bg-card/50 backdrop-blur-sm border-primary/20">
-                <CardHeader className="pb-3">
-                  <CardTitle className="flex items-center gap-2 font-mono text-lg">
-                    <Zap className="h-5 w-5 text-primary" />
-                    God Mode
-                    <Badge variant="secondary" className="ml-auto">
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="flex items-center gap-2 font-mono text-lg">
+                      <Zap className="h-5 w-5 text-primary" />
+                      Your SIM
+                    </CardTitle>
+                    <Badge variant="secondary">
                       <span className="relative flex h-2 w-2 mr-2">
                         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
                         <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
                       </span>
                       Live
                     </Badge>
-                  </CardTitle>
+                  </div>
                 </CardHeader>
-                <CardContent className="p-4">
+                <CardContent className="flex-1 overflow-hidden p-0">
                   <GodModeMap agentName={sim.name} />
                 </CardContent>
               </Card>
+            </div>
 
+            {/* Right Sidebar - Activity */}
+            <div className="h-full min-h-[600px] max-h-[calc(100vh-400px)] flex flex-col gap-6">
               {/* Live Activity Feed */}
               <Card className="flex-1 min-h-0 flex flex-col bg-card/50 backdrop-blur-sm">
                 <CardHeader className="border-b border-border/50 pb-4 flex-shrink-0">
