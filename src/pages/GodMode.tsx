@@ -7,7 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useState, useEffect } from "react";
 import { useTheme } from "@/hooks/useTheme";
 import { GodModeMap } from "@/components/GodModeMap";
-import SimPublicFooter from "@/components/SimPublicFooter";
+import SimpleFooter from "@/components/SimpleFooter";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -109,8 +109,7 @@ const GodMode = () => {
               <ThemeToggle />
               {user && (
                 <Button
-                  variant="ghost"
-                  size="icon"
+                  variant="outline"
                   onClick={async () => {
                     await supabase.auth.signOut();
                     navigate('/');
@@ -232,7 +231,7 @@ const GodMode = () => {
       </main>
 
       {/* Footer */}
-      <SimPublicFooter />
+      <SimpleFooter />
     </div>
   );
 };
