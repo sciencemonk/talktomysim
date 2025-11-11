@@ -303,7 +303,7 @@ const Marketplace = () => {
               </h1>
               <button
                 onClick={handleCopyCA}
-                className="text-sm sm:text-base font-mono bg-white/10 hover:bg-white/20 px-4 py-2 rounded-lg text-white transition-colors cursor-pointer border border-white/20 mb-12"
+                className="text-xs sm:text-base font-mono bg-white/10 hover:bg-white/20 px-4 py-2 rounded-lg text-white transition-colors cursor-pointer border border-white/20 mb-12 max-w-full break-all"
                 title="Click to copy contract address"
               >
                 CA: FFqwoZ7phjoupWjLeE5yFeLqGi8jkGEFrTz6jnsUpump
