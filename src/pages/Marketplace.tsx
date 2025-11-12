@@ -22,6 +22,7 @@ import { useTheme } from "@/hooks/useTheme";
 import SimpleFooter from "@/components/SimpleFooter";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { FloatingAgentDemo } from "@/components/FloatingAgentDemo";
+import { SignInModal } from "@/components/SignInModal";
 type MarketplaceItem = {
   id: string;
   type: 'agent' | 'offering';
@@ -47,6 +48,7 @@ const Marketplace = () => {
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [showBetaRequest, setShowBetaRequest] = useState(false);
   const [betaCode, setBetaCode] = useState('');
+  const [showSignInModal, setShowSignInModal] = useState(false);
   
   useEffect(() => {
     if (theme === 'system') {
@@ -277,7 +279,7 @@ const Marketplace = () => {
                   <Button 
                     variant="outline" 
                     size="sm"
-                    onClick={() => navigate('/signin')}
+                    onClick={() => setShowSignInModal(true)}
                     className="bg-white/10 backdrop-blur-sm border-white/20 text-white hover:bg-white/20 hover:text-white"
                   >
                     Sign In
@@ -288,6 +290,9 @@ const Marketplace = () => {
             </div>
           </div>
         </nav>
+        
+        {/* Sign In Modal */}
+        <SignInModal open={showSignInModal} onOpenChange={setShowSignInModal} />
         
         {/* Content */}
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center justify-center h-[calc(100vh-4rem)] text-center">
@@ -300,7 +305,7 @@ const Marketplace = () => {
                 A knowledgeable AI Agent right on your store that drives more sales and happier customers.
               </p>
               <Button
-                onClick={() => navigate('/signin')}
+                onClick={() => setShowSignInModal(true)}
                 size="lg"
                 className="bg-white text-black hover:bg-white/90 text-xl px-12 py-8 h-auto font-semibold"
               >

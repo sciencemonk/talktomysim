@@ -3,10 +3,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { Copy, Check, Wallet, Mail, User } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "@/hooks/use-toast";
 import { ThemeToggle } from "@/components/ThemeToggle";
-import { useEvmAddress } from "@coinbase/cdp-hooks";
+import { useEvmAddress, useIsSignedIn } from "@coinbase/cdp-hooks";
 
 const Dashboard = () => {
   const { user, signOut } = useAuth();
@@ -15,6 +15,14 @@ const Dashboard = () => {
   
   // Get wallet information from Coinbase CDP
   const { evmAddress: walletAddress } = useEvmAddress();
+  const { isSignedIn } = useIsSignedIn();
+
+  // Redirect to home if not signed in
+  useEffect(() => {
+    if (!isSignedIn && !user) {
+      navigate('/');
+    }
+  }, [isSignedIn, user, navigate]);
 
   const copyToClipboard = (text: string, label: string) => {
     navigator.clipboard.writeText(text);
@@ -72,7 +80,7 @@ const Dashboard = () => {
               </CardHeader>
               <CardContent>
                 <div className="text-lg font-semibold break-all">
-                  {user?.email || 'Not available'}
+                  {user?.email || user?.address || 'Not available'}
                 </div>
               </CardContent>
             </Card>
@@ -156,9 +164,9 @@ const Dashboard = () => {
               <div className="flex items-start gap-3 p-4 rounded-lg bg-muted/50">
                 <Mail className="h-5 w-5 text-muted-foreground mt-0.5" />
                 <div className="flex-1 space-y-1">
-                  <p className="text-sm font-medium">Email Address</p>
+                  <p className="text-sm font-medium">Email/Address</p>
                   <p className="text-sm text-muted-foreground break-all">
-                    {user?.email || 'Not available'}
+                    {user?.email || user?.address || 'Not available'}
                   </p>
                 </div>
               </div>

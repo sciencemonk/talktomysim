@@ -24,62 +24,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const { signOut: cdpSignOut } = useSignOut();
 
   useEffect(() => {
-    // Check for existing Coinbase Wallet connection on mount
-    const checkConnection = async () => {
-      try {
-        // Check localStorage for stored wallet address
-        const storedAddress = localStorage.getItem('coinbase_wallet_address');
-        if (storedAddress) {
-          const userAccount = { address: storedAddress };
-          setUser(userAccount);
-          setSession({ user: userAccount });
-        }
-
-        // Also check if wallet is still connected
-        const coinbaseWallet = (window as any).coinbaseWallet;
-        if (coinbaseWallet) {
-          const ethereum = coinbaseWallet.makeWeb3Provider();
-          const accounts = await ethereum.request({ method: 'eth_accounts' });
-          
-          if (accounts && accounts.length > 0) {
-            const userAccount = { address: accounts[0] };
-            setUser(userAccount);
-            setSession({ user: userAccount });
-            localStorage.setItem('coinbase_wallet_address', accounts[0]);
-          }
-        }
-      } catch (error) {
-        console.error('Error checking wallet connection:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    checkConnection();
-
-    // Listen for account changes
-    if ((window as any).coinbaseWallet) {
-      const ethereum = (window as any).coinbaseWallet.makeWeb3Provider();
-      
-      ethereum.on('accountsChanged', (accounts: string[]) => {
-        if (accounts.length > 0) {
-          const userAccount = { address: accounts[0] };
-          setUser(userAccount);
-          setSession({ user: userAccount });
-          localStorage.setItem('coinbase_wallet_address', accounts[0]);
-        } else {
-          setUser(null);
-          setSession(null);
-          localStorage.removeItem('coinbase_wallet_address');
-        }
-      });
-
-      ethereum.on('disconnect', () => {
-        setUser(null);
-        setSession(null);
-        localStorage.removeItem('coinbase_wallet_address');
-      });
-    }
+    // Don't auto-check for existing connections
+    // Let users explicitly sign in via the modal/button
+    setLoading(false);
   }, []);
 
   const updateUser = (userData: any) => {

@@ -4,18 +4,20 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { toast } from 'sonner';
 import { Mail } from 'lucide-react';
 import { AuthButton } from '@coinbase/cdp-react/components/AuthButton';
-import { useIsSignedIn } from '@coinbase/cdp-hooks';
+import { useIsSignedIn, useEvmAddress } from '@coinbase/cdp-hooks';
 import { useAuth } from '@/hooks/useAuth';
 
 export const CoinbaseSignIn = () => {
   const navigate = useNavigate();
   const { isSignedIn } = useIsSignedIn();
+  const { evmAddress } = useEvmAddress();
   const { updateUser } = useAuth();
 
   useEffect(() => {
-    if (isSignedIn) {
+    if (isSignedIn && evmAddress) {
       // Get user data when signed in
       const userData = { 
+        address: evmAddress,
         coinbaseAuth: true,
         signedInAt: new Date().toISOString()
       };
@@ -28,7 +30,7 @@ export const CoinbaseSignIn = () => {
         navigate('/dashboard');
       }, 1000);
     }
-  }, [isSignedIn, navigate, updateUser]);
+  }, [isSignedIn, evmAddress, navigate, updateUser]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
