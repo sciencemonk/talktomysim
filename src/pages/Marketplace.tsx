@@ -24,7 +24,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 
 import { userProfileService } from "@/services/userProfileService";
 import { AuthButton } from '@coinbase/cdp-react/components/AuthButton';
-import { useIsSignedIn, useEvmAddress } from '@coinbase/cdp-hooks';
+import { useIsSignedIn, useEvmAddress, useCurrentUser } from '@coinbase/cdp-hooks';
 
 type MarketplaceItem = {
   id: string;
@@ -46,18 +46,23 @@ const Marketplace = () => {
   const [categoryFilter, setCategoryFilter] = useState("all");
   const { theme } = useTheme();
   const [resolvedTheme, setResolvedTheme] = useState<'light' | 'dark'>('dark');
-  const [currentUser, setCurrentUser] = useState<any>(null);
   const [showBetaRequest, setShowBetaRequest] = useState(false);
   const [betaCode, setBetaCode] = useState('');
   const { isSignedIn } = useIsSignedIn();
   const { evmAddress } = useEvmAddress();
+  const { currentUser: cdpUser } = useCurrentUser();
   
   // Handle Coinbase sign-in
   useEffect(() => {
-    if (isSignedIn && evmAddress) {
+    if (isSignedIn && evmAddress && cdpUser) {
       const handleSignIn = async () => {
         try {
-          const profile = await userProfileService.upsertProfile(evmAddress);
+          // Extract email from cdpUser - use type assertion as CDP types may not be complete
+          const userEmail = (cdpUser as any).email || (cdpUser as any).emailAddresses?.[0] || null;
+          
+          console.log('Coinbase user data:', { evmAddress, email: userEmail, cdpUser });
+          
+          const profile = await userProfileService.upsertProfile(evmAddress, userEmail);
           
           if (profile) {
             updateUser({
@@ -82,7 +87,7 @@ const Marketplace = () => {
       
       handleSignIn();
     }
-  }, [isSignedIn, evmAddress, navigate, updateUser]);
+  }, [isSignedIn, evmAddress, cdpUser, navigate, updateUser]);
   
   useEffect(() => {
     if (theme === 'system') {
@@ -92,17 +97,6 @@ const Marketplace = () => {
       setResolvedTheme(theme as 'light' | 'dark');
     }
   }, [theme]);
-  useEffect(() => {
-    const checkUser = async () => {
-      const {
-        data: {
-          user
-        }
-      } = await supabase.auth.getUser();
-      setCurrentUser(user);
-    };
-    checkUser();
-  }, []);
   const {
     offerings,
     isLoading: offeringsLoading
