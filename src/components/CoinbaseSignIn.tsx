@@ -4,10 +4,12 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from 'sonner';
 import { Loader2, Wallet } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
 
 export const CoinbaseSignIn = () => {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const { updateUser } = useAuth();
 
   const handleCoinbaseSignIn = async () => {
     setIsLoading(true);
@@ -25,6 +27,9 @@ export const CoinbaseSignIn = () => {
       const accounts = await ethereum.request({ method: 'eth_requestAccounts' });
       
       if (accounts && accounts.length > 0) {
+        const userData = { address: accounts[0] };
+        updateUser(userData);
+        
         toast.success('Successfully connected to Coinbase Wallet!');
         console.log('Connected account:', accounts[0]);
         
