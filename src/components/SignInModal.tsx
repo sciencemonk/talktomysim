@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import {
   Dialog,
   DialogContent,
+  DialogTitle,
+  DialogDescription,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -152,7 +154,8 @@ export const SignInModal = ({ open, onOpenChange }: SignInModalProps) => {
           {step === 'email' ? (
             <form onSubmit={handleEmailSubmit} className="space-y-6">
               <div className="text-center mb-6">
-                <h2 className="text-2xl font-semibold text-foreground mb-2">Sign in</h2>
+                <DialogTitle className="text-2xl font-semibold text-foreground mb-2">Sign in</DialogTitle>
+                <DialogDescription className="sr-only">Enter your email to sign in</DialogDescription>
               </div>
 
               <div className="space-y-2">
@@ -192,10 +195,10 @@ export const SignInModal = ({ open, onOpenChange }: SignInModalProps) => {
           ) : (
             <form onSubmit={handleVerificationSubmit} className="space-y-6">
               <div className="text-center mb-6">
-                <h2 className="text-2xl font-semibold text-foreground mb-2">Enter verification code</h2>
-                <p className="text-sm text-muted-foreground">
+                <DialogTitle className="text-2xl font-semibold text-foreground mb-2">Enter verification code</DialogTitle>
+                <DialogDescription className="text-sm text-muted-foreground">
                   We sent a code to <span className="font-medium">{email}</span>
-                </p>
+                </DialogDescription>
               </div>
 
               <div className="space-y-2">

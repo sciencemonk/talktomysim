@@ -40,12 +40,17 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const signOut = async () => {
     try {
       console.log('Signing out user');
-      // Sign out from Coinbase CDP
-      await cdpSignOut();
-      // Clear local state
+      // Clear local state first
       setUser(null);
       setSession(null);
       localStorage.removeItem('coinbase_wallet_address');
+      // Sign out from Coinbase CDP (may fail with 401 if already signed out)
+      try {
+        await cdpSignOut();
+      } catch (cdpError) {
+        // Ignore 401 errors from CDP as user is already signed out locally
+        console.log('CDP sign out completed or already signed out');
+      }
     } catch (error) {
       console.error('Error signing out:', error);
     }
