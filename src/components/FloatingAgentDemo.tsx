@@ -132,6 +132,35 @@ export const FloatingAgentDemo = () => {
           role: 'agent',
           content: "Shopping for someone special! What's their style? Are they more into classic pieces or trendy fashion? Also, what's your budget range?"
         }]);
+      } else if (lowerMessage.includes('black') || lowerMessage.includes('dark')) {
+        setMessages(prev => [...prev, {
+          role: 'agent',
+          content: "Great! Our black collection is very popular. These pieces would work perfectly:",
+          recommendations: [recommendations[0], recommendations[2]]
+        }]);
+      } else if (lowerMessage.includes('color') || lowerMessage.includes('blue') || lowerMessage.includes('red') || lowerMessage.includes('white')) {
+        setMessages(prev => [...prev, {
+          role: 'agent',
+          content: "I can help you find that! Here are some options in different colors:",
+          recommendations: [recommendations[1], recommendations[3], recommendations[4]]
+        }]);
+      } else if (lowerMessage.includes('size') || lowerMessage.includes('fit') || lowerMessage.includes('small') || lowerMessage.includes('medium') || lowerMessage.includes('large')) {
+        setMessages(prev => [...prev, {
+          role: 'agent',
+          content: "All of these items are available in sizes XS through XL. Would you like me to show you items that tend to run true to size, or would you prefer oversized styles?"
+        }]);
+      } else if (lowerMessage.includes('budget') || lowerMessage.includes('price') || lowerMessage.includes('cheap') || lowerMessage.includes('affordable') || lowerMessage.includes('expensive')) {
+        setMessages(prev => [...prev, {
+          role: 'agent',
+          content: "I can help with that! What's your price range? Here are some options under $100:",
+          recommendations: [recommendations[0], recommendations[1], recommendations[4]]
+        }]);
+      } else if (lowerMessage.includes('more') || lowerMessage.includes('other') || lowerMessage.includes('different') || lowerMessage.includes('else')) {
+        setMessages(prev => [...prev, {
+          role: 'agent',
+          content: "Of course! Here are some other great options I think you'll love:",
+          recommendations: [recommendations[3], recommendations[1]]
+        }]);
       } else if (conversationContext.includes('trendy') || conversationContext.includes('trend') || lowerMessage.includes('trendy') || lowerMessage.includes('trend')) {
         // Check if user is responding to a style question
         setMessages(prev => [...prev, {
@@ -161,6 +190,35 @@ export const FloatingAgentDemo = () => {
           role: 'agent',
           content: "Great choice! Here are our most popular footwear options:",
           recommendations: [recommendations[2], recommendations[4]]
+        }]);
+      } else if (lowerMessage.includes('black') || lowerMessage.includes('dark')) {
+        setMessages(prev => [...prev, {
+          role: 'agent',
+          content: "Great! Our black collection is very popular. These pieces would work perfectly:",
+          recommendations: [recommendations[0], recommendations[2]]
+        }]);
+      } else if (lowerMessage.includes('color') || lowerMessage.includes('blue') || lowerMessage.includes('red') || lowerMessage.includes('white')) {
+        setMessages(prev => [...prev, {
+          role: 'agent',
+          content: "I can help you find that! Here are some options in different colors:",
+          recommendations: [recommendations[1], recommendations[3], recommendations[4]]
+        }]);
+      } else if (lowerMessage.includes('size') || lowerMessage.includes('fit') || lowerMessage.includes('small') || lowerMessage.includes('medium') || lowerMessage.includes('large')) {
+        setMessages(prev => [...prev, {
+          role: 'agent',
+          content: "All of these items are available in sizes XS through XL. Would you like me to show you items that tend to run true to size, or would you prefer oversized styles?"
+        }]);
+      } else if (lowerMessage.includes('budget') || lowerMessage.includes('price') || lowerMessage.includes('cheap') || lowerMessage.includes('affordable') || lowerMessage.includes('expensive')) {
+        setMessages(prev => [...prev, {
+          role: 'agent',
+          content: "I can help with that! What's your price range? Here are some options under $100:",
+          recommendations: [recommendations[0], recommendations[1], recommendations[4]]
+        }]);
+      } else if (lowerMessage.includes('more') || lowerMessage.includes('other') || lowerMessage.includes('different') || lowerMessage.includes('else')) {
+        setMessages(prev => [...prev, {
+          role: 'agent',
+          content: "Of course! Here are some other great options I think you'll love:",
+          recommendations: [recommendations[3], recommendations[1]]
         }]);
       } else {
         setMessages(prev => [...prev, {
