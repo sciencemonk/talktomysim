@@ -335,6 +335,60 @@ const Marketplace = () => {
         </div>
       </div>
 
+      {/* What is Agentic Payments Section */}
+      <div className="bg-background border-b border-border">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-foreground mb-6">
+              What Are Agentic Payments?
+            </h2>
+            <div className="w-20 h-1 bg-primary mx-auto mb-8"></div>
+          </div>
+          
+          <div className="grid md:grid-cols-2 gap-8 sm:gap-12">
+            <div className="space-y-6">
+              <div className="bg-card border border-border rounded-xl p-6 sm:p-8">
+                <h3 className="text-xl sm:text-2xl font-semibold text-foreground mb-4">
+                  Beyond Payment Buttons
+                </h3>
+                <p className="text-muted-foreground leading-relaxed">
+                  Traditional payments require you to click buttons, fill forms, and manually complete each transaction. Agentic payments break free from this model, enabling AI agents to handle financial transactions autonomously on your behalf.
+                </p>
+              </div>
+              
+              <div className="bg-card border border-border rounded-xl p-6 sm:p-8">
+                <h3 className="text-xl sm:text-2xl font-semibold text-foreground mb-4">
+                  AI-Powered Commerce
+                </h3>
+                <p className="text-muted-foreground leading-relaxed">
+                  Your AI agent can shop for the best deals, manage subscriptions, negotiate prices, and execute purchases automatically. It understands your preferences, budget, and needs to make intelligent financial decisions in real-time.
+                </p>
+              </div>
+            </div>
+            
+            <div className="space-y-6">
+              <div className="bg-card border border-border rounded-xl p-6 sm:p-8">
+                <h3 className="text-xl sm:text-2xl font-semibold text-foreground mb-4">
+                  Autonomous Transactions
+                </h3>
+                <p className="text-muted-foreground leading-relaxed">
+                  Agents can initiate and complete complex financial workflows without human intervention. From recurring payments to opportunistic purchases, your AI handles commerce tasks while you focus on what matters.
+                </p>
+              </div>
+              
+              <div className="bg-card border border-border rounded-xl p-6 sm:p-8">
+                <h3 className="text-xl sm:text-2xl font-semibold text-foreground mb-4">
+                  The Future of Commerce
+                </h3>
+                <p className="text-muted-foreground leading-relaxed">
+                  This is more than automation. Agentic payments represent a fundamental shift in how we interact with money and commerce, where AI agents become trusted financial partners in the digital economy.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Waitlist Modal */}
       <Dialog open={showWaitlistModal} onOpenChange={setShowWaitlistModal}>
         <DialogContent className="sm:max-w-md">
