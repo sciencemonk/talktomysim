@@ -1,4 +1,5 @@
 import { useState, useEffect, createContext, useContext } from 'react';
+import { useSignOut } from '@coinbase/cdp-hooks';
 
 interface AuthContextType {
   user: any | null;
@@ -20,6 +21,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<any | null>(null);
   const [session, setSession] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
+  const { signOut: cdpSignOut } = useSignOut();
 
   useEffect(() => {
     // Check for existing Coinbase Wallet connection on mount
@@ -91,6 +93,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const signOut = async () => {
     try {
       console.log('Signing out user');
+      // Sign out from Coinbase CDP
+      await cdpSignOut();
+      // Clear local state
       setUser(null);
       setSession(null);
       localStorage.removeItem('coinbase_wallet_address');

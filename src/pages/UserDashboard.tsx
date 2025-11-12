@@ -37,7 +37,7 @@ interface ActivityLog {
 }
 
 const UserDashboard = () => {
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading, signOut } = useAuth();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   const { theme } = useTheme();
@@ -299,8 +299,8 @@ const UserDashboard = () => {
               variant="outline" 
               size="sm" 
               onClick={async () => {
-                await supabase.auth.signOut();
-                navigate('/landing');
+                await signOut();
+                navigate('/');
               }}
             >
               Sign Out

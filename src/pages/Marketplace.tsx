@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { Bot, Package, FileText, Search, Filter, Star, TrendingUp, Sparkles, Zap, Store, Mail, Menu, Code, Wallet } from "lucide-react";
+import { Bot, Package, FileText, Search, Filter, Star, TrendingUp, Sparkles, Zap, Store, Mail, Menu, Code, Wallet, User } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
@@ -17,7 +17,7 @@ import visaLogo from "@/assets/visa-logo.png";
 import { supabase } from "@/integrations/supabase/client";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { toast } from "sonner";
-
+import { useAuth } from "@/hooks/useAuth";
 import { useTheme } from "@/hooks/useTheme";
 import SimpleFooter from "@/components/SimpleFooter";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -36,6 +36,7 @@ type MarketplaceItem = {
 };
 const Marketplace = () => {
   const navigate = useNavigate();
+  const { user, signOut } = useAuth();
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState("trending");
   const [categoryFilter, setCategoryFilter] = useState("all");
@@ -220,6 +221,10 @@ const Marketplace = () => {
   const handleXSignIn = () => {
     navigate('/signin');
   };
+
+  const handleSignIn = () => {
+    navigate('/signin');
+  };
   return <div className="min-h-screen bg-bg">
       {/* Hero Section with Video Background */}
       <div className="relative border-b border-border overflow-hidden h-screen">
@@ -242,8 +247,42 @@ const Marketplace = () => {
                 </div>
               </button>
               
-              {/* Right side - Theme Toggle only */}
+              {/* Right side - User dropdown or Sign In + Theme Toggle */}
               <div className="flex items-center gap-4">
+                {user ? (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        className="bg-white/10 backdrop-blur-sm border-white/20 text-white hover:bg-white/20 hover:text-white gap-2"
+                      >
+                        <User className="h-4 w-4" />
+                        Account
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-48">
+                      <DropdownMenuItem onClick={() => navigate('/dashboard')}>
+                        Dashboard
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={async () => {
+                        await signOut();
+                        toast.success('Signed out successfully');
+                      }}>
+                        Sign Out
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                ) : (
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => navigate('/signin')}
+                    className="bg-white/10 backdrop-blur-sm border-white/20 text-white hover:bg-white/20 hover:text-white"
+                  >
+                    Sign In
+                  </Button>
+                )}
                 <ThemeToggle />
               </div>
             </div>
