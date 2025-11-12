@@ -16,7 +16,7 @@ interface CountdownTime {
   seconds: number;
 }
 
-const LAUNCH_DATE = new Date('2025-11-14T17:00:00-06:00'); // November 14th, 5pm CT
+const LAUNCH_DATE = new Date('2025-11-13T20:00:00-06:00'); // November 13th, 8pm CT
 const CONTRACT_ADDRESS = 'FFqwoZ7phjoupWjLeE5yFeLqGi8jkGEFrTz6jnsUpump';
 
 export const LaunchCountdownModal = () => {
@@ -69,9 +69,8 @@ export const LaunchCountdownModal = () => {
             </p>
           </div>
           
-          <div className="grid grid-cols-4 gap-4 max-w-lg mx-auto">
+          <div className="grid grid-cols-3 gap-4 max-w-lg mx-auto">
             {[
-              { label: 'Days', value: countdown.days },
               { label: 'Hours', value: countdown.hours },
               { label: 'Minutes', value: countdown.minutes },
               { label: 'Seconds', value: countdown.seconds }
@@ -85,10 +84,10 @@ export const LaunchCountdownModal = () => {
 
           <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 max-w-md mx-auto border border-white/20">
             <p className="text-sm font-semibold text-white mb-1">
-              📅 Friday, November 14th, 2025
+              📅 Thursday, November 13th, 2025
             </p>
             <p className="text-sm text-white/80">
-              5:00 PM Central Time
+              8:00 PM Central Time
             </p>
           </div>
 
@@ -225,7 +224,7 @@ export const LaunchCountdownModal = () => {
               🚀 Launch Date
             </p>
             <p className="text-sm text-muted-foreground">
-              November 14th, 2025 • 5:00 PM CT
+              November 13th, 2025 • 8:00 PM CT
             </p>
           </div>
         </div>
