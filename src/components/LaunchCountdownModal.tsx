@@ -55,61 +55,51 @@ export const LaunchCountdownModal = () => {
   const slides = [
     {
       title: 'Official Launch',
+      hasVideoBackground: true,
       content: (
-        <div className="relative min-h-[500px] -m-6 rounded-lg overflow-hidden">
-          <video 
-            autoPlay 
-            loop 
-            muted 
-            playsInline
-            className="absolute inset-0 w-full h-full object-cover"
-          >
-            <source src="https://uovhemqkztmkoozlmqxq.supabase.co/storage/v1/object/public/sim/4962796-uhd_3840_2160_25fps.mp4" type="video/mp4" />
-          </video>
-          <div className="absolute inset-0 bg-black/60" />
-          <div className="relative z-10 p-6 space-y-6 text-center flex flex-col justify-center min-h-[500px]">
-            <div className="space-y-4">
-              <div className="flex justify-center mb-4">
-                <img src="/sim-logo-white.png" alt="SIM" className="h-16 w-auto" />
-              </div>
-              <h3 className="text-3xl font-bold text-white">Official Public Launch</h3>
-              <p className="text-lg text-white/80 max-w-md mx-auto">
-                Join us as we revolutionize e-commerce with AI-powered sales agents
-              </p>
+        <div className="space-y-6 text-center">
+          <div className="space-y-4">
+            <div className="flex justify-center mb-4">
+              <img src="/sim-logo-white.png" alt="SIM" className="h-16 w-auto" />
             </div>
-          
-            <div className="grid grid-cols-4 gap-4 max-w-lg mx-auto">
-              {[
-                { label: 'Days', value: countdown.days },
-                { label: 'Hours', value: countdown.hours },
-                { label: 'Minutes', value: countdown.minutes },
-                { label: 'Seconds', value: countdown.seconds }
-              ].map((item) => (
-                <div key={item.label} className="bg-white/10 backdrop-blur-sm rounded-lg p-4 border border-white/20">
-                  <div className="text-4xl font-bold text-white">{item.value}</div>
-                  <div className="text-xs text-white/70 uppercase font-medium">{item.label}</div>
-                </div>
-              ))}
-            </div>
-
-            <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 max-w-md mx-auto border border-white/20">
-              <p className="text-sm font-semibold text-white mb-1">
-                📅 Friday, November 14th, 2025
-              </p>
-              <p className="text-sm text-white/80">
-                5:00 PM Central Time
-              </p>
-            </div>
-
-            <p className="text-sm text-white/70">
-              Click "Learn More" to see what SIM offers
+            <h3 className="text-3xl font-bold text-white">Official Public Launch</h3>
+            <p className="text-lg text-white/80 max-w-md mx-auto">
+              Join us as we revolutionize e-commerce with AI-powered sales agents
             </p>
           </div>
+          
+          <div className="grid grid-cols-4 gap-4 max-w-lg mx-auto">
+            {[
+              { label: 'Days', value: countdown.days },
+              { label: 'Hours', value: countdown.hours },
+              { label: 'Minutes', value: countdown.minutes },
+              { label: 'Seconds', value: countdown.seconds }
+            ].map((item) => (
+              <div key={item.label} className="bg-white/10 backdrop-blur-sm rounded-lg p-4 border border-white/20">
+                <div className="text-4xl font-bold text-white">{item.value}</div>
+                <div className="text-xs text-white/70 uppercase font-medium">{item.label}</div>
+              </div>
+            ))}
+          </div>
+
+          <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 max-w-md mx-auto border border-white/20">
+            <p className="text-sm font-semibold text-white mb-1">
+              📅 Friday, November 14th, 2025
+            </p>
+            <p className="text-sm text-white/80">
+              5:00 PM Central Time
+            </p>
+          </div>
+
+          <p className="text-sm text-white/70">
+            Click "Learn More" to see what SIM offers
+          </p>
         </div>
       )
     },
     {
       title: 'Agentic Sales Platform',
+      hasVideoBackground: false,
       content: (
         <div className="space-y-6 text-center">
           <div className="space-y-2">
@@ -147,6 +137,7 @@ export const LaunchCountdownModal = () => {
     },
     {
       title: 'How It Works',
+      hasVideoBackground: false,
       content: (
         <div className="space-y-6">
           <h3 className="text-3xl font-bold text-foreground text-center">Simple Setup Process</h3>
@@ -184,6 +175,7 @@ export const LaunchCountdownModal = () => {
     },
     {
       title: 'Try the Demo',
+      hasVideoBackground: false,
       content: (
         <div className="space-y-4">
           <div className="text-center space-y-2">
@@ -200,6 +192,7 @@ export const LaunchCountdownModal = () => {
     },
     {
       title: 'Contract Address',
+      hasVideoBackground: false,
       content: (
         <div className="space-y-6 text-center">
           <div className="space-y-3">
@@ -271,26 +264,42 @@ export const LaunchCountdownModal = () => {
   return (
     <Dialog open={open} onOpenChange={() => {}}>
       <DialogContent 
-        className="sm:max-w-2xl max-h-[90vh] overflow-y-auto [&>button]:hidden"
+        className="sm:max-w-2xl max-h-[90vh] overflow-hidden p-0 [&>button]:hidden"
         onPointerDownOutside={(e) => e.preventDefault()}
         onInteractOutside={(e) => e.preventDefault()}
         onEscapeKeyDown={(e) => e.preventDefault()}
       >
         <DialogTitle className="sr-only">{slides[currentSlide].title}</DialogTitle>
         
-        <div className="space-y-6 py-4">
+        {/* Video Background - Only for first slide */}
+        {slides[currentSlide].hasVideoBackground && (
+          <>
+            <video 
+              autoPlay 
+              loop 
+              muted 
+              playsInline
+              className="absolute inset-0 w-full h-full object-cover"
+            >
+              <source src="https://uovhemqkztmkoozlmqxq.supabase.co/storage/v1/object/public/sim/4962796-uhd_3840_2160_25fps.mp4" type="video/mp4" />
+            </video>
+            <div className="absolute inset-0 bg-black/60" />
+          </>
+        )}
+        
+        <div className="relative z-10 space-y-6 py-4">
           {/* Slide Content */}
-          <div className="animate-fade-in">
+          <div className="px-6 animate-fade-in">
             {slides[currentSlide].content}
           </div>
 
           {/* Navigation */}
-          <div className="flex items-center justify-between pt-4 border-t">
+          <div className={`flex items-center justify-between px-6 pt-4 border-t ${slides[currentSlide].hasVideoBackground ? 'border-white/20' : 'border-border'}`}>
             <Button
               variant="outline"
               onClick={prevSlide}
               disabled={currentSlide === 0}
-              className="gap-2"
+              className={`gap-2 ${slides[currentSlide].hasVideoBackground ? 'bg-white/10 border-white/20 text-white hover:bg-white/20 hover:text-white' : ''}`}
             >
               <ChevronLeft className="h-4 w-4" />
               Previous
@@ -302,8 +311,8 @@ export const LaunchCountdownModal = () => {
                   key={index}
                   className={`h-2 w-2 rounded-full transition-all ${
                     index === currentSlide
-                      ? 'bg-primary w-8'
-                      : 'bg-muted-foreground/30'
+                      ? `w-8 ${slides[currentSlide].hasVideoBackground ? 'bg-white' : 'bg-primary'}`
+                      : slides[currentSlide].hasVideoBackground ? 'bg-white/30' : 'bg-muted-foreground/30'
                   }`}
                 />
               ))}
@@ -312,7 +321,7 @@ export const LaunchCountdownModal = () => {
             <Button
               onClick={nextSlide}
               disabled={currentSlide === slides.length - 1}
-              className="gap-2"
+              className={`gap-2 ${slides[currentSlide].hasVideoBackground ? 'bg-white text-black hover:bg-white/90' : ''}`}
             >
               {currentSlide === 0 ? 'Learn More' : currentSlide < slides.length - 1 ? 'Next' : 'View CA'}
               <ChevronRight className="h-4 w-4" />
