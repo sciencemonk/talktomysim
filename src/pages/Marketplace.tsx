@@ -23,7 +23,7 @@ import SimpleFooter from "@/components/SimpleFooter";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { FloatingAgentDemo } from "@/components/FloatingAgentDemo";
 import { SignInModal } from "@/components/SignInModal";
-import { LaunchCountdownModal } from "@/components/LaunchCountdownModal";
+
 type MarketplaceItem = {
   id: string;
   type: 'agent' | 'offering';
@@ -225,8 +225,6 @@ const Marketplace = () => {
     setShowSignInModal(true);
   };
   return <div className="min-h-screen bg-bg">
-      <LaunchCountdownModal />
-      
       {/* Hero Section with Video Background */}
       <div className="relative border-b border-border overflow-hidden h-screen">
         {/* Video Background */}
