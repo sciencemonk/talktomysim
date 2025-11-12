@@ -116,7 +116,10 @@ export const AgentStorefrontDemo = () => {
     }, 800);
   };
 
-  const handleSend = () => {
+  const handleSend = (e?: React.FormEvent) => {
+    e?.preventDefault();
+    e?.stopPropagation();
+    
     if (!input.trim()) return;
 
     setMessages(prev => [...prev, { role: 'user', content: input }]);
@@ -139,6 +142,13 @@ export const AgentStorefrontDemo = () => {
     }]);
 
     simulateAgentResponse(`purchase ${item.name}`, recommendationId);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleSend();
+    }
   };
 
   return (
@@ -207,18 +217,18 @@ export const AgentStorefrontDemo = () => {
 
       {/* Input */}
       <div className="p-4 border-t border-border">
-        <div className="flex gap-2">
+        <form onSubmit={handleSend} className="flex gap-2">
           <Input
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            onKeyPress={(e) => e.key === 'Enter' && handleSend()}
+            onKeyDown={handleKeyDown}
             placeholder="Ask me anything..."
             className="flex-1"
           />
-          <Button onClick={handleSend} size="icon">
+          <Button type="submit" size="icon">
             <Send className="w-4 h-4" />
           </Button>
-        </div>
+        </form>
       </div>
     </Card>
   );
