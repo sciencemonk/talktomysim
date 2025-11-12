@@ -104,6 +104,18 @@ export const FloatingAgentDemo = () => {
           role: 'agent',
           content: "Love it! Since you've been browsing our Fall Collection, what's the occasion? Are you updating your everyday wardrobe, or looking for something special?"
         }]);
+      } else if (lowerMessage.includes('trending') || lowerMessage.includes('popular') || lowerMessage.includes('bestseller')) {
+        setMessages(prev => [...prev, {
+          role: 'agent',
+          content: "Here are our top trending items this season! These are flying off the shelves:",
+          recommendations: [recommendations[0], recommendations[2], recommendations[4]]
+        }]);
+      } else if (lowerMessage.includes('boot') || lowerMessage.includes('shoes') || lowerMessage.includes('footwear')) {
+        setMessages(prev => [...prev, {
+          role: 'agent',
+          content: "Great choice! Here are our most popular footwear options:",
+          recommendations: [recommendations[2], recommendations[4]]
+        }]);
       } else {
         setMessages(prev => [...prev, {
           role: 'agent',
