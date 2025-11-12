@@ -328,8 +328,48 @@ const Marketplace = () => {
                 A knowledgeable AI Agent right on your store that drives more sales and happier customers.
               </p>
               
-              <div className="flex justify-center">
-                <AuthButton />
+              {/* Embedded Sign In Form */}
+              <div className="bg-white/95 backdrop-blur-sm rounded-2xl p-8 max-w-md w-full shadow-2xl">
+                <h2 className="text-2xl font-semibold text-gray-900 mb-6 text-center">Sign in</h2>
+                
+                <div className="space-y-4">
+                  <div className="text-left">
+                    <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+                      Email address
+                    </label>
+                    <input
+                      id="email"
+                      type="email"
+                      placeholder="name@example.com"
+                      className="w-full px-4 py-3 rounded-lg border border-gray-300 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#0052FF] focus:border-transparent text-base"
+                    />
+                  </div>
+                  
+                  <button
+                    className="w-full bg-[#0052FF] hover:bg-[#0047E0] text-white font-medium py-3.5 px-4 rounded-full transition-colors text-base"
+                    onClick={() => {
+                      // This will trigger Coinbase auth flow
+                      const authButton = document.querySelector('[data-testid="cdp-auth-button"]') as HTMLElement;
+                      authButton?.click();
+                    }}
+                  >
+                    Continue
+                  </button>
+                  
+                  <div className="flex items-center justify-center gap-2 text-sm text-gray-600 pt-2">
+                    <div className="w-4 h-4 flex items-center justify-center">
+                      <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
+                      </svg>
+                    </div>
+                    <span>Secured by <span className="font-semibold">coinbase</span></span>
+                  </div>
+                </div>
+                
+                {/* Hidden AuthButton to handle actual auth */}
+                <div className="hidden">
+                  <AuthButton />
+                </div>
               </div>
             </>
           ) : (
