@@ -1056,6 +1056,56 @@ export type Database = {
           },
         ]
       }
+      products: {
+        Row: {
+          created_at: string
+          currency: string
+          delivery_info: string | null
+          description: string
+          id: string
+          image_url: string | null
+          is_active: boolean
+          price: number
+          store_id: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          currency?: string
+          delivery_info?: string | null
+          description: string
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          price: number
+          store_id: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          currency?: string
+          delivery_info?: string | null
+          description?: string
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          price?: number
+          store_id?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "products_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           created_at: string | null
@@ -1330,6 +1380,127 @@ export type Database = {
         }
         Relationships: []
       }
+      store_conversations: {
+        Row: {
+          created_at: string
+          id: string
+          store_id: string
+          updated_at: string
+          visitor_name: string | null
+          visitor_wallet: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          store_id: string
+          updated_at?: string
+          visitor_name?: string | null
+          visitor_wallet?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          store_id?: string
+          updated_at?: string
+          visitor_name?: string | null
+          visitor_wallet?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "store_conversations_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      store_messages: {
+        Row: {
+          content: string
+          conversation_id: string
+          created_at: string
+          id: string
+          role: string
+        }
+        Insert: {
+          content: string
+          conversation_id: string
+          created_at?: string
+          id?: string
+          role: string
+        }
+        Update: {
+          content?: string
+          conversation_id?: string
+          created_at?: string
+          id?: string
+          role?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "store_messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "store_conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      stores: {
+        Row: {
+          created_at: string
+          crypto_wallet: string | null
+          greeting_message: string | null
+          id: string
+          interaction_style: string | null
+          is_active: boolean
+          primary_focus: string | null
+          response_tone: string | null
+          store_description: string | null
+          store_name: string
+          updated_at: string
+          user_id: string
+          x_display_name: string | null
+          x_profile_image: string | null
+          x_username: string
+        }
+        Insert: {
+          created_at?: string
+          crypto_wallet?: string | null
+          greeting_message?: string | null
+          id?: string
+          interaction_style?: string | null
+          is_active?: boolean
+          primary_focus?: string | null
+          response_tone?: string | null
+          store_description?: string | null
+          store_name: string
+          updated_at?: string
+          user_id: string
+          x_display_name?: string | null
+          x_profile_image?: string | null
+          x_username: string
+        }
+        Update: {
+          created_at?: string
+          crypto_wallet?: string | null
+          greeting_message?: string | null
+          id?: string
+          interaction_style?: string | null
+          is_active?: boolean
+          primary_focus?: string | null
+          response_tone?: string | null
+          store_description?: string | null
+          store_name?: string
+          updated_at?: string
+          user_id?: string
+          x_display_name?: string | null
+          x_profile_image?: string | null
+          x_username?: string
+        }
+        Relationships: []
+      }
       tutors: {
         Row: {
           avatar: string | null
@@ -1549,6 +1720,33 @@ export type Database = {
           token_expires_at?: string | null
           updated_at?: string | null
           user_id?: string
+        }
+        Relationships: []
+      }
+      user_profiles: {
+        Row: {
+          created_at: string
+          email: string | null
+          id: string
+          last_sign_in: string | null
+          updated_at: string
+          wallet_address: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          last_sign_in?: string | null
+          updated_at?: string
+          wallet_address: string
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          last_sign_in?: string | null
+          updated_at?: string
+          wallet_address?: string
         }
         Relationships: []
       }

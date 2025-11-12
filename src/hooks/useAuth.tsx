@@ -1,5 +1,6 @@
 import { useState, useEffect, createContext, useContext } from 'react';
 import { useSignOut } from '@coinbase/cdp-hooks';
+import { userProfileService } from '@/services/userProfileService';
 
 interface AuthContextType {
   user: any | null;
@@ -7,6 +8,7 @@ interface AuthContextType {
   loading: boolean;
   signOut: () => Promise<void>;
   updateUser: (userData: any) => void;
+  refreshUserProfile: (walletAddress: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -15,6 +17,7 @@ const AuthContext = createContext<AuthContextType>({
   loading: true,
   signOut: async () => {},
   updateUser: () => {},
+  refreshUserProfile: async () => {},
 });
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
@@ -24,10 +27,34 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const { signOut: cdpSignOut } = useSignOut();
 
   useEffect(() => {
-    // Don't auto-check for existing connections
-    // Let users explicitly sign in via the modal/button
-    setLoading(false);
+    // Check for stored wallet address and fetch profile
+    const storedWallet = localStorage.getItem('coinbase_wallet_address');
+    if (storedWallet) {
+      refreshUserProfile(storedWallet).then(() => {
+        setLoading(false);
+      });
+    } else {
+      setLoading(false);
+    }
   }, []);
+
+  const refreshUserProfile = async (walletAddress: string) => {
+    try {
+      const profile = await userProfileService.getProfileByWallet(walletAddress);
+      if (profile) {
+        setUser({
+          id: profile.id,
+          email: profile.email,
+          address: profile.wallet_address,
+          coinbaseAuth: true,
+          lastSignIn: profile.last_sign_in
+        });
+        setSession({ user: profile });
+      }
+    } catch (error) {
+      console.error('Error refreshing user profile:', error);
+    }
+  };
 
   const updateUser = (userData: any) => {
     setUser(userData);
@@ -57,7 +84,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, session, loading, signOut, updateUser }}>
+    <AuthContext.Provider value={{ user, session, loading, signOut, updateUser, refreshUserProfile }}>
       {children}
     </AuthContext.Provider>
   );
