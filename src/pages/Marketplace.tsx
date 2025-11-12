@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { Bot, Package, FileText, Search, Filter, Star, TrendingUp, Sparkles, Zap, Store, Mail, Menu } from "lucide-react";
+import { Bot, Package, FileText, Search, Filter, Star, TrendingUp, Sparkles, Zap, Store, Mail, Menu, Code } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
@@ -12,6 +12,7 @@ import { useQuery } from "@tanstack/react-query";
 import simHeroLogo from "@/assets/sim-hero-logo.png";
 import simLogoWhite from "@/assets/sim-logo-white.png";
 import xIcon from "@/assets/x-icon.png";
+import shopifyLogo from "@/assets/shopify-logo.png";
 import { supabase } from "@/integrations/supabase/client";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { toast } from "sonner";
@@ -395,6 +396,103 @@ const Marketplace = () => {
               className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-8 py-3 rounded-lg font-semibold hover:bg-primary/90 transition-colors text-lg"
             >
               Get Started Now
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Easy Integration Section */}
+      <div className="bg-card border-b border-border">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-foreground mb-6">
+              Add SIM to Your Site in Minutes
+            </h2>
+            <div className="w-20 h-1 bg-primary mx-auto mb-8"></div>
+            <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
+              Simple integration with one line of code. Works seamlessly with your existing store.
+            </p>
+          </div>
+
+          <div className="grid lg:grid-cols-2 gap-12 items-center mb-12">
+            {/* Left side - Code snippet */}
+            <div className="order-2 lg:order-1">
+              <div className="bg-background border border-border rounded-xl p-6 overflow-hidden">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-2">
+                    <Code className="w-5 h-5 text-primary" />
+                    <span className="text-sm font-semibold text-foreground">Integration Code</span>
+                  </div>
+                  <Badge variant="secondary" className="text-xs">Copy & Paste</Badge>
+                </div>
+                <pre className="bg-muted/50 p-4 rounded-lg overflow-x-auto">
+                  <code className="text-sm font-mono text-foreground">
+{`<script src="https://sim.ai/embed.js"></script>
+<script>
+  SIM.init({
+    storeId: 'your-store-id',
+    position: 'bottom-right'
+  });
+</script>`}
+                  </code>
+                </pre>
+              </div>
+
+              <div className="mt-6 bg-background border border-border rounded-xl p-6">
+                <h3 className="text-lg font-semibold text-foreground mb-3">That's it!</h3>
+                <ul className="space-y-2 text-muted-foreground">
+                  <li className="flex items-start gap-2">
+                    <Zap className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
+                    <span>Works on any website platform</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <Zap className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
+                    <span>No complex setup or configuration</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <Zap className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
+                    <span>Automatically syncs with your product catalog</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+
+            {/* Right side - Shopify integration */}
+            <div className="order-1 lg:order-2">
+              <div className="bg-gradient-to-br from-primary/5 to-primary/10 border border-primary/20 rounded-xl p-8 text-center">
+                <div className="flex items-center justify-center gap-4 mb-6">
+                  <img src={shopifyLogo} alt="Shopify" className="h-12 object-contain" />
+                  <span className="text-3xl font-bold text-foreground">+</span>
+                  <Bot className="w-12 h-12 text-primary" />
+                </div>
+                <h3 className="text-2xl font-bold text-foreground mb-4">Native Shopify Integration</h3>
+                <p className="text-muted-foreground mb-6 leading-relaxed">
+                  Built specifically for Shopify stores. SIM automatically connects to your product catalog, inventory, and checkout system. Zero manual data entry required.
+                </p>
+                <div className="space-y-3">
+                  <div className="flex items-center gap-3 text-foreground">
+                    <div className="w-2 h-2 bg-primary rounded-full"></div>
+                    <span>One-click install from Shopify App Store</span>
+                  </div>
+                  <div className="flex items-center gap-3 text-foreground">
+                    <div className="w-2 h-2 bg-primary rounded-full"></div>
+                    <span>Real-time product and inventory sync</span>
+                  </div>
+                  <div className="flex items-center gap-3 text-foreground">
+                    <div className="w-2 h-2 bg-primary rounded-full"></div>
+                    <span>Automatic order processing</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="text-center">
+            <button
+              onClick={() => document.getElementById('waitlist-form')?.scrollIntoView({ behavior: 'smooth' })}
+              className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-8 py-3 rounded-lg font-semibold hover:bg-primary/90 transition-colors text-lg"
+            >
+              Start Your Integration
             </button>
           </div>
         </div>
