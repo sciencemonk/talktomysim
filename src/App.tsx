@@ -8,6 +8,7 @@ import { AuthProvider } from "@/hooks/useAuth";
 import { FloatingChat } from "@/components/FloatingChat";
 import { ThemeProvider } from "@/hooks/useTheme";
 import { WalletProviders } from "@/components/WalletProviders";
+import { CoinbaseProvider } from "@/components/CoinbaseProvider";
 
 // Layouts
 import { AuthenticatedLayout } from "./layouts/AuthenticatedLayout";
