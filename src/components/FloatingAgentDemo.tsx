@@ -4,6 +4,12 @@ import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Bot, Send, Check, Loader2, ExternalLink, X, Minus } from "lucide-react";
 
+import productDenimJacket from "@/assets/product-denim-jacket.jpg";
+import productSummerDress from "@/assets/product-summer-dress.jpg";
+import productLeatherBoots from "@/assets/product-leather-boots.jpg";
+import productWoolSweater from "@/assets/product-wool-sweater.jpg";
+import productSneakers from "@/assets/product-sneakers.jpg";
+
 interface Message {
   role: 'agent' | 'user';
   content: string;
@@ -28,11 +34,11 @@ export const FloatingAgentDemo = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const recommendations: Recommendation[] = [
-    { id: '1', name: 'Classic Denim Jacket', price: 89, image: '👔', url: '#' },
-    { id: '2', name: 'Cotton Summer Dress', price: 65, image: '👗', url: '#' },
-    { id: '3', name: 'Leather Boots', price: 120, image: '👢', url: '#' },
-    { id: '4', name: 'Wool Sweater', price: 75, image: '🧥', url: '#' },
-    { id: '5', name: 'Casual Sneakers', price: 95, image: '👟', url: '#' },
+    { id: '1', name: 'Classic Denim Jacket', price: 89, image: productDenimJacket, url: '#' },
+    { id: '2', name: 'Cotton Summer Dress', price: 65, image: productSummerDress, url: '#' },
+    { id: '3', name: 'Leather Boots', price: 120, image: productLeatherBoots, url: '#' },
+    { id: '4', name: 'Wool Sweater', price: 75, image: productWoolSweater, url: '#' },
+    { id: '5', name: 'Casual Sneakers', price: 95, image: productSneakers, url: '#' },
   ];
 
   useEffect(() => {
@@ -244,7 +250,7 @@ export const FloatingAgentDemo = () => {
                         onClick={(e) => handleRecommendationClick(e, rec.id)}
                         className="w-full flex items-center gap-3 p-3 bg-background hover:bg-accent text-foreground border border-border rounded-lg transition-all hover:scale-[1.02] text-left"
                       >
-                        <span className="text-2xl">{rec.image}</span>
+                        <img src={rec.image} alt={rec.name} className="w-16 h-16 object-cover rounded" />
                         <div className="flex-1">
                           <p className="font-medium text-sm">{rec.name}</p>
                           <p className="text-xs text-muted-foreground">${rec.price}</p>

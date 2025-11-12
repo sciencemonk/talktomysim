@@ -344,6 +344,65 @@ const Marketplace = () => {
       {/* Vision Section */}
       <div className="bg-background border-b border-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-foreground mb-6">
+              How It Works
+            </h2>
+            <div className="w-20 h-1 bg-primary mx-auto mb-8"></div>
+            <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
+              Transform your entire store into an intelligent sales agent in three simple steps.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8 mb-16">
+            {/* Step 1 */}
+            <div className="bg-card border border-border rounded-xl p-8 text-center">
+              <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                <Store className="w-8 h-8 text-primary" />
+              </div>
+              <h3 className="text-xl font-semibold text-foreground mb-4">1. Vector Embeddings</h3>
+              <p className="text-muted-foreground leading-relaxed">
+                We transform your entire product catalog into vector embeddings, creating a semantic understanding of every item, description, and detail in your store.
+              </p>
+            </div>
+
+            {/* Step 2 */}
+            <div className="bg-card border border-border rounded-xl p-8 text-center">
+              <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                <Bot className="w-8 h-8 text-primary" />
+              </div>
+              <h3 className="text-xl font-semibold text-foreground mb-4">2. Personalize Your Agent</h3>
+              <p className="text-muted-foreground leading-relaxed">
+                Configure your AI agent's personality, tone, and sales approach to match your brand. Set rules for discounts, upsells, and customer interactions.
+              </p>
+            </div>
+
+            {/* Step 3 */}
+            <div className="bg-card border border-border rounded-xl p-8 text-center">
+              <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                <Sparkles className="w-8 h-8 text-primary" />
+              </div>
+              <h3 className="text-xl font-semibold text-foreground mb-4">3. Embed & Scale</h3>
+              <p className="text-muted-foreground leading-relaxed">
+                Add a single line of code to your site. Your AI agent goes live instantly, bringing agentic sales to every visitor and driving conversions 24/7.
+              </p>
+            </div>
+          </div>
+
+          <div className="text-center">
+            <button
+              onClick={() => document.getElementById('waitlist-form')?.scrollIntoView({ behavior: 'smooth' })}
+              className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-8 py-3 rounded-lg font-semibold hover:bg-primary/90 transition-colors text-lg"
+            >
+              Get Started Now
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Sales Demo Section */}
+      <div className="bg-card border-b border-border">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
           <div className="text-center mb-12">
             <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-foreground mb-6">
               Bring Agentic Sales to Your Site
@@ -369,7 +428,7 @@ const Marketplace = () => {
 
             {/* Right side - Explanation */}
             <div className="order-1 lg:order-2 space-y-6">
-              <div className="bg-card border border-border rounded-xl p-6 sm:p-8">
+              <div className="bg-background border border-border rounded-xl p-6 sm:p-8">
                 <h3 className="text-xl sm:text-2xl font-semibold text-foreground mb-4">
                   Beyond Support Chatbots
                 </h3>
@@ -378,7 +437,7 @@ const Marketplace = () => {
                 </p>
               </div>
               
-              <div className="bg-card border border-border rounded-xl p-6 sm:p-8">
+              <div className="bg-background border border-border rounded-xl p-6 sm:p-8">
                 <h3 className="text-xl sm:text-2xl font-semibold text-foreground mb-4">
                   Context-Aware Commerce
                 </h3>
@@ -387,7 +446,7 @@ const Marketplace = () => {
                 </p>
               </div>
               
-              <div className="bg-card border border-border rounded-xl p-6 sm:p-8">
+              <div className="bg-background border border-border rounded-xl p-6 sm:p-8">
                 <h3 className="text-xl sm:text-2xl font-semibold text-foreground mb-4">
                   Higher Conversion Rates
                 </h3>
