@@ -202,3 +202,17 @@
 .wallet-adapter-modal-list-more {
   pointer-events: auto !important;
 }
+
+/* Coinbase CDP Modal z-index fix - must be above everything */
+[data-testid="cdp-modal-overlay"],
+[data-testid="cdp-modal-container"],
+[role="dialog"][aria-modal="true"] {
+  z-index: 9999999 !important;
+}
+
+/* Ensure Coinbase modal backdrop is above page content */
+[data-testid="cdp-modal-overlay"] {
+  background: rgba(0, 0, 0, 0.75) !important;
+  position: fixed !important;
+  inset: 0 !important;
+}
