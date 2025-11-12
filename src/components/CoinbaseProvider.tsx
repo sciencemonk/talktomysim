@@ -1,24 +1,29 @@
-import { ReactNode } from 'react';
-import { CoinbaseAuth } from '@coinbase/cdp-react';
+import { ReactNode, useEffect } from 'react';
+import CoinbaseWalletSDK from '@coinbase/wallet-sdk';
 
 interface CoinbaseProviderProps {
   children: ReactNode;
 }
 
 export const CoinbaseProvider = ({ children }: CoinbaseProviderProps) => {
-  const projectId = import.meta.env.VITE_CDP_PROJECT_ID;
+  useEffect(() => {
+    const projectId = import.meta.env.VITE_CDP_PROJECT_ID;
+    
+    if (!projectId) {
+      console.error('VITE_CDP_PROJECT_ID is not set');
+      return;
+    }
 
-  if (!projectId) {
-    console.error('VITE_CDP_PROJECT_ID is not set');
-    return <>{children}</>;
-  }
+    // Initialize Coinbase Wallet SDK
+    const coinbaseWallet = new CoinbaseWalletSDK({
+      appName: 'Agentic Sales Platform',
+      appLogoUrl: window.location.origin + '/sim-logo-light-final.png',
+    });
 
-  return (
-    <CoinbaseAuth
-      projectId={projectId}
-      authMethods={['email', 'google', 'apple']}
-    >
-      {children}
-    </CoinbaseAuth>
-  );
+    // Make wallet available globally if needed
+    (window as any).coinbaseWallet = coinbaseWallet;
+  }, []);
+
+  return <>{children}</>;
 };
+

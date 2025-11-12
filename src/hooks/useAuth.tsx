@@ -1,5 +1,4 @@
 import { useState, useEffect, createContext, useContext } from 'react';
-import { useCurrentUser, useSignOut } from '@coinbase/cdp-hooks';
 
 interface AuthContextType {
   user: any | null;
@@ -16,25 +15,38 @@ const AuthContext = createContext<AuthContextType>({
 });
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const { currentUser, isLoading } = useCurrentUser();
-  const { signOut: coinbaseSignOut } = useSignOut();
   const [user, setUser] = useState<any | null>(null);
   const [session, setSession] = useState<any | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (currentUser) {
-      setUser(currentUser);
-      setSession({ user: currentUser });
-    } else {
-      setUser(null);
-      setSession(null);
-    }
-  }, [currentUser]);
+    // Check for existing Coinbase Wallet connection
+    const checkConnection = async () => {
+      try {
+        const coinbaseWallet = (window as any).coinbaseWallet;
+        if (coinbaseWallet) {
+          const ethereum = coinbaseWallet.makeWeb3Provider();
+          const accounts = await ethereum.request({ method: 'eth_accounts' });
+          
+          if (accounts && accounts.length > 0) {
+            const userAccount = { address: accounts[0] };
+            setUser(userAccount);
+            setSession({ user: userAccount });
+          }
+        }
+      } catch (error) {
+        console.error('Error checking wallet connection:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    checkConnection();
+  }, []);
 
   const signOut = async () => {
     try {
       console.log('Signing out user');
-      await coinbaseSignOut();
       setUser(null);
       setSession(null);
     } catch (error) {
@@ -43,7 +55,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, session, loading: isLoading, signOut }}>
+    <AuthContext.Provider value={{ user, session, loading, signOut }}>
       {children}
     </AuthContext.Provider>
   );

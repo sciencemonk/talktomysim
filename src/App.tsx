@@ -70,12 +70,13 @@ const queryClient = new QueryClient();
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <ThemeProvider defaultTheme="dark" storageKey="sim-theme">
-      <WalletProviders>
-        <TooltipProvider>
-          <AuthProvider>
-            <Toaster />
-            <Sonner />
-            <BrowserRouter>
+      <CoinbaseProvider>
+        <WalletProviders>
+          <TooltipProvider>
+            <AuthProvider>
+              <Toaster />
+              <Sonner />
+              <BrowserRouter>
             <Routes>
               {/* Public routes */}
               <Route path="/landing" element={<NewLanding />} />
@@ -151,10 +152,11 @@ const App = () => (
               {/* Catch all 404 */}
               <Route path="*" element={<NotFound />} />
             </Routes>
-          </BrowserRouter>
-        </AuthProvider>
-      </TooltipProvider>
+            </BrowserRouter>
+          </AuthProvider>
+        </TooltipProvider>
       </WalletProviders>
+      </CoinbaseProvider>
     </ThemeProvider>
   </QueryClientProvider>
 );
