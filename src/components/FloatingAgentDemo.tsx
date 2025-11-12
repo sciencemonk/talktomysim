@@ -70,6 +70,10 @@ export const FloatingAgentDemo = () => {
     setIsTyping(true);
     const lowerMessage = userMessage.toLowerCase();
     
+    // Get recent conversation context
+    const recentMessages = messages.slice(-3).map(m => m.content.toLowerCase()).join(' ');
+    const conversationContext = recentMessages + ' ' + lowerMessage;
+    
     setTimeout(() => {
       setIsTyping(false);
       
@@ -127,6 +131,19 @@ export const FloatingAgentDemo = () => {
         setMessages(prev => [...prev, {
           role: 'agent',
           content: "Shopping for someone special! What's their style? Are they more into classic pieces or trendy fashion? Also, what's your budget range?"
+        }]);
+      } else if (conversationContext.includes('trendy') || conversationContext.includes('trend') || lowerMessage.includes('trendy') || lowerMessage.includes('trend')) {
+        // Check if user is responding to a style question
+        setMessages(prev => [...prev, {
+          role: 'agent',
+          content: "Perfect! Here are our trendiest pieces right now - these are what fashion-forward shoppers are loving:",
+          recommendations: [recommendations[1], recommendations[4], recommendations[0]]
+        }]);
+      } else if (conversationContext.includes('classic') && (conversationContext.includes('style') || conversationContext.includes('fashion'))) {
+        setMessages(prev => [...prev, {
+          role: 'agent',
+          content: "Excellent taste! Here are our timeless classic pieces that never go out of style:",
+          recommendations: [recommendations[0], recommendations[3]]
         }]);
       } else if (lowerMessage.includes('myself') || lowerMessage.includes('me')) {
         setMessages(prev => [...prev, {
