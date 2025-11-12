@@ -206,13 +206,30 @@
 /* Coinbase CDP Modal z-index fix - must be above everything */
 [data-testid="cdp-modal-overlay"],
 [data-testid="cdp-modal-container"],
-[role="dialog"][aria-modal="true"] {
-  z-index: 9999999 !important;
+[role="dialog"][aria-modal="true"],
+iframe[title*="Sign in"],
+div[class*="modal"],
+div[class*="overlay"] {
+  z-index: 99999999 !important;
 }
 
-/* Ensure Coinbase modal backdrop is above page content */
+/* Ensure Coinbase modal backdrop is above page content with solid background */
 [data-testid="cdp-modal-overlay"] {
-  background: rgba(0, 0, 0, 0.75) !important;
+  background: rgba(0, 0, 0, 0.9) !important;
   position: fixed !important;
   inset: 0 !important;
+  backdrop-filter: blur(8px) !important;
+}
+
+/* Target any iframe or embedded content from Coinbase */
+iframe[src*="coinbase"],
+iframe[src*="cdp"] {
+  z-index: 99999999 !important;
+  position: relative !important;
+}
+
+/* Additional catch-all for modal overlays */
+body > div[style*="position: fixed"],
+body > div[style*="z-index"] {
+  z-index: 99999999 !important;
 }
