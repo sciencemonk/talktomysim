@@ -338,59 +338,66 @@ const Marketplace = () => {
         </div>
       </div>
 
-      {/* Vision Section */}
+      {/* Vision Section with Integrated Demo */}
       <div className="bg-background border-b border-border">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
           <div className="text-center mb-12">
             <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-foreground mb-6">
-              Your Website's AI Salesperson
+              Bring Agentic Sales to Your Site
             </h2>
             <div className="w-20 h-1 bg-primary mx-auto mb-8"></div>
             <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
-              Imagine every visitor to your site being greeted by a knowledgeable, friendly AI agent who can answer questions, recommend products, and complete purchases in seconds, all within a natural conversation.
+              Most sites use AI for customer support. The real unlock is using it for sales. Meet SIM, your AI agent that knows what visitors are browsing, guiding them through decisions and completing purchases, all in natural conversation.
             </p>
           </div>
-          
-          <div className="grid md:grid-cols-2 gap-8 sm:gap-12">
-            <div className="space-y-6">
+
+          <div className="grid lg:grid-cols-2 gap-12 items-start mb-16">
+            {/* Left side - Demo */}
+            <div className="order-2 lg:order-1">
+              <h3 className="text-xl font-semibold text-foreground mb-4 text-center lg:text-left">
+                Try It Now
+              </h3>
+              <AgentStorefrontDemo />
+            </div>
+
+            {/* Right side - Explanation */}
+            <div className="order-1 lg:order-2 space-y-6">
               <div className="bg-card border border-border rounded-xl p-6 sm:p-8">
                 <h3 className="text-xl sm:text-2xl font-semibold text-foreground mb-4">
-                  Conversational Commerce
+                  Beyond Support Chatbots
                 </h3>
                 <p className="text-muted-foreground leading-relaxed">
-                  No more clunky checkout forms or abandoned carts. Your AI agent guides customers through purchases naturally, answering questions and handling payments directly in chat. It's like having a personal shopper for every visitor.
+                  Support bots answer questions. SIM closes deals. It tracks what your visitors are browsing, understands their intent, and acts as a personal shopping assistant that guides them to purchase decisions faster than traditional checkout flows.
                 </p>
               </div>
               
               <div className="bg-card border border-border rounded-xl p-6 sm:p-8">
                 <h3 className="text-xl sm:text-2xl font-semibold text-foreground mb-4">
-                  Instant Setup
+                  Context-Aware Commerce
                 </h3>
                 <p className="text-muted-foreground leading-relaxed">
-                  Add one line of code to your website and your AI agent is live. No complex integrations, no backend changes, no payment gateway migrations. Your products become purchasable through conversation instantly.
-                </p>
-              </div>
-            </div>
-            
-            <div className="space-y-6">
-              <div className="bg-card border border-border rounded-xl p-6 sm:p-8">
-                <h3 className="text-xl sm:text-2xl font-semibold text-foreground mb-4">
-                  Always Available
-                </h3>
-                <p className="text-muted-foreground leading-relaxed">
-                  Your AI agent never sleeps, never takes breaks, and serves unlimited customers simultaneously. Whether it's 2 PM or 2 AM, every visitor gets immediate, personalized attention and instant purchase capability.
+                  SIM sees what products visitors are viewing, how long they've been on the page, and their browsing patterns. It proactively offers help, suggests alternatives, handles objections, and completes purchases without leaving the conversation.
                 </p>
               </div>
               
               <div className="bg-card border border-border rounded-xl p-6 sm:p-8">
                 <h3 className="text-xl sm:text-2xl font-semibold text-foreground mb-4">
-                  Built for Scale
+                  Higher Conversion Rates
                 </h3>
                 <p className="text-muted-foreground leading-relaxed">
-                  From indie makers to enterprise brands, our embedded AI agents handle everything from $5 digital products to high-value B2B deals. Each transaction is secure, compliant, and optimized for conversion.
+                  No abandoned carts. No friction. No hesitation. When customers can complete a purchase without leaving the conversation, conversion rates skyrocket. SIM turns browsers into buyers by removing every obstacle between interest and sale.
                 </p>
               </div>
             </div>
+          </div>
+
+          <div className="text-center">
+            <button
+              onClick={() => document.getElementById('waitlist-form')?.scrollIntoView({ behavior: 'smooth' })}
+              className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-8 py-3 rounded-lg font-semibold hover:bg-primary/90 transition-colors text-lg"
+            >
+              Add SIM to Your Site
+            </button>
           </div>
         </div>
       </div>
