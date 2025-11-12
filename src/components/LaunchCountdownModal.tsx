@@ -173,19 +173,28 @@ export const LaunchCountdownModal = () => {
     {
       title: 'Try the Demo',
       content: (
-        <div className="space-y-4">
-          <div className="text-center space-y-2">
-            <h3 className="text-3xl font-bold text-foreground">Experience It Live</h3>
-            <p className="text-muted-foreground">
-              Interact with our AI shopping assistant below
-            </p>
+        <div className="relative min-h-[500px] -m-6 rounded-lg overflow-hidden">
+          <video 
+            autoPlay 
+            loop 
+            muted 
+            playsInline
+            className="absolute inset-0 w-full h-full object-cover"
+          >
+            <source src="https://uovhemqkztmkoozlmqxq.supabase.co/storage/v1/object/public/sim/4962796-uhd_3840_2160_25fps.mp4" type="video/mp4" />
+          </video>
+          <div className="absolute inset-0 bg-black/60" />
+          <div className="relative z-10 p-6 space-y-4 flex flex-col items-center justify-center min-h-[500px]">
+            <div className="text-center space-y-2">
+              <h3 className="text-3xl font-bold text-white">Experience It Live</h3>
+              <p className="text-white/80">
+                See our AI shopping assistant in action
+              </p>
+            </div>
+            <div className="scale-90 origin-center pointer-events-none">
+              <FloatingAgentDemo />
+            </div>
           </div>
-          <div className="relative mx-auto" style={{ width: '400px', height: '600px' }}>
-            <FloatingAgentDemo />
-          </div>
-          <p className="text-xs text-center text-muted-foreground">
-            This is a live demo - try asking about products or colors!
-          </p>
         </div>
       )
     },
@@ -259,16 +268,13 @@ export const LaunchCountdownModal = () => {
     }
   };
 
-  const closeModal = () => {
-    setOpen(false);
-  };
-
   return (
     <Dialog open={open} onOpenChange={() => {}}>
       <DialogContent 
-        className="sm:max-w-2xl max-h-[90vh] overflow-y-auto"
+        className="sm:max-w-2xl max-h-[90vh] overflow-y-auto [&>button]:hidden"
         onPointerDownOutside={(e) => e.preventDefault()}
         onInteractOutside={(e) => e.preventDefault()}
+        onEscapeKeyDown={(e) => e.preventDefault()}
       >
         <DialogTitle className="sr-only">{slides[currentSlide].title}</DialogTitle>
         
@@ -303,23 +309,14 @@ export const LaunchCountdownModal = () => {
               ))}
             </div>
 
-            {currentSlide < slides.length - 1 ? (
-              <Button
-                onClick={nextSlide}
-                className="gap-2"
-              >
-                {currentSlide === 0 ? 'Learn More' : 'Next'}
-                <ChevronRight className="h-4 w-4" />
-              </Button>
-            ) : (
-              <Button
-                onClick={closeModal}
-                className="gap-2"
-              >
-                Get Started
-                <ChevronRight className="h-4 w-4" />
-              </Button>
-            )}
+            <Button
+              onClick={nextSlide}
+              disabled={currentSlide === slides.length - 1}
+              className="gap-2"
+            >
+              {currentSlide === 0 ? 'Learn More' : currentSlide < slides.length - 1 ? 'Next' : 'View CA'}
+              <ChevronRight className="h-4 w-4" />
+            </Button>
           </div>
         </div>
       </DialogContent>
