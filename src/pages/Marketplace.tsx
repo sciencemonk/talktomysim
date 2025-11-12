@@ -300,9 +300,12 @@ const Marketplace = () => {
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center justify-center h-[calc(100vh-4rem)] text-center">
           {!showBetaRequest ? (
             <>
-              <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold font-mono tracking-tight text-white mb-8 sm:whitespace-nowrap">
-                Agentic Payment Platform
+              <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold font-mono tracking-tight text-white mb-4 sm:whitespace-nowrap">
+                Agentic Sales Platform
               </h1>
+              <p className="text-lg sm:text-xl text-white/90 mb-8 max-w-3xl mx-auto">
+                A knowledgeable AI Agent right on your store that drives more sales and happier customers.
+              </p>
               <button
                 onClick={handleCopyCA}
                 className="text-xs sm:text-base font-mono bg-white/10 hover:bg-white/20 px-4 py-2 rounded-lg text-white transition-colors cursor-pointer border border-white/20 mb-12 max-w-full break-all"
@@ -414,7 +417,7 @@ const Marketplace = () => {
               Join the Waitlist
             </h2>
             <p className="text-muted-foreground text-lg">
-              Get early access to the agentic payment platform
+              Get early access to the agentic sales platform
             </p>
           </div>
 
