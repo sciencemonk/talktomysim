@@ -216,16 +216,6 @@ const Marketplace = () => {
     window.open(twitterUrl, '_blank');
   };
 
-  const handleCopyCA = async () => {
-    const ca = "FFqwoZ7phjoupWjLeE5yFeLqGi8jkGEFrTz6jnsUpump";
-    try {
-      await navigator.clipboard.writeText(ca);
-      toast.success("Contract address copied to clipboard");
-    } catch (error) {
-      console.error("Failed to copy:", error);
-      toast.error("Could not copy to clipboard");
-    }
-  };
 
   const handleXSignIn = () => {
     navigate('/signin');
@@ -270,13 +260,6 @@ const Marketplace = () => {
               <p className="text-lg sm:text-xl text-white/90 mb-8 max-w-3xl mx-auto">
                 A knowledgeable AI Agent right on your store that drives more sales and happier customers.
               </p>
-              <button
-                onClick={handleCopyCA}
-                className="text-xs sm:text-base font-mono bg-white/10 hover:bg-white/20 px-4 py-2 rounded-lg text-white transition-colors cursor-pointer border border-white/20 mb-12 max-w-full break-all"
-                title="Click to copy contract address"
-              >
-                CA: FFqwoZ7phjoupWjLeE5yFeLqGi8jkGEFrTz6jnsUpump
-              </button>
               <Button
                 onClick={() => navigate('/signin')}
                 size="lg"
