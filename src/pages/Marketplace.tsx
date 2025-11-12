@@ -20,6 +20,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { useTheme } from "@/hooks/useTheme";
 import SimpleFooter from "@/components/SimpleFooter";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { FloatingAgentDemo } from "@/components/FloatingAgentDemo";
 type MarketplaceItem = {
   id: string;
   type: 'agent' | 'offering';
@@ -46,6 +47,7 @@ const Marketplace = () => {
   const [betaCode, setBetaCode] = useState('');
   const [showWaitlistModal, setShowWaitlistModal] = useState(false);
   const [waitlistEmail, setWaitlistEmail] = useState('');
+  const [waitlistWallet, setWaitlistWallet] = useState('');
   const [waitlistReason, setWaitlistReason] = useState('');
   
   useEffect(() => {
@@ -235,22 +237,30 @@ const Marketplace = () => {
       toast.error("Email address is required");
       return;
     }
+    
+    if (!waitlistWallet) {
+      toast.error("SOL wallet address is required");
+      return;
+    }
 
     try {
       const { error } = await supabase
         .from('waitlist')
         .insert({
           email: waitlistEmail,
-          wallet_address: null,
+          wallet_address: waitlistWallet,
           reason: waitlistReason || null
         });
 
       if (error) throw error;
 
       toast.success("You've been added to the waitlist!");
-      setShowWaitlistModal(false);
       setWaitlistEmail('');
+      setWaitlistWallet('');
       setWaitlistReason('');
+      
+      // Scroll to top after submission
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (error) {
       console.error("Error submitting waitlist:", error);
       toast.error("Failed to join waitlist. Please try again.");
@@ -301,7 +311,7 @@ const Marketplace = () => {
                 CA: FFqwoZ7phjoupWjLeE5yFeLqGi8jkGEFrTz6jnsUpump
               </button>
               <Button
-                onClick={() => setShowWaitlistModal(true)}
+                onClick={() => document.getElementById('waitlist-form')?.scrollIntoView({ behavior: 'smooth' })}
                 size="lg"
                 className="bg-white text-black hover:bg-white/90 text-xl px-12 py-8 h-auto font-semibold"
               >
@@ -328,7 +338,156 @@ const Marketplace = () => {
         </div>
       </div>
 
-      {/* Waitlist Modal */}
+      {/* Vision Section */}
+      <div className="bg-background border-b border-border">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-foreground mb-6">
+              Bring Agentic Sales to Your Site
+            </h2>
+            <div className="w-20 h-1 bg-primary mx-auto mb-8"></div>
+            <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
+              Most sites use AI for customer support. The real unlock is using it for sales. Meet SIM, your AI agent that knows what visitors are browsing, guiding them through decisions and completing purchases, all in natural conversation.
+            </p>
+          </div>
+
+          <div className="grid lg:grid-cols-2 gap-12 items-start mb-16">
+            {/* Left side - Visual placeholder */}
+            <div className="order-2 lg:order-1">
+              <div className="bg-muted/30 border border-border rounded-xl p-8 text-center aspect-square flex items-center justify-center">
+                <div className="space-y-4">
+                  <Bot className="w-20 h-20 text-primary mx-auto" />
+                  <p className="text-muted-foreground">
+                    👉 Check the bottom right corner to try our live AI shopping assistant
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Right side - Explanation */}
+            <div className="order-1 lg:order-2 space-y-6">
+              <div className="bg-card border border-border rounded-xl p-6 sm:p-8">
+                <h3 className="text-xl sm:text-2xl font-semibold text-foreground mb-4">
+                  Beyond Support Chatbots
+                </h3>
+                <p className="text-muted-foreground leading-relaxed">
+                  Support bots answer questions. SIM closes deals. It tracks what your visitors are browsing, understands their intent, and acts as a personal shopping assistant that guides them to purchase decisions faster than traditional checkout flows.
+                </p>
+              </div>
+              
+              <div className="bg-card border border-border rounded-xl p-6 sm:p-8">
+                <h3 className="text-xl sm:text-2xl font-semibold text-foreground mb-4">
+                  Context-Aware Commerce
+                </h3>
+                <p className="text-muted-foreground leading-relaxed">
+                  SIM sees what products visitors are viewing, how long they've been on the page, and their browsing patterns. It proactively offers help, suggests alternatives, handles objections, and completes purchases without leaving the conversation.
+                </p>
+              </div>
+              
+              <div className="bg-card border border-border rounded-xl p-6 sm:p-8">
+                <h3 className="text-xl sm:text-2xl font-semibold text-foreground mb-4">
+                  Higher Conversion Rates
+                </h3>
+                <p className="text-muted-foreground leading-relaxed">
+                  No abandoned carts. No friction. No hesitation. When customers can complete a purchase without leaving the conversation, conversion rates skyrocket. SIM turns browsers into buyers by removing every obstacle between interest and sale.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="text-center">
+            <button
+              onClick={() => document.getElementById('waitlist-form')?.scrollIntoView({ behavior: 'smooth' })}
+              className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-8 py-3 rounded-lg font-semibold hover:bg-primary/90 transition-colors text-lg"
+            >
+              Add SIM to Your Site
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Waitlist Form Section */}
+      <div id="waitlist-form" className="bg-card border-t border-border">
+        <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
+          <div className="text-center mb-8">
+            <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-4">
+              Join the Waitlist
+            </h2>
+            <p className="text-muted-foreground text-lg">
+              Get early access to the agentic payment platform
+            </p>
+          </div>
+
+          <div className="bg-background border border-border rounded-2xl p-6 sm:p-8">
+            <div className="space-y-6">
+              <div>
+                <label htmlFor="waitlist-email" className="text-sm font-medium block mb-2 text-foreground">
+                  Email Address *
+                </label>
+                <Input
+                  id="waitlist-email"
+                  type="email"
+                  placeholder="your@email.com"
+                  value={waitlistEmail}
+                  onChange={(e) => setWaitlistEmail(e.target.value)}
+                  className="h-12"
+                />
+              </div>
+              <div>
+                <label htmlFor="waitlist-wallet" className="text-sm font-medium block mb-2 text-foreground">
+                  SOL Wallet Address *
+                </label>
+                <Input
+                  id="waitlist-wallet"
+                  type="text"
+                  placeholder="Your Solana wallet address"
+                  value={waitlistWallet}
+                  onChange={(e) => setWaitlistWallet(e.target.value)}
+                  className="h-12"
+                />
+              </div>
+              <div>
+                <label htmlFor="waitlist-reason" className="text-sm font-medium block mb-2 text-foreground">
+                  Why do you want access? (Optional)
+                </label>
+                <Input
+                  id="waitlist-reason"
+                  type="text"
+                  placeholder="Tell us why you're interested..."
+                  value={waitlistReason}
+                  onChange={(e) => setWaitlistReason(e.target.value)}
+                  className="h-12"
+                />
+              </div>
+              <Button 
+                onClick={handleWaitlistSubmit} 
+                className="w-full h-12 text-lg font-semibold"
+                size="lg"
+              >
+                Submit
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Footer */}
+      <footer className="bg-background border-t border-border">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="flex items-center">
+              <div className="bg-black/90 rounded-lg px-2 py-1">
+                <img src="/sim-logo-white.png" alt="SIM" className="h-5 w-auto" />
+              </div>
+            </div>
+            <p className="text-sm text-muted-foreground">
+              © 2025 SIM. All rights reserved.
+            </p>
+          </div>
+        </div>
+      </footer>
+
+      {/* Waitlist Modal (backup) */}
       <Dialog open={showWaitlistModal} onOpenChange={setShowWaitlistModal}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
@@ -351,8 +510,20 @@ const Marketplace = () => {
               />
             </div>
             <div>
+              <label htmlFor="wallet" className="text-sm font-medium block mb-2">
+                SOL Wallet Address *
+              </label>
+              <Input
+                id="wallet"
+                type="text"
+                placeholder="Your Solana wallet address"
+                value={waitlistWallet}
+                onChange={(e) => setWaitlistWallet(e.target.value)}
+              />
+            </div>
+            <div>
               <label htmlFor="reason" className="text-sm font-medium block mb-2">
-                Tell us about your online store or website (Optional)
+                Why do you want access? (Optional)
               </label>
               <Input
                 id="reason"
@@ -373,6 +544,9 @@ const Marketplace = () => {
           </div>
         </DialogContent>
       </Dialog>
+      
+      {/* Floating Agent Demo */}
+      <FloatingAgentDemo />
     </div>;
 };
 export default Marketplace;
