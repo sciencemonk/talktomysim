@@ -9,7 +9,9 @@ export const CoinbaseProvider = ({ children }: CoinbaseProviderProps) => {
   const projectId = import.meta.env.VITE_CDP_PROJECT_ID;
 
   if (!projectId) {
-    console.error('VITE_CDP_PROJECT_ID is not set');
+    console.error('VITE_CDP_PROJECT_ID is not set - Coinbase features will not work');
+    // Still render children but without CDP provider
+    // This prevents the app from breaking but CDP features won't work
     return <>{children}</>;
   }
 
