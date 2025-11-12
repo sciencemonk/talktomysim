@@ -21,7 +21,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useTheme } from "@/hooks/useTheme";
 import SimpleFooter from "@/components/SimpleFooter";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { FloatingAgentDemo } from "@/components/FloatingAgentDemo";
+
 import { SignInModal } from "@/components/SignInModal";
 
 type MarketplaceItem = {
@@ -846,9 +846,6 @@ const Marketplace = () => {
           </div>
         </div>
       </footer>
-      
-      {/* Floating Agent Demo */}
-      <FloatingAgentDemo />
     </div>;
 };
 export default Marketplace;
