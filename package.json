@@ -11,6 +11,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@coinbase/cdp-hooks": "^0.0.60",
+    "@coinbase/cdp-react": "^0.0.60",
     "@coinbase/x402": "^0.6.6",
     "@faremeter/fetch": "^0.11.0",
     "@faremeter/info": "^0.11.0",
