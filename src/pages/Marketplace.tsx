@@ -188,6 +188,13 @@ const Marketplace = () => {
     return agent.name.toLowerCase().includes(searchTerm.toLowerCase()) || agent.description.toLowerCase().includes(searchTerm.toLowerCase()) || agent.auto_description && agent.auto_description.toLowerCase().includes(searchTerm.toLowerCase());
   });
   const categories = Array.from(new Set(marketplaceItems.map(item => item.category).filter(Boolean)));
+  const scrollToWaitlist = () => {
+    const element = document.getElementById('waitlist-form');
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
   const handleItemClick = (item: MarketplaceItem) => {
     // Check if it's an NFT
     if (item.type === 'agent') {
@@ -867,7 +874,7 @@ const Marketplace = () => {
                   <span className="text-foreground">Analytics dashboard</span>
                 </li>
               </ul>
-              <Button className="w-full" variant="outline">Get Started</Button>
+              <Button className="w-full" variant="outline" onClick={scrollToWaitlist}>Get Started</Button>
             </div>
 
             {/* Growth Plan */}
@@ -905,7 +912,7 @@ const Marketplace = () => {
                   <span className="text-foreground">Custom branding</span>
                 </li>
               </ul>
-              <Button className="w-full">Get Started</Button>
+              <Button className="w-full" onClick={scrollToWaitlist}>Get Started</Button>
             </div>
 
             {/* Enterprise Plan */}
@@ -939,7 +946,7 @@ const Marketplace = () => {
                   <span className="text-foreground">SLA guarantees</span>
                 </li>
               </ul>
-              <Button className="w-full" variant="outline">Contact Sales</Button>
+              <Button className="w-full" variant="outline" onClick={scrollToWaitlist}>Contact Sales</Button>
             </div>
           </div>
         </div>
