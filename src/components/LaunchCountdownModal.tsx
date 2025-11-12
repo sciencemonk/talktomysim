@@ -3,6 +3,10 @@ import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight, Copy, Check } from 'lucide-react';
 import { toast } from 'sonner';
+import { FloatingAgentDemo } from './FloatingAgentDemo';
+import shopifyLogo from '@/assets/shopify-logo.png';
+import visaLogo from '@/assets/visa-logo.png';
+import xIcon from '@/assets/x-icon.png';
 
 interface CountdownTime {
   days: number;
@@ -53,29 +57,41 @@ export const LaunchCountdownModal = () => {
       title: 'Official Launch',
       content: (
         <div className="space-y-6 text-center">
-          <div className="space-y-2">
-            <h3 className="text-2xl font-bold text-foreground">Coming Soon</h3>
-            <p className="text-muted-foreground">
-              SIM is officially launching to the public on Friday, November 14th at 5pm CT
+          <div className="space-y-4">
+            <div className="flex justify-center mb-4">
+              <img src="/sim-logo-white.png" alt="SIM" className="h-16 w-auto" />
+            </div>
+            <h3 className="text-3xl font-bold text-foreground">Official Public Launch</h3>
+            <p className="text-lg text-muted-foreground max-w-md mx-auto">
+              Join us as we revolutionize e-commerce with AI-powered sales agents
             </p>
           </div>
           
-          <div className="grid grid-cols-4 gap-4 max-w-md mx-auto">
+          <div className="grid grid-cols-4 gap-4 max-w-lg mx-auto">
             {[
               { label: 'Days', value: countdown.days },
               { label: 'Hours', value: countdown.hours },
               { label: 'Minutes', value: countdown.minutes },
               { label: 'Seconds', value: countdown.seconds }
             ].map((item) => (
-              <div key={item.label} className="bg-muted rounded-lg p-4">
-                <div className="text-3xl font-bold text-foreground">{item.value}</div>
-                <div className="text-xs text-muted-foreground uppercase">{item.label}</div>
+              <div key={item.label} className="bg-gradient-to-br from-primary/20 to-primary/5 rounded-lg p-4 border border-primary/20">
+                <div className="text-4xl font-bold text-primary">{item.value}</div>
+                <div className="text-xs text-muted-foreground uppercase font-medium">{item.label}</div>
               </div>
             ))}
           </div>
 
+          <div className="bg-muted/50 rounded-lg p-4 max-w-md mx-auto">
+            <p className="text-sm font-semibold text-foreground mb-1">
+              📅 Friday, November 14th, 2025
+            </p>
+            <p className="text-sm text-muted-foreground">
+              5:00 PM Central Time
+            </p>
+          </div>
+
           <p className="text-sm text-muted-foreground">
-            Click "Learn More" to explore what SIM offers
+            Click "Learn More" to see what SIM offers
           </p>
         </div>
       )
@@ -83,27 +99,36 @@ export const LaunchCountdownModal = () => {
     {
       title: 'Agentic Sales Platform',
       content: (
-        <div className="space-y-4 text-center">
-          <h3 className="text-2xl font-bold text-foreground">AI-Powered Sales</h3>
-          <p className="text-muted-foreground max-w-lg mx-auto">
-            A knowledgeable AI Agent right on your store that drives more sales and happier customers
-          </p>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
-            <div className="bg-muted/50 rounded-lg p-4">
-              <div className="text-4xl mb-2">🤖</div>
-              <div className="font-semibold text-foreground mb-1">Smart AI Agent</div>
-              <div className="text-sm text-muted-foreground">Understands your products and customers</div>
+        <div className="space-y-6 text-center">
+          <div className="space-y-2">
+            <h3 className="text-3xl font-bold text-foreground">Agentic Sales Platform</h3>
+            <p className="text-lg text-muted-foreground max-w-lg mx-auto">
+              A knowledgeable AI Agent right on your store that drives more sales and happier customers
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-8">
+            <div className="bg-gradient-to-br from-violet-500/10 to-purple-500/10 rounded-xl p-6 border border-violet-500/20">
+              <div className="text-5xl mb-3">🤖</div>
+              <div className="font-bold text-foreground mb-2">Smart AI Agent</div>
+              <div className="text-sm text-muted-foreground">Understands your products and customers deeply</div>
             </div>
-            <div className="bg-muted/50 rounded-lg p-4">
-              <div className="text-4xl mb-2">💬</div>
-              <div className="font-semibold text-foreground mb-1">Natural Conversations</div>
+            <div className="bg-gradient-to-br from-blue-500/10 to-cyan-500/10 rounded-xl p-6 border border-blue-500/20">
+              <div className="text-5xl mb-3">💬</div>
+              <div className="font-bold text-foreground mb-2">Natural Conversations</div>
               <div className="text-sm text-muted-foreground">Engages customers like a real sales assistant</div>
             </div>
-            <div className="bg-muted/50 rounded-lg p-4">
-              <div className="text-4xl mb-2">📈</div>
-              <div className="font-semibold text-foreground mb-1">Drive Sales</div>
-              <div className="text-sm text-muted-foreground">Increases conversions and revenue</div>
+            <div className="bg-gradient-to-br from-emerald-500/10 to-green-500/10 rounded-xl p-6 border border-emerald-500/20">
+              <div className="text-5xl mb-3">📈</div>
+              <div className="font-bold text-foreground mb-2">Drive Sales</div>
+              <div className="text-sm text-muted-foreground">Increases conversions and customer satisfaction</div>
             </div>
+          </div>
+
+          <div className="flex items-center justify-center gap-6 mt-8 pt-6 border-t">
+            <img src={shopifyLogo} alt="Shopify" className="h-8 opacity-70 hover:opacity-100 transition-opacity" />
+            <img src={visaLogo} alt="Visa" className="h-8 opacity-70 hover:opacity-100 transition-opacity" />
+            <img src={xIcon} alt="X" className="h-6 opacity-70 hover:opacity-100 transition-opacity" />
           </div>
         </div>
       )
@@ -111,34 +136,34 @@ export const LaunchCountdownModal = () => {
     {
       title: 'How It Works',
       content: (
-        <div className="space-y-4">
-          <h3 className="text-2xl font-bold text-foreground text-center">Simple Setup Process</h3>
-          <div className="space-y-4 max-w-lg mx-auto">
-            <div className="flex gap-4 items-start">
-              <div className="bg-primary text-primary-foreground rounded-full w-8 h-8 flex items-center justify-center flex-shrink-0 font-bold">
+        <div className="space-y-6">
+          <h3 className="text-3xl font-bold text-foreground text-center">Simple Setup Process</h3>
+          <div className="space-y-4 max-w-xl mx-auto mt-8">
+            <div className="flex gap-4 items-start bg-gradient-to-br from-primary/5 to-primary/10 rounded-xl p-5 border border-primary/20">
+              <div className="bg-primary text-primary-foreground rounded-full w-10 h-10 flex items-center justify-center flex-shrink-0 font-bold text-lg">
                 1
               </div>
-              <div>
-                <div className="font-semibold text-foreground">Store Catalog Conversion</div>
-                <div className="text-sm text-muted-foreground">Convert your entire store catalog to vector embeddings for AI understanding</div>
+              <div className="space-y-1">
+                <div className="font-bold text-foreground text-lg">Store Catalog Conversion</div>
+                <div className="text-sm text-muted-foreground">Transform your entire store catalog into vector embeddings that AI can understand and reason about</div>
               </div>
             </div>
-            <div className="flex gap-4 items-start">
-              <div className="bg-primary text-primary-foreground rounded-full w-8 h-8 flex items-center justify-center flex-shrink-0 font-bold">
+            <div className="flex gap-4 items-start bg-gradient-to-br from-violet-500/5 to-violet-500/10 rounded-xl p-5 border border-violet-500/20">
+              <div className="bg-violet-600 text-white rounded-full w-10 h-10 flex items-center justify-center flex-shrink-0 font-bold text-lg">
                 2
               </div>
-              <div>
-                <div className="font-semibold text-foreground">Agent Personalization</div>
-                <div className="text-sm text-muted-foreground">Customize your AI agent with brand alignment, avatars, and interaction flows</div>
+              <div className="space-y-1">
+                <div className="font-bold text-foreground text-lg">Agent Personalization</div>
+                <div className="text-sm text-muted-foreground">Customize your AI agent with brand-specific avatars, speech patterns, and interaction flows</div>
               </div>
             </div>
-            <div className="flex gap-4 items-start">
-              <div className="bg-primary text-primary-foreground rounded-full w-8 h-8 flex items-center justify-center flex-shrink-0 font-bold">
+            <div className="flex gap-4 items-start bg-gradient-to-br from-emerald-500/5 to-emerald-500/10 rounded-xl p-5 border border-emerald-500/20">
+              <div className="bg-emerald-600 text-white rounded-full w-10 h-10 flex items-center justify-center flex-shrink-0 font-bold text-lg">
                 3
               </div>
-              <div>
-                <div className="font-semibold text-foreground">Site Integration</div>
-                <div className="text-sm text-muted-foreground">Embed on your website with a simple code snippet</div>
+              <div className="space-y-1">
+                <div className="font-bold text-foreground text-lg">Site Integration</div>
+                <div className="text-sm text-muted-foreground">Embed on your website with a simple code snippet - works with Shopify and any platform</div>
               </div>
             </div>
           </div>
@@ -148,38 +173,19 @@ export const LaunchCountdownModal = () => {
     {
       title: 'Try the Demo',
       content: (
-        <div className="space-y-4 text-center">
-          <h3 className="text-2xl font-bold text-foreground">See It In Action</h3>
-          <p className="text-muted-foreground">
-            Experience our AI shopping assistant in the floating widget on the bottom right of this page
+        <div className="space-y-4">
+          <div className="text-center space-y-2">
+            <h3 className="text-3xl font-bold text-foreground">Experience It Live</h3>
+            <p className="text-muted-foreground">
+              Interact with our AI shopping assistant below
+            </p>
+          </div>
+          <div className="bg-muted/30 rounded-xl p-4 border">
+            <FloatingAgentDemo />
+          </div>
+          <p className="text-xs text-center text-muted-foreground">
+            This is a live demo - try asking about products or colors!
           </p>
-          <div className="bg-muted/50 rounded-lg p-6 space-y-4">
-            <div className="text-4xl">💬</div>
-            <div className="space-y-2">
-              <div className="font-semibold text-foreground">Interactive Demo Available</div>
-              <div className="text-sm text-muted-foreground">
-                Our AI agent understands your products, answers questions, and guides customers through the buying journey. Close this modal to try the demo on the bottom right of the page.
-              </div>
-            </div>
-          </div>
-          <div className="grid grid-cols-2 gap-4 mt-4">
-            <div className="text-left">
-              <div className="text-sm font-semibold text-foreground mb-1">✨ Features</div>
-              <ul className="text-xs text-muted-foreground space-y-1">
-                <li>• Product recommendations</li>
-                <li>• Natural conversation</li>
-                <li>• Purchase assistance</li>
-              </ul>
-            </div>
-            <div className="text-left">
-              <div className="text-sm font-semibold text-foreground mb-1">🎯 Benefits</div>
-              <ul className="text-xs text-muted-foreground space-y-1">
-                <li>• 24/7 availability</li>
-                <li>• Instant responses</li>
-                <li>• Higher conversions</li>
-              </ul>
-            </div>
-          </div>
         </div>
       )
     },
@@ -187,42 +193,55 @@ export const LaunchCountdownModal = () => {
       title: 'Contract Address',
       content: (
         <div className="space-y-6 text-center">
-          <div className="space-y-2">
-            <h3 className="text-2xl font-bold text-foreground">Join the SIM Token</h3>
-            <p className="text-muted-foreground">
-              Be part of the agentic sales revolution
+          <div className="space-y-3">
+            <div className="flex justify-center mb-4">
+              <div className="bg-gradient-to-br from-primary/20 to-primary/5 rounded-full p-4">
+                <img src="/sim-logo-white.png" alt="SIM" className="h-12 w-auto" />
+              </div>
+            </div>
+            <h3 className="text-3xl font-bold text-foreground">Join the SIM Revolution</h3>
+            <p className="text-lg text-muted-foreground max-w-md mx-auto">
+              Be part of the future of agentic e-commerce
             </p>
           </div>
           
-          <div className="bg-muted rounded-lg p-6 space-y-4">
-            <div className="text-sm text-muted-foreground uppercase font-semibold">
+          <div className="bg-gradient-to-br from-primary/10 to-primary/5 rounded-xl p-6 space-y-4 border border-primary/20 max-w-lg mx-auto">
+            <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground uppercase font-bold tracking-wider">
+              <div className="w-8 h-px bg-primary/30"></div>
               Contract Address
+              <div className="w-8 h-px bg-primary/30"></div>
             </div>
-            <div className="bg-background rounded-lg p-4 font-mono text-sm break-all text-foreground">
+            <div className="bg-background rounded-lg p-5 font-mono text-xs sm:text-sm break-all text-foreground font-semibold shadow-inner">
               {CONTRACT_ADDRESS}
             </div>
             <Button
               onClick={copyCA}
-              variant="outline"
-              className="w-full gap-2"
+              variant="default"
+              className="w-full gap-2 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold"
+              size="lg"
             >
               {copied ? (
                 <>
-                  <Check className="h-4 w-4" />
-                  Copied!
+                  <Check className="h-5 w-5" />
+                  Copied to Clipboard!
                 </>
               ) : (
                 <>
-                  <Copy className="h-4 w-4" />
+                  <Copy className="h-5 w-5" />
                   Copy Contract Address
                 </>
               )}
             </Button>
           </div>
 
-          <p className="text-xs text-muted-foreground">
-            Official launch: November 14th, 2025 at 5pm CT
-          </p>
+          <div className="bg-muted/50 rounded-lg p-4 max-w-md mx-auto">
+            <p className="text-sm font-semibold text-foreground mb-1">
+              🚀 Launch Date
+            </p>
+            <p className="text-sm text-muted-foreground">
+              November 14th, 2025 • 5:00 PM CT
+            </p>
+          </div>
         </div>
       )
     }
