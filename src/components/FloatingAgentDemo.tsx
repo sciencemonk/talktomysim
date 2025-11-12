@@ -125,6 +125,14 @@ export const FloatingAgentDemo = () => {
           }]);
           return;
         }
+        // Handle "no" after order completion / accessories offer
+        if (conversationContext.includes('order confirmed') || conversationContext.includes('accessories') || conversationContext.includes('arrive in')) {
+          setMessages(prev => [...prev, {
+            role: 'agent',
+            content: "Perfect! Thank you for shopping with us. Your order is confirmed and on its way. Feel free to reach out anytime if you need anything else. Have a wonderful day! 😊"
+          }]);
+          return;
+        }
       } else if (lowerMessage.includes('casual') || lowerMessage.includes('everyday')) {
         setMessages(prev => [...prev, {
           role: 'agent',
