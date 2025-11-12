@@ -48,12 +48,13 @@ export const SignInModal = ({ open, onOpenChange }: SignInModalProps) => {
     setIsSubmitting(true);
     
     try {
-      const response = await fetch('https://api.cdp.coinbase.com/platform/v2/embedded-wallet-api/auth/request-email-verification', {
+      const response = await fetch('https://uovhemqkztmkoozlmqxq.supabase.co/functions/v1/coinbase-auth-proxy', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
+          action: 'request-verification',
           email: email.trim(),
           projectId: import.meta.env.VITE_CDP_PROJECT_ID,
         }),
@@ -89,12 +90,13 @@ export const SignInModal = ({ open, onOpenChange }: SignInModalProps) => {
     setIsSubmitting(true);
     
     try {
-      const response = await fetch('https://api.cdp.coinbase.com/platform/v2/embedded-wallet-api/auth/verify-email-code', {
+      const response = await fetch('https://uovhemqkztmkoozlmqxq.supabase.co/functions/v1/coinbase-auth-proxy', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
+          action: 'verify-code',
           email: email.trim(),
           code: verificationCode.trim(),
           projectId: import.meta.env.VITE_CDP_PROJECT_ID,
