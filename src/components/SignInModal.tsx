@@ -121,7 +121,7 @@ export const SignInModal = ({ open, onOpenChange }: SignInModalProps) => {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md p-0 gap-0 bg-background border-border">
+      <DialogContent className="sm:max-w-md p-0 gap-0 bg-background border-border overflow-visible">
         <button
           onClick={() => onOpenChange(false)}
           className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none disabled:pointer-events-none z-50"
@@ -130,7 +130,7 @@ export const SignInModal = ({ open, onOpenChange }: SignInModalProps) => {
           <span className="sr-only">Close</span>
         </button>
 
-        <div className="p-8 pt-12">
+        <div className="p-8 pt-12 relative z-10">
           {showEmailInput ? (
             <div className="space-y-6">
               <div className="text-center mb-6">

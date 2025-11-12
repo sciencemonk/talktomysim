@@ -762,12 +762,13 @@ const Marketplace = () => {
           </div>
 
           <div className="text-center">
-            <button
-              onClick={() => navigate('/signin')}
-              className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-8 py-3 rounded-lg font-semibold hover:bg-primary/90 transition-colors text-lg"
+            <Button
+              onClick={() => setShowSignInModal(true)}
+              size="lg"
+              className="text-lg px-8 py-3 h-auto font-semibold"
             >
               Create Free Account
-            </button>
+            </Button>
           </div>
         </div>
       </div>
@@ -791,7 +792,7 @@ const Marketplace = () => {
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <Button
-                onClick={() => navigate('/signin')}
+                onClick={() => setShowSignInModal(true)}
                 size="lg"
                 className="text-lg px-8 py-6 h-auto font-semibold"
               >
