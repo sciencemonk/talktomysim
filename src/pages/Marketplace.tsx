@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { Bot, Package, FileText, Search, Filter, Star, TrendingUp, Sparkles, Zap, Store, Mail, Menu, Code, Wallet, User } from "lucide-react";
+import { Bot, Package, FileText, Search, Filter, Star, TrendingUp, Sparkles, Zap, Store, Mail, Menu, Code, Wallet, User, ArrowRight } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
@@ -22,7 +22,10 @@ import { useTheme } from "@/hooks/useTheme";
 import SimpleFooter from "@/components/SimpleFooter";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { FloatingAgentDemo } from "@/components/FloatingAgentDemo";
-import { SignInModal } from "@/components/SignInModal";
+import { z } from "zod";
+
+const emailSchema = z.string().trim().email({ message: "Invalid email address" }).max(255, { message: "Email must be less than 255 characters" });
+const verificationCodeSchema = z.string().trim().length(6, { message: "Verification code must be 6 digits" });
 type MarketplaceItem = {
   id: string;
   type: 'agent' | 'offering';
@@ -37,7 +40,7 @@ type MarketplaceItem = {
 };
 const Marketplace = () => {
   const navigate = useNavigate();
-  const { user, signOut } = useAuth();
+  const { user, signOut, updateUser } = useAuth();
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState("trending");
   const [categoryFilter, setCategoryFilter] = useState("all");
@@ -48,7 +51,14 @@ const Marketplace = () => {
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [showBetaRequest, setShowBetaRequest] = useState(false);
   const [betaCode, setBetaCode] = useState('');
-  const [showSignInModal, setShowSignInModal] = useState(false);
+  
+  // Sign-in flow states
+  const [signInStep, setSignInStep] = useState<'email' | 'verification'>('email');
+  const [email, setEmail] = useState('');
+  const [verificationCode, setVerificationCode] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [emailError, setEmailError] = useState('');
+  const [codeError, setCodeError] = useState('');
   
   useEffect(() => {
     if (theme === 'system') {
@@ -220,12 +230,105 @@ const Marketplace = () => {
   };
 
 
-  const handleXSignIn = () => {
+  const handleSignIn = () => {
     navigate('/signin');
   };
 
-  const handleSignIn = () => {
-    navigate('/signin');
+  const handleEmailSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setEmailError('');
+    
+    // Validate email
+    try {
+      emailSchema.parse(email);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        setEmailError(error.errors[0].message);
+        return;
+      }
+    }
+
+    setIsSubmitting(true);
+    
+    try {
+      // Request email verification from Coinbase CDP
+      const response = await fetch('https://api.cdp.coinbase.com/platform/v2/embedded-wallet-api/auth/request-email-verification', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: email.trim(),
+          projectId: import.meta.env.VITE_CDP_PROJECT_ID,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to send verification code');
+      }
+
+      toast.success('Verification code sent to your email');
+      setSignInStep('verification');
+    } catch (error) {
+      console.error('Error sending verification code:', error);
+      toast.error('Failed to send verification code. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleVerificationSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setCodeError('');
+    
+    // Validate verification code
+    try {
+      verificationCodeSchema.parse(verificationCode);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        setCodeError(error.errors[0].message);
+        return;
+      }
+    }
+
+    setIsSubmitting(true);
+    
+    try {
+      // Verify code with Coinbase CDP
+      const response = await fetch('https://api.cdp.coinbase.com/platform/v2/embedded-wallet-api/auth/verify-email-code', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: email.trim(),
+          code: verificationCode.trim(),
+          projectId: import.meta.env.VITE_CDP_PROJECT_ID,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Invalid verification code');
+      }
+
+      const data = await response.json();
+      
+      // Update user data
+      updateUser({
+        email: email.trim(),
+        address: data.address,
+        coinbaseAuth: true,
+        signedInAt: new Date().toISOString()
+      });
+
+      toast.success('Successfully signed in!');
+      navigate('/dashboard');
+    } catch (error) {
+      console.error('Error verifying code:', error);
+      setCodeError('Invalid verification code. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
   return <div className="min-h-screen bg-bg">
       {/* Hero Section with Video Background */}
@@ -279,7 +382,7 @@ const Marketplace = () => {
                   <Button 
                     variant="outline" 
                     size="sm"
-                    onClick={() => setShowSignInModal(true)}
+                    onClick={() => navigate('/signin')}
                     className="bg-white/10 backdrop-blur-sm border-white/20 text-white hover:bg-white/20 hover:text-white"
                   >
                     Sign In
@@ -291,9 +394,6 @@ const Marketplace = () => {
           </div>
         </nav>
         
-        {/* Sign In Modal */}
-        <SignInModal open={showSignInModal} onOpenChange={setShowSignInModal} />
-        
         {/* Content */}
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center justify-center h-[calc(100vh-4rem)] text-center">
           {!showBetaRequest ? (
@@ -304,13 +404,90 @@ const Marketplace = () => {
               <p className="text-lg sm:text-xl text-white/90 mb-8 max-w-3xl mx-auto">
                 A knowledgeable AI Agent right on your store that drives more sales and happier customers.
               </p>
-              <Button
-                onClick={() => setShowSignInModal(true)}
-                size="lg"
-                className="bg-white text-black hover:bg-white/90 text-xl px-12 py-8 h-auto font-semibold"
-              >
-                Create Free Account
-              </Button>
+              
+              {/* Sign-in form */}
+              {!user && (
+                <div className="max-w-md mx-auto w-full">
+                  {signInStep === 'email' ? (
+                    <form onSubmit={handleEmailSubmit} className="space-y-4">
+                      <div className="flex gap-2">
+                        <div className="flex-1">
+                          <Input
+                            type="email"
+                            placeholder="Enter your email"
+                            value={email}
+                            onChange={(e) => {
+                              setEmail(e.target.value);
+                              setEmailError('');
+                            }}
+                            className="bg-white/10 backdrop-blur-md border-white/20 text-white placeholder:text-white/60 text-lg py-6 px-6"
+                            disabled={isSubmitting}
+                          />
+                          {emailError && (
+                            <p className="text-red-400 text-sm mt-2 text-left">{emailError}</p>
+                          )}
+                        </div>
+                        <Button
+                          type="submit"
+                          size="lg"
+                          disabled={isSubmitting}
+                          className="bg-white text-black hover:bg-white/90 text-lg px-8 py-6 h-auto font-semibold whitespace-nowrap"
+                        >
+                          {isSubmitting ? 'Sending...' : 'Sign Up'}
+                          <ArrowRight className="ml-2 h-5 w-5" />
+                        </Button>
+                      </div>
+                    </form>
+                  ) : (
+                    <form onSubmit={handleVerificationSubmit} className="space-y-4">
+                      <div className="text-white/90 text-sm mb-4">
+                        We sent a verification code to <span className="font-semibold">{email}</span>
+                      </div>
+                      <div className="flex gap-2">
+                        <div className="flex-1">
+                          <Input
+                            type="text"
+                            placeholder="Enter 6-digit code"
+                            value={verificationCode}
+                            onChange={(e) => {
+                              setVerificationCode(e.target.value.replace(/\D/g, '').slice(0, 6));
+                              setCodeError('');
+                            }}
+                            className="bg-white/10 backdrop-blur-md border-white/20 text-white placeholder:text-white/60 text-lg py-6 px-6 text-center tracking-widest font-mono"
+                            disabled={isSubmitting}
+                            maxLength={6}
+                          />
+                          {codeError && (
+                            <p className="text-red-400 text-sm mt-2 text-left">{codeError}</p>
+                          )}
+                        </div>
+                        <Button
+                          type="submit"
+                          size="lg"
+                          disabled={isSubmitting || verificationCode.length !== 6}
+                          className="bg-white text-black hover:bg-white/90 text-lg px-8 py-6 h-auto font-semibold whitespace-nowrap"
+                        >
+                          {isSubmitting ? 'Verifying...' : 'Verify'}
+                          <ArrowRight className="ml-2 h-5 w-5" />
+                        </Button>
+                      </div>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          setSignInStep('email');
+                          setVerificationCode('');
+                          setCodeError('');
+                        }}
+                        className="text-white/70 hover:text-white hover:bg-white/10"
+                      >
+                        Change email
+                      </Button>
+                    </form>
+                  )}
+                </div>
+              )}
             </>
           ) : (
             <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-8 max-w-md w-full">
