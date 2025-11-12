@@ -2,13 +2,14 @@ import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
-import { Bot, Send, Check, Loader2, ExternalLink, X, Minus } from "lucide-react";
+import { Send, Check, Loader2, ExternalLink, X, Minus } from "lucide-react";
 
 import productDenimJacket from "@/assets/product-denim-jacket.jpg";
 import productSummerDress from "@/assets/product-summer-dress.jpg";
 import productLeatherBoots from "@/assets/product-leather-boots.jpg";
 import productWoolSweater from "@/assets/product-wool-sweater.jpg";
 import productSneakers from "@/assets/product-sneakers.jpg";
+import callCenterAgent from "@/assets/call-center-agent.png";
 
 interface Message {
   role: 'agent' | 'user';
@@ -268,9 +269,9 @@ export const FloatingAgentDemo = () => {
     return (
       <button
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-6 right-6 w-16 h-16 rounded-full bg-primary text-primary-foreground shadow-lg hover:scale-110 transition-transform flex items-center justify-center z-50 animate-fade-in"
+        className="fixed bottom-6 right-6 w-16 h-16 rounded-full bg-primary text-primary-foreground shadow-lg hover:scale-110 transition-transform flex items-center justify-center z-50 animate-fade-in overflow-hidden"
       >
-        <Bot className="w-8 h-8" />
+        <img src={callCenterAgent} alt="AI Assistant" className="w-full h-full object-cover" />
       </button>
     );
   }
@@ -281,8 +282,8 @@ export const FloatingAgentDemo = () => {
         {/* Chat Header */}
         <div className="p-4 border-b border-border bg-primary/5 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-              <Bot className="w-6 h-6 text-primary" />
+            <div className="w-10 h-10 rounded-full overflow-hidden flex items-center justify-center">
+              <img src={callCenterAgent} alt="AI Assistant" className="w-full h-full object-cover" />
             </div>
             <div>
               <h3 className="font-semibold text-foreground">AI Shopping Assistant</h3>
