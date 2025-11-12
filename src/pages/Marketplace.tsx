@@ -417,8 +417,8 @@ const Marketplace = () => {
                       1
                     </div>
                     <div>
-                      <p className="font-medium text-foreground">Initialize the SDK</p>
-                      <p className="text-sm">Import and configure the agentic payment client with your API key</p>
+                      <p className="font-medium text-foreground">Create an Agent</p>
+                      <p className="text-sm">Initialize an AI agent with budget limits and approval rules</p>
                     </div>
                   </div>
                   <div className="flex gap-3">
@@ -426,8 +426,8 @@ const Marketplace = () => {
                       2
                     </div>
                     <div>
-                      <p className="font-medium text-foreground">Create an Agent Session</p>
-                      <p className="text-sm">Define payment parameters and agent capabilities for autonomous transactions</p>
+                      <p className="font-medium text-foreground">Configure Webhooks</p>
+                      <p className="text-sm">Set up real-time notifications for payment events and approvals</p>
                     </div>
                   </div>
                   <div className="flex gap-3">
@@ -435,8 +435,8 @@ const Marketplace = () => {
                       3
                     </div>
                     <div>
-                      <p className="font-medium text-foreground">Let AI Handle the Rest</p>
-                      <p className="text-sm">The agent executes payments based on user preferences and conditions</p>
+                      <p className="font-medium text-foreground">Agent Executes Payments</p>
+                      <p className="text-sm">AI makes autonomous payment decisions within your defined constraints</p>
                     </div>
                   </div>
                 </div>
@@ -447,19 +447,23 @@ const Marketplace = () => {
                 <ul className="space-y-2 text-sm text-muted-foreground">
                   <li className="flex items-start gap-2">
                     <span className="text-primary">✓</span>
-                    <span>Type-safe SDK for TypeScript/JavaScript</span>
+                    <span>Budget controls with daily, monthly, and per-transaction limits</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-primary">✓</span>
-                    <span>Built-in webhook support for real-time updates</span>
+                    <span>Approval workflows for high-value transactions</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-primary">✓</span>
-                    <span>Automatic retry logic and error handling</span>
+                    <span>Real-time webhook notifications for all payment events</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-primary">✓</span>
-                    <span>Test mode for development and staging</span>
+                    <span>Sandbox environment for testing and development</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-primary">✓</span>
+                    <span>Comprehensive error handling and retry logic</span>
                   </li>
                 </ul>
               </div>
@@ -484,32 +488,54 @@ npm install @simai/agentic-payments
 // Initialize client
 import { AgenticPayments } from '@simai/agentic-payments';
 
-const payments = new AgenticPayments({
-  apiKey: process.env.SIMAI_API_KEY
+const client = new AgenticPayments({
+  apiKey: process.env.SIMAI_API_KEY,
+  environment: 'production' // or 'sandbox' for testing
 });
 
-// Create an agent session
-const session = await payments.createSession({
-  agentId: 'your-agent-id',
-  capabilities: {
-    maxAmount: 1000,
-    allowedVendors: ['amazon', 'shopify'],
-    autoRenew: true
+// Create an agent with spending authority
+const agent = await client.agents.create({
+  name: 'shopping-assistant',
+  budget: {
+    daily: 100,      // Max $100/day
+    monthly: 2000,   // Max $2000/month
+    perTransaction: 50
   },
-  rules: {
-    priceThreshold: 0.15, // Only buy if 15% off
-    budgetLimit: 500,
-    category: 'electronics'
+  approvalRules: {
+    requireApproval: { above: 25 }, // Human approval for >$25
+    autoApprove: { under: 10 }      // Auto-approve under $10
   }
 });
 
-// Agent handles transactions autonomously
-console.log('Session active:', session.id);
+// Configure webhooks for real-time notifications
+await client.webhooks.create({
+  url: 'https://yourapp.com/webhooks/payments',
+  events: ['payment.approved', 'payment.completed', 
+           'payment.failed', 'approval.required']
+});
 
-// Listen for payment events
-payments.on('payment.completed', (event) => {
-  console.log('Payment processed:', event.amount);
-});`}
+// Agent executes a payment
+try {
+  const payment = await agent.pay({
+    merchantId: 'merchant_abc123',
+    amount: 15.99,
+    currency: 'USD',
+    metadata: {
+      productId: 'prod_xyz',
+      reason: 'Found 20% discount, within budget'
+    }
+  });
+  
+  console.log('Payment status:', payment.status);
+  // Output: "completed" or "pending_approval"
+  
+} catch (error) {
+  if (error.code === 'BUDGET_EXCEEDED') {
+    console.log('Agent budget limit reached');
+  } else if (error.code === 'APPROVAL_REQUIRED') {
+    console.log('Awaiting user approval:', error.approvalUrl);
+  }
+}`}
                   </code>
                 </pre>
               </div>
