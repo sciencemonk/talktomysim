@@ -1,11 +1,8 @@
-
 import { useState, useEffect, createContext, useContext } from 'react';
-import { User, Session } from '@supabase/supabase-js';
-import { supabase } from '@/integrations/supabase/client';
 
 interface AuthContextType {
-  user: User | null;
-  session: Session | null;
+  user: any | null;
+  session: any | null;
   loading: boolean;
   signOut: () => Promise<void>;
 }
@@ -18,36 +15,38 @@ const AuthContext = createContext<AuthContextType>({
 });
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
+  const [user, setUser] = useState<any | null>(null);
+  const [session, setSession] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Set up auth state listener FIRST
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        console.log('Auth state changed:', event, session?.user?.email || 'No user');
-        setSession(session);
-        setUser(session?.user ?? null);
+    // Check for existing Coinbase Wallet connection
+    const checkConnection = async () => {
+      try {
+        const coinbaseWallet = (window as any).coinbaseWallet;
+        if (coinbaseWallet) {
+          const ethereum = coinbaseWallet.makeWeb3Provider();
+          const accounts = await ethereum.request({ method: 'eth_accounts' });
+          
+          if (accounts && accounts.length > 0) {
+            const userAccount = { address: accounts[0] };
+            setUser(userAccount);
+            setSession({ user: userAccount });
+          }
+        }
+      } catch (error) {
+        console.error('Error checking wallet connection:', error);
+      } finally {
         setLoading(false);
       }
-    );
+    };
 
-    // THEN check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      console.log('Initial session check:', session?.user?.email || 'No user');
-      setSession(session);
-      setUser(session?.user ?? null);
-      setLoading(false);
-    });
-
-    return () => subscription.unsubscribe();
+    checkConnection();
   }, []);
 
   const signOut = async () => {
     try {
       console.log('Signing out user');
-      await supabase.auth.signOut();
       setUser(null);
       setSession(null);
     } catch (error) {
