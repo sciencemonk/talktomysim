@@ -6,7 +6,7 @@ import { toast } from 'sonner';
 import { FloatingAgentDemo } from './FloatingAgentDemo';
 import shopifyLogo from '@/assets/shopify-logo.png';
 import visaLogo from '@/assets/visa-logo.png';
-import xIcon from '@/assets/x-icon.png';
+
 
 interface CountdownTime {
   days: number;
@@ -128,7 +128,7 @@ export const LaunchCountdownModal = () => {
           <div className="flex items-center justify-center gap-6 mt-8 pt-6 border-t">
             <img src={shopifyLogo} alt="Shopify" className="h-8 opacity-70 hover:opacity-100 transition-opacity" />
             <img src={visaLogo} alt="Visa" className="h-8 opacity-70 hover:opacity-100 transition-opacity" />
-            <img src={xIcon} alt="X" className="h-6 opacity-70 hover:opacity-100 transition-opacity" />
+            <div className="text-2xl font-bold text-primary opacity-70 hover:opacity-100 transition-opacity">x402</div>
           </div>
         </div>
       )
@@ -180,7 +180,7 @@ export const LaunchCountdownModal = () => {
               Interact with our AI shopping assistant below
             </p>
           </div>
-          <div className="bg-muted/30 rounded-xl p-4 border">
+          <div className="relative mx-auto" style={{ width: '400px', height: '600px' }}>
             <FloatingAgentDemo />
           </div>
           <p className="text-xs text-center text-muted-foreground">
