@@ -348,73 +348,260 @@ const Marketplace = () => {
         </div>
       </div>
 
-      {/* Vision Section */}
-      <div className="bg-background border-b border-border">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
+      {/* Step 1: Vector Embeddings - Impressive Visual Section */}
+      <div className="bg-gradient-to-br from-primary/5 via-background to-primary/10 border-b border-border relative overflow-hidden">
+        {/* Animated background effect */}
+        <div className="absolute inset-0 opacity-30">
+          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/20 rounded-full blur-3xl animate-pulse"></div>
+          <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl animate-pulse delay-700"></div>
+        </div>
+
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 sm:py-32">
           <div className="text-center mb-16">
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-foreground mb-6">
-              How It Works
+            <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-full text-sm font-semibold mb-6">
+              <Sparkles className="w-4 h-4" />
+              Step 1: The Foundation
+            </div>
+            <h2 className="text-4xl sm:text-5xl md:text-6xl font-bold text-foreground mb-6">
+              Transform Your Catalog Into Intelligence
             </h2>
-            <div className="w-20 h-1 bg-primary mx-auto mb-8"></div>
-            <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
-              Transform your entire store into an intelligent sales agent in three simple steps.
+            <div className="w-24 h-1 bg-gradient-to-r from-primary via-primary/50 to-transparent mx-auto mb-8"></div>
+            <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+              We don't just store your products. We create a semantic understanding of your entire inventory.
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8 mb-16">
-            {/* Step 1 */}
-            <div className="bg-card border border-border rounded-xl p-8 text-center">
-              <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
-                <Store className="w-8 h-8 text-primary" />
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            {/* Left side - Visual representation */}
+            <div className="order-2 lg:order-1">
+              <div className="relative">
+                {/* Main visualization card */}
+                <div className="bg-card border-2 border-primary/30 rounded-2xl p-8 shadow-2xl backdrop-blur-sm">
+                  <div className="space-y-6">
+                    {/* Product item flowing into embeddings */}
+                    <div className="flex items-center gap-4 p-4 bg-background/50 rounded-lg border border-border animate-fade-in">
+                      <Package className="w-8 h-8 text-primary" />
+                      <div className="flex-1">
+                        <p className="font-semibold text-foreground text-sm">Product Data</p>
+                        <p className="text-xs text-muted-foreground">Name, description, attributes, images...</p>
+                      </div>
+                      <Zap className="w-5 h-5 text-primary animate-pulse" />
+                    </div>
+
+                    {/* Transformation arrow */}
+                    <div className="flex justify-center">
+                      <div className="flex flex-col items-center gap-2">
+                        <div className="text-2xl font-bold text-primary">↓</div>
+                        <p className="text-xs font-semibold text-primary">Vector Embedding</p>
+                      </div>
+                    </div>
+
+                    {/* Vector representation */}
+                    <div className="bg-gradient-to-br from-primary/20 to-primary/5 rounded-lg p-6 border border-primary/30">
+                      <div className="flex items-center gap-3 mb-4">
+                        <div className="w-10 h-10 bg-primary/20 rounded-full flex items-center justify-center">
+                          <Sparkles className="w-5 h-5 text-primary" />
+                        </div>
+                        <p className="font-semibold text-foreground">Semantic Vector</p>
+                      </div>
+                      <div className="grid grid-cols-8 gap-2">
+                        {[...Array(64)].map((_, i) => (
+                          <div
+                            key={i}
+                            className="h-2 bg-primary/30 rounded-full animate-pulse"
+                            style={{ animationDelay: `${i * 30}ms` }}
+                          />
+                        ))}
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-4">
+                        768-dimensional embedding capturing semantic meaning
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Floating accent elements */}
+                <div className="absolute -top-6 -right-6 w-24 h-24 bg-primary/10 rounded-full blur-2xl animate-pulse"></div>
+                <div className="absolute -bottom-6 -left-6 w-32 h-32 bg-primary/5 rounded-full blur-3xl animate-pulse delay-500"></div>
               </div>
-              <h3 className="text-xl font-semibold text-foreground mb-4">1. Vector Embeddings</h3>
-              <p className="text-muted-foreground leading-relaxed">
-                We transform your entire product catalog into vector embeddings, creating a semantic understanding of every item, description, and detail in your store.
-              </p>
             </div>
 
-            {/* Step 2 */}
-            <div className="bg-card border border-border rounded-xl p-8 text-center">
-              <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
-                <Bot className="w-8 h-8 text-primary" />
+            {/* Right side - Features */}
+            <div className="order-1 lg:order-2 space-y-6">
+              <div className="bg-card border border-border rounded-xl p-6 hover:border-primary/50 transition-all hover:shadow-lg">
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <Search className="w-6 h-6 text-primary" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-foreground mb-2">Semantic Understanding</h3>
+                    <p className="text-muted-foreground leading-relaxed">
+                      Your AI agent understands "red summer dress" means the same as "scarlet sundress" or "crimson evening gown". It gets context, not just keywords.
+                    </p>
+                  </div>
+                </div>
               </div>
-              <h3 className="text-xl font-semibold text-foreground mb-4">2. Personalize Your Agent</h3>
-              <p className="text-muted-foreground leading-relaxed">
-                Configure your AI agent's personality, tone, and sales approach to match your brand. Set rules for discounts, upsells, and customer interactions.
-              </p>
-            </div>
 
-            {/* Step 3 */}
-            <div className="bg-card border border-border rounded-xl p-8 text-center">
-              <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
-                <Sparkles className="w-8 h-8 text-primary" />
+              <div className="bg-card border border-border rounded-xl p-6 hover:border-primary/50 transition-all hover:shadow-lg">
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <TrendingUp className="w-6 h-6 text-primary" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-foreground mb-2">Instant Product Knowledge</h3>
+                    <p className="text-muted-foreground leading-relaxed">
+                      Every product, variant, price point, and detail is embedded in seconds. Your agent becomes an expert on your entire catalog instantly.
+                    </p>
+                  </div>
+                </div>
               </div>
-              <h3 className="text-xl font-semibold text-foreground mb-4">3. Embed & Scale</h3>
-              <p className="text-muted-foreground leading-relaxed">
-                Add a single line of code to your site. Your AI agent goes live instantly, bringing agentic sales to every visitor and driving conversions 24/7.
-              </p>
-            </div>
-          </div>
 
-          <div className="text-center">
-            <button
-              onClick={() => document.getElementById('waitlist-form')?.scrollIntoView({ behavior: 'smooth' })}
-              className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-8 py-3 rounded-lg font-semibold hover:bg-primary/90 transition-colors text-lg"
-            >
-              Get Started Now
-            </button>
+              <div className="bg-card border border-border rounded-xl p-6 hover:border-primary/50 transition-all hover:shadow-lg">
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <Sparkles className="w-6 h-6 text-primary" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-foreground mb-2">Intelligent Recommendations</h3>
+                    <p className="text-muted-foreground leading-relaxed">
+                      Vector similarity powers contextual recommendations. The agent suggests complementary items based on deep product relationships, not just tags.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Easy Integration Section */}
+      {/* Step 2: Agent Personalization */}
+      <div className="bg-background border-b border-border">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 sm:py-32">
+          <div className="text-center mb-16">
+            <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-full text-sm font-semibold mb-6">
+              <Bot className="w-4 h-4" />
+              Step 2: Your Brand Voice
+            </div>
+            <h2 className="text-4xl sm:text-5xl md:text-6xl font-bold text-foreground mb-6">
+              Align Your Agent With Your Brand
+            </h2>
+            <div className="w-24 h-1 bg-gradient-to-r from-primary via-primary/50 to-transparent mx-auto mb-8"></div>
+            <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+              Custom avatars, speech patterns, and conversation flows that perfectly match your brand identity.
+            </p>
+          </div>
+
+          <div className="grid lg:grid-cols-3 gap-8 mb-12">
+            {/* Avatar Customization */}
+            <div className="bg-gradient-to-br from-card to-card/50 border border-border rounded-2xl p-8 hover:border-primary/50 transition-all hover:shadow-xl">
+              <div className="w-20 h-20 bg-gradient-to-br from-primary/20 to-primary/5 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
+                <Bot className="w-10 h-10 text-primary" />
+              </div>
+              <h3 className="text-xl font-semibold text-foreground mb-4 text-center">Custom Avatar</h3>
+              <p className="text-muted-foreground text-center leading-relaxed mb-6">
+                Upload your brand mascot, use AI-generated characters, or pick from our library. Make your agent instantly recognizable.
+              </p>
+              <div className="flex justify-center gap-2">
+                {[...Array(3)].map((_, i) => (
+                  <div key={i} className="w-10 h-10 bg-primary/10 rounded-full border-2 border-primary/30"></div>
+                ))}
+              </div>
+            </div>
+
+            {/* Speech Patterns */}
+            <div className="bg-gradient-to-br from-card to-card/50 border border-border rounded-2xl p-8 hover:border-primary/50 transition-all hover:shadow-xl">
+              <div className="w-20 h-20 bg-gradient-to-br from-primary/20 to-primary/5 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
+                <Mail className="w-10 h-10 text-primary" />
+              </div>
+              <h3 className="text-xl font-semibold text-foreground mb-4 text-center">Speech Patterns</h3>
+              <p className="text-muted-foreground text-center leading-relaxed mb-6">
+                Define your agent's tone: friendly and casual, professional and formal, or witty and playful. It speaks like your brand.
+              </p>
+              <div className="space-y-2">
+                <div className="bg-primary/10 text-primary px-3 py-2 rounded-lg text-sm text-center">
+                  "Hey there! 👋"
+                </div>
+                <div className="bg-muted text-muted-foreground px-3 py-2 rounded-lg text-sm text-center">
+                  "Good afternoon."
+                </div>
+              </div>
+            </div>
+
+            {/* Conversation Flows */}
+            <div className="bg-gradient-to-br from-card to-card/50 border border-border rounded-2xl p-8 hover:border-primary/50 transition-all hover:shadow-xl">
+              <div className="w-20 h-20 bg-gradient-to-br from-primary/20 to-primary/5 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
+                <TrendingUp className="w-10 h-10 text-primary" />
+              </div>
+              <h3 className="text-xl font-semibold text-foreground mb-4 text-center">Smart Flows</h3>
+              <p className="text-muted-foreground text-center leading-relaxed mb-6">
+                Configure objectives: up-sell premium items, promote seasonal sales, or guide customers to best-sellers. Your agent knows the strategy.
+              </p>
+              <div className="flex flex-col gap-2 text-xs text-center">
+                <div className="bg-background border border-border rounded px-2 py-1">Discovery</div>
+                <div className="text-primary">↓</div>
+                <div className="bg-background border border-border rounded px-2 py-1">Recommendation</div>
+                <div className="text-primary">↓</div>
+                <div className="bg-background border border-border rounded px-2 py-1">Close</div>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-card border border-border rounded-xl p-8 max-w-4xl mx-auto">
+            <h3 className="text-2xl font-semibold text-foreground mb-6 text-center">Your Brand, Your Rules</h3>
+            <div className="grid sm:grid-cols-2 gap-6">
+              <div className="flex items-start gap-3">
+                <div className="w-6 h-6 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                  <Sparkles className="w-3 h-3 text-primary" />
+                </div>
+                <div>
+                  <p className="font-medium text-foreground mb-1">Discount Rules</p>
+                  <p className="text-sm text-muted-foreground">Set when and how your agent offers promotions</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3">
+                <div className="w-6 h-6 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                  <Sparkles className="w-3 h-3 text-primary" />
+                </div>
+                <div>
+                  <p className="font-medium text-foreground mb-1">Upsell Strategy</p>
+                  <p className="text-sm text-muted-foreground">Configure cross-sells and bundle recommendations</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3">
+                <div className="w-6 h-6 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                  <Sparkles className="w-3 h-3 text-primary" />
+                </div>
+                <div>
+                  <p className="font-medium text-foreground mb-1">Response Time</p>
+                  <p className="text-sm text-muted-foreground">Instant replies or natural typing delays</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3">
+                <div className="w-6 h-6 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                  <Sparkles className="w-3 h-3 text-primary" />
+                </div>
+                <div>
+                  <p className="font-medium text-foreground mb-1">Guardrails</p>
+                  <p className="text-sm text-muted-foreground">Define boundaries for agent behavior</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Easy Integration Section - This is effectively Step 3 */}
       <div className="bg-card border-b border-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
           <div className="text-center mb-12">
+            <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-full text-sm font-semibold mb-6">
+              <Code className="w-4 h-4" />
+              Step 3: Go Live
+            </div>
             <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-foreground mb-6">
               Add SIM to Your Site in Seconds
             </h2>
-            <div className="w-20 h-1 bg-primary mx-auto mb-8"></div>
+            <div className="w-24 h-1 bg-gradient-to-r from-primary via-primary/50 to-transparent mx-auto mb-8"></div>
             <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
               Simple integration with one line of code. Works seamlessly with your existing store.
             </p>
