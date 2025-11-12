@@ -6,6 +6,7 @@ import { toast } from 'sonner';
 import { FloatingAgentDemo } from './FloatingAgentDemo';
 import shopifyLogo from '@/assets/shopify-logo.png';
 import visaLogo from '@/assets/visa-logo.png';
+import callCenterAgent from '@/assets/call-center-agent.png';
 
 
 interface CountdownTime {
@@ -174,18 +175,20 @@ export const LaunchCountdownModal = () => {
       )
     },
     {
-      title: 'Try the Demo',
+      title: 'Agentic Commerce',
       hasVideoBackground: false,
       content: (
         <div className="space-y-4">
           <div className="text-center space-y-2">
-            <h3 className="text-3xl font-bold text-foreground">Experience It Live</h3>
-            <p className="text-muted-foreground">
-              See our AI shopping assistant in action
+            <h3 className="text-3xl font-bold text-foreground">Agentic Commerce</h3>
+            <p className="text-muted-foreground max-w-lg mx-auto">
+              AI-powered shopping experiences that understand context, provide personalized recommendations, and drive real conversions
             </p>
           </div>
-          <div className="flex justify-center scale-90 origin-center">
-            <FloatingAgentDemo />
+          <div className="flex justify-center pointer-events-none">
+            <div className="scale-90 origin-center">
+              <FloatingAgentDemo />
+            </div>
           </div>
         </div>
       )
