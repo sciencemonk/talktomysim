@@ -57,8 +57,8 @@ const Marketplace = () => {
     if (isSignedIn && evmAddress && cdpUser) {
       const handleSignIn = async () => {
         try {
-          // Extract email from cdpUser - use type assertion as CDP types may not be complete
-          const userEmail = (cdpUser as any).email || (cdpUser as any).emailAddresses?.[0] || null;
+          // Extract email from cdpUser - nested in authenticationMethods
+          const userEmail = (cdpUser as any)?.authenticationMethods?.email?.email || null;
           
           console.log('Coinbase user data:', { evmAddress, email: userEmail, cdpUser });
           
