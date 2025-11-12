@@ -22,7 +22,9 @@ import { useTheme } from "@/hooks/useTheme";
 import SimpleFooter from "@/components/SimpleFooter";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
-import { SignInModal } from "@/components/SignInModal";
+import { userProfileService } from "@/services/userProfileService";
+import { AuthButton } from '@coinbase/cdp-react/components/AuthButton';
+import { useIsSignedIn, useEvmAddress } from '@coinbase/cdp-hooks';
 
 type MarketplaceItem = {
   id: string;
@@ -42,14 +44,45 @@ const Marketplace = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState("trending");
   const [categoryFilter, setCategoryFilter] = useState("all");
-  const {
-    theme
-  } = useTheme();
+  const { theme } = useTheme();
   const [resolvedTheme, setResolvedTheme] = useState<'light' | 'dark'>('dark');
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [showBetaRequest, setShowBetaRequest] = useState(false);
   const [betaCode, setBetaCode] = useState('');
-  const [showSignInModal, setShowSignInModal] = useState(false);
+  const { isSignedIn } = useIsSignedIn();
+  const { evmAddress } = useEvmAddress();
+  
+  // Handle Coinbase sign-in
+  useEffect(() => {
+    if (isSignedIn && evmAddress) {
+      const handleSignIn = async () => {
+        try {
+          const profile = await userProfileService.upsertProfile(evmAddress);
+          
+          if (profile) {
+            updateUser({
+              id: profile.id,
+              email: profile.email,
+              address: evmAddress,
+              coinbaseAuth: true,
+              signedInAt: new Date().toISOString()
+            });
+            
+            toast.success('Successfully signed in!');
+            
+            setTimeout(() => {
+              navigate('/dashboard');
+            }, 500);
+          }
+        } catch (error) {
+          console.error('Error during sign-in:', error);
+          toast.error('An error occurred during sign-in');
+        }
+      };
+      
+      handleSignIn();
+    }
+  }, [isSignedIn, evmAddress, navigate, updateUser]);
   
   useEffect(() => {
     if (theme === 'system') {
@@ -220,10 +253,6 @@ const Marketplace = () => {
     window.open(twitterUrl, '_blank');
   };
 
-
-  const handleSignIn = () => {
-    setShowSignInModal(true);
-  };
   return <div className="min-h-screen bg-bg">
       {/* Hero Section with Video Background */}
       <div className="relative border-b border-border overflow-hidden h-screen">
@@ -276,7 +305,7 @@ const Marketplace = () => {
                   <Button 
                     variant="outline" 
                     size="sm"
-                    onClick={() => setShowSignInModal(true)}
+                    onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
                     className="bg-white/10 backdrop-blur-sm border-white/20 text-white hover:bg-white/20 hover:text-white"
                   >
                     Sign In
@@ -287,9 +316,6 @@ const Marketplace = () => {
             </div>
           </div>
         </nav>
-        
-        {/* Sign In Modal */}
-        <SignInModal open={showSignInModal} onOpenChange={setShowSignInModal} />
         
         {/* Content */}
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center justify-center h-[calc(100vh-4rem)] text-center">
@@ -302,13 +328,9 @@ const Marketplace = () => {
                 A knowledgeable AI Agent right on your store that drives more sales and happier customers.
               </p>
               
-              <Button
-                onClick={() => setShowSignInModal(true)}
-                size="lg"
-                className="bg-white text-black hover:bg-white/90 text-xl px-12 py-8 h-auto font-semibold"
-              >
-                Create Free Account
-              </Button>
+              <div className="flex justify-center">
+                <AuthButton />
+              </div>
             </>
           ) : (
             <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-8 max-w-md w-full">
@@ -762,13 +784,9 @@ const Marketplace = () => {
           </div>
 
           <div className="text-center">
-            <Button
-              onClick={() => setShowSignInModal(true)}
-              size="lg"
-              className="text-lg px-8 py-3 h-auto font-semibold"
-            >
-              Create Free Account
-            </Button>
+            <div className="flex justify-center">
+              <AuthButton />
+            </div>
           </div>
         </div>
       </div>
@@ -791,14 +809,9 @@ const Marketplace = () => {
             </div>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Button
-                onClick={() => setShowSignInModal(true)}
-                size="lg"
-                className="text-lg px-8 py-6 h-auto font-semibold"
-              >
-                <Wallet className="mr-2 h-5 w-5" />
-                Create Free Account
-              </Button>
+              <div className="flex justify-center">
+                <AuthButton />
+              </div>
               <Button
                 onClick={() => window.open('https://www.coinbase.com/wallet/downloads', '_blank')}
                 variant="outline"
