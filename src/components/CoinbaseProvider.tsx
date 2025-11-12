@@ -1,19 +1,32 @@
 import { ReactNode } from 'react';
-import { CoinbaseWalletSDK } from '@coinbase/wallet-sdk';
+import { CDPReactProvider } from '@coinbase/cdp-react';
 
 interface CoinbaseProviderProps {
   children: ReactNode;
 }
 
 export const CoinbaseProvider = ({ children }: CoinbaseProviderProps) => {
-  // Initialize Coinbase Wallet SDK for embedded wallets
-  const coinbaseWallet = new CoinbaseWalletSDK({
-    appName: 'Agentic Sales Platform',
-    appLogoUrl: window.location.origin + '/sim-logo-light-final.png',
-  });
+  const projectId = import.meta.env.VITE_CDP_PROJECT_ID;
 
-  // Make wallet available globally
-  (window as any).coinbaseWallet = coinbaseWallet;
+  if (!projectId) {
+    console.error('VITE_CDP_PROJECT_ID is not set');
+    return <>{children}</>;
+  }
 
-  return <>{children}</>;
+  return (
+    <CDPReactProvider
+      config={{
+        projectId: projectId,
+        ethereum: {
+          createOnLogin: 'eoa' // Create Ethereum EOA wallet on login
+        },
+        solana: {
+          createOnLogin: true // Create Solana wallet on login
+        },
+        appName: 'Agentic Sales Platform'
+      }}
+    >
+      {children}
+    </CDPReactProvider>
+  );
 };
