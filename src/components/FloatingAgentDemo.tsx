@@ -107,6 +107,15 @@ export const FloatingAgentDemo = () => {
           simulateAgentResponse('', undefined, true);
           return;
         }
+        // Handle "yes" response to accessories question
+        if (conversationContext.includes('accessories') || conversationContext.includes('matching')) {
+          setMessages(prev => [...prev, {
+            role: 'agent',
+            content: "Great! Here are some perfect accessories to complement your style:",
+            recommendations: [recommendations[2], recommendations[4]]
+          }]);
+          return;
+        }
       } else if (lowerMessage.includes('no') || lowerMessage.includes('cancel') || lowerMessage.includes('not now')) {
         if (pendingPurchase) {
           setPendingPurchase(null);
