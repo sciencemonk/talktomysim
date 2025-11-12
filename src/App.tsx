@@ -64,10 +64,6 @@ import Facilitator from "./pages/Facilitator";
 import AgentPublicView from "./pages/AgentPublicView";
 import RootRedirect from "./pages/RootRedirect";
 import Onboarding from "./pages/Onboarding";
-import StoreAuth from "./pages/StoreAuth";
-import StoreOnboarding from "./pages/StoreOnboarding";
-import StoreDashboard from "./pages/StoreDashboard";
-import Storefront from "./pages/Storefront";
 
 const queryClient = new QueryClient();
 
@@ -127,12 +123,6 @@ const App = () => (
               
               {/* NFT Detail Page */}
               <Route path="/nft/:id" element={<NFTDetail />} />
-              
-              {/* Store routes */}
-              <Route path="/store/auth" element={<StoreAuth />} />
-              <Route path="/store/onboarding" element={<StoreOnboarding />} />
-              <Route path="/store/dashboard" element={<StoreDashboard />} />
-              <Route path="/store/:username" element={<Storefront />} />
               
               {/* X Agent Creator - Must come before catch-all */}
               <Route path="/:username/creator" element={<XAgentCreatorView />} />

@@ -310,11 +310,11 @@ const Marketplace = () => {
                 CA: FFqwoZ7phjoupWjLeE5yFeLqGi8jkGEFrTz6jnsUpump
               </button>
               <Button
-                onClick={() => navigate('/store/auth')}
+                onClick={() => document.getElementById('waitlist-form')?.scrollIntoView({ behavior: 'smooth' })}
                 size="lg"
                 className="bg-white text-black hover:bg-white/90 text-xl px-12 py-8 h-auto font-semibold"
               >
-                Create Your Store
+                Join Waitlist
               </Button>
             </>
           ) : (
