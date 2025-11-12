@@ -44,45 +44,11 @@ const Marketplace = () => {
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [showBetaRequest, setShowBetaRequest] = useState(false);
   const [betaCode, setBetaCode] = useState('');
-  const [dynamicWord, setDynamicWord] = useState('Live');
-  const [countdown, setCountdown] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+  const [showWaitlistModal, setShowWaitlistModal] = useState(false);
+  const [waitlistEmail, setWaitlistEmail] = useState('');
+  const [waitlistWallet, setWaitlistWallet] = useState('');
+  const [waitlistReason, setWaitlistReason] = useState('');
   
-  const words = ['Live', 'Transact', 'Explore'];
-  
-  useEffect(() => {
-    let currentIndex = 0;
-    const interval = setInterval(() => {
-      currentIndex = (currentIndex + 1) % words.length;
-      setDynamicWord(words[currentIndex]);
-    }, 2000);
-    
-    return () => clearInterval(interval);
-  }, []);
-
-  useEffect(() => {
-    const calculateCountdown = () => {
-      // November 11, 2025 at 11:59PM ET
-      const targetDate = new Date('2025-11-11T23:59:00-05:00').getTime();
-      const now = new Date().getTime();
-      const difference = targetDate - now;
-
-      if (difference > 0) {
-        const days = Math.floor(difference / (1000 * 60 * 60 * 24));
-        const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
-        const seconds = Math.floor((difference % (1000 * 60)) / 1000);
-
-        setCountdown({ days, hours, minutes, seconds });
-      } else {
-        setCountdown({ days: 0, hours: 0, minutes: 0, seconds: 0 });
-      }
-    };
-
-    calculateCountdown();
-    const timer = setInterval(calculateCountdown, 1000);
-
-    return () => clearInterval(timer);
-  }, []);
   useEffect(() => {
     if (theme === 'system') {
       const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -264,6 +230,39 @@ const Marketplace = () => {
     setBetaCode(code);
     setShowBetaRequest(true);
   };
+
+  const handleWaitlistSubmit = async () => {
+    if (!waitlistEmail) {
+      toast.error("Email address is required");
+      return;
+    }
+    
+    if (!waitlistWallet) {
+      toast.error("SOL wallet address is required");
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('waitlist')
+        .insert({
+          email: waitlistEmail,
+          wallet_address: waitlistWallet,
+          reason: waitlistReason || null
+        });
+
+      if (error) throw error;
+
+      toast.success("You've been added to the waitlist!");
+      setShowWaitlistModal(false);
+      setWaitlistEmail('');
+      setWaitlistWallet('');
+      setWaitlistReason('');
+    } catch (error) {
+      console.error("Error submitting waitlist:", error);
+      toast.error("Failed to join waitlist. Please try again.");
+    }
+  };
   return <div className="min-h-screen bg-bg">
       {/* Hero Section with Video Background */}
       <div className="relative border-b border-border overflow-hidden h-screen">
@@ -308,26 +307,13 @@ const Marketplace = () => {
               >
                 CA: FFqwoZ7phjoupWjLeE5yFeLqGi8jkGEFrTz6jnsUpump
               </button>
-              <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-6 sm:p-8 max-w-2xl w-full">
-                <div className="grid grid-cols-2 sm:flex sm:flex-row items-center justify-center gap-6 sm:gap-8">
-                  <div className="text-center">
-                    <div className="text-4xl sm:text-6xl font-bold text-white font-mono">{countdown.days}</div>
-                    <div className="text-xs sm:text-sm text-white/70 mt-1">Days</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-4xl sm:text-6xl font-bold text-white font-mono">{countdown.hours.toString().padStart(2, '0')}</div>
-                    <div className="text-xs sm:text-sm text-white/70 mt-1">Hours</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-4xl sm:text-6xl font-bold text-white font-mono">{countdown.minutes.toString().padStart(2, '0')}</div>
-                    <div className="text-xs sm:text-sm text-white/70 mt-1">Minutes</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-4xl sm:text-6xl font-bold text-white font-mono">{countdown.seconds.toString().padStart(2, '0')}</div>
-                    <div className="text-xs sm:text-sm text-white/70 mt-1">Seconds</div>
-                  </div>
-                </div>
-              </div>
+              <Button
+                onClick={() => setShowWaitlistModal(true)}
+                size="lg"
+                className="bg-white text-black hover:bg-white/90 text-xl px-12 py-8 h-auto font-semibold"
+              >
+                Join Waitlist
+              </Button>
             </>
           ) : (
             <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-8 max-w-md w-full">
@@ -348,6 +334,64 @@ const Marketplace = () => {
           )}
         </div>
       </div>
+
+      {/* Waitlist Modal */}
+      <Dialog open={showWaitlistModal} onOpenChange={setShowWaitlistModal}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Join the Waitlist</DialogTitle>
+            <DialogDescription>
+              Enter your details to get early access to the platform.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <label htmlFor="email" className="text-sm font-medium block mb-2">
+                Email Address *
+              </label>
+              <Input
+                id="email"
+                type="email"
+                placeholder="your@email.com"
+                value={waitlistEmail}
+                onChange={(e) => setWaitlistEmail(e.target.value)}
+              />
+            </div>
+            <div>
+              <label htmlFor="wallet" className="text-sm font-medium block mb-2">
+                SOL Wallet Address *
+              </label>
+              <Input
+                id="wallet"
+                type="text"
+                placeholder="Your Solana wallet address"
+                value={waitlistWallet}
+                onChange={(e) => setWaitlistWallet(e.target.value)}
+              />
+            </div>
+            <div>
+              <label htmlFor="reason" className="text-sm font-medium block mb-2">
+                Why do you want access? (Optional)
+              </label>
+              <Input
+                id="reason"
+                type="text"
+                placeholder="Tell us why you're interested..."
+                value={waitlistReason}
+                onChange={(e) => setWaitlistReason(e.target.value)}
+              />
+            </div>
+            <div className="flex gap-3 pt-4">
+              <Button onClick={handleWaitlistSubmit} className="flex-1">
+                Submit
+              </Button>
+              <Button variant="outline" onClick={() => setShowWaitlistModal(false)} className="flex-1">
+                Cancel
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>;
 };
 export default Marketplace;
