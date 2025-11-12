@@ -20,7 +20,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { useTheme } from "@/hooks/useTheme";
 import SimpleFooter from "@/components/SimpleFooter";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { AgentStorefrontDemo } from "@/components/AgentStorefrontDemo";
+import { FloatingAgentDemo } from "@/components/FloatingAgentDemo";
 type MarketplaceItem = {
   id: string;
   type: 'agent' | 'offering';
@@ -338,7 +338,7 @@ const Marketplace = () => {
         </div>
       </div>
 
-      {/* Vision Section with Integrated Demo */}
+      {/* Vision Section */}
       <div className="bg-background border-b border-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
           <div className="text-center mb-12">
@@ -352,12 +352,16 @@ const Marketplace = () => {
           </div>
 
           <div className="grid lg:grid-cols-2 gap-12 items-start mb-16">
-            {/* Left side - Demo */}
+            {/* Left side - Visual placeholder */}
             <div className="order-2 lg:order-1">
-              <h3 className="text-xl font-semibold text-foreground mb-4 text-center lg:text-left">
-                Try It Now
-              </h3>
-              <AgentStorefrontDemo />
+              <div className="bg-muted/30 border border-border rounded-xl p-8 text-center aspect-square flex items-center justify-center">
+                <div className="space-y-4">
+                  <Bot className="w-20 h-20 text-primary mx-auto" />
+                  <p className="text-muted-foreground">
+                    👉 Check the bottom right corner to try our live AI shopping assistant
+                  </p>
+                </div>
+              </div>
             </div>
 
             {/* Right side - Explanation */}
@@ -540,6 +544,9 @@ const Marketplace = () => {
           </div>
         </DialogContent>
       </Dialog>
+      
+      {/* Floating Agent Demo */}
+      <FloatingAgentDemo />
     </div>;
 };
 export default Marketplace;
