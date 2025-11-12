@@ -24,6 +24,7 @@ export const FloatingAgentDemo = () => {
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [purchasedProduct, setPurchasedProduct] = useState<string | null>(null);
+  const [pendingPurchase, setPendingPurchase] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const recommendations: Recommendation[] = [
@@ -59,18 +60,18 @@ export const FloatingAgentDemo = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  const simulateAgentResponse = (userMessage: string, recommendationId?: string) => {
+  const simulateAgentResponse = (userMessage: string, recommendationId?: string, confirmPurchase?: boolean) => {
     setIsTyping(true);
     const lowerMessage = userMessage.toLowerCase();
     
     setTimeout(() => {
       setIsTyping(false);
       
-      if (recommendationId) {
-        const item = recommendations.find(r => r.id === recommendationId);
+      if (confirmPurchase && pendingPurchase) {
+        const item = recommendations.find(r => r.id === pendingPurchase);
         setMessages(prev => [...prev, {
           role: 'agent',
-          content: `Great choice! The ${item?.name} is one of our bestsellers. Processing your order now...`
+          content: `Perfect! Processing your order for the ${item?.name}...`
         }]);
 
         setTimeout(() => {
@@ -78,10 +79,32 @@ export const FloatingAgentDemo = () => {
             role: 'agent',
             content: `Order confirmed! Your ${item?.name} will arrive in 3-5 business days. I've also added a 10% discount code to your email. Would you like to see matching accessories?`
           }]);
-          setPurchasedProduct(recommendationId);
+          setPurchasedProduct(pendingPurchase);
+          setPendingPurchase(null);
           
           setTimeout(() => setPurchasedProduct(null), 3000);
         }, 1500);
+      } else if (recommendationId) {
+        const item = recommendations.find(r => r.id === recommendationId);
+        setPendingPurchase(recommendationId);
+        setMessages(prev => [...prev, {
+          role: 'agent',
+          content: `Great choice! The ${item?.name} is one of our bestsellers. It's currently priced at $${item?.price}. Would you like to proceed with this purchase?`
+        }]);
+      } else if (lowerMessage.includes('yes') || lowerMessage.includes('confirm') || lowerMessage.includes('proceed') || lowerMessage.includes('purchase')) {
+        if (pendingPurchase) {
+          simulateAgentResponse('', undefined, true);
+          return;
+        }
+      } else if (lowerMessage.includes('no') || lowerMessage.includes('cancel') || lowerMessage.includes('not now')) {
+        if (pendingPurchase) {
+          setPendingPurchase(null);
+          setMessages(prev => [...prev, {
+            role: 'agent',
+            content: "No problem! Take your time browsing. Would you like to see other options?"
+          }]);
+          return;
+        }
       } else if (lowerMessage.includes('casual') || lowerMessage.includes('everyday')) {
         setMessages(prev => [...prev, {
           role: 'agent',
