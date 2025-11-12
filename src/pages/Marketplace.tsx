@@ -49,8 +49,8 @@ const Marketplace = () => {
   const [betaCode, setBetaCode] = useState('');
   const [showWaitlistModal, setShowWaitlistModal] = useState(false);
   const [waitlistEmail, setWaitlistEmail] = useState('');
-  const [waitlistWallet, setWaitlistWallet] = useState('');
-  const [waitlistReason, setWaitlistReason] = useState('');
+  const [waitlistWebsite, setWaitlistWebsite] = useState('');
+  const [waitlistSales, setWaitlistSales] = useState('');
   
   useEffect(() => {
     if (theme === 'system') {
@@ -240,8 +240,13 @@ const Marketplace = () => {
       return;
     }
     
-    if (!waitlistWallet) {
-      toast.error("SOL wallet address is required");
+    if (!waitlistWebsite) {
+      toast.error("Website or store URL is required");
+      return;
+    }
+
+    if (!waitlistSales) {
+      toast.error("Please select your yearly sales range");
       return;
     }
 
@@ -250,16 +255,16 @@ const Marketplace = () => {
         .from('waitlist')
         .insert({
           email: waitlistEmail,
-          wallet_address: waitlistWallet,
-          reason: waitlistReason || null
+          wallet_address: waitlistWebsite,
+          reason: waitlistSales
         });
 
       if (error) throw error;
 
       toast.success("You've been added to the waitlist!");
       setWaitlistEmail('');
-      setWaitlistWallet('');
-      setWaitlistReason('');
+      setWaitlistWebsite('');
+      setWaitlistSales('');
       
       // Scroll to top after submission
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -407,7 +412,7 @@ const Marketplace = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
           <div className="text-center mb-12">
             <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-foreground mb-6">
-              Add SIM to Your Site in Minutes
+              Add SIM to Your Site in Seconds
             </h2>
             <div className="w-20 h-1 bg-primary mx-auto mb-8"></div>
             <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
@@ -598,6 +603,126 @@ const Marketplace = () => {
         </div>
       </div>
 
+      {/* Pricing Section */}
+      <div className="bg-background border-b border-border">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-foreground mb-6">
+              Simple, Transparent Pricing
+            </h2>
+            <div className="w-20 h-1 bg-primary mx-auto mb-8"></div>
+            <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
+              Pay only for what you use. No hidden fees, no surprises.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+            {/* Starter Plan */}
+            <div className="bg-card border border-border rounded-2xl p-8 hover:border-primary/50 transition-colors">
+              <div className="text-center mb-6">
+                <h3 className="text-xl font-bold text-foreground mb-2">Starter</h3>
+                <div className="mb-4">
+                  <span className="text-4xl font-bold text-foreground">$99</span>
+                  <span className="text-muted-foreground">/month</span>
+                </div>
+                <p className="text-sm text-muted-foreground">Perfect for small businesses</p>
+              </div>
+              <ul className="space-y-3 mb-8">
+                <li className="flex items-start gap-2 text-sm">
+                  <Zap className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
+                  <span className="text-foreground">Up to 1,000 conversations/month</span>
+                </li>
+                <li className="flex items-start gap-2 text-sm">
+                  <Zap className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
+                  <span className="text-foreground">Basic AI agent customization</span>
+                </li>
+                <li className="flex items-start gap-2 text-sm">
+                  <Zap className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
+                  <span className="text-foreground">Email support</span>
+                </li>
+                <li className="flex items-start gap-2 text-sm">
+                  <Zap className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
+                  <span className="text-foreground">Analytics dashboard</span>
+                </li>
+              </ul>
+              <Button className="w-full" variant="outline">Get Started</Button>
+            </div>
+
+            {/* Growth Plan */}
+            <div className="bg-card border-2 border-primary rounded-2xl p-8 relative">
+              <div className="absolute -top-4 left-1/2 -translate-x-1/2">
+                <Badge className="bg-primary text-primary-foreground">Most Popular</Badge>
+              </div>
+              <div className="text-center mb-6">
+                <h3 className="text-xl font-bold text-foreground mb-2">Growth</h3>
+                <div className="mb-4">
+                  <span className="text-4xl font-bold text-foreground">$299</span>
+                  <span className="text-muted-foreground">/month</span>
+                </div>
+                <p className="text-sm text-muted-foreground">For growing online stores</p>
+              </div>
+              <ul className="space-y-3 mb-8">
+                <li className="flex items-start gap-2 text-sm">
+                  <Zap className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
+                  <span className="text-foreground">Up to 10,000 conversations/month</span>
+                </li>
+                <li className="flex items-start gap-2 text-sm">
+                  <Zap className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
+                  <span className="text-foreground">Advanced AI personalization</span>
+                </li>
+                <li className="flex items-start gap-2 text-sm">
+                  <Zap className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
+                  <span className="text-foreground">Priority support</span>
+                </li>
+                <li className="flex items-start gap-2 text-sm">
+                  <Zap className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
+                  <span className="text-foreground">Advanced analytics & insights</span>
+                </li>
+                <li className="flex items-start gap-2 text-sm">
+                  <Zap className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
+                  <span className="text-foreground">Custom branding</span>
+                </li>
+              </ul>
+              <Button className="w-full">Get Started</Button>
+            </div>
+
+            {/* Enterprise Plan */}
+            <div className="bg-card border border-border rounded-2xl p-8 hover:border-primary/50 transition-colors">
+              <div className="text-center mb-6">
+                <h3 className="text-xl font-bold text-foreground mb-2">Enterprise</h3>
+                <div className="mb-4">
+                  <span className="text-4xl font-bold text-foreground">Custom</span>
+                </div>
+                <p className="text-sm text-muted-foreground">For high-volume businesses</p>
+              </div>
+              <ul className="space-y-3 mb-8">
+                <li className="flex items-start gap-2 text-sm">
+                  <Zap className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
+                  <span className="text-foreground">Unlimited conversations</span>
+                </li>
+                <li className="flex items-start gap-2 text-sm">
+                  <Zap className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
+                  <span className="text-foreground">Full AI customization</span>
+                </li>
+                <li className="flex items-start gap-2 text-sm">
+                  <Zap className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
+                  <span className="text-foreground">Dedicated account manager</span>
+                </li>
+                <li className="flex items-start gap-2 text-sm">
+                  <Zap className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
+                  <span className="text-foreground">Custom integrations</span>
+                </li>
+                <li className="flex items-start gap-2 text-sm">
+                  <Zap className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
+                  <span className="text-foreground">SLA guarantees</span>
+                </li>
+              </ul>
+              <Button className="w-full" variant="outline">Contact Sales</Button>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Waitlist Form Section */}
       <div id="waitlist-form" className="bg-card border-t border-border">
         <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
@@ -626,30 +751,34 @@ const Marketplace = () => {
                 />
               </div>
               <div>
-                <label htmlFor="waitlist-wallet" className="text-sm font-medium block mb-2 text-foreground">
-                  SOL Wallet Address *
+                <label htmlFor="waitlist-website" className="text-sm font-medium block mb-2 text-foreground">
+                  Website or Store URL *
                 </label>
                 <Input
-                  id="waitlist-wallet"
+                  id="waitlist-website"
                   type="text"
-                  placeholder="Your Solana wallet address"
-                  value={waitlistWallet}
-                  onChange={(e) => setWaitlistWallet(e.target.value)}
+                  placeholder="https://yourstore.com"
+                  value={waitlistWebsite}
+                  onChange={(e) => setWaitlistWebsite(e.target.value)}
                   className="h-12"
                 />
               </div>
               <div>
-                <label htmlFor="waitlist-reason" className="text-sm font-medium block mb-2 text-foreground">
-                  Why do you want access? (Optional)
+                <label htmlFor="waitlist-sales" className="text-sm font-medium block mb-2 text-foreground">
+                  Total Yearly Sales *
                 </label>
-                <Input
-                  id="waitlist-reason"
-                  type="text"
-                  placeholder="Tell us why you're interested..."
-                  value={waitlistReason}
-                  onChange={(e) => setWaitlistReason(e.target.value)}
-                  className="h-12"
-                />
+                <Select value={waitlistSales} onValueChange={setWaitlistSales}>
+                  <SelectTrigger id="waitlist-sales" className="h-12">
+                    <SelectValue placeholder="Select your sales range" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="0-50k">$0 - $50k</SelectItem>
+                    <SelectItem value="50k-250k">$50k - $250k</SelectItem>
+                    <SelectItem value="250k-1m">$250k - $1M</SelectItem>
+                    <SelectItem value="1m-5m">$1M - $5M</SelectItem>
+                    <SelectItem value="5m+">$5M+</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
               <Button 
                 onClick={handleWaitlistSubmit} 
@@ -702,28 +831,33 @@ const Marketplace = () => {
               />
             </div>
             <div>
-              <label htmlFor="wallet" className="text-sm font-medium block mb-2">
-                SOL Wallet Address *
+              <label htmlFor="website" className="text-sm font-medium block mb-2">
+                Website or Store URL *
               </label>
               <Input
-                id="wallet"
+                id="website"
                 type="text"
-                placeholder="Your Solana wallet address"
-                value={waitlistWallet}
-                onChange={(e) => setWaitlistWallet(e.target.value)}
+                placeholder="https://yourstore.com"
+                value={waitlistWebsite}
+                onChange={(e) => setWaitlistWebsite(e.target.value)}
               />
             </div>
             <div>
-              <label htmlFor="reason" className="text-sm font-medium block mb-2">
-                Why do you want access? (Optional)
+              <label htmlFor="sales" className="text-sm font-medium block mb-2">
+                Total Yearly Sales *
               </label>
-              <Input
-                id="reason"
-                type="text"
-                placeholder="Tell us why you're interested..."
-                value={waitlistReason}
-                onChange={(e) => setWaitlistReason(e.target.value)}
-              />
+              <Select value={waitlistSales} onValueChange={setWaitlistSales}>
+                <SelectTrigger id="sales" className="h-12">
+                  <SelectValue placeholder="Select your sales range" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="0-50k">$0 - $50k</SelectItem>
+                  <SelectItem value="50k-250k">$50k - $250k</SelectItem>
+                  <SelectItem value="250k-1m">$250k - $1M</SelectItem>
+                  <SelectItem value="1m-5m">$1M - $5M</SelectItem>
+                  <SelectItem value="5m+">$5M+</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
             <div className="flex gap-3 pt-4">
               <Button onClick={handleWaitlistSubmit} className="flex-1">
