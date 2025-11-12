@@ -3,12 +3,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
-import { Bot, Send, Check, Loader2 } from "lucide-react";
+import { Bot, Send, Check, Loader2, ExternalLink } from "lucide-react";
 
 interface Message {
   role: 'agent' | 'user';
   content: string;
   products?: Product[];
+  recommendations?: Recommendation[];
 }
 
 interface Product {
@@ -18,6 +19,14 @@ interface Product {
   emoji: string;
 }
 
+interface Recommendation {
+  id: string;
+  name: string;
+  price: number;
+  image: string;
+  url: string;
+}
+
 export const AgentStorefrontDemo = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
@@ -25,19 +34,20 @@ export const AgentStorefrontDemo = () => {
   const [purchasedProduct, setPurchasedProduct] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const products: Product[] = [
-    { id: '1', name: 'Premium Plan', price: 29, emoji: '⭐' },
-    { id: '2', name: 'Enterprise Plan', price: 99, emoji: '🚀' },
-    { id: '3', name: 'Starter Pack', price: 9, emoji: '🎯' },
+  const recommendations: Recommendation[] = [
+    { id: '1', name: 'Classic Denim Jacket', price: 89, image: '👔', url: '#' },
+    { id: '2', name: 'Cotton Summer Dress', price: 65, image: '👗', url: '#' },
+    { id: '3', name: 'Leather Boots', price: 120, image: '👢', url: '#' },
+    { id: '4', name: 'Wool Sweater', price: 75, image: '🧥', url: '#' },
+    { id: '5', name: 'Casual Sneakers', price: 95, image: '👟', url: '#' },
   ];
 
   useEffect(() => {
-    // Initial greeting
+    // Initial greeting with context awareness
     setTimeout(() => {
       setMessages([{
         role: 'agent',
-        content: "Hi! I'm your AI shopping assistant. I can help you find the perfect product and complete your purchase right here in chat. What are you looking for today?",
-        products: products
+        content: "Hi! I noticed you're browsing our Fall Collection. I'm your personal shopping assistant and I can see you're on our Women's Outerwear page. Are you shopping for yourself or looking for a gift? What's your style preference—casual, formal, or something in between?"
       }]);
     }, 500);
   }, []);
@@ -46,38 +56,61 @@ export const AgentStorefrontDemo = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  const simulateAgentResponse = (userMessage: string, productId?: string) => {
+  const simulateAgentResponse = (userMessage: string, recommendationId?: string) => {
     setIsTyping(true);
+    const lowerMessage = userMessage.toLowerCase();
     
     setTimeout(() => {
       setIsTyping(false);
       
-      if (productId) {
-        const product = products.find(p => p.id === productId);
+      if (recommendationId) {
+        const item = recommendations.find(r => r.id === recommendationId);
         setMessages(prev => [...prev, {
           role: 'agent',
-          content: `Perfect choice! Processing your payment for ${product?.name}...`
+          content: `Great choice! The ${item?.name} is one of our bestsellers. Processing your order now...`
         }]);
 
         setTimeout(() => {
           setMessages(prev => [...prev, {
             role: 'agent',
-            content: `Payment successful! Your ${product?.name} has been activated. Check your email for details. Is there anything else I can help you with?`
+            content: `Order confirmed! Your ${item?.name} will arrive in 3-5 business days. I've also added a 10% discount code to your email. Would you like to see matching accessories?`
           }]);
-          setPurchasedProduct(productId);
+          setPurchasedProduct(recommendationId);
           
           setTimeout(() => setPurchasedProduct(null), 3000);
         }, 1500);
-      } else if (userMessage.toLowerCase().includes('help') || userMessage.toLowerCase().includes('options')) {
+      } else if (lowerMessage.includes('casual') || lowerMessage.includes('everyday')) {
         setMessages(prev => [...prev, {
           role: 'agent',
-          content: "I'd be happy to help! Here are our current offerings. Click on any product to purchase instantly:",
-          products: products
+          content: "Perfect! I see you've spent 2 minutes looking at our denim section. Based on your browsing, here are my top picks for casual wear. Click any item to view details and purchase:",
+          recommendations: [recommendations[0], recommendations[4]]
+        }]);
+      } else if (lowerMessage.includes('formal') || lowerMessage.includes('work') || lowerMessage.includes('office')) {
+        setMessages(prev => [...prev, {
+          role: 'agent',
+          content: "Excellent! I noticed you previously viewed our Professional Collection. Here are some pieces that would work great for the office:",
+          recommendations: [recommendations[3], recommendations[1]]
+        }]);
+      } else if (lowerMessage.includes('gift') || lowerMessage.includes('someone')) {
+        setMessages(prev => [...prev, {
+          role: 'agent',
+          content: "Shopping for someone special! What's their style? Are they more into classic pieces or trendy fashion? Also, what's your budget range?"
+        }]);
+      } else if (lowerMessage.includes('boot') || lowerMessage.includes('shoes') || lowerMessage.includes('footwear')) {
+        setMessages(prev => [...prev, {
+          role: 'agent',
+          content: "I see you're interested in footwear! Based on the jacket you were looking at earlier, these would pair perfectly:",
+          recommendations: [recommendations[2], recommendations[4]]
+        }]);
+      } else if (lowerMessage.includes('myself') || lowerMessage.includes('me')) {
+        setMessages(prev => [...prev, {
+          role: 'agent',
+          content: "Love it! Since you've been browsing our Fall Collection, what's the occasion? Are you updating your everyday wardrobe, or looking for something special?"
         }]);
       } else {
         setMessages(prev => [...prev, {
           role: 'agent',
-          content: "Great question! Our plans include advanced analytics, priority support, and API access. Which plan interests you most? Just click on one to purchase!"
+          content: "I can help you find exactly what you need! I notice you've been on this page for a few minutes. Would you like me to show you our trending items, or would you prefer personalized recommendations based on your browsing history?"
         }]);
       }
     }, 800);
@@ -93,16 +126,19 @@ export const AgentStorefrontDemo = () => {
     simulateAgentResponse(userInput);
   };
 
-  const handleProductClick = (productId: string) => {
-    const product = products.find(p => p.id === productId);
-    if (!product) return;
+  const handleRecommendationClick = (e: React.MouseEvent, recommendationId: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    const item = recommendations.find(r => r.id === recommendationId);
+    if (!item) return;
 
     setMessages(prev => [...prev, {
       role: 'user',
-      content: `I'd like to purchase ${product.name}`
+      content: `Tell me more about the ${item.name}`
     }]);
 
-    simulateAgentResponse(`purchase ${product.name}`, productId);
+    simulateAgentResponse(`purchase ${item.name}`, recommendationId);
   };
 
   return (
@@ -125,21 +161,22 @@ export const AgentStorefrontDemo = () => {
             <div className={`max-w-[80%] ${message.role === 'user' ? 'bg-primary text-primary-foreground' : 'bg-muted text-foreground'} rounded-lg p-3`}>
               <p className="text-sm">{message.content}</p>
               
-              {message.products && (
+              {message.recommendations && (
                 <div className="mt-3 space-y-2">
-                  {message.products.map(product => (
-                    <Button
-                      key={product.id}
-                      onClick={() => handleProductClick(product.id)}
-                      variant="outline"
-                      className="w-full justify-between bg-background hover:bg-accent text-foreground border-border"
+                  {message.recommendations.map(rec => (
+                    <button
+                      key={rec.id}
+                      type="button"
+                      onClick={(e) => handleRecommendationClick(e, rec.id)}
+                      className="w-full flex items-center gap-3 p-3 bg-background hover:bg-accent text-foreground border border-border rounded-lg transition-colors text-left"
                     >
-                      <span className="flex items-center gap-2">
-                        <span className="text-lg">{product.emoji}</span>
-                        <span>{product.name}</span>
-                      </span>
-                      <Badge variant="secondary">${product.price}/mo</Badge>
-                    </Button>
+                      <span className="text-3xl">{rec.image}</span>
+                      <div className="flex-1">
+                        <p className="font-medium text-sm">{rec.name}</p>
+                        <p className="text-xs text-muted-foreground">${rec.price}</p>
+                      </div>
+                      <ExternalLink className="w-4 h-4 text-muted-foreground" />
+                    </button>
                   ))}
                 </div>
               )}
