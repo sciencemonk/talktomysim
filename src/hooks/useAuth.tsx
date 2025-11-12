@@ -1,11 +1,9 @@
-
 import { useState, useEffect, createContext, useContext } from 'react';
-import { User, Session } from '@supabase/supabase-js';
-import { supabase } from '@/integrations/supabase/client';
+import { useCurrentUser, useSignOut } from '@coinbase/cdp-hooks';
 
 interface AuthContextType {
-  user: User | null;
-  session: Session | null;
+  user: any | null;
+  session: any | null;
   loading: boolean;
   signOut: () => Promise<void>;
 }
@@ -18,36 +16,25 @@ const AuthContext = createContext<AuthContextType>({
 });
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { currentUser, isLoading } = useCurrentUser();
+  const { signOut: coinbaseSignOut } = useSignOut();
+  const [user, setUser] = useState<any | null>(null);
+  const [session, setSession] = useState<any | null>(null);
 
   useEffect(() => {
-    // Set up auth state listener FIRST
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        console.log('Auth state changed:', event, session?.user?.email || 'No user');
-        setSession(session);
-        setUser(session?.user ?? null);
-        setLoading(false);
-      }
-    );
-
-    // THEN check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      console.log('Initial session check:', session?.user?.email || 'No user');
-      setSession(session);
-      setUser(session?.user ?? null);
-      setLoading(false);
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
+    if (currentUser) {
+      setUser(currentUser);
+      setSession({ user: currentUser });
+    } else {
+      setUser(null);
+      setSession(null);
+    }
+  }, [currentUser]);
 
   const signOut = async () => {
     try {
       console.log('Signing out user');
-      await supabase.auth.signOut();
+      await coinbaseSignOut();
       setUser(null);
       setSession(null);
     } catch (error) {
@@ -56,7 +43,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, session, loading, signOut }}>
+    <AuthContext.Provider value={{ user, session, loading: isLoading, signOut }}>
       {children}
     </AuthContext.Provider>
   );
