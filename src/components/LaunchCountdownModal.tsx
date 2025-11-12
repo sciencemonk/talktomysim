@@ -56,43 +56,55 @@ export const LaunchCountdownModal = () => {
     {
       title: 'Official Launch',
       content: (
-        <div className="space-y-6 text-center">
-          <div className="space-y-4">
-            <div className="flex justify-center mb-4">
-              <img src="/sim-logo-white.png" alt="SIM" className="h-16 w-auto" />
-            </div>
-            <h3 className="text-3xl font-bold text-foreground">Official Public Launch</h3>
-            <p className="text-lg text-muted-foreground max-w-md mx-auto">
-              Join us as we revolutionize e-commerce with AI-powered sales agents
-            </p>
-          </div>
-          
-          <div className="grid grid-cols-4 gap-4 max-w-lg mx-auto">
-            {[
-              { label: 'Days', value: countdown.days },
-              { label: 'Hours', value: countdown.hours },
-              { label: 'Minutes', value: countdown.minutes },
-              { label: 'Seconds', value: countdown.seconds }
-            ].map((item) => (
-              <div key={item.label} className="bg-gradient-to-br from-primary/20 to-primary/5 rounded-lg p-4 border border-primary/20">
-                <div className="text-4xl font-bold text-primary">{item.value}</div>
-                <div className="text-xs text-muted-foreground uppercase font-medium">{item.label}</div>
+        <div className="relative min-h-[500px] -m-6 rounded-lg overflow-hidden">
+          <video 
+            autoPlay 
+            loop 
+            muted 
+            playsInline
+            className="absolute inset-0 w-full h-full object-cover"
+          >
+            <source src="https://uovhemqkztmkoozlmqxq.supabase.co/storage/v1/object/public/sim/4962796-uhd_3840_2160_25fps.mp4" type="video/mp4" />
+          </video>
+          <div className="absolute inset-0 bg-black/60" />
+          <div className="relative z-10 p-6 space-y-6 text-center flex flex-col justify-center min-h-[500px]">
+            <div className="space-y-4">
+              <div className="flex justify-center mb-4">
+                <img src="/sim-logo-white.png" alt="SIM" className="h-16 w-auto" />
               </div>
-            ))}
-          </div>
+              <h3 className="text-3xl font-bold text-white">Official Public Launch</h3>
+              <p className="text-lg text-white/80 max-w-md mx-auto">
+                Join us as we revolutionize e-commerce with AI-powered sales agents
+              </p>
+            </div>
+          
+            <div className="grid grid-cols-4 gap-4 max-w-lg mx-auto">
+              {[
+                { label: 'Days', value: countdown.days },
+                { label: 'Hours', value: countdown.hours },
+                { label: 'Minutes', value: countdown.minutes },
+                { label: 'Seconds', value: countdown.seconds }
+              ].map((item) => (
+                <div key={item.label} className="bg-white/10 backdrop-blur-sm rounded-lg p-4 border border-white/20">
+                  <div className="text-4xl font-bold text-white">{item.value}</div>
+                  <div className="text-xs text-white/70 uppercase font-medium">{item.label}</div>
+                </div>
+              ))}
+            </div>
 
-          <div className="bg-muted/50 rounded-lg p-4 max-w-md mx-auto">
-            <p className="text-sm font-semibold text-foreground mb-1">
-              📅 Friday, November 14th, 2025
-            </p>
-            <p className="text-sm text-muted-foreground">
-              5:00 PM Central Time
+            <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 max-w-md mx-auto border border-white/20">
+              <p className="text-sm font-semibold text-white mb-1">
+                📅 Friday, November 14th, 2025
+              </p>
+              <p className="text-sm text-white/80">
+                5:00 PM Central Time
+              </p>
+            </div>
+
+            <p className="text-sm text-white/70">
+              Click "Learn More" to see what SIM offers
             </p>
           </div>
-
-          <p className="text-sm text-muted-foreground">
-            Click "Learn More" to see what SIM offers
-          </p>
         </div>
       )
     },
@@ -173,27 +185,15 @@ export const LaunchCountdownModal = () => {
     {
       title: 'Try the Demo',
       content: (
-        <div className="relative min-h-[500px] -m-6 rounded-lg overflow-hidden">
-          <video 
-            autoPlay 
-            loop 
-            muted 
-            playsInline
-            className="absolute inset-0 w-full h-full object-cover"
-          >
-            <source src="https://uovhemqkztmkoozlmqxq.supabase.co/storage/v1/object/public/sim/4962796-uhd_3840_2160_25fps.mp4" type="video/mp4" />
-          </video>
-          <div className="absolute inset-0 bg-black/60" />
-          <div className="relative z-10 p-6 space-y-4 flex flex-col items-center justify-center min-h-[500px]">
-            <div className="text-center space-y-2">
-              <h3 className="text-3xl font-bold text-white">Experience It Live</h3>
-              <p className="text-white/80">
-                See our AI shopping assistant in action
-              </p>
-            </div>
-            <div className="scale-90 origin-center pointer-events-none">
-              <FloatingAgentDemo />
-            </div>
+        <div className="space-y-4">
+          <div className="text-center space-y-2">
+            <h3 className="text-3xl font-bold text-foreground">Experience It Live</h3>
+            <p className="text-muted-foreground">
+              See our AI shopping assistant in action
+            </p>
+          </div>
+          <div className="flex justify-center scale-90 origin-center">
+            <FloatingAgentDemo />
           </div>
         </div>
       )
