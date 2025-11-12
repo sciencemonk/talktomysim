@@ -34,6 +34,7 @@ import WhitePaper from "./pages/WhitePaper";
 import Contact from "./pages/Contact";
 import KnowledgeEnhancement from "./pages/KnowledgeEnhancement";
 import UserDashboard from "./pages/UserDashboard";
+import Dashboard from "./pages/Dashboard";
 import PublicSimDetail from "./pages/PublicSimDetail";
 import SimConversations from "./pages/SimConversations";
 import EditSim from "./pages/EditSim";
@@ -98,7 +99,8 @@ const App = () => (
               <Route path="/facilitator" element={<Facilitator />} />
               <Route path="/about" element={<About />} />
               <Route path="/documentation" element={<Documentation />} />
-              <Route path="/dashboard" element={<UserDashboard />} />
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/user-dashboard" element={<UserDashboard />} />
               <Route path="/onboarding" element={<Onboarding />} />
               <Route path="/test" element={<Test />} />
               <Route path="/demo" element={<Demo />} />
