@@ -20,6 +20,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { useTheme } from "@/hooks/useTheme";
 import SimpleFooter from "@/components/SimpleFooter";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { AgentStorefrontDemo } from "@/components/AgentStorefrontDemo";
 type MarketplaceItem = {
   id: string;
   type: 'agent' | 'offering';
@@ -337,33 +338,36 @@ const Marketplace = () => {
         </div>
       </div>
 
-      {/* What is Agentic Payments Section */}
+      {/* Vision Section */}
       <div className="bg-background border-b border-border">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
           <div className="text-center mb-12">
             <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-foreground mb-6">
-              What Are Agentic Payments?
+              Your Website's AI Salesperson
             </h2>
             <div className="w-20 h-1 bg-primary mx-auto mb-8"></div>
+            <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
+              Imagine every visitor to your site being greeted by a knowledgeable, friendly AI agent who can answer questions, recommend products, and complete purchases in seconds, all within a natural conversation.
+            </p>
           </div>
           
           <div className="grid md:grid-cols-2 gap-8 sm:gap-12">
             <div className="space-y-6">
               <div className="bg-card border border-border rounded-xl p-6 sm:p-8">
                 <h3 className="text-xl sm:text-2xl font-semibold text-foreground mb-4">
-                  Beyond Payment Buttons
+                  Conversational Commerce
                 </h3>
                 <p className="text-muted-foreground leading-relaxed">
-                  Traditional payments require you to click buttons, fill forms, and manually complete each transaction. Agentic payments break free from this model, enabling AI agents to handle financial transactions autonomously on your behalf.
+                  No more clunky checkout forms or abandoned carts. Your AI agent guides customers through purchases naturally, answering questions and handling payments directly in chat. It's like having a personal shopper for every visitor.
                 </p>
               </div>
               
               <div className="bg-card border border-border rounded-xl p-6 sm:p-8">
                 <h3 className="text-xl sm:text-2xl font-semibold text-foreground mb-4">
-                  AI-Powered Commerce
+                  Instant Setup
                 </h3>
                 <p className="text-muted-foreground leading-relaxed">
-                  Your AI agent can shop for the best deals, manage subscriptions, negotiate prices, and execute purchases automatically. It understands your preferences, budget, and needs to make intelligent financial decisions in real-time.
+                  Add one line of code to your website and your AI agent is live. No complex integrations, no backend changes, no payment gateway migrations. Your products become purchasable through conversation instantly.
                 </p>
               </div>
             </div>
@@ -371,19 +375,19 @@ const Marketplace = () => {
             <div className="space-y-6">
               <div className="bg-card border border-border rounded-xl p-6 sm:p-8">
                 <h3 className="text-xl sm:text-2xl font-semibold text-foreground mb-4">
-                  Autonomous Transactions
+                  Always Available
                 </h3>
                 <p className="text-muted-foreground leading-relaxed">
-                  Agents can initiate and complete complex financial workflows without human intervention. From recurring payments to opportunistic purchases, your AI handles commerce tasks while you focus on what matters.
+                  Your AI agent never sleeps, never takes breaks, and serves unlimited customers simultaneously. Whether it's 2 PM or 2 AM, every visitor gets immediate, personalized attention and instant purchase capability.
                 </p>
               </div>
               
               <div className="bg-card border border-border rounded-xl p-6 sm:p-8">
                 <h3 className="text-xl sm:text-2xl font-semibold text-foreground mb-4">
-                  The Future of Commerce
+                  Built for Scale
                 </h3>
                 <p className="text-muted-foreground leading-relaxed">
-                  This is more than automation. Agentic payments represent a fundamental shift in how we interact with money and commerce, where AI agents become trusted financial partners in the digital economy.
+                  From indie makers to enterprise brands, our embedded AI agents handle everything from $5 digital products to high-value B2B deals. Each transaction is secure, compliant, and optimized for conversion.
                 </p>
               </div>
             </div>
@@ -391,163 +395,27 @@ const Marketplace = () => {
         </div>
       </div>
 
-      {/* Developer Integration Section */}
+      {/* Live Demo Section */}
       <div className="bg-muted/30 border-b border-border">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
           <div className="text-center mb-12">
             <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-foreground mb-6">
-              Simple Integration
+              See It In Action
             </h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Add agentic payment capabilities to your app in minutes with our developer-friendly SDK
+              Try our AI agent demo below. Ask questions, browse products, and complete a purchase—all within the chat interface.
             </p>
             <div className="w-20 h-1 bg-primary mx-auto mt-8"></div>
           </div>
 
-          <div className="grid lg:grid-cols-2 gap-8 items-start">
-            {/* Left side - Explanation */}
-            <div className="space-y-6">
-              <div>
-                <h3 className="text-2xl font-semibold text-foreground mb-4">
-                  How It Works
-                </h3>
-                <div className="space-y-4 text-muted-foreground">
-                  <div className="flex gap-3">
-                    <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold">
-                      1
-                    </div>
-                    <div>
-                      <p className="font-medium text-foreground">Create an Agent</p>
-                      <p className="text-sm">Initialize an AI agent with budget limits and approval rules</p>
-                    </div>
-                  </div>
-                  <div className="flex gap-3">
-                    <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold">
-                      2
-                    </div>
-                    <div>
-                      <p className="font-medium text-foreground">Configure Webhooks</p>
-                      <p className="text-sm">Set up real-time notifications for payment events and approvals</p>
-                    </div>
-                  </div>
-                  <div className="flex gap-3">
-                    <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold">
-                      3
-                    </div>
-                    <div>
-                      <p className="font-medium text-foreground">Agent Executes Payments</p>
-                      <p className="text-sm">AI makes autonomous payment decisions within your defined constraints</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-card border border-border rounded-xl p-6">
-                <h4 className="font-semibold text-foreground mb-3">Key Features</h4>
-                <ul className="space-y-2 text-sm text-muted-foreground">
-                  <li className="flex items-start gap-2">
-                    <span className="text-primary">✓</span>
-                    <span>Budget controls with daily, monthly, and per-transaction limits</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-primary">✓</span>
-                    <span>Approval workflows for high-value transactions</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-primary">✓</span>
-                    <span>Real-time webhook notifications for all payment events</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-primary">✓</span>
-                    <span>Sandbox environment for testing and development</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-primary">✓</span>
-                    <span>Comprehensive error handling and retry logic</span>
-                  </li>
-                </ul>
-              </div>
-            </div>
-
-            {/* Right side - Code Example */}
-            <div className="bg-card border border-border rounded-xl overflow-hidden">
-              <div className="bg-muted/50 px-4 py-3 border-b border-border flex items-center justify-between">
-                <span className="text-sm font-medium text-muted-foreground">Example Integration</span>
-                <div className="flex gap-2">
-                  <div className="w-3 h-3 rounded-full bg-red-500/20"></div>
-                  <div className="w-3 h-3 rounded-full bg-yellow-500/20"></div>
-                  <div className="w-3 h-3 rounded-full bg-green-500/20"></div>
-                </div>
-              </div>
-              <div className="p-6 overflow-x-auto">
-                <pre className="text-sm">
-                  <code className="text-muted-foreground font-mono">
-{`// Install the SDK
-npm install @simai/agentic-payments
-
-// Initialize client
-import { AgenticPayments } from '@simai/agentic-payments';
-
-const client = new AgenticPayments({
-  apiKey: process.env.SIMAI_API_KEY,
-  environment: 'production' // or 'sandbox' for testing
-});
-
-// Create an agent with spending authority
-const agent = await client.agents.create({
-  name: 'shopping-assistant',
-  budget: {
-    daily: 100,      // Max $100/day
-    monthly: 2000,   // Max $2000/month
-    perTransaction: 50
-  },
-  approvalRules: {
-    requireApproval: { above: 25 }, // Human approval for >$25
-    autoApprove: { under: 10 }      // Auto-approve under $10
-  }
-});
-
-// Configure webhooks for real-time notifications
-await client.webhooks.create({
-  url: 'https://yourapp.com/webhooks/payments',
-  events: ['payment.approved', 'payment.completed', 
-           'payment.failed', 'approval.required']
-});
-
-// Agent executes a payment
-try {
-  const payment = await agent.pay({
-    merchantId: 'merchant_abc123',
-    amount: 15.99,
-    currency: 'USD',
-    metadata: {
-      productId: 'prod_xyz',
-      reason: 'Found 20% discount, within budget'
-    }
-  });
-  
-  console.log('Payment status:', payment.status);
-  // Output: "completed" or "pending_approval"
-  
-} catch (error) {
-  if (error.code === 'BUDGET_EXCEEDED') {
-    console.log('Agent budget limit reached');
-  } else if (error.code === 'APPROVAL_REQUIRED') {
-    console.log('Awaiting user approval:', error.approvalUrl);
-  }
-}`}
-                  </code>
-                </pre>
-              </div>
-            </div>
-          </div>
+          <AgentStorefrontDemo />
 
           <div className="mt-12 text-center">
             <button
               onClick={() => document.getElementById('waitlist-form')?.scrollIntoView({ behavior: 'smooth' })}
               className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-8 py-3 rounded-lg font-semibold hover:bg-primary/90 transition-colors"
             >
-              Get API Access
+              Add This To Your Site
             </button>
           </div>
         </div>
