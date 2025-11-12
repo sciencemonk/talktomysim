@@ -254,10 +254,12 @@ const Marketplace = () => {
       if (error) throw error;
 
       toast.success("You've been added to the waitlist!");
-      setShowWaitlistModal(false);
       setWaitlistEmail('');
       setWaitlistWallet('');
       setWaitlistReason('');
+      
+      // Scroll to top after submission
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (error) {
       console.error("Error submitting waitlist:", error);
       toast.error("Failed to join waitlist. Please try again.");
@@ -308,7 +310,7 @@ const Marketplace = () => {
                 CA: FFqwoZ7phjoupWjLeE5yFeLqGi8jkGEFrTz6jnsUpump
               </button>
               <Button
-                onClick={() => setShowWaitlistModal(true)}
+                onClick={() => document.getElementById('waitlist-form')?.scrollIntoView({ behavior: 'smooth' })}
                 size="lg"
                 className="bg-white text-black hover:bg-white/90 text-xl px-12 py-8 h-auto font-semibold"
               >
@@ -389,7 +391,88 @@ const Marketplace = () => {
         </div>
       </div>
 
-      {/* Waitlist Modal */}
+      {/* Waitlist Form Section */}
+      <div id="waitlist-form" className="bg-card border-t border-border">
+        <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
+          <div className="text-center mb-8">
+            <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-4">
+              Join the Waitlist
+            </h2>
+            <p className="text-muted-foreground text-lg">
+              Get early access to the agentic payment platform
+            </p>
+          </div>
+
+          <div className="bg-background border border-border rounded-2xl p-6 sm:p-8">
+            <div className="space-y-6">
+              <div>
+                <label htmlFor="waitlist-email" className="text-sm font-medium block mb-2 text-foreground">
+                  Email Address *
+                </label>
+                <Input
+                  id="waitlist-email"
+                  type="email"
+                  placeholder="your@email.com"
+                  value={waitlistEmail}
+                  onChange={(e) => setWaitlistEmail(e.target.value)}
+                  className="h-12"
+                />
+              </div>
+              <div>
+                <label htmlFor="waitlist-wallet" className="text-sm font-medium block mb-2 text-foreground">
+                  SOL Wallet Address *
+                </label>
+                <Input
+                  id="waitlist-wallet"
+                  type="text"
+                  placeholder="Your Solana wallet address"
+                  value={waitlistWallet}
+                  onChange={(e) => setWaitlistWallet(e.target.value)}
+                  className="h-12"
+                />
+              </div>
+              <div>
+                <label htmlFor="waitlist-reason" className="text-sm font-medium block mb-2 text-foreground">
+                  Why do you want access? (Optional)
+                </label>
+                <Input
+                  id="waitlist-reason"
+                  type="text"
+                  placeholder="Tell us why you're interested..."
+                  value={waitlistReason}
+                  onChange={(e) => setWaitlistReason(e.target.value)}
+                  className="h-12"
+                />
+              </div>
+              <Button 
+                onClick={handleWaitlistSubmit} 
+                className="w-full h-12 text-lg font-semibold"
+                size="lg"
+              >
+                Submit
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Footer */}
+      <footer className="bg-background border-t border-border">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="flex items-center">
+              <div className="bg-black/90 rounded-lg px-2 py-1">
+                <img src="/sim-logo-white.png" alt="SIM" className="h-5 w-auto" />
+              </div>
+            </div>
+            <p className="text-sm text-muted-foreground">
+              © 2025 SIM. All rights reserved.
+            </p>
+          </div>
+        </div>
+      </footer>
+
+      {/* Waitlist Modal (backup) */}
       <Dialog open={showWaitlistModal} onOpenChange={setShowWaitlistModal}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
