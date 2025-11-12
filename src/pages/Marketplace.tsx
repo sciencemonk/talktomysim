@@ -46,7 +46,6 @@ const Marketplace = () => {
   const [betaCode, setBetaCode] = useState('');
   const [showWaitlistModal, setShowWaitlistModal] = useState(false);
   const [waitlistEmail, setWaitlistEmail] = useState('');
-  const [waitlistWallet, setWaitlistWallet] = useState('');
   const [waitlistReason, setWaitlistReason] = useState('');
   
   useEffect(() => {
@@ -236,18 +235,13 @@ const Marketplace = () => {
       toast.error("Email address is required");
       return;
     }
-    
-    if (!waitlistWallet) {
-      toast.error("SOL wallet address is required");
-      return;
-    }
 
     try {
       const { error } = await supabase
         .from('waitlist')
         .insert({
           email: waitlistEmail,
-          wallet_address: waitlistWallet,
+          wallet_address: null,
           reason: waitlistReason || null
         });
 
@@ -256,7 +250,6 @@ const Marketplace = () => {
       toast.success("You've been added to the waitlist!");
       setShowWaitlistModal(false);
       setWaitlistEmail('');
-      setWaitlistWallet('');
       setWaitlistReason('');
     } catch (error) {
       console.error("Error submitting waitlist:", error);
@@ -358,20 +351,8 @@ const Marketplace = () => {
               />
             </div>
             <div>
-              <label htmlFor="wallet" className="text-sm font-medium block mb-2">
-                SOL Wallet Address *
-              </label>
-              <Input
-                id="wallet"
-                type="text"
-                placeholder="Your Solana wallet address"
-                value={waitlistWallet}
-                onChange={(e) => setWaitlistWallet(e.target.value)}
-              />
-            </div>
-            <div>
               <label htmlFor="reason" className="text-sm font-medium block mb-2">
-                Why do you want access? (Optional)
+                Tell us about your online store or website (Optional)
               </label>
               <Input
                 id="reason"
