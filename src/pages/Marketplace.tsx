@@ -47,15 +47,6 @@ const Marketplace = () => {
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [showBetaRequest, setShowBetaRequest] = useState(false);
   const [betaCode, setBetaCode] = useState('');
-  const [showWaitlistModal, setShowWaitlistModal] = useState(false);
-  const [waitlistEmail, setWaitlistEmail] = useState('');
-  const [waitlistCompany, setWaitlistCompany] = useState('');
-  const [waitlistRole, setWaitlistRole] = useState('');
-  const [waitlistWebsite, setWaitlistWebsite] = useState('');
-  const [waitlistSales, setWaitlistSales] = useState('');
-  const [waitlistPlatform, setWaitlistPlatform] = useState('');
-  const [waitlistGoal, setWaitlistGoal] = useState('');
-  const [waitlistPhone, setWaitlistPhone] = useState('');
   
   useEffect(() => {
     if (theme === 'system') {
@@ -189,10 +180,7 @@ const Marketplace = () => {
   });
   const categories = Array.from(new Set(marketplaceItems.map(item => item.category).filter(Boolean)));
   const scrollToWaitlist = () => {
-    const element = document.getElementById('waitlist-form');
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
+    navigate('/signin');
   };
 
   const handleItemClick = (item: MarketplaceItem) => {
@@ -241,79 +229,7 @@ const Marketplace = () => {
   };
 
   const handleXSignIn = () => {
-    const code = generateBetaCode();
-    setBetaCode(code);
-    setShowBetaRequest(true);
-  };
-
-  const handleWaitlistSubmit = async () => {
-    // Validate required fields
-    if (!waitlistEmail) {
-      toast.error("Email address is required");
-      return;
-    }
-    
-    if (!waitlistCompany) {
-      toast.error("Company name is required");
-      return;
-    }
-
-    if (!waitlistRole) {
-      toast.error("Job title is required");
-      return;
-    }
-    
-    if (!waitlistWebsite) {
-      toast.error("Website or store URL is required");
-      return;
-    }
-
-    if (!waitlistSales) {
-      toast.error("Please select your yearly sales range");
-      return;
-    }
-
-    if (!waitlistPlatform) {
-      toast.error("Please select your e-commerce platform");
-      return;
-    }
-
-    try {
-      const { error } = await supabase
-        .from('waitlist')
-        .insert({
-          email: waitlistEmail,
-          wallet_address: JSON.stringify({
-            company: waitlistCompany,
-            role: waitlistRole,
-            website: waitlistWebsite,
-            platform: waitlistPlatform,
-            phone: waitlistPhone
-          }),
-          reason: JSON.stringify({
-            sales: waitlistSales,
-            goal: waitlistGoal
-          })
-        });
-
-      if (error) throw error;
-
-      toast.success("Thank you! We'll be in touch within 24 hours.");
-      setWaitlistEmail('');
-      setWaitlistCompany('');
-      setWaitlistRole('');
-      setWaitlistWebsite('');
-      setWaitlistSales('');
-      setWaitlistPlatform('');
-      setWaitlistGoal('');
-      setWaitlistPhone('');
-      
-      // Scroll to top after submission
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    } catch (error) {
-      console.error("Error submitting waitlist:", error);
-      toast.error("Failed to join waitlist. Please try again.");
-    }
+    navigate('/signin');
   };
   return <div className="min-h-screen bg-bg">
       {/* Hero Section with Video Background */}
@@ -823,195 +739,70 @@ const Marketplace = () => {
 
           <div className="text-center">
             <button
-              onClick={() => document.getElementById('waitlist-form')?.scrollIntoView({ behavior: 'smooth' })}
+              onClick={() => navigate('/signin')}
               className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-8 py-3 rounded-lg font-semibold hover:bg-primary/90 transition-colors text-lg"
             >
-              Add SIM to Your Site
+              Create Free Account
             </button>
           </div>
         </div>
       </div>
 
-      {/* Waitlist Form Section */}
-      <div id="waitlist-form" className="bg-gradient-to-b from-background to-card border-t border-border">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-20 sm:py-28">
-          <div className="text-center mb-12">
-            <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-full text-sm font-semibold mb-6">
-              <Sparkles className="w-4 h-4" />
-              Request Early Access
+      {/* Sign Up CTA Section */}
+      <div className="bg-gradient-to-br from-primary/10 via-background to-primary/5 border-t border-border">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-20 sm:py-28">
+          <div className="text-center space-y-8">
+            <div className="space-y-4">
+              <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-full text-sm font-semibold mb-4">
+                <Sparkles className="w-4 h-4" />
+                Start Today
+              </div>
+              <h2 className="text-3xl sm:text-5xl md:text-6xl font-bold text-foreground">
+                Ready to Transform Your Store?
+              </h2>
+              <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto">
+                Connect your Coinbase Wallet and start building your AI-powered sales agent in minutes. No credit card required.
+              </p>
             </div>
-            <h2 className="text-3xl sm:text-5xl font-bold text-foreground mb-4">
-              Transform Your E-Commerce Experience
-            </h2>
-            <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-              Join forward-thinking businesses leveraging AI to increase conversions and deliver exceptional customer experiences. Our team will reach out within 24 hours to schedule your personalized demo.
+
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+              <Button
+                onClick={() => navigate('/signin')}
+                size="lg"
+                className="text-lg px-8 py-6 h-auto font-semibold"
+              >
+                <Wallet className="mr-2 h-5 w-5" />
+                Create Free Account
+              </Button>
+              <Button
+                onClick={() => window.open('https://www.coinbase.com/wallet/downloads', '_blank')}
+                variant="outline"
+                size="lg"
+                className="text-lg px-8 py-6 h-auto font-semibold"
+              >
+                Get Coinbase Wallet
+              </Button>
+            </div>
+
+            {/* Trust indicators */}
+            <div className="pt-12 grid grid-cols-3 gap-8 max-w-3xl mx-auto border-t border-border mt-12">
+              <div className="text-center">
+                <div className="text-3xl sm:text-4xl font-bold text-primary mb-2">Free</div>
+                <p className="text-sm text-muted-foreground">To get started</p>
+              </div>
+              <div className="text-center">
+                <div className="text-3xl sm:text-4xl font-bold text-primary mb-2">5min</div>
+                <p className="text-sm text-muted-foreground">Setup time</p>
+              </div>
+              <div className="text-center">
+                <div className="text-3xl sm:text-4xl font-bold text-primary mb-2">24/7</div>
+                <p className="text-sm text-muted-foreground">AI support</p>
+              </div>
+            </div>
+
+            <p className="text-sm text-muted-foreground pt-8">
+              Secure wallet connection • No personal data stored • Cancel anytime
             </p>
-          </div>
-
-          <div className="bg-card border-2 border-border rounded-2xl p-8 sm:p-10 shadow-xl">
-            <div className="grid md:grid-cols-2 gap-6 mb-6">
-              {/* Contact Information */}
-              <div>
-                <label htmlFor="waitlist-email" className="text-sm font-semibold block mb-2 text-foreground">
-                  Work Email *
-                </label>
-                <Input
-                  id="waitlist-email"
-                  type="email"
-                  placeholder="john@company.com"
-                  value={waitlistEmail}
-                  onChange={(e) => setWaitlistEmail(e.target.value)}
-                  className="h-12"
-                />
-              </div>
-
-              <div>
-                <label htmlFor="waitlist-phone" className="text-sm font-semibold block mb-2 text-foreground">
-                  Phone Number
-                </label>
-                <Input
-                  id="waitlist-phone"
-                  type="tel"
-                  placeholder="+1 (555) 000-0000"
-                  value={waitlistPhone}
-                  onChange={(e) => setWaitlistPhone(e.target.value)}
-                  className="h-12"
-                />
-              </div>
-
-              {/* Company Information */}
-              <div>
-                <label htmlFor="waitlist-company" className="text-sm font-semibold block mb-2 text-foreground">
-                  Company Name *
-                </label>
-                <Input
-                  id="waitlist-company"
-                  type="text"
-                  placeholder="Acme Corp"
-                  value={waitlistCompany}
-                  onChange={(e) => setWaitlistCompany(e.target.value)}
-                  className="h-12"
-                />
-              </div>
-
-              <div>
-                <label htmlFor="waitlist-role" className="text-sm font-semibold block mb-2 text-foreground">
-                  Job Title *
-                </label>
-                <Input
-                  id="waitlist-role"
-                  type="text"
-                  placeholder="VP of E-commerce"
-                  value={waitlistRole}
-                  onChange={(e) => setWaitlistRole(e.target.value)}
-                  className="h-12"
-                />
-              </div>
-            </div>
-
-            {/* Store Details */}
-            <div className="space-y-6 mb-6">
-              <div>
-                <label htmlFor="waitlist-website" className="text-sm font-semibold block mb-2 text-foreground">
-                  Store Website *
-                </label>
-                <Input
-                  id="waitlist-website"
-                  type="text"
-                  placeholder="https://yourstore.com"
-                  value={waitlistWebsite}
-                  onChange={(e) => setWaitlistWebsite(e.target.value)}
-                  className="h-12"
-                />
-              </div>
-
-              <div className="grid md:grid-cols-2 gap-6">
-                <div>
-                  <label htmlFor="waitlist-sales" className="text-sm font-semibold block mb-2 text-foreground">
-                    Annual Revenue *
-                  </label>
-                  <Select value={waitlistSales} onValueChange={setWaitlistSales}>
-                    <SelectTrigger id="waitlist-sales" className="h-12">
-                      <SelectValue placeholder="Select range" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="0-50k">$0 - $50k</SelectItem>
-                      <SelectItem value="50k-250k">$50k - $250k</SelectItem>
-                      <SelectItem value="250k-1m">$250k - $1M</SelectItem>
-                      <SelectItem value="1m-5m">$1M - $5M</SelectItem>
-                      <SelectItem value="5m-10m">$5M - $10M</SelectItem>
-                      <SelectItem value="10m+">$10M+</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div>
-                  <label htmlFor="waitlist-platform" className="text-sm font-semibold block mb-2 text-foreground">
-                    E-Commerce Platform *
-                  </label>
-                  <Select value={waitlistPlatform} onValueChange={setWaitlistPlatform}>
-                    <SelectTrigger id="waitlist-platform" className="h-12">
-                      <SelectValue placeholder="Select platform" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="shopify">Shopify</SelectItem>
-                      <SelectItem value="woocommerce">WooCommerce</SelectItem>
-                      <SelectItem value="magento">Magento</SelectItem>
-                      <SelectItem value="bigcommerce">BigCommerce</SelectItem>
-                      <SelectItem value="custom">Custom Built</SelectItem>
-                      <SelectItem value="other">Other</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-
-              <div>
-                <label htmlFor="waitlist-goal" className="text-sm font-semibold block mb-2 text-foreground">
-                  Primary Goal (Optional)
-                </label>
-                <Select value={waitlistGoal} onValueChange={setWaitlistGoal}>
-                  <SelectTrigger id="waitlist-goal" className="h-12">
-                    <SelectValue placeholder="What are you looking to improve?" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="conversion">Increase conversion rate</SelectItem>
-                    <SelectItem value="aov">Boost average order value</SelectItem>
-                    <SelectItem value="support">Reduce support tickets</SelectItem>
-                    <SelectItem value="experience">Improve customer experience</SelectItem>
-                    <SelectItem value="abandonment">Decrease cart abandonment</SelectItem>
-                    <SelectItem value="all">All of the above</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            <Button 
-              onClick={handleWaitlistSubmit} 
-              className="w-full h-14 text-lg font-semibold"
-              size="lg"
-            >
-              Request Demo & Early Access
-            </Button>
-
-            <p className="text-xs text-muted-foreground text-center mt-4">
-              By submitting, you agree to be contacted by our team. We typically respond within 24 hours.
-            </p>
-          </div>
-
-          {/* Trust Indicators */}
-          <div className="mt-12 grid grid-cols-3 gap-6 max-w-3xl mx-auto">
-            <div className="text-center">
-              <div className="text-3xl font-bold text-primary mb-1">24h</div>
-              <p className="text-xs text-muted-foreground">Response Time</p>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl font-bold text-primary mb-1">SOC 2</div>
-              <p className="text-xs text-muted-foreground">Compliant</p>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl font-bold text-primary mb-1">99.9%</div>
-              <p className="text-xs text-muted-foreground">Uptime SLA</p>
-            </div>
           </div>
         </div>
       </div>
@@ -1031,154 +822,6 @@ const Marketplace = () => {
           </div>
         </div>
       </footer>
-
-      {/* Waitlist Modal (backup) */}
-      <Dialog open={showWaitlistModal} onOpenChange={setShowWaitlistModal}>
-        <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Request Early Access</DialogTitle>
-            <DialogDescription>
-              Fill out this form and our team will reach out within 24 hours to schedule your demo.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label htmlFor="modal-email" className="text-sm font-semibold block mb-2">
-                  Work Email *
-                </label>
-                <Input
-                  id="modal-email"
-                  type="email"
-                  placeholder="john@company.com"
-                  value={waitlistEmail}
-                  onChange={(e) => setWaitlistEmail(e.target.value)}
-                />
-              </div>
-              <div>
-                <label htmlFor="modal-company" className="text-sm font-semibold block mb-2">
-                  Company Name *
-                </label>
-                <Input
-                  id="modal-company"
-                  type="text"
-                  placeholder="Acme Corp"
-                  value={waitlistCompany}
-                  onChange={(e) => setWaitlistCompany(e.target.value)}
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label htmlFor="modal-role" className="text-sm font-semibold block mb-2">
-                  Job Title *
-                </label>
-                <Input
-                  id="modal-role"
-                  type="text"
-                  placeholder="VP of E-commerce"
-                  value={waitlistRole}
-                  onChange={(e) => setWaitlistRole(e.target.value)}
-                />
-              </div>
-              <div>
-                <label htmlFor="modal-phone" className="text-sm font-semibold block mb-2">
-                  Phone Number
-                </label>
-                <Input
-                  id="modal-phone"
-                  type="tel"
-                  placeholder="+1 (555) 000-0000"
-                  value={waitlistPhone}
-                  onChange={(e) => setWaitlistPhone(e.target.value)}
-                />
-              </div>
-            </div>
-
-            <div>
-              <label htmlFor="modal-website" className="text-sm font-semibold block mb-2">
-                Store Website *
-              </label>
-              <Input
-                id="modal-website"
-                type="text"
-                placeholder="https://yourstore.com"
-                value={waitlistWebsite}
-                onChange={(e) => setWaitlistWebsite(e.target.value)}
-              />
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label htmlFor="modal-sales" className="text-sm font-semibold block mb-2">
-                  Annual Revenue *
-                </label>
-                <Select value={waitlistSales} onValueChange={setWaitlistSales}>
-                  <SelectTrigger id="modal-sales">
-                    <SelectValue placeholder="Select range" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="0-50k">$0 - $50k</SelectItem>
-                    <SelectItem value="50k-250k">$50k - $250k</SelectItem>
-                    <SelectItem value="250k-1m">$250k - $1M</SelectItem>
-                    <SelectItem value="1m-5m">$1M - $5M</SelectItem>
-                    <SelectItem value="5m-10m">$5M - $10M</SelectItem>
-                    <SelectItem value="10m+">$10M+</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div>
-                <label htmlFor="modal-platform" className="text-sm font-semibold block mb-2">
-                  E-Commerce Platform *
-                </label>
-                <Select value={waitlistPlatform} onValueChange={setWaitlistPlatform}>
-                  <SelectTrigger id="modal-platform">
-                    <SelectValue placeholder="Select platform" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="shopify">Shopify</SelectItem>
-                    <SelectItem value="woocommerce">WooCommerce</SelectItem>
-                    <SelectItem value="magento">Magento</SelectItem>
-                    <SelectItem value="bigcommerce">BigCommerce</SelectItem>
-                    <SelectItem value="custom">Custom Built</SelectItem>
-                    <SelectItem value="other">Other</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            <div>
-              <label htmlFor="modal-goal" className="text-sm font-semibold block mb-2">
-                Primary Goal (Optional)
-              </label>
-              <Select value={waitlistGoal} onValueChange={setWaitlistGoal}>
-                <SelectTrigger id="modal-goal">
-                  <SelectValue placeholder="What are you looking to improve?" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="conversion">Increase conversion rate</SelectItem>
-                  <SelectItem value="aov">Boost average order value</SelectItem>
-                  <SelectItem value="support">Reduce support tickets</SelectItem>
-                  <SelectItem value="experience">Improve customer experience</SelectItem>
-                  <SelectItem value="abandonment">Decrease cart abandonment</SelectItem>
-                  <SelectItem value="all">All of the above</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="flex gap-3 pt-4">
-              <Button onClick={handleWaitlistSubmit} className="flex-1">
-                Request Demo & Early Access
-              </Button>
-              <Button variant="outline" onClick={() => setShowWaitlistModal(false)} className="flex-1">
-                Cancel
-              </Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
       
       {/* Floating Agent Demo */}
       <FloatingAgentDemo />
