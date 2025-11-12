@@ -3,7 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
-import { Bot, Send, Check, Loader2, ExternalLink } from "lucide-react";
+import { Send, Check, Loader2, ExternalLink } from "lucide-react";
+import callCenterAgent from "@/assets/call-center-agent.png";
 
 interface Message {
   role: 'agent' | 'user';
@@ -155,8 +156,8 @@ export const AgentStorefrontDemo = () => {
     <Card className="w-full max-w-2xl mx-auto h-[500px] flex flex-col bg-card border-border">
       {/* Chat Header */}
       <div className="p-4 border-b border-border bg-muted/50 flex items-center gap-3">
-        <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-          <Bot className="w-6 h-6 text-primary" />
+        <div className="w-10 h-10 rounded-full overflow-hidden flex items-center justify-center">
+          <img src={callCenterAgent} alt="AI Assistant" className="w-full h-full object-cover" />
         </div>
         <div>
           <h3 className="font-semibold text-foreground">AI Shopping Assistant</h3>
