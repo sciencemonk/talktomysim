@@ -391,6 +391,142 @@ const Marketplace = () => {
         </div>
       </div>
 
+      {/* Developer Integration Section */}
+      <div className="bg-muted/30 border-b border-border">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-foreground mb-6">
+              Simple Integration
+            </h2>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              Add agentic payment capabilities to your app in minutes with our developer-friendly SDK
+            </p>
+            <div className="w-20 h-1 bg-primary mx-auto mt-8"></div>
+          </div>
+
+          <div className="grid lg:grid-cols-2 gap-8 items-start">
+            {/* Left side - Explanation */}
+            <div className="space-y-6">
+              <div>
+                <h3 className="text-2xl font-semibold text-foreground mb-4">
+                  How It Works
+                </h3>
+                <div className="space-y-4 text-muted-foreground">
+                  <div className="flex gap-3">
+                    <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold">
+                      1
+                    </div>
+                    <div>
+                      <p className="font-medium text-foreground">Initialize the SDK</p>
+                      <p className="text-sm">Import and configure the agentic payment client with your API key</p>
+                    </div>
+                  </div>
+                  <div className="flex gap-3">
+                    <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold">
+                      2
+                    </div>
+                    <div>
+                      <p className="font-medium text-foreground">Create an Agent Session</p>
+                      <p className="text-sm">Define payment parameters and agent capabilities for autonomous transactions</p>
+                    </div>
+                  </div>
+                  <div className="flex gap-3">
+                    <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold">
+                      3
+                    </div>
+                    <div>
+                      <p className="font-medium text-foreground">Let AI Handle the Rest</p>
+                      <p className="text-sm">The agent executes payments based on user preferences and conditions</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-card border border-border rounded-xl p-6">
+                <h4 className="font-semibold text-foreground mb-3">Key Features</h4>
+                <ul className="space-y-2 text-sm text-muted-foreground">
+                  <li className="flex items-start gap-2">
+                    <span className="text-primary">✓</span>
+                    <span>Type-safe SDK for TypeScript/JavaScript</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-primary">✓</span>
+                    <span>Built-in webhook support for real-time updates</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-primary">✓</span>
+                    <span>Automatic retry logic and error handling</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-primary">✓</span>
+                    <span>Test mode for development and staging</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+
+            {/* Right side - Code Example */}
+            <div className="bg-card border border-border rounded-xl overflow-hidden">
+              <div className="bg-muted/50 px-4 py-3 border-b border-border flex items-center justify-between">
+                <span className="text-sm font-medium text-muted-foreground">Example Integration</span>
+                <div className="flex gap-2">
+                  <div className="w-3 h-3 rounded-full bg-red-500/20"></div>
+                  <div className="w-3 h-3 rounded-full bg-yellow-500/20"></div>
+                  <div className="w-3 h-3 rounded-full bg-green-500/20"></div>
+                </div>
+              </div>
+              <div className="p-6 overflow-x-auto">
+                <pre className="text-sm">
+                  <code className="text-muted-foreground font-mono">
+{`// Install the SDK
+npm install @simai/agentic-payments
+
+// Initialize client
+import { AgenticPayments } from '@simai/agentic-payments';
+
+const payments = new AgenticPayments({
+  apiKey: process.env.SIMAI_API_KEY
+});
+
+// Create an agent session
+const session = await payments.createSession({
+  agentId: 'your-agent-id',
+  capabilities: {
+    maxAmount: 1000,
+    allowedVendors: ['amazon', 'shopify'],
+    autoRenew: true
+  },
+  rules: {
+    priceThreshold: 0.15, // Only buy if 15% off
+    budgetLimit: 500,
+    category: 'electronics'
+  }
+});
+
+// Agent handles transactions autonomously
+console.log('Session active:', session.id);
+
+// Listen for payment events
+payments.on('payment.completed', (event) => {
+  console.log('Payment processed:', event.amount);
+});`}
+                  </code>
+                </pre>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-12 text-center">
+            <button
+              onClick={() => document.getElementById('waitlist-form')?.scrollIntoView({ behavior: 'smooth' })}
+              className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-8 py-3 rounded-lg font-semibold hover:bg-primary/90 transition-colors"
+            >
+              Get API Access
+            </button>
+          </div>
+        </div>
+      </div>
+
       {/* Waitlist Form Section */}
       <div id="waitlist-form" className="bg-card border-t border-border">
         <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
