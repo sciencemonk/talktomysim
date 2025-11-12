@@ -1552,6 +1552,30 @@ export type Database = {
         }
         Relationships: []
       }
+      waitlist: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          reason: string | null
+          wallet_address: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          reason?: string | null
+          wallet_address: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          reason?: string | null
+          wallet_address?: string
+        }
+        Relationships: []
+      }
       x_agent_offerings: {
         Row: {
           agent_avatar_url: string | null
