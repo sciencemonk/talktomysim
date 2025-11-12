@@ -13,6 +13,7 @@ import simHeroLogo from "@/assets/sim-hero-logo.png";
 import simLogoWhite from "@/assets/sim-logo-white.png";
 import xIcon from "@/assets/x-icon.png";
 import shopifyLogo from "@/assets/shopify-logo.png";
+import visaLogo from "@/assets/visa-logo.png";
 import { supabase } from "@/integrations/supabase/client";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { toast } from "sonner";
@@ -512,14 +513,45 @@ const Marketplace = () => {
           </div>
 
           <div className="grid lg:grid-cols-2 gap-12 items-start mb-16">
-            {/* Left side - Visual placeholder */}
+            {/* Left side - Payment Integration */}
             <div className="order-2 lg:order-1">
-              <div className="bg-muted/30 border border-border rounded-xl p-8 text-center aspect-square flex items-center justify-center">
-                <div className="space-y-4">
-                  <Bot className="w-20 h-20 text-primary mx-auto" />
-                  <p className="text-muted-foreground">
-                    👉 Check the bottom right corner to try our live AI shopping assistant
-                  </p>
+              <div className="bg-gradient-to-br from-primary/5 to-primary/10 border border-primary/20 rounded-xl p-8">
+                <div className="space-y-6">
+                  <div className="flex items-center justify-center gap-4">
+                    <img src={visaLogo} alt="Visa" className="h-8 object-contain" />
+                    <span className="text-2xl font-bold text-foreground">×</span>
+                    <div className="text-center">
+                      <p className="text-sm font-semibold text-primary">x402</p>
+                      <p className="text-xs text-muted-foreground">Protocol</p>
+                    </div>
+                  </div>
+                  
+                  <div className="bg-background/50 rounded-lg p-6 backdrop-blur-sm">
+                    <h4 className="font-semibold text-foreground mb-3">Visa Trusted Agent Protocol</h4>
+                    <p className="text-sm text-muted-foreground leading-relaxed mb-4">
+                      SIM integrates with x402 and Visa&apos;s Trusted Agent Protocol to enable secure, seamless in-chat payments. Customers can complete purchases without ever leaving the conversation.
+                    </p>
+                    <div className="space-y-2">
+                      <div className="flex items-start gap-2 text-sm">
+                        <Zap className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
+                        <span className="text-foreground">Instant payment processing in chat</span>
+                      </div>
+                      <div className="flex items-start gap-2 text-sm">
+                        <Zap className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
+                        <span className="text-foreground">Bank-grade security powered by Visa</span>
+                      </div>
+                      <div className="flex items-start gap-2 text-sm">
+                        <Zap className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
+                        <span className="text-foreground">No checkout pages or redirects needed</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="text-center">
+                    <p className="text-xs text-muted-foreground">
+                      👉 Try our live demo in the bottom right corner
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
