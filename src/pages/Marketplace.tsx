@@ -402,32 +402,6 @@ const Marketplace = () => {
         </div>
       </div>
 
-      {/* Live Demo Section */}
-      <div className="bg-muted/30 border-b border-border">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-foreground mb-6">
-              See It In Action
-            </h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Try our AI agent demo below. Ask questions, browse products, and complete a purchase—all within the chat interface.
-            </p>
-            <div className="w-20 h-1 bg-primary mx-auto mt-8"></div>
-          </div>
-
-          <AgentStorefrontDemo />
-
-          <div className="mt-12 text-center">
-            <button
-              onClick={() => document.getElementById('waitlist-form')?.scrollIntoView({ behavior: 'smooth' })}
-              className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-8 py-3 rounded-lg font-semibold hover:bg-primary/90 transition-colors"
-            >
-              Add This To Your Site
-            </button>
-          </div>
-        </div>
-      </div>
-
       {/* Waitlist Form Section */}
       <div id="waitlist-form" className="bg-card border-t border-border">
         <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
