@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Plus, Package, Edit, Trash2 } from "lucide-react";
+import { Plus, Package, Edit, Trash2, Store } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { ProductDialog } from "./ProductDialog";
+import { ShopifyConnectModal } from "./ShopifyConnectModal";
 
 type Product = {
   id: string;
@@ -25,6 +26,7 @@ export const StoreCatalogTab = ({ store }: StoreCatalogTabProps) => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [shopifyModalOpen, setShopifyModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
 
   useEffect(() => {
@@ -116,10 +118,16 @@ export const StoreCatalogTab = ({ store }: StoreCatalogTabProps) => {
                 Add and manage products and services for your AI agent to sell
               </CardDescription>
             </div>
-            <Button onClick={handleAdd} className="gap-2">
-              <Plus className="h-4 w-4" />
-              Add Product
-            </Button>
+            <div className="flex gap-2">
+              <Button variant="outline" onClick={() => setShopifyModalOpen(true)} className="gap-2">
+                <Store className="h-4 w-4" />
+                Connect Shopify
+              </Button>
+              <Button onClick={handleAdd} className="gap-2">
+                <Plus className="h-4 w-4" />
+                Add Product
+              </Button>
+            </div>
           </div>
         </CardHeader>
         <CardContent>
@@ -186,6 +194,13 @@ export const StoreCatalogTab = ({ store }: StoreCatalogTabProps) => {
         open={dialogOpen}
         onOpenChange={setDialogOpen}
         product={editingProduct}
+        storeId={store?.id}
+        onSuccess={loadProducts}
+      />
+      
+      <ShopifyConnectModal
+        open={shopifyModalOpen}
+        onOpenChange={setShopifyModalOpen}
         storeId={store?.id}
         onSuccess={loadProducts}
       />
