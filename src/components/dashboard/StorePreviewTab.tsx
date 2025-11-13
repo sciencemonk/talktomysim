@@ -8,6 +8,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
 import { StoreEditModal } from "./StoreEditModal";
 import { ProductDetailModal } from "@/components/ProductDetailModal";
+import { formatPrice } from "@/lib/utils";
 
 type Product = {
   id: string;
@@ -216,7 +217,7 @@ export const StorePreviewTab = ({ store, onUpdate }: StorePreviewTabProps) => {
                       </p>
                       <div className="flex items-center justify-between">
                         <span className="text-lg font-bold">
-                          ${product.price} {product.currency}
+                          ${formatPrice(product.price)} {product.currency}
                         </span>
                         <Badge variant={product.is_active ? "default" : "secondary"}>
                           {product.is_active ? 'Available' : 'Inactive'}
