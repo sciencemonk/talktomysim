@@ -19,7 +19,6 @@ type StoreEditModalProps = {
 export const StoreEditModal = ({ open, onOpenChange, store, onUpdate }: StoreEditModalProps) => {
   const [formData, setFormData] = useState({
     store_name: '',
-    x_username: '',
     store_description: '',
     logo_url: ''
   });
@@ -30,7 +29,6 @@ export const StoreEditModal = ({ open, onOpenChange, store, onUpdate }: StoreEdi
     if (store) {
       setFormData({
         store_name: store.store_name || '',
-        x_username: store.x_username || '',
         store_description: store.store_description || '',
         logo_url: store.logo_url || ''
       });
@@ -76,7 +74,6 @@ export const StoreEditModal = ({ open, onOpenChange, store, onUpdate }: StoreEdi
         .from('stores')
         .update({
           store_name: formData.store_name,
-          x_username: formData.x_username,
           store_description: formData.store_description,
           logo_url: formData.logo_url,
           updated_at: new Date().toISOString()
@@ -122,20 +119,6 @@ export const StoreEditModal = ({ open, onOpenChange, store, onUpdate }: StoreEdi
                   onChange={(e) => setFormData(prev => ({ ...prev, store_name: e.target.value }))}
                   placeholder="My Awesome Store"
                 />
-              </div>
-
-              {/* Username */}
-              <div className="space-y-2">
-                <Label htmlFor="x_username">Store Username</Label>
-                <Input
-                  id="x_username"
-                  value={formData.x_username}
-                  onChange={(e) => setFormData(prev => ({ ...prev, x_username: e.target.value }))}
-                  placeholder="mystore"
-                />
-                <p className="text-xs text-muted-foreground">
-                  Your store will be accessible at: /store/{formData.x_username || 'username'}
-                </p>
               </div>
 
               {/* Store Description */}
