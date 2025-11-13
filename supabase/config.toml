@@ -137,3 +137,6 @@ verify_jwt = false
 
 [functions.sim-chat]
 verify_jwt = false
+
+[functions.generate-offramp-url]
+verify_jwt = false
