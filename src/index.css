@@ -243,9 +243,9 @@ div[class*="cdp-button"] {
   display: none !important;
 }
 
-/* Aggressive styling for modal buttons - target the first prominent button */
-[role="dialog"] button[style*="background"],
-[role="dialog"] button[style*="rgb"] {
+/* Style only the Google button (first button) in Coinbase modal */
+[role="dialog"] button:first-of-type[style*="background"],
+[role="dialog"] button:first-of-type[style*="rgb"] {
   background: white !important;
   color: #3c4043 !important;
   border: 1px solid #dadce0 !important;
@@ -256,15 +256,16 @@ div[class*="cdp-button"] {
   height: 44px !important;
 }
 
-[role="dialog"] button[style*="background"]:hover,
-[role="dialog"] button[style*="rgb"]:hover {
+[role="dialog"] button:first-of-type[style*="background"]:hover,
+[role="dialog"] button:first-of-type[style*="rgb"]:hover {
   background: #f8f9fa !important;
   border-color: #d2d3d4 !important;
   box-shadow: 0 1px 2px 0 rgba(60,64,67,.3), 0 1px 3px 1px rgba(60,64,67,.15) !important;
 }
 
-/* Add Google logo to modal button using data URL */
-[role="dialog"] button:first-of-type::before {
+/* Add Google logo only to the first button (Google button) */
+[role="dialog"] button:first-of-type[style*="background"]::before,
+[role="dialog"] button:first-of-type[style*="rgb"]::before {
   content: '';
   display: inline-block;
   width: 18px;
@@ -275,4 +276,9 @@ div[class*="cdp-button"] {
   background-repeat: no-repeat;
   background-position: center;
   vertical-align: middle;
+}
+
+/* Hide any existing Google logo on the email button (second button) */
+[role="dialog"] button:nth-of-type(2)::before {
+  display: none !important;
 }
