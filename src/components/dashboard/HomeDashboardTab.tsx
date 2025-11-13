@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Wallet, DollarSign, Store as StoreIcon, TrendingUp, Users, Package, ExternalLink, Copy, Edit2 } from "lucide-react";
-import { useEvmAddress } from "@coinbase/cdp-hooks";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useAuth } from "@/hooks/useAuth";
 
 type HomeDashboardTabProps = {
   store: any;
@@ -13,11 +13,12 @@ type HomeDashboardTabProps = {
 };
 
 export const HomeDashboardTab = ({ store, totalEarnings }: HomeDashboardTabProps) => {
-  const { evmAddress } = useEvmAddress();
+  const { user } = useAuth();
   const [isEditingRoute, setIsEditingRoute] = useState(false);
   const [newRoute, setNewRoute] = useState(store?.x_username || '');
   const [saving, setSaving] = useState(false);
 
+  const walletAddress = user?.address;
   const storeUrl = store?.x_username ? `${window.location.origin}/store/${store.x_username}` : null;
 
   const handleCopyUrl = () => {
@@ -75,7 +76,7 @@ export const HomeDashboardTab = ({ store, totalEarnings }: HomeDashboardTabProps
               <div className="flex-1 min-w-0">
                 <p className="text-sm text-muted-foreground mb-1">Wallet Address</p>
                 <p className="text-sm font-mono truncate">
-                  {evmAddress ? `${evmAddress.slice(0, 6)}...${evmAddress.slice(-4)}` : 'Not connected'}
+                  {walletAddress ? `${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)}` : 'Not connected'}
                 </p>
               </div>
             </div>
