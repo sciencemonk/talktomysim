@@ -99,13 +99,16 @@ const Dashboard = () => {
     <div className="min-h-screen bg-background flex">
       {/* Sidebar */}
       <aside className={cn(
-        "fixed left-0 top-0 z-40 h-screen transition-transform bg-card border-r border-border",
-        sidebarOpen ? "w-64" : "w-0"
+        "fixed left-0 top-0 z-40 h-screen transition-all duration-300 bg-card border-r border-border overflow-hidden",
+        sidebarOpen ? "w-64" : "w-16"
       )}>
         <div className="h-full flex flex-col">
           {/* Sidebar Header */}
-          <div className="p-4 border-b border-border">
-            <button onClick={() => navigate('/')} className="flex items-center hover:opacity-80 transition-opacity">
+          <div className={cn(
+            "p-4 border-b border-border flex items-center",
+            sidebarOpen ? "justify-start" : "justify-center"
+          )}>
+            <button onClick={() => navigate('/')} className="hover:opacity-80 transition-opacity">
               <div className="bg-black/90 rounded-lg px-2 py-1">
                 <img src="/sim-logo-white.png" alt="SIM" className="h-6 w-auto" />
               </div>
@@ -113,39 +116,72 @@ const Dashboard = () => {
           </div>
 
           {/* Navigation Items */}
-          <nav className="flex-1 p-4 space-y-2">
-            <Button
-              variant={activeView === "catalog" ? "secondary" : "ghost"}
-              className="w-full justify-start gap-2"
+          <nav className="flex-1 p-2 space-y-1">
+            <button
+              className={cn(
+                "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all relative",
+                "hover:bg-accent",
+                activeView === "catalog" && "bg-accent",
+                sidebarOpen ? "justify-start" : "justify-center"
+              )}
               onClick={() => setActiveView("catalog")}
             >
-              <Store className="h-4 w-4" />
-              Catalog
-            </Button>
-            <Button
-              variant={activeView === "agent" ? "secondary" : "ghost"}
-              className="w-full justify-start gap-2"
+              {activeView === "catalog" && (
+                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-primary rounded-r-full" />
+              )}
+              <Store className={cn("h-5 w-5 flex-shrink-0", activeView === "catalog" && "text-primary")} />
+              {sidebarOpen && (
+                <span className={cn("text-sm font-medium", activeView === "catalog" && "text-primary")}>
+                  Catalog
+                </span>
+              )}
+            </button>
+            <button
+              className={cn(
+                "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all relative",
+                "hover:bg-accent",
+                activeView === "agent" && "bg-accent",
+                sidebarOpen ? "justify-start" : "justify-center"
+              )}
               onClick={() => setActiveView("agent")}
             >
-              <Bot className="h-4 w-4" />
-              Agent Settings
-            </Button>
-            <Button
-              variant={activeView === "preview" ? "secondary" : "ghost"}
-              className="w-full justify-start gap-2"
+              {activeView === "agent" && (
+                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-primary rounded-r-full" />
+              )}
+              <Bot className={cn("h-5 w-5 flex-shrink-0", activeView === "agent" && "text-primary")} />
+              {sidebarOpen && (
+                <span className={cn("text-sm font-medium", activeView === "agent" && "text-primary")}>
+                  Agent Settings
+                </span>
+              )}
+            </button>
+            <button
+              className={cn(
+                "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all relative",
+                "hover:bg-accent",
+                activeView === "preview" && "bg-accent",
+                sidebarOpen ? "justify-start" : "justify-center"
+              )}
               onClick={() => setActiveView("preview")}
             >
-              <Eye className="h-4 w-4" />
-              Store Preview
-            </Button>
+              {activeView === "preview" && (
+                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-primary rounded-r-full" />
+              )}
+              <Eye className={cn("h-5 w-5 flex-shrink-0", activeView === "preview" && "text-primary")} />
+              {sidebarOpen && (
+                <span className={cn("text-sm font-medium", activeView === "preview" && "text-primary")}>
+                  Store Preview
+                </span>
+              )}
+            </button>
           </nav>
         </div>
       </aside>
 
       {/* Main Content */}
       <div className={cn(
-        "flex-1 flex flex-col min-h-screen transition-all",
-        sidebarOpen ? "ml-64" : "ml-0"
+        "flex-1 flex flex-col min-h-screen transition-all duration-300",
+        sidebarOpen ? "ml-64" : "ml-16"
       )}>
         {/* Top Navigation */}
         <nav className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-30">
