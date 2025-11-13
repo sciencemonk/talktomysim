@@ -105,14 +105,29 @@ const Dashboard = () => {
         <div className="h-full flex flex-col">
           {/* Sidebar Header */}
           <div className={cn(
-            "p-4 border-b border-border flex items-center",
-            sidebarOpen ? "justify-start" : "justify-center"
+            "p-4 border-b border-border flex items-center justify-between gap-2"
           )}>
-            <button onClick={() => navigate('/')} className="hover:opacity-80 transition-opacity">
+            <button 
+              onClick={() => navigate('/')} 
+              className={cn(
+                "hover:opacity-80 transition-opacity flex-shrink-0",
+                !sidebarOpen && "mx-auto"
+              )}
+            >
               <div className="bg-black/90 rounded-lg px-2 py-1">
-                <img src="/sim-logo-white.png" alt="SIM" className="h-6 w-auto" />
+                <img src="/sim-logo-white.png" alt="SIM" className="h-6 w-auto object-contain" />
               </div>
             </button>
+            {sidebarOpen && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setSidebarOpen(false)}
+                className="flex-shrink-0 h-8 w-8 p-0"
+              >
+                <Menu className="h-4 w-4" />
+              </Button>
+            )}
           </div>
 
           {/* Navigation Items */}
@@ -187,18 +202,23 @@ const Dashboard = () => {
         <nav className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-30">
           <div className="px-4 sm:px-6 lg:px-8">
             <div className="flex items-center justify-between h-16">
-              {/* Mobile menu button */}
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setSidebarOpen(!sidebarOpen)}
-                className="gap-2"
-              >
-                <Menu className="h-5 w-5" />
-              </Button>
+              {/* Menu toggle for collapsed state */}
+              {!sidebarOpen && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setSidebarOpen(true)}
+                  className="gap-2"
+                >
+                  <Menu className="h-5 w-5" />
+                </Button>
+              )}
+              
+              {/* Spacer when sidebar is open */}
+              {sidebarOpen && <div />}
               
               {/* Right side - Theme Toggle + User dropdown */}
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-4 ml-auto">
                 <ThemeToggle />
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
