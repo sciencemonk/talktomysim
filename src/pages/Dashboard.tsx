@@ -133,7 +133,7 @@ const Dashboard = () => {
                 alt="SIM" 
                 className={cn(
                   "w-auto object-contain transition-all",
-                  sidebarOpen ? "h-5" : "h-4"
+                  sidebarOpen ? "h-10" : "h-8"
                 )}
               />
             </button>
