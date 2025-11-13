@@ -5,13 +5,14 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { User, Home, Bot, Package, Store, LogOut, Menu } from "lucide-react";
+import { User, Home, Bot, Package, Store, LogOut, Menu, DollarSign } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { HomeDashboardTab } from "@/components/dashboard/HomeDashboardTab";
 import { AgentPreviewTab } from "@/components/dashboard/AgentPreviewTab";
 import { StoreCatalogTab } from "@/components/dashboard/StoreCatalogTab";
 import { AgentSettingsTab } from "@/components/dashboard/AgentSettingsTab";
 import { StorePreviewTab } from "@/components/dashboard/StorePreviewTab";
+import Earnings from "./Earnings";
 import { useEvmAddress } from "@coinbase/cdp-hooks";
 import { cn } from "@/lib/utils";
 import storeLogo from "@/assets/store-logo.gif";
@@ -35,6 +36,13 @@ const Dashboard = () => {
 
     loadStore();
 
+    // Check URL params for view
+    const params = new URLSearchParams(location.search);
+    const viewParam = params.get('view');
+    if (viewParam) {
+      setActiveView(viewParam);
+    }
+
     // Listen for navigation events from Quick Actions
     const handleNavigation = (event: any) => {
       if (event.detail) {
@@ -46,7 +54,7 @@ const Dashboard = () => {
     return () => {
       window.removeEventListener('navigate-dashboard', handleNavigation);
     };
-  }, [user, navigate]);
+  }, [user, navigate, location.search]);
 
   const loadStore = async () => {
     try {
@@ -230,6 +238,25 @@ const Dashboard = () => {
                 </span>
               )}
             </button>
+            <button
+              className={cn(
+                "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all relative",
+                "hover:bg-accent",
+                activeView === "earnings" && "bg-accent",
+                sidebarOpen ? "justify-start" : "justify-center"
+              )}
+              onClick={() => setActiveView("earnings")}
+            >
+              {activeView === "earnings" && (
+                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-primary rounded-r-full" />
+              )}
+              <DollarSign className={cn("h-5 w-5 flex-shrink-0", activeView === "earnings" && "text-primary")} />
+              {sidebarOpen && (
+                <span className={cn("text-sm font-medium", activeView === "earnings" && "text-primary")}>
+                  Earnings
+                </span>
+              )}
+            </button>
           </nav>
 
           {/* User Section at Bottom */}
@@ -285,6 +312,7 @@ const Dashboard = () => {
             {activeView === "agent" && <AgentPreviewTab store={store} onUpdate={loadStore} />}
             {activeView === "catalog" && <StoreCatalogTab store={store} />}
             {activeView === "store" && <StorePreviewTab store={store} onUpdate={loadStore} />}
+            {activeView === "earnings" && <Earnings />}
           </div>
         </main>
       </div>
