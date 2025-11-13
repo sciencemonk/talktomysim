@@ -152,10 +152,10 @@ export const StorePreviewTab = ({ store, onUpdate }: StorePreviewTabProps) => {
                       setProductModalOpen(true);
                     }}
                   >
-                    {product.image_url && (
+                    {product.image_urls && product.image_urls.length > 0 && (
                       <div className="aspect-square overflow-hidden bg-muted">
                         <img
-                          src={product.image_url}
+                          src={product.image_urls[0]}
                           alt={product.title}
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform"
                         />
