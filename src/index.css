@@ -106,6 +106,22 @@
     outline: none !important;
     box-shadow: none !important;
   }
+  
+  /* Coinbase OTP input fix - ensure all 6 digits are visible */
+  div[role="group"] input[type="text"][inputmode="numeric"] {
+    min-width: 40px !important;
+    width: 40px !important;
+  }
+  
+  /* Ensure Coinbase OTP container has enough width */
+  div[role="group"]:has(input[inputmode="numeric"]) {
+    display: flex !important;
+    justify-content: center !important;
+    gap: 8px !important;
+    width: 100% !important;
+    min-width: 300px !important;
+    overflow: visible !important;
+  }
 }
 
 @layer utilities {
