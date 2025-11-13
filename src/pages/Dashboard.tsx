@@ -265,7 +265,7 @@ const Dashboard = () => {
             {activeView === "home" && <HomeDashboardTab store={store} totalEarnings={totalEarnings} />}
             {activeView === "agent" && <AgentPreviewTab store={store} onUpdate={loadStore} />}
             {activeView === "catalog" && <StoreCatalogTab store={store} />}
-            {activeView === "store" && <StorePreviewTab store={store} />}
+            {activeView === "store" && <StorePreviewTab store={store} onUpdate={loadStore} />}
           </div>
         </main>
       </div>
