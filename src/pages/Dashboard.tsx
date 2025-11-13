@@ -6,18 +6,22 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { User, Store, Bot, Settings, LogOut } from "lucide-react";
+import { User, Store, Bot, Settings, LogOut, Wallet, DollarSign, ExternalLink } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Card, CardContent } from "@/components/ui/card";
 import { StoreCatalogTab } from "@/components/dashboard/StoreCatalogTab";
 import { AgentSettingsTab } from "@/components/dashboard/AgentSettingsTab";
 import { GeneralSettingsTab } from "@/components/dashboard/GeneralSettingsTab";
+import { useEvmAddress } from "@coinbase/cdp-hooks";
 
 const Dashboard = () => {
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
+  const { evmAddress } = useEvmAddress();
   const [activeTab, setActiveTab] = useState("catalog");
   const [store, setStore] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [totalEarnings, setTotalEarnings] = useState(0);
 
   useEffect(() => {
     if (!user) {
@@ -35,9 +39,9 @@ const Dashboard = () => {
         .from('stores')
         .select('*')
         .eq('user_id', user.id)
-        .single();
+        .maybeSingle();
 
-      if (error && error.code !== 'PGRST116') {
+      if (error) {
         throw error;
       }
 
@@ -139,11 +143,69 @@ const Dashboard = () => {
           </p>
         </div>
 
+        {/* Store Stats */}
+        <div className="grid gap-4 md:grid-cols-3 mb-8">
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center gap-3">
+                <div className="p-3 bg-primary/10 rounded-lg">
+                  <Wallet className="h-5 w-5 text-primary" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm text-muted-foreground mb-1">Wallet Address</p>
+                  <p className="text-sm font-mono truncate">
+                    {evmAddress ? `${evmAddress.slice(0, 6)}...${evmAddress.slice(-4)}` : 'Not connected'}
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center gap-3">
+                <div className="p-3 bg-primary/10 rounded-lg">
+                  <DollarSign className="h-5 w-5 text-primary" />
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground mb-1">Total Earnings</p>
+                  <p className="text-2xl font-bold">${totalEarnings.toFixed(2)}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center gap-3">
+                <div className="p-3 bg-primary/10 rounded-lg">
+                  <Store className="h-5 w-5 text-primary" />
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm text-muted-foreground mb-1">Public Store</p>
+                  {store?.x_username ? (
+                    <Button
+                      variant="link"
+                      size="sm"
+                      className="h-auto p-0 text-primary"
+                      onClick={() => window.open(`/store/${store.x_username}`, '_blank')}
+                    >
+                      View Store <ExternalLink className="h-3 w-3 ml-1" />
+                    </Button>
+                  ) : (
+                    <p className="text-sm text-muted-foreground">Not published</p>
+                  )}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <TabsList className="grid w-full grid-cols-3 lg:w-[600px]">
             <TabsTrigger value="catalog" className="gap-2">
               <Store className="h-4 w-4" />
-              Store/Catalog
+              Catalog
             </TabsTrigger>
             <TabsTrigger value="agent" className="gap-2">
               <Bot className="h-4 w-4" />

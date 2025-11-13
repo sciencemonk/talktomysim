@@ -30,6 +30,8 @@ export const StoreCatalogTab = ({ store }: StoreCatalogTabProps) => {
   useEffect(() => {
     if (store?.id) {
       loadProducts();
+    } else {
+      setLoading(false);
     }
   }, [store?.id]);
 
