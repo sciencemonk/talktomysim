@@ -6,12 +6,12 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { User, Store, Bot, Settings, LogOut, Wallet, DollarSign, ExternalLink } from "lucide-react";
+import { User, Store, Bot, Eye, LogOut, Wallet, DollarSign, ExternalLink } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Card, CardContent } from "@/components/ui/card";
 import { StoreCatalogTab } from "@/components/dashboard/StoreCatalogTab";
 import { AgentSettingsTab } from "@/components/dashboard/AgentSettingsTab";
-import { GeneralSettingsTab } from "@/components/dashboard/GeneralSettingsTab";
+import { StorePreviewTab } from "@/components/dashboard/StorePreviewTab";
 import { useEvmAddress } from "@coinbase/cdp-hooks";
 
 const Dashboard = () => {
@@ -211,9 +211,9 @@ const Dashboard = () => {
               <Bot className="h-4 w-4" />
               Agent Settings
             </TabsTrigger>
-            <TabsTrigger value="settings" className="gap-2">
-              <Settings className="h-4 w-4" />
-              General Settings
+            <TabsTrigger value="preview" className="gap-2">
+              <Eye className="h-4 w-4" />
+              Store Preview
             </TabsTrigger>
           </TabsList>
 
@@ -225,8 +225,8 @@ const Dashboard = () => {
             <AgentSettingsTab store={store} onUpdate={loadStore} />
           </TabsContent>
 
-          <TabsContent value="settings" className="space-y-6">
-            <GeneralSettingsTab store={store} onUpdate={loadStore} />
+          <TabsContent value="preview" className="space-y-6">
+            <StorePreviewTab store={store} />
           </TabsContent>
         </Tabs>
       </div>
