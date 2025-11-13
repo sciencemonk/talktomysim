@@ -263,7 +263,7 @@ const Dashboard = () => {
           {/* Content Views */}
           <div className="space-y-6">
             {activeView === "home" && <HomeDashboardTab store={store} totalEarnings={totalEarnings} />}
-            {activeView === "agent" && <AgentPreviewTab store={store} />}
+            {activeView === "agent" && <AgentPreviewTab store={store} onUpdate={loadStore} />}
             {activeView === "catalog" && <StoreCatalogTab store={store} />}
             {activeView === "store" && <StorePreviewTab store={store} />}
           </div>
