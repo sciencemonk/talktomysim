@@ -2,11 +2,13 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Bot, Send, Sparkles } from "lucide-react";
+import { Bot, Send, Sparkles, Edit } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { AgentEditModal } from "./AgentEditModal";
 
 type AgentPreviewTabProps = {
   store: any;
+  onUpdate: () => void;
 };
 
 type Message = {
@@ -16,7 +18,7 @@ type Message = {
   timestamp: Date;
 };
 
-export const AgentPreviewTab = ({ store }: AgentPreviewTabProps) => {
+export const AgentPreviewTab = ({ store, onUpdate }: AgentPreviewTabProps) => {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
@@ -27,6 +29,7 @@ export const AgentPreviewTab = ({ store }: AgentPreviewTabProps) => {
   ]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [editModalOpen, setEditModalOpen] = useState(false);
 
   const handleSendMessage = async () => {
     if (!inputValue.trim()) return;
@@ -75,14 +78,14 @@ export const AgentPreviewTab = ({ store }: AgentPreviewTabProps) => {
               <img
                 src={store.avatar_url}
                 alt="Agent Avatar"
-                className="h-16 w-16 rounded-full border-2 border-primary object-cover"
+                className="h-16 w-16 rounded-full border-2 border-primary object-cover flex-shrink-0"
               />
             ) : (
-              <div className="h-16 w-16 rounded-full bg-primary/20 flex items-center justify-center border-2 border-primary">
+              <div className="h-16 w-16 rounded-full bg-primary/20 flex items-center justify-center border-2 border-primary flex-shrink-0">
                 <Bot className="h-8 w-8 text-primary" />
               </div>
             )}
-            <div className="flex-1">
+            <div className="flex-1 min-w-0">
               <h3 className="font-semibold text-lg mb-1">{store?.store_name || 'My Store'} AI</h3>
               <p className="text-sm text-muted-foreground mb-3">
                 {store?.store_description || 'Your AI sales assistant'}
@@ -99,9 +102,26 @@ export const AgentPreviewTab = ({ store }: AgentPreviewTabProps) => {
                 </div>
               </div>
             </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setEditModalOpen(true)}
+              className="flex-shrink-0"
+            >
+              <Edit className="h-4 w-4 mr-2" />
+              Edit
+            </Button>
           </div>
         </CardContent>
       </Card>
+
+      {/* Edit Modal */}
+      <AgentEditModal
+        open={editModalOpen}
+        onOpenChange={setEditModalOpen}
+        store={store}
+        onUpdate={onUpdate}
+      />
 
       {/* Chat Interface */}
       <Card className="h-[600px] flex flex-col">
