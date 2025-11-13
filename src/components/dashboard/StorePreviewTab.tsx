@@ -27,14 +27,35 @@ type StorePreviewTabProps = {
   onUpdate: () => void;
 };
 
+type ChatMessage = {
+  id: string;
+  role: 'user' | 'agent';
+  content: string;
+  timestamp: Date;
+};
+
 export const StorePreviewTab = ({ store, onUpdate }: StorePreviewTabProps) => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [editModalOpen, setEditModalOpen] = useState(false);
-  const [chatOpen, setChatOpen] = useState(true); // Open by default
+  const [chatOpen, setChatOpen] = useState(true);
   const [chatMessage, setChatMessage] = useState('');
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
+  const [isSending, setIsSending] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [productModalOpen, setProductModalOpen] = useState(false);
+
+  // Initialize chat with greeting message
+  useEffect(() => {
+    if (store?.greeting_message && chatMessages.length === 0) {
+      setChatMessages([{
+        id: '1',
+        role: 'agent',
+        content: store.greeting_message,
+        timestamp: new Date()
+      }]);
+    }
+  }, [store?.greeting_message]);
 
   useEffect(() => {
     if (store?.id) {
@@ -65,6 +86,33 @@ export const StorePreviewTab = ({ store, onUpdate }: StorePreviewTabProps) => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleSendMessage = async () => {
+    if (!chatMessage.trim() || isSending) return;
+
+    const userMessage: ChatMessage = {
+      id: Date.now().toString(),
+      role: 'user',
+      content: chatMessage.trim(),
+      timestamp: new Date()
+    };
+
+    setChatMessages(prev => [...prev, userMessage]);
+    setChatMessage('');
+    setIsSending(true);
+
+    // This is a preview, so we show a simple demo response
+    setTimeout(() => {
+      const agentMessage: ChatMessage = {
+        id: (Date.now() + 1).toString(),
+        role: 'agent',
+        content: "This is a preview of your AI agent. In the live store, I'll help customers with product recommendations and questions using real AI!",
+        timestamp: new Date()
+      };
+      setChatMessages(prev => [...prev, agentMessage]);
+      setIsSending(false);
+    }, 800);
   };
 
   if (loading) {
@@ -226,13 +274,33 @@ export const StorePreviewTab = ({ store, onUpdate }: StorePreviewTabProps) => {
               <CardContent className="flex-1 p-0 flex flex-col">
                 <ScrollArea className="flex-1 p-4">
                   <div className="space-y-4">
-                    <div className="flex justify-start">
-                      <div className="bg-muted rounded-lg p-3 max-w-[80%]">
-                        <p className="text-sm">
-                          {store?.greeting_message || 'Hello! How can I help you today?'}
-                        </p>
+                    {chatMessages.map((msg) => (
+                      <div
+                        key={msg.id}
+                        className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                      >
+                        <div
+                          className={`rounded-lg p-3 max-w-[80%] ${
+                            msg.role === 'user'
+                              ? 'bg-primary text-primary-foreground'
+                              : 'bg-muted'
+                          }`}
+                        >
+                          <p className="text-sm">{msg.content}</p>
+                        </div>
                       </div>
-                    </div>
+                    ))}
+                    {isSending && (
+                      <div className="flex justify-start">
+                        <div className="bg-muted rounded-lg p-3">
+                          <div className="flex gap-1">
+                            <div className="h-2 w-2 rounded-full bg-foreground/30 animate-bounce" />
+                            <div className="h-2 w-2 rounded-full bg-foreground/30 animate-bounce [animation-delay:0.2s]" />
+                            <div className="h-2 w-2 rounded-full bg-foreground/30 animate-bounce [animation-delay:0.4s]" />
+                          </div>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </ScrollArea>
                 <div className="p-4 border-t border-border">
@@ -242,12 +310,18 @@ export const StorePreviewTab = ({ store, onUpdate }: StorePreviewTabProps) => {
                       value={chatMessage}
                       onChange={(e) => setChatMessage(e.target.value)}
                       onKeyPress={(e) => {
-                        if (e.key === 'Enter') {
-                          setChatMessage('');
+                        if (e.key === 'Enter' && !e.shiftKey) {
+                          e.preventDefault();
+                          handleSendMessage();
                         }
                       }}
+                      disabled={isSending}
                     />
-                    <Button size="icon" onClick={() => setChatMessage('')}>
+                    <Button 
+                      size="icon" 
+                      onClick={handleSendMessage}
+                      disabled={!chatMessage.trim() || isSending}
+                    >
                       <Send className="h-4 w-4" />
                     </Button>
                   </div>
