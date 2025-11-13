@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { X402PaymentModal } from "./X402PaymentModal";
 import { Package, DollarSign, Info } from "lucide-react";
 import { toast } from "sonner";
+import { formatPrice } from "@/lib/utils";
 
 interface Product {
   id: string;
@@ -119,7 +120,7 @@ export const ProductDetailModal = ({
                 <div className="flex items-center gap-2">
                   <DollarSign className="h-5 w-5 text-primary" />
                   <span className="text-3xl font-bold">
-                    ${product.price}
+                    ${formatPrice(product.price)}
                   </span>
                   <span className="text-lg text-muted-foreground">
                     {product.currency}

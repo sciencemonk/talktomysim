@@ -8,6 +8,7 @@ import { ProductDetailModal } from "@/components/ProductDetailModal";
 import { Package, ArrowLeft, ExternalLink } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { toast } from "sonner";
+import { formatPrice } from "@/lib/utils";
 
 type Product = {
   id: string;
@@ -190,7 +191,7 @@ export default function PublicStore() {
                     </p>
                     <div className="flex items-center justify-between">
                       <span className="text-lg font-bold">
-                        ${product.price} {product.currency}
+                        ${formatPrice(product.price)} {product.currency}
                       </span>
                       <Button size="sm" variant="outline">
                         View Details
