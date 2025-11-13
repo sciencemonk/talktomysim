@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { ProductDialog } from "./ProductDialog";
 import { ShopifyConnectModal } from "./ShopifyConnectModal";
+import { formatPrice } from "@/lib/utils";
 
 type Product = {
   id: string;
@@ -163,7 +164,7 @@ export const StoreCatalogTab = ({ store }: StoreCatalogTabProps) => {
                     </p>
                     <div className="flex items-center justify-between">
                       <span className="text-lg font-bold text-primary">
-                        {product.price} {product.currency}
+                        ${formatPrice(product.price)} {product.currency}
                       </span>
                       <div className="flex gap-2">
                         <Button 
