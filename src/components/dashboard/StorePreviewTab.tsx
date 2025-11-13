@@ -27,7 +27,7 @@ export const StorePreviewTab = ({ store, onUpdate }: StorePreviewTabProps) => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [editModalOpen, setEditModalOpen] = useState(false);
-  const [chatOpen, setChatOpen] = useState(false);
+  const [chatOpen, setChatOpen] = useState(true); // Open by default
   const [chatMessage, setChatMessage] = useState('');
 
   useEffect(() => {
@@ -109,19 +109,16 @@ export const StorePreviewTab = ({ store, onUpdate }: StorePreviewTabProps) => {
         <div className="max-w-6xl mx-auto">
           {/* Store Info */}
           <div className="text-center space-y-4 pb-8 mb-8 border-b border-border">
-            {store?.avatar_url && (
-              <div className="flex justify-center">
+            {/* Show Logo or Store Name */}
+            <div className="flex justify-center">
+              {store?.logo_url ? (
                 <img
-                  src={store.avatar_url}
+                  src={store.logo_url}
                   alt={store.store_name}
-                  className="h-24 w-24 rounded-full border-4 border-background shadow-lg object-cover"
+                  className="h-24 object-contain"
                 />
-              </div>
-            )}
-            <div>
-              <h1 className="text-4xl font-bold mb-2">{store?.store_name || 'My Store'}</h1>
-              {store?.x_username && (
-                <p className="text-muted-foreground">@{store.x_username}</p>
+              ) : (
+                <h1 className="text-4xl font-bold">{store?.store_name || 'Store Name'}</h1>
               )}
             </div>
             {store?.store_description && (

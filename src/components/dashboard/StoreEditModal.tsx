@@ -20,19 +20,52 @@ export const StoreEditModal = ({ open, onOpenChange, store, onUpdate }: StoreEdi
   const [formData, setFormData] = useState({
     store_name: '',
     x_username: '',
-    store_description: ''
+    store_description: '',
+    logo_url: ''
   });
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
     if (store) {
       setFormData({
         store_name: store.store_name || '',
         x_username: store.x_username || '',
-        store_description: store.store_description || ''
+        store_description: store.store_description || '',
+        logo_url: store.logo_url || ''
       });
     }
   }, [store]);
+
+  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      setUploading(true);
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${store.id}-${Math.random()}.${fileExt}`;
+      const filePath = `${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('store-avatars')
+        .upload(filePath, file, { upsert: true });
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('store-avatars')
+        .getPublicUrl(filePath);
+
+      setFormData(prev => ({ ...prev, logo_url: publicUrl }));
+      toast.success('Logo uploaded successfully');
+    } catch (error) {
+      console.error('Error uploading logo:', error);
+      toast.error('Failed to upload logo');
+    } finally {
+      setUploading(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -45,6 +78,7 @@ export const StoreEditModal = ({ open, onOpenChange, store, onUpdate }: StoreEdi
           store_name: formData.store_name,
           x_username: formData.x_username,
           store_description: formData.store_description,
+          logo_url: formData.logo_url,
           updated_at: new Date().toISOString()
         })
         .eq('id', store.id);
@@ -118,6 +152,32 @@ export const StoreEditModal = ({ open, onOpenChange, store, onUpdate }: StoreEdi
             </TabsContent>
 
             <TabsContent value="design" className="space-y-4 mt-4">
+              {/* Store Logo */}
+              <div className="space-y-2">
+                <Label htmlFor="logo">Store Logo</Label>
+                <div className="flex items-center gap-4">
+                  {formData.logo_url && (
+                    <img
+                      src={formData.logo_url}
+                      alt="Store logo"
+                      className="h-16 w-16 object-contain rounded border border-border"
+                    />
+                  )}
+                  <div className="flex-1">
+                    <Input
+                      id="logo"
+                      type="file"
+                      accept="image/*"
+                      onChange={handleLogoUpload}
+                      disabled={uploading}
+                    />
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {uploading ? 'Uploading...' : 'Upload a logo to replace your store name'}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
               <div className="p-4 rounded-lg border border-border bg-muted/50">
                 <h4 className="font-medium mb-2">Chat Widget Position</h4>
                 <p className="text-sm text-muted-foreground mb-4">
