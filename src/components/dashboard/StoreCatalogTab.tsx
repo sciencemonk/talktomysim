@@ -45,12 +45,19 @@ export const StoreCatalogTab = ({ store }: StoreCatalogTabProps) => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      // Cast image_urls from Json to string[]
-      const products = (data || []).map(p => ({
-        ...p,
-        image_urls: (p.image_urls as string[]) || []
+      // Cast the data to match our Product type with image_urls
+      // Note: TypeScript types haven't been regenerated after migration, so we cast through any
+      const products = (data || []).map((p: any) => ({
+        id: p.id,
+        title: p.title,
+        description: p.description,
+        price: p.price,
+        currency: p.currency,
+        image_urls: (p.image_urls as string[]) || [],
+        is_active: p.is_active,
+        delivery_info: p.delivery_info
       }));
-      setProducts(products as Product[]);
+      setProducts(products);
     } catch (error) {
       console.error('Error loading products:', error);
       toast.error('Failed to load products');

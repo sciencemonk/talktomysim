@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Wallet, DollarSign, Store as StoreIcon, TrendingUp, Users, Package, ExternalLink, Copy, Edit2 } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Wallet, DollarSign, TrendingUp, ShoppingBag, ExternalLink, Copy, Edit2, Check, ArrowUpRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
@@ -20,6 +20,13 @@ export const HomeDashboardTab = ({ store, totalEarnings }: HomeDashboardTabProps
 
   const walletAddress = user?.address;
   const storeUrl = store?.x_username ? `${window.location.origin}/store/${store.x_username}` : null;
+
+  const handleCopyWallet = () => {
+    if (walletAddress) {
+      navigator.clipboard.writeText(walletAddress);
+      toast.success('Wallet address copied');
+    }
+  };
 
   const handleCopyUrl = () => {
     if (storeUrl) {
@@ -44,7 +51,7 @@ export const HomeDashboardTab = ({ store, totalEarnings }: HomeDashboardTabProps
       if (error) throw error;
       toast.success('Store route updated successfully');
       setIsEditingRoute(false);
-      window.location.reload(); // Reload to reflect changes
+      window.location.reload();
     } catch (error) {
       console.error('Error updating route:', error);
       toast.error('Failed to update store route');
@@ -54,224 +61,250 @@ export const HomeDashboardTab = ({ store, totalEarnings }: HomeDashboardTabProps
   };
 
   return (
-    <div className="space-y-6">
-      {/* Welcome Section */}
-      <div>
-        <h1 className="text-3xl font-bold text-foreground mb-2">
-          Welcome back!
+    <div className="space-y-8 pb-8">
+      {/* Welcome Header */}
+      <div className="space-y-1">
+        <h1 className="text-4xl font-bold tracking-tight">
+          Welcome back
         </h1>
-        <p className="text-muted-foreground">
-          Here's an overview of your store's performance
+        <p className="text-lg text-muted-foreground">
+          Here's what's happening with your store today
         </p>
       </div>
 
-      {/* Stats Grid */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center gap-3">
-              <div className="p-3 bg-primary/10 rounded-lg">
-                <Wallet className="h-5 w-5 text-primary" />
+      {/* Key Metrics */}
+      <div className="grid gap-6 md:grid-cols-2">
+        {/* Total Earnings Card */}
+        <Card className="border-2">
+          <CardHeader className="pb-3">
+            <CardDescription className="text-sm font-medium">Total Earnings</CardDescription>
+            <CardTitle className="text-4xl font-bold tabular-nums">
+              ${totalEarnings.toFixed(2)}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center gap-2 text-sm">
+              <div className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400">
+                <ArrowUpRight className="h-4 w-4" />
+                <span className="font-medium">0%</span>
               </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm text-muted-foreground mb-1">Wallet Address</p>
-                <p className="text-sm font-mono truncate">
-                  {walletAddress ? `${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)}` : 'Not connected'}
-                </p>
-              </div>
+              <span className="text-muted-foreground">from last month</span>
             </div>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center gap-3">
-              <div className="p-3 bg-primary/10 rounded-lg">
-                <DollarSign className="h-5 w-5 text-primary" />
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground mb-1">Total Earnings</p>
-                <p className="text-2xl font-bold">${totalEarnings.toFixed(2)}</p>
-              </div>
+        {/* Store Performance Card */}
+        <Card className="border-2">
+          <CardHeader className="pb-3">
+            <CardDescription className="text-sm font-medium">Store Performance</CardDescription>
+            <CardTitle className="text-4xl font-bold tabular-nums">
+              0
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <ShoppingBag className="h-4 w-4" />
+              <span>Total orders processed</span>
             </div>
           </CardContent>
         </Card>
+      </div>
 
+      {/* Store Configuration */}
+      <div className="grid gap-6 md:grid-cols-2">
+        {/* Public Store URL */}
         <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center gap-3">
-              <div className="p-3 bg-primary/10 rounded-lg">
-                <StoreIcon className="h-5 w-5 text-primary" />
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground mb-1">Store Status</p>
-                <p className="text-sm font-medium">
-                  {store?.x_username ? 'Published' : 'Not published'}
-                </p>
-              </div>
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <ExternalLink className="h-5 w-5 text-primary" />
+              <CardTitle className="text-lg">Public Store URL</CardTitle>
             </div>
-          </CardContent>
-        </Card>
-
-        <Card className="md:col-span-2 lg:col-span-1">
-          <CardContent className="p-6">
-            <div className="space-y-3">
-              <div className="flex items-center gap-3">
-                <div className="p-3 bg-primary/10 rounded-lg">
-                  <ExternalLink className="h-5 w-5 text-primary" />
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground mb-1">Public Store</p>
-                  {storeUrl ? (
-                    <div className="flex items-center gap-2">
-                      {isEditingRoute ? (
-                        <div className="flex items-center gap-2">
-                          <Input
-                            value={newRoute}
-                            onChange={(e) => setNewRoute(e.target.value)}
-                            className="h-7 text-xs max-w-[150px]"
-                            disabled={saving}
-                          />
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={handleUpdateRoute}
-                            disabled={saving}
-                            className="h-7 px-2"
-                          >
-                            Save
-                          </Button>
-                        </div>
-                      ) : (
-                        <>
-                          <a
-                            href={storeUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-sm font-mono text-primary hover:underline truncate max-w-[200px]"
-                          >
-                            /{store.x_username}
-                          </a>
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={() => setIsEditingRoute(true)}
-                            className="h-6 w-6 p-0"
-                          >
-                            <Edit2 className="h-3 w-3" />
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={handleCopyUrl}
-                            className="h-6 w-6 p-0"
-                          >
-                            <Copy className="h-3 w-3" />
-                          </Button>
-                        </>
-                      )}
+            <CardDescription>
+              Share this link with customers to visit your store
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {storeUrl ? (
+              <>
+                {isEditingRoute ? (
+                  <div className="flex items-center gap-2">
+                    <div className="flex-1 flex items-center gap-2 px-3 py-2 bg-muted rounded-lg">
+                      <span className="text-sm text-muted-foreground">/store/</span>
+                      <Input
+                        value={newRoute}
+                        onChange={(e) => setNewRoute(e.target.value)}
+                        className="h-8 border-0 bg-transparent p-0 focus-visible:ring-0"
+                        disabled={saving}
+                      />
                     </div>
-                  ) : (
-                    <p className="text-sm text-muted-foreground">Not published</p>
-                  )}
-                </div>
-              </div>
+                    <Button
+                      size="sm"
+                      onClick={handleUpdateRoute}
+                      disabled={saving}
+                    >
+                      <Check className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <div className="flex-1 px-3 py-2 bg-muted rounded-lg font-mono text-sm truncate">
+                      {storeUrl}
+                    </div>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => setIsEditingRoute(true)}
+                    >
+                      <Edit2 className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={handleCopyUrl}
+                    >
+                      <Copy className="h-4 w-4" />
+                    </Button>
+                  </div>
+                )}
+                <Button
+                  variant="default"
+                  className="w-full"
+                  onClick={() => window.open(storeUrl, '_blank')}
+                >
+                  <ExternalLink className="h-4 w-4 mr-2" />
+                  Visit Store
+                </Button>
+              </>
+            ) : (
+              <p className="text-sm text-muted-foreground py-4 text-center">
+                Configure your store username to publish
+              </p>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Wallet Address */}
+        <Card>
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <Wallet className="h-5 w-5 text-primary" />
+              <CardTitle className="text-lg">Wallet Address</CardTitle>
             </div>
+            <CardDescription>
+              Your connected Base wallet for receiving payments
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {walletAddress ? (
+              <>
+                <div className="flex items-center gap-2">
+                  <div className="flex-1 px-3 py-2 bg-muted rounded-lg font-mono text-sm truncate">
+                    {walletAddress}
+                  </div>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={handleCopyWallet}
+                  >
+                    <Copy className="h-4 w-4" />
+                  </Button>
+                </div>
+                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                  <Check className="h-3 w-3 text-emerald-600" />
+                  <span>Connected via Coinbase</span>
+                </div>
+              </>
+            ) : (
+              <p className="text-sm text-muted-foreground py-4 text-center">
+                No wallet connected
+              </p>
+            )}
           </CardContent>
         </Card>
       </div>
 
-      {/* Activity Overview */}
-      <div className="grid gap-4 md:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg flex items-center gap-2">
-              <TrendingUp className="h-5 w-5" />
-              Recent Activity
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between py-3 border-b border-border last:border-0">
-                <div className="flex items-center gap-3">
-                  <div className="h-2 w-2 rounded-full bg-green-500" />
-                  <span className="text-sm">Store created</span>
+      {/* Quick Actions */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg">Quick Actions</CardTitle>
+          <CardDescription>
+            Get started with these essential tasks
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            <Button
+              variant="outline"
+              className="justify-start h-auto py-4 px-4"
+              onClick={() => {
+                const event = new CustomEvent('navigate-dashboard', { detail: 'agent' });
+                window.dispatchEvent(event);
+              }}
+            >
+              <div className="text-left">
+                <div className="font-semibold">Configure Agent</div>
+                <div className="text-xs text-muted-foreground mt-1">
+                  Customize your AI assistant
                 </div>
-                <span className="text-xs text-muted-foreground">Today</span>
               </div>
-              <div className="text-center py-8 text-muted-foreground">
-                <Users className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                <p className="text-sm">No customer interactions yet</p>
+            </Button>
+            <Button
+              variant="outline"
+              className="justify-start h-auto py-4 px-4"
+              onClick={() => {
+                const event = new CustomEvent('navigate-dashboard', { detail: 'catalog' });
+                window.dispatchEvent(event);
+              }}
+            >
+              <div className="text-left">
+                <div className="font-semibold">Add Products</div>
+                <div className="text-xs text-muted-foreground mt-1">
+                  Build your product catalog
+                </div>
               </div>
-            </div>
-          </CardContent>
-        </Card>
+            </Button>
+            <Button
+              variant="outline"
+              className="justify-start h-auto py-4 px-4"
+              onClick={() => {
+                const event = new CustomEvent('navigate-dashboard', { detail: 'store' });
+                window.dispatchEvent(event);
+              }}
+            >
+              <div className="text-left">
+                <div className="font-semibold">Preview Store</div>
+                <div className="text-xs text-muted-foreground mt-1">
+                  See how customers view your store
+                </div>
+              </div>
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg flex items-center gap-2">
-              <Package className="h-5 w-5" />
-              Quick Stats
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">Total Products</span>
-                <span className="text-lg font-bold">0</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">Active Conversations</span>
-                <span className="text-lg font-bold">0</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">Total Sales</span>
-                <span className="text-lg font-bold">$0.00</span>
-              </div>
+      {/* Recent Activity */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center gap-2">
+            <TrendingUp className="h-5 w-5 text-primary" />
+            <CardTitle className="text-lg">Recent Activity</CardTitle>
+          </div>
+          <CardDescription>
+            Latest updates and interactions
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="text-center py-12">
+            <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-muted mb-4">
+              <TrendingUp className="h-6 w-6 text-muted-foreground" />
             </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Getting Started */}
-      {!store?.x_username && (
-        <Card className="border-primary/50 bg-primary/5">
-          <CardHeader>
-            <CardTitle>Get Started</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              <div className="flex items-start gap-3">
-                <div className="h-6 w-6 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <span className="text-xs font-bold">1</span>
-                </div>
-                <div>
-                  <p className="font-medium">Set up your AI agent</p>
-                  <p className="text-sm text-muted-foreground">Configure personality and behavior</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <div className="h-6 w-6 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <span className="text-xs font-bold">2</span>
-                </div>
-                <div>
-                  <p className="font-medium">Add your first product</p>
-                  <p className="text-sm text-muted-foreground">Build your catalog</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <div className="h-6 w-6 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <span className="text-xs font-bold">3</span>
-                </div>
-                <div>
-                  <p className="font-medium">Publish your store</p>
-                  <p className="text-sm text-muted-foreground">Share with customers</p>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      )}
+            <h3 className="font-semibold mb-1">No activity yet</h3>
+            <p className="text-sm text-muted-foreground">
+              Your store activity will appear here once customers start interacting with your agent
+            </p>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };
