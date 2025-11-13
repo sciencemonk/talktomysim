@@ -1,6 +1,11 @@
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Wallet, DollarSign, Store as StoreIcon, TrendingUp, Users, Package } from "lucide-react";
+import { Wallet, DollarSign, Store as StoreIcon, TrendingUp, Users, Package, ExternalLink, Copy, Edit2 } from "lucide-react";
 import { useEvmAddress } from "@coinbase/cdp-hooks";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 type HomeDashboardTabProps = {
   store: any;
@@ -9,6 +14,43 @@ type HomeDashboardTabProps = {
 
 export const HomeDashboardTab = ({ store, totalEarnings }: HomeDashboardTabProps) => {
   const { evmAddress } = useEvmAddress();
+  const [isEditingRoute, setIsEditingRoute] = useState(false);
+  const [newRoute, setNewRoute] = useState(store?.x_username || '');
+  const [saving, setSaving] = useState(false);
+
+  const storeUrl = store?.x_username ? `${window.location.origin}/store/${store.x_username}` : null;
+
+  const handleCopyUrl = () => {
+    if (storeUrl) {
+      navigator.clipboard.writeText(storeUrl);
+      toast.success('Store URL copied to clipboard');
+    }
+  };
+
+  const handleUpdateRoute = async () => {
+    if (!newRoute.trim() || newRoute === store?.x_username) {
+      setIsEditingRoute(false);
+      return;
+    }
+
+    try {
+      setSaving(true);
+      const { error } = await supabase
+        .from('stores')
+        .update({ x_username: newRoute.trim() })
+        .eq('id', store.id);
+
+      if (error) throw error;
+      toast.success('Store route updated successfully');
+      setIsEditingRoute(false);
+      window.location.reload(); // Reload to reflect changes
+    } catch (error) {
+      console.error('Error updating route:', error);
+      toast.error('Failed to update store route');
+    } finally {
+      setSaving(false);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -23,7 +65,7 @@ export const HomeDashboardTab = ({ store, totalEarnings }: HomeDashboardTabProps
       </div>
 
       {/* Stats Grid */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardContent className="p-6">
             <div className="flex items-center gap-3">
@@ -65,6 +107,73 @@ export const HomeDashboardTab = ({ store, totalEarnings }: HomeDashboardTabProps
                 <p className="text-sm font-medium">
                   {store?.x_username ? 'Published' : 'Not published'}
                 </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="md:col-span-2 lg:col-span-1">
+          <CardContent className="p-6">
+            <div className="space-y-3">
+              <div className="flex items-center gap-3">
+                <div className="p-3 bg-primary/10 rounded-lg">
+                  <ExternalLink className="h-5 w-5 text-primary" />
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground mb-1">Public Store</p>
+                  {storeUrl ? (
+                    <div className="flex items-center gap-2">
+                      {isEditingRoute ? (
+                        <div className="flex items-center gap-2">
+                          <Input
+                            value={newRoute}
+                            onChange={(e) => setNewRoute(e.target.value)}
+                            className="h-7 text-xs max-w-[150px]"
+                            disabled={saving}
+                          />
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={handleUpdateRoute}
+                            disabled={saving}
+                            className="h-7 px-2"
+                          >
+                            Save
+                          </Button>
+                        </div>
+                      ) : (
+                        <>
+                          <a
+                            href={storeUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-sm font-mono text-primary hover:underline truncate max-w-[200px]"
+                          >
+                            /{store.x_username}
+                          </a>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => setIsEditingRoute(true)}
+                            className="h-6 w-6 p-0"
+                          >
+                            <Edit2 className="h-3 w-3" />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={handleCopyUrl}
+                            className="h-6 w-6 p-0"
+                          >
+                            <Copy className="h-3 w-3" />
+                          </Button>
+                        </>
+                      )}
+                    </div>
+                  ) : (
+                    <p className="text-sm text-muted-foreground">Not published</p>
+                  )}
+                </div>
               </div>
             </div>
           </CardContent>

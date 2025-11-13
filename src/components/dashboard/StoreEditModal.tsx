@@ -20,11 +20,7 @@ export const StoreEditModal = ({ open, onOpenChange, store, onUpdate }: StoreEdi
   const [formData, setFormData] = useState({
     store_name: '',
     x_username: '',
-    store_description: '',
-    greeting_message: '',
-    interaction_style: '',
-    response_tone: '',
-    primary_focus: ''
+    store_description: ''
   });
   const [saving, setSaving] = useState(false);
 
@@ -33,11 +29,7 @@ export const StoreEditModal = ({ open, onOpenChange, store, onUpdate }: StoreEdi
       setFormData({
         store_name: store.store_name || '',
         x_username: store.x_username || '',
-        store_description: store.store_description || '',
-        greeting_message: store.greeting_message || '',
-        interaction_style: store.interaction_style || '',
-        response_tone: store.response_tone || '',
-        primary_focus: store.primary_focus || ''
+        store_description: store.store_description || ''
       });
     }
   }, [store]);
@@ -53,10 +45,6 @@ export const StoreEditModal = ({ open, onOpenChange, store, onUpdate }: StoreEdi
           store_name: formData.store_name,
           x_username: formData.x_username,
           store_description: formData.store_description,
-          greeting_message: formData.greeting_message,
-          interaction_style: formData.interaction_style,
-          response_tone: formData.response_tone,
-          primary_focus: formData.primary_focus,
           updated_at: new Date().toISOString()
         })
         .eq('id', store.id);
@@ -85,9 +73,8 @@ export const StoreEditModal = ({ open, onOpenChange, store, onUpdate }: StoreEdi
 
         <form onSubmit={handleSubmit}>
           <Tabs defaultValue="general" className="w-full">
-            <TabsList className="grid w-full grid-cols-3">
+            <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="general">General</TabsTrigger>
-              <TabsTrigger value="agent">Agent Settings</TabsTrigger>
               <TabsTrigger value="design">Design</TabsTrigger>
             </TabsList>
 
@@ -126,53 +113,6 @@ export const StoreEditModal = ({ open, onOpenChange, store, onUpdate }: StoreEdi
                   onChange={(e) => setFormData(prev => ({ ...prev, store_description: e.target.value }))}
                   placeholder="Describe what your store offers..."
                   rows={4}
-                />
-              </div>
-            </TabsContent>
-
-            <TabsContent value="agent" className="space-y-4 mt-4">
-              {/* Greeting Message */}
-              <div className="space-y-2">
-                <Label htmlFor="greeting_message">Greeting Message</Label>
-                <Textarea
-                  id="greeting_message"
-                  value={formData.greeting_message}
-                  onChange={(e) => setFormData(prev => ({ ...prev, greeting_message: e.target.value }))}
-                  placeholder="Welcome! How can I help you today?"
-                  rows={3}
-                />
-              </div>
-
-              {/* Interaction Style */}
-              <div className="space-y-2">
-                <Label htmlFor="interaction_style">Interaction Style</Label>
-                <Input
-                  id="interaction_style"
-                  value={formData.interaction_style}
-                  onChange={(e) => setFormData(prev => ({ ...prev, interaction_style: e.target.value }))}
-                  placeholder="e.g., Friendly and helpful"
-                />
-              </div>
-
-              {/* Response Tone */}
-              <div className="space-y-2">
-                <Label htmlFor="response_tone">Response Tone</Label>
-                <Input
-                  id="response_tone"
-                  value={formData.response_tone}
-                  onChange={(e) => setFormData(prev => ({ ...prev, response_tone: e.target.value }))}
-                  placeholder="e.g., Professional yet approachable"
-                />
-              </div>
-
-              {/* Primary Focus */}
-              <div className="space-y-2">
-                <Label htmlFor="primary_focus">Primary Focus</Label>
-                <Input
-                  id="primary_focus"
-                  value={formData.primary_focus}
-                  onChange={(e) => setFormData(prev => ({ ...prev, primary_focus: e.target.value }))}
-                  placeholder="e.g., Customer satisfaction and conversions"
                 />
               </div>
             </TabsContent>
