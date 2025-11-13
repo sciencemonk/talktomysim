@@ -25,7 +25,8 @@ export const CoinbaseProvider = ({ children }: CoinbaseProviderProps) => {
         solana: {
           createOnLogin: true // Create Solana wallet on login
         },
-        appName: 'Agentic Sales Platform'
+        appName: 'Agentic Sales Platform',
+        authMethods: ['email', 'oauth:google'] // Enable both email and Google OAuth
       }}
     >
       {children}
