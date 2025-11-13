@@ -14,6 +14,7 @@ import { AgentSettingsTab } from "@/components/dashboard/AgentSettingsTab";
 import { StorePreviewTab } from "@/components/dashboard/StorePreviewTab";
 import { useEvmAddress } from "@coinbase/cdp-hooks";
 import { cn } from "@/lib/utils";
+import storeLogo from "@/assets/store-logo.gif";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -129,7 +130,7 @@ const Dashboard = () => {
             >
               <div className="bg-black/90 rounded-lg px-1.5 py-0.5">
                 <img 
-                  src="/sim-logo-white.png" 
+                  src={storeLogo} 
                   alt="SIM" 
                   className={cn(
                     "w-auto object-contain transition-all",
