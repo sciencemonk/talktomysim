@@ -233,3 +233,12 @@ body > div[style*="position: fixed"],
 body > div[style*="z-index"] {
   z-index: 99999999 !important;
 }
+
+/* Hide Coinbase "Get Coinbase Wallet" button */
+[data-testid="cdp-wallet-button"],
+button[aria-label*="Coinbase"],
+button:has(img[alt*="Coinbase"]),
+div[class*="cdp-widget"],
+div[class*="cdp-button"] {
+  display: none !important;
+}
