@@ -45,7 +45,7 @@ export const CoinbaseSignIn = () => {
           <CardDescription className="text-base">
             {isSignedIn 
               ? 'You are now signed in. Redirecting to your dashboard...'
-              : 'Sign in with your email or Google account using Coinbase Wallet'
+              : 'Continue with Google or sign in with your email'
             }
           </CardDescription>
         </CardHeader>
