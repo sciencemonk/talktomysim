@@ -243,13 +243,17 @@ div[class*="cdp-button"] {
   display: none !important;
 }
 
-/* Target all buttons in the Coinbase modal dialog */
-[role="dialog"] button {
+/* Target all main content buttons in the modal (not close button) */
+[role="dialog"] > div > button,
+[role="dialog"] [class*="content"] button,
+[role="dialog"] [class*="body"] button {
   border-radius: 4px !important;
 }
 
-/* Style the first button (Google) to have white background */
-[role="dialog"] button:nth-of-type(1) {
+/* Style the first main button (Google) to have white background */
+[role="dialog"] > div > button:first-of-type,
+[role="dialog"] [class*="content"] button:first-of-type,
+[role="dialog"] [class*="body"] button:first-of-type {
   background: white !important;
   color: #3c4043 !important;
   border: 1px solid #dadce0 !important;
@@ -259,14 +263,18 @@ div[class*="cdp-button"] {
   height: 44px !important;
 }
 
-[role="dialog"] button:nth-of-type(1):hover {
+[role="dialog"] > div > button:first-of-type:hover,
+[role="dialog"] [class*="content"] button:first-of-type:hover,
+[role="dialog"] [class*="body"] button:first-of-type:hover {
   background: #f8f9fa !important;
   border-color: #d2d3d4 !important;
   box-shadow: 0 1px 2px 0 rgba(60,64,67,.3), 0 1px 3px 1px rgba(60,64,67,.15) !important;
 }
 
-/* Add Google logo to the first button only */
-[role="dialog"] button:nth-of-type(1)::before {
+/* Add Google logo ONLY to the first main button (not close button) */
+[role="dialog"] > div > button:first-of-type::before,
+[role="dialog"] [class*="content"] button:first-of-type::before,
+[role="dialog"] [class*="body"] button:first-of-type::before {
   content: '';
   display: inline-block;
   width: 18px;
@@ -279,7 +287,17 @@ div[class*="cdp-button"] {
   vertical-align: middle;
 }
 
-/* Ensure the second button (email) doesn't get the logo */
-[role="dialog"] button:nth-of-type(2)::before {
+/* Remove Google logo from close buttons and other non-primary buttons */
+[role="dialog"] > button::before,
+[role="dialog"] [class*="close"]::before,
+[role="dialog"] [aria-label*="close"]::before,
+[role="dialog"] [aria-label*="Close"]::before {
+  display: none !important;
+}
+
+/* Remove Google logo from the second button (email) */
+[role="dialog"] > div > button:nth-of-type(2)::before,
+[role="dialog"] [class*="content"] button:nth-of-type(2)::before,
+[role="dialog"] [class*="body"] button:nth-of-type(2)::before {
   display: none !important;
 }
