@@ -271,28 +271,8 @@ const Dashboard = () => {
         <nav className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-30">
           <div className="px-4 sm:px-6 lg:px-8">
             <div className="flex items-center justify-end h-16">
-              {/* Right side - Theme Toggle + User dropdown */}
-              <div className="flex items-center gap-4">
-                <ThemeToggle />
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      className="gap-2"
-                    >
-                      <User className="h-4 w-4" />
-                      {user?.email || 'Account'}
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-48">
-                    <DropdownMenuItem onClick={handleSignOut}>
-                      <LogOut className="h-4 w-4 mr-2" />
-                      Sign Out
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
+              {/* Right side - Theme Toggle */}
+              <ThemeToggle />
             </div>
           </div>
         </nav>
