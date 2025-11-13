@@ -34,7 +34,7 @@ export const ShopifyConnectModal = ({ open, onOpenChange, storeId, onSuccess }: 
         .update({
           shopify_store_url: shopDomain,
           shopify_access_token: accessToken
-        })
+        } as any)
         .eq('id', storeId);
 
       if (updateError) throw updateError;
