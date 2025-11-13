@@ -192,12 +192,9 @@ export const AgentPreviewTab = ({ store, onUpdate }: AgentPreviewTabProps) => {
                 disabled={!inputValue.trim() || isLoading}
                 size="icon"
               >
-                <Send className="h-4 w-4" />
+              <Send className="h-4 w-4" />
               </Button>
             </div>
-            <p className="text-xs text-muted-foreground mt-2">
-              This is a demo preview. Real conversations will use your configured AI settings.
-            </p>
           </div>
         </CardContent>
       </Card>
