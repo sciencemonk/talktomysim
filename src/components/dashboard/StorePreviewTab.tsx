@@ -90,7 +90,7 @@ export const StorePreviewTab = ({ store, onUpdate }: StorePreviewTabProps) => {
   };
 
   const handleSendMessage = async () => {
-    if (!chatMessage.trim() || isSending) return;
+    if (!chatMessage.trim() || isSending || !store?.id) return;
 
     const userMessage: ChatMessage = {
       id: Date.now().toString(),
@@ -103,17 +103,96 @@ export const StorePreviewTab = ({ store, onUpdate }: StorePreviewTabProps) => {
     setChatMessage('');
     setIsSending(true);
 
-    // This is a preview, so we show a simple demo response
-    setTimeout(() => {
-      const agentMessage: ChatMessage = {
+    try {
+      // Prepare conversation history for AI
+      const messagesToSend = [...chatMessages, userMessage].map(msg => ({
+        role: msg.role === 'agent' ? 'assistant' : msg.role,
+        content: msg.content
+      }));
+
+      const response = await fetch(
+        `https://uovhemqkztmkoozlmqxq.supabase.co/functions/v1/store-agent-chat`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVvdmhlbXFrenRta29vemxtcXhxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU3Mzc1NjQsImV4cCI6MjA3MTMxMzU2NH0.-7KqE9AROkWAskEnWESnLf9BEFiNGIE1b9s0uB8rdK4`,
+          },
+          body: JSON.stringify({
+            messages: messagesToSend,
+            storeId: store.id
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || 'Failed to get response');
+      }
+
+      if (!response.body) {
+        throw new Error('No response body');
+      }
+
+      // Create placeholder for streaming message
+      const agentMessageId = (Date.now() + 1).toString();
+      setChatMessages(prev => [...prev, {
+        id: agentMessageId,
+        role: 'agent',
+        content: '',
+        timestamp: new Date()
+      }]);
+
+      // Stream the response
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = '';
+      let fullContent = '';
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop() || '';
+
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            const data = line.slice(6);
+            if (data === '[DONE]') continue;
+
+            try {
+              const parsed = JSON.parse(data);
+              const content = parsed.choices?.[0]?.delta?.content;
+              
+              if (content) {
+                fullContent += content;
+                setChatMessages(prev => prev.map(msg => 
+                  msg.id === agentMessageId 
+                    ? { ...msg, content: fullContent }
+                    : msg
+                ));
+              }
+            } catch (e) {
+              // Skip invalid JSON
+            }
+          }
+        }
+      }
+
+      setIsSending(false);
+    } catch (error) {
+      console.error('Error sending message:', error);
+      setIsSending(false);
+      // Optionally show error message to user
+      setChatMessages(prev => [...prev, {
         id: (Date.now() + 1).toString(),
         role: 'agent',
-        content: "This is a preview of your AI agent. In the live store, I'll help customers with product recommendations and questions using real AI!",
+        content: 'Sorry, I encountered an error. Please try again.',
         timestamp: new Date()
-      };
-      setChatMessages(prev => [...prev, agentMessage]);
-      setIsSending(false);
-    }, 800);
+      }]);
+    }
   };
 
   if (loading) {
