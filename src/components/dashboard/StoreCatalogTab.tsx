@@ -12,7 +12,7 @@ type Product = {
   description: string;
   price: number;
   currency: string;
-  image_url?: string;
+  image_urls?: string[];
   is_active: boolean;
   delivery_info?: string;
 };
@@ -45,7 +45,12 @@ export const StoreCatalogTab = ({ store }: StoreCatalogTabProps) => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setProducts(data || []);
+      // Cast image_urls from Json to string[]
+      const products = (data || []).map(p => ({
+        ...p,
+        image_urls: (p.image_urls as string[]) || []
+      }));
+      setProducts(products as Product[]);
     } catch (error) {
       console.error('Error loading products:', error);
       toast.error('Failed to load products');
@@ -127,10 +132,10 @@ export const StoreCatalogTab = ({ store }: StoreCatalogTabProps) => {
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               {products.map((product) => (
                 <Card key={product.id} className="overflow-hidden">
-                  {product.image_url && (
+                  {product.image_urls && product.image_urls.length > 0 && (
                     <div className="aspect-video w-full overflow-hidden bg-muted">
                       <img 
-                        src={product.image_url} 
+                        src={product.image_urls[0]} 
                         alt={product.title}
                         className="w-full h-full object-cover"
                       />
