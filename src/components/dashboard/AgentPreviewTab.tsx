@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Bot, Send, Sparkles, Edit } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { AgentEditModal } from "./AgentEditModal";
+import { toast } from "sonner";
 
 type AgentPreviewTabProps = {
   store: any;
@@ -30,9 +31,20 @@ export const AgentPreviewTab = ({ store, onUpdate }: AgentPreviewTabProps) => {
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    // Auto-scroll to bottom when new messages arrive
+    if (scrollAreaRef.current) {
+      const scrollContainer = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]');
+      if (scrollContainer) {
+        scrollContainer.scrollTop = scrollContainer.scrollHeight;
+      }
+    }
+  }, [messages]);
 
   const handleSendMessage = async () => {
-    if (!inputValue.trim()) return;
+    if (!inputValue.trim() || !store?.id) return;
 
     const userMessage: Message = {
       id: Date.now().toString(),
@@ -42,20 +54,101 @@ export const AgentPreviewTab = ({ store, onUpdate }: AgentPreviewTabProps) => {
     };
 
     setMessages(prev => [...prev, userMessage]);
+    const currentInput = inputValue;
     setInputValue('');
     setIsLoading(true);
 
-    // Simulate AI response
-    setTimeout(() => {
-      const agentMessage: Message = {
+    try {
+      // Prepare conversation history for AI
+      const chatMessages = [...messages, userMessage].map(msg => ({
+        role: msg.role === 'agent' ? 'assistant' : msg.role,
+        content: msg.content
+      }));
+
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/store-agent-chat`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+          },
+          body: JSON.stringify({
+            messages: chatMessages,
+            storeId: store.id
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || 'Failed to get response');
+      }
+
+      if (!response.body) {
+        throw new Error('No response body');
+      }
+
+      // Create placeholder for streaming message
+      const agentMessageId = (Date.now() + 1).toString();
+      setMessages(prev => [...prev, {
+        id: agentMessageId,
+        role: 'agent',
+        content: '',
+        timestamp: new Date()
+      }]);
+
+      // Stream the response
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = '';
+      let fullContent = '';
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop() || '';
+
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            const data = line.slice(6);
+            if (data === '[DONE]') continue;
+
+            try {
+              const parsed = JSON.parse(data);
+              const content = parsed.choices?.[0]?.delta?.content;
+              
+              if (content) {
+                fullContent += content;
+                setMessages(prev => prev.map(msg => 
+                  msg.id === agentMessageId 
+                    ? { ...msg, content: fullContent }
+                    : msg
+                ));
+              }
+            } catch (e) {
+              // Skip invalid JSON
+            }
+          }
+        }
+      }
+
+      setIsLoading(false);
+
+    } catch (error) {
+      console.error('Error sending message:', error);
+      toast.error(error instanceof Error ? error.message : 'Failed to send message');
+      setMessages(prev => [...prev, {
         id: (Date.now() + 1).toString(),
         role: 'agent',
-        content: "Thanks for your message! This is a demo preview of how your AI agent will interact with customers. Configure your agent's personality and knowledge in the Agent settings.",
+        content: 'Sorry, I encountered an error. Please try again.',
         timestamp: new Date()
-      };
-      setMessages(prev => [...prev, agentMessage]);
+      }]);
       setIsLoading(false);
-    }, 1000);
+    }
   };
 
   return (
@@ -133,7 +226,7 @@ export const AgentPreviewTab = ({ store, onUpdate }: AgentPreviewTabProps) => {
         </CardHeader>
         <CardContent className="flex-1 flex flex-col p-0">
           {/* Messages */}
-          <ScrollArea className="flex-1 p-4">
+          <ScrollArea className="flex-1 p-4" ref={scrollAreaRef}>
             <div className="space-y-4">
               {messages.map((message) => (
                 <div
