@@ -4,15 +4,11 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { useEvmAddress, useIsSignedIn, useCurrentUser } from "@coinbase/cdp-hooks";
 import { toast } from "sonner";
 import { Wallet, TrendingUp, DollarSign, ExternalLink, Copy, Check } from "lucide-react";
 
 export default function Earnings() {
   const { user } = useAuth();
-  const { evmAddress } = useEvmAddress();
-  const isSignedIn = useIsSignedIn();
-  const { currentUser } = useCurrentUser();
   const [store, setStore] = useState<any>(null);
   const [earnings, setEarnings] = useState({
     total: 0,
@@ -22,42 +18,8 @@ export default function Earnings() {
   const [loading, setLoading] = useState(true);
   const [processingOfframp, setProcessingOfframp] = useState(false);
   const [copiedWallet, setCopiedWallet] = useState(false);
-  const [walletLoading, setWalletLoading] = useState(true);
-  const [displayAddress, setDisplayAddress] = useState<string | null>(null);
 
-  // Monitor wallet connection status
-  useEffect(() => {
-    // Check for wallet address from different sources
-    let walletAddress: string | null = null;
-
-    if (evmAddress) {
-      walletAddress = evmAddress;
-    } else if (currentUser?.evmSmartAccounts?.[0]) {
-      // evmSmartAccounts[0] is already the address string
-      walletAddress = currentUser.evmSmartAccounts[0];
-    }
-
-    setDisplayAddress(walletAddress);
-
-    // Stop loading after checking all sources
-    if (isSignedIn) {
-      const timer = setTimeout(() => {
-        setWalletLoading(false);
-        if (!walletAddress) {
-          console.warn('Coinbase wallet not detected despite being signed in');
-        }
-      }, 3000);
-      return () => clearTimeout(timer);
-    } else {
-      setWalletLoading(false);
-    }
-  }, [evmAddress, currentUser, isSignedIn]);
-
-  useEffect(() => {
-    if (displayAddress) {
-      console.log('Coinbase wallet detected:', displayAddress);
-    }
-  }, [displayAddress]);
+  const walletAddress = user?.address;
 
   useEffect(() => {
     if (user) {
@@ -111,10 +73,10 @@ export default function Earnings() {
   };
 
   const handleCopyWallet = async () => {
-    if (!displayAddress) return;
+    if (!walletAddress) return;
     
     try {
-      await navigator.clipboard.writeText(displayAddress);
+      await navigator.clipboard.writeText(walletAddress);
       setCopiedWallet(true);
       toast.success('Wallet address copied!');
       setTimeout(() => setCopiedWallet(false), 2000);
@@ -124,7 +86,7 @@ export default function Earnings() {
   };
 
   const handleCashOut = async () => {
-    if (!displayAddress) {
+    if (!walletAddress) {
       toast.error('No wallet connected. Please connect your wallet first.');
       return;
     }
@@ -135,7 +97,7 @@ export default function Earnings() {
       // Call edge function to generate offramp URL
       const { data, error } = await supabase.functions.invoke('generate-offramp-url', {
         body: {
-          walletAddress: displayAddress,
+          walletAddress: walletAddress,
           redirectUrl: `${window.location.origin}/dashboard?view=earnings`
         }
       });
@@ -188,18 +150,11 @@ export default function Earnings() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            {walletLoading ? (
-              <div className="p-4 bg-muted rounded-lg text-center">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2"></div>
-                <p className="text-sm text-muted-foreground">
-                  Loading wallet...
-                </p>
-              </div>
-            ) : displayAddress ? (
+            {walletAddress ? (
               <>
                 <div className="flex items-center gap-2 p-4 bg-muted rounded-lg">
                   <code className="flex-1 text-sm font-mono break-all">
-                    {displayAddress}
+                    {walletAddress}
                   </code>
                   <Button
                     variant="ghost"
@@ -220,27 +175,10 @@ export default function Earnings() {
                 </div>
               </>
             ) : (
-              <div className="p-4 bg-muted rounded-lg space-y-3">
+              <div className="p-4 bg-muted rounded-lg">
                 <p className="text-sm text-muted-foreground text-center">
                   No wallet connected
                 </p>
-                <p className="text-xs text-muted-foreground text-center">
-                  {isSignedIn ? (
-                    'Your embedded wallet is being initialized. This may take a moment.'
-                  ) : (
-                    'Sign in with Coinbase to access your embedded wallet'
-                  )}
-                </p>
-                {isSignedIn && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="w-full"
-                    onClick={() => window.location.reload()}
-                  >
-                    Refresh Page
-                  </Button>
-                )}
               </div>
             )}
           </CardContent>
@@ -318,7 +256,7 @@ export default function Earnings() {
             </div>
             <Button
               onClick={handleCashOut}
-              disabled={processingOfframp || !displayAddress || earnings.total === 0}
+              disabled={processingOfframp || !walletAddress || earnings.total === 0}
               className="gap-2"
             >
               {processingOfframp ? (
