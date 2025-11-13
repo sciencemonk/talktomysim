@@ -92,12 +92,12 @@ export const StorePreviewTab = ({ store }: StorePreviewTabProps) => {
         <div className="max-w-4xl mx-auto space-y-8">
           {/* Store Info */}
           <div className="text-center space-y-4 pb-8 border-b border-border">
-            {store?.x_profile_image && (
+            {store?.avatar_url && (
               <div className="flex justify-center">
                 <img
-                  src={store.x_profile_image}
+                  src={store.avatar_url}
                   alt={store.store_name}
-                  className="h-24 w-24 rounded-full border-4 border-background shadow-lg"
+                  className="h-24 w-24 rounded-full border-4 border-background shadow-lg object-cover"
                 />
               </div>
             )}

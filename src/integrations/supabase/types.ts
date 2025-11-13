@@ -1449,6 +1449,7 @@ export type Database = {
       }
       stores: {
         Row: {
+          avatar_url: string | null
           created_at: string
           crypto_wallet: string | null
           greeting_message: string | null
@@ -1466,6 +1467,7 @@ export type Database = {
           x_username: string
         }
         Insert: {
+          avatar_url?: string | null
           created_at?: string
           crypto_wallet?: string | null
           greeting_message?: string | null
@@ -1483,6 +1485,7 @@ export type Database = {
           x_username: string
         }
         Update: {
+          avatar_url?: string | null
           created_at?: string
           crypto_wallet?: string | null
           greeting_message?: string | null
