@@ -33,6 +33,18 @@ const Dashboard = () => {
     }
 
     loadStore();
+
+    // Listen for navigation events from Quick Actions
+    const handleNavigation = (event: any) => {
+      if (event.detail) {
+        setActiveView(event.detail);
+      }
+    };
+    window.addEventListener('navigate-dashboard', handleNavigation);
+
+    return () => {
+      window.removeEventListener('navigate-dashboard', handleNavigation);
+    };
   }, [user, navigate]);
 
   const loadStore = async () => {
