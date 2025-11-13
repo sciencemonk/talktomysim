@@ -128,16 +128,14 @@ const Dashboard = () => {
                 !sidebarOpen && "mx-auto group-hover:opacity-0"
               )}
             >
-              <div className="bg-black/90 rounded-lg px-1.5 py-0.5">
-                <img 
-                  src={storeLogo} 
-                  alt="SIM" 
-                  className={cn(
-                    "w-auto object-contain transition-all",
-                    sidebarOpen ? "h-5" : "h-4"
-                  )}
-                />
-              </div>
+              <img 
+                src={storeLogo} 
+                alt="SIM" 
+                className={cn(
+                  "w-auto object-contain transition-all",
+                  sidebarOpen ? "h-5" : "h-4"
+                )}
+              />
             </button>
             
             {/* Toggle button - shows on open (right side) or on hover when closed (center) */}
