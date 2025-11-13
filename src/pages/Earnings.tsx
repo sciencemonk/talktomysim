@@ -4,13 +4,14 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { useEvmAddress } from "@coinbase/cdp-hooks";
+import { useEvmAddress, useIsSignedIn } from "@coinbase/cdp-hooks";
 import { toast } from "sonner";
 import { Wallet, TrendingUp, DollarSign, ExternalLink, Copy, Check } from "lucide-react";
 
 export default function Earnings() {
   const { user } = useAuth();
   const { evmAddress } = useEvmAddress();
+  const isSignedIn = useIsSignedIn();
   const [store, setStore] = useState<any>(null);
   const [earnings, setEarnings] = useState({
     total: 0,
@@ -20,6 +21,23 @@ export default function Earnings() {
   const [loading, setLoading] = useState(true);
   const [processingOfframp, setProcessingOfframp] = useState(false);
   const [copiedWallet, setCopiedWallet] = useState(false);
+  const [walletLoading, setWalletLoading] = useState(true);
+
+  // Monitor wallet connection status
+  useEffect(() => {
+    // Give some time for Coinbase SDK to initialize
+    const timer = setTimeout(() => {
+      setWalletLoading(false);
+    }, 2000);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
+    if (evmAddress) {
+      console.log('Coinbase wallet connected:', evmAddress);
+    }
+  }, [evmAddress]);
 
   useEffect(() => {
     if (user) {
@@ -150,7 +168,14 @@ export default function Earnings() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            {evmAddress ? (
+            {walletLoading ? (
+              <div className="p-4 bg-muted rounded-lg text-center">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2"></div>
+                <p className="text-sm text-muted-foreground">
+                  Loading wallet...
+                </p>
+              </div>
+            ) : evmAddress ? (
               <div className="flex items-center gap-2 p-4 bg-muted rounded-lg">
                 <code className="flex-1 text-sm font-mono break-all">
                   {evmAddress}
@@ -169,12 +194,16 @@ export default function Earnings() {
                 </Button>
               </div>
             ) : (
-              <div className="p-4 bg-muted rounded-lg text-center">
-                <p className="text-sm text-muted-foreground mb-2">
+              <div className="p-4 bg-muted rounded-lg space-y-3">
+                <p className="text-sm text-muted-foreground text-center">
                   No wallet connected
                 </p>
-                <p className="text-xs text-muted-foreground">
-                  Sign in with Coinbase to view your wallet
+                <p className="text-xs text-muted-foreground text-center">
+                  {isSignedIn ? (
+                    'Initializing your embedded wallet...'
+                  ) : (
+                    'Sign in with Coinbase to connect your embedded wallet'
+                  )}
                 </p>
               </div>
             )}
