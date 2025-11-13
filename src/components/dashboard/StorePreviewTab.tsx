@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
 import { StoreEditModal } from "./StoreEditModal";
+import { ProductDetailModal } from "@/components/ProductDetailModal";
 
 type Product = {
   id: string;
@@ -16,6 +17,9 @@ type Product = {
   currency: string;
   image_url?: string;
   is_active: boolean;
+  store_id: string;
+  image_urls?: string[];
+  delivery_info?: string;
 };
 
 type StorePreviewTabProps = {
@@ -29,6 +33,8 @@ export const StorePreviewTab = ({ store, onUpdate }: StorePreviewTabProps) => {
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [chatOpen, setChatOpen] = useState(true); // Open by default
   const [chatMessage, setChatMessage] = useState('');
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [productModalOpen, setProductModalOpen] = useState(false);
 
   useEffect(() => {
     if (store?.id) {
@@ -134,13 +140,20 @@ export const StorePreviewTab = ({ store, onUpdate }: StorePreviewTabProps) => {
               <h2 className="text-2xl font-bold mb-6">Products</h2>
               <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                 {products.map((product) => (
-                  <Card key={product.id} className="overflow-hidden hover:shadow-lg transition-shadow">
+                  <Card 
+                    key={product.id} 
+                    className="overflow-hidden hover:shadow-lg transition-all cursor-pointer group"
+                    onClick={() => {
+                      setSelectedProduct(product);
+                      setProductModalOpen(true);
+                    }}
+                  >
                     {product.image_url && (
                       <div className="aspect-square overflow-hidden bg-muted">
                         <img
                           src={product.image_url}
                           alt={product.title}
-                          className="w-full h-full object-cover"
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform"
                         />
                       </div>
                     )}
@@ -154,7 +167,7 @@ export const StorePreviewTab = ({ store, onUpdate }: StorePreviewTabProps) => {
                           ${product.price} {product.currency}
                         </span>
                         <Badge variant={product.is_active ? "default" : "secondary"}>
-                          {product.is_active ? 'Active' : 'Inactive'}
+                          {product.is_active ? 'Available' : 'Inactive'}
                         </Badge>
                       </div>
                     </CardContent>
@@ -264,6 +277,18 @@ export const StorePreviewTab = ({ store, onUpdate }: StorePreviewTabProps) => {
         onOpenChange={setEditModalOpen}
         store={store}
         onUpdate={onUpdate}
+      />
+
+      {/* Product Detail Modal */}
+      <ProductDetailModal
+        product={selectedProduct}
+        isOpen={productModalOpen}
+        onClose={() => {
+          setProductModalOpen(false);
+          setSelectedProduct(null);
+        }}
+        storeWalletAddress={store?.crypto_wallet || ''}
+        storeName={store?.store_name || 'Store'}
       />
     </div>
   );

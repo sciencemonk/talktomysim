@@ -66,6 +66,7 @@ import Facilitator from "./pages/Facilitator";
 import AgentPublicView from "./pages/AgentPublicView";
 import RootRedirect from "./pages/RootRedirect";
 import Onboarding from "./pages/Onboarding";
+import PublicStore from "./pages/PublicStore";
 
 const queryClient = new QueryClient();
 
@@ -130,6 +131,9 @@ const App = () => (
               
               {/* X Agent Creator - Must come before catch-all */}
               <Route path="/:username/creator" element={<XAgentCreatorView />} />
+              
+              {/* Public Store - Must come before catch-all */}
+              <Route path="/store/:username" element={<PublicStore />} />
               
               {/* Agent Public View */}
               <Route path="/agent/:agentId" element={<AgentPublicView />} />
