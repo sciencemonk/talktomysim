@@ -77,7 +77,11 @@ export default function PublicStore() {
         .order('created_at', { ascending: false });
 
       if (productsError) throw productsError;
-      setProducts(productsData || []);
+      const typedProducts = (productsData || []).map((p: any) => ({
+        ...p,
+        image_urls: Array.isArray(p.image_urls) ? p.image_urls : []
+      }));
+      setProducts(typedProducts);
     } catch (error) {
       console.error('Error loading store:', error);
       toast.error("Failed to load store");

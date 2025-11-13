@@ -6,7 +6,9 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Upload, X } from "lucide-react";
+import { Upload, X, Package } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Separator } from "@/components/ui/separator";
 
 type Product = {
   id: string;
@@ -17,6 +19,13 @@ type Product = {
   image_urls?: string[];
   is_active: boolean;
   delivery_info?: string;
+  checkout_fields?: {
+    email: boolean;
+    name: boolean;
+    phone: boolean;
+    address: boolean;
+    custom_fields: Array<{name: string; label: string; required: boolean}>;
+  };
 };
 
 type ProductDialogProps = {
@@ -35,6 +44,13 @@ export const ProductDialog = ({ open, onOpenChange, product, storeId, onSuccess 
     currency: 'USDC',
     delivery_info: ''
   });
+  const [checkoutFields, setCheckoutFields] = useState({
+    email: true,
+    name: true,
+    phone: false,
+    address: false,
+    custom_fields: [] as Array<{name: string; label: string; required: boolean}>
+  });
   const [images, setImages] = useState<string[]>([]);
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -49,6 +65,13 @@ export const ProductDialog = ({ open, onOpenChange, product, storeId, onSuccess 
         currency: product.currency,
         delivery_info: product.delivery_info || ''
       });
+      setCheckoutFields(product.checkout_fields || {
+        email: true,
+        name: true,
+        phone: false,
+        address: false,
+        custom_fields: []
+      });
       setImages(product.image_urls || []);
     } else {
       setFormData({
@@ -57,6 +80,13 @@ export const ProductDialog = ({ open, onOpenChange, product, storeId, onSuccess 
         price: '',
         currency: 'USDC',
         delivery_info: ''
+      });
+      setCheckoutFields({
+        email: true,
+        name: true,
+        phone: false,
+        address: false,
+        custom_fields: []
       });
       setImages([]);
     }
@@ -140,6 +170,7 @@ export const ProductDialog = ({ open, onOpenChange, product, storeId, onSuccess 
         currency: formData.currency,
         image_urls: images,
         delivery_info: formData.delivery_info || null,
+        checkout_fields: checkoutFields,
         is_active: true
       };
 
@@ -297,6 +328,75 @@ export const ProductDialog = ({ open, onOpenChange, product, storeId, onSuccess 
                 placeholder="How will this product be delivered?"
                 rows={3}
               />
+            </div>
+
+            <Separator className="my-6" />
+
+            {/* Checkout Fields Configuration */}
+            <div className="space-y-4">
+              <div>
+                <h3 className="text-sm font-medium mb-2 flex items-center gap-2">
+                  <Package className="h-4 w-4" />
+                  Buyer Information Required at Checkout
+                </h3>
+                <p className="text-xs text-muted-foreground mb-4">
+                  Select what information you need from buyers to fulfill this order
+                </p>
+              </div>
+
+              <div className="space-y-3 pl-1">
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="email"
+                    checked={checkoutFields.email}
+                    onCheckedChange={(checked) => 
+                      setCheckoutFields({...checkoutFields, email: checked as boolean})
+                    }
+                  />
+                  <Label htmlFor="email" className="text-sm font-normal cursor-pointer">
+                    Email Address
+                  </Label>
+                </div>
+
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="name"
+                    checked={checkoutFields.name}
+                    onCheckedChange={(checked) => 
+                      setCheckoutFields({...checkoutFields, name: checked as boolean})
+                    }
+                  />
+                  <Label htmlFor="name" className="text-sm font-normal cursor-pointer">
+                    Full Name
+                  </Label>
+                </div>
+
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="phone"
+                    checked={checkoutFields.phone}
+                    onCheckedChange={(checked) => 
+                      setCheckoutFields({...checkoutFields, phone: checked as boolean})
+                    }
+                  />
+                  <Label htmlFor="phone" className="text-sm font-normal cursor-pointer">
+                    Phone Number
+                  </Label>
+                </div>
+
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="address"
+                    checked={checkoutFields.address}
+                    onCheckedChange={(checked) => 
+                      setCheckoutFields({...checkoutFields, address: checked as boolean})
+                    }
+                  />
+                  <Label htmlFor="address" className="text-sm font-normal cursor-pointer">
+                    Shipping Address
+                  </Label>
+                </div>
+              </div>
             </div>
           </div>
           

@@ -55,7 +55,11 @@ export const StorePreviewTab = ({ store, onUpdate }: StorePreviewTabProps) => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setProducts(data || []);
+      const typedProducts = (data || []).map((p: any) => ({
+        ...p,
+        image_urls: Array.isArray(p.image_urls) ? p.image_urls : []
+      }));
+      setProducts(typedProducts);
     } catch (error) {
       console.error('Error loading products:', error);
     } finally {
