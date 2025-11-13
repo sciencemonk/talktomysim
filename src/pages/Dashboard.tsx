@@ -231,6 +231,34 @@ const Dashboard = () => {
               )}
             </button>
           </nav>
+
+          {/* User Section at Bottom */}
+          <div className="p-2 border-t border-border">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  className={cn(
+                    "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all",
+                    "hover:bg-accent",
+                    sidebarOpen ? "justify-start" : "justify-center"
+                  )}
+                >
+                  <User className="h-5 w-5 flex-shrink-0" />
+                  {sidebarOpen && (
+                    <span className="text-sm font-medium truncate">
+                      {user?.email || 'Account'}
+                    </span>
+                  )}
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" side="right" className="w-48">
+                <DropdownMenuItem onClick={handleSignOut} className="text-destructive focus:text-destructive cursor-pointer">
+                  <LogOut className="mr-2 h-4 w-4" />
+                  Sign Out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         </div>
       </aside>
 
