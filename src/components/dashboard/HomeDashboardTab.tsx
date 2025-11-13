@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Wallet, DollarSign, TrendingUp, ShoppingBag, ExternalLink, Copy, Edit2, Check, ArrowUpRight } from "lucide-react";
+import { Code, DollarSign, TrendingUp, ShoppingBag, ExternalLink, Copy, Edit2, Check, ArrowUpRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
@@ -18,15 +18,7 @@ export const HomeDashboardTab = ({ store, totalEarnings }: HomeDashboardTabProps
   const [newRoute, setNewRoute] = useState(store?.x_username || '');
   const [saving, setSaving] = useState(false);
 
-  const walletAddress = user?.address;
   const storeUrl = store?.x_username ? `${window.location.origin}/store/${store.x_username}` : null;
-
-  const handleCopyWallet = () => {
-    if (walletAddress) {
-      navigator.clipboard.writeText(walletAddress);
-      toast.success('Wallet address copied');
-    }
-  };
 
   const handleCopyUrl = () => {
     if (storeUrl) {
@@ -183,40 +175,50 @@ export const HomeDashboardTab = ({ store, totalEarnings }: HomeDashboardTabProps
           </CardContent>
         </Card>
 
-        {/* Wallet Address */}
+        {/* Embed Agent */}
         <Card>
           <CardHeader>
             <div className="flex items-center gap-2">
-              <Wallet className="h-5 w-5 text-primary" />
-              <CardTitle className="text-lg">Wallet Address</CardTitle>
+              <Code className="h-5 w-5 text-primary" />
+              <CardTitle className="text-lg">Embed on Your Website</CardTitle>
             </div>
             <CardDescription>
-              Your connected Base wallet for receiving payments
+              Add your AI agent to any website with this embed code
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
-            {walletAddress ? (
+            {storeUrl ? (
               <>
-                <div className="flex items-center gap-2">
-                  <div className="flex-1 px-3 py-2 bg-muted rounded-lg font-mono text-sm truncate">
-                    {walletAddress}
-                  </div>
+                <div className="relative">
+                  <pre className="px-3 py-2 bg-muted rounded-lg text-xs overflow-x-auto max-h-32">
+                    <code>{`<script src="${window.location.origin}/embed.js"></script>
+<script>
+  AgentEmbed.init({
+    agentUrl: "${storeUrl}",
+    position: "bottom-right"
+  });
+</script>`}</code>
+                  </pre>
                   <Button
                     size="sm"
                     variant="outline"
-                    onClick={handleCopyWallet}
+                    className="absolute top-2 right-2"
+                    onClick={() => {
+                      const embedCode = `<script src="${window.location.origin}/embed.js"></script>\n<script>\n  AgentEmbed.init({\n    agentUrl: "${storeUrl}",\n    position: "bottom-right"\n  });\n</script>`;
+                      navigator.clipboard.writeText(embedCode);
+                      toast.success('Embed code copied to clipboard');
+                    }}
                   >
                     <Copy className="h-4 w-4" />
                   </Button>
                 </div>
-                <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                  <Check className="h-3 w-3 text-emerald-600" />
-                  <span>Connected via Coinbase</span>
-                </div>
+                <p className="text-xs text-muted-foreground">
+                  Paste this code before the closing &lt;/body&gt; tag on your website
+                </p>
               </>
             ) : (
               <p className="text-sm text-muted-foreground py-4 text-center">
-                No wallet connected
+                Configure your store username first to get the embed code
               </p>
             )}
           </CardContent>
