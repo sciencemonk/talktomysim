@@ -105,29 +105,39 @@ const Dashboard = () => {
         <div className="h-full flex flex-col">
           {/* Sidebar Header */}
           <div className={cn(
-            "p-4 border-b border-border flex items-center justify-between gap-2"
+            "p-3 border-b border-border flex items-center justify-between gap-2 relative group"
           )}>
             <button 
-              onClick={() => navigate('/')} 
+              onClick={() => !sidebarOpen ? setSidebarOpen(true) : navigate('/')} 
               className={cn(
-                "hover:opacity-80 transition-opacity flex-shrink-0",
-                !sidebarOpen && "mx-auto"
+                "hover:opacity-80 transition-all flex-shrink-0 relative",
+                !sidebarOpen && "mx-auto group-hover:opacity-0"
               )}
             >
-              <div className="bg-black/90 rounded-lg px-2 py-1">
-                <img src="/sim-logo-white.png" alt="SIM" className="h-6 w-auto object-contain" />
+              <div className="bg-black/90 rounded-lg px-1.5 py-0.5">
+                <img 
+                  src="/sim-logo-white.png" 
+                  alt="SIM" 
+                  className={cn(
+                    "w-auto object-contain transition-all",
+                    sidebarOpen ? "h-5" : "h-4"
+                  )}
+                />
               </div>
             </button>
-            {sidebarOpen && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setSidebarOpen(false)}
-                className="flex-shrink-0 h-8 w-8 p-0"
-              >
-                <Menu className="h-4 w-4" />
-              </Button>
-            )}
+            
+            {/* Toggle button - shows on open (right side) or on hover when closed (center) */}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              className={cn(
+                "flex-shrink-0 h-8 w-8 p-0 transition-all",
+                sidebarOpen ? "opacity-100" : "opacity-0 group-hover:opacity-100 absolute inset-0 m-auto"
+              )}
+            >
+              <Menu className="h-4 w-4" />
+            </Button>
           </div>
 
           {/* Navigation Items */}
