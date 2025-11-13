@@ -211,24 +211,9 @@ const Dashboard = () => {
         {/* Top Navigation */}
         <nav className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-30">
           <div className="px-4 sm:px-6 lg:px-8">
-            <div className="flex items-center justify-between h-16">
-              {/* Menu toggle for collapsed state */}
-              {!sidebarOpen && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setSidebarOpen(true)}
-                  className="gap-2"
-                >
-                  <Menu className="h-5 w-5" />
-                </Button>
-              )}
-              
-              {/* Spacer when sidebar is open */}
-              {sidebarOpen && <div />}
-              
+            <div className="flex items-center justify-end h-16">
               {/* Right side - Theme Toggle + User dropdown */}
-              <div className="flex items-center gap-4 ml-auto">
+              <div className="flex items-center gap-4">
                 <ThemeToggle />
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
