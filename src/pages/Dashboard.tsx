@@ -5,9 +5,10 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { User, Store, Bot, Eye, LogOut, Wallet, DollarSign, ExternalLink, Menu } from "lucide-react";
+import { User, Home, Bot, Package, Store, LogOut, Menu } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Card, CardContent } from "@/components/ui/card";
+import { HomeDashboardTab } from "@/components/dashboard/HomeDashboardTab";
+import { AgentPreviewTab } from "@/components/dashboard/AgentPreviewTab";
 import { StoreCatalogTab } from "@/components/dashboard/StoreCatalogTab";
 import { AgentSettingsTab } from "@/components/dashboard/AgentSettingsTab";
 import { StorePreviewTab } from "@/components/dashboard/StorePreviewTab";
@@ -19,7 +20,7 @@ const Dashboard = () => {
   const location = useLocation();
   const { user, signOut } = useAuth();
   const { evmAddress } = useEvmAddress();
-  const [activeView, setActiveView] = useState("catalog");
+  const [activeView, setActiveView] = useState("home");
   const [store, setStore] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [totalEarnings, setTotalEarnings] = useState(0);
@@ -146,18 +147,18 @@ const Dashboard = () => {
               className={cn(
                 "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all relative",
                 "hover:bg-accent",
-                activeView === "catalog" && "bg-accent",
+                activeView === "home" && "bg-accent",
                 sidebarOpen ? "justify-start" : "justify-center"
               )}
-              onClick={() => setActiveView("catalog")}
+              onClick={() => setActiveView("home")}
             >
-              {activeView === "catalog" && (
+              {activeView === "home" && (
                 <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-primary rounded-r-full" />
               )}
-              <Store className={cn("h-5 w-5 flex-shrink-0", activeView === "catalog" && "text-primary")} />
+              <Home className={cn("h-5 w-5 flex-shrink-0", activeView === "home" && "text-primary")} />
               {sidebarOpen && (
-                <span className={cn("text-sm font-medium", activeView === "catalog" && "text-primary")}>
-                  Catalog
+                <span className={cn("text-sm font-medium", activeView === "home" && "text-primary")}>
+                  Home
                 </span>
               )}
             </button>
@@ -176,7 +177,7 @@ const Dashboard = () => {
               <Bot className={cn("h-5 w-5 flex-shrink-0", activeView === "agent" && "text-primary")} />
               {sidebarOpen && (
                 <span className={cn("text-sm font-medium", activeView === "agent" && "text-primary")}>
-                  Agent Settings
+                  Agent
                 </span>
               )}
             </button>
@@ -184,18 +185,37 @@ const Dashboard = () => {
               className={cn(
                 "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all relative",
                 "hover:bg-accent",
-                activeView === "preview" && "bg-accent",
+                activeView === "catalog" && "bg-accent",
                 sidebarOpen ? "justify-start" : "justify-center"
               )}
-              onClick={() => setActiveView("preview")}
+              onClick={() => setActiveView("catalog")}
             >
-              {activeView === "preview" && (
+              {activeView === "catalog" && (
                 <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-primary rounded-r-full" />
               )}
-              <Eye className={cn("h-5 w-5 flex-shrink-0", activeView === "preview" && "text-primary")} />
+              <Package className={cn("h-5 w-5 flex-shrink-0", activeView === "catalog" && "text-primary")} />
               {sidebarOpen && (
-                <span className={cn("text-sm font-medium", activeView === "preview" && "text-primary")}>
-                  Store Preview
+                <span className={cn("text-sm font-medium", activeView === "catalog" && "text-primary")}>
+                  Catalog
+                </span>
+              )}
+            </button>
+            <button
+              className={cn(
+                "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all relative",
+                "hover:bg-accent",
+                activeView === "store" && "bg-accent",
+                sidebarOpen ? "justify-start" : "justify-center"
+              )}
+              onClick={() => setActiveView("store")}
+            >
+              {activeView === "store" && (
+                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-primary rounded-r-full" />
+              )}
+              <Store className={cn("h-5 w-5 flex-shrink-0", activeView === "store" && "text-primary")} />
+              {sidebarOpen && (
+                <span className={cn("text-sm font-medium", activeView === "store" && "text-primary")}>
+                  Store
                 </span>
               )}
             </button>
@@ -240,78 +260,12 @@ const Dashboard = () => {
 
         {/* Page Content */}
         <main className="flex-1 px-4 sm:px-6 lg:px-8 py-8">
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold text-foreground mb-2">
-              Agentic Sales Dashboard
-            </h1>
-            <p className="text-muted-foreground">
-              Manage your store, products, and AI agent settings
-            </p>
-          </div>
-
-          {/* Store Stats */}
-          <div className="grid gap-4 md:grid-cols-3 mb-8">
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center gap-3">
-                  <div className="p-3 bg-primary/10 rounded-lg">
-                    <Wallet className="h-5 w-5 text-primary" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm text-muted-foreground mb-1">Wallet Address</p>
-                    <p className="text-sm font-mono truncate">
-                      {evmAddress ? `${evmAddress.slice(0, 6)}...${evmAddress.slice(-4)}` : 'Not connected'}
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center gap-3">
-                  <div className="p-3 bg-primary/10 rounded-lg">
-                    <DollarSign className="h-5 w-5 text-primary" />
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground mb-1">Total Earnings</p>
-                    <p className="text-2xl font-bold">${totalEarnings.toFixed(2)}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center gap-3">
-                  <div className="p-3 bg-primary/10 rounded-lg">
-                    <Store className="h-5 w-5 text-primary" />
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-sm text-muted-foreground mb-1">Public Store</p>
-                    {store?.x_username ? (
-                      <Button
-                        variant="link"
-                        size="sm"
-                        className="h-auto p-0 text-primary"
-                        onClick={() => window.open(`/store/${store.x_username}`, '_blank')}
-                      >
-                        View Store <ExternalLink className="h-3 w-3 ml-1" />
-                      </Button>
-                    ) : (
-                      <p className="text-sm text-muted-foreground">Not published</p>
-                    )}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
           {/* Content Views */}
           <div className="space-y-6">
+            {activeView === "home" && <HomeDashboardTab store={store} totalEarnings={totalEarnings} />}
+            {activeView === "agent" && <AgentPreviewTab store={store} />}
             {activeView === "catalog" && <StoreCatalogTab store={store} />}
-            {activeView === "agent" && <AgentSettingsTab store={store} onUpdate={loadStore} />}
-            {activeView === "preview" && <StorePreviewTab store={store} />}
+            {activeView === "store" && <StorePreviewTab store={store} />}
           </div>
         </main>
       </div>
