@@ -371,10 +371,10 @@ export const StorePreviewTab = ({ store, onUpdate }: StorePreviewTabProps) => {
         </div>
 
         {/* Floating Chat Widget - Bottom Right */}
-        <div className="fixed bottom-6 right-6 z-50">
+        <div className="fixed bottom-6 right-6 z-[100]">
           {chatOpen ? (
             // Chat Window
-            <Card className="w-[380px] h-[500px] shadow-2xl flex flex-col">
+            <Card className="w-[380px] h-[500px] shadow-2xl flex flex-col bg-background">
               <CardHeader className="border-b border-border flex-shrink-0">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
@@ -403,8 +403,8 @@ export const StorePreviewTab = ({ store, onUpdate }: StorePreviewTabProps) => {
                   </Button>
                 </div>
               </CardHeader>
-              <CardContent className="flex-1 p-0 flex flex-col">
-                <ScrollArea className="flex-1 p-4">
+              <CardContent className="flex-1 p-0 flex flex-col overflow-hidden">
+                <ScrollArea className="flex-1 p-4 h-[calc(500px-140px)]">
                   <div className="space-y-4">
                     {chatMessages.map((msg) => (
                       <div
@@ -416,28 +416,30 @@ export const StorePreviewTab = ({ store, onUpdate }: StorePreviewTabProps) => {
                           (() => {
                             const product = products.find(p => p.id === msg.productId);
                             return product ? (
-                              <ChatProductCard
-                                product={product}
-                                onViewProduct={(productId) => {
-                                  const product = products.find(p => p.id === productId);
-                                  if (product) {
-                                    setSelectedProduct(product);
-                                    setProductModalOpen(true);
-                                  }
-                                }}
-                              />
+                              <div className="max-w-[90%]">
+                                <ChatProductCard
+                                  product={product}
+                                  onViewProduct={(productId) => {
+                                    const product = products.find(p => p.id === productId);
+                                    if (product) {
+                                      setSelectedProduct(product);
+                                      setProductModalOpen(true);
+                                    }
+                                  }}
+                                />
+                              </div>
                             ) : null;
                           })()
                         ) : (
                           // Regular text message
                           <div
-                            className={`rounded-lg p-3 max-w-[80%] ${
+                            className={`rounded-lg p-3 max-w-[80%] break-words ${
                               msg.role === 'user'
                                 ? 'bg-primary text-primary-foreground'
                                 : 'bg-muted'
                             }`}
                           >
-                            <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
+                            <p className="text-sm whitespace-pre-wrap break-words overflow-wrap-anywhere">{msg.content}</p>
                           </div>
                         )}
                       </div>
