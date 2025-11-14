@@ -448,44 +448,49 @@ export const X402PaymentModal = ({
                 </div>
               )}
               
-              {/* Sex and Size Fields - Always shown */}
-              <div className="pt-2 border-t border-border">
-                {!product.checkout_fields.sex && !product.checkout_fields.size && (
-                  <h4 className="text-xs font-medium text-muted-foreground mb-3">Optional Information</h4>
-                )}
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="text-xs font-medium text-muted-foreground">
-                      Sex {product.checkout_fields.sex && <span className="text-destructive">*</span>}
-                    </label>
-                    <Select value={buyerInfo.sex} onValueChange={(value) => setBuyerInfo(prev => ({ ...prev, sex: value }))}>
-                      <SelectTrigger className="w-full mt-1 h-9 text-sm bg-background">
-                        <SelectValue placeholder="Select" />
-                      </SelectTrigger>
-                      <SelectContent className="bg-popover border-border z-[9999]">
-                        <SelectItem value="male">Male</SelectItem>
-                        <SelectItem value="female">Female</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <label className="text-xs font-medium text-muted-foreground">
-                      Size {product.checkout_fields.size && <span className="text-destructive">*</span>}
-                    </label>
-                    <Select value={buyerInfo.size} onValueChange={(value) => setBuyerInfo(prev => ({ ...prev, size: value }))}>
-                      <SelectTrigger className="w-full mt-1 h-9 text-sm bg-background">
-                        <SelectValue placeholder="Select" />
-                      </SelectTrigger>
-                      <SelectContent className="bg-popover border-border z-[9999]">
-                        <SelectItem value="small">Small</SelectItem>
-                        <SelectItem value="medium">Medium</SelectItem>
-                        <SelectItem value="large">Large</SelectItem>
-                        <SelectItem value="xl">XL</SelectItem>
-                      </SelectContent>
-                    </Select>
+              {/* Sex and Size Fields - Only show if enabled */}
+              {(product.checkout_fields.sex || product.checkout_fields.size) && (
+                <div className="pt-2 border-t border-border">
+                  <div className="grid grid-cols-2 gap-3">
+                    {product.checkout_fields.sex && (
+                      <div>
+                        <label className="text-xs font-medium text-muted-foreground">
+                          Sex <span className="text-destructive">*</span>
+                        </label>
+                        <Select value={buyerInfo.sex} onValueChange={(value) => setBuyerInfo(prev => ({ ...prev, sex: value }))}>
+                          <SelectTrigger className="w-full mt-1 h-9 text-sm bg-background">
+                            <SelectValue placeholder="Select" />
+                          </SelectTrigger>
+                          <SelectContent className="bg-popover border-border z-[9999]">
+                            <SelectItem value="male">Male</SelectItem>
+                            <SelectItem value="female">Female</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    )}
+                    {product.checkout_fields.size && (
+                      <div>
+                        <label className="text-xs font-medium text-muted-foreground">
+                          Size <span className="text-destructive">*</span>
+                        </label>
+                        <Select value={buyerInfo.size} onValueChange={(value) => setBuyerInfo(prev => ({ ...prev, size: value }))}>
+                          <SelectTrigger className="w-full mt-1 h-9 text-sm bg-background">
+                            <SelectValue placeholder="Select" />
+                          </SelectTrigger>
+                          <SelectContent className="bg-popover border-border z-[9999]">
+                            <SelectItem value="xs">XS</SelectItem>
+                            <SelectItem value="s">S</SelectItem>
+                            <SelectItem value="m">M</SelectItem>
+                            <SelectItem value="l">L</SelectItem>
+                            <SelectItem value="xl">XL</SelectItem>
+                            <SelectItem value="xxl">XXL</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    )}
                   </div>
                 </div>
-              </div>
+              )}
             </div>
           )}
 
