@@ -191,7 +191,6 @@ const Dashboard = () => {
                   {activeView === "home" && <><Home className="h-4 w-4 flex-shrink-0" /> Home</>}
                   {activeView === "store" && <><Store className="h-4 w-4 flex-shrink-0" /> Store</>}
                   {activeView === "catalog" && <><Package className="h-4 w-4 flex-shrink-0" /> Catalog</>}
-                  {activeView === "orders" && <><ShoppingBag className="h-4 w-4 flex-shrink-0" /> Orders</>}
                   {activeView === "payments" && <><DollarSign className="h-4 w-4 flex-shrink-0" /> Payments</>}
                 </span>
                 <Menu className="h-4 w-4 flex-shrink-0" />
@@ -218,13 +217,6 @@ const Dashboard = () => {
               >
                 <Package className="mr-2 h-4 w-4" />
                 Catalog
-              </DropdownMenuItem>
-              <DropdownMenuItem 
-                onClick={() => setActiveView("orders")}
-                className={cn("cursor-pointer py-3 text-foreground", activeView === "orders" && "bg-accent")}
-              >
-                <ShoppingBag className="mr-2 h-4 w-4" />
-                Orders
               </DropdownMenuItem>
               <DropdownMenuItem 
                 onClick={() => setActiveView("payments")}
@@ -335,25 +327,6 @@ const Dashboard = () => {
               {sidebarOpen && (
                 <span className={cn("text-sm font-medium", activeView === "catalog" && "text-primary")}>
                   Catalog
-                </span>
-              )}
-            </button>
-            <button
-              className={cn(
-                "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all relative",
-                "hover:bg-accent",
-                activeView === "orders" && "bg-accent",
-                sidebarOpen ? "justify-start" : "justify-center"
-              )}
-              onClick={() => setActiveView("orders")}
-            >
-              {activeView === "orders" && (
-                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-primary rounded-r-full" />
-              )}
-              <ShoppingBag className={cn("h-5 w-5 flex-shrink-0", activeView === "orders" && "text-primary")} />
-              {sidebarOpen && (
-                <span className={cn("text-sm font-medium", activeView === "orders" && "text-primary")}>
-                  Orders
                 </span>
               )}
             </button>
