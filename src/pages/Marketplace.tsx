@@ -24,8 +24,8 @@ import SimpleFooter from "@/components/SimpleFooter";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
 import { userProfileService } from "@/services/userProfileService";
-import { AuthButton } from '@coinbase/cdp-react/components/AuthButton';
 import { useIsSignedIn, useEvmAddress, useCurrentUser } from '@coinbase/cdp-hooks';
+import { SignInModal } from '@/components/SignInModal';
 
 type MarketplaceItem = {
   id: string;
