@@ -10,7 +10,6 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { HomeDashboardTab } from "@/components/dashboard/HomeDashboardTab";
 import { StoreCatalogTab } from "@/components/dashboard/StoreCatalogTab";
 import { StorePreviewTab } from "@/components/dashboard/StorePreviewTab";
-import { OrdersTab } from "@/components/dashboard/OrdersTab";
 import Payments from "./Payments";
 import { useEvmAddress, useSolanaAddress } from "@coinbase/cdp-hooks";
 import { cn } from "@/lib/utils";
@@ -25,7 +24,6 @@ const Dashboard = () => {
   const [activeView, setActiveView] = useState("home");
   const [store, setStore] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [totalEarnings, setTotalEarnings] = useState(0);
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
   useEffect(() => {
@@ -430,11 +428,10 @@ const Dashboard = () => {
         <main className="flex-1 px-4 sm:px-6 lg:px-8 py-3 md:py-8 w-full max-w-full overflow-x-hidden overflow-y-auto">
           {/* Content Views */}
           <div className="space-y-6 w-full max-w-full">
-            {activeView === "home" && <HomeDashboardTab store={store} totalEarnings={totalEarnings} />}
+            {activeView === "home" && <HomeDashboardTab store={store} />}
             {activeView === "store" && <StorePreviewTab store={store} onUpdate={loadStore} />}
             {activeView === "catalog" && <StoreCatalogTab store={store} />}
-            {activeView === "orders" && <OrdersTab store={store} />}
-            {activeView === "payments" && <Payments />}
+            {activeView === "payments" && <Payments store={store} />}
           </div>
         </main>
       </div>

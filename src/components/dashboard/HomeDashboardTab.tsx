@@ -9,10 +9,9 @@ import { useAuth } from "@/hooks/useAuth";
 
 type HomeDashboardTabProps = {
   store: any;
-  totalEarnings: number;
 };
 
-export const HomeDashboardTab = ({ store, totalEarnings }: HomeDashboardTabProps) => {
+export const HomeDashboardTab = ({ store }: HomeDashboardTabProps) => {
   const { user } = useAuth();
   const [isEditingRoute, setIsEditingRoute] = useState(false);
   const [newRoute, setNewRoute] = useState(store?.x_username || '');
@@ -131,14 +130,14 @@ export const HomeDashboardTab = ({ store, totalEarnings }: HomeDashboardTabProps
         {/* Total Earnings Card */}
         <Card className="border-2">
           <CardHeader className="pb-2 md:pb-3">
-            <CardDescription className="text-xs md:text-sm font-medium">Total Earnings</CardDescription>
+            <CardDescription className="text-xs md:text-sm font-medium">Store Earnings</CardDescription>
             <CardTitle className="text-2xl md:text-4xl font-bold tabular-nums">
-              ${totalEarnings % 1 === 0 ? totalEarnings : totalEarnings.toFixed(2)}
+              View in Payments
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex items-center gap-2 text-sm">
-              <div className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400">
+              <div className="flex items-center gap-1 text-muted-foreground">
                 <ArrowUpRight className="h-4 w-4" />
                 <span className="font-medium">0%</span>
               </div>

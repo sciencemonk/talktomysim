@@ -7,12 +7,20 @@ import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
-import { Wallet, TrendingUp, DollarSign, Copy, AlertCircle, Save } from "lucide-react";
+import { Wallet, TrendingUp, DollarSign, Copy, AlertCircle, Save, Package, Clock, CheckCircle, ExternalLink } from "lucide-react";
 import { useConnection } from "@solana/wallet-adapter-react";
 import { PublicKey } from "@solana/web3.js";
 import { getAccount, getAssociatedTokenAddress } from "@solana/spl-token";
 import { z } from "zod";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { format } from "date-fns";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 const solanaAddressSchema = z.string()
   .trim()
@@ -20,10 +28,36 @@ const solanaAddressSchema = z.string()
   .max(44, "Solana address must be at most 44 characters")
   .regex(/^[1-9A-HJ-NP-Za-km-z]{32,44}$/, "Invalid Solana address format");
 
-export default function Payments() {
+interface Order {
+  id: string;
+  created_at: string;
+  product_id: string;
+  amount: number;
+  currency: string;
+  buyer_email: string | null;
+  buyer_name: string | null;
+  buyer_phone: string | null;
+  buyer_address: any;
+  custom_field_data: any;
+  payment_signature: string | null;
+  status: string;
+  updated_at: string | null;
+  products: {
+    id: string;
+    title: string;
+    description: string;
+    price: number;
+  };
+}
+
+interface PaymentsProps {
+  store: any;
+}
+
+export default function Payments({ store: initialStore }: PaymentsProps) {
   const { user } = useAuth();
   const { connection } = useConnection();
-  const [store, setStore] = useState<any>(null);
+  const [store, setStore] = useState<any>(initialStore);
   const [earnings, setEarnings] = useState({
     total: 0,
     thisMonth: 0,
@@ -34,6 +68,9 @@ export default function Payments() {
   const [editingWallet, setEditingWallet] = useState(false);
   const [newSolanaWallet, setNewSolanaWallet] = useState("");
   const [savingWallet, setSavingWallet] = useState(false);
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [ordersLoading, setOrdersLoading] = useState(true);
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
 
   const USDC_MINT = new PublicKey('EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v');
 
@@ -48,6 +85,39 @@ export default function Payments() {
       loadWalletBalance();
     }
   }, [store?.crypto_wallet]);
+
+  useEffect(() => {
+    if (store?.id) {
+      loadOrders();
+    }
+  }, [store?.id]);
+
+  const loadOrders = async () => {
+    try {
+      setOrdersLoading(true);
+      const { data, error } = await (supabase as any)
+        .from('orders')
+        .select(`
+          *,
+          products (
+            id,
+            title,
+            description,
+            price
+          )
+        `)
+        .eq('store_id', store.id)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setOrders(data || []);
+    } catch (error) {
+      console.error('Error loading orders:', error);
+      toast.error('Failed to load orders');
+    } finally {
+      setOrdersLoading(false);
+    }
+  };
 
   const loadWalletBalance = async () => {
     if (!store?.crypto_wallet) return;
