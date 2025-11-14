@@ -25,6 +25,8 @@ type Product = {
     phone: boolean;
     address: boolean;
     wallet: boolean;
+    sex: boolean;
+    size: boolean;
     custom_fields: Array<{name: string; label: string; required: boolean}>;
   };
 };
@@ -51,6 +53,8 @@ export const ProductDialog = ({ open, onOpenChange, product, storeId, onSuccess 
     phone: false,
     address: false,
     wallet: false,
+    sex: false,
+    size: false,
     custom_fields: [] as Array<{name: string; label: string; required: boolean}>
   });
   const [images, setImages] = useState<string[]>([]);
@@ -73,6 +77,8 @@ export const ProductDialog = ({ open, onOpenChange, product, storeId, onSuccess 
         phone: false,
         address: false,
         wallet: false,
+        sex: false,
+        size: false,
         custom_fields: []
       });
       setImages(product.image_urls || []);
@@ -90,6 +96,8 @@ export const ProductDialog = ({ open, onOpenChange, product, storeId, onSuccess 
         phone: false,
         address: false,
         wallet: false,
+        sex: false,
+        size: false,
         custom_fields: []
       });
       setImages([]);
@@ -411,6 +419,32 @@ export const ProductDialog = ({ open, onOpenChange, product, storeId, onSuccess 
                   />
                   <Label htmlFor="wallet" className="text-sm font-normal cursor-pointer">
                     SOL Wallet Address
+                  </Label>
+                </div>
+
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="sex"
+                    checked={checkoutFields.sex}
+                    onCheckedChange={(checked) => 
+                      setCheckoutFields({...checkoutFields, sex: checked as boolean})
+                    }
+                  />
+                  <Label htmlFor="sex" className="text-sm font-normal cursor-pointer">
+                    Sex (Male/Female)
+                  </Label>
+                </div>
+
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="size"
+                    checked={checkoutFields.size}
+                    onCheckedChange={(checked) => 
+                      setCheckoutFields({...checkoutFields, size: checked as boolean})
+                    }
+                  />
+                  <Label htmlFor="size" className="text-sm font-normal cursor-pointer">
+                    Size (S/M/L/XL)
                   </Label>
                 </div>
               </div>

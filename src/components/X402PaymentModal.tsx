@@ -33,6 +33,8 @@ interface X402PaymentModalProps {
       phone?: boolean;
       address?: boolean;
       wallet?: boolean;
+      sex?: boolean;
+      size?: boolean;
     };
   };
   storeId?: string;
@@ -84,6 +86,14 @@ export const X402PaymentModal = ({
       }
       if (product.checkout_fields.wallet && !buyerInfo.wallet) {
         toast.error('Please enter your SOL wallet address');
+        return false;
+      }
+      if (product.checkout_fields.sex && !buyerInfo.sex) {
+        toast.error('Please select sex');
+        return false;
+      }
+      if (product.checkout_fields.size && !buyerInfo.size) {
+        toast.error('Please select size');
         return false;
       }
     }
@@ -384,12 +394,16 @@ export const X402PaymentModal = ({
                 </div>
               )}
               
-              {/* Optional Fields - Always shown for physical products */}
+              {/* Sex and Size Fields - Always shown */}
               <div className="pt-2 border-t border-border">
-                <h4 className="text-xs font-medium text-muted-foreground mb-3">Optional Information</h4>
+                {!product.checkout_fields.sex && !product.checkout_fields.size && (
+                  <h4 className="text-xs font-medium text-muted-foreground mb-3">Optional Information</h4>
+                )}
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="text-xs font-medium text-muted-foreground">Sex</label>
+                    <label className="text-xs font-medium text-muted-foreground">
+                      Sex {product.checkout_fields.sex && <span className="text-destructive">*</span>}
+                    </label>
                     <Select value={buyerInfo.sex} onValueChange={(value) => setBuyerInfo(prev => ({ ...prev, sex: value }))}>
                       <SelectTrigger className="w-full mt-1 h-9 text-sm bg-background">
                         <SelectValue placeholder="Select" />
@@ -401,7 +415,9 @@ export const X402PaymentModal = ({
                     </Select>
                   </div>
                   <div>
-                    <label className="text-xs font-medium text-muted-foreground">Size</label>
+                    <label className="text-xs font-medium text-muted-foreground">
+                      Size {product.checkout_fields.size && <span className="text-destructive">*</span>}
+                    </label>
                     <Select value={buyerInfo.size} onValueChange={(value) => setBuyerInfo(prev => ({ ...prev, size: value }))}>
                       <SelectTrigger className="w-full mt-1 h-9 text-sm bg-background">
                         <SelectValue placeholder="Select" />
