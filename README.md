@@ -91,12 +91,6 @@ We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) f
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## Support
-
-- Documentation: [docs.sim.store](https://docs.sim.store)
-- Discord: [Join our community](https://discord.gg/sim)
-- Twitter: [@SIMStore](https://twitter.com/simstore)
-
 ## Built With Love
 
 SIM is built by a team passionate about the intersection of AI and commerce. We believe that conversational AI and cryptocurrency payments will define the next generation of online shopping.
