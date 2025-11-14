@@ -311,9 +311,10 @@ export const StorePreviewTab = ({ store, onUpdate }: StorePreviewTabProps) => {
       </Card>
 
       {/* Store Preview Content - Updated Layout */}
-      <div className="relative border-2 border-dashed border-border rounded-lg p-8 bg-muted/20 min-h-[600px]">
-        {/* Store Header */}
-        <div className="max-w-6xl mx-auto">
+      <div className="relative border-2 border-dashed border-border rounded-lg bg-muted/20 min-h-[600px] flex overflow-hidden">
+        {/* Main Content */}
+        <div className={`flex-1 transition-all duration-300 ${chatOpen ? 'mr-96' : 'mr-0'} p-8 overflow-auto`}>
+          <div className="max-w-6xl mx-auto">
           {/* Store Info */}
           <div className="text-center space-y-4 pb-8 mb-8 border-b border-border">
             {/* Show Logo or Store Name */}
@@ -385,7 +386,33 @@ export const StorePreviewTab = ({ store, onUpdate }: StorePreviewTabProps) => {
               <p className="text-sm text-muted-foreground">Add products in the Catalog tab</p>
             </div>
           )}
+          </div>
         </div>
+
+        {/* Chat Sidebar - Positioned within the preview container */}
+        {!isMobile && (
+          <StoreChatSidebar
+            isOpen={chatOpen}
+            onToggle={() => setChatOpen(!chatOpen)}
+            store={{
+              store_name: store?.store_name || 'Store',
+              avatar_url: store?.avatar_url
+            }}
+            chatMessages={chatMessages}
+            chatMessage={chatMessage}
+            setChatMessage={setChatMessage}
+            handleSendMessage={handleSendMessage}
+            isSending={isSending}
+            products={products}
+            onViewProduct={(productId) => {
+              const product = products.find(p => p.id === productId);
+              if (product) {
+                setSelectedProduct(product);
+                setProductModalOpen(true);
+              }
+            }}
+          />
+        )}
       </div>
 
       {/* Product Detail Modal */}
@@ -402,30 +429,6 @@ export const StorePreviewTab = ({ store, onUpdate }: StorePreviewTabProps) => {
         />
       )}
 
-      {/* Chat Sidebar - Desktop Only */}
-      {!isMobile && (
-        <StoreChatSidebar
-          isOpen={chatOpen}
-          onToggle={() => setChatOpen(!chatOpen)}
-          store={{
-            store_name: store?.store_name || 'Store',
-            avatar_url: store?.avatar_url
-          }}
-          chatMessages={chatMessages}
-          chatMessage={chatMessage}
-          setChatMessage={setChatMessage}
-          handleSendMessage={handleSendMessage}
-          isSending={isSending}
-          products={products}
-          onViewProduct={(productId) => {
-            const product = products.find(p => p.id === productId);
-            if (product) {
-              setSelectedProduct(product);
-              setProductModalOpen(true);
-            }
-          }}
-        />
-      )}
     </div>
   );
 };
