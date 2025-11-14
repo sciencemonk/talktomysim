@@ -674,12 +674,12 @@ const Marketplace = () => {
           </div>
 
           <div className="text-center">
-            <button
-              onClick={() => document.getElementById('waitlist-form')?.scrollIntoView({ behavior: 'smooth' })}
-              className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-8 py-3 rounded-lg font-semibold hover:bg-primary/90 transition-colors text-lg"
-            >
-              Start Your Integration
-            </button>
+            <blockquote className="text-2xl md:text-3xl font-light text-foreground/90 italic max-w-4xl mx-auto">
+              "We're about to enter into that third chapter, which is agentic commerce."
+              <footer className="mt-4 text-base font-normal not-italic text-muted-foreground">
+                — Alex Chriss, CEO of PayPal
+              </footer>
+            </blockquote>
           </div>
         </div>
       </div>
