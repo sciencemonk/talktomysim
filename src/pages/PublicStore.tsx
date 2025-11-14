@@ -330,40 +330,37 @@ export default function PublicStore() {
           </div>
         </div>
 
-        <div className="container mx-auto px-4 md:px-6 py-8">
-          <div className="max-w-6xl mx-auto">
+        <div className="container mx-auto px-4 md:px-8 py-12">
+          <div className="max-w-7xl mx-auto">
             {products.length > 0 && (
-              <div>
-                <h2 className="text-2xl font-bold mb-6">Products</h2>
-                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              <div className="grid gap-8 md:grid-cols-2 xl:grid-cols-3">
                   {products.map((product) => (
-                    <Card
-                      key={product.id}
-                      className="overflow-hidden hover:shadow-lg transition-all cursor-pointer group"
-                      onClick={() => {
-                        navigate(`/store/${username}/product/${product.id}`);
-                      }}
-                    >
-                      {product.image_urls && product.image_urls.length > 0 && (
-                        <div className="aspect-square overflow-hidden bg-muted">
-                          <img
-                            src={product.image_urls[0]}
-                            alt={product.title}
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform"
-                          />
-                        </div>
-                      )}
-                      <CardContent className="p-4">
-                        <h3 className="font-semibold mb-2">{product.title}</h3>
-                        <p className="text-sm text-muted-foreground mb-3 line-clamp-2">{product.description}</p>
-                        <div className="flex items-center justify-between">
-                          <span className="text-lg font-bold">${formatPrice(product.price)} {product.currency}</span>
-                          <Button size="sm" variant="outline">View Details</Button>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
+                  <Card
+                    key={product.id}
+                    className="overflow-hidden hover:shadow-xl transition-all duration-300 cursor-pointer group border-border/50"
+                    onClick={() => {
+                      navigate(`/store/${username}/product/${product.id}`);
+                    }}
+                  >
+                    {product.image_urls && product.image_urls.length > 0 && (
+                      <div className="aspect-square overflow-hidden bg-muted">
+                        <img
+                          src={product.image_urls[0]}
+                          alt={product.title}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        />
+                      </div>
+                    )}
+                    <CardContent className="p-5">
+                      <h3 className="font-semibold text-lg mb-2">{product.title}</h3>
+                      <p className="text-sm text-muted-foreground mb-4 line-clamp-2">{product.description}</p>
+                      <div className="flex items-center justify-between">
+                        <span className="text-xl font-bold">${formatPrice(product.price)} {product.currency}</span>
+                        <Button size="sm" variant="outline" className="hover:bg-primary hover:text-primary-foreground">View Details</Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
               </div>
             )}
 
