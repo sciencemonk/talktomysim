@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -7,7 +8,6 @@ import { Badge } from "@/components/ui/badge";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { StoreEditModal } from "./StoreEditModal";
 import { AgentEditModal } from "./AgentEditModal";
-import { ProductDetailModal } from "@/components/ProductDetailModal";
 import { StoreChatSidebar } from "@/components/StoreChatSidebar";
 import { formatPrice } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -39,6 +39,7 @@ type ChatMessage = {
 };
 
 export const StorePreviewTab = ({ store, onUpdate }: StorePreviewTabProps) => {
+  const navigate = useNavigate();
   const isMobile = useIsMobile();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
@@ -48,8 +49,6 @@ export const StorePreviewTab = ({ store, onUpdate }: StorePreviewTabProps) => {
   const [chatMessage, setChatMessage] = useState('');
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   const [isSending, setIsSending] = useState(false);
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-  const [productModalOpen, setProductModalOpen] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Auto-scroll to bottom when messages change
@@ -346,8 +345,7 @@ export const StorePreviewTab = ({ store, onUpdate }: StorePreviewTabProps) => {
                     key={product.id} 
                     className="overflow-hidden hover:shadow-lg transition-all cursor-pointer group"
                     onClick={() => {
-                      setSelectedProduct(product);
-                      setProductModalOpen(true);
+                      navigate(`/store/${store.x_username}/product/${product.id}`);
                     }}
                   >
                     {product.image_urls && product.image_urls.length > 0 && (
@@ -405,29 +403,13 @@ export const StorePreviewTab = ({ store, onUpdate }: StorePreviewTabProps) => {
             isSending={isSending}
             products={products}
             onViewProduct={(productId) => {
-              const product = products.find(p => p.id === productId);
-              if (product) {
-                setSelectedProduct(product);
-                setProductModalOpen(true);
+              if (store?.x_username) {
+                navigate(`/store/${store.x_username}/product/${productId}`);
               }
             }}
           />
         )}
       </div>
-
-      {/* Product Detail Modal */}
-      {productModalOpen && (
-        <ProductDetailModal
-          product={selectedProduct}
-          isOpen={productModalOpen}
-          onClose={() => {
-            setProductModalOpen(false);
-            setSelectedProduct(null);
-          }}
-          storeWalletAddress={store?.crypto_wallet || ''}
-          storeName={store?.store_name || 'Store'}
-        />
-      )}
 
     </div>
   );

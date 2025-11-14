@@ -6,7 +6,6 @@ import { Card, CardContent } from "@/components/ui/card";
 const SUPABASE_URL = "https://uovhemqkztmkoozlmqxq.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVvdmhlbXFrenRta29vemxtcXhxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU3Mzc1NjQsImV4cCI6MjA3MTMxMzU2NH0.-7KqE9AROkWAskEnWESnLf9BEFiNGIE1b9s0uB8rdK4";
 import { Button } from "@/components/ui/button";
-import { ProductDetailModal } from "@/components/ProductDetailModal";
 import { StoreChatSidebar } from "@/components/StoreChatSidebar";
 import { Package, ExternalLink } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -52,8 +51,6 @@ export default function PublicStore() {
   const [store, setStore] = useState<Store | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-  const [productModalOpen, setProductModalOpen] = useState(false);
   const [chatOpen, setChatOpen] = useState(true);
   const [chatMessage, setChatMessage] = useState('');
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
@@ -317,8 +314,7 @@ export default function PublicStore() {
                       key={product.id}
                       className="overflow-hidden hover:shadow-lg transition-all cursor-pointer group"
                       onClick={() => {
-                        setSelectedProduct(product);
-                        setProductModalOpen(true);
+                        navigate(`/store/${username}/product/${product.id}`);
                       }}
                     >
                       {product.image_urls && product.image_urls.length > 0 && (
@@ -367,27 +363,6 @@ export default function PublicStore() {
         </div>
       </div>
       
-      <ProductDetailModal
-        product={selectedProduct}
-        isOpen={productModalOpen}
-        onClose={() => {
-          setProductModalOpen(false);
-          setSelectedProduct(null);
-        }}
-        storeWalletAddress={store.crypto_wallet || ''}
-        storeName={store.store_name}
-        onPurchaseSuccess={(productTitle) => {
-          const purchaseMessage: ChatMessage = {
-            id: Date.now().toString(),
-            role: 'user',
-            content: `I just purchased: ${productTitle}`,
-            timestamp: new Date()
-          };
-          setChatMessages(prev => [...prev, purchaseMessage]);
-          handleSendMessage(purchaseMessage);
-        }}
-      />
-
       <StoreChatSidebar
         isOpen={chatOpen}
         onToggle={() => setChatOpen(!chatOpen)}
@@ -403,10 +378,8 @@ export default function PublicStore() {
         products={products}
         positioning="fixed"
         onViewProduct={(productId) => {
-          const product = products.find(p => p.id === productId);
-          if (product) {
-            setSelectedProduct(product);
-            setProductModalOpen(true);
+          if (username) {
+            navigate(`/store/${username}/product/${productId}`);
           }
         }}
       />

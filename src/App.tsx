@@ -67,6 +67,7 @@ import AgentPublicView from "./pages/AgentPublicView";
 import RootRedirect from "./pages/RootRedirect";
 import Onboarding from "./pages/Onboarding";
 import PublicStore from "./pages/PublicStore";
+import ProductDetail from "./pages/ProductDetail";
 
 const queryClient = new QueryClient();
 
@@ -134,6 +135,7 @@ const App = () => (
               
               {/* Public Store - Must come before catch-all */}
               <Route path="/store/:username" element={<PublicStore />} />
+              <Route path="/store/:username/product/:productId" element={<ProductDetail />} />
               
               {/* Agent Public View */}
               <Route path="/agent/:agentId" element={<AgentPublicView />} />
