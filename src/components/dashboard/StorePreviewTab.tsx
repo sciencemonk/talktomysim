@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -47,6 +47,12 @@ export const StorePreviewTab = ({ store, onUpdate }: StorePreviewTabProps) => {
   const [isSending, setIsSending] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [productModalOpen, setProductModalOpen] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Auto-scroll to bottom when messages change
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [chatMessages, isSending]);
 
   // Initialize chat with greeting message
   useEffect(() => {
@@ -456,6 +462,7 @@ export const StorePreviewTab = ({ store, onUpdate }: StorePreviewTabProps) => {
                       </div>
                     )}
                   </div>
+                  <div ref={messagesEndRef} />
                 </ScrollArea>
                 <div className="p-4 border-t border-border">
                   <div className="flex gap-2">
