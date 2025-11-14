@@ -326,3 +326,12 @@ div[class*="cdp-button"] {
 [role="dialog"] [class*="body"] button:nth-of-type(2)::before {
   display: none !important;
 }
+
+/* Product Detail Modal z-index override for mobile */
+.product-detail-modal [data-radix-dialog-overlay] {
+  z-index: 120 !important;
+}
+
+.product-detail-modal [data-radix-dialog-content] {
+  z-index: 130 !important;
+}
