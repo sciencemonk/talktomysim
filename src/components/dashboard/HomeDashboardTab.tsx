@@ -125,43 +125,6 @@ export const HomeDashboardTab = ({ store }: HomeDashboardTabProps) => {
         </p>
       </div>
 
-      {/* Key Metrics */}
-      <div className="grid gap-3 md:gap-6 md:grid-cols-2">
-        {/* Total Earnings Card */}
-        <Card className="border-2">
-          <CardHeader className="pb-2 md:pb-3">
-            <CardDescription className="text-xs md:text-sm font-medium">Store Earnings</CardDescription>
-            <CardTitle className="text-2xl md:text-4xl font-bold tabular-nums">
-              View in Payments
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center gap-2 text-sm">
-              <div className="flex items-center gap-1 text-muted-foreground">
-                <ArrowUpRight className="h-4 w-4" />
-                <span className="font-medium">0%</span>
-              </div>
-              <span className="text-muted-foreground">from last month</span>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Store Performance Card */}
-        <Card className="border-2">
-          <CardHeader className="pb-2 md:pb-3">
-            <CardDescription className="text-xs md:text-sm font-medium">Store Performance</CardDescription>
-            <CardTitle className="text-2xl md:text-4xl font-bold tabular-nums">
-              0
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <ShoppingBag className="h-4 w-4" />
-              <span>Total orders processed</span>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
 
       {/* Store Configuration */}
       <div className="grid gap-3 md:gap-6 md:grid-cols-2">
