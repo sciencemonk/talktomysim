@@ -134,30 +134,35 @@ export const StoreCatalogTab = ({ store }: StoreCatalogTabProps) => {
 
   return (
     <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-3xl font-bold tracking-tight">Catalog</h2>
+          <p className="text-muted-foreground">
+            Add and manage products and services for your AI agent to sell
+          </p>
+        </div>
+        <div className="flex gap-2">
+          <Button 
+            variant="outline" 
+            onClick={() => setShopifyModalOpen(true)} 
+            className="gap-2"
+          >
+            <Store className="h-4 w-4" />
+            Connect Shopify
+          </Button>
+          <Button onClick={handleAddProduct} className="gap-2">
+            <Plus className="h-4 w-4" />
+            Add Product
+          </Button>
+        </div>
+      </div>
+
       <Card>
         <CardHeader>
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex-1 min-w-0">
-              <CardTitle>Product Catalog</CardTitle>
-              <CardDescription className="mt-1">
-                Add and manage products and services for your AI agent to sell
-              </CardDescription>
-            </div>
-            <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-              <Button 
-                variant="outline" 
-                onClick={() => setShopifyModalOpen(true)} 
-                className="gap-2 w-full sm:w-auto"
-              >
-                <Store className="h-4 w-4" />
-                <span className="sm:inline">Connect Shopify</span>
-              </Button>
-              <Button onClick={handleAddProduct} className="gap-2 w-full sm:w-auto">
-                <Plus className="h-4 w-4" />
-                <span className="sm:inline">Add Product</span>
-              </Button>
-            </div>
-          </div>
+          <CardTitle>Products</CardTitle>
+          <CardDescription>
+            Manage your product inventory
+          </CardDescription>
         </CardHeader>
         <CardContent>
           {products.length === 0 ? (
