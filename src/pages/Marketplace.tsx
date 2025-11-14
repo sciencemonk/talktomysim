@@ -295,14 +295,9 @@ const Marketplace = () => {
                     </DropdownMenuContent>
                   </DropdownMenu>
                 ) : (
-                  <Button 
-                    variant="outline" 
-                    size="sm"
-                    onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-                    className="bg-white/10 backdrop-blur-sm border-white/20 text-white hover:bg-white/20 hover:text-white"
-                  >
-                    Sign In
-                  </Button>
+                  <div className="scale-90">
+                    <AuthButton />
+                  </div>
                 )}
                 <ThemeToggle />
               </div>
@@ -317,7 +312,7 @@ const Marketplace = () => {
               <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold font-mono tracking-tight text-white mb-4 sm:whitespace-nowrap">
                 More Sales with AI Agents
               </h1>
-              <p className="text-xl sm:text-2xl md:text-3xl text-white/90 mb-8 max-w-3xl mx-auto">
+              <p className="text-xl sm:text-2xl md:text-3xl text-white/90 mb-8 max-w-4xl mx-auto whitespace-nowrap">
                 A custom built AI Agent right on your store that drives more sales.
               </p>
               
