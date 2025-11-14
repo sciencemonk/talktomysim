@@ -7,7 +7,7 @@ import PublicChatInterface from "@/components/PublicChatInterface";
 import { IntegrationTiles } from "@/components/IntegrationTiles";
 import { getAvatarUrl } from "@/lib/avatarUtils";
 import { AgentType } from "@/types/agent";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, X } from "lucide-react";
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeToggle } from "@/components/ThemeToggle";
 
@@ -15,7 +15,20 @@ const AgentPublicView = () => {
   const { agentId } = useParams<{ agentId: string }>();
   const navigate = useNavigate();
   const [selectedIntegrations, setSelectedIntegrations] = useState<string[]>([]);
+  const [isEmbedded, setIsEmbedded] = useState(false);
   const { theme } = useTheme();
+
+  useEffect(() => {
+    // Check if we're in an iframe
+    setIsEmbedded(window.self !== window.top);
+  }, []);
+
+  const handleCloseEmbed = () => {
+    // Send message to parent window to close the embed
+    if (window.parent) {
+      window.parent.postMessage('closeAgentEmbed', '*');
+    }
+  };
 
   const { data: agent, isLoading } = useQuery({
     queryKey: ['public-agent-view', agentId],
@@ -92,28 +105,56 @@ const AgentPublicView = () => {
       {/* Top Navigation */}
       <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container flex h-16 items-center justify-between px-4">
-          <div className="flex items-center gap-4">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => navigate(-1)}
-              className="h-9 w-9"
-            >
-              <ArrowLeft className="h-5 w-5" />
-            </Button>
-            <button 
-              onClick={() => navigate('/')}
-              className="flex items-center gap-2"
-            >
-              <img 
-                src={theme === 'dark' ? '/sim-logo-light-final.png' : '/sim-logo-new.png'}
-                alt="SIM" 
-                className="h-8 w-auto"
-              />
-            </button>
-          </div>
-          
-          <ThemeToggle />
+          {isEmbedded ? (
+            <>
+              <div className="flex items-center gap-3">
+                {agent.avatar && (
+                  <img 
+                    src={getAvatarUrl(agent.avatar)} 
+                    alt={agent.name}
+                    className="h-10 w-10 rounded-full object-cover"
+                  />
+                )}
+                <div>
+                  <h3 className="font-semibold text-sm">{agent.name}</h3>
+                  <p className="text-xs text-muted-foreground">AI Assistant</p>
+                </div>
+              </div>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleCloseEmbed}
+                className="h-9 w-9"
+              >
+                <X className="h-5 w-5" />
+              </Button>
+            </>
+          ) : (
+            <>
+              <div className="flex items-center gap-4">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => navigate(-1)}
+                  className="h-9 w-9"
+                >
+                  <ArrowLeft className="h-5 w-5" />
+                </Button>
+                <button 
+                  onClick={() => navigate('/')}
+                  className="flex items-center gap-2"
+                >
+                  <img 
+                    src={theme === 'dark' ? '/sim-logo-light-final.png' : '/sim-logo-new.png'}
+                    alt="SIM" 
+                    className="h-8 w-auto"
+                  />
+                </button>
+              </div>
+              
+              <ThemeToggle />
+            </>
+          )}
         </div>
       </header>
 
@@ -127,32 +168,34 @@ const AgentPublicView = () => {
           />
         </div>
 
-        {/* MCP List - Right Side */}
-        <div className="w-80 border-l border-border bg-card/50 flex flex-col">
-          <div className="p-4 border-b border-border">
-            <h2 className="text-lg font-semibold">Model Context Protocol</h2>
-            <p className="text-sm text-muted-foreground mt-1">
-              Select integrations to enhance the conversation
-            </p>
-          </div>
-          
-          <div className="flex-1 overflow-y-auto p-4">
-            <IntegrationTiles
-              selectedIntegrations={selectedIntegrations}
-              onToggle={handleToggleIntegration}
-            />
+        {/* MCP List - Right Side - Hidden when embedded */}
+        {!isEmbedded && (
+          <div className="w-80 border-l border-border bg-card/50 flex flex-col">
+            <div className="p-4 border-b border-border">
+              <h2 className="text-lg font-semibold">Model Context Protocol</h2>
+              <p className="text-sm text-muted-foreground mt-1">
+                Select integrations to enhance the conversation
+              </p>
+            </div>
             
-            <div className="mt-6 space-y-3">
-              {selectedIntegrations.length > 0 && (
-                <div className="p-3 bg-primary/10 border border-primary/20 rounded-lg">
-                  <p className="text-sm font-medium text-primary">
-                    {selectedIntegrations.length} integration{selectedIntegrations.length > 1 ? 's' : ''} active
-                  </p>
-                </div>
-              )}
+            <div className="flex-1 overflow-y-auto p-4">
+              <IntegrationTiles
+                selectedIntegrations={selectedIntegrations}
+                onToggle={handleToggleIntegration}
+              />
+              
+              <div className="mt-6 space-y-3">
+                {selectedIntegrations.length > 0 && (
+                  <div className="p-3 bg-primary/10 border border-primary/20 rounded-lg">
+                    <p className="text-sm font-medium text-primary">
+                      {selectedIntegrations.length} integration{selectedIntegrations.length > 1 ? 's' : ''} active
+                    </p>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );
