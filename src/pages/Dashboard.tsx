@@ -5,13 +5,14 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { User, Home, Bot, Package, Store, LogOut, Menu, DollarSign } from "lucide-react";
+import { User, Home, Bot, Package, Store, LogOut, Menu, DollarSign, ShoppingBag } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { HomeDashboardTab } from "@/components/dashboard/HomeDashboardTab";
 import { AgentPreviewTab } from "@/components/dashboard/AgentPreviewTab";
 import { StoreCatalogTab } from "@/components/dashboard/StoreCatalogTab";
 import { AgentSettingsTab } from "@/components/dashboard/AgentSettingsTab";
 import { StorePreviewTab } from "@/components/dashboard/StorePreviewTab";
+import { OrdersTab } from "@/components/dashboard/OrdersTab";
 import Earnings from "./Earnings";
 import { useEvmAddress, useSolanaAddress } from "@coinbase/cdp-hooks";
 import { cn } from "@/lib/utils";
@@ -255,6 +256,25 @@ const Dashboard = () => {
               className={cn(
                 "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all relative",
                 "hover:bg-accent",
+                activeView === "orders" && "bg-accent",
+                sidebarOpen ? "justify-start" : "justify-center"
+              )}
+              onClick={() => setActiveView("orders")}
+            >
+              {activeView === "orders" && (
+                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-primary rounded-r-full" />
+              )}
+              <ShoppingBag className={cn("h-5 w-5 flex-shrink-0", activeView === "orders" && "text-primary")} />
+              {sidebarOpen && (
+                <span className={cn("text-sm font-medium", activeView === "orders" && "text-primary")}>
+                  Orders
+                </span>
+              )}
+            </button>
+            <button
+              className={cn(
+                "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all relative",
+                "hover:bg-accent",
                 activeView === "earnings" && "bg-accent",
                 sidebarOpen ? "justify-start" : "justify-center"
               )}
@@ -325,6 +345,7 @@ const Dashboard = () => {
             {activeView === "agent" && <AgentPreviewTab store={store} onUpdate={loadStore} />}
             {activeView === "catalog" && <StoreCatalogTab store={store} />}
             {activeView === "store" && <StorePreviewTab store={store} onUpdate={loadStore} />}
+            {activeView === "orders" && <OrdersTab store={store} />}
             {activeView === "earnings" && <Earnings />}
           </div>
         </main>
