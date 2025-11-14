@@ -334,65 +334,6 @@ export const HomeDashboardTab = ({ store }: HomeDashboardTabProps) => {
         </Card>
       </div>
 
-      {/* Quick Actions */}
-      <Card>
-        <CardHeader className="pb-3 md:pb-4">
-          <CardTitle className="text-base md:text-lg">Quick Actions</CardTitle>
-          <CardDescription className="text-xs md:text-sm">
-            Get started with these essential tasks
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid gap-2 md:gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            <Button
-              variant="outline"
-              className="justify-start h-auto py-3 md:py-4 px-3 md:px-4"
-              onClick={() => {
-                const event = new CustomEvent('navigate-dashboard', { detail: 'agent' });
-                window.dispatchEvent(event);
-              }}
-            >
-              <div className="text-left">
-                <div className="font-semibold text-sm">Configure Agent</div>
-                <div className="text-xs text-muted-foreground mt-1">
-                  Customize your AI assistant
-                </div>
-              </div>
-            </Button>
-            <Button
-              variant="outline"
-              className="justify-start h-auto py-3 md:py-4 px-3 md:px-4"
-              onClick={() => {
-                const event = new CustomEvent('navigate-dashboard', { detail: 'catalog' });
-                window.dispatchEvent(event);
-              }}
-            >
-              <div className="text-left">
-                <div className="font-semibold text-sm">Add Products</div>
-                <div className="text-xs text-muted-foreground mt-1">
-                  Build your product catalog
-                </div>
-              </div>
-            </Button>
-            <Button
-              variant="outline"
-              className="justify-start h-auto py-3 md:py-4 px-3 md:px-4"
-              onClick={() => {
-                const event = new CustomEvent('navigate-dashboard', { detail: 'store' });
-                window.dispatchEvent(event);
-              }}
-            >
-              <div className="text-left">
-                <div className="font-semibold text-sm">Preview Store</div>
-                <div className="text-xs text-muted-foreground mt-1">
-                  See how customers view your store
-                </div>
-              </div>
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-
       {/* Recent Activity */}
       <Card>
         <CardHeader className="pb-3 md:pb-4">
