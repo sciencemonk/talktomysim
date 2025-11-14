@@ -301,7 +301,7 @@ export default function PublicStore() {
           <div className="max-w-7xl mx-auto px-4 md:px-6 py-3">
             <div className="flex items-center justify-between gap-4">
               {/* Store Info - Left Side */}
-              <div className="flex items-start gap-3 min-w-0 flex-1">
+              <div className="flex flex-col gap-2 min-w-0 flex-1">
                 <div className="flex-shrink-0">
                   {store.logo_url ? (
                     <img 
@@ -316,14 +316,14 @@ export default function PublicStore() {
                   )}
                 </div>
                 
-                <div className="min-w-0 flex-1 pt-0.5">
+                <div className="min-w-0">
                   {!store.logo_url && (
-                    <h1 className="text-lg md:text-xl font-bold text-foreground truncate">
+                    <h1 className="text-lg md:text-xl font-bold text-foreground truncate mb-1">
                       {store.store_name}
                     </h1>
                   )}
                   {store.store_description && (
-                    <p className={`text-xs md:text-sm text-muted-foreground line-clamp-2 ${!store.logo_url ? 'mt-0.5' : ''}`}>
+                    <p className="text-xs md:text-sm text-muted-foreground line-clamp-2">
                       {store.store_description}
                     </p>
                   )}
