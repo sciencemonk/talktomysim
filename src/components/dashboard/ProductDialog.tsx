@@ -215,14 +215,14 @@ export const ProductDialog = ({ open, onOpenChange, product, storeId, onSuccess 
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px] max-w-[95vw] max-h-[90vh] overflow-y-auto p-4 sm:p-6">
+      <DialogContent className="sm:max-w-[600px] max-w-[95vw] w-full max-h-[90vh] overflow-y-auto p-4 sm:p-6">
         <DialogHeader className="space-y-1 sm:space-y-2">
           <DialogTitle className="text-lg sm:text-xl">{product ? 'Edit Product' : 'Add Product'}</DialogTitle>
           <DialogDescription className="text-sm">
             {product ? 'Update your product details' : 'Add a new product or service to your catalog'}
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4 w-full overflow-hidden">
           <div className="space-y-3 sm:space-y-4 overflow-y-auto flex-1">
             {/* Product Images */}
             <div className="space-y-2">
