@@ -5,7 +5,7 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { User, Home, Package, Store, LogOut, Menu, DollarSign, ShoppingBag } from "lucide-react";
+import { User, Home, Package, Bot, LogOut, Menu, DollarSign, ShoppingBag } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { HomeDashboardTab } from "@/components/dashboard/HomeDashboardTab";
 import { StoreCatalogTab } from "@/components/dashboard/StoreCatalogTab";
@@ -189,7 +189,7 @@ const Dashboard = () => {
               >
                 <span className="flex items-center gap-2 truncate">
                   {activeView === "home" && <><Home className="h-4 w-4 flex-shrink-0" /> Home</>}
-                  {activeView === "store" && <><Store className="h-4 w-4 flex-shrink-0" /> Store</>}
+                  {activeView === "store" && <><Bot className="h-4 w-4 flex-shrink-0" /> Agent</>}
                   {activeView === "catalog" && <><Package className="h-4 w-4 flex-shrink-0" /> Catalog</>}
                   {activeView === "payments" && <><DollarSign className="h-4 w-4 flex-shrink-0" /> Payments</>}
                 </span>
@@ -208,8 +208,8 @@ const Dashboard = () => {
                 onClick={() => setActiveView("store")}
                 className={cn("cursor-pointer py-3 text-foreground", activeView === "store" && "bg-accent")}
               >
-                <Store className="mr-2 h-4 w-4" />
-                Store
+                <Bot className="mr-2 h-4 w-4" />
+                Agent
               </DropdownMenuItem>
               <DropdownMenuItem 
                 onClick={() => setActiveView("catalog")}
@@ -304,10 +304,10 @@ const Dashboard = () => {
               {activeView === "store" && (
                 <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-primary rounded-r-full" />
               )}
-              <Store className={cn("h-5 w-5 flex-shrink-0", activeView === "store" && "text-primary")} />
+              <Bot className={cn("h-5 w-5 flex-shrink-0", activeView === "store" && "text-primary")} />
               {sidebarOpen && (
                 <span className={cn("text-sm font-medium", activeView === "store" && "text-primary")}>
-                  Store
+                  Agent
                 </span>
               )}
             </button>
