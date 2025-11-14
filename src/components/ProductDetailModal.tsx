@@ -127,7 +127,7 @@ export const ProductDetailModal = ({
                 <div className="flex items-center gap-2">
                   <DollarSign className="h-5 w-5 text-primary" />
                   <span className="text-3xl font-bold">
-                    ${formatPrice(product.price)}
+                    {formatPrice(product.price)}
                   </span>
                   <span className="text-lg text-muted-foreground">
                     {product.currency}
