@@ -17,9 +17,9 @@ interface WalletProvidersProps {
 export const WalletProviders: FC<WalletProvidersProps> = ({ children }) => {
   const network = WalletAdapterNetwork.Mainnet;
   
-  // RPCPool - free Solana RPC with no signup required
+  // Helius RPC - reliable Solana mainnet access
   const endpoint = useMemo(
-    () => 'https://solana-mainnet.rpcpool.com',
+    () => 'https://mainnet.helius-rpc.com/?api-key=77a56327-4bf4-4def-9e16-b5e26b9bc7b0',
     []
   );
 
