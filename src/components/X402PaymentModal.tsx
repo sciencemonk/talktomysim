@@ -52,7 +52,6 @@ export const X402PaymentModal = ({
 }: X402PaymentModalProps) => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [usdcBalance, setUsdcBalance] = useState<number | null>(null);
-  const [isCheckingBalance, setIsCheckingBalance] = useState(false);
   const [buyerInfo, setBuyerInfo] = useState({
     email: '',
     name: '',
@@ -68,51 +67,16 @@ export const X402PaymentModal = ({
   // USDC mint address on Solana mainnet
   const USDC_MINT = new PublicKey('EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v');
 
-  // Check USDC balance when wallet connects
+  // Skip balance check - let transaction naturally fail if insufficient funds
+  // This avoids RPC rate limiting issues
   useEffect(() => {
-    const checkBalance = async () => {
-      if (!connected || !publicKey) {
-        setUsdcBalance(null);
-        return;
-      }
-
-      setIsCheckingBalance(true);
-      try {
-        console.log('[X402Payment] Checking USDC balance for wallet:', publicKey.toString());
-        
-        const senderTokenAccount = await getAssociatedTokenAddress(
-          USDC_MINT,
-          publicKey
-        );
-        
-        console.log('[X402Payment] Token account address:', senderTokenAccount.toString());
-
-        try {
-          const accountInfo = await getAccount(connection, senderTokenAccount);
-          const balance = Number(accountInfo.amount) / 1_000_000;
-          console.log('[X402Payment] USDC balance found:', balance);
-          setUsdcBalance(balance);
-          
-          if (balance < price) {
-            const priceDisplay = price % 1 === 0 ? price : price.toFixed(2);
-            const balanceDisplay = balance % 1 === 0 ? balance : balance.toFixed(2);
-            toast.error(`Insufficient USDC. You have ${balanceDisplay} USDC but need ${priceDisplay} USDC`);
-          }
-        } catch (accountError: any) {
-          console.log('[X402Payment] Balance check unavailable:', accountError.message);
-          // Don't block payment if balance check fails - RPC might be rate-limited
-          setUsdcBalance(null);
-        }
-      } catch (error) {
-        console.error('[X402Payment] Failed to check USDC balance:', error);
-        setUsdcBalance(null);
-      } finally {
-        setIsCheckingBalance(false);
-      }
-    };
-
-    checkBalance();
-  }, [connected, publicKey, connection, price]);
+    if (connected && publicKey) {
+      console.log('[X402Payment] Wallet connected:', publicKey.toString());
+      setUsdcBalance(null); // Don't show balance, just allow transaction attempt
+    } else {
+      setUsdcBalance(null);
+    }
+  }, [connected, publicKey]);
 
   const validateRequiredFields = () => {
     if (product?.checkout_fields) {
@@ -189,13 +153,8 @@ export const X402PaymentModal = ({
         amount
       });
 
-      // Check if sender has sufficient balance (if balance check worked)
-      if (usdcBalance !== null && usdcBalance < price) {
-        const priceDisplay = price % 1 === 0 ? price : price.toFixed(2);
-        const balanceDisplay = usdcBalance % 1 === 0 ? usdcBalance : usdcBalance.toFixed(2);
-        toast.error(`Insufficient USDC. You need ${priceDisplay} USDC but have ${balanceDisplay} USDC`);
-        return;
-      }
+      // Transaction will naturally fail if insufficient USDC
+      // No pre-flight balance check to avoid RPC issues
 
       // Check if recipient token account exists, if not create it
       const transaction = new Transaction();
@@ -522,34 +481,18 @@ export const X402PaymentModal = ({
                 <p className="text-xs text-muted-foreground font-mono">
                   {publicKey?.toString().slice(0, 8)}...{publicKey?.toString().slice(-8)}
                 </p>
-                {isCheckingBalance ? (
-                  <p className="text-xs text-muted-foreground">Checking balance...</p>
-                ) : usdcBalance !== null ? (
-                  <p className="text-xs font-medium text-foreground">
-                    Balance: {usdcBalance.toFixed(2)} USDC
-                  </p>
-                ) : null}
               </div>
               
               <Button 
                 onClick={handlePayment} 
                 className="w-full"
-                disabled={isProcessing || isCheckingBalance || usdcBalance === null || usdcBalance < price}
+                disabled={isProcessing}
               >
                 {isProcessing ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     Processing Payment...
                   </>
-                ) : isCheckingBalance ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Checking Balance...
-                  </>
-                ) : usdcBalance === null ? (
-                  'Loading...'
-                ) : usdcBalance < price ? (
-                  `Insufficient USDC (Need ${price % 1 === 0 ? price : price.toFixed(2)})`
                 ) : (
                   `Pay ${price % 1 === 0 ? price : price.toFixed(2)} USDC`
                 )}
