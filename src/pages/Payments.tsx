@@ -566,13 +566,11 @@ export default function Payments({ store: initialStore }: PaymentsProps) {
                     </div>
                   )}
 
-                  <div className="flex items-center justify-between gap-4 pt-2 border-t">
-                    <div className="flex items-center gap-3">
-                      <Label htmlFor={`fulfillment-${order.id}`} className="text-sm text-muted-foreground cursor-pointer">
-                        Fulfillment:
-                      </Label>
+                  <div className="flex flex-col gap-3 pt-2 border-t">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-sm text-muted-foreground">Fulfillment:</span>
                       <div className="flex items-center gap-2">
-                        <span className={`text-sm ${order.status === 'pending' ? 'font-medium text-foreground' : 'text-muted-foreground'}`}>
+                        <span className={`text-xs ${order.status === 'pending' ? 'font-medium text-foreground' : 'text-muted-foreground'}`}>
                           Pending
                         </span>
                         <Switch
@@ -580,15 +578,16 @@ export default function Payments({ store: initialStore }: PaymentsProps) {
                           checked={order.status === 'completed'}
                           onCheckedChange={(checked) => handleToggleFulfillment(order, checked)}
                         />
-                        <span className={`text-sm ${order.status === 'completed' ? 'font-medium text-foreground' : 'text-muted-foreground'}`}>
+                        <span className={`text-xs ${order.status === 'completed' ? 'font-medium text-foreground' : 'text-muted-foreground'}`}>
                           Completed
                         </span>
                       </div>
                     </div>
                     <Button
                       size="sm"
-                      variant="ghost"
+                      variant="outline"
                       onClick={() => setSelectedOrder(order)}
+                      className="w-full"
                     >
                       Details
                       <ExternalLink className="h-4 w-4 ml-1" />
