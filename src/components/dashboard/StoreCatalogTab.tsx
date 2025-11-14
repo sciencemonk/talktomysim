@@ -123,40 +123,44 @@ export const StoreCatalogTab = ({ store }: StoreCatalogTabProps) => {
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex-1 min-w-0">
               <CardTitle>Product Catalog</CardTitle>
-              <CardDescription>
+              <CardDescription className="mt-1">
                 Add and manage products and services for your AI agent to sell
               </CardDescription>
             </div>
-            <div className="flex gap-2">
-              <Button variant="outline" onClick={() => setShopifyModalOpen(true)} className="gap-2">
+            <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+              <Button 
+                variant="outline" 
+                onClick={() => setShopifyModalOpen(true)} 
+                className="gap-2 w-full sm:w-auto"
+              >
                 <Store className="h-4 w-4" />
-                Connect Shopify
+                <span className="sm:inline">Connect Shopify</span>
               </Button>
-              <Button onClick={handleAdd} className="gap-2">
+              <Button onClick={handleAdd} className="gap-2 w-full sm:w-auto">
                 <Plus className="h-4 w-4" />
-                Add Product
+                <span className="sm:inline">Add Product</span>
               </Button>
             </div>
           </div>
         </CardHeader>
         <CardContent>
           {products.length === 0 ? (
-            <div className="text-center py-12">
+            <div className="text-center py-12 px-4">
               <Package className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
               <h3 className="text-lg font-semibold mb-2">No products yet</h3>
               <p className="text-sm text-muted-foreground mb-4">
                 Start by adding your first product or service
               </p>
-              <Button onClick={handleAdd} className="gap-2">
+              <Button onClick={handleAdd} className="gap-2 w-full sm:w-auto">
                 <Plus className="h-4 w-4" />
                 Add Your First Product
               </Button>
             </div>
           ) : (
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
               {products.map((product) => (
                 <Card key={product.id} className="overflow-hidden">
                   {product.image_urls && product.image_urls.length > 0 && (
@@ -173,11 +177,11 @@ export const StoreCatalogTab = ({ store }: StoreCatalogTabProps) => {
                     <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
                       {product.description}
                     </p>
-                    <div className="flex items-center justify-between">
-                      <span className="text-lg font-bold text-primary">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-lg font-bold text-primary truncate">
                         ${formatPrice(product.price)} {product.currency}
                       </span>
-                      <div className="flex gap-2">
+                      <div className="flex gap-2 flex-shrink-0">
                         <Button 
                           variant="outline" 
                           size="sm"

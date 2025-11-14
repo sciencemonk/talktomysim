@@ -156,14 +156,14 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background flex flex-col md:flex-row overflow-x-hidden">
+    <div className="min-h-screen bg-background flex flex-col md:flex-row overflow-x-hidden w-full">
       {/* Mobile Top Navigation */}
-      <div className="md:hidden sticky top-0 z-50 bg-card border-b border-border w-full">
+      <div className="md:hidden sticky top-0 z-50 bg-card border-b border-border w-full max-w-full">
         <div className="flex items-center justify-between p-3">
-          <button onClick={() => navigate('/')} className="hover:opacity-80 transition-all">
+          <button onClick={() => navigate('/')} className="hover:opacity-80 transition-all flex-shrink-0">
             <img src={storeLogo} alt="SIM" className="h-8 w-auto object-contain" />
           </button>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 flex-shrink-0">
             <ThemeToggle />
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -182,21 +182,21 @@ const Dashboard = () => {
         </div>
         
         {/* Mobile Navigation Dropdown */}
-        <div className="border-t border-border">
+        <div className="border-t border-border w-full">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button 
                 variant="ghost" 
                 className="w-full justify-between h-12 rounded-none px-4 text-base font-medium"
               >
-                <span className="flex items-center gap-2">
-                  {activeView === "home" && <><Home className="h-4 w-4" /> Home</>}
-                  {activeView === "store" && <><Store className="h-4 w-4" /> Store</>}
-                  {activeView === "catalog" && <><Package className="h-4 w-4" /> Catalog</>}
-                  {activeView === "orders" && <><ShoppingBag className="h-4 w-4" /> Orders</>}
-                  {activeView === "earnings" && <><DollarSign className="h-4 w-4" /> Earnings</>}
+                <span className="flex items-center gap-2 truncate">
+                  {activeView === "home" && <><Home className="h-4 w-4 flex-shrink-0" /> Home</>}
+                  {activeView === "store" && <><Store className="h-4 w-4 flex-shrink-0" /> Store</>}
+                  {activeView === "catalog" && <><Package className="h-4 w-4 flex-shrink-0" /> Catalog</>}
+                  {activeView === "orders" && <><ShoppingBag className="h-4 w-4 flex-shrink-0" /> Orders</>}
+                  {activeView === "earnings" && <><DollarSign className="h-4 w-4 flex-shrink-0" /> Earnings</>}
                 </span>
-                <Menu className="h-4 w-4" />
+                <Menu className="h-4 w-4 flex-shrink-0" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-[calc(100vw-2rem)] bg-popover border-border z-[100]" align="start">
@@ -429,7 +429,7 @@ const Dashboard = () => {
         {/* Page Content */}
         <main className="flex-1 px-4 sm:px-6 lg:px-8 py-4 md:py-8 w-full max-w-full overflow-x-hidden">
           {/* Content Views */}
-          <div className="space-y-6 w-full">
+          <div className="space-y-6 w-full max-w-full">
             {activeView === "home" && <HomeDashboardTab store={store} totalEarnings={totalEarnings} />}
             {activeView === "store" && <StorePreviewTab store={store} onUpdate={loadStore} />}
             {activeView === "catalog" && <StoreCatalogTab store={store} />}
