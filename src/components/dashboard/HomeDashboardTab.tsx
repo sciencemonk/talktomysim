@@ -40,7 +40,7 @@ export const HomeDashboardTab = ({ store }: HomeDashboardTabProps) => {
     }
   }, [store]);
 
-  const storeUrl = store?.x_username ? `${window.location.origin}/store/${store.x_username}` : null;
+  const storeUrl = store?.x_username ? `https://simproject.org/store/${store.x_username}` : null;
 
   useEffect(() => {
     const loadRecentActivity = async () => {
@@ -481,6 +481,12 @@ export const HomeDashboardTab = ({ store }: HomeDashboardTabProps) => {
                 <p className="text-xs text-muted-foreground">
                   Paste this code before the closing &lt;/body&gt; tag on your website. The agent will appear as a sidebar that slides in from the right (desktop) or bottom (mobile).
                 </p>
+                <div className="mt-3 p-3 bg-primary/5 border border-primary/20 rounded-lg">
+                  <p className="text-xs font-medium text-primary mb-1">📦 Required: Upload embed.js</p>
+                  <p className="text-xs text-muted-foreground">
+                    Download the <code className="px-1 py-0.5 bg-muted rounded text-[10px]">embed.js</code> file from your project's public folder and upload it to <code className="px-1 py-0.5 bg-muted rounded text-[10px]">https://simproject.org/embed.js</code> for the embed code to work.
+                  </p>
+                </div>
               </>
             ) : (
               <p className="text-sm text-muted-foreground py-4 text-center">
