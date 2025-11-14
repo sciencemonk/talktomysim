@@ -58,20 +58,25 @@ export const StoreChatSidebar = ({
   const zIndexClass = positioning === 'fixed' ? 'z-50' : '';
   
   return (
-    <div
-      className={`${positionClass} ${zIndexClass} top-0 right-0 h-full bg-background border-l border-border transition-all duration-300 flex flex-col ${
-        isOpen ? 'w-96' : 'w-0'
-      } overflow-hidden`}
-    >
-      {/* Toggle Button */}
+    <>
+      {/* Toggle Button - Always visible */}
       <Button
         onClick={onToggle}
-        className={`absolute top-4 ${isOpen ? '-left-10' : '-left-10'} z-10 shadow-lg`}
+        className={`${positionClass} ${zIndexClass} top-4 transition-all duration-300 shadow-lg ${
+          isOpen ? 'right-[400px]' : 'right-4'
+        }`}
         size="icon"
         variant="default"
       >
         {isOpen ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
       </Button>
+
+      {/* Sidebar */}
+      <div
+        className={`${positionClass} ${zIndexClass} top-0 right-0 h-full bg-background border-l border-border transition-all duration-300 flex flex-col ${
+          isOpen ? 'w-96' : 'w-0'
+        } overflow-hidden`}
+      >
         {/* Header */}
         <div className="flex items-center gap-3 p-4 border-b border-border">
           <Avatar className="h-10 w-10">
@@ -166,6 +171,7 @@ export const StoreChatSidebar = ({
             </Button>
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 };
