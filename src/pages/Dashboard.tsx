@@ -11,7 +11,7 @@ import { HomeDashboardTab } from "@/components/dashboard/HomeDashboardTab";
 import { StoreCatalogTab } from "@/components/dashboard/StoreCatalogTab";
 import { StorePreviewTab } from "@/components/dashboard/StorePreviewTab";
 import { OrdersTab } from "@/components/dashboard/OrdersTab";
-import Earnings from "./Earnings";
+import Payments from "./Payments";
 import { useEvmAddress, useSolanaAddress } from "@coinbase/cdp-hooks";
 import { cn } from "@/lib/utils";
 import storeLogo from "@/assets/store-logo.gif";
@@ -194,7 +194,7 @@ const Dashboard = () => {
                   {activeView === "store" && <><Store className="h-4 w-4 flex-shrink-0" /> Store</>}
                   {activeView === "catalog" && <><Package className="h-4 w-4 flex-shrink-0" /> Catalog</>}
                   {activeView === "orders" && <><ShoppingBag className="h-4 w-4 flex-shrink-0" /> Orders</>}
-                  {activeView === "earnings" && <><DollarSign className="h-4 w-4 flex-shrink-0" /> Earnings</>}
+                  {activeView === "payments" && <><DollarSign className="h-4 w-4 flex-shrink-0" /> Payments</>}
                 </span>
                 <Menu className="h-4 w-4 flex-shrink-0" />
               </Button>
@@ -229,11 +229,11 @@ const Dashboard = () => {
                 Orders
               </DropdownMenuItem>
               <DropdownMenuItem 
-                onClick={() => setActiveView("earnings")}
-                className={cn("cursor-pointer py-3 text-foreground", activeView === "earnings" && "bg-accent")}
+                onClick={() => setActiveView("payments")}
+                className={cn("cursor-pointer py-3 text-foreground", activeView === "payments" && "bg-accent")}
               >
                 <DollarSign className="mr-2 h-4 w-4" />
-                Earnings
+                Payments
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -363,18 +363,18 @@ const Dashboard = () => {
               className={cn(
                 "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all relative",
                 "hover:bg-accent",
-                activeView === "earnings" && "bg-accent",
+                activeView === "payments" && "bg-accent",
                 sidebarOpen ? "justify-start" : "justify-center"
               )}
-              onClick={() => setActiveView("earnings")}
+              onClick={() => setActiveView("payments")}
             >
-              {activeView === "earnings" && (
+              {activeView === "payments" && (
                 <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-primary rounded-r-full" />
               )}
-              <DollarSign className={cn("h-5 w-5 flex-shrink-0", activeView === "earnings" && "text-primary")} />
+              <DollarSign className={cn("h-5 w-5 flex-shrink-0", activeView === "payments" && "text-primary")} />
               {sidebarOpen && (
-                <span className={cn("text-sm font-medium", activeView === "earnings" && "text-primary")}>
-                  Earnings
+                <span className={cn("text-sm font-medium", activeView === "payments" && "text-primary")}>
+                  Payments
                 </span>
               )}
             </button>
@@ -434,7 +434,7 @@ const Dashboard = () => {
             {activeView === "store" && <StorePreviewTab store={store} onUpdate={loadStore} />}
             {activeView === "catalog" && <StoreCatalogTab store={store} />}
             {activeView === "orders" && <OrdersTab store={store} />}
-            {activeView === "earnings" && <Earnings />}
+            {activeView === "payments" && <Payments />}
           </div>
         </main>
       </div>
