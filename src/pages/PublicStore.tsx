@@ -26,6 +26,7 @@ type Store = {
   id: string;
   store_name: string;
   store_description?: string;
+  logo_url?: string;
   avatar_url?: string;
   crypto_wallet?: string;
   x_username: string;
@@ -123,9 +124,9 @@ export default function PublicStore() {
           {/* Store Header */}
           <div className="text-center space-y-4 pb-8 mb-8 border-b border-border">
             <div className="flex justify-center">
-              {store.avatar_url ? (
+              {store.logo_url ? (
                 <img
-                  src={store.avatar_url}
+                  src={store.logo_url}
                   alt={store.store_name}
                   className="h-24 object-contain"
                 />
