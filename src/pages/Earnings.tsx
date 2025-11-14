@@ -41,27 +41,27 @@ export default function Earnings() {
       if (storeError) throw storeError;
       setStore(storeData);
 
-      // Load payment sessions for earnings calculation
-      const { data: payments, error: paymentsError } = await supabase
-        .from('payment_sessions')
-        .select('amount, created_at, is_active')
-        .eq('metadata->>store_id', storeData.id)
-        .eq('is_active', false); // Only completed transactions
+      // Load orders for earnings calculation
+      const { data: orders, error: ordersError } = await supabase
+        .from('orders')
+        .select('amount, created_at, status')
+        .eq('store_id', storeData.id)
+        .eq('status', 'completed');
 
-      if (paymentsError) throw paymentsError;
+      if (ordersError) throw ordersError;
 
       // Calculate earnings
       const now = new Date();
       const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
       
-      const totalEarnings = payments?.reduce((sum, p) => sum + Number(p.amount), 0) || 0;
-      const monthlyEarnings = payments?.filter(p => new Date(p.created_at) >= startOfMonth)
-        .reduce((sum, p) => sum + Number(p.amount), 0) || 0;
+      const totalEarnings = orders?.reduce((sum, o) => sum + Number(o.amount), 0) || 0;
+      const monthlyEarnings = orders?.filter(o => new Date(o.created_at) >= startOfMonth)
+        .reduce((sum, o) => sum + Number(o.amount), 0) || 0;
 
       setEarnings({
         total: totalEarnings,
         thisMonth: monthlyEarnings,
-        transactions: payments?.length || 0
+        transactions: orders?.length || 0
       });
 
     } catch (error) {
