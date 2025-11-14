@@ -31,7 +31,7 @@ interface Order {
   updated_at: string | null;
   products: {
     id: string;
-    name: string;
+    title: string;
     description: string;
     price: number;
   };
@@ -61,7 +61,7 @@ export const OrdersTab = ({ store }: OrdersTabProps) => {
           *,
           products (
             id,
-            name,
+            title,
             description,
             price
           )
@@ -135,7 +135,7 @@ export const OrdersTab = ({ store }: OrdersTabProps) => {
                 <div className="flex items-start justify-between">
                   <div className="space-y-1">
                     <CardTitle className="text-lg">
-                      {order.products.name}
+                      {order.products.title}
                     </CardTitle>
                     <CardDescription>
                       Order placed {format(new Date(order.created_at), 'PPp')}
@@ -231,7 +231,7 @@ export const OrdersTab = ({ store }: OrdersTabProps) => {
             <div className="space-y-4">
               <div>
                 <h4 className="font-semibold mb-2">Product</h4>
-                <p className="text-sm">{selectedOrder.products.name}</p>
+                <p className="text-sm">{selectedOrder.products.title}</p>
                 <p className="text-xs text-muted-foreground mt-1">
                   {selectedOrder.products.description}
                 </p>
