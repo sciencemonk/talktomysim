@@ -11,6 +11,7 @@ import { AgentEditModal } from "./AgentEditModal";
 import { ProductDetailModal } from "@/components/ProductDetailModal";
 import { ChatProductCard } from "@/components/ChatProductCard";
 import { formatPrice } from "@/lib/utils";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 type Product = {
   id: string;
@@ -39,6 +40,7 @@ type ChatMessage = {
 };
 
 export const StorePreviewTab = ({ store, onUpdate }: StorePreviewTabProps) => {
+  const isMobile = useIsMobile();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [editModalOpen, setEditModalOpen] = useState(false);
@@ -387,10 +389,18 @@ export const StorePreviewTab = ({ store, onUpdate }: StorePreviewTabProps) => {
         </div>
 
         {/* Floating Chat Widget - Bottom Right */}
-        <div className="fixed bottom-6 right-6 z-[100]">
+        <div className={`fixed z-[100] ${
+          isMobile 
+            ? 'inset-0' 
+            : 'bottom-6 right-6'
+        }`}>
           {chatOpen ? (
             // Chat Window
-            <Card className="w-[380px] h-[500px] shadow-2xl flex flex-col bg-background">
+            <Card className={`shadow-2xl flex flex-col bg-background ${
+              isMobile 
+                ? 'w-full h-full rounded-none border-0' 
+                : 'w-[380px] h-[500px] rounded-lg'
+            }`}>
               <CardHeader className="border-b border-border flex-shrink-0">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
@@ -414,13 +424,16 @@ export const StorePreviewTab = ({ store, onUpdate }: StorePreviewTabProps) => {
                     variant="ghost"
                     size="icon"
                     onClick={() => setChatOpen(false)}
+                    className="z-[110]"
                   >
                     <X className="h-4 w-4" />
                   </Button>
                 </div>
               </CardHeader>
               <CardContent className="flex-1 p-0 flex flex-col overflow-hidden">
-                <ScrollArea className="flex-1 p-4 h-[calc(500px-140px)]">
+                <ScrollArea className={`flex-1 p-4 ${
+                  isMobile ? 'h-[calc(100vh-140px)]' : 'h-[calc(500px-140px)]'
+                }`}>
                   <div className="space-y-4">
                     {chatMessages.map((msg) => (
                       <div
@@ -432,7 +445,10 @@ export const StorePreviewTab = ({ store, onUpdate }: StorePreviewTabProps) => {
                           (() => {
                             const product = products.find(p => p.id === msg.productId);
                             return product ? (
-                              <div className="max-w-[90%]">
+                              <div 
+                                className="max-w-[90%]"
+                                onClick={(e) => e.stopPropagation()}
+                              >
                                 <ChatProductCard
                                   product={product}
                                   onViewProduct={(productId) => {
@@ -500,22 +516,24 @@ export const StorePreviewTab = ({ store, onUpdate }: StorePreviewTabProps) => {
               </CardContent>
             </Card>
           ) : (
-            // Chat Avatar Button
-            <Button
-              size="icon"
-              className="h-14 w-14 rounded-full shadow-2xl"
-              onClick={() => setChatOpen(true)}
-            >
-              {store?.avatar_url ? (
-                <img
-                  src={store.avatar_url}
-                  alt="Chat"
-                  className="h-full w-full rounded-full object-cover"
-                />
-              ) : (
-                <Bot className="h-6 w-6" />
-              )}
-            </Button>
+            !isMobile && (
+              // Chat Avatar Button - Only show on desktop
+              <Button
+                size="icon"
+                className="h-14 w-14 rounded-full shadow-2xl"
+                onClick={() => setChatOpen(true)}
+              >
+                {store?.avatar_url ? (
+                  <img
+                    src={store.avatar_url}
+                    alt="Chat"
+                    className="h-full w-full rounded-full object-cover"
+                  />
+                ) : (
+                  <Bot className="h-6 w-6" />
+                )}
+              </Button>
+            )
           )}
         </div>
       </div>
@@ -537,16 +555,18 @@ export const StorePreviewTab = ({ store, onUpdate }: StorePreviewTabProps) => {
       />
 
       {/* Product Detail Modal */}
-      <ProductDetailModal
-        product={selectedProduct}
-        isOpen={productModalOpen}
-        onClose={() => {
-          setProductModalOpen(false);
-          setSelectedProduct(null);
-        }}
-        storeWalletAddress={store?.crypto_wallet || ''}
-        storeName={store?.store_name || 'Store'}
-      />
+      {productModalOpen && (
+        <ProductDetailModal
+          product={selectedProduct}
+          isOpen={productModalOpen}
+          onClose={() => {
+            setProductModalOpen(false);
+            setSelectedProduct(null);
+          }}
+          storeWalletAddress={store?.crypto_wallet || ''}
+          storeName={store?.store_name || 'Store'}
+        />
+      )}
     </div>
   );
 };
