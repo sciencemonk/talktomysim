@@ -3,7 +3,7 @@ import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { ScrollArea } from './ui/scroll-area';
 import { Avatar, AvatarImage, AvatarFallback } from './ui/avatar';
-import { Send, ChevronRight, ChevronLeft, Loader2, Bot } from 'lucide-react';
+import { Send, ChevronRight, ChevronLeft, Loader2, Bot, X } from 'lucide-react';
 import { Card, CardContent } from './ui/card';
 import { formatPrice } from '@/lib/utils';
 
@@ -104,6 +104,14 @@ export const StoreChatSidebar = ({
             <h3 className="font-semibold text-sm truncate">{store.store_name}</h3>
             <p className="text-xs text-muted-foreground">AI Shopping Assistant</p>
           </div>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={onToggle}
+            className="h-8 w-8 shrink-0"
+          >
+            <X className="h-4 w-4" />
+          </Button>
         </div>
 
         {/* Messages */}
