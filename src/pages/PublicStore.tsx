@@ -7,7 +7,7 @@ const SUPABASE_URL = "https://uovhemqkztmkoozlmqxq.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVvdmhlbXFrenRta29vemxtcXhxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU3Mzc1NjQsImV4cCI6MjA3MTMxMzU2NH0.-7KqE9AROkWAskEnWESnLf9BEFiNGIE1b9s0uB8rdK4";
 import { Button } from "@/components/ui/button";
 import { StoreChatSidebar } from "@/components/StoreChatSidebar";
-import { Package, ExternalLink } from "lucide-react";
+import { Package, ExternalLink, Store } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { toast } from "sonner";
 import { formatPrice } from "@/lib/utils";
@@ -296,25 +296,46 @@ export default function PublicStore() {
     <div className="min-h-screen bg-gradient-to-b from-background via-background to-muted/20 flex flex-col lg:flex-row">
       {/* Main Content */}
       <div className={`flex-1 transition-all duration-300 ${chatOpen ? 'lg:mr-96' : 'mr-0'}`}>
-        <div className="fixed top-4 left-4 z-50">
-          <ThemeToggle />
+        {/* Compact Header */}
+        <div className="border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-40">
+          <div className="max-w-7xl mx-auto px-4 md:px-6 py-3">
+            <div className="flex items-center justify-between gap-4">
+              {/* Store Info - Left Side */}
+              <div className="flex items-center gap-3 min-w-0 flex-1">
+                {store.logo_url ? (
+                  <img 
+                    src={store.logo_url} 
+                    alt={store.store_name}
+                    className="w-12 h-12 rounded-lg shadow-sm border border-border/40 flex-shrink-0"
+                  />
+                ) : (
+                  <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center border border-border/40 flex-shrink-0">
+                    <Store className="w-6 h-6 text-primary" />
+                  </div>
+                )}
+                
+                <div className="min-w-0 flex-1">
+                  <h1 className="text-lg md:text-xl font-bold text-foreground truncate">
+                    {store.store_name}
+                  </h1>
+                  {store.store_description && (
+                    <p className="text-xs md:text-sm text-muted-foreground line-clamp-1">
+                      {store.store_description}
+                    </p>
+                  )}
+                </div>
+              </div>
+              
+              {/* Theme Toggle - Right Side */}
+              <div className="flex-shrink-0">
+                <ThemeToggle />
+              </div>
+            </div>
+          </div>
         </div>
 
-        <div className="container mx-auto px-4 md:px-6 py-8 pt-16">
+        <div className="container mx-auto px-4 md:px-6 py-8">
           <div className="max-w-6xl mx-auto">
-            <div className="text-center space-y-4 pb-8 mb-8 border-b border-border">
-              <div className="flex justify-center">
-                {store.logo_url ? (
-                  <img src={store.logo_url} alt={store.store_name} className="h-24 object-contain" />
-                ) : (
-                  <h1 className="text-4xl font-bold">{store.store_name}</h1>
-                )}
-              </div>
-              {store.store_description && (
-                <p className="text-lg text-muted-foreground max-w-2xl mx-auto">{store.store_description}</p>
-              )}
-            </div>
-
             {products.length > 0 && (
               <div>
                 <h2 className="text-2xl font-bold mb-6">Products</h2>
