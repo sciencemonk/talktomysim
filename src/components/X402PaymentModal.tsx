@@ -78,22 +78,48 @@ export const X402PaymentModal = ({
 
       setIsCheckingBalance(true);
       try {
+        console.log('[X402Payment] Checking USDC balance for wallet:', publicKey.toString());
+        
         const senderTokenAccount = await getAssociatedTokenAddress(
           USDC_MINT,
           publicKey
         );
-
-        const accountInfo = await getAccount(connection, senderTokenAccount);
-        const balance = Number(accountInfo.amount) / 1_000_000;
-        setUsdcBalance(balance);
         
-        if (balance < price) {
-          toast.error(`Insufficient USDC. You have ${balance.toFixed(2)} USDC but need ${price.toFixed(2)} USDC`);
+        console.log('[X402Payment] Token account address:', senderTokenAccount.toString());
+
+        try {
+          const accountInfo = await getAccount(connection, senderTokenAccount);
+          const balance = Number(accountInfo.amount) / 1_000_000;
+          console.log('[X402Payment] USDC balance found:', balance);
+          setUsdcBalance(balance);
+          
+          if (balance < price) {
+            toast.error(`Insufficient USDC. You have ${balance.toFixed(2)} USDC but need ${price.toFixed(2)} USDC`);
+          }
+        } catch (accountError: any) {
+          // Account might not exist - try alternative method
+          console.log('[X402Payment] Token account error:', accountError);
+          
+          // Try using RPC call directly as fallback
+          try {
+            const response = await connection.getTokenAccountBalance(senderTokenAccount);
+            const balance = response.value.uiAmount || 0;
+            console.log('[X402Payment] Balance from RPC:', balance);
+            setUsdcBalance(balance);
+            
+            if (balance < price) {
+              toast.error(`Insufficient USDC. You have ${balance.toFixed(2)} USDC but need ${price.toFixed(2)} USDC`);
+            }
+          } catch (rpcError) {
+            console.error('[X402Payment] RPC balance check also failed:', rpcError);
+            setUsdcBalance(0);
+            toast.error('Unable to verify USDC balance. Please ensure you have USDC in your wallet.');
+          }
         }
       } catch (error) {
-        console.error('Failed to check USDC balance:', error);
+        console.error('[X402Payment] Failed to check USDC balance:', error);
         setUsdcBalance(0);
-        toast.error('No USDC detected in your wallet. Please add USDC to continue.');
+        toast.error('Unable to connect to check balance. Please try again.');
       } finally {
         setIsCheckingBalance(false);
       }

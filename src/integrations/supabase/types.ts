@@ -1003,6 +1003,72 @@ export type Database = {
           },
         ]
       }
+      orders: {
+        Row: {
+          amount: number
+          buyer_address: Json | null
+          buyer_email: string | null
+          buyer_name: string | null
+          buyer_phone: string | null
+          created_at: string | null
+          currency: string
+          custom_field_data: Json | null
+          id: string
+          payment_signature: string | null
+          product_id: string
+          status: string
+          store_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          amount: number
+          buyer_address?: Json | null
+          buyer_email?: string | null
+          buyer_name?: string | null
+          buyer_phone?: string | null
+          created_at?: string | null
+          currency?: string
+          custom_field_data?: Json | null
+          id?: string
+          payment_signature?: string | null
+          product_id: string
+          status?: string
+          store_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          amount?: number
+          buyer_address?: Json | null
+          buyer_email?: string | null
+          buyer_name?: string | null
+          buyer_phone?: string | null
+          created_at?: string | null
+          currency?: string
+          custom_field_data?: Json | null
+          id?: string
+          payment_signature?: string | null
+          product_id?: string
+          status?: string
+          store_id?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "orders_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "orders_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       payment_sessions: {
         Row: {
           agent_id: string | null
@@ -1058,12 +1124,13 @@ export type Database = {
       }
       products: {
         Row: {
+          checkout_fields: Json | null
           created_at: string
           currency: string
           delivery_info: string | null
           description: string
           id: string
-          image_url: string | null
+          image_urls: Json | null
           is_active: boolean
           price: number
           store_id: string
@@ -1071,12 +1138,13 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          checkout_fields?: Json | null
           created_at?: string
           currency?: string
           delivery_info?: string | null
           description: string
           id?: string
-          image_url?: string | null
+          image_urls?: Json | null
           is_active?: boolean
           price: number
           store_id: string
@@ -1084,12 +1152,13 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          checkout_fields?: Json | null
           created_at?: string
           currency?: string
           delivery_info?: string | null
           description?: string
           id?: string
-          image_url?: string | null
+          image_urls?: Json | null
           is_active?: boolean
           price?: number
           store_id?: string
@@ -1456,8 +1525,11 @@ export type Database = {
           id: string
           interaction_style: string | null
           is_active: boolean
+          logo_url: string | null
           primary_focus: string | null
           response_tone: string | null
+          shopify_access_token: string | null
+          shopify_store_url: string | null
           store_description: string | null
           store_name: string
           updated_at: string
@@ -1474,8 +1546,11 @@ export type Database = {
           id?: string
           interaction_style?: string | null
           is_active?: boolean
+          logo_url?: string | null
           primary_focus?: string | null
           response_tone?: string | null
+          shopify_access_token?: string | null
+          shopify_store_url?: string | null
           store_description?: string | null
           store_name: string
           updated_at?: string
@@ -1492,8 +1567,11 @@ export type Database = {
           id?: string
           interaction_style?: string | null
           is_active?: boolean
+          logo_url?: string | null
           primary_focus?: string | null
           response_tone?: string | null
+          shopify_access_token?: string | null
+          shopify_store_url?: string | null
           store_description?: string | null
           store_name?: string
           updated_at?: string
@@ -2184,6 +2262,10 @@ export type Database = {
           p_social_links?: Json
           p_welcome_message: string
         }
+        Returns: boolean
+      }
+      user_owns_store: {
+        Args: { p_store_id: string; p_user_id: string }
         Returns: boolean
       }
       validate_payment_session: {
