@@ -55,7 +55,7 @@ export const ProductDetailModal = ({
 
   const handlePurchase = () => {
     if (!storeWalletAddress) {
-      toast.error("Store wallet not configured");
+      toast.error("The store owner has not added a SOL wallet to their account. Purchases are currently unavailable.");
       return;
     }
     setShowPaymentModal(true);
@@ -162,17 +162,27 @@ export const ProductDetailModal = ({
               {/* Purchase Button */}
               <Button
                 onClick={handlePurchase}
-                disabled={!product.is_active}
+                disabled={!product.is_active || !storeWalletAddress}
                 className="w-full h-12 text-lg"
                 size="lg"
               >
-                {product.is_active ? "Purchase with x402" : "Currently Unavailable"}
+                {!storeWalletAddress 
+                  ? "Store Wallet Not Configured" 
+                  : product.is_active 
+                    ? "Purchase with x402" 
+                    : "Currently Unavailable"}
               </Button>
 
               {/* Payment Info */}
               <div className="text-xs text-muted-foreground text-center space-y-1">
-                <p>Secure payment via x402 protocol on Solana</p>
-                <p>Payment will be sent to: {storeName}</p>
+                {!storeWalletAddress ? (
+                  <p className="text-destructive">The store owner has not added a SOL wallet to their account.</p>
+                ) : (
+                  <>
+                    <p>Secure payment via x402 protocol on Solana</p>
+                    <p>Payment will be sent to: {storeName}</p>
+                  </>
+                )}
               </div>
             </div>
           </div>

@@ -123,6 +123,13 @@ export const X402PaymentModal = ({
       return;
     }
 
+    // Validate store has configured their wallet
+    if (!walletAddress || walletAddress.trim() === '') {
+      toast.error('The store owner has not added a SOL wallet to their account. Purchases are currently unavailable.');
+      onClose();
+      return;
+    }
+
     if (!validateRequiredFields()) {
       return;
     }
