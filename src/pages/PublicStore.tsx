@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ProductDetailModal } from "@/components/ProductDetailModal";
+import { ChatProductCard } from "@/components/ChatProductCard";
 import { Package, ExternalLink, MessageSquare, X, Send, Bot } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { toast } from "sonner";
@@ -41,6 +42,7 @@ type ChatMessage = {
   role: 'user' | 'agent';
   content: string;
   timestamp: Date;
+  productId?: string;
 };
 
 export default function PublicStore() {
@@ -151,40 +153,127 @@ export default function PublicStore() {
             'Authorization': `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVvdmhlbXFrenRta29vemxtcXhxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU3Mzc1NjQsImV4cCI6MjA3MTMxMzU2NH0.-7KqE9AROkWAskEnWESnLf9BEFiNGIE1b9s0uB8rdK4`
           },
           body: JSON.stringify({
-            storeId: store.id,
             messages: messagesToSend,
-            products: products.map(p => ({
-              id: p.id,
-              title: p.title,
-              description: p.description,
-              price: p.price,
-              currency: p.currency
-            }))
+            storeId: store.id
           })
         }
       );
 
       if (!response.ok) {
-        const errorText = await response.text();
-        console.error('API Error:', response.status, errorText);
-        throw new Error('Failed to send message');
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || 'Failed to get response');
       }
 
-      const data = await response.json();
-      
-      const agentMessage: ChatMessage = {
-        id: (Date.now() + 1).toString(),
-        role: 'agent',
-        content: data.response,
-        timestamp: new Date()
-      };
+      if (!response.body) {
+        throw new Error('No response body');
+      }
 
-      setChatMessages(prev => [...prev, agentMessage]);
+      // Create placeholder for streaming message
+      const agentMessageId = (Date.now() + 1).toString();
+      setChatMessages(prev => [...prev, {
+        id: agentMessageId,
+        role: 'agent',
+        content: '',
+        timestamp: new Date()
+      }]);
+
+      // Stream the response
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = '';
+      let fullContent = '';
+      let toolCalls: any[] = [];
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop() || '';
+
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            const data = line.slice(6);
+            if (data === '[DONE]') continue;
+
+            try {
+              const parsed = JSON.parse(data);
+              const content = parsed.choices?.[0]?.delta?.content;
+              const delta_tool_calls = parsed.choices?.[0]?.delta?.tool_calls;
+              
+              if (content) {
+                fullContent += content;
+                setChatMessages(prev => prev.map(msg => 
+                  msg.id === agentMessageId 
+                    ? { ...msg, content: fullContent }
+                    : msg
+                ));
+              }
+
+              // Handle tool calls - display product cards
+              if (delta_tool_calls) {
+                for (const toolCall of delta_tool_calls) {
+                  const index = toolCall.index;
+                  if (!toolCalls[index]) {
+                    toolCalls[index] = {
+                      id: toolCall.id,
+                      type: toolCall.type,
+                      function: {
+                        name: toolCall.function?.name || '',
+                        arguments: toolCall.function?.arguments || ''
+                      }
+                    };
+                  } else {
+                    if (toolCall.function?.arguments) {
+                      toolCalls[index].function.arguments += toolCall.function.arguments;
+                    }
+                  }
+                }
+              }
+
+              // Check for completed tool calls
+              const finishReason = parsed.choices?.[0]?.finish_reason;
+              if (finishReason === 'tool_calls' && toolCalls.length > 0) {
+                for (const toolCall of toolCalls) {
+                  if (toolCall.function.name === 'show_product' && toolCall.function.arguments) {
+                    try {
+                      const args = JSON.parse(toolCall.function.arguments);
+                      const productId = args.product_id;
+                      
+                      // Add product card message
+                      setChatMessages(prev => [...prev, {
+                        id: `product-${Date.now()}-${Math.random()}`,
+                        role: 'agent',
+                        content: '',
+                        productId: productId,
+                        timestamp: new Date()
+                      }]);
+                    } catch (e) {
+                      console.error('Error processing tool call:', e);
+                    }
+                  }
+                }
+                toolCalls = [];
+              }
+            } catch (e) {
+              // Skip invalid JSON
+            }
+          }
+        }
+      }
+
+      setIsSending(false);
     } catch (error) {
       console.error('Error sending message:', error);
       toast.error('Failed to send message');
-    } finally {
       setIsSending(false);
+      setChatMessages(prev => [...prev, {
+        id: (Date.now() + 1).toString(),
+        role: 'agent',
+        content: 'Sorry, I encountered an error. Please try again.',
+        timestamp: new Date()
+      }]);
     }
   };
 
@@ -364,15 +453,36 @@ export default function PublicStore() {
                   key={msg.id}
                   className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
                 >
-                  <div
-                    className={`max-w-[80%] rounded-lg p-3 ${
-                      msg.role === 'user'
-                        ? 'bg-primary text-primary-foreground'
-                        : 'bg-muted'
-                    }`}
-                  >
-                    <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
-                  </div>
+                  {msg.productId ? (
+                    // Product card message
+                    (() => {
+                      const product = products.find(p => p.id === msg.productId);
+                      return product ? (
+                        <div className="max-w-[90%]">
+                          <ChatProductCard
+                            product={product}
+                            onViewProduct={(productId) => {
+                              const product = products.find(p => p.id === productId);
+                              if (product) {
+                                setSelectedProduct(product);
+                                setProductModalOpen(true);
+                              }
+                            }}
+                          />
+                        </div>
+                      ) : null;
+                    })()
+                  ) : (
+                    <div
+                      className={`max-w-[80%] rounded-lg p-3 ${
+                        msg.role === 'user'
+                          ? 'bg-primary text-primary-foreground'
+                          : 'bg-muted'
+                      }`}
+                    >
+                      <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
+                    </div>
+                  )}
                 </div>
               ))}
               {isSending && (
