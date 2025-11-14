@@ -162,24 +162,28 @@ export const HomeDashboardTab = ({ store }: HomeDashboardTabProps) => {
                     </Button>
                   </div>
                 ) : (
-                  <div className="flex items-center gap-2">
-                    <div className="flex-1 px-3 py-2 bg-muted rounded-lg font-mono text-sm truncate">
+                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                    <div className="flex-1 px-3 py-2 bg-muted rounded-lg font-mono text-xs sm:text-sm break-all overflow-hidden">
                       {storeUrl}
                     </div>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => setIsEditingRoute(true)}
-                    >
-                      <Edit2 className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={handleCopyUrl}
-                    >
-                      <Copy className="h-4 w-4" />
-                    </Button>
+                    <div className="flex gap-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => setIsEditingRoute(true)}
+                        className="flex-1 sm:flex-none"
+                      >
+                        <Edit2 className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={handleCopyUrl}
+                        className="flex-1 sm:flex-none"
+                      >
+                        <Copy className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </div>
                 )}
                 <Button
@@ -236,9 +240,9 @@ export const HomeDashboardTab = ({ store }: HomeDashboardTabProps) => {
           <CardContent className="space-y-3">
             {storeUrl ? (
               <>
-                <div className="relative">
-                  <pre className="px-2 py-1.5 md:px-3 md:py-2 bg-muted rounded-lg text-xs overflow-x-auto max-h-24 md:max-h-32">
-                    <code>{`<script src="https://simproject.org/embed.js"></script>
+                <div className="relative group">
+                  <pre className="px-2 py-1.5 md:px-3 md:py-2 bg-muted rounded-lg text-[10px] sm:text-xs overflow-x-auto max-h-32 sm:max-h-40">
+                    <code className="whitespace-pre">{`<script src="https://simproject.org/embed.js"></script>
 <script>
   AgentEmbed.init({
     agentUrl: "${storeUrl}",
@@ -249,14 +253,14 @@ export const HomeDashboardTab = ({ store }: HomeDashboardTabProps) => {
                   <Button
                     size="sm"
                     variant="outline"
-                    className="absolute top-2 right-2"
+                    className="absolute top-1 right-1 h-7 w-7 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
                     onClick={() => {
                       const embedCode = `<script src="https://simproject.org/embed.js"></script>\n<script>\n  AgentEmbed.init({\n    agentUrl: "${storeUrl}",\n    position: "bottom-right"\n  });\n</script>`;
                       navigator.clipboard.writeText(embedCode);
                       toast.success('Embed code copied to clipboard');
                     }}
                   >
-                    <Copy className="h-4 w-4" />
+                    <Copy className="h-3 w-3" />
                   </Button>
                 </div>
                 <p className="text-xs text-muted-foreground">
