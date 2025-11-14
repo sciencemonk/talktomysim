@@ -156,9 +156,9 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background flex flex-col md:flex-row">
+    <div className="min-h-screen bg-background flex flex-col md:flex-row overflow-x-hidden">
       {/* Mobile Top Navigation */}
-      <div className="md:hidden sticky top-0 z-50 bg-card border-b border-border">
+      <div className="md:hidden sticky top-0 z-50 bg-card border-b border-border w-full">
         <div className="flex items-center justify-between p-3">
           <button onClick={() => navigate('/')} className="hover:opacity-80 transition-all">
             <img src={storeLogo} alt="SIM" className="h-8 w-auto object-contain" />
@@ -171,7 +171,7 @@ const Dashboard = () => {
                   <User className="h-5 w-5" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48">
+              <DropdownMenuContent align="end" className="w-48 bg-popover border-border z-[100]">
                 <DropdownMenuItem onClick={handleSignOut} className="text-destructive focus:text-destructive cursor-pointer">
                   <LogOut className="mr-2 h-4 w-4" />
                   Sign Out
@@ -181,58 +181,62 @@ const Dashboard = () => {
           </div>
         </div>
         
-        {/* Mobile Tab Navigation */}
-        <div className="flex overflow-x-auto hide-scrollbar border-t border-border">
-          <button
-            className={cn(
-              "flex-1 flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap min-w-fit",
-              activeView === "home" ? "border-primary text-primary" : "border-transparent text-muted-foreground"
-            )}
-            onClick={() => setActiveView("home")}
-          >
-            <Home className="h-4 w-4" />
-            Home
-          </button>
-          <button
-            className={cn(
-              "flex-1 flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap min-w-fit",
-              activeView === "store" ? "border-primary text-primary" : "border-transparent text-muted-foreground"
-            )}
-            onClick={() => setActiveView("store")}
-          >
-            <Store className="h-4 w-4" />
-            Store
-          </button>
-          <button
-            className={cn(
-              "flex-1 flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap min-w-fit",
-              activeView === "catalog" ? "border-primary text-primary" : "border-transparent text-muted-foreground"
-            )}
-            onClick={() => setActiveView("catalog")}
-          >
-            <Package className="h-4 w-4" />
-            Catalog
-          </button>
-          <button
-            className={cn(
-              "flex-1 flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap min-w-fit",
-              activeView === "orders" ? "border-primary text-primary" : "border-transparent text-muted-foreground"
-            )}
-            onClick={() => setActiveView("orders")}
-          >
-            <ShoppingBag className="h-4 w-4" />
-            Orders
-          </button>
-          <button
-            className={cn(
-              "flex-1 flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap min-w-fit",
-              activeView === "earnings" ? "border-primary text-primary" : "border-transparent text-muted-foreground"
-            )}
-            onClick={() => setActiveView("earnings")}
-          >
-            <DollarSign className="h-4 w-4" />
-            Earnings
-          </button>
+        {/* Mobile Navigation Dropdown */}
+        <div className="border-t border-border">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button 
+                variant="ghost" 
+                className="w-full justify-between h-12 rounded-none px-4 text-base font-medium"
+              >
+                <span className="flex items-center gap-2">
+                  {activeView === "home" && <><Home className="h-4 w-4" /> Home</>}
+                  {activeView === "store" && <><Store className="h-4 w-4" /> Store</>}
+                  {activeView === "catalog" && <><Package className="h-4 w-4" /> Catalog</>}
+                  {activeView === "orders" && <><ShoppingBag className="h-4 w-4" /> Orders</>}
+                  {activeView === "earnings" && <><DollarSign className="h-4 w-4" /> Earnings</>}
+                </span>
+                <Menu className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-[calc(100vw-2rem)] bg-popover border-border z-[100]" align="start">
+              <DropdownMenuItem 
+                onClick={() => setActiveView("home")}
+                className={cn("cursor-pointer py-3", activeView === "home" && "bg-accent")}
+              >
+                <Home className="mr-2 h-4 w-4" />
+                Home
+              </DropdownMenuItem>
+              <DropdownMenuItem 
+                onClick={() => setActiveView("store")}
+                className={cn("cursor-pointer py-3", activeView === "store" && "bg-accent")}
+              >
+                <Store className="mr-2 h-4 w-4" />
+                Store
+              </DropdownMenuItem>
+              <DropdownMenuItem 
+                onClick={() => setActiveView("catalog")}
+                className={cn("cursor-pointer py-3", activeView === "catalog" && "bg-accent")}
+              >
+                <Package className="mr-2 h-4 w-4" />
+                Catalog
+              </DropdownMenuItem>
+              <DropdownMenuItem 
+                onClick={() => setActiveView("orders")}
+                className={cn("cursor-pointer py-3", activeView === "orders" && "bg-accent")}
+              >
+                <ShoppingBag className="mr-2 h-4 w-4" />
+                Orders
+              </DropdownMenuItem>
+              <DropdownMenuItem 
+                onClick={() => setActiveView("earnings")}
+                className={cn("cursor-pointer py-3", activeView === "earnings" && "bg-accent")}
+              >
+                <DollarSign className="mr-2 h-4 w-4" />
+                Earnings
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
 
@@ -408,7 +412,7 @@ const Dashboard = () => {
 
       {/* Main Content */}
       <div className={cn(
-        "flex-1 flex flex-col min-h-screen transition-all duration-300",
+        "flex-1 flex flex-col min-h-screen transition-all duration-300 w-full",
         "md:ml-64 md:sidebarOpen:ml-64 md:sidebarClosed:ml-16",
         sidebarOpen ? "md:ml-64" : "md:ml-16"
       )}>
@@ -423,9 +427,9 @@ const Dashboard = () => {
         </nav>
 
         {/* Page Content */}
-        <main className="flex-1 px-4 sm:px-6 lg:px-8 py-4 md:py-8">
+        <main className="flex-1 px-4 sm:px-6 lg:px-8 py-4 md:py-8 w-full max-w-full overflow-x-hidden">
           {/* Content Views */}
-          <div className="space-y-6">
+          <div className="space-y-6 w-full">
             {activeView === "home" && <HomeDashboardTab store={store} totalEarnings={totalEarnings} />}
             {activeView === "store" && <StorePreviewTab store={store} onUpdate={loadStore} />}
             {activeView === "catalog" && <StoreCatalogTab store={store} />}
