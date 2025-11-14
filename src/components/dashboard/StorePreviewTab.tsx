@@ -114,12 +114,19 @@ export const StorePreviewTab = ({ store, onUpdate }: StorePreviewTabProps) => {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+      <div>
+        <h2 className="text-3xl font-bold tracking-tight">Agent Settings</h2>
+        <p className="text-muted-foreground">
+          Configure your AI agent's behavior and personality
+        </p>
+      </div>
+
+      {/* Agent Configuration */}
       <Card>
         <CardHeader>
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
-              <CardTitle>Agent Settings</CardTitle>
+              <CardTitle>Agent Behavior</CardTitle>
               <p className="text-sm text-muted-foreground mt-1">
                 Configure how your AI agent interacts with customers
               </p>

@@ -120,9 +120,17 @@ export const AgentSettingsTab = ({ store, onUpdate }: AgentSettingsTabProps) => 
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>AI Agent Configuration</CardTitle>
+    <div className="space-y-6">
+      <div>
+        <h2 className="text-3xl font-bold tracking-tight">Agent Settings</h2>
+        <p className="text-muted-foreground">
+          Configure your AI agent's behavior and personality
+        </p>
+      </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Agent Configuration</CardTitle>
         <CardDescription>
           Configure how your AI agent interacts with customers
         </CardDescription>
@@ -244,5 +252,6 @@ export const AgentSettingsTab = ({ store, onUpdate }: AgentSettingsTabProps) => 
         </form>
       </CardContent>
     </Card>
+    </div>
   );
 };
