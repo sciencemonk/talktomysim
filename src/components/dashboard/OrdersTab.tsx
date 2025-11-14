@@ -3,7 +3,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { Package, CheckCircle, Clock, ExternalLink } from "lucide-react";
 import { format } from "date-fns";
@@ -79,8 +80,9 @@ export const OrdersTab = ({ store }: OrdersTabProps) => {
     }
   };
 
-  const handleUpdateStatus = async (order: Order, newStatus: string) => {
+  const handleToggleFulfillment = async (order: Order, isCompleted: boolean) => {
     try {
+      const newStatus = isCompleted ? 'completed' : 'pending';
       const { error } = await (supabase as any)
         .from('orders')
         .update({
@@ -182,34 +184,32 @@ export const OrdersTab = ({ store }: OrdersTabProps) => {
                       </span>
                     </div>
                   )}
-                  <div className="flex gap-2 pt-2">
-                    {order.status !== "completed" && (
-                      <Button
-                        size="sm"
-                        variant="default"
-                        onClick={() => handleUpdateStatus(order, "completed")}
-                        className="flex-1"
-                      >
-                        Mark as Completed
-                      </Button>
-                    )}
-                    {order.status === "completed" && (
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => handleUpdateStatus(order, "pending")}
-                        className="flex-1"
-                      >
-                        Mark as Pending
-                      </Button>
-                    )}
+                  <div className="flex items-center justify-between gap-4 pt-2 border-t">
+                    <div className="flex items-center gap-3">
+                      <Label htmlFor={`fulfillment-${order.id}`} className="text-sm text-muted-foreground cursor-pointer">
+                        Fulfillment:
+                      </Label>
+                      <div className="flex items-center gap-2">
+                        <span className={`text-sm ${order.status === 'pending' ? 'font-medium text-foreground' : 'text-muted-foreground'}`}>
+                          Pending
+                        </span>
+                        <Switch
+                          id={`fulfillment-${order.id}`}
+                          checked={order.status === 'completed'}
+                          onCheckedChange={(checked) => handleToggleFulfillment(order, checked)}
+                        />
+                        <span className={`text-sm ${order.status === 'completed' ? 'font-medium text-foreground' : 'text-muted-foreground'}`}>
+                          Completed
+                        </span>
+                      </div>
+                    </div>
                     <Button
                       size="sm"
-                      variant="outline"
+                      variant="ghost"
                       onClick={() => openOrderDetails(order)}
                     >
-                      <ExternalLink className="h-4 w-4 mr-1" />
                       Details
+                      <ExternalLink className="h-4 w-4 ml-1" />
                     </Button>
                   </div>
                 </div>
