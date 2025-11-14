@@ -25,6 +25,7 @@ interface Order {
   buyer_name: string | null;
   buyer_phone: string | null;
   buyer_address: any;
+  custom_field_data: any;
   payment_signature: string | null;
   status: string;
   updated_at: string | null;
@@ -252,7 +253,7 @@ export const OrdersTab = ({ store }: OrdersTabProps) => {
                   </div>
                 </div>
               </div>
-              {(selectedOrder.buyer_name || selectedOrder.buyer_email || selectedOrder.buyer_phone) && (
+              {(selectedOrder.buyer_name || selectedOrder.buyer_email || selectedOrder.buyer_phone || selectedOrder.custom_field_data?.sex || selectedOrder.custom_field_data?.size) && (
                 <div>
                   <h4 className="font-semibold mb-2">Customer Information</h4>
                   <div className="space-y-1 text-sm">
@@ -272,6 +273,18 @@ export const OrdersTab = ({ store }: OrdersTabProps) => {
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">Phone:</span>
                         <span>{selectedOrder.buyer_phone}</span>
+                      </div>
+                    )}
+                    {selectedOrder.custom_field_data?.sex && (
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Sex:</span>
+                        <span className="capitalize">{selectedOrder.custom_field_data.sex}</span>
+                      </div>
+                    )}
+                    {selectedOrder.custom_field_data?.size && (
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Size:</span>
+                        <span className="uppercase">{selectedOrder.custom_field_data.size}</span>
                       </div>
                     )}
                   </div>
