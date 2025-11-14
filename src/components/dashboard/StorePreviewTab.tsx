@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
-import { MessageSquare, ExternalLink, Package, Edit, Bot } from "lucide-react";
+import { MessageSquare, ExternalLink, Package, Edit, Bot, Store } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { StoreEditModal } from "./StoreEditModal";
@@ -312,38 +312,53 @@ export const StorePreviewTab = ({ store, onUpdate }: StorePreviewTabProps) => {
       {/* Store Preview Content - Updated Layout */}
       <div className="relative border-2 border-dashed border-border rounded-lg bg-muted/20 min-h-[600px] flex overflow-hidden">
         {/* Main Content */}
-        <div className={`flex-1 transition-all duration-300 ${chatOpen ? 'mr-96' : 'mr-0'} p-8 overflow-auto`}>
-          <div className="max-w-6xl mx-auto">
-          {/* Store Info */}
-          <div className="text-center space-y-4 pb-8 mb-8 border-b border-border">
-            {/* Show Logo or Store Name */}
-            <div className="flex justify-center">
-              {store?.logo_url ? (
-                <img
-                  src={store.logo_url}
-                  alt={store.store_name}
-                  className="h-24 object-contain"
-                />
-              ) : (
-                <h1 className="text-4xl font-bold">{store?.store_name || 'Store Name'}</h1>
-              )}
+        <div className={`flex-1 transition-all duration-300 ${chatOpen ? 'mr-96' : 'mr-0'} overflow-auto`}>
+          {/* Compact Header */}
+          <div className="border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-40">
+            <div className="max-w-7xl mx-auto px-4 md:px-6 py-3">
+              <div className="flex items-center gap-4">
+                {/* Store Info */}
+                <div className="flex flex-col gap-2 min-w-0 flex-1">
+                  <div className="flex-shrink-0">
+                    {store?.logo_url ? (
+                      <img 
+                        src={store.logo_url} 
+                        alt={store.store_name}
+                        className="w-12 h-12 object-contain"
+                      />
+                    ) : (
+                      <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center border border-border/40">
+                        <Store className="w-6 h-6 text-primary" />
+                      </div>
+                    )}
+                  </div>
+                  
+                  <div className="min-w-0">
+                    {!store?.logo_url && (
+                      <h1 className="text-lg md:text-xl font-bold text-foreground truncate mb-1">
+                        {store?.store_name || 'Store Name'}
+                      </h1>
+                    )}
+                    {store?.store_description && (
+                      <p className="text-xs md:text-sm text-muted-foreground line-clamp-2">
+                        {store.store_description}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </div>
             </div>
-            {store?.store_description && (
-              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-                {store.store_description}
-              </p>
-            )}
           </div>
 
-          {/* Products Grid */}
-          {products.length > 0 && (
-            <div>
-              <h2 className="text-2xl font-bold mb-6">Products</h2>
-              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <div className="container mx-auto px-4 md:px-8 py-12">
+            <div className="max-w-7xl mx-auto">
+              {/* Products Grid */}
+              {products.length > 0 && (
+                <div className="grid gap-8 md:grid-cols-2 xl:grid-cols-3">
                 {products.map((product) => (
                   <Card 
                     key={product.id} 
-                    className="overflow-hidden hover:shadow-lg transition-all cursor-pointer group"
+                    className="overflow-hidden hover:shadow-xl transition-all duration-300 cursor-pointer group border-border/50"
                     onClick={() => {
                       navigate(`/store/${store.x_username}/product/${product.id}`);
                     }}
@@ -353,17 +368,17 @@ export const StorePreviewTab = ({ store, onUpdate }: StorePreviewTabProps) => {
                         <img
                           src={product.image_urls[0]}
                           alt={product.title}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                         />
                       </div>
                     )}
-                    <CardContent className="p-4">
-                      <h3 className="font-semibold mb-2">{product.title}</h3>
-                      <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
+                    <CardContent className="p-5">
+                      <h3 className="font-semibold text-lg mb-2">{product.title}</h3>
+                      <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
                         {product.description}
                       </p>
                       <div className="flex items-center justify-between">
-                        <span className="text-lg font-bold">
+                        <span className="text-xl font-bold">
                           ${formatPrice(product.price)} {product.currency}
                         </span>
                         <Badge variant={product.is_active ? "default" : "secondary"}>
@@ -374,16 +389,16 @@ export const StorePreviewTab = ({ store, onUpdate }: StorePreviewTabProps) => {
                   </Card>
                 ))}
               </div>
-            </div>
-          )}
+            )}
 
-          {products.length === 0 && (
-            <div className="text-center py-12">
-              <Package className="h-12 w-12 mx-auto mb-4 text-muted-foreground opacity-50" />
-              <p className="text-muted-foreground">No products yet</p>
-              <p className="text-sm text-muted-foreground">Add products in the Catalog tab</p>
+            {products.length === 0 && (
+              <div className="text-center py-12">
+                <Package className="h-12 w-12 mx-auto mb-4 text-muted-foreground opacity-50" />
+                <p className="text-muted-foreground">No products yet</p>
+                <p className="text-sm text-muted-foreground">Add products to start selling!</p>
+              </div>
+            )}
             </div>
-          )}
           </div>
         </div>
 
