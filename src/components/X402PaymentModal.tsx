@@ -154,7 +154,10 @@ export const X402PaymentModal = ({
         }
       } catch (error) {
         console.error('Sender USDC account check failed:', error);
-        toast.error('You need to have USDC in your wallet first. Please add USDC to your Solana wallet.');
+        toast.error('No USDC detected. Please add USDC to your connected Solana wallet first.', {
+          description: 'Make sure the connected wallet has USDC tokens on Solana mainnet.',
+          duration: 6000
+        });
         return;
       }
 
@@ -452,15 +455,25 @@ export const X402PaymentModal = ({
 
           {!connected ? (
             <div className="space-y-3">
-              <div className="flex justify-center">
-                <WalletMultiButton className="!bg-primary !text-primary-foreground hover:!bg-primary/90" />
+              <div className="p-4 bg-yellow-500/10 border border-yellow-500/20 rounded-lg">
+                <p className="text-sm font-medium text-yellow-600 dark:text-yellow-500 mb-2">
+                  Solana Wallet Required
+                </p>
+                <p className="text-xs text-muted-foreground mb-3">
+                  To purchase with USDC on Solana, you need to connect a Solana wallet (Phantom or Solflare) that contains USDC.
+                </p>
               </div>
-              <p className="text-xs text-muted-foreground text-center">
-                Connect your Solana wallet (Phantom or Solflare)
-              </p>
+              <div className="flex justify-center">
+                <WalletMultiButton className="!bg-primary !text-primary-foreground hover:!bg-primary/90 !h-10" />
+              </div>
             </div>
           ) : (
             <div className="space-y-3">
+              <div className="p-3 bg-green-500/10 border border-green-500/20 rounded-lg">
+                <p className="text-xs text-green-600 dark:text-green-500">
+                  ✓ Wallet Connected: {publicKey?.toString().slice(0, 4)}...{publicKey?.toString().slice(-4)}
+                </p>
+              </div>
               <Button 
                 onClick={handlePayment} 
                 className="w-full"
