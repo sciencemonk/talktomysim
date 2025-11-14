@@ -202,35 +202,35 @@ const Dashboard = () => {
             <DropdownMenuContent className="w-[calc(100vw-2rem)] bg-popover border-border z-[100]" align="start">
               <DropdownMenuItem 
                 onClick={() => setActiveView("home")}
-                className={cn("cursor-pointer py-3", activeView === "home" && "bg-accent")}
+                className={cn("cursor-pointer py-3 text-foreground", activeView === "home" && "bg-accent")}
               >
                 <Home className="mr-2 h-4 w-4" />
                 Home
               </DropdownMenuItem>
               <DropdownMenuItem 
                 onClick={() => setActiveView("store")}
-                className={cn("cursor-pointer py-3", activeView === "store" && "bg-accent")}
+                className={cn("cursor-pointer py-3 text-foreground", activeView === "store" && "bg-accent")}
               >
                 <Store className="mr-2 h-4 w-4" />
                 Store
               </DropdownMenuItem>
               <DropdownMenuItem 
                 onClick={() => setActiveView("catalog")}
-                className={cn("cursor-pointer py-3", activeView === "catalog" && "bg-accent")}
+                className={cn("cursor-pointer py-3 text-foreground", activeView === "catalog" && "bg-accent")}
               >
                 <Package className="mr-2 h-4 w-4" />
                 Catalog
               </DropdownMenuItem>
               <DropdownMenuItem 
                 onClick={() => setActiveView("orders")}
-                className={cn("cursor-pointer py-3", activeView === "orders" && "bg-accent")}
+                className={cn("cursor-pointer py-3 text-foreground", activeView === "orders" && "bg-accent")}
               >
                 <ShoppingBag className="mr-2 h-4 w-4" />
                 Orders
               </DropdownMenuItem>
               <DropdownMenuItem 
                 onClick={() => setActiveView("earnings")}
-                className={cn("cursor-pointer py-3", activeView === "earnings" && "bg-accent")}
+                className={cn("cursor-pointer py-3 text-foreground", activeView === "earnings" && "bg-accent")}
               >
                 <DollarSign className="mr-2 h-4 w-4" />
                 Earnings
