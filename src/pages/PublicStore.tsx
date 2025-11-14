@@ -290,7 +290,7 @@ export default function PublicStore() {
       <div className={`flex-1 transition-all duration-300 ${chatOpen ? 'lg:mr-96' : 'mr-0'}`}>
         {/* Compact Header */}
         <div className="border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-40">
-          <div className="max-w-7xl mx-auto px-4 md:px-6 py-3 pr-20">
+          <div className="max-w-7xl mx-auto px-4 md:px-6 py-3 pr-24 lg:pr-6">
             <div className="flex items-center justify-between gap-4">
               {/* Store Info - Left Side */}
               <div className="flex flex-col gap-2 min-w-0 flex-1">
